@@ -1,26 +1,41 @@
 "use client";
-import { useMemo, useState, type ComponentType } from "react";
+
+import { useState, useEffect, useMemo, type ComponentType } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import { BedDouble, Building2, Loader2, MapPin, MapPinned, Sparkles, UtensilsCrossed } from "lucide-react";
+
+import {
+  BedDouble,
+  Building2,
+  Loader2,
+  MapPin,
+  MapPinned,
+  Sparkles,
+  UtensilsCrossed,
+} from "lucide-react";
+
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import ListingsLeafletMap, { type MapListingPoint } from "@/components/map/ListingsLeafletMap";
+
 import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
 import { usePublishedListings } from "@/hooks/useListings";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
+
 import { translateCategoryName } from "@/lib/translateCategory";
 import { renderCategoryIcon } from "@/lib/categoryIcons";
+
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import ListingImage from "@/components/ListingImage";
 import { FavoriteButton } from "@/components/ui/favorite-button";
 import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
+
 import {
   DISCOVERY_FILTERS,
   mapListingToDiscoveryCategory,
   type DiscoveryCategory,
-} from "@/lib/discoveryCategory";
+} from "@/lib/discovery";
 
 const PREVIEW_LIMIT = 6;
 
