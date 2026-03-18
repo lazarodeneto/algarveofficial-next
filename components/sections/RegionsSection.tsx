@@ -1,8 +1,11 @@
 "use client";
 
 import { LazyMotion, domAnimation, m } from "framer-motion";
-import Link from "next/link"; // ✅ FIXED
+import Link from "next/link";
 import { ArrowRight, Compass } from "lucide-react";
+
+import { useState, useEffect, useMemo } from "react";
+
 import { FavoriteButton } from "@/components/ui/favorite-button";
 import { useSavedDestinations } from "@/hooks/useSavedDestinations";
 import { usePublishedListings } from "@/hooks/useListings";
@@ -10,12 +13,10 @@ import { useRegions } from "@/hooks/useReferenceData";
 import { useTranslation } from "react-i18next";
 import type { StaticImageData } from "next/image";
 import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
-import { useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { getRegionImageSet } from "@/lib/regionImages";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
-import { useState, useEffect, useMemo } from "react";
 
 export function RegionsSection() {
   const [mounted, setMounted] = useState(false);
