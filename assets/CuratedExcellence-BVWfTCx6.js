@@ -1,0 +1,56 @@
+import{j as e}from"./radix-vendor-CY7Tl0BY.js";import{r as P,L as z}from"./react-vendor-CiYeMJOY.js";import{a as E}from"./query-vendor-B8a1lXFD.js";import{G as B}from"./google-rating-badge-BqMbwh3h.js";import{F as D}from"./favorite-button-DiVb2f76.js";import{u as U}from"./useFavoriteListings-BWgenaZF.js";import{s as h,u as A,t as G,g as R}from"./index-BQI6dTkf.js";import{L as S}from"./ListingImage-Cj_opB1m.js";import{u as T}from"./i18n-vendor-DUlfh8PT.js";import{L as O,C as j}from"./icons-vendor-DHPuHH54.js";import{m as N}from"./motion-vendor-DkPaR3EJ.js";import"./supabase-vendor-DEvIEdQL.js";import"./login-modal-DKzOUVN9.js";import"./input-BwCCJIQ_.js";import"./label-1YnSoiWb.js";import"./separator-DLPMN2G5.js";import"./useUserFavorites-DsRQjvTO.js";import"./charts-vendor-CxWgLNM9.js";const L=`
+  id,
+  slug,
+  name,
+  short_description,
+  description,
+  featured_image_url,
+  price_from,
+  price_to,
+  price_currency,
+  tier,
+  is_curated,
+  status,
+  city_id,
+  region_id,
+  category_id,
+  owner_id,
+  latitude,
+  longitude,
+  address,
+  website_url,
+  facebook_url,
+  instagram_url,
+  twitter_url,
+  linkedin_url,
+  youtube_url,
+  tiktok_url,
+  telegram_url,
+  google_business_url,
+  google_rating,
+  google_review_count,
+  tags,
+  category_data,
+  view_count,
+  published_at,
+  created_at,
+  updated_at
+`,I="id, name, slug, short_description, image_url, latitude, longitude",C="id, name, slug, short_description, image_url",k="id, name, slug, icon, short_description, image_url";function M(r,t,d=3){return E({queryKey:["curated-assignments",r,t,d],queryFn:async()=>{let a=h.from("curated_assignments").select(`
+          id,
+          display_order,
+          listing:listings(
+            ${L},
+            city:cities(${I}),
+            region:regions(${C}),
+            category:categories(${k})
+          )
+        `).order("display_order",{ascending:!0}).limit(d);r==="homepage"?a=a.eq("context_type","homepage"):t&&(a=a.eq("context_type",r).eq("context_id",t));const{data:x,error:g}=await a;if(g)throw g;let m=(x||[]).map(o=>o.listing).filter(o=>o&&o.status==="published"&&o.tier==="signature");if(m.length===0&&r!=="homepage"){const{data:o,error:l}=await h.from("curated_assignments").select(`
+            id,
+            display_order,
+            listing:listings(
+              ${L},
+              city:cities(${I}),
+              region:regions(${C}),
+              category:categories(${k})
+            )
+          `).eq("context_type","homepage").order("display_order",{ascending:!0}).limit(d);if(l)throw l;m=(o||[]).map(c=>c.listing).filter(c=>c&&c.status==="published"&&c.tier==="signature")}return m.slice(0,d)},staleTime:1e3*60,gcTime:1e3*60*30})}const K=r=>{if(!r)return"en";const t=r.toLowerCase().replace("_","-").trim();return t==="pt"||t==="pt-pt"||t==="pt_pt"?"pt-pt":t.startsWith("fr")?"fr":t.startsWith("de")?"de":t.startsWith("es")?"es":t.startsWith("it")?"it":t.startsWith("nl")?"nl":t.startsWith("sv")?"sv":t==="no"||t.startsWith("nb")||t.startsWith("nn")?"no":t.startsWith("da")?"da":"en"};function ge({context:r,limit:t=3,showSectionHeader:d=!0}){var f,_,y,v,b;const{t:a,i18n:x}=T(),g=A(),{isFavorite:m,toggleFavorite:o}=U(),l=K(x.language),c=r.type==="home"?"homepage":r.type,F=r.type==="home"?null:r.type==="region"?r.regionId:r.type==="category"?r.categoryId:r.type==="city"?r.cityId:null,{data:u,isLoading:q}=M(c,F,t),p=P.useMemo(()=>(u||[]).map(s=>s.id),[u]),{data:W}=E({queryKey:["curated-excellence-translations",l,p],queryFn:async()=>{if(!p.length||l==="en")return[];const{data:s,error:n}=await h.from("listing_translations").select("listing_id, title, short_description").in("listing_id",p).eq("language_code",l);if(n)throw n;return s||[]},enabled:p.length>0&&l!=="en"});if(q)return e.jsx("section",{id:"curated-excellence",className:"py-24 bg-background relative overflow-hidden lg:py-[40px]",children:e.jsx("div",{className:"relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex justify-center items-center min-h-[300px]",children:e.jsx(O,{className:"h-8 w-8 animate-spin text-primary"})})});if(u.length===0)return null;const $=new Map((W||[]).map(s=>{var n,w;return[s.listing_id,{title:(n=s.title)==null?void 0:n.trim(),short_description:(w=s.short_description)==null?void 0:w.trim()}]})),i=u.map(s=>{const n=$.get(s.id);return n?{...s,name:n.title||s.name,short_description:n.short_description||s.short_description}:s})[0];return e.jsxs("section",{id:"curated-excellence",className:"py-24 bg-background relative overflow-hidden lg:py-[40px]",children:[e.jsx("div",{className:"absolute top-0 left-0 w-96 h-96 bg-primary/[0.02] rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none"}),e.jsx("div",{className:"absolute bottom-0 right-0 w-96 h-96 bg-primary/[0.02] rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none"}),e.jsxs("div",{className:"relative app-container",children:[d&&e.jsxs(N.div,{initial:{opacity:0,y:40},whileInView:{opacity:1,y:0},viewport:{once:!0,margin:"-100px"},transition:{duration:.8,ease:"easeOut"},className:"text-center mb-16",children:[e.jsxs("div",{className:"inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6",children:[e.jsx(j,{className:"w-4 h-4 text-primary"}),e.jsx("span",{className:"text-sm font-medium text-primary",children:a("sections.curated.badge")})]}),e.jsx("h2",{className:"text-hero font-serif font-medium text-foreground",children:a("sections.curated.title")}),e.jsx("p",{className:"mt-6 text-body lg:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed readable",children:a("sections.curated.subtitle")})]}),e.jsx(z,{to:R(g,`/listing/${i.slug}`),className:"block",children:e.jsxs(N.div,{initial:{opacity:0,y:40,scale:.98},whileInView:{opacity:1,y:0,scale:1},viewport:{once:!0,margin:"-50px"},transition:{duration:.7,ease:"easeOut",delay:.1},className:"group relative flex flex-col md:flex-row overflow-hidden glass-box glass-box-listing-shimmer cursor-pointer transition-all duration-500 hover:border-primary/40 hover:shadow-[0_0_26px_rgba(172,184,198,0.28),0_0_52px_rgba(172,184,198,0.14)]",children:[e.jsx("div",{className:"absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[hsl(43,74%,49%)] via-[hsl(43,80%,35%)] to-[hsl(43,74%,49%)] rounded-l-lg z-10"}),e.jsxs("div",{className:"md:w-2/5 h-64 md:h-80 overflow-hidden relative",children:[e.jsx(S,{src:i.featured_image_url,category:(f=i.category)==null?void 0:f.slug,categoryImageUrl:(_=i.category)==null?void 0:_.image_url,listingId:i.id,alt:i.name,className:"absolute inset-0 w-full h-full object-cover scale-[1.08] transition-transform duration-500 group-hover:scale-110"}),e.jsx("div",{className:"absolute top-3 left-3 z-10",onClick:s=>s.preventDefault(),children:e.jsx(D,{isFavorite:m(i.id),onToggle:()=>o(i.id),size:"md",variant:"glassmorphism"})}),i.google_rating&&e.jsx(B,{rating:i.google_rating,reviewCount:i.google_review_count,variant:"overlay",size:"sm",className:"absolute top-3 right-3"})]}),e.jsxs("div",{className:"md:w-3/5 p-6 lg:p-10 flex flex-col justify-center relative z-10",children:[e.jsxs("div",{className:"flex flex-wrap items-center gap-3 mb-4",children:[e.jsxs("span",{className:"inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-gradient-to-r from-[hsl(43,74%,49%)] to-[hsl(43,80%,35%)] text-black text-xs font-semibold uppercase tracking-wider",children:[e.jsx(j,{className:"w-3.5 h-3.5"}),a("common.signature").toUpperCase()]}),e.jsxs("span",{className:"text-sm text-primary font-medium uppercase tracking-wider group-hover:text-black dark:group-hover:text-white transition-colors",children:[((y=i.city)==null?void 0:y.name)||"Algarve"," · ",G(a,(v=i.category)==null?void 0:v.slug,(b=i.category)==null?void 0:b.name)||"Experience"]})]}),e.jsx("h3",{className:"text-2xl md:text-3xl lg:text-4xl font-serif font-medium text-foreground mb-3 group-hover:text-primary transition-colors",children:i.name}),e.jsx("p",{className:"text-base lg:text-lg text-muted-foreground mb-6 max-w-lg leading-relaxed line-clamp-2 dark:group-hover:text-white transition-colors",children:i.short_description||i.description}),e.jsx("div",{className:"flex items-center gap-4",children:e.jsxs("span",{className:"text-sm text-primary font-medium group-hover:underline",children:[a("sections.curated.viewDetails")," →"]})})]})]})})]})]})}export{ge as CuratedExcellence};

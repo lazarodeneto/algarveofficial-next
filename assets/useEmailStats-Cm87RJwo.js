@@ -1,0 +1,9 @@
+import{a as _}from"./query-vendor-B8a1lXFD.js";import{s as c}from"./index-BQI6dTkf.js";function q(){return _({queryKey:["email-stats"],queryFn:async()=>{const{data:a,error:t}=await c.from("email_contacts").select("status");if(t)throw t;const i=a.length,m=a.filter(e=>e.status==="subscribed").length,l=a.filter(e=>e.status==="unsubscribed").length,s=new Date;s.setDate(s.getDate()-30);const{data:n,error:u}=await c.from("email_campaigns").select("status, sent_at, total_sent, total_opened, total_clicked");if(u)throw u;const f=n.length,y=n.filter(e=>e.status==="sent"&&e.sent_at&&new Date(e.sent_at)>=s).length,d=n.filter(e=>e.status==="sent"),o=d.reduce((e,r)=>e+(r.total_sent||0),0),g=d.reduce((e,r)=>e+(r.total_opened||0),0),p=d.reduce((e,r)=>e+(r.total_clicked||0),0),b=o>0?g/o*100:0,w=o>0?p/o*100:0;return{totalContacts:i,subscribedContacts:m,unsubscribedContacts:l,totalCampaigns:f,campaignsSent30d:y,totalEmailsSent:o,totalOpened:g,totalClicked:p,avgOpenRate:b,avgClickRate:w}}})}function k(){return _({queryKey:["email-recent-activity"],queryFn:async()=>{const{data:a,error:t}=await c.from("email_campaigns").select(`
+          id,
+          name,
+          status,
+          sent_at,
+          total_sent,
+          total_opened,
+          total_clicked
+        `).in("status",["sent","sending"]).order("sent_at",{ascending:!1}).limit(5);if(t)throw t;return a}})}function v(a){return _({queryKey:["campaign-report",a],queryFn:async()=>{if(!a)return null;const{data:t,error:i}=await c.from("email_campaigns").select("*").eq("id",a).single();if(i)throw i;const{data:m,error:l}=await c.from("email_events").select("*").eq("campaign_id",a).order("created_at",{ascending:!1});if(l)throw l;const s=t.total_sent>0?t.total_opened/t.total_sent*100:0,n=t.total_sent>0?t.total_clicked/t.total_sent*100:0,u=t.total_sent>0?t.total_bounced/t.total_sent*100:0;return{campaign:t,events:m,metrics:{openRate:s,clickRate:n,bounceRate:u}}},enabled:!!a})}export{k as a,v as b,q as u};

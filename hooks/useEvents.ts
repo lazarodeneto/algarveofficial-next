@@ -1,0 +1,415 @@
+"use client";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import type { CalendarEvent, EventStatus, EventCategory, EventFormData } from '@/types/events';
+import type { Json } from '@/integrations/supabase/types';
+
+// Fetch published events for public page
+export function usePublishedEvents(category?: EventCategory | 'all', timeFilter: 'upcoming' | 'past' | 'all' = 'upcoming') {
+  if (typeof window === "undefined") {
+    return {
+      data: [],
+      isLoading: false,
+      error: null,
+    } as any;
+  }
+  return useQuery({
+    queryKey: ['events', 'published', category, timeFilter],
+    queryFn: async () => {
+      const today = new Date().toISOString().split('T')[0];
+      let query = supabase
+        .from('events')
+        .select(`
+          *,
+          city:cities(id, name, slug)
+        `)
+        .eq('status', 'published');
+
+      if (timeFilter === 'upcoming') {
+        query = query.gte('end_date', today);
+      } else if (timeFilter === 'past') {
+        query = query.lt('end_date', today);
+      }
+
+      query = query.order('start_date', { ascending: timeFilter !== 'past' });
+
+      if (category && category !== 'all') {
+        query = query.eq('category', category);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as CalendarEvent[];
+    },
+  });
+}
+
+// Fetch all events for admin with filters
+export function useAdminEvents(filters?: { status?: EventStatus; category?: EventCategory; time?: 'upcoming' | 'past' | 'all' }) {
+  if (typeof window === "undefined") {
+    return {
+      data: [],
+      isLoading: false,
+      error: null,
+    } as any;
+  }
+  return useQuery({
+    queryKey: ['events', 'admin', filters],
+    queryFn: async () => {
+      const today = new Date().toISOString().split('T')[0];
+      let query = supabase
+        .from('events')
+        .select(`
+          *,
+          city:cities(id, name, slug),
+          submitter:profiles(id, full_name)
+        `);
+
+      if (filters?.status) {
+        query = query.eq('status', filters.status);
+      }
+      if (filters?.category) {
+        query = query.eq('category', filters.category);
+      }
+
+      const time = filters?.time ?? 'upcoming';
+      if (time === 'upcoming') {
+        query = query.gte('end_date', today);
+      } else if (time === 'past') {
+        query = query.lt('end_date', today);
+      }
+
+      query = query.order(time === 'past' ? 'end_date' : 'start_date', { ascending: time !== 'past' });
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as CalendarEvent[];
+    },
+  });
+}
+
+// Fetch owner's events
+export function useOwnerEvents() {
+  const { user } = useAuth();
+  
+  if (typeof window === "undefined") {
+    return {
+      data: [],
+      isLoading: false,
+      error: null,
+    } as any;
+  }
+  
+  return useQuery({
+    queryKey: ['events', 'owner', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      
+      const { data, error } = await supabase
+        .from('events')
+        .select(`
+          *,
+          city:cities(id, name, slug)
+        `)
+        .eq('submitter_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data as CalendarEvent[];
+    },
+    enabled: !!user?.id,
+  });
+}
+
+// Fetch single event by ID
+export function useEvent(id: string | undefined) {
+  if (typeof window === "undefined") {
+    return {
+      data: null,
+      isLoading: false,
+      error: null,
+    } as any;
+  }
+  return useQuery({
+    queryKey: ['event', id],
+    queryFn: async () => {
+      if (!id) return null;
+      
+      const { data, error } = await supabase
+        .from('events')
+        .select(`
+          *,
+          city:cities(id, name, slug),
+          submitter:profiles(id, full_name)
+        `)
+        .eq('id', id)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data as CalendarEvent | null;
+    },
+    enabled: !!id,
+  });
+}
+
+// Fetch single event by slug (for public detail page)
+export function useEventBySlug(slug: string) {
+  if (typeof window === "undefined") {
+    return {
+      data: null,
+      isLoading: false,
+      error: null,
+    } as any;
+  }
+  return useQuery({
+    queryKey: ['event', 'slug', slug],
+    queryFn: async () => {
+      if (!slug) return null;
+      
+      const { data, error } = await supabase
+        .from('events')
+        .select(`
+          *,
+          city:cities(id, name, slug)
+        `)
+        .eq('slug', slug)
+        .eq('status', 'published')
+        .maybeSingle();
+
+      if (error) throw error;
+      return data as CalendarEvent | null;
+    },
+    enabled: !!slug,
+  });
+}
+
+// Fetch related events (same category or city, excluding current event)
+export function useRelatedEvents(eventId: string | undefined, category: string | undefined, cityId: string | undefined, limit = 4) {
+  if (typeof window === "undefined") {
+    return {
+      data: [],
+      isLoading: false,
+      error: null,
+    } as any;
+  }
+  return useQuery({
+    queryKey: ['events', 'related', eventId, category, cityId],
+    queryFn: async () => {
+      if (!eventId) return [];
+      
+      // Query events that are in the same category OR same city
+      const { data, error } = await supabase
+        .from('events')
+        .select(`
+          *,
+          city:cities(id, name, slug)
+        `)
+        .eq('status', 'published')
+        .gte('end_date', new Date().toISOString().split('T')[0])
+        .neq('id', eventId)
+        .or(`category.eq.${category},city_id.eq.${cityId}`)
+        .order('start_date', { ascending: true })
+        .limit(limit);
+
+      if (error) throw error;
+      return data as CalendarEvent[];
+    },
+    enabled: !!eventId && (!!category || !!cityId),
+  });
+}
+
+// Count pending events for moderation badge
+export function usePendingEventsCount() {
+  if (typeof window === "undefined") {
+    return {
+      data: [] as CalendarEvent[], // Changed from Event[] to CalendarEvent[] for type consistency
+      isLoading: false,
+      error: null,
+    };
+  }
+  return useQuery({
+    queryKey: ['events', 'pending', 'count'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('events')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending_review');
+
+      if (error) throw error;
+      return count || 0;
+    },
+  });
+}
+
+// Create event mutation
+export function useCreateEvent() {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: async (data: Partial<EventFormData>) => {
+      if (!user?.id) throw new Error('User not authenticated');
+
+      const insertData = {
+        title: data.title!,
+        slug: data.slug!,
+        category: data.category!,
+        start_date: data.start_date!,
+        end_date: data.end_date!,
+        city_id: data.city_id!,
+        submitter_id: user.id,
+        description: data.description || null,
+        short_description: data.short_description || null,
+        image: data.image || null,
+        start_time: data.start_time || null,
+        end_time: data.end_time || null,
+        location: data.location || null,
+        venue: data.venue || null,
+        ticket_url: data.ticket_url || null,
+        price_range: data.price_range || null,
+        is_featured: data.is_featured || false,
+        is_recurring: data.is_recurring || false,
+        recurrence_pattern: data.recurrence_pattern || null,
+        tags: data.tags || [],
+        status: data.status || 'draft',
+        meta_title: data.meta_title || null,
+        meta_description: data.meta_description || null,
+        event_data: (data.event_data || {}) as Json,
+      };
+
+      const { data: result, error } = await supabase
+        .from('events')
+        .insert(insertData)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+    },
+  });
+}
+
+// Update event mutation
+export function useUpdateEvent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<EventFormData> }) => {
+      // Prepare update object, casting event_data and converting empty strings to null for nullable fields
+      const { event_data, ...rest } = data;
+      const cleaned: Record<string, unknown> = { ...rest };
+      const nullableStringFields = ['start_time', 'end_time', 'location', 'venue', 'description', 'short_description', 'image', 'ticket_url', 'price_range', 'meta_title', 'meta_description', 'rejection_reason', 'recurrence_pattern'];
+      for (const key of nullableStringFields) {
+        if (key in cleaned && cleaned[key] === '') {
+          cleaned[key] = null;
+        }
+      }
+      const updatePayload = {
+        ...cleaned,
+        ...(event_data !== undefined ? { event_data: event_data as Json } : {}),
+      };
+      
+      const { data: result, error } = await supabase
+        .from('events')
+        .update(updatePayload)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return result;
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['event', id] });
+    },
+  });
+}
+
+// Approve event mutation (admin only)
+export function useApproveEvent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await supabase
+        .from('events')
+        .update({ status: 'published' })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+    },
+  });
+}
+
+// Reject event mutation (admin only)
+export function useRejectEvent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
+      const { data, error } = await supabase
+        .from('events')
+        .update({ 
+          status: 'rejected',
+          rejection_reason: reason 
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+    },
+  });
+}
+
+// Delete event mutation
+export function useDeleteEvent() {
+  const queryClient = useQueryClient();
+
+  if (typeof window === "undefined") {
+    return {
+      mutate: () => {},
+      mutateAsync: async () => {},
+      isPending: false,
+    };
+  }
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+    },
+  });
+}
+
+// Helper to generate slug from title
+export function generateEventSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+}

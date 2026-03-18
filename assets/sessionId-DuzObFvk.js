@@ -1,0 +1,1 @@
+import{y as n,z as o}from"./index-BQI6dTkf.js";const t="algarve_session_id";function r(){if(typeof window>"u"||n()||!o())return null;let e=localStorage.getItem(t);return e||(e=crypto.randomUUID(),localStorage.setItem(t,e)),e}export{r as g};
