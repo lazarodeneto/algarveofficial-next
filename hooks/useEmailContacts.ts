@@ -246,12 +246,55 @@ export function useImportEmailContacts() {
         consent_given_at: new Date().toISOString(),
       }));
 
+      const candidateEmails = Array.from(
+        new Set(
+          contactsToInsert
+        .map((contact) => contact.email.trim().toLowerCase())
+        .filter(Boolean);
+        ),
+      );
+
+      if (candidateEmails.length === 0) {
+        return [] as EmailContact[];
+      }
+
+      const { data: existingContacts } = await supabase
+        .from("email_contacts")
+        .select("id, email, full_name, status, user_id")
+        .in("email", candidateEmails);
+
+      const existingByEmail = new Map(
+        (existingContacts || []).map((contact) => [contact.email.toLowerCase(), contact]),
+      );
+
       const { data, error } = await supabase
         .from("email_contacts")
         .upsert(contactsToInsert, { onConflict: "email", ignoreDuplicates: false })
         .select();
 
       if (error) throw error;
+
+      // Sync imported contacts to Resend (new + updated).
+      await Promise.all(
+        (data || []).map(async (contact) => {
+          const oldRecord = existingByEmail.get(contact.email.toLowerCase()) || null;
+          const type = oldRecord ? "UPDATE" : "INSERT";
+
+          const { error: syncError } = await supabase.functions.invoke("sync-contact-to-resend", {
+            body: {
+              type,
+              table: "email_contacts",
+              record: contact,
+              old_record: oldRecord,
+            },
+          });
+
+          if (syncError) {
+            console.warn("Failed to sync imported contact to Resend:", syncError);
+          }
+        }),
+      );
+
       return data;
     },
     onSuccess: (data) => {
