@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useState, useEffect, useRef, lazy, Suspense } from "react";
+import { ReactNode, useState, useEffect, useRef, lazy, Suspense, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,12 +14,13 @@ interface MaintenanceGuardProps {
 }
 
 const IP_TIMEOUT_MS = 5000;
+const subscribeToClient = () => () => {};
 
 export function MaintenanceGuard({ children }: MaintenanceGuardProps) {
   const { user } = useAuth();
   const pathname = usePathname() ?? "/";
+  const isMounted = useSyncExternalStore(subscribeToClient, () => true, () => false);
   const [clientIp, setClientIp] = useState<string | null>(null);
-  const [ipTimedOut, setIpTimedOut] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Whitelist routes that should always be accessible (with or without language prefix)
@@ -57,13 +58,15 @@ export function MaintenanceGuard({ children }: MaintenanceGuardProps) {
 
     fetchClientIp();
 
-    // Set timeout to prevent infinite loading
+    // Set timeout to prevent hanging fetches from delaying maintenance fallback.
     timeoutRef.current = setTimeout(() => {
-      if (clientIp === null) {
-        console.warn('[MaintenanceGuard] IP detection timed out');
-        setIpTimedOut(true);
-        setClientIp('timeout');
-      }
+      setClientIp((existing) => {
+        if (existing === null) {
+          console.warn("[MaintenanceGuard] IP detection timed out");
+          return "timeout";
+        }
+        return existing;
+      });
     }, IP_TIMEOUT_MS);
 
     return () => {
@@ -80,7 +83,7 @@ export function MaintenanceGuard({ children }: MaintenanceGuardProps) {
   // Render children optimistically — maintenance mode is off 99% of the time.
   // We also skip maintenance checks on the server (during pre-rendering/build)
   // to avoid potential hangs from database queries in the build worker.
-  if (isLoading || typeof window === "undefined") {
+  if (!isMounted || isLoading || typeof window === "undefined") {
     return <>{children}</>;
   }
 
@@ -94,16 +97,8 @@ export function MaintenanceGuard({ children }: MaintenanceGuardProps) {
     return <>{children}</>;
   }
 
-  // Wait for IP check (with timeout protection)
-  if (clientIp === null && !ipTimedOut) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  // If IP is whitelisted, allow access
+  // Fail closed: show maintenance by default while IP resolution runs.
+  // If the user ends up being IP-whitelisted, we switch back to real content.
   if (isIpWhitelisted) {
     return <>{children}</>;
   }

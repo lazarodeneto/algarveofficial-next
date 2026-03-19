@@ -131,6 +131,15 @@ export default function Directory() {
 
   const totalListingsCount = listings.length;
 
+  const resolveFilterEntityId = useCallback(
+    <T extends { id: string; slug?: string | null }>(value: string, entities: T[]) => {
+      if (!value || value === "all") return "all";
+      const match = entities.find((entity) => entity.id === value || entity.slug === value);
+      return match?.id ?? "all";
+    },
+    []
+  );
+
   // Read URL params on mount
   useEffect(() => {
     const categoryParam = searchParams.get("category");
@@ -160,14 +169,40 @@ export default function Directory() {
       setSelectedCategory("all");
     }
 
-    if (regionParam) setSelectedRegion(regionParam);
-    if (cityParam) setSelectedCity(cityParam);
+    if (regionParam) {
+      const normalizedRegion = resolveFilterEntityId(regionParam, regions);
+      setSelectedRegion(normalizedRegion);
+      if (normalizedRegion === "all") {
+        nextParams.delete("region");
+        shouldReplaceParams = true;
+      } else if (regionParam !== normalizedRegion) {
+        nextParams.set("region", normalizedRegion);
+        shouldReplaceParams = true;
+      }
+    } else {
+      setSelectedRegion("all");
+    }
+
+    if (cityParam) {
+      const normalizedCity = resolveFilterEntityId(cityParam, cities);
+      setSelectedCity(normalizedCity);
+      if (normalizedCity === "all") {
+        nextParams.delete("city");
+        shouldReplaceParams = true;
+      } else if (cityParam !== normalizedCity) {
+        nextParams.set("city", normalizedCity);
+        shouldReplaceParams = true;
+      }
+    } else {
+      setSelectedCity("all");
+    }
+
     if (qParam) setSearch(qParam);
 
     if (shouldReplaceParams) {
       setSearchParams(nextParams, { replace: true });
     }
-  }, [searchParams, categories, mergedCategories, setSearchParams]);
+  }, [searchParams, categories, mergedCategories, regions, cities, resolveFilterEntityId, setSearchParams]);
   const clearFilters = () => {
     setSearch("");
     setSelectedRegion("all");

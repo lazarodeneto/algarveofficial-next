@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -43,7 +43,14 @@ const getEmptyFormData = (): ListingFormData => ({
 
 export default function ListingForm() {
   const params = useParams<Record<string, string | string[] | undefined>>();
-  const id = extractIdParam(params);
+  const pathname = usePathname() ?? "";
+  const id = useMemo(() => {
+    const fromParams = extractIdParam(params);
+    if (fromParams) return fromParams;
+
+    const match = pathname.match(/\/admin\/listings\/([^/]+)\/edit$/);
+    return match?.[1] ? decodeURIComponent(match[1]) : undefined;
+  }, [params, pathname]);
   const router = useRouter();
   const { user } = useAuth();
   const isEditMode = Boolean(id);

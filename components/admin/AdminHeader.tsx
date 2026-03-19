@@ -122,12 +122,12 @@ export function AdminHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/88 backdrop-blur-xl supports-[backdrop-filter]:bg-background/72">
       <div className="flex min-h-16 items-center justify-between gap-2 px-3 py-2 lg:px-5">
-        <div className="flex min-w-0 flex-1 items-center gap-2 pl-12 md:gap-3 lg:pl-0">
-          <div className="min-w-0 flex-1 xl:flex-none">
+        <div className="flex min-w-0 flex-1 items-center gap-2 pl-12 md:gap-3 lg:pl-0 xl:gap-4">
+          <div className="min-w-0 flex-1">
             <DashboardBreadcrumb />
           </div>
 
-          <form onSubmit={handleQuickJumpSubmit} className="relative hidden w-full max-w-sm xl:block 2xl:max-w-md">
+          <form onSubmit={handleQuickJumpSubmit} className="relative hidden w-full max-w-sm 2xl:block 2xl:max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               list="admin-quick-jump"
@@ -277,7 +277,7 @@ export function AdminHeader() {
         </div>
       </div>
 
-      <div className="border-t border-border/60 px-3 py-2 xl:hidden">
+      <div className="border-t border-border/60 px-3 py-2 2xl:hidden">
         <div className="flex flex-wrap items-center gap-2">
           <form onSubmit={handleQuickJumpSubmit} className="order-2 relative min-w-0 w-full sm:order-1 sm:flex-1 sm:min-w-[14rem]">
             <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />

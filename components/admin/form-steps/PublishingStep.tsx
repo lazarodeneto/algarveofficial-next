@@ -16,10 +16,12 @@ import { Lock, UserPlus, Languages, Loader2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { getSupabaseFunctionErrorMessage } from "@/lib/supabaseFunctionError";
 import { invokeFunctionWithAuthRetry } from "@/lib/supabaseFunctionInvoke";
+import { isSupabaseFunctionAuthError } from "@/lib/supabaseFunctionError";
+import { queueListingTranslationJobs, LISTING_TRANSLATION_TARGET_LANGS } from "@/lib/listingTranslationQueue";
 import type { ListingFormData } from "@/types/listing";
 import type { ListingTier, PublishStatus, User } from "@/types/admin";
 
-const TARGET_LANGS = ["pt-pt", "fr", "de", "es", "it", "nl", "sv", "no", "da"];
+const TARGET_LANGS = [...LISTING_TRANSLATION_TARGET_LANGS];
 const TARGET_LANG_LABELS: Record<string, string> = {
   "pt-pt": "PT",
   fr: "FR",
@@ -82,6 +84,20 @@ export function PublishingStep({
       const result = rawResult as TranslationResult | null;
 
       if (error) {
+        if (await isSupabaseFunctionAuthError(error)) {
+          const queueResult = await queueListingTranslationJobs(listingId, TARGET_LANGS);
+          const totalQueued = queueResult.queued;
+          setTranslationDone(totalQueued > 0);
+          if (totalQueued > 0) {
+            toast.warning(
+              `Direct translation endpoint is unavailable. Queued ${totalQueued} language job${totalQueued !== 1 ? "s" : ""} for background processing.`,
+            );
+          } else {
+            toast.info("No new translation jobs were queued. Languages are already translated or queued.");
+          }
+          return;
+        }
+
         throw new Error(await getSupabaseFunctionErrorMessage(error, "Translation request failed"));
       }
 

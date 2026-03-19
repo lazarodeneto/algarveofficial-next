@@ -75,10 +75,28 @@ export function AllListingsSection() {
     [categories]
   );
 
+  const resolvedCityId = useMemo(() => {
+    if (selectedCity === "all") return "all";
+    const match = (cities || []).find((city) => city.id === selectedCity || city.slug === selectedCity);
+    return match?.id ?? "all";
+  }, [selectedCity, cities]);
+
+  const resolvedRegionId = useMemo(() => {
+    if (selectedRegion === "all") return "all";
+    const match = (regions || []).find((region) => region.id === selectedRegion || region.slug === selectedRegion);
+    return match?.id ?? "all";
+  }, [selectedRegion, regions]);
+
   const selectedMergedCategory = useMemo(
     () => getMergedCategoryBySlug(selectedCategory, mergedCategories),
     [selectedCategory, mergedCategories]
   );
+
+  const categorySelectValue = selectedCategory === "all"
+    ? "all"
+    : (selectedMergedCategory?.slug ?? "all");
+  const citySelectValue = selectedCity === "all" ? "all" : resolvedCityId;
+  const regionSelectValue = selectedRegion === "all" ? "all" : resolvedRegionId;
 
   const filteredListings = useMemo(
     () =>
@@ -89,11 +107,11 @@ export function AllListingsSection() {
         ) {
           return false;
         }
-        if (selectedCity !== "all" && listing.city_id !== selectedCity) return false;
-        if (selectedRegion !== "all" && listing.region_id !== selectedRegion) return false;
+        if (resolvedCityId !== "all" && listing.city_id !== resolvedCityId) return false;
+        if (resolvedRegionId !== "all" && listing.region_id !== resolvedRegionId) return false;
         return true;
       }),
-    [allListings, selectedCategory, selectedMergedCategory, selectedCity, selectedRegion]
+    [allListings, selectedCategory, selectedMergedCategory, resolvedCityId, resolvedRegionId]
   );
 
   // Sort: curated first, then by tier, then alphabetically
@@ -215,7 +233,7 @@ export function AllListingsSection() {
 
         {/* Filters */}
         <div className="flex flex-wrap gap-4 mb-8 justify-center">
-          <Select value={selectedCategory} onValueChange={(v) => handleFilterChange('category', v)}>
+          <Select value={categorySelectValue} onValueChange={(v) => handleFilterChange('category', v)}>
             <SelectTrigger className="h-12 w-[180px] bg-background border-border hover:border-primary/50 transition-colors">
               <SelectValue placeholder={t("sections.listings.allCategories")} />
             </SelectTrigger>
@@ -229,7 +247,7 @@ export function AllListingsSection() {
             </SelectContent>
           </Select>
 
-          <Select value={selectedCity} onValueChange={(v) => handleFilterChange('city', v)}>
+          <Select value={citySelectValue} onValueChange={(v) => handleFilterChange('city', v)}>
             <SelectTrigger className="h-12 w-[180px] bg-background border-border hover:border-primary/50 transition-colors">
               <SelectValue placeholder={t("sections.listings.allCities")} />
             </SelectTrigger>
@@ -243,7 +261,7 @@ export function AllListingsSection() {
             </SelectContent>
           </Select>
 
-          <Select value={selectedRegion} onValueChange={(v) => handleFilterChange('region', v)}>
+          <Select value={regionSelectValue} onValueChange={(v) => handleFilterChange('region', v)}>
             <SelectTrigger className="h-12 w-[180px] bg-background border-border hover:border-primary/50 transition-colors">
               <SelectValue placeholder={t("sections.listings.allRegions")} />
             </SelectTrigger>

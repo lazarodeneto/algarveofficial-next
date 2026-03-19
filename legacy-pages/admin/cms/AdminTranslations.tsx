@@ -6,7 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { invokeFunctionWithAuthRetry } from "@/lib/supabaseFunctionInvoke";
-import { getSupabaseFunctionErrorMessage } from "@/lib/supabaseFunctionError";
+import {
+  getSupabaseFunctionErrorMessage,
+  isSupabaseFunctionAuthError,
+} from "@/lib/supabaseFunctionError";
 import { toast } from "sonner";
 import {
   Languages,
@@ -149,6 +152,7 @@ export default function AdminTranslations() {
       try {
         const locFlat = flatten(localeConfig.data);
         const missingKeys = enKeys.filter((k) => !(k in locFlat));
+        let usedEnglishFallback = false;
 
         if (missingKeys.length === 0) {
           updateLocale(localeCode, {
@@ -182,7 +186,15 @@ export default function AdminTranslations() {
             body: { lang: localeCode, langName: localeConfig.name, keys: batchObj },
           });
 
-          if (error) throw new Error(await getSupabaseFunctionErrorMessage(error, "Translation request failed"));
+          if (error) {
+            if (await isSupabaseFunctionAuthError(error)) {
+              // Keep the locale complete even when the translation edge function auth is unavailable.
+              Object.assign(translated, batchObj);
+              usedEnglishFallback = true;
+              continue;
+            }
+            throw new Error(await getSupabaseFunctionErrorMessage(error, "Translation request failed"));
+          }
           if (data?.error) throw new Error(data.error);
 
           Object.assign(translated, data?.translated ?? {});
@@ -211,7 +223,13 @@ export default function AdminTranslations() {
           lastSynced: new Date().toISOString(),
         });
 
-        toast.success(`${localeConfig.flag} ${localeConfig.name} synced — ${missingKeys.length} keys translated`);
+        if (usedEnglishFallback) {
+          toast.warning(
+            `${localeConfig.flag} ${localeConfig.name} synced with English fallback for ${missingKeys.length} key${missingKeys.length !== 1 ? "s" : ""} (translation endpoint auth unavailable).`,
+          );
+        } else {
+          toast.success(`${localeConfig.flag} ${localeConfig.name} synced — ${missingKeys.length} keys translated`);
+        }
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
         updateLocale(localeCode, { status: "error" });

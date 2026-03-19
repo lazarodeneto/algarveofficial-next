@@ -45,7 +45,14 @@ import { useGlobalSettings, GlobalSetting } from "@/hooks/useGlobalSettings";
 import { useContactSettings, ContactSettings } from "@/hooks/useContactSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { invokeFunctionWithAuthRetry } from "@/lib/supabaseFunctionInvoke";
-import { getSupabaseFunctionErrorMessage } from "@/lib/supabaseFunctionError";
+import {
+  getSupabaseFunctionErrorMessage,
+  isSupabaseFunctionAuthError,
+} from "@/lib/supabaseFunctionError";
+import {
+  LISTING_TRANSLATION_TARGET_LANGS,
+  queueListingTranslationJobs,
+} from "@/lib/listingTranslationQueue";
 import {
   isMaintenanceIpWhitelisted,
   isValidMaintenanceWhitelistEntry,
@@ -134,7 +141,7 @@ export default function AdminGlobalSettings() {
   const [translateResult, setTranslateResult] = useState<any>(null);
   const [translateError, setTranslateError] = useState<string | null>(null);
 
-  const TARGET_LANGS = ["pt-pt", "fr", "de", "es", "it", "nl", "sv", "no", "da"];
+  const TARGET_LANGS = [...LISTING_TRANSLATION_TARGET_LANGS];
 
   // Missing translations list
   const [missingTranslations, setMissingTranslations] = useState<{ id: string; name: string; slug: string; city: string; status: string; missingLangs: string[] }[]>([]);
@@ -209,6 +216,19 @@ export default function AdminGlobalSettings() {
         body: { listing_id: listingId },
       });
       if (error) {
+        if (await isSupabaseFunctionAuthError(error)) {
+          const queueResult = await queueListingTranslationJobs(listingId, TARGET_LANGS);
+          if (queueResult.queued > 0) {
+            toast.warning(
+              `Direct translation endpoint is unavailable. Queued ${queueResult.queued} language job${queueResult.queued !== 1 ? "s" : ""} for background processing.`,
+            );
+            setMissingTranslations((prev) => prev.filter((l) => l.id !== listingId));
+          } else {
+            toast.info("No new translation jobs were queued. Languages are already translated or queued.");
+          }
+          return;
+        }
+
         throw new Error(await getSupabaseFunctionErrorMessage(error, "Translation request failed"));
       }
       if (data?.ok === false) throw new Error(data?.error || "Translation request failed");
@@ -289,13 +309,39 @@ export default function AdminGlobalSettings() {
           const { data, error } = await invokeFunctionWithAuthRetry<{ ok?: boolean; error?: string }>("translate-listing", {
             body: { listing_id: listing.id },
           });
-          if (error || data?.ok === false) {
-            const functionErrorMessage = error
-              ? await getSupabaseFunctionErrorMessage(error, "Translation request failed")
-              : data?.error || "Translation request failed";
+          if (error) {
+            if (await isSupabaseFunctionAuthError(error)) {
+              const queueResult = await queueListingTranslationJobs(listing.id, TARGET_LANGS);
+              if (queueResult.queued > 0) {
+                results.push({
+                  id: listing.id,
+                  name: listing.name,
+                  status: "queued",
+                  error: `Queued ${queueResult.queued} language jobs for background processing.`,
+                });
+              } else {
+                results.push({
+                  id: listing.id,
+                  name: listing.name,
+                  status: "ok",
+                  error: "No new jobs queued (already translated or queued).",
+                });
+              }
+              continue;
+            }
+
+            const functionErrorMessage = await getSupabaseFunctionErrorMessage(error, "Translation request failed");
             if (/session expired/i.test(functionErrorMessage)) {
               throw new Error(functionErrorMessage);
             }
+            results.push({
+              id: listing.id,
+              name: listing.name,
+              status: "failed",
+              error: functionErrorMessage,
+            });
+          } else if (data?.ok === false) {
+            const functionErrorMessage = data?.error || "Translation request failed";
             results.push({
               id: listing.id,
               name: listing.name,
@@ -311,12 +357,19 @@ export default function AdminGlobalSettings() {
       }
 
       const succeeded = results.filter((r) => r.status === "ok").length;
+      const queued = results.filter((r) => r.status === "queued").length;
       const failed = results.filter((r) => r.status === "failed").length;
-      setTranslateResult({ processed: results.length, succeeded, failed, results });
-      if (failed === 0) {
+      setTranslateResult({ processed: results.length, succeeded, queued, failed, results });
+      if (failed === 0 && queued === 0) {
         toast.success(`Translation batch complete: ${succeeded} listing(s) translated.`);
+      } else if (failed === 0) {
+        toast.warning(
+          `Batch done: ${succeeded} translated, ${queued} queued for background processing.`,
+        );
       } else {
-        toast.warning(`Batch done: ${succeeded} succeeded, ${failed} failed. Check results below.`);
+        toast.warning(
+          `Batch done: ${succeeded} translated, ${queued} queued, ${failed} failed. Check results below.`,
+        );
       }
     } catch (e: any) {
       const msg = e?.message || String(e);

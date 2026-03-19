@@ -98,7 +98,7 @@ export function PublicSiteSidebar() {
       desktopExpandedWidthClass="w-72"
       desktopCollapsedWidthClass="w-16"
       mobileToggleClassName="top-24"
-      className="lg:!fixed lg:!inset-y-0 lg:!top-0 lg:!left-0 lg:!h-screen lg:!min-h-screen lg:!max-h-none lg:!border-y-0 lg:!rounded-none lg:!bg-card lg:!backdrop-blur-none lg:z-[90]"
+      className="lg:!fixed lg:!inset-y-0 lg:!top-0 lg:!left-0 lg:!h-screen lg:!min-h-screen lg:!max-h-none lg:!border-y-0 lg:!rounded-none lg:!bg-background lg:!backdrop-blur-none lg:!shadow-none lg:z-[120]"
     />
   );
 }

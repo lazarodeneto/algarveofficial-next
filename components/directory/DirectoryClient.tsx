@@ -651,9 +651,10 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   const router = useRouter();
   const pathname = usePathname() ?? "/directory";
   const nextSearchParams = useNextSearchParams();
+  const searchParamsString = nextSearchParams?.toString() ?? "";
   const searchParams = useMemo(
-    () => new URLSearchParams(nextSearchParams?.toString() ?? ""),
-    [nextSearchParams],
+    () => new URLSearchParams(searchParamsString),
+    [searchParamsString],
   );
   const setSearchParams = useCallback((nextParams: URLSearchParams, options?: { replace?: boolean }) => {
     const query = nextParams.toString();
@@ -742,6 +743,14 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     () => selectedCategoryItem?.memberIds ?? EMPTY_CATEGORY_IDS,
     [selectedCategoryItem],
   );
+  const resolveFilterEntityId = useCallback(
+    <T extends { id: string; slug: string }>(value: string, entities: T[]) => {
+      if (!value || value === "all") return "all";
+      const match = entities.find((entity) => entity.id === value || entity.slug === value);
+      return match?.id ?? "all";
+    },
+    [],
+  );
 
   const categoriesWithListings = useMemo(
     () =>
@@ -808,15 +817,79 @@ function DirectoryClientInner(props: DirectoryClientProps) {
       setSelectedCategory("all");
     }
 
-    setSelectedRegion(regionParam || "all");
-    setSelectedCity(cityParam || "all");
-    setSelectedTier(tierParam || "all");
+    if (regionParam) {
+      const normalizedRegion = resolveFilterEntityId(regionParam, regions);
+      setSelectedRegion(normalizedRegion);
+      if (normalizedRegion === "all") {
+        nextParams.delete("region");
+        shouldReplaceParams = true;
+      } else if (regionParam !== normalizedRegion) {
+        nextParams.set("region", normalizedRegion);
+        shouldReplaceParams = true;
+      }
+    } else {
+      setSelectedRegion("all");
+    }
+
+    if (cityParam) {
+      const normalizedCity = resolveFilterEntityId(cityParam, cities);
+      setSelectedCity(normalizedCity);
+      if (normalizedCity === "all") {
+        nextParams.delete("city");
+        shouldReplaceParams = true;
+      } else if (cityParam !== normalizedCity) {
+        nextParams.set("city", normalizedCity);
+        shouldReplaceParams = true;
+      }
+    } else {
+      setSelectedCity("all");
+    }
+
+    const normalizedTier =
+      tierParam === "signature" || tierParam === "verified" || tierParam === "all" || !tierParam
+        ? tierParam || "all"
+        : "all";
+    setSelectedTier(normalizedTier);
+    if (normalizedTier === "all") {
+      if (tierParam) {
+        nextParams.delete("tier");
+        shouldReplaceParams = true;
+      }
+    } else if (tierParam !== normalizedTier) {
+      nextParams.set("tier", normalizedTier);
+      shouldReplaceParams = true;
+    }
+
     setSearch(qParam || "");
 
     if (shouldReplaceParams) {
       setSearchParams(nextParams, { replace: true });
     }
-  }, [searchParams, categories, mergedCategories, setSearchParams]);
+  }, [searchParams, categories, mergedCategories, regions, cities, resolveFilterEntityId, setSearchParams]);
+
+  useEffect(() => {
+    const nextParams = new URLSearchParams();
+    const trimmedSearch = debouncedSearch.trim();
+
+    if (trimmedSearch) nextParams.set("q", trimmedSearch);
+    if (selectedRegion !== "all") nextParams.set("region", selectedRegion);
+    if (selectedCity !== "all") nextParams.set("city", selectedCity);
+    if (selectedCategory !== "all") nextParams.set("category", selectedCategory);
+    if (selectedTier !== "all") nextParams.set("tier", selectedTier);
+
+    const nextQuery = nextParams.toString();
+    if (nextQuery !== searchParamsString) {
+      setSearchParams(nextParams, { replace: true });
+    }
+  }, [
+    debouncedSearch,
+    selectedRegion,
+    selectedCity,
+    selectedCategory,
+    selectedTier,
+    searchParamsString,
+    setSearchParams,
+  ]);
 
   const clearFilters = () => {
     setSearch("");

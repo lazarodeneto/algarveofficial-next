@@ -155,7 +155,7 @@ export function DashboardBreadcrumb() {
   }
 
   return (
-    <nav className="flex min-w-0 items-center gap-1 text-xs sm:text-sm" aria-label="Breadcrumb">
+    <nav className="flex min-w-0 items-center gap-1 overflow-hidden text-xs sm:text-sm" aria-label="Breadcrumb">
       <Link
         href="/"
         className="flex shrink-0 items-center text-muted-foreground transition-colors hover:text-foreground"
@@ -174,7 +174,7 @@ export function DashboardBreadcrumb() {
         >
           <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/50" />
           {segment.isLast ? (
-            <span className="block max-w-[9rem] truncate font-medium text-foreground sm:max-w-[13rem] lg:max-w-[18rem] 2xl:max-w-none">
+            <span className="block max-w-[8.5rem] truncate font-medium text-foreground sm:max-w-[12rem] lg:max-w-[15rem] xl:max-w-[18rem] 2xl:max-w-[24rem]">
               {segment.label}
             </span>
           ) : (
