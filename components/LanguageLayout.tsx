@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { Outlet, useLocation, useParams } from "@/components/router/nextRouterCompat";
 import { useTranslation } from "react-i18next";
-import { PublicSiteSidebar } from "@/components/layout/PublicSiteSidebar";
 import { ensureLocaleLoaded } from "@/i18n";
 
 const SUPPORTED_LANGS = ["pt-pt", "fr", "de", "es", "it", "nl", "sv", "no", "da"];
@@ -38,14 +37,5 @@ export function LanguageLayout() {
     };
   }, [lang, i18n, location.pathname]);
 
-  return (
-    <>
-      <div className="hidden lg:block">
-        <PublicSiteSidebar />
-      </div>
-      <div className="lg:pl-16 lg:pr-6">
-        <Outlet />
-      </div>
-    </>
-  );
+  return <Outlet />;
 }

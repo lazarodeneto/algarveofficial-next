@@ -103,6 +103,7 @@ export const ThreadDetailDialog = forwardRef<HTMLDivElement, ThreadDetailDialogP
               size="icon"
               className="absolute right-10 top-4 text-muted-foreground hover:text-destructive"
               onClick={() => setConfirmDeleteThread(true)}
+              aria-label="Delete conversation"
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -217,6 +218,7 @@ export const ThreadDetailDialog = forwardRef<HTMLDivElement, ThreadDetailDialogP
                     disabled={!replyContent.trim() || sendMessage.isPending}
                     size="icon"
                     className="h-auto"
+                    aria-label="Send admin reply"
                   >
                     {sendMessage.isPending ? (
                       <Loader2 className="h-4 w-4 animate-spin" />

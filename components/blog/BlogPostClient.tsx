@@ -194,16 +194,36 @@ function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClient
           {t("blog.shareArticle", "Share this article")}
         </span>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="icon" onClick={() => handleShare("facebook")}>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handleShare("facebook")}
+            aria-label={t("blog.shareFacebook", "Share on Facebook")}
+          >
             <Facebook className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={() => handleShare("twitter")}>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handleShare("twitter")}
+            aria-label={t("blog.shareTwitter", "Share on X")}
+          >
             <Twitter className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={() => handleShare("linkedin")}>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handleShare("linkedin")}
+            aria-label={t("blog.shareLinkedIn", "Share on LinkedIn")}
+          >
             <Linkedin className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={() => handleShare("copy")}>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handleShare("copy")}
+            aria-label={t("blog.copyLink", "Copy article link")}
+          >
             <LinkIcon className="h-4 w-4" />
           </Button>
         </div>

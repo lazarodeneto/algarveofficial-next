@@ -13,7 +13,6 @@ import { useHydrated } from "@/hooks/useHydrated";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
-import { PublicSiteSidebar } from "@/components/layout/PublicSiteSidebar";
 import { AlgarveGuideSection } from "@/components/sections/AlgarveGuideSection";
 import { AllListingsSection } from "@/components/sections/AllListingsSection";
 import { CategoriesSection } from "@/components/sections/CategoriesSection";
@@ -89,64 +88,59 @@ export function HomePageClient(props: HomePageClientProps) {
     <HydrationBoundary state={props.dehydratedState}>
       <LegacyRouterProvider>
         <div className="min-h-screen bg-background">
-          <div className="hidden lg:block">
-            <PublicSiteSidebar />
-          </div>
-          <div className="lg:pl-16 lg:pr-6">
-            <Header />
-            <main className="main">
-              <CmsBlock pageId="home" blockId="hero" as="section">
-                <HeroSection />
-              </CmsBlock>
-              <CmsBlock pageId="home" blockId="quick-links" as="section">
-                <HomeQuickLinksSection />
-              </CmsBlock>
-              <div className="mx-auto w-full content-max density">
-                {showRegions ? (
-                  <CmsBlock pageId="home" blockId="regions" as="section">
-                    <RegionsSection />
-                  </CmsBlock>
-                ) : null}
-                {showCategories ? (
-                  <CmsBlock pageId="home" blockId="categories" as="section">
-                    <CategoriesSection />
-                  </CmsBlock>
-                ) : null}
-                {showCities ? (
-                  <CmsBlock pageId="home" blockId="cities" as="section">
-                    <CitiesSection />
-                  </CmsBlock>
-                ) : null}
-                {showCurated ? (
-                  <CmsBlock pageId="home" blockId="curated" as="section">
-                    <CuratedExcellence context={{ type: "home" }} limit={4} />
-                  </CmsBlock>
-                ) : null}
-                {showVip ? (
-                  <CmsBlock pageId="home" blockId="vip" as="section">
-                    <SignatureMapSection />
-                  </CmsBlock>
-                ) : null}
-                {showAllListings ? (
-                  <CmsBlock pageId="home" blockId="all-listings" as="section">
-                    <AllListingsSection />
-                  </CmsBlock>
-                ) : null}
-                <CmsBlock pageId="home" blockId="algarve-guide" as="section">
-                  <AlgarveGuideSection />
-                </CmsBlock>
-              </div>
-              <CmsBlock pageId="home" blockId="newsletter" as="section">
-                <NewsletterSection />
-              </CmsBlock>
-              {showCta ? (
-                <CmsBlock pageId="home" blockId="cta" as="section">
-                  <CTASection />
+          <Header />
+          <main className="main">
+            <CmsBlock pageId="home" blockId="hero" as="section">
+              <HeroSection />
+            </CmsBlock>
+            <CmsBlock pageId="home" blockId="quick-links" as="section">
+              <HomeQuickLinksSection />
+            </CmsBlock>
+            <div className="mx-auto w-full content-max density">
+              {showRegions ? (
+                <CmsBlock pageId="home" blockId="regions" as="section">
+                  <RegionsSection />
                 </CmsBlock>
               ) : null}
-            </main>
-            <Footer />
-          </div>
+              {showCategories ? (
+                <CmsBlock pageId="home" blockId="categories" as="section">
+                  <CategoriesSection />
+                </CmsBlock>
+              ) : null}
+              {showCities ? (
+                <CmsBlock pageId="home" blockId="cities" as="section">
+                  <CitiesSection />
+                </CmsBlock>
+              ) : null}
+              {showCurated ? (
+                <CmsBlock pageId="home" blockId="curated" as="section">
+                  <CuratedExcellence context={{ type: "home" }} limit={4} />
+                </CmsBlock>
+              ) : null}
+              {showVip ? (
+                <CmsBlock pageId="home" blockId="vip" as="section">
+                  <SignatureMapSection />
+                </CmsBlock>
+              ) : null}
+              {showAllListings ? (
+                <CmsBlock pageId="home" blockId="all-listings" as="section">
+                  <AllListingsSection />
+                </CmsBlock>
+              ) : null}
+              <CmsBlock pageId="home" blockId="algarve-guide" as="section">
+                <AlgarveGuideSection />
+              </CmsBlock>
+            </div>
+            <CmsBlock pageId="home" blockId="newsletter" as="section">
+              <NewsletterSection />
+            </CmsBlock>
+            {showCta ? (
+              <CmsBlock pageId="home" blockId="cta" as="section">
+                <CTASection />
+              </CmsBlock>
+            ) : null}
+          </main>
+          <Footer />
         </div>
       </LegacyRouterProvider>
     </HydrationBoundary>

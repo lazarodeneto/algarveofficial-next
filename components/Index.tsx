@@ -3,7 +3,6 @@
 import { Suspense, lazy, useMemo, type ComponentType, type LazyExoticComponent } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { PublicSiteSidebar } from "@/components/layout/PublicSiteSidebar";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { HomeQuickLinksSection } from "@/components/sections/HomeQuickLinksSection";
 import { AlgarveGuideSection } from "@/components/sections/AlgarveGuideSection";
@@ -88,60 +87,54 @@ const Index = () => {
       <OrganizationJsonLd />
       <WebsiteJsonLd />
 
-      <div className="hidden lg:block">
-        <PublicSiteSidebar />
-      </div>
+      <Header />
+      <main className="main">
+        <CmsBlock pageId="home" blockId="hero" as="section">
+          <HeroSection />
+        </CmsBlock>
+        <CmsBlock pageId="home" blockId="quick-links" as="section">
+          <HomeQuickLinksSection />
+        </CmsBlock>
+        <Suspense fallback={null}>
+          <div className="mx-auto w-full content-max density">
+            {sectionsToRender.map(({ id, enabled }) => {
+              if (!enabled || !isBlockEnabled(id, true)) return null;
+              
+              const SectionComponent = SECTION_COMPONENTS[id];
+              if (!SectionComponent) return null;
 
-      <div className="lg:pl-16 lg:pr-6">
-        <Header />
-        <main className="main">
-          <CmsBlock pageId="home" blockId="hero" as="section">
-            <HeroSection />
-          </CmsBlock>
-          <CmsBlock pageId="home" blockId="quick-links" as="section">
-            <HomeQuickLinksSection />
-          </CmsBlock>
-          <Suspense fallback={null}>
-            <div className="mx-auto w-full content-max density">
-              {sectionsToRender.map(({ id, enabled }) => {
-                if (!enabled || !isBlockEnabled(id, true)) return null;
-                
-                const SectionComponent = SECTION_COMPONENTS[id];
-                if (!SectionComponent) return null;
-
-                if (id === 'curated') {
-                  return (
-                    <CmsBlock pageId="home" blockId={id} key={id} as="section">
-                      <CuratedExcellence 
-                        context={{ type: 'home' }} 
-                        limit={4} 
-                      />
-                    </CmsBlock>
-                  );
-                }
-
+              if (id === 'curated') {
                 return (
                   <CmsBlock pageId="home" blockId={id} key={id} as="section">
-                    <SectionComponent />
+                    <CuratedExcellence 
+                      context={{ type: 'home' }} 
+                      limit={4} 
+                    />
                   </CmsBlock>
                 );
-              })}
-              <CmsBlock pageId="home" blockId="algarve-guide" as="section">
-                <AlgarveGuideSection />
-              </CmsBlock>
-            </div>
-            <CmsBlock pageId="home" blockId="newsletter" as="section">
-              <NewsletterSection />
+              }
+
+              return (
+                <CmsBlock pageId="home" blockId={id} key={id} as="section">
+                  <SectionComponent />
+                </CmsBlock>
+              );
+            })}
+            <CmsBlock pageId="home" blockId="algarve-guide" as="section">
+              <AlgarveGuideSection />
             </CmsBlock>
-            {showCta && (
-              <CmsBlock pageId="home" blockId="cta" as="section">
-                <CTASection />
-              </CmsBlock>
-            )}
-          </Suspense>
-        </main>
-        <Footer />
-      </div>
+          </div>
+          <CmsBlock pageId="home" blockId="newsletter" as="section">
+            <NewsletterSection />
+          </CmsBlock>
+          {showCta && (
+            <CmsBlock pageId="home" blockId="cta" as="section">
+              <CTASection />
+            </CmsBlock>
+          )}
+        </Suspense>
+      </main>
+      <Footer />
     </div>
   );
 };

@@ -5,6 +5,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 
 import "../index.css";
 import { AppProviders } from "@/components/providers/AppProviders";
+import { PublicSiteFrame } from "@/components/layout/PublicSiteFrame";
 import { LocaleProvider } from "@/lib/i18n/locale-context";
 import { buildMetadata } from "@/lib/metadata";
 
@@ -39,12 +40,15 @@ const themeInitScript = `
   })();
 `;
 
-export const metadata: Metadata = buildMetadata({
-  title: "AlgarveOfficial | Luxury Villas, Golf & Restaurants",
-  description:
-    "Discover the Algarve's finest villas, restaurants and golf courses — curated by experts who know every corner of Portugal's most prestigious coast.",
-  path: "/",
-});
+export const metadata: Metadata = {
+  ...buildMetadata({
+    title: "AlgarveOfficial | Luxury Villas, Golf & Restaurants",
+    description:
+      "Discover the Algarve's finest villas, restaurants and golf courses — curated by experts who know every corner of Portugal's most prestigious coast.",
+    path: "/",
+  }),
+  manifest: "/manifest.json",
+};
 
 interface RootLayoutProps {
   children: ReactNode;
@@ -64,7 +68,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
           {themeInitScript}
         </Script>
         <LocaleProvider locale={requestLocale}>
-          <AppProviders locale={requestLocale}>{children}</AppProviders>
+          <AppProviders locale={requestLocale}>
+            <PublicSiteFrame>{children}</PublicSiteFrame>
+          </AppProviders>
         </LocaleProvider>
       </body>
     </html>
