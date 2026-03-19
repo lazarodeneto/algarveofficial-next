@@ -345,7 +345,7 @@ export function HeroTrustSignals({
                 isSurface ? "text-foreground" : "text-white",
               )}
             >
-              "{trimReviewComment(featuredReview.comment)}"
+              &ldquo;{trimReviewComment(featuredReview.comment)}&rdquo;
             </blockquote>
             <div className="mt-5 flex items-center gap-2">
               <GoogleRatingBadge

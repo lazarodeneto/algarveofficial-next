@@ -119,16 +119,38 @@ const getYouTubeEmbedUrl = (url: string): string => {
   return `https://www.youtube-nocookie.com/embed/${videoId}?${params.toString()}`;
 };
 
-// ... (keep previous imports)
+function HeroPosterImage({
+  hasPosterUrl,
+  posterUrl,
+  className,
+  priority = false,
+}: {
+  hasPosterUrl: boolean;
+  posterUrl: string;
+  className?: string;
+  priority?: boolean;
+}) {
+  if (!hasPosterUrl) return <div className={`${className ?? ""} bg-black`} />;
 
-const YouTubeEmbed = ({ youtubeUrl, posterUrl }: { youtubeUrl: string; posterUrl?: string }) => {
+  return (
+    <img
+      src={posterUrl}
+      alt="Premium Algarve coastline"
+      crossOrigin="anonymous"
+      width={1920}
+      height={1080}
+      sizes="100vw"
+      loading={priority ? "eager" : "lazy"}
+      fetchPriority={priority ? "high" : "auto"}
+      decoding="async"
+      className={className}
+    />
+  );
+}
+
+const YouTubeEmbedPlayer = ({ youtubeUrl, posterUrl }: { youtubeUrl: string; posterUrl?: string }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [shouldLoadIframe, setShouldLoadIframe] = useState(false);
-
-  useEffect(() => {
-    setIsLoaded(false);
-    setShouldLoadIframe(false);
-  }, [youtubeUrl]);
 
   useEffect(() => {
     if (!youtubeUrl) return;
@@ -169,8 +191,12 @@ const YouTubeEmbed = ({ youtubeUrl, posterUrl }: { youtubeUrl: string; posterUrl
   );
 };
 
+const YouTubeEmbed = ({ youtubeUrl, posterUrl }: { youtubeUrl: string; posterUrl?: string }) => (
+  <YouTubeEmbedPlayer key={youtubeUrl} youtubeUrl={youtubeUrl} posterUrl={posterUrl} />
+);
+
 // Optimized video component with immediate autoplay
-const HeroVideo = ({
+const HeroVideoPlayer = ({
   videoUrl,
   posterUrl,
 }: {
@@ -180,11 +206,6 @@ const HeroVideo = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
-
-  useEffect(() => {
-    setIsPlaying(false);
-    setShouldLoadVideo(false);
-  }, [videoUrl]);
 
   useEffect(() => {
     if (!videoUrl) return;
@@ -249,9 +270,15 @@ const HeroVideo = ({
   );
 };
 
+const HeroVideo = ({ videoUrl, posterUrl }: { videoUrl: string; posterUrl?: string }) => (
+  <HeroVideoPlayer key={videoUrl} videoUrl={videoUrl} posterUrl={posterUrl} />
+);
+
 
 export function HeroSection() {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
   const { settings, isLoading: isHeroSettingsLoading } = useHeroSettings();
   const { settings: runtimeSettings } = useGlobalSettings({
     keys: [HERO_OVERLAY_INTENSITY_SETTING_KEY],
@@ -270,9 +297,9 @@ export function HeroSection() {
   const shouldSkipVideo = prefersReducedMotion || isSlow;
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setPrefersReducedMotion(mediaQuery.matches);
+    if (typeof window === "undefined") return;
 
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
     mediaQuery.addEventListener("change", handler);
     return () => mediaQuery.removeEventListener("change", handler);
@@ -365,30 +392,18 @@ export function HeroSection() {
     hasYoutubeUrl &&
     mediaMode === "poster";
 
-  const PosterImage = ({ className, priority = false }: { className?: string, priority?: boolean }) => {
-    if (!hasPosterUrl) return <div className={`${className ?? ""} bg-black`} />;
-
-    return <img
-      src={posterUrl}
-      alt="Premium Algarve coastline"
-      crossOrigin="anonymous"
-      width={1920}
-      height={1080}
-      sizes="100vw"
-      loading={priority ? "eager" : "lazy"}
-      fetchPriority={priority ? "high" : "auto"}
-      decoding="async"
-      className={className}
-    />;
-  };
-
   return (
     <div className="px-2.5 sm:px-4 lg:px-6 pt-[calc(4.5rem+0.85rem)] sm:pt-[calc(5rem+0.95rem)] lg:pt-[calc(5rem+1.1rem)] pb-3 sm:pb-4">
       <section className="hero-golden-outline relative min-h-[34rem] sm:min-h-[35rem] md:min-h-[40rem] flex items-center justify-center overflow-hidden rounded-[1.65rem] lg:rounded-3xl shadow-sm">
         {/* Video Background */}
         <div className="absolute inset-0">
           {mediaMode !== "none" ? (
-            <PosterImage className="absolute inset-0 w-full h-full object-cover" priority={true} />
+            <HeroPosterImage
+              hasPosterUrl={hasPosterUrl}
+              posterUrl={posterUrl}
+              className="absolute inset-0 w-full h-full object-cover"
+              priority={true}
+            />
           ) : (
             <div className="absolute inset-0 bg-black" aria-hidden="true" />
           )}

@@ -25,7 +25,7 @@ interface AnalyticsTableProps<T> {
   emptyMessage?: string;
 }
 
-export function AnalyticsTable<T extends Record<string, any>>({
+export function AnalyticsTable<T extends Record<string, unknown>>({
   title,
   description,
   data,

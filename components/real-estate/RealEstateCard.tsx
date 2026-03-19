@@ -22,6 +22,25 @@ interface RealEstateCardProps {
     listing: Listing;
 }
 
+function asRecord(value: unknown): Record<string, unknown> {
+    return value && typeof value === "object" && !Array.isArray(value)
+        ? (value as Record<string, unknown>)
+        : {};
+}
+
+function asNumber(value: unknown): number {
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+    if (typeof value === "string" && value.trim()) {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : 0;
+    }
+    return 0;
+}
+
+function asString(value: unknown): string | null {
+    return typeof value === "string" && value.trim().length > 0 ? value : null;
+}
+
 export function RealEstateCard({ listing }: RealEstateCardProps) {
     const { t } = useTranslation();
     const langPrefix = useLangPrefix();
@@ -34,12 +53,14 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
         slug
     } = listing;
 
-    const data = category_data as Record<string, any> || {};
-    const beds = data.bedrooms || 0;
-    const baths = data.bathrooms || 0;
-    const area = data.property_size_m2 || data.area_sqm || 0;
-    const plotSize = data.plot_size_m2 || data.plot_sqm || 0;
-    const propertyType = data.property_type || "property";
+    const data = asRecord(category_data);
+    const beds = asNumber(data.bedrooms);
+    const baths = asNumber(data.bathrooms);
+    const area = asNumber(data.property_size_m2) || asNumber(data.area_sqm);
+    const plotSize = asNumber(data.plot_size_m2) || asNumber(data.plot_sqm);
+    const propertyType = asString(data.property_type) || "property";
+    const categorySlug = asString(data.slug) || "real-estate";
+    const categoryImageUrl = asString(data.image_url) || asString(data.category_image_url);
 
     const formatMetricValue = (value: number) =>
         new Intl.NumberFormat("en-GB", {
@@ -106,8 +127,8 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                 <div className="relative aspect-[16/11] overflow-hidden">
                     <ListingImage
                         src={featured_image_url}
-                        category={data.slug || 'real-estate'}
-                        categoryImageUrl={data.image_url || data.category_image_url || null}
+                        category={categorySlug}
+                        categoryImageUrl={categoryImageUrl}
                         listingId={id}
                         alt={name}
                         className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-1000"

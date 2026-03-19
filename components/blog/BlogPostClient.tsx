@@ -95,8 +95,8 @@ async function fetchBlogPost(slug: string, locale: string): Promise<BlogPostWith
   let localizedPost = post as BlogPostRecord;
 
   if (locale !== "en") {
-    const { data: translation, error: translationError } = await (supabase as any)
-      .from("blog_post_translations")
+    const { data: translation, error: translationError } = await supabase
+      .from("blog_post_translations" as never)
       .select("post_id, locale, title, excerpt, content, seo_title, seo_description")
       .eq("post_id", post.id)
       .eq("locale", locale)

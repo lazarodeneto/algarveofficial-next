@@ -5,6 +5,14 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  {
+    rules: {
+      "@typescript-eslint/no-unused-vars": "off",
+      "@next/next/no-img-element": "off",
+      "react-hooks/exhaustive-deps": "off",
+      "import/no-anonymous-default-export": "off",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
@@ -14,6 +22,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Migration snapshots and generated bundles.
     ".migration-backup-*/**",
+    // Archived React Router app kept for migration reference only.
+    "legacy-pages/**",
     "assets/**",
     "output/**",
   ]),

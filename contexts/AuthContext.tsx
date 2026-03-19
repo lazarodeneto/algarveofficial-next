@@ -438,18 +438,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context !== undefined) {
+    return context;
+  }
+
   if (typeof window === "undefined") {
     return {
       user: null,
-      session: null,
       isLoading: false,
-      login: async () => {},
-      logout: async () => {},
       isAuthenticated: false,
-      getDashboardPath: () => "/"
-    } as any;
+      login: async () => ({ success: false, error: "Auth context unavailable during SSR." }),
+      signup: async () => ({ success: false, error: "Auth context unavailable during SSR." }),
+      loginWithGoogle: async () => ({ success: false, error: "Auth context unavailable during SSR." }),
+      logout: async () => {},
+      getDashboardPath: () => "/",
+    } satisfies AuthContextType;
   }
-  const context = useContext(AuthContext);
+
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }

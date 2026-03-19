@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Search, Star, MapPin } from 'lucide-react';
 import {
   Dialog,
@@ -36,6 +36,13 @@ interface TripEventDialogProps {
   editEvent?: TripEvent;
 }
 
+interface TripEventDialogFormProps {
+  onClose: () => void;
+  onSave: (event: Omit<TripEvent, 'id' | 'trip_id'>) => void;
+  initialDate?: string;
+  editEvent?: TripEvent;
+}
+
 const TIME_SLOTS = [
   { value: '09:00', label: '09:00 AM' },
   { value: '10:00', label: '10:00 AM' },
@@ -53,11 +60,31 @@ const TIME_SLOTS = [
 ];
 
 export function TripEventDialog({ open, onClose, onSave, initialDate, editEvent }: TripEventDialogProps) {
-  const [selectedListing, setSelectedListing] = useState<string>('');
-  const [date, setDate] = useState(initialDate || '');
-  const [timeSlot, setTimeSlot] = useState<string>('');
-  const [notes, setNotes] = useState('');
-  const [estimatedCost, setEstimatedCost] = useState<string>('');
+  const formKey = editEvent ? `edit-${editEvent.id}` : `new-${initialDate ?? ''}`;
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      {open ? (
+        <TripEventDialogForm
+          key={formKey}
+          onClose={onClose}
+          onSave={onSave}
+          initialDate={initialDate}
+          editEvent={editEvent}
+        />
+      ) : null}
+    </Dialog>
+  );
+}
+
+function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEventDialogFormProps) {
+  const [selectedListing, setSelectedListing] = useState<string>(() => editEvent?.listing_id ?? '');
+  const [date, setDate] = useState(() => editEvent?.date ?? initialDate ?? '');
+  const [timeSlot, setTimeSlot] = useState<string>(() => editEvent?.time_slot || '');
+  const [notes, setNotes] = useState(() => editEvent?.notes || '');
+  const [estimatedCost, setEstimatedCost] = useState<string>(
+    () => editEvent?.estimated_cost?.toString() || '',
+  );
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'favorites' | 'all'>('favorites');
 
@@ -86,26 +113,6 @@ export function TripEventDialog({ open, onClose, onSave, initialDate, editEvent 
   const getCategoryName = (id: string) => categories.find(c => c.id === id)?.name || '';
   const getCategorySlug = (id: string) => categories.find(c => c.id === id)?.slug || '';
 
-  // Reset form when opening
-  useEffect(() => {
-    if (open) {
-      if (editEvent) {
-        setSelectedListing(editEvent.listing_id);
-        setDate(editEvent.date);
-        setTimeSlot(editEvent.time_slot || '');
-        setNotes(editEvent.notes || '');
-        setEstimatedCost(editEvent.estimated_cost?.toString() || '');
-      } else {
-        setSelectedListing('');
-        setDate(initialDate || '');
-        setTimeSlot('');
-        setNotes('');
-        setEstimatedCost('');
-      }
-      setSearchQuery('');
-    }
-  }, [open, editEvent, initialDate]);
-
   const handleSave = () => {
     if (!selectedListing || !date) return;
 
@@ -122,180 +129,178 @@ export function TripEventDialog({ open, onClose, onSave, initialDate, editEvent 
   const selectedListingInfo = listings.find(l => l.id === selectedListing);
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="font-serif text-xl">
-            {editEvent ? 'Edit Activity' : 'Add Activity'}
-          </DialogTitle>
-        </DialogHeader>
+    <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogHeader>
+        <DialogTitle className="font-serif text-xl">
+          {editEvent ? 'Edit Activity' : 'Add Activity'}
+        </DialogTitle>
+      </DialogHeader>
 
-        <div className="flex-1 overflow-hidden space-y-4">
-          {/* Selected Listing Preview */}
-          {selectedListingInfo && (
-            <Card className="bg-primary/5 border-primary/20">
-              <CardContent className="p-3 flex items-center gap-3">
-                {selectedListingInfo.featured_image_url && (
-                  <ListingImage
-                    src={selectedListingInfo.featured_image_url} 
-                    category={getCategorySlug(selectedListingInfo.category_id || '')}
-                    categoryImageUrl={selectedListingInfo.category?.image_url}
-                    listingId={selectedListingInfo.id}
-                    alt={selectedListingInfo.name || ''}
-                    className="w-16 h-12 object-cover rounded"
-                  />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium line-clamp-1">{selectedListingInfo.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {getCityName(selectedListingInfo.city_id || '')} • {getCategoryName(selectedListingInfo.category_id || '')}
-                  </p>
-                </div>
-                <Button variant="ghost" size="sm" onClick={() => setSelectedListing('')}>
-                  Change
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Listing Selection */}
-          {!selectedListingInfo && (
-            <div className="space-y-3">
-              <Label>Select a Listing</Label>
-              
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search listings..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
+      <div className="flex-1 overflow-hidden space-y-4">
+        {/* Selected Listing Preview */}
+        {selectedListingInfo && (
+          <Card className="bg-primary/5 border-primary/20">
+            <CardContent className="p-3 flex items-center gap-3">
+              {selectedListingInfo.featured_image_url && (
+                <ListingImage
+                  src={selectedListingInfo.featured_image_url} 
+                  category={getCategorySlug(selectedListingInfo.category_id || '')}
+                  categoryImageUrl={selectedListingInfo.category?.image_url}
+                  listingId={selectedListingInfo.id}
+                  alt={selectedListingInfo.name || ''}
+                  className="w-16 h-12 object-cover rounded"
                 />
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="font-medium line-clamp-1">{selectedListingInfo.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {getCityName(selectedListingInfo.city_id || '')} • {getCategoryName(selectedListingInfo.category_id || '')}
+                </p>
               </div>
+              <Button variant="ghost" size="sm" onClick={() => setSelectedListing('')}>
+                Change
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
-              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'favorites' | 'all')}>
-                <TabsList className="w-full">
-                  <TabsTrigger value="favorites" className="flex-1">
-                    <Star className="h-4 w-4 mr-2" />
-                    My Favorites
-                  </TabsTrigger>
-                  <TabsTrigger value="all" className="flex-1">
-                    All Listings
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value={activeTab} className="mt-3">
-                  <ScrollArea className="h-[200px]">
-                    <div className="space-y-2">
-                      {filteredListings.length === 0 ? (
-                        <p className="text-sm text-muted-foreground text-center py-8">
-                          {activeTab === 'favorites' 
-                            ? 'No favorites yet. Try searching all listings.'
-                            : 'No listings found.'}
-                        </p>
-                      ) : (
-                        filteredListings.map((listing) => (
-                          <Card
-                            key={listing.id}
-                            className={cn(
-                              "cursor-pointer hover:border-primary/40 transition-colors",
-                              selectedListing === listing.id && "border-primary bg-primary/5"
-                            )}
-                            onClick={() => setSelectedListing(listing.id)}
-                          >
-                            <CardContent className="p-3 flex items-center gap-3">
-                              {listing.featured_image_url && (
-                                <ListingImage
-                                  src={listing.featured_image_url} 
-                                  category={getCategorySlug(listing.category_id || '')}
-                                  categoryImageUrl={listing.category?.image_url}
-                                  listingId={listing.id}
-                                  alt={listing.name || ''}
-                                  className="w-12 h-10 object-cover rounded"
-                                />
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium text-sm line-clamp-1">{listing.name}</p>
-                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                  <MapPin className="h-3 w-3" />
-                                  {getCityName(listing.city_id || '')}
-                                </div>
-                              </div>
-                              {favoriteListingIds.includes(listing.id) && (
-                                <Star className="h-4 w-4 text-primary fill-primary" />
-                              )}
-                            </CardContent>
-                          </Card>
-                        ))
-                      )}
-                    </div>
-                  </ScrollArea>
-                </TabsContent>
-              </Tabs>
-            </div>
-          )}
-
-          {/* Event Details */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="date">Date</Label>
+        {/* Listing Selection */}
+        {!selectedListingInfo && (
+          <div className="space-y-3">
+            <Label>Select a Listing</Label>
+            
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                id="date"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
+                placeholder="Search listings..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="time">Time Slot</Label>
-              <Select value={timeSlot} onValueChange={setTimeSlot}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select time" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TIME_SLOTS.map(slot => (
-                    <SelectItem key={slot.value} value={slot.value}>
-                      {slot.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
 
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'favorites' | 'all')}>
+              <TabsList className="w-full">
+                <TabsTrigger value="favorites" className="flex-1">
+                  <Star className="h-4 w-4 mr-2" />
+                  My Favorites
+                </TabsTrigger>
+                <TabsTrigger value="all" className="flex-1">
+                  All Listings
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value={activeTab} className="mt-3">
+                <ScrollArea className="h-[200px]">
+                  <div className="space-y-2">
+                    {filteredListings.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-8">
+                        {activeTab === 'favorites' 
+                          ? 'No favorites yet. Try searching all listings.'
+                          : 'No listings found.'}
+                      </p>
+                    ) : (
+                      filteredListings.map((listing) => (
+                        <Card
+                          key={listing.id}
+                          className={cn(
+                            "cursor-pointer hover:border-primary/40 transition-colors",
+                            selectedListing === listing.id && "border-primary bg-primary/5"
+                          )}
+                          onClick={() => setSelectedListing(listing.id)}
+                        >
+                          <CardContent className="p-3 flex items-center gap-3">
+                            {listing.featured_image_url && (
+                              <ListingImage
+                                src={listing.featured_image_url} 
+                                category={getCategorySlug(listing.category_id || '')}
+                                categoryImageUrl={listing.category?.image_url}
+                                listingId={listing.id}
+                                alt={listing.name || ''}
+                                className="w-12 h-10 object-cover rounded"
+                              />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-sm line-clamp-1">{listing.name}</p>
+                              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <MapPin className="h-3 w-3" />
+                                {getCityName(listing.city_id || '')}
+                              </div>
+                            </div>
+                            {favoriteListingIds.includes(listing.id) && (
+                              <Star className="h-4 w-4 text-primary fill-primary" />
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))
+                    )}
+                  </div>
+                </ScrollArea>
+              </TabsContent>
+            </Tabs>
+          </div>
+        )}
+
+        {/* Event Details */}
+        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="cost">Estimated Cost (€)</Label>
+            <Label htmlFor="date">Date</Label>
             <Input
-              id="cost"
-              type="number"
-              min="0"
-              placeholder="0"
-              value={estimatedCost}
-              onChange={(e) => setEstimatedCost(e.target.value)}
+              id="date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
             />
           </div>
-
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
-            <Textarea
-              id="notes"
-              placeholder="Add any notes or reminders..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={3}
-            />
+            <Label htmlFor="time">Time Slot</Label>
+            <Select value={timeSlot} onValueChange={setTimeSlot}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select time" />
+              </SelectTrigger>
+              <SelectContent>
+                {TIME_SLOTS.map(slot => (
+                  <SelectItem key={slot.value} value={slot.value}>
+                    {slot.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
-        <DialogFooter className="pt-4">
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave} disabled={!selectedListing || !date}>
-            {editEvent ? 'Save Changes' : 'Add Activity'}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        <div className="space-y-2">
+          <Label htmlFor="cost">Estimated Cost (€)</Label>
+          <Input
+            id="cost"
+            type="number"
+            min="0"
+            placeholder="0"
+            value={estimatedCost}
+            onChange={(e) => setEstimatedCost(e.target.value)}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="notes">Notes</Label>
+          <Textarea
+            id="notes"
+            placeholder="Add any notes or reminders..."
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={3}
+          />
+        </div>
+      </div>
+
+      <DialogFooter className="pt-4">
+        <Button variant="outline" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button onClick={handleSave} disabled={!selectedListing || !date}>
+          {editEvent ? 'Save Changes' : 'Add Activity'}
+        </Button>
+      </DialogFooter>
+    </DialogContent>
   );
 }

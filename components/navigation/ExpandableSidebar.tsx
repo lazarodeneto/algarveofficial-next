@@ -1,4 +1,4 @@
-import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import { type ReactNode, useCallback, useMemo, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronLeft, ChevronRight, Menu, X, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -118,18 +118,22 @@ export function ExpandableSidebar({
     return next;
   }, [sections, isItemActive]);
 
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(initialOpenMap);
+  const [manualOpenGroups, setManualOpenGroups] = useState<Record<string, boolean>>({});
+  const openGroups = useMemo(() => {
+    const merged: Record<string, boolean> = {};
 
-  useEffect(() => {
-    setOpenGroups((prev) => {
-      const next = { ...prev };
-      Object.entries(initialOpenMap).forEach(([key, shouldBeOpen]) => {
-        if (shouldBeOpen) next[key] = true;
-        if (!(key in next)) next[key] = shouldBeOpen;
-      });
-      return next;
+    Object.entries(initialOpenMap).forEach(([key, shouldBeOpen]) => {
+      merged[key] = shouldBeOpen || Boolean(manualOpenGroups[key]);
     });
-  }, [initialOpenMap]);
+
+    Object.entries(manualOpenGroups).forEach(([key, value]) => {
+      if (!(key in merged)) {
+        merged[key] = value;
+      }
+    });
+
+    return merged;
+  }, [initialOpenMap, manualOpenGroups]);
 
   const closeMobile = () => setMobileOpen(false);
 
@@ -269,7 +273,7 @@ export function ExpandableSidebar({
     }
 
     return (
-      <Collapsible key={key} open={open} onOpenChange={(next) => setOpenGroups((prev) => ({ ...prev, [key]: next }))}>
+      <Collapsible key={key} open={open} onOpenChange={(next) => setManualOpenGroups((prev) => ({ ...prev, [key]: next }))}>
         <CollapsibleTrigger asChild>
           <button
             className={cn(
@@ -379,7 +383,7 @@ export function ExpandableSidebar({
     );
   };
 
-  const SidebarContent = ({ forceExpanded = false }: { forceExpanded?: boolean }) => (
+  const renderSidebarContent = (forceExpanded = false) => (
     <div className="flex flex-col h-full">
       {showHeader ? (
         <div className={cn("flex items-center border-b border-border/70 px-3 h-14", (collapsed && !forceExpanded) ? "justify-center" : "justify-between")}>
@@ -440,7 +444,7 @@ export function ExpandableSidebar({
           className,
         )}
       >
-        <SidebarContent forceExpanded />
+        {renderSidebarContent(true)}
       </aside>
 
       <aside
@@ -450,7 +454,7 @@ export function ExpandableSidebar({
           className,
         )}
       >
-        <SidebarContent />
+        {renderSidebarContent()}
       </aside>
     </>
   );

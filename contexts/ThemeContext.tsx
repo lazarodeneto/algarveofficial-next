@@ -1,6 +1,4 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 type Theme = "dark" | "light" | "system";
 
@@ -48,17 +46,14 @@ const rgbaToHsl = (rgba: string): string => {
 };
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("light");
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof window === "undefined") return "light";
+    const storedTheme = localStorage.getItem("algarve-theme") as Theme | null;
+    return storedTheme || "light";
+  });
   const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">("light");
 
-  const { settings } = useSiteSettings();
-
   // Color application is handled by useSiteSettings hook
-
-  useEffect(() => {
-    const storedTheme = localStorage.getItem("algarve-theme") as Theme | null;
-    setThemeState(storedTheme || "light");
-  }, []);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -102,14 +97,19 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 }
 
 export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (context) {
+    return context;
+  }
+
   if (typeof window === "undefined") {
     return {
       theme: "light",
       resolvedTheme: "light",
       setTheme: () => {},
-    } as ThemeContextValue;
+    } satisfies ThemeContextValue;
   }
-  const context = useContext(ThemeContext);
+
   if (!context) {
     throw new Error("useTheme must be used within a ThemeProvider");
   }

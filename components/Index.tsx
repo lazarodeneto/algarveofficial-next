@@ -24,7 +24,7 @@ const NewsletterSection = lazy(() => import("@/components/sections/NewsletterSec
 const CTASection = lazy(() => import("@/components/sections/CTASection").then(m => ({ default: m.CTASection })));
 
 // Section ID to component mapping
-const SECTION_COMPONENTS: Record<string, LazyExoticComponent<ComponentType<any>>> = {
+const SECTION_COMPONENTS: Record<string, LazyExoticComponent<ComponentType<unknown>>> = {
   regions: RegionsSection,
   categories: CategoriesSection,
   cities: CitiesSection,

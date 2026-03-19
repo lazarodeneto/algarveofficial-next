@@ -41,6 +41,7 @@ import {
   fetchListingTranslations,
   fetchRegionTranslations,
   normalizePublicContentLocale,
+  type PublicContentLocale,
 } from "@/lib/publicContentLocale";
 import { renderCategoryIcon } from "@/lib/categoryIcons";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
@@ -243,13 +244,19 @@ function resolveSearchCategoryIds(search: string | undefined, categories: Catego
   return Array.from(ids);
 }
 
-function applyListingFilters(
-  query: any,
+interface ListingsFilterQuery {
+  in: (column: string, values: readonly string[]) => ListingsFilterQuery;
+  eq: (column: string, value: unknown) => ListingsFilterQuery;
+  or: (filters: string) => ListingsFilterQuery;
+}
+
+function applyListingFilters<T extends ListingsFilterQuery>(
+  query: T,
   filters: ListingFilters,
   categories: CategoryRow[],
   cities: CityRow[],
   regions: RegionRow[],
-) {
+): T {
   const mergedCategories = buildMergedCategoryOptions(categories);
   const normalizedCategory =
     filters.categoryId && filters.categoryId !== "all"
@@ -323,10 +330,11 @@ async function fetchCities(locale: string) {
 
   if (error) throw error;
 
+  const contentLocale: PublicContentLocale = normalizePublicContentLocale(locale);
   const cities = (data ?? []) as CityRow[];
-  if (locale === "en" || cities.length === 0) return cities;
+  if (contentLocale === "en" || cities.length === 0) return cities;
 
-  const translations = await fetchCityTranslations(locale as any, cities.map((city) => city.id));
+  const translations = await fetchCityTranslations(contentLocale, cities.map((city) => city.id));
   const translationMap = new Map(translations.map((translation) => [translation.city_id, translation]));
 
   return cities.map((city) => {
@@ -352,10 +360,11 @@ async function fetchRegions(locale: string) {
 
   if (error) throw error;
 
+  const contentLocale: PublicContentLocale = normalizePublicContentLocale(locale);
   const regions = (data ?? []) as RegionRow[];
-  if (locale === "en" || regions.length === 0) return regions;
+  if (contentLocale === "en" || regions.length === 0) return regions;
 
-  const translations = await fetchRegionTranslations(locale as any, regions.map((region) => region.id));
+  const translations = await fetchRegionTranslations(contentLocale, regions.map((region) => region.id));
   const translationMap = new Map(translations.map((translation) => [translation.region_id, translation]));
 
   return regions.map((region) => {
@@ -381,10 +390,11 @@ async function fetchCategories(locale: string) {
 
   if (error) throw error;
 
+  const contentLocale: PublicContentLocale = normalizePublicContentLocale(locale);
   const categories = (data ?? []) as CategoryRow[];
-  if (locale === "en" || categories.length === 0) return categories;
+  if (contentLocale === "en" || categories.length === 0) return categories;
 
-  const translations = await fetchCategoryTranslations(locale as any, categories.map((category) => category.id));
+  const translations = await fetchCategoryTranslations(contentLocale, categories.map((category) => category.id));
   const translationMap = new Map(translations.map((translation) => [translation.category_id, translation]));
 
   return categories.map((category) => {
@@ -434,6 +444,7 @@ async function fetchListings(
   regions: RegionRow[],
   locale: string,
 ) {
+  const contentLocale: PublicContentLocale = normalizePublicContentLocale(locale);
   const publicListingFields = `
     id,
     slug,
@@ -517,7 +528,7 @@ async function fetchListings(
   const tierOrder: Record<string, number> = { signature: 0, verified: 1, unverified: 2 };
   const sortedListings = allListings.sort((a, b) => (tierOrder[a.tier] ?? 2) - (tierOrder[b.tier] ?? 2));
 
-  if (locale === "en" || sortedListings.length === 0) {
+  if (contentLocale === "en" || sortedListings.length === 0) {
     return sortedListings;
   }
 
@@ -527,10 +538,10 @@ async function fetchListings(
   const categoryIds = sortedListings.map((listing) => listing.category?.id).filter(Boolean) as string[];
 
   const [listingTranslations, cityTranslations, regionTranslations, categoryTranslations] = await Promise.all([
-    fetchListingTranslations(locale as any, listingIds),
-    fetchCityTranslations(locale as any, cityIds),
-    fetchRegionTranslations(locale as any, regionIds),
-    fetchCategoryTranslations(locale as any, categoryIds),
+    fetchListingTranslations(contentLocale, listingIds),
+    fetchCityTranslations(contentLocale, cityIds),
+    fetchRegionTranslations(contentLocale, regionIds),
+    fetchCategoryTranslations(contentLocale, categoryIds),
   ]);
 
   const listingTranslationMap = new Map(listingTranslations.map((translation) => [translation.listing_id, translation]));

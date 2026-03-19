@@ -156,7 +156,7 @@ export function AddToTripButton({
           <DialogHeader>
             <DialogTitle>Add to Trip</DialogTitle>
             <DialogDescription>
-              Add "{listingName}" to your itinerary
+              Add &quot;{listingName}&quot; to your itinerary
             </DialogDescription>
           </DialogHeader>
 

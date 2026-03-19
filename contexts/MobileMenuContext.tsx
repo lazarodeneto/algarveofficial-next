@@ -18,13 +18,18 @@ export function MobileMenuProvider({ children }: { children: ReactNode }) {
 }
 
 export function useMobileMenu() {
+  const context = useContext(MobileMenuContext);
+  if (context) {
+    return context;
+  }
+
   if (typeof window === "undefined") {
     return {
       mobileMenuOpen: false,
       setMobileMenuOpen: () => {},
     };
   }
-  const context = useContext(MobileMenuContext);
+
   if (!context) {
     throw new Error("useMobileMenu must be used within MobileMenuProvider");
   }

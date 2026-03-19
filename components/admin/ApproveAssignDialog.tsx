@@ -16,6 +16,19 @@ interface ApproveAssignDialogProps {
   claim: ListingClaim | null;
 }
 
+interface ListingAssignmentOption {
+  id: string;
+  name: string | null;
+  featured_image_url: string | null;
+  category?: {
+    slug?: string | null;
+    image_url?: string | null;
+  } | null;
+  cities?: {
+    name?: string | null;
+  } | null;
+}
+
 export function ApproveAssignDialog({ open, onOpenChange, claim }: ApproveAssignDialogProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
@@ -34,8 +47,9 @@ export function ApproveAssignDialog({ open, onOpenChange, claim }: ApproveAssign
       setSelectedListingId(null);
       setSearchTerm("");
       onOpenChange(false);
-    } catch (error: any) {
-      toast.error(error.message || "Failed to approve claim");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to approve claim";
+      toast.error(message);
     }
   };
 
@@ -107,7 +121,7 @@ export function ApproveAssignDialog({ open, onOpenChange, claim }: ApproveAssign
                 </div>
               ) : (
                 <div className="p-2 space-y-1">
-                  {listings.map((listing: any) => (
+                  {(listings as ListingAssignmentOption[]).map((listing) => (
                     <button
                       key={listing.id}
                       onClick={() => setSelectedListingId(listing.id)}

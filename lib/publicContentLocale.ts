@@ -111,8 +111,8 @@ async function fetchChunkedTranslations<T>(
   const rows: T[] = [];
 
   for (const chunk of chunks) {
-    const { data, error } = await (supabase as any)
-      .from(table)
+    const { data, error } = await supabase
+      .from(table as never)
       .select(select)
       .eq(localeField, locale)
       .in(idField, chunk);

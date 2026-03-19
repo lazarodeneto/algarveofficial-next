@@ -136,7 +136,7 @@ export function BasicsStep({
             className="min-h-[150px]"
           />
           <p className="text-xs text-muted-foreground">
-            Formatting: blank lines or <code>//</code> create new paragraphs, and <code>**bold text**</code> is rendered in bold.
+            Formatting: blank lines or <code>{"//"}</code> create new paragraphs, and <code>**bold text**</code> is rendered in bold.
           </p>
         </div>
 
@@ -225,18 +225,21 @@ export function BasicsStep({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="none">No region</SelectItem>
-              {[...regions].sort((a, b) => a.name.localeCompare(b.name)).map((region) => (
-                <SelectItem 
-                  key={region.id} 
-                  value={region.id}
-                  className={'is_featured' in region && 'is_active' in region && !(region as any).is_active ? 'text-muted-foreground' : ''}
-                >
-                  {region.name}
-                  {'is_active' in region && !(region as any).is_active && (
-                    <span className="ml-2 text-xs text-muted-foreground">(inactive)</span>
-                  )}
-                </SelectItem>
-              ))}
+              {[...regions].sort((a, b) => a.name.localeCompare(b.name)).map((region) => {
+                const isInactive = region.is_active === false;
+                return (
+                  <SelectItem
+                    key={region.id}
+                    value={region.id}
+                    className={isInactive ? "text-muted-foreground" : ""}
+                  >
+                    {region.name}
+                    {isInactive && (
+                      <span className="ml-2 text-xs text-muted-foreground">(inactive)</span>
+                    )}
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
           <p className="text-xs text-muted-foreground">

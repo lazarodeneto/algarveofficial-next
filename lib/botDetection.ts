@@ -44,6 +44,18 @@ const HEADLESS_INDICATORS = [
   'phantomjs',
 ];
 
+type BotAwareNavigator = Navigator & {
+  webdriver?: boolean;
+};
+
+type BotAwareWindow = Window & {
+  __nightmare?: unknown;
+  _phantom?: unknown;
+  callPhantom?: unknown;
+  chrome?: unknown;
+  __analyticsBlocked?: boolean;
+};
+
 /**
  * Detects if the current user agent belongs to a bot
  * @returns true if bot detected, false for human traffic
@@ -53,6 +65,8 @@ export function isBot(): boolean {
     return true; // Server-side / no navigator = treat as bot
   }
 
+  const nav = navigator as BotAwareNavigator;
+  const win = window as BotAwareWindow;
   const userAgent = navigator.userAgent.toLowerCase();
   
   // Check for empty or suspicious user agents
@@ -77,12 +91,12 @@ export function isBot(): boolean {
   // Additional heuristics for bot detection
   
   // Check for webdriver property (Selenium, Puppeteer)
-  if ((navigator as any).webdriver === true) {
+  if (nav.webdriver === true) {
     return true;
   }
 
   // Check for automation properties
-  if ((window as any).__nightmare || (window as any)._phantom || (window as any).callPhantom) {
+  if (win.__nightmare || win._phantom || win.callPhantom) {
     return true;
   }
 
@@ -93,7 +107,7 @@ export function isBot(): boolean {
   }
 
   // Check for Chrome without Chrome runtime (headless indicator)
-  if (userAgent.includes('chrome') && !(window as any).chrome) {
+  if (userAgent.includes('chrome') && !win.chrome) {
     // Could be headless, but also could be Electron - be lenient
     // Only flag if other suspicious signs
   }
@@ -150,7 +164,8 @@ export function blockAnalyticsForBots(): boolean {
     // Prevent analytics from initializing
     if (typeof window !== 'undefined') {
       // Set a flag that external analytics can check
-      (window as any).__analyticsBlocked = true;
+      const win = window as BotAwareWindow;
+      win.__analyticsBlocked = true;
     }
     return true;
   }
