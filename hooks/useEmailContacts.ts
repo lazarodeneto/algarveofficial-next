@@ -249,8 +249,8 @@ export function useImportEmailContacts() {
       const candidateEmails = Array.from(
         new Set(
           contactsToInsert
-        .map((contact) => contact.email.trim().toLowerCase())
-        .filter(Boolean);
+            .map((contact) => contact.email.trim().toLowerCase())
+            .filter(Boolean),
         ),
       );
 
