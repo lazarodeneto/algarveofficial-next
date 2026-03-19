@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
 import { useTranslation } from "react-i18next";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
@@ -64,11 +64,11 @@ export function AlgarveGuideSection() {
                   "sections.algarveGuide.stayLinksPrefix",
                   "Browse premium",
                 )}{" "}
-                <Link to={path("/directory?category=places-to-stay")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={path("/directory?category=places-to-stay")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.algarveHotels", "Algarve hotels")}
                 </Link>{" "}
                 {andWord}{" "}
-                <Link to={path("/directory?category=places-to-stay")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={path("/directory?category=places-to-stay")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.placesToStay", "places to stay")}
                 </Link>
                 .
@@ -88,15 +88,15 @@ export function AlgarveGuideSection() {
                   "sections.algarveGuide.destinationsLinksPrefix",
                   "Explore",
                 )}{" "}
-                <Link to={path("/destinations")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={path("/destinations")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.destinations", "destinations")}
                 </Link>
                 ,{" "}
-                <Link to={path("/directory?category=beaches-clubs")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={path("/directory?category=beaches-clubs")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.beaches", "beaches")}
                 </Link>
                 , {andWord}{" "}
-                <Link to={path("/map")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={path("/map")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.interactiveMap", "the interactive map")}
                 </Link>
                 .
@@ -116,19 +116,19 @@ export function AlgarveGuideSection() {
                   "sections.algarveGuide.doLinksPrefix",
                   "Jump into",
                 )}{" "}
-                <Link to={path("/directory?category=golf")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={path("/directory?category=golf")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.golf", "golf")}
                 </Link>
                 ,{" "}
-                <Link to={path("/directory?category=restaurants")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={path("/directory?category=restaurants")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.restaurants", "restaurants")}
                 </Link>
                 ,{" "}
-                <Link to={path("/directory?category=things-to-do")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={path("/directory?category=things-to-do")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.thingsToDo", "things to do")}
                 </Link>
                 , {andWord}{" "}
-                <Link to={path("/events")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={path("/events")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.events", "events")}
                 </Link>
                 .

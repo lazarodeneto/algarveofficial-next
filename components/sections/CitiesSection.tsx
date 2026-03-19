@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FavoriteButton } from "@/components/ui/favorite-button";
@@ -55,7 +55,7 @@ export function CitiesSection() {
             {featuredCities.map((city) => (
               <div key={city.id}>
                 <Link
-                  to={buildLangPath(langPrefix, `/city/${city.slug}`)}
+                  href={buildLangPath(langPrefix, `/city/${city.slug}`)}
                   className="glass-box flex items-center gap-3 p-4 rounded-xl hover:border-primary/30 cursor-pointer"
                 >
                   {/* Favorite Heart Icon - Clickable (stops propagation) */}
@@ -88,7 +88,7 @@ export function CitiesSection() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-12 text-center"
         >
-          <Link to={buildLangPath(langPrefix, "/directory")}>
+          <Link href={buildLangPath(langPrefix, "/directory")}>
             <Button variant="luxury" size="lg">
               {t("sections.cities.viewAll")}
               <ArrowRight className="ml-2 h-4 w-4" />

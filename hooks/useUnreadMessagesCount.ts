@@ -1,8 +1,8 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
+import { usePathname } from "next/navigation";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLocation } from "@/components/router/nextRouterCompat";
 
 /**
  * Hook to fetch the count of active admin message threads.
@@ -10,9 +10,9 @@ import { useLocation } from "@/components/router/nextRouterCompat";
  */
 export function useUnreadMessagesCount() {
   const { user } = useAuth();
-  const location = useLocation();
+  const pathname = usePathname() ?? "";
   const isBrowser = typeof window !== "undefined";
-  const isAdminMessagesRoute = location.pathname.startsWith("/admin/messages");
+  const isAdminMessagesRoute = pathname.startsWith("/admin/messages");
 
   return useQuery({
     queryKey: ["admin-messages", "unread-count", isAdminMessagesRoute],

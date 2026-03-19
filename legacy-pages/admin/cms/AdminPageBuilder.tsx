@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DashboardBreadcrumb } from "@/components/ui/dashboard-breadcrumb";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,6 @@ import { Separator } from "@/components/ui/separator";
 import { Loader2, Plus, Save, Trash2, ExternalLink, Paintbrush } from "lucide-react";
 import { toast } from "sonner";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
-import { useSearchParams } from "react-router-dom";
 import {
   CMS_GLOBAL_SETTING_KEYS,
   CMS_PAGE_DEFINITIONS,
@@ -134,10 +134,9 @@ function fromRows(rows: KeyValueRow[]): Record<string, string> {
 }
 
 export default function AdminPageBuilder() {
-  if (typeof window === "undefined") {
-    return null;
-  }
-  const [searchParams, setSearchParams] = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname() || "/admin/cms/page-builder";
+  const searchParams = useSearchParams();
   const requestedPageId = searchParams.get("page")?.trim() ?? "";
   const fallbackPageId = CMS_PAGE_DEFINITIONS[0]?.id ?? "home";
   const initialPageId = CMS_PAGE_DEFINITIONS.some((page) => page.id === requestedPageId)
@@ -160,6 +159,16 @@ export default function AdminPageBuilder() {
   const [designTokenRows, setDesignTokenRows] = useState<KeyValueRow[]>([]);
   const [customCss, setCustomCss] = useState<string>("");
   const [initialized, setInitialized] = useState(false);
+
+  const setSearchParams = (nextParams: URLSearchParams, options?: { replace?: boolean }) => {
+    const query = nextParams.toString();
+    const href = query ? `${pathname}?${query}` : pathname;
+    if (options?.replace) {
+      router.replace(href);
+      return;
+    }
+    router.push(href);
+  };
 
   const settingMap = useMemo(() => {
     return settings.reduce<Record<string, string>>((acc, setting) => {

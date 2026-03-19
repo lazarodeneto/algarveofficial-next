@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Save,
@@ -35,6 +35,7 @@ import {
   type BlogCategory,
   type BlogStatus
 } from "@/hooks/useBlogPosts";
+import { extractIdParam } from "@/lib/routeParams";
 
 interface FormData {
   title: string;
@@ -63,8 +64,9 @@ const defaultFormData: FormData = {
 };
 
 export default function AdminBlogForm() {
-  const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
+  const router = useRouter();
+  const params = useParams<Record<string, string | string[] | undefined>>();
+  const id = extractIdParam(params);
   const { user } = useAuth();
   const isEditing = Boolean(id) && id !== 'new';
 
@@ -165,7 +167,7 @@ export default function AdminBlogForm() {
         });
       }
 
-      navigate("/admin/blog");
+      router.push("/admin/blog");
     } catch (error) {
       // Error is handled by the mutation
     } finally {
@@ -196,7 +198,7 @@ export default function AdminBlogForm() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate("/admin/blog")}
+            onClick={() => router.push("/admin/blog")}
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>

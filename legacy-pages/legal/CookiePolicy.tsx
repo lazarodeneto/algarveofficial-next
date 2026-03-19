@@ -1,6 +1,6 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Cookie, Shield, Database, Settings, Info, CheckCircle, Clock, Globe } from "lucide-react";
 import { useCookieSettings } from "@/hooks/useCookieSettings";
 import DOMPurify from "dompurify";
@@ -225,15 +225,15 @@ const CookiePolicy = () => {
           {/* Footer Links */}
           <div className="border-t border-border pt-8 mt-12">
             <div className="flex flex-wrap gap-4 justify-center text-sm text-muted-foreground">
-              <Link to="/privacy-policy" className="hover:text-primary transition-colors">
+              <Link href="/privacy-policy" className="hover:text-primary transition-colors">
                 Privacy Policy
               </Link>
               <span>•</span>
-              <Link to="/terms" className="hover:text-primary transition-colors">
+              <Link href="/terms" className="hover:text-primary transition-colors">
                 Terms of Service
               </Link>
               <span>•</span>
-              <Link to="/" className="hover:text-primary transition-colors">
+              <Link href="/" className="hover:text-primary transition-colors">
                 Back to Home
               </Link>
             </div>

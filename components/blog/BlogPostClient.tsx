@@ -3,9 +3,7 @@
 import { useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { NavigationType, Router, createPath, type To } from "react-router";
-import { LegacyLink as Link } from "@/components/router/LegacyRouterBridge";
-import { usePathname, useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Facebook, Linkedin, Link as LinkIcon, Share2, Twitter } from "lucide-react";
 import { toast } from "sonner";
@@ -14,15 +12,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
-import { useHydrated } from "@/hooks/useHydrated";
 import { getSessionId } from "@/lib/sessionId";
-
-type HomegrownNavigator = {
-  createHref: (to: To) => string;
-  go: (delta: number) => void;
-  push: (to: To) => void;
-  replace: (to: To) => void;
-};
 
 export type BlogPostAuthor = Pick<Tables<"public_profiles">, "id" | "full_name" | "avatar_url">;
 export type BlogPostRecord = Pick<
@@ -62,10 +52,6 @@ export type BlogPostWithAuthor = BlogPostRecord & {
 export interface BlogPostClientProps {
   initialPost: BlogPostRecord;
   initialAuthor: BlogPostAuthor | null;
-}
-
-function resolveToPath(to: To) {
-  return typeof to === "string" ? to : createPath(to);
 }
 
 function normalizeBlogLocale(language: string | undefined): string {
@@ -180,7 +166,7 @@ function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClient
     >
       <div className="flex flex-wrap items-center gap-3">
         <Button variant="ghost" size="sm" asChild className="rounded-full">
-          <Link to={buildLangPath(langPrefix, "/blog")}>
+          <Link href={buildLangPath(langPrefix, "/blog")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             {t("blog.backToBlog", "Back to Blog")}
           </Link>
@@ -232,48 +218,7 @@ function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClient
 }
 
 export function BlogPostClient(props: BlogPostClientProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const nextSearchParams = useNextSearchParams();
-  const mounted = useHydrated();
-
-  const search = nextSearchParams?.toString() ?? "";
-  const location = useMemo(
-    () => ({
-      pathname,
-      search: search ? `?${search}` : "",
-      hash: "",
-      state: null,
-      key: `${pathname}${search ? `?${search}` : ""}`,
-    }),
-    [pathname, search],
-  );
-
-  const navigator = useMemo<HomegrownNavigator>(
-    () => ({
-      createHref: (to) => resolveToPath(to),
-      go: (delta) => {
-        window.history.go(delta);
-      },
-      push: (to) => {
-        router.push(resolveToPath(to));
-      },
-      replace: (to) => {
-        router.replace(resolveToPath(to));
-      },
-    }),
-    [router],
-  );
-
-  if (!mounted) {
-    return null;
-  }
-
-  return (
-    <Router location={location as never} navigator={navigator as never} navigationType={NavigationType.Pop}>
-      <BlogPostInteractiveInner {...props} />
-    </Router>
-  );
+  return <BlogPostInteractiveInner {...props} />;
 }
 
 export default BlogPostClient;

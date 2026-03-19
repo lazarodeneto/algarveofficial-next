@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import {
   Command,
   CommandDialog,
@@ -34,14 +34,14 @@ interface CommandSearchProps {
 }
 
 export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearchProps) {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { query, setQuery, results, recentSearches, addToRecent, clearRecent } = useGlobalSearch();
 
   const handleSelect = (result: SearchResult) => {
     addToRecent(result);
     setQuery("");
     onOpenChange(false);
-    navigate(result.href);
+    router.push(result.href);
   };
 
   // Pre-fill query when dialog opens with initialQuery
@@ -146,7 +146,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
                   value="directory browse all listings"
                   onSelect={() => {
                     onOpenChange(false);
-                    navigate("/directory");
+                    router.push("/directory");
                   }}
                   className="flex items-center gap-3 py-3 px-4 cursor-pointer"
                 >
@@ -157,7 +157,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
                   value="destinations regions explore"
                   onSelect={() => {
                     onOpenChange(false);
-                    navigate("/destinations");
+                    router.push("/destinations");
                   }}
                   className="flex items-center gap-3 py-3 px-4 cursor-pointer"
                 >
@@ -168,7 +168,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
                   value="map explorer listings"
                   onSelect={() => {
                     onOpenChange(false);
-                    navigate("/map");
+                    router.push("/map");
                   }}
                   className="flex items-center gap-3 py-3 px-4 cursor-pointer"
                 >
@@ -179,7 +179,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
                   value="invest market strategy"
                   onSelect={() => {
                     onOpenChange(false);
-                    navigate("/invest");
+                    router.push("/invest");
                   }}
                   className="flex items-center gap-3 py-3 px-4 cursor-pointer"
                 >

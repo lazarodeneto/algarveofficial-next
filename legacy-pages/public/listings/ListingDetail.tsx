@@ -1,5 +1,6 @@
 // src/pages/ListingDetail.tsx
-import { useParams, Link, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -181,7 +182,7 @@ export default function ListingDetail() {
   const { id: paramSlugOrId } = useParams<{ id: string }>();
   const { t, i18n } = useTranslation();
   const langPrefix = useLangPrefix();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -208,16 +209,16 @@ export default function ListingDetail() {
     // If URL uses UUID, redirect to slug
     if (paramIsUuid && paramSlugOrId !== currentSlug) {
       const target = buildLangPath(langPrefix, `/listing/${currentSlug}`);
-      navigate(target, { replace: true });
+      router.replace(target);
       return;
     }
 
     // If URL uses an old slug (not current), redirect to current slug
     if (!paramIsUuid && paramSlugOrId !== currentSlug && resolvedSlug?.listing_id === listing.id) {
       const target = buildLangPath(langPrefix, `/listing/${currentSlug}`);
-      navigate(target, { replace: true });
+      router.replace(target);
     }
-  }, [listing, paramSlugOrId, paramIsUuid, resolvedSlug, langPrefix, navigate]);
+  }, [listing, paramSlugOrId, paramIsUuid, resolvedSlug, langPrefix, router]);
 
   // WhatsApp fallback
   const { data: waStatus } = useOwnerWhatsAppStatus(listing?.owner_id);
@@ -432,7 +433,7 @@ export default function ListingDetail() {
           <div className="text-center">
             <h1 className="text-2xl font-serif mb-4">{t("listing.notFound")}</h1>
             <p className="text-muted-foreground mb-6">{t("listing.notFoundMessage")}</p>
-            <Link to={buildLangPath(langPrefix, "/")}>
+            <Link href={buildLangPath(langPrefix, "/")}>
               <Button>
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 {t("listing.backToHome")}
@@ -563,7 +564,7 @@ export default function ListingDetail() {
                       {crumb.name}
                     </span>
                   ) : (
-                    <Link to={crumb.to} className="hover:text-foreground transition-colors">
+                    <Link href={crumb.to} className="hover:text-foreground transition-colors">
                       {crumb.name}
                     </Link>
                   )}
@@ -907,7 +908,7 @@ export default function ListingDetail() {
         {/* Back */}
         <section className="py-8 px-4 border-t border-border">
           <div className="container mx-auto max-w-7xl">
-            <Link to={buildLangPath(langPrefix, "/")}>
+            <Link href={buildLangPath(langPrefix, "/")}>
               <Button variant="ghost">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 {t("listing.backToListings")}

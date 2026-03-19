@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties, ElementType, ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
-import { NavigationType, Router, createPath, type To } from "react-router";
 import { useTranslation } from "react-i18next";
 
 import type { Tables } from "@/integrations/supabase/types";
@@ -49,6 +48,7 @@ import type { CityRow, RegionRow, CategoryRow } from "@/hooks/useReferenceData";
 import type { ListingFilters, ListingWithRelations, ListingTier } from "@/hooks/useListings";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { useHydrated } from "@/hooks/useHydrated";
+import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -64,21 +64,12 @@ import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
-import { useLegacySearchParams } from "@/components/router/LegacyRouterBridge";
 
 const EMPTY_CATEGORY_IDS: string[] = [];
-const DIRECTORY_LANG_PREFIXES = ["/pt-pt", "/fr", "/de", "/es", "/it", "/nl", "/sv", "/no", "/da"];
 const DIRECTORY_CMS_KEYS = [
   CMS_GLOBAL_SETTING_KEYS.textOverrides,
   CMS_GLOBAL_SETTING_KEYS.pageConfigs,
 ] as const;
-
-type HomegrownNavigator = {
-  createHref: (to: To) => string;
-  go: (delta: number) => void;
-  push: (to: To) => void;
-  replace: (to: To) => void;
-};
 
 export interface DirectoryInitialFilters {
   q: string;
@@ -97,21 +88,6 @@ export interface DirectoryClientProps {
   initialCategoryCounts: Record<string, number>;
   initialFilters: DirectoryInitialFilters;
   globalSettings: GlobalSetting[];
-}
-
-function getLangPrefix(pathname: string) {
-  for (const prefix of DIRECTORY_LANG_PREFIXES) {
-    if (pathname === prefix || pathname.startsWith(`${prefix}/`)) {
-      return prefix;
-    }
-  }
-  return "";
-}
-
-function buildLangPath(prefix: string, path: string) {
-  if (!prefix) return path;
-  if (path === "/") return prefix;
-  return `${prefix}${path}`;
 }
 
 function parseJsonSetting<T>(raw: string | undefined, fallback: T): T {
@@ -199,13 +175,6 @@ function normalizePageConfigs(input: unknown): CmsPageConfigMap {
 
 function sanitizeSearchTerm(raw: string) {
   return raw.replace(/[,%(){}'"]/g, " ").replace(/\s+/g, " ").trim();
-}
-
-function resolveToPath(to: To) {
-  if (typeof to === "string") {
-    return to;
-  }
-  return createPath(to);
 }
 
 function resolveSelectedEntityId<T extends { id: string; slug: string }>(rows: T[], value?: string) {
@@ -680,9 +649,24 @@ function DirectoryCmsBlock({
 function DirectoryClientInner(props: DirectoryClientProps) {
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  const [searchParams, setSearchParams] = useLegacySearchParams();
-  const pathname = usePathname() ?? "";
-  const langPrefix = getLangPrefix(pathname);
+  const pathname = usePathname() ?? "/directory";
+  const nextSearchParams = useNextSearchParams();
+  const searchParams = useMemo(
+    () => new URLSearchParams(nextSearchParams?.toString() ?? ""),
+    [nextSearchParams],
+  );
+  const setSearchParams = useCallback((nextParams: URLSearchParams, options?: { replace?: boolean }) => {
+    const query = nextParams.toString();
+    const href = query ? `${pathname}?${query}` : pathname;
+
+    if (options?.replace) {
+      router.replace(href);
+      return;
+    }
+
+    router.push(href);
+  }, [pathname, router]);
+  const langPrefix = useLangPrefix();
   const [search, setSearch] = useState(props.initialFilters.q);
   const [debouncedSearch, setDebouncedSearch] = useState(props.initialFilters.q);
   const [selectedRegion, setSelectedRegion] = useState<string>(props.initialFilters.region);
@@ -1206,38 +1190,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
 }
 
 export function DirectoryClient(props: DirectoryClientProps) {
-  const router = useRouter();
-  const pathname = usePathname() ?? "";
-  const nextSearchParams = useNextSearchParams();
   const mounted = useHydrated();
-
-  const search = nextSearchParams?.toString() ?? "";
-  const location = useMemo(
-    () => ({
-      pathname,
-      search: search ? `?${search}` : "",
-      hash: "",
-      state: null,
-      key: `${pathname}${search ? `?${search}` : ""}`,
-    }),
-    [pathname, search],
-  );
-
-  const navigator = useMemo<HomegrownNavigator>(
-    () => ({
-      createHref: (to) => resolveToPath(to),
-      go: (delta) => {
-        window.history.go(delta);
-      },
-      push: (to) => {
-        router.push(resolveToPath(to));
-      },
-      replace: (to) => {
-        router.replace(resolveToPath(to));
-      },
-    }),
-    [router],
-  );
 
   useEffect(() => {
     const serverShell = document.getElementById("directory-server-shell");
@@ -1250,11 +1203,7 @@ export function DirectoryClient(props: DirectoryClientProps) {
     return null;
   }
 
-  return (
-    <Router location={location as never} navigator={navigator as never} navigationType={NavigationType.Pop}>
-      <DirectoryClientInner {...props} />
-    </Router>
-  );
+  return <DirectoryClientInner {...props} />;
 }
 
 export default DirectoryClient;

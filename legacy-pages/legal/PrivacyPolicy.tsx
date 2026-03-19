@@ -1,6 +1,6 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Shield, Database, Clock, UserCheck, Mail, FileText } from "lucide-react";
 
 const PrivacyPolicy = () => {
@@ -349,7 +349,7 @@ const PrivacyPolicy = () => {
           {/* Back Link */}
           <div className="text-center pt-8 border-t border-border">
             <Link 
-              to="/" 
+              href="/" 
               className="text-primary hover:underline inline-flex items-center gap-2"
             >
               ← Back to Home

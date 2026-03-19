@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { format, parseISO } from 'date-fns';
 import { 
   Plus, 
@@ -90,7 +90,7 @@ export default function AdminEvents() {
           <p className="text-muted-foreground">Manage all events across the platform</p>
         </div>
         <Button asChild>
-          <Link to="/admin/content/events/new">
+          <Link href="/admin/content/events/new">
             <Plus className="h-4 w-4 mr-2" />
             New Event
           </Link>
@@ -177,7 +177,7 @@ export default function AdminEvents() {
               </p>
                {!search && statusFilter === 'all' && categoryFilter === 'all' && (
                 <Button asChild>
-                  <Link to="/admin/content/events/new">
+                  <Link href="/admin/content/events/new">
                     <Plus className="h-4 w-4 mr-2" />
                     Create Event
                   </Link>
@@ -248,12 +248,12 @@ export default function AdminEvents() {
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Button variant="ghost" size="icon" asChild>
-                            <Link to={`/events/${event.slug}`} target="_blank">
+                            <Link href={`/events/${event.slug}`} target="_blank">
                               <Eye className="h-4 w-4" />
                             </Link>
                           </Button>
                           <Button variant="ghost" size="icon" asChild>
-                            <Link to={`/admin/content/events/${event.id}/edit`}>
+                            <Link href={`/admin/content/events/${event.id}/edit`}>
                               <Edit className="h-4 w-4" />
                             </Link>
                           </Button>

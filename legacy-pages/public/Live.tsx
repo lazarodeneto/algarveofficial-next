@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import {
@@ -226,13 +226,13 @@ const Live = () => {
                 )}
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-                <Link to={buildLangPath(langPrefix, "/contact")}>
+                <Link href={buildLangPath(langPrefix, "/contact")}>
                   <Button variant="gold" size="lg">
                     {t("live.hero.ctaPrimary", "Plan My Move")}
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
-                <Link to={buildLangPath(langPrefix, "/directory")}>
+                <Link href={buildLangPath(langPrefix, "/directory")}>
                   <Button variant="heroOutline" size="lg">
                     {t("live.hero.ctaSecondary", "Browse Local Experts")}
                   </Button>
@@ -406,13 +406,13 @@ const Live = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 pt-1">
-                <Link to={relocationContactHref}>
+                <Link href={relocationContactHref}>
                   <Button variant="gold" size="lg">
                     {t("live.planner.handoff.primary", "Send This Plan to Concierge")}
                     <ArrowRight className="h-4 w-4 ml-1" />
                   </Button>
                 </Link>
-                <Link to={buildLangPath(langPrefix, "/directory")}>
+                <Link href={buildLangPath(langPrefix, "/directory")}>
                   <Button variant="outline" size="lg">
                     {t("live.planner.handoff.secondary", "View Trusted Local Partners")}
                   </Button>
@@ -472,7 +472,7 @@ const Live = () => {
                 {t("live.destinations.title", "Explore cities to match your lifestyle")}
               </h2>
             </div>
-            <Link to={buildLangPath(langPrefix, "/destinations")}>
+            <Link href={buildLangPath(langPrefix, "/destinations")}>
               <Button variant="luxury">
                 {t("live.destinations.viewAll", "View All Destinations")}
                 <ArrowRight className="h-4 w-4 ml-1" />
@@ -518,7 +518,7 @@ const Live = () => {
                         t("live.destinations.fallbackDescription", "High-quality infrastructure and lifestyle access.")}
                     </p>
                     <Link
-                      to={buildLangPath(langPrefix, `/city/${city.slug}`)}
+                      href={buildLangPath(langPrefix, `/city/${city.slug}`)}
                       className="inline-flex items-center mt-4 text-primary font-medium hover:text-primary/80 transition-colors"
                     >
                       {t("live.destinations.exploreCity", "Explore City")}
@@ -543,12 +543,12 @@ const Live = () => {
               )}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">
-              <Link to={buildLangPath(langPrefix, "/contact")}>
+              <Link href={buildLangPath(langPrefix, "/contact")}>
                 <Button variant="gold" size="lg">
                   {t("live.final.primary", "Start Relocation Planning")}
                 </Button>
               </Link>
-              <Link to={buildLangPath(langPrefix, "/partner")}>
+              <Link href={buildLangPath(langPrefix, "/partner")}>
                 <Button variant="outline" size="lg">
                   {t("live.final.secondary", "Request Partner Introduction")}
                 </Button>

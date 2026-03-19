@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { format, parseISO, isAfter, startOfDay, addMonths } from 'date-fns';
 import { useTranslation } from 'react-i18next';
@@ -165,7 +165,7 @@ export default function Events() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 * index }}
                 >
-                  <Link to={`/events/${event.slug}`}>
+                  <Link href={`/events/${event.slug}`}>
                     <Card className="h-full overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">
                       <div className="aspect-video relative overflow-hidden">
                         <img
@@ -266,7 +266,7 @@ export default function Events() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.05 * index }}
                       >
-                        <Link to={`/events/${event.slug}`}>
+                        <Link href={`/events/${event.slug}`}>
                           <Card className="overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">
                             <div className="flex flex-col sm:flex-row">
                               <div className="w-full sm:w-24 flex-shrink-0 bg-muted flex flex-row sm:flex-col items-center justify-center gap-1 sm:gap-0 p-3">

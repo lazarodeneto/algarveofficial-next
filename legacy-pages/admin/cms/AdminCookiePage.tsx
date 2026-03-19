@@ -8,7 +8,7 @@ import { DashboardBreadcrumb } from "@/components/ui/dashboard-breadcrumb";
 import { SeoFieldsPanel, SeoData } from "@/components/admin/seo/SeoFieldsPanel";
 import { useCookieSettings, Section } from "@/hooks/useCookieSettings";
 import { Cookie, Loader2, Plus, Trash2, ExternalLink, GripVertical } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import {
   Select,
   SelectContent,
@@ -121,7 +121,7 @@ export default function AdminCookiePage() {
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" asChild>
-            <Link to="/cookie-policy" target="_blank">
+            <Link href="/cookie-policy" target="_blank">
               <ExternalLink className="h-4 w-4 mr-2" />
               View Page
             </Link>

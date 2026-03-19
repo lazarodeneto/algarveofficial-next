@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -63,10 +63,7 @@ function isCreditsExhaustedError(err: unknown): boolean {
 }
 
 export default function AdminImageGeneration() {
-  if (typeof window === "undefined") {
-    return null;
-  }
-  const navigate = useNavigate();
+  const router = useRouter();
   const { user } = useAuth();
   const [cities, setCities] = useState<City[]>([]);
   const [allListings, setAllListings] = useState<Listing[]>([]);
@@ -212,11 +209,11 @@ export default function AdminImageGeneration() {
 
   useEffect(() => {
     if (user?.role !== 'admin') {
-      navigate('/admin');
+      router.push('/admin');
       return;
     }
     fetchData();
-  }, [user, navigate, fetchData]);
+  }, [fetchData, router, user]);
 
   // Filter listings by category
   useEffect(() => {

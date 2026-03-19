@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import {
     NavigationMenu,
@@ -230,7 +231,7 @@ export function HeaderCompactNav() {
                     return (
                         <Link
                             key={section.value}
-                            to={section.navPath}
+                            href={section.navPath}
                             target={section.openInNewTab ? "_blank" : undefined}
                             rel={section.openInNewTab ? "noopener noreferrer" : undefined}
                             className={cn(
@@ -251,12 +252,12 @@ export function HeaderCompactNav() {
 }
 
 export function HeaderMegaMenu() {
-    const navigate = useNavigate();
-    const location = useLocation();
+    const router = useRouter();
+    const pathname = usePathname() ?? "";
     const [activeItem, setActiveItem] = React.useState<string>("");
     const runtimeSections = useHeaderRuntimeSections();
 
-    React.useEffect(() => { setActiveItem(""); }, [location.pathname]);
+    React.useEffect(() => { setActiveItem(""); }, [pathname]);
 
     const handleItemClick = (
         e: React.MouseEvent<HTMLButtonElement>,
@@ -275,15 +276,16 @@ export function HeaderMegaMenu() {
         const isHoverDevice = window.matchMedia("(hover: hover)").matches;
         const isOpen = activeItem === value;
         if (isHoverDevice) {
+            // Desktop behavior: one click navigates immediately.
             e.preventDefault();
             e.stopPropagation();
-            navigate(path);
+            router.push(path);
             setActiveItem("");
         } else {
             if (isOpen) {
                 e.preventDefault();
                 e.stopPropagation();
-                navigate(path);
+                router.push(path);
                 setActiveItem("");
             } else {
                 setActiveItem(value);
@@ -332,22 +334,22 @@ export function HeaderMegaMenu() {
 
 function MegaPanel({ section }: { section: HeaderRuntimeSection }) {
     return (
-        <div className="header-mega-panel flex w-[820px] overflow-hidden rounded-2xl border border-border shadow-[0_24px_64px_-12px_rgba(0,0,0,0.22)] bg-background">
+        <div className="header-mega-panel flex w-[min(820px,calc(100vw-8rem))] overflow-hidden rounded-2xl border border-border shadow-[0_24px_64px_-12px_rgba(0,0,0,0.22)] bg-background">
 
             {/* ── Left: full-bleed photo + hero text ── */}
-            <div className="relative w-[280px] flex-shrink-0 overflow-hidden">
+            <div className="relative w-[34%] min-w-[240px] max-w-[300px] flex-shrink-0 overflow-hidden">
                 <Image
                     src={section.image}
                     alt={section.imageAlt}
                     fill
                     priority
-                    sizes="280px"
+                    sizes="(max-width: 1360px) 32vw, 300px"
                     className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
 
                 {/* Content pinned to bottom */}
-                <div className="relative h-full flex flex-col justify-end p-7 min-h-[380px]">
+                <div className="relative h-full flex flex-col justify-end p-6 min-h-[340px]">
                     <span className={cn(
                         "self-start text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border mb-4",
                         section.pill
@@ -364,7 +366,7 @@ function MegaPanel({ section }: { section: HeaderRuntimeSection }) {
 
                     <NavigationMenuLink asChild>
                         <Link
-                            to={section.heroLink}
+                            href={section.heroLink}
                             className="group self-start inline-flex items-center gap-2 text-[13px] font-bold text-white bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/40 px-5 py-2.5 rounded-xl transition-all duration-200"
                         >
                             {section.heroLabel}
@@ -404,7 +406,7 @@ function PanelItem({
     return (
         <NavigationMenuLink asChild>
             <Link
-                to={item.href}
+                href={item.href}
                 className={cn(
                     "group flex items-start gap-3 rounded-xl px-3 py-2.5 border-2 border-transparent transition-all duration-150",
                     // Match VISIT hover/open palette

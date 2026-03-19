@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useContactSettings } from "@/hooks/useContactSettings";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function AdminContactPage() {
     const { settings, isLoading, updateSettings } = useContactSettings();
@@ -83,7 +83,7 @@ export default function AdminContactPage() {
                 </div>
                 <div className="flex items-center gap-3">
                     <Button variant="outline" size="sm" asChild>
-                        <Link to="/contact" target="_blank">
+                        <Link href="/contact" target="_blank">
                             <ExternalLink className="mr-2 h-4 w-4" />
                             View Page
                         </Link>

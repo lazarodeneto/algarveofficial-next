@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useNavigate, useLocation } from "react-router-dom";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -38,8 +38,9 @@ function stripLangPrefix(pathname: string): string {
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const nextSearchParams = useSearchParams();
 
   const currentLanguage = languages.find((l) => l.code === i18n.language) || languages[0];
 
@@ -47,9 +48,12 @@ export function LanguageSwitcher() {
     const lang = languages.find((l) => l.code === langCode);
     if (!lang) return;
 
-    const barePath = stripLangPrefix(location.pathname);
-    const currentHasLegacyPrefix = barePath !== location.pathname;
+    const barePath = stripLangPrefix(pathname);
+    const currentHasLegacyPrefix = barePath !== pathname;
     const nextPath = barePath || "/";
+    const searchValue = nextSearchParams?.toString() ?? "";
+    const search = searchValue ? `?${searchValue}` : "";
+    const hash = typeof window !== "undefined" ? window.location.hash || "" : "";
 
     void (async () => {
       await ensureLocaleLoaded(langCode);
@@ -62,7 +66,7 @@ export function LanguageSwitcher() {
       // routes are still being migrated. If they are already on a legacy
       // prefixed URL, strip it back to the equivalent bare path.
       if (currentHasLegacyPrefix) {
-        navigate(`${nextPath}${location.search}${location.hash}`, { replace: true });
+        router.replace(`${nextPath}${search}${hash}`);
       }
     })();
   };

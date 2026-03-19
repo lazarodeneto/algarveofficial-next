@@ -3,9 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
-import { NavigationType, Router, createPath, type To } from "react-router";
-import { LegacyLink as Link } from "@/components/router/LegacyRouterBridge";
-import { usePathname, useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
@@ -70,13 +68,6 @@ import { ProtectionServicesLayout } from "@/components/listing-details/Protectio
 import { RealEstateAgentContactCard } from "@/components/real-estate/RealEstateAgentContactCard";
 import type { MapListingPoint } from "@/components/map/ListingsLeafletMap";
 import { useHydrated } from "@/hooks/useHydrated";
-
-type HomegrownNavigator = {
-  createHref: (to: To) => string;
-  go: (delta: number) => void;
-  push: (to: To) => void;
-  replace: (to: To) => void;
-};
 
 export type ListingTranslationRow = {
   listing_id: string;
@@ -231,10 +222,6 @@ const getCategoryLayout = (
 };
 
 const normalizeImageUrl = (value?: string | null): string | null => normalizePublicImageUrl(value);
-
-function resolveToPath(to: To) {
-  return typeof to === "string" ? to : createPath(to);
-}
 
 async function fetchListingByIdOrSlug(idOrSlug: string) {
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
@@ -654,7 +641,7 @@ function ListingDetailClientInner({
           <div className="text-center">
             <h1 className="text-2xl font-serif mb-4">{t("listing.notFound")}</h1>
             <p className="text-muted-foreground mb-6">{t("listing.notFoundMessage")}</p>
-            <Link to={buildLangPath(langPrefix, "/")}>
+            <Link href={buildLangPath(langPrefix, "/")}>
               <Button>
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 {t("listing.backToHome")}
@@ -726,7 +713,7 @@ function ListingDetailClientInner({
                       {crumb.name}
                     </span>
                   ) : (
-                    <Link to={crumb.to} className="hover:text-foreground transition-colors">
+                    <Link href={crumb.to} className="hover:text-foreground transition-colors">
                       {crumb.name}
                     </Link>
                   )}
@@ -1048,7 +1035,7 @@ function ListingDetailClientInner({
                         {t("listing.isYourBusiness", "Is this your business?")}
                       </p>
                       <Link
-                        to={buildLangPath(langPrefix, "/partner?type=claim-business")}
+                        href={buildLangPath(langPrefix, "/partner?type=claim-business")}
                         className="text-body-xs text-primary hover:underline font-medium"
                       >
                         {t("listing.claimThisListing", "Claim this listing")} →
@@ -1086,7 +1073,7 @@ function ListingDetailClientInner({
                   return (
                     <Link
                       key={related.id}
-                      to={buildLangPath(langPrefix, `/listing/${related.slug || related.id}`)}
+                      href={buildLangPath(langPrefix, `/listing/${related.slug || related.id}`)}
                       className="group block rounded-xl overflow-hidden border border-border hover:border-primary/40 transition-colors bg-card"
                     >
                       <div className="aspect-[16/10] overflow-hidden bg-muted">
@@ -1113,7 +1100,7 @@ function ListingDetailClientInner({
 
         <section className="py-8 px-4 border-t border-border">
           <div className="container mx-auto max-w-7xl">
-            <Link to={buildLangPath(langPrefix, "/")}>
+            <Link href={buildLangPath(langPrefix, "/")}>
               <Button variant="ghost">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 {t("listing.backToListings")}
@@ -1199,38 +1186,7 @@ function ListingDetailClientInner({
 }
 
 export function ListingDetailClient(props: ListingDetailClientProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const nextSearchParams = useNextSearchParams();
   const hydrated = useHydrated();
-
-  const search = nextSearchParams?.toString() ?? "";
-  const location = useMemo(
-    () => ({
-      pathname,
-      search: search ? `?${search}` : "",
-      hash: "",
-      state: null,
-      key: `${pathname}${search ? `?${search}` : ""}`,
-    }),
-    [pathname, search],
-  );
-
-  const navigator = useMemo<HomegrownNavigator>(
-    () => ({
-      createHref: (to) => resolveToPath(to),
-      go: (delta) => {
-        window.history.go(delta);
-      },
-      push: (to) => {
-        router.push(resolveToPath(to));
-      },
-      replace: (to) => {
-        router.replace(resolveToPath(to));
-      },
-    }),
-    [router],
-  );
 
   useEffect(() => {
     if (!hydrated) return;
@@ -1245,11 +1201,7 @@ export function ListingDetailClient(props: ListingDetailClientProps) {
     return null;
   }
 
-  return (
-    <Router location={location as never} navigator={navigator as never} navigationType={NavigationType.Pop}>
-      <ListingDetailClientInner {...props} />
-    </Router>
-  );
+  return <ListingDetailClientInner {...props} />;
 }
 
 export default ListingDetailClient;

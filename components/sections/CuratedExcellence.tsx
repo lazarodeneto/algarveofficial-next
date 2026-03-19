@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Crown, Loader2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
@@ -162,7 +162,7 @@ export function CuratedExcellence({
         )}
 
         {/* Featured Listing Card */}
-        <Link to={buildLangPath(langPrefix, `/listing/${featuredListing.slug}`)} className="block">
+        <Link href={buildLangPath(langPrefix, `/listing/${featuredListing.slug}`)} className="block">
           <motion.div
             initial={{ opacity: 0, y: 40, scale: 0.98 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}

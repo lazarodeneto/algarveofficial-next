@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { usePublishedListings } from "@/hooks/useListings";
 import { useCities, useCategories } from "@/hooks/useReferenceData";
 import { MapPin } from "lucide-react";
@@ -192,7 +192,7 @@ export function DirectoryMapView({ filteredListingIds }: DirectoryMapViewProps) 
                     {listing.cityName}
                   </p>
                   <p className="text-xs text-muted-foreground">{listing.categoryName}</p>
-                  <Link to={`/listing/${listing.slug}`}>
+                  <Link href={`/listing/${listing.slug}`}>
                     <Button size="sm" className="w-full mt-2">
                       View Details
                     </Button>

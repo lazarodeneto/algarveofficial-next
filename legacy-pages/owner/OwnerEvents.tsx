@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { format, parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { 
@@ -27,9 +27,6 @@ import {
 import { toast } from '@/hooks/use-toast';
 
 export default function OwnerEvents() {
-  if (typeof window === "undefined") {
-    return null;
-  }
   const { t } = useTranslation();
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -60,7 +57,7 @@ export default function OwnerEvents() {
           <p className="text-muted-foreground">{t('owner.events.subtitle')}</p>
         </div>
         <Button asChild>
-          <Link to="/owner/events/new">
+          <Link href="/owner/events/new">
             <Plus className="h-4 w-4 mr-2" />
             {t('owner.events.submitNewEvent')}
           </Link>
@@ -81,7 +78,7 @@ export default function OwnerEvents() {
               {t('owner.events.noEventsDescription')}
             </p>
             <Button asChild>
-              <Link to="/owner/events/new">
+              <Link href="/owner/events/new">
                 <Plus className="h-4 w-4 mr-2" />
                 {t('owner.events.submitNewEvent')}
               </Link>
@@ -152,7 +149,7 @@ export default function OwnerEvents() {
                 <div className="flex items-center gap-2 pt-2">
                   {event.status === 'published' && (
                     <Button variant="outline" size="sm" className="flex-1" asChild>
-                      <Link to={`/events/${event.slug}`} target="_blank">
+                      <Link href={`/events/${event.slug}`} target="_blank">
                         <Eye className="h-4 w-4 mr-1" />
                         {t('owner.events.view')}
                       </Link>
@@ -160,7 +157,7 @@ export default function OwnerEvents() {
                   )}
                   {(event.status === 'draft' || event.status === 'rejected') && (
                     <Button variant="outline" size="sm" className="flex-1" asChild>
-                      <Link to={`/owner/events/${event.id}/edit`}>
+                      <Link href={`/owner/events/${event.id}/edit`}>
                         <Edit className="h-4 w-4 mr-1" />
                         {t('common.edit')}
                       </Link>

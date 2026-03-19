@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
@@ -25,11 +25,12 @@ import { StatusBadgeOwner } from "@/components/owner/StatusBadgeOwner";
 import { OwnerListingImageManager } from "@/components/owner/OwnerListingImageManager";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { extractIdParam } from "@/lib/routeParams";
 
 export default function OwnerListingEdit() {
-  const { id: rawId } = useParams<{ id?: string }>();
-  const id = Array.isArray(rawId) ? rawId[0] : rawId;
-  const navigate = useNavigate();
+  const params = useParams<Record<string, string | string[] | undefined>>();
+  const id = extractIdParam(params);
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { user } = useAuth();
   
@@ -170,7 +171,7 @@ export default function OwnerListingEdit() {
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <p className="text-muted-foreground mb-4">Listing not found</p>
-        <Button onClick={() => navigate('/owner/listings')}>
+        <Button onClick={() => router.push('/owner/listings')}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Listings
         </Button>
@@ -193,7 +194,7 @@ export default function OwnerListingEdit() {
         <Button 
           variant="ghost" 
           size="sm" 
-          onClick={() => navigate('/owner/listings')}
+          onClick={() => router.push('/owner/listings')}
           className="w-fit"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />

@@ -2,9 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { NavigationType, Router, createPath, type To } from "react-router";
-import { LegacyLink as Link } from "@/components/router/LegacyRouterBridge";
-import { usePathname, useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { ArrowRight, Building2, Loader2, Plus } from "lucide-react";
 
@@ -28,13 +26,6 @@ import {
   fetchListingTranslations,
   normalizePublicContentLocale,
 } from "@/lib/publicContentLocale";
-
-type HomegrownNavigator = {
-  createHref: (to: To) => string;
-  go: (delta: number) => void;
-  push: (to: To) => void;
-  replace: (to: To) => void;
-};
 
 interface FilterState {
   priceMin: string;
@@ -71,10 +62,6 @@ export type RealEstateListing = Pick<
 export interface RealEstateDirectoryClientProps {
   initialCategory: RealEstateCategory;
   initialListings: RealEstateListing[];
-}
-
-function resolveToPath(to: To) {
-  return typeof to === "string" ? to : createPath(to);
 }
 
 function normalizeRealEstateListings(rows: unknown[]): RealEstateListing[] {
@@ -320,13 +307,13 @@ function RealEstateDirectoryClientInner({
             }
             ctas={
               <>
-                <Link to={addListingHref}>
+                <Link href={addListingHref}>
                   <Button variant="gold" size="lg" className="w-full sm:w-auto">
                     <Plus className="h-4 w-4" />
                     {t("realEstate.addListing", "Add Real Estate Listing")}
                   </Button>
                 </Link>
-                <Link to={buildLangPath(langPrefix, "/invest")}>
+                <Link href={buildLangPath(langPrefix, "/invest")}>
                   <Button variant="heroOutline" size="lg" className="w-full sm:w-auto">
                     {t("realEstate.backToInvest", "Back to Invest")}
                     <ArrowRight className="h-4 w-4 ml-1" />
@@ -432,38 +419,7 @@ function RealEstateDirectoryClientInner({
 }
 
 export function RealEstateDirectoryClient(props: RealEstateDirectoryClientProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const nextSearchParams = useNextSearchParams();
   const mounted = useHydrated();
-
-  const search = nextSearchParams?.toString() ?? "";
-  const location = useMemo(
-    () => ({
-      pathname,
-      search: search ? `?${search}` : "",
-      hash: "",
-      state: null,
-      key: `${pathname}${search ? `?${search}` : ""}`,
-    }),
-    [pathname, search],
-  );
-
-  const navigator = useMemo<HomegrownNavigator>(
-    () => ({
-      createHref: (to) => resolveToPath(to),
-      go: (delta) => {
-        window.history.go(delta);
-      },
-      push: (to) => {
-        router.push(resolveToPath(to));
-      },
-      replace: (to) => {
-        router.replace(resolveToPath(to));
-      },
-    }),
-    [router],
-  );
 
   useEffect(() => {
     const serverShell = document.getElementById("real-estate-server-shell");
@@ -476,11 +432,7 @@ export function RealEstateDirectoryClient(props: RealEstateDirectoryClientProps)
     return null;
   }
 
-  return (
-    <Router location={location as never} navigator={navigator as never} navigationType={NavigationType.Pop}>
-      <RealEstateDirectoryClientInner {...props} />
-    </Router>
-  );
+  return <RealEstateDirectoryClientInner {...props} />;
 }
 
 export default RealEstateDirectoryClient;

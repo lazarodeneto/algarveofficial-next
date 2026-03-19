@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { Compass, Handshake, Newspaper, Sparkles, Users, LineChart } from "lucide-react";
 import { Header } from "@/components/layout/Header";
@@ -217,10 +217,10 @@ export default function AboutUs() {
               <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">{t("about.cta.subtitle")}</p>
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Button variant="gold" size="lg" asChild>
-                  <Link to="/partner">{t("about.cta.primary")}</Link>
+                  <Link href="/partner">{t("about.cta.primary")}</Link>
                 </Button>
                 <Button variant="outline" size="lg" asChild>
-                  <Link to="/contact">{t("about.cta.secondary")}</Link>
+                  <Link href="/contact">{t("about.cta.secondary")}</Link>
                 </Button>
               </div>
             </CardContent>

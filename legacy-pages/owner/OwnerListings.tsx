@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -138,7 +138,7 @@ export default function OwnerListings() {
             <CardContent className="flex flex-col items-center justify-center py-12">
               <p className="text-muted-foreground mb-4">{t('owner.listings.noListings')}</p>
               <Button asChild>
-                <Link to="/owner/support">
+                <Link href="/owner/support">
                   <Plus className="h-4 w-4 mr-2" />
                   {t('owner.listings.requestNewListing')}
                 </Link>
@@ -192,7 +192,7 @@ export default function OwnerListings() {
                         {/* Actions */}
                         <div className="flex items-center gap-2 self-end sm:self-auto lg:shrink-0">
                           <Button variant="outline" size="sm" asChild>
-                            <Link to={`/owner/listings/${listing.id}/edit`}>
+                            <Link href={`/owner/listings/${listing.id}/edit`}>
                               <Edit className="h-4 w-4 sm:mr-2" />
                               <span className="hidden sm:inline">{t('common.edit')}</span>
                             </Link>
@@ -205,13 +205,13 @@ export default function OwnerListings() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem asChild>
-                                <Link to={`/listing/${listing.slug}`} className="flex items-center gap-2">
+                                <Link href={`/listing/${listing.slug}`} className="flex items-center gap-2">
                                   <Eye className="h-4 w-4" />
                                   {t('owner.listings.preview')}
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem asChild>
-                                <Link to={`/listing/${listing.slug}`} target="_blank" className="flex items-center gap-2">
+                                <Link href={`/listing/${listing.slug}`} target="_blank" className="flex items-center gap-2">
                                   <ExternalLink className="h-4 w-4" />
                                   {t('owner.listings.viewPublicPage')}
                                 </Link>

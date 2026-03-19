@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { NavigationType, Router, createPath, type To } from "react-router";
-import { LegacyLink as Link } from "@/components/router/LegacyRouterBridge";
-import { usePathname, useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { format, parseISO } from "date-fns";
 import {
@@ -41,13 +39,6 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 
-type HomegrownNavigator = {
-  createHref: (to: To) => string;
-  go: (delta: number) => void;
-  push: (to: To) => void;
-  replace: (to: To) => void;
-};
-
 type EventGlobalSetting = Pick<Tables<"global_settings">, "key" | "value" | "category">;
 
 export interface EventsClientProps {
@@ -61,10 +52,6 @@ const EVENTS_CMS_KEYS = [
   CMS_GLOBAL_SETTING_KEYS.designTokens,
   CMS_GLOBAL_SETTING_KEYS.customCss,
 ] as const;
-
-function resolveToPath(to: To) {
-  return typeof to === "string" ? to : createPath(to);
-}
 
 async function fetchPublishedEvents(
   category?: EventCategory | "all",
@@ -172,12 +159,12 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
             media={<PageHeroImage page="events" alt={t("events.hero.alt", "Premium Algarve event destination")} />}
             ctas={
               <>
-                <Link to={buildLangPath(langPrefix, "/directory")}>
+                <Link href={buildLangPath(langPrefix, "/directory")}>
                   <Button variant="gold" size="lg">
                     {t("events.hero.ctaPrimary", "Explore Experiences")}
                   </Button>
                 </Link>
-                <Link to={buildLangPath(langPrefix, "/contact")}>
+                <Link href={buildLangPath(langPrefix, "/contact")}>
                   <Button variant="heroOutline" size="lg">
                     {t("events.hero.ctaSecondary", "Plan My Calendar")}
                   </Button>
@@ -231,7 +218,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 * index }}
                 >
-                  <Link to={buildLangPath(langPrefix, `/events/${event.slug}`)}>
+                  <Link href={buildLangPath(langPrefix, `/events/${event.slug}`)}>
                     <Card className="group h-full overflow-hidden border-border bg-card transition-all hover:border-primary/30">
                       <div className="relative aspect-video overflow-hidden">
                         <Image
@@ -330,7 +317,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.05 * index }}
                       >
-                        <Link to={buildLangPath(langPrefix, `/events/${event.slug}`)}>
+                        <Link href={buildLangPath(langPrefix, `/events/${event.slug}`)}>
                           <Card className="group overflow-hidden border-border bg-card transition-all hover:border-primary/30">
                             <div className="flex flex-col sm:flex-row">
                               <div className="flex w-full flex-row items-center justify-center gap-1 bg-muted p-3 sm:w-24 sm:flex-shrink-0 sm:flex-col sm:gap-0">
@@ -372,38 +359,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
 }
 
 export function EventsClient(props: EventsClientProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const nextSearchParams = useNextSearchParams();
   const mounted = useHydrated();
-
-  const search = nextSearchParams?.toString() ?? "";
-  const location = useMemo(
-    () => ({
-      pathname,
-      search: search ? `?${search}` : "",
-      hash: "",
-      state: null,
-      key: `${pathname}${search ? `?${search}` : ""}`,
-    }),
-    [pathname, search],
-  );
-
-  const navigator = useMemo<HomegrownNavigator>(
-    () => ({
-      createHref: (to) => resolveToPath(to),
-      go: (delta) => {
-        window.history.go(delta);
-      },
-      push: (to) => {
-        router.push(resolveToPath(to));
-      },
-      replace: (to) => {
-        router.replace(resolveToPath(to));
-      },
-    }),
-    [router],
-  );
 
   useEffect(() => {
     const serverShell = document.getElementById("events-server-shell");
@@ -416,11 +372,7 @@ export function EventsClient(props: EventsClientProps) {
     return null;
   }
 
-  return (
-    <Router location={location as never} navigator={navigator as never} navigationType={NavigationType.Pop}>
-      <EventsClientInner {...props} />
-    </Router>
-  );
+  return <EventsClientInner {...props} />;
 }
 
 export default EventsClient;

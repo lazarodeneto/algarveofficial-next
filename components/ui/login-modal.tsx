@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Heart, Mail, Lock } from "lucide-react";
 import {
   Dialog,
@@ -93,7 +93,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
             <div className="flex items-center justify-between">
               <Label htmlFor="modal-password">{t('auth.password')}</Label>
               <Link 
-                to="/forgot-password" 
+                href="/forgot-password" 
                 onClick={() => onOpenChange(false)}
                 className="text-xs text-primary hover:underline"
               >
@@ -139,7 +139,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
         <p className="text-center text-sm text-muted-foreground mt-4">
           {t('auth.noAccount')}{" "}
           <Link
-            to="/signup"
+            href="/signup"
             onClick={() => onOpenChange(false)}
             className="text-primary hover:underline font-medium"
           >

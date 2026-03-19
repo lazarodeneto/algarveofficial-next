@@ -1,4 +1,5 @@
-import { Navigate, useLocation } from "@/components/router/nextRouterCompat";
+import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 
@@ -9,7 +10,32 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, isLoading, isAuthenticated, getDashboardPath } = useAuth();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+
+  const shouldRedirectToLogin = !isAuthenticated;
+  const shouldRedirectByRole = Boolean(allowedRoles && user && !allowedRoles.includes(user.role));
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (shouldRedirectToLogin) {
+      router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+      return;
+    }
+
+    if (shouldRedirectByRole && user) {
+      router.replace(getDashboardPath(user.role));
+    }
+  }, [
+    getDashboardPath,
+    isLoading,
+    pathname,
+    router,
+    shouldRedirectByRole,
+    shouldRedirectToLogin,
+    user,
+  ]);
 
   if (isLoading) {
     return (
@@ -22,13 +48,8 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate href="/login" state={{ from: location }} replace />;
-  }
-
-  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-    // Redirect to their appropriate dashboard if they try to access unauthorized area
-    return <Navigate href={getDashboardPath(user.role)} replace />;
+  if (shouldRedirectToLogin || shouldRedirectByRole) {
+    return null;
   }
 
   return <>{children}</>;

@@ -2,13 +2,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, Send, Mail, MousePointer, Loader2, Plus } from "lucide-react";
 import { useEmailStats, useRecentCampaignActivity } from "@/hooks/useEmailStats";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
 
 const EmailMarketingOverview = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const router = useRouter();
   const { data: stats, isLoading } = useEmailStats();
   const { data: recentCampaigns } = useRecentCampaignActivity();
 
@@ -24,7 +24,7 @@ const EmailMarketingOverview = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">{t("admin.emailOverview.title")}</h1>
-        <Button onClick={() => navigate("/admin/email/campaigns")} className="gap-2">
+        <Button onClick={() => router.push("/admin/email/campaigns")} className="gap-2">
           <Plus className="h-4 w-4" />
           {t("admin.emailOverview.newCampaign")}
         </Button>

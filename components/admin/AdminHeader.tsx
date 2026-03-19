@@ -1,5 +1,6 @@
 import { type FormEvent, useMemo, useState } from "react";
-import { Link, useNavigate } from "@/components/router/nextRouterCompat";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   ArrowRight,
   Bell,
@@ -41,7 +42,7 @@ import { useTranslation } from "react-i18next";
 export function AdminHeader() {
   const { t } = useTranslation();
   const { logout, user } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
   const { data: pendingCount = 0 } = usePendingReviewCount();
   const { data: pendingListingReviewsCount = 0 } = usePendingListingReviewCount();
   const { data: unreadMessagesCount = 0 } = useUnreadMessagesCount();
@@ -114,19 +115,19 @@ export function AdminHeader() {
     const target = exactMatch?.value ?? fuzzyMatch?.value;
     if (!target) return;
 
-    navigate(target);
+    router.push(target);
     setQuickJump("");
   };
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/88 backdrop-blur-xl supports-[backdrop-filter]:bg-background/72">
-      <div className="flex min-h-16 items-center justify-between gap-3 px-3 py-2 lg:px-5">
-        <div className="flex min-w-0 flex-1 items-center gap-3 pl-12 lg:pl-0">
-          <div className="min-w-0 shrink">
+      <div className="flex min-h-16 items-center justify-between gap-2 px-3 py-2 lg:px-5">
+        <div className="flex min-w-0 flex-1 items-center gap-2 pl-12 md:gap-3 lg:pl-0">
+          <div className="min-w-0 flex-1 xl:flex-none">
             <DashboardBreadcrumb />
           </div>
 
-          <form onSubmit={handleQuickJumpSubmit} className="relative hidden md:block w-full max-w-md">
+          <form onSubmit={handleQuickJumpSubmit} className="relative hidden w-full max-w-sm xl:block 2xl:max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               list="admin-quick-jump"
@@ -152,8 +153,8 @@ export function AdminHeader() {
           </form>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <div className="hidden xl:flex items-center gap-1">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
+          <div className="hidden 2xl:flex items-center gap-1">
             {quickActionLinks.map((item) => (
               <Button
                 key={item.href}
@@ -174,7 +175,7 @@ export function AdminHeader() {
             ))}
           </div>
 
-          <Button variant="ghost" size="icon" asChild className="h-9 w-9 text-muted-foreground hover:text-foreground group">
+          <Button variant="ghost" size="icon" asChild className="hidden h-9 w-9 text-muted-foreground hover:text-foreground group xl:inline-flex">
             <Link href="/">
               <Home className="h-5 w-5 transition-colors group-hover:text-foreground" />
             </Link>
@@ -211,7 +212,7 @@ export function AdminHeader() {
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 group-hover:bg-primary/30">
                   <User className="h-4 w-4 text-primary" />
                 </div>
-                <span className="hidden text-sm font-medium text-foreground group-hover:text-primary md:block">
+                <span className="hidden text-sm font-medium text-foreground group-hover:text-primary 2xl:block">
                   {t("common.admin")}
                 </span>
                 <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -276,42 +277,53 @@ export function AdminHeader() {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 border-t border-border/60 px-3 py-2 md:hidden">
-        {quickActionLinks.map((item) => (
-          <Button
-            key={item.href}
-            variant="ghost"
-            size="sm"
-            asChild
-            className="h-8 rounded-full border border-border/70 bg-background/70 px-3 text-xs text-muted-foreground hover:text-foreground"
-          >
-            <Link href={item.href}>
-              <Sparkles className="mr-1.5 h-3.5 w-3.5" />
-              <span>{item.label}</span>
-              {item.badge ? (
-                <span className="ml-1.5 rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-semibold text-destructive-foreground">
-                  {item.badge > 99 ? "99+" : item.badge}
-                </span>
-              ) : null}
-            </Link>
-          </Button>
-        ))}
+      <div className="border-t border-border/60 px-3 py-2 xl:hidden">
+        <div className="flex flex-wrap items-center gap-2">
+          <form onSubmit={handleQuickJumpSubmit} className="order-2 relative min-w-0 w-full sm:order-1 sm:flex-1 sm:min-w-[14rem]">
+            <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              list="admin-quick-jump-mobile"
+              value={quickJump}
+              onChange={(event) => setQuickJump(event.target.value)}
+              placeholder={t("admin.header.quickJump", "Quick jump: listings, translations, users...")}
+              className="h-8 rounded-full border-border/80 bg-background/80 pl-9 pr-9 text-xs sm:text-sm"
+            />
+            <datalist id="admin-quick-jump-mobile">
+              {quickJumpOptions.map((option) => (
+                <option key={option.value} value={option.label} />
+              ))}
+            </datalist>
+            <Button
+              type="submit"
+              variant="ghost"
+              size="icon"
+              className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full"
+              aria-label={t("admin.header.go", "Go")}
+            >
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+          </form>
 
-        <form onSubmit={handleQuickJumpSubmit} className="relative min-w-0 flex-1">
-          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            list="admin-quick-jump-mobile"
-            value={quickJump}
-            onChange={(event) => setQuickJump(event.target.value)}
-            placeholder={t("admin.header.jump", "Jump")}
-            className="h-8 rounded-full border-border/80 bg-background/80 pl-9 text-xs"
-          />
-          <datalist id="admin-quick-jump-mobile">
-            {quickJumpOptions.map((option) => (
-              <option key={option.value} value={option.label} />
-            ))}
-          </datalist>
-        </form>
+          {quickActionLinks.map((item) => (
+            <Button
+              key={item.href}
+              variant="ghost"
+              size="sm"
+              asChild
+              className="order-1 h-8 max-w-[11rem] shrink-0 rounded-full border border-border/70 bg-background/70 px-3 text-xs text-muted-foreground hover:text-foreground"
+            >
+              <Link href={item.href} className="inline-flex max-w-full items-center">
+                <Sparkles className="mr-1.5 h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{item.label}</span>
+                {item.badge ? (
+                  <span className="ml-1.5 rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-semibold text-destructive-foreground">
+                    {item.badge > 99 ? "99+" : item.badge}
+                  </span>
+                ) : null}
+              </Link>
+            </Button>
+          ))}
+        </div>
       </div>
     </header>
   );

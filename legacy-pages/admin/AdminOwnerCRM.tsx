@@ -1,7 +1,8 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Link, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   AlertCircle,
   ArrowDownUp,
@@ -231,7 +232,7 @@ function MetricTile({
 }
 
 export default function AdminOwnerCRM() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [ownerSort, setOwnerSort] = useState<OwnerSort>("activity");
   const [ownerStatusFilter, setOwnerStatusFilter] = useState<OwnerStatusFilter>("all");
@@ -580,15 +581,15 @@ export default function AdminOwnerCRM() {
               >
                 Compact {compactMode ? "On" : "Off"}
               </Button>
-              <Button variant="outline" size={compactMode ? "sm" : "default"} onClick={() => navigate("/admin/messages")}>
+              <Button variant="outline" size={compactMode ? "sm" : "default"} onClick={() => router.push("/admin/messages")}>
                 <MessageSquare className="h-4 w-4 mr-2" />
                 Message Center
               </Button>
-              <Button variant="outline" size={compactMode ? "sm" : "default"} onClick={() => navigate("/admin/subscriptions")}>
+              <Button variant="outline" size={compactMode ? "sm" : "default"} onClick={() => router.push("/admin/subscriptions")}>
                 <CreditCard className="h-4 w-4 mr-2" />
                 Subscription Settings
               </Button>
-              <Button size={compactMode ? "sm" : "default"} onClick={() => navigate("/admin/users")}>
+              <Button size={compactMode ? "sm" : "default"} onClick={() => router.push("/admin/users")}>
                 <Users className="h-4 w-4 mr-2" />
                 Manage Roles
               </Button>
@@ -844,17 +845,17 @@ export default function AdminOwnerCRM() {
                   </div>
 
                   <div className="flex gap-2 flex-wrap">
-                    <Button size={compactMode ? "sm" : "default"} onClick={() => navigate(`/admin/messages?ownerId=${ownerDetail.profile.id}`)}>
+                    <Button size={compactMode ? "sm" : "default"} onClick={() => router.push(`/admin/messages?ownerId=${ownerDetail.profile.id}`)}>
                       <MessageSquare className="h-4 w-4 mr-2" />
                       Open Messages
                     </Button>
-                    <Button variant="outline" size={compactMode ? "sm" : "default"} onClick={() => navigate("/admin/email/contacts")}>
+                    <Button variant="outline" size={compactMode ? "sm" : "default"} onClick={() => router.push("/admin/email/contacts")}>
                       <Mail className="h-4 w-4 mr-2" />
                       Email Contacts
                     </Button>
                     {ownerPrimaryListing && (
                       <Button variant="outline" size={compactMode ? "sm" : "default"} asChild>
-                        <Link to={`/admin/listings/${ownerPrimaryListing.id}/edit`}>
+                        <Link href={`/admin/listings/${ownerPrimaryListing.id}/edit`}>
                           Edit Latest Listing
                         </Link>
                       </Button>
@@ -1057,7 +1058,7 @@ export default function AdminOwnerCRM() {
                         {ownerDetail.listings.length} listings assigned to this owner
                       </CardDescription>
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => navigate("/admin/listings")}>
+                    <Button variant="outline" size="sm" onClick={() => router.push("/admin/listings")}>
                       View All Listings
                     </Button>
                   </CardHeader>
@@ -1105,13 +1106,13 @@ export default function AdminOwnerCRM() {
                               </div>
                               <div className="flex gap-2 shrink-0">
                                 <Button asChild variant="outline" size="sm">
-                                  <Link to={`/listing/${listing.slug}`} target="_blank">
+                                  <Link href={`/listing/${listing.slug}`} target="_blank">
                                     Public
                                     <ExternalLink className="h-3 w-3 ml-1" />
                                   </Link>
                                 </Button>
                                 <Button asChild size="sm">
-                                  <Link to={`/admin/listings/${listing.id}/edit`}>Edit</Link>
+                                  <Link href={`/admin/listings/${listing.id}/edit`}>Edit</Link>
                                 </Button>
                               </div>
                             </div>
@@ -1135,7 +1136,7 @@ export default function AdminOwnerCRM() {
                     <CardContent className="grid gap-2 sm:grid-cols-2">
                       <Button
                         size={compactMode ? "sm" : "default"}
-                        onClick={() => navigate(`/admin/messages?ownerId=${ownerDetail.profile.id}`)}
+                        onClick={() => router.push(`/admin/messages?ownerId=${ownerDetail.profile.id}`)}
                         className="justify-start"
                       >
                         <MessageSquare className="h-4 w-4 mr-2" />
@@ -1167,7 +1168,7 @@ export default function AdminOwnerCRM() {
                       <Button
                         variant="outline"
                         size={compactMode ? "sm" : "default"}
-                        onClick={() => navigate("/admin/email/contacts")}
+                        onClick={() => router.push("/admin/email/contacts")}
                         className="justify-start"
                       >
                         <Users className="h-4 w-4 mr-2" />
@@ -1259,7 +1260,7 @@ export default function AdminOwnerCRM() {
                         Most recent owner threads with direct moderation access.
                       </CardDescription>
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => navigate(`/admin/messages?ownerId=${ownerDetail.profile.id}`)}>
+                    <Button variant="outline" size="sm" onClick={() => router.push(`/admin/messages?ownerId=${ownerDetail.profile.id}`)}>
                       Open All
                     </Button>
                   </CardHeader>
@@ -1289,7 +1290,7 @@ export default function AdminOwnerCRM() {
                               <Badge variant="outline" className="capitalize">
                                 {thread.status}
                               </Badge>
-                              <Button variant="outline" size="sm" onClick={() => navigate(`/admin/messages?ownerId=${ownerDetail.profile.id}`)}>
+                              <Button variant="outline" size="sm" onClick={() => router.push(`/admin/messages?ownerId=${ownerDetail.profile.id}`)}>
                                 Open
                               </Button>
                             </div>

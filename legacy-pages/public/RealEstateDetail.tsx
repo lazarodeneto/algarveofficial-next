@@ -1,6 +1,7 @@
 
 import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import DOMPurify from "dompurify";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -98,10 +99,6 @@ const DEFAULT_AGENT = {
 export default function RealEstateDetail() {
     const { t, i18n } = useTranslation();
     const { slug } = useParams();
-
-    if (typeof window === "undefined") {
-        return null; // Return null during SSR to avoid context and browser API issues
-    }
 
     const [isVisitScheduling, setIsVisitScheduling] = useState(false);
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -208,7 +205,7 @@ export default function RealEstateDetail() {
                 <Header />
                 <h1 className="text-3xl font-serif text-foreground mb-4">Listing Not Found</h1>
                 <p className="text-muted-foreground mb-8">The property you are looking for might have been removed or renamed.</p>
-                <Link to="/invest">
+                <Link href="/invest">
                     <Button variant="outline">Browse All Listings</Button>
                 </Link>
             </div>
@@ -299,8 +296,8 @@ export default function RealEstateDetail() {
 
             {/* Breadcrumbs - simplified */}
                 <div className="container mx-auto px-4 py-4 text-xs text-muted-foreground uppercase tracking-widest flex items-center gap-2 font-medium">
-                    <Link to="/">{t('nav.home')}</Link> <ChevronRight className="w-3 h-3" />
-                    <Link to="/invest">{t('nav.invest')}</Link> <ChevronRight className="w-3 h-3" />
+                    <Link href="/">{t('nav.home')}</Link> <ChevronRight className="w-3 h-3" />
+                    <Link href="/invest">{t('nav.invest')}</Link> <ChevronRight className="w-3 h-3" />
                     <span className="text-gold">{effectiveTitle}</span>
                 </div>
 
@@ -721,7 +718,7 @@ export default function RealEstateDetail() {
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                                 {similarListings.map(item => (
-                                    <Link to={`/real-estate/${item.slug}`} key={item.id} className="group block">
+                                    <Link href={`/real-estate/${item.slug}`} key={item.id} className="group block">
                                         <div className="aspect-[4/3] rounded-2xl overflow-hidden mb-4 relative">
                                             <ListingImage
                                                 src={item.featured_image_url}

@@ -20,11 +20,14 @@ import { cn } from "@/lib/utils";
 import { useOwnerListings } from "@/hooks/useOwnerListings";
 import { useSubscriptionPricing } from "@/hooks/useSubscriptionPricing";
 import { useStripeSubscription } from "@/hooks/useStripeSubscription";
-import { useSearchParams } from "react-router-dom";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { SubscriptionTier, BillingPeriod } from "@/lib/stripePricing";
 
 export default function OwnerMembership() {
   const { t } = useTranslation();
+  const router = useRouter();
+  const pathname = usePathname() || "/owner/membership";
+  const searchParams = useSearchParams();
   const { data: listings = [], isLoading: isListingsLoading } = useOwnerListings();
   const { membershipTiers, isLoading: isPricingLoading } = useSubscriptionPricing(t);
   const { 
@@ -35,26 +38,35 @@ export default function OwnerMembership() {
     checkSubscription 
   } = useStripeSubscription();
   
-  const [searchParams, setSearchParams] = useSearchParams();
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly');
   const [checkoutInProgress, setCheckoutInProgress] = useState<string | null>(null);
   
   // Handle success/cancel redirects from Stripe
   useEffect(() => {
-    if (searchParams.get('success') === 'true') {
+    const success = searchParams.get('success') === 'true';
+    const canceled = searchParams.get('canceled') === 'true';
+
+    if (!success && !canceled) {
+      return;
+    }
+
+    if (success) {
       toast.success(t('owner.membership.paymentSuccess'), {
         description: t('owner.membership.paymentSuccessDesc'),
         duration: 5000,
       });
-      // Clear the search params
-      setSearchParams({});
       // Refresh subscription status
       checkSubscription();
-    } else if (searchParams.get('canceled') === 'true') {
+    } else {
       toast.info(t('owner.membership.checkoutCanceled'));
-      setSearchParams({});
     }
-  }, [searchParams, setSearchParams, checkSubscription, t]);
+
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.delete("success");
+    nextParams.delete("canceled");
+    const query = nextParams.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname);
+  }, [checkSubscription, pathname, router, searchParams, t]);
   
   // Determine current tier from subscription or listings
   const currentTier = subscription.subscribed 

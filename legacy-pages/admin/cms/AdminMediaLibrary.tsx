@@ -50,9 +50,6 @@ type ViewMode = 'grid' | 'list';
 type MediaCategory = 'all' | 'hero' | 'region' | 'city' | 'listing' | 'page' | 'general';
 
 export default function AdminMediaLibrary() {
-  if (typeof window === "undefined") {
-    return null;
-  }
   const { media, isLoading, uploadMedia, isUploading, deleteMedia, isDeleting } = useMediaLibrary();
   const fileInputRef = useRef<HTMLInputElement>(null);
   

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLangPrefix } from "@/hooks/useLangPrefix";
@@ -86,7 +86,7 @@ export function BrandLogo({
 
   if (asLink) {
     return (
-      <Link to={langPrefix || "/"} className="hover:opacity-80 transition-opacity">
+      <Link href={langPrefix || "/"} className="hover:opacity-80 transition-opacity">
         {content}
       </Link>
     );

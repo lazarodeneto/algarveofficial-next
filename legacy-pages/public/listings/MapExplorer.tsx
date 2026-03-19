@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Building2, Filter, Loader2, MapPinned, Search, Tag } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Header } from "@/components/layout/Header";
@@ -39,7 +40,9 @@ function isWithinAlgarveBounds(latitude: number, longitude: number): boolean {
 export default function MapExplorer() {
   const { t } = useTranslation();
   const langPrefix = useLangPrefix();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname() || "/map";
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
@@ -47,6 +50,19 @@ export default function MapExplorer() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedTier, setSelectedTier] = useState<string>("all");
   const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
+
+  const setSearchParams = useCallback(
+    (nextParams: URLSearchParams, options?: { replace?: boolean }) => {
+      const query = nextParams.toString();
+      const href = query ? `${pathname}?${query}` : pathname;
+      if (options?.replace) {
+        router.replace(href);
+        return;
+      }
+      router.push(href);
+    },
+    [pathname, router]
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 280);
@@ -202,7 +218,7 @@ export default function MapExplorer() {
                 Clustered category markers with instant filtering across the Algarve.
               </p>
             </div>
-            <Link to={buildLangPath(langPrefix, "/directory")}>
+            <Link href={buildLangPath(langPrefix, "/directory")}>
               <Button variant="outline">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 {t("nav.directory")}

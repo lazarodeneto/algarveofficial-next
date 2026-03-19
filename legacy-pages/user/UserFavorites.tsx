@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -57,9 +57,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function UserFavorites() {
-  if (typeof window === "undefined") {
-    return null;
-  }
   const { t } = useTranslation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -423,7 +420,7 @@ export default function UserFavorites() {
                   {t("dashboard.favorites.startExploring")}
                 </p>
                 <Button asChild>
-                  <Link to="/">{t("dashboard.favorites.exploreListings")}</Link>
+                  <Link href="/">{t("dashboard.favorites.exploreListings")}</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -463,7 +460,7 @@ export default function UserFavorites() {
                       )}
                     </div>
                     <CardContent className="p-4 flex flex-col">
-                      <Link to={`/listing/${listing.slug}`}>
+                      <Link href={`/listing/${listing.slug}`}>
                         <h3 className="font-medium line-clamp-1">
                           {listing.name}
                         </h3>
@@ -478,7 +475,7 @@ export default function UserFavorites() {
                       </div>
                       <div className="flex gap-2 mt-4">
                         <Button size="sm" variant="outline" className="flex-1" asChild>
-                          <Link to={`/listing/${listing.slug}`}>
+                          <Link href={`/listing/${listing.slug}`}>
                             <ExternalLink className="h-4 w-4 mr-1" />
                             View
                           </Link>
@@ -512,7 +509,7 @@ export default function UserFavorites() {
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                             <div className="min-w-0">
-                              <Link to={`/listing/${listing.slug}`}>
+                              <Link href={`/listing/${listing.slug}`}>
                                 <h3 className="font-medium line-clamp-2 sm:line-clamp-1 break-words">
                                   {listing.name}
                                 </h3>
@@ -596,7 +593,7 @@ export default function UserFavorites() {
                       </Button>
                     </div>
                     <CardContent className="p-4">
-                      <Link to={`/destinations/${region.slug}`}>
+                      <Link href={`/destinations/${region.slug}`}>
                         <h3 className="font-medium">
                           {region.name}
                         </h3>
@@ -605,7 +602,7 @@ export default function UserFavorites() {
                         {region.short_description}
                       </p>
                       <Button size="sm" variant="outline" className="mt-3 w-full" asChild>
-                        <Link to={`/destinations/${region.slug}`}>
+                        <Link href={`/destinations/${region.slug}`}>
                           {t("dashboard.favorites.exploreRegion")}
                           <ArrowRight className="h-4 w-4 ml-2" />
                         </Link>
@@ -657,7 +654,7 @@ export default function UserFavorites() {
                       </Button>
                     </div>
                     <CardContent className="p-4">
-                      <Link to={`/city/${city.slug}`}>
+                      <Link href={`/city/${city.slug}`}>
                         <h3 className="font-medium">
                           {city.name}
                         </h3>
@@ -666,7 +663,7 @@ export default function UserFavorites() {
                         {city.short_description}
                       </p>
                       <Button size="sm" variant="outline" className="mt-3 w-full" asChild>
-                        <Link to={`/city/${city.slug}`}>
+                        <Link href={`/city/${city.slug}`}>
                           {t("dashboard.favorites.exploreCity")}
                           <ArrowRight className="h-4 w-4 ml-2" />
                         </Link>

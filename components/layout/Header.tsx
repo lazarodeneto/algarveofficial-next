@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -171,7 +171,7 @@ export function Header() {
                       size="icon"
                       className="h-11 w-11 rounded-full border border-black/10 bg-white/82 text-primary shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl transition-all hover:border-primary/40 hover:bg-white hover:text-primary dark:border-white/14 dark:bg-white/10 dark:hover:border-primary/45 [&_svg]:!size-5"
                     >
-                      <Link to={directoryPath}>
+                      <Link href={directoryPath}>
                         <ListChecks />
                         <span className="sr-only">{t("nav.directory", "Directory")}</span>
                       </Link>
@@ -188,7 +188,7 @@ export function Header() {
             <div className="hidden lg:flex lg:items-center lg:gap-2 xl:gap-3 lg:shrink-0">
               {/* Saved */}
               <div className="flex items-center gap-1 rounded-full border border-black/10 bg-white/82 px-2 py-1.5 shadow-[0_16px_36px_-30px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
-                <Link to={favoritesPath}>
+                <Link href={favoritesPath}>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -214,7 +214,7 @@ export function Header() {
                 {isAuthenticated && user ? (
                   <div className="flex items-center gap-1">
                     {(user.role === "admin" || user.role === "editor") && (
-                      <Link to="/admin">
+                      <Link href="/admin">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -226,7 +226,7 @@ export function Header() {
                       </Link>
                     )}
 
-                    <Link to={getDashboardPath(user.role)}>
+                    <Link href={getDashboardPath(user.role)}>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -238,7 +238,7 @@ export function Header() {
                     </Link>
                   </div>
                 ) : (
-                  <Link to={loginPath}>
+                  <Link href={loginPath}>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -256,7 +256,7 @@ export function Header() {
 
             {/* Mobile menu button */}
             <div className="lg:hidden ml-auto flex items-center gap-1 sm:gap-3">
-              <Link to={favoritesPath}>
+              <Link href={favoritesPath}>
                 <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full border border-black/10 bg-white/80 text-foreground shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10 dark:text-white/85">
                   <Heart className="h-5 w-5 sm:h-5 sm:w-5" />
                 </Button>
@@ -306,7 +306,7 @@ export function Header() {
                     {/* VISIT */}
                     <AccordionItem value="visit">
                       <div className="flex items-center">
-                        <Link to={directoryPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
+                        <Link href={directoryPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
                           <div className="flex items-center gap-3">
                             <Binoculars className="h-6 w-6 text-primary" />
                             {t("nav.visit")}
@@ -316,15 +316,15 @@ export function Header() {
                       </div>
                       <AccordionContent>
                         <div className="flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
-                          <Link to={buildDirectoryCategoryPath("places-to-stay")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Hotel className="h-4 w-4" /> {t("categoryNames.places-to-stay")}</Link>
-                          <Link to={buildDirectoryCategoryPath("restaurants")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Utensils className="h-4 w-4" /> {t("categoryNames.restaurants")}</Link>
-                          <Link to={buildDirectoryCategoryPath("golf")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Trophy className="h-4 w-4" /> {t("categoryNames.golf")}</Link>
-                          <Link to={buildDirectoryCategoryPath("beaches-clubs")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Palmtree className="h-4 w-4" /> {t("categoryNames.beaches-clubs")}</Link>
-                          <Link to={buildDirectoryCategoryPath("wellness-spas")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Dumbbell className="h-4 w-4" /> {t("categoryNames.wellness-spas")}</Link>
-                          <Link to={buildDirectoryCategoryPath("algarve-services")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Users className="h-4 w-4" /> {t("categoryNames.algarve-services")}</Link>
-                          <Link to={buildDirectoryCategoryPath("things-to-do")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Compass className="h-4 w-4" /> {t("categoryNames.things-to-do")}</Link>
-                          <Link to={buildDirectoryCategoryPath("whats-on")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Calendar className="h-4 w-4" /> {t("categoryNames.whats-on")}</Link>
-                          <Link to={buildDirectoryCategoryPath("shopping-boutiques")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><ShoppingBag className="h-4 w-4" /> {t("categoryNames.shopping-boutiques")}</Link>
+                          <Link href={buildDirectoryCategoryPath("places-to-stay")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Hotel className="h-4 w-4" /> {t("categoryNames.places-to-stay")}</Link>
+                          <Link href={buildDirectoryCategoryPath("restaurants")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Utensils className="h-4 w-4" /> {t("categoryNames.restaurants")}</Link>
+                          <Link href={buildDirectoryCategoryPath("golf")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Trophy className="h-4 w-4" /> {t("categoryNames.golf")}</Link>
+                          <Link href={buildDirectoryCategoryPath("beaches-clubs")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Palmtree className="h-4 w-4" /> {t("categoryNames.beaches-clubs")}</Link>
+                          <Link href={buildDirectoryCategoryPath("wellness-spas")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Dumbbell className="h-4 w-4" /> {t("categoryNames.wellness-spas")}</Link>
+                          <Link href={buildDirectoryCategoryPath("algarve-services")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Users className="h-4 w-4" /> {t("categoryNames.algarve-services")}</Link>
+                          <Link href={buildDirectoryCategoryPath("things-to-do")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Compass className="h-4 w-4" /> {t("categoryNames.things-to-do")}</Link>
+                          <Link href={buildDirectoryCategoryPath("whats-on")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Calendar className="h-4 w-4" /> {t("categoryNames.whats-on")}</Link>
+                          <Link href={buildDirectoryCategoryPath("shopping-boutiques")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><ShoppingBag className="h-4 w-4" /> {t("categoryNames.shopping-boutiques")}</Link>
                         </div>
                       </AccordionContent>
                     </AccordionItem>
@@ -332,7 +332,7 @@ export function Header() {
                     {/* LIVE */}
                     <AccordionItem value="live">
                       <div className="flex items-center">
-                        <Link to={directoryPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
+                        <Link href={directoryPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
                           <div className="flex items-center gap-3">
                             <Home className="h-6 w-6 text-primary" />
                             {t("nav.live")}
@@ -342,11 +342,11 @@ export function Header() {
                       </div>
                       <AccordionContent>
                         <div className="flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
-                          <Link to={buildDirectoryCategoryPath("wellness-spas")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Dumbbell className="h-4 w-4" /> {t("categoryNames.wellness-spas")}</Link>
-                          <Link to={buildDirectoryCategoryPath("restaurants")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><ChefHat className="h-4 w-4" /> {t("categoryNames.restaurants")}</Link>
-                          <Link to={buildDirectoryCategoryPath("algarve-services")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Users className="h-4 w-4" /> {t("categoryNames.algarve-services")}</Link>
-                          <Link to={buildDirectoryCategoryPath("whats-on")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Calendar className="h-4 w-4" /> {t("categoryNames.whats-on")}</Link>
-                          <Link to={buildDirectoryCategoryPath("shopping-boutiques")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><ShoppingBag className="h-4 w-4" /> {t("categoryNames.shopping-boutiques")}</Link>
+                          <Link href={buildDirectoryCategoryPath("wellness-spas")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Dumbbell className="h-4 w-4" /> {t("categoryNames.wellness-spas")}</Link>
+                          <Link href={buildDirectoryCategoryPath("restaurants")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><ChefHat className="h-4 w-4" /> {t("categoryNames.restaurants")}</Link>
+                          <Link href={buildDirectoryCategoryPath("algarve-services")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Users className="h-4 w-4" /> {t("categoryNames.algarve-services")}</Link>
+                          <Link href={buildDirectoryCategoryPath("whats-on")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Calendar className="h-4 w-4" /> {t("categoryNames.whats-on")}</Link>
+                          <Link href={buildDirectoryCategoryPath("shopping-boutiques")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><ShoppingBag className="h-4 w-4" /> {t("categoryNames.shopping-boutiques")}</Link>
                         </div>
                       </AccordionContent>
                     </AccordionItem>
@@ -354,7 +354,7 @@ export function Header() {
                     {/* INVEST */}
                     <AccordionItem value="invest">
                       <div className="flex items-center">
-                        <Link to={investPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
+                        <Link href={investPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
                           <div className="flex items-center gap-3">
                             <TrendingUp className="h-6 w-6 text-primary" />
                             {t("nav.invest")}
@@ -364,9 +364,9 @@ export function Header() {
                       </div>
                       <AccordionContent>
                         <div className="flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
-                          <Link to={investPath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><TrendingUp className="h-4 w-4" /> {t("nav.invest", "Invest")}</Link>
-                          <Link to={realEstatePath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Building2 className="h-4 w-4" /> {t("realEstate.title", "Real Estate Directory")}</Link>
-                          <Link to={partnerPath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Plus className="h-4 w-4" /> {t("realEstate.addListing", "Add Real Estate Listing")}</Link>
+                          <Link href={investPath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><TrendingUp className="h-4 w-4" /> {t("nav.invest", "Invest")}</Link>
+                          <Link href={realEstatePath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Building2 className="h-4 w-4" /> {t("realEstate.title", "Real Estate Directory")}</Link>
+                          <Link href={partnerPath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Plus className="h-4 w-4" /> {t("realEstate.addListing", "Add Real Estate Listing")}</Link>
                         </div>
                       </AccordionContent>
                     </AccordionItem>
@@ -374,7 +374,7 @@ export function Header() {
 
                   {/* Mobile Actions */}
                   <div className="pt-6 border-t border-border space-y-3">
-                    <Link to={favoritesPath} onClick={() => setMobileMenuOpen(false)}>
+                    <Link href={favoritesPath} onClick={() => setMobileMenuOpen(false)}>
                       <Button variant="ghost" className="w-full justify-start gap-4 text-base">
                         <Heart className="h-5 w-5" />
                         {t("dashboard.favorites.title", "Saved")}
@@ -383,7 +383,7 @@ export function Header() {
 
                     {isAuthenticated && user ? (
                       <>
-                        <Link to={getDashboardPath(user.role)} onClick={() => setMobileMenuOpen(false)}>
+                        <Link href={getDashboardPath(user.role)} onClick={() => setMobileMenuOpen(false)}>
                           <Button variant="ghost" className="w-full justify-start gap-3 text-base">
                             <User className="h-5 w-5" />
                             <span>{t("nav.account")}</span>
@@ -401,7 +401,7 @@ export function Header() {
                         </Button>
                       </>
                     ) : (
-                      <Link to={loginPath} onClick={() => setMobileMenuOpen(false)}>
+                      <Link href={loginPath} onClick={() => setMobileMenuOpen(false)}>
                         <Button variant="ghost" className="w-full justify-start gap-3 text-base">
                           <User className="h-5 w-5" />
                           {t("nav.login")}

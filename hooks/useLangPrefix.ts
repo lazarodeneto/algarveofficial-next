@@ -1,4 +1,6 @@
-import { useLocation } from "react-router-dom";
+"use client";
+
+import { usePathname } from "next/navigation";
 
 const LANG_PREFIXES = ["/pt-pt", "/fr", "/de", "/es", "/it", "/nl", "/sv", "/no", "/da"];
 
@@ -7,13 +9,7 @@ const LANG_PREFIXES = ["/pt-pt", "/fr", "/de", "/es", "/it", "/nl", "/sv", "/no"
  * Use this to build language-aware internal links.
  */
 export function useLangPrefix(): string {
-  let pathname = "";
-  try {
-    const location = useLocation();
-    pathname = location.pathname;
-  } catch {
-    // Falls through to returning empty string if window/location/context is missing
-  }
+  const pathname = usePathname() ?? "";
 
   if (!pathname) return "";
 

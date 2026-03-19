@@ -110,9 +110,6 @@ const SYSTEM_PAGE_DEFINITIONS: SystemPageDefinition[] = [
 ];
 
 export default function AdminPages() {
-  if (typeof window === "undefined") {
-    return null;
-  }
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [editingPage, setEditingPage] = useState<PageContent | null>(null);

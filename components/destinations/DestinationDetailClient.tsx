@@ -5,9 +5,7 @@ import { useEffect, useMemo } from "react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { NavigationType, Router, createPath, type To } from "react-router";
-import { LegacyLink as Link } from "@/components/router/LegacyRouterBridge";
-import { usePathname, useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, ArrowRight, MapPin, Loader2 } from "lucide-react";
 
@@ -33,13 +31,6 @@ import {
   normalizePublicContentLocale,
   type PublicContentLocale,
 } from "@/lib/publicContentLocale";
-
-type HomegrownNavigator = {
-  createHref: (to: To) => string;
-  go: (delta: number) => void;
-  push: (to: To) => void;
-  replace: (to: To) => void;
-};
 
 export type DestinationRegion = Tables<"regions">;
 export type DestinationCity = Tables<"cities">;
@@ -168,10 +159,6 @@ const PUBLIC_LISTING_FIELDS = `
 const PUBLIC_CITY_FIELDS = "id, name, slug, short_description, image_url, latitude, longitude";
 const PUBLIC_REGION_FIELDS = "id, name, slug, short_description, image_url";
 const PUBLIC_CATEGORY_FIELDS = "id, name, slug, icon, short_description, image_url";
-
-function resolveToPath(to: To) {
-  return typeof to === "string" ? to : createPath(to);
-}
 
 function parseJsonSetting<T>(raw: string | undefined, fallback: T): T {
   if (!raw) return fallback;
@@ -622,7 +609,7 @@ function DestinationDetailClientInner({
             {cms.getText("notFound.description", "The destination you're looking for doesn't exist.")}
           </p>
           <Link
-            to="/destinations"
+            href="/destinations"
             className="inline-flex items-center gap-2 text-primary hover:underline"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -672,7 +659,7 @@ function DestinationDetailClientInner({
               className="mb-8"
             >
               <Link
-                to="/destinations"
+                href="/destinations"
                 className="inline-flex items-center gap-2 text-sm text-white/75 hover:text-white transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -717,7 +704,7 @@ function DestinationDetailClientInner({
                 {regionCities.map((city) => (
                   <Link
                     key={city.id}
-                    to={`/city/${city.slug}`}
+                    href={`/city/${city.slug}`}
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/25 backdrop-blur-sm border border-white/20 text-sm text-white hover:bg-black/35 hover:border-white/30 transition-colors tap-target"
                   >
                     <MapPin className="w-3 h-3 text-primary" />
@@ -778,7 +765,7 @@ function DestinationDetailClientInner({
                     transition={{ duration: 0.4, delay: index * 0.05 }}
                     className="h-full"
                   >
-                    <Link to={`/listing/${listing.slug}`} className="group block h-full">
+                    <Link href={`/listing/${listing.slug}`} className="group block h-full">
                       <article className="luxury-card overflow-hidden flex flex-col h-full hoverable">
                         {listing.tier === "signature" && (
                           <span
@@ -860,7 +847,7 @@ function DestinationDetailClientInner({
                   )}
                 </p>
                 <Link
-                  to="/destinations"
+                  href="/destinations"
                   className="inline-flex items-center gap-2 text-primary hover:underline"
                 >
                   {cms.getText("listings.emptyCta", "Explore Other Destinations")}
@@ -896,7 +883,7 @@ function DestinationDetailClientInner({
                 )}
               </p>
               <Link
-                to="/destinations"
+                href="/destinations"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors tap-target"
               >
                 {cms.getText("faq.cta", "View All Destinations")}
@@ -913,10 +900,6 @@ function DestinationDetailClientInner({
 }
 
 export function DestinationDetailClient(props: DestinationDetailClientProps) {
-  const pathname = usePathname() ?? `/destinations/${props.initialRegion.slug}`;
-  const nextSearchParams = useNextSearchParams();
-  const router = useRouter();
-
   useEffect(() => {
     const serverShell = document.getElementById("destination-detail-server-shell");
     if (serverShell) {
@@ -930,34 +913,5 @@ export function DestinationDetailClient(props: DestinationDetailClientProps) {
     };
   }, []);
 
-  const location = useMemo(
-    () => ({
-      pathname,
-      search: nextSearchParams?.toString() ? `?${nextSearchParams.toString()}` : "",
-      hash: "",
-      state: null,
-      key: "default",
-    }),
-    [nextSearchParams, pathname],
-  );
-
-  const navigator = useMemo<HomegrownNavigator>(
-    () => ({
-      createHref: (to) => resolveToPath(to),
-      go: (delta) => {
-        if (typeof window !== "undefined") {
-          window.history.go(delta);
-        }
-      },
-      push: (to) => router.push(resolveToPath(to)),
-      replace: (to) => router.replace(resolveToPath(to)),
-    }),
-    [router],
-  );
-
-  return (
-    <Router location={location} navigator={navigator} navigationType={NavigationType.Pop}>
-      <DestinationDetailClientInner {...props} />
-    </Router>
-  );
+  return <DestinationDetailClientInner {...props} />;
 }

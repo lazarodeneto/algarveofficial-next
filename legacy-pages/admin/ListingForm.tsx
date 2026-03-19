@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { useAllCities, useAllRegions, useAllCategories } from "@/hooks/useRefere
 import { useAdminListing } from "@/hooks/useListings";
 import { useCreateListing, useUpdateListing } from "@/hooks/useListingMutations";
 import { getDefaultDetails } from "@/lib/categoryTemplates";
+import { extractIdParam } from "@/lib/routeParams";
 import { LISTING_FORM_STEPS, type ListingFormData } from "@/types/listing";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,9 +42,9 @@ const getEmptyFormData = (): ListingFormData => ({
 });
 
 export default function ListingForm() {
-  const { id: rawId } = useParams<{ id?: string }>();
-  const id = Array.isArray(rawId) ? rawId[0] : rawId;
-  const navigate = useNavigate();
+  const params = useParams<Record<string, string | string[] | undefined>>();
+  const id = extractIdParam(params);
+  const router = useRouter();
   const { user } = useAuth();
   const isEditMode = Boolean(id);
 
@@ -275,7 +277,7 @@ export default function ListingForm() {
           listing: listingData as any,
           images: imagesData,
         });
-        navigate("/admin/listings");
+        router.push("/admin/listings");
       }
     } catch (error) {
       // Error is handled by mutation
@@ -414,7 +416,7 @@ export default function ListingForm() {
       {/* Header */}
       <div className="mb-6">
         <Button variant="ghost" size="sm" asChild className="mb-4">
-          <Link to="/admin/listings">
+          <Link href="/admin/listings">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Listings
           </Link>

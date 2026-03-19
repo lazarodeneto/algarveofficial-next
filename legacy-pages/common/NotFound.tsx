@@ -1,4 +1,5 @@
-import { useLocation, Link } from "react-router-dom";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { ArrowLeft, Home } from "lucide-react";
 import { Header } from "@/components/layout/Header";
@@ -6,11 +7,11 @@ import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 
 const NotFound = () => {
-  const location = useLocation();
+  const pathname = usePathname();
 
   useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
-  }, [location.pathname]);
+    console.error("404 Error: User attempted to access non-existent route:", pathname);
+  }, [pathname]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -29,7 +30,7 @@ const NotFound = () => {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button variant="gold" size="lg" asChild>
-              <Link to="/">
+              <Link href="/">
                 <Home className="h-4 w-4 mr-2" />
                 Back to Home
               </Link>

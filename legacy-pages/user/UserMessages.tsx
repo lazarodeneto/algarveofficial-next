@@ -19,7 +19,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { useUserChatThreads, type UserChatThread } from "@/hooks/useUserChatThreads";
 import { useChatMessages, useSendMessage, useMarkThreadMessagesAsRead } from "@/hooks/useChat";
 
@@ -98,7 +98,7 @@ export default function UserMessages() {
               {t("dashboard.messages.startConversation")}
             </p>
             <Button asChild className="mt-4">
-              <Link to="/directory">{t("dashboard.messages.browseListings")}</Link>
+              <Link href="/directory">{t("dashboard.messages.browseListings")}</Link>
             </Button>
           </CardContent>
         </Card>
@@ -215,7 +215,7 @@ export default function UserMessages() {
                       </div>
                       {selectedThread.listing && (
                         <Link
-                          to={`/listing/${selectedThread.listing.slug}`}
+                          href={`/listing/${selectedThread.listing.slug}`}
                           target="_blank"
                           className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 mt-1"
                         >

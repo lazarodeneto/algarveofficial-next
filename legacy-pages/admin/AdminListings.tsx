@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -52,10 +53,7 @@ import {
 import { toast } from "sonner";
 
 export default function AdminListings() {
-  if (typeof window === "undefined") {
-    return null;
-  }
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   
   const [search, setSearch] = useState("");
@@ -285,13 +283,13 @@ export default function AdminListings() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem asChild>
-              <Link to={`/listing/${listing.slug || listing.id}`}>
+              <Link href={`/listing/${listing.slug || listing.id}`}>
                 <Eye className="h-4 w-4 mr-2" />
                 View
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link to={`/admin/listings/${listing.id}/edit`}>
+              <Link href={`/admin/listings/${listing.id}/edit`}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit
               </Link>
@@ -375,7 +373,7 @@ export default function AdminListings() {
           </p>
         </div>
         <Button asChild>
-          <Link to="/admin/listings/new">
+          <Link href="/admin/listings/new">
             <Plus className="h-4 w-4 mr-2" />
             Create Listing
           </Link>
@@ -384,8 +382,8 @@ export default function AdminListings() {
 
       {/* Filters */}
       <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1 max-w-md">
+        <div className="flex flex-col gap-3 xl:flex-row">
+          <div className="relative w-full xl:max-w-md xl:flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search listings..."
@@ -396,7 +394,7 @@ export default function AdminListings() {
           </div>
           <div className="flex gap-2 flex-wrap">
             <Select value={cityFilter} onValueChange={setCityFilter}>
-              <SelectTrigger className="w-[140px]">
+              <SelectTrigger className="w-full sm:w-[140px]">
                 <SelectValue placeholder="City" />
               </SelectTrigger>
               <SelectContent>
@@ -409,7 +407,7 @@ export default function AdminListings() {
               </SelectContent>
             </Select>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-[160px]">
+              <SelectTrigger className="w-full sm:w-[160px]">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
@@ -422,7 +420,7 @@ export default function AdminListings() {
               </SelectContent>
             </Select>
             <Select value={tierFilter} onValueChange={setTierFilter}>
-              <SelectTrigger className="w-[140px]">
+              <SelectTrigger className="w-full sm:w-[140px]">
                 <SelectValue placeholder="Tier" />
               </SelectTrigger>
               <SelectContent>
@@ -433,7 +431,7 @@ export default function AdminListings() {
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[160px]">
+              <SelectTrigger className="w-full sm:w-[160px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -461,7 +459,7 @@ export default function AdminListings() {
             </span>
             {selectedIds.length === 1 && (
               <Button asChild size="sm" variant="outline">
-                <Link to={`/admin/listings/${selectedIds[0]}/edit`}>
+                <Link href={`/admin/listings/${selectedIds[0]}/edit`}>
                   <Edit className="h-4 w-4 mr-1" />
                   Edit
                 </Link>
