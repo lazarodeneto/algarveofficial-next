@@ -49,6 +49,7 @@ interface ExpandableSidebarProps {
   onToggle: () => void;
   logo: ReactNode;
   showHeader?: boolean;
+  hideSeparators?: boolean;
   density?: "comfortable" | "compact";
   sections: SidebarNavSection[];
   footerText?: string;
@@ -70,6 +71,7 @@ export function ExpandableSidebar({
   onToggle,
   logo,
   showHeader = true,
+  hideSeparators = false,
   density = "comfortable",
   sections,
   footerText,
@@ -302,10 +304,10 @@ export function ExpandableSidebar({
     if (!footerText && (!footerSections || footerSections.length === 0)) return null;
 
     return (
-      <div className="border-t border-border p-4 space-y-3">
-        {!compact && footerText ? <p className="text-xs text-muted-foreground text-center">{footerText}</p> : null}
-        {footerSections?.map((section) => (
-          <div key={section.id} className="space-y-1">
+    <div className={cn("p-4 space-y-3", !hideSeparators && "border-t border-border")}>
+      {!compact && footerText ? <p className="text-xs text-muted-foreground text-center">{footerText}</p> : null}
+      {footerSections?.map((section) => (
+        <div key={section.id} className="space-y-1">
             {!compact && section.title ? <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground/80 px-2">{section.title}</p> : null}
             {section.items.map((item) => {
               const ItemIcon = item.icon;
@@ -386,7 +388,13 @@ export function ExpandableSidebar({
   const renderSidebarContent = (forceExpanded = false) => (
     <div className="flex flex-col h-full">
       {showHeader ? (
-        <div className={cn("flex items-center border-b border-border/70 px-3 h-14", (collapsed && !forceExpanded) ? "justify-center" : "justify-between")}>
+        <div
+          className={cn(
+            "flex items-center px-3 h-14",
+            !hideSeparators && "border-b border-border/70",
+            (collapsed && !forceExpanded) ? "justify-center" : "justify-between",
+          )}
+        >
           {logo}
           {!(collapsed && !forceExpanded) ? (
             <Button
@@ -405,7 +413,7 @@ export function ExpandableSidebar({
         <nav className={cn("flex flex-col px-2", navContainerGapClass)}>
           {sections.map((section) => (
             <div key={section.id} className={sectionGapClass}>
-              {section.dividerTop ? <div className="my-2 mx-2 border-t border-border/70" /> : null}
+              {section.dividerTop && !hideSeparators ? <div className="my-2 mx-2 border-t border-border/70" /> : null}
               {section.title && !(collapsed && !forceExpanded) ? (
                 <p className="px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/70">{section.title}</p>
               ) : null}
