@@ -1,4 +1,5 @@
-import { useParams, Link } from "react-router-dom";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight, MapPin, Loader2 } from "lucide-react";
@@ -98,7 +99,7 @@ export default function DestinationDetail() {
             The destination you're looking for doesn't exist.
           </p>
           <Link
-            to="/destinations"
+            href="/destinations"
             className="inline-flex items-center gap-2 text-primary hover:underline"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -146,7 +147,7 @@ export default function DestinationDetail() {
             className="mb-8"
           >
             <Link
-              to="/destinations"
+              href="/destinations"
               className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -192,7 +193,7 @@ export default function DestinationDetail() {
               {regionCities.map((city: any) => (
                 <Link
                   key={city.id}
-                  to={`/city/${city.slug}`}
+                  href={`/city/${city.slug}`}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background/50 backdrop-blur-sm border border-border text-sm text-foreground hover:bg-primary/10 hover:border-primary/30 transition-colors tap-target"
                 >
                   <MapPin className="w-3 h-3 text-primary" />
@@ -243,7 +244,7 @@ export default function DestinationDetail() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
                 >
-                  <Link to={`/listing/${listing.slug}`} className="group block">
+                  <Link href={`/listing/${listing.slug}`} className="group block">
                     <article className="luxury-card overflow-hidden flex flex-col h-full hoverable">
                       {/* Image */}
                       <div className="relative aspect-[4/3] overflow-hidden">
@@ -317,7 +318,7 @@ export default function DestinationDetail() {
                 We're selecting the finest experiences for this region.
               </p>
               <Link
-                to="/destinations"
+                href="/destinations"
                 className="inline-flex items-center gap-2 text-primary hover:underline"
               >
                 Explore Other Destinations
@@ -344,7 +345,7 @@ export default function DestinationDetail() {
               Discover other prestigious regions across the Algarve
             </p>
             <Link
-              to="/destinations"
+              href="/destinations"
               className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors tap-target"
             >
               View All Destinations

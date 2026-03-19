@@ -1,6 +1,6 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { FileText, Scale, Users, ShieldCheck, AlertTriangle, CreditCard, Ban, Globe } from "lucide-react";
 
 const TermsOfService = () => {
@@ -426,7 +426,7 @@ const TermsOfService = () => {
             <h3 className="font-semibold text-foreground mb-4">Related Policies</h3>
             <div className="flex flex-wrap gap-4">
               <Link 
-                to="/privacy-policy" 
+                href="/privacy-policy" 
                 className="text-primary hover:underline inline-flex items-center gap-2"
               >
                 <ShieldCheck className="w-4 h-4" />
@@ -438,7 +438,7 @@ const TermsOfService = () => {
           {/* Back Link */}
           <div className="text-center pt-8 border-t border-border">
             <Link 
-              to="/" 
+              href="/" 
               className="text-primary hover:underline inline-flex items-center gap-2"
             >
               ← Back to Home

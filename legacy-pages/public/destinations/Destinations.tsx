@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { ArrowRight, MapPin, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Header } from "@/components/layout/Header";
@@ -60,7 +60,7 @@ export default function Destinations() {
                 const image = getRegionImageSet(region.slug);
                 return (
                   <motion.div key={region.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: index * 0.1 }}>
-                    <Link to={`/destinations/${region.slug}`} className="glass-box group relative overflow-hidden rounded-xl aspect-[4/5] luxury-card cursor-pointer block">
+                    <Link href={`/destinations/${region.slug}`} className="glass-box group relative overflow-hidden rounded-xl aspect-[4/5] luxury-card cursor-pointer block">
                       <div className="absolute inset-0">
                         {image ? (
                           <img src={image.image} srcSet={`${image.image400} 400w, ${image.image800} 800w, ${image.image} 1200w`} alt={region.name} width={400} height={500} loading="lazy" decoding="async" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
@@ -96,7 +96,7 @@ export default function Destinations() {
             <div className="flex-grid-centered">
               {otherRegions.map((region, index) => (
                 <motion.div key={region.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: index * 0.1 }}>
-                  <Link to={`/destinations/${region.slug}`} className="group block p-6 rounded-xl bg-background border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-elevated">
+                  <Link href={`/destinations/${region.slug}`} className="group block p-6 rounded-xl bg-background border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-elevated">
                     <div className="flex items-start justify-between mb-4">
                       <div className="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors"><MapPin className="w-6 h-6 text-primary" /></div>
                     </div>
@@ -117,7 +117,7 @@ export default function Destinations() {
               <h2 className="text-3xl lg:text-4xl font-serif font-medium text-foreground mb-6">{t('sections.regions.cantDecide')}</h2>
               <p className="text-lg text-muted-foreground mb-8">{t('sections.regions.cantDecideSubtitle')}</p>
               <Button asChild variant="gold" size="lg">
-                <Link to="/#categories">{t('sections.regions.browseByCategory')} <ArrowRight className="w-4 h-4" /></Link>
+                <Link href="/#categories">{t('sections.regions.browseByCategory')} <ArrowRight className="w-4 h-4" /></Link>
               </Button>
             </motion.div>
           </div>

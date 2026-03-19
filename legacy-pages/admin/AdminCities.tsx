@@ -28,9 +28,6 @@ import type { Tables } from "@/integrations/supabase/types";
 type CityRow = Tables<"cities">;
 
 export default function AdminCities() {
-  if (typeof window === "undefined") {
-    return null;
-  }
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);

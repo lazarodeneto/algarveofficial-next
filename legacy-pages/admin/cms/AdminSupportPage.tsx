@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useSupportSettings, FAQ } from "@/hooks/useSupportSettings";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function AdminSupportPage() {
   const { settings, isLoading, updateSettings } = useSupportSettings();
@@ -114,7 +114,7 @@ export default function AdminSupportPage() {
         </div>
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm" asChild>
-            <Link to="/owner/support" target="_blank">
+            <Link href="/owner/support" target="_blank">
               <ExternalLink className="mr-2 h-4 w-4" />
               View Page
             </Link>

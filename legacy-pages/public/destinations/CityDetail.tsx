@@ -1,4 +1,5 @@
-import { useParams, Link } from "react-router-dom";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight, MapPin, Building2, Loader2, Crown } from "lucide-react";
@@ -101,7 +102,7 @@ export default function CityDetail() {
             The city you're looking for doesn't exist.
           </p>
           <Link
-            to="/"
+            href="/"
             className="inline-flex items-center gap-2 text-primary hover:underline"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -151,7 +152,7 @@ export default function CityDetail() {
             className="mb-8 flex items-center justify-between"
           >
             <Link
-              to="/#cities"
+              href="/#cities"
               className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -205,7 +206,7 @@ export default function CityDetail() {
               transition={{ duration: 0.6, delay: 0.4 }}
             >
               <Link
-                to={`/destinations/${cityRegion.slug}`}
+                href={`/destinations/${cityRegion.slug}`}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-sm text-primary hover:bg-primary/20 transition-colors"
               >
                 <Crown className="w-4 h-4" />
@@ -256,7 +257,7 @@ export default function CityDetail() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
                 >
-                  <Link to={`/listing/${listing.slug}`} className="group block">
+                  <Link href={`/listing/${listing.slug}`} className="group block">
                     <article className="luxury-card overflow-hidden flex flex-col h-full hoverable">
                       {/* Image */}
                       <div className="relative aspect-[4/3] overflow-hidden">
@@ -330,7 +331,7 @@ export default function CityDetail() {
                 We're selecting the finest experiences for this city.
               </p>
               <Link
-                to="/"
+                href="/"
                 className="inline-flex items-center gap-2 text-primary hover:underline"
               >
                 Explore All Listings
@@ -357,7 +358,7 @@ export default function CityDetail() {
               Discover other vibrant cities across the Algarve
             </p>
             <Link
-              to="/#cities"
+              href="/#cities"
               className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors tap-target"
             >
               View All Cities

@@ -5,9 +5,7 @@ import { useEffect, useMemo } from "react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { NavigationType, Router, createPath, type To } from "react-router";
-import { LegacyLink as Link } from "@/components/router/LegacyRouterBridge";
-import { usePathname, useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
+import Link from "next/link";
 import { ArrowRight, MapPin, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -27,13 +25,6 @@ import { useHydrated } from "@/hooks/useHydrated";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
 
-type HomegrownNavigator = {
-  createHref: (to: To) => string;
-  go: (delta: number) => void;
-  push: (to: To) => void;
-  replace: (to: To) => void;
-};
-
 export type RegionRow = Tables<"regions">;
 export type GlobalSettingRow = Pick<Tables<"global_settings">, "key" | "value" | "category">;
 
@@ -48,10 +39,6 @@ const DESTINATIONS_CMS_KEYS = [
   CMS_GLOBAL_SETTING_KEYS.designTokens,
   CMS_GLOBAL_SETTING_KEYS.customCss,
 ] as const;
-
-function resolveToPath(to: To) {
-  return typeof to === "string" ? to : createPath(to);
-}
 
 function parseJsonSetting<T>(raw: string | undefined, fallback: T): T {
   if (!raw) return fallback;
@@ -297,12 +284,12 @@ function DestinationsClientInner({ initialRegions, initialGlobalSettings }: Dest
             media={<PageHeroImage page="destinations" alt={t("destinations.hero.alt", "Scenic Algarve destination coastline")} />}
             ctas={
               <>
-                <Link to={buildLangPath(langPrefix, "/directory")}>
+                <Link href={buildLangPath(langPrefix, "/directory")}>
                   <Button variant="gold" size="lg">
                     {t("destinations.hero.ctaPrimary", "Browse Premium Listings")}
                   </Button>
                 </Link>
-                <Link to={buildLangPath(langPrefix, "/live")}>
+                <Link href={buildLangPath(langPrefix, "/live")}>
                   <Button variant="heroOutline" size="lg">
                     {t("destinations.hero.ctaSecondary", "Plan Relocation")}
                   </Button>
@@ -338,7 +325,7 @@ function DestinationsClientInner({ initialRegions, initialGlobalSettings }: Dest
                     transition={{ duration: 0.6, delay: index * 0.1 }}
                   >
                     <Link
-                      to={`/destinations/${region.slug}`}
+                      href={`/destinations/${region.slug}`}
                       className="glass-box group relative overflow-hidden rounded-xl aspect-[4/5] luxury-card cursor-pointer block"
                     >
                       <div className="absolute inset-0">
@@ -413,7 +400,7 @@ function DestinationsClientInner({ initialRegions, initialGlobalSettings }: Dest
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                 >
                   <Link
-                    to={`/destinations/${region.slug}`}
+                    href={`/destinations/${region.slug}`}
                     className="group block p-6 rounded-xl bg-background border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-elevated"
                   >
                     <div className="flex items-start justify-between mb-4">
@@ -451,7 +438,7 @@ function DestinationsClientInner({ initialRegions, initialGlobalSettings }: Dest
                 {t("sections.regions.cantDecideSubtitle")}
               </p>
               <Button asChild variant="gold" size="lg">
-                <Link to="/#categories">
+                <Link href="/#categories">
                   {t("sections.regions.browseByCategory")} <ArrowRight className="w-4 h-4" />
                 </Link>
               </Button>
@@ -466,38 +453,7 @@ function DestinationsClientInner({ initialRegions, initialGlobalSettings }: Dest
 }
 
 export function DestinationsClient(props: DestinationsClientProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const nextSearchParams = useNextSearchParams();
   const mounted = useHydrated();
-
-  const search = nextSearchParams?.toString() ?? "";
-  const location = useMemo(
-    () => ({
-      pathname,
-      search: search ? `?${search}` : "",
-      hash: "",
-      state: null,
-      key: `${pathname}${search ? `?${search}` : ""}`,
-    }),
-    [pathname, search],
-  );
-
-  const navigator = useMemo<HomegrownNavigator>(
-    () => ({
-      createHref: (to) => resolveToPath(to),
-      go: (delta) => {
-        window.history.go(delta);
-      },
-      push: (to) => {
-        router.push(resolveToPath(to));
-      },
-      replace: (to) => {
-        router.replace(resolveToPath(to));
-      },
-    }),
-    [router],
-  );
 
   useEffect(() => {
     const serverShell = document.getElementById("destinations-server-shell");
@@ -510,11 +466,7 @@ export function DestinationsClient(props: DestinationsClientProps) {
     return null;
   }
 
-  return (
-    <Router location={location as never} navigator={navigator as never} navigationType={NavigationType.Pop}>
-      <DestinationsClientInner {...props} />
-    </Router>
-  );
+  return <DestinationsClientInner {...props} />;
 }
 
 export default DestinationsClient;

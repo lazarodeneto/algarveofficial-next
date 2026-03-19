@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
@@ -43,9 +43,6 @@ interface ImageItem {
 }
 
 export default function OwnerMedia() {
-  if (typeof window === "undefined") {
-    return null;
-  }
   const { t } = useTranslation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -72,11 +69,11 @@ export default function OwnerMedia() {
   }, [selectedListing]);
 
   // Set first listing as default when data loads
-  useState(() => {
+  useEffect(() => {
     if (listings.length > 0 && !selectedListingId) {
       setSelectedListingId(listings[0].id);
     }
-  });
+  }, [listings, selectedListingId]);
   
   const handleListingChange = (listingId: string) => {
     setSelectedListingId(listingId);

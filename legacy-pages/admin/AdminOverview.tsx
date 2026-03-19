@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -120,7 +120,7 @@ export default function AdminOverview() {
         </div>
         <div className="flex gap-2">
           <Button asChild>
-            <Link to="/admin/listings/new">
+            <Link href="/admin/listings/new">
               <Plus className="h-4 w-4 mr-2" />
               Create Listing
             </Link>
@@ -158,7 +158,7 @@ export default function AdminOverview() {
         <CardContent>
           <div className="grid grid-cols-3 gap-4">
             <Link
-              to="/admin/listings?tier=unverified"
+              href="/admin/listings?tier=unverified"
               className="text-center p-4 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors cursor-pointer block"
             >
               <p className="text-3xl font-serif font-semibold text-muted-foreground">
@@ -167,7 +167,7 @@ export default function AdminOverview() {
               <TierBadge tier="unverified" size="sm" />
             </Link>
             <Link
-              to="/admin/listings?tier=verified"
+              href="/admin/listings?tier=verified"
               className="text-center p-4 rounded-lg bg-green-500/10 hover:bg-green-500/20 transition-colors cursor-pointer block"
             >
               <p className="text-3xl font-serif font-semibold text-green-400">
@@ -176,7 +176,7 @@ export default function AdminOverview() {
               <TierBadge tier="verified" size="sm" />
             </Link>
             <Link
-              to="/admin/listings?tier=signature"
+              href="/admin/listings?tier=signature"
               className="text-center p-4 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors cursor-pointer block"
             >
               <p className="text-3xl font-serif font-semibold text-primary">
@@ -298,19 +298,19 @@ export default function AdminOverview() {
           </CardHeader>
           <CardContent className="space-y-3">
             <Button variant="outline" className="w-full justify-start" asChild>
-              <Link to="/admin/listings/new">
+              <Link href="/admin/listings/new">
                 <Plus className="h-4 w-4 mr-2" />
                 Create New Listing
               </Link>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
-              <Link to="/admin/moderation">
+              <Link href="/admin/moderation">
                 <ClipboardCheck className="h-4 w-4 mr-2" />
                 Review Pending ({stats?.pendingReview || 0})
               </Link>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
-              <Link to="/admin/curated">
+              <Link href="/admin/curated">
                 <Crown className="h-4 w-4 mr-2" />
                 Manage Signature Selection
               </Link>
@@ -323,7 +323,7 @@ export default function AdminOverview() {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="font-serif text-xl">Recent Listings</CardTitle>
             <Button variant="ghost" size="sm" asChild>
-              <Link to="/admin/listings">
+              <Link href="/admin/listings">
                 View All <ArrowUpRight className="h-4 w-4 ml-1" />
               </Link>
             </Button>

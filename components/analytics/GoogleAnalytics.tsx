@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useLocation } from "@/components/router/nextRouterCompat";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { useSiteColors } from "@/hooks/useSiteSettings"; // Using lightweight hook to get settings
 
@@ -60,9 +60,11 @@ function teardownGoogleAnalytics(measurementId?: string) {
  */
 export function GoogleAnalytics() {
   const { canUseCategory } = useCookieConsent();
-  const location = useLocation();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
   const scriptLoaded = useRef(false);
   const settings = useSiteColors(); // This returns the settings object
+  const search = searchParams?.toString() ?? "";
 
   // Use dynamic ID from settings or fallback to hardcoded (migration safety)
   // const GA_MEASUREMENT_ID = "G-T989074CQL"; 
@@ -110,10 +112,10 @@ export function GoogleAnalytics() {
     if (!hasAnalyticsConsent || !scriptLoaded.current || !window.gtag) return;
 
     window.gtag("event", "page_view", {
-      page_path: location.pathname + location.search,
+      page_path: `${pathname}${search ? `?${search}` : ""}`,
       page_title: document.title,
     });
-  }, [location.pathname, location.search, hasAnalyticsConsent]);
+  }, [hasAnalyticsConsent, pathname, search]);
 
   return null;
 }

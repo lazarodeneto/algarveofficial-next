@@ -34,9 +34,6 @@ interface SignatureListing {
 }
 
 export default function AdminCurated() {
-  if (typeof window === "undefined") {
-    return null;
-  }
   const queryClient = useQueryClient();
 
   // Fetch signature listings from Supabase (tier=signature + published)

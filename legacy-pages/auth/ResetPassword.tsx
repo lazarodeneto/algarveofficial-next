@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,7 +14,7 @@ import { toast } from 'sonner';
 
 export default function ResetPassword() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -75,7 +76,7 @@ export default function ResetPassword() {
         
         // Redirect to login after 3 seconds
         setTimeout(() => {
-          navigate('/login');
+          router.push('/login');
         }, 3000);
       }
     } catch (err) {
@@ -100,7 +101,7 @@ export default function ResetPassword() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-background" />
         <div className="absolute inset-0 bg-[url('/placeholder.svg')] bg-cover bg-center opacity-10" />
         <div className="relative z-10 flex flex-col justify-between p-12 w-full">
-          <Link to="/" className="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
+          <Link href="/" className="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
             <ArrowLeft className="h-5 w-5" />
             <span className="font-sans">{t('auth.backToHome')}</span>
           </Link>
@@ -145,7 +146,7 @@ export default function ResetPassword() {
         >
           {/* Mobile back link */}
           <Link 
-            to="/login" 
+            href="/login" 
             className="lg:hidden flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -181,7 +182,7 @@ export default function ResetPassword() {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
                 <Button asChild variant="outline" className="w-full">
-                  <Link to="/forgot-password">{t('auth.requestNewLink')}</Link>
+                  <Link href="/forgot-password">{t('auth.requestNewLink')}</Link>
                 </Button>
               </CardContent>
             ) : (

@@ -1,4 +1,4 @@
-import { useSearchParams } from "react-router-dom";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   BarChart3, 
@@ -23,14 +23,23 @@ import { useTranslation } from "react-i18next";
 
 const EmailReports = () => {
   const { t } = useTranslation();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname() || "/admin/growth/reports";
+  const searchParams = useSearchParams();
   const selectedCampaignId = searchParams.get("campaign") || undefined;
 
   const { data: campaigns, isLoading: campaignsLoading } = useEmailCampaigns({ status: "sent" });
   const { data: report, isLoading: reportLoading } = useCampaignReport(selectedCampaignId);
 
   const handleCampaignChange = (campaignId: string) => {
-    setSearchParams({ campaign: campaignId });
+    const nextParams = new URLSearchParams(searchParams.toString());
+    if (campaignId) {
+      nextParams.set("campaign", campaignId);
+    } else {
+      nextParams.delete("campaign");
+    }
+    const query = nextParams.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname);
   };
 
   if (campaignsLoading) {

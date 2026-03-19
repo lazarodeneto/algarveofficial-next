@@ -8,12 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { SeoFieldsPanel, SeoData } from "@/components/admin/seo/SeoFieldsPanel";
 import { usePartnerSettings, FAQ } from "@/hooks/usePartnerSettings";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function AdminPartnerPage() {
-  if (typeof window === "undefined") {
-    return null;
-  }
   const { settings, isLoading, updateSettings } = usePartnerSettings();
   const [isSaving, setIsSaving] = useState(false);
 
@@ -131,7 +128,7 @@ export default function AdminPartnerPage() {
         </div>
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm" asChild>
-            <Link to="/partner" target="_blank">
+            <Link href="/partner" target="_blank">
               <ExternalLink className="mr-2 h-4 w-4" />
               View Page
             </Link>

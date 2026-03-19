@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams, useRouter } from "next/navigation";
 import { format } from 'date-fns';
 import { 
   ArrowLeft, 
@@ -33,11 +33,12 @@ import {
   type EventFormData 
 } from '@/types/events';
 import { toast } from '@/hooks/use-toast';
+import { extractIdParam } from "@/lib/routeParams";
 
 export default function OwnerEventSubmit() {
-  const navigate = useNavigate();
-  const { id: rawId } = useParams<{ id?: string }>();
-  const id = Array.isArray(rawId) ? rawId[0] : rawId;
+  const router = useRouter();
+  const params = useParams<Record<string, string | string[] | undefined>>();
+  const id = extractIdParam(params);
   const isEditing = !!id;
 
   const { data: event, isLoading: isLoadingEvent } = useEvent(id);
@@ -132,7 +133,7 @@ export default function OwnerEventSubmit() {
             : 'Our team will review your event and publish it soon.'
         });
       }
-      navigate('/owner/events');
+      router.push('/owner/events');
     } catch (error: any) {
       toast({ 
         title: 'Failed to save event', 
@@ -156,7 +157,7 @@ export default function OwnerEventSubmit() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/owner/events')}>
+        <Button variant="ghost" size="icon" onClick={() => router.push('/owner/events')}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>

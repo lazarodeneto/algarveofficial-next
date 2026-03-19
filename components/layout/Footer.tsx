@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { MapPin, Mail } from "lucide-react";
 import { useFooterMenu } from "@/hooks/useFooterMenu";
 import { useTranslation } from "react-i18next";
@@ -244,7 +244,7 @@ export function Footer() {
                 </a>
               ) : (
                 <Link
-                  to={resolvedHref}
+                  href={resolvedHref}
                   className="text-body-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   {displayName}

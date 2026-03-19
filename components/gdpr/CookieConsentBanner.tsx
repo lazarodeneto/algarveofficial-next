@@ -3,7 +3,7 @@ import { Cookie, Shield, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAnalyticsConsent } from '@/hooks/useAnalyticsConsent';
 import { useCookieBannerSettings } from '@/hooks/useCookieBannerSettings';
-import { Link } from "@/components/router/nextRouterCompat";
+import Link from "next/link";
 
 export function CookieConsentBanner() {
   const { showBanner, acceptConsent, rejectConsent } = useAnalyticsConsent();

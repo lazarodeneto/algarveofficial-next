@@ -1,5 +1,6 @@
 import { type ReactNode, useCallback, useMemo, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { ChevronDown, ChevronLeft, ChevronRight, Menu, X, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -81,7 +82,7 @@ export function ExpandableSidebar({
   mobileToggleClassName,
   className,
 }: ExpandableSidebarProps) {
-  const location = useLocation();
+  const pathname = usePathname() ?? "";
   const [mobileOpen, setMobileOpen] = useState(false);
   const compactDensity = density === "compact";
   const navItemPaddingY = compactDensity ? "py-1.5" : "py-2.5";
@@ -94,16 +95,17 @@ export function ExpandableSidebar({
 
   const isLeafActive = useCallback((item: SidebarNavItem) => {
     if (!item.href) return false;
-    if (item.end) return location.pathname === item.href;
-    return location.pathname.startsWith(item.href);
-  }, [location.pathname]);
+    if (item.end) return pathname === item.href;
+    return pathname.startsWith(item.href);
+  }, [pathname]);
 
   const isItemActive = useCallback((item: SidebarNavItem): boolean => {
     const walk = (node: SidebarNavItem): boolean => {
-      if (node.children?.length) {
-        return node.children.some(walk);
+      const selfActive = isLeafActive(node);
+      if (!node.children?.length) {
+        return selfActive;
       }
-      return isLeafActive(node);
+      return selfActive || node.children.some(walk);
     };
     return walk(item);
   }, [isLeafActive]);
@@ -192,10 +194,9 @@ export function ExpandableSidebar({
         ) : null}
       </a>
     ) : (
-      <NavLink
+      <Link
         key={keyHint ?? getItemKey(item, `leaf-${depth}`)}
-        to={item.href}
-        end={item.end}
+        href={item.href}
         onClick={closeMobile}
         aria-label={compact ? item.label : undefined}
         className={sharedClassName}
@@ -216,7 +217,7 @@ export function ExpandableSidebar({
             {item.badge > 9 ? "9+" : item.badge}
           </span>
         ) : null}
-      </NavLink>
+      </Link>
     );
 
     if (!compact) {
@@ -242,15 +243,16 @@ export function ExpandableSidebar({
     const active = isItemActive(item);
     const open = openGroups[key] ?? false;
     const compact = collapsed && !forceExpanded;
+    const defaultChildHref = item.children.find((child) => child.href)?.href;
+    const primaryHref = item.href ?? defaultChildHref;
 
     if (compact) {
-      const firstChildHref = item.children.find((child) => child.href)?.href;
-      if (!firstChildHref) return null;
+      if (!primaryHref) return null;
 
       const navItem = (
-        <NavLink
+        <Link
           key={key}
-          to={firstChildHref}
+          href={primaryHref}
           onClick={closeMobile}
           aria-label={item.label}
           className={cn(
@@ -261,7 +263,7 @@ export function ExpandableSidebar({
           )}
         >
           <item.icon className={cn("h-5 w-5", active && "text-primary")} />
-        </NavLink>
+        </Link>
       );
 
       return (
@@ -276,20 +278,61 @@ export function ExpandableSidebar({
 
     return (
       <Collapsible key={key} open={open} onOpenChange={(next) => setManualOpenGroups((prev) => ({ ...prev, [key]: next }))}>
-        <CollapsibleTrigger asChild>
-          <button
-            className={cn(
-              "w-full flex items-center gap-3 px-3 rounded-lg text-sm font-medium transition-colors",
-              "hover:bg-muted hover:text-foreground",
-              active ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground",
-              navItemPaddingY,
-            )}
-          >
-            <item.icon className={cn("h-5 w-5 flex-shrink-0", active && "text-primary")} />
-            <span className="flex-1 text-left truncate">{item.label}</span>
-            <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
-          </button>
-        </CollapsibleTrigger>
+        <div className="flex items-center gap-1">
+          {primaryHref ? (
+            <Link
+              href={primaryHref}
+              onClick={closeMobile}
+              className={cn(
+                "flex-1 flex items-center gap-3 px-3 rounded-lg text-sm font-medium transition-colors",
+                "hover:bg-muted hover:text-foreground",
+                active ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground",
+                navItemPaddingY,
+              )}
+            >
+              <item.icon className={cn("h-5 w-5 flex-shrink-0", active && "text-primary")} />
+              <span className="flex-1 text-left truncate">{item.label}</span>
+              {item.badge ? (
+                <span className={cn("flex h-5 min-w-5 items-center justify-center rounded-full text-[10px] font-semibold px-1.5", badgeClasses(item.badgeTone))}>
+                  {item.badge > 99 ? "99+" : item.badge}
+                </span>
+              ) : null}
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setManualOpenGroups((prev) => ({ ...prev, [key]: !open }))}
+              className={cn(
+                "w-full flex items-center gap-3 px-3 rounded-lg text-sm font-medium transition-colors",
+                "hover:bg-muted hover:text-foreground",
+                active ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground",
+                navItemPaddingY,
+              )}
+            >
+              <item.icon className={cn("h-5 w-5 flex-shrink-0", active && "text-primary")} />
+              <span className="flex-1 text-left truncate">{item.label}</span>
+              {item.badge ? (
+                <span className={cn("flex h-5 min-w-5 items-center justify-center rounded-full text-[10px] font-semibold px-1.5", badgeClasses(item.badgeTone))}>
+                  {item.badge > 99 ? "99+" : item.badge}
+                </span>
+              ) : null}
+            </button>
+          )}
+
+          <CollapsibleTrigger asChild>
+            <button
+              type="button"
+              aria-label={open ? `Collapse ${item.label}` : `Expand ${item.label}`}
+              className={cn(
+                "flex h-9 w-9 items-center justify-center rounded-md transition-colors",
+                "hover:bg-muted hover:text-foreground",
+                active ? "text-primary" : "text-muted-foreground",
+              )}
+            >
+              <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
+            </button>
+          </CollapsibleTrigger>
+        </div>
         <CollapsibleContent className="mt-1 ml-3 pl-3 border-l border-border/50 space-y-1">
           {item.children.map((child, index) =>
             renderLeafItem(child, 1, forceExpanded, getItemKey(child, `${key}-${index}`))
@@ -345,9 +388,9 @@ export function ExpandableSidebar({
                     {content}
                   </a>
                 ) : (
-                  <NavLink key={item.id} to={item.href} onClick={closeMobile} aria-label={compact ? item.label : undefined}>
+                  <Link key={item.id} href={item.href} onClick={closeMobile} aria-label={compact ? item.label : undefined}>
                     {content}
-                  </NavLink>
+                  </Link>
                 );
 
                 if (!compact) {

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { useLocation } from "@/components/router/nextRouterCompat";
+import { usePathname } from "next/navigation";
 import { CheckCircle2, Gift, Mail, Sparkles, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -32,7 +32,7 @@ function isEligiblePublicPath(pathname: string): boolean {
 }
 
 export function NewsletterSignupPopup() {
-  const location = useLocation();
+  const pathname = usePathname() ?? "";
   const { t } = useTranslation();
   const { subscribe, isSubmitting } = useNewsletterSignup("popup-lead-magnet");
   const { canUseCategory, isLoaded } = useCookieConsent();
@@ -42,8 +42,8 @@ export function NewsletterSignupPopup() {
   const hasMarketingConsent = canUseCategory("marketing");
 
   const isEligiblePath = useMemo(
-    () => isEligiblePublicPath(location.pathname),
-    [location.pathname],
+    () => isEligiblePublicPath(pathname),
+    [pathname],
   );
 
   useEffect(() => {

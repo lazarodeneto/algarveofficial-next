@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardBreadcrumb } from "@/components/ui/dashboard-breadcrumb";
 import { Card, CardContent } from "@/components/ui/card";
@@ -135,7 +135,7 @@ function SortableRegionItem({ region, onToggle }: SortableRegionItemProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
-                  <Link to="/admin/content/regions">
+                  <Link href="/admin/content/regions">
                     <Edit className="h-4 w-4 mr-2" />
                     Edit in Regions
                   </Link>
@@ -258,7 +258,7 @@ export default function AdminCmsDestinations() {
           <p className="text-muted-foreground">Manage which premium regions appear on the Destinations page</p>
         </div>
         <Button asChild variant="outline">
-          <Link to="/admin/content/regions">
+          <Link href="/admin/content/regions">
             <Settings className="h-4 w-4 mr-2" />
             Manage Regions
             <ExternalLink className="h-3 w-3 ml-2" />
@@ -305,7 +305,7 @@ export default function AdminCmsDestinations() {
           <h3 className="text-lg font-medium text-foreground mb-2">No regions available</h3>
           <p className="text-muted-foreground mb-4">Create regions in the Regions management page</p>
           <Button asChild>
-            <Link to="/admin/content/regions">
+            <Link href="/admin/content/regions">
               <Settings className="h-4 w-4 mr-2" />
               Go to Regions
             </Link>

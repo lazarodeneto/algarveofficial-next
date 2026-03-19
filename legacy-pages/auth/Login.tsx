@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 export default function Login() {
   const { t } = useTranslation();
   const { login, loginWithGoogle, isLoading, isAuthenticated, user, getDashboardPath } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -33,9 +35,14 @@ export default function Login() {
     }
   };
 
-  // If already authenticated, redirect to appropriate dashboard
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      router.replace(getDashboardPath(user.role));
+    }
+  }, [getDashboardPath, isAuthenticated, router, user]);
+
   if (isAuthenticated && user) {
-    return <Navigate to={getDashboardPath(user.role)} replace />;
+    return null;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -64,7 +71,7 @@ export default function Login() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-background" />
         <div className="absolute inset-0 bg-[url('/placeholder.svg')] bg-cover bg-center opacity-10" />
         <div className="relative z-10 flex flex-col justify-between p-12 w-full">
-          <Link to="/" className="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
+          <Link href="/" className="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
             <ArrowLeft className="h-5 w-5" />
             <span className="font-sans">{t('auth.backToHome')}</span>
           </Link>
@@ -109,7 +116,7 @@ export default function Login() {
         >
           {/* Mobile back link */}
           <Link 
-            to="/" 
+            href="/" 
             className="lg:hidden flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -162,7 +169,7 @@ export default function Login() {
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password" className="text-foreground">{t('auth.password')}</Label>
                     <Link 
-                      to="/forgot-password" 
+                      href="/forgot-password" 
                       className="text-xs text-primary hover:underline"
                     >
                       {t('auth.forgotPassword')}
@@ -232,7 +239,7 @@ export default function Login() {
                 
                 <p className="text-sm text-center text-muted-foreground">
                   {t('auth.noAccount')}{' '}
-                  <Link to="/signup" className="text-primary hover:underline font-medium">
+                  <Link href="/signup" className="text-primary hover:underline font-medium">
                     {t('auth.createOne')}
                   </Link>
                 </p>

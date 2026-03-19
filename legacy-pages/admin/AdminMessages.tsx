@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { format } from "date-fns";
-import { useSearchParams } from "react-router-dom";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MessageSquare, RefreshCw, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +19,9 @@ import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 
 export default function AdminMessages() {
   const [status, setStatus] = useState("all");
-  const [searchParams, setSearchParams] = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname() || "/admin/messages";
+  const searchParams = useSearchParams();
   const ownerFromQuery = searchParams.get("ownerId") || "";
   const [ownerId, setOwnerId] = useState(ownerFromQuery);
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
@@ -27,6 +29,24 @@ export default function AdminMessages() {
   const [selectedThread, setSelectedThread] = useState<ChatThread | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [threadToDelete, setThreadToDelete] = useState<ChatThread | null>(null);
+
+  const setSearchParams = useCallback(
+    (
+      nextInit: URLSearchParams | ((current: URLSearchParams) => URLSearchParams),
+      options?: { replace?: boolean }
+    ) => {
+      const current = new URLSearchParams(searchParams.toString());
+      const nextParams = typeof nextInit === "function" ? nextInit(current) : nextInit;
+      const query = nextParams.toString();
+      const href = query ? `${pathname}?${query}` : pathname;
+      if (options?.replace) {
+        router.replace(href);
+        return;
+      }
+      router.push(href);
+    },
+    [pathname, router, searchParams]
+  );
 
   useEffect(() => {
     setOwnerId(ownerFromQuery);

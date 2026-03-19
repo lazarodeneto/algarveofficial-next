@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useCallback, useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, Filter, X, MapPin, Tag, Building2, Crown, ShieldCheck, ChevronDown, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -16,7 +16,8 @@ import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { usePublishedListings, type ListingFilters, type ListingWithRelations, type ListingTier } from "@/hooks/useListings";
 import { useCities, useRegions, useCategories } from "@/hooks/useReferenceData";
-import { Link, useSearchParams } from "react-router-dom";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { renderCategoryIcon } from "@/lib/categoryIcons";
 import { translateCategoryName } from "@/lib/translateCategory";
 import {
@@ -35,7 +36,9 @@ export default function Directory() {
   const { t } = useTranslation();
   const { getMetaDescription, getMetaTitle, getText, isBlockEnabled } = useCmsPageBuilder("directory");
   const langPrefix = useLangPrefix();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname() || "/directory";
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
@@ -47,6 +50,19 @@ export default function Directory() {
     isFavorite,
     toggleFavorite
   } = useFavoriteListings();
+
+  const setSearchParams = useCallback(
+    (nextParams: URLSearchParams, options?: { replace?: boolean }) => {
+      const query = nextParams.toString();
+      const href = query ? `${pathname}?${query}` : pathname;
+      if (options?.replace) {
+        router.replace(href);
+        return;
+      }
+      router.push(href);
+    },
+    [pathname, router]
+  );
 
   // Debounce search input
   useEffect(() => {
@@ -386,7 +402,7 @@ export default function Directory() {
                 {t('directory.showingResults', { count: totalListingsCount })}
               </>}
             </p>
-            <Link to={mapHref}>
+            <Link href={mapHref}>
               <Button variant="outline" size="sm">
                 <MapPin className="h-4 w-4 mr-2" />
                 Map View
@@ -436,7 +452,7 @@ export default function Directory() {
             }} transition={{
               delay: Math.min(index * 0.05, 0.5)
             }}>
-              <Link to={buildLangPath(langPrefix, `/listing/${listing.slug}`)} className="group block h-full">
+              <Link href={buildLangPath(langPrefix, `/listing/${listing.slug}`)} className="group block h-full">
                 <article className="glass-box glass-box-listing-shimmer overflow-hidden flex flex-col h-full">
                 {/* Image */}
                 <div className="relative aspect-[4/3] bg-muted overflow-hidden">

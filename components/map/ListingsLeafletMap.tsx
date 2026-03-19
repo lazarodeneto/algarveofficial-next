@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DivIcon, latLngBounds, Map as LeafletMap } from "leaflet";
 import { MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
@@ -389,7 +389,7 @@ function ClusteredMarkers({
 
                     {point.href && (
                       <Link
-                        to={point.href}
+                        href={point.href}
                         className="inline-flex items-center justify-center w-full rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 transition-opacity"
                       >
                         {t("sections.curated.viewDetails")}

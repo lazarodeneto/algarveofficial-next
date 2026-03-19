@@ -1,6 +1,6 @@
 import { LazyMotion, domAnimation, m } from "framer-motion";
 import Image from "next/image";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { ArrowRight, Compass } from "lucide-react";
 import { FavoriteButton } from "@/components/ui/favorite-button";
 import { useSavedDestinations } from "@/hooks/useSavedDestinations";
@@ -101,7 +101,7 @@ export function RegionsSection() {
                   </div>
 
                   <Link
-                    to={buildLangPath(langPrefix, `/destinations/${region.slug}`)}
+                    href={buildLangPath(langPrefix, `/destinations/${region.slug}`)}
                     className="glass-box group relative block cursor-pointer overflow-hidden rounded-xl border border-border bg-card aspect-[0.9] sm:aspect-[0.9] lg:aspect-[5/4] lg:rounded-2xl"
                   >
                     {/* Image */}
@@ -150,7 +150,7 @@ export function RegionsSection() {
             className="mt-12 flex justify-center"
           >
             <Link
-              to={buildLangPath(langPrefix, "/destinations")}
+              href={buildLangPath(langPrefix, "/destinations")}
               className="block w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(50%-0.625rem)] lg:w-auto"
             >
               <Button variant="gold" size="lg" className="gap-2 w-full">

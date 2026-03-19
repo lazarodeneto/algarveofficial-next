@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "next/navigation";
 import { Mail, Phone, MessageSquare, Send, Loader2, MapPin, Globe } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -17,7 +17,7 @@ import { useContactSettings } from "@/hooks/useContactSettings";
 export default function Contact() {
     const { t } = useTranslation();
     const { user } = useAuth();
-    const [searchParams] = useSearchParams();
+    const searchParams = useSearchParams();
     const contactMutation = useContactForm();
     const { settings, isLoading } = useContactSettings();
 

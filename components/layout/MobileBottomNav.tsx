@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { Home, Binoculars, Building2, TrendingUp, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
@@ -15,7 +16,7 @@ const navItems = [
 ];
 
 export function MobileBottomNav() {
-  const location = useLocation();
+  const pathname = usePathname() ?? "";
   const { mobileMenuOpen } = useMobileMenu();
   const langPrefix = useLangPrefix();
   const { t } = useTranslation();
@@ -24,8 +25,8 @@ export function MobileBottomNav() {
 
   const isActive = (href: string) => {
     const fullHref = buildLangPath(langPrefix, href);
-    if (href === '/') return location.pathname === '/' || location.pathname === langPrefix || location.pathname === langPrefix + "/";
-    return location.pathname.startsWith(fullHref);
+    if (href === '/') return pathname === '/' || pathname === langPrefix || pathname === `${langPrefix}/`;
+    return pathname.startsWith(fullHref);
   };
 
   useEffect(() => {
@@ -70,7 +71,7 @@ export function MobileBottomNav() {
           return (
             <Link
               key={item.name}
-              to={buildLangPath(langPrefix, item.href)}
+              href={buildLangPath(langPrefix, item.href)}
               className={cn(
                 "bottom-nav__link tap-target",
                 active

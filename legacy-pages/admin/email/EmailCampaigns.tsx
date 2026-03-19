@@ -53,12 +53,12 @@ import { useEmailTemplates } from "@/hooks/useEmailTemplates";
 import { useEmailSegments } from "@/hooks/useEmailSegments";
 import { format } from "date-fns";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 
 const EmailCampaigns = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -275,7 +275,7 @@ const EmailCampaigns = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           {campaign.status === "sent" && (
-                            <DropdownMenuItem onClick={() => navigate(`/admin/email/reports?campaign=${campaign.id}`)}>
+                            <DropdownMenuItem onClick={() => router.push(`/admin/email/reports?campaign=${campaign.id}`)}>
                               <Eye className="h-4 w-4 mr-2" />
                               {t("admin.emailCampaigns.viewReport")}
                             </DropdownMenuItem>

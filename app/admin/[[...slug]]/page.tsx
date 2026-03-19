@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { Link } from "@/components/router/nextRouterCompat";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
 import AdminOverview from "@/legacy-pages/admin/AdminOverview";
@@ -68,10 +68,10 @@ function AdminRouteNotFound({ route }: { route: string }) {
       </p>
       <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
         <Button asChild>
-          <Link to="/admin">Back to Overview</Link>
+          <Link href="/admin">Back to Overview</Link>
         </Button>
         <Button variant="outline" asChild>
-          <Link to="/admin/listings">Go to Listings</Link>
+          <Link href="/admin/listings">Go to Listings</Link>
         </Button>
       </div>
     </div>

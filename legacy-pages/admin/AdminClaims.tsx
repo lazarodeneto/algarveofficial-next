@@ -17,9 +17,6 @@ import { toast } from "sonner";
 import { ApproveAssignDialog } from "@/components/admin/ApproveAssignDialog";
 
 export default function AdminClaims() {
-  if (typeof window === "undefined") {
-    return null;
-  }
   const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState<'pending' | 'approved' | 'rejected' | undefined>('pending');
   const [selectedClaim, setSelectedClaim] = useState<ListingClaim | null>(null);

@@ -1,4 +1,5 @@
-import { useParams, Link } from 'react-router-dom';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
 import { 
@@ -69,7 +70,7 @@ export default function EventDetail() {
             <h1 className="text-4xl font-serif font-medium text-foreground mb-4">Event Not Found</h1>
             <p className="text-muted-foreground mb-8">The event you're looking for doesn't exist or has been removed.</p>
             <Button variant="gold" asChild>
-              <Link to="/events">
+              <Link href="/events">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Events
               </Link>
@@ -125,7 +126,7 @@ export default function EventDetail() {
             className="mb-6"
           >
             <Link 
-              to="/events" 
+              href="/events" 
               className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -397,7 +398,7 @@ export default function EventDetail() {
                   Related Events
                 </h2>
                 <Link 
-                  to="/events" 
+                  href="/events" 
                   className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
                 >
                   View All
@@ -414,7 +415,7 @@ export default function EventDetail() {
                   return (
                     <Link
                       key={relatedEvent.id}
-                      to={`/events/${relatedEvent.slug}`}
+                      href={`/events/${relatedEvent.slug}`}
                       className="group"
                     >
                       <Card className="bg-card border-border overflow-hidden transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-lg group-hover:shadow-primary/5 h-full">

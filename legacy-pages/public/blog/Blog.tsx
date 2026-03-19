@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
@@ -162,7 +162,7 @@ export default function Blog() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <Link to={`/blog/${featuredPost.slug}`}>
+              <Link href={`/blog/${featuredPost.slug}`}>
                 <Card className="overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">
                   <div className="grid md:grid-cols-2 gap-0">
                     <div className="aspect-video md:aspect-auto md:h-full overflow-hidden">
@@ -230,7 +230,7 @@ export default function Blog() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 * (index + 1) }}
                   >
-                    <Link to={`/blog/${post.slug}`}>
+                    <Link href={`/blog/${post.slug}`}>
                       <Card className="h-full overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">
                         <div className="aspect-video overflow-hidden">
                           <img

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { FavoriteButton } from "@/components/ui/favorite-button";
 import { useFavoriteCategories } from "@/hooks/useFavoriteCategories";
 import { useFeaturedCategories } from "@/hooks/useReferenceData";
@@ -108,7 +108,7 @@ export function CategoriesSection() {
                 </div>
 
                 <Link
-                  to={buildLangPath(langPrefix, `/directory?category=${category.slug}`)}
+                  href={buildLangPath(langPrefix, `/directory?category=${category.slug}`)}
                   className="block w-full h-full min-w-0 min-h-[14.5rem] sm:min-h-[15rem] lg:min-h-[9rem] p-6 lg:px-6 lg:py-4 glass-box glass-box-silver-liquid text-center flex flex-col items-center"
                 >
                   <div className="relative z-10 w-14 h-14 rounded-lg bg-muted dark:bg-muted flex items-center justify-center mb-5 lg:mb-4">

@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
 
 export default function AuthCallback() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -35,17 +35,17 @@ export default function AuthCallback() {
           switch (role) {
             case 'admin':
             case 'editor':
-              navigate('/admin', { replace: true });
+              router.replace('/admin');
               break;
             case 'owner':
-              navigate('/owner', { replace: true });
+              router.replace('/owner');
               break;
             default:
-              navigate('/dashboard', { replace: true });
+              router.replace('/dashboard');
           }
         } else {
           // No session, redirect to login
-          navigate('/login', { replace: true });
+          router.replace('/login');
         }
       } catch (err) {
         console.error('Unexpected error in auth callback:', err);
@@ -54,7 +54,7 @@ export default function AuthCallback() {
     };
 
     handleCallback();
-  }, [navigate]);
+  }, [router]);
 
   if (error) {
     return (
@@ -62,7 +62,7 @@ export default function AuthCallback() {
         <div className="text-center space-y-4">
           <p className="text-destructive">{error}</p>
           <button
-            onClick={() => navigate('/login')}
+            onClick={() => router.push('/login')}
             className="text-primary hover:underline"
           >
             Return to login

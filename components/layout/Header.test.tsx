@@ -1,5 +1,4 @@
 import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import { HeaderCompactNav } from "./HeaderMegaMenu";
 
@@ -15,11 +14,7 @@ vi.mock("react-i18next", () => ({
 
 describe("Header navigation crawlability", () => {
   it("renders primary header navigation as anchors with href values", () => {
-    render(
-      <MemoryRouter>
-        <HeaderCompactNav />
-      </MemoryRouter>,
-    );
+    render(<HeaderCompactNav />);
 
     const links = screen.getAllByRole("link");
     expect(links.length).toBeGreaterThanOrEqual(3);

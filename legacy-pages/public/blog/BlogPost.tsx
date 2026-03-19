@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import Link from 'next/link';
+import { useParams, useRouter } from "next/navigation";
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
@@ -35,8 +36,9 @@ import {
 } from '@/hooks/useBlogPosts';
 
 export default function BlogPost() {
-  const { slug } = useParams();
-  const navigate = useNavigate();
+  const { slug: rawSlug } = useParams<{ slug?: string | string[] }>();
+  const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
+  const router = useRouter();
   const { t } = useTranslation();
 
   const { data: post, isLoading, error } = usePublishedBlogPost(slug);
@@ -89,7 +91,7 @@ export default function BlogPost() {
           <div className="container max-w-4xl mx-auto px-4 text-center">
             <h1 className="text-3xl font-serif font-bold mb-4">Article Not Found</h1>
             <p className="text-muted-foreground mb-8">This article may have been removed or is not available.</p>
-            <Button onClick={() => navigate('/blog')}>
+            <Button onClick={() => router.push('/blog')}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Blog
             </Button>
@@ -140,7 +142,7 @@ export default function BlogPost() {
           >
             {/* Back Link */}
             <Button variant="ghost" size="sm" asChild className="mb-6">
-              <Link to="/blog">
+              <Link href="/blog">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Blog
               </Link>

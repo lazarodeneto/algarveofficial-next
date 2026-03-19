@@ -2,6 +2,7 @@
 import { Bot, ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useState, useRef } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useHeroSettings } from "@/hooks/useHomepageSettings";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 import { useTranslation } from "react-i18next";
@@ -11,7 +12,7 @@ import { LoginModal } from "@/components/ui/login-modal";
 import { useTripPlanner } from "@/hooks/useTripPlanner";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Link, useNavigate } from "react-router-dom";
+import Link from "next/link";
 import { HERO_OVERLAY_INTENSITY_SETTING_KEY, normalizeHeroOverlayIntensity } from "@/lib/heroOverlay";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -285,7 +286,7 @@ export function HeroSection() {
   const { isSlow } = useConnectionQuality();
   const { createTrip } = useTripPlanner();
   const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
   const langPrefix = useLangPrefix();
   const { canUseCategory, isLoaded: isCookieConsentLoaded, openPreferences } = useCookieConsent();
   const hasFunctionalConsent = canUseCategory("functional");
@@ -327,7 +328,7 @@ export function HeroSection() {
 
     const newTrip = createTrip(data);
     toast.success(t("hero.tripCreated", "Trip created successfully."));
-    navigate(`/dashboard/trips?trip=${encodeURIComponent(newTrip.id)}`);
+    router.push(`/dashboard/trips?trip=${encodeURIComponent(newTrip.id)}`);
   };
 
   // Use only admin-configured media (no local fallback assets).
@@ -463,7 +464,7 @@ export function HeroSection() {
 
               <div className="flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
                 <Button asChild variant="secondary" size="lg" className="w-full sm:w-auto">
-                  <Link to={directoryPath}>{t("hero.exploreDirectory", "Explore Directory")}</Link>
+                  <Link href={directoryPath}>{t("hero.exploreDirectory", "Explore Directory")}</Link>
                 </Button>
               </div>
             </div>

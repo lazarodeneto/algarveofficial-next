@@ -4,9 +4,7 @@ import type { CSSProperties, ElementType, ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { NavigationType, Router, createPath, type To } from "react-router";
-import { LegacyLink as Link } from "@/components/router/LegacyRouterBridge";
-import { usePathname, useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { Search, Clock, Loader2 } from "lucide-react";
 
@@ -29,17 +27,7 @@ import {
   type CmsPageConfigMap,
   type CmsTextOverrideMap,
 } from "@/lib/cms/pageBuilderRegistry";
-import {
-  blogCategoryLabels,
-  type BlogCategory,
-} from "@/hooks/useBlogPosts";
-
-type HomegrownNavigator = {
-  createHref: (to: To) => string;
-  go: (delta: number) => void;
-  push: (to: To) => void;
-  replace: (to: To) => void;
-};
+import { blogCategoryLabels, type BlogCategory } from "@/hooks/useBlogPosts";
 
 const BLOG_AUTHOR_NAME = "AlgarveOfficial";
 
@@ -90,10 +78,6 @@ const BLOG_TRANSLATION_KEYS: Record<BlogCategory, string> = {
   wellness: "blog.blogCategories.wellness",
   "insider-tips": "blog.blogCategories.insiderTips",
 };
-
-function resolveToPath(to: To) {
-  return typeof to === "string" ? to : createPath(to);
-}
 
 function normalizeBlogLocale(language: string | undefined): string {
   const normalized = String(language ?? "en").trim().toLowerCase();
@@ -445,12 +429,12 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
               media={<PageHeroImage page="blog" alt={t("blog.hero.alt", "Editorial Algarve townscape")} />}
               ctas={
                 <>
-                  <Link to={buildLangPath(langPrefix, "/directory")}>
+                  <Link href={buildLangPath(langPrefix, "/directory")}>
                     <Button variant="gold" size="lg">
                       {t("blog.hero.ctaPrimary", "Explore Directory")}
                     </Button>
                   </Link>
-                  <Link to={buildLangPath(langPrefix, "/contact")}>
+                  <Link href={buildLangPath(langPrefix, "/contact")}>
                     <Button variant="heroOutline" size="lg">
                       {t("blog.hero.ctaSecondary", "Get Local Advice")}
                     </Button>
@@ -505,7 +489,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <Link to={buildLangPath(langPrefix, `/blog/${featuredPost.slug}`)}>
+              <Link href={buildLangPath(langPrefix, `/blog/${featuredPost.slug}`)}>
                 <Card className="overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">
                   <div className="grid md:grid-cols-2 gap-0">
                     <div className="aspect-video md:aspect-auto md:h-full overflow-hidden">
@@ -580,7 +564,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 * (index + 1) }}
                   >
-                    <Link to={buildLangPath(langPrefix, `/blog/${post.slug}`)}>
+                    <Link href={buildLangPath(langPrefix, `/blog/${post.slug}`)}>
                       <Card className="h-full overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">
                         <div className="aspect-video overflow-hidden">
                           <BlogFeaturedImage
@@ -624,38 +608,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
 }
 
 export function BlogClient(props: BlogClientProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const nextSearchParams = useNextSearchParams();
   const mounted = useHydrated();
-
-  const search = nextSearchParams?.toString() ?? "";
-  const location = useMemo(
-    () => ({
-      pathname,
-      search: search ? `?${search}` : "",
-      hash: "",
-      state: null,
-      key: `${pathname}${search ? `?${search}` : ""}`,
-    }),
-    [pathname, search],
-  );
-
-  const navigator = useMemo<HomegrownNavigator>(
-    () => ({
-      createHref: (to) => resolveToPath(to),
-      go: (delta) => {
-        window.history.go(delta);
-      },
-      push: (to) => {
-        router.push(resolveToPath(to));
-      },
-      replace: (to) => {
-        router.replace(resolveToPath(to));
-      },
-    }),
-    [router],
-  );
 
   useEffect(() => {
     const serverShell = document.getElementById("blog-server-shell");
@@ -668,11 +621,7 @@ export function BlogClient(props: BlogClientProps) {
     return null;
   }
 
-  return (
-    <Router location={location as never} navigator={navigator as never} navigationType={NavigationType.Pop}>
-      <BlogClientInner {...props} />
-    </Router>
-  );
+  return <BlogClientInner {...props} />;
 }
 
 export default BlogClient;

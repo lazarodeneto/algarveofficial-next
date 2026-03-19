@@ -5,9 +5,7 @@ import { useEffect, useMemo } from "react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { NavigationType, Router, createPath, type To } from "react-router";
-import { LegacyLink as Link } from "@/components/router/LegacyRouterBridge";
-import { usePathname, useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, ArrowRight, MapPin, Loader2, Crown } from "lucide-react";
 
@@ -35,13 +33,6 @@ import {
   normalizePublicContentLocale,
   type PublicContentLocale,
 } from "@/lib/publicContentLocale";
-
-type HomegrownNavigator = {
-  createHref: (to: To) => string;
-  go: (delta: number) => void;
-  push: (to: To) => void;
-  replace: (to: To) => void;
-};
 
 export type CityDetailCity = Tables<"cities">;
 export type CityDetailRegion = Pick<
@@ -171,10 +162,6 @@ const PUBLIC_CITY_FIELDS = "id, name, slug, short_description, image_url, latitu
 const PUBLIC_REGION_FIELDS =
   "id, name, slug, short_description, description, image_url, hero_image_url";
 const PUBLIC_CATEGORY_FIELDS = "id, name, slug, icon";
-
-function resolveToPath(to: To) {
-  return typeof to === "string" ? to : createPath(to);
-}
 
 function parseJsonSetting<T>(raw: string | undefined, fallback: T): T {
   if (!raw) return fallback;
@@ -592,7 +579,7 @@ function CityDetailClientInner({
             {cms.getText("notFound.description", "The city you're looking for doesn't exist.")}
           </p>
           <Link
-            to="/"
+            href="/"
             className="inline-flex items-center gap-2 text-primary hover:underline"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -641,7 +628,7 @@ function CityDetailClientInner({
               className="mb-8 flex items-center justify-between"
             >
               <Link
-                to="/#cities"
+                href="/#cities"
                 className="inline-flex items-center gap-2 text-sm text-white/75 hover:text-white transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -703,7 +690,7 @@ function CityDetailClientInner({
                 transition={{ duration: 0.6, delay: 0.4 }}
               >
                 <Link
-                  to={`/destinations/${cityRegion.slug}`}
+                  href={`/destinations/${cityRegion.slug}`}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/25 backdrop-blur-sm border border-white/20 text-sm text-white hover:bg-black/35 transition-colors"
                 >
                   <Crown className="w-4 h-4" />
@@ -766,7 +753,7 @@ function CityDetailClientInner({
                     transition={{ duration: 0.4, delay: index * 0.05 }}
                     className="h-full"
                   >
-                    <Link to={`/listing/${listing.slug}`} className="group block h-full">
+                    <Link href={`/listing/${listing.slug}`} className="group block h-full">
                       <article className="luxury-card overflow-hidden flex flex-col h-full hoverable">
                         {listing.tier === "signature" ? (
                           <span
@@ -845,7 +832,7 @@ function CityDetailClientInner({
                   )}
                 </p>
                 <Link
-                  to="/"
+                  href="/"
                   className="inline-flex items-center gap-2 text-primary hover:underline"
                 >
                   {cms.getText("listings.emptyCta", "Explore All Listings")}
@@ -878,7 +865,7 @@ function CityDetailClientInner({
                 {cms.getText("faq.description", "Discover other vibrant cities across the Algarve")}
               </p>
               <Link
-                to="/#cities"
+                href="/#cities"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors tap-target"
               >
                 {cms.getText("faq.cta", "View All Cities")}
@@ -895,10 +882,6 @@ function CityDetailClientInner({
 }
 
 export function CityDetailClient(props: CityDetailClientProps) {
-  const pathname = usePathname() ?? `/city/${props.initialCity.slug}`;
-  const nextSearchParams = useNextSearchParams();
-  const router = useRouter();
-
   useEffect(() => {
     const serverShell = document.getElementById("city-detail-server-shell");
     if (serverShell) {
@@ -912,34 +895,5 @@ export function CityDetailClient(props: CityDetailClientProps) {
     };
   }, []);
 
-  const location = useMemo(
-    () => ({
-      pathname,
-      search: nextSearchParams?.toString() ? `?${nextSearchParams.toString()}` : "",
-      hash: "",
-      state: null,
-      key: "default",
-    }),
-    [nextSearchParams, pathname],
-  );
-
-  const navigator = useMemo<HomegrownNavigator>(
-    () => ({
-      createHref: (to) => resolveToPath(to),
-      go: (delta) => {
-        if (typeof window !== "undefined") {
-          window.history.go(delta);
-        }
-      },
-      push: (to) => router.push(resolveToPath(to)),
-      replace: (to) => router.replace(resolveToPath(to)),
-    }),
-    [router],
-  );
-
-  return (
-    <Router location={location} navigator={navigator} navigationType={NavigationType.Pop}>
-      <CityDetailClientInner {...props} />
-    </Router>
-  );
+  return <CityDetailClientInner {...props} />;
 }

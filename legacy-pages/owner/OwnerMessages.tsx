@@ -19,7 +19,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { useOwnerChatThreads, type OwnerChatThread } from "@/hooks/useOwnerChatThreads";
 import { useChatMessages, useSendMessage, useMarkThreadMessagesAsRead } from "@/hooks/useChat";
 
@@ -202,7 +202,7 @@ export default function OwnerMessages() {
                     </div>
                     {selectedThread.listing && (
                       <Link
-                        to={`/listing/${selectedThread.listing.slug}`}
+                        href={`/listing/${selectedThread.listing.slug}`}
                         target="_blank"
                         className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 mt-1"
                       >

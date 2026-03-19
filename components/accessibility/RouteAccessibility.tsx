@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from "@/components/router/nextRouterCompat";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 
 const MAIN_CONTENT_ID = "main-content";
@@ -62,14 +62,33 @@ function focusRouteContent(preventScroll: boolean) {
 }
 
 export function RouteAccessibility() {
-  const location = useLocation();
+  const pathname = usePathname() ?? "";
+  const nextSearchParams = useSearchParams();
+  const searchValue = nextSearchParams?.toString() ?? "";
+  const search = searchValue ? `?${searchValue}` : "";
+  const [hash, setHash] = useState("");
   const { t } = useTranslation();
   const [announcement, setAnnouncement] = useState("");
   const initialRouteRef = useRef(true);
 
   useEffect(() => {
+    const syncHash = () => {
+      setHash(window.location.hash || "");
+    };
+
+    syncHash();
+    window.addEventListener("hashchange", syncHash);
+    window.addEventListener("popstate", syncHash);
+
+    return () => {
+      window.removeEventListener("hashchange", syncHash);
+      window.removeEventListener("popstate", syncHash);
+    };
+  }, []);
+
+  useEffect(() => {
     ensureMainTarget();
-  }, [location.pathname, location.search, location.hash]);
+  }, [hash, pathname, search]);
 
   useEffect(() => {
     if (initialRouteRef.current) {
@@ -77,7 +96,7 @@ export function RouteAccessibility() {
       return;
     }
 
-    if (location.hash) return;
+    if (hash) return;
 
     let cancelled = false;
     let timeoutId: number | undefined;
@@ -107,7 +126,7 @@ export function RouteAccessibility() {
         window.clearTimeout(timeoutId);
       }
     };
-  }, [location.pathname, location.search, location.hash]);
+  }, [hash, pathname, search]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -127,7 +146,7 @@ export function RouteAccessibility() {
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [location.pathname, location.search, t]);
+  }, [pathname, search, t]);
 
   return (
     <>

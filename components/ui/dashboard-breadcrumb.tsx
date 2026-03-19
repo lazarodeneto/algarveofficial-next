@@ -1,4 +1,5 @@
-import { Link, useLocation } from "react-router-dom";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { ChevronRight, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
@@ -86,8 +87,7 @@ const dashboardConfigs: Record<string, BreadcrumbConfig> = {
 
 export function DashboardBreadcrumb() {
   const { t } = useTranslation();
-  const location = useLocation();
-  const pathname = location.pathname;
+  const pathname = usePathname() ?? "";
 
   // Determine which dashboard we're in
   const dashboardType = pathname.startsWith("/admin")
@@ -155,26 +155,34 @@ export function DashboardBreadcrumb() {
   }
 
   return (
-    <nav className="flex items-center gap-1 text-sm" aria-label="Breadcrumb">
+    <nav className="flex min-w-0 items-center gap-1 text-xs sm:text-sm" aria-label="Breadcrumb">
       <Link
-        to="/"
-        className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
+        href="/"
+        className="flex shrink-0 items-center text-muted-foreground transition-colors hover:text-foreground"
         title={t("common.goToHomepage")}
       >
         <Home className="h-4 w-4" />
       </Link>
       
       {segments.map((segment, index) => (
-        <div key={segment.href} className="flex items-center gap-1">
-          <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+        <div
+          key={segment.href}
+          className={cn(
+            "min-w-0 items-center gap-1",
+            segment.isLast ? "flex" : index === 0 ? "hidden md:flex" : "hidden xl:flex",
+          )}
+        >
+          <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/50" />
           {segment.isLast ? (
-            <span className="font-medium text-foreground">{segment.label}</span>
+            <span className="block max-w-[9rem] truncate font-medium text-foreground sm:max-w-[13rem] lg:max-w-[18rem] 2xl:max-w-none">
+              {segment.label}
+            </span>
           ) : (
             <Link
-              to={segment.href}
+              href={segment.href}
               className={cn(
                 "text-muted-foreground hover:text-foreground transition-colors",
-                index === 0 && "hidden sm:inline"
+                index === 0 && "hidden lg:inline"
               )}
             >
               {segment.label}

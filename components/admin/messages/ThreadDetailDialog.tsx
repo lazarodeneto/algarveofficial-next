@@ -21,7 +21,7 @@ import {
 import { User, Building2, MessageSquare, ExternalLink, Shield, Send, Loader2, Trash2 } from "lucide-react";
 import { ChatThread, ChatMessage, useAdminChatMessages, useUpdateThreadStatus, useAdminSendMessage, useMarkThreadAsRead, useDeleteThread, useDeleteChatMessage } from "@/hooks/useAdminChat";
 import { cn } from "@/lib/utils";
-import { Link } from "@/components/router/nextRouterCompat";
+import Link from "next/link";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { normalizeThreadStatus, type ThreadStatus } from "@/lib/chatThreadStatus";
 

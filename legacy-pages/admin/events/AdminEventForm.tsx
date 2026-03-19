@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams, useRouter } from "next/navigation";
 import { format } from 'date-fns';
 import { 
   ArrowLeft, 
@@ -34,11 +34,12 @@ import {
   type EventFormData 
 } from '@/types/events';
 import { toast } from '@/hooks/use-toast';
+import { extractIdParam } from "@/lib/routeParams";
 
 export default function AdminEventForm() {
-  const navigate = useNavigate();
-  const { id: rawId } = useParams<{ id?: string }>();
-  const id = Array.isArray(rawId) ? rawId[0] : rawId;
+  const router = useRouter();
+  const params = useParams<Record<string, string | string[] | undefined>>();
+  const id = extractIdParam(params);
   const isEditing = !!id;
 
   const { data: event, isLoading: isLoadingEvent } = useEvent(id);
@@ -127,7 +128,7 @@ export default function AdminEventForm() {
         await createEvent.mutateAsync(formData);
         toast({ title: 'Event created successfully' });
       }
-      navigate('/admin/content/events');
+      router.push('/admin/content/events');
     } catch (error: any) {
       toast({ 
         title: isEditing ? 'Failed to update event' : 'Failed to create event', 
@@ -152,7 +153,7 @@ export default function AdminEventForm() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/admin/content/events')}>
+        <Button variant="ghost" size="icon" onClick={() => router.push('/admin/content/events')}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>

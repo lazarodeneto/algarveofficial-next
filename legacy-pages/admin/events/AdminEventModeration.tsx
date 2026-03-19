@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { format, parseISO } from 'date-fns';
 import { 
   ClipboardCheck, 
@@ -155,7 +155,7 @@ export default function AdminEventModeration() {
                 {/* Actions */}
                 <div className="flex items-center gap-2 pt-2">
                   <Button variant="outline" size="sm" className="flex-1" asChild>
-                    <Link to={`/admin/content/events/${event.id}/edit`}>
+                    <Link href={`/admin/content/events/${event.id}/edit`}>
                       <Eye className="h-4 w-4 mr-1" />
                       Preview
                     </Link>

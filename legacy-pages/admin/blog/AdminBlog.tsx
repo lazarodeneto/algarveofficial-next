@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import {
   Plus,
   Search,
@@ -44,7 +44,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 
 export default function AdminBlog() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -186,7 +186,7 @@ export default function AdminBlog() {
               <Eye className="h-4 w-4 mr-2" />
               View
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate(`/admin/blog/${post.id}/edit`)}>
+            <DropdownMenuItem onClick={() => router.push(`/admin/blog/${post.id}/edit`)}>
               <Edit className="h-4 w-4 mr-2" />
               Edit
             </DropdownMenuItem>
@@ -223,7 +223,7 @@ export default function AdminBlog() {
             Manage articles, drafts, and scheduled publications
           </p>
         </div>
-        <Button onClick={() => navigate("/admin/blog/new")} className="gap-2">
+        <Button onClick={() => router.push("/admin/blog/new")} className="gap-2">
           <Plus className="h-4 w-4" />
           New Post
         </Button>

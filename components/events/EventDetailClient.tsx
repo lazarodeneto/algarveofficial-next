@@ -5,9 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { NavigationType, Router, createPath, type To } from "react-router";
-import { LegacyLink as Link } from "@/components/router/LegacyRouterBridge";
-import { usePathname, useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
+import Link from "next/link";
 import {
   Calendar,
   MapPin,
@@ -34,13 +32,6 @@ import { CMS_GLOBAL_SETTING_KEYS, type CmsPageConfigMap, type CmsTextOverrideMap
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { useHydrated } from "@/hooks/useHydrated";
 
-type HomegrownNavigator = {
-  createHref: (to: To) => string;
-  go: (delta: number) => void;
-  push: (to: To) => void;
-  replace: (to: To) => void;
-};
-
 export type EventCitySummary = Pick<Tables<"cities">, "id" | "name" | "slug">;
 export type EventGlobalSetting = Pick<Tables<"global_settings">, "key" | "value" | "category">;
 export type EventRecord = Tables<"events"> & {
@@ -61,10 +52,6 @@ const EVENT_DETAIL_CMS_KEYS = [
 ] as const;
 
 const passthroughImageLoader = ({ src }: { src: string }) => src;
-
-function resolveToPath(to: To) {
-  return typeof to === "string" ? to : createPath(to);
-}
 
 function parseJsonSetting<T>(raw: string | undefined, fallback: T): T {
   if (!raw) return fallback;
@@ -307,7 +294,7 @@ function EventDetailClientInner({
               {cms.getText("notFound.description", "The event you're looking for doesn't exist or has been removed.")}
             </p>
             <Button variant="gold" asChild>
-              <Link to="/events">
+              <Link href="/events">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 {cms.getText("notFound.back", "Back to Events")}
               </Link>
@@ -355,7 +342,7 @@ function EventDetailClientInner({
             className="mb-6"
           >
             <Link
-              to="/events"
+              href="/events"
               className="inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-primary"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -627,7 +614,7 @@ function EventDetailClientInner({
                   {cms.getText("related.title", "Related Events")}
                 </h2>
                 <Link
-                  to="/events"
+                  href="/events"
                   className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
                   {cms.getText("related.viewAll", "View All")}
@@ -643,7 +630,7 @@ function EventDetailClientInner({
                   const relatedEventImage = normalizePublicImageUrl(relatedEvent.image);
 
                   return (
-                    <Link key={relatedEvent.id} to={`/events/${relatedEvent.slug}`} className="group">
+                    <Link key={relatedEvent.id} href={`/events/${relatedEvent.slug}`} className="group">
                       <Card className="h-full overflow-hidden border-border bg-card transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-lg group-hover:shadow-primary/5">
                         <div className="relative aspect-[16/10] overflow-hidden">
                           {relatedEventImage ? (
@@ -708,38 +695,7 @@ function EventDetailClientInner({
 }
 
 export function EventDetailClient(props: EventDetailClientProps) {
-  const router = useRouter();
-  const pathname = usePathname() ?? `/events/${props.initialEvent.slug}`;
-  const nextSearchParams = useNextSearchParams();
   const mounted = useHydrated();
-
-  const search = nextSearchParams?.toString() ?? "";
-  const location = useMemo(
-    () => ({
-      pathname,
-      search: search ? `?${search}` : "",
-      hash: "",
-      state: null,
-      key: `${pathname}${search ? `?${search}` : ""}`,
-    }),
-    [pathname, search],
-  );
-
-  const navigator = useMemo<HomegrownNavigator>(
-    () => ({
-      createHref: (to) => resolveToPath(to),
-      go: (delta) => {
-        window.history.go(delta);
-      },
-      push: (to) => {
-        router.push(resolveToPath(to));
-      },
-      replace: (to) => {
-        router.replace(resolveToPath(to));
-      },
-    }),
-    [router],
-  );
 
   useEffect(() => {
     const serverShell = document.getElementById("event-detail-server-shell");
@@ -752,11 +708,7 @@ export function EventDetailClient(props: EventDetailClientProps) {
     return null;
   }
 
-  return (
-    <Router location={location as never} navigator={navigator as never} navigationType={NavigationType.Pop}>
-      <EventDetailClientInner {...props} />
-    </Router>
-  );
+  return <EventDetailClientInner {...props} />;
 }
 
 export default EventDetailClient;

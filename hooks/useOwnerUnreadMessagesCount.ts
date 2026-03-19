@@ -1,8 +1,8 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
+import { usePathname } from "next/navigation";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLocation } from "@/components/router/nextRouterCompat";
 
 /**
  * Hook to fetch the count of unread inbound messages for an owner
@@ -10,9 +10,9 @@ import { useLocation } from "@/components/router/nextRouterCompat";
  */
 export function useOwnerUnreadMessagesCount() {
   const { user } = useAuth();
-  const location = useLocation();
+  const pathname = usePathname() ?? "";
   const isBrowser = typeof window !== "undefined";
-  const isOwnerMessagesRoute = location.pathname.startsWith("/owner/messages");
+  const isOwnerMessagesRoute = pathname.startsWith("/owner/messages");
 
   return useQuery({
     queryKey: ["owner-messages", "unread-count", user?.id, isOwnerMessagesRoute],

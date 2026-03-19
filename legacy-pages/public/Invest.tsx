@@ -20,7 +20,7 @@ import {
     ShieldCheck,
     Sparkles,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
@@ -155,7 +155,7 @@ const Invest = () => {
                         <div className="relative z-10 text-center text-white space-y-6 px-4 max-w-4xl mx-auto">
                             <span className="text-sm font-medium tracking-[0.3em] uppercase opacity-90 animate-fade-in">{t("nav.invest")}</span>
                             <h1 className="font-serif text-5xl md:text-7xl font-light italic leading-tight animate-fade-up">
-                                Invest in <span className="not-italic">Algarve</span>
+                                Invest in Algarve
                             </h1>
                             <div className="w-24 h-1 bg-[#C9A84C] mx-auto rounded-full shadow-[0_0_15px_rgba(201,168,76,0.5)]" />
                             <p className="text-lg md:text-xl font-light max-w-2xl mx-auto text-white/90 leading-relaxed font-sans">
@@ -330,13 +330,13 @@ const Invest = () => {
                                 )}
                             </p>
                             <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-                                <Link to={buildLangPath(langPrefix, "/contact")}>
+                                <Link href={buildLangPath(langPrefix, "/contact")}>
                                     <Button variant="gold" size="lg">
                                         <BadgeEuro className="h-4 w-4" />
                                         {t("invest.cta.primary", "Request Investment Brief")}
                                     </Button>
                                 </Link>
-                                <Link to={buildLangPath(langPrefix, "/directory?category=algarve-services")}>
+                                <Link href={buildLangPath(langPrefix, "/directory?category=algarve-services")}>
                                     <Button variant="outline" size="lg">
                                         <CheckCircle2 className="h-4 w-4" />
                                         {t("invest.cta.secondary", "Browse Algarve Services")}

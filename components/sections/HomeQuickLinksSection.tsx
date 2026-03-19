@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import Image from "next/image";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { BedSingle, Binoculars, CalendarDays, LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
@@ -67,7 +67,7 @@ export function HomeQuickLinksSection() {
             return (
               <Link
                 key={card.id}
-                to={buildLangPath(langPrefix, `/directory?category=${card.categorySlug}`)}
+                href={buildLangPath(langPrefix, `/directory?category=${card.categorySlug}`)}
                 className="glass-box glass-box-silver-liquid glass-box-contour group relative isolate block w-[min(77vw,17rem)] flex-none snap-center rounded-[24px] font-sans transition-transform duration-300 hover:-translate-y-1 sm:w-full sm:max-w-[236px]"
               >
                 <span

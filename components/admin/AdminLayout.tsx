@@ -1,5 +1,4 @@
 import { useState, type ReactNode } from "react";
-import { Outlet } from "@/components/router/nextRouterCompat";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { useAdminMessagePolling } from "@/hooks/useAdminMessagePolling";
@@ -49,7 +48,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#f6f2e6_0%,transparent_36%),linear-gradient(180deg,hsl(var(--background))_0%,hsl(var(--muted)/0.18)_100%)] flex w-full dark:bg-[radial-gradient(circle_at_top,rgba(201,169,110,0.08)_0%,transparent_34%),linear-gradient(180deg,hsl(var(--background))_0%,hsl(var(--muted)/0.1)_100%)]">
+    <div className="min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,#f6f2e6_0%,transparent_36%),linear-gradient(180deg,hsl(var(--background))_0%,hsl(var(--muted)/0.18)_100%)] flex w-full dark:bg-[radial-gradient(circle_at_top,rgba(201,169,110,0.08)_0%,transparent_34%),linear-gradient(180deg,hsl(var(--background))_0%,hsl(var(--muted)/0.1)_100%)]">
       <SeoHead noIndex noFollow />
       <AdminSidebar
         collapsed={sidebarCollapsed}
@@ -59,7 +58,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         <AdminHeader />
         <main className="flex-1 overflow-auto">
           <div className="mx-auto w-full max-w-[1680px] px-3 py-3 sm:px-4 lg:px-5 lg:py-4">
-            {children ?? <Outlet />}
+            {children ?? null}
           </div>
         </main>
       </div>

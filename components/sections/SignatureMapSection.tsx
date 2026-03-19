@@ -1,6 +1,6 @@
 import { useMemo, useState, type ComponentType } from "react";
 import dynamic from "next/dynamic";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { BedDouble, Building2, Loader2, MapPin, MapPinned, Sparkles, UtensilsCrossed } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -141,7 +141,7 @@ export function SignatureMapSection() {
               <MapPinned className="h-3.5 w-3.5 mr-1.5" />
               {mapPoints.length} mapped · {filteredDiscoveryListings.length} matching
             </Badge>
-            <Link to={buildLangPath(langPrefix, "/map")}>
+            <Link href={buildLangPath(langPrefix, "/map")}>
               <Button variant="outline">Open Full Map</Button>
             </Link>
           </div>
@@ -236,7 +236,7 @@ export function SignatureMapSection() {
               {previewListings.map(({ listing }) => (
                 <Link
                   key={listing.id}
-                  to={buildLangPath(langPrefix, `/listing/${listing.slug}`)}
+                  href={buildLangPath(langPrefix, `/listing/${listing.slug}`)}
                   className="group block h-full"
                 >
                   <article className="glass-box glass-box-listing-shimmer overflow-hidden flex h-full flex-col">
