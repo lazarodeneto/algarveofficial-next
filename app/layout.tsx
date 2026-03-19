@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import type { ReactNode } from "react";
 import { Inter, Playfair_Display } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import "../index.css";
 import { AppProviders } from "@/components/providers/AppProviders";
@@ -72,6 +73,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <PublicSiteFrame>{children}</PublicSiteFrame>
           </AppProviders>
         </LocaleProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
