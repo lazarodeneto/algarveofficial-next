@@ -133,7 +133,12 @@ export function ExpandableSidebar({
     const merged: Record<string, boolean> = {};
 
     Object.entries(initialOpenMap).forEach(([key, shouldBeOpen]) => {
-      merged[key] = shouldBeOpen || Boolean(manualOpenGroups[key]);
+      // Manual toggles must win so active sections can still be collapsed.
+      if (Object.prototype.hasOwnProperty.call(manualOpenGroups, key)) {
+        merged[key] = manualOpenGroups[key];
+        return;
+      }
+      merged[key] = shouldBeOpen;
     });
 
     Object.entries(manualOpenGroups).forEach(([key, value]) => {
