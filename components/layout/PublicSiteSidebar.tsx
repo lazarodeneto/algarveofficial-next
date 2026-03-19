@@ -66,14 +66,9 @@ export function PublicSiteSidebar() {
   const sections: SidebarNavSection[] = useMemo(
     () => [
       {
-        id: "public-primary",
-        items: primaryItems,
-      },
-      {
-        id: "public-member",
-        title: t("nav.memberArea", "Member Area"),
-        dividerTop: true,
+        id: "public-nav",
         items: [
+          ...primaryItems,
           { label: t("nav.account", "Account"), href: memberDashboardPath, icon: LayoutDashboard },
           { label: t("nav.myTrip", "My Trips"), href: tripsPath, icon: Plane },
           {
@@ -89,14 +84,7 @@ export function PublicSiteSidebar() {
         ],
       },
     ],
-    [
-      t,
-      primaryItems,
-      memberDashboardPath,
-      tripsPath,
-      favoritesPath,
-      messagesPath,
-    ],
+    [t, primaryItems, memberDashboardPath, tripsPath, favoritesPath, messagesPath],
   );
 
   return (
@@ -104,12 +92,13 @@ export function PublicSiteSidebar() {
       collapsed={collapsed}
       onToggle={() => setCollapsed((prev) => !prev)}
       logo={<BrandLogo size="sm" showText={!collapsed} className="gap-2" />}
+      showHeader={false}
       sections={sections}
-      footerText={t("nav.discoverBrand", "Discover AlgarveOfficial")}
+      hideSeparators
       desktopExpandedWidthClass="w-72"
       desktopCollapsedWidthClass="w-16"
       mobileToggleClassName="top-24"
-      className="lg:fixed lg:inset-y-0 lg:left-0 lg:h-screen lg:z-[60]"
+      className="lg:!fixed lg:!inset-y-0 lg:!left-0 lg:!h-[100dvh] lg:!max-h-[100dvh] lg:!bg-card lg:!backdrop-blur-none lg:z-[90]"
     />
   );
 }
