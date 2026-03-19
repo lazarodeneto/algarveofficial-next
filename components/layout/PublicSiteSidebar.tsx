@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Heart,
   LayoutDashboard,
@@ -25,6 +26,7 @@ const fallbackPrimaryItems = [
 
 export function PublicSiteSidebar() {
   const { t } = useTranslation();
+  const router = useRouter();
   const { isAuthenticated, getDashboardPath, user } = useAuth();
   const [collapsed, setCollapsed] = useState(true);
   const langPrefix = useLangPrefix();
@@ -87,6 +89,21 @@ export function PublicSiteSidebar() {
     [t, primaryItems, memberDashboardPath, tripsPath, favoritesPath, messagesPath],
   );
 
+  const prefetchHrefs = useMemo(
+    () =>
+      sections
+        .flatMap((section) => section.items.map((item) => item.href))
+        .filter((href): href is string => typeof href === "string" && href.startsWith("/")),
+    [sections],
+  );
+
+  useEffect(() => {
+    const uniqueHrefs = Array.from(new Set(prefetchHrefs));
+    uniqueHrefs.forEach((href) => {
+      router.prefetch(href);
+    });
+  }, [prefetchHrefs, router]);
+
   return (
     <ExpandableSidebar
       collapsed={collapsed}
@@ -95,6 +112,7 @@ export function PublicSiteSidebar() {
       showHeader={false}
       sections={sections}
       hideSeparators
+      disableCollapsedTooltips
       desktopExpandedWidthClass="w-72"
       desktopCollapsedWidthClass="w-16"
       mobileToggleClassName="top-24"

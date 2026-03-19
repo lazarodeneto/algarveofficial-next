@@ -223,8 +223,8 @@ export function HeaderCompactNav() {
     const runtimeSections = useHeaderRuntimeSections();
 
     return (
-        <div className="hidden md:flex lg:hidden min-w-0 flex-1 items-center justify-end">
-            <div className="flex min-w-0 items-center gap-1.5 lg:gap-2">
+        <div className="hidden md:flex xl:hidden min-w-0 flex-1 items-center justify-end">
+            <div className="flex min-w-0 items-center gap-1 lg:gap-1.5">
                 {runtimeSections.map((section) => {
                     const SectionIcon = section.icon;
 
@@ -235,14 +235,14 @@ export function HeaderCompactNav() {
                             target={section.openInNewTab ? "_blank" : undefined}
                             rel={section.openInNewTab ? "noopener noreferrer" : undefined}
                             className={cn(
-                                "header-nav-pill inline-flex items-center gap-1.5 lg:gap-2 rounded-full border-2 px-3 lg:px-4 py-2 lg:py-2.5 shadow-[0_10px_30px_-24px_rgba(15,23,42,0.45)]",
-                                "text-[12px] lg:text-[13px] font-bold uppercase tracking-[0.08em] whitespace-nowrap transition-all duration-200",
+                                "header-nav-pill inline-flex items-center gap-1.5 rounded-full border-2 px-2.5 lg:px-3 py-1.5 lg:py-2 shadow-[0_10px_30px_-24px_rgba(15,23,42,0.45)]",
+                                "text-[11px] lg:text-[12px] font-bold uppercase tracking-[0.06em] whitespace-nowrap transition-all duration-200",
                                 "border-black bg-white/88 text-foreground backdrop-blur-xl dark:border-white/40 dark:bg-transparent dark:text-white/90",
                                 "hover:border-primary/55 hover:bg-primary/8 hover:text-foreground dark:hover:bg-white/10 dark:hover:text-white",
                             )}
                         >
-                            <SectionIcon className="h-[18px] w-[18px] lg:h-5 lg:w-5 flex-shrink-0 text-[#FFBB33]" />
-                            <span className="truncate">{section.displayLabel}</span>
+                            <SectionIcon className="h-[16px] w-[16px] lg:h-[17px] lg:w-[17px] flex-shrink-0 text-[#FFBB33]" />
+                            <span className="truncate max-w-[5.5rem] lg:max-w-[6.5rem]">{section.displayLabel}</span>
                         </Link>
                     );
                 })}

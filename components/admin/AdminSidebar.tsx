@@ -187,7 +187,6 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
       badge: pendingListingReviewsCount > 0 ? pendingListingReviewsCount : undefined,
       badgeTone: "destructive",
     },
-    { label: t("admin.sidebar.listings"), href: "/admin/listings", icon: List },
     { label: t("admin.sidebar.importListings"), href: "/admin/import", icon: Upload },
     { label: t("admin.sidebar.curatedExcellence"), href: "/admin/curated", icon: Gem },
     { label: t("admin.sidebar.aiImageGen"), href: "/admin/images", icon: Sparkles },
@@ -215,6 +214,8 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
           label: t("admin.sidebar.ownerOps", "Owners"),
           href: "/admin/crm",
           icon: Users,
+          badge: unreadMessagesCount + pendingClaimsCount > 0 ? unreadMessagesCount + pendingClaimsCount : undefined,
+          badgeTone: "destructive",
           children: ownerChildren,
         },
         {
@@ -222,6 +223,8 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
           label: t("admin.sidebar.listingOps", "Listings"),
           href: "/admin/listings",
           icon: List,
+          badge: pendingCount + pendingListingReviewsCount > 0 ? pendingCount + pendingListingReviewsCount : undefined,
+          badgeTone: "destructive",
           children: listingChildren,
         },
         {
@@ -236,6 +239,8 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
           label: t("admin.sidebar.contentStudio", "Content"),
           href: "/admin/content/pages",
           icon: Layers,
+          badge: translationQueueCount + pendingEventsCount > 0 ? translationQueueCount + pendingEventsCount : undefined,
+          badgeTone: "destructive",
           children: contentChildren,
         },
         {
@@ -255,10 +260,14 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
       onToggle={onToggle}
       density="compact"
       logo={<BrandLogo size="sm" showIcon={collapsed} showText={!collapsed} className="gap-2" />}
+      sectionVariant="cards"
+      childIndentStyle="soft"
       sections={sections}
       footerText={
         collapsed ? undefined : `${t("admin.footer")} · ${actionCenterCount} ${t("admin.sidebar.actionCenter", "Action Center").toLowerCase()}`
       }
+      desktopExpandedWidthClass="w-[17.5rem]"
+      desktopCollapsedWidthClass="w-[4.25rem]"
       footerSections={
         collapsed
           ? [

@@ -146,10 +146,10 @@ export function Header() {
             }`}
         />
 
-        <nav className="relative mx-auto max-w-[1680px] px-3 sm:px-6 lg:px-8 xl:px-10">
-          <div className="flex h-[4.5rem] sm:h-20 items-center gap-2.5 sm:gap-3 lg:gap-4 xl:gap-6">
+        <nav className="relative mx-auto max-w-[1680px] px-3 sm:px-5 lg:px-4 xl:px-8 2xl:px-10">
+          <div className="flex h-[4.5rem] sm:h-20 items-center gap-2 sm:gap-3 lg:gap-3 xl:gap-5">
             {/* Logo */}
-            <div className="flex-shrink-0 min-w-0 lg:max-w-[13.5rem] xl:max-w-none">
+            <div className="flex-shrink-0 min-w-0 lg:max-w-[11.5rem] xl:max-w-[13rem] 2xl:max-w-none">
               <BrandLogo size="md" showIcon className="whitespace-nowrap" />
             </div>
 
@@ -157,11 +157,11 @@ export function Header() {
             <HeaderCompactNav />
 
             {/* Desktop Navigation (Mega Menu) */}
-            <div className="hidden lg:flex lg:min-w-0 lg:flex-1 lg:items-center lg:justify-end">
+            <div className="hidden xl:flex xl:min-w-0 xl:flex-1 xl:items-center xl:justify-end">
               <HeaderMegaMenu />
             </div>
 
-            <div className="hidden md:flex md:items-center md:shrink-0">
+            <div className="hidden xl:flex xl:items-center xl:shrink-0">
               <TooltipProvider delayDuration={0}>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -184,8 +184,59 @@ export function Header() {
               </TooltipProvider>
             </div>
 
+            {/* Laptop Actions (1024-1279): compact utility row */}
+            <div className="hidden lg:flex xl:hidden items-center gap-1 rounded-full border border-black/10 bg-white/82 px-1.5 py-1 shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
+              <Link href={favoritesPath}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
+                >
+                  <Heart className="h-4 w-4" />
+                  <span className="sr-only">{t("nav.saved", "Saved")}</span>
+                </Button>
+              </Link>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
+                onClick={() => setSearchOpen(true)}
+              >
+                <Search className="h-4 w-4" />
+                <span className="sr-only">{t("nav.search", "Search")}</span>
+              </Button>
+
+              <LanguageSwitcher />
+              <ThemeToggle variant="header" />
+
+              {isAuthenticated && user ? (
+                <Link href={getDashboardPath(user.role)}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
+                  >
+                    <User className="h-4 w-4" />
+                    <span className="sr-only">{t("nav.account")}</span>
+                  </Button>
+                </Link>
+              ) : (
+                <Link href={loginPath}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
+                  >
+                    <User className="h-4 w-4" />
+                    <span className="sr-only">{t("nav.account")}</span>
+                  </Button>
+                </Link>
+              )}
+            </div>
+
             {/* Desktop Actions */}
-            <div className="hidden lg:flex lg:items-center lg:gap-2 xl:gap-3 lg:shrink-0">
+            <div className="hidden xl:flex xl:items-center xl:gap-2 2xl:gap-3 xl:shrink-0">
               {/* Saved */}
               <div className="flex items-center gap-1 rounded-full border border-black/10 bg-white/82 px-2 py-1.5 shadow-[0_16px_36px_-30px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
                 <Link href={favoritesPath}>

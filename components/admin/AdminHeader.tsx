@@ -121,8 +121,8 @@ export function AdminHeader() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/88 backdrop-blur-xl supports-[backdrop-filter]:bg-background/72">
-      <div className="flex min-h-16 items-center justify-between gap-2 px-3 py-2 lg:px-5">
-        <div className="flex min-w-0 flex-1 items-center gap-2 pl-12 md:gap-3 lg:pl-0 xl:gap-4">
+      <div className="flex min-h-14 items-center justify-between gap-2 px-2.5 py-2 sm:min-h-16 sm:px-3 lg:px-5">
+        <div className="flex min-w-0 flex-1 items-center gap-2 pl-11 sm:pl-12 md:gap-3 lg:pl-0 xl:gap-4">
           <div className="min-w-0 flex-1">
             <DashboardBreadcrumb />
           </div>
@@ -153,7 +153,7 @@ export function AdminHeader() {
           </form>
         </div>
 
-        <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
+        <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
           <div className="hidden 2xl:flex items-center gap-1">
             {quickActionLinks.map((item) => (
               <Button
@@ -277,9 +277,9 @@ export function AdminHeader() {
         </div>
       </div>
 
-      <div className="border-t border-border/60 px-3 py-2 2xl:hidden">
-        <div className="flex flex-wrap items-center gap-2">
-          <form onSubmit={handleQuickJumpSubmit} className="order-2 relative min-w-0 w-full sm:order-1 sm:flex-1 sm:min-w-[14rem]">
+      <div className="border-t border-border/60 px-2.5 py-2 sm:px-3 2xl:hidden">
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
+          <form onSubmit={handleQuickJumpSubmit} className="relative min-w-0 w-full lg:flex-1 lg:min-w-[16rem]">
             <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
               list="admin-quick-jump-mobile"
@@ -304,25 +304,27 @@ export function AdminHeader() {
             </Button>
           </form>
 
-          {quickActionLinks.map((item) => (
-            <Button
-              key={item.href}
-              variant="ghost"
-              size="sm"
-              asChild
-              className="order-1 h-8 max-w-[11rem] shrink-0 rounded-full border border-border/70 bg-background/70 px-3 text-xs text-muted-foreground hover:text-foreground"
-            >
-              <Link href={item.href} className="inline-flex max-w-full items-center">
-                <Sparkles className="mr-1.5 h-3.5 w-3.5 shrink-0" />
-                <span className="truncate">{item.label}</span>
-                {item.badge ? (
-                  <span className="ml-1.5 rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-semibold text-destructive-foreground">
-                    {item.badge > 99 ? "99+" : item.badge}
-                  </span>
-                ) : null}
-              </Link>
-            </Button>
-          ))}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {quickActionLinks.map((item) => (
+              <Button
+                key={item.href}
+                variant="ghost"
+                size="sm"
+                asChild
+                className="h-8 shrink-0 rounded-full border border-border/70 bg-background/70 px-3 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <Link href={item.href} className="inline-flex max-w-full items-center">
+                  <Sparkles className="mr-1.5 h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{item.label}</span>
+                  {item.badge ? (
+                    <span className="ml-1.5 rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-semibold text-destructive-foreground">
+                      {item.badge > 99 ? "99+" : item.badge}
+                    </span>
+                  ) : null}
+                </Link>
+              </Button>
+            ))}
+          </div>
         </div>
       </div>
     </header>
