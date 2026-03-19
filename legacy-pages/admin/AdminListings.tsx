@@ -214,7 +214,7 @@ export default function AdminListings() {
     {
       key: "name",
       label: "Name",
-      className: "w-[42%] max-w-[34rem]",
+      className: "w-[48%] sm:w-[42%] max-w-[34rem]",
       render: (listing) => (
         <div className="min-w-0 max-w-[18rem] sm:max-w-[24rem] lg:max-w-[34rem]">
           <p className="font-medium text-foreground truncate">{listing.name}</p>
@@ -227,7 +227,7 @@ export default function AdminListings() {
     {
       key: "category",
       label: "Category",
-      className: "w-[9.5rem]",
+      className: "hidden sm:table-cell w-[9.5rem]",
       render: (listing) => (
         <span className="block truncate text-sm text-muted-foreground max-w-[9rem]">
           {listing.category?.name || '—'}
@@ -247,7 +247,7 @@ export default function AdminListings() {
     {
       key: "tier",
       label: "Tier",
-      className: "w-[8.25rem] whitespace-nowrap",
+      className: "w-[7.5rem] sm:w-[8.25rem] whitespace-nowrap",
       render: (listing) => <TierBadge tier={listing.tier} size="sm" />,
     },
     {
@@ -267,7 +267,7 @@ export default function AdminListings() {
     {
       key: "status",
       label: "Status",
-      className: "w-[8.5rem] whitespace-nowrap",
+      className: "w-[7.5rem] sm:w-[8.5rem] whitespace-nowrap",
       render: (listing) => <StatusBadge status={listing.status} size="sm" />,
     },
     {
@@ -363,16 +363,16 @@ export default function AdminListings() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl lg:text-4xl font-serif font-medium text-foreground">
+          <h1 className="text-3xl font-serif font-medium text-foreground lg:text-4xl">
             Listings
           </h1>
           <p className="text-muted-foreground mt-1">
             Manage all business listings
           </p>
         </div>
-        <Button asChild>
+        <Button asChild className="w-full sm:w-auto">
           <Link href="/admin/listings/new">
             <Plus className="h-4 w-4 mr-2" />
             Create Listing
@@ -382,8 +382,8 @@ export default function AdminListings() {
 
       {/* Filters */}
       <div className="space-y-4">
-        <div className="flex flex-col gap-3 xl:flex-row">
-          <div className="relative w-full xl:max-w-md xl:flex-1">
+        <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
+          <div className="relative w-full xl:max-w-lg">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search listings..."
@@ -392,9 +392,9 @@ export default function AdminListings() {
               className="pl-10"
             />
           </div>
-          <div className="flex gap-2 flex-wrap">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-5">
             <Select value={cityFilter} onValueChange={setCityFilter}>
-              <SelectTrigger className="w-full sm:w-[140px]">
+              <SelectTrigger className="w-full xl:min-w-[150px]">
                 <SelectValue placeholder="City" />
               </SelectTrigger>
               <SelectContent>
@@ -407,7 +407,7 @@ export default function AdminListings() {
               </SelectContent>
             </Select>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full sm:w-[160px]">
+              <SelectTrigger className="w-full xl:min-w-[170px]">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
@@ -420,7 +420,7 @@ export default function AdminListings() {
               </SelectContent>
             </Select>
             <Select value={tierFilter} onValueChange={setTierFilter}>
-              <SelectTrigger className="w-full sm:w-[140px]">
+              <SelectTrigger className="w-full xl:min-w-[145px]">
                 <SelectValue placeholder="Tier" />
               </SelectTrigger>
               <SelectContent>
@@ -431,7 +431,7 @@ export default function AdminListings() {
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-[160px]">
+              <SelectTrigger className="w-full xl:min-w-[165px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -443,7 +443,7 @@ export default function AdminListings() {
               </SelectContent>
             </Select>
             {hasFilters && (
-              <Button variant="ghost" onClick={clearFilters} className="text-muted-foreground">
+              <Button variant="ghost" onClick={clearFilters} className="w-full text-muted-foreground xl:w-auto">
                 <X className="h-4 w-4 mr-1" />
                 Clear
               </Button>
@@ -453,12 +453,12 @@ export default function AdminListings() {
 
         {/* Bulk Actions */}
         {selectedIds.length > 0 && (
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border">
-            <span className="text-sm text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-muted/50 p-3">
+            <span className="w-full text-sm text-muted-foreground sm:w-auto">
               {selectedIds.length} selected
             </span>
             {selectedIds.length === 1 && (
-              <Button asChild size="sm" variant="outline">
+              <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
                 <Link href={`/admin/listings/${selectedIds[0]}/edit`}>
                   <Edit className="h-4 w-4 mr-1" />
                   Edit
@@ -470,6 +470,7 @@ export default function AdminListings() {
               variant="outline"
               onClick={handleBulkPublish}
               disabled={bulkPublish.isPending}
+              className="w-full sm:w-auto"
             >
               {bulkPublish.isPending ? (
                 <Loader2 className="h-4 w-4 mr-1 animate-spin" />
@@ -480,13 +481,14 @@ export default function AdminListings() {
               size="sm" 
               variant="outline"
               onClick={() => setTierDialogOpen(true)}
+              className="w-full sm:w-auto"
             >
               Set Tier
             </Button>
             <Button 
               size="sm" 
               variant="outline" 
-              className="text-destructive border-destructive/30"
+              className="w-full border-destructive/30 text-destructive sm:w-auto"
               onClick={() => setDeleteDialogOpen(true)}
             >
               Delete
@@ -503,7 +505,7 @@ export default function AdminListings() {
         selectedIds={selectedIds}
         onSelectionChange={setSelectedIds}
         emptyMessage="No listings found"
-        tableClassName="min-w-[980px] table-fixed"
+        tableClassName="min-w-[820px] lg:min-w-[980px] table-fixed"
       />
 
       {/* Results count */}

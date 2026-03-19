@@ -51,6 +51,7 @@ interface ExpandableSidebarProps {
   logo: ReactNode;
   showHeader?: boolean;
   hideSeparators?: boolean;
+  disableCollapsedTooltips?: boolean;
   density?: "comfortable" | "compact";
   sections: SidebarNavSection[];
   footerText?: string;
@@ -58,6 +59,8 @@ interface ExpandableSidebarProps {
   desktopExpandedWidthClass?: string;
   desktopCollapsedWidthClass?: string;
   mobileToggleClassName?: string;
+  sectionVariant?: "default" | "cards";
+  childIndentStyle?: "rail" | "soft";
   className?: string;
 }
 
@@ -73,6 +76,7 @@ export function ExpandableSidebar({
   logo,
   showHeader = true,
   hideSeparators = false,
+  disableCollapsedTooltips = false,
   density = "comfortable",
   sections,
   footerText,
@@ -80,6 +84,8 @@ export function ExpandableSidebar({
   desktopExpandedWidthClass = "w-64",
   desktopCollapsedWidthClass = "w-16",
   mobileToggleClassName,
+  sectionVariant = "default",
+  childIndentStyle = "rail",
   className,
 }: ExpandableSidebarProps) {
   const pathname = usePathname() ?? "";
@@ -151,18 +157,18 @@ export function ExpandableSidebar({
     const shouldOpenInNewTab = Boolean(item.openInNewTab || isExternalHref);
     const active = shouldOpenInNewTab ? false : isLeafActive(item);
     const compact = collapsed && !forceExpanded;
-    const leftPadClass = depth > 0 ? "pl-6" : "";
+    const leftPadClass = depth > 0 ? (childIndentStyle === "soft" ? "pl-4" : "pl-6") : "";
 
     if (!item.href) {
       return null;
     }
 
     const sharedClassName = cn(
-      "relative flex items-center gap-3 px-3 rounded-lg text-sm font-medium transition-colors",
+      "relative flex items-center gap-3 px-3 rounded-lg text-sm font-medium transition-colors cursor-pointer select-none touch-manipulation",
       "hover:bg-muted hover:text-foreground",
       active ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground",
       navItemPaddingY,
-      compact && "justify-center px-2",
+      compact && "justify-center px-0 h-11 w-11 mx-auto rounded-full",
       leftPadClass,
     );
 
@@ -197,6 +203,7 @@ export function ExpandableSidebar({
       <Link
         key={keyHint ?? getItemKey(item, `leaf-${depth}`)}
         href={item.href}
+        prefetch
         onClick={closeMobile}
         aria-label={compact ? item.label : undefined}
         className={sharedClassName}
@@ -220,7 +227,7 @@ export function ExpandableSidebar({
       </Link>
     );
 
-    if (!compact) {
+    if (!compact || disableCollapsedTooltips) {
       return navItem;
     }
 
@@ -253,10 +260,11 @@ export function ExpandableSidebar({
         <Link
           key={key}
           href={primaryHref}
+          prefetch
           onClick={closeMobile}
           aria-label={item.label}
           className={cn(
-            "relative flex items-center justify-center px-2 rounded-lg text-sm font-medium transition-colors",
+            "relative flex items-center justify-center h-11 w-11 mx-auto px-0 rounded-full text-sm font-medium transition-colors cursor-pointer select-none touch-manipulation",
             "hover:bg-muted hover:text-foreground",
             active ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground",
             navItemPaddingY,
@@ -265,6 +273,10 @@ export function ExpandableSidebar({
           <item.icon className={cn("h-5 w-5", active && "text-primary")} />
         </Link>
       );
+
+      if (disableCollapsedTooltips) {
+        return navItem;
+      }
 
       return (
         <Tooltip key={key}>
@@ -333,7 +345,14 @@ export function ExpandableSidebar({
             </button>
           </CollapsibleTrigger>
         </div>
-        <CollapsibleContent className="mt-1 ml-3 pl-3 border-l border-border/50 space-y-1">
+        <CollapsibleContent
+          className={cn(
+            "mt-1 space-y-1",
+            childIndentStyle === "soft"
+              ? "ml-2 rounded-lg bg-muted/35 p-1"
+              : "ml-3 border-l border-border/50 pl-3",
+          )}
+        >
           {item.children.map((child, index) =>
             renderLeafItem(child, 1, forceExpanded, getItemKey(child, `${key}-${index}`))
           )}
@@ -433,7 +452,7 @@ export function ExpandableSidebar({
       {showHeader ? (
         <div
           className={cn(
-            "flex items-center px-3 h-14",
+            "flex h-14 items-center px-3",
             !hideSeparators && "border-b border-border/70",
             (collapsed && !forceExpanded) ? "justify-center" : "justify-between",
           )}
@@ -455,10 +474,23 @@ export function ExpandableSidebar({
       <ScrollArea className={cn("flex-1", scrollPaddingYClass)}>
         <nav className={cn("flex flex-col px-2", navContainerGapClass)}>
           {sections.map((section) => (
-            <div key={section.id} className={sectionGapClass}>
+            <div
+              key={section.id}
+              className={cn(
+                sectionGapClass,
+                sectionVariant === "cards" && !(collapsed && !forceExpanded) && "rounded-xl border border-border/60 bg-background/65 p-1.5 shadow-sm",
+              )}
+            >
               {section.dividerTop && !hideSeparators ? <div className="my-2 mx-2 border-t border-border/70" /> : null}
               {section.title && !(collapsed && !forceExpanded) ? (
-                <p className="px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/70">{section.title}</p>
+                <p
+                  className={cn(
+                    "px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/70",
+                    sectionVariant === "cards" && "px-2.5 text-[9px] tracking-[0.2em]",
+                  )}
+                >
+                  {section.title}
+                </p>
               ) : null}
               {section.items.map((item) => renderItem(item, section.id, forceExpanded))}
             </div>
