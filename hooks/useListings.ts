@@ -392,7 +392,6 @@ export function usePublishedListings(filters: ListingFilters = {}) {
       );
     },
     enabled: isBrowser,
-    initialData: [] as ListingWithRelations[],
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes — listings rarely change
     gcTime: 1000 * 60 * 15,
   });
@@ -534,7 +533,6 @@ export function useCuratedListings() {
       );
     },
     enabled: isBrowser,
-    initialData: [] as ListingWithRelations[],
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
   });
@@ -587,7 +585,6 @@ export function useSignatureListings() {
       );
     },
     enabled: isBrowser,
-    initialData: [] as ListingWithRelations[],
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
   });

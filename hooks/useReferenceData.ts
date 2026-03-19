@@ -94,7 +94,6 @@ export function useCities() {
       return mergeCityTranslations(cities, translations);
     },
     enabled: isBrowser,
-    initialData: [] as CityRow[],
     staleTime: 1000 * 60 * 10, // Cache for 10 minutes
   });
 }
@@ -129,7 +128,6 @@ export function useRegions() {
       return mergeRegionTranslations(regions, translations);
     },
     enabled: isBrowser,
-    initialData: [] as RegionRow[],
     staleTime: 1000 * 60 * 10, // Cache for 10 minutes
   });
 }
@@ -164,7 +162,6 @@ export function useCategories() {
       return mergeCategoryTranslations(categories, translations);
     },
     enabled: isBrowser,
-    initialData: [] as CategoryRow[],
     staleTime: 1000 * 60 * 10, // Cache for 10 minutes
   });
 }
@@ -199,7 +196,6 @@ export function useFeaturedRegions() {
       return mergeRegionTranslations(regions, translations);
     },
     enabled: isBrowser,
-    initialData: [] as RegionRow[],
     staleTime: 1000 * 60 * 10,
   });
 }
@@ -234,7 +230,6 @@ export function useFeaturedCities() {
       return mergeCityTranslations(cities, translations);
     },
     enabled: isBrowser,
-    initialData: [] as CityRow[],
     staleTime: 1000 * 60 * 10,
   });
 }
@@ -269,7 +264,6 @@ export function useFeaturedCategories() {
       return mergeCategoryTranslations(categories, translations);
     },
     enabled: isBrowser,
-    initialData: [] as CategoryRow[],
     staleTime: 1000 * 60 * 10,
   });
 }
@@ -295,7 +289,6 @@ export function useCityRegionMappings() {
       return data;
     },
     enabled: isBrowser,
-    initialData: [],
     staleTime: 1000 * 60 * 10,
   });
 }
@@ -327,7 +320,6 @@ export function useAllCities() {
       return data as CityRow[];
     },
     enabled: isBrowser,
-    initialData: [] as CityRow[],
     staleTime: 1000 * 60 * 10,
   });
 }
@@ -355,7 +347,6 @@ export function useAllRegions() {
       return data as RegionRow[];
     },
     enabled: isBrowser,
-    initialData: [] as RegionRow[],
     staleTime: 1000 * 60 * 10,
   });
 }
@@ -383,7 +374,6 @@ export function useAllCategories() {
       return data as CategoryRow[];
     },
     enabled: isBrowser,
-    initialData: [] as CategoryRow[],
     staleTime: 1000 * 60 * 10,
   });
 }
