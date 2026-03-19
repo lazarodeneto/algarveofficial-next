@@ -43,6 +43,28 @@ export interface EmailCampaignInsert {
   scheduled_at?: string;
 }
 
+async function readFunctionError(error: unknown, fallback: string) {
+  const err = error as { message?: string; context?: Response } | null;
+  if (!err) return fallback;
+
+  if (err.context instanceof Response) {
+    try {
+      const payload = (await err.context.clone().json()) as { error?: string; message?: string };
+      if (payload.error) return payload.error;
+      if (payload.message) return payload.message;
+    } catch {
+      try {
+        const text = await err.context.clone().text();
+        if (text?.trim()) return text.trim();
+      } catch {
+        // no-op
+      }
+    }
+  }
+
+  return err.message || fallback;
+}
+
 export function useEmailCampaigns(options?: { status?: string; limit?: number }) {
   const isBrowser = typeof window !== "undefined";
 
@@ -203,43 +225,24 @@ export function useSendEmailCampaign() {
   return useMutation({
     mutationFn: async (campaignId: string) => {
       if (!isBrowser) return null;
+      const { data, error } = await supabase.functions.invoke("send-campaign", {
+        body: { campaign_id: campaignId },
+      });
 
-      const { data: sessionData } = await supabase.auth.getSession();
-      
-      if (!sessionData.session) {
-        throw new Error("Not authenticated");
+      if (error) {
+        throw new Error(await readFunctionError(error, "Failed to send campaign"));
       }
 
-      try {
-        const response = await fetch(
-          `https://niylxpvafywjonrphddp.supabase.co/functions/v1/send-campaign`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${sessionData.session.access_token}`,
-            },
-            body: JSON.stringify({ campaign_id: campaignId }),
-            signal: AbortSignal.timeout(8000), // Vercel Hobby Timeout padding
-          }
-        );
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || "Failed to send campaign");
-        }
-
-        return response.json();
-      } catch (err: unknown) {
-        if (err instanceof DOMException && err.name === "TimeoutError") {
-          throw new Error("Request to send campaign timed out. Please try again.");
-        }
-        throw err;
+      if (data?.error) {
+        throw new Error(data.error as string);
       }
+
+      return data as { sent: number };
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["email-campaigns"] });
-      toast({ title: "Campaign sent", description: `Successfully sent to ${data.sent} contacts` });
+      const sentCount = data?.sent ?? 0;
+      toast({ title: "Campaign sent", description: `Successfully sent to ${sentCount} contacts` });
     },
     onError: (error: Error) => {
       toast({ title: "Failed to send campaign", description: error.message, variant: "destructive" });
