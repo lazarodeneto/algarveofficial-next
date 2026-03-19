@@ -28,7 +28,6 @@ const SECTION_COMPONENTS: Record<string, LazyExoticComponent<ComponentType<unkno
   regions: RegionsSection,
   categories: CategoriesSection,
   cities: CitiesSection,
-  curated: CuratedExcellence,
   vip: SignatureMapSection,
   'all-listings': AllListingsSection,
 };
@@ -67,7 +66,7 @@ const Index = () => {
       'all-listings': settings.show_all_listings_section ?? true,
     };
 
-    const normalizedOrder = sectionOrder.filter(id => id in SECTION_COMPONENTS);
+    const normalizedOrder = sectionOrder.filter((id) => id === "curated" || id in SECTION_COMPONENTS);
     const cmsOrdered = getBlockOrder(normalizedOrder);
 
     return cmsOrdered

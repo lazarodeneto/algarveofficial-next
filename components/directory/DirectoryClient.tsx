@@ -245,18 +245,18 @@ function resolveSearchCategoryIds(search: string | undefined, categories: Catego
 }
 
 interface ListingsFilterQuery {
-  in: (column: string, values: readonly string[]) => ListingsFilterQuery;
-  eq: (column: string, value: unknown) => ListingsFilterQuery;
-  or: (filters: string) => ListingsFilterQuery;
+  in: (column: string, values: readonly string[]) => this;
+  eq: (column: string, value: unknown) => this;
+  or: (filters: string) => this;
 }
 
-function applyListingFilters<T extends ListingsFilterQuery>(
-  query: T,
+function applyListingFilters(
+  query: ListingsFilterQuery,
   filters: ListingFilters,
   categories: CategoryRow[],
   cities: CityRow[],
   regions: RegionRow[],
-): T {
+): ListingsFilterQuery {
   const mergedCategories = buildMergedCategoryOptions(categories);
   const normalizedCategory =
     filters.categoryId && filters.categoryId !== "all"
@@ -513,7 +513,14 @@ async function fetchListings(
       .order("id", { ascending: true })
       .range(from, from + pageSize - 1);
 
-    query = applyListingFilters(query, normalizedFilters, categories, cities, regions);
+    const filteredQuery = applyListingFilters(
+      query as unknown as ListingsFilterQuery,
+      normalizedFilters,
+      categories,
+      cities,
+      regions,
+    );
+    query = filteredQuery as unknown as typeof query;
 
     const { data, error } = await query;
     if (error) throw error;

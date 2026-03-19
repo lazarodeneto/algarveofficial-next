@@ -154,7 +154,7 @@ export function useMarkThreadMessagesAsRead() {
 
   return useMutation({
     onMutate: async (threadId: string) => {
-      const updateThreadList = (queryKey: string[]) => {
+      const updateThreadList = (queryKey: Array<string | undefined>) => {
         const previousThreads = queryClient.getQueryData<Array<{ id: string; unread_count?: number }>>(queryKey);
         if (!previousThreads) {
           return { previousThreads: undefined, unreadDelta: 0 };
