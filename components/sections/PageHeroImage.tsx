@@ -9,6 +9,8 @@ export type PageHeroImageKey =
   | "destinations"
   | "directory"
   | "events"
+  | "invest"
+  | "live"
   | "partner"
   | "real-estate";
 
@@ -43,6 +45,14 @@ const PAGE_HERO_IMAGE_CONFIG: Record<
     regionSlug: "vilamoura-prestige",
     objectPosition: "center 44%",
   },
+  invest: {
+    regionSlug: "vilamoura-prestige",
+    objectPosition: "center 46%",
+  },
+  live: {
+    regionSlug: "lagos-signature",
+    objectPosition: "center 48%",
+  },
   partner: {
     regionSlug: "golden-triangle",
     objectPosition: "center 42%",
@@ -64,7 +74,7 @@ export function PageHeroImage({ page, alt, className }: PageHeroImageProps) {
   const imageSet = getRegionImageSet(config.regionSlug);
 
   if (!imageSet) {
-    return <div className="h-full w-full bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900" />;
+    return <div className="h-full w-full bg-slate-900" />;
   }
 
   return (

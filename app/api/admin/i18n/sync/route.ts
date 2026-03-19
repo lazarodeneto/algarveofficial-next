@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
+import en from "@/i18n/locales/en.json";
+import { enforcePremiumInLocaleData } from "@/lib/i18n/premiumGuard";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 
@@ -86,9 +88,13 @@ export async function POST(request: NextRequest) {
 
   const serviceClient = createServiceRoleClient();
   const writer = serviceClient ?? userClient;
+  const sanitizedLocaleData = enforcePremiumInLocaleData(
+    body.data as Record<string, unknown>,
+    en as Record<string, unknown>,
+  );
   const payload: Database["public"]["Tables"]["i18n_locale_data"]["Insert"] = {
     locale,
-    data: body.data as Database["public"]["Tables"]["i18n_locale_data"]["Insert"]["data"],
+    data: sanitizedLocaleData as Database["public"]["Tables"]["i18n_locale_data"]["Insert"]["data"],
     key_count: keyCount ?? 0,
     updated_at: new Date().toISOString(),
   };

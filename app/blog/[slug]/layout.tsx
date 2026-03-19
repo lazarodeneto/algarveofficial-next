@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
+import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { buildMetadata } from "@/lib/metadata";
 import { getPublishedBlogPostBySlug } from "./postData";
 
@@ -28,6 +29,7 @@ export async function generateMetadata({ params }: BlogPostLayoutProps): Promise
     title,
     description,
     path: `/blog/${slug}`,
+    image: normalizePublicImageUrl(post.featured_image) || "/og-image.png",
     type: "article",
     publishedTime: post.published_at ?? post.created_at,
     modifiedTime: post.updated_at ?? post.published_at ?? post.created_at,

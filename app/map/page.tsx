@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import type { Tables } from "@/integrations/supabase/types";
 import MapClient from "@/components/map/MapClient";
 import { buildMetadata } from "@/lib/metadata";
+import { buildItemListSchema, buildWebPageSchema } from "@/lib/seo/schemaBuilders.js";
 import { createClient } from "@/lib/supabase/server";
 
 type MapListingSeed = Pick<
@@ -91,9 +92,38 @@ export function generateMetadata(): Metadata {
 
 export default async function MapPage() {
   const { listings, cities, regions, categories } = await getMapPageData();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim()?.replace(/\/+$/, "") || "https://algarveofficial.com";
+  const pageSchema = buildWebPageSchema({
+    type: "CollectionPage",
+    name: "Algarve Listings Map",
+    description:
+      "Explore all Algarve listings on an interactive map with filters for category, region, and city.",
+    url: `${siteUrl}/map`,
+    image: `${siteUrl}/og-image.png`,
+    siteUrl,
+  });
+  const itemListSchema = buildItemListSchema({
+    name: "Map listings in Algarve",
+    url: `${siteUrl}/map`,
+    description: "Published Algarve listings visible on the map.",
+    items: listings.slice(0, 100).map((listing) => ({
+      name: listing.name,
+      url: `${siteUrl}/listing/${listing.slug || listing.id}`,
+      image: listing.featured_image_url || undefined,
+      description: listing.category?.name || undefined,
+    })),
+  });
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(pageSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
       <div id="map-server-shell" className="min-h-screen bg-background text-foreground">
         <main className="app-container pt-32 pb-20">
           <section className="rounded-[2rem] border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur md:p-12">

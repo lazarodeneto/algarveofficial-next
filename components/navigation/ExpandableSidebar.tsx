@@ -151,6 +151,10 @@ export function ExpandableSidebar({
   }, [initialOpenMap, manualOpenGroups]);
 
   const closeMobile = () => setMobileOpen(false);
+  const closeMobileDeferred = useCallback(() => {
+    if (!mobileOpen) return;
+    window.setTimeout(() => setMobileOpen(false), 0);
+  }, [mobileOpen]);
 
   const renderLeafItem = (
     item: SidebarNavItem,
@@ -209,7 +213,7 @@ export function ExpandableSidebar({
         key={keyHint ?? getItemKey(item, `leaf-${depth}`)}
         href={item.href}
         prefetch
-        onClick={closeMobile}
+        onClick={closeMobileDeferred}
         aria-label={compact ? item.label : undefined}
         className={sharedClassName}
       >
@@ -266,7 +270,7 @@ export function ExpandableSidebar({
           key={key}
           href={primaryHref}
           prefetch
-          onClick={closeMobile}
+          onClick={closeMobileDeferred}
           aria-label={item.label}
           className={cn(
             "relative flex items-center justify-center h-11 w-11 mx-auto px-0 rounded-full text-sm font-medium transition-colors cursor-pointer select-none touch-manipulation",
@@ -299,9 +303,9 @@ export function ExpandableSidebar({
           {primaryHref ? (
             <Link
               href={primaryHref}
-              onClick={closeMobile}
+              onClick={closeMobileDeferred}
               className={cn(
-                "flex-1 flex items-center gap-3 px-3 rounded-lg text-sm font-medium transition-colors",
+                "flex-1 flex items-center gap-3 px-3 rounded-lg text-sm font-medium transition-colors cursor-pointer select-none touch-manipulation",
                 "hover:bg-muted hover:text-foreground",
                 active ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground",
                 navItemPaddingY,
@@ -320,7 +324,7 @@ export function ExpandableSidebar({
               type="button"
               onClick={() => setManualOpenGroups((prev) => ({ ...prev, [key]: !open }))}
               className={cn(
-                "w-full flex items-center gap-3 px-3 rounded-lg text-sm font-medium transition-colors",
+                "w-full flex items-center gap-3 px-3 rounded-lg text-sm font-medium transition-colors cursor-pointer select-none touch-manipulation",
                 "hover:bg-muted hover:text-foreground",
                 active ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground",
                 navItemPaddingY,
@@ -341,7 +345,7 @@ export function ExpandableSidebar({
               type="button"
               aria-label={open ? `Collapse ${item.label}` : `Expand ${item.label}`}
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-md transition-colors",
+                "flex h-10 w-10 items-center justify-center rounded-md transition-colors cursor-pointer select-none touch-manipulation",
                 "hover:bg-muted hover:text-foreground",
                 active ? "text-primary" : "text-muted-foreground",
               )}
@@ -412,7 +416,7 @@ export function ExpandableSidebar({
                     {content}
                   </a>
                 ) : (
-                  <Link key={item.id} href={item.href} onClick={closeMobile} aria-label={compact ? item.label : undefined}>
+                  <Link key={item.id} href={item.href} onClick={closeMobileDeferred} aria-label={compact ? item.label : undefined}>
                     {content}
                   </Link>
                 );

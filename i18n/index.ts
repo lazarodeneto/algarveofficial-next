@@ -10,6 +10,7 @@ import nl from "./locales/nl.json";
 import sv from "./locales/sv.json";
 import no from "./locales/no.json";
 import da from "./locales/da.json";
+import { enforcePremiumInLocaleData } from "@/lib/i18n/premiumGuard";
 
 const SUPPORTED_LANGS = ["en", "pt-pt", "de", "fr", "es", "it", "nl", "sv", "no", "da"];
 
@@ -51,7 +52,9 @@ function deepMerge(
   return result;
 }
 
-const bundled: Record<string, Record<string, unknown>> = {
+const englishSource = en as Record<string, unknown>;
+
+const bundledRaw: Record<string, Record<string, unknown>> = {
   en: en as Record<string, unknown>,
   "pt-pt": pt as Record<string, unknown>,
   de: de as Record<string, unknown>,
@@ -63,6 +66,13 @@ const bundled: Record<string, Record<string, unknown>> = {
   no: no as Record<string, unknown>,
   da: da as Record<string, unknown>,
 };
+
+const bundled = Object.fromEntries(
+  Object.entries(bundledRaw).map(([code, data]) => [
+    code,
+    code === "en" ? data : enforcePremiumInLocaleData(data, englishSource),
+  ]),
+) as Record<string, Record<string, unknown>>;
 
 // ── Initialise i18n with bundled data first (instant) ────────────────────────
 // Next.js server rendering must start from a deterministic locale.
@@ -112,8 +122,9 @@ async function patchLocaleFromSupabase(locale: string) {
       bundled[locale] ?? {},
       data.data as Record<string, unknown>,
     );
+    const premiumSafeMerged = enforcePremiumInLocaleData(merged, englishSource);
 
-    i18n.addResourceBundle(locale, "translation", merged, true, true);
+    i18n.addResourceBundle(locale, "translation", premiumSafeMerged, true, true);
   } catch {
     // Silently fall back to bundled data — the app always works without Supabase.
   }

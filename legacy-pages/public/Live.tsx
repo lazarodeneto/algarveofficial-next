@@ -30,6 +30,9 @@ import { useCities } from "@/hooks/useReferenceData";
 import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
+import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
+import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
+import { PageHeroImage } from "@/components/sections/PageHeroImage";
 
 const Live = () => {
   const { t } = useTranslation();
@@ -199,48 +202,42 @@ const Live = () => {
       <Header />
 
       <main className="flex-grow">
-        {isBlockEnabled("hero", true) && <CmsBlock pageId="live" blockId="hero" className="px-3 sm:px-4 lg:px-6 pt-16 sm:pt-20 pb-4">
-          <section className="relative min-h-[560px] md:min-h-[680px] flex items-center justify-center overflow-hidden rounded-2xl lg:rounded-3xl shadow-sm">
-            <div className="absolute inset-0 z-0">
-              <img
-                src="/hero-poster-desktop.webp"
-                alt={t("live.hero.alt", "Live in Algarve coastline")}
-                className="w-full h-full object-cover scale-[1.02]"
-              />
-              <div className="absolute inset-0 bg-black/45 backdrop-blur-[1px]" />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/35 to-background" />
-            </div>
-
-            <div className="relative z-10 text-center text-white space-y-6 px-4 max-w-4xl mx-auto">
-              <Badge variant="gold" className="uppercase tracking-[0.22em] text-[11px] px-4 py-1.5">
-                {t("live.hero.badge", "Relocation Guidance")}
-              </Badge>
-              <h1 className="font-serif text-5xl md:text-7xl font-light leading-tight">
-                {t("live.hero.title", "Live in the Algarve, with clarity from day one")}
-              </h1>
-              <div className="w-24 h-1 bg-[#C9A96E] mx-auto rounded-full shadow-[0_0_15px_rgba(201,169,110,0.5)]" />
-              <p className="text-base md:text-xl font-light max-w-2xl mx-auto text-white/90 leading-relaxed">
-                {t(
-                  "live.hero.subtitle",
-                  "Structured guidance for residency, housing, and daily life so your move is smooth, compliant, and future-ready.",
-                )}
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-                <Link href={buildLangPath(langPrefix, "/contact")}>
-                  <Button variant="gold" size="lg">
-                    {t("live.hero.ctaPrimary", "Plan My Move")}
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
-                <Link href={buildLangPath(langPrefix, "/directory")}>
-                  <Button variant="heroOutline" size="lg">
-                    {t("live.hero.ctaSecondary", "Browse Local Experts")}
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </section>
-        </CmsBlock>}
+        {isBlockEnabled("hero", true) && (
+          <CmsBlock pageId="live" blockId="hero" className="px-3 sm:px-4 lg:px-6 pt-16 sm:pt-20 pb-4">
+            <LiveStyleHero
+              badge={t("live.hero.badge", "Relocation Guidance")}
+              title={t("live.hero.title", "Live in the Algarve, with clarity from day one")}
+              subtitle={t(
+                "live.hero.subtitle",
+                "Structured guidance for residency, housing, and daily life so your move is smooth, compliant, and future-ready.",
+              )}
+              media={
+                <HeroBackgroundMedia
+                  mediaType={getText("hero.mediaType", "image")}
+                  imageUrl={getText("hero.imageUrl", "")}
+                  videoUrl={getText("hero.videoUrl", "")}
+                  alt={t("live.hero.alt", "Live in Algarve coastline")}
+                  fallback={<PageHeroImage page="live" alt={t("live.hero.alt", "Live in Algarve coastline")} />}
+                />
+              }
+              ctas={
+                <>
+                  <Link href={buildLangPath(langPrefix, "/contact")}>
+                    <Button variant="gold" size="lg">
+                      {t("live.hero.ctaPrimary", "Plan My Move")}
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Link href={buildLangPath(langPrefix, "/directory")}>
+                    <Button variant="heroOutline" size="lg">
+                      {t("live.hero.ctaSecondary", "Browse Local Experts")}
+                    </Button>
+                  </Link>
+                </>
+              }
+            />
+          </CmsBlock>
+        )}
 
         {isBlockEnabled("segments", true) && <CmsBlock pageId="live" blockId="segments" as="section" className="max-w-7xl mx-auto px-4 md:px-8 py-8 lg:py-12">
           <div className="grid gap-3 md:grid-cols-3">

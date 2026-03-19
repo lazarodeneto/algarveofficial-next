@@ -7,6 +7,18 @@ const DEFAULT_DESCRIPTION =
 const DEFAULT_IMAGE = "/og-image.png";
 const DEFAULT_LOCALE = "en_GB";
 const TWITTER_SITE = "@AlgarveOfficial";
+const DEFAULT_KEYWORDS = [
+  "Algarve",
+  "Algarve directory",
+  "premium listings",
+  "Portugal travel",
+  "Algarve villas",
+  "Algarve restaurants",
+  "Algarve golf",
+  "Algarve events",
+  "real estate Algarve",
+  "Algarve concierge",
+];
 
 export interface MetadataParams {
   title: string;
@@ -25,7 +37,12 @@ export interface MetadataParams {
 }
 
 function getSiteUrl() {
-  return process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL;
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (configured && /^https?:\/\//i.test(configured)) {
+    return configured.replace(/\/+$/, "");
+  }
+
+  return DEFAULT_SITE_URL;
 }
 
 function normalizePath(path: string) {
@@ -55,6 +72,27 @@ export function buildAlternates(path: string) {
       "x-default": toAbsoluteUrl(siteUrl, normalizedPath),
     },
   };
+}
+
+function normalizeKeywords(
+  keywords?: string[] | string,
+): string[] {
+  if (Array.isArray(keywords)) {
+    const normalized = keywords
+      .map((value) => String(value).trim())
+      .filter(Boolean);
+    return normalized.length > 0 ? Array.from(new Set(normalized)) : DEFAULT_KEYWORDS;
+  }
+
+  if (typeof keywords === "string") {
+    const normalized = keywords
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean);
+    return normalized.length > 0 ? Array.from(new Set(normalized)) : DEFAULT_KEYWORDS;
+  }
+
+  return DEFAULT_KEYWORDS;
 }
 
 function ensureBrandedTitle(title: string) {
@@ -105,9 +143,21 @@ export function buildMetadata({
   const metadata: Metadata = {
     title: resolvedTitle,
     description: resolvedDescription,
+    applicationName: SITE_NAME,
+    creator: SITE_NAME,
+    publisher: SITE_NAME,
+    referrer: "origin-when-cross-origin",
     metadataBase: new URL(siteUrl),
-    keywords,
+    keywords: normalizeKeywords(keywords),
     authors,
+    icons: {
+      icon: [
+        { url: "/favicon.ico" },
+        { url: "/favicon.svg", type: "image/svg+xml" },
+      ],
+      apple: [{ url: "/icons/apple-touch-icon.png" }],
+      shortcut: [{ url: "/favicon.ico" }],
+    },
     alternates: buildAlternates(normalizedPath),
     robots: {
       index: !noIndex,
@@ -149,6 +199,7 @@ export function buildMetadata({
       description: resolvedDescription,
       images: [resolvedImage],
       site: TWITTER_SITE,
+      creator: TWITTER_SITE,
     },
     other: {
       "format-detection": "telephone=no",
