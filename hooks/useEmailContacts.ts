@@ -2,6 +2,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { invokeFunctionWithAuthRetry } from "@/lib/supabaseFunctionInvoke";
+import { getSupabaseFunctionErrorMessage } from "@/lib/supabaseFunctionError";
 
 export interface EmailContact {
   id: string;
@@ -30,6 +32,27 @@ export interface EmailContactInsert {
   status?: "subscribed" | "unsubscribed" | "bounced" | "complained";
   tags?: string[];
   source?: string;
+}
+
+type ResendSyncType = "INSERT" | "UPDATE" | "DELETE";
+
+async function syncContactToResend(payload: {
+  type: ResendSyncType;
+  table: "email_contacts";
+  record: unknown;
+  old_record: unknown;
+}) {
+  const { error } = await invokeFunctionWithAuthRetry("sync-contact-to-resend", {
+    body: payload,
+  });
+
+  if (error) {
+    const message = await getSupabaseFunctionErrorMessage(
+      error,
+      "Failed to sync contact to Resend",
+    );
+    throw new Error(message);
+  }
 }
 
 export function useEmailContacts(options?: {
@@ -108,18 +131,20 @@ export function useCreateEmailContact() {
 
       if (error) throw error;
 
-      // Sync to Resend
-      const { error: syncError } = await supabase.functions.invoke("sync-contact-to-resend", {
-        body: {
+      try {
+        await syncContactToResend({
           type: "INSERT",
           table: "email_contacts",
           record: data,
           old_record: null,
-        },
-      });
-
-      if (syncError) {
-        console.warn("Failed to sync to Resend:", syncError);
+        });
+      } catch (syncError) {
+        const message = syncError instanceof Error ? syncError.message : String(syncError);
+        console.warn("Failed to sync to Resend:", message);
+        toast({
+          title: "Contact saved, but Resend sync failed",
+          description: message,
+        });
       }
 
       return data;
@@ -156,18 +181,20 @@ export function useUpdateEmailContact() {
 
       if (error) throw error;
 
-      // Sync to Resend
-      const { error: syncError } = await supabase.functions.invoke("sync-contact-to-resend", {
-        body: {
+      try {
+        await syncContactToResend({
           type: "UPDATE",
           table: "email_contacts",
           record: data,
           old_record: oldRecord,
-        },
-      });
-
-      if (syncError) {
-        console.warn("Failed to sync to Resend:", syncError);
+        });
+      } catch (syncError) {
+        const message = syncError instanceof Error ? syncError.message : String(syncError);
+        console.warn("Failed to sync to Resend:", message);
+        toast({
+          title: "Contact updated, but Resend sync failed",
+          description: message,
+        });
       }
 
       return data;
@@ -198,19 +225,21 @@ export function useDeleteEmailContact() {
       if (fetchError) throw fetchError;
       if (!contact) throw new Error("Contact not found");
 
-      // Call edge function to delete from Resend
-      const { error: funcError } = await supabase.functions.invoke("sync-contact-to-resend", {
-        body: {
+      // Best-effort delete in Resend before local delete (contact may already be absent remotely).
+      try {
+        await syncContactToResend({
           type: "DELETE",
           table: "email_contacts",
           record: null,
           old_record: contact,
-        },
-      });
-
-      // Log but don't fail if Resend sync fails (contact might not exist in Resend)
-      if (funcError) {
-        console.warn("Failed to delete from Resend:", funcError);
+        });
+      } catch (syncError) {
+        const message = syncError instanceof Error ? syncError.message : String(syncError);
+        console.warn("Failed to delete from Resend:", message);
+        toast({
+          title: "Local contact deleted, but Resend deletion failed",
+          description: message,
+        });
       }
 
       // Delete from local database
@@ -275,25 +304,33 @@ export function useImportEmailContacts() {
       if (error) throw error;
 
       // Sync imported contacts to Resend (new + updated).
+      let syncFailures = 0;
       await Promise.all(
         (data || []).map(async (contact) => {
           const oldRecord = existingByEmail.get(contact.email.toLowerCase()) || null;
-          const type = oldRecord ? "UPDATE" : "INSERT";
+          const type: ResendSyncType = oldRecord ? "UPDATE" : "INSERT";
 
-          const { error: syncError } = await supabase.functions.invoke("sync-contact-to-resend", {
-            body: {
+          try {
+            await syncContactToResend({
               type,
               table: "email_contacts",
               record: contact,
               old_record: oldRecord,
-            },
-          });
-
-          if (syncError) {
-            console.warn("Failed to sync imported contact to Resend:", syncError);
+            });
+          } catch (syncError) {
+            syncFailures += 1;
+            const message = syncError instanceof Error ? syncError.message : String(syncError);
+            console.warn("Failed to sync imported contact to Resend:", message);
           }
         }),
       );
+
+      if (syncFailures > 0) {
+        toast({
+          title: `${syncFailures} imported contact(s) failed to sync to Resend`,
+          description: "Local import completed. You can retry sync from the contacts list.",
+        });
+      }
 
       return data;
     },

@@ -7,6 +7,7 @@ type InvokeResult<T> = Awaited<ReturnType<typeof supabase.functions.invoke<T>>>;
 
 const AUTH_RETRY_PATTERN = /(invalid\s+jwt|jwt\s+expired|invalid\s+token|unauthorized)/i;
 const SESSION_EXPIRED_PATTERN = /(invalid\s+jwt|jwt\s+expired|invalid\s+token)/i;
+const TRANSIENT_STATUS_CODES = new Set([408, 425, 429, 500, 502, 503, 504]);
 
 function normalizeHeaders(headers?: HeadersInit): Record<string, string> {
   const normalized = new Headers(headers ?? {});
@@ -28,18 +29,50 @@ async function invokeWithToken<T>(
   return supabase.functions.invoke<T>(functionName, { ...options, headers });
 }
 
+function getFunctionErrorStatus(error: unknown): number | null {
+  const candidate = error as { context?: unknown };
+  const context = candidate?.context;
+
+  if (context instanceof Response) {
+    return context.status;
+  }
+
+  if (context && typeof context === "object") {
+    const status = (context as { status?: unknown }).status;
+    if (typeof status === "number") {
+      return status;
+    }
+  }
+
+  return null;
+}
+
+function isTransientFunctionError(error: unknown): boolean {
+  const status = getFunctionErrorStatus(error);
+  return status !== null && TRANSIENT_STATUS_CODES.has(status);
+}
+
 export async function invokeFunctionWithAuthRetry<T = unknown>(
   functionName: string,
   options?: InvokeOptions,
 ): Promise<InvokeResult<T>> {
-  const firstAttempt = await invokeWithToken<T>(functionName, options, false);
-  if (!firstAttempt.error) {
-    return firstAttempt;
+  let attempt = await invokeWithToken<T>(functionName, options, false);
+  if (!attempt.error) {
+    return attempt;
   }
 
-  const firstMessage = await getSupabaseFunctionErrorMessage(firstAttempt.error, "");
+  // Retry once for transient upstream/function failures (429/5xx etc.).
+  if (isTransientFunctionError(attempt.error)) {
+    const transientRetryAttempt = await invokeWithToken<T>(functionName, options, false);
+    if (!transientRetryAttempt.error) {
+      return transientRetryAttempt;
+    }
+    attempt = transientRetryAttempt;
+  }
+
+  const firstMessage = await getSupabaseFunctionErrorMessage(attempt.error, "");
   if (!AUTH_RETRY_PATTERN.test(firstMessage)) {
-    return firstAttempt;
+    return attempt;
   }
 
   try {

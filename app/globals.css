@@ -241,6 +241,9 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  font-family: inherit;
+  font-style: inherit;
+  font-weight: inherit;
 }
 
 .tap-target {
