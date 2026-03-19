@@ -1,11 +1,11 @@
-import { useState, useCallback } from "react";
-import { AdminLayout } from "@/components/admin/AdminLayout";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { invokeFunctionWithAuthRetry } from "@/lib/supabaseFunctionInvoke";
+import { getValidAccessToken } from "@/lib/authToken";
 import {
   getSupabaseFunctionErrorMessage,
   isSupabaseFunctionAuthError,
@@ -73,28 +73,17 @@ function unflatten(flat: Record<string, string>): Record<string, unknown> {
   return result;
 }
 
-function deepMerge(
-  target: Record<string, unknown>,
-  source: Record<string, unknown>
-): Record<string, unknown> {
-  const result = { ...target };
-  for (const key of Object.keys(source)) {
-    if (
-      source[key] &&
-      typeof source[key] === "object" &&
-      !Array.isArray(source[key]) &&
-      target[key] &&
-      typeof target[key] === "object"
-    ) {
-      result[key] = deepMerge(
-        target[key] as Record<string, unknown>,
-        source[key] as Record<string, unknown>
-      );
-    } else {
-      result[key] = source[key];
-    }
-  }
-  return result;
+function computeMissingKeys(
+  englishKeys: string[],
+  bundledLocaleData: Record<string, unknown>,
+  dbLocaleData?: Record<string, unknown>,
+) {
+  const bundledFlat = flatten(bundledLocaleData);
+  const mergedFlat = dbLocaleData
+    ? { ...bundledFlat, ...flatten(dbLocaleData) }
+    : bundledFlat;
+
+  return englishKeys.filter((key) => !(key in mergedFlat));
 }
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -108,17 +97,21 @@ interface LocaleState {
   totalKeys: number;
   status: LocaleStatus;
   lastSynced?: string;
+  lastError?: string;
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function AdminTranslations() {
-  const enFlat = flatten(en as Record<string, unknown>);
-  const enKeys = Object.keys(enFlat);
+  const enFlat = useMemo(() => flatten(en as Record<string, unknown>), []);
+  const enKeys = useMemo(() => Object.keys(enFlat), [enFlat]);
+  const i18nClient = useMemo(
+    () => supabase as unknown as { from: (table: string) => any },
+    [],
+  );
 
   // Compute initial state from bundled locale files
   const initialLocaleStates: LocaleState[] = LOCALES.map((loc) => {
-    const locFlat = flatten(loc.data);
-    const missing = enKeys.filter((k) => !(k in locFlat));
+    const missing = computeMissingKeys(enKeys, loc.data);
     return {
       code: loc.code,
       name: loc.name,
@@ -134,33 +127,133 @@ export default function AdminTranslations() {
   const [syncProgress, setSyncProgress] = useState(0);
   const [currentLocale, setCurrentLocale] = useState<string | null>(null);
 
+  useEffect(() => {
+    let active = true;
+
+    const hydrateLocaleStates = async () => {
+      const { data, error } = await i18nClient
+        .from("i18n_locale_data" as never)
+        .select("locale,data,updated_at")
+        .in("locale", LOCALES.map((locale) => locale.code));
+
+      if (error || !active) return;
+
+      type LocalePatchRow = {
+        locale: string;
+        data: Record<string, unknown>;
+        updated_at: string;
+      };
+
+      const patchRows = ((data ?? []) as unknown) as LocalePatchRow[];
+      const patchByLocale = new Map(patchRows.map((row) => [row.locale, row]));
+
+      setLocaleStates(
+        LOCALES.map((locale) => {
+          const patchRow = patchByLocale.get(locale.code);
+          const missingKeys = computeMissingKeys(
+            enKeys,
+            locale.data,
+            patchRow?.data,
+          );
+
+          return {
+            code: locale.code,
+            name: locale.name,
+            flag: locale.flag,
+            totalKeys: enKeys.length,
+            missingCount: missingKeys.length,
+            status: missingKeys.length === 0 ? "synced" : "missing",
+            lastSynced: patchRow?.updated_at,
+          };
+        }),
+      );
+    };
+
+    void hydrateLocaleStates();
+    return () => {
+      active = false;
+    };
+  }, [enKeys, i18nClient]);
+
   const updateLocale = useCallback((code: string, patch: Partial<LocaleState>) => {
     setLocaleStates((prev) =>
       prev.map((l) => (l.code === code ? { ...l, ...patch } : l))
     );
   }, []);
 
+  const persistLocaleData = useCallback(
+    async (
+      localeCode: string,
+      data: Record<string, unknown>,
+      keyCount: number,
+    ) => {
+      const accessToken = await getValidAccessToken();
+      const response = await fetch("/api/admin/i18n/sync", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          locale: localeCode,
+          data,
+          keyCount,
+        }),
+      });
+
+      let payload: { error?: string; hint?: string } | null = null;
+      try {
+        payload = (await response.json()) as { error?: string; hint?: string };
+      } catch {
+        payload = null;
+      }
+
+      if (!response.ok) {
+        const message = [payload?.error, payload?.hint].filter(Boolean).join(" ");
+        throw new Error(message || `Failed to persist locale ${localeCode}`);
+      }
+    },
+    [],
+  );
+
   // ── Sync a single locale ────────────────────────────────────────────────────
   const syncLocale = useCallback(
     async (localeCode: string) => {
       const localeConfig = LOCALES.find((l) => l.code === localeCode);
-      if (!localeConfig) return;
+      if (!localeConfig) return false;
 
-      updateLocale(localeCode, { status: "syncing" });
+      updateLocale(localeCode, { status: "syncing", lastError: undefined });
       setCurrentLocale(localeCode);
 
       try {
-        const locFlat = flatten(localeConfig.data);
-        const missingKeys = enKeys.filter((k) => !(k in locFlat));
+        const { data: existingLocalePatch, error: existingLocalePatchError } = await i18nClient
+          .from("i18n_locale_data" as never)
+          .select("data")
+          .eq("locale", localeCode)
+          .maybeSingle();
+
+        if (existingLocalePatchError) {
+          throw new Error(existingLocalePatchError.message);
+        }
+
+        const existingFlat = {
+          ...flatten(localeConfig.data),
+          ...(existingLocalePatch?.data && typeof existingLocalePatch.data === "object"
+            ? flatten(existingLocalePatch.data as Record<string, unknown>)
+            : {}),
+        };
+        const missingKeys = enKeys.filter((key) => !(key in existingFlat));
         let usedEnglishFallback = false;
+        let fallbackReason: string | null = null;
 
         if (missingKeys.length === 0) {
           updateLocale(localeCode, {
             status: "synced",
             missingCount: 0,
             lastSynced: new Date().toISOString(),
+            lastError: undefined,
           });
-          return;
+          return true;
         }
 
         // Build missing key-value map from en.json
@@ -187,58 +280,67 @@ export default function AdminTranslations() {
           });
 
           if (error) {
-            if (await isSupabaseFunctionAuthError(error)) {
-              // Keep the locale complete even when the translation edge function auth is unavailable.
-              Object.assign(translated, batchObj);
-              usedEnglishFallback = true;
-              continue;
+            const message = await getSupabaseFunctionErrorMessage(error, "Translation request failed");
+            const isAuthError = await isSupabaseFunctionAuthError(error);
+
+            // Keep locale complete even when the translation endpoint is unavailable.
+            // This prevents hard failures and preserves UX with English fallback values.
+            Object.assign(translated, batchObj);
+            usedEnglishFallback = true;
+            if (!fallbackReason) {
+              fallbackReason = isAuthError
+                ? "translation endpoint auth unavailable"
+                : message;
             }
-            throw new Error(await getSupabaseFunctionErrorMessage(error, "Translation request failed"));
+            continue;
           }
-          if (data?.error) throw new Error(data.error);
+
+          if (data?.error) {
+            Object.assign(translated, batchObj);
+            usedEnglishFallback = true;
+            fallbackReason = fallbackReason ?? data.error;
+            continue;
+          }
 
           Object.assign(translated, data?.translated ?? {});
         }
 
         // Merge translated keys into the full locale data
-        const existingFlat = flatten(localeConfig.data);
         const mergedFlat = { ...existingFlat, ...translated };
         const mergedNested = unflatten(mergedFlat);
+        const nowIso = new Date().toISOString();
 
-        // Save to Supabase i18n_locale_data table
-        const { error: upsertError } = await supabase
-          .from("i18n_locale_data" as never)
-          .upsert({
-            locale: localeCode,
-            data: mergedNested,
-            key_count: Object.keys(mergedFlat).length,
-            updated_at: new Date().toISOString(),
-          } as never);
-
-        if (upsertError) throw new Error(upsertError.message);
+        await persistLocaleData(
+          localeCode,
+          mergedNested,
+          Object.keys(mergedFlat).length,
+        );
 
         updateLocale(localeCode, {
           status: "synced",
           missingCount: 0,
-          lastSynced: new Date().toISOString(),
+          lastSynced: nowIso,
+          lastError: undefined,
         });
 
         if (usedEnglishFallback) {
           toast.warning(
-            `${localeConfig.flag} ${localeConfig.name} synced with English fallback for ${missingKeys.length} key${missingKeys.length !== 1 ? "s" : ""} (translation endpoint auth unavailable).`,
+            `${localeConfig.flag} ${localeConfig.name} synced with English fallback for ${missingKeys.length} key${missingKeys.length !== 1 ? "s" : ""}${fallbackReason ? ` (${fallbackReason})` : ""}.`,
           );
         } else {
           toast.success(`${localeConfig.flag} ${localeConfig.name} synced — ${missingKeys.length} keys translated`);
         }
+        return true;
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
-        updateLocale(localeCode, { status: "error" });
+        updateLocale(localeCode, { status: "error", lastError: msg });
         toast.error(`Failed to sync ${localeCode}: ${msg}`);
+        return false;
       } finally {
         setCurrentLocale(null);
       }
     },
-    [enFlat, enKeys, updateLocale]
+    [enFlat, enKeys, i18nClient, persistLocaleData, updateLocale]
   );
 
   // ── Sync all locales sequentially ──────────────────────────────────────────
@@ -251,15 +353,22 @@ export default function AdminTranslations() {
 
     setIsSyncingAll(true);
     setSyncProgress(0);
+    let successful = 0;
 
     for (let i = 0; i < toSync.length; i++) {
-      await syncLocale(toSync[i].code);
+      const ok = await syncLocale(toSync[i].code);
+      if (ok) successful += 1;
       setSyncProgress(Math.round(((i + 1) / toSync.length) * 100));
     }
 
     setIsSyncingAll(false);
     setSyncProgress(100);
-    toast.success("All locales synced successfully!");
+    const failed = toSync.length - successful;
+    if (failed === 0) {
+      toast.success("All locales synced successfully!");
+    } else {
+      toast.warning(`${successful} locale${successful !== 1 ? "s" : ""} synced, ${failed} failed.`);
+    }
   }, [localeStates, syncLocale]);
 
   // ── Derived stats ───────────────────────────────────────────────────────────
@@ -385,6 +494,12 @@ export default function AdminTranslations() {
                   {locale.lastSynced && (
                     <p className="text-xs text-muted-foreground">
                       Last synced {new Date(locale.lastSynced).toLocaleTimeString()}
+                    </p>
+                  )}
+
+                  {locale.status === "error" && locale.lastError && (
+                    <p className="text-xs text-destructive" title={locale.lastError}>
+                      {locale.lastError}
                     </p>
                   )}
 

@@ -83,14 +83,17 @@ i18n
     interpolation: { escapeValue: false },
   });
 
-// ── After init, attempt to patch from Supabase (non-blocking) ────────────────
-// We only fetch for the active locale — this is lightweight (one DB row).
-// Dynamic import keeps supabase out of the module graph at build/test time,
-// avoiding TypeScript errors from the untyped i18n_locale_data table.
-(async () => {
-  if (initialLang === "en") return; // English is always served from the bundle
+const loadedLocales = new Set<string>(["en"]);
+const localeLoadPromises = new Map<string, Promise<void>>();
 
-  const dbLocale = LOCALE_DB_MAP[initialLang];
+function normalizeLocale(locale: string) {
+  const normalized = locale.toLowerCase();
+  if (normalized === "pt") return "pt-pt";
+  return normalized;
+}
+
+async function patchLocaleFromSupabase(locale: string) {
+  const dbLocale = LOCALE_DB_MAP[locale];
   if (!dbLocale) return;
 
   try {
@@ -103,25 +106,40 @@ i18n
       .eq("locale", dbLocale)
       .maybeSingle();
 
-    if (error || !data?.data) return;
+    if (error || !data?.data || typeof data.data !== "object") return;
 
-    // Merge Supabase data over bundled (Supabase wins — it contains the latest synced keys)
     const merged = deepMerge(
-      bundled[initialLang] ?? {},
-      data.data as Record<string, unknown>
+      bundled[locale] ?? {},
+      data.data as Record<string, unknown>,
     );
 
-    i18n.addResourceBundle(initialLang, "translation", merged, true, true);
+    i18n.addResourceBundle(locale, "translation", merged, true, true);
   } catch {
-    // Silently fall back to bundled data — the app always works without Supabase
+    // Silently fall back to bundled data — the app always works without Supabase.
   }
-})();
+}
 
 export async function ensureLocaleLoaded(locale: string) {
-  if (locale === "en") return;
-  // Loaded automatically by the patch logic above for initialLang,
-  // or i18next standard mechanisms.
-  return;
+  const normalizedLocale = normalizeLocale(locale);
+  if (normalizedLocale === "en") return;
+
+  if (loadedLocales.has(normalizedLocale)) return;
+
+  const inFlight = localeLoadPromises.get(normalizedLocale);
+  if (inFlight) {
+    await inFlight;
+    return;
+  }
+
+  const loadPromise = (async () => {
+    await patchLocaleFromSupabase(normalizedLocale);
+    loadedLocales.add(normalizedLocale);
+  })().finally(() => {
+    localeLoadPromises.delete(normalizedLocale);
+  });
+
+  localeLoadPromises.set(normalizedLocale, loadPromise);
+  await loadPromise;
 }
 
 export async function initI18n() {
