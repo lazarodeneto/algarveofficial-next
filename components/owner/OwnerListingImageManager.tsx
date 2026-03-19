@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
+import Image from "next/image";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Image as ImageIcon,
@@ -272,11 +273,13 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
                     image.is_featured ? "border-primary" : "border-transparent hover:border-border"
                   )}
                 >
-                  <img
+                  <Image
                     src={image.image_url}
                     alt={`Photo ${index + 1}`}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
+                    fill
+                    unoptimized
+                    sizes="(max-width: 1024px) 33vw, 20vw"
+                    className="object-cover"
                   />
 
                   {image.is_featured && (

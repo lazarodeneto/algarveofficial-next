@@ -19,7 +19,7 @@ interface BeachClubLayoutProps {
   bookingUrl?: string;
 }
 
-export function BeachClubLayout({ details, bookingUrl }: BeachClubLayoutProps) {
+export function BeachClubLayout({ details }: BeachClubLayoutProps) {
   const { t } = useTranslation();
   const placeType = details.place_type as string;
   const atmosphere = details.atmosphere as string;

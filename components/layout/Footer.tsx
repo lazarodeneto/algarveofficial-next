@@ -177,7 +177,7 @@ function normalizeFooterLinkHref(
 }
 
 export function Footer() {
-  const { data: footerSections, isLoading } = useFooterMenu();
+  const { data: footerSections } = useFooterMenu();
   const { t } = useTranslation();
   const langPrefix = useLangPrefix();
   const [newsletterEmail, setNewsletterEmail] = useState("");

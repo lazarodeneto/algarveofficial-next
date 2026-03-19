@@ -1,7 +1,8 @@
 "use client";
 
 import type { CSSProperties, ElementType, ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
+import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { NavigationType, Router, createPath, type To } from "react-router";
@@ -342,26 +343,21 @@ function DestinationsClientInner({ initialRegions, initialGlobalSettings }: Dest
                     >
                       <div className="absolute inset-0">
                         {image ? (
-                          <img
+                          <Image
                             src={typeof image.image === "string" ? image.image : image.image.src}
-                            srcSet={`${typeof image.image400 === "string" ? image.image400 : image.image400.src} 400w, ${
-                              typeof image.image800 === "string" ? image.image800 : image.image800.src
-                            } 800w, ${typeof image.image === "string" ? image.image : image.image.src} 1200w`}
                             alt={region.name}
-                            width={400}
-                            height={500}
-                            loading="lazy"
-                            decoding="async"
+                            fill
                             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            className="object-cover transition-transform duration-700 group-hover:scale-110"
                           />
                         ) : region.image_url || region.hero_image_url ? (
-                          <img
+                          <Image
                             src={region.hero_image_url || region.image_url || ""}
                             alt={region.name}
-                            loading="lazy"
-                            decoding="async"
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            fill
+                            unoptimized
+                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="object-cover transition-transform duration-700 group-hover:scale-110"
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-charcoal-light to-charcoal flex items-center justify-center">

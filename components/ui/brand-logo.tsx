@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Link } from "react-router-dom";
 import { Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -37,6 +38,8 @@ const sizeConfig = {
   },
 };
 
+const passthroughImageLoader = ({ src }: { src: string }) => src;
+
 export function BrandLogo({
   size = "md",
   showIcon = false,
@@ -58,7 +61,16 @@ export function BrandLogo({
     <div className={cn("flex items-center gap-2", className)}>
       {showIcon ? (
         logoUrl ? (
-          <img src={logoUrl} alt={siteName} className={cn(config.icon, "object-contain", iconClassName)} width={48} height={48} loading="eager" />
+          <Image
+            loader={passthroughImageLoader}
+            unoptimized
+            src={logoUrl}
+            alt={siteName}
+            className={cn(config.icon, "object-contain", iconClassName)}
+            width={48}
+            height={48}
+            priority
+          />
         ) : (
           <Crown className={cn(config.icon, "text-primary", iconClassName)} />
         )

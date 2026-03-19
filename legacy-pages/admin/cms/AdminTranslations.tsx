@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeFunctionWithAuthRetry } from "@/lib/supabaseFunctionInvoke";
+import { getSupabaseFunctionErrorMessage } from "@/lib/supabaseFunctionError";
 import { toast } from "sonner";
 import {
   Languages,
@@ -173,14 +175,17 @@ export default function AdminTranslations() {
           const batchObj: Record<string, string> = {};
           for (const k of batch) batchObj[k] = keysToTranslate[k];
 
-          const { data, error } = await supabase.functions.invoke("translate-i18n", {
+          const { data, error } = await invokeFunctionWithAuthRetry<{
+            translated?: Record<string, string>;
+            error?: string;
+          }>("translate-i18n", {
             body: { lang: localeCode, langName: localeConfig.name, keys: batchObj },
           });
 
-          if (error) throw new Error(error.message);
+          if (error) throw new Error(await getSupabaseFunctionErrorMessage(error, "Translation request failed"));
           if (data?.error) throw new Error(data.error);
 
-          Object.assign(translated, data.translated ?? {});
+          Object.assign(translated, data?.translated ?? {});
         }
 
         // Merge translated keys into the full locale data

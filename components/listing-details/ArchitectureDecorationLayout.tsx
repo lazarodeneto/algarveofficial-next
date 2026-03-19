@@ -14,7 +14,7 @@ interface ArchitectureDecorationLayoutProps {
   details: ArchitectureDecorationDetails; bookingUrl?: string;
 }
 
-export const ArchitectureDecorationLayout = ({ details, bookingUrl }: ArchitectureDecorationLayoutProps) => {
+export const ArchitectureDecorationLayout = ({ details }: ArchitectureDecorationLayoutProps) => {
   const { t } = useTranslation();
   const { service_focus, project_types, design_style, service_scope, years_experience, awards_recognition, portfolio_highlights, sustainability_focus, languages, service_area, certifications, team_size, consultation_available, virtual_services } = details;
 

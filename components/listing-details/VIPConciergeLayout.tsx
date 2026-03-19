@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import {
   Crown,
@@ -24,7 +23,7 @@ interface VIPConciergeLayoutProps {
   bookingUrl?: string;
 }
 
-export function VIPConciergeLayout({ details, bookingUrl }: VIPConciergeLayoutProps) {
+export function VIPConciergeLayout({ details }: VIPConciergeLayoutProps) {
   const { t } = useTranslation();
   const conciergeServices = (details.concierge_services as string[]) || [];
   const availability = details.availability as string;

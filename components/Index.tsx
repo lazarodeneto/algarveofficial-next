@@ -1,29 +1,25 @@
 "use client";
 
-import { Suspense, lazy, useMemo, type ComponentType, type LazyExoticComponent } from "react";
+import { useMemo, type ComponentType } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { HomeQuickLinksSection } from "@/components/sections/HomeQuickLinksSection";
 import { AlgarveGuideSection } from "@/components/sections/AlgarveGuideSection";
+import { RegionsSection } from "@/components/sections/RegionsSection";
+import { CategoriesSection } from "@/components/sections/CategoriesSection";
+import { CitiesSection } from "@/components/sections/CitiesSection";
+import { CuratedExcellence } from "@/components/sections/CuratedExcellence";
+import { SignatureMapSection } from "@/components/sections/SignatureMapSection";
+import { AllListingsSection } from "@/components/sections/AllListingsSection";
+import { NewsletterSection } from "@/components/sections/NewsletterSection";
+import { CTASection } from "@/components/sections/CTASection";
 import { useHomepageSettings } from "@/hooks/useHomepageSettings";
-import { SeoHead } from "@/components/seo/SeoHead";
-import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/seo/JsonLd";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 
-// Lazy load below-the-fold sections to reduce initial main-thread work
-const RegionsSection = lazy(() => import("@/components/sections/RegionsSection").then(m => ({ default: m.RegionsSection })));
-const CategoriesSection = lazy(() => import("@/components/sections/CategoriesSection").then(m => ({ default: m.CategoriesSection })));
-const CitiesSection = lazy(() => import("@/components/sections/CitiesSection").then(m => ({ default: m.CitiesSection })));
-const CuratedExcellence = lazy(() => import("@/components/sections/CuratedExcellence").then(m => ({ default: m.CuratedExcellence })));
-const SignatureMapSection = lazy(() => import("@/components/sections/SignatureMapSection").then(m => ({ default: m.SignatureMapSection })));
-const AllListingsSection = lazy(() => import("@/components/sections/AllListingsSection").then(m => ({ default: m.AllListingsSection })));
-const NewsletterSection = lazy(() => import("@/components/sections/NewsletterSection").then(m => ({ default: m.NewsletterSection })));
-const CTASection = lazy(() => import("@/components/sections/CTASection").then(m => ({ default: m.CTASection })));
-
 // Section ID to component mapping
-const SECTION_COMPONENTS: Record<string, LazyExoticComponent<ComponentType<unknown>>> = {
+const SECTION_COMPONENTS: Record<string, ComponentType<unknown>> = {
   regions: RegionsSection,
   categories: CategoriesSection,
   cities: CitiesSection,
@@ -36,7 +32,7 @@ const DEFAULT_SECTION_ORDER = ['regions', 'categories', 'curated', 'vip', 'citie
 
 const Index = () => {
   const { settings, isLoading } = useHomepageSettings();
-  const { getBlockOrder, getMetaDescription, getMetaTitle, getText, isBlockEnabled } = useCmsPageBuilder("home");
+  const { getBlockOrder, isBlockEnabled } = useCmsPageBuilder("home");
 
   // Compute which sections to render and in what order
   const sectionsToRender = useMemo(() => {
@@ -77,62 +73,50 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* SEO: Dynamic meta tags and JSON-LD structured data */}
-      <SeoHead
-        title={getMetaTitle(getText("seo.title", "Premium Experiences in the Algarve"))}
-        description={getMetaDescription(getText("seo.description", "Your curated gateway to premium accommodation, fine dining, golf, and bespoke VIP experiences across Portugal's most prestigious coastal region."))}
-        canonicalUrl="https://algarveofficial.com"
-        keywords={getText("seo.keywords", "Algarve premium, Portugal villas, Quinta do Lago, Vale do Lobo, Vilamoura golf, fine dining Portugal, VIP concierge Algarve")}
-      />
-      <OrganizationJsonLd />
-      <WebsiteJsonLd />
-
       <Header />
-      <main className="main">
+      <main id="main-content" className="main">
         <CmsBlock pageId="home" blockId="hero" as="section">
           <HeroSection />
         </CmsBlock>
         <CmsBlock pageId="home" blockId="quick-links" as="section">
           <HomeQuickLinksSection />
         </CmsBlock>
-        <Suspense fallback={null}>
-          <div className="mx-auto w-full content-max density">
-            {sectionsToRender.map(({ id, enabled }) => {
-              if (!enabled || !isBlockEnabled(id, true)) return null;
-              
-              const SectionComponent = SECTION_COMPONENTS[id];
-              if (!SectionComponent) return null;
+        <div className="mx-auto w-full content-max density">
+          {sectionsToRender.map(({ id, enabled }) => {
+            if (!enabled || !isBlockEnabled(id, true)) return null;
+            
+            const SectionComponent = SECTION_COMPONENTS[id];
+            if (!SectionComponent) return null;
 
-              if (id === 'curated') {
-                return (
-                  <CmsBlock pageId="home" blockId={id} key={id} as="section">
-                    <CuratedExcellence 
-                      context={{ type: 'home' }} 
-                      limit={4} 
-                    />
-                  </CmsBlock>
-                );
-              }
-
+            if (id === 'curated') {
               return (
                 <CmsBlock pageId="home" blockId={id} key={id} as="section">
-                  <SectionComponent />
+                  <CuratedExcellence 
+                    context={{ type: 'home' }} 
+                    limit={4} 
+                  />
                 </CmsBlock>
               );
-            })}
-            <CmsBlock pageId="home" blockId="algarve-guide" as="section">
-              <AlgarveGuideSection />
-            </CmsBlock>
-          </div>
-          <CmsBlock pageId="home" blockId="newsletter" as="section">
-            <NewsletterSection />
+            }
+
+            return (
+              <CmsBlock pageId="home" blockId={id} key={id} as="section">
+                <SectionComponent />
+              </CmsBlock>
+            );
+          })}
+          <CmsBlock pageId="home" blockId="algarve-guide" as="section">
+            <AlgarveGuideSection />
           </CmsBlock>
-          {showCta && (
-            <CmsBlock pageId="home" blockId="cta" as="section">
-              <CTASection />
-            </CmsBlock>
-          )}
-        </Suspense>
+        </div>
+        <CmsBlock pageId="home" blockId="newsletter" as="section">
+          <NewsletterSection />
+        </CmsBlock>
+        {showCta && (
+          <CmsBlock pageId="home" blockId="cta" as="section">
+            <CTASection />
+          </CmsBlock>
+        )}
       </main>
       <Footer />
     </div>

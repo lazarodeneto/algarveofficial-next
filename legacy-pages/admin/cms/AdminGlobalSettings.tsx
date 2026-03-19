@@ -44,6 +44,13 @@ import { useCookieBannerSettings } from "@/hooks/useCookieBannerSettings";
 import { useGlobalSettings, GlobalSetting } from "@/hooks/useGlobalSettings";
 import { useContactSettings, ContactSettings } from "@/hooks/useContactSettings";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeFunctionWithAuthRetry } from "@/lib/supabaseFunctionInvoke";
+import { getSupabaseFunctionErrorMessage } from "@/lib/supabaseFunctionError";
+import {
+  isMaintenanceIpWhitelisted,
+  isValidMaintenanceWhitelistEntry,
+  normalizeMaintenanceWhitelistEntry,
+} from "@/lib/maintenance";
 
 export default function AdminGlobalSettings() {
   const { settings: siteSettings, isLoading: siteLoading, updateSettingsAsync, isUpdating } = useSiteSettings();
@@ -96,6 +103,9 @@ export default function AdminGlobalSettings() {
   const [ipWhitelist, setIpWhitelist] = useState<string[]>([]);
   const [newIpAddress, setNewIpAddress] = useState("");
   const [adminRestrictPortugal, setAdminRestrictPortugal] = useState(false);
+  const [currentPublicIp, setCurrentPublicIp] = useState<string | null>(null);
+  const [currentPublicIpLoading, setCurrentPublicIpLoading] = useState(true);
+  const [currentPublicIpError, setCurrentPublicIpError] = useState<string | null>(null);
 
   // ─────────────────────────────────────────────────────────────────────────────
   // LOCAL STATE - Cookie Banner Settings
@@ -195,16 +205,12 @@ export default function AdminGlobalSettings() {
   async function translateSingle(listingId: string) {
     setTranslatingId(listingId);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) throw new Error("Your session expired. Please sign in again.");
-
-      const { data, error } = await supabase.functions.invoke("translate-listing", {
+      const { data, error } = await invokeFunctionWithAuthRetry<{ ok?: boolean; error?: string }>("translate-listing", {
         body: { listing_id: listingId },
-        headers: {
-          "Authorization": `Bearer ${session.access_token}`,
-        },
       });
-      if (error) throw new Error(error.message || "Translation request failed");
+      if (error) {
+        throw new Error(await getSupabaseFunctionErrorMessage(error, "Translation request failed"));
+      }
       if (data?.ok === false) throw new Error(data?.error || "Translation request failed");
       toast.success("Translation queued successfully.");
       // Remove from missing list
@@ -237,11 +243,6 @@ export default function AdminGlobalSettings() {
     setTranslateResult(null);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        throw new Error("You must be logged in to run translations");
-      }
-
       // Step 1: fetch all existing translations to find fully-translated listings
       const { data: translated, error: tErr } = await supabase
         .from("listing_translations")
@@ -285,18 +286,21 @@ export default function AdminGlobalSettings() {
 
       for (const listing of listings) {
         try {
-          const { data, error } = await supabase.functions.invoke("translate-listing", {
+          const { data, error } = await invokeFunctionWithAuthRetry<{ ok?: boolean; error?: string }>("translate-listing", {
             body: { listing_id: listing.id },
-            headers: {
-              "Authorization": `Bearer ${session.access_token}`,
-            },
           });
           if (error || data?.ok === false) {
+            const functionErrorMessage = error
+              ? await getSupabaseFunctionErrorMessage(error, "Translation request failed")
+              : data?.error || "Translation request failed";
+            if (/session expired/i.test(functionErrorMessage)) {
+              throw new Error(functionErrorMessage);
+            }
             results.push({
               id: listing.id,
               name: listing.name,
               status: "failed",
-              error: data?.error || error?.message || "Translation request failed",
+              error: functionErrorMessage,
             });
           } else {
             results.push({ id: listing.id, name: listing.name, status: "ok" });
@@ -377,6 +381,45 @@ export default function AdminGlobalSettings() {
   }, [globalSettings]);
 
   useEffect(() => {
+    let cancelled = false;
+
+    const fetchCurrentPublicIp = async () => {
+      setCurrentPublicIpLoading(true);
+      setCurrentPublicIpError(null);
+
+      try {
+        const { data, error } = await supabase.functions.invoke("get-client-ip");
+        if (cancelled) {
+          return;
+        }
+
+        if (error) {
+          throw error;
+        }
+
+        setCurrentPublicIp(typeof data?.ip === "string" ? data.ip : null);
+      } catch (error) {
+        if (cancelled) {
+          return;
+        }
+
+        setCurrentPublicIp(null);
+        setCurrentPublicIpError("Could not detect your current public IP.");
+      } finally {
+        if (!cancelled) {
+          setCurrentPublicIpLoading(false);
+        }
+      }
+    };
+
+    void fetchCurrentPublicIp();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
     if (contactFormSettings) {
       setCfHeroTitle(contactFormSettings.hero_title ?? "Get in Touch");
       setCfHeroSubtitle(contactFormSettings.hero_subtitle ?? "");
@@ -433,21 +476,24 @@ export default function AdminGlobalSettings() {
   };
 
   const addIpToWhitelist = () => {
-    const ip = newIpAddress.trim();
-    if (!ip) return;
+    const enteredValue = newIpAddress.trim();
+    if (!enteredValue) return;
 
-    const ipv4Regex = /^(\d{1,3}\.){0,3}\d{1,3}\.?$/;
-    if (!ipv4Regex.test(ip)) {
-      toast.error("Please enter a valid IP address or prefix");
+    const normalizedValue = normalizeMaintenanceWhitelistEntry(enteredValue);
+    if (!isValidMaintenanceWhitelistEntry(normalizedValue)) {
+      toast.error("Please enter a valid IP, IPv4 prefix, or CIDR range");
       return;
     }
 
-    if (ipWhitelist.includes(ip)) {
+    const alreadyExists = ipWhitelist.some(
+      (ip) => normalizeMaintenanceWhitelistEntry(ip) === normalizedValue,
+    );
+    if (alreadyExists) {
       toast.error("This IP is already in the whitelist");
       return;
     }
 
-    setIpWhitelist([...ipWhitelist, ip]);
+    setIpWhitelist([...ipWhitelist, normalizedValue]);
     setNewIpAddress("");
     toast.success("IP added to whitelist (click Save All to persist)");
   };
@@ -722,6 +768,8 @@ export default function AdminGlobalSettings() {
     return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
   };
 
+  const currentIpIsWhitelisted = isMaintenanceIpWhitelisted(currentPublicIp, ipWhitelist);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -872,8 +920,8 @@ export default function AdminGlobalSettings() {
                         Warning: Maintenance mode is enabled
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        All visitors will see a maintenance page. Only admins and editors can access the site. Don't
-                        forget to click "Save All" to apply changes.
+                        All visitors will see a maintenance page. Admins, editors, and whitelisted IPs can still access
+                        the site. Don't forget to click "Save All" to apply changes.
                       </p>
                     </div>
                   )}
@@ -905,10 +953,27 @@ export default function AdminGlobalSettings() {
                       clients access.
                     </p>
 
+                    <div className="rounded-md border border-border bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
+                      {currentPublicIpLoading ? (
+                        <p>Detecting your current public IP...</p>
+                      ) : currentPublicIp ? (
+                        <p>
+                          Current public IP: <code className="font-mono text-foreground">{currentPublicIp}</code>{" "}
+                          {currentIpIsWhitelisted ? (
+                            <span className="text-destructive font-medium">(whitelisted: this browser bypasses maintenance)</span>
+                          ) : (
+                            <span className="text-emerald-600 font-medium">(not whitelisted)</span>
+                          )}
+                        </p>
+                      ) : (
+                        <p>{currentPublicIpError ?? "Current public IP could not be detected."}</p>
+                      )}
+                    </div>
+
                     {/* Add new IP */}
                     <div className="flex gap-2">
                       <Input
-                        placeholder="Enter IP address (e.g., 192.168.1.1 or 192.168.1.)"
+                        placeholder="Enter IP (e.g., 192.168.1.10, 192.168.1, or 203.0.113.0/24)"
                         value={newIpAddress}
                         onChange={(e) => setNewIpAddress(e.target.value)}
                         className="bg-background flex-1"

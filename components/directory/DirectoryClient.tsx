@@ -680,7 +680,6 @@ function DirectoryCmsBlock({
 function DirectoryClientInner(props: DirectoryClientProps) {
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  const cms = useDirectoryCmsHelpers(props.globalSettings);
   const [searchParams, setSearchParams] = useLegacySearchParams();
   const pathname = usePathname() ?? "";
   const langPrefix = getLangPrefix(pathname);
@@ -850,47 +849,11 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     selectedCity !== "all" ||
     selectedCategory !== "all" ||
     selectedTier !== "all";
-  const hasSearchQuery = Boolean(search.trim());
-  const hasNonCategoryFilters = selectedRegion !== "all" || selectedCity !== "all" || selectedTier !== "all";
-  const isCategoryLandingPage = selectedCategory !== "all" && !hasSearchQuery && !hasNonCategoryFilters;
   const isLoading = listingsLoading || citiesLoading || regionsLoading || categoriesLoading;
   const showGridSkeleton = isLoading && !error && listings.length === 0;
   const totalListingsCount = listings.length;
 
   const activeCms = useDirectoryCmsHelpers(globalSettings);
-  const selectedRegionItem = useMemo(
-    () => regions.find((region) => region.id === selectedRegion || region.slug === selectedRegion),
-    [regions, selectedRegion],
-  );
-  const selectedCityItem = useMemo(
-    () => cities.find((city) => city.id === selectedCity || city.slug === selectedCity),
-    [cities, selectedCity],
-  );
-
-  const selectedTierLabel =
-    selectedTier === "signature"
-      ? t("directory.tierSignature")
-      : selectedTier === "verified"
-        ? t("directory.tierVerified")
-        : undefined;
-
-  const activeSeoSegments = [
-    selectedCategoryItem ? translateCategoryName(t, selectedCategoryItem.slug, selectedCategoryItem.name) : undefined,
-    selectedCityItem?.name,
-    selectedRegionItem?.name,
-    selectedTierLabel,
-    search.trim() ? `"${search.trim()}"` : undefined,
-  ].filter((segment): segment is string => Boolean(segment));
-
-  const seoTitle =
-    activeSeoSegments.length > 0
-      ? `${activeSeoSegments.join(" · ")} · Algarve Luxury Directory, Portugal`
-      : "Algarve Luxury Directory: Villas, Dining, Experiences & Events";
-
-  const seoDescription =
-    activeSeoSegments.length > 0
-      ? `Browse ${activeSeoSegments.join(", ")} in the Algarve, Portugal. Explore premium listings with filters for city, region, category, and tier.`
-      : "Browse luxury accommodation, restaurants, things to do, events, and concierge services in the Algarve, Portugal with advanced directory filters.";
 
   const mapHref = useMemo(() => {
     const params = new URLSearchParams();

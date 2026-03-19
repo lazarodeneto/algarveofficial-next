@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -221,7 +222,7 @@ export function HeaderCompactNav() {
     const runtimeSections = useHeaderRuntimeSections();
 
     return (
-        <div className="hidden md:flex lg:hidden min-w-0 flex-1 items-center justify-center">
+        <div className="hidden md:flex lg:hidden min-w-0 flex-1 items-center justify-end">
             <div className="flex min-w-0 items-center gap-1.5 lg:gap-2">
                 {runtimeSections.map((section) => {
                     const SectionIcon = section.icon;
@@ -335,11 +336,13 @@ function MegaPanel({ section }: { section: HeaderRuntimeSection }) {
 
             {/* ── Left: full-bleed photo + hero text ── */}
             <div className="relative w-[280px] flex-shrink-0 overflow-hidden">
-                <img
-                    src={section.image.src}
+                <Image
+                    src={section.image}
                     alt={section.imageAlt}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    loading="eager"
+                    fill
+                    priority
+                    sizes="280px"
+                    className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
 

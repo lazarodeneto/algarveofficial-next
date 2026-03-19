@@ -9,7 +9,7 @@ interface ShoppingLayoutProps {
   bookingUrl?: string;
 }
 
-export function ShoppingLayout({ details, bookingUrl }: ShoppingLayoutProps) {
+export function ShoppingLayout({ details }: ShoppingLayoutProps) {
   const { t } = useTranslation();
   const shopType = details.shop_type as string;
   const brandsCarried = (details.brands_carried as string[]) || [];

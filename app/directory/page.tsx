@@ -17,6 +17,7 @@ import {
   inferCategorySlugsFromSearch,
   resolveCategoryFilterSlug,
 } from "@/lib/categoryMerges";
+import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { buildMetadata } from "@/lib/metadata";
 import { createClient } from "@/lib/supabase/server";
 import { DirectoryClient } from "@/components/directory/DirectoryClient";
@@ -579,11 +580,14 @@ export default async function DirectoryPage({ searchParams }: DirectoryPageProps
       : "Algarve Directory Listings",
     url: `${SITE_URL}${viewModel.canonicalPath}`,
     itemListElement: data.listings.slice(0, 50).map((listing, index) => ({
+      image: (() => {
+        const listingImage = normalizePublicImageUrl(listing.featured_image_url);
+        return listingImage ? absoluteUrl(listingImage) : undefined;
+      })(),
       "@type": "ListItem",
       position: index + 1,
       name: listing.name,
       url: `${SITE_URL}/listing/${listing.slug}`,
-      image: listing.featured_image_url ? absoluteUrl(listing.featured_image_url) : undefined,
       description: listing.short_description || listing.description || undefined,
     })),
   };
@@ -697,38 +701,43 @@ export default async function DirectoryPage({ searchParams }: DirectoryPageProps
 
                 {data.listings.length > 0 ? (
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
-                    {data.listings.map((listing) => (
-                      <Link
-                        key={listing.id}
-                        href={`/listing/${listing.slug}`}
-                        className="glass-box glass-box-listing-shimmer block overflow-hidden"
-                      >
-                        <div className="relative aspect-square bg-muted">
-                          {listing.featured_image_url ? (
-                            <Image
-                              src={listing.featured_image_url}
-                              alt={listing.name}
-                              fill
-                              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                              className="object-cover"
-                            />
-                          ) : null}
-                        </div>
-                        <div className="p-5">
-                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                            {listing.category?.name || "Directory Listing"}
-                          </p>
-                          <h3 className="mt-3 font-serif text-2xl font-medium text-foreground">{listing.name}</h3>
-                          <p className="mt-3 line-clamp-3 text-sm leading-7 text-muted-foreground">
-                            {listing.short_description || listing.description || "Curated Algarve listing."}
-                          </p>
-                          <p className="mt-4 text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                            {listing.city?.name || "Algarve"}
-                            {listing.region?.name ? ` · ${listing.region.name}` : ""}
-                          </p>
-                        </div>
-                      </Link>
-                    ))}
+                    {data.listings.map((listing) => {
+                      const listingImage = normalizePublicImageUrl(listing.featured_image_url);
+
+                      return (
+                        <Link
+                          key={listing.id}
+                          href={`/listing/${listing.slug}`}
+                          className="glass-box glass-box-listing-shimmer block overflow-hidden"
+                        >
+                          <div className="relative aspect-square bg-muted">
+                            {listingImage ? (
+                              <Image
+                                src={listingImage}
+                                alt={listing.name}
+                                fill
+                                unoptimized
+                                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                                className="object-cover"
+                              />
+                            ) : null}
+                          </div>
+                          <div className="p-5">
+                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                              {listing.category?.name || "Directory Listing"}
+                            </p>
+                            <h3 className="mt-3 font-serif text-2xl font-medium text-foreground">{listing.name}</h3>
+                            <p className="mt-3 line-clamp-3 text-sm leading-7 text-muted-foreground">
+                              {listing.short_description || listing.description || "Curated Algarve listing."}
+                            </p>
+                            <p className="mt-4 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                              {listing.city?.name || "Algarve"}
+                              {listing.region?.name ? ` · ${listing.region.name}` : ""}
+                            </p>
+                          </div>
+                        </Link>
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="rounded-[24px] border border-border/70 bg-card/40 p-10 text-center">

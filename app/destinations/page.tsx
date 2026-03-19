@@ -14,6 +14,7 @@ import {
   type CmsPageConfigMap,
   type CmsTextOverrideMap,
 } from "@/lib/cms/pageBuilderRegistry";
+import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { getRegionImageSet } from "@/lib/regionImages";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
@@ -306,11 +307,13 @@ export default async function DestinationsPage() {
               <div className="flex-grid-centered">
                 {featuredRegions.map((region) => {
                   const image = getRegionImageSet(region.slug, { includeAliases: true });
-                  const imageSrc = image
-                    ? typeof image.image === "string"
-                      ? image.image
-                      : image.image.src
-                    : region.hero_image_url || region.image_url || "";
+                  const imageSrc = normalizePublicImageUrl(
+                    image
+                      ? typeof image.image === "string"
+                        ? image.image
+                        : image.image.src
+                      : region.hero_image_url || region.image_url || "",
+                  );
 
                   return (
                     <Link
@@ -324,6 +327,7 @@ export default async function DestinationsPage() {
                             src={imageSrc}
                             alt={region.name}
                             fill
+                            unoptimized
                             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                             className="object-cover"
                           />

@@ -104,13 +104,12 @@ export function PublicSiteSidebar() {
       collapsed={collapsed}
       onToggle={() => setCollapsed((prev) => !prev)}
       logo={<BrandLogo size="sm" showText={!collapsed} className="gap-2" />}
-      showHeader={false}
       sections={sections}
       footerText={t("nav.discoverBrand", "Discover AlgarveOfficial")}
       desktopExpandedWidthClass="w-72"
       desktopCollapsedWidthClass="w-16"
       mobileToggleClassName="top-24"
-      className="lg:fixed lg:top-20 lg:bottom-0 lg:left-0 lg:h-[calc(100vh-5rem)] lg:z-40"
+      className="lg:fixed lg:inset-y-0 lg:left-0 lg:h-screen lg:z-[60]"
     />
   );
 }

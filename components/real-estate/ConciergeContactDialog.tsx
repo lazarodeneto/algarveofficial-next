@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MessageSquare, Send, Loader2, User, Mail, HelpCircle } from "lucide-react";
+import { Send, Loader2, User, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

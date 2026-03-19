@@ -15,7 +15,6 @@ import "leaflet/dist/leaflet.css";
 
 const ALGARVE_DEFAULT_CENTER: [number, number] = [37.08, -8.15];
 const ALGARVE_DEFAULT_ZOOM = 9.5;
-const ALGARVE_MAX_BOUNDS: [[number, number], [number, number]] = [[36.7, -9.2], [37.5, -7.2]];
 
 const TILE_LAYERS = {
   dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?language=en",
@@ -334,17 +333,14 @@ function ClusteredMarkers({
 }) {
   const { t } = useTranslation();
   const map = useMap();
-  const [viewportTick, setViewportTick] = useState(0);
+  const [, setViewportTick] = useState(0);
 
   useMapEvents({
     zoomend: () => setViewportTick((tick) => tick + 1),
     moveend: () => setViewportTick((tick) => tick + 1),
   });
 
-  const nodes = useMemo(
-    () => buildClusterNodes(points, map, enableClustering),
-    [enableClustering, map, points, viewportTick],
-  );
+  const nodes = buildClusterNodes(points, map, enableClustering);
 
   return (
     <>

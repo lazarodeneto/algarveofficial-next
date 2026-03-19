@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Check, Loader2, Search, Building, MapPin, AlertTriangle } from "lucide-react";
 import { useApproveAndAssignClaim, usePublishedListingsForAssignment, type ListingClaim } from "@/hooks/useListingClaims";

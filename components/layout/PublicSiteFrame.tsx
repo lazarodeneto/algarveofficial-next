@@ -21,11 +21,9 @@ export function PublicSiteFrame({ children }: PublicSiteFrameProps) {
 
   return (
     <>
-      <div className="hidden lg:block">
-        <Suspense fallback={null}>
-          <PublicSiteSidebar />
-        </Suspense>
-      </div>
+      <Suspense fallback={null}>
+        <PublicSiteSidebar />
+      </Suspense>
       <div className="lg:pl-16 lg:pr-6">{children}</div>
     </>
   );

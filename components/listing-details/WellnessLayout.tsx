@@ -9,7 +9,7 @@ interface WellnessLayoutProps {
   bookingUrl?: string;
 }
 
-export function WellnessLayout({ details, bookingUrl }: WellnessLayoutProps) {
+export function WellnessLayout({ details }: WellnessLayoutProps) {
   const { t } = useTranslation();
   const wellnessType = details.wellness_type as string;
   const treatmentsOffered = (details.treatments_offered as string[]) || [];

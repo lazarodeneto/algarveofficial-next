@@ -9,7 +9,7 @@ interface PrivateChefLayoutProps {
   bookingUrl?: string;
 }
 
-export function PrivateChefLayout({ details, bookingUrl }: PrivateChefLayoutProps) {
+export function PrivateChefLayout({ details }: PrivateChefLayoutProps) {
   const { t } = useTranslation();
   const cuisineStyles = (details.cuisine_styles as string[]) || [];
   const serviceTypes = (details.service_types as string[]) || [];

@@ -1,11 +1,11 @@
 "use client";
 
 import { ReactNode, useState, useEffect, useRef, lazy, Suspense } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { isMaintenanceIpWhitelisted } from "@/lib/maintenance";
 
 const Maintenance = lazy(() => import("@/legacy-pages/Maintenance"));
 
@@ -74,9 +74,7 @@ export function MaintenanceGuard({ children }: MaintenanceGuardProps) {
   }, [settings?.maintenance_mode, isAdmin, isWhitelisted, clientIp]);
 
   // Check if the current IP is in the whitelist
-  const isIpWhitelisted = clientIp && settings?.maintenance_ip_whitelist?.some((ip: string) => {
-    return clientIp === ip || clientIp.startsWith(ip);
-  });
+  const isIpWhitelisted = isMaintenanceIpWhitelisted(clientIp, settings?.maintenance_ip_whitelist);
 
   // Don't block first paint while loading settings.
   // Render children optimistically — maintenance mode is off 99% of the time.

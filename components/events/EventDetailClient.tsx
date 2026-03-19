@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { NavigationType, Router, createPath, type To } from "react-router";
 import { LegacyLink as Link } from "@/components/router/LegacyRouterBridge";
 import { usePathname, useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
@@ -30,6 +31,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { eventCategoryLabels, eventCategoryColors, type EventCategory } from "@/types/events";
 import { eventCategoryTemplates } from "@/lib/eventCategoryTemplates";
 import { CMS_GLOBAL_SETTING_KEYS, type CmsPageConfigMap, type CmsTextOverrideMap } from "@/lib/cms/pageBuilderRegistry";
+import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { useHydrated } from "@/hooks/useHydrated";
 
 type HomegrownNavigator = {
@@ -57,6 +59,8 @@ const EVENT_DETAIL_CMS_KEYS = [
   CMS_GLOBAL_SETTING_KEYS.designTokens,
   CMS_GLOBAL_SETTING_KEYS.customCss,
 ] as const;
+
+const passthroughImageLoader = ({ src }: { src: string }) => src;
 
 function resolveToPath(to: To) {
   return typeof to === "string" ? to : createPath(to);
@@ -320,6 +324,7 @@ function EventDetailClientInner({
   const isSingleDay = event.start_date === event.end_date;
   const categoryTemplate = eventCategoryTemplates[event.category as EventCategory];
   const eventData = event.event_data || {};
+  const eventHeroImage = normalizePublicImageUrl(event.image);
 
   const handleShare = async () => {
     const shareUrl = window.location.href;
@@ -358,13 +363,22 @@ function EventDetailClientInner({
             </Link>
           </motion.div>
 
-          {event.image ? (
+          {eventHeroImage ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="relative mb-8 aspect-[21/9] overflow-hidden rounded-xl"
             >
-              <img src={event.image} alt={event.title} className="h-full w-full object-cover" />
+              <Image
+                loader={passthroughImageLoader}
+                unoptimized
+                src={eventHeroImage}
+                alt={event.title}
+                fill
+                sizes="(max-width: 1024px) 100vw, 66vw"
+                className="object-cover"
+                priority
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
               <div className="absolute bottom-4 right-4 rounded-lg border border-border/50 bg-background/95 px-5 py-4 text-center shadow-xl backdrop-blur-sm">
@@ -626,16 +640,21 @@ function EventDetailClientInner({
                   const relStartDate = parseISO(relatedEvent.start_date);
                   const relEndDate = parseISO(relatedEvent.end_date);
                   const relIsSingleDay = relatedEvent.start_date === relatedEvent.end_date;
+                  const relatedEventImage = normalizePublicImageUrl(relatedEvent.image);
 
                   return (
                     <Link key={relatedEvent.id} to={`/events/${relatedEvent.slug}`} className="group">
                       <Card className="h-full overflow-hidden border-border bg-card transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-lg group-hover:shadow-primary/5">
                         <div className="relative aspect-[16/10] overflow-hidden">
-                          {relatedEvent.image ? (
-                            <img
-                              src={relatedEvent.image}
+                          {relatedEventImage ? (
+                            <Image
+                              loader={passthroughImageLoader}
+                              unoptimized
+                              src={relatedEventImage}
                               alt={relatedEvent.title}
-                              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              fill
+                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                              className="object-cover transition-transform duration-500 group-hover:scale-105"
                             />
                           ) : (
                             <div className="flex h-full w-full items-center justify-center bg-muted">

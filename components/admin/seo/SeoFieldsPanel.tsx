@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -212,11 +213,14 @@ export function SeoFieldsPanel({
                 <Label htmlFor="og_image">OG Image URL</Label>
                 <div className="flex gap-3">
                   {data.og_image && (
-                    <div className="w-24 h-14 bg-muted rounded overflow-hidden flex-shrink-0">
-                      <img
+                    <div className="relative w-24 h-14 bg-muted rounded overflow-hidden flex-shrink-0">
+                      <Image
                         src={data.og_image}
                         alt="OG Preview"
-                        className="w-full h-full object-cover"
+                        fill
+                        unoptimized
+                        sizes="96px"
+                        className="object-cover"
                       />
                     </div>
                   )}
@@ -239,12 +243,15 @@ export function SeoFieldsPanel({
               <div className="p-3 bg-muted/50 rounded-lg border border-border">
                 <p className="text-xs text-muted-foreground mb-2">Facebook/LinkedIn Preview</p>
                 <div className="bg-white dark:bg-zinc-800 rounded border border-border overflow-hidden">
-                  <div className="aspect-[1.91/1] bg-muted flex items-center justify-center">
+                  <div className="relative aspect-[1.91/1] bg-muted flex items-center justify-center">
                     {data.og_image ? (
-                      <img
+                      <Image
                         src={data.og_image}
                         alt="Social preview"
-                        className="w-full h-full object-cover"
+                        fill
+                        unoptimized
+                        sizes="(max-width: 768px) 100vw, 600px"
+                        className="object-cover"
                       />
                     ) : (
                       <ImageIcon className="h-8 w-8 text-muted-foreground" />

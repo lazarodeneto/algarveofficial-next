@@ -2,6 +2,7 @@
 
 import type { CSSProperties, ElementType, ReactNode } from "react";
 import { useEffect, useMemo } from "react";
+import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { NavigationType, Router, createPath, type To } from "react-router";
@@ -25,7 +26,6 @@ import {
   type CmsPageConfigMap,
   type CmsTextOverrideMap,
 } from "@/lib/cms/pageBuilderRegistry";
-import type { GlobalSetting } from "@/hooks/useGlobalSettings";
 import { useSavedDestinations } from "@/hooks/useSavedDestinations";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import {
@@ -617,10 +617,14 @@ function CityDetailClientInner({
         >
           {(city.hero_image_url || city.image_url) ? (
             <div className="absolute inset-0">
-              <img
+              <Image
                 src={city.hero_image_url || city.image_url || ""}
                 alt={city.name}
-                className="w-full h-full object-cover"
+                fill
+                priority
+                unoptimized
+                sizes="100vw"
+                className="object-cover"
               />
             </div>
           ) : null}
