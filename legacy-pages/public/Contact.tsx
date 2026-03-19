@@ -15,9 +15,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useContactSettings } from "@/hooks/useContactSettings";
 
 export default function Contact() {
-    if (typeof window === "undefined") {
-        return null;
-    }
     const { t } = useTranslation();
     const { user } = useAuth();
     const [searchParams] = useSearchParams();

@@ -9,6 +9,7 @@ import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useNewsletterSignup } from "@/hooks/useNewsletterSignup";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
@@ -306,7 +307,11 @@ export function Footer() {
                 {t("newsletter.footerSubtitle", "Monthly curated picks, events, and hidden gems.")}
               </p>
               <form onSubmit={handleNewsletterSubmit} className="mt-3 flex gap-2">
+                <Label htmlFor="footer-newsletter-email" className="sr-only">
+                  {t("newsletter.placeholder", "Email address")}
+                </Label>
                 <Input
+                  id="footer-newsletter-email"
                   type="email"
                   value={newsletterEmail}
                   onChange={(event) => setNewsletterEmail(event.target.value)}

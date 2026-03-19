@@ -4,7 +4,7 @@ const SITE_NAME = "AlgarveOfficial";
 const DEFAULT_SITE_URL = "https://algarveofficial.com";
 const DEFAULT_DESCRIPTION =
   "Discover the Algarve's finest villas, restaurants and golf courses — curated by experts who know every corner of Portugal's most prestigious coast.";
-const DEFAULT_IMAGE = "/og-image.jpg";
+const DEFAULT_IMAGE = "/og-image.png";
 const DEFAULT_LOCALE = "en_GB";
 const TWITTER_SITE = "@AlgarveOfficial";
 
@@ -52,15 +52,6 @@ export function buildAlternates(path: string) {
     canonical: toAbsoluteUrl(siteUrl, normalizedPath),
     languages: {
       en: toAbsoluteUrl(siteUrl, normalizedPath),
-      "pt-PT": toAbsoluteUrl(siteUrl, `/pt-pt${normalizedPath}`),
-      de: toAbsoluteUrl(siteUrl, `/de${normalizedPath}`),
-      fr: toAbsoluteUrl(siteUrl, `/fr${normalizedPath}`),
-      es: toAbsoluteUrl(siteUrl, `/es${normalizedPath}`),
-      it: toAbsoluteUrl(siteUrl, `/it${normalizedPath}`),
-      nl: toAbsoluteUrl(siteUrl, `/nl${normalizedPath}`),
-      sv: toAbsoluteUrl(siteUrl, `/sv${normalizedPath}`),
-      no: toAbsoluteUrl(siteUrl, `/no${normalizedPath}`),
-      da: toAbsoluteUrl(siteUrl, `/da${normalizedPath}`),
       "x-default": toAbsoluteUrl(siteUrl, normalizedPath),
     },
   };

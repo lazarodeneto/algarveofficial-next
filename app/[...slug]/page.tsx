@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
 
 interface LegacyRoutePageProps {
   params: Promise<{
@@ -6,22 +6,27 @@ interface LegacyRoutePageProps {
   }>;
 }
 
+const LEGACY_LOCALE_PREFIXES = new Set([
+  "pt-pt",
+  "de",
+  "fr",
+  "es",
+  "it",
+  "nl",
+  "sv",
+  "no",
+  "da",
+]);
+
 export default async function LegacyRoutePage({ params }: LegacyRoutePageProps) {
   const resolved = await params;
-  const path = `/${(resolved.slug || []).join("/")}`;
+  const slug = resolved.slug || [];
+  const [maybeLocalePrefix, ...rest] = slug;
 
-  return (
-    <main className="app-container py-20">
-      <h1 className="text-3xl font-semibold">Page in Migration</h1>
-      <p className="mt-4 text-muted-foreground">
-        The route <code>{path}</code> is being migrated to the Next.js App Router.
-      </p>
-      <div className="mt-8">
-        <Link href="/" className="text-primary underline underline-offset-4">
-          Back to homepage
-        </Link>
-      </div>
-    </main>
-  );
+  if (maybeLocalePrefix && LEGACY_LOCALE_PREFIXES.has(maybeLocalePrefix.toLowerCase())) {
+    const destinationPath = rest.length > 0 ? `/${rest.join("/")}` : "/";
+    redirect(destinationPath);
+  }
+
+  notFound();
 }
-

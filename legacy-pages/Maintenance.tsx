@@ -6,9 +6,6 @@ import { Construction, Mail, Crown } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 
 export default function Maintenance() {
-  if (typeof window === "undefined") {
-    return null;
-  }
   const { data: settings } = useQuery({
     queryKey: ['site-settings'],
     queryFn: async () => {

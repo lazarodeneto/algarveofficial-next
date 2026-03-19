@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'; // Server-render on demand — never pre
 import { cache } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 
 import type { Tables } from "@/integrations/supabase/types";
 import {
@@ -319,12 +320,12 @@ export default async function DestinationsPage() {
                     >
                       <div className="absolute inset-0">
                         {imageSrc ? (
-                          <img
+                          <Image
                             src={imageSrc}
                             alt={region.name}
-                            loading="lazy"
-                            decoding="async"
-                            className="w-full h-full object-cover"
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                            className="object-cover"
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-charcoal-light to-charcoal flex items-center justify-center">

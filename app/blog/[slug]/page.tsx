@@ -1,12 +1,19 @@
-"use client";
+import { notFound } from "next/navigation";
 
-import { Suspense } from "react";
-import BlogPost from "@/legacy-pages/public/blog/BlogPost";
+import { BlogPostPageClient } from "./BlogPostPageClient";
+import { getPublishedBlogPostBySlug } from "./postData";
 
-export default function BlogPostPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <BlogPost />
-    </Suspense>
-  );
+interface BlogPostPageProps {
+  params: Promise<{ slug: string }>;
+}
+
+export default async function BlogPostPage({ params }: BlogPostPageProps) {
+  const { slug } = await params;
+  const post = await getPublishedBlogPostBySlug(slug);
+
+  if (!post) {
+    notFound();
+  }
+
+  return <BlogPostPageClient />;
 }

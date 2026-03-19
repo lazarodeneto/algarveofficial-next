@@ -235,7 +235,7 @@ export default async function RealEstatePage() {
     name: "Algarve Real Estate Directory",
     description: FALLBACK_DESCRIPTION,
     url: `${SITE_URL}/real-estate`,
-    image: `${SITE_URL}/og-image.jpg`,
+    image: `${SITE_URL}/og-image.png`,
   });
 
   const itemListSchema = buildItemListSchema({

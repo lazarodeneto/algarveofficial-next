@@ -234,7 +234,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                     <Card className="group h-full overflow-hidden border-border bg-card transition-all hover:border-primary/30">
                       <div className="relative aspect-video overflow-hidden">
                         <img
-                          src={event.image || "/og-image.jpg"}
+                          src={event.image || "/og-image.png"}
                           alt={event.title}
                           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                           loading="lazy"

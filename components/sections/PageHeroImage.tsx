@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { getRegionImageSet } from "@/lib/regionImages";
-import type { StaticImageData } from "next/image";
+import Image, { type StaticImageData } from "next/image";
 
 export type PageHeroImageKey =
   | "about"
@@ -67,18 +67,13 @@ export function PageHeroImage({ page, alt, className }: PageHeroImageProps) {
     return <div className="h-full w-full bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900" />;
   }
 
-  const resolveImageSrc = (value: string | StaticImageData) =>
-    typeof value === "string" ? value : value.src;
-
   return (
-    <img
-      src={resolveImageSrc(imageSet.image)}
-      srcSet={`${resolveImageSrc(imageSet.image400)} 400w, ${resolveImageSrc(imageSet.image800)} 800w, ${resolveImageSrc(imageSet.image)} 1200w`}
+    <Image
+      src={imageSet.image as string | StaticImageData}
+      fill
       sizes="100vw"
       alt={alt}
-      loading="eager"
-      fetchPriority="high"
-      decoding="async"
+      priority
       className={cn("h-full w-full object-cover scale-[1.02]", className)}
       style={{ objectPosition: config.objectPosition }}
     />

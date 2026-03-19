@@ -1,7 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { Suspense, type ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { I18nProvider } from "./I18nProvider";
@@ -9,6 +8,7 @@ import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 import { FaviconUpdater } from "@/components/FaviconUpdater";
 import { FavoritesSyncProvider } from "@/components/FavoritesSyncProvider";
 import { MaintenanceGuard } from "@/components/MaintenanceGuard";
+import { RouteAccessibility } from "@/components/accessibility/RouteAccessibility";
 import { ChatProvider } from "@/components/chat/ChatProvider";
 import { InboxRealtimeProvider } from "@/components/chat/InboxRealtimeProvider";
 import { Toaster } from "@/components/ui/toaster";
@@ -49,6 +49,9 @@ export function AppProviders({ children, locale = "en" }: AppProvidersProps) {
                   <InboxRealtimeProvider>
                     <ChatProvider>
                       <MobileMenuProvider>
+                        <Suspense fallback={null}>
+                          <RouteAccessibility />
+                        </Suspense>
                         <Toaster />
                         <Sonner />
                         <FaviconUpdater />

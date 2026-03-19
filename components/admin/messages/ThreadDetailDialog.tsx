@@ -136,6 +136,7 @@ export const ThreadDetailDialog = forwardRef<HTMLDivElement, ThreadDetailDialogP
                   <Link
                     href={`/listing/${thread.listing.slug}`}
                     target="_blank"
+                    rel="noopener noreferrer"
                     className="font-medium hover:text-primary flex items-center gap-1"
                   >
                     {thread.listing.name}

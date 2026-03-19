@@ -2,9 +2,9 @@ export const dynamic = "force-dynamic";
 
 import { cache } from "react";
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 
-import type { Tables } from "@/integrations/supabase/types";
 import { withTimeout } from "@/lib/supabase/db-utils";
 import { buildBreadcrumbSchema, buildLocalBusinessSchema } from "@/lib/seo/schemaBuilders.js";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
@@ -12,7 +12,6 @@ import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 import type { ListingReview } from "@/hooks/useListingReviews";
 import {
   ListingDetailClient,
-  type ListingDetailClientProps,
   type ListingTranslationRow,
   type ListingWithRelations,
   type RelatedListing,
@@ -330,7 +329,7 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
     normalizePublicImageUrl(listing.images?.find((image) => image.is_featured)?.image_url) ||
     normalizePublicImageUrl(listing.images?.[0]?.image_url) ||
     normalizePublicImageUrl(listing.featured_image_url) ||
-    "/og-image.jpg";
+    "/og-image.png";
 
   return buildMetadata({
     title,
@@ -363,7 +362,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
     normalizePublicImageUrl(listing.images?.find((image) => image.is_featured)?.image_url) ||
     normalizePublicImageUrl(listing.images?.[0]?.image_url) ||
     normalizePublicImageUrl(listing.featured_image_url) ||
-    "/og-image.jpg";
+    "/og-image.png";
 
   const businessSchema = buildLocalBusinessSchema({
     name: title,
@@ -406,7 +405,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
     normalizePublicImageUrl(listing.images?.[0]?.image_url) ||
     normalizePublicImageUrl(listing.featured_image_url) ||
     normalizePublicImageUrl(listing.category?.image_url) ||
-    "/og-image.jpg";
+    "/og-image.png";
 
   return (
     <>
@@ -423,7 +422,16 @@ export default async function ListingPage({ params }: ListingPageProps) {
         <main className="app-container pt-32 pb-20">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(18rem,1fr)]">
             <div className="overflow-hidden rounded-[2rem] border border-border/60 bg-card">
-              <img src={primaryImage} alt={title} className="h-full min-h-[24rem] w-full object-cover" />
+              <div className="relative min-h-[24rem]">
+                <Image
+                  src={primaryImage}
+                  alt={title}
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 60vw, 100vw"
+                  className="h-full w-full object-cover"
+                />
+              </div>
             </div>
             <aside className="rounded-[2rem] border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur">
               <p className="text-xs uppercase tracking-[0.2em] text-primary">{categoryName}</p>

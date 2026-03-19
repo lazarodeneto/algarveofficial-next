@@ -61,6 +61,9 @@ function ChatModalPanel({
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95, y: 20 }}
       transition={{ duration: 0.2 }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="chat-modal-title"
       className={cn(
         "fixed z-50 bg-card border border-border rounded-xl shadow-2xl overflow-hidden",
         // Desktop: centered modal with two columns
@@ -78,14 +81,15 @@ function ChatModalPanel({
               size="icon"
               onClick={handleBack}
               className="lg:hidden"
+              aria-label="Back to conversations"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
           )}
           <MessageCircle className="h-5 w-5 text-primary" />
-          <h2 className="font-serif font-medium text-lg">Messages</h2>
+          <h2 id="chat-modal-title" className="font-serif font-medium text-lg">Messages</h2>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose}>
+        <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close messages dialog">
           <X className="h-5 w-5" />
         </Button>
       </div>

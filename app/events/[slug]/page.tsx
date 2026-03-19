@@ -1,12 +1,19 @@
-"use client";
+import { notFound } from "next/navigation";
 
-import { Suspense } from "react";
-import EventDetail from "@/legacy-pages/public/events/EventDetail";
+import { EventDetailPageClient } from "./EventDetailPageClient";
+import { getPublishedEventBySlug } from "./eventData";
 
-export default function EventDetailPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <EventDetail />
-    </Suspense>
-  );
+interface EventDetailPageProps {
+  params: Promise<{ slug: string }>;
+}
+
+export default async function EventDetailPage({ params }: EventDetailPageProps) {
+  const { slug } = await params;
+  const event = await getPublishedEventBySlug(slug);
+
+  if (!event) {
+    notFound();
+  }
+
+  return <EventDetailPageClient />;
 }

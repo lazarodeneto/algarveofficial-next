@@ -1,6 +1,7 @@
 // framer-motion import removed - using CSS animations for LCP elements
 import { Bot, ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useState, useRef } from "react";
+import Image from "next/image";
 import { useHeroSettings } from "@/hooks/useHomepageSettings";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 import { useTranslation } from "react-i18next";
@@ -133,17 +134,14 @@ function HeroPosterImage({
   if (!hasPosterUrl) return <div className={`${className ?? ""} bg-black`} />;
 
   return (
-    <img
+    <Image
       src={posterUrl}
       alt="Premium Algarve coastline"
-      crossOrigin="anonymous"
-      width={1920}
-      height={1080}
+      fill
       sizes="100vw"
-      loading={priority ? "eager" : "lazy"}
-      fetchPriority={priority ? "high" : "auto"}
-      decoding="async"
+      priority={priority}
       className={className}
+      unoptimized={posterUrl.startsWith("data:")}
     />
   );
 }

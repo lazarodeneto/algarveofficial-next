@@ -4,9 +4,6 @@ import { Link } from "react-router-dom";
 import { FileText, Scale, Users, ShieldCheck, AlertTriangle, CreditCard, Ban, Globe } from "lucide-react";
 
 const TermsOfService = () => {
-  if (typeof window === "undefined") {
-    return null;
-  }
   const lastUpdated = "January 21, 2026";
 
   return (

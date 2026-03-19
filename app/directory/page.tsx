@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'; // Server-render on demand — never pre
 import { cache } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 
 import type { Tables } from "@/integrations/supabase/types";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
@@ -704,11 +705,12 @@ export default async function DirectoryPage({ searchParams }: DirectoryPageProps
                       >
                         <div className="relative aspect-square bg-muted">
                           {listing.featured_image_url ? (
-                            <img
+                            <Image
                               src={listing.featured_image_url}
                               alt={listing.name}
-                              className="h-full w-full object-cover"
-                              loading="lazy"
+                              fill
+                              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                              className="object-cover"
                             />
                           ) : null}
                         </div>

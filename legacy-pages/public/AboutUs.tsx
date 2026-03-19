@@ -52,10 +52,6 @@ const valueCards = [
 export default function AboutUs() {
   const { t } = useTranslation();
 
-  if (typeof window === "undefined") {
-    return null;
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <SeoHead
@@ -236,4 +232,3 @@ export default function AboutUs() {
     </div>
   );
 }
-

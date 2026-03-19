@@ -11,9 +11,6 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
 export default function Login() {
-  if (typeof window === "undefined") {
-    return null;
-  }
   const { t } = useTranslation();
   const { login, loginWithGoogle, isLoading, isAuthenticated, user, getDashboardPath } = useAuth();
   const [email, setEmail] = useState('');

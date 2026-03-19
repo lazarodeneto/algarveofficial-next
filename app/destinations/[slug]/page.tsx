@@ -1,6 +1,7 @@
 import { cache } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import {
@@ -305,7 +306,7 @@ export async function generateMetadata({
 
   const { region } = data;
   const description = buildDestinationDescription(region);
-  const resolvedRegionImage = resolveRegionImage(region) ?? "/og-image.jpg";
+  const resolvedRegionImage = resolveRegionImage(region) ?? "/og-image.png";
 
   const metadata = buildMetadata({
     title: `${region.name} Destination Guide | AlgarveOfficial`,
@@ -394,10 +395,13 @@ export default async function DestinationDetailPage({ params }: DestinationPageP
           <section className="relative overflow-hidden pt-[calc(6rem+10px)] pb-16 lg:pt-[calc(8rem+10px)] lg:pb-24">
             <div className="absolute inset-0">
               {resolvedRegionImage ? (
-                <img
+                <Image
                   src={resolvedRegionImage}
                   alt={region.name}
-                  className="h-full w-full object-cover"
+                  fill
+                  sizes="100vw"
+                  className="object-cover"
+                  priority
                 />
               ) : (
                 <div className="h-full w-full bg-gradient-to-br from-charcoal-light to-charcoal" />
@@ -469,10 +473,12 @@ export default async function DestinationDetailPage({ params }: DestinationPageP
 
                         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                           {listing.featured_image_url ? (
-                            <img
+                            <Image
                               src={listing.featured_image_url}
                               alt={listing.name}
-                              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              fill
+                              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                              className="object-cover transition-transform duration-500 group-hover:scale-105"
                             />
                           ) : (
                             <div className="h-full w-full bg-gradient-to-br from-card to-muted" />

@@ -7,9 +7,9 @@ const eslintConfig = defineConfig([
   ...nextTs,
   {
     rules: {
-      "@typescript-eslint/no-unused-vars": "off",
-      "@next/next/no-img-element": "off",
-      "react-hooks/exhaustive-deps": "off",
+      "@typescript-eslint/no-unused-vars": "warn",
+      "@next/next/no-img-element": "warn",
+      "react-hooks/exhaustive-deps": "warn",
       "import/no-anonymous-default-export": "off",
     },
   },
