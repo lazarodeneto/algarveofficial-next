@@ -138,7 +138,7 @@ export function AnalyticsChart({
                 }}
               />
               {dataKeys ? (
-                dataKeys.map((dk, i) => (
+                dataKeys.map((dk) => (
                   <Bar key={dk.key} dataKey={dk.key} fill={dk.color} name={dk.name || dk.key} radius={[4, 4, 0, 0]} />
                 ))
               ) : (

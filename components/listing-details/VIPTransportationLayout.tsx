@@ -9,7 +9,7 @@ interface VIPTransportationLayoutProps {
   bookingUrl?: string;
 }
 
-export function VIPTransportationLayout({ details, bookingUrl }: VIPTransportationLayoutProps) {
+export function VIPTransportationLayout({ details }: VIPTransportationLayoutProps) {
   const { t } = useTranslation();
   const transportType = details.transport_type as string;
   const capacity = details.capacity as number;

@@ -25,6 +25,7 @@ import ListingImage from "@/components/ListingImage";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import { Skeleton } from "@/components/ui/skeleton";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
+import { useHydrated } from "@/hooks/useHydrated";
 
 const ITEMS_PER_PAGE = 12;
 const MAX_HOME_LISTINGS = 24;
@@ -49,6 +50,7 @@ const cardVariants = {
 };
 
 export function AllListingsSection() {
+  const mounted = useHydrated();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
@@ -60,12 +62,13 @@ export function AllListingsSection() {
   const langPrefix = useLangPrefix();
 
   // Fetch data from Supabase once and filter locally to avoid extra roundtrips
-  const { data: allListings = [], isLoading: listingsLoading } = usePublishedListings();
-  const { data: categories, isLoading: categoriesLoading } = useCategories();
-  const { data: cities, isLoading: citiesLoading } = useCities();
-  const { data: regions, isLoading: regionsLoading } = useRegions();
+  const { data: allListings = [], isLoading: listingsLoading, error: listingsError } = usePublishedListings();
+  const { data: categories, isLoading: categoriesLoading, error: categoriesError } = useCategories();
+  const { data: cities, isLoading: citiesLoading, error: citiesError } = useCities();
+  const { data: regions, isLoading: regionsLoading, error: regionsError } = useRegions();
 
-  const isLoading = listingsLoading || categoriesLoading || citiesLoading || regionsLoading;
+  const isLoading = !mounted || listingsLoading || categoriesLoading || citiesLoading || regionsLoading;
+  const hasError = Boolean(listingsError || categoriesError || citiesError || regionsError);
 
   const mergedCategories = useMemo(
     () => buildMergedCategoryOptions(categories || []),
@@ -132,6 +135,8 @@ export function AllListingsSection() {
 
   // Intersection Observer for infinite scroll
   useEffect(() => {
+    if (!mounted) return undefined;
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
@@ -146,7 +151,7 @@ export function AllListingsSection() {
     }
 
     return () => observer.disconnect();
-  }, [hasMore, isLoadingMore, loadMore]);
+  }, [hasMore, isLoadingMore, loadMore, mounted]);
 
   if (isLoading) {
     return (
@@ -172,6 +177,24 @@ export function AllListingsSection() {
               <SkeletonCard key={i} variant="listing" />
             ))}
           </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <section className="py-20 bg-background">
+        <div className="app-container content-max text-center">
+          <h2 className="text-title font-serif font-medium mb-3">
+            {t("sections.listings.title")} <span className="text-gradient-gold">{t("sections.listings.titleHighlight")}</span>
+          </h2>
+          <p className="text-body text-muted-foreground max-w-2xl mx-auto readable mb-6">
+            We couldn&apos;t load listings right now. Please refresh and try again.
+          </p>
+          <Button variant="outline" onClick={() => window.location.reload()}>
+            {t("directory.retry", "Retry")}
+          </Button>
         </div>
       </section>
     );

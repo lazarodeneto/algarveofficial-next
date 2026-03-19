@@ -3,7 +3,7 @@ import { format, parseISO } from "date-fns";
 import { ThumbsUp, User, Star, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { StarRating, RatingDisplay } from "@/components/ui/star-rating";
+import { StarRating } from "@/components/ui/star-rating";
 import { ReviewForm } from "./ReviewForm";
 import { useAuth } from "@/contexts/AuthContext";
 

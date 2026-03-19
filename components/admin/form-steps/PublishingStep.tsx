@@ -52,7 +52,6 @@ interface TranslationResult {
 export function PublishingStep({
   data,
   onChange,
-  errors,
   isAdmin,
   isEditor,
   users = [],

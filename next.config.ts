@@ -15,6 +15,7 @@ const contentSecurityPolicy = [
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://region1.google-analytics.com https://ipapi.co",
   "media-src 'self' blob: https:",
   "frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com",
+  "upgrade-insecure-requests",
 ].join("; ");
 
 const nextConfig: NextConfig = {

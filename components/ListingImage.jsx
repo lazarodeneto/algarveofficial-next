@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { useMemo, useState } from "react";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 
@@ -7,12 +8,12 @@ function normalizeUrl(value) {
 
 export default function ListingImage({
   src,
-  category = undefined,
   categoryImageUrl = undefined,
-  listingId = undefined,
   fallbackSrc = "/placeholder.svg",
   alt,
   className,
+  loading = "lazy",
+  fetchPriority = "auto",
 }) {
   const normalizedSrc = useMemo(() => normalizeUrl(src), [src]);
   const normalizedCategoryImageUrl = useMemo(
@@ -50,6 +51,9 @@ export default function ListingImage({
       src={currentSrc || normalizedFallbackSrc}
       alt={alt || "Algarve listing"}
       className={className}
+      loading={loading}
+      decoding="async"
+      fetchPriority={fetchPriority}
       onError={handleError}
     />
   );

@@ -2,6 +2,7 @@
 
 import type { CSSProperties, ElementType, ReactNode } from "react";
 import { useEffect, useMemo } from "react";
+import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { NavigationType, Router, createPath, type To } from "react-router";
@@ -25,7 +26,6 @@ import {
   type CmsTextOverrideMap,
 } from "@/lib/cms/pageBuilderRegistry";
 import { getRegionImageSet } from "@/lib/regionImages";
-import type { GlobalSetting } from "@/hooks/useGlobalSettings";
 import {
   fetchCityTranslations,
   fetchListingTranslations,
@@ -649,10 +649,14 @@ function DestinationDetailClientInner({
         >
           <div className="absolute inset-0">
             {resolvedRegionImage ? (
-              <img
+              <Image
                 src={resolvedRegionImage}
                 alt={region.name}
-                className="w-full h-full object-cover"
+                fill
+                priority
+                unoptimized
+                sizes="100vw"
+                className="object-cover"
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-charcoal-light to-charcoal" />

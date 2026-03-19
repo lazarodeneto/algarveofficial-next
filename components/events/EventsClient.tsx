@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { NavigationType, Router, createPath, type To } from "react-router";
@@ -131,7 +132,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
 
   const timeFilter = showPast ? "past" : "upcoming";
 
-  const { data: events = [], isLoading } = useQuery({
+  const { data: events = [] } = useQuery({
     queryKey: ["events", "published", selectedCategory, timeFilter],
     queryFn: () => fetchPublishedEvents(selectedCategory, timeFilter),
     initialData: selectedCategory === "all" && timeFilter === "upcoming" ? initialEvents : undefined,
@@ -233,11 +234,13 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                   <Link to={buildLangPath(langPrefix, `/events/${event.slug}`)}>
                     <Card className="group h-full overflow-hidden border-border bg-card transition-all hover:border-primary/30">
                       <div className="relative aspect-video overflow-hidden">
-                        <img
+                        <Image
                           src={event.image || "/og-image.png"}
                           alt={event.title}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          loading="lazy"
+                          fill
+                          unoptimized
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         <div className="absolute bottom-3 right-3 rounded-lg border border-border/50 bg-background/95 px-4 py-3 text-center shadow-lg backdrop-blur-sm">
                           <span className="block text-3xl font-bold leading-none text-primary">

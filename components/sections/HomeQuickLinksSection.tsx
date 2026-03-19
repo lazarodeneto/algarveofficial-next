@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from "react";
+import Image from "next/image";
 import { Link } from "react-router-dom";
 import { BedSingle, Binoculars, CalendarDays, LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -82,7 +83,7 @@ export function HomeQuickLinksSection() {
                 </div>
 
                 <div className="relative z-10 p-3.5 pt-1.5 sm:p-4 sm:pt-2">
-                  <div className="overflow-hidden rounded-xl border border-white/35 bg-white/25 dark:border-white/15 dark:bg-black/20">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-white/35 bg-white/25 dark:border-white/15 dark:bg-black/20">
                     {card.videoUrl ? (
                       <video
                         src={card.videoUrl}
@@ -96,13 +97,15 @@ export function HomeQuickLinksSection() {
                         onLoadedMetadata={(event) => enforceMutedPlayback(event.currentTarget)}
                         onPlay={(event) => enforceMutedPlayback(event.currentTarget)}
                         style={{ objectPosition: card.imagePosition ?? "center" }}
-                        className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
-                      <img
+                      <Image
                         src={card.imageUrl}
                         alt={displayTitle}
-                        loading="lazy"
+                        fill
+                        unoptimized
+                        sizes="(max-width: 640px) 77vw, 236px"
                         style={{ objectPosition: card.imagePosition ?? "center" }}
                         className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />

@@ -5,6 +5,9 @@ import { useParams } from "next/navigation";
 
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { Link } from "@/components/router/nextRouterCompat";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle } from "lucide-react";
 import AdminOverview from "@/legacy-pages/admin/AdminOverview";
 import AdminAnalytics from "@/legacy-pages/admin/AdminAnalytics";
 import AdminListings from "@/legacy-pages/admin/AdminListings";
@@ -53,6 +56,27 @@ import EmailSettings from "@/legacy-pages/admin/email/EmailSettings";
 import AdminBlog from "@/legacy-pages/admin/blog/AdminBlog";
 import AdminBlogForm from "@/legacy-pages/admin/blog/AdminBlogForm";
 import AdminBlogComments from "@/legacy-pages/admin/blog/AdminBlogComments";
+import AdminReviewModeration from "@/legacy-pages/admin/AdminReviewModeration";
+
+function AdminRouteNotFound({ route }: { route: string }) {
+  return (
+    <div className="mx-auto flex min-h-[55vh] w-full max-w-2xl flex-col items-center justify-center rounded-2xl border border-border/70 bg-card/60 px-6 py-10 text-center">
+      <AlertTriangle className="mb-4 h-10 w-10 text-amber-500" />
+      <h1 className="text-2xl font-serif font-semibold text-foreground">Page not found</h1>
+      <p className="mt-2 text-sm text-muted-foreground">
+        The admin route <code className="rounded bg-muted px-1.5 py-0.5">/admin/{route || ""}</code> is not configured.
+      </p>
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+        <Button asChild>
+          <Link to="/admin">Back to Overview</Link>
+        </Button>
+        <Button variant="outline" asChild>
+          <Link to="/admin/listings">Go to Listings</Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 const staticRouteMap: Record<string, ReactElement> = {
   "": <AdminOverview />,
@@ -60,6 +84,7 @@ const staticRouteMap: Record<string, ReactElement> = {
   listings: <AdminListings />,
   curated: <AdminCurated />,
   moderation: <AdminModeration />,
+  reviews: <AdminReviewModeration />,
   cities: <AdminCities />,
   categories: <AdminCategories />,
   users: <AdminUsers />,
@@ -121,7 +146,11 @@ function resolveAdminPage(route: string): ReactElement {
     return <AdminBlogForm />;
   }
 
-  return staticRouteMap[route] ?? <AdminOverview />;
+  if (route in staticRouteMap) {
+    return staticRouteMap[route];
+  }
+
+  return <AdminRouteNotFound route={route} />;
 }
 
 export default function AdminPage() {

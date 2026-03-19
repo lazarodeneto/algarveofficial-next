@@ -20,7 +20,7 @@ interface FineDiningLayoutProps {
   bookingUrl?: string;
 }
 
-export function FineDiningLayout({ details, bookingUrl }: FineDiningLayoutProps) {
+export function FineDiningLayout({ details }: FineDiningLayoutProps) {
   const { t } = useTranslation();
   const diningType = details.dining_type as string;
   const cuisineType = details.cuisine_type as string;

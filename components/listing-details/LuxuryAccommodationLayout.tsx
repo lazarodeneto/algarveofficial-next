@@ -36,7 +36,7 @@ const amenityIcons: Record<string, React.ReactNode> = {
   concierge: <Crown className="h-5 w-5" />,
 };
 
-export function LuxuryAccommodationLayout({ details, bookingUrl }: LuxuryAccommodationLayoutProps) {
+export function LuxuryAccommodationLayout({ details }: LuxuryAccommodationLayoutProps) {
   const { t } = useTranslation();
   const accommodationType = details.accommodation_type as string;
   const numberOfUnits = details.number_of_units as number;

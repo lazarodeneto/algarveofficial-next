@@ -1,7 +1,5 @@
-import { forwardRef } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -37,7 +35,7 @@ interface ThreadFiltersProps {
   hasFilters: boolean;
 }
 
-export const ThreadFilters = forwardRef<HTMLDivElement, ThreadFiltersProps>(function ThreadFilters({
+export function ThreadFilters({
   status,
   onStatusChange,
   ownerId,
@@ -49,7 +47,7 @@ export const ThreadFilters = forwardRef<HTMLDivElement, ThreadFiltersProps>(func
   owners,
   onClearFilters,
   hasFilters,
-}, ref) {
+}: ThreadFiltersProps) {
   return (
     <div className="flex flex-wrap items-center gap-3 p-4 bg-card border border-border rounded-lg">
       {/* Status Filter */}
@@ -149,6 +147,4 @@ export const ThreadFilters = forwardRef<HTMLDivElement, ThreadFiltersProps>(func
       )}
     </div>
   );
-});
-
-ThreadFilters.displayName = "ThreadFilters";
+}

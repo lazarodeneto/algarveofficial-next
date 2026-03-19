@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import { LANGUAGE_PREFIX_RE, SITE_URL, localizeCanonicalUrl } from "@/lib/seoUrls";
+import { SITE_URL, localizeCanonicalUrl } from "@/lib/seoUrls";
 import {
   DEFAULT_OG_IMAGE_PATH,
   DEFAULT_SEO,

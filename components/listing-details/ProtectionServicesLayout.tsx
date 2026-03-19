@@ -8,7 +8,7 @@ interface ProtectionServicesLayoutProps {
   details: Record<string, unknown>; bookingUrl?: string;
 }
 
-export function ProtectionServicesLayout({ details, bookingUrl }: ProtectionServicesLayoutProps) {
+export function ProtectionServicesLayout({ details }: ProtectionServicesLayoutProps) {
   const { t } = useTranslation();
   const protectionType = details.protection_type as string;
   const serviceScope = details.service_scope as string;

@@ -330,7 +330,6 @@ export function EventJsonLd({
   location,
   city,
   venue,
-  priceRange,
   ticketUrl,
 }: EventJsonLdProps) {
   const schema = buildEventSchema({

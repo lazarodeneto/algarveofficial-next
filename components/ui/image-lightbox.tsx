@@ -1,4 +1,5 @@
 import { useEffect, useCallback } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -145,12 +146,13 @@ export function ImageLightbox({
                       : "opacity-50 hover:opacity-80"
                   )}
                 >
-                  <img
+                  <Image
                     src={img.image_url}
                     alt={img.alt_text || `Thumbnail ${idx + 1}`}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    decoding="async"
+                    fill
+                    unoptimized
+                    sizes="64px"
+                    className="object-cover"
                   />
                 </button>
               ))}

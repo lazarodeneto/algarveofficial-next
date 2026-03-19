@@ -33,5 +33,13 @@ export function normalizePublicImageUrl(value?: string | null): string | null {
   if (!trimmed) return null;
   if (isBlockedPublicImageUrl(trimmed)) return null;
 
+  if (trimmed.startsWith("//")) {
+    return `https:${trimmed}`;
+  }
+
+  if (trimmed.startsWith("http://")) {
+    return `https://${trimmed.slice("http://".length)}`;
+  }
+
   return trimmed;
 }

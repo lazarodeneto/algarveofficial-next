@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/integrations/supabase/client';
-import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 export type UserRole = 'admin' | 'editor' | 'owner' | 'viewer_logged' | 'viewer';
 
@@ -317,7 +317,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setIsLoading(false);
       return { success: false, error: 'An unexpected error occurred' };
-    } catch (error) {
+    } catch {
       setIsLoading(false);
       return { success: false, error: 'An unexpected error occurred' };
     }
@@ -370,7 +370,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setIsLoading(false);
       return { success: false, error: 'An unexpected error occurred' };
-    } catch (error) {
+    } catch {
       setIsLoading(false);
       return { success: false, error: 'An unexpected error occurred' };
     }
@@ -394,7 +394,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // OAuth will redirect, so we don't need to handle success here
       return { success: true };
-    } catch (error) {
+    } catch {
       return { success: false, error: 'Failed to initiate Google login' };
     }
   };

@@ -225,7 +225,7 @@ const HeroVideoPlayer = ({
         video.muted = true;
         await video.play();
         setIsPlaying(true);
-      } catch (error) {
+      } catch {
         console.debug("Autoplay blocked, keeping hero poster visible");
       }
     };

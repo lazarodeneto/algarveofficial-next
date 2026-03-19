@@ -19,7 +19,7 @@ interface LuxuryExperienceLayoutProps {
   bookingUrl?: string;
 }
 
-export function LuxuryExperienceLayout({ details, bookingUrl }: LuxuryExperienceLayoutProps) {
+export function LuxuryExperienceLayout({ details }: LuxuryExperienceLayoutProps) {
   const { t } = useTranslation();
   const experienceType = details.experience_type as string;
   const duration = details.duration as string;

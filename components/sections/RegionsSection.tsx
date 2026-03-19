@@ -1,4 +1,5 @@
 import { LazyMotion, domAnimation, m } from "framer-motion";
+import Image from "next/image";
 import { Link } from "react-router-dom";
 import { ArrowRight, Compass } from "lucide-react";
 import { FavoriteButton } from "@/components/ui/favorite-button";
@@ -6,7 +7,6 @@ import { useSavedDestinations } from "@/hooks/useSavedDestinations";
 import { usePublishedListings } from "@/hooks/useListings";
 import { useRegions } from "@/hooks/useReferenceData";
 import { useTranslation } from "react-i18next";
-import type { StaticImageData } from "next/image";
 import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
 import { useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -87,8 +87,6 @@ export function RegionsSection() {
               const images = getRegionImageSet(region.slug);
               if (!images) return null;
               const listingCount = listingCounts?.[region.id] || 0;
-              const resolveImageSrc = (value: string | StaticImageData) =>
-                typeof value === "string" ? value : value.src;
 
               return (
                 <div key={region.id} className="relative min-w-0">
@@ -108,16 +106,12 @@ export function RegionsSection() {
                   >
                     {/* Image */}
                     <div className="absolute inset-0 rounded-[inherit]">
-                      <img
-                        src={resolveImageSrc(images.image)}
-                        srcSet={`${resolveImageSrc(images.image400)} 400w, ${resolveImageSrc(images.image800)} 800w, ${resolveImageSrc(images.image)} 1200w`}
+                      <Image
+                        src={images.image}
                         alt={region.name}
-                        width={400}
-                        height={500}
-                        loading="lazy"
-                        decoding="async"
+                        fill
                         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 33vw"
-                        className="w-full h-full object-cover rounded-[inherit]"
+                        className="object-cover rounded-[inherit]"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 rounded-[inherit]" />
                     </div>

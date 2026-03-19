@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import type { BlogCategory } from "@/hooks/useBlogPosts";
 import { getBlogCategoryFallbackImage, resolveBlogFeaturedImage } from "@/lib/blogImages";
 
@@ -26,9 +27,13 @@ export function BlogFeaturedImage({
   }, [resolvedSrc]);
 
   return (
-    <img
+    <Image
       src={currentSrc}
       alt={alt}
+      width={1600}
+      height={900}
+      unoptimized
+      sizes="100vw"
       className={className}
       loading={loading}
       onError={() => {

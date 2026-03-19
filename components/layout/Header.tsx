@@ -26,7 +26,6 @@ import {
   Plus,
   Calendar,
   ChefHat,
-  Sparkles,
   ListChecks,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -139,7 +138,7 @@ export function Header() {
     <>
       <CommandSearch open={searchOpen} onOpenChange={setSearchOpen} />
 
-      <header className="site-header fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+      <header className="site-header fixed top-0 left-0 right-0 z-50 transition-all duration-300 lg:left-16">
         <div
           className={`absolute inset-0 transition-all duration-300 ${isScrolled
             ? "border-b border-black/8 bg-[hsl(var(--background)/0.96)] shadow-[0_18px_48px_-38px_rgba(15,23,42,0.35)] backdrop-blur-2xl dark:border-white/10 dark:bg-[hsl(var(--background)/0.78)]"
@@ -158,7 +157,7 @@ export function Header() {
             <HeaderCompactNav />
 
             {/* Desktop Navigation (Mega Menu) */}
-            <div className="hidden lg:flex lg:min-w-0 lg:flex-1 lg:items-center lg:justify-center">
+            <div className="hidden lg:flex lg:min-w-0 lg:flex-1 lg:items-center lg:justify-end">
               <HeaderMegaMenu />
             </div>
 

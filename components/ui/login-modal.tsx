@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Heart, X, Mail, Lock } from "lucide-react";
+import { Heart, Mail, Lock } from "lucide-react";
 import {
   Dialog,
   DialogContent,

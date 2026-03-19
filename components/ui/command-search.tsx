@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   Command,
   CommandDialog,
@@ -12,7 +11,7 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import { useGlobalSearch, SearchResult } from "@/hooks/useGlobalSearch";
-import { Building2, Crown, Grid3X3, MapPin, Search, Clock, X, Sparkles, TrendingUp } from "lucide-react";
+import { Building2, Grid3X3, MapPin, Search, Clock, Sparkles, TrendingUp } from "lucide-react";
 import { Button } from "./button";
 
 const getIcon = (type: SearchResult["type"]) => {

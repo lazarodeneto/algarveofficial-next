@@ -8,6 +8,7 @@ import {
   buildBreadcrumbSchema,
   buildTouristDestinationSchema,
 } from "@/lib/seo/schemaBuilders.js";
+import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { getRegionImageSet } from "@/lib/regionImages";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import {
@@ -19,7 +20,7 @@ import {
 } from "@/components/destinations/DestinationDetailClient";
 import { DestinationDetailHydrator } from "@/components/destinations/DestinationDetailHydrator";
 import { buildMetadata } from "@/lib/metadata";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicServerClient } from "@/lib/supabase/public-server";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://algarveofficial.com";
 
@@ -75,7 +76,7 @@ const PUBLIC_CATEGORY_FIELDS = "id, name, slug, icon, short_description, image_u
 
 type RegionRow = DestinationRegion;
 type GlobalSettingRow = DestinationGlobalSetting;
-type ServerSupabase = Awaited<ReturnType<typeof createClient>>;
+type ServerSupabase = ReturnType<typeof createPublicServerClient>;
 
 interface DestinationPageData {
   region: DestinationRegion;
@@ -113,8 +114,10 @@ function resolveStaticImageSrc(
 
 function resolveRegionImage(region: RegionRow) {
   const fallbackRegionImage = getRegionImageSet(region.slug, { includeAliases: true });
-  return resolveStaticImageSrc(
-    region.hero_image_url || region.image_url || fallbackRegionImage?.image || null,
+  return normalizePublicImageUrl(
+    resolveStaticImageSrc(
+      region.hero_image_url || region.image_url || fallbackRegionImage?.image || null,
+    ),
   );
 }
 
@@ -217,7 +220,7 @@ async function fetchCuratedListings(
 }
 
 const getDestinationPageData = cache(async (slug: string): Promise<DestinationPageData | null> => {
-  const supabase = await createClient();
+  const supabase = createPublicServerClient();
 
   const { data: regionData, error: regionError } = await supabase
     .from("regions")
@@ -399,6 +402,7 @@ export default async function DestinationDetailPage({ params }: DestinationPageP
                   src={resolvedRegionImage}
                   alt={region.name}
                   fill
+                  unoptimized
                   sizes="100vw"
                   className="object-cover"
                   priority
@@ -457,56 +461,61 @@ export default async function DestinationDetailPage({ params }: DestinationPageP
 
               {listings.length > 0 ? (
                 <div className="grid-adaptive grid-ultrawide">
-                  {listings.map((listing) => (
-                    <Link
-                      key={listing.id}
-                      href={`/listing/${listing.slug || listing.id}`}
-                      className="group block h-full"
-                    >
-                      <article className="luxury-card flex h-full flex-col overflow-hidden hoverable">
-                        {listing.tier === "signature" ? (
-                          <span
-                            aria-hidden
-                            className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] border-[2px] border-[hsl(43,86%,58%)] shadow-[0_0_10px_hsla(43,86%,58%,0.34)]"
-                          />
-                        ) : null}
+                  {listings.map((listing) => {
+                    const listingImage = normalizePublicImageUrl(listing.featured_image_url);
 
-                        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                          {listing.featured_image_url ? (
-                            <Image
-                              src={listing.featured_image_url}
-                              alt={listing.name}
-                              fill
-                              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                              className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    return (
+                      <Link
+                        key={listing.id}
+                        href={`/listing/${listing.slug || listing.id}`}
+                        className="group block h-full"
+                      >
+                        <article className="luxury-card flex h-full flex-col overflow-hidden hoverable">
+                          {listing.tier === "signature" ? (
+                            <span
+                              aria-hidden
+                              className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] border-[2px] border-[hsl(43,86%,58%)] shadow-[0_0_10px_hsla(43,86%,58%,0.34)]"
                             />
-                          ) : (
-                            <div className="h-full w-full bg-gradient-to-br from-card to-muted" />
-                          )}
-                        </div>
+                          ) : null}
 
-                        <div className="flex flex-1 flex-col p-4">
-                          <div className="mb-2 flex items-center gap-2 text-caption text-muted-foreground">
-                            <span>{listing.category?.name || "Listing"}</span>
-                            {listing.city ? (
-                              <>
-                                <span>•</span>
-                                <span>{listing.city.name}</span>
-                              </>
-                            ) : null}
+                          <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                            {listingImage ? (
+                              <Image
+                                src={listingImage}
+                                alt={listing.name}
+                                fill
+                                unoptimized
+                                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                              />
+                            ) : (
+                              <div className="h-full w-full bg-gradient-to-br from-card to-muted" />
+                            )}
                           </div>
 
-                          <h3 className="min-h-[3.35rem] font-serif text-lg font-medium text-foreground line-clamp-2">
-                            {listing.name}
-                          </h3>
+                          <div className="flex flex-1 flex-col p-4">
+                            <div className="mb-2 flex items-center gap-2 text-caption text-muted-foreground">
+                              <span>{listing.category?.name || "Listing"}</span>
+                              {listing.city ? (
+                                <>
+                                  <span>•</span>
+                                  <span>{listing.city.name}</span>
+                                </>
+                              ) : null}
+                            </div>
 
-                          <p className="mt-3 min-h-[3.2rem] flex-1 text-caption text-muted-foreground line-clamp-2">
-                            {listing.short_description || listing.description}
-                          </p>
-                        </div>
-                      </article>
-                    </Link>
-                  ))}
+                            <h3 className="min-h-[3.35rem] font-serif text-lg font-medium text-foreground line-clamp-2">
+                              {listing.name}
+                            </h3>
+
+                            <p className="mt-3 min-h-[3.2rem] flex-1 text-caption text-muted-foreground line-clamp-2">
+                              {listing.short_description || listing.description}
+                            </p>
+                          </div>
+                        </article>
+                      </Link>
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="rounded-3xl border border-border bg-card px-8 py-14 text-center">

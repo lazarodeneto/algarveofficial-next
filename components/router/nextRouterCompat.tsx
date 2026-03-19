@@ -86,6 +86,13 @@ export function useParams<T extends Record<string, string | undefined> = Record<
     Object.entries(params ?? {}).forEach(([key, value]) => {
       if (Array.isArray(value)) {
         normalized[key] = value[0];
+
+        // Admin routes are handled via a catch-all segment. For edit URLs like
+        // /admin/listings/:id/edit (or /admin/content/events/:id/edit), expose
+        // the legacy `id` param so migrated forms can detect edit mode.
+        if (!normalized.id && value.length >= 3 && value[value.length - 1] === "edit") {
+          normalized.id = value[value.length - 2];
+        }
         return;
       }
 

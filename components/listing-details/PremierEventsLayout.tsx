@@ -29,12 +29,6 @@ export function PremierEventsLayout({ details }: PremierEventsLayoutProps) {
   const recurring = details.recurring as boolean;
   const recurrencePattern = details.recurrence_pattern as string;
 
-  const eventTypeLabels: Record<string, string> = {
-    private: 'Private Event', invitation_only: 'Invitation-Only', cultural_art: 'Cultural & Art',
-    gastronomy_wine: 'Gastronomy & Wine', real_estate: 'Premium Real Estate', yachting_maritime: 'Yachting & Maritime',
-    golf_sports: 'Golf & Sports', brand_launch: 'Brand Launch', charity_philanthropy: 'Charity & Philanthropy',
-  };
-
   const accessTypeIcons: Record<string, typeof Globe> = { public: Globe, private: Lock, invitation_only: Ticket };
   const AccessIcon = accessTypeIcons[accessType] || Globe;
 

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Image from "next/image";
 import { AlertCircle, CheckCircle2, Clock3, Star, Trash2, User, XCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { da, de, enUS, es, fr, it, nb, nl, pt, sv } from "date-fns/locale";
@@ -63,9 +64,13 @@ function StarRating({
 function ReviewAvatar({ name, avatarUrl }: { name: string | null; avatarUrl: string | null }) {
   if (avatarUrl) {
     return (
-      <img
+      <Image
         src={avatarUrl}
         alt={name || "User"}
+        width={36}
+        height={36}
+        unoptimized
+        sizes="36px"
         className="h-9 w-9 rounded-full object-cover flex-shrink-0"
       />
     );

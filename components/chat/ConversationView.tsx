@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, forwardRef } from "react";
 import { Send, Loader2, ExternalLink } from "lucide-react";
-import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,7 +12,6 @@ import {
   useChatThreads,
 } from "@/hooks/useChat";
 import { MessageBubble } from "./MessageBubble";
-import { cn } from "@/lib/utils";
 
 interface ConversationViewProps {
   threadId: string | null;

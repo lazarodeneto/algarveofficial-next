@@ -204,6 +204,8 @@ export function ImageUploader({
                   draggedIndex === index && "opacity-50"
                 )}
               >
+                {/* Local blob previews are intentionally rendered with img for immediate feedback. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={image.url}
                   alt={image.alt || "Listing image"}

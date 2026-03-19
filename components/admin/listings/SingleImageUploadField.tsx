@@ -1,6 +1,7 @@
 
 import { useState } from "react";
-import { Upload, X, Loader2, Image as ImageIcon } from "lucide-react";
+import { Upload, X, Loader2 } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -64,10 +65,13 @@ export function SingleImageUploadField({
         <div className="space-y-4">
             {value ? (
                 <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-border group">
-                    <img
+                    <Image
                         src={value}
                         alt="Uploaded content"
-                        className="w-full h-full object-cover"
+                        fill
+                        unoptimized
+                        sizes="128px"
+                        className="object-cover"
                     />
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <Button

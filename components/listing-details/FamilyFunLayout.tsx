@@ -9,7 +9,7 @@ interface FamilyFunLayoutProps {
   bookingUrl?: string;
 }
 
-export function FamilyFunLayout({ details, bookingUrl }: FamilyFunLayoutProps) {
+export function FamilyFunLayout({ details }: FamilyFunLayoutProps) {
   const { t } = useTranslation();
   const attractionType = details.attraction_type as string;
   const ageRange = details.age_range as string;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { NavigationType, Router, createPath, type To } from "react-router";
@@ -125,7 +125,6 @@ async function fetchBlogPost(slug: string, locale: string): Promise<BlogPostWith
 }
 
 function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClientProps) {
-  const router = useRouter();
   const { t, i18n } = useTranslation();
   const langPrefix = useLangPrefix();
   const locale = normalizeBlogLocale(i18n.language);
