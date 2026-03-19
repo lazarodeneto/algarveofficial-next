@@ -18,19 +18,7 @@ export interface MediaItem {
 
 export function useMediaLibrary() {
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      media: [],
-      isLoading: false,
-      error: null,
-      uploadMedia: () => {},
-      uploadMediaAsync: async () => ({}),
-      isUploading: false,
-      deleteMedia: () => {},
-      isDeleting: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   const query = useQuery({
     queryKey: ["media-library"],
@@ -43,10 +31,14 @@ export function useMediaLibrary() {
       if (error) throw error;
       return data as MediaItem[];
     },
+    enabled: isBrowser,
+    initialData: [] as MediaItem[],
   });
 
   const uploadMutation = useMutation({
     mutationFn: async ({ file, folder }: { file: File; folder?: string }) => {
+      if (!isBrowser) return { originalSize: 0, optimizedSize: 0 };
+
       const isImage = file.type.startsWith("image/");
       let processedFile = file;
       const originalSize = file.size;
@@ -115,6 +107,8 @@ export function useMediaLibrary() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
+      if (!isBrowser) return;
+
       const { error } = await supabase
         .from("media_library")
         .delete()
@@ -132,13 +126,13 @@ export function useMediaLibrary() {
   });
 
   return {
-    media: query.data || [],
-    isLoading: query.isLoading,
-    error: query.error,
+    media: isBrowser ? query.data || [] : [],
+    isLoading: isBrowser ? query.isLoading : false,
+    error: isBrowser ? query.error : null,
     uploadMedia: uploadMutation.mutate,
     uploadMediaAsync: uploadMutation.mutateAsync,
-    isUploading: uploadMutation.isPending,
+    isUploading: isBrowser ? uploadMutation.isPending : false,
     deleteMedia: deleteMutation.mutate,
-    isDeleting: deleteMutation.isPending,
+    isDeleting: isBrowser ? deleteMutation.isPending : false,
   };
 }

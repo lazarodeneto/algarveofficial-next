@@ -30,13 +30,8 @@ function isPublicLeftMenuUnavailableCached() {
 }
 
 export function useLeftMenu() {
-  if (typeof window === "undefined") {
-    return {
-      data: [] as LeftMenuItem[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ["left-menu"],
     queryFn: async (): Promise<LeftMenuItem[]> => {
@@ -44,7 +39,8 @@ export function useLeftMenu() {
         return [];
       }
 
-      const { data, error } = await (supabase.from("left_menu_items" as any) as any)
+      const { data, error } = await supabase
+        .from("left_menu_items" as never)
         .select("*")
         .eq("is_active", true)
         .order("display_order", { ascending: true });
@@ -56,64 +52,61 @@ export function useLeftMenu() {
         }
         throw error;
       }
-      return data as LeftMenuItem[];
+      return (data ?? []) as unknown as LeftMenuItem[];
     },
+    enabled: isBrowser,
+    initialData: [] as LeftMenuItem[],
     staleTime: 1000 * 60 * 10,
     retry: false,
   });
 }
 
 export function useAdminLeftMenu() {
-  if (typeof window === "undefined") {
-    return {
-      data: [] as LeftMenuItem[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ["admin-left-menu"],
     queryFn: async (): Promise<LeftMenuItem[]> => {
-      const { data, error } = await (supabase.from("left_menu_items" as any) as any)
+      const { data, error } = await supabase
+        .from("left_menu_items" as never)
         .select("*")
         .order("display_order", { ascending: true });
 
       if (error) throw error;
-      return data as LeftMenuItem[];
+      return (data ?? []) as unknown as LeftMenuItem[];
     },
+    enabled: isBrowser,
+    initialData: [] as LeftMenuItem[],
   });
 }
 
 export function useLeftMenuMutations() {
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      createItem: { mutate: () => {}, mutateAsync: async () => ({}), isPending: false } as any,
-      updateItem: { mutate: () => {}, mutateAsync: async () => ({}), isPending: false } as any,
-      deleteItem: { mutate: () => {}, mutateAsync: async () => ({}), isPending: false } as any,
-      reorderItems: { mutate: () => {}, mutateAsync: async () => ({}), isPending: false } as any,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   const createItem = useMutation({
     mutationFn: async (data: { name: string; href: string; icon: string; translation_key?: string; open_in_new_tab?: boolean }) => {
-      const { data: existing, error: existingError } = await (supabase.from("left_menu_items" as any) as any)
+      if (!isBrowser) return {} as LeftMenuItem;
+
+      const { data: existing, error: existingError } = await supabase
+        .from("left_menu_items" as never)
         .select("display_order")
         .order("display_order", { ascending: false })
         .limit(1);
 
       if (existingError) throw existingError;
 
-      const maxOrder = existing?.[0]?.display_order ?? 0;
+      const existingRows = (existing ?? []) as unknown as Array<{ display_order: number | null }>;
+      const maxOrder = existingRows[0]?.display_order ?? 0;
 
-      const { data: created, error } = await (supabase.from("left_menu_items" as any) as any)
+      const { data: created, error } = await supabase
+        .from("left_menu_items" as never)
         .insert({ ...data, display_order: maxOrder + 1 })
         .select()
         .single();
 
       if (error) throw error;
-      return created;
+      return created as unknown as LeftMenuItem;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-left-menu"] });
@@ -127,14 +120,17 @@ export function useLeftMenuMutations() {
 
   const updateItem = useMutation({
     mutationFn: async ({ id, ...data }: Partial<LeftMenuItem> & { id: string }) => {
-      const { data: updated, error } = await (supabase.from("left_menu_items" as any) as any)
+      if (!isBrowser) return {} as LeftMenuItem;
+
+      const { data: updated, error } = await supabase
+        .from("left_menu_items" as never)
         .update(data)
         .eq("id", id)
         .select()
         .single();
 
       if (error) throw error;
-      return updated;
+      return updated as unknown as LeftMenuItem;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-left-menu"] });
@@ -148,7 +144,10 @@ export function useLeftMenuMutations() {
 
   const deleteItem = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await (supabase.from("left_menu_items" as any) as any)
+      if (!isBrowser) return;
+
+      const { error } = await supabase
+        .from("left_menu_items" as never)
         .delete()
         .eq("id", id);
 
@@ -166,15 +165,18 @@ export function useLeftMenuMutations() {
 
   const reorderItems = useMutation({
     mutationFn: async (orderedIds: string[]) => {
+      if (!isBrowser) return;
+
       const results = await Promise.all(
         orderedIds.map((id, index) =>
-          (supabase.from("left_menu_items" as any) as any)
+          supabase
+            .from("left_menu_items" as never)
             .update({ display_order: index + 1 })
             .eq("id", id),
         ),
       );
 
-      const failedResult = results.find((result: { error?: unknown }) => result.error);
+      const failedResult = results.find((result) => result.error);
       if (failedResult?.error) throw failedResult.error;
     },
     onSuccess: () => {

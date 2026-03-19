@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -53,15 +53,11 @@ const rgbaToString = (rgba: RGBA): string => {
 export function ColorPicker({ value, onChange, label }: ColorPickerProps) {
   const [rgba, setRgba] = useState<RGBA>(() => parseRgba(value));
   const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    if (!isOpen) {
-      setRgba(parseRgba(value));
-    }
-  }, [value, isOpen]);
+  const currentValue = useMemo(() => parseRgba(value), [value]);
+  const activeRgba = isOpen ? rgba : currentValue;
 
   const handleSliderChange = (channel: keyof RGBA, newValue: number[]) => {
-    const updatedRgba = { ...rgba, [channel]: newValue[0] };
+    const updatedRgba = { ...activeRgba, [channel]: newValue[0] };
     setRgba(updatedRgba);
     onChange(rgbaToString(updatedRgba));
   };
@@ -77,18 +73,24 @@ export function ColorPicker({ value, onChange, label }: ColorPickerProps) {
       numValue = Math.min(255, Math.max(0, Math.round(numValue)));
     }
     
-    const updatedRgba = { ...rgba, [channel]: numValue };
+    const updatedRgba = { ...activeRgba, [channel]: numValue };
     setRgba(updatedRgba);
     onChange(rgbaToString(updatedRgba));
   };
 
-  const colorPreview = rgbaToString(rgba);
+  const colorPreview = rgbaToString(activeRgba);
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (open) {
+      setRgba(currentValue);
+    }
+  };
 
   return (
     <div className="space-y-2">
       {label && <Label>{label}</Label>}
       <div className="flex gap-3 items-center">
-        <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <Popover open={isOpen} onOpenChange={handleOpenChange}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
@@ -148,13 +150,13 @@ export function ColorPicker({ value, onChange, label }: ColorPickerProps) {
                     type="number"
                     min={0}
                     max={255}
-                    value={rgba.r}
+                    value={activeRgba.r}
                     onChange={(e) => handleInputChange('r', e.target.value)}
                     className="w-16 h-7 text-xs bg-background"
                   />
                 </div>
                 <Slider
-                  value={[rgba.r]}
+                  value={[activeRgba.r]}
                   min={0}
                   max={255}
                   step={1}
@@ -171,13 +173,13 @@ export function ColorPicker({ value, onChange, label }: ColorPickerProps) {
                     type="number"
                     min={0}
                     max={255}
-                    value={rgba.g}
+                    value={activeRgba.g}
                     onChange={(e) => handleInputChange('g', e.target.value)}
                     className="w-16 h-7 text-xs bg-background"
                   />
                 </div>
                 <Slider
-                  value={[rgba.g]}
+                  value={[activeRgba.g]}
                   min={0}
                   max={255}
                   step={1}
@@ -194,13 +196,13 @@ export function ColorPicker({ value, onChange, label }: ColorPickerProps) {
                     type="number"
                     min={0}
                     max={255}
-                    value={rgba.b}
+                    value={activeRgba.b}
                     onChange={(e) => handleInputChange('b', e.target.value)}
                     className="w-16 h-7 text-xs bg-background"
                   />
                 </div>
                 <Slider
-                  value={[rgba.b]}
+                  value={[activeRgba.b]}
                   min={0}
                   max={255}
                   step={1}
@@ -218,13 +220,13 @@ export function ColorPicker({ value, onChange, label }: ColorPickerProps) {
                     min={0}
                     max={1}
                     step={0.01}
-                    value={rgba.a}
+                    value={activeRgba.a}
                     onChange={(e) => handleInputChange('a', e.target.value)}
                     className="w-16 h-7 text-xs bg-background"
                   />
                 </div>
                 <Slider
-                  value={[rgba.a]}
+                  value={[activeRgba.a]}
                   min={0}
                   max={1}
                   step={0.01}

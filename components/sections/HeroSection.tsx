@@ -1,4 +1,3 @@
-"use client";
 // framer-motion import removed - using CSS animations for LCP elements
 import { Bot, ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useState, useRef } from "react";
@@ -11,7 +10,7 @@ import { LoginModal } from "@/components/ui/login-modal";
 import { useTripPlanner } from "@/hooks/useTripPlanner";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Link, useNavigate } from "next/link";
+import { Link, useNavigate } from "react-router-dom";
 import { HERO_OVERLAY_INTENSITY_SETTING_KEY, normalizeHeroOverlayIntensity } from "@/lib/heroOverlay";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -384,8 +383,8 @@ export function HeroSection() {
   };
 
   return (
-    <div className="px-[2%] sm:px-4 lg:px-6 pt-[calc(4.5rem+2%+10px)] sm:pt-[calc(5rem+10px)] pb-4">
-      <section className="hero-golden-outline relative min-h-[540px] sm:min-h-[560px] md:min-h-[680px] flex items-center justify-center overflow-hidden rounded-2xl lg:rounded-3xl shadow-sm">
+    <div className="px-2.5 sm:px-4 lg:px-6 pt-[calc(4.5rem+0.85rem)] sm:pt-[calc(5rem+0.95rem)] lg:pt-[calc(5rem+1.1rem)] pb-3 sm:pb-4">
+      <section className="hero-golden-outline relative min-h-[34rem] sm:min-h-[35rem] md:min-h-[40rem] flex items-center justify-center overflow-hidden rounded-[1.65rem] lg:rounded-3xl shadow-sm">
         {/* Video Background */}
         <div className="absolute inset-0">
           {mediaMode !== "none" ? (
@@ -411,15 +410,15 @@ export function HeroSection() {
           ) : null}
         </div>
 
-        <div className="relative z-10 mx-auto w-full max-w-[22rem] px-5 sm:max-w-4xl sm:px-4">
-          <div className="space-y-4 px-5 py-6 text-center text-white sm:space-y-6 sm:px-8 sm:py-8 md:px-10">
+        <div className="relative z-10 mx-auto w-full max-w-[22rem] px-4 sm:max-w-4xl sm:px-4">
+          <div className="space-y-4 px-3 py-7 text-center text-white sm:space-y-6 sm:px-8 sm:py-8 md:px-10">
             <div className="flex justify-center">
               <Badge variant="gold" className="uppercase tracking-[0.18em] text-[10px] px-3.5 py-1.5 sm:tracking-[0.22em] sm:text-[11px] sm:px-4">
                 {t("hero.location")}
               </Badge>
             </div>
 
-            <h1 className="text-shadow-hero font-serif text-[clamp(2.8rem,11vw,4.3rem)] sm:text-5xl md:text-7xl font-light leading-[0.92] sm:leading-tight tracking-[-0.03em] text-white">
+            <h1 className="text-shadow-hero font-serif text-[clamp(2.35rem,12vw,4.3rem)] sm:text-5xl md:text-7xl font-light leading-[0.92] sm:leading-tight tracking-[-0.03em] text-white">
               {heroHeadlineLines.map((line) => (
                 <span key={line} className="block">
                   {line}
@@ -429,29 +428,29 @@ export function HeroSection() {
 
             <div className="mx-auto h-1 w-20 rounded-full bg-[var(--colour-card-outline-gold)] shadow-[var(--shadow-card)] sm:w-24" />
 
-            <p className="text-shadow-hero mx-auto max-w-[19.5rem] text-sm font-light leading-7 text-white/90 sm:max-w-2xl sm:text-base sm:leading-relaxed md:text-xl">
+            <p className="text-shadow-hero mx-auto max-w-[18.75rem] text-[0.92rem] font-light leading-7 text-white/90 sm:max-w-2xl sm:text-base sm:leading-relaxed md:text-xl">
               {heroSubtitle}
             </p>
 
-            <div className="pt-1 sm:pt-2 flex flex-col items-center gap-4 w-full max-w-[22rem] sm:max-w-2xl mx-auto px-0">
+            <div className="pt-1 sm:pt-2 flex flex-col items-center gap-3.5 sm:gap-4 w-full max-w-[22rem] sm:max-w-2xl mx-auto px-0">
               <button
                 onClick={openTripPlanner}
-                className="relative isolate w-full flex flex-col min-[380px]:flex-row items-stretch min-[380px]:items-center rounded-[28px] border border-[var(--colour-card-outline-gold)] bg-white p-1.5 shadow-card transition-all duration-300 hover:shadow-elevated"
+                className="relative isolate w-full flex flex-col items-stretch rounded-[28px] border border-[var(--colour-card-outline-gold)] bg-white p-1.5 shadow-card transition-all duration-300 hover:shadow-elevated min-[460px]:flex-row min-[460px]:items-center"
               >
-                <div className="relative z-10 flex items-center gap-2 sm:gap-3 px-3 sm:px-4 flex-1 min-w-0">
+                <div className="relative z-10 flex items-center gap-2.5 sm:gap-3 px-3.5 py-1 min-[460px]:py-0 sm:px-4 flex-1 min-w-0">
                   <Bot className="h-4 w-4 sm:h-5 sm:w-5 text-[var(--colour-teal)] flex-shrink-0" />
-                  <span className="flex-1 text-left text-[rgba(11,31,58,0.72)] text-xs sm:text-base leading-snug sm:leading-normal whitespace-normal min-[380px]:truncate">
+                  <span className="flex-1 text-left text-[rgba(11,31,58,0.72)] text-[0.92rem] sm:text-base leading-snug sm:leading-normal whitespace-normal min-[460px]:truncate">
                     {tripPlannerPrompt}
                   </span>
                 </div>
-                <span className="button button--primary relative z-10 inline-flex w-full min-[380px]:w-auto justify-center flex-shrink-0 rounded-full px-3 py-2 sm:px-8 sm:py-3 text-[10px] sm:text-sm tracking-[0.14em] sm:tracking-widest whitespace-nowrap">
+                <span className="button button--primary relative z-10 inline-flex w-full min-[460px]:w-auto justify-center flex-shrink-0 rounded-full px-4 py-2.5 sm:px-8 sm:py-3 text-[10px] sm:text-sm tracking-[0.14em] sm:tracking-widest whitespace-nowrap">
                   {primaryCtaText}
                 </span>
               </button>
 
               <div className="flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
                 <Button asChild variant="secondary" size="lg" className="w-full sm:w-auto">
-                  <Link href={directoryPath}>{t("hero.exploreDirectory", "Explore Directory")}</Link>
+                  <Link to={directoryPath}>{t("hero.exploreDirectory", "Explore Directory")}</Link>
                 </Button>
               </div>
             </div>

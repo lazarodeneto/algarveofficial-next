@@ -1,6 +1,5 @@
-"use client";
 import { useCallback, useMemo } from "react";
-import { Link } from "next/link";
+import { Link } from "react-router-dom";
 import { BedSingle, Binoculars, CalendarDays, LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
@@ -57,9 +56,9 @@ export function HomeQuickLinksSection() {
   }
 
   return (
-    <section id="home-quick-links" className="relative z-20 -mt-6 pb-10 sm:-mt-16 lg:-mt-20 lg:pb-14">
+    <section id="home-quick-links" className="relative z-20 -mt-2 pb-8 sm:-mt-14 sm:pb-10 lg:-mt-20 lg:pb-14">
       <div className="app-container">
-        <div className="mx-auto grid w-full max-w-[780px] grid-cols-1 justify-items-center gap-3 sm:gap-4 min-[940px]:grid-cols-3">
+        <div className="mx-auto flex w-full snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-2 sm:grid sm:max-w-[780px] sm:grid-cols-2 sm:justify-items-center sm:gap-4 sm:overflow-visible sm:px-0 md:grid-cols-3 min-[940px]:grid-cols-3">
           {cardsWithAdminImages.map((card) => {
             const Icon = CARD_ICONS[card.id];
             const displayTitle = t(card.translationKey, card.title);
@@ -67,8 +66,8 @@ export function HomeQuickLinksSection() {
             return (
               <Link
                 key={card.id}
-                href={buildLangPath(langPrefix, `/directory?category=${card.categorySlug}`)}
-                className="glass-box glass-box-silver-liquid glass-box-contour group relative isolate block w-full max-w-[210px] sm:max-w-[236px] rounded-[24px] font-sans transition-transform duration-300 hover:-translate-y-1"
+                to={buildLangPath(langPrefix, `/directory?category=${card.categorySlug}`)}
+                className="glass-box glass-box-silver-liquid glass-box-contour group relative isolate block w-[min(77vw,17rem)] flex-none snap-center rounded-[24px] font-sans transition-transform duration-300 hover:-translate-y-1 sm:w-full sm:max-w-[236px]"
               >
                 <span
                   aria-hidden

@@ -1,6 +1,5 @@
-"use client";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { MapPin, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
@@ -267,7 +266,7 @@ export function AllListingsSection() {
               className="h-full"
             >
               <Link
-                href={buildLangPath(langPrefix, `/listing/${listing.slug}`)}
+                to={buildLangPath(langPrefix, `/listing/${listing.slug}`)}
                 className="group block h-full"
               >
                 <article className="glass-box glass-box-listing-shimmer overflow-hidden flex flex-col h-full">
@@ -308,7 +307,7 @@ export function AllListingsSection() {
                     {/* Bottom row - Category badge (left) & Favorite button (right) */}
                     <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
                       <Badge variant="secondary" className="text-xs bg-black/60 backdrop-blur-sm text-white flex items-center gap-1">
-                        {renderCategoryIcon(listing.category?.icon, "h-3 w-3 text-white")}
+                        {renderCategoryIcon(listing.category?.icon ?? undefined, "h-3 w-3 text-white")}
                         {translateCategoryName(t, listing.category?.slug, listing.category?.name)}
                       </Badge>
 

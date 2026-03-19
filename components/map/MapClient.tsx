@@ -10,9 +10,10 @@ import {
   useSearchParams as useNextSearchParams,
 } from "next/navigation";
 import type { Tables } from "@/integrations/supabase/types";
+import { useHydrated } from "@/hooks/useHydrated";
 
 import dynamic from "next/dynamic";
-const MapExplorerPage = dynamic(() => import("@/pages/public/listings/MapExplorer"), { 
+const MapExplorerPage = dynamic(() => import("@/legacy-pages/public/listings/MapExplorer"), { 
   ssr: false,
   loading: () => <div className="h-screen bg-background animate-pulse" />
 });
@@ -61,9 +62,9 @@ export default function MapClient({
   const pathname = usePathname();
   const nextSearchParams = useNextSearchParams();
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
 
-  const search = nextSearchParams.toString();
+  const search = nextSearchParams?.toString() ?? "";
 
   const location = useMemo(
     () => ({
@@ -105,8 +106,6 @@ export default function MapClient({
     if (serverShell) {
       serverShell.style.display = "none";
     }
-
-    setMounted(true);
   }, [initialCategories, initialCities, initialListings, initialRegions, queryClient]);
 
   if (!mounted) {

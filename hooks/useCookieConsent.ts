@@ -1,4 +1,3 @@
-"use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   COOKIE_CONSENT_CHANGE_EVENT,
@@ -10,18 +9,14 @@ import {
 } from "@/lib/cookieConsent";
 
 export function useCookieConsent() {
-  const [consent, setConsent] = useState<CookieConsentRecord | null>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [consent, setConsent] = useState<CookieConsentRecord | null>(() => getStoredCookieConsent());
+  const isLoaded = typeof window !== "undefined";
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      setIsLoaded(true);
-      return;
-    }
+    if (typeof window === "undefined") return;
 
     const syncConsent = () => {
       setConsent(getStoredCookieConsent());
-      setIsLoaded(true);
     };
 
     syncConsent();

@@ -1,4 +1,4 @@
-import { Link } from "next/link";
+import { Link } from "react-router-dom";
 import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
 import { useTranslation } from "react-i18next";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
@@ -10,7 +10,8 @@ export function AlgarveGuideSection() {
   const { getText } = useCmsPageBuilder("home");
 
   const path = (route: string) => buildLangPath(langPrefix, route);
-  const andWord = getText("sections.algarveGuide.and", t("sections.algarveGuide.and"));
+  const text = (key: string, fallback: string) => getText(key, t(key, fallback));
+  const andWord = text("sections.algarveGuide.and", "and");
 
   return (
     <section
@@ -27,33 +28,48 @@ export function AlgarveGuideSection() {
               id="algarve-travel-guide-title"
               className="text-title font-serif font-medium text-foreground"
             >
-              {getText("sections.algarveGuide.title", t("sections.algarveGuide.title"))}
+              {text("sections.algarveGuide.title", "Your essential Algarve guide")}
             </h2>
             <p className="mx-auto mt-5 max-w-3xl text-lg leading-relaxed text-muted-foreground">
-              {getText("sections.algarveGuide.intro1", t("sections.algarveGuide.intro1"))}
+              {text(
+                "sections.algarveGuide.intro1",
+                "A premium Algarve trip works best when your stay, dining, and day plans are shortlisted before you land.",
+              )}
             </p>
             <p className="mx-auto mt-4 max-w-3xl text-base leading-relaxed text-muted-foreground">
-              {getText("sections.algarveGuide.intro2", t("sections.algarveGuide.intro2"))}
+              {text(
+                "sections.algarveGuide.intro2",
+                "This guide connects the core decisions visitors usually make first: where to stay, which destinations to prioritize, and what experiences are worth time on the ground.",
+              )}
             </p>
             <p className="mx-auto mt-4 max-w-3xl text-base leading-relaxed text-muted-foreground">
-              {getText("sections.algarveGuide.intro3", t("sections.algarveGuide.intro3"))}
+              {text(
+                "sections.algarveGuide.intro3",
+                "Use it as a fast starting point, then jump into the directory, destination pages, or map to build a sharper shortlist.",
+              )}
             </p>
           </header>
 
           <div className="mt-12 grid gap-5 md:grid-cols-3">
             <article className="rounded-2xl border border-border/70 bg-card/40 p-6">
               <h3 className="text-2xl font-serif font-medium text-foreground">
-                {getText("sections.algarveGuide.stayTitle", t("sections.algarveGuide.stayTitle"))}
+                {text("sections.algarveGuide.stayTitle", "Where to stay")}
               </h3>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                {getText("sections.algarveGuide.stayBody", t("sections.algarveGuide.stayBody"))}{" "}
-                {getText("sections.algarveGuide.stayLinksPrefix", t("sections.algarveGuide.stayLinksPrefix"))}{" "}
-                <Link href={path("/directory?category=places-to-stay")} className="text-primary underline-offset-4 hover:underline">
-                  {getText("sections.algarveGuide.links.algarveHotels", t("sections.algarveGuide.links.algarveHotels"))}
+                {text(
+                  "sections.algarveGuide.stayBody",
+                  "Start with the right base for your trip.",
+                )}{" "}
+                {text(
+                  "sections.algarveGuide.stayLinksPrefix",
+                  "Browse premium",
+                )}{" "}
+                <Link to={path("/directory?category=places-to-stay")} className="text-primary underline-offset-4 hover:underline">
+                  {text("sections.algarveGuide.links.algarveHotels", "Algarve hotels")}
                 </Link>{" "}
                 {andWord}{" "}
-                <Link href={path("/directory?category=places-to-stay")} className="text-primary underline-offset-4 hover:underline">
-                  {getText("sections.algarveGuide.links.placesToStay", t("sections.algarveGuide.links.placesToStay"))}
+                <Link to={path("/directory?category=places-to-stay")} className="text-primary underline-offset-4 hover:underline">
+                  {text("sections.algarveGuide.links.placesToStay", "places to stay")}
                 </Link>
                 .
               </p>
@@ -61,21 +77,27 @@ export function AlgarveGuideSection() {
 
             <article className="rounded-2xl border border-border/70 bg-card/40 p-6">
               <h3 className="text-2xl font-serif font-medium text-foreground">
-                {getText("sections.algarveGuide.destinationsTitle", t("sections.algarveGuide.destinationsTitle"))}
+                {text("sections.algarveGuide.destinationsTitle", "Where to go")}
               </h3>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                {getText("sections.algarveGuide.destinationsBody", t("sections.algarveGuide.destinationsBody"))}{" "}
-                {getText("sections.algarveGuide.destinationsLinksPrefix", t("sections.algarveGuide.destinationsLinksPrefix"))}{" "}
-                <Link href={path("/destinations")} className="text-primary underline-offset-4 hover:underline">
-                  {getText("sections.algarveGuide.links.destinations", t("sections.algarveGuide.links.destinations"))}
+                {text(
+                  "sections.algarveGuide.destinationsBody",
+                  "Compare the Algarve by region before locking your plan.",
+                )}{" "}
+                {text(
+                  "sections.algarveGuide.destinationsLinksPrefix",
+                  "Explore",
+                )}{" "}
+                <Link to={path("/destinations")} className="text-primary underline-offset-4 hover:underline">
+                  {text("sections.algarveGuide.links.destinations", "destinations")}
                 </Link>
                 ,{" "}
-                <Link href={path("/directory?category=beaches-clubs")} className="text-primary underline-offset-4 hover:underline">
-                  {getText("sections.algarveGuide.links.beaches", t("sections.algarveGuide.links.beaches"))}
+                <Link to={path("/directory?category=beaches-clubs")} className="text-primary underline-offset-4 hover:underline">
+                  {text("sections.algarveGuide.links.beaches", "beaches")}
                 </Link>
                 , {andWord}{" "}
-                <Link href={path("/map")} className="text-primary underline-offset-4 hover:underline">
-                  {getText("sections.algarveGuide.links.interactiveMap", t("sections.algarveGuide.links.interactiveMap"))}
+                <Link to={path("/map")} className="text-primary underline-offset-4 hover:underline">
+                  {text("sections.algarveGuide.links.interactiveMap", "the interactive map")}
                 </Link>
                 .
               </p>
@@ -83,25 +105,31 @@ export function AlgarveGuideSection() {
 
             <article className="rounded-2xl border border-border/70 bg-card/40 p-6">
               <h3 className="text-2xl font-serif font-medium text-foreground">
-                {getText("sections.algarveGuide.doTitle", t("sections.algarveGuide.doTitle"))}
+                {text("sections.algarveGuide.doTitle", "What to do")}
               </h3>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                {getText("sections.algarveGuide.doBody", t("sections.algarveGuide.doBody"))}{" "}
-                {getText("sections.algarveGuide.doLinksPrefix", t("sections.algarveGuide.doLinksPrefix"))}{" "}
-                <Link href={path("/directory?category=golf")} className="text-primary underline-offset-4 hover:underline">
-                  {getText("sections.algarveGuide.links.golf", t("sections.algarveGuide.links.golf"))}
+                {text(
+                  "sections.algarveGuide.doBody",
+                  "Balance the shortlist with experiences that fit your pace.",
+                )}{" "}
+                {text(
+                  "sections.algarveGuide.doLinksPrefix",
+                  "Jump into",
+                )}{" "}
+                <Link to={path("/directory?category=golf")} className="text-primary underline-offset-4 hover:underline">
+                  {text("sections.algarveGuide.links.golf", "golf")}
                 </Link>
                 ,{" "}
-                <Link href={path("/directory?category=restaurants")} className="text-primary underline-offset-4 hover:underline">
-                  {getText("sections.algarveGuide.links.restaurants", t("sections.algarveGuide.links.restaurants"))}
+                <Link to={path("/directory?category=restaurants")} className="text-primary underline-offset-4 hover:underline">
+                  {text("sections.algarveGuide.links.restaurants", "restaurants")}
                 </Link>
                 ,{" "}
-                <Link href={path("/directory?category=things-to-do")} className="text-primary underline-offset-4 hover:underline">
-                  {getText("sections.algarveGuide.links.thingsToDo", t("sections.algarveGuide.links.thingsToDo"))}
+                <Link to={path("/directory?category=things-to-do")} className="text-primary underline-offset-4 hover:underline">
+                  {text("sections.algarveGuide.links.thingsToDo", "things to do")}
                 </Link>
                 , {andWord}{" "}
-                <Link href={path("/events")} className="text-primary underline-offset-4 hover:underline">
-                  {getText("sections.algarveGuide.links.events", t("sections.algarveGuide.links.events"))}
+                <Link to={path("/events")} className="text-primary underline-offset-4 hover:underline">
+                  {text("sections.algarveGuide.links.events", "events")}
                 </Link>
                 .
               </p>

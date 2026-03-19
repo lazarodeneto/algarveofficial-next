@@ -44,6 +44,7 @@ interface RawSupportSettings {
 
 export function useSupportSettings() {
   const queryClient = useQueryClient();
+  const isBrowser = typeof window !== "undefined";
 
   const { data: settings, isLoading, error } = useQuery({
     queryKey: ["support-settings"],
@@ -66,10 +67,13 @@ export function useSupportSettings() {
         faqs: Array.isArray(raw.faqs) ? (raw.faqs as FAQ[]) : [],
       };
     },
+    enabled: isBrowser,
   });
 
   const updateSettingsMut = useMutation({
     mutationFn: async (updates: Partial<Omit<SupportSettings, "id" | "updated_at">>) => {
+      if (!isBrowser) return;
+
       // Cast arrays to JSON-compatible types for Supabase
       const dbUpdates: Record<string, unknown> = {
         ...updates,
@@ -87,25 +91,16 @@ export function useSupportSettings() {
       queryClient.invalidateQueries({ queryKey: ["support-settings"] });
       toast.success("Support settings saved successfully");
     },
-    onError: (error) => {
-      console.error("Failed to save support settings:", error);
+    onError: (mutationError) => {
+      console.error("Failed to save support settings:", mutationError);
       toast.error("Failed to save support settings");
     },
   });
 
-  if (typeof window === "undefined") {
-    return {
-      settings: null,
-      isLoading: false,
-      error: null,
-      updateSettings: { mutate: () => {}, mutateAsync: async () => {}, isPending: false } as any,
-    };
-  }
-
   return {
-    settings,
-    isLoading,
-    error,
+    settings: isBrowser ? settings : null,
+    isLoading: isBrowser ? isLoading : false,
+    error: isBrowser ? error : null,
     updateSettings: updateSettingsMut,
   };
 }

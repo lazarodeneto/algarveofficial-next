@@ -1,4 +1,3 @@
-"use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
@@ -80,6 +79,7 @@ const STORAGE_KEY = 'site-settings-v1';
 
 export function useSiteSettings() {
   const queryClient = useQueryClient();
+  const isBrowser = typeof window !== "undefined";
 
   // Try to load from local storage for initial data
   const getStoredSettings = (): SiteSettings | undefined => {
@@ -98,16 +98,6 @@ export function useSiteSettings() {
     return undefined;
   };
 
-  if (typeof window === "undefined") {
-    return {
-      settings: undefined,
-      isLoading: false,
-      error: null,
-      updateSettings: () => {},
-      updateSettingsAsync: async () => ({} as SiteSettings),
-      isUpdating: false,
-    };
-  }
   const { data: settings, isLoading, error } = useQuery({
     queryKey: ['site-settings'],
     queryFn: async () => {
@@ -138,6 +128,7 @@ export function useSiteSettings() {
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
     refetchInterval: 1000 * 60, // Keep critical flags (e.g., maintenance mode) updated while tab is open
+    enabled: isBrowser,
   });
 
   // Apply colors whenever settings change
@@ -149,7 +140,12 @@ export function useSiteSettings() {
 
   const updateSettingsMut = useMutation({
     mutationFn: async (newSettings: Partial<SiteSettings>) => {
-      const { data, error } = await (supabase.from('site_settings' as any) as any)
+      if (!isBrowser) {
+        return {} as SiteSettings;
+      }
+
+      const { data, error } = await supabase
+        .from('site_settings')
         .update(newSettings)
         .eq('id', 'default')
         .select('*')
@@ -161,29 +157,25 @@ export function useSiteSettings() {
     },
     onSuccess: (data) => {
       queryClient.setQueryData(['site-settings'], data);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      applyColorsToDocument(data);
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      }
+      if (typeof document !== "undefined") {
+        applyColorsToDocument(data);
+      }
     },
   });
 
-  if (typeof window === "undefined") {
-    return {
-      settings: undefined,
-      isLoading: false,
-      error: null,
-      updateSettings: () => {},
-      updateSettingsAsync: async () => ({} as SiteSettings),
-      isUpdating: false,
-    };
-  }
+  const noopUpdateSettings = () => undefined;
+  const noopUpdateSettingsAsync = async (): Promise<SiteSettings> => ({} as SiteSettings);
 
   return {
-    settings,
-    isLoading,
-    error,
-    updateSettings: updateSettingsMut.mutate,
-    updateSettingsAsync: updateSettingsMut.mutateAsync,
-    isUpdating: updateSettingsMut.isPending,
+    settings: isBrowser ? settings : undefined,
+    isLoading: isBrowser ? isLoading : false,
+    error: isBrowser ? error : null,
+    updateSettings: isBrowser ? updateSettingsMut.mutate : noopUpdateSettings,
+    updateSettingsAsync: isBrowser ? updateSettingsMut.mutateAsync : noopUpdateSettingsAsync,
+    isUpdating: isBrowser ? updateSettingsMut.isPending : false,
   };
 }
 

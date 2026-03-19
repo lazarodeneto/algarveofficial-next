@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect } from "react";
-import { useParams, Outlet, useLocation } from "next/link";
+import { Outlet, useLocation, useParams } from "@/components/router/nextRouterCompat";
 import { useTranslation } from "react-i18next";
 import { PublicSiteSidebar } from "@/components/layout/PublicSiteSidebar";
 import { ensureLocaleLoaded } from "@/i18n";
@@ -22,7 +24,7 @@ export function LanguageLayout() {
     let cancelled = false;
 
     void (async () => {
-      await ensureLocaleLoaded(targetLang, { force: true });
+      await ensureLocaleLoaded(targetLang);
       if (cancelled) return;
 
       if (typeof i18n.changeLanguage !== "function") return;

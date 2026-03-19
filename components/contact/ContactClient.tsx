@@ -10,8 +10,9 @@ import {
   useSearchParams as useNextSearchParams,
 } from "next/navigation";
 
-import ContactPage from "@/pages/public/Contact";
+import ContactPage from "@/legacy-pages/public/Contact";
 import type { ContactSettings } from "@/hooks/useContactSettings";
+import { useHydrated } from "@/hooks/useHydrated";
 
 type LegacyNavigator = {
   createHref: (to: To) => string;
@@ -35,9 +36,9 @@ export default function ContactClient({
   const pathname = usePathname();
   const nextSearchParams = useNextSearchParams();
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
 
-  const search = nextSearchParams.toString();
+  const search = nextSearchParams?.toString() ?? "";
 
   const location = useMemo(
     () => ({
@@ -72,7 +73,6 @@ export default function ContactClient({
     if (serverShell) {
       serverShell.style.display = "none";
     }
-    setMounted(true);
   }, [initialContactSettings, queryClient]);
 
   if (!mounted) {

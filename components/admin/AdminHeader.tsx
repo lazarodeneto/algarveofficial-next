@@ -1,5 +1,5 @@
 import { type FormEvent, useMemo, useState } from "react";
-import { Link, useNavigate } from "next/link";
+import { Link, useNavigate } from "@/components/router/nextRouterCompat";
 import {
   ArrowRight,
   Bell,

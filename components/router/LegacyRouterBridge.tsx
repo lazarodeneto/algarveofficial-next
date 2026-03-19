@@ -23,9 +23,9 @@ export function resolveLegacyTo(to: To) {
 
 export function useLegacyRouterBridge() {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "/";
   const nextSearchParams = useSearchParams();
-  const search = nextSearchParams.toString();
+  const search = nextSearchParams?.toString() ?? "";
 
   const location = {
     pathname,
@@ -59,10 +59,10 @@ export function useLegacyRouterBridge() {
 
 export function useLegacySearchParams(): [URLSearchParams, LegacySearchParamsUpdater] {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "/";
   const nextSearchParams = useSearchParams();
 
-  const params = new URLSearchParams(nextSearchParams.toString());
+  const params = new URLSearchParams(nextSearchParams?.toString() ?? "");
 
   const setParams: LegacySearchParamsUpdater = (updatedParams, options) => {
     const query = updatedParams.toString();

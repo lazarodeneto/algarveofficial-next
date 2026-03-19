@@ -56,22 +56,17 @@ async function extractFunctionErrorMessage(fnError: unknown, fallback: string): 
 
 export function useStripeSubscription(): UseStripeSubscriptionReturn {
   const { user, isAuthenticated } = useAuth();
+  const isBrowser = typeof window !== "undefined";
   const [subscription, setSubscription] = useState<SubscriptionState>(DEFAULT_SUBSCRIPTION);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (typeof window === "undefined") {
-    return {
-      subscription: DEFAULT_SUBSCRIPTION,
-      isLoading: false,
-      error: null,
-      checkSubscription: async () => {},
-      createCheckout: async () => {},
-      openCustomerPortal: async () => {},
-    };
-  }
-
   const checkSubscription = useCallback(async () => {
+    if (!isBrowser) {
+      setSubscription(DEFAULT_SUBSCRIPTION);
+      return;
+    }
+
     if (!isAuthenticated) {
       setSubscription(DEFAULT_SUBSCRIPTION);
       return;
@@ -106,9 +101,13 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isBrowser]);
 
   const createCheckout = useCallback(async (tier: SubscriptionTier, billingPeriod: BillingPeriod) => {
+    if (!isBrowser) {
+      throw new Error('Checkout is unavailable during server rendering');
+    }
+
     if (!isAuthenticated) {
       throw new Error('You must be logged in to subscribe');
     }
@@ -142,9 +141,13 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isBrowser]);
 
   const openCustomerPortal = useCallback(async () => {
+    if (!isBrowser) {
+      throw new Error('Customer portal is unavailable during server rendering');
+    }
+
     if (!isAuthenticated) {
       throw new Error('You must be logged in to manage your subscription');
     }
@@ -176,19 +179,23 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isBrowser]);
 
   // Check subscription on mount and when auth changes
   useEffect(() => {
+    if (!isBrowser) return;
+
     if (isAuthenticated && user?.role === 'owner') {
       checkSubscription();
     } else {
       setSubscription(DEFAULT_SUBSCRIPTION);
     }
-  }, [isAuthenticated, user?.role, checkSubscription]);
+  }, [isAuthenticated, user?.role, checkSubscription, isBrowser]);
 
   // Check subscription on URL params (after Stripe redirect)
   useEffect(() => {
+    if (!isBrowser) return;
+
     const params = new URLSearchParams(window.location.search);
     if (params.get('success') === 'true') {
       // Delay to allow Stripe webhook to process
@@ -197,10 +204,11 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
       }, 2000);
       return () => clearTimeout(timer);
     }
-  }, [checkSubscription]);
+  }, [checkSubscription, isBrowser]);
 
   // Periodic refresh every 60 seconds when subscribed
   useEffect(() => {
+    if (!isBrowser) return;
     if (!subscription.subscribed) return;
 
     const interval = setInterval(() => {
@@ -208,7 +216,7 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
     }, 60000);
 
     return () => clearInterval(interval);
-  }, [subscription.subscribed, checkSubscription]);
+  }, [subscription.subscribed, checkSubscription, isBrowser]);
 
   return {
     subscription,

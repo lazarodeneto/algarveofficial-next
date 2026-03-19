@@ -81,17 +81,12 @@ async function processImages(images: ImageInput[], listingId: string): Promise<I
  */
 export function useCreateListing() {
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      mutate: () => {},
-      mutateAsync: async () => {},
-      isPending: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async ({ listing, images }: CreateListingParams) => {
+      if (!isBrowser) return null;
+
       // Insert the listing
       const { data: newListing, error: listingError } = await supabase
         .from('listings')
@@ -154,17 +149,12 @@ export function useCreateListing() {
  */
 export function useUpdateListing() {
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      mutate: () => {},
-      mutateAsync: async () => {},
-      isPending: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async ({ id, listing, images }: UpdateListingParams) => {
+      if (!isBrowser) return null;
+
       // Update the listing
       const { data: updatedListing, error: listingError } = await supabase
         .from('listings')
@@ -256,17 +246,12 @@ export function useUpdateListing() {
  */
 export function useDeleteListing() {
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      mutate: () => {},
-      mutateAsync: async () => {},
-      isPending: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async (id: string) => {
+      if (!isBrowser) return id;
+
       const { error } = await supabase.rpc('admin_delete_listings', {
         listing_ids: [id],
       });
@@ -294,17 +279,14 @@ export function useDeleteListing() {
  */
 export function useUpdateListingStatus() {
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      mutate: () => {},
-      mutateAsync: async () => {},
-      isPending: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async ({ id, status }: { id: string; status: 'draft' | 'pending_review' | 'published' | 'rejected' }) => {
+      if (!isBrowser) {
+        return { id, status } as ListingUpdate & { id: string };
+      }
+
       const updateData: ListingUpdate = { status };
 
       // Set published_at when publishing
@@ -345,17 +327,12 @@ export function useUpdateListingStatus() {
  */
 export function useBulkDeleteListings() {
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      mutate: () => {},
-      mutateAsync: async () => {},
-      isPending: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async (ids: string[]) => {
+      if (!isBrowser) return ids;
+
       const { error } = await supabase.rpc('admin_delete_listings', {
         listing_ids: ids,
       });
@@ -390,17 +367,12 @@ export function useBulkDeleteListings() {
 export function useBulkPublishListings() {
   const queryClient = useQueryClient();
   const BATCH_SIZE = 200;
-
-  if (typeof window === "undefined") {
-    return {
-      mutate: () => {},
-      mutateAsync: async () => {},
-      isPending: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async (ids: string[]) => {
+      if (!isBrowser) return ids;
+
       const publishedAt = new Date().toISOString();
 
       for (let i = 0; i < ids.length; i += BATCH_SIZE) {
@@ -443,17 +415,12 @@ export function useBulkPublishListings() {
 export function useBulkUpdateTier() {
   const queryClient = useQueryClient();
   const BATCH_SIZE = 200;
-
-  if (typeof window === "undefined") {
-    return {
-      mutate: () => {},
-      mutateAsync: async () => {},
-      isPending: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async ({ ids, tier }: { ids: string[]; tier: 'unverified' | 'verified' | 'signature' }) => {
+      if (!isBrowser) return { ids, tier };
+
       for (let i = 0; i < ids.length; i += BATCH_SIZE) {
         const batchIds = ids.slice(i, i + BATCH_SIZE);
         const { error } = await supabase

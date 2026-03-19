@@ -1,43 +1,33 @@
-"use client";
-
-import { useState, useEffect, useMemo, type ComponentType } from "react";
+import { useMemo, useState, type ComponentType } from "react";
 import dynamic from "next/dynamic";
-import Link from "next/link";
-
-import {
-  BedDouble,
-  Building2,
-  Loader2,
-  MapPin,
-  MapPinned,
-  Sparkles,
-  UtensilsCrossed,
-} from "lucide-react";
-
+import { Link } from "react-router-dom";
+import { BedDouble, Building2, Loader2, MapPin, MapPinned, Sparkles, UtensilsCrossed } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-
+import type { MapListingPoint } from "@/components/map/ListingsLeafletMap";
 import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
 import { usePublishedListings } from "@/hooks/useListings";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
-
 import { translateCategoryName } from "@/lib/translateCategory";
 import { renderCategoryIcon } from "@/lib/categoryIcons";
-
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import ListingImage from "@/components/ListingImage";
 import { FavoriteButton } from "@/components/ui/favorite-button";
 import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
-
 import {
   DISCOVERY_FILTERS,
   mapListingToDiscoveryCategory,
   type DiscoveryCategory,
-} from "@/lib/discovery";
+} from "@/lib/discoveryCategory";
 
 const PREVIEW_LIMIT = 6;
+
+const ListingsLeafletMap = dynamic(
+  () => import("@/components/map/ListingsLeafletMap"),
+  { ssr: false }
+);
 
 const FILTER_ICONS: Record<DiscoveryCategory, ComponentType<{ className?: string }>> = {
   hotels: BedDouble,
@@ -54,12 +44,10 @@ export function SignatureMapSection() {
     DISCOVERY_FILTERS.map((filter) => filter.key)
   );
   const { data: listings = [], isLoading: listingsLoading } = usePublishedListings();
-
   const signatureListings = useMemo(
     () => listings.filter((listing) => listing.tier === "signature"),
     [listings]
   );
-
   const activeFilterSet = useMemo(() => new Set(activeDiscoveryFilters), [activeDiscoveryFilters]);
   const areAllFiltersDisabled = activeDiscoveryFilters.length === 0;
 
@@ -153,7 +141,7 @@ export function SignatureMapSection() {
               <MapPinned className="h-3.5 w-3.5 mr-1.5" />
               {mapPoints.length} mapped · {filteredDiscoveryListings.length} matching
             </Badge>
-            <Link href={buildLangPath(langPrefix, "/map")}>
+            <Link to={buildLangPath(langPrefix, "/map")}>
               <Button variant="outline">Open Full Map</Button>
             </Link>
           </div>
@@ -248,7 +236,7 @@ export function SignatureMapSection() {
               {previewListings.map(({ listing }) => (
                 <Link
                   key={listing.id}
-                  href={buildLangPath(langPrefix, `/listing/${listing.slug}`)}
+                  to={buildLangPath(langPrefix, `/listing/${listing.slug}`)}
                   className="group block h-full"
                 >
                   <article className="glass-box glass-box-listing-shimmer overflow-hidden flex h-full flex-col">
@@ -285,7 +273,7 @@ export function SignatureMapSection() {
 
                       <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
                         <Badge variant="secondary" className="text-xs bg-black/60 backdrop-blur-sm text-white flex items-center gap-1">
-                          {renderCategoryIcon(listing.category?.icon, "h-3 w-3 text-white")}
+                          {renderCategoryIcon(listing.category?.icon ?? undefined, "h-3 w-3 text-white")}
                           {translateCategoryName(t, listing.category?.slug, listing.category?.name)}
                         </Badge>
 

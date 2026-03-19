@@ -1,28 +1,23 @@
 import type { StaticImageData } from "next/image";
 
-// Full size (if you use them)
-const regionGoldenTriangle = "/images/region-golden-triangle.webp";
-const regionVilamoura = "/images/region-vilamoura.webp";
-const regionCarvoeiro = "/images/region-carvoeiro.webp";
-const regionLagos = "/images/region-lagos.webp";
-const regionTavira = "/images/region-tavira.webp";
-const regionSagres = "/images/region-sagres.webp";
-
-// 800w
-const regionGoldenTriangle800 = "/images/region-golden-triangle-800w.webp";
-const regionVilamoura800 = "/images/region-vilamoura-800w.webp";
-const regionCarvoeiro800 = "/images/region-carvoeiro-800w.webp";
-const regionLagos800 = "/images/region-lagos-800w.webp";
-const regionTavira800 = "/images/region-tavira-800w.webp";
-const regionSagres800 = "/images/region-sagres-800w.webp";
-
-// 400w
-const regionGoldenTriangle400 = "/images/region-golden-triangle-400w.webp";
-const regionVilamoura400 = "/images/region-vilamoura-400w.webp";
-const regionCarvoeiro400 = "/images/region-carvoeiro-400w.webp";
-const regionLagos400 = "/images/region-lagos-400w.webp";
-const regionTavira400 = "/images/region-tavira-400w.webp";
-const regionSagres400 = "/images/region-sagres-400w.webp";
+import regionGoldenTriangle from "@/assets/region-golden-triangle.webp";
+import regionVilamoura from "@/assets/region-vilamoura.webp";
+import regionCarvoeiro from "@/assets/region-carvoeiro.webp";
+import regionLagos from "@/assets/region-lagos.webp";
+import regionTavira from "@/assets/region-tavira.webp";
+import regionSagres from "@/assets/region-sagres.webp";
+import regionGoldenTriangle800 from "@/assets/region-golden-triangle-800w.webp";
+import regionVilamoura800 from "@/assets/region-vilamoura-800w.webp";
+import regionCarvoeiro800 from "@/assets/region-carvoeiro-800w.webp";
+import regionLagos800 from "@/assets/region-lagos-800w.webp";
+import regionTavira800 from "@/assets/region-tavira-800w.webp";
+import regionSagres800 from "@/assets/region-sagres-800w.webp";
+import regionGoldenTriangle400 from "@/assets/region-golden-triangle-400w.webp";
+import regionVilamoura400 from "@/assets/region-vilamoura-400w.webp";
+import regionCarvoeiro400 from "@/assets/region-carvoeiro-400w.webp";
+import regionLagos400 from "@/assets/region-lagos-400w.webp";
+import regionTavira400 from "@/assets/region-tavira-400w.webp";
+import regionSagres400 from "@/assets/region-sagres-400w.webp";
 
 export interface RegionImageSet {
   image: string | StaticImageData;

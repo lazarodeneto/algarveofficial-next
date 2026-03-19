@@ -462,7 +462,7 @@ async function fetchCuratedCityAssignments(cityId: string, limit: number) {
     })
     .filter(
       (listing): listing is CityDetailCuratedListing =>
-        Boolean(listing) && listing.status === "published" && listing.tier === "signature",
+        listing != null && listing.status === "published" && listing.tier === "signature",
     );
 
   if (listings.length === 0) {
@@ -482,7 +482,7 @@ async function fetchCuratedCityAssignments(cityId: string, limit: number) {
       })
       .filter(
         (listing): listing is CityDetailCuratedListing =>
-          Boolean(listing) && listing.status === "published" && listing.tier === "signature",
+          listing != null && listing.status === "published" && listing.tier === "signature",
       );
   }
 
@@ -513,8 +513,13 @@ function CityDetailClientInner({
   const { isFavorite, toggleFavorite } = useFavoriteListings();
 
   const { data: city, isLoading: cityLoading } = useQuery({
-    queryKey: ["city", initialCity.slug, locale],
-    queryFn: () => fetchCityBySlug(initialCity.slug, locale),
+    queryKey: ["city", initialCity.slug ?? "", locale],
+    queryFn: () => {
+      if (!initialCity.slug) {
+        throw new Error("City slug is required");
+      }
+      return fetchCityBySlug(initialCity.slug, locale);
+    },
     initialData: locale === "en" ? initialCity : undefined,
     enabled: Boolean(initialCity.slug),
     staleTime: 1000 * 60 * 10,
@@ -640,8 +645,12 @@ function CityDetailClientInner({
               </Link>
 
               <FavoriteButton
-                isFavorite={isDestinationSaved("city", city.slug)}
-                onToggle={() => toggleCity(city.slug)}
+                isFavorite={city.slug ? isDestinationSaved("city", city.slug) : false}
+                onToggle={() => {
+                  if (city.id) {
+                    toggleCity(city.id);
+                  }
+                }}
                 size="lg"
                 variant="glassmorphism"
               />
@@ -764,7 +773,7 @@ function CityDetailClientInner({
 
                         <div className="relative aspect-[4/3] overflow-hidden">
                           <ImageWithFallback
-                            src={listing.featured_image_url}
+                            src={listing.featured_image_url ?? undefined}
                             alt={listing.name}
                             containerClassName="w-full h-full"
                             fallbackIconSize={48}

@@ -1,4 +1,3 @@
-"use client";
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,18 +15,7 @@ export interface FavoriteListing {
 export function useFavoriteListings() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      favoriteListings: [],
-      favoriteListingIds: [],
-      addFavorite: async () => {},
-      removeFavorite: async () => {},
-      toggleFavorite: async () => {},
-      isFavorite: () => false,
-      isLoading: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   // Local state for unauthenticated users
   const [localFavorites, setLocalFavorites] = useState<FavoriteListing[]>(() => {
@@ -125,6 +113,6 @@ export function useFavoriteListings() {
     removeFavorite,
     toggleFavorite,
     isFavorite,
-    isLoading: user ? isLoading : false,
+    isLoading: isBrowser && user ? isLoading : false,
   };
 }

@@ -497,7 +497,7 @@ async function fetchCuratedRegionAssignments(regionId: string, limit: number) {
     })
     .filter(
       (listing): listing is DestinationCuratedListing =>
-        Boolean(listing) && listing.status === "published" && listing.tier === "signature",
+        listing != null && listing.status === "published" && listing.tier === "signature",
     );
 
   if (listings.length === 0) {
@@ -517,7 +517,7 @@ async function fetchCuratedRegionAssignments(regionId: string, limit: number) {
       })
       .filter(
         (listing): listing is DestinationCuratedListing =>
-          Boolean(listing) && listing.status === "published" && listing.tier === "signature",
+          listing != null && listing.status === "published" && listing.tier === "signature",
       );
   }
 
@@ -785,7 +785,7 @@ function DestinationDetailClientInner({
 
                         <div className="relative aspect-[4/3] overflow-hidden">
                           <ImageWithFallback
-                            src={listing.featured_image_url}
+                            src={listing.featured_image_url ?? undefined}
                             alt={listing.name}
                             containerClassName="w-full h-full"
                             fallbackIconSize={48}

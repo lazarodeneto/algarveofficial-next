@@ -1,4 +1,4 @@
-import { Link } from "next/link";
+import { Link } from "@/components/router/nextRouterCompat";
 import { Bell, User, LogOut, Settings, ChevronDown, ExternalLink, Heart, LayoutDashboard, Building2, Check, UserCheck } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";

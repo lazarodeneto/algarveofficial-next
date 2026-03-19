@@ -1,5 +1,5 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from "react";
-import { NavLink, useLocation } from "next/link";
+import { NavLink, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronLeft, ChevronRight, Menu, X, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -188,7 +188,7 @@ export function ExpandableSidebar({
     ) : (
       <NavLink
         key={keyHint ?? getItemKey(item, `leaf-${depth}`)}
-        href={item.href}
+        to={item.href}
         end={item.end}
         onClick={closeMobile}
         aria-label={compact ? item.label : undefined}
@@ -244,7 +244,7 @@ export function ExpandableSidebar({
       const navItem = (
         <NavLink
           key={key}
-          href={firstChildHref}
+          to={firstChildHref}
           onClick={closeMobile}
           aria-label={item.label}
           className={cn(
@@ -339,7 +339,7 @@ export function ExpandableSidebar({
                     {content}
                   </a>
                 ) : (
-                  <NavLink key={item.id} href={item.href} onClick={closeMobile} aria-label={compact ? item.label : undefined}>
+                  <NavLink key={item.id} to={item.href} onClick={closeMobile} aria-label={compact ? item.label : undefined}>
                     {content}
                   </NavLink>
                 );

@@ -1,4 +1,3 @@
-"use client";
 import { useState, useEffect, useCallback } from "react";
 import {
   COOKIE_CONSENT_CHANGE_EVENT,
@@ -48,18 +47,12 @@ function readConsentStateFromStorage(): ConsentState {
  * Stores consent in localStorage and provides methods to accept/reject
  */
 export function useAnalyticsConsent() {
-  const [consent, setConsent] = useState<ConsentState>({
-    status: "pending",
-    timestamp: null,
-  });
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [consent, setConsent] = useState<ConsentState>(() => readConsentStateFromStorage());
+  const isLoaded = typeof window !== "undefined";
 
   // Load consent from localStorage on mount
   useEffect(() => {
-    if (typeof window === "undefined") {
-      setIsLoaded(true);
-      return;
-    }
+    if (typeof window === "undefined") return;
 
     const syncConsent = () => {
       setConsent(readConsentStateFromStorage());
@@ -68,7 +61,6 @@ export function useAnalyticsConsent() {
     syncConsent();
     window.addEventListener(COOKIE_CONSENT_CHANGE_EVENT, syncConsent);
     window.addEventListener("storage", syncConsent);
-    setIsLoaded(true);
 
     return () => {
       window.removeEventListener(COOKIE_CONSENT_CHANGE_EVENT, syncConsent);

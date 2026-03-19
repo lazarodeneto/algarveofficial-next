@@ -21,6 +21,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { BlogFeaturedImage } from "@/components/blog/BlogFeaturedImage";
 import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
+import { useHydrated } from "@/hooks/useHydrated";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
 import {
@@ -626,9 +627,9 @@ export function BlogClient(props: BlogClientProps) {
   const router = useRouter();
   const pathname = usePathname();
   const nextSearchParams = useNextSearchParams();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
 
-  const search = nextSearchParams.toString();
+  const search = nextSearchParams?.toString() ?? "";
   const location = useMemo(
     () => ({
       pathname,
@@ -657,7 +658,6 @@ export function BlogClient(props: BlogClientProps) {
   );
 
   useEffect(() => {
-    setMounted(true);
     const serverShell = document.getElementById("blog-server-shell");
     if (serverShell) {
       serverShell.style.display = "none";

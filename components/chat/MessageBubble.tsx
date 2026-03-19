@@ -11,6 +11,14 @@ interface MessageBubbleProps {
 }
 
 export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
+  const messageText =
+    typeof message.body_text === "string" ? message.body_text : "";
+  const createdAt = message.created_at ? new Date(message.created_at) : null;
+  const createdAtLabel =
+    createdAt && !Number.isNaN(createdAt.getTime())
+      ? format(createdAt, "HH:mm")
+      : "--:--";
+
   const getStatusIcon = () => {
     switch (message.delivery_status) {
       case "queued":
@@ -43,11 +51,11 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
             : "bg-muted text-foreground rounded-bl-md"
         )}
       >
-        <p className="text-sm whitespace-pre-wrap break-words">{message.body_text}</p>
+        <p className="text-sm whitespace-pre-wrap break-words">{messageText}</p>
       </div>
       <div className="flex items-center gap-1.5 mt-1 px-1">
         <span className="text-[10px] text-muted-foreground">
-          {format(new Date(message.created_at), "HH:mm")}
+          {createdAtLabel}
         </span>
         {isOwn && getStatusIcon()}
       </div>

@@ -18,13 +18,8 @@ export interface Region {
 }
 
 export function useRegions(options?: { featuredOnly?: boolean; activeOnly?: boolean; destinationsOnly?: boolean }) {
-  if (typeof window === "undefined") {
-    return {
-      data: [],
-      isLoading: false,
-      error: null,
-    } as any;
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ["regions", options],
     queryFn: async () => {
@@ -55,17 +50,14 @@ export function useRegions(options?: { featuredOnly?: boolean; activeOnly?: bool
       if (error) throw error;
       return data as Region[];
     },
+    enabled: isBrowser,
+    initialData: [] as Region[],
   });
 }
 
 export function useCities(options?: { activeOnly?: boolean }) {
-  if (typeof window === "undefined") {
-    return {
-      data: [],
-      isLoading: false,
-      error: null,
-    } as any;
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ["cities", options],
     queryFn: async () => {
@@ -83,5 +75,7 @@ export function useCities(options?: { activeOnly?: boolean }) {
       if (error) throw error;
       return data;
     },
+    enabled: isBrowser,
+    initialData: [],
   });
 }

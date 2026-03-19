@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLocation } from "next/link";
+import { useLocation } from "@/components/router/nextRouterCompat";
 
 /**
  * Hook to fetch the count of active admin message threads.
@@ -11,15 +11,8 @@ import { useLocation } from "next/link";
 export function useUnreadMessagesCount() {
   const { user } = useAuth();
   const location = useLocation();
+  const isBrowser = typeof window !== "undefined";
   const isAdminMessagesRoute = location.pathname.startsWith("/admin/messages");
-
-  if (typeof window === "undefined") {
-    return {
-      data: 0,
-      isLoading: false,
-      error: null,
-    };
-  }
 
   return useQuery({
     queryKey: ["admin-messages", "unread-count", isAdminMessagesRoute],
@@ -55,7 +48,8 @@ export function useUnreadMessagesCount() {
 
       return activeThreads?.length || 0;
     },
-    enabled: !!user?.id,
+    enabled: isBrowser && !!user?.id,
+    initialData: 0,
     staleTime: 2_000,
   });
 }

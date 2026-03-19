@@ -1,4 +1,3 @@
-"use client";
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
@@ -49,19 +48,17 @@ const rgbaToHsl = (rgba: string): string => {
 };
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("algarve-theme") as Theme | null;
-      return stored || "light";
-    }
-    return "light";
-  });
-
+  const [theme, setThemeState] = useState<Theme>("light");
   const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">("light");
 
   const { settings } = useSiteSettings();
 
   // Color application is handled by useSiteSettings hook
+
+  useEffect(() => {
+    const storedTheme = localStorage.getItem("algarve-theme") as Theme | null;
+    setThemeState(storedTheme || "light");
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;

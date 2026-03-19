@@ -1,6 +1,4 @@
-"use client";
-
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 
 function normalizeUrl(value) {
@@ -26,22 +24,25 @@ export default function ListingImage({
     [fallbackSrc]
   );
 
-  const [currentSrc, setCurrentSrc] = useState(
-    normalizedSrc || normalizedCategoryImageUrl || normalizedFallbackSrc
+  const sourceCandidates = useMemo(
+    () =>
+      [normalizedSrc, normalizedCategoryImageUrl, normalizedFallbackSrc].filter(
+        (value) => Boolean(value)
+      ),
+    [normalizedCategoryImageUrl, normalizedFallbackSrc, normalizedSrc]
   );
-
-  useEffect(() => {
-    setCurrentSrc(normalizedSrc || normalizedCategoryImageUrl || normalizedFallbackSrc);
-  }, [normalizedSrc, normalizedCategoryImageUrl, normalizedFallbackSrc]);
+  const sourceKey = sourceCandidates.join("|");
+  const [fallbackIndexByKey, setFallbackIndexByKey] = useState({});
+  const fallbackIndex = fallbackIndexByKey[sourceKey] ?? 0;
+  const currentSrc = sourceCandidates[fallbackIndex] || normalizedFallbackSrc;
 
   const handleError = () => {
-    if (currentSrc === normalizedSrc && normalizedCategoryImageUrl) {
-      setCurrentSrc(normalizedCategoryImageUrl);
-      return;
-    }
-    if (currentSrc !== normalizedFallbackSrc) {
-      setCurrentSrc(normalizedFallbackSrc);
-    }
+    setFallbackIndexByKey((prev) => {
+      const currentIndex = prev[sourceKey] ?? 0;
+      const nextIndex = Math.min(currentIndex + 1, Math.max(sourceCandidates.length - 1, 0));
+      if (nextIndex === currentIndex) return prev;
+      return { ...prev, [sourceKey]: nextIndex };
+    });
   };
 
   return (

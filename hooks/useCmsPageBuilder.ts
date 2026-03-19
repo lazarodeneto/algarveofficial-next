@@ -1,25 +1,8 @@
-"use client";
 import { useMemo } from "react";
 import type { CSSProperties } from "react";
 import { useCmsPageBuilderContext } from "@/contexts/CmsPageBuilderContext";
 
 export function useCmsPageBuilder(pageId: string) {
-  if (typeof window === "undefined") {
-    return {
-      isLoading: false,
-      pageConfig: {},
-      blocks: {},
-      getBlockOrder: (d: string[]) => d,
-      getBlockClassName: () => "",
-      getBlockStyle: () => ({}),
-      isBlockEnabled: () => true,
-      getText: (k: string, f: string) => f,
-      getMetaTitle: (f: string) => f,
-      getMetaDescription: (f: string) => f,
-      pageConfigs: {} as any,
-      textOverrides: {} as any,
-    };
-  }
   const { pageConfigs, textOverrides, isLoading } = useCmsPageBuilderContext();
 
   const pageConfig = pageConfigs[pageId] ?? {};
@@ -91,6 +74,8 @@ export function useCmsPageBuilder(pageId: string) {
   return {
     isLoading,
     pageConfig,
+    pageConfigs,
+    textOverrides,
     ...helpers,
   };
 }

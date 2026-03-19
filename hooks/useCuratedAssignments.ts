@@ -1,4 +1,3 @@
-"use client";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
@@ -66,13 +65,8 @@ export function useCuratedAssignments(
   contextId: string | null,
   limit: number = 3
 ) {
-  if (typeof window === "undefined") {
-    return {
-      data: [] as CuratedListingWithRelations[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ['curated-assignments', contextType, contextId, limit],
     queryFn: async () => {
@@ -139,6 +133,8 @@ export function useCuratedAssignments(
 
       return validListings.slice(0, limit);
     },
+    enabled: isBrowser,
+    initialData: [] as CuratedListingWithRelations[],
     staleTime: 1000 * 60, // Keep curated cards responsive to recent admin changes
     gcTime: 1000 * 60 * 30,
   });

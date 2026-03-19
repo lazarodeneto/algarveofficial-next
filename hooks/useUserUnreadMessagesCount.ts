@@ -9,14 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
  */
 export function useUserUnreadMessagesCount() {
   const { user } = useAuth();
-
-  if (typeof window === "undefined") {
-    return {
-      data: 0,
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useQuery({
     queryKey: ["user-messages", "unread-count", user?.id],
@@ -41,7 +34,8 @@ export function useUserUnreadMessagesCount() {
 
       return count || 0;
     },
-    enabled: !!user?.id,
+    enabled: isBrowser && !!user?.id,
+    initialData: 0,
     staleTime: 5_000,
   });
 }

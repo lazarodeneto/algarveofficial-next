@@ -1,6 +1,5 @@
 "use client";
-import { useEffect, useRef, useCallback, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useCallback, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
 type NotificationPermissionState = "default" | "granted" | "denied";
@@ -28,15 +27,10 @@ interface NotificationPayload {
 export function useMessageNotifications(options: UseMessageNotificationsOptions = {}) {
   const { enabled = true } = options;
   const { user } = useAuth();
-
-  const [permission, setPermission] = useState<NotificationPermissionState>("default");
-  const [isSupported, setIsSupported] = useState(false);
-
-  useEffect(() => {
-    const supported = typeof window !== "undefined" && "Notification" in window;
-    setIsSupported(supported);
-    if (supported) setPermission(Notification.permission as NotificationPermissionState);
-  }, []);
+  const isSupported = typeof window !== "undefined" && "Notification" in window;
+  const [permission, setPermission] = useState<NotificationPermissionState>(() =>
+    isSupported ? (Notification.permission as NotificationPermissionState) : "default",
+  );
 
   const requestPermission = useCallback(async (): Promise<boolean> => {
     if (!isSupported) return false;
@@ -52,7 +46,7 @@ export function useMessageNotifications(options: UseMessageNotificationsOptions 
 
   const showNotification = useCallback(
     async (payload: NotificationPayload) => {
-      if (!isSupported || permission !== "granted") return;
+      if (!enabled || !isSupported || permission !== "granted") return;
 
       try {
           const notification = new Notification(payload.title, {
@@ -71,13 +65,13 @@ export function useMessageNotifications(options: UseMessageNotificationsOptions 
         console.error("Failed to show notification:", error);
       }
     },
-    [isSupported, permission]
+    [enabled, isSupported, permission]
   );
 
   // URL by role
   const getMessagesUrl = useCallback(() => {
     if (!user) return "/dashboard/messages";
-    const role = (user as any)?.role;
+    const role = (user as { role?: string } | null)?.role;
 
     switch (role) {
       case "admin":

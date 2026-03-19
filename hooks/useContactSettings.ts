@@ -20,55 +20,52 @@ export interface ContactSettings {
 }
 
 export function useContactSettings() {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
+  const isBrowser = typeof window !== "undefined";
 
-    if (typeof window === "undefined") {
-        return {
-            settings: null,
-            isLoading: false,
-            error: null,
-            updateSettings: { mutate: () => {}, mutateAsync: async () => {}, isPending: false } as any,
-        };
-    }
+  const { data: settings, isLoading, error } = useQuery({
+    queryKey: ["contact-settings"],
+    queryFn: async (): Promise<ContactSettings | null> => {
+      const { data, error } = await supabase
+        .from("contact_settings")
+        .select("*")
+        .eq("id", "default")
+        .maybeSingle();
 
-    const { data: settings, isLoading, error } = useQuery({
-        queryKey: ["contact-settings"],
-        queryFn: async (): Promise<ContactSettings | null> => {
-            const { data, error } = await (supabase.from("contact_settings" as any) as any)
-                .select("*")
-                .eq("id", "default")
-                .maybeSingle();
+      if (error) throw error;
+      return data as ContactSettings;
+    },
+    enabled: isBrowser,
+  });
 
-            if (error) throw error;
-            return data as ContactSettings;
-        },
-    });
+  const updateSettings = useMutation({
+    mutationFn: async (updates: Partial<Omit<ContactSettings, "id" | "updated_at">>) => {
+      if (!isBrowser) return;
 
-    const updateSettings = useMutation({
-        mutationFn: async (updates: Partial<Omit<ContactSettings, "id" | "updated_at">>) => {
-            const { error } = await (supabase.from("contact_settings" as any) as any)
-                .update({
-                    ...updates,
-                    updated_at: new Date().toISOString(),
-                })
-                .eq("id", "default");
+      const { error } = await supabase
+        .from("contact_settings")
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", "default");
 
-            if (error) throw error;
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["contact-settings"] });
-            toast.success("Contact settings saved successfully");
-        },
-        onError: (error) => {
-            console.error("Failed to save contact settings:", error);
-            toast.error("Failed to save contact settings");
-        },
-    });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contact-settings"] });
+      toast.success("Contact settings saved successfully");
+    },
+    onError: (mutationError) => {
+      console.error("Failed to save contact settings:", mutationError);
+      toast.error("Failed to save contact settings");
+    },
+  });
 
-    return {
-        settings,
-        isLoading,
-        error,
-        updateSettings,
-    };
+  return {
+    settings: isBrowser ? settings : null,
+    isLoading: isBrowser ? isLoading : false,
+    error: isBrowser ? error : null,
+    updateSettings,
+  };
 }

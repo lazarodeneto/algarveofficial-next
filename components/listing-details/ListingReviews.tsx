@@ -13,6 +13,7 @@ import {
   useMyListingReview,
   useUpsertListingReview,
   useDeleteListingReview,
+  type ListingReview,
 } from "@/hooks/useListingReviews";
 import { normalizePublicContentLocale } from "@/lib/publicContentLocale";
 
@@ -82,7 +83,8 @@ export function ListingReviews({ listingId, userId, onRequestLogin }: ListingRev
   const [comment, setComment] = useState("");
   const [isWriting, setIsWriting] = useState(false);
 
-  const { data: reviews = [], isLoading } = useListingReviews(listingId);
+  const { data: reviewsData = [], isLoading } = useListingReviews(listingId);
+  const reviews = reviewsData as ListingReview[];
   const { data: myReview } = useMyListingReview(listingId, userId);
   const upsert = useUpsertListingReview();
   const remove = useDeleteListingReview();
@@ -90,7 +92,7 @@ export function ListingReviews({ listingId, userId, onRequestLogin }: ListingRev
   const isRejected = myReview?.status === "rejected";
 
   const avgRating = reviews.length
-    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+    ? reviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) / reviews.length
     : 0;
   const locale = normalizePublicContentLocale(i18n.language);
   const dateLocaleMap = {

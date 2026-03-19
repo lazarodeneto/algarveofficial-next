@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Outlet } from "next/link";
+import { useState, type ReactNode } from "react";
+import { Outlet } from "@/components/router/nextRouterCompat";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { useAdminMessagePolling } from "@/hooks/useAdminMessagePolling";
@@ -7,7 +7,11 @@ import { useAdminGeoRestriction } from "@/hooks/useAdminGeoRestriction";
 import { ShieldX, Loader2 } from "lucide-react";
 import { SeoHead } from "@/components/seo/SeoHead";
 
-export function AdminLayout() {
+interface AdminLayoutProps {
+  children?: ReactNode;
+}
+
+export function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { isBlocked, isLoading: geoLoading } = useAdminGeoRestriction();
 
@@ -55,7 +59,7 @@ export function AdminLayout() {
         <AdminHeader />
         <main className="flex-1 overflow-auto">
           <div className="mx-auto w-full max-w-[1680px] px-3 py-3 sm:px-4 lg:px-5 lg:py-4">
-            <Outlet />
+            {children ?? <Outlet />}
           </div>
         </main>
       </div>

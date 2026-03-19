@@ -19,19 +19,7 @@ interface SyncStatus {
 
 export function useGoogleRatingsSync() {
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      syncStatus: null,
-      isLoading: false,
-      lastRefresh: null,
-      progress: 0,
-      initRefresh: () => {},
-      isInitializing: false,
-      stopRefresh: () => {},
-      isStopping: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   const { data: syncStatus, isLoading } = useQuery({
     queryKey: ["google-ratings-sync-status"],
@@ -50,6 +38,8 @@ export function useGoogleRatingsSync() {
       const data = query.state.data as SyncStatus | null | undefined;
       return data?.status === "running" ? 5000 : false;
     },
+    enabled: isBrowser,
+    initialData: null as SyncStatus | null,
   });
 
   const { data: lastRefresh } = useQuery({
@@ -66,10 +56,16 @@ export function useGoogleRatingsSync() {
       if (error) throw error;
       return data;
     },
+    enabled: isBrowser,
+    initialData: null,
   });
 
   const initRefreshMutation = useMutation({
     mutationFn: async () => {
+      if (!isBrowser) {
+        return { total_listings: 0 };
+      }
+
       const { data, error } = await supabase.functions.invoke("init-ratings-refresh");
       if (error) throw error;
       return data;
@@ -86,6 +82,8 @@ export function useGoogleRatingsSync() {
 
   const stopRefreshMutation = useMutation({
     mutationFn: async () => {
+      if (!isBrowser) return;
+
       const { error } = await supabase
         .from("google_ratings_sync_status")
         .update({
@@ -113,13 +111,13 @@ export function useGoogleRatingsSync() {
     : 0;
 
   return {
-    syncStatus,
-    isLoading,
-    lastRefresh,
+    syncStatus: isBrowser ? syncStatus : null,
+    isLoading: isBrowser ? isLoading : false,
+    lastRefresh: isBrowser ? lastRefresh : null,
     progress,
-    initRefresh: initRefreshMutation.mutate,
-    isInitializing: initRefreshMutation.isPending,
-    stopRefresh: stopRefreshMutation.mutate,
-    isStopping: stopRefreshMutation.isPending,
+    initRefresh: isBrowser ? initRefreshMutation.mutate : () => undefined,
+    isInitializing: isBrowser ? initRefreshMutation.isPending : false,
+    stopRefresh: isBrowser ? stopRefreshMutation.mutate : () => undefined,
+    isStopping: isBrowser ? stopRefreshMutation.isPending : false,
   };
 }

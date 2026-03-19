@@ -1,5 +1,5 @@
 
-import { Link } from "next/link";
+import { Link } from "@/components/router/nextRouterCompat";
 import { Database } from "@/integrations/supabase/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

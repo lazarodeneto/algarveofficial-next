@@ -1,11 +1,12 @@
+"use client";
+
 import { useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
-import { Link } from "next/link";
-import { renderToStaticMarkup } from "react-dom/server";
+import { Link } from "react-router-dom";
 import { usePublishedListings } from "@/hooks/useListings";
 import { useCities, useCategories } from "@/hooks/useReferenceData";
-import { MapPin, LandPlot, Star } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ListingImage from "@/components/ListingImage";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
@@ -47,7 +48,7 @@ const cityCoordinates: Record<string, { lat: number; lng: number }> = {
 const goldMarker = L.divIcon({
   className: "custom-marker",
   html: `<div class="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-full shadow-lg border-2 border-white">
-    ${renderToStaticMarkup(<LandPlot size={16} color="black" strokeWidth={2.2} />)}
+    <span style="font-size:14px;font-weight:700;color:black;line-height:1;">◆</span>
   </div>`,
   iconSize: [32, 32],
   iconAnchor: [16, 32],
@@ -57,7 +58,7 @@ const goldMarker = L.divIcon({
 const verifiedMarker = L.divIcon({
   className: "custom-marker",
   html: `<div class="flex items-center justify-center w-7 h-7 bg-green-500 rounded-full shadow-lg border-2 border-white">
-    ${renderToStaticMarkup(<Star size={14} color="white" strokeWidth={2.2} />)}
+    <span style="font-size:12px;font-weight:700;color:white;line-height:1;">★</span>
   </div>`,
   iconSize: [28, 28],
   iconAnchor: [14, 28],
@@ -67,7 +68,7 @@ const verifiedMarker = L.divIcon({
 const defaultMarker = L.divIcon({
   className: "custom-marker",
   html: `<div class="flex items-center justify-center w-6 h-6 bg-muted rounded-full shadow-md border-2 border-white">
-    ${renderToStaticMarkup(<MapPin size={12} color="currentColor" strokeWidth={2.25} />)}
+    <span style="font-size:11px;font-weight:700;color:currentColor;line-height:1;">•</span>
   </div>`,
   iconSize: [24, 24],
   iconAnchor: [12, 24],
@@ -76,6 +77,21 @@ const defaultMarker = L.divIcon({
 
 interface DirectoryMapViewProps {
   filteredListingIds?: string[];
+}
+
+function hashString(value: string): number {
+  let hash = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash << 5) - hash + value.charCodeAt(index);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+function getDeterministicOffset(listingId: string, axis: "lat" | "lng"): number {
+  const hash = hashString(`${listingId}:${axis}`);
+  const unit = (hash % 1000) / 1000;
+  return (unit - 0.5) * 0.01;
 }
 
 export function DirectoryMapView({ filteredListingIds }: DirectoryMapViewProps) {
@@ -97,9 +113,8 @@ export function DirectoryMapView({ filteredListingIds }: DirectoryMapViewProps) 
         
         if (!coords) return null;
         
-        // Add slight random offset to prevent exact overlaps
-        const lat = coords.lat + (Math.random() - 0.5) * 0.01;
-        const lng = coords.lng + (Math.random() - 0.5) * 0.01;
+        const lat = coords.lat + getDeterministicOffset(listing.id, "lat");
+        const lng = coords.lng + getDeterministicOffset(listing.id, "lng");
         
         return {
           ...listing,
@@ -177,7 +192,7 @@ export function DirectoryMapView({ filteredListingIds }: DirectoryMapViewProps) 
                     {listing.cityName}
                   </p>
                   <p className="text-xs text-muted-foreground">{listing.categoryName}</p>
-                  <Link href={`/listing/${listing.slug}`}>
+                  <Link to={`/listing/${listing.slug}`}>
                     <Button size="sm" className="w-full mt-2">
                       View Details
                     </Button>

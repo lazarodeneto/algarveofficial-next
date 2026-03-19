@@ -1,46 +1,71 @@
-<html lang="en" suppressHydrationWarning></html>
-import "leaflet/dist/leaflet.css";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import "leaflet/dist/leaflet.css";
+import Script from "next/script";
+import type { ReactNode } from "react";
+import { Inter, Playfair_Display } from "next/font/google";
 
-import { AuthProvider } from "@/contexts/AuthContext";
-import ReactQueryProvider from "@/providers/ReactQueryProvider";
-import I18nProvider from "@/providers/I18nProvider";
-import { Toaster } from "sonner";
+import "../index.css";
+import { AppProviders } from "@/components/providers/AppProviders";
+import { LocaleProvider } from "@/lib/i18n/locale-context";
+import { buildMetadata } from "@/lib/metadata";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const playfair = Playfair_Display({
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-playfair",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-inter",
+  display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "AlgarveOfficial",
-  description: "Discover the best of the Algarve",
-};
+const fontVariables = `${playfair.variable} ${inter.variable}`;
+const themeInitScript = `
+  (() => {
+    try {
+      const storedTheme = localStorage.getItem('algarve-theme') || 'light';
+      const resolvedTheme =
+        storedTheme === 'system'
+      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+          : storedTheme;
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+      document.documentElement.classList.remove('dark', 'light');
+      document.documentElement.classList.add(resolvedTheme);
+    } catch {}
+  })();
+`;
+
+export const metadata: Metadata = buildMetadata({
+  title: "AlgarveOfficial | Luxury Villas, Golf & Restaurants",
+  description:
+    "Discover the Algarve's finest villas, restaurants and golf courses — curated by experts who know every corner of Portugal's most prestigious coast.",
+  path: "/",
+});
+
+interface RootLayoutProps {
+  children: ReactNode;
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
+  // Default to English. The [lang] segment layout handles locale-specific logic.
+  // We explicitly exclude `params` from the synchronous signature here because 
+  // for special routes like /_not-found, Next.js can pass a Promise that 
+  // deadlocks the build worker if it's awaited in a blocking manner.
+  const requestLocale = "en";
+
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ReactQueryProvider>
-          <AuthProvider>
-            <I18nProvider>
-              {children}
-            </I18nProvider>
-            <Toaster richColors position="top-right" />
-          </AuthProvider>
-        </ReactQueryProvider>
+    <html lang={requestLocale} className={fontVariables} suppressHydrationWarning>
+      <body className={fontVariables}>
+        <Script id="theme-init" strategy="beforeInteractive">
+          {themeInitScript}
+        </Script>
+        <LocaleProvider locale={requestLocale}>
+          <AppProviders locale={requestLocale}>{children}</AppProviders>
+        </LocaleProvider>
       </body>
     </html>
   );

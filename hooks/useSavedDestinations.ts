@@ -1,4 +1,3 @@
-"use client";
 import { useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -43,7 +42,7 @@ export function useSavedDestinations() {
   const refreshFavorites = useCallback(() => {
     if (!user?.id) return;
     queryClient.invalidateQueries({ queryKey: ['favorites', 'all', user.id] });
-  }, [queryClient, user?.id]);
+  }, [queryClient, user]);
 
   const addDestination = useCallback(async (type: 'region' | 'city', id: string) => {
     if (!user) return;

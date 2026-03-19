@@ -5,14 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export function useOwnerListings() {
   const { user } = useAuth();
-
-  if (typeof window === "undefined") {
-    return {
-      data: [],
-      isLoading: false,
-      error: null,
-    } as any;
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useQuery({
     queryKey: ["owner-listings", user?.id],
@@ -34,6 +27,7 @@ export function useOwnerListings() {
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user?.id,
+    enabled: isBrowser && !!user?.id,
+    initialData: [],
   });
 }

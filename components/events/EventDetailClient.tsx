@@ -30,6 +30,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { eventCategoryLabels, eventCategoryColors, type EventCategory } from "@/types/events";
 import { eventCategoryTemplates } from "@/lib/eventCategoryTemplates";
 import { CMS_GLOBAL_SETTING_KEYS, type CmsPageConfigMap, type CmsTextOverrideMap } from "@/lib/cms/pageBuilderRegistry";
+import { useHydrated } from "@/hooks/useHydrated";
 
 type HomegrownNavigator = {
   createHref: (to: To) => string;
@@ -691,9 +692,9 @@ export function EventDetailClient(props: EventDetailClientProps) {
   const router = useRouter();
   const pathname = usePathname() ?? `/events/${props.initialEvent.slug}`;
   const nextSearchParams = useNextSearchParams();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
 
-  const search = nextSearchParams.toString();
+  const search = nextSearchParams?.toString() ?? "";
   const location = useMemo(
     () => ({
       pathname,
@@ -722,7 +723,6 @@ export function EventDetailClient(props: EventDetailClientProps) {
   );
 
   useEffect(() => {
-    setMounted(true);
     const serverShell = document.getElementById("event-detail-server-shell");
     if (serverShell) {
       serverShell.style.display = "none";

@@ -1,4 +1,3 @@
-"use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -31,16 +30,11 @@ export interface AdminListingReview extends ListingReview {
 }
 
 export function useListingReviews(listingId: string | undefined) {
-  if (typeof window === "undefined") {
-    return {
-      data: [],
-      isLoading: false,
-      error: null,
-    } as any;
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ["listing-reviews", listingId],
-    enabled: !!listingId,
+    enabled: isBrowser && !!listingId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("listing_reviews")
@@ -84,6 +78,7 @@ export function useListingReviews(listingId: string | undefined) {
         profile: profilesById.get(review.user_id) ?? null,
       }));
     },
+    initialData: [] as ListingReview[],
     staleTime: 1000 * 60 * 2,
   });
 }
@@ -240,17 +235,14 @@ export function useModerateListingReview() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      reviewId,
-      listingId,
-      status,
-      rejectionReason,
-    }: {
+    mutationFn: async (variables: {
       reviewId: string;
       listingId: string;
       status: Exclude<ListingReviewStatus, "pending">;
       rejectionReason?: string;
     }) => {
+      const { reviewId, status, rejectionReason } = variables;
+
       const { data, error } = await supabase
         .from("listing_reviews")
         .update({

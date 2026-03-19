@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { useLocation } from "next/link";
+import { useLocation } from "@/components/router/nextRouterCompat";
 import { CheckCircle2, Gift, Mail, Sparkles, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -48,7 +48,6 @@ export function NewsletterSignupPopup() {
 
   useEffect(() => {
     if (!isEligiblePath || !isLoaded || !hasMarketingConsent || typeof window === "undefined") {
-      setIsOpen(false);
       return;
     }
 
@@ -128,7 +127,7 @@ export function NewsletterSignupPopup() {
     [email, subscribe, t],
   );
 
-  if (!isOpen) return null;
+  if (!isOpen || !isEligiblePath || !isLoaded || !hasMarketingConsent) return null;
 
   return (
     <div className="fixed inset-0 z-[95] p-4 sm:p-6">

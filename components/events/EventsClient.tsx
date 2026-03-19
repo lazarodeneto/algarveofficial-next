@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/select";
 import { eventCategoryLabels, eventCategoryColors, type CalendarEvent, type EventCategory } from "@/types/events";
 import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
+import { useHydrated } from "@/hooks/useHydrated";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
 import { supabase } from "@/integrations/supabase/client";
@@ -147,15 +148,12 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
   const featuredEvents = showPast ? [] : events.filter((event) => event.is_featured).slice(0, 3);
   const upcomingEvents = events.filter((event) => !featuredEvents.some((featured) => featured.id === event.id));
 
-  const eventsByMonth = useMemo(() => {
-    const grouped: Record<string, CalendarEvent[]> = {};
-    upcomingEvents.forEach((event) => {
-      const monthKey = format(parseISO(event.start_date), "yyyy-MM");
-      if (!grouped[monthKey]) grouped[monthKey] = [];
-      grouped[monthKey].push(event);
-    });
-    return grouped;
-  }, [upcomingEvents]);
+  const eventsByMonth: Record<string, CalendarEvent[]> = {};
+  upcomingEvents.forEach((event) => {
+    const monthKey = format(parseISO(event.start_date), "yyyy-MM");
+    if (!eventsByMonth[monthKey]) eventsByMonth[monthKey] = [];
+    eventsByMonth[monthKey].push(event);
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -374,9 +372,9 @@ export function EventsClient(props: EventsClientProps) {
   const router = useRouter();
   const pathname = usePathname();
   const nextSearchParams = useNextSearchParams();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
 
-  const search = nextSearchParams.toString();
+  const search = nextSearchParams?.toString() ?? "";
   const location = useMemo(
     () => ({
       pathname,
@@ -405,7 +403,6 @@ export function EventsClient(props: EventsClientProps) {
   );
 
   useEffect(() => {
-    setMounted(true);
     const serverShell = document.getElementById("events-server-shell");
     if (serverShell) {
       serverShell.style.display = "none";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { NavigationType, Router, createPath, type To } from "react-router";
@@ -69,6 +69,7 @@ import { ArchitectureDecorationLayout } from "@/components/listing-details/Archi
 import { ProtectionServicesLayout } from "@/components/listing-details/ProtectionServicesLayout";
 import { RealEstateAgentContactCard } from "@/components/real-estate/RealEstateAgentContactCard";
 import type { MapListingPoint } from "@/components/map/ListingsLeafletMap";
+import { useHydrated } from "@/hooks/useHydrated";
 
 type HomegrownNavigator = {
   createHref: (to: To) => string;
@@ -843,7 +844,7 @@ function ListingDetailClientInner({
                           src={image.image_url}
                           categoryImageUrl={normalizedCategoryImageUrl}
                           fallbackSrc="/placeholder.svg"
-                          alt={image.alt_text}
+                          alt={image.alt_text ?? listing.name}
                           className="w-full h-full object-cover"
                         />
                         {index === 3 && galleryImages.length > 5 ? (
@@ -1120,7 +1121,10 @@ function ListingDetailClientInner({
       <Footer />
 
       <ImageLightbox
-        images={galleryImages}
+        images={galleryImages.map((image) => ({
+          ...image,
+          alt_text: image.alt_text ?? undefined,
+        }))}
         currentIndex={currentImageIndex}
         isOpen={lightboxOpen}
         onClose={() => setLightboxOpen(false)}
@@ -1181,9 +1185,9 @@ export function ListingDetailClient(props: ListingDetailClientProps) {
   const router = useRouter();
   const pathname = usePathname();
   const nextSearchParams = useNextSearchParams();
-  const [mounted, setMounted] = useState(false);
+  const hydrated = useHydrated();
 
-  const search = nextSearchParams.toString();
+  const search = nextSearchParams?.toString() ?? "";
   const location = useMemo(
     () => ({
       pathname,
@@ -1212,14 +1216,15 @@ export function ListingDetailClient(props: ListingDetailClientProps) {
   );
 
   useEffect(() => {
-    setMounted(true);
+    if (!hydrated) return;
+
     const serverShell = document.getElementById("listing-detail-server-shell");
     if (serverShell) {
       serverShell.style.display = "none";
     }
-  }, []);
+  }, [hydrated]);
 
-  if (!mounted) {
+  if (!hydrated) {
     return null;
   }
 

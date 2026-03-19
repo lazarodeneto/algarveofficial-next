@@ -2,7 +2,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Json } from "@/integrations/supabase/types";
 
 export interface FAQ {
   question: string;
@@ -35,22 +34,9 @@ export interface PartnerSettings {
   updated_at: string;
 }
 
-// Type for updates that converts FAQ[] to Json for Supabase
-type PartnerSettingsUpdate = Omit<Partial<PartnerSettings>, 'faqs'> & {
-  faqs?: Json;
-};
-
 export function usePartnerSettings() {
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      settings: undefined,
-      isLoading: false,
-      error: null,
-      updateSettings: { mutate: () => {}, mutateAsync: async () => {}, isPending: false },
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   const { data: settings, isLoading, error } = useQuery({
     queryKey: ['partner-settings'],
@@ -82,10 +68,13 @@ export function usePartnerSettings() {
       return parsed;
     },
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    enabled: isBrowser,
   });
 
   const updateSettings = useMutation({
     mutationFn: async (updates: Partial<PartnerSettings>) => {
+      if (!isBrowser) return;
+
       // Build the update object explicitly for Supabase
       const { faqs, ...rest } = updates;
       
@@ -105,16 +94,16 @@ export function usePartnerSettings() {
       queryClient.invalidateQueries({ queryKey: ['partner-settings'] });
       toast.success('Partner page settings saved');
     },
-    onError: (error) => {
-      console.error('Error updating partner settings:', error);
+    onError: (mutationError) => {
+      console.error('Error updating partner settings:', mutationError);
       toast.error('Failed to save settings');
     },
   });
 
   return {
-    settings,
-    isLoading,
-    error,
+    settings: isBrowser ? settings : undefined,
+    isLoading: isBrowser ? isLoading : false,
+    error: isBrowser ? error : null,
     updateSettings,
   };
 }

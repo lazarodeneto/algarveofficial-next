@@ -1,10 +1,14 @@
-import { useState } from "react";
-import { Outlet } from "next/link";
+import { useState, type ReactNode } from "react";
+import { Outlet } from "@/components/router/nextRouterCompat";
 import { UserSidebar } from "@/components/user/UserSidebar";
 import { UserHeader } from "@/components/user/UserHeader";
 import { SeoHead } from "@/components/seo/SeoHead";
 
-export function UserLayout() {
+interface UserLayoutProps {
+  children?: ReactNode;
+}
+
+export function UserLayout({ children }: UserLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
@@ -17,7 +21,7 @@ export function UserLayout() {
       <div className="flex-1 flex flex-col min-w-0">
         <UserHeader />
         <main className="flex-1 p-4 lg:p-6 overflow-auto">
-          <Outlet />
+          {children ?? <Outlet />}
         </main>
       </div>
     </div>

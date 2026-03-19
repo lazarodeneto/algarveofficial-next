@@ -15,14 +15,7 @@ type ChatMessage = Tables<"chat_messages">;
 // Fetch all threads for the current user (as viewer or owner)
 export function useChatThreads() {
   const { user } = useAuth();
-
-  if (typeof window === "undefined") {
-    return {
-      data: [] as ChatThread[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useQuery({
     queryKey: ["chat-threads", user?.id],
@@ -42,7 +35,8 @@ export function useChatThreads() {
       if (error) throw error;
       return data as ChatThread[];
     },
-    enabled: !!user,
+    enabled: isBrowser && !!user,
+    initialData: [] as ChatThread[],
   });
 }
 
@@ -52,13 +46,8 @@ export function useChatThreads() {
  * No per-thread channel — eliminates duplicate WAL subscriptions.
  */
 export function useChatMessages(threadId: string | null) {
-  if (typeof window === "undefined") {
-    return {
-      data: [] as ChatMessage[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ["chat-messages", threadId],
     queryFn: async () => {
@@ -73,7 +62,8 @@ export function useChatMessages(threadId: string | null) {
       if (error) throw error;
       return data as ChatMessage[];
     },
-    enabled: !!threadId,
+    enabled: isBrowser && !!threadId,
+    initialData: [] as ChatMessage[],
   });
 }
 
@@ -81,17 +71,11 @@ export function useChatMessages(threadId: string | null) {
 export function useCreateOrFindThread() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      mutate: () => {},
-      mutateAsync: async () => ({}),
-      isPending: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async ({ listingId, ownerId }: { listingId: string; ownerId: string }) => {
+      if (!isBrowser) return null;
       if (!user) throw new Error("Must be logged in");
 
       // First, try to find existing thread
@@ -130,17 +114,12 @@ export function useCreateOrFindThread() {
 // Send a message
 export function useSendMessage() {
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      mutate: () => {},
-      mutateAsync: async () => ({}),
-      isPending: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async ({ threadId, messageText }: { threadId: string; messageText: string }) => {
+      if (!isBrowser) return null;
+
       const { data, error } = await supabase.functions.invoke("whatsapp-send", {
         body: {
           thread_id: threadId,
@@ -171,14 +150,7 @@ export function useSendMessage() {
 export function useMarkThreadMessagesAsRead() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      mutate: () => {},
-      mutateAsync: async () => ({}),
-      isPending: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     onMutate: async (threadId: string) => {
@@ -225,6 +197,7 @@ export function useMarkThreadMessagesAsRead() {
       };
     },
     mutationFn: async (threadId: string) => {
+      if (!isBrowser) return;
       if (!user?.id || !threadId) return;
       
       const { error } = await supabase.rpc("mark_thread_messages_read", { p_thread_id: threadId });
@@ -259,13 +232,8 @@ export function useMarkThreadMessagesAsRead() {
 
 // Check if a listing owner has WhatsApp enabled
 export function useOwnerWhatsAppStatus(ownerId: string | undefined) {
-  if (typeof window === "undefined") {
-    return {
-      data: { enabled: false, phone: null },
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ["owner-whatsapp-status", ownerId],
     queryFn: async () => {
@@ -284,6 +252,7 @@ export function useOwnerWhatsAppStatus(ownerId: string | undefined) {
         phone: data?.business_phone_e164 || null,
       };
     },
-    enabled: !!ownerId,
+    enabled: isBrowser && !!ownerId,
+    initialData: { enabled: false, phone: null as string | null },
   });
 }

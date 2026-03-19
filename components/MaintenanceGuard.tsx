@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
-const Maintenance = lazy(() => import("@/pages/Maintenance"));
+const Maintenance = lazy(() => import("@/legacy-pages/Maintenance"));
 
 interface MaintenanceGuardProps {
   children: ReactNode;
@@ -17,7 +17,7 @@ const IP_TIMEOUT_MS = 5000;
 
 export function MaintenanceGuard({ children }: MaintenanceGuardProps) {
   const { user } = useAuth();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "/";
   const [clientIp, setClientIp] = useState<string | null>(null);
   const [ipTimedOut, setIpTimedOut] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);

@@ -22,6 +22,7 @@ import {
 } from "@/lib/cms/pageBuilderRegistry";
 import { getRegionImageSet } from "@/lib/regionImages";
 import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
+import { useHydrated } from "@/hooks/useHydrated";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
 
@@ -472,9 +473,9 @@ export function DestinationsClient(props: DestinationsClientProps) {
   const router = useRouter();
   const pathname = usePathname();
   const nextSearchParams = useNextSearchParams();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
 
-  const search = nextSearchParams.toString();
+  const search = nextSearchParams?.toString() ?? "";
   const location = useMemo(
     () => ({
       pathname,
@@ -503,7 +504,6 @@ export function DestinationsClient(props: DestinationsClientProps) {
   );
 
   useEffect(() => {
-    setMounted(true);
     const serverShell = document.getElementById("destinations-server-shell");
     if (serverShell) {
       serverShell.style.display = "none";

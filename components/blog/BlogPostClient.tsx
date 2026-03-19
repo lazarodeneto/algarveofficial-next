@@ -14,6 +14,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
+import { useHydrated } from "@/hooks/useHydrated";
 import { getSessionId } from "@/lib/sessionId";
 
 type HomegrownNavigator = {
@@ -215,9 +216,9 @@ export function BlogPostClient(props: BlogPostClientProps) {
   const router = useRouter();
   const pathname = usePathname();
   const nextSearchParams = useNextSearchParams();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
 
-  const search = nextSearchParams.toString();
+  const search = nextSearchParams?.toString() ?? "";
   const location = useMemo(
     () => ({
       pathname,
@@ -244,10 +245,6 @@ export function BlogPostClient(props: BlogPostClientProps) {
     }),
     [router],
   );
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   if (!mounted) {
     return null;

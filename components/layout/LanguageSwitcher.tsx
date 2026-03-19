@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useNavigate, useLocation } from "next/link";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Globe } from "lucide-react";
 import { ensureLocaleLoaded } from "@/i18n";
+import { cn } from "@/lib/utils";
 
 const languages = [
   { code: "en", name: "English", flag: "🇬🇧", prefix: "" },
@@ -46,54 +47,60 @@ export function LanguageSwitcher() {
     const lang = languages.find((l) => l.code === langCode);
     if (!lang) return;
 
-    // Get the bare path (without language prefix)
     const barePath = stripLangPrefix(location.pathname);
-
-    // Build the new path
-    const newPath = lang.prefix
-      ? `${lang.prefix}${barePath === "/" ? "" : barePath}`
-      : barePath;
+    const currentHasLegacyPrefix = barePath !== location.pathname;
+    const nextPath = barePath || "/";
 
     void (async () => {
-      await ensureLocaleLoaded(langCode, { force: true });
+      await ensureLocaleLoaded(langCode);
       if (typeof i18n.changeLanguage !== "function") return;
       await i18n.changeLanguage(langCode);
       localStorage.setItem("algarve-language", langCode);
       localStorage.setItem("algarve-language-chosen", "true");
 
-      // Navigate to the new language-prefixed URL
-      navigate(newPath || "/", { replace: true });
+      // Keep users on the working App Router route while locale-prefixed
+      // routes are still being migrated. If they are already on a legacy
+      // prefixed URL, strip it back to the equivalent bare path.
+      if (currentHasLegacyPrefix) {
+        navigate(`${nextPath}${location.search}${location.hash}`, { replace: true });
+      }
     })();
   };
 
   return (
-    <div className="flex items-center gap-1">
-      <Globe className="h-4 w-4 text-muted-foreground" />
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className="px-2 text-sm">
-            {currentLanguage.code === "pt-pt" ? "PT" : currentLanguage.code.toUpperCase()}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent 
-          align="end" 
-          className="z-[1000] min-w-[140px] glass-box border border-white/20 p-2 space-y-1"
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-10 rounded-full px-2.5 text-sm font-semibold text-foreground hover:bg-transparent hover:text-primary dark:text-white dark:hover:text-primary"
         >
-          {languages.map((lang) => (
-            <DropdownMenuItem
-              key={lang.code}
-              onClick={() => changeLanguage(lang.code)}
-              className={`cursor-pointer rounded-md px-3 py-2.5 text-sm transition-colors ${
-                i18n.language === lang.code 
-                  ? "bg-primary/20 text-primary font-medium" 
-                  : "hover:bg-white/10"
-              }`}
-            >
-              {lang.name}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+          <span className="inline-flex items-center gap-2">
+            <Globe className="h-4 w-4 text-primary" />
+            <span>{currentLanguage.code === "pt-pt" ? "PT" : currentLanguage.code.toUpperCase()}</span>
+          </span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        className={cn(
+          "z-[1000] min-w-[160px] rounded-2xl border border-black/10 bg-white/95 p-2 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.35)] backdrop-blur-2xl dark:border-white/12 dark:bg-[hsl(var(--background)/0.9)]",
+        )}
+      >
+        {languages.map((lang) => (
+          <DropdownMenuItem
+            key={lang.code}
+            onClick={() => changeLanguage(lang.code)}
+            className={`cursor-pointer rounded-xl px-3 py-2.5 text-sm transition-colors ${
+              i18n.language === lang.code
+                ? "bg-primary/15 text-primary font-semibold"
+                : "hover:bg-black/5 dark:hover:bg-white/8"
+            }`}
+          >
+            {lang.name}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

@@ -44,6 +44,12 @@ interface SeoFieldsPanelProps {
   compact?: boolean;
 }
 
+function StatusIndicator({ status }: { status: "empty" | "good" | "warning" }) {
+  if (status === "good") return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+  if (status === "warning") return <AlertCircle className="h-4 w-4 text-amber-500" />;
+  return null;
+}
+
 export function SeoFieldsPanel({
   data,
   onChange,
@@ -60,12 +66,6 @@ export function SeoFieldsPanel({
   
   const titleStatus = titleLength === 0 ? "empty" : titleLength <= 60 ? "good" : "warning";
   const descStatus = descLength === 0 ? "empty" : descLength <= 160 ? "good" : "warning";
-
-  const StatusIndicator = ({ status }: { status: "empty" | "good" | "warning" }) => {
-    if (status === "good") return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-    if (status === "warning") return <AlertCircle className="h-4 w-4 text-amber-500" />;
-    return null;
-  };
 
   const previewTitle = data.meta_title || pageName;
   const previewDesc = data.meta_description || "No description set";

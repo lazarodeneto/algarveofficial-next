@@ -1,4 +1,3 @@
-"use client";
 import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -59,17 +58,8 @@ const preferTranslatedValue = (translated: string | null | undefined, fallback: 
 
 export function useHomepageSettings() {
   const queryClient = useQueryClient();
+  const isBrowser = typeof window !== "undefined";
 
-  if (typeof window === "undefined") {
-    return {
-      settings: null,
-      isLoading: false,
-      error: null,
-      updateSettings: () => {},
-      updateSettingsAsync: async () => ({} as HomepageSettings),
-      isUpdating: false,
-    };
-  }
   const { data: settings, isLoading, error } = useQuery({
     queryKey: ['homepage-settings'],
     queryFn: async () => {
@@ -89,10 +79,15 @@ export function useHomepageSettings() {
       return (data ?? null) as HomepageSettings | null;
     },
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    enabled: isBrowser,
   });
 
   const updateSettings = useMutation({
     mutationFn: async (newSettings: Partial<HomepageSettings>) => {
+      if (!isBrowser) {
+        return {} as HomepageSettings;
+      }
+
       // Read current row first so updates only include columns that actually exist
       // in the connected database schema.
       const { data: current, error: currentError } = await supabase
@@ -151,24 +146,16 @@ export function useHomepageSettings() {
     },
   });
 
-  if (typeof window === "undefined") {
-    return {
-      settings: null,
-      isLoading: false,
-      error: null,
-      updateSettings: () => {},
-      updateSettingsAsync: async () => ({} as HomepageSettings),
-      isUpdating: false,
-    };
-  }
+  const noopUpdateSettings = () => undefined;
+  const noopUpdateSettingsAsync = async (): Promise<HomepageSettings> => ({} as HomepageSettings);
 
   return {
-    settings,
-    isLoading,
-    error,
-    updateSettings: updateSettings.mutate,
-    updateSettingsAsync: updateSettings.mutateAsync,
-    isUpdating: updateSettings.isPending,
+    settings: isBrowser ? settings : null,
+    isLoading: isBrowser ? isLoading : false,
+    error: isBrowser ? error : null,
+    updateSettings: isBrowser ? updateSettings.mutate : noopUpdateSettings,
+    updateSettingsAsync: isBrowser ? updateSettings.mutateAsync : noopUpdateSettingsAsync,
+    isUpdating: isBrowser ? updateSettings.isPending : false,
   };
 }
 
@@ -185,8 +172,8 @@ export function useHeroSettings() {
     queryFn: async () => {
       if (typeof window === "undefined" || !settings?.id || locale === "en") return null;
 
-      const { data, error } = await ((supabase as any)
-        .from("homepage_settings_translations"))
+      const { data, error } = await supabase
+        .from("homepage_settings_translations")
         .select(HOMEPAGE_TRANSLATION_FIELDS)
         .eq("settings_id", settings.id)
         .eq("locale", locale)

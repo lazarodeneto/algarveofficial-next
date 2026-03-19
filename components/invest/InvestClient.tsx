@@ -10,8 +10,9 @@ import {
   useSearchParams as useNextSearchParams,
 } from "next/navigation";
 
-import InvestPage from "@/pages/public/Invest";
+import InvestPage from "@/legacy-pages/public/Invest";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
+import { useHydrated } from "@/hooks/useHydrated";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 
 type LegacyNavigator = {
@@ -43,9 +44,9 @@ export default function InvestClient({
   const pathname = usePathname();
   const nextSearchParams = useNextSearchParams();
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
 
-  const search = nextSearchParams.toString();
+  const search = nextSearchParams?.toString() ?? "";
 
   const location = useMemo(
     () => ({
@@ -81,7 +82,6 @@ export default function InvestClient({
     if (serverShell) {
       serverShell.style.display = "none";
     }
-    setMounted(true);
   }, [initialGlobalSettings, queryClient]);
 
   if (!mounted) {

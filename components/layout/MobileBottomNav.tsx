@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "next/link";
+import { Link, useLocation } from "react-router-dom";
 import { Home, Binoculars, Building2, TrendingUp, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
@@ -56,12 +56,13 @@ export function MobileBottomNav() {
   return (
     <nav
       className={cn(
-        "bottom-nav xl:hidden transition-transform duration-200 ease-out",
+        "bottom-nav lg:hidden transition-transform duration-200 ease-out",
         isUserScrolling && "translate-y-[calc(100%+env(safe-area-inset-bottom))]"
       )}
       style={{ display: mobileMenuOpen ? 'none' : undefined }}
+      aria-label={t("nav.mobilePrimary", "Primary navigation")}
     >
-      <div className="flex items-center justify-around w-full h-14">
+      <div className="bottom-nav__inner">
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href);
@@ -69,16 +70,17 @@ export function MobileBottomNav() {
           return (
             <Link
               key={item.name}
-              href={buildLangPath(langPrefix, item.href)}
+              to={buildLangPath(langPrefix, item.href)}
               className={cn(
-                "flex items-center justify-center p-3 rounded-full transition-colors tap-target",
+                "bottom-nav__link tap-target",
                 active
-                  ? "text-primary"
+                  ? "bottom-nav__link--active"
                   : "text-muted-foreground hover:text-foreground"
               )}
               aria-label={t(item.name)}
             >
-              <Icon className="h-6 w-6" />
+              <Icon className="bottom-nav__icon" />
+              <span className="bottom-nav__label">{t(item.name)}</span>
             </Link>
           );
         })}

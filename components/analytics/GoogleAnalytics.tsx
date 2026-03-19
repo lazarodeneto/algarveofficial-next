@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useLocation } from "next/link";
+import { useLocation } from "@/components/router/nextRouterCompat";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { useSiteColors } from "@/hooks/useSiteSettings"; // Using lightweight hook to get settings
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from "next/link";
+import { useLocation } from "@/components/router/nextRouterCompat";
 import { useTranslation } from "react-i18next";
 
 const MAIN_CONTENT_ID = "main-content";
@@ -110,18 +110,18 @@ export function RouteAccessibility() {
   }, [location.pathname, location.search, location.hash]);
 
   useEffect(() => {
-    setAnnouncement("");
-
     const timeoutId = window.setTimeout(() => {
       const title = document.title?.trim();
       if (!title) return;
 
-      setAnnouncement(
-        t("accessibility.routeChanged", {
+      const nextAnnouncement = t("accessibility.routeChanged", {
           title,
           defaultValue: `Navigated to ${title}`,
-        }),
-      );
+        });
+
+      setAnnouncement((previous) => (
+        previous === nextAnnouncement ? `${nextAnnouncement}\u00A0` : nextAnnouncement
+      ));
     }, ANNOUNCE_DELAY_MS);
 
     return () => {

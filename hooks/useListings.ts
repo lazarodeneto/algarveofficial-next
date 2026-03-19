@@ -1,4 +1,3 @@
-"use client";
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useTranslation } from "react-i18next";
 import { supabase } from '@/integrations/supabase/client';
@@ -198,8 +197,13 @@ async function resolveSearchCategoryIds(search?: string): Promise<string[]> {
   return Array.from(ids);
 }
 
-function applyListingFilters(
-  query: any,
+function applyListingFilters<T extends {
+  in: (column: string, values: readonly string[]) => T;
+  eq: (column: string, value: unknown) => T;
+  or: (filters: string) => T;
+  neq: (column: string, value: string) => T;
+}>(
+  query: T,
   filters: ListingFilters,
   excludedCategoryId: string | null,
   matchingCategoryIds: string[] = []
@@ -218,7 +222,7 @@ function applyListingFilters(
     query = query.eq('region_id', filters.regionId);
   }
 
-  if (filters.tier && filters.tier !== ('all' as any)) {
+  if (filters.tier) {
     query = query.eq('tier', filters.tier);
   }
 
@@ -313,14 +317,7 @@ export function usePublishedListings(filters: ListingFilters = {}) {
   const { i18n } = useTranslation();
   const locale = normalizePublicContentLocale(i18n.language);
   const normalizedFilters = normalizeListingFilters(filters);
-
-  if (typeof window === "undefined") {
-    return {
-      data: [] as ListingWithRelations[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useQuery({
     queryKey: ['listings', 'published', normalizedFilters, locale],
@@ -394,6 +391,8 @@ export function usePublishedListings(filters: ListingFilters = {}) {
         categoryTranslations,
       );
     },
+    enabled: isBrowser,
+    initialData: [] as ListingWithRelations[],
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes — listings rarely change
     gcTime: 1000 * 60 * 15,
   });
@@ -406,14 +405,7 @@ export function usePublishedListings(filters: ListingFilters = {}) {
 export function useListing(idOrSlug: string | undefined) {
   const { i18n } = useTranslation();
   const locale = normalizePublicContentLocale(i18n.language);
-
-  if (typeof window === "undefined") {
-    return {
-      data: null,
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useQuery({
     queryKey: ['listing', idOrSlug, locale],
@@ -467,7 +459,8 @@ export function useListing(idOrSlug: string | undefined) {
 
       return localizedListing;
     },
-    enabled: !!idOrSlug,
+    enabled: isBrowser && !!idOrSlug,
+    initialData: null as (ListingWithRelations & { images?: unknown[] }) | null,
   });
 }
 
@@ -500,14 +493,7 @@ export function useResolveSlug(slug: string | undefined) {
 export function useCuratedListings() {
   const { i18n } = useTranslation();
   const locale = normalizePublicContentLocale(i18n.language);
-
-  if (typeof window === "undefined") {
-    return {
-      data: [] as ListingWithRelations[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useQuery({
     queryKey: ['listings', 'curated', locale],
@@ -547,6 +533,8 @@ export function useCuratedListings() {
         categoryTranslations,
       );
     },
+    enabled: isBrowser,
+    initialData: [] as ListingWithRelations[],
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
   });
@@ -559,14 +547,7 @@ export function useCuratedListings() {
 export function useSignatureListings() {
   const { i18n } = useTranslation();
   const locale = normalizePublicContentLocale(i18n.language);
-
-  if (typeof window === "undefined") {
-    return {
-      data: [] as ListingWithRelations[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useQuery({
     queryKey: ['listings', 'signature', locale],
@@ -605,6 +586,8 @@ export function useSignatureListings() {
         categoryTranslations,
       );
     },
+    enabled: isBrowser,
+    initialData: [] as ListingWithRelations[],
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
   });

@@ -21,7 +21,7 @@ import {
 import { User, Building2, MessageSquare, ExternalLink, Shield, Send, Loader2, Trash2 } from "lucide-react";
 import { ChatThread, ChatMessage, useAdminChatMessages, useUpdateThreadStatus, useAdminSendMessage, useMarkThreadAsRead, useDeleteThread, useDeleteChatMessage } from "@/hooks/useAdminChat";
 import { cn } from "@/lib/utils";
-import { Link } from "next/link";
+import { Link } from "@/components/router/nextRouterCompat";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { normalizeThreadStatus, type ThreadStatus } from "@/lib/chatThreadStatus";
 
@@ -48,7 +48,7 @@ export const ThreadDetailDialog = forwardRef<HTMLDivElement, ThreadDetailDialogP
 
     const handleStatusChange = (status: string) => {
       if (!threadId) return;
-      updateStatus.mutate({ threadId: thread.id, status: status as ThreadStatus });
+      updateStatus.mutate({ threadId, status: status as ThreadStatus });
     };
 
     const handleSend = () => {
@@ -79,18 +79,19 @@ export const ThreadDetailDialog = forwardRef<HTMLDivElement, ThreadDetailDialogP
       markThreadAsRead.mutate(threadId);
     }, [open, threadId, markThreadAsRead]);
 
-    useEffect(() => {
-      if (!open) {
+    const handleDialogOpenChange = (nextOpen: boolean) => {
+      if (!nextOpen) {
         hasMarkedForOpenRef.current = null;
         setMessageToDelete(null);
         setConfirmDeleteThread(false);
       }
-    }, [open]);
+      onOpenChange(nextOpen);
+    };
 
     if (!thread) return null;
 
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={handleDialogOpenChange}>
         <DialogContent ref={ref} className="max-w-2xl max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">

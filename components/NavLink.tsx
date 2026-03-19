@@ -1,8 +1,15 @@
-import { NavLink as RouterNavLink, NavLinkProps } from "next/link";
-import { forwardRef } from "react";
+import { NavLink as RouterNavLink } from "@/components/router/nextRouterCompat";
+import { forwardRef, type MouseEventHandler, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-interface NavLinkCompatProps extends Omit<NavLinkProps, "className"> {
+interface NavLinkCompatProps {
+  to: string;
+  end?: boolean;
+  children?: ReactNode;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
+  target?: string;
+  rel?: string;
+  "aria-label"?: string;
   className?: string;
   activeClassName?: string;
   pendingClassName?: string;

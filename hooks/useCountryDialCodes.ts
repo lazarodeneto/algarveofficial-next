@@ -1,4 +1,3 @@
-"use client";
 export interface CountryDialCode {
   code: string;
   name: string;

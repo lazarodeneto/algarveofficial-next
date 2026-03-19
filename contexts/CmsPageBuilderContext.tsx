@@ -1,4 +1,3 @@
-"use client";
 import { createContext, useContext, useEffect, useMemo, useRef, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";

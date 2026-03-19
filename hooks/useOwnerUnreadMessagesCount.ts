@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLocation } from "next/link";
+import { useLocation } from "@/components/router/nextRouterCompat";
 
 /**
  * Hook to fetch the count of unread inbound messages for an owner
@@ -11,15 +11,8 @@ import { useLocation } from "next/link";
 export function useOwnerUnreadMessagesCount() {
   const { user } = useAuth();
   const location = useLocation();
+  const isBrowser = typeof window !== "undefined";
   const isOwnerMessagesRoute = location.pathname.startsWith("/owner/messages");
-
-  if (typeof window === "undefined") {
-    return {
-      data: 0,
-      isLoading: false,
-      error: null,
-    };
-  }
 
   return useQuery({
     queryKey: ["owner-messages", "unread-count", user?.id, isOwnerMessagesRoute],
@@ -45,7 +38,8 @@ export function useOwnerUnreadMessagesCount() {
 
       return count || 0;
     },
-    enabled: !!user?.id,
+    enabled: isBrowser && !!user?.id,
+    initialData: 0,
     staleTime: 5_000,
   });
 }

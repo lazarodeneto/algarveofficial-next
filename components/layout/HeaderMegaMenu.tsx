@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useNavigate, useLocation } from "next/link";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
     NavigationMenu,
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import { useHeaderMenu } from "@/hooks/useHeaderMenu";
+import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
 import { getMenuIcon } from "@/lib/menu-icons";
 import {
     MapPin,
@@ -132,6 +133,14 @@ type SectionKey = keyof typeof sections;
 type HeaderRuntimeSection = (typeof sections)[SectionKey] & {
     displayLabel: string;
     navPath: string;
+    heroLink: string;
+    items: Array<{
+        href: string;
+        label: string;
+        translationKey?: string;
+        desc: string;
+        icon: React.ElementType;
+    }>;
     icon: React.ElementType;
     openInNewTab: boolean;
 };
@@ -140,6 +149,7 @@ type HeaderRuntimeSection = (typeof sections)[SectionKey] & {
 function useHeaderRuntimeSections(): HeaderRuntimeSection[] {
     const { t } = useTranslation();
     const { data: headerMenuItems = [] } = useHeaderMenu();
+    const langPrefix = useLangPrefix();
     const sectionEntries = React.useMemo(() => Object.entries(sections) as Array<[SectionKey, (typeof sections)[SectionKey]]>, []);
     
     return React.useMemo(() => {
@@ -178,7 +188,12 @@ function useHeaderRuntimeSections(): HeaderRuntimeSection[] {
                 return {
                     ...section,
                     displayLabel: t(section.label),
-                    navPath: section.navPath,
+                    navPath: buildLangPath(langPrefix, section.navPath),
+                    heroLink: buildLangPath(langPrefix, section.heroLink),
+                    items: section.items.map((item) => ({
+                        ...item,
+                        href: buildLangPath(langPrefix, item.href),
+                    })),
                     icon: section.icon,
                     openInNewTab: false,
                 };
@@ -189,12 +204,17 @@ function useHeaderRuntimeSections(): HeaderRuntimeSection[] {
                 displayLabel: mappedItem.translation_key
                     ? t(mappedItem.translation_key, mappedItem.name)
                     : mappedItem.name,
-                navPath: mappedItem.href || section.navPath,
+                navPath: buildLangPath(langPrefix, mappedItem.href || section.navPath),
+                heroLink: buildLangPath(langPrefix, section.heroLink),
+                items: section.items.map((item) => ({
+                    ...item,
+                    href: buildLangPath(langPrefix, item.href),
+                })),
                 icon: sectionKey === "visit" ? Binoculars : getMenuIcon(mappedItem.icon),
                 openInNewTab: mappedItem.open_in_new_tab,
             };
         });
-    }, [headerMenuItems, sectionEntries, t]);
+    }, [headerMenuItems, langPrefix, sectionEntries, t]);
 }
 
 export function HeaderCompactNav() {
@@ -209,15 +229,14 @@ export function HeaderCompactNav() {
                     return (
                         <Link
                             key={section.value}
-                            href={section.navPath}
+                            to={section.navPath}
                             target={section.openInNewTab ? "_blank" : undefined}
                             rel={section.openInNewTab ? "noopener noreferrer" : undefined}
                             className={cn(
-                                "header-nav-pill inline-flex items-center gap-1.5 lg:gap-2 rounded-full border-2 px-3 lg:px-4 py-2 lg:py-2.5",
+                                "header-nav-pill inline-flex items-center gap-1.5 lg:gap-2 rounded-full border-2 px-3 lg:px-4 py-2 lg:py-2.5 shadow-[0_10px_30px_-24px_rgba(15,23,42,0.45)]",
                                 "text-[12px] lg:text-[13px] font-bold uppercase tracking-[0.08em] whitespace-nowrap transition-all duration-200",
-                                "bg-transparent text-white/90",
-                                section.navBorder,
-                                "hover:bg-white/10 hover:text-white",
+                                "border-black bg-white/88 text-foreground backdrop-blur-xl dark:border-white/40 dark:bg-transparent dark:text-white/90",
+                                "hover:border-primary/55 hover:bg-primary/8 hover:text-foreground dark:hover:bg-white/10 dark:hover:text-white",
                             )}
                         >
                             <SectionIcon className="h-[18px] w-[18px] lg:h-5 lg:w-5 flex-shrink-0 text-[#FFBB33]" />
@@ -281,17 +300,13 @@ export function HeaderMegaMenu() {
                         <NavigationMenuItem key={section.value} value={section.value}>
                             <NavigationMenuTrigger
                                 onClick={(e) => handleItemClick(e, section.value, section.navPath, section.openInNewTab)}
-                                className={cn(
-                                    // Base pill — larger icon/text for stronger header CTA hierarchy
-                                    "header-nav-pill relative flex items-center gap-2 px-3.5 xl:px-5 2xl:px-7 py-2.5 xl:py-3 rounded-full border-2 transition-all duration-200",
+                            className={cn(
+                                    "header-nav-pill relative flex items-center gap-2 px-3.5 xl:px-5 2xl:px-7 py-2.5 xl:py-3 rounded-full border-2 shadow-[0_12px_32px_-26px_rgba(15,23,42,0.45)] transition-all duration-200",
                                     "text-[13px] xl:text-[15px] 2xl:text-[17px] font-bold uppercase tracking-[0.08em] xl:tracking-[0.1em] 2xl:tracking-[0.12em]",
-                                    "bg-transparent shadow-none text-white/90",
-                                    // Per-section border color
-                                    section.navBorder,
-                                    "hover:bg-white/10 hover:text-white",
-                                    // Open/active state: gold border + gold glow (works on both modes)
+                                    "border-black bg-white/88 text-foreground backdrop-blur-xl dark:border-white/40 dark:bg-transparent dark:text-white/90",
+                                    "hover:border-primary/55 hover:bg-primary/8 hover:text-foreground dark:hover:bg-white/10 dark:hover:text-white",
                                     isOpen
-                                        ? "border-[var(--colour-gold)] bg-[rgba(199,163,90,0.16)] text-white shadow-[0_0_18px_rgba(199,163,90,0.18)]"
+                                        ? "border-[var(--colour-gold)] bg-[rgba(199,163,90,0.12)] text-foreground shadow-[0_18px_40px_-30px_rgba(199,163,90,0.55)] dark:text-white dark:bg-[rgba(199,163,90,0.16)]"
                                         : "",
                                     "focus:outline-none active:scale-[0.97]",
                                     "[&>svg:last-child]:hidden",
@@ -346,7 +361,7 @@ function MegaPanel({ section }: { section: HeaderRuntimeSection }) {
 
                     <NavigationMenuLink asChild>
                         <Link
-                            href={section.heroLink}
+                            to={section.heroLink}
                             className="group self-start inline-flex items-center gap-2 text-[13px] font-bold text-white bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/40 px-5 py-2.5 rounded-xl transition-all duration-200"
                         >
                             {section.heroLabel}
@@ -386,7 +401,7 @@ function PanelItem({
     return (
         <NavigationMenuLink asChild>
             <Link
-                href={item.href}
+                to={item.href}
                 className={cn(
                     "group flex items-start gap-3 rounded-xl px-3 py-2.5 border-2 border-transparent transition-all duration-150",
                     // Match VISIT hover/open palette

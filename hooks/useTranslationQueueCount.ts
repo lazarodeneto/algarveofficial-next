@@ -20,32 +20,32 @@ export function useTranslationQueueCount() {
     async function fetchCount() {
       // Use allSettled so a missing table (pre-migration) doesn't break the count
       const results = await Promise.allSettled([
-        (supabase as any)
+        supabase
           .from("translation_jobs")
           .select("id", { count: "exact", head: true })
           .eq("status", "queued"),
-        (supabase as any)
-          .from("category_translations")
+        supabase
+          .from("category_translations" as never)
           .select("id", { count: "exact", head: true })
           .eq("status", "needs_review"),
-        (supabase as any)
-          .from("city_translations")
+        supabase
+          .from("city_translations" as never)
           .select("id", { count: "exact", head: true })
           .eq("status", "needs_review"),
-        (supabase as any)
-          .from("region_translations")
+        supabase
+          .from("region_translations" as never)
           .select("id", { count: "exact", head: true })
           .eq("status", "needs_review"),
-        (supabase as any)
-          .from("footer_section_translations")
+        supabase
+          .from("footer_section_translations" as never)
           .select("id", { count: "exact", head: true })
           .eq("status", "needs_review"),
-        (supabase as any)
-          .from("footer_link_translations")
+        supabase
+          .from("footer_link_translations" as never)
           .select("id", { count: "exact", head: true })
           .eq("status", "needs_review"),
-        (supabase as any)
-          .from("blog_post_translations")
+        supabase
+          .from("blog_post_translations" as never)
           .select("id", { count: "exact", head: true })
           .eq("status", "needs_review"),
       ]);
@@ -62,7 +62,7 @@ export function useTranslationQueueCount() {
     fetchCount();
 
     // Subscribe to all relevant tables for live badge updates
-    const channel = (supabase as any)
+    const channel = supabase
       .channel("translation-queue-count-badge")
       .on("postgres_changes", { event: "*", schema: "public", table: "translation_jobs" }, fetchCount)
       .on("postgres_changes", { event: "*", schema: "public", table: "category_translations" }, fetchCount)

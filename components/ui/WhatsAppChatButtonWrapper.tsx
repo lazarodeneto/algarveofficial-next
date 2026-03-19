@@ -1,4 +1,3 @@
-"use client";
 import { useState } from "react";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 import { WhatsAppChatButton } from "./whatsapp-chat-button";

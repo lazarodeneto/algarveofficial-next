@@ -10,8 +10,9 @@ import {
   useSearchParams as useNextSearchParams,
 } from "next/navigation";
 
-import PartnerPage from "@/pages/public/Partner";
+import PartnerPage from "@/legacy-pages/public/Partner";
 import type { PartnerSettings } from "@/hooks/usePartnerSettings";
+import { useHydrated } from "@/hooks/useHydrated";
 
 type LegacyNavigator = {
   createHref: (to: To) => string;
@@ -35,9 +36,9 @@ export default function PartnerClient({
   const pathname = usePathname();
   const nextSearchParams = useNextSearchParams();
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
 
-  const search = nextSearchParams.toString();
+  const search = nextSearchParams?.toString() ?? "";
 
   const location = useMemo(
     () => ({
@@ -72,7 +73,6 @@ export default function PartnerClient({
     if (serverShell) {
       serverShell.style.display = "none";
     }
-    setMounted(true);
   }, [initialPartnerSettings, queryClient]);
 
   if (!mounted) {

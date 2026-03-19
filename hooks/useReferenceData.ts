@@ -1,4 +1,3 @@
-"use client";
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from "react-i18next";
 import { supabase } from '@/integrations/supabase/client';
@@ -71,14 +70,7 @@ function mergeCategoryTranslations(
 export function useCities() {
   const { i18n } = useTranslation();
   const locale = normalizePublicContentLocale(i18n.language);
-
-  if (typeof window === "undefined") {
-    return {
-      data: [] as CityRow[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useQuery({
     queryKey: ['cities', locale],
@@ -101,6 +93,8 @@ export function useCities() {
       const translations = await fetchCityTranslations(locale, cities.map((city) => city.id));
       return mergeCityTranslations(cities, translations);
     },
+    enabled: isBrowser,
+    initialData: [] as CityRow[],
     staleTime: 1000 * 60 * 10, // Cache for 10 minutes
   });
 }
@@ -111,14 +105,7 @@ export function useCities() {
 export function useRegions() {
   const { i18n } = useTranslation();
   const locale = normalizePublicContentLocale(i18n.language);
-
-  if (typeof window === "undefined") {
-    return {
-      data: [] as RegionRow[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useQuery({
     queryKey: ['regions', locale],
@@ -141,6 +128,8 @@ export function useRegions() {
       const translations = await fetchRegionTranslations(locale, regions.map((region) => region.id));
       return mergeRegionTranslations(regions, translations);
     },
+    enabled: isBrowser,
+    initialData: [] as RegionRow[],
     staleTime: 1000 * 60 * 10, // Cache for 10 minutes
   });
 }
@@ -151,14 +140,7 @@ export function useRegions() {
 export function useCategories() {
   const { i18n } = useTranslation();
   const locale = normalizePublicContentLocale(i18n.language);
-
-  if (typeof window === "undefined") {
-    return {
-      data: [] as CategoryRow[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useQuery({
     queryKey: ['categories', locale],
@@ -181,6 +163,8 @@ export function useCategories() {
       const translations = await fetchCategoryTranslations(locale, categories.map((category) => category.id));
       return mergeCategoryTranslations(categories, translations);
     },
+    enabled: isBrowser,
+    initialData: [] as CategoryRow[],
     staleTime: 1000 * 60 * 10, // Cache for 10 minutes
   });
 }
@@ -191,14 +175,7 @@ export function useCategories() {
 export function useFeaturedRegions() {
   const { i18n } = useTranslation();
   const locale = normalizePublicContentLocale(i18n.language);
-
-  if (typeof window === "undefined") {
-    return {
-      data: [] as RegionRow[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useQuery({
     queryKey: ['regions', 'featured', locale],
@@ -221,6 +198,8 @@ export function useFeaturedRegions() {
       const translations = await fetchRegionTranslations(locale, regions.map((region) => region.id));
       return mergeRegionTranslations(regions, translations);
     },
+    enabled: isBrowser,
+    initialData: [] as RegionRow[],
     staleTime: 1000 * 60 * 10,
   });
 }
@@ -231,14 +210,7 @@ export function useFeaturedRegions() {
 export function useFeaturedCities() {
   const { i18n } = useTranslation();
   const locale = normalizePublicContentLocale(i18n.language);
-
-  if (typeof window === "undefined") {
-    return {
-      data: [] as CityRow[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useQuery({
     queryKey: ['cities', 'featured', locale],
@@ -261,6 +233,8 @@ export function useFeaturedCities() {
       const translations = await fetchCityTranslations(locale, cities.map((city) => city.id));
       return mergeCityTranslations(cities, translations);
     },
+    enabled: isBrowser,
+    initialData: [] as CityRow[],
     staleTime: 1000 * 60 * 10,
   });
 }
@@ -271,14 +245,7 @@ export function useFeaturedCities() {
 export function useFeaturedCategories() {
   const { i18n } = useTranslation();
   const locale = normalizePublicContentLocale(i18n.language);
-
-  if (typeof window === "undefined") {
-    return {
-      data: [] as CategoryRow[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useQuery({
     queryKey: ['categories', 'featured', locale],
@@ -301,6 +268,8 @@ export function useFeaturedCategories() {
       const translations = await fetchCategoryTranslations(locale, categories.map((category) => category.id));
       return mergeCategoryTranslations(categories, translations);
     },
+    enabled: isBrowser,
+    initialData: [] as CategoryRow[],
     staleTime: 1000 * 60 * 10,
   });
 }
@@ -309,13 +278,8 @@ export function useFeaturedCategories() {
  * Fetch city-region mappings
  */
 export function useCityRegionMappings() {
-  if (typeof window === "undefined") {
-    return {
-      data: [],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ['city-region-mappings'],
     queryFn: async () => {
@@ -330,6 +294,8 @@ export function useCityRegionMappings() {
 
       return data;
     },
+    enabled: isBrowser,
+    initialData: [],
     staleTime: 1000 * 60 * 10,
   });
 }
@@ -342,13 +308,8 @@ export function useCityRegionMappings() {
  * Fetch ALL cities (including inactive) for admin forms
  */
 export function useAllCities() {
-  if (typeof window === "undefined") {
-    return {
-      data: [] as CityRow[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ['cities', 'all'],
     queryFn: async () => {
@@ -365,6 +326,8 @@ export function useAllCities() {
 
       return data as CityRow[];
     },
+    enabled: isBrowser,
+    initialData: [] as CityRow[],
     staleTime: 1000 * 60 * 10,
   });
 }
@@ -373,13 +336,8 @@ export function useAllCities() {
  * Fetch ALL regions (including inactive) for admin forms
  */
 export function useAllRegions() {
-  if (typeof window === "undefined") {
-    return {
-      data: [] as RegionRow[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ['regions', 'all'],
     queryFn: async () => {
@@ -396,6 +354,8 @@ export function useAllRegions() {
 
       return data as RegionRow[];
     },
+    enabled: isBrowser,
+    initialData: [] as RegionRow[],
     staleTime: 1000 * 60 * 10,
   });
 }
@@ -404,13 +364,8 @@ export function useAllRegions() {
  * Fetch ALL categories (including inactive) for admin forms
  */
 export function useAllCategories() {
-  if (typeof window === "undefined") {
-    return {
-      data: [] as CategoryRow[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ['categories', 'all'],
     queryFn: async () => {
@@ -427,6 +382,8 @@ export function useAllCategories() {
 
       return data as CategoryRow[];
     },
+    enabled: isBrowser,
+    initialData: [] as CategoryRow[],
     staleTime: 1000 * 60 * 10,
   });
 }

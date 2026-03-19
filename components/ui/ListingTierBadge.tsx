@@ -1,4 +1,3 @@
-"use client";
 import { Crown, ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";

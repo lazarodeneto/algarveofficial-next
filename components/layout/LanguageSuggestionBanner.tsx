@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
@@ -34,43 +34,43 @@ function stripLangPrefix(pathname: string): string {
 
 export function LanguageSuggestionBanner() {
   const { i18n, t } = useTranslation();
-  const [suggestion, setSuggestion] = useState<{ code: string; name: string; path: string } | null>(null);
-
-  useEffect(() => {
-    if (localStorage.getItem(STORAGE_KEY) === "true") return;
+  const [dismissed, setDismissed] = useState(
+    () => typeof window !== "undefined" && localStorage.getItem(STORAGE_KEY) === "true",
+  );
+  const suggestion = useMemo(() => {
+    if (dismissed) return null;
+    if (typeof window === "undefined") return null;
+    if (localStorage.getItem(STORAGE_KEY) === "true") return null;
 
     const browserLang = navigator.language?.toLowerCase() || "";
     const prefix = browserLang.split("-")[0];
-
     const match = SUPPORTED_LANGS[prefix];
-    if (!match) return; // unsupported language — no suggestion
+    if (!match) return null;
 
-    // Normalise current language for comparison (pt-pt → pt-pt, en → en)
     const current = i18n.language?.toLowerCase();
-    if (match.code === current) return; // already viewing the right language
+    if (match.code === current) return null;
 
-    setSuggestion(match);
-  }, [i18n.language]);
+    return match;
+  }, [dismissed, i18n.language]);
 
   if (!suggestion) return null;
 
   const accept = () => {
     void (async () => {
-      await ensureLocaleLoaded(suggestion.code, { force: true });
+      await ensureLocaleLoaded(suggestion.code);
       if (typeof i18n.changeLanguage !== "function") return;
       await i18n.changeLanguage(suggestion.code);
       localStorage.setItem("algarve-language", suggestion.code);
       localStorage.setItem(STORAGE_KEY, "true");
-      setSuggestion(null);
+      setDismissed(true);
 
-      // Preserve current route when switching language instead of forcing homepage.
+      // Keep the current working App Router path while localized prefix routes
+      // are still being migrated. If the visitor is already on a legacy
+      // prefixed path, strip that prefix rather than navigating deeper into it.
       const currentPath = window.location.pathname;
       const barePath = stripLangPrefix(currentPath);
-      const targetPrefix = suggestion.path === "/" ? "" : suggestion.path.replace(/\/$/, "");
-      const targetPath = targetPrefix
-        ? `${targetPrefix}${barePath === "/" ? "" : barePath}`
-        : barePath;
-      const nextUrl = `${targetPath || "/"}${window.location.search}${window.location.hash}`;
+      const targetPath = barePath || "/";
+      const nextUrl = `${targetPath}${window.location.search}${window.location.hash}`;
       const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
 
       if (nextUrl !== currentUrl) {
@@ -81,7 +81,7 @@ export function LanguageSuggestionBanner() {
 
   const dismiss = () => {
     localStorage.setItem(STORAGE_KEY, "true");
-    setSuggestion(null);
+    setDismissed(true);
   };
 
   return (

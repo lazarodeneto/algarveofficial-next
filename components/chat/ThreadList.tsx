@@ -64,7 +64,6 @@ export const ThreadList = forwardRef<HTMLDivElement, ThreadListProps>(
             <div className="w-12 h-12 rounded-lg bg-muted flex-shrink-0 overflow-hidden">
               <ListingImage
                 src={thread.listings?.featured_image_url}
-                listingId={thread.listing_id ?? thread.id}
                 alt={thread.listings?.name || "Listing"}
                 className="w-full h-full object-cover"
               />

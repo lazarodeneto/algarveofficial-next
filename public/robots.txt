@@ -1,0 +1,68 @@
+# AlgarveOfficial - Premium Experiences Portal
+# https://algarveofficial.com
+
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Google-specific settings
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Social Media Crawlers (important for rich previews)
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: Pinterest
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+# Block admin and auth pages from indexing
+User-agent: *
+Disallow: /admin
+Disallow: /owner
+Disallow: /user
+Disallow: /dashboard
+Disallow: /auth
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
+
+# Block API endpoints and internal paths
+Disallow: /api/
+Disallow: /_next/
+Disallow: /*.json$
+
+# Allow important resources
+Allow: /manifest.json
+Allow: /sitemap.xml
+Allow: /robots.txt
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.webp$
+Allow: /*.svg$
+
+# Host directive
+Host: https://algarveofficial.com
+
+# Sitemap submission
+Sitemap: https://algarveofficial.com/sitemap.xml

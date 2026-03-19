@@ -469,8 +469,7 @@ export function useCuratedAnalytics() {
   return useQuery({
     queryKey: ["admin-analytics", "curated"],
     queryFn: async (): Promise<CuratedAnalytics> => {
-      const [curatedData, listingsData, categoriesData, regionsData] = await Promise.all([
-        supabase.from("curated_assignments").select("listing_id, display_order"),
+      const [listingsData, categoriesData, regionsData] = await Promise.all([
         supabase
           .from("listings")
           .select("id, name, tier, view_count, category_id, region_id")

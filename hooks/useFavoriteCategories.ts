@@ -1,9 +1,8 @@
-"use client";
-import { useUserFavorites } from "@/hooks/useUserFavorites";
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
+import { useUserFavorites } from '@/hooks/useUserFavorites';
 
 const STORAGE_KEY = 'algarve-favorite-categories';
 
@@ -16,18 +15,7 @@ export interface FavoriteCategory {
 export function useFavoriteCategories() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      favoriteCategories: [],
-      favoriteCategoryIds: [],
-      addFavorite: async () => { },
-      removeFavorite: async () => { },
-      toggleFavorite: async () => { },
-      isFavorite: () => false,
-      isLoading: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   // Local state for unauthenticated users
   const [localFavorites, setLocalFavorites] = useState<FavoriteCategory[]>(() => {
@@ -70,7 +58,7 @@ export function useFavoriteCategories() {
       const { error } = await supabase
         .from('favorites')
         .insert({ user_id: user.id, category_id: categoryId });
-
+      
       if (!error) {
         queryClient.invalidateQueries({ queryKey: ['favorites', 'all', user.id] });
       }
@@ -96,7 +84,7 @@ export function useFavoriteCategories() {
         .delete()
         .eq('user_id', user.id)
         .eq('category_id', categoryId);
-
+      
       if (!error) {
         queryClient.invalidateQueries({ queryKey: ['favorites', 'all', user.id] });
       }
@@ -125,6 +113,6 @@ export function useFavoriteCategories() {
     removeFavorite,
     toggleFavorite,
     isFavorite,
-    isLoading: user ? isLoading : false,
+    isLoading: isBrowser && user ? isLoading : false,
   };
 }

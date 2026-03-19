@@ -1,8 +1,12 @@
-import { Suspense, lazy, useMemo } from "react";
+"use client";
+
+import { Suspense, lazy, useMemo, type ComponentType, type LazyExoticComponent } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { PublicSiteSidebar } from "@/components/layout/PublicSiteSidebar";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { HomeQuickLinksSection } from "@/components/sections/HomeQuickLinksSection";
+import { AlgarveGuideSection } from "@/components/sections/AlgarveGuideSection";
 import { useHomepageSettings } from "@/hooks/useHomepageSettings";
 import { SeoHead } from "@/components/seo/SeoHead";
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/seo/JsonLd";
@@ -20,7 +24,7 @@ const NewsletterSection = lazy(() => import("@/components/sections/NewsletterSec
 const CTASection = lazy(() => import("@/components/sections/CTASection").then(m => ({ default: m.CTASection })));
 
 // Section ID to component mapping
-const SECTION_COMPONENTS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
+const SECTION_COMPONENTS: Record<string, LazyExoticComponent<ComponentType<any>>> = {
   regions: RegionsSection,
   categories: CategoriesSection,
   cities: CitiesSection,
@@ -84,53 +88,61 @@ const Index = () => {
       />
       <OrganizationJsonLd />
       <WebsiteJsonLd />
-      
-      <Header />
-      <main className="main">
-        <CmsBlock pageId="home" blockId="hero" as="section">
-          <HeroSection />
-        </CmsBlock>
-        <CmsBlock pageId="home" blockId="quick-links" as="section">
-          <HomeQuickLinksSection />
-        </CmsBlock>
-        <Suspense fallback={null}>
-          <div className="app-container content-max density">
-            {sectionsToRender.map(({ id, enabled }) => {
-              if (!enabled || !isBlockEnabled(id, true)) return null;
-              
-              const SectionComponent = SECTION_COMPONENTS[id];
-              if (!SectionComponent) return null;
 
-              // Special handling for curated section - pass context prop
-              if (id === 'curated') {
+      <div className="hidden lg:block">
+        <PublicSiteSidebar />
+      </div>
+
+      <div className="lg:pl-16 lg:pr-6">
+        <Header />
+        <main className="main">
+          <CmsBlock pageId="home" blockId="hero" as="section">
+            <HeroSection />
+          </CmsBlock>
+          <CmsBlock pageId="home" blockId="quick-links" as="section">
+            <HomeQuickLinksSection />
+          </CmsBlock>
+          <Suspense fallback={null}>
+            <div className="mx-auto w-full content-max density">
+              {sectionsToRender.map(({ id, enabled }) => {
+                if (!enabled || !isBlockEnabled(id, true)) return null;
+                
+                const SectionComponent = SECTION_COMPONENTS[id];
+                if (!SectionComponent) return null;
+
+                if (id === 'curated') {
+                  return (
+                    <CmsBlock pageId="home" blockId={id} key={id} as="section">
+                      <CuratedExcellence 
+                        context={{ type: 'home' }} 
+                        limit={4} 
+                      />
+                    </CmsBlock>
+                  );
+                }
+
                 return (
                   <CmsBlock pageId="home" blockId={id} key={id} as="section">
-                    <CuratedExcellence 
-                      context={{ type: 'home' }} 
-                      limit={4} 
-                    />
+                    <SectionComponent />
                   </CmsBlock>
                 );
-              }
-
-              return (
-                <CmsBlock pageId="home" blockId={id} key={id} as="section">
-                  <SectionComponent />
-                </CmsBlock>
-              );
-            })}
-          </div>
-          <CmsBlock pageId="home" blockId="newsletter" as="section">
-            <NewsletterSection />
-          </CmsBlock>
-          {showCta && (
-            <CmsBlock pageId="home" blockId="cta" as="section">
-              <CTASection />
+              })}
+              <CmsBlock pageId="home" blockId="algarve-guide" as="section">
+                <AlgarveGuideSection />
+              </CmsBlock>
+            </div>
+            <CmsBlock pageId="home" blockId="newsletter" as="section">
+              <NewsletterSection />
             </CmsBlock>
-          )}
-        </Suspense>
-      </main>
-      <Footer />
+            {showCta && (
+              <CmsBlock pageId="home" blockId="cta" as="section">
+                <CTASection />
+              </CmsBlock>
+            )}
+          </Suspense>
+        </main>
+        <Footer />
+      </div>
     </div>
   );
 };

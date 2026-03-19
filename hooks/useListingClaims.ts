@@ -38,17 +38,12 @@ interface SubmitClaimData {
  */
 export function useSubmitListingClaim() {
   const { user } = useAuth();
-
-  if (typeof window === "undefined") {
-    return {
-      mutate: () => {},
-      mutateAsync: async () => {},
-      isPending: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async (data: SubmitClaimData) => {
+      if (!isBrowser) return;
+
       const { error } = await supabase
         .from('listing_claims')
         .insert({
@@ -73,13 +68,8 @@ export function useSubmitListingClaim() {
  * Hook to fetch all pending listing claims (for admin)
  */
 export function useListingClaims(status?: 'pending' | 'approved' | 'rejected') {
-  if (typeof window === "undefined") {
-    return {
-      data: [] as ListingClaim[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ['listing-claims', status],
     queryFn: async () => {
@@ -96,6 +86,8 @@ export function useListingClaims(status?: 'pending' | 'approved' | 'rejected') {
       if (error) throw error;
       return data as ListingClaim[];
     },
+    enabled: isBrowser,
+    initialData: [] as ListingClaim[],
   });
 }
 
@@ -103,13 +95,8 @@ export function useListingClaims(status?: 'pending' | 'approved' | 'rejected') {
  * Hook to count pending listing claims (for admin notifications)
  */
 export function usePendingClaimsCount() {
-  if (typeof window === "undefined") {
-    return {
-      data: 0,
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ['listing-claims', 'pending-count'],
     queryFn: async () => {
@@ -125,6 +112,8 @@ export function usePendingClaimsCount() {
 
       return count || 0;
     },
+    enabled: isBrowser,
+    initialData: 0,
     refetchInterval: 60000,
     staleTime: 30000,
   });
@@ -136,14 +125,7 @@ export function usePendingClaimsCount() {
 export function useUpdateClaimStatus() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-
-  if (typeof window === "undefined") {
-    return {
-      mutate: () => {},
-      mutateAsync: async () => {},
-      isPending: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async ({ 
@@ -155,6 +137,8 @@ export function useUpdateClaimStatus() {
       status: 'approved' | 'rejected'; 
       rejectionReason?: string;
     }) => {
+      if (!isBrowser) return;
+
       const { error } = await supabase
         .from('listing_claims')
         .update({
@@ -183,17 +167,14 @@ export function useUpdateClaimStatus() {
 export function useApproveAndAssignClaim() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-
-  if (typeof window === "undefined") {
-    return {
-      mutate: () => {},
-      mutateAsync: async () => {},
-      isPending: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async ({ claimId, listingId }: { claimId: string; listingId: string }) => {
+      if (!isBrowser) {
+        return { success: false, error: "Unavailable in server context" };
+      }
+
       const { data, error } = await supabase.rpc('approve_claim_and_assign_listing', {
         _claim_id: claimId,
         _listing_id: listingId,
@@ -234,13 +215,8 @@ export function useApproveAndAssignClaim() {
  * Fetch published listings for assignment dropdown
  */
 export function usePublishedListingsForAssignment(searchTerm: string) {
-  if (typeof window === "undefined") {
-    return {
-      data: [],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ['published-listings-for-assignment', searchTerm],
     queryFn: async () => {
@@ -259,7 +235,8 @@ export function usePublishedListingsForAssignment(searchTerm: string) {
       if (error) throw error;
       return data;
     },
-    enabled: searchTerm.length >= 2 || searchTerm.length === 0,
+    enabled: isBrowser && (searchTerm.length >= 2 || searchTerm.length === 0),
+    initialData: [],
   });
 }
 
@@ -268,17 +245,12 @@ export function usePublishedListingsForAssignment(searchTerm: string) {
  */
 export function useDeleteClaim() {
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      mutate: () => {},
-      mutateAsync: async () => {},
-      isPending: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async (claimId: string) => {
+      if (!isBrowser) return;
+
       const { error } = await supabase
         .from('listing_claims')
         .delete()

@@ -1,5 +1,4 @@
-"use client";
-import { Link, useLocation } from "next/link";
+import { Link, useLocation } from "react-router-dom";
 import { ChevronRight, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
@@ -158,7 +157,7 @@ export function DashboardBreadcrumb() {
   return (
     <nav className="flex items-center gap-1 text-sm" aria-label="Breadcrumb">
       <Link
-        href="/"
+        to="/"
         className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
         title={t("common.goToHomepage")}
       >
@@ -172,7 +171,7 @@ export function DashboardBreadcrumb() {
             <span className="font-medium text-foreground">{segment.label}</span>
           ) : (
             <Link
-              href={segment.href}
+              to={segment.href}
               className={cn(
                 "text-muted-foreground hover:text-foreground transition-colors",
                 index === 0 && "hidden sm:inline"

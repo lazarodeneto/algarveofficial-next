@@ -1,17 +1,29 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { DivIcon, latLngBounds, Map as LeafletMap } from "leaflet";
+import { MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { Link } from "react-router-dom";
+import { MapPin } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { getCategoryMapColor } from "@/lib/mapCategoryColors";
+import { useHydrated } from "@/hooks/useHydrated";
+import ListingImage from "@/components/ListingImage";
+import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import "leaflet/dist/leaflet.css";
 
 const ALGARVE_DEFAULT_CENTER: [number, number] = [37.08, -8.15];
 const ALGARVE_DEFAULT_ZOOM = 9.5;
+const ALGARVE_MAX_BOUNDS: [[number, number], [number, number]] = [[36.7, -9.2], [37.5, -7.2]];
 
 const TILE_LAYERS = {
   dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?language=en",
   light: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?language=en",
 };
+
+const markerIconCache = new Map<string, DivIcon>();
+const clusterIconCache = new Map<string, DivIcon>();
 
 export interface MapListingPoint {
   id: string;
@@ -49,28 +61,8 @@ interface ListingsLeafletMapProps {
   onListingSelect?: (listingId: string) => void;
 }
 
-type ClusterNode =
-  | {
-    type: "point";
-    point: MapListingPoint;
-  }
-  | {
-    type: "cluster";
-    id: string;
-    latitude: number;
-    longitude: number;
-    count: number;
-    dominantCategorySlug?: string | null;
-    samples: MapListingPoint[];
-  };
-
 function isValidLatLng(latitude: number, longitude: number): boolean {
-  return (
-    Number.isFinite(latitude) &&
-    Number.isFinite(longitude) &&
-    Math.abs(latitude) <= 90 &&
-    Math.abs(longitude) <= 180
-  );
+  return Number.isFinite(latitude) && Number.isFinite(longitude) && Math.abs(latitude) <= 90 && Math.abs(longitude) <= 180;
 }
 
 function isWithinBounds(
@@ -79,13 +71,23 @@ function isWithinBounds(
   bounds: [[number, number], [number, number]]
 ): boolean {
   const [[minLat, minLng], [maxLat, maxLng]] = bounds;
-  return (
-    latitude >= minLat &&
-    latitude <= maxLat &&
-    longitude >= minLng &&
-    longitude <= maxLng
-  );
+  return latitude >= minLat && latitude <= maxLat && longitude >= minLng && longitude <= maxLng;
 }
+
+type ClusterNode =
+  | {
+      type: "point";
+      point: MapListingPoint;
+    }
+  | {
+      type: "cluster";
+      id: string;
+      latitude: number;
+      longitude: number;
+      count: number;
+      dominantCategorySlug?: string | null;
+      samples: MapListingPoint[];
+    };
 
 function getClusterCellSize(zoom: number): number {
   if (zoom >= 15) return 34;
@@ -105,7 +107,6 @@ function getDominantCategorySlug(points: MapListingPoint[]): string | null {
 
   let dominantSlug: string | null = null;
   let dominantCount = -1;
-
   counts.forEach((count, slug) => {
     if (count > dominantCount) {
       dominantSlug = slug;
@@ -116,11 +117,7 @@ function getDominantCategorySlug(points: MapListingPoint[]): string | null {
   return dominantSlug;
 }
 
-function buildClusterNodes(
-  points: MapListingPoint[],
-  map: any,
-  enableClustering: boolean
-): ClusterNode[] {
+function buildClusterNodes(points: MapListingPoint[], map: LeafletMap, enableClustering: boolean): ClusterNode[] {
   if (!enableClustering || points.length <= 1 || map.getZoom() >= 15) {
     return points.map((point) => ({ type: "point", point }));
   }
@@ -131,11 +128,8 @@ function buildClusterNodes(
 
   points.forEach((point) => {
     const projected = map.project([point.latitude, point.longitude], zoom);
-    const key = `${Math.floor(projected.x / cellSize)}:${Math.floor(
-      projected.y / cellSize
-    )}`;
+    const key = `${Math.floor(projected.x / cellSize)}:${Math.floor(projected.y / cellSize)}`;
     const bucket = buckets.get(key);
-
     if (bucket) {
       bucket.push(point);
     } else {
@@ -151,17 +145,10 @@ function buildClusterNodes(
       return;
     }
 
-    const latitude =
-      bucket.reduce((sum, point) => sum + point.latitude, 0) / bucket.length;
-    const longitude =
-      bucket.reduce((sum, point) => sum + point.longitude, 0) / bucket.length;
-
+    const latitude = bucket.reduce((sum, point) => sum + point.latitude, 0) / bucket.length;
+    const longitude = bucket.reduce((sum, point) => sum + point.longitude, 0) / bucket.length;
     const sortedSamples = [...bucket].sort((a, b) => {
-      const tierOrder: Record<string, number> = {
-        signature: 0,
-        verified: 1,
-        unverified: 2,
-      };
+      const tierOrder: Record<string, number> = { signature: 0, verified: 1, unverified: 2 };
       const aTier = tierOrder[a.tier || "unverified"] ?? 2;
       const bTier = tierOrder[b.tier || "unverified"] ?? 2;
       if (aTier !== bTier) return aTier - bTier;
@@ -182,40 +169,25 @@ function buildClusterNodes(
   return nodes;
 }
 
-function escapeHtml(value: string | null | undefined): string {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function safeImageUrl(value: string | null | undefined): string {
-  if (!value) return "/placeholder.svg";
-  return value;
-}
-
 function getPointIcon(
-  leaflet: any,
   color: string,
   categorySlug: string | null | undefined,
   isPrimary: boolean,
   tier?: string | null
-) {
-  const size = isPrimary ? 40 : 32;
-  const iconSize = isPrimary ? 18 : 15;
-  const tierAccent =
-    tier === "signature"
-      ? "#f59e0b"
-      : tier === "verified"
-        ? "#10b981"
-        : "rgba(255,255,255,0.85)";
-
+): DivIcon {
+  const tierKey = tier || "unverified";
   const categoryKey = categorySlug?.toLowerCase().trim() || "default";
+  const cacheKey = `${color}:${categoryKey}:${isPrimary ? "primary" : "default"}:${tierKey}`;
+  const cached = markerIconCache.get(cacheKey);
+  if (cached) return cached;
 
-  return new leaflet.DivIcon({
-    className: `listing-marker-icon category-${categoryKey}`,
+  const size = isPrimary ? 40 : 32;
+  const tierAccent =
+    tier === "signature" ? "#f59e0b" : tier === "verified" ? "#10b981" : "rgba(255,255,255,0.85)";
+  const markerLabel = categoryKey.replace(/[^a-z0-9]/gi, "").slice(0, 1).toUpperCase() || "•";
+
+  const icon = new DivIcon({
+    className: "listing-marker-icon",
     html: `
       <div style="position:relative;width:${size}px;height:${size}px;">
         <div style="
@@ -229,9 +201,19 @@ function getPointIcon(
           align-items:center;
           justify-content:center;
         ">
-          <svg width="${iconSize}" height="${iconSize}" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="6" />
-          </svg>
+          <div style="
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:#ffffff;
+            font-weight:800;
+            font-size:${isPrimary ? 15 : 12}px;
+            line-height:1;
+            transform:translateY(-0.25px);
+            font-family:var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+          ">
+            ${markerLabel}
+          </div>
         </div>
         <div style="
           position:absolute;
@@ -250,12 +232,18 @@ function getPointIcon(
     iconAnchor: [size / 2, size],
     popupAnchor: [0, -size],
   });
+
+  markerIconCache.set(cacheKey, icon);
+  return icon;
 }
 
-function getClusterIcon(leaflet: any, color: string, count: number) {
+function getClusterIcon(color: string, count: number): DivIcon {
   const size = count >= 100 ? 54 : count >= 30 ? 48 : 40;
+  const cacheKey = `${color}:${size}:${count >= 100 ? "100+" : count >= 30 ? "30+" : "default"}`;
+  const cached = clusterIconCache.get(cacheKey);
+  if (cached) return cached;
 
-  return new leaflet.DivIcon({
+  const icon = new DivIcon({
     className: "listing-cluster-icon",
     html: `
       <div style="
@@ -280,82 +268,177 @@ function getClusterIcon(leaflet: any, color: string, count: number) {
     iconAnchor: [size / 2, size / 2],
     popupAnchor: [0, -size / 2],
   });
+
+  clusterIconCache.set(cacheKey, icon);
+  return icon;
 }
 
-function buildPointPopupHtml(point: MapListingPoint, viewDetailsLabel: string) {
-  const imageUrl = safeImageUrl(point.featuredImageUrl || point.categoryImageUrl);
-  const tierBadge =
-    point.tier === "signature" || point.tier === "verified"
-      ? `<span style="
-          display:inline-block;
-          font-size:11px;
-          font-weight:700;
-          padding:4px 8px;
-          border-radius:9999px;
-          background:${point.tier === "signature" ? "#f59e0b" : "#10b981"};
-          color:#fff;
-        ">${escapeHtml(point.tier)}</span>`
-      : "";
+function AutoFitBounds({
+  points,
+  focusListingId,
+  maxBounds,
+}: {
+  points: MapListingPoint[];
+  focusListingId?: string | null;
+  maxBounds?: [[number, number], [number, number]];
+}) {
+  const map = useMap();
+  const previousPointsKey = useRef<string>("");
+  const pointsKey = useMemo(() => points.map((point) => point.id).join("|"), [points]);
 
-  const locationLine = `${escapeHtml(point.cityName || "Algarve")}${point.categoryName ? ` · ${escapeHtml(point.categoryName)}` : ""
-    }`;
+  useEffect(() => {
+    const safePoints = points.filter((point) => {
+      if (!isValidLatLng(point.latitude, point.longitude)) return false;
+      if (!maxBounds) return true;
+      return isWithinBounds(point.latitude, point.longitude, maxBounds);
+    });
+    if (safePoints.length === 0) return;
 
-  const cta = point.href
-    ? `<a href="${escapeHtml(point.href)}" style="
-          display:inline-flex;
-          width:100%;
-          justify-content:center;
-          align-items:center;
-          border-radius:8px;
-          background:#0f172a;
-          color:#fff;
-          text-decoration:none;
-          padding:10px 12px;
-          font-size:12px;
-          font-weight:600;
-          margin-top:6px;
-        ">${escapeHtml(viewDetailsLabel)}</a>`
-    : "";
+    map.whenReady(() => {
+      const focusedPoint = focusListingId ? safePoints.find((point) => point.id === focusListingId) : null;
+      if (focusedPoint && isValidLatLng(focusedPoint.latitude, focusedPoint.longitude)) {
+        const currentZoom = map.getZoom();
+        const safeZoom = Number.isFinite(currentZoom) ? Math.max(currentZoom, 14) : 14;
+        map.setView([focusedPoint.latitude, focusedPoint.longitude], safeZoom, { animate: false });
+        return;
+      }
 
-  return `
-    <div style="min-width:220px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;">
-      <img
-        src="${escapeHtml(imageUrl)}"
-        alt="${escapeHtml(point.name)}"
-        style="width:100%;height:112px;object-fit:cover;border-radius:8px;display:block;"
-      />
-      <div style="margin-top:8px;display:flex;gap:8px;align-items:center;">${tierBadge}</div>
-      <div style="margin-top:8px;">
-        <p style="margin:0;font-size:14px;font-weight:600;color:#111827;">${escapeHtml(
-    point.name
-  )}</p>
-        <p style="margin:4px 0 0 0;font-size:12px;color:#6b7280;">${locationLine}</p>
-      </div>
-      ${cta}
-    </div>
-  `;
+      if (previousPointsKey.current === pointsKey) return;
+      previousPointsKey.current = pointsKey;
+
+      const bounds = latLngBounds(safePoints.map((point) => [point.latitude, point.longitude] as [number, number]));
+      if (!bounds.isValid()) return;
+
+      map.fitBounds(bounds, {
+        padding: [40, 40],
+        maxZoom: safePoints.length === 1 ? 15 : 12,
+      });
+    });
+  }, [focusListingId, map, maxBounds, points, pointsKey]);
+
+  return null;
 }
 
-function buildClusterPopupHtml(node: Extract<ClusterNode, { type: "cluster" }>) {
-  const items = node.samples
-    .map(
-      (sample) =>
-        `<li style="margin:4px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">• ${escapeHtml(
-          sample.name
-        )}</li>`
-    )
-    .join("");
+function ClusteredMarkers({
+  points,
+  enableClustering,
+  activeListingId,
+  showPopups,
+  onListingSelect,
+}: {
+  points: MapListingPoint[];
+  enableClustering: boolean;
+  activeListingId?: string | null;
+  showPopups: boolean;
+  onListingSelect?: (listingId: string) => void;
+}) {
+  const { t } = useTranslation();
+  const map = useMap();
+  const [viewportTick, setViewportTick] = useState(0);
 
-  return `
-    <div style="min-width:210px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;">
-      <p style="margin:0 0 8px 0;font-size:14px;font-weight:600;color:#111827;">
-        ${node.count} listings in this area
-      </p>
-      <ul style="margin:0;padding-left:0;list-style:none;font-size:12px;color:#6b7280;">
-        ${items}
-      </ul>
-    </div>
-  `;
+  useMapEvents({
+    zoomend: () => setViewportTick((tick) => tick + 1),
+    moveend: () => setViewportTick((tick) => tick + 1),
+  });
+
+  const nodes = useMemo(
+    () => buildClusterNodes(points, map, enableClustering),
+    [enableClustering, map, points, viewportTick],
+  );
+
+  return (
+    <>
+      {nodes.map((node) => {
+        if (node.type === "point") {
+          const point = node.point;
+          const isActive = point.id === activeListingId;
+          const color = getCategoryMapColor(point.categorySlug);
+          const icon = getPointIcon(color, point.categorySlug, Boolean(isActive || point.isPrimary), point.tier);
+
+          return (
+            <Marker
+              key={point.id}
+              position={[point.latitude, point.longitude]}
+              icon={icon}
+              eventHandlers={{
+                click: () => onListingSelect?.(point.id),
+              }}
+            >
+              {showPopups && (
+                <Popup className="listing-map-popup" minWidth={220}>
+                  <div className="space-y-2 min-w-[220px]">
+                    <ListingImage
+                      src={point.featuredImageUrl}
+                      category={point.categorySlug}
+                      categoryImageUrl={point.categoryImageUrl}
+                      listingId={point.id}
+                      alt={point.name}
+                      className="w-full h-28 rounded-md object-cover"
+                    />
+
+                    <div className="flex items-center gap-2">
+                      {(point.tier === "signature" || point.tier === "verified") && (
+                        <ListingTierBadge tier={point.tier} size="sm" />
+                      )}
+                    </div>
+
+                    <div>
+                      <p className="font-medium text-foreground line-clamp-1">{point.name}</p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                        <MapPin className="h-3 w-3" />
+                        {point.cityName || "Algarve"}
+                        {point.categoryName ? ` · ${point.categoryName}` : ""}
+                      </p>
+                    </div>
+
+                    {point.href && (
+                      <Link
+                        to={point.href}
+                        className="inline-flex items-center justify-center w-full rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 transition-opacity"
+                      >
+                        {t("sections.curated.viewDetails")}
+                      </Link>
+                    )}
+                  </div>
+                </Popup>
+              )}
+            </Marker>
+          );
+        }
+
+        const clusterColor = getCategoryMapColor(node.dominantCategorySlug);
+        const clusterIcon = getClusterIcon(clusterColor, node.count);
+
+        return (
+          <Marker
+            key={`cluster-${node.id}`}
+            position={[node.latitude, node.longitude]}
+            icon={clusterIcon}
+            eventHandlers={{
+              click: () => {
+                const currentZoom = map.getZoom();
+                const safeZoom = Number.isFinite(currentZoom) ? Math.min(currentZoom + 2, 17) : 13;
+                map.setView([node.latitude, node.longitude], safeZoom, { animate: true });
+              },
+            }}
+          >
+            <Popup>
+              <div className="min-w-[210px] space-y-2">
+                <p className="text-sm font-semibold text-foreground">{node.count} listings in this area</p>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  {node.samples.map((sample) => (
+                    <li key={sample.id} className="line-clamp-1">
+                      • {sample.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Popup>
+          </Marker>
+        );
+      })}
+    </>
+  );
 }
 
 export function ListingsLeafletMap({
@@ -377,56 +460,36 @@ export function ListingsLeafletMap({
   focusListingId,
   onListingSelect,
 }: ListingsLeafletMapProps) {
-  const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<any>(null);
-  const markersLayerRef = useRef<any>(null);
-  const tileLayerRef = useRef<any>(null);
+  const hydrated = useHydrated();
+  const [isDark, setIsDark] = useState(
+    () => typeof document !== "undefined" && document.documentElement.classList.contains("dark"),
+  );
 
-  const [mounted, setMounted] = useState(false);
-  const [leaflet, setLeaflet] = useState<any>(null);
-  const [isDark, setIsDark] = useState(false);
-
-  const validPoints = useMemo(() => {
-    return points
-      .map((point) => ({
-        ...point,
-        latitude: Number(point.latitude),
-        longitude: Number(point.longitude),
-      }))
-      .filter((point) => {
-        if (!isValidLatLng(point.latitude, point.longitude)) return false;
-        if (!enforceBoundsOnPoints || !maxBounds) return true;
-        return isWithinBounds(point.latitude, point.longitude, maxBounds);
-      });
-  }, [enforceBoundsOnPoints, maxBounds, points]);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-
-    let cancelled = false;
-
-    import("leaflet").then((L) => {
-      if (!cancelled) {
-        setLeaflet(L);
-      }
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [mounted]);
+  const validPoints = useMemo(
+    () => {
+      return points
+        .map((point) => {
+          const latitude = Number(point.latitude);
+          const longitude = Number(point.longitude);
+          return {
+            ...point,
+            latitude,
+            longitude,
+          };
+        })
+        .filter((point) => {
+          if (!isValidLatLng(point.latitude, point.longitude)) return false;
+          if (!enforceBoundsOnPoints || !maxBounds) return true;
+          return isWithinBounds(point.latitude, point.longitude, maxBounds);
+        });
+    },
+    [enforceBoundsOnPoints, maxBounds, points]
+  );
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!hydrated) return;
 
-    const getDarkMode = () =>
-      document.documentElement.classList.contains("dark");
-
-    setIsDark(getDarkMode());
+    const getDarkMode = () => document.documentElement.classList.contains("dark");
 
     const observer = new MutationObserver(() => {
       setIsDark(getDarkMode());
@@ -438,210 +501,14 @@ export function ListingsLeafletMap({
     });
 
     return () => observer.disconnect();
-  }, [mounted]);
+  }, [hydrated]);
 
-  useEffect(() => {
-    if (!leaflet || !mapContainerRef.current || mapRef.current) return;
+  const tileUrl = isDark ? TILE_LAYERS.dark : TILE_LAYERS.light;
 
-    const map = leaflet.map(mapContainerRef.current, {
-      center: defaultCenter,
-      zoom: defaultZoom,
-      minZoom,
-      scrollWheelZoom,
-      zoomAnimation: false,
-      markerZoomAnimation: false,
-      maxBounds: maxBounds ?? undefined,
-      maxBoundsViscosity: maxBounds ? maxBoundsViscosity : undefined,
-    });
-
-    mapRef.current = map;
-    markersLayerRef.current = leaflet.layerGroup().addTo(map);
-
-    tileLayerRef.current = leaflet
-      .tileLayer(isDark ? TILE_LAYERS.dark : TILE_LAYERS.light, {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
-      })
-      .addTo(map);
-
-    return () => {
-      if (mapRef.current) {
-        mapRef.current.off();
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
-      markersLayerRef.current = null;
-      tileLayerRef.current = null;
-    };
-  }, [
-    leaflet,
-    defaultCenter,
-    defaultZoom,
-    minZoom,
-    scrollWheelZoom,
-    maxBounds,
-    maxBoundsViscosity,
-    isDark,
-  ]);
-
-  useEffect(() => {
-    if (!tileLayerRef.current || !leaflet) return;
-
-    tileLayerRef.current.setUrl(isDark ? TILE_LAYERS.dark : TILE_LAYERS.light);
-  }, [isDark, leaflet]);
-
-  useEffect(() => {
-    if (!leaflet || !mapRef.current || !markersLayerRef.current) return;
-
-    const map = mapRef.current;
-    const layerGroup = markersLayerRef.current;
-    const viewDetailsLabel = "View details";
-
-    const renderMarkers = () => {
-      if (!map || !layerGroup) return;
-
-      layerGroup.clearLayers();
-
-      const nodes = buildClusterNodes(validPoints, map, enableClustering);
-
-      nodes.forEach((node) => {
-        if (node.type === "point") {
-          const point = node.point;
-          const isActive = point.id === activeListingId;
-          const color = getCategoryMapColor(point.categorySlug);
-          const icon = getPointIcon(
-            leaflet,
-            color,
-            point.categorySlug,
-            Boolean(isActive || point.isPrimary),
-            point.tier
-          );
-
-          const marker = leaflet.marker([point.latitude, point.longitude], {
-            icon,
-          });
-
-          marker.on("click", () => {
-            onListingSelect?.(point.id);
-          });
-
-          if (showPopups) {
-            marker.bindPopup(buildPointPopupHtml(point, viewDetailsLabel), {
-              minWidth: 220,
-            });
-          }
-
-          marker.addTo(layerGroup);
-          return;
-        }
-
-        const clusterColor = getCategoryMapColor(node.dominantCategorySlug);
-        const clusterIcon = getClusterIcon(leaflet, clusterColor, node.count);
-
-        const marker = leaflet.marker([node.latitude, node.longitude], {
-          icon: clusterIcon,
-        });
-
-        marker.on("click", () => {
-          const currentZoom = map.getZoom();
-          const safeZoom = Number.isFinite(currentZoom)
-            ? Math.min(currentZoom + 2, 17)
-            : 13;
-
-          map.setView([node.latitude, node.longitude], safeZoom, {
-            animate: true,
-          });
-        });
-
-        marker.bindPopup(buildClusterPopupHtml(node), {
-          minWidth: 210,
-        });
-
-        marker.addTo(layerGroup);
-      });
-    };
-
-    const fitMap = () => {
-      if (!autoFit || !validPoints.length) return;
-
-      const safePoints = validPoints.filter((point) => {
-        if (!isValidLatLng(point.latitude, point.longitude)) return false;
-        if (!maxBounds) return true;
-        return isWithinBounds(point.latitude, point.longitude, maxBounds);
-      });
-
-      if (!safePoints.length) return;
-
-      const focusedPoint = focusListingId
-        ? safePoints.find((point) => point.id === focusListingId)
-        : null;
-
-      if (focusedPoint) {
-        const currentZoom = map.getZoom();
-        const safeZoom = Number.isFinite(currentZoom)
-          ? Math.max(currentZoom, 14)
-          : 14;
-
-        map.setView(
-          [focusedPoint.latitude, focusedPoint.longitude],
-          safeZoom,
-          { animate: false }
-        );
-        return;
-      }
-
-      const bounds = leaflet.latLngBounds(
-        safePoints.map(
-          (point) => [point.latitude, point.longitude] as [number, number]
-        )
-      );
-
-      if (bounds.isValid()) {
-        map.fitBounds(bounds, {
-          padding: [40, 40],
-          maxZoom: safePoints.length === 1 ? 15 : 12,
-        });
-      }
-    };
-
-    renderMarkers();
-    fitMap();
-
-    map.off("zoomend");
-    map.off("moveend");
-    map.on("zoomend", renderMarkers);
-    map.on("moveend", renderMarkers);
-
-    return () => {
-      map.off("zoomend", renderMarkers);
-      map.off("moveend", renderMarkers);
-    };
-  }, [
-    leaflet,
-    validPoints,
-    enableClustering,
-    activeListingId,
-    showPopups,
-    onListingSelect,
-    autoFit,
-    focusListingId,
-    maxBounds,
-  ]);
-
-  if (!mounted || !leaflet) {
+  if (!hydrated) {
     return (
-      <div
-        className={cn(
-          "rounded-xl overflow-hidden border border-border bg-muted/40",
-          className
-        )}
-      >
-        <div
-          className={cn(
-            "w-full min-h-[320px] flex items-center justify-center",
-            mapClassName
-          )}
-        >
+      <div className={cn("rounded-xl overflow-hidden border border-border bg-muted/40", className)}>
+        <div className={cn("w-full min-h-[320px] flex items-center justify-center", mapClassName)}>
           <span className="text-sm text-muted-foreground">Loading map...</span>
         </div>
       </div>
@@ -650,38 +517,44 @@ export function ListingsLeafletMap({
 
   if (validPoints.length === 0) {
     return (
-      <div
-        className={cn(
-          "rounded-xl overflow-hidden border border-border bg-muted/40",
-          className
-        )}
-      >
-        <div
-          className={cn(
-            "w-full min-h-[320px] flex items-center justify-center p-6",
-            mapClassName
-          )}
-        >
-          <p className="text-sm text-muted-foreground text-center">
-            {emptyMessage}
-          </p>
+      <div className={cn("rounded-xl overflow-hidden border border-border bg-muted/40", className)}>
+        <div className={cn("w-full min-h-[320px] flex items-center justify-center p-6", mapClassName)}>
+          <p className="text-sm text-muted-foreground text-center">{emptyMessage}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      className={cn(
-        "rounded-xl overflow-hidden border border-border relative z-0",
-        className
-      )}
-    >
-      <div
-        ref={mapContainerRef}
+    <div className={cn("rounded-xl overflow-hidden border border-border relative z-0", className)}>
+      <MapContainer
+        center={defaultCenter}
+        zoom={defaultZoom}
+        minZoom={minZoom}
+        scrollWheelZoom={scrollWheelZoom}
+        zoomAnimation={false}
+        markerZoomAnimation={false}
+        maxBounds={maxBounds}
+        maxBoundsViscosity={maxBounds ? maxBoundsViscosity : undefined}
         className={cn("w-full min-h-[320px]", mapClassName)}
         style={{ background: "hsl(var(--muted))" }}
-      />
+      >
+        <TileLayer
+          key={tileUrl}
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
+          url={tileUrl}
+        />
+
+        {autoFit && <AutoFitBounds points={validPoints} focusListingId={focusListingId} maxBounds={maxBounds} />}
+
+        <ClusteredMarkers
+          points={validPoints}
+          enableClustering={enableClustering}
+          activeListingId={activeListingId}
+          showPopups={showPopups}
+          onListingSelect={onListingSelect}
+        />
+      </MapContainer>
     </div>
   );
 }

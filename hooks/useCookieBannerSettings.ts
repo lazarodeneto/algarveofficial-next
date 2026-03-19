@@ -37,27 +37,24 @@ const defaultSettings: CookieBannerSettings = {
 function mergeWithDefaults(data: Partial<CookieBannerSettings> | null): CookieBannerSettings {
   if (!data) return defaultSettings;
   const merged = { ...defaultSettings };
-  for (const key of Object.keys(defaultSettings) as (keyof CookieBannerSettings)[]) {
+
+  const assignIfPresent = <K extends keyof CookieBannerSettings>(key: K) => {
     const val = data[key];
-    if (val !== undefined && val !== null && val !== '') {
-      (merged as any)[key] = val;
+    if (val !== undefined && val !== null && val !== "") {
+      merged[key] = val as CookieBannerSettings[K];
     }
+  };
+
+  for (const key of Object.keys(defaultSettings) as (keyof CookieBannerSettings)[]) {
+    assignIfPresent(key);
   }
+
   return merged;
 }
 
 export function useCookieBannerSettings() {
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      settings: defaultSettings,
-      isLoading: false,
-      error: null,
-      updateSettings: { mutate: () => {}, mutateAsync: async () => {}, isPending: false } as any,
-      isUpdating: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   const { data: settings, isLoading, error } = useQuery({
     queryKey: ['cookie-banner-settings'],
@@ -72,10 +69,15 @@ export function useCookieBannerSettings() {
       return mergeWithDefaults(data as Partial<CookieBannerSettings> | null);
     },
     staleTime: 1000 * 60 * 5,
+    enabled: isBrowser,
   });
 
   const updateSettings = useMutation({
     mutationFn: async (newSettings: Partial<CookieBannerSettings>) => {
+      if (!isBrowser) {
+        return defaultSettings;
+      }
+
       const { data, error } = await supabase
         .from('cookie_banner_settings')
         .upsert({
@@ -93,16 +95,18 @@ export function useCookieBannerSettings() {
       queryClient.invalidateQueries({ queryKey: ['cookie-banner-settings'] });
       toast.success("Cookie banner settings saved successfully");
     },
-    onError: (error) => {
-      toast.error("Failed to save settings: " + error.message);
+    onError: (mutationError) => {
+      const message =
+        mutationError instanceof Error ? mutationError.message : "Unknown error";
+      toast.error(`Failed to save settings: ${message}`);
     },
   });
 
   return {
-    settings: settings || defaultSettings,
-    isLoading,
-    error,
+    settings: isBrowser ? settings || defaultSettings : defaultSettings,
+    isLoading: isBrowser ? isLoading : false,
+    error: isBrowser ? error : null,
     updateSettings,
-    isUpdating: updateSettings.isPending,
+    isUpdating: isBrowser ? updateSettings.isPending : false,
   };
 }

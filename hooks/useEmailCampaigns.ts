@@ -44,13 +44,8 @@ export interface EmailCampaignInsert {
 }
 
 export function useEmailCampaigns(options?: { status?: string; limit?: number }) {
-  if (typeof window === "undefined") {
-    return {
-      data: [] as EmailCampaign[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ["email-campaigns", options],
     queryFn: async () => {
@@ -77,17 +72,14 @@ export function useEmailCampaigns(options?: { status?: string; limit?: number })
       if (error) throw error;
       return data as EmailCampaign[];
     },
+    enabled: isBrowser,
+    initialData: [] as EmailCampaign[],
   });
 }
 
 export function useEmailCampaign(id: string | undefined) {
-  if (typeof window === "undefined") {
-    return {
-      data: null,
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ["email-campaign", id],
     queryFn: async () => {
@@ -106,23 +98,19 @@ export function useEmailCampaign(id: string | undefined) {
       if (error) throw error;
       return data as EmailCampaign;
     },
-    enabled: !!id,
+    enabled: isBrowser && !!id,
+    initialData: null as EmailCampaign | null,
   });
 }
 
 export function useCreateEmailCampaign() {
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      mutate: () => {},
-      mutateAsync: async () => ({}),
-      isPending: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async (campaign: EmailCampaignInsert) => {
+      if (!isBrowser) return null;
+
       const { data: userData } = await supabase.auth.getUser();
 
       const { data, error } = await supabase
@@ -157,17 +145,12 @@ export function useCreateEmailCampaign() {
 
 export function useUpdateEmailCampaign() {
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      mutate: () => {},
-      mutateAsync: async () => ({}),
-      isPending: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<EmailCampaign> & { id: string }) => {
+      if (!isBrowser) return null;
+
       const { data, error } = await supabase
         .from("email_campaigns")
         .update(updates)
@@ -190,17 +173,12 @@ export function useUpdateEmailCampaign() {
 
 export function useDeleteEmailCampaign() {
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      mutate: () => {},
-      mutateAsync: async () => ({}),
-      isPending: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async (id: string) => {
+      if (!isBrowser) return;
+
       const { error } = await supabase
         .from("email_campaigns")
         .delete()
@@ -220,17 +198,12 @@ export function useDeleteEmailCampaign() {
 
 export function useSendEmailCampaign() {
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      mutate: () => {},
-      mutateAsync: async () => ({}),
-      isPending: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async (campaignId: string) => {
+      if (!isBrowser) return null;
+
       const { data: sessionData } = await supabase.auth.getSession();
       
       if (!sessionData.session) {

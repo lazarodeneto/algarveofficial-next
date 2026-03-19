@@ -2,7 +2,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Json } from "@/integrations/supabase/types";
 
 export interface Section {
   id: string;
@@ -24,15 +23,7 @@ export interface CookieSettings {
 
 export function useCookieSettings() {
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      settings: null,
-      isLoading: false,
-      error: null,
-      updateSettings: { mutate: () => {}, mutateAsync: async () => {}, isPending: false } as any,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   const { data: settings, isLoading, error } = useQuery({
     queryKey: ['cookie-settings'],
@@ -66,10 +57,13 @@ export function useCookieSettings() {
       return parsed;
     },
     staleTime: 1000 * 60 * 5,
+    enabled: isBrowser,
   });
 
   const updateSettings = useMutation({
     mutationFn: async (updates: Partial<CookieSettings>) => {
+      if (!isBrowser) return;
+
       const { sections, ...rest } = updates;
       
       const supabaseUpdates: Record<string, unknown> = { ...rest };
@@ -88,16 +82,16 @@ export function useCookieSettings() {
       queryClient.invalidateQueries({ queryKey: ['cookie-settings'] });
       toast.success('Cookie Policy settings saved');
     },
-    onError: (error) => {
-      console.error('Error updating cookie settings:', error);
+    onError: (mutationError) => {
+      console.error('Error updating cookie settings:', mutationError);
       toast.error('Failed to save settings');
     },
   });
 
   return {
-    settings,
-    isLoading,
-    error,
+    settings: isBrowser ? settings : null,
+    isLoading: isBrowser ? isLoading : false,
+    error: isBrowser ? error : null,
     updateSettings,
   };
 }

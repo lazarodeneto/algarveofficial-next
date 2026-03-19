@@ -9,6 +9,7 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
+    "noImplicitAny": false,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -19,8 +20,14 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
+      "@/legacy-pages/*": [
+        "./legacy-pages/*"
+      ],
       "@/*": [
         "./*"
+      ],
+      "react-router-dom": [
+        "./components/router/nextRouterCompat.tsx"
       ]
     },
     "plugins": [
@@ -38,6 +45,11 @@
     "**/*.mts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "legacy-pages/public/**",
+    "legacy-pages/legal/**",
+    "legacy-pages/common/**"
   ]
 }

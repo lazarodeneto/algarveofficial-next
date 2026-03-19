@@ -46,33 +46,43 @@ function QuickToggle({ id, label, checked, disabled = false, onChange }: QuickTo
   );
 }
 
+function getInitialConsentState(version: string) {
+  if (typeof window === "undefined") {
+    return {
+      isVisible: false,
+      preferences: DEFAULT_COOKIE_PREFERENCES,
+    };
+  }
+
+  const storedConsent = getStoredCookieConsent();
+  if (!storedConsent) {
+    return {
+      isVisible: true,
+      preferences: DEFAULT_COOKIE_PREFERENCES,
+    };
+  }
+
+  return {
+    isVisible: storedConsent.version !== version,
+    preferences: draftFromCookieConsent(storedConsent),
+  };
+}
+
 export function CookieConsentDrawer({
   privacyUrl,
   cookieUrl,
   version,
   onConsentChange,
 }: CookieConsentDrawerProps) {
-  const [isVisible, setIsVisible] = useState(false);
+  const [initialConsentState] = useState(() => getInitialConsentState(version));
+  const [isVisible, setIsVisible] = useState(initialConsentState.isVisible);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [baselinePreferences, setBaselinePreferences] = useState<CookiePreferenceDraft>(DEFAULT_COOKIE_PREFERENCES);
-  const [draftPreferences, setDraftPreferences] = useState<CookiePreferenceDraft>(DEFAULT_COOKIE_PREFERENCES);
-
-  useEffect(() => {
-    const storedConsent = getStoredCookieConsent();
-
-    if (storedConsent) {
-      const storedDraft = draftFromCookieConsent(storedConsent);
-
-      setBaselinePreferences(storedDraft);
-      setDraftPreferences(storedDraft);
-      setIsVisible(storedConsent.version !== version);
-      return;
-    }
-
-    setBaselinePreferences(DEFAULT_COOKIE_PREFERENCES);
-    setDraftPreferences(DEFAULT_COOKIE_PREFERENCES);
-    setIsVisible(true);
-  }, [version]);
+  const [baselinePreferences, setBaselinePreferences] = useState<CookiePreferenceDraft>(
+    initialConsentState.preferences,
+  );
+  const [draftPreferences, setDraftPreferences] = useState<CookiePreferenceDraft>(
+    initialConsentState.preferences,
+  );
 
   useEffect(() => {
     const openPreferences = () => {

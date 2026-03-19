@@ -1,4 +1,3 @@
-"use client";
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { usePublishedListings } from "@/hooks/useListings";

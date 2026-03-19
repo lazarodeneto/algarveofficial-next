@@ -196,7 +196,12 @@ export function AnalyticsChart({
                 paddingAngle={2}
                 dataKey={dataKey}
                 nameKey={xAxisKey}
-                label={isMobile ? false : ({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                label={
+                  isMobile
+                    ? false
+                    : ({ name, percent }: { name?: string; percent?: number }) =>
+                        `${name ?? ""}: ${((percent ?? 0) * 100).toFixed(0)}%`
+                }
                 labelLine={!isMobile}
               >
                 {data.map((entry, index) => (

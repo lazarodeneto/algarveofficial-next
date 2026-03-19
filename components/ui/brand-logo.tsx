@@ -1,8 +1,10 @@
 "use client";
-import { Link } from "next/link";
+
+import { Link } from "react-router-dom";
 import { Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLangPrefix } from "@/hooks/useLangPrefix";
+import { useHydrated } from "@/hooks/useHydrated";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 interface BrandLogoProps {
@@ -46,21 +48,25 @@ export function BrandLogo({
   const config = sizeConfig[size];
   const langPrefix = useLangPrefix();
   const { settings } = useSiteSettings();
-  const logoUrl = settings?.logo_url;
+  const hydrated = useHydrated();
+  const hydratedSettings = hydrated ? settings : null;
+  const logoUrl = hydratedSettings?.logo_url;
+  const siteName = hydratedSettings?.site_name || "Algarve Official";
+  const [siteFirstWord, ...siteRestWords] = siteName.split(" ");
 
   const content = (
     <div className={cn("flex items-center gap-2", className)}>
       {showIcon ? (
         logoUrl ? (
-          <img src={logoUrl} alt={settings?.site_name || "AlgarveOfficial"} className={cn(config.icon, "object-contain", iconClassName)} width={48} height={48} loading="eager" />
+          <img src={logoUrl} alt={siteName} className={cn(config.icon, "object-contain", iconClassName)} width={48} height={48} loading="eager" />
         ) : (
           <Crown className={cn(config.icon, "text-primary", iconClassName)} />
         )
       ) : null}
       {showText && (
         <span className={cn(config.text, "font-serif font-normal tracking-tight")}>
-          <span className="brand-logo-algarve text-gradient-gold">{settings?.site_name?.split(" ")[0] || "Algarve"}</span>
-          <span className="brand-logo-official text-foreground">{settings?.site_name?.split(" ").slice(1).join(" ") || "Official"}</span>
+          <span className="brand-logo-algarve text-gradient-gold">{siteFirstWord || "Algarve"}</span>
+          <span className="brand-logo-official text-foreground">{siteRestWords.join(" ") || "Official"}</span>
         </span>
       )}
     </div>
@@ -68,7 +74,7 @@ export function BrandLogo({
 
   if (asLink) {
     return (
-      <Link href={langPrefix || "/"} className="hover:opacity-80 transition-opacity">
+      <Link to={langPrefix || "/"} className="hover:opacity-80 transition-opacity">
         {content}
       </Link>
     );

@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
+import { useHydrated } from "@/hooks/useHydrated";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database, Tables } from "@/integrations/supabase/types";
 import {
@@ -76,11 +77,21 @@ function resolveToPath(to: To) {
   return typeof to === "string" ? to : createPath(to);
 }
 
-function normalizeRealEstateListings(rows: any[]): RealEstateListing[] {
-  return (rows ?? []).map((row) => ({
-    ...row,
-    cities: Array.isArray(row.cities) ? (row.cities[0] ?? null) : (row.cities ?? null),
-  })) as RealEstateListing[];
+function normalizeRealEstateListings(rows: unknown[]): RealEstateListing[] {
+  return (rows ?? []).map((entry) => {
+    const row = entry as RealEstateListing & {
+      cities:
+        | RealEstateListing["cities"]
+        | Array<NonNullable<RealEstateListing["cities"]>>
+        | null
+        | undefined;
+    };
+
+    return {
+      ...row,
+      cities: Array.isArray(row.cities) ? (row.cities[0] ?? null) : (row.cities ?? null),
+    };
+  });
 }
 
 async function fetchRealEstateCategory(locale: string) {
@@ -98,7 +109,7 @@ async function fetchRealEstateCategory(locale: string) {
     return category;
   }
 
-  const [translation] = await fetchCategoryTranslations(locale as any, [category.id]);
+  const [translation] = await fetchCategoryTranslations(locale as never, [category.id]);
 
   return {
     ...category,
@@ -136,9 +147,9 @@ async function fetchRealEstateListings(categoryId: string, locale: string) {
   }
 
   const [listingTranslations, cityTranslations] = await Promise.all([
-    fetchListingTranslations(locale as any, listings.map((listing) => listing.id)),
+    fetchListingTranslations(locale as never, listings.map((listing) => listing.id)),
     fetchCityTranslations(
-      locale as any,
+      locale as never,
       listings.map((listing) => listing.cities?.id).filter(Boolean) as string[],
     ),
   ]);
@@ -424,9 +435,9 @@ export function RealEstateDirectoryClient(props: RealEstateDirectoryClientProps)
   const router = useRouter();
   const pathname = usePathname();
   const nextSearchParams = useNextSearchParams();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
 
-  const search = nextSearchParams.toString();
+  const search = nextSearchParams?.toString() ?? "";
   const location = useMemo(
     () => ({
       pathname,
@@ -455,7 +466,6 @@ export function RealEstateDirectoryClient(props: RealEstateDirectoryClientProps)
   );
 
   useEffect(() => {
-    setMounted(true);
     const serverShell = document.getElementById("real-estate-server-shell");
     if (serverShell) {
       serverShell.style.display = "none";

@@ -307,7 +307,6 @@ export function useDeleteThread() {
 
   return useMutation({
     mutationFn: async (threadId: string) => {
-      // @ts-expect-error - RPC not yet in generated types
       const { error } = await supabase.rpc("admin_delete_chat_thread", { p_thread_id: threadId });
       if (error) throw error;
     },
@@ -333,7 +332,6 @@ export function useDeleteChatMessage() {
 
   return useMutation({
     mutationFn: async ({ messageId, threadId }: { messageId: string; threadId: string }) => {
-      // @ts-expect-error - RPC not yet in generated types
       const { error } = await supabase.rpc("admin_delete_chat_message", { p_message_id: messageId });
       if (error) throw error;
       return threadId;

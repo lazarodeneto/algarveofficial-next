@@ -1,4 +1,3 @@
-"use client";
 import { useEffect, useState } from "react";
 import { X, ConciergeBell, Hand, SendHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";

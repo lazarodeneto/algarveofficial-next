@@ -1,4 +1,3 @@
-"use client";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
@@ -58,14 +57,7 @@ function applyBlogTranslation<T extends BlogPost>(
 export function usePublishedBlogPosts(category?: BlogCategory) {
   const { i18n } = useTranslation();
   const locale = normalizeBlogLocale(i18n.language);
-
-  if (typeof window === "undefined") {
-    return {
-      data: [] as BlogPostWithAuthor[],
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useQuery({
     queryKey: ['blog-posts', 'published', category, locale],
@@ -87,8 +79,8 @@ export function usePublishedBlogPosts(category?: BlogCategory) {
       let localizedPosts = posts;
       if (locale !== 'en' && posts.length > 0) {
         const postIds = posts.map((post) => post.id);
-        const { data: translations, error: translationsError } = await ((supabase as any)
-          .from('blog_post_translations'))
+        const { data: translations, error: translationsError } = await supabase
+          .from('blog_post_translations' as never)
           .select('post_id, locale, title, excerpt, content, seo_title, seo_description, status')
           .eq('locale', locale)
           .in('post_id', postIds);
@@ -117,6 +109,8 @@ export function usePublishedBlogPosts(category?: BlogCategory) {
         author: authorsMap.get(post.author_id),
       })) as BlogPostWithAuthor[];
     },
+    enabled: isBrowser,
+    initialData: [] as BlogPostWithAuthor[],
   });
 }
 
@@ -124,14 +118,7 @@ export function usePublishedBlogPosts(category?: BlogCategory) {
 export function usePublishedBlogPost(slug: string | undefined) {
   const { i18n } = useTranslation();
   const locale = normalizeBlogLocale(i18n.language);
-
-  if (typeof window === "undefined") {
-    return {
-      data: null,
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useQuery({
     queryKey: ['blog-post', 'slug', slug, locale],
@@ -149,8 +136,8 @@ export function usePublishedBlogPost(slug: string | undefined) {
 
       let localizedPost = post;
       if (locale !== 'en') {
-        const { data: translation, error: translationError } = await ((supabase as any)
-          .from('blog_post_translations'))
+        const { data: translation, error: translationError } = await supabase
+          .from('blog_post_translations' as never)
           .select('post_id, locale, title, excerpt, content, seo_title, seo_description, status')
           .eq('post_id', post.id)
           .eq('locale', locale)
@@ -176,7 +163,8 @@ export function usePublishedBlogPost(slug: string | undefined) {
       } as BlogPostWithAuthor;
     },
     staleTime: 1000 * 60 * 10, // Cache for 10 minutes
-    enabled: !!slug,
+    enabled: isBrowser && !!slug,
+    initialData: null as BlogPostWithAuthor | null,
   });
 }
 

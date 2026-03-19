@@ -2,8 +2,15 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { I18nextProvider } from "react-i18next";
+import { usePathname } from "next/navigation";
 
 import i18n, { ensureLocaleLoaded, initI18n } from "@/i18n";
+import {
+  DEFAULT_LOCALE,
+  getLocaleFromPathname,
+  isValidLocale,
+  type Locale,
+} from "@/lib/i18n/locales";
 
 interface I18nProviderProps {
   children: ReactNode;
@@ -15,6 +22,7 @@ export function I18nProvider({
   locale = "en",
 }: I18nProviderProps) {
   const initialized = useRef(false);
+  const pathname = usePathname() ?? "/";
 
   useEffect(() => {
     let cancelled = false;
@@ -25,10 +33,20 @@ export function I18nProvider({
         initialized.current = true;
       }
 
-      await ensureLocaleLoaded(locale);
+      const routeLocale = getLocaleFromPathname(pathname);
+      const storedLocale =
+        typeof window !== "undefined" ? window.localStorage.getItem("algarve-language") : null;
+      const targetLocale: Locale =
+        routeLocale !== DEFAULT_LOCALE
+          ? routeLocale
+          : storedLocale && isValidLocale(storedLocale)
+            ? storedLocale
+            : ((locale as Locale) ?? DEFAULT_LOCALE);
 
-      if (!cancelled && i18n.language !== locale) {
-        await i18n.changeLanguage(locale);
+      await ensureLocaleLoaded(targetLocale);
+
+      if (!cancelled && i18n.language !== targetLocale) {
+        await i18n.changeLanguage(targetLocale);
       }
     };
 
@@ -37,7 +55,7 @@ export function I18nProvider({
     return () => {
       cancelled = true;
     };
-  }, [locale]);
+  }, [locale, pathname]);
 
   return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;
 }

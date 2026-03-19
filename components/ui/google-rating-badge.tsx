@@ -1,4 +1,3 @@
-"use client";
 import { Star } from "lucide-react";
 import { GoogleIcon } from "@/components/ui/google-icon";
 import { cn } from "@/lib/utils";

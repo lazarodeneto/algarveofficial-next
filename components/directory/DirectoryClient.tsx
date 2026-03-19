@@ -47,6 +47,7 @@ import type { GlobalSetting } from "@/hooks/useGlobalSettings";
 import type { CityRow, RegionRow, CategoryRow } from "@/hooks/useReferenceData";
 import type { ListingFilters, ListingWithRelations, ListingTier } from "@/hooks/useListings";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
+import { useHydrated } from "@/hooks/useHydrated";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -663,7 +664,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   const router = useRouter();
   const cms = useDirectoryCmsHelpers(props.globalSettings);
   const [searchParams, setSearchParams] = useLegacySearchParams();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   const langPrefix = getLangPrefix(pathname);
   const [search, setSearch] = useState(props.initialFilters.q);
   const [debouncedSearch, setDebouncedSearch] = useState(props.initialFilters.q);
@@ -1174,7 +1175,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                                 variant="secondary"
                                 className="text-xs bg-black/60 backdrop-blur-sm text-white flex items-center gap-1"
                               >
-                                {renderCategoryIcon(listing.category?.icon, "h-3 w-3")}
+                                  {renderCategoryIcon(listing.category?.icon ?? undefined, "h-3 w-3")}
                                 {translateCategoryName(t, listing.category?.slug, listing.category?.name)}
                               </Badge>
 
@@ -1225,11 +1226,11 @@ function DirectoryClientInner(props: DirectoryClientProps) {
 
 export function DirectoryClient(props: DirectoryClientProps) {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   const nextSearchParams = useNextSearchParams();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
 
-  const search = nextSearchParams.toString();
+  const search = nextSearchParams?.toString() ?? "";
   const location = useMemo(
     () => ({
       pathname,
@@ -1258,7 +1259,6 @@ export function DirectoryClient(props: DirectoryClientProps) {
   );
 
   useEffect(() => {
-    setMounted(true);
     const serverShell = document.getElementById("directory-server-shell");
     if (serverShell) {
       serverShell.style.display = "none";
@@ -1270,7 +1270,7 @@ export function DirectoryClient(props: DirectoryClientProps) {
   }
 
   return (
-    <Router location={location as any} navigator={navigator as any} navigationType={NavigationType.Pop}>
+    <Router location={location as never} navigator={navigator as never} navigationType={NavigationType.Pop}>
       <DirectoryClientInner {...props} />
     </Router>
   );

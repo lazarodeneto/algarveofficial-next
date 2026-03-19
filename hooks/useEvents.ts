@@ -7,13 +7,8 @@ import type { Json } from '@/integrations/supabase/types';
 
 // Fetch published events for public page
 export function usePublishedEvents(category?: EventCategory | 'all', timeFilter: 'upcoming' | 'past' | 'all' = 'upcoming') {
-  if (typeof window === "undefined") {
-    return {
-      data: [],
-      isLoading: false,
-      error: null,
-    } as any;
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ['events', 'published', category, timeFilter],
     queryFn: async () => {
@@ -42,18 +37,15 @@ export function usePublishedEvents(category?: EventCategory | 'all', timeFilter:
       if (error) throw error;
       return data as CalendarEvent[];
     },
+    enabled: isBrowser,
+    initialData: [] as CalendarEvent[],
   });
 }
 
 // Fetch all events for admin with filters
 export function useAdminEvents(filters?: { status?: EventStatus; category?: EventCategory; time?: 'upcoming' | 'past' | 'all' }) {
-  if (typeof window === "undefined") {
-    return {
-      data: [],
-      isLoading: false,
-      error: null,
-    } as any;
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ['events', 'admin', filters],
     queryFn: async () => {
@@ -86,20 +78,15 @@ export function useAdminEvents(filters?: { status?: EventStatus; category?: Even
       if (error) throw error;
       return data as CalendarEvent[];
     },
+    enabled: isBrowser,
+    initialData: [] as CalendarEvent[],
   });
 }
 
 // Fetch owner's events
 export function useOwnerEvents() {
   const { user } = useAuth();
-  
-  if (typeof window === "undefined") {
-    return {
-      data: [],
-      isLoading: false,
-      error: null,
-    } as any;
-  }
+  const isBrowser = typeof window !== "undefined";
   
   return useQuery({
     queryKey: ['events', 'owner', user?.id],
@@ -118,19 +105,15 @@ export function useOwnerEvents() {
       if (error) throw error;
       return data as CalendarEvent[];
     },
-    enabled: !!user?.id,
+    enabled: isBrowser && !!user?.id,
+    initialData: [] as CalendarEvent[],
   });
 }
 
 // Fetch single event by ID
 export function useEvent(id: string | undefined) {
-  if (typeof window === "undefined") {
-    return {
-      data: null,
-      isLoading: false,
-      error: null,
-    } as any;
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ['event', id],
     queryFn: async () => {
@@ -149,19 +132,15 @@ export function useEvent(id: string | undefined) {
       if (error) throw error;
       return data as CalendarEvent | null;
     },
-    enabled: !!id,
+    enabled: isBrowser && !!id,
+    initialData: null as CalendarEvent | null,
   });
 }
 
 // Fetch single event by slug (for public detail page)
 export function useEventBySlug(slug: string) {
-  if (typeof window === "undefined") {
-    return {
-      data: null,
-      isLoading: false,
-      error: null,
-    } as any;
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ['event', 'slug', slug],
     queryFn: async () => {
@@ -180,19 +159,15 @@ export function useEventBySlug(slug: string) {
       if (error) throw error;
       return data as CalendarEvent | null;
     },
-    enabled: !!slug,
+    enabled: isBrowser && !!slug,
+    initialData: null as CalendarEvent | null,
   });
 }
 
 // Fetch related events (same category or city, excluding current event)
 export function useRelatedEvents(eventId: string | undefined, category: string | undefined, cityId: string | undefined, limit = 4) {
-  if (typeof window === "undefined") {
-    return {
-      data: [],
-      isLoading: false,
-      error: null,
-    } as any;
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ['events', 'related', eventId, category, cityId],
     queryFn: async () => {
@@ -215,19 +190,15 @@ export function useRelatedEvents(eventId: string | undefined, category: string |
       if (error) throw error;
       return data as CalendarEvent[];
     },
-    enabled: !!eventId && (!!category || !!cityId),
+    enabled: isBrowser && !!eventId && (!!category || !!cityId),
+    initialData: [] as CalendarEvent[],
   });
 }
 
 // Count pending events for moderation badge
 export function usePendingEventsCount() {
-  if (typeof window === "undefined") {
-    return {
-      data: [] as CalendarEvent[], // Changed from Event[] to CalendarEvent[] for type consistency
-      isLoading: false,
-      error: null,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
+
   return useQuery({
     queryKey: ['events', 'pending', 'count'],
     queryFn: async () => {
@@ -239,6 +210,8 @@ export function usePendingEventsCount() {
       if (error) throw error;
       return count || 0;
     },
+    enabled: isBrowser,
+    initialData: 0,
   });
 }
 
@@ -380,17 +353,12 @@ export function useRejectEvent() {
 // Delete event mutation
 export function useDeleteEvent() {
   const queryClient = useQueryClient();
-
-  if (typeof window === "undefined") {
-    return {
-      mutate: () => {},
-      mutateAsync: async () => {},
-      isPending: false,
-    };
-  }
+  const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async (id: string) => {
+      if (!isBrowser) return;
+
       const { error } = await supabase
         .from('events')
         .delete()

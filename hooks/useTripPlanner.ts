@@ -1,4 +1,3 @@
-"use client";
 import { useState, useEffect, useCallback } from 'react';
 import type { Trip, TripEvent } from '@/types/tripPlanner';
 
@@ -22,21 +21,17 @@ function saveTrips(trips: Trip[]): void {
 }
 
 export function useTripPlanner() {
-  const [trips, setTrips] = useState<Trip[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Load trips on mount
-  useEffect(() => {
-    setTrips(loadTrips());
-    setIsLoading(false);
-  }, []);
+  const isBrowser = typeof window !== "undefined";
+  const [trips, setTrips] = useState<Trip[]>(() => (isBrowser ? loadTrips() : []));
+  const isLoading = false;
 
   // Save trips whenever they change
   useEffect(() => {
+    if (!isBrowser) return;
     if (!isLoading) {
       saveTrips(trips);
     }
-  }, [trips, isLoading]);
+  }, [isBrowser, trips, isLoading]);
 
   const createTrip = useCallback((data: {
     title: string;

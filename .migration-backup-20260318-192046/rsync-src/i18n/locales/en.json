@@ -1,0 +1,14 @@
+{
+  "common": {
+    "signature": "Signature",
+    "verified": "Verified"
+  },
+  "sections": {
+    "curated": {
+      "badge": "Curated Excellence",
+      "title": "Handpicked Signature Experiences",
+      "subtitle": "A rotating selection of our most distinctive places across the Algarve.",
+      "viewDetails": "View details"
+    }
+  }
+}

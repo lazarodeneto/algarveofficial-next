@@ -1,5 +1,4 @@
-"use client";
-import { useLocation } from "next/link";
+import { useLocation } from "react-router-dom";
 
 const LANG_PREFIXES = ["/pt-pt", "/fr", "/de", "/es", "/it", "/nl", "/sv", "/no", "/da"];
 

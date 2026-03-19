@@ -1,4 +1,3 @@
-"use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -15,19 +14,11 @@ interface UseGlobalSettingsOptions {
 
 export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
   const queryClient = useQueryClient();
+  const isBrowser = typeof window !== "undefined";
   const normalizedKeys = options.keys?.length
     ? [...new Set(options.keys)].sort()
     : undefined;
 
-  if (typeof window === "undefined") {
-    return {
-      settings: [] as GlobalSetting[],
-      isLoading: false,
-      error: null,
-      saveSettingsAsync: async () => [],
-      isSaving: false,
-    };
-  }
   const query = useQuery({
     queryKey: ["global-settings", normalizedKeys ?? "all"],
     queryFn: async (): Promise<GlobalSetting[]> => {
@@ -45,12 +36,13 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
       if (error) throw error;
       return (data ?? []) as GlobalSetting[];
     },
-    enabled: options.enabled ?? true,
+    enabled: isBrowser && (options.enabled ?? true),
     staleTime: 1000 * 60 * 5,
   });
 
   const saveMutation = useMutation({
     mutationFn: async (settings: GlobalSetting[]) => {
+      if (!isBrowser) return [];
       if (!settings.length) return [];
 
       const { data, error } = await supabase
@@ -74,11 +66,15 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
     },
   });
 
+  const saveSettingsAsync = isBrowser
+    ? saveMutation.mutateAsync
+    : async (): Promise<GlobalSetting[]> => [];
+
   return {
-    settings: query.data ?? [],
-    isLoading: query.isLoading,
-    error: query.error,
-    saveSettingsAsync: saveMutation.mutateAsync,
-    isSaving: saveMutation.isPending,
+    settings: isBrowser ? query.data ?? [] : [],
+    isLoading: isBrowser ? query.isLoading : false,
+    error: isBrowser ? query.error : null,
+    saveSettingsAsync,
+    isSaving: isBrowser ? saveMutation.isPending : false,
   };
 }

@@ -1,4 +1,4 @@
-import { Link } from "next/link";
+import { Link } from "@/components/router/nextRouterCompat";
 import { Bell, User, LogOut, Settings, ChevronDown, ExternalLink, ShieldCheck, LayoutDashboard, Building2, Check, UserCheck, Crown } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
@@ -28,16 +28,16 @@ export function OwnerHeader() {
   const { data: pendingCount = 0 } = usePendingReviewCount();
 
   // Count pending listings for this owner
-  const pendingListingsCount = listings.filter(l => l.status === 'pending_review').length;
+  const pendingListingsCount = listings.filter((l: { status?: string | null }) => l.status === "pending_review").length;
 
   // Total notifications = unread messages + pending listings
   const totalNotifications = unreadCount + pendingListingsCount;
 
   // Get the highest tier among owner's listings
   const getTierBadge = () => {
-    if (listings.some(l => l.tier === 'signature')) return 'Signature';
-    if (listings.some(l => l.tier === 'verified')) return 'Verified';
-    return 'Free';
+    if (listings.some((l: { tier?: string | null }) => l.tier === "signature")) return "Signature";
+    if (listings.some((l: { tier?: string | null }) => l.tier === "verified")) return "Verified";
+    return "Free";
   };
 
   const tierBadge = getTierBadge();

@@ -1,10 +1,10 @@
 "use client";
-"use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/integrations/supabase/client';
 import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
+
 export type UserRole = 'admin' | 'editor' | 'owner' | 'viewer_logged' | 'viewer';
 
 export interface User {
@@ -197,8 +197,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const pathname = usePathname() ?? "/";
 
   // Initialize auth state with onAuthStateChange FIRST, then getSession
   useEffect(() => {
@@ -247,7 +246,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-
+        
         if (session?.user && mounted) {
           const appUser = await buildUser(session.user);
           setUser(appUser);
@@ -288,7 +287,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
-
+    
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -304,12 +303,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const appUser = await buildUser(data.user);
         setUser(appUser);
         setIsLoading(false);
-
+        
         // Redirect to appropriate dashboard
-        const from = searchParams.get("from") || (pathname && pathname !== "/login" ? pathname : undefined);
+        const from =
+          (typeof window !== "undefined"
+            ? new URLSearchParams(window.location.search).get("from")
+            : null) || (pathname !== "/login" ? pathname : undefined);
         const dashboardPath = getDashboardPath(appUser.role);
         router.replace(from || dashboardPath);
-
+        
         return { success: true };
       }
 
@@ -322,13 +324,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signup = async (
-    email: string,
-    password: string,
-    firstName: string,
+    email: string, 
+    password: string, 
+    firstName: string, 
     lastName: string
   ): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
-
+    
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -349,9 +351,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Check if email confirmation is required
       if (data.user && !data.session) {
         setIsLoading(false);
-        return {
-          success: true,
-          error: 'Please check your email to confirm your account before signing in.'
+        return { 
+          success: true, 
+          error: 'Please check your email to confirm your account before signing in.' 
         };
       }
 
@@ -359,10 +361,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const appUser = await buildUser(data.user);
         setUser(appUser);
         setIsLoading(false);
-
+        
         // Redirect to user dashboard
         router.replace('/dashboard');
-
+        
         return { success: true };
       }
 
@@ -399,7 +401,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     setIsLoading(true);
-
+    
     try {
       const { error } = await supabase.auth.signOut({ scope: 'local' });
       if (error) {
@@ -441,8 +443,8 @@ export function useAuth() {
       user: null,
       session: null,
       isLoading: false,
-      login: async () => { },
-      logout: async () => { },
+      login: async () => {},
+      logout: async () => {},
       isAuthenticated: false,
       getDashboardPath: () => "/"
     } as any;

@@ -1,6 +1,7 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 
 export interface Owner {
   id: string;
@@ -9,6 +10,8 @@ export interface Owner {
   role: string;
   created_at: string;
 }
+
+type OwnerProfile = Pick<Tables<"profiles">, "id" | "email" | "full_name" | "created_at">;
 
 /**
  * Fetches all users with the 'owner' role for admin listing assignment
@@ -32,18 +35,19 @@ export function useOwners() {
       const ownerIds = ownerRoles.map(r => r.user_id);
 
       // Get profiles for these users
-      const { data: profiles, error: profilesError } = await (supabase.from('profiles' as any) as any)
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
         .select('id, email, full_name, created_at')
         .in('id', ownerIds);
 
       if (profilesError) throw profilesError;
 
-      return (profiles || []).map((p: any) => ({
-        id: p.id,
-        email: p.email,
-        full_name: p.full_name,
+      return ((profiles ?? []) as OwnerProfile[]).map((profile) => ({
+        id: profile.id,
+        email: profile.email ?? "",
+        full_name: profile.full_name,
         role: 'owner',
-        created_at: p.created_at,
+        created_at: profile.created_at,
       })) as Owner[];
     },
     staleTime: 1000 * 60 * 10, // Cache for 10 minutes
@@ -73,21 +77,22 @@ export function useListingOwnerCandidates() {
       const userIds = [...new Set(roles.map(r => r.user_id))];
 
       // Get profiles for these users
-      const { data: profiles, error: profilesError } = await (supabase.from('profiles' as any) as any)
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
         .select('id, email, full_name, created_at')
         .in('id', userIds);
 
       if (profilesError) throw profilesError;
 
       // Map profiles with their roles
-      return (profiles || []).map((p: any) => {
-        const userRole = roles.find(r => r.user_id === p.id);
+      return ((profiles ?? []) as OwnerProfile[]).map((profile) => {
+        const userRole = roles.find(r => r.user_id === profile.id);
         return {
-          id: p.id,
-          email: p.email,
-          full_name: p.full_name,
+          id: profile.id,
+          email: profile.email ?? "",
+          full_name: profile.full_name,
           role: userRole?.role || 'owner',
-          created_at: p.created_at,
+          created_at: profile.created_at,
         };
       }) as Owner[];
     },

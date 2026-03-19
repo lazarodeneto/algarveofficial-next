@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useLocation, useNavigationType } from "next/link";
+import { useLocation, useNavigationType } from "@/components/router/nextRouterCompat";
 
 export function ScrollToTop() {
   const { pathname } = useLocation();

@@ -41,7 +41,7 @@ export function useToggleFavorite() {
             }
 
             // ✅ ADD
-            const payload: any = {
+            const payload: Record<string, string> = {
                 user_id: user.id,
                 [`${type}_id`]: id,
             };
