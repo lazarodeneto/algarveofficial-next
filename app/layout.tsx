@@ -8,6 +8,7 @@ import { AppProviders } from "@/components/providers/AppProviders";
 import { PublicSiteFrame } from "@/components/layout/PublicSiteFrame";
 import { LocaleProvider } from "@/lib/i18n/locale-context";
 import { buildMetadata } from "@/lib/metadata";
+import { buildOrganizationSchema, buildWebsiteSchema } from "@/lib/seo/schemaBuilders.js";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -25,6 +26,9 @@ const inter = Inter({
 });
 
 const fontVariables = `${playfair.variable} ${inter.variable}`;
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim()?.replace(/\/+$/, "") || "https://algarveofficial.com";
+const organizationSchema = buildOrganizationSchema(siteUrl);
+const websiteSchema = buildWebsiteSchema(siteUrl);
 const themeInitScript = `
   (() => {
     try {
@@ -64,6 +68,14 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang={requestLocale} className={fontVariables} suppressHydrationWarning>
       <body className={fontVariables}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
         <Script id="theme-init" strategy="beforeInteractive">
           {themeInitScript}
         </Script>

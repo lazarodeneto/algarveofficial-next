@@ -27,7 +27,6 @@ export default function robots(): MetadataRoute.Robots {
           "/signup",
           "/forgot-password",
           "/api/",
-          "/_next/",
         ],
       },
     ],
@@ -35,4 +34,3 @@ export default function robots(): MetadataRoute.Robots {
     host: siteUrl,
   };
 }
-

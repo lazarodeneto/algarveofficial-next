@@ -1,5 +1,5 @@
 // framer-motion import removed - using CSS animations for LCP elements
-import { Bot, ChevronDown } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useState, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -357,12 +357,8 @@ export function HeroSection() {
     return [heroHeadline];
   }, [heroHeadline]);
   const heroSubtitle = settings?.hero_subtitle?.trim() || t("hero.subtitle");
-  const primaryCtaText = t("hero.tripPlannerCta", "Trip Planner");
+  const tripPlannerButtonLabel = t("hero.planTripCta", "Plan your Trip");
   const directoryPath = buildLangPath(langPrefix, "/directory");
-  const tripPlannerPrompt = t(
-    "hero.tripPlannerPrompt",
-    "Create your Algarve itinerary in minutes",
-  );
   // ... inside the component function ...
 
   const mediaMode = useMemo<"youtube" | "video" | "poster" | "none">(() => {
@@ -410,7 +406,6 @@ export function HeroSection() {
           {mediaMode === "video" && <HeroVideo videoUrl={videoUrl} posterUrl={hasPosterUrl ? posterUrl : undefined} />}
 
           <div className="absolute inset-0 bg-black/45 backdrop-blur-[1px]" style={{ opacity: overlayOpacity }} />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/35 to-black/70" style={{ opacity: overlayOpacity }} />
           {showMediaConsentPrompt ? (
             <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center px-4">
               <button
@@ -448,18 +443,12 @@ export function HeroSection() {
 
             <div className="pt-1 sm:pt-2 flex flex-col items-center gap-3.5 sm:gap-4 w-full max-w-[22rem] sm:max-w-2xl mx-auto px-0">
               <button
+                type="button"
                 onClick={openTripPlanner}
-                className="relative isolate w-full flex flex-col items-stretch rounded-[28px] border border-[var(--colour-card-outline-gold)] bg-white p-1.5 shadow-card transition-all duration-300 hover:shadow-elevated min-[460px]:flex-row min-[460px]:items-center"
+                className="group inline-flex w-full max-w-[17.5rem] items-center justify-center gap-2 rounded-[16px] bg-gradient-to-b from-[#e7c565] via-[#d6a31f] to-[#b57f00] px-6 py-3.5 text-[1.05rem] font-semibold text-black shadow-[0_16px_28px_-18px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.6)] transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2cf72] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
               >
-                <div className="relative z-10 flex items-center gap-2.5 sm:gap-3 px-3.5 py-1 min-[460px]:py-0 sm:px-4 flex-1 min-w-0">
-                  <Bot className="h-4 w-4 sm:h-5 sm:w-5 text-[var(--colour-teal)] flex-shrink-0" />
-                  <span className="flex-1 text-left text-[rgba(11,31,58,0.72)] text-[0.92rem] sm:text-base leading-snug sm:leading-normal whitespace-normal min-[460px]:truncate">
-                    {tripPlannerPrompt}
-                  </span>
-                </div>
-                <span className="button button--primary relative z-10 inline-flex w-full min-[460px]:w-auto justify-center flex-shrink-0 rounded-full px-4 py-2.5 sm:px-8 sm:py-3 text-[10px] sm:text-sm tracking-[0.14em] sm:tracking-widest whitespace-nowrap">
-                  {primaryCtaText}
-                </span>
+                <span>{tripPlannerButtonLabel}</span>
+                <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
               </button>
 
               <div className="flex w-full flex-col gap-3 sm:flex-row sm:justify-center">

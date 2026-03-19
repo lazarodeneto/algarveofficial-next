@@ -24,6 +24,9 @@ import Link from "next/link";
 import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
+import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
+import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
+import { PageHeroImage } from "@/components/sections/PageHeroImage";
 
 const Invest = () => {
     const { t } = useTranslation();
@@ -134,36 +137,27 @@ const Invest = () => {
             <Header />
 
             <main className="flex-grow">
-                {/* Hero Section - Following the global padding strategy */}
-                {isBlockEnabled("hero", true) && <CmsBlock pageId="invest" blockId="hero" className="px-3 sm:px-4 lg:px-6 pt-16 sm:pt-20 pb-4">
-                    <section className="relative h-[60vh] md:h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden rounded-t-2xl lg:rounded-t-3xl rounded-b-none border-0 shadow-none">
-                        <div className="absolute inset-0">
-                            <video
-                                autoPlay
-                                loop
-                                muted
-                                playsInline
-                                className="w-full h-full object-cover scale-[1.02]"
-                                poster="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?q=80&w=2070&auto=format&fit=crop"
-                            >
-                                <source src="/videos/invest-pool.mp4" type="video/mp4" />
-                            </video>
-                            <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
-                            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-background" />
-                            <div className="absolute inset-x-0 bottom-0 h-72 bg-gradient-to-t from-background from-20% via-background/98 via-45% to-transparent pointer-events-none" />
-                        </div>
-                        <div className="relative z-10 text-center text-white space-y-6 px-4 max-w-4xl mx-auto">
-                            <span className="text-sm font-medium tracking-[0.3em] uppercase opacity-90 animate-fade-in">{t("nav.invest")}</span>
-                            <h1 className="font-serif text-5xl md:text-7xl font-light italic leading-tight animate-fade-up">
-                                Invest in Algarve
-                            </h1>
-                            <div className="w-24 h-1 bg-[#C9A84C] mx-auto rounded-full shadow-[0_0_15px_rgba(201,168,76,0.5)]" />
-                            <p className="text-lg md:text-xl font-light max-w-2xl mx-auto text-white/90 leading-relaxed font-sans">
-                                Discover prime investment opportunities in Europe's leading destination. Secure your piece of paradise and build lasting value.
-                            </p>
-                        </div>
-                    </section>
-                </CmsBlock>}
+                {isBlockEnabled("hero", true) && (
+                    <CmsBlock pageId="invest" blockId="hero" className="px-3 sm:px-4 lg:px-6 pt-16 sm:pt-20 pb-4">
+                        <LiveStyleHero
+                            badge={t("nav.invest")}
+                            title={getText("hero.title", "Invest in Algarve")}
+                            subtitle={getText(
+                                "hero.subtitle",
+                                "Discover prime investment opportunities in Europe's leading destination. Secure your piece of paradise and build lasting value.",
+                            )}
+                            media={
+                                <HeroBackgroundMedia
+                                    mediaType={getText("hero.mediaType", "image")}
+                                    imageUrl={getText("hero.imageUrl", "")}
+                                    videoUrl={getText("hero.videoUrl", "")}
+                                    alt={t("invest.hero.alt", "Invest in Algarve real estate")}
+                                    fallback={<PageHeroImage page="invest" alt={t("invest.hero.alt", "Invest in Algarve real estate")} />}
+                                />
+                            }
+                        />
+                    </CmsBlock>
+                )}
 
                 {isBlockEnabled("market-overview", true) && <CmsBlock pageId="invest" blockId="market-overview" as="section" className="pt-8 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
                     <div className="grid gap-10 lg:gap-14">

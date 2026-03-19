@@ -6,7 +6,10 @@ import type { Metadata } from "next";
 import type { FAQ, PartnerSettings } from "@/hooks/usePartnerSettings";
 import PartnerClient from "@/components/partner/PartnerClient";
 import { buildMetadata } from "@/lib/metadata";
+import { buildFaqSchema, buildWebPageSchema } from "@/lib/seo/schemaBuilders.js";
 import { createClient } from "@/lib/supabase/server";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.trim()?.replace(/\/+$/, "") || "https://algarveofficial.com";
 
 function normalizeFaqs(value: unknown): FAQ[] {
   if (!Array.isArray(value)) return [];
@@ -80,9 +83,31 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function PartnerPage() {
   const settings = await getPartnerSettings();
+  const pageSchema = buildWebPageSchema({
+    type: "WebPage",
+    name: settings?.hero_title || "Partner with AlgarveOfficial",
+    description:
+      settings?.meta_description ||
+      settings?.hero_subtitle ||
+      "Apply to list or claim your Algarve business and connect with travelers seeking premium services.",
+    url: `${SITE_URL}/partner`,
+    image: `${SITE_URL}/og-image.png`,
+    siteUrl: SITE_URL,
+  });
+  const faqSchema = settings?.faqs?.length ? buildFaqSchema(settings.faqs) : null;
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(pageSchema) }}
+      />
+      {faqSchema ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      ) : null}
       <div id="partner-server-shell" className="min-h-screen bg-background text-foreground">
         <main className="app-container pt-32 pb-20">
           <section className="rounded-[2rem] border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur md:p-12">

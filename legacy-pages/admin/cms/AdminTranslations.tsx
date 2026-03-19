@@ -10,6 +10,13 @@ import {
   getSupabaseFunctionErrorMessage,
   isSupabaseFunctionAuthError,
 } from "@/lib/supabaseFunctionError";
+import {
+  enforcePremiumInLocaleData,
+  enforcePremiumInTranslation,
+  flattenI18nData,
+  protectPremiumInSourceText,
+  unflattenI18nData,
+} from "@/lib/i18n/premiumGuard";
 import { toast } from "sonner";
 import {
   Languages,
@@ -46,41 +53,14 @@ const LOCALES: { code: string; name: string; flag: string; data: Record<string, 
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function flatten(obj: Record<string, unknown>, prefix = ""): Record<string, string> {
-  const result: Record<string, string> = {};
-  for (const [key, value] of Object.entries(obj)) {
-    const fullKey = prefix ? `${prefix}.${key}` : key;
-    if (value && typeof value === "object" && !Array.isArray(value)) {
-      Object.assign(result, flatten(value as Record<string, unknown>, fullKey));
-    } else {
-      result[fullKey] = String(value ?? "");
-    }
-  }
-  return result;
-}
-
-function unflatten(flat: Record<string, string>): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  for (const [dottedKey, value] of Object.entries(flat)) {
-    const parts = dottedKey.split(".");
-    let current = result;
-    for (let i = 0; i < parts.length - 1; i++) {
-      if (!(parts[i] in current)) current[parts[i]] = {};
-      current = current[parts[i]] as Record<string, unknown>;
-    }
-    current[parts[parts.length - 1]] = value;
-  }
-  return result;
-}
-
 function computeMissingKeys(
   englishKeys: string[],
   bundledLocaleData: Record<string, unknown>,
   dbLocaleData?: Record<string, unknown>,
 ) {
-  const bundledFlat = flatten(bundledLocaleData);
+  const bundledFlat = flattenI18nData(bundledLocaleData);
   const mergedFlat = dbLocaleData
-    ? { ...bundledFlat, ...flatten(dbLocaleData) }
+    ? { ...bundledFlat, ...flattenI18nData(dbLocaleData) }
     : bundledFlat;
 
   return englishKeys.filter((key) => !(key in mergedFlat));
@@ -102,7 +82,7 @@ interface LocaleState {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function AdminTranslations() {
-  const enFlat = useMemo(() => flatten(en as Record<string, unknown>), []);
+  const enFlat = useMemo(() => flattenI18nData(en as Record<string, unknown>), []);
   const enKeys = useMemo(() => Object.keys(enFlat), [enFlat]);
   const i18nClient = useMemo(
     () => supabase as unknown as { from: (table: string) => any },
@@ -237,9 +217,9 @@ export default function AdminTranslations() {
         }
 
         const existingFlat = {
-          ...flatten(localeConfig.data),
+          ...flattenI18nData(localeConfig.data),
           ...(existingLocalePatch?.data && typeof existingLocalePatch.data === "object"
-            ? flatten(existingLocalePatch.data as Record<string, unknown>)
+            ? flattenI18nData(existingLocalePatch.data as Record<string, unknown>)
             : {}),
         };
         const missingKeys = enKeys.filter((key) => !(key in existingFlat));
@@ -270,13 +250,17 @@ export default function AdminTranslations() {
         for (let i = 0; i < batchKeys.length; i += BATCH_SIZE) {
           const batch = batchKeys.slice(i, i + BATCH_SIZE);
           const batchObj: Record<string, string> = {};
-          for (const k of batch) batchObj[k] = keysToTranslate[k];
+          const batchForTranslation: Record<string, string> = {};
+          for (const k of batch) {
+            batchObj[k] = keysToTranslate[k];
+            batchForTranslation[k] = protectPremiumInSourceText(keysToTranslate[k]);
+          }
 
           const { data, error } = await invokeFunctionWithAuthRetry<{
             translated?: Record<string, string>;
             error?: string;
           }>("translate-i18n", {
-            body: { lang: localeCode, langName: localeConfig.name, keys: batchObj },
+            body: { lang: localeCode, langName: localeConfig.name, keys: batchForTranslation },
           });
 
           if (error) {
@@ -302,18 +286,29 @@ export default function AdminTranslations() {
             continue;
           }
 
-          Object.assign(translated, data?.translated ?? {});
+          const translatedBatch = data?.translated ?? {};
+          for (const key of batch) {
+            const translatedValue = translatedBatch[key] ?? batchObj[key];
+            translated[key] = enforcePremiumInTranslation(
+              batchObj[key],
+              translatedValue,
+            );
+          }
         }
 
         // Merge translated keys into the full locale data
         const mergedFlat = { ...existingFlat, ...translated };
-        const mergedNested = unflatten(mergedFlat);
+        const mergedNested = enforcePremiumInLocaleData(
+          unflattenI18nData(mergedFlat),
+          en as Record<string, unknown>,
+        );
+        const mergedNestedFlat = flattenI18nData(mergedNested);
         const nowIso = new Date().toISOString();
 
         await persistLocaleData(
           localeCode,
           mergedNested,
-          Object.keys(mergedFlat).length,
+          Object.keys(mergedNestedFlat).length,
         );
 
         updateLocale(localeCode, {

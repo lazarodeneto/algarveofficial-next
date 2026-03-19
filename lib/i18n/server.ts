@@ -1,5 +1,10 @@
 import type { Locale } from "./locales";
 import { createClient } from "../supabase/server";
+import {
+  enforcePremiumInLocaleData,
+  flattenI18nData,
+  unflattenI18nData,
+} from "./premiumGuard";
 
 type TranslationLeafMap = Record<string, string>;
 type TranslationNode = Record<string, unknown>;
@@ -30,28 +35,6 @@ const localeLoaders: Record<Locale, () => Promise<TranslationNode>> = {
   da: () => import("@/i18n/locales/da.json").then((module) => module.default as TranslationNode),
 };
 
-function flattenTranslations(
-  input: TranslationNode,
-  prefix = "",
-): TranslationLeafMap {
-  const output: TranslationLeafMap = {};
-
-  Object.entries(input).forEach(([key, value]) => {
-    const nextKey = prefix ? `${prefix}.${key}` : key;
-
-    if (typeof value === "string") {
-      output[nextKey] = value;
-      return;
-    }
-
-    if (value && typeof value === "object" && !Array.isArray(value)) {
-      Object.assign(output, flattenTranslations(value as TranslationNode, nextKey));
-    }
-  });
-
-  return output;
-}
-
 function pickTranslationKeys(
   translations: TranslationLeafMap,
   keys?: string[],
@@ -76,7 +59,13 @@ export async function getServerTranslations(
   locale: Locale,
   keys?: string[],
 ): Promise<Record<string, string>> {
-  const bundle = flattenTranslations(await localeLoaders[locale]());
+  const englishBundleNode = await localeLoaders.en();
+  const localeBundleNode = await localeLoaders[locale]();
+  const premiumSafeBundleNode =
+    locale === "en"
+      ? localeBundleNode
+      : enforcePremiumInLocaleData(localeBundleNode, englishBundleNode);
+  const bundle = flattenI18nData(premiumSafeBundleNode);
   const supabase = await createClient();
 
   try {
@@ -90,8 +79,15 @@ export async function getServerTranslations(
       return pickTranslationKeys(bundle, keys);
     }
 
-    const patch = flattenTranslations(data.data as TranslationNode);
-    return pickTranslationKeys({ ...bundle, ...patch }, keys);
+    const mergedFlat = {
+      ...bundle,
+      ...flattenI18nData(data.data as TranslationNode),
+    };
+    const mergedNode = unflattenI18nData(mergedFlat);
+    const premiumSafeMerged = enforcePremiumInLocaleData(mergedNode, englishBundleNode);
+    const premiumSafeFlat = flattenI18nData(premiumSafeMerged);
+
+    return pickTranslationKeys(premiumSafeFlat, keys);
   } catch (error) {
     console.error("[i18n] Failed to load server translations", { locale, error });
     return pickTranslationKeys(bundle, keys);

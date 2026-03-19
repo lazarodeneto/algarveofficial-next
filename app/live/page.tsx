@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
 import LiveClient from "@/components/live/LiveClient";
 import { buildMetadata } from "@/lib/metadata";
+import { buildWebPageSchema } from "@/lib/seo/schemaBuilders.js";
 import { createClient } from "@/lib/supabase/server";
 import {
   CMS_GLOBAL_SETTING_KEYS,
@@ -19,6 +20,7 @@ const LIVE_CMS_KEYS = [
   CMS_GLOBAL_SETTING_KEYS.designTokens,
   CMS_GLOBAL_SETTING_KEYS.customCss,
 ] as const;
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.trim()?.replace(/\/+$/, "") || "https://algarveofficial.com";
 
 function parseJsonSetting<T>(raw: string | undefined, fallback: T): T {
   if (!raw) return fallback;
@@ -125,9 +127,22 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function LivePage() {
   const settings = await getLiveGlobalSettings();
+  const copy = resolveLiveCopy(settings);
+  const pageSchema = buildWebPageSchema({
+    type: "WebPage",
+    name: copy.title,
+    description: copy.description,
+    url: `${SITE_URL}/live`,
+    image: `${SITE_URL}/og-image.png`,
+    siteUrl: SITE_URL,
+  });
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(pageSchema) }}
+      />
       <div id="live-server-shell" className="min-h-screen bg-background text-foreground">
         <main className="app-container pt-32 pb-20">
           <section className="rounded-[2rem] border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur md:p-12">

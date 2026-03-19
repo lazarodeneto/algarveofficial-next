@@ -27,19 +27,18 @@ export function LiveStyleHero({
   contentClassName,
   titleClassName,
   subtitleClassName,
-  overlayOpacity = 0.3,
+  overlayOpacity = 0.35,
 }: LiveStyleHeroProps) {
   return (
     <section
       className={cn(
-        "hero-golden-outline relative min-h-[560px] md:min-h-[680px] flex items-center justify-center overflow-hidden rounded-2xl lg:rounded-3xl shadow-sm",
+        "hero-golden-outline relative min-h-[560px] md:min-h-[680px] flex items-center justify-center overflow-hidden rounded-[1.65rem] lg:rounded-3xl shadow-sm",
         className,
       )}
     >
       <div className="absolute inset-0">
-        {media ?? <div className="h-full w-full bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900" />}
+        {media ?? <div className="h-full w-full bg-slate-900" />}
         <div className="absolute inset-0 bg-black/45 backdrop-blur-[1px]" style={{ opacity: overlayOpacity }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/35 to-black/70" style={{ opacity: overlayOpacity }} />
       </div>
 
       <div className={cn("relative z-10 text-center text-white space-y-6 px-4 max-w-4xl mx-auto", contentClassName)}>

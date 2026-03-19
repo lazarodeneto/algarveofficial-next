@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
+import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { buildMetadata } from "@/lib/metadata";
 import { getPublishedEventBySlug } from "./eventData";
 
@@ -28,6 +29,7 @@ export async function generateMetadata({ params }: EventDetailLayoutProps): Prom
     title,
     description,
     path: `/events/${slug}`,
+    image: normalizePublicImageUrl(event.image) || "/og-image.png",
     type: "article",
     publishedTime: event.created_at,
     modifiedTime: event.updated_at,

@@ -1,4 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { buildMetadata } from "@/lib/metadata";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Page Not Found",
+  description: "The requested page could not be found on AlgarveOfficial.",
+  path: "/404",
+  noIndex: true,
+  noFollow: true,
+});
 
 export default function NotFound() {
   return (
@@ -17,4 +27,3 @@ export default function NotFound() {
     </main>
   );
 }
-

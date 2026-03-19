@@ -5,7 +5,15 @@ import { createClient } from "@/lib/supabase/server";
 
 export type BlogPostSeoRecord = Pick<
   Tables<"blog_posts">,
-  "slug" | "title" | "excerpt" | "seo_title" | "seo_description" | "published_at" | "created_at" | "updated_at"
+  | "slug"
+  | "title"
+  | "excerpt"
+  | "featured_image"
+  | "seo_title"
+  | "seo_description"
+  | "published_at"
+  | "created_at"
+  | "updated_at"
 >;
 
 export const getPublishedBlogPostBySlug = cache(async (slug: string): Promise<BlogPostSeoRecord | null> => {
@@ -17,7 +25,7 @@ export const getPublishedBlogPostBySlug = cache(async (slug: string): Promise<Bl
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("blog_posts")
-    .select("slug, title, excerpt, seo_title, seo_description, published_at, created_at, updated_at, status")
+    .select("slug, title, excerpt, featured_image, seo_title, seo_description, published_at, created_at, updated_at, status")
     .eq("slug", normalizedSlug)
     .eq("status", "published")
     .maybeSingle();
