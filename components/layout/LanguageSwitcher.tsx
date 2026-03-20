@@ -63,7 +63,7 @@ export function LanguageSwitcher() {
 
       // Navigate to the locale-prefixed URL
       const newPath = lang.prefix ? `${lang.prefix}${nextPath}` : nextPath;
-      router.replace(`${newPath}${search}${hash}`);
+      router.push(`${newPath}${search}${hash}`);
     })();
   };
 
