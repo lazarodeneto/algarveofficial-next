@@ -1,4 +1,4 @@
-export const SUPPORTED_LOCALES = ["en", "pt-pt", "fr", "de", "es", "nl"] as const;
+export const SUPPORTED_LOCALES = ["en", "pt-pt", "fr", "de", "es", "it", "nl", "sv", "no", "da"] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "en";
 
@@ -46,6 +46,30 @@ export const LOCALE_CONFIGS: Record<
     hreflang: "nl-NL",
     shortName: "NL",
     dateLocale: "nl-NL",
+  },
+  it: {
+    name: "Italiano",
+    hreflang: "it-IT",
+    shortName: "IT",
+    dateLocale: "it-IT",
+  },
+  sv: {
+    name: "Svenska",
+    hreflang: "sv-SE",
+    shortName: "SV",
+    dateLocale: "sv-SE",
+  },
+  no: {
+    name: "Norsk",
+    hreflang: "nb-NO",
+    shortName: "NO",
+    dateLocale: "nb-NO",
+  },
+  da: {
+    name: "Dansk",
+    hreflang: "da-DK",
+    shortName: "DA",
+    dateLocale: "da-DK",
   },
 };
 
