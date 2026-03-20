@@ -6,5 +6,5 @@ export default async function PrivacyPolicyPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect(`/${locale}/privacy-policy`);
+  redirect(`/privacy-policy`);
 }

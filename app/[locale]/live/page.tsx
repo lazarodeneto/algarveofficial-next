@@ -6,5 +6,5 @@ export default async function LivePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect(`/${locale}/live`);
+  redirect(`/live`);
 }

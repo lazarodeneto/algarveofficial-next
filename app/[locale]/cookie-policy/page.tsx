@@ -6,5 +6,5 @@ export default async function CookiePolicyPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect(`/${locale}/cookie-policy`);
+  redirect(`/cookie-policy`);
 }

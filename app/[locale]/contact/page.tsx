@@ -6,5 +6,5 @@ export default async function ContactPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect(`/${locale}/contact`);
+  redirect(`/contact`);
 }

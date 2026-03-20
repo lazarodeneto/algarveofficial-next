@@ -6,5 +6,5 @@ export default async function TripsPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect(`/${locale}/trips`);
+  redirect(`/trips`);
 }
