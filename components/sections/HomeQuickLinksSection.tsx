@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { BedSingle, Binoculars, CalendarDays, LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
@@ -8,7 +9,7 @@ import {
   HOME_QUICK_LINK_CARDS,
   HOME_QUICK_LINK_SETTING_KEYS,
 } from "@/lib/homeQuickLinks";
-import { buildSupabaseImageSrcSet, buildSupabaseImageUrl } from "@/lib/imageUrls";
+import { buildSupabaseImageUrl } from "@/lib/imageUrls";
 
 const CARD_ICONS: Record<"stay" | "see-do" | "whats-on", LucideIcon> = {
   "see-do": Binoculars,
@@ -107,26 +108,24 @@ export function HomeQuickLinksSection() {
                         className="w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
-                      <img
+                      <Image
                         src={
                           buildSupabaseImageUrl(card.imageUrl, {
                             width: 480,
                             quality: 56,
                             format: "webp",
                             resize: "cover",
-                          }) || card.imageUrl
+                          }) || card.imageUrl || "/placeholder.svg"
                         }
-                        srcSet={buildSupabaseImageSrcSet(card.imageUrl, [240, 360, 480, 640], {
-                          quality: 56,
-                          format: "webp",
-                          resize: "cover",
-                        })}
-                        sizes="(max-width: 640px) 77vw, 236px"
                         alt={displayTitle}
+                        width={480}
+                        height={360}
+                        quality={56}
+                        sizes="(max-width: 640px) 77vw, 236px"
                         loading="lazy"
                         decoding="async"
                         style={{ objectPosition: card.imagePosition ?? "center" }}
-                        className="aspect-[4/3] h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     )}
                   </div>

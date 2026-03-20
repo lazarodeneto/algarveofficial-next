@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { MapListingPoint } from "@/components/map/ListingsLeafletMap";
 import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
-import { usePublishedListings } from "@/hooks/useListings";
+import { useSignatureListings } from "@/hooks/useListings";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { renderCategoryIcon } from "@/lib/categoryIcons";
@@ -43,11 +43,7 @@ export function SignatureMapSection() {
   const [activeDiscoveryFilters, setActiveDiscoveryFilters] = useState<DiscoveryCategory[]>(() =>
     DISCOVERY_FILTERS.map((filter) => filter.key)
   );
-  const { data: listings = [], isLoading: listingsLoading } = usePublishedListings();
-  const signatureListings = useMemo(
-    () => listings.filter((listing) => listing.tier === "signature"),
-    [listings]
-  );
+  const { data: signatureListings = [], isLoading: listingsLoading } = useSignatureListings();
   const activeFilterSet = useMemo(() => new Set(activeDiscoveryFilters), [activeDiscoveryFilters]);
   const areAllFiltersDisabled = activeDiscoveryFilters.length === 0;
 

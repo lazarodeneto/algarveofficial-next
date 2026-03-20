@@ -4,11 +4,9 @@ import Link from "next/link";
 import { ArrowRight, Compass } from "lucide-react";
 import { FavoriteButton } from "@/components/ui/favorite-button";
 import { useSavedDestinations } from "@/hooks/useSavedDestinations";
-import { usePublishedListings } from "@/hooks/useListings";
-import { useRegions } from "@/hooks/useReferenceData";
+import { useRegionListingCounts, useRegions } from "@/hooks/useReferenceData";
 import { useTranslation } from "react-i18next";
 import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
-import { useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { getRegionImageSet } from "@/lib/regionImages";
@@ -16,20 +14,11 @@ import SkeletonCard from "@/components/skeleton/SkeletonCard";
 
 export function RegionsSection() {
   const { isDestinationSaved, toggleRegion } = useSavedDestinations();
-  const { data: listings = [], isLoading: listingsLoading } = usePublishedListings();
+  const { data: regionCounts } = useRegionListingCounts();
   const { data: regions, isLoading: regionsLoading } = useRegions();
   const { t } = useTranslation();
   const langPrefix = useLangPrefix();
-  const isLoading = listingsLoading || regionsLoading;
-
-  const listingCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const listing of listings) {
-      if (!listing.region_id) continue;
-      counts[listing.region_id] = (counts[listing.region_id] || 0) + 1;
-    }
-    return counts;
-  }, [listings]);
+  const isLoading = regionsLoading;
 
   // Filter to only regions that have local images available
   const displayRegions = regions?.filter((region) => !!getRegionImageSet(region.slug)) || [];
@@ -86,7 +75,7 @@ export function RegionsSection() {
             {displayRegions.map((region) => {
               const images = getRegionImageSet(region.slug);
               if (!images) return null;
-              const listingCount = listingCounts?.[region.id] || 0;
+              const listingCount = regionCounts?.[region.id] || 0;
 
               return (
                 <div key={region.id} className="relative min-w-0">

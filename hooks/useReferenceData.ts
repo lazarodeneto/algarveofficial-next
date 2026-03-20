@@ -133,6 +133,40 @@ export function useRegions() {
 }
 
 /**
+ * Fetch published listing counts grouped by region.
+ * Much more efficient than fetching all listings just to count them.
+ */
+export function useRegionListingCounts() {
+  const isBrowser = typeof window !== "undefined";
+
+  return useQuery({
+    queryKey: ['reference-data', 'region-listing-counts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('listings')
+        .select('region_id', { count: 'exact', head: false })
+        .eq('status', 'published')
+        .not('region_id', 'is', null);
+
+      if (error) {
+        console.error('Error fetching region counts:', error);
+        return {};
+      }
+
+      const counts: Record<string, number> = {};
+      for (const row of data ?? []) {
+        if (row.region_id) {
+          counts[row.region_id] = (counts[row.region_id] || 0) + 1;
+        }
+      }
+      return counts;
+    },
+    enabled: isBrowser,
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+/**
  * Fetch all active categories
  */
 export function useCategories() {

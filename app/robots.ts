@@ -17,9 +17,50 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        disallow: "",
+        allow: "/",
+        disallow: [
+          "/api/",
+          "/admin/",
+          "/dashboard/",
+          "/owner/",
+          "/maintenance",
+          "/auth/",
+          "/_next/",
+          "/uch/",
+          "/owner/api/",
+          "/api/admin/",
+        ],
+      },
+      {
+        userAgent: "Googlebot",
+        allow: "/",
+        disallow: [
+          "/api/",
+          "/admin/",
+          "/dashboard/",
+          "/owner/",
+          "/maintenance",
+          "/auth/",
+        ],
+      },
+      {
+        userAgent: "Bingbot",
+        allow: "/",
+        disallow: [
+          "/api/",
+          "/admin/",
+          "/dashboard/",
+          "/owner/",
+          "/maintenance",
+          "/auth/",
+        ],
       },
     ],
-    sitemap: `${siteUrl}/sitemap.xml`,
+    sitemap: [
+      `${siteUrl}/sitemap.xml`,
+      `${siteUrl}/sitemap.xml?type=blog`,
+      `${siteUrl}/sitemap.xml?type=events`,
+    ],
+    host: siteUrl,
   };
 }

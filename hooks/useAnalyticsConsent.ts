@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useCallback } from "react";
 import {
   COOKIE_CONSENT_CHANGE_EVENT,
