@@ -10,8 +10,10 @@
     "lint:all": "eslint",
     "typecheck": "tsc --noEmit",
     "check": "npm run lint && npm run typecheck",
-    "test:e2e:smoke": "playwright test --grep @smoke",
-    "test:prelive": "npm run build && npm run test:e2e:smoke"
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:smoke": "playwright test tests/e2e/homepage.spec.ts"
   },
   "dependencies": {
     "@dnd-kit/sortable": "^10.0.0",

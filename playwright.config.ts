@@ -1,30 +1,29 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const isCI = !!process.env.CI;
-const baseURL = process.env.APP_BASE_URL ?? "http://127.0.0.1:3000";
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
 
 export default defineConfig({
-  testDir: "./e2e",
-  timeout: 90_000,
+  testDir: "./tests/e2e",
+  timeout: 60_000,
   expect: {
     timeout: 10_000,
   },
-  fullyParallel: false,
-  retries: isCI ? 2 : 0,
+  fullyParallel: true,
+  retries: isCI ? 1 : 0,
   workers: isCI ? 1 : undefined,
-  reporter: isCI ? [["github"], ["html", { open: "never" }]] : "list",
+  reporter: isCI ? [["github"], ["html", { open: "never" }]] : [["list"], ["html", { open: "never" }]],
   use: {
     baseURL,
-    trace: "retain-on-failure",
+    trace: "on-first-retry",
     screenshot: "only-on-failure",
-    video: "retain-on-failure",
   },
-  webServer: process.env.APP_BASE_URL
+  webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined
     : {
-        command: "npm run start",
+        command: isCI ? "npm run build && npm run start" : "npm run dev",
         url: baseURL,
-        timeout: 120_000,
+        timeout: isCI ? 180_000 : 120_000,
         reuseExistingServer: !isCI,
       },
   projects: [
