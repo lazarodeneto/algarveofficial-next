@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { BedSingle, Binoculars, CalendarDays, LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -9,6 +8,7 @@ import {
   HOME_QUICK_LINK_CARDS,
   HOME_QUICK_LINK_SETTING_KEYS,
 } from "@/lib/homeQuickLinks";
+import { buildSupabaseImageSrcSet, buildSupabaseImageUrl } from "@/lib/imageUrls";
 
 const CARD_ICONS: Record<"stay" | "see-do" | "whats-on", LucideIcon> = {
   "see-do": Binoculars,
@@ -87,7 +87,14 @@ export function HomeQuickLinksSection() {
                     {card.videoUrl ? (
                       <video
                         src={card.videoUrl}
-                        poster={card.imageUrl || undefined}
+                        poster={
+                          buildSupabaseImageUrl(card.imageUrl, {
+                            width: 640,
+                            quality: 52,
+                            format: "webp",
+                            resize: "cover",
+                          }) || undefined
+                        }
                         autoPlay
                         loop
                         muted
@@ -100,14 +107,26 @@ export function HomeQuickLinksSection() {
                         className="w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
-                      <Image
-                        src={card.imageUrl}
-                        alt={displayTitle}
-                        fill
-                        unoptimized
+                      <img
+                        src={
+                          buildSupabaseImageUrl(card.imageUrl, {
+                            width: 480,
+                            quality: 56,
+                            format: "webp",
+                            resize: "cover",
+                          }) || card.imageUrl
+                        }
+                        srcSet={buildSupabaseImageSrcSet(card.imageUrl, [240, 360, 480, 640], {
+                          quality: 56,
+                          format: "webp",
+                          resize: "cover",
+                        })}
                         sizes="(max-width: 640px) 77vw, 236px"
+                        alt={displayTitle}
+                        loading="lazy"
+                        decoding="async"
                         style={{ objectPosition: card.imagePosition ?? "center" }}
-                        className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="aspect-[4/3] h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     )}
                   </div>
