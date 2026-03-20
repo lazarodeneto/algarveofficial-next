@@ -46,6 +46,7 @@ export function normalizePublicImageUrl(value?: string | null): string | null {
 
 const SUPABASE_PUBLIC_OBJECT_SEGMENT = "/storage/v1/object/public/";
 const SUPABASE_PUBLIC_RENDER_SEGMENT = "/storage/v1/render/image/public/";
+const SUPABASE_PUBLIC_RENDER_ENABLED = false;
 
 type SupabaseImageFormat = "origin" | "webp";
 
@@ -68,6 +69,10 @@ function toPositiveInt(value?: number): number | null {
 }
 
 function getSupabaseRenderUrl(url: URL): URL | null {
+  if (!SUPABASE_PUBLIC_RENDER_ENABLED) {
+    return null;
+  }
+
   const pathname = url.pathname;
 
   if (pathname.includes(SUPABASE_PUBLIC_RENDER_SEGMENT)) {
