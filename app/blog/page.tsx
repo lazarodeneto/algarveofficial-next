@@ -1,12 +1,5 @@
-"use client";
-
-import { Suspense } from "react";
-import Blog from "@/legacy-pages/public/blog/Blog";
+import { redirect } from "next/navigation";
 
 export default function BlogPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <Blog />
-    </Suspense>
-  );
+  redirect("/en/blog");
 }

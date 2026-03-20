@@ -1,6 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
-import { cookies, headers } from "next/headers";
 import type { CityRow, RegionRow, CategoryRow } from "@/hooks/useReferenceData";
 import type { ListingWithRelations } from "@/hooks/useListings";
 import type { Tables } from "@/integrations/supabase/types";
@@ -226,20 +225,13 @@ async function fetchGlobalSettings(
   return (data ?? []) as GlobalSetting[];
 }
 
-export async function getHomePageData(): Promise<HomePageData> {
-  const cookieStore = await cookies();
-  const headersList = await headers();
-
-  const locale =
-    normalizeHomepageLocale(cookieStore.get("NEXT_LOCALE")?.value) ||
-    normalizeHomepageLocale(headersList.get("x-next-locale") ?? undefined) ||
-    "en";
-
+export async function getHomePageData(locale?: string): Promise<HomePageData> {
+  const resolvedLocale = normalizeHomepageLocale(locale ?? "en");
   const supabase = getServerSupabase();
 
   const [homepageSettings, regions, categories, cities, signatureListings, curatedAssignments, globalSettings] =
     await Promise.all([
-      fetchHomepageSettingsWithTranslation(supabase, locale),
+      fetchHomepageSettingsWithTranslation(supabase, resolvedLocale),
       fetchRegions(supabase),
       fetchCategories(supabase),
       fetchCities(supabase),
@@ -257,7 +249,7 @@ export async function getHomePageData(): Promise<HomePageData> {
     listings: signatureListings,
     curatedAssignments,
     globalSettings,
-    locale,
+    locale: resolvedLocale,
   };
 }
 

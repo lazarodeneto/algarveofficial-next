@@ -5,7 +5,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import type { Locale } from "@/lib/i18n/config";
-import { DEFAULT_LOCALE } from "@/lib/i18n/config";
+import { DEFAULT_LOCALE, addLocaleToPathname } from "@/lib/i18n/config";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { getRegionImageSet } from "@/lib/regionImages";
@@ -32,6 +32,10 @@ type RegionRow = {
 
 interface LocaleDestinationPageProps {
   params: Promise<{ locale: string; slug: string }>;
+}
+
+function lp(locale: Locale, path: string): string {
+  return addLocaleToPathname(path, locale);
 }
 
 function resolveRegionImage(region: RegionRow): string | null {
@@ -130,7 +134,8 @@ export async function generateMetadata({ params }: LocaleDestinationPageProps): 
 }
 
 export default async function LocaleDestinationPage({ params }: LocaleDestinationPageProps) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  const resolvedLocale = (locale ?? DEFAULT_LOCALE) as Locale;
   const data = await getDestinationPageData(slug);
 
   if (!data) notFound();
@@ -142,13 +147,13 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
     <div id="destination-detail-server-shell" className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border/60 bg-[var(--colour-ink)] text-white">
         <div className="app-container flex items-center justify-between py-5">
-          <Link href="/" className="font-serif text-2xl tracking-tight">
+          <Link href={lp(resolvedLocale, "/")} className="font-serif text-2xl tracking-tight">
             <span className="text-gradient-gold">Algarve</span>
             <span className="text-white">Official</span>
           </Link>
           <nav className="hidden gap-6 text-sm text-white/80 md:flex">
-            <Link href="/destinations" className="hover:text-white">Destinations</Link>
-            <Link href="/directory" className="hover:text-white">Directory</Link>
+            <Link href={lp(resolvedLocale, "/destinations")} className="hover:text-white">Destinations</Link>
+            <Link href={lp(resolvedLocale, "/directory")} className="hover:text-white">Directory</Link>
           </nav>
         </div>
       </header>
@@ -175,7 +180,7 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
 
           <div className="relative app-container content-max">
             <Link
-              href="/destinations"
+              href={lp(resolvedLocale, "/destinations")}
               className="inline-flex items-center gap-2 text-sm text-white/75 hover:text-white transition-colors"
             >
               ← Back to Destinations
@@ -196,7 +201,7 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
                 {cities.map((city) => (
                   <Link
                     key={city.id}
-                    href={`/destinations/${city.slug}`}
+                    href={lp(resolvedLocale, `/destinations/${city.slug}`)}
                     className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/25 px-4 py-2 text-sm text-white backdrop-blur-sm"
                   >
                     <span className="text-primary">•</span>
@@ -226,7 +231,7 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
                   return (
                     <Link
                       key={listing.id}
-                      href={`/listing/${listing.slug || listing.id}`}
+                      href={lp(resolvedLocale, `/listing/${listing.slug || listing.id}`)}
                       className="group block"
                     >
                       <article className="overflow-hidden rounded-2xl border border-border bg-card hover:border-primary/30 transition-colors">

@@ -1,12 +1,5 @@
-"use client";
-
-import { Suspense } from "react";
-import Events from "@/legacy-pages/public/events/Events";
+import { redirect } from "next/navigation";
 
 export default function EventsPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <Events />
-    </Suspense>
-  );
+  redirect("/en/events");
 }
