@@ -42,7 +42,16 @@ export function LanguageSwitcher() {
   const pathname = usePathname() ?? "/";
   const nextSearchParams = useSearchParams();
 
-  const currentLanguage = languages.find((l) => l.code === i18n.language) || languages[0];
+  // Determine current language from URL pathname, falling back to i18n.language
+  const currentLangFromUrl = (() => {
+    for (const lang of languages) {
+      if (pathname === lang.prefix || pathname.startsWith(lang.prefix + "/")) {
+        return lang.code;
+      }
+    }
+    return null;
+  })();
+  const currentLanguage = languages.find((l) => l.code === (currentLangFromUrl || i18n.language)) || languages[0];
 
   const changeLanguage = (langCode: string) => {
     const lang = languages.find((l) => l.code === langCode);
@@ -87,19 +96,29 @@ export function LanguageSwitcher() {
           "z-[1000] min-w-[160px] rounded-2xl border border-black/10 bg-white/95 p-2 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.35)] backdrop-blur-2xl dark:border-white/12 dark:bg-[hsl(var(--background)/0.9)]",
         )}
       >
-        {languages.map((lang) => (
-          <DropdownMenuItem
-            key={lang.code}
-            onClick={() => changeLanguage(lang.code)}
-            className={`cursor-pointer rounded-xl px-3 py-2.5 text-sm transition-colors ${
-              i18n.language === lang.code
-                ? "bg-primary/15 text-primary font-semibold"
-                : "hover:bg-black/5 dark:hover:bg-white/8"
-            }`}
-          >
-            {lang.name}
-          </DropdownMenuItem>
-        ))}
+        {languages.map((lang) => {
+            const isActive = (() => {
+              for (const l of languages) {
+                if ((pathname === l.prefix || pathname.startsWith(l.prefix + "/")) && l.code === lang.code) {
+                  return true;
+                }
+              }
+              return false;
+            })();
+            return (
+              <DropdownMenuItem
+                key={lang.code}
+                onClick={() => changeLanguage(lang.code)}
+                className={`cursor-pointer rounded-xl px-3 py-2.5 text-sm transition-colors ${
+                  isActive
+                    ? "bg-primary/15 text-primary font-semibold"
+                    : "hover:bg-black/5 dark:hover:bg-white/8"
+                }`}
+              >
+                {lang.name}
+              </DropdownMenuItem>
+            );
+          })}
       </DropdownMenuContent>
     </DropdownMenu>
   );
