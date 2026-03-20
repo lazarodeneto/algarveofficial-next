@@ -110,6 +110,8 @@ export function PublicSiteSidebar() {
       onToggle={() => setCollapsed((prev) => !prev)}
       logo={<BrandLogo size="sm" showText={!collapsed} className="gap-2" />}
       showHeader={false}
+      disableMobile
+      desktopBreakpoint="xl"
       sections={sections}
       hideSeparators
       disableCollapsedTooltips

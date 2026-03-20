@@ -24,7 +24,7 @@ export function PublicSiteFrame({ children }: PublicSiteFrameProps) {
       <Suspense fallback={null}>
         <PublicSiteSidebar />
       </Suspense>
-      <div className="lg:pl-16 lg:pr-6">{children}</div>
+      <div className="xl:pl-16 lg:pr-6">{children}</div>
     </>
   );
 }

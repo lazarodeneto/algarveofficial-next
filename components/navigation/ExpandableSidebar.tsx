@@ -61,6 +61,8 @@ interface ExpandableSidebarProps {
   mobileToggleClassName?: string;
   sectionVariant?: "default" | "cards";
   childIndentStyle?: "rail" | "soft";
+  disableMobile?: boolean;
+  desktopBreakpoint?: "lg" | "xl";
   className?: string;
 }
 
@@ -86,10 +88,17 @@ export function ExpandableSidebar({
   mobileToggleClassName,
   sectionVariant = "default",
   childIndentStyle = "rail",
+  disableMobile = false,
+  desktopBreakpoint = "lg",
   className,
 }: ExpandableSidebarProps) {
   const pathname = usePathname() ?? "";
   const [mobileOpen, setMobileOpen] = useState(false);
+  const desktopVisibilityClass =
+    desktopBreakpoint === "xl"
+      ? "hidden xl:sticky xl:top-0 xl:h-screen xl:flex"
+      : "hidden lg:sticky lg:top-0 lg:h-screen lg:flex";
+  const mobileVisibilityClass = desktopBreakpoint === "xl" ? "xl:hidden" : "lg:hidden";
   const compactDensity = density === "compact";
   const navItemPaddingY = compactDensity ? "py-1.5" : "py-2.5";
   const footerItemPaddingY = compactDensity ? "py-1" : "py-1.5";
@@ -513,35 +522,39 @@ export function ExpandableSidebar({
 
   return (
     <>
-      <Button
-        variant="ghost"
-        size="icon"
-        className={cn("lg:hidden fixed top-4 left-4 z-50 bg-card border border-border", mobileToggleClassName)}
-        onClick={() => setMobileOpen((prev) => !prev)}
-      >
-        {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-      </Button>
+      {!disableMobile ? (
+        <>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn(`${mobileVisibilityClass} fixed top-4 left-4 z-50 bg-card border border-border`, mobileToggleClassName)}
+            onClick={() => setMobileOpen((prev) => !prev)}
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
 
-      {mobileOpen ? (
-        <div
-          className="lg:hidden fixed inset-0 z-40 bg-background/80 backdrop-blur-sm"
-          onClick={closeMobile}
-        />
+          {mobileOpen ? (
+            <div
+              className={`${mobileVisibilityClass} fixed inset-0 z-40 bg-background/80 backdrop-blur-sm`}
+              onClick={closeMobile}
+            />
+          ) : null}
+
+          <aside
+            className={cn(
+              `${mobileVisibilityClass} fixed inset-y-0 left-0 z-50 w-64 glass-sidebar border-r border-white/10 transform transition-transform duration-300`,
+              mobileOpen ? "translate-x-0" : "-translate-x-full",
+              className,
+            )}
+          >
+            {renderSidebarContent(true)}
+          </aside>
+        </>
       ) : null}
 
       <aside
         className={cn(
-          "lg:hidden fixed inset-y-0 left-0 z-50 w-64 glass-sidebar border-r border-white/10 transform transition-transform duration-300",
-          mobileOpen ? "translate-x-0" : "-translate-x-full",
-          className,
-        )}
-      >
-        {renderSidebarContent(true)}
-      </aside>
-
-      <aside
-        className={cn(
-          "hidden lg:sticky lg:top-0 lg:h-screen lg:flex flex-col glass-sidebar border-r border-white/10 transition-all duration-300",
+          `${desktopVisibilityClass} flex-col glass-sidebar border-r border-white/10 transition-all duration-300`,
           collapsed ? desktopCollapsedWidthClass : desktopExpandedWidthClass,
           className,
         )}
