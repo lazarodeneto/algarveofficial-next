@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { useLangPrefix } from "@/hooks/useLangPrefix";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { buildSupabaseImageUrl } from "@/lib/imageUrls";
 
 interface BrandLogoProps {
   /** Size variant */
@@ -54,17 +55,24 @@ export function BrandLogo({
   const hydrated = useHydrated();
   const hydratedSettings = hydrated ? settings : null;
   const logoUrl = hydratedSettings?.logo_url;
+  const optimizedLogoUrl =
+    buildSupabaseImageUrl(logoUrl, {
+      width: 96,
+      quality: 72,
+      format: "webp",
+      resize: "contain",
+    }) || logoUrl;
   const siteName = hydratedSettings?.site_name || "Algarve Official";
   const [siteFirstWord, ...siteRestWords] = siteName.split(" ");
 
   const content = (
     <div className={cn("flex items-center gap-2", className)}>
       {showIcon ? (
-        logoUrl ? (
+        optimizedLogoUrl ? (
           <Image
             loader={passthroughImageLoader}
             unoptimized
-            src={logoUrl}
+            src={optimizedLogoUrl}
             alt={siteName}
             className={cn(config.icon, "object-contain", iconClassName)}
             width={48}

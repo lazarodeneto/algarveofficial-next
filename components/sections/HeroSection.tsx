@@ -1,7 +1,6 @@
 // framer-motion import removed - using CSS animations for LCP elements
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useState, useRef } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useHeroSettings } from "@/hooks/useHomepageSettings";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
@@ -18,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
+import { buildSupabaseImageSrcSet, buildSupabaseImageUrl } from "@/lib/imageUrls";
 
 const parseYouTubeTimeToSeconds = (value: string | null): number | null => {
   if (!value) return null;
@@ -134,15 +134,36 @@ function HeroPosterImage({
 }) {
   if (!hasPosterUrl) return <div className={`${className ?? ""} bg-black`} />;
 
+  const posterSrc =
+    buildSupabaseImageUrl(posterUrl, {
+      width: 1920,
+      quality: 54,
+      format: "webp",
+      resize: "cover",
+    }) || posterUrl;
+  const posterSrcSet = buildSupabaseImageSrcSet(
+    posterUrl,
+    [640, 960, 1280, 1600, 1920, 2560],
+    {
+      quality: 54,
+      format: "webp",
+      resize: "cover",
+    },
+  );
+
   return (
-    <Image
-      src={posterUrl}
+    <img
+      src={posterSrc}
+      srcSet={posterSrcSet}
       alt="Premium Algarve coastline"
-      fill
+      width={1920}
+      height={1080}
       sizes="100vw"
-      priority={priority}
+      loading={priority ? "eager" : "lazy"}
+      fetchPriority={priority ? "high" : "auto"}
+      decoding="async"
+      crossOrigin="anonymous"
       className={className}
-      unoptimized={posterUrl.startsWith("data:")}
     />
   );
 }
@@ -339,6 +360,13 @@ export function HeroSection() {
   const hasVideoUrl = videoUrl.length > 0;
   const hasPosterUrl = posterUrl.length > 0;
   const hasYoutubeUrl = youtubeUrl.length > 0;
+  const heroVideoPosterSrc =
+    buildSupabaseImageUrl(posterUrl, {
+      width: 1600,
+      quality: 50,
+      format: "webp",
+      resize: "cover",
+    }) || posterUrl;
   const overlayBackup = runtimeSettings.find(
     (setting) => setting.key === HERO_OVERLAY_INTENSITY_SETTING_KEY,
   )?.value;
@@ -403,7 +431,7 @@ export function HeroSection() {
             <div className="absolute inset-0 bg-black" aria-hidden="true" />
           )}
           {mediaMode === "youtube" && <YouTubeEmbed youtubeUrl={youtubeUrl} posterUrl={hasPosterUrl ? posterUrl : undefined} />}
-          {mediaMode === "video" && <HeroVideo videoUrl={videoUrl} posterUrl={hasPosterUrl ? posterUrl : undefined} />}
+          {mediaMode === "video" && <HeroVideo videoUrl={videoUrl} posterUrl={hasPosterUrl ? heroVideoPosterSrc : undefined} />}
 
           <div className="absolute inset-0 bg-black/45 backdrop-blur-[1px]" style={{ opacity: overlayOpacity }} />
           {showMediaConsentPrompt ? (

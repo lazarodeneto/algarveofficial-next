@@ -309,9 +309,9 @@ export default async function DestinationsPage() {
                   const image = getRegionImageSet(region.slug, { includeAliases: true });
                   const imageSrc = normalizePublicImageUrl(
                     image
-                      ? typeof image.image === "string"
-                        ? image.image
-                        : image.image.src
+                      ? typeof image.image800 === "string"
+                        ? image.image800
+                        : image.image800.src
                       : region.hero_image_url || region.image_url || "",
                   );
 
@@ -328,7 +328,7 @@ export default async function DestinationsPage() {
                             alt={region.name}
                             fill
                             unoptimized
-                            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                            sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 384px"
                             className="object-cover"
                           />
                         ) : (

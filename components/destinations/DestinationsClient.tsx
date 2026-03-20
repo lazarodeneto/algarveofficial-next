@@ -331,10 +331,10 @@ function DestinationsClientInner({ initialRegions, initialGlobalSettings }: Dest
                       <div className="absolute inset-0">
                         {image ? (
                           <Image
-                            src={typeof image.image === "string" ? image.image : image.image.src}
+                            src={typeof image.image800 === "string" ? image.image800 : image.image800.src}
                             alt={region.name}
                             fill
-                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 384px"
                             className="object-cover transition-transform duration-700 group-hover:scale-110"
                           />
                         ) : region.image_url || region.hero_image_url ? (
@@ -343,7 +343,7 @@ function DestinationsClientInner({ initialRegions, initialGlobalSettings }: Dest
                             alt={region.name}
                             fill
                             unoptimized
-                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 384px"
                             className="object-cover transition-transform duration-700 group-hover:scale-110"
                           />
                         ) : (
