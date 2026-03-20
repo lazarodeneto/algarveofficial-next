@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 
-export default function BlogPage({
-  params: { locale },
+export default async function BlogPage({
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   redirect(`/${locale}/blog`);
 }
