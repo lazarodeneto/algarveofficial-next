@@ -1,5 +1,6 @@
 import { SITE_CONFIG } from "./seo-config";
 import { LOCALE_CONFIGS, SUPPORTED_LOCALES } from "@/lib/i18n/config";
+import type { Locale } from "@/lib/i18n/config";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || SITE_CONFIG.url;
 
@@ -39,6 +40,7 @@ interface BlogPostSchemaInput {
   tags?: string[] | null;
   published_at?: string | null;
   updated_at?: string | null;
+  locale?: Locale;
 }
 
 interface EventSchemaInput {
@@ -48,6 +50,7 @@ interface EventSchemaInput {
   title?: string;
   description?: string | null;
   image_url?: string | null;
+  locale?: Locale;
   venue_name?: string | null;
   city?: string | null;
   start_date?: string | null;
@@ -235,7 +238,8 @@ export function buildBreadcrumbSchema(items: Array<{ name: string; url: string }
 
 export function buildArticleSchema(post: BlogPostSchemaInput) {
   const url = `${SITE_URL}/blog/${post.slug}`;
-  
+  const schemaLocale = post.locale ? LOCALE_CONFIGS[post.locale]?.hreflang ?? "en-GB" : "en-GB";
+
   return {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -260,7 +264,7 @@ export function buildArticleSchema(post: BlogPostSchemaInput) {
     },
     articleSection: post.category || undefined,
     keywords: post.tags?.join(", ") || undefined,
-    inLanguage: "en-GB",
+    inLanguage: schemaLocale,
   };
 }
 

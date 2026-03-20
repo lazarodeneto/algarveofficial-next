@@ -13,7 +13,7 @@ interface LocaleBlogPostPageProps {
 export async function generateMetadata({ params }: LocaleBlogPostPageProps): Promise<Metadata> {
   const { locale, slug } = await params;
   const resolvedLocale = (locale ?? DEFAULT_LOCALE) as Locale;
-  const post = await getPublishedBlogPostBySlug(slug);
+  const post = await getPublishedBlogPostBySlug(slug, resolvedLocale);
 
   if (!post) {
     return buildPageMetadata({
@@ -27,9 +27,9 @@ export async function generateMetadata({ params }: LocaleBlogPostPageProps): Pro
 
   return buildPageMetadata({
     title: post.seo_title || post.title,
-    description: (post.seo_description || post.excerpt) ?? undefined,
+    description: post.seo_description || post.excerpt || undefined,
     localizedPath: `/blog/${slug}`,
-    image: post.featured_image ?? undefined,
+    image: post.featured_image ?? "/og-image.png",
     type: "article",
     locale: resolvedLocale,
     publishedTime: post.published_at ?? undefined,
@@ -38,8 +38,9 @@ export async function generateMetadata({ params }: LocaleBlogPostPageProps): Pro
 }
 
 export default async function LocaleBlogPostPage({ params }: LocaleBlogPostPageProps) {
-  const { slug } = await params;
-  const post = await getPublishedBlogPostBySlug(slug);
+  const { locale, slug } = await params;
+  const resolvedLocale = (locale ?? DEFAULT_LOCALE) as Locale;
+  const post = await getPublishedBlogPostBySlug(slug, resolvedLocale);
 
   if (!post) notFound();
 

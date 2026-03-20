@@ -58,8 +58,8 @@ export default function robots(): MetadataRoute.Robots {
     ],
     sitemap: [
       `${siteUrl}/sitemap.xml`,
-      `${siteUrl}/sitemap.xml?type=blog`,
-      `${siteUrl}/sitemap.xml?type=events`,
+      `${siteUrl}/sitemap-blog.xml`,
+      `${siteUrl}/sitemap-events.xml`,
     ],
     host: siteUrl,
   };

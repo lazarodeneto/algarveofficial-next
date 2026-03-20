@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies, headers } from "next/headers";
 import Script from "next/script";
 import type { ReactNode } from "react";
 import { Inter, Playfair_Display } from "next/font/google";
@@ -11,6 +12,7 @@ import { LocaleProvider } from "@/lib/i18n/locale-context";
 import { buildMetadata } from "@/lib/metadata";
 import { buildOrganizationSchema, buildWebsiteSchema } from "@/lib/seo/schemaBuilders.js";
 import { CookieConsentBannerWrapper } from "@/components/gdpr/CookieConsentBannerWrapper";
+import { LOCALE_CONFIGS, type Locale } from "@/lib/i18n/config";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -60,15 +62,18 @@ interface RootLayoutProps {
   children: ReactNode;
 }
 
-export default function RootLayout({ children }: RootLayoutProps) {
-  // Default to English. The [lang] segment layout handles locale-specific logic.
-  // We explicitly exclude `params` from the synchronous signature here because 
-  // for special routes like /_not-found, Next.js can pass a Promise that 
-  // deadlocks the build worker if it's awaited in a blocking manner.
-  const requestLocale = "en";
+export default async function RootLayout({ children }: RootLayoutProps) {
+  const cookieStore = await cookies();
+  const headersList = await headers();
+
+  const cookieLocale = cookieStore.get("NEXT_LOCALE")?.value;
+  const headerLocale = headersList.get("x-locale") as Locale | null;
+  const resolvedLocale: Locale = (cookieLocale || headerLocale || "en") as Locale;
+  const localeConfig = LOCALE_CONFIGS[resolvedLocale] ?? LOCALE_CONFIGS.en;
+  const htmlLang = localeConfig?.hreflang ?? "en-GB";
 
   return (
-    <html lang={requestLocale} className={fontVariables} suppressHydrationWarning>
+    <html lang={htmlLang} className={fontVariables} suppressHydrationWarning>
       <body className={fontVariables}>
         <script
           type="application/ld+json"
@@ -81,8 +86,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <Script id="theme-init" strategy="beforeInteractive">
           {themeInitScript}
         </Script>
-        <LocaleProvider locale={requestLocale}>
-          <AppProviders locale={requestLocale}>
+        <LocaleProvider locale={resolvedLocale}>
+          <AppProviders locale={resolvedLocale}>
             <PublicSiteFrame>{children}</PublicSiteFrame>
             <CookieConsentBannerWrapper />
           </AppProviders>

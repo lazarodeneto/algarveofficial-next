@@ -34,7 +34,7 @@ function buildHreflangAlternates(
     result[LOCALE_CONFIGS[locale].hreflang] = `${siteUrl}${localized}`;
   }
 
-  result["x-default"] = `${siteUrl}${localizedPath}`;
+  result["x-default"] = `${siteUrl}/en${localizedPath}`;
 
   return result;
 }

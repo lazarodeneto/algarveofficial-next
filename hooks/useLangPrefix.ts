@@ -1,13 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { SUPPORTED_LOCALES } from "@/lib/i18n/config";
 
-const LANG_PREFIXES = ["/pt-pt", "/fr", "/de", "/es", "/it", "/nl", "/sv", "/no", "/da"];
+const LANG_PREFIXES = SUPPORTED_LOCALES.map((l) => `/${l}`);
 
-/**
- * Returns the current language prefix from the URL (e.g. "/pt-pt", "/fr", or "").
- * Use this to build language-aware internal links.
- */
 export function useLangPrefix(): string {
   const pathname = usePathname() ?? "";
 
@@ -18,13 +15,10 @@ export function useLangPrefix(): string {
       return prefix;
     }
   }
+
   return "";
 }
 
-/**
- * Build a language-aware path by prepending the current language prefix.
- * Usage: langPath("/blog") → "/pt-pt/blog" if on Portuguese version
- */
 export function buildLangPath(prefix: string, path: string): string {
   if (!prefix) return path;
   if (path === "/") return prefix;

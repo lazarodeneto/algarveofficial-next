@@ -1,19 +1,6 @@
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 
-import { BlogPostPageClient } from "./BlogPostPageClient";
-import { getPublishedBlogPostBySlug } from "./postData";
-
-interface BlogPostPageProps {
-  params: Promise<{ slug: string }>;
-}
-
-export default async function BlogPostPage({ params }: BlogPostPageProps) {
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = await getPublishedBlogPostBySlug(slug);
-
-  if (!post) {
-    notFound();
-  }
-
-  return <BlogPostPageClient />;
+  redirect(`/en/blog/${slug}`);
 }
