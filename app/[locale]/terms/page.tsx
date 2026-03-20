@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 
-export default function TermsPage({
-  params: { locale },
+export default async function TermsPage({
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   redirect(`/${locale}/terms`);
 }

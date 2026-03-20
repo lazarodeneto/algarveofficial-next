@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 
-export default function EventsPage({
-  params: { locale },
+export default async function EventsPage({
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   redirect(`/${locale}/events`);
 }

@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 
-export default function TripsPage({
-  params: { locale },
+export default async function TripsPage({
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   redirect(`/${locale}/trips`);
 }
