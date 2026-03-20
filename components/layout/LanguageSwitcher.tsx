@@ -12,7 +12,7 @@ import { ensureLocaleLoaded } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 const languages = [
-  { code: "en", name: "English", flag: "🇬🇧", prefix: "" },
+  { code: "en", name: "English", flag: "🇬🇧", prefix: "/en" },
   { code: "pt-pt", name: "Português", flag: "🇵🇹", prefix: "/pt-pt" },
   { code: "de", name: "Deutsch", flag: "🇩🇪", prefix: "/de" },
   { code: "fr", name: "Français", flag: "🇫🇷", prefix: "/fr" },
@@ -24,7 +24,7 @@ const languages = [
   { code: "da", name: "Dansk", flag: "🇩🇰", prefix: "/da" },
 ];
 
-const LANG_PREFIXES = ["/pt-pt", "/fr", "/de", "/es", "/it", "/nl", "/sv", "/no", "/da"];
+const LANG_PREFIXES = ["/en", "/pt-pt", "/fr", "/de", "/es", "/it", "/nl", "/sv", "/no", "/da"];
 
 /** Strip any language prefix from a pathname to get the bare path */
 function stripLangPrefix(pathname: string): string {
@@ -49,7 +49,6 @@ export function LanguageSwitcher() {
     if (!lang) return;
 
     const barePath = stripLangPrefix(pathname);
-    const currentHasLegacyPrefix = barePath !== pathname;
     const nextPath = barePath || "/";
     const searchValue = nextSearchParams?.toString() ?? "";
     const search = searchValue ? `?${searchValue}` : "";
@@ -62,12 +61,9 @@ export function LanguageSwitcher() {
       localStorage.setItem("algarve-language", langCode);
       localStorage.setItem("algarve-language-chosen", "true");
 
-      // Keep users on the working App Router route while locale-prefixed
-      // routes are still being migrated. If they are already on a legacy
-      // prefixed URL, strip it back to the equivalent bare path.
-      if (currentHasLegacyPrefix) {
-        router.replace(`${nextPath}${search}${hash}`);
-      }
+      // Navigate to the locale-prefixed URL
+      const newPath = lang.prefix ? `${lang.prefix}${nextPath}` : nextPath;
+      router.replace(`${newPath}${search}${hash}`);
     })();
   };
 
