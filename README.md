@@ -42,24 +42,22 @@ npm run typecheck
 npm run build
 ```
 
-## Pre-Live Smoke Gate
+## Playwright E2E
 
-Run the production smoke gate locally:
+Run Playwright tests locally:
 
 ```bash
-npm run build
-E2E_USER_EMAIL="your-email" E2E_USER_PASSWORD="your-password" npm run test:e2e:smoke
+npm run test:e2e
 ```
 
-This Playwright smoke test validates:
-- Home page is reachable and not in maintenance mode
-- Login succeeds
-- Protected dashboard is visible after authentication
-- No runtime console errors or API 5xx responses in the critical path
+Run only the homepage smoke test:
 
-For GitHub Actions, configure repository secrets:
-- `E2E_USER_EMAIL`
-- `E2E_USER_PASSWORD`
+```bash
+npm run test:e2e:smoke
+```
+
+Playwright uses `http://127.0.0.1:3000` by default and auto-starts the app for test runs.
+Set `PLAYWRIGHT_BASE_URL` if you want to target another environment.
 
 ## Production Build & Start
 
