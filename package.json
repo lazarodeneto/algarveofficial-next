@@ -9,7 +9,9 @@
     "lint": "eslint app",
     "lint:all": "eslint",
     "typecheck": "tsc --noEmit",
-    "check": "npm run lint && npm run typecheck"
+    "check": "npm run lint && npm run typecheck",
+    "test:e2e:smoke": "playwright test --grep @smoke",
+    "test:prelive": "npm run build && npm run test:e2e:smoke"
   },
   "dependencies": {
     "@dnd-kit/sortable": "^10.0.0",
@@ -70,6 +72,7 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/typography": "^0.5.16",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
