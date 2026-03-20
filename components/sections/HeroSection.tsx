@@ -2,12 +2,12 @@
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+import Image from "next/image";
 import { useHeroSettings } from "@/hooks/useHomepageSettings";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 import { useTranslation } from "react-i18next";
 import { useConnectionQuality } from "@/hooks/useConnectionQuality";
-import { CreateTripDialog } from "@/components/trip-planner/CreateTripDialog";
-import { LoginModal } from "@/components/ui/login-modal";
 import { useTripPlanner } from "@/hooks/useTripPlanner";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
-import { buildSupabaseImageSrcSet, buildSupabaseImageUrl } from "@/lib/imageUrls";
+import { buildSupabaseImageUrl } from "@/lib/imageUrls";
 
 const parseYouTubeTimeToSeconds = (value: string | null): number | null => {
   if (!value) return null;
@@ -141,28 +141,18 @@ function HeroPosterImage({
       format: "webp",
       resize: "cover",
     }) || posterUrl;
-  const posterSrcSet = buildSupabaseImageSrcSet(
-    posterUrl,
-    [640, 960, 1280, 1600, 1920, 2560],
-    {
-      quality: 54,
-      format: "webp",
-      resize: "cover",
-    },
-  );
 
   return (
-    <img
+    <Image
       src={posterSrc}
-      srcSet={posterSrcSet}
       alt="Premium Algarve coastline"
       width={1920}
       height={1080}
+      quality={54}
       sizes="100vw"
       loading={priority ? "eager" : "lazy"}
+      priority={priority}
       fetchPriority={priority ? "high" : "auto"}
-      decoding="async"
-      crossOrigin="anonymous"
       className={className}
     />
   );
@@ -171,20 +161,45 @@ function HeroPosterImage({
 const YouTubeEmbedPlayer = ({ youtubeUrl, posterUrl }: { youtubeUrl: string; posterUrl?: string }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [shouldLoadIframe, setShouldLoadIframe] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!youtubeUrl) return;
 
     const loadDelay = posterUrl ? 900 : 0;
-    const timer = window.setTimeout(() => {
-      setShouldLoadIframe(true);
-    }, loadDelay);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let timer: any;
+    let observer: IntersectionObserver | null = null;
 
-    return () => window.clearTimeout(timer);
+    const startTimer = () => {
+      timer = window.setTimeout(() => {
+        setShouldLoadIframe(true);
+      }, loadDelay);
+    };
+
+    if (containerRef.current) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting) {
+            startTimer();
+            observer?.disconnect();
+          }
+        },
+        { threshold: 0.01 }
+      );
+      observer.observe(containerRef.current);
+    } else {
+      startTimer();
+    }
+
+    return () => {
+      window.clearTimeout(timer);
+      observer?.disconnect();
+    };
   }, [posterUrl, youtubeUrl]);
 
   return (
-    <>
+    <div ref={containerRef}>
       {shouldLoadIframe ? (
         <iframe
           src={getYouTubeEmbedUrl(youtubeUrl)}
@@ -207,7 +222,7 @@ const YouTubeEmbedPlayer = ({ youtubeUrl, posterUrl }: { youtubeUrl: string; pos
           }}
         />
       ) : null}
-    </>
+    </div>
   );
 };
 
@@ -296,6 +311,15 @@ const HeroVideo = ({ videoUrl, posterUrl }: { videoUrl: string; posterUrl?: stri
 
 
 export function HeroSection() {
+  const CreateTripDialog = dynamic(
+    () => import("@/components/trip-planner/CreateTripDialog").then((m) => m.CreateTripDialog),
+    { ssr: false },
+  );
+  const LoginModal = dynamic(
+    () => import("@/components/ui/login-modal").then((m) => m.LoginModal),
+    { ssr: false },
+  );
+
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(
     () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   );

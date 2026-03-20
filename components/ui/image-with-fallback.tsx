@@ -1,17 +1,28 @@
 import { useState } from "react";
+import Image from "next/image";
 import { Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
+import { getOptimizedImageUrl } from "@/lib/image";
 
-interface ImageWithFallbackProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+interface ImageWithFallbackProps {
+  src?: string | null;
   alt: string;
-  fallbackIconSize?: number;
+  className?: string;
   containerClassName?: string;
+  fallbackIconSize?: number;
+  fallbackSrc?: string;
+  width?: number;
+  height?: number;
+  fill?: boolean;
+  sizes?: string;
+  priority?: boolean;
+  loading?: "lazy" | "eager";
+  style?: React.CSSProperties;
 }
 
-interface LoadedImageProps extends Omit<ImageWithFallbackProps, "src" | "alt"> {
+interface LoadedImageProps extends Omit<ImageWithFallbackProps, "src" | "fallbackSrc"> {
   src: string;
-  alt: string;
 }
 
 function LoadedImageWithFallback({
@@ -19,41 +30,61 @@ function LoadedImageWithFallback({
   alt,
   className,
   containerClassName,
-  fallbackIconSize,
-  ...props
+  fallbackIconSize = 24,
+  width,
+  height,
+  fill = false,
+  sizes,
+  priority = false,
+  loading,
+  style,
 }: LoadedImageProps) {
   const [hasError, setHasError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const showFallback = hasError;
+  const resolvedAlt = typeof alt === "string" && alt.trim().length > 0 ? alt : "Image";
+
+  if (hasError) {
+    return (
+      <div className={cn("relative bg-muted overflow-hidden flex items-center justify-center", containerClassName)}>
+        <ImageIcon className="text-muted-foreground" size={fallbackIconSize} />
+      </div>
+    );
+  }
+
+  if (fill) {
+    return (
+      <Image
+        src={src}
+        alt={resolvedAlt}
+        fill
+        quality={80}
+        className={cn("object-cover", className)}
+        sizes={sizes ?? "(max-width: 768px) 100vw, 50vw"}
+        priority={priority}
+        loading={loading}
+        onError={() => setHasError(true)}
+        style={style}
+      />
+    );
+  }
+
+  const aspectRatio = 4 / 3;
+  const displayWidth = width ?? 800;
+  const displayHeight = height ?? Math.round(displayWidth / aspectRatio);
 
   return (
-    <div className={cn("relative bg-muted overflow-hidden", containerClassName)}>
-      {!showFallback && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={src}
-          alt={alt}
-          className={cn(
-            "absolute inset-0 w-full h-full object-cover",
-            isLoading && "opacity-0",
-            className
-          )}
-          onError={() => setHasError(true)}
-          onLoad={() => setIsLoading(false)}
-          {...props}
-        />
-      )}
-      {(showFallback || isLoading) && (
-        <div
-          className={cn(
-            "w-full h-full flex items-center justify-center",
-            !showFallback && isLoading && "absolute inset-0"
-          )}
-        >
-          <ImageIcon className="text-muted-foreground" size={fallbackIconSize} />
-        </div>
-      )}
-    </div>
+    <Image
+      src={src}
+      alt={resolvedAlt}
+      width={displayWidth}
+      height={displayHeight}
+      quality={80}
+      className={cn("bg-muted", className)}
+      sizes={sizes ?? "(max-width: 768px) 100vw, 50vw"}
+      priority={priority}
+      loading={loading}
+      onError={() => setHasError(true)}
+      style={style}
+    />
   );
 }
 
@@ -63,25 +94,31 @@ export function ImageWithFallback({
   className,
   containerClassName,
   fallbackIconSize = 24,
+  fallbackSrc,
   ...props
 }: ImageWithFallbackProps) {
-  const resolvedAlt = typeof alt === "string" && alt.trim().length > 0 ? alt : "AlgarveOfficial image";
+  const resolvedAlt = typeof alt === "string" && alt.trim().length > 0 ? alt : "Image";
   const resolvedSrc = typeof src === "string" ? normalizePublicImageUrl(src) : undefined;
+  const resolvedFallbackSrc = typeof fallbackSrc === "string" ? normalizePublicImageUrl(fallbackSrc) : undefined;
 
   if (!resolvedSrc) {
     return (
-      <div className={cn("relative bg-muted overflow-hidden", containerClassName)}>
-        <div className="w-full h-full flex items-center justify-center">
-          <ImageIcon className="text-muted-foreground" size={fallbackIconSize} />
-        </div>
+      <div className={cn("relative bg-muted overflow-hidden flex items-center justify-center", containerClassName)}>
+        <ImageIcon className="text-muted-foreground" size={fallbackIconSize} />
       </div>
     );
   }
 
+  const optimizedSrc = getOptimizedImageUrl(resolvedSrc, {
+    width: 1200,
+    quality: 80,
+    format: "webp",
+    resize: "cover",
+  });
+
   return (
     <LoadedImageWithFallback
-      key={resolvedSrc}
-      src={resolvedSrc}
+      src={optimizedSrc ?? resolvedSrc}
       alt={resolvedAlt}
       className={className}
       containerClassName={containerClassName}

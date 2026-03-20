@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import type { ReactNode } from "react";
 import { Inter, Playfair_Display } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import "../index.css";
 import { AppProviders } from "@/components/providers/AppProviders";
@@ -9,6 +10,7 @@ import { PublicSiteFrame } from "@/components/layout/PublicSiteFrame";
 import { LocaleProvider } from "@/lib/i18n/locale-context";
 import { buildMetadata } from "@/lib/metadata";
 import { buildOrganizationSchema, buildWebsiteSchema } from "@/lib/seo/schemaBuilders.js";
+import { CookieConsentBannerWrapper } from "@/components/gdpr/CookieConsentBannerWrapper";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -82,8 +84,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <LocaleProvider locale={requestLocale}>
           <AppProviders locale={requestLocale}>
             <PublicSiteFrame>{children}</PublicSiteFrame>
+            <CookieConsentBannerWrapper />
           </AppProviders>
         </LocaleProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
