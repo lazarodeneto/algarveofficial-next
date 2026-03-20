@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "securityHeaders": [
+  "headers": [
     {
       "key": "X-DNS-Prefetch-Control",
       "value": "on"
