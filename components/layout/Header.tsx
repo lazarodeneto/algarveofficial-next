@@ -13,6 +13,10 @@ import {
   Settings2,
   Binoculars,
   Home,
+  MapPin,
+  BookOpen,
+  MessageSquare,
+  Plane,
   TrendingUp,
   Hotel,
   Utensils,
@@ -56,7 +60,15 @@ export function Header() {
   const investPath = buildLangPath(langPrefix, "/invest");
   const realEstatePath = buildLangPath(langPrefix, "/real-estate");
   const partnerPath = buildLangPath(langPrefix, "/partner");
+  const homePath = buildLangPath(langPrefix, "/");
+  const destinationsPath = buildLangPath(langPrefix, "/destinations");
+  const mapPath = buildLangPath(langPrefix, "/map");
+  const blogPath = buildLangPath(langPrefix, "/blog");
+  const eventsPath = buildLangPath(langPrefix, "/events");
   const favoritesPath = isAuthenticated ? "/dashboard/favorites" : loginPath;
+  const accountPath = isAuthenticated && user ? getDashboardPath(user.role) : loginPath;
+  const tripsPath = isAuthenticated ? "/dashboard/trips" : loginPath;
+  const messagesPath = isAuthenticated ? "/dashboard/messages" : loginPath;
   const buildDirectoryCategoryPath = (category: string) =>
     buildLangPath(langPrefix, `/directory?category=${category}`);
 
@@ -138,7 +150,7 @@ export function Header() {
     <>
       <CommandSearch open={searchOpen} onOpenChange={setSearchOpen} />
 
-      <header className="site-header fixed top-0 left-0 right-0 z-50 transition-all duration-300 lg:left-16">
+      <header className="site-header fixed top-0 left-0 right-0 z-50 transition-all duration-300 xl:left-16">
         <div
           className={`absolute inset-0 transition-all duration-300 ${isScrolled
             ? "border-b border-black/8 bg-[hsl(var(--background)/0.96)] shadow-[0_18px_48px_-38px_rgba(15,23,42,0.35)] backdrop-blur-2xl dark:border-white/10 dark:bg-[hsl(var(--background)/0.78)]"
@@ -306,7 +318,7 @@ export function Header() {
             </div>
 
             {/* Mobile menu button */}
-            <div className="lg:hidden ml-auto flex items-center gap-1 sm:gap-3">
+            <div className="xl:hidden ml-auto flex items-center gap-1 sm:gap-3">
               <Link href={favoritesPath}>
                 <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full border border-black/10 bg-white/80 text-foreground shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10 dark:text-white/85">
                   <Heart className="h-5 w-5 sm:h-5 sm:w-5" />
@@ -352,8 +364,23 @@ export function Header() {
                 onTouchEnd={handleTouchEnd}
               >
                 <div className="px-4 py-6 space-y-4">
+                  <div className="flex min-h-full flex-col">
+                    <div className="mb-4 rounded-2xl border border-black/10 bg-white/70 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                          {t("common.language", "Language")}
+                        </div>
+                        <LanguageSwitcher />
+                      </div>
+                      <div className="mt-3 flex items-center justify-between gap-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                          {t("common.theme", "Theme")}
+                        </div>
+                        <ThemeToggle />
+                      </div>
+                    </div>
 
-                  <Accordion type="single" collapsible className="w-full">
+                    <Accordion type="single" collapsible className="w-full rounded-2xl border border-black/10 bg-white/66 px-2 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
                     {/* VISIT */}
                     <AccordionItem value="visit">
                       <div className="flex items-center">
@@ -366,7 +393,7 @@ export function Header() {
                         <AccordionTrigger className="w-12 h-12 flex items-center justify-center p-0" />
                       </div>
                       <AccordionContent>
-                        <div className="flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
+                        <div className="mb-1 flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
                           <Link href={buildDirectoryCategoryPath("places-to-stay")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Hotel className="h-4 w-4" /> {t("categoryNames.places-to-stay")}</Link>
                           <Link href={buildDirectoryCategoryPath("restaurants")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Utensils className="h-4 w-4" /> {t("categoryNames.restaurants")}</Link>
                           <Link href={buildDirectoryCategoryPath("golf")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Trophy className="h-4 w-4" /> {t("categoryNames.golf")}</Link>
@@ -392,7 +419,7 @@ export function Header() {
                         <AccordionTrigger className="w-12 h-12 flex items-center justify-center p-0" />
                       </div>
                       <AccordionContent>
-                        <div className="flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
+                        <div className="mb-1 flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
                           <Link href={buildDirectoryCategoryPath("wellness-spas")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Dumbbell className="h-4 w-4" /> {t("categoryNames.wellness-spas")}</Link>
                           <Link href={buildDirectoryCategoryPath("restaurants")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><ChefHat className="h-4 w-4" /> {t("categoryNames.restaurants")}</Link>
                           <Link href={buildDirectoryCategoryPath("algarve-services")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Users className="h-4 w-4" /> {t("categoryNames.algarve-services")}</Link>
@@ -414,7 +441,7 @@ export function Header() {
                         <AccordionTrigger className="w-12 h-12 flex items-center justify-center p-0" />
                       </div>
                       <AccordionContent>
-                        <div className="flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
+                        <div className="mb-1 flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
                           <Link href={investPath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><TrendingUp className="h-4 w-4" /> {t("nav.invest", "Invest")}</Link>
                           <Link href={realEstatePath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Building2 className="h-4 w-4" /> {t("realEstate.title", "Real Estate Directory")}</Link>
                           <Link href={partnerPath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Plus className="h-4 w-4" /> {t("realEstate.addListing", "Add Real Estate Listing")}</Link>
@@ -423,23 +450,60 @@ export function Header() {
                     </AccordionItem>
                   </Accordion>
 
-                  {/* Mobile Actions */}
-                  <div className="pt-6 border-t border-border space-y-3">
-                    <Link href={favoritesPath} onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start gap-4 text-base">
-                        <Heart className="h-5 w-5" />
-                        {t("dashboard.favorites.title", "Saved")}
-                      </Button>
-                    </Link>
-
-                    {isAuthenticated && user ? (
-                      <>
-                        <Link href={getDashboardPath(user.role)} onClick={() => setMobileMenuOpen(false)}>
-                          <Button variant="ghost" className="w-full justify-start gap-3 text-base">
-                            <User className="h-5 w-5" />
-                            <span>{t("nav.account")}</span>
-                          </Button>
+                    <div className="mt-4 rounded-2xl border border-black/10 bg-white/66 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
+                      <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                        {t("nav.discover", "Discover")}
+                      </p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Link href={homePath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
+                          <Home className="h-4 w-4 text-primary" />
+                          {t("nav.home", "Home")}
                         </Link>
+                        <Link href={destinationsPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
+                          <Compass className="h-4 w-4 text-primary" />
+                          {t("nav.destinations", "Destinations")}
+                        </Link>
+                        <Link href={mapPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
+                          <MapPin className="h-4 w-4 text-primary" />
+                          {t("nav.map", "Map")}
+                        </Link>
+                        <Link href={blogPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
+                          <BookOpen className="h-4 w-4 text-primary" />
+                          {t("nav.blog", "Blog")}
+                        </Link>
+                        <Link href={eventsPath} onClick={() => setMobileMenuOpen(false)} className="col-span-2 inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
+                          <Calendar className="h-4 w-4 text-primary" />
+                          {t("nav.events", "Events")}
+                        </Link>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 rounded-2xl border border-black/10 bg-white/66 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
+                      <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                        {t("nav.yourSpace", "Your Space")}
+                      </p>
+                      <div className="grid grid-cols-1 gap-2">
+                        <Link href={accountPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
+                          <User className="h-4 w-4 text-primary" />
+                          {t("nav.account", "Account")}
+                        </Link>
+                        <Link href={tripsPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
+                          <Plane className="h-4 w-4 text-primary" />
+                          {t("nav.myTrip", "My Trip")}
+                        </Link>
+                        <Link href={favoritesPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
+                          <Heart className="h-4 w-4 text-primary" />
+                          {t("dashboard.favorites.title", "Favorites")}
+                        </Link>
+                        <Link href={messagesPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
+                          <MessageSquare className="h-4 w-4 text-primary" />
+                          {t("nav.messages", "Messages")}
+                        </Link>
+                      </div>
+                    </div>
+
+                    <div className="mt-auto pt-4">
+                      {isAuthenticated && user ? (
                         <Button
                           variant="outline"
                           className="w-full"
@@ -448,25 +512,15 @@ export function Header() {
                             setMobileMenuOpen(false);
                           }}
                         >
-                          {t("nav.signOut")}
+                          {t("nav.signOut", "Sign Out")}
                         </Button>
-                      </>
-                    ) : (
-                      <Link href={loginPath} onClick={() => setMobileMenuOpen(false)}>
-                        <Button variant="ghost" className="w-full justify-start gap-3 text-base">
-                          <User className="h-5 w-5" />
-                          {t("nav.login")}
-                        </Button>
-                      </Link>
-                    )}
-
-                    <div className="flex justify-between items-center pt-2">
-                      <span className="text-sm font-medium text-muted-foreground pl-2">{t("common.language", "Language")}</span>
-                      <LanguageSwitcher />
-                    </div>
-                    <div className="flex justify-between items-center pt-2">
-                      <span className="text-sm font-medium text-muted-foreground pl-2">{t("common.theme", "Theme")}</span>
-                      <ThemeToggle />
+                      ) : (
+                        <Link href={loginPath} onClick={() => setMobileMenuOpen(false)}>
+                          <Button variant="outline" className="w-full">
+                            {t("nav.login", "Login")}
+                          </Button>
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>
