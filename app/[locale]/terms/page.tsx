@@ -6,5 +6,5 @@ export default async function TermsPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect(`/${locale}/terms`);
+  redirect(`/terms`);
 }

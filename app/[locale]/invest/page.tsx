@@ -6,5 +6,5 @@ export default async function InvestPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect(`/${locale}/invest`);
+  redirect(`/invest`);
 }
