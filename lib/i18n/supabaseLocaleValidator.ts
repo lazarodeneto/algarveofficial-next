@@ -108,7 +108,12 @@ export function applyListingTranslation(
       "title", "short_description", "description",
     ]);
     return {
-      ...base,
+      id: base.id,
+      title: base.title,
+      short_description: base.short_description ?? null,
+      description: base.description ?? null,
+      seo_title: base.seo_title ?? null,
+      seo_description: base.seo_description ?? null,
       _locale: locale,
       _isEnglishFallback: true,
     };
