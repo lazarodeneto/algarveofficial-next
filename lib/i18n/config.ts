@@ -95,8 +95,13 @@ export const LOCALE_LANGUAGE_MAP: Record<string, Locale> = {
   "nl-be": "nl",
 };
 
-export const LOCALE_PREFIX_REGEX =
-  /^\/(en|pt-pt|fr|de|es|nl)(?=\/|$)/;
+// Auto-generated from SUPPORTED_LOCALES — never hardcode locale lists in regex
+export const LOCALE_PREFIX_PATTERN = new RegExp(
+  `^\\/(${SUPPORTED_LOCALES.join("|")})(?=\\/|$)`
+);
+
+/** @deprecated Use LOCALE_PREFIX_PATTERN instead */
+export const LOCALE_PREFIX_REGEX = LOCALE_PREFIX_PATTERN;
 
 export function isValidLocale(value: string | undefined | null): value is Locale {
   if (!value) return false;
@@ -104,15 +109,16 @@ export function isValidLocale(value: string | undefined | null): value is Locale
 }
 
 export function getLocaleFromPathname(pathname: string): Locale {
-  const match = pathname.match(LOCALE_PREFIX_REGEX);
-  if (match && isValidLocale(match[1])) {
-    return match[1] as Locale;
+  const segments = pathname.split("/").filter(Boolean);
+  const maybeLocale = segments[0]?.toLowerCase();
+  if (maybeLocale && isValidLocale(maybeLocale)) {
+    return maybeLocale;
   }
   return DEFAULT_LOCALE;
 }
 
 export function stripLocaleFromPathname(pathname: string): string {
-  return pathname.replace(LOCALE_PREFIX_REGEX, "") || "/";
+  return pathname.replace(LOCALE_PREFIX_PATTERN, "") || "/";
 }
 
 export function addLocaleToPathname(pathname: string, locale: Locale): string {
@@ -144,6 +150,15 @@ export function resolveLocaleFromAcceptLanguage(
   }
 
   return DEFAULT_LOCALE;
+}
+
+export function getLocaleFromParam(param: string | undefined): Locale {
+  if (!param) return DEFAULT_LOCALE;
+  return isValidLocale(param) ? param : DEFAULT_LOCALE;
+}
+
+export function toHtmlLang(locale: Locale): string {
+  return LOCALE_CONFIGS[locale]?.hreflang ?? "en";
 }
 
 export function buildLocaleAlternates(

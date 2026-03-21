@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { buildMetadata } from "@/lib/metadata";
+import { DEFAULT_LOCALE } from "@/lib/i18n/config";
 
 export const metadata: Metadata = buildMetadata({
   title: "Page Not Found",
@@ -19,7 +20,7 @@ export default function NotFound() {
         The page you requested could not be found. Let&apos;s get you back to curated experiences in the Algarve.
       </p>
       <Link
-        href="/"
+        href={`/${DEFAULT_LOCALE}`}
         className="mt-8 inline-flex items-center rounded-full border border-primary/40 px-6 py-3 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary"
       >
         Back to Home

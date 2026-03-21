@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { useNewsletterSignup } from "@/hooks/useNewsletterSignup";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 import { openCookiePreferences } from "@/lib/cookieConsent";
+import { LOCALE_PREFIX_PATTERN } from "@/lib/i18n/config";
 
 // Fallback data for when database is empty or loading
 const fallbackLinks = {
@@ -136,7 +137,8 @@ const LEGACY_FOOTER_CATEGORY_SLUG_BY_PARAM: Record<string, string> = {
   "9": "shopping-boutiques",
 };
 
-const LANGUAGE_PREFIX_RE = /^\/(?:pt-pt|fr|de|es|it|nl|sv|no|da)(?:\/|$)/;
+/** Use centralized regex that includes ALL locales (including "en") */
+const LANGUAGE_PREFIX_RE = LOCALE_PREFIX_PATTERN;
 const NUMERIC_PARAM_RE = /^\d+$/;
 
 function normalizeFooterLinkHref(
