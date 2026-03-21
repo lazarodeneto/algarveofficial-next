@@ -9,6 +9,7 @@ import { FavoriteButton } from "@/components/ui/favorite-button";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { useTranslation } from "react-i18next";
 import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
+import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -26,6 +27,14 @@ import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import { Skeleton } from "@/components/ui/skeleton";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
 import { useHydrated } from "@/hooks/useHydrated";
+import {
+  getTierCardClasses,
+  getTierImageZoom,
+  getTierImageOverlay,
+  getTierTitleClasses,
+  getTierSpacing,
+  isPremiumTier,
+} from "@/lib/tier-design";
 
 const ITEMS_PER_PAGE = 12;
 const MAX_HOME_LISTINGS = 24;
@@ -219,14 +228,14 @@ export function AllListingsSection() {
   }
 
   return (
-    <section className="py-20 bg-background">
-      <div className="app-container content-max">
+    <section className="py-20 lg:py-28 bg-gradient-to-b from-[#F8F6F2] to-white dark:from-[#1a1a1f] dark:to-background">
+      <div className="app-container content-max px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-title font-serif font-medium mb-4">
-            {t("sections.listings.title")} <span className="text-gradient-gold">{t("sections.listings.titleHighlight")}</span>
+        <div className="text-center mb-16">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-light tracking-wide mb-5 text-foreground">
+            {t("sections.listings.title")} <span className="text-gradient-gold italic">{t("sections.listings.titleHighlight")}</span>
           </h2>
-          <p className="text-body text-muted-foreground max-w-2xl mx-auto readable">
+          <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             {t("sections.listings.subtitle", { count: cappedListings.length })}
           </p>
         </div>
@@ -296,41 +305,67 @@ export function AllListingsSection() {
         </p>
 
         {/* Listings Grid */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6 2xl:gap-7">
-          {visibleListings.map((listing, index) => (
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8">
+          {visibleListings.map((listing, index) => {
+            const tierCardClass = getTierCardClasses(listing.tier);
+            const tierImageZoom = getTierImageZoom(listing.tier);
+            const tierTitleClass = getTierTitleClasses(listing.tier);
+            const tierSpacing = getTierSpacing(listing.tier);
+            const isPremium = isPremiumTier(listing.tier);
+            
+            return (
             <motion.div
               key={listing.id}
               variants={cardVariants}
               initial="hidden"
               animate="visible"
               custom={index}
-              className="h-full"
+              className="h-full group"
             >
               <Link
                 href={buildLangPath(langPrefix, `/listing/${listing.slug}`)}
-                className="group block h-full"
+                className="block h-full"
               >
-                <article className="glass-box glass-box-listing-shimmer overflow-hidden flex flex-col h-full">
-                  {listing.tier === "signature" && (
-                    <span
-                      aria-hidden
-                      className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] border-[2px] border-[hsl(43,86%,58%)] shadow-[0_0_10px_hsla(43,86%,58%,0.34)]"
-                    />
-                  )}
-
+                <article className={cn(
+                  "relative overflow-hidden flex flex-col h-full",
+                  tierCardClass,
+                  isPremium && "ring-1 ring-inset ring-[#C7A35A]/20"
+                )}>
                   {/* Image */}
-                  <div className="relative aspect-square bg-muted overflow-hidden">
+                  <div className={cn(
+                    "relative bg-muted overflow-hidden",
+                    isPremium ? "aspect-[5/4]" : "aspect-[4/3]"
+                  )}>
                     <ListingImage
                       src={listing.featured_image_url}
                       category={listing.category?.slug}
                       categoryImageUrl={listing.category?.image_url}
                       listingId={listing.id}
                       alt={listing.name}
-                      className="absolute inset-0 w-full h-full object-cover scale-[1.08] transition-transform duration-500 group-hover:scale-110"
+                      className={cn(
+                        "absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out",
+                        tierImageZoom
+                      )}
                     />
+                    
+                    {/* Overlay gradient */}
+                    <div className={cn(
+                      "absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent transition-opacity duration-300",
+                      listing.tier === "unverified" ? "opacity-0" : "opacity-0 group-hover:opacity-100",
+                      listing.tier === "verified" && "opacity-40 group-hover:opacity-70",
+                      isPremium && "opacity-60 group-hover:opacity-85"
+                    )} />
+
+                    {/* Premium tier accent line */}
+                    {isPremium && (
+                      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#C7A35A]/60 to-transparent" />
+                    )}
 
                     {/* Badges - Top Left */}
-                    <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+                    <div className={cn(
+                      "absolute top-4 left-4 flex flex-wrap gap-2",
+                      isPremium && "left-5 top-5"
+                    )}>
                       <ListingTierBadge tier={listing.tier} />
                     </div>
 
@@ -341,14 +376,26 @@ export function AllListingsSection() {
                         reviewCount={listing.google_review_count}
                         variant="overlay"
                         size="sm"
-                        className="absolute top-3 right-3"
+                        className={cn(
+                          "absolute top-4 right-4",
+                          isPremium && "top-5 right-5"
+                        )}
                       />
                     )}
 
                     {/* Bottom row - Category badge (left) & Favorite button (right) */}
-                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                      <Badge variant="secondary" className="text-xs bg-black/60 backdrop-blur-sm text-white flex items-center gap-1">
-                        {renderCategoryIcon(listing.category?.icon ?? undefined, "h-3 w-3 text-white")}
+                    <div className={cn(
+                      "absolute bottom-4 left-4 right-4 flex items-center justify-between",
+                      isPremium && "bottom-5 left-5 right-5"
+                    )}>
+                      <Badge variant="secondary" className={cn(
+                        "text-xs bg-black/70 backdrop-blur-sm text-white/95 flex items-center gap-1.5 px-3 py-1.5 rounded-full border-0",
+                        isPremium && "bg-black/80 text-[#C7A35A]"
+                      )}>
+                        {renderCategoryIcon(listing.category?.icon ?? undefined, cn(
+                          "h-3.5 w-3.5",
+                          isPremium ? "text-[#C7A35A]" : "text-white/90"
+                        ))}
                         {translateCategoryName(t, listing.category?.slug, listing.category?.name)}
                       </Badge>
 
@@ -362,21 +409,32 @@ export function AllListingsSection() {
                   </div>
 
                   {/* Content */}
-                  <div className="p-4 flex-1 flex flex-col">
-                    <p className="font-serif font-medium text-[1.3rem] lg:text-[1.72rem] leading-[1.18] mb-1 group-hover:text-primary transition-colors line-clamp-1">
+                  <div className={cn("flex-1 flex flex-col bg-card", tierSpacing.padding)}>
+                    <h3 className={cn(
+                      tierTitleClass,
+                      "text-foreground mb-2",
+                      isPremium && "text-xl lg:text-2xl"
+                    )}>
                       {listing.name}
-                    </p>
+                    </h3>
 
-                    <p className="text-body-sm text-foreground/80 dark:text-white/85 line-clamp-2 mb-3">
+                    <p className={cn(
+                      "text-muted-foreground leading-relaxed line-clamp-2",
+                      tierSpacing.gap === "gap-5" ? "mb-5" : "mb-4",
+                      isPremium && "text-sm"
+                    )}>
                       {listing.short_description || listing.description}
                     </p>
 
-                    <div className="mt-auto flex items-center gap-2 text-body-xs text-muted-foreground">
-                      <MapPin className="h-3 w-3" />
+                    <div className="mt-auto flex items-center gap-2 text-xs text-muted-foreground/80">
+                      <MapPin className={cn(
+                        "h-3.5 w-3.5",
+                        isPremium ? "text-[#C7A35A]/70" : "text-muted-foreground/60"
+                      )} />
                       <span>{listing.city?.name}</span>
                       {listing.region && (
                         <>
-                          <span>•</span>
+                          <span className="text-border">•</span>
                           <span>{listing.region.name}</span>
                         </>
                       )}
@@ -385,7 +443,8 @@ export function AllListingsSection() {
                 </article>
               </Link>
             </motion.div>
-          ))}
+          );
+          })}
         </div>
 
         {/* Infinite Scroll Loader */}

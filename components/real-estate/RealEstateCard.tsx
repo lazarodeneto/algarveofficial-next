@@ -10,6 +10,15 @@ import { translateCategoryValue } from "@/lib/translateCategoryValue";
 import ListingImage from "@/components/ListingImage";
 import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
+import { cn } from "@/lib/utils";
+import {
+  getTierCardClasses,
+  getTierImageZoom,
+  getTierImageOverlay,
+  getTierTitleClasses,
+  getTierSpacing,
+  isPremiumTier,
+} from "@/lib/tier-design";
 
 type Listing = Pick<
     Database["public"]["Tables"]["listings"]["Row"],
@@ -114,69 +123,104 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
         }).format(price).replace('€', '€ ');
     };
 
+    const tierCardClass = getTierCardClasses(listing.tier);
+    const tierImageZoom = getTierImageZoom(listing.tier);
+    const tierTitleClass = getTierTitleClasses(listing.tier);
+    const tierSpacing = getTierSpacing(listing.tier);
+    const isPremium = isPremiumTier(listing.tier);
+    const hasOverlay = listing.tier !== "unverified";
+
     return (
-        <Link href={buildLangPath(langPrefix, `/listing/${slug || id}`)} className="block h-full">
-            <Card className="overflow-hidden group relative isolate hover:shadow-2xl transition-all duration-700 border border-border/50 bg-card rounded-[2rem] shadow-lg shadow-black/5 flex flex-col h-full">
-                {listing.tier === "signature" && (
-                    <span
-                        aria-hidden
-                        className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] border-[2px] border-[hsl(43,86%,58%)] shadow-[0_0_10px_hsla(43,86%,58%,0.34)]"
-                    />
+        <Link href={buildLangPath(langPrefix, `/listing/${slug || id}`)} className="block h-full group">
+            <Card className={cn(
+                "overflow-hidden group relative isolate flex flex-col h-full",
+                tierCardClass,
+                isPremium && "ring-1 ring-inset ring-[#C7A35A]/20"
+            )}>
+                {isPremium && (
+                    <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#C7A35A]/60 to-transparent z-30" />
                 )}
 
-                <div className="relative aspect-[16/11] overflow-hidden">
+                <div className={cn("relative overflow-hidden", isPremium ? "aspect-[16/11]" : "aspect-[16/11]")}>
                     <ListingImage
                         src={featured_image_url}
                         category={categorySlug}
                         categoryImageUrl={categoryImageUrl}
                         listingId={id}
                         alt={name}
-                        className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-1000"
+                        className={cn(
+                            "object-cover w-full h-full transition-transform duration-700 ease-out",
+                            tierImageZoom
+                        )}
                     />
+                    {hasOverlay && (
+                        <div className={cn(
+                            "absolute inset-0 bg-gradient-to-t from-black/25 via-black/5 to-transparent transition-opacity duration-300",
+                            listing.tier === "verified" ? "opacity-50 group-hover:opacity-70" : "opacity-60 group-hover:opacity-85"
+                        )} />
+                    )}
                     <div className="absolute top-6 left-6 flex flex-col gap-2">
-                        {(listing.tier === "signature" || listing.tier === "verified") && (
-                            <ListingTierBadge tier={listing.tier} />
-                        )}
-                        {listing.tier === "signature" && (
-                            <ListingTierBadge tier="verified" />
-                        )}
-                        <Badge variant="secondary" className="backdrop-blur-xl bg-background/70 text-foreground font-semibold tracking-wider text-body-xs uppercase px-3 py-1 border border-white/10">
+                        <ListingTierBadge tier={listing.tier} />
+                        <Badge variant="secondary" className="backdrop-blur-xl bg-black/60 text-white/95 font-semibold tracking-wider text-body-xs uppercase px-3.5 py-1.5 rounded-full border-0">
                             {translateCategoryValue(t, propertyType)}
                         </Badge>
                     </div>
 
                     <div className="absolute top-6 right-6">
-                        <Button size="icon" variant="ghost" className="rounded-full bg-black/20 hover:bg-black/40 text-white backdrop-blur-md border border-white/10 transition-all group/fav" onClick={(e) => {
+                        <Button size="icon" variant="ghost" className={cn(
+                            "rounded-full backdrop-blur-md border transition-all duration-300",
+                            isPremium 
+                                ? "bg-[#C7A35A]/20 hover:bg-[#C7A35A] hover:text-black text-white border-white/20 hover:border-[#C7A35A]" 
+                                : "bg-black/20 hover:bg-black/40 text-white border-white/10"
+                        )} onClick={(e) => {
                             e.preventDefault();
-                            // Toggle favorite
                         }}>
-                            <Heart className="w-5 h-5 group-hover/fav:fill-white transition-all" />
+                            <Heart className="w-5 h-5 group-hover/fav:fill-current transition-all" />
                         </Button>
                     </div>
 
                     <div className="absolute bottom-4 sm:bottom-6 right-4 sm:right-6 max-w-[calc(100%-2rem)] sm:max-w-none">
-                        <div className="bg-card px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full shadow-xl shadow-black/10 border border-primary/10">
-                            <p className="text-card-foreground font-serif italic text-base sm:text-lg truncate">{price_from ? formatPrice(price_from) : t("listing.priceOnRequest")}</p>
+                        <div className={cn(
+                            "backdrop-blur-md px-4 sm:px-6 py-2.5 sm:py-3 rounded-full shadow-xl border transition-all duration-300",
+                            isPremium 
+                                ? "bg-card/95 border-[#C7A35A]/30 text-card-foreground" 
+                                : "bg-card/90 border-border/20 text-card-foreground"
+                        )}>
+                            <p className="font-serif italic text-base sm:text-lg font-light tracking-wide truncate">{price_from ? formatPrice(price_from) : t("listing.priceOnRequest")}</p>
                         </div>
                     </div>
                 </div>
 
-                <CardContent className="p-5 sm:p-8 space-y-4 flex flex-col flex-1">
+                <CardContent className={cn("flex flex-col flex-1 bg-card", tierSpacing.padding)}>
                     <div className="flex-1">
-                        <div className="flex items-center text-primary text-body-xs tracking-[0.2em] font-bold uppercase mb-2">
-                            <MapPin className="w-3 h-3 mr-2" />
+                        <div className={cn(
+                            "flex items-center tracking-[0.2em] font-semibold uppercase mb-3",
+                            isPremium ? "text-[#C7A35A]/90 text-body-xs" : "text-muted-foreground/70 text-body-xs"
+                        )}>
+                            <MapPin className="w-3.5 h-3.5 mr-2" />
                             {listing.cities?.name || "Algarve"}
                         </div>
-                        <h3 className="min-h-[3.5rem] font-serif text-xl sm:text-2xl font-light italic text-foreground group-hover:text-primary transition-colors leading-tight mb-4 line-clamp-2">
+                        <h3 className={cn(
+                            "min-h-[3.5rem] font-serif text-foreground leading-tight mb-4 line-clamp-2 transition-colors duration-300",
+                            tierTitleClass,
+                            isPremium ? "text-xl sm:text-2xl" : "text-xl sm:text-2xl"
+                        )}>
                             {name}
                         </h3>
-                        <p className="text-body-sm text-muted-foreground font-light leading-relaxed mb-6">
+                        <p className={cn(
+                            "text-muted-foreground font-light leading-relaxed",
+                            tierSpacing.gap === "gap-5" ? "mb-5" : "mb-4",
+                            isPremium && "text-sm"
+                        )}>
                             {listing.short_description || "An exceptional property offering unparalleled premium quality and sophistication in Portugal's finest location."}
                         </p>
                     </div>
 
                     {propertyMetrics.length > 0 && (
-                        <div className="pt-5 sm:pt-6 border-t border-border/50">
+                        <div className={cn(
+                            "border-t",
+                            isPremium ? "pt-5 sm:pt-6 border-[#C7A35A]/20" : "pt-5 sm:pt-6 border-border/40"
+                        )}>
                             <div className="grid grid-cols-2 gap-3">
                                 {propertyMetrics.map((metric, index) => {
                                     const Icon = metric.icon;
@@ -185,17 +229,28 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                                     return (
                                         <div
                                             key={metric.key}
-                                            className={`rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/[0.08] via-card to-card px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] ${isLastOddCard ? "col-span-2" : ""}`}
+                                            className={cn(
+                                                "rounded-xl px-4 py-4 shadow-sm transition-all duration-200",
+                                                isPremium 
+                                                    ? "border border-[#C7A35A]/15 bg-gradient-to-br from-[#C7A35A]/8 via-card to-card" 
+                                                    : "border border-border/30 bg-gradient-to-br from-muted/30 via-card to-card",
+                                                isLastOddCard ? "col-span-2" : ""
+                                            )}
                                         >
                                             <div className="flex h-full items-start gap-3">
-                                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/15 bg-primary/10 text-primary shadow-sm">
+                                                <div className={cn(
+                                                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm",
+                                                    isPremium 
+                                                        ? "border border-[#C7A35A]/20 bg-[#C7A35A]/10 text-[#C7A35A]" 
+                                                        : "border border-border/30 bg-muted/50 text-muted-foreground"
+                                                )}>
                                                     <Icon className="h-4 w-4" />
                                                 </div>
                                                 <div className="min-w-0">
                                                     <p className="font-serif text-[1.1rem] sm:text-[1.2rem] font-semibold text-foreground leading-none">
                                                         {metric.value}
                                                         {metric.unit ? (
-                                                            <span className="ml-1 text-[0.82rem] sm:text-[0.9rem] font-medium text-muted-foreground">
+                                                            <span className="ml-1.5 text-[0.82rem] sm:text-[0.9rem] font-medium text-muted-foreground">
                                                                 {metric.unit}
                                                             </span>
                                                         ) : null}

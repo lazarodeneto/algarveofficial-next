@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Globe } from "lucide-react";
+import { Globe, Check } from "lucide-react";
 import { ensureLocaleLoaded } from "@/i18n";
 import { cn } from "@/lib/utils";
 
@@ -26,7 +26,6 @@ const languages = [
 
 const LANG_PREFIXES = ["/en", "/pt-pt", "/fr", "/de", "/es", "/it", "/nl", "/sv", "/no", "/da"];
 
-/** Strip any language prefix from a pathname to get the bare path */
 function stripLangPrefix(pathname: string): string {
   for (const prefix of LANG_PREFIXES) {
     if (pathname === prefix || pathname.startsWith(prefix + "/")) {
@@ -42,7 +41,6 @@ export function LanguageSwitcher() {
   const pathname = usePathname() ?? "/";
   const nextSearchParams = useSearchParams();
 
-  // Determine current language from URL pathname, falling back to i18n.language
   const currentLangFromUrl = (() => {
     for (const lang of languages) {
       if (pathname === lang.prefix || pathname.startsWith(lang.prefix + "/")) {
@@ -70,7 +68,6 @@ export function LanguageSwitcher() {
       localStorage.setItem("algarve-language", langCode);
       localStorage.setItem("algarve-language-chosen", "true");
 
-      // Navigate to the locale-prefixed URL
       const newPath = lang.prefix ? `${lang.prefix}${nextPath}` : nextPath;
       router.push(`${newPath}${search}${hash}`);
     })();
@@ -82,43 +79,52 @@ export function LanguageSwitcher() {
         <Button
           variant="ghost"
           size="sm"
-          className="h-10 rounded-full px-2.5 text-sm font-semibold text-foreground hover:bg-transparent hover:text-primary dark:text-white dark:hover:text-primary"
+          className="h-10 rounded-full px-3 text-sm font-semibold text-foreground transition-all duration-200 hover:bg-[#C7A35A]/10 hover:text-[#C7A35A] dark:text-white dark:hover:text-[#C7A35A] focus-visible:ring-2 focus-visible:ring-[#C7A35A]/50"
         >
           <span className="inline-flex items-center gap-2">
-            <Globe className="h-4 w-4 text-primary" />
-            <span>{currentLanguage.code === "pt-pt" ? "PT" : currentLanguage.code.toUpperCase()}</span>
+            <Globe className="h-4 w-4 text-[#C7A35A]" />
+            <span className="hidden sm:inline">{currentLanguage.code === "pt-pt" ? "PT" : currentLanguage.code.toUpperCase()}</span>
           </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
         className={cn(
-          "z-[1000] min-w-[160px] rounded-2xl border border-black/10 bg-white/95 p-2 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.35)] backdrop-blur-2xl dark:border-white/12 dark:bg-[hsl(var(--background)/0.9)]",
+          "z-[1000] min-w-[180px] rounded-2xl border border-black/10 bg-white/98 p-1.5 shadow-xl backdrop-blur-2xl dark:border-white/12 dark:bg-[hsl(var(--background)/0.95)] transition-all duration-200"
         )}
       >
         {languages.map((lang) => {
-            const isActive = (() => {
-              for (const l of languages) {
-                if ((pathname === l.prefix || pathname.startsWith(l.prefix + "/")) && l.code === lang.code) {
-                  return true;
-                }
+          const isActive = (() => {
+            for (const l of languages) {
+              if ((pathname === l.prefix || pathname.startsWith(l.prefix + "/")) && l.code === lang.code) {
+                return true;
               }
-              return false;
-            })();
-            return (
-              <DropdownMenuItem
-                key={lang.code}
-                onClick={() => changeLanguage(lang.code)}
-                className={`cursor-pointer rounded-xl px-3 py-2.5 text-sm transition-colors ${
-                  isActive
-                    ? "bg-primary/15 text-primary font-semibold"
-                    : "hover:bg-black/5 dark:hover:bg-white/8"
-                }`}
-              >
-                {lang.name}
-              </DropdownMenuItem>
-            );
-          })}
+            }
+            return false;
+          })();
+          return (
+            <DropdownMenuItem
+              key={lang.code}
+              onClick={() => changeLanguage(lang.code)}
+              className={cn(
+                "group cursor-pointer rounded-xl px-3 py-2.5 text-sm transition-all duration-150 ease-out",
+                isActive
+                  ? "bg-gradient-to-r from-[#C7A35A]/15 to-[#C7A35A]/10 text-[#C7A35A] font-semibold"
+                  : "hover:bg-[#C7A35A]/8 text-foreground/80 hover:text-foreground"
+              )}
+            >
+              <span className="flex items-center justify-between gap-3">
+                <span className="flex items-center gap-3">
+                  <span className="text-base">{lang.flag}</span>
+                  <span>{lang.name}</span>
+                </span>
+                {isActive && (
+                  <Check className="h-4 w-4 text-[#C7A35A] transition-transform duration-200 scale-100" />
+                )}
+              </span>
+            </DropdownMenuItem>
+          );
+        })}
       </DropdownMenuContent>
     </DropdownMenu>
   );

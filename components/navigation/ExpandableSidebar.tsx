@@ -182,9 +182,11 @@ export function ExpandableSidebar({
     }
 
     const sharedClassName = cn(
-      "relative flex items-center gap-3 px-3 rounded-lg text-sm font-medium transition-colors cursor-pointer select-none touch-manipulation",
-      "hover:bg-muted hover:text-foreground",
-      active ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground",
+      "group relative flex items-center gap-3 px-3 rounded-xl text-sm font-medium transition-all duration-200 ease-out cursor-pointer select-none touch-manipulation",
+      "hover:bg-[#C7A35A]/8 hover:text-[#C7A35A]",
+      active 
+        ? "bg-gradient-to-r from-[#C7A35A]/12 to-[#C7A35A]/5 text-[#C7A35A] border border-[#C7A35A]/25 shadow-sm" 
+        : "text-muted-foreground",
       navItemPaddingY,
       compact && "justify-center px-0 h-11 w-11 mx-auto rounded-full",
       leftPadClass,
@@ -200,7 +202,11 @@ export function ExpandableSidebar({
         aria-label={compact ? item.label : undefined}
         className={sharedClassName}
       >
-        <item.icon className={cn("h-5 w-5 flex-shrink-0", active && "text-primary", depth > 0 && "h-4 w-4")} />
+        <item.icon className={cn(
+          "h-5 w-5 flex-shrink-0 transition-all duration-200 group-hover:scale-110", 
+          active ? "text-[#C7A35A]" : "group-hover:text-[#C7A35A]", 
+          depth > 0 && "h-4 w-4"
+        )} />
         {!compact && (
           <>
             <span className="flex-1 truncate">{item.label}</span>
@@ -216,6 +222,9 @@ export function ExpandableSidebar({
             {item.badge > 9 ? "9+" : item.badge}
           </span>
         ) : null}
+        {active && !compact && (
+          <div className="absolute left-0 inset-y-2 w-0.5 bg-gradient-to-b from-[#C7A35A]/60 to-[#C7A35A]/30 rounded-r-full" />
+        )}
       </a>
     ) : (
       <Link
@@ -252,7 +261,7 @@ export function ExpandableSidebar({
     return (
       <Tooltip key={keyHint ?? getItemKey(item, `leaf-${depth}`)}>
         <TooltipTrigger asChild>{navItem}</TooltipTrigger>
-        <TooltipContent side="right" align="center">
+        <TooltipContent side="right" align="center" className="rounded-lg px-3 py-2 text-xs font-medium bg-card/95 backdrop-blur-sm">
           {item.label}
         </TooltipContent>
       </Tooltip>

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import { useHeaderMenu } from "@/hooks/useHeaderMenu";
-import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { getMenuIcon } from "@/lib/menu-icons";
 import {
     MapPin,
@@ -151,7 +151,7 @@ type HeaderRuntimeSection = (typeof sections)[SectionKey] & {
 function useHeaderRuntimeSections(): HeaderRuntimeSection[] {
     const { t } = useTranslation();
     const { data: headerMenuItems = [] } = useHeaderMenu();
-    const langPrefix = useLangPrefix();
+    const l = useLocalizedHref();
     const sectionEntries = React.useMemo(() => Object.entries(sections) as Array<[SectionKey, (typeof sections)[SectionKey]]>, []);
     
     return React.useMemo(() => {
@@ -190,11 +190,11 @@ function useHeaderRuntimeSections(): HeaderRuntimeSection[] {
                 return {
                     ...section,
                     displayLabel: t(section.label),
-                    navPath: buildLangPath(langPrefix, section.navPath),
-                    heroLink: buildLangPath(langPrefix, section.heroLink),
+                    navPath: l(section.navPath),
+                    heroLink: l(section.heroLink),
                     items: section.items.map((item) => ({
                         ...item,
-                        href: buildLangPath(langPrefix, item.href),
+                        href: l(item.href),
                     })),
                     icon: section.icon,
                     openInNewTab: false,
@@ -206,17 +206,17 @@ function useHeaderRuntimeSections(): HeaderRuntimeSection[] {
                 displayLabel: mappedItem.translation_key
                     ? t(mappedItem.translation_key, mappedItem.name)
                     : mappedItem.name,
-                navPath: buildLangPath(langPrefix, mappedItem.href || section.navPath),
-                heroLink: buildLangPath(langPrefix, section.heroLink),
+                navPath: l(mappedItem.href || section.navPath),
+                heroLink: l(section.heroLink),
                 items: section.items.map((item) => ({
                     ...item,
-                    href: buildLangPath(langPrefix, item.href),
+                    href: l(item.href),
                 })),
                 icon: sectionKey === "visit" ? Binoculars : getMenuIcon(mappedItem.icon),
                 openInNewTab: mappedItem.open_in_new_tab,
             };
         });
-    }, [headerMenuItems, langPrefix, sectionEntries, t]);
+    }, [headerMenuItems, l, sectionEntries, t]);
 }
 
 export function HeaderCompactNav() {
