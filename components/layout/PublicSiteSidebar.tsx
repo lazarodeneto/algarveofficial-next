@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Heart,
@@ -10,7 +12,7 @@ import { useTranslation } from "react-i18next";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { ExpandableSidebar, type SidebarNavSection } from "@/components/navigation/ExpandableSidebar";
 import { useAuth } from "@/contexts/AuthContext";
-import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { getMenuIcon } from "@/lib/menu-icons";
 
 const fallbackPrimaryItems = [
@@ -29,19 +31,9 @@ export function PublicSiteSidebar() {
   const router = useRouter();
   const { isAuthenticated, getDashboardPath, user } = useAuth();
   const [collapsed, setCollapsed] = useState(true);
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
 
-  const withLang = useCallback((path: string) => buildLangPath(langPrefix, path), [langPrefix]);
-  const loginPath = withLang("/login");
-  const resolveHref = useCallback(
-    (href: string) => {
-      if (/^(https?:\/\/|mailto:|tel:|#)/i.test(href)) return href;
-      const normalizedPath = href.startsWith("/") ? href : `/${href}`;
-      return withLang(normalizedPath);
-    },
-    [withLang],
-  );
-
+  const loginPath = l("/login");
   const memberDashboardPath = isAuthenticated && user ? getDashboardPath(user.role) : loginPath;
   const tripsPath = isAuthenticated ? "/dashboard/trips" : loginPath;
   const favoritesPath = isAuthenticated ? "/dashboard/favorites" : loginPath;
@@ -59,11 +51,11 @@ export function PublicSiteSidebar() {
         : item.label === "Blog" ? t("nav.blog", "Blog")
         : item.label === "Events" ? t("nav.events", "Events")
         : item.label,
-      href: resolveHref(item.href),
+      href: l(item.href),
       icon: getMenuIcon(item.icon),
       end: Boolean(item.end),
     }));
-  }, [resolveHref, t]);
+  }, [l, t]);
 
   const sections: SidebarNavSection[] = useMemo(
     () => [

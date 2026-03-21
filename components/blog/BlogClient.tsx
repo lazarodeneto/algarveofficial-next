@@ -556,43 +556,46 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
                 </p>
               </div>
             ) : (
-              <div className="grid-adaptive">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                 {remainingPosts.map((post, index) => (
                   <motion.div
                     key={post.id}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 24 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 * (index + 1) }}
+                    transition={{ delay: 0.1 * (index + 1), duration: 0.5, ease: "easeOut" }}
+                    className="group"
                   >
                     <Link href={buildLangPath(langPrefix, `/blog/${post.slug}`)}>
-                      <Card className="h-full overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">
-                        <div className="aspect-video overflow-hidden">
+                      <article className="relative overflow-hidden rounded-2xl bg-card border border-border/50 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-[1.01] transition-all duration-300 ease-out h-full flex flex-col">
+                        <div className="relative aspect-[16/10] overflow-hidden">
                           <BlogFeaturedImage
                             src={post.featured_image || "/placeholder.svg"}
                             category={post.category}
                             alt={post.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            className="w-full h-full object-cover group-hover:scale-105 group-hover:brightness-95 transition-all duration-500"
                             loading="lazy"
                           />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         </div>
-                        <CardContent className="p-5">
-                          <Badge variant="outline" className="mb-3 text-xs">
+                        <div className="p-6 flex flex-col flex-1 bg-card">
+                          <Badge variant="outline" className="w-fit mb-4 text-xs tracking-wide border-[#C7A35A]/40 text-[#C7A35A] bg-[#C7A35A]/5">
                             {getCategoryLabel(post.category)}
                           </Badge>
-                          <h3 className="text-lg font-serif font-semibold mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                          <h3 className="text-lg font-serif font-light leading-snug mb-3 line-clamp-2 group-hover:text-[#C7A35A] transition-colors duration-300 text-foreground">
                             {post.title}
                           </h3>
-                          <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                          <p className="text-sm text-muted-foreground leading-relaxed mb-5 line-clamp-2 flex-1">
                             {post.excerpt}
                           </p>
-                          <div className="flex items-center justify-end text-xs text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              <span>{post.reading_time} min</span>
+                          <div className="flex items-center justify-between text-xs text-muted-foreground/70 pt-4 border-t border-border/30">
+                            <div className="flex items-center gap-1.5">
+                              <Clock className="h-3.5 w-3.5 text-[#C7A35A]/60" />
+                              <span>{post.reading_time} min read</span>
                             </div>
+                            <span className="text-[#C7A35A] font-medium tracking-wide group-hover:translate-x-0.5 transition-transform duration-200">Read more</span>
                           </div>
-                        </CardContent>
-                      </Card>
+                        </div>
+                      </article>
                     </Link>
                   </motion.div>
                 ))}

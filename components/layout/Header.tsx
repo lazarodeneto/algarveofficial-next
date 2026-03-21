@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   AlignJustify,
@@ -54,23 +54,24 @@ export function Header() {
   const { mobileMenuOpen, setMobileMenuOpen } = useMobileMenu();
   const { isAuthenticated, user, logout, getDashboardPath } = useAuth();
   const { t } = useTranslation();
-  const langPrefix = useLangPrefix();
-  const loginPath = buildLangPath(langPrefix, "/login");
-  const directoryPath = buildLangPath(langPrefix, "/directory");
-  const investPath = buildLangPath(langPrefix, "/invest");
-  const realEstatePath = buildLangPath(langPrefix, "/real-estate");
-  const partnerPath = buildLangPath(langPrefix, "/partner");
-  const homePath = buildLangPath(langPrefix, "/");
-  const destinationsPath = buildLangPath(langPrefix, "/destinations");
-  const mapPath = buildLangPath(langPrefix, "/map");
-  const blogPath = buildLangPath(langPrefix, "/blog");
-  const eventsPath = buildLangPath(langPrefix, "/events");
+  const l = useLocalizedHref();
+
+  const directoryPath = l("/directory");
+  const investPath = l("/invest");
+  const realEstatePath = l("/real-estate");
+  const partnerPath = l("/partner");
+  const homePath = l("/");
+  const destinationsPath = l("/destinations");
+  const mapPath = l("/map");
+  const blogPath = l("/blog");
+  const eventsPath = l("/events");
+  const loginPath = l("/login");
   const favoritesPath = isAuthenticated ? "/dashboard/favorites" : loginPath;
   const accountPath = isAuthenticated && user ? getDashboardPath(user.role) : loginPath;
   const tripsPath = isAuthenticated ? "/dashboard/trips" : loginPath;
   const messagesPath = isAuthenticated ? "/dashboard/messages" : loginPath;
   const buildDirectoryCategoryPath = (category: string) =>
-    buildLangPath(langPrefix, `/directory?category=${category}`);
+    l(`/directory?category=${category}`);
 
   // Search modal state (local to Header)
   const [searchOpen, setSearchOpen] = useState(false);
@@ -181,7 +182,7 @@ export function Header() {
                       asChild
                       variant="ghost"
                       size="icon"
-                      className="h-11 w-11 rounded-full border border-black/10 bg-white/82 text-primary shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl transition-all hover:border-primary/40 hover:bg-white hover:text-primary dark:border-white/14 dark:bg-white/10 dark:hover:border-primary/45 [&_svg]:!size-5"
+                      className="h-11 w-11 rounded-full border border-black/10 bg-white/82 text-primary shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl transition-all hover:border-primary/40 hover:bg-white hover:text-primary dark:border-white/14 dark:bg-white/10 [&_svg]:!size-5"
                     >
                       <Link href={directoryPath}>
                         <ListChecks />
