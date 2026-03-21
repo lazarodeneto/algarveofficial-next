@@ -1,6 +1,14 @@
 import type { MetadataRoute } from "next";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { SUPPORTED_LOCALES, LOCALE_CONFIGS, addLocaleToPathname, DEFAULT_LOCALE } from "@/lib/i18n/config";
+import {
+  getAllCategoryCityCombinations,
+} from "@/lib/seo/programmatic/category-city-data";
+import {
+  getCategoryUrlSlug,
+  ALL_CANONICAL_SLUGS,
+  type CanonicalCategorySlug,
+} from "@/lib/seo/programmatic/category-slugs";
 
 const DEFAULT_SITE_URL = "https://algarveofficial.com";
 const LISTING_LIMIT = 10000;
@@ -181,6 +189,41 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const changeFreq: MetadataRoute.Sitemap[number]["changeFrequency"] =
         event.start_date && new Date(event.start_date) > now ? "weekly" : "monthly";
       entries.push(makeEntry(path, lastMod, changeFreq, 0.74, event.image_url ?? undefined));
+    }
+
+    // ── Programmatic SEO pages: /{locale}/{category}/{city} ──────────────────
+    // One canonical entry per combination (using /en canonical), with hreflang
+    // pointing to each locale's translated category slug.
+    try {
+      const programmaticCombinations = await getAllCategoryCityCombinations();
+
+      for (const { categorySlug, citySlug } of programmaticCombinations) {
+        if (!ALL_CANONICAL_SLUGS.includes(categorySlug as CanonicalCategorySlug)) continue;
+
+        const canonical = categorySlug as CanonicalCategorySlug;
+        // Canonical URL uses English slug
+        const enCatSlug = getCategoryUrlSlug(canonical, "en");
+        const path = `/en/${enCatSlug}/${citySlug}`;
+        const siteUrl = getSiteUrl();
+
+        // Build full hreflang map with translated slugs per locale
+        const hreflangLanguages: Record<string, string> = {};
+        for (const loc of SUPPORTED_LOCALES) {
+          const locCatSlug = getCategoryUrlSlug(canonical, loc);
+          hreflangLanguages[LOCALE_CONFIGS[loc].hreflang] = `${siteUrl}/${loc}/${locCatSlug}/${citySlug}`;
+        }
+        hreflangLanguages["x-default"] = `${siteUrl}/${path}`;
+
+        entries.push({
+          url: `${siteUrl}${path}`,
+          lastModified: now,
+          changeFrequency: "weekly",
+          priority: 0.85,
+          alternates: { languages: hreflangLanguages },
+        });
+      }
+    } catch (err) {
+      console.error("[sitemap] Failed to fetch programmatic page combos", err);
     }
 
     return entries;

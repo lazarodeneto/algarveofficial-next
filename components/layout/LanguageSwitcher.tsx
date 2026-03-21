@@ -1,3 +1,5 @@
+"use client";
+
 import { useTranslation } from "react-i18next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -10,66 +12,50 @@ import {
 import { Globe, Check, ChevronDown } from "lucide-react";
 import { ensureLocaleLoaded } from "@/i18n";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { swapLocaleInPath } from "@/lib/i18n/navigation";
+import { SUPPORTED_LOCALES, LOCALE_CONFIGS, type Locale } from "@/lib/i18n/config";
 
-const languages = [
-  { code: "en", name: "English", flag: "🇬🇧", prefix: "/en" },
-  { code: "pt-pt", name: "Português", flag: "🇵🇹", prefix: "/pt-pt" },
-  { code: "de", name: "Deutsch", flag: "🇩🇪", prefix: "/de" },
-  { code: "fr", name: "Français", flag: "🇫🇷", prefix: "/fr" },
-  { code: "es", name: "Español", flag: "🇪🇸", prefix: "/es" },
-  { code: "it", name: "Italiano", flag: "🇮🇹", prefix: "/it" },
-  { code: "nl", name: "Nederlands", flag: "🇳🇱", prefix: "/nl" },
-  { code: "sv", name: "Svenska", flag: "🇸🇪", prefix: "/sv" },
-  { code: "no", name: "Norsk", flag: "🇳🇴", prefix: "/no" },
-  { code: "da", name: "Dansk", flag: "🇩🇰", prefix: "/da" },
-];
-
-const LANG_PREFIXES = ["/en", "/pt-pt", "/fr", "/de", "/es", "/it", "/nl", "/sv", "/no", "/da"];
-
-function stripLangPrefix(pathname: string): string {
-  for (const prefix of LANG_PREFIXES) {
-    if (pathname === prefix || pathname.startsWith(prefix + "/")) {
-      return pathname.slice(prefix.length) || "/";
-    }
-  }
-  return pathname;
-}
+const languages = SUPPORTED_LOCALES.map((code) => ({
+  code,
+  name: LOCALE_CONFIGS[code].name,
+  shortName: LOCALE_CONFIGS[code].shortName,
+}));
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation();
   const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const nextSearchParams = useSearchParams();
+  const searchParams = useSearchParams();
+  const currentLocale = useLocale();
 
-  const currentLangFromUrl = (() => {
-    for (const lang of languages) {
-      if (pathname === lang.prefix || pathname.startsWith(lang.prefix + "/")) {
-        return lang.code;
-      }
-    }
-    return null;
-  })();
-  const currentLanguage = languages.find((l) => l.code === (currentLangFromUrl || i18n.language)) || languages[0];
+  const currentLanguage =
+    languages.find((l) => l.code === currentLocale) || languages[0];
 
-  const changeLanguage = (langCode: string) => {
-    const lang = languages.find((l) => l.code === langCode);
-    if (!lang) return;
-
-    const barePath = stripLangPrefix(pathname);
-    const nextPath = barePath || "/";
-    const searchValue = nextSearchParams?.toString() ?? "";
-    const search = searchValue ? `?${searchValue}` : "";
-    const hash = typeof window !== "undefined" ? window.location.hash || "" : "";
+  const changeLanguage = (newLocale: Locale) => {
+    if (newLocale === currentLocale) return;
 
     void (async () => {
-      await ensureLocaleLoaded(langCode);
-      if (typeof i18n.changeLanguage !== "function") return;
-      await i18n.changeLanguage(langCode);
-      localStorage.setItem("algarve-language", langCode);
-      localStorage.setItem("algarve-language-chosen", "true");
+      // Load translations for new locale
+      await ensureLocaleLoaded(newLocale);
 
-      const newPath = lang.prefix ? `${lang.prefix}${nextPath}` : nextPath;
-      router.push(`${newPath}${search}${hash}`);
+      if (typeof i18n.changeLanguage === "function") {
+        await i18n.changeLanguage(newLocale);
+      }
+
+      // Sync cookie so server + middleware know the preference
+      if (typeof document !== "undefined") {
+        document.cookie = `NEXT_LOCALE=${newLocale};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`;
+      }
+
+      // Build new URL: swap locale, preserve path + search + hash
+      const newPath = swapLocaleInPath(pathname, newLocale);
+      const search = searchParams?.toString() ?? "";
+      const hash =
+        typeof window !== "undefined" ? window.location.hash || "" : "";
+      const fullUrl = `${newPath}${search ? `?${search}` : ""}${hash}`;
+
+      router.push(fullUrl);
     })();
   };
 
@@ -83,7 +69,7 @@ export function LanguageSwitcher() {
         >
           <Globe className="h-[15px] w-[15px] text-[#C7A35A] group-hover:scale-110 transition-transform duration-200" />
           <span className="hidden sm:inline tracking-wide uppercase">
-            {currentLanguage.code === "pt-pt" ? "PT" : currentLanguage.code.toUpperCase()}
+            {currentLanguage.shortName}
           </span>
           <ChevronDown className="h-3 w-3 opacity-50 group-hover:opacity-80 transition-all duration-200" />
         </Button>
@@ -93,14 +79,7 @@ export function LanguageSwitcher() {
         className="z-[1000] min-w-[200px] rounded-2xl border border-black/5 bg-white/80 backdrop-blur-2xl p-1.5 shadow-[0_8px_30px_-8px_rgba(0,0,0,0.12)] dark:border-white/10 dark:bg-[hsl(var(--background)/0.9)]"
       >
         {languages.map((lang) => {
-          const isActive = (() => {
-            for (const l of languages) {
-              if ((pathname === l.prefix || pathname.startsWith(l.prefix + "/")) && l.code === lang.code) {
-                return true;
-              }
-            }
-            return false;
-          })();
+          const isActive = lang.code === currentLocale;
           return (
             <DropdownMenuItem
               key={lang.code}
@@ -113,10 +92,12 @@ export function LanguageSwitcher() {
               )}
             >
               <span className="flex items-center gap-4 w-full">
-                <span 
+                <span
                   className={cn(
                     "text-[15px] tracking-wide transition-colors duration-200",
-                    isActive ? "text-[#C7A35A] font-medium" : "text-foreground/70 group-hover/item:text-foreground"
+                    isActive
+                      ? "text-[#C7A35A] font-medium"
+                      : "text-foreground/70 group-hover/item:text-foreground"
                   )}
                 >
                   {lang.name}

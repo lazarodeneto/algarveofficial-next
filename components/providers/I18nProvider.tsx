@@ -2,27 +2,29 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { I18nextProvider } from "react-i18next";
-import { usePathname } from "next/navigation";
 
 import i18n, { ensureLocaleLoaded, initI18n } from "@/i18n";
-import {
-  DEFAULT_LOCALE,
-  getLocaleFromPathname,
-  isValidLocale,
-  type Locale,
-} from "@/lib/i18n/locales";
+import { useLocale } from "@/lib/i18n/locale-context";
+import type { Locale } from "@/lib/i18n/config";
 
 interface I18nProviderProps {
   children: ReactNode;
   locale?: string;
 }
 
-export function I18nProvider({
-  children,
-  locale = "en",
-}: I18nProviderProps) {
+/**
+ * I18nProvider — syncs react-i18next with the current locale.
+ *
+ * SINGLE SOURCE OF TRUTH: locale from LocaleContext (derived from URL params).
+ * NO localStorage fallback. NO pathname parsing.
+ * The locale prop is only used as initial fallback before context is available.
+ */
+export function I18nProvider({ children, locale: propLocale = "en" }: I18nProviderProps) {
   const initialized = useRef(false);
-  const pathname = usePathname() ?? "/";
+  const contextLocale = useLocale();
+
+  // Prefer context (from URL), fall back to prop (from server)
+  const targetLocale: Locale = (contextLocale || propLocale) as Locale;
 
   useEffect(() => {
     let cancelled = false;
@@ -32,16 +34,6 @@ export function I18nProvider({
         await initI18n();
         initialized.current = true;
       }
-
-      const routeLocale = getLocaleFromPathname(pathname);
-      const storedLocale =
-        typeof window !== "undefined" ? window.localStorage.getItem("algarve-language") : null;
-      const targetLocale: Locale =
-        routeLocale !== DEFAULT_LOCALE
-          ? routeLocale
-          : storedLocale && isValidLocale(storedLocale)
-            ? storedLocale
-            : ((locale as Locale) ?? DEFAULT_LOCALE);
 
       await ensureLocaleLoaded(targetLocale);
 
@@ -55,7 +47,7 @@ export function I18nProvider({
     return () => {
       cancelled = true;
     };
-  }, [locale, pathname]);
+  }, [targetLocale]);
 
   return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;
 }

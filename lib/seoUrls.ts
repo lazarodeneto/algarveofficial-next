@@ -1,5 +1,8 @@
+import { LOCALE_PREFIX_PATTERN } from "@/lib/i18n/config";
+
 const SITE_URL = "https://algarveofficial.com";
-const LANGUAGE_PREFIX_RE = /^\/(pt-pt|fr|de|es|it|nl|sv|no|da)(?=\/|$)/;
+/** Centralized regex that includes ALL locales (including "en") */
+const LANGUAGE_PREFIX_RE = LOCALE_PREFIX_PATTERN;
 
 export function toAbsoluteSeoUrl(url: string): string {
   return toAbsoluteUrl(url).toString();
