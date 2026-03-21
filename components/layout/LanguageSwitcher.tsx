@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Globe, Check } from "lucide-react";
+import { Globe, Check, ChevronDown } from "lucide-react";
 import { ensureLocaleLoaded } from "@/i18n";
 import { cn } from "@/lib/utils";
 
@@ -79,19 +79,18 @@ export function LanguageSwitcher() {
         <Button
           variant="ghost"
           size="sm"
-          className="h-10 rounded-full px-3 text-sm font-semibold text-foreground transition-all duration-200 hover:bg-[#C7A35A]/10 hover:text-[#C7A35A] dark:text-white dark:hover:text-[#C7A35A] focus-visible:ring-2 focus-visible:ring-[#C7A35A]/50"
+          className="group h-9 px-3 rounded-full text-[13px] font-medium text-foreground/80 hover:text-foreground transition-all duration-200 ease-out gap-1.5 dark:text-white/80 dark:hover:text-white"
         >
-          <span className="inline-flex items-center gap-2">
-            <Globe className="h-4 w-4 text-[#C7A35A]" />
-            <span className="hidden sm:inline">{currentLanguage.code === "pt-pt" ? "PT" : currentLanguage.code.toUpperCase()}</span>
+          <Globe className="h-[15px] w-[15px] text-[#C7A35A] group-hover:scale-110 transition-transform duration-200" />
+          <span className="hidden sm:inline tracking-wide uppercase">
+            {currentLanguage.code === "pt-pt" ? "PT" : currentLanguage.code.toUpperCase()}
           </span>
+          <ChevronDown className="h-3 w-3 opacity-50 group-hover:opacity-80 transition-all duration-200" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className={cn(
-          "z-[1000] min-w-[180px] rounded-2xl border border-black/10 bg-white/98 p-1.5 shadow-xl backdrop-blur-2xl dark:border-white/12 dark:bg-[hsl(var(--background)/0.95)] transition-all duration-200"
-        )}
+        className="z-[1000] min-w-[200px] rounded-2xl border border-black/5 bg-white/80 backdrop-blur-2xl p-1.5 shadow-[0_8px_30px_-8px_rgba(0,0,0,0.12)] dark:border-white/10 dark:bg-[hsl(var(--background)/0.9)]"
       >
         {languages.map((lang) => {
           const isActive = (() => {
@@ -107,19 +106,23 @@ export function LanguageSwitcher() {
               key={lang.code}
               onClick={() => changeLanguage(lang.code)}
               className={cn(
-                "group cursor-pointer rounded-xl px-3 py-2.5 text-sm transition-all duration-150 ease-out",
+                "group/item relative flex items-center rounded-xl px-4 py-3 cursor-pointer transition-all duration-200 ease-out focus:outline-none",
                 isActive
-                  ? "bg-gradient-to-r from-[#C7A35A]/15 to-[#C7A35A]/10 text-[#C7A35A] font-semibold"
-                  : "hover:bg-[#C7A35A]/8 text-foreground/80 hover:text-foreground"
+                  ? "bg-gradient-to-r from-[#C7A35A]/15 via-[#C7A35A]/10 to-transparent border border-[#C7A35A]/30"
+                  : "hover:bg-black/[0.03] dark:hover:bg-white/[0.05]"
               )}
             >
-              <span className="flex items-center justify-between gap-3">
-                <span className="flex items-center gap-3">
-                  <span className="text-base">{lang.flag}</span>
-                  <span>{lang.name}</span>
+              <span className="flex items-center gap-4 w-full">
+                <span 
+                  className={cn(
+                    "text-[15px] tracking-wide transition-colors duration-200",
+                    isActive ? "text-[#C7A35A] font-medium" : "text-foreground/70 group-hover/item:text-foreground"
+                  )}
+                >
+                  {lang.name}
                 </span>
                 {isActive && (
-                  <Check className="h-4 w-4 text-[#C7A35A] transition-transform duration-200 scale-100" />
+                  <Check className="h-4 w-4 text-[#C7A35A] ml-auto" />
                 )}
               </span>
             </DropdownMenuItem>
