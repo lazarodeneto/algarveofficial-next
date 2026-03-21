@@ -3,7 +3,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Home, Binoculars, Building2, TrendingUp, List } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { useMobileMenu } from "@/contexts/MobileMenuContext";
 import { useTranslation } from "react-i18next";
 
@@ -18,14 +18,14 @@ const navItems = [
 export function MobileBottomNav() {
   const pathname = usePathname() ?? "";
   const { mobileMenuOpen } = useMobileMenu();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const { t } = useTranslation();
   const [isUserScrolling, setIsUserScrolling] = useState(false);
   const scrollTimeoutRef = useRef<number | null>(null);
 
   const isActive = (href: string) => {
-    const fullHref = buildLangPath(langPrefix, href);
-    if (href === '/') return pathname === '/' || pathname === langPrefix || pathname === `${langPrefix}/`;
+    const fullHref = l(href);
+    if (href === '/') return pathname === '/' || pathname === l('/') || pathname === `${l('/')}/`;
     return pathname.startsWith(fullHref);
   };
 
@@ -71,7 +71,7 @@ export function MobileBottomNav() {
           return (
             <Link
               key={item.name}
-              href={buildLangPath(langPrefix, item.href)}
+              href={l(item.href)}
               className={cn(
                 "bottom-nav__link tap-target",
                 active

@@ -1649,15 +1649,19 @@
     .glass-panel::after,
     .gradient-border,
     .gradient-border::before,
-    .gradient-border::after {
-      transition: none;
-      animation: none;
+    .gradient-border::after,
+    .gold-gradient-bar-shimmer,
+    .glass-box-listing-shimmer {
+      transition: none !important;
+      animation: none !important;
     }
 
     .glass-box:hover,
     .glass-panel:hover,
-    .gradient-border:hover {
-      transform: none;
+    .gradient-border:hover,
+    .luxury-card:hover,
+    .glow-card:hover {
+      transform: none !important;
     }
   }
 
@@ -1688,7 +1692,7 @@
     }
   }
 
-  /* Mobile optimization - slightly reduce blur for performance */
+  /* Mobile optimization - disable shimmer animations for performance */
   @media (max-width: 768px) {
 
     .glass-box,
@@ -1700,14 +1704,38 @@
 
     .glass-box,
     .glass-box::before,
-    .glass-panel {
-      animation: none;
+    .glass-box::after,
+    .glass-panel,
+    .glass-panel::before,
+    .glass-panel::after,
+    .gradient-border,
+    .gradient-border::before,
+    .gradient-border::after,
+    .luxury-card,
+    .luxury-card::after,
+    .glow-card,
+    .glow-card::after,
+    .glass-button::after,
+    .glass-button-outline::after,
+    .glass-button-subtle::after,
+    .glass-tag::after,
+    .gold-gradient-bar,
+    .gold-gradient-bar-vertical,
+    .gold-gradient-bar-shimmer,
+    .glass-box-listing-shimmer {
+      animation: none !important;
     }
 
     .glass-box:hover,
     .glass-panel:hover,
-    .gradient-border:hover {
-      transform: none;
+    .gradient-border:hover,
+    .luxury-card:hover,
+    .glow-card:hover,
+    .glass-button:hover,
+    .glass-button-outline:hover,
+    .glass-button-subtle:hover,
+    .glass-tag:hover {
+      transform: none !important;
     }
   }
 }

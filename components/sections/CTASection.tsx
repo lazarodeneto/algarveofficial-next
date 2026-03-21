@@ -3,12 +3,12 @@ import { ArrowRight, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
-import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { usePublishedListings } from "@/hooks/useListings";
 
 export function CTASection() {
   const { t } = useTranslation();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const { data: listings } = usePublishedListings();
   const listingCount = listings?.length ?? 0;
 
@@ -45,7 +45,7 @@ export function CTASection() {
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button variant="hero" size="xl" asChild>
-              <Link href={buildLangPath(langPrefix, "/directory")}>
+              <Link href={l("/directory")}>
                 {t('sections.cta.primaryButton')}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
@@ -56,7 +56,7 @@ export function CTASection() {
               className="bg-white text-[rgba(11,31,58,0.92)] border-[rgba(11,31,58,0.12)] hover:bg-white hover:text-[rgba(11,31,58,0.98)]"
               asChild
             >
-              <Link href={buildLangPath(langPrefix, "/partner")}>
+              <Link href={l("/partner")}>
                 {t('sections.cta.secondaryButton')}
               </Link>
             </Button>

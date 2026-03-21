@@ -27,7 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCities } from "@/hooks/useReferenceData";
-import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
@@ -38,7 +38,7 @@ const Live = () => {
   const { t } = useTranslation();
   const { getMetaDescription, getMetaTitle, getText, isBlockEnabled } = useCmsPageBuilder("live");
   const { data: cities = [], isLoading } = useCities();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const [timeline, setTimeline] = useState("3-6");
   const [household, setHousehold] = useState("couple");
   const [housingPlan, setHousingPlan] = useState("rent-first");
@@ -187,8 +187,8 @@ const Live = () => {
       subject: t("live.planner.handoff.subject", "Relocation Planning Request"),
       message: relocationBriefMessage,
     });
-    return buildLangPath(langPrefix, `/contact?${params.toString()}`);
-  }, [langPrefix, relocationBriefMessage, t]);
+    return l(`/contact?${params.toString()}`);
+  }, [l, relocationBriefMessage, t]);
 
   return (
     <div className="min-h-screen bg-background text-foreground" data-cms-page="live">
@@ -222,13 +222,13 @@ const Live = () => {
               }
               ctas={
                 <>
-                  <Link href={buildLangPath(langPrefix, "/contact")}>
+                  <Link href={l("/contact")}>
                     <Button variant="gold" size="lg">
                       {t("live.hero.ctaPrimary", "Plan My Move")}
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   </Link>
-                  <Link href={buildLangPath(langPrefix, "/directory")}>
+                  <Link href={l("/directory")}>
                     <Button variant="heroOutline" size="lg">
                       {t("live.hero.ctaSecondary", "Browse Local Experts")}
                     </Button>
@@ -409,7 +409,7 @@ const Live = () => {
                     <ArrowRight className="h-4 w-4 ml-1" />
                   </Button>
                 </Link>
-                <Link href={buildLangPath(langPrefix, "/directory")}>
+                <Link href={l("/directory")}>
                   <Button variant="outline" size="lg">
                     {t("live.planner.handoff.secondary", "View Trusted Local Partners")}
                   </Button>
@@ -469,7 +469,7 @@ const Live = () => {
                 {t("live.destinations.title", "Explore cities to match your lifestyle")}
               </h2>
             </div>
-            <Link href={buildLangPath(langPrefix, "/destinations")}>
+            <Link href={l("/destinations")}>
               <Button variant="luxury">
                 {t("live.destinations.viewAll", "View All Destinations")}
                 <ArrowRight className="h-4 w-4 ml-1" />
@@ -515,7 +515,7 @@ const Live = () => {
                         t("live.destinations.fallbackDescription", "High-quality infrastructure and lifestyle access.")}
                     </p>
                     <Link
-                      href={buildLangPath(langPrefix, `/city/${city.slug}`)}
+                      href={l(`/city/${city.slug}`)}
                       className="inline-flex items-center mt-4 text-primary font-medium hover:text-primary/80 transition-colors"
                     >
                       {t("live.destinations.exploreCity", "Explore City")}
@@ -540,12 +540,12 @@ const Live = () => {
               )}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">
-              <Link href={buildLangPath(langPrefix, "/contact")}>
+              <Link href={l("/contact")}>
                 <Button variant="gold" size="lg">
                   {t("live.final.primary", "Start Relocation Planning")}
                 </Button>
               </Link>
-              <Link href={buildLangPath(langPrefix, "/partner")}>
+              <Link href={l("/partner")}>
                 <Button variant="outline" size="lg">
                   {t("live.final.secondary", "Request Partner Introduction")}
                 </Button>

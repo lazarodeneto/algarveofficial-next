@@ -6,7 +6,7 @@ import { FavoriteButton } from "@/components/ui/favorite-button";
 import { useSavedDestinations } from "@/hooks/useSavedDestinations";
 import { useRegionListingCounts, useRegions } from "@/hooks/useReferenceData";
 import { useTranslation } from "react-i18next";
-import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { getRegionImageSet } from "@/lib/regionImages";
@@ -17,7 +17,7 @@ export function RegionsSection() {
   const { data: regionCounts } = useRegionListingCounts();
   const { data: regions, isLoading: regionsLoading } = useRegions();
   const { t } = useTranslation();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const isLoading = regionsLoading;
 
   // Filter to only regions that have local images available
@@ -90,7 +90,7 @@ export function RegionsSection() {
                   </div>
 
                   <Link
-                    href={buildLangPath(langPrefix, `/destinations/${region.slug}`)}
+                    href={l(`/destinations/${region.slug}`)}
                     className="glass-box group relative block cursor-pointer overflow-hidden rounded-xl border border-border bg-card aspect-[0.9] sm:aspect-[0.9] lg:aspect-[5/4] lg:rounded-2xl"
                   >
                     {/* Image */}
@@ -139,7 +139,7 @@ export function RegionsSection() {
             className="mt-12 flex justify-center"
           >
             <Link
-              href={buildLangPath(langPrefix, "/destinations")}
+              href={l("/destinations")}
               className="block w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(50%-0.625rem)] lg:w-auto"
             >
               <Button variant="gold" size="lg" className="gap-2 w-full">

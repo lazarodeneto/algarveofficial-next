@@ -31,7 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { eventCategoryLabels, eventCategoryColors, type CalendarEvent, type EventCategory } from "@/types/events";
-import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { useHydrated } from "@/hooks/useHydrated";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
@@ -96,7 +96,7 @@ async function fetchEventGlobalSettings() {
 
 function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClientProps) {
   const { t } = useTranslation();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
 
   const [selectedCategory, setSelectedCategory] = useState<EventCategory | "all">("all");
   const [showPast, setShowPast] = useState(false);
@@ -159,12 +159,12 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
             media={<PageHeroImage page="events" alt={t("events.hero.alt", "Premium Algarve event destination")} />}
             ctas={
               <>
-                <Link href={buildLangPath(langPrefix, "/directory")}>
+                <Link href={l("/directory")}>
                   <Button variant="gold" size="lg">
                     {t("events.hero.ctaPrimary", "Explore Experiences")}
                   </Button>
                 </Link>
-                <Link href={buildLangPath(langPrefix, "/contact")}>
+                <Link href={l("/contact")}>
                   <Button variant="heroOutline" size="lg">
                     {t("events.hero.ctaSecondary", "Plan My Calendar")}
                   </Button>
@@ -218,7 +218,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 * index }}
                 >
-                  <Link href={buildLangPath(langPrefix, `/events/${event.slug}`)}>
+                        <Link href={l(`/events/${event.slug}`)}>
                     <Card className="group h-full overflow-hidden border-border bg-card transition-all hover:border-primary/30">
                       <div className="relative aspect-video overflow-hidden">
                         <Image
@@ -317,7 +317,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.05 * index }}
                       >
-                        <Link href={buildLangPath(langPrefix, `/events/${event.slug}`)}>
+                  <Link href={l(`/events/${event.slug}`)}>
                           <Card className="group overflow-hidden border-border bg-card transition-all hover:border-primary/30">
                             <div className="flex flex-col sm:flex-row">
                               <div className="flex w-full flex-row items-center justify-center gap-1 bg-muted p-3 sm:w-24 sm:flex-shrink-0 sm:flex-col sm:gap-0">

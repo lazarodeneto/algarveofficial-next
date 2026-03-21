@@ -1,15 +1,15 @@
 import Link from "next/link";
-import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { useTranslation } from "react-i18next";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { HeroTrustSignals } from "@/components/sections/HeroTrustSignals";
 
 export function AlgarveGuideSection() {
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const { t } = useTranslation();
   const { getText } = useCmsPageBuilder("home");
 
-  const path = (route: string) => buildLangPath(langPrefix, route);
+  const path = l;
   const text = (key: string, fallback: string) => getText(key, t(key, fallback));
   const andWord = text("sections.algarveGuide.and", "and");
 

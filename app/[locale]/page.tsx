@@ -74,7 +74,6 @@ export default async function LocaleHomePage({ params }: LocaleHomePageProps) {
           curatedAssignments={data.curatedAssignments}
           globalSettings={data.globalSettings}
           locale={resolvedLocale}
-          dehydratedState={{ queries: [], mutations: [] }}
         />
       </Suspense>
     </>

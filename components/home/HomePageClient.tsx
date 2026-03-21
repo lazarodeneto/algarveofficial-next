@@ -1,14 +1,10 @@
 "use client";
 
-import { HydrationBoundary, type DehydratedState } from "@tanstack/react-query";
-import { useEffect } from "react";
-
 import type { Tables } from "@/integrations/supabase/types";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
 import type { CityRow, RegionRow, CategoryRow } from "@/hooks/useReferenceData";
 import type { CuratedListingWithRelations } from "@/hooks/useCuratedAssignments";
 import type { ListingWithRelations } from "@/hooks/useListings";
-import { useHydrated } from "@/hooks/useHydrated";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
@@ -22,7 +18,6 @@ import { HeroSection } from "@/components/sections/HeroSection";
 import { HomeQuickLinksSection } from "@/components/sections/HomeQuickLinksSection";
 import { NewsletterSection } from "@/components/sections/NewsletterSection";
 import { RegionsSection } from "@/components/sections/RegionsSection";
-import { useHomepageSettings } from "@/hooks/useHomepageSettings";
 import dynamic from "next/dynamic";
 
 const SignatureMapSection = dynamic(
@@ -51,27 +46,10 @@ export interface HomePageClientProps {
   listings: ListingWithRelations[];
   curatedAssignments: CuratedListingWithRelations[];
   globalSettings: GlobalSetting[];
-  dehydratedState: DehydratedState;
 }
 
 export function HomePageClient(props: HomePageClientProps) {
-  const hydrated = useHydrated();
-  const { settings } = useHomepageSettings();
-
-  useEffect(() => {
-    if (!hydrated) return;
-
-    const serverShell = document.getElementById("home-server-shell");
-    if (serverShell) {
-      serverShell.style.display = "none";
-    }
-  }, [hydrated]);
-
-  if (!hydrated) {
-    return null;
-  }
-
-  const activeSettings = settings ?? props.homepageSettings;
+  const activeSettings = props.homepageSettings;
   const showRegions = activeSettings?.show_regions_section ?? true;
   const showCategories = activeSettings?.show_categories_section ?? true;
   const showCities = activeSettings?.show_cities_section ?? true;
@@ -80,20 +58,18 @@ export function HomePageClient(props: HomePageClientProps) {
   const showAllListings = activeSettings?.show_all_listings_section ?? true;
   const showCta = activeSettings?.show_cta_section ?? true;
 
-  // The legacy homepage sections still read from their existing React Query hooks.
-  // We seed those queries from the server via HydrationBoundary so this phase can
-  // preserve the current component tree without rewriting each section yet.
   return (
-    <HydrationBoundary state={props.dehydratedState}>
-      <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
         <Header />
         <main className="main">
           <CmsBlock pageId="home" blockId="hero" as="section">
             <HeroSection />
           </CmsBlock>
-          <CmsBlock pageId="home" blockId="quick-links" as="section">
-            <HomeQuickLinksSection />
-          </CmsBlock>
+          {showCurated ? (
+            <CmsBlock pageId="home" blockId="curated" as="section">
+              <CuratedExcellence context={{ type: "home" }} limit={1} />
+            </CmsBlock>
+          ) : null}
           <div className="mx-auto w-full content-max density">
             {showRegions ? (
               <CmsBlock pageId="home" blockId="regions" as="section">
@@ -108,11 +84,6 @@ export function HomePageClient(props: HomePageClientProps) {
             {showCities ? (
               <CmsBlock pageId="home" blockId="cities" as="section">
                 <CitiesSection />
-              </CmsBlock>
-            ) : null}
-            {showCurated ? (
-              <CmsBlock pageId="home" blockId="curated" as="section">
-                <CuratedExcellence context={{ type: "home" }} limit={4} />
               </CmsBlock>
             ) : null}
             {showVip ? (
@@ -140,7 +111,6 @@ export function HomePageClient(props: HomePageClientProps) {
         </main>
         <Footer />
       </div>
-    </HydrationBoundary>
   );
 }
 

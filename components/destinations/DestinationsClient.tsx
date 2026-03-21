@@ -20,7 +20,7 @@ import {
   type CmsTextOverrideMap,
 } from "@/lib/cms/pageBuilderRegistry";
 import { getRegionImageSet } from "@/lib/regionImages";
-import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { useHydrated } from "@/hooks/useHydrated";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
@@ -238,7 +238,7 @@ async function fetchGlobalSettings() {
 
 function DestinationsClientInner({ initialRegions, initialGlobalSettings }: DestinationsClientProps) {
   const { t } = useTranslation();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
 
   const { data: regions = initialRegions, isLoading } = useQuery({
     queryKey: ["regions", { destinationsOnly: true, activeOnly: false }],
@@ -284,12 +284,12 @@ function DestinationsClientInner({ initialRegions, initialGlobalSettings }: Dest
             media={<PageHeroImage page="destinations" alt={t("destinations.hero.alt", "Scenic Algarve destination coastline")} />}
             ctas={
               <>
-                <Link href={buildLangPath(langPrefix, "/directory")}>
+                <Link href={l("/directory")}>
                   <Button variant="gold" size="lg">
                     {t("destinations.hero.ctaPrimary", "Browse Premium Listings")}
                   </Button>
                 </Link>
-                <Link href={buildLangPath(langPrefix, "/live")}>
+                <Link href={l("/live")}>
                   <Button variant="heroOutline" size="lg">
                     {t("destinations.hero.ctaSecondary", "Plan Relocation")}
                   </Button>

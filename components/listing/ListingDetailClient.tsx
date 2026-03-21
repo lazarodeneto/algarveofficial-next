@@ -39,7 +39,7 @@ import { ImageLightbox } from "@/components/ui/image-lightbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { translateCategoryValue } from "@/lib/translateCategoryValue";
-import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { formatRichTextDescription } from "@/lib/formatRichText";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 import { hasRealEstateSignals, isRealEstateCategorySlug } from "@/lib/realEstateDetection";
@@ -67,7 +67,6 @@ import { ArchitectureDecorationLayout } from "@/components/listing-details/Archi
 import { ProtectionServicesLayout } from "@/components/listing-details/ProtectionServicesLayout";
 import { RealEstateAgentContactCard } from "@/components/real-estate/RealEstateAgentContactCard";
 import type { MapListingPoint } from "@/components/map/ListingsLeafletMap";
-import { useHydrated } from "@/hooks/useHydrated";
 
 export type ListingTranslationRow = {
   listing_id: string;
@@ -370,7 +369,7 @@ function ListingDetailClientInner({
   initialLookupValue,
 }: ListingDetailClientProps) {
   const { t, i18n } = useTranslation();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const { user } = useAuth();
   const { openChat } = useChatModal();
   const { isFavorite, toggleFavorite } = useFavoriteListings();
@@ -606,7 +605,7 @@ function ListingDetailClientInner({
         cityName: listing.city?.name || "Algarve",
         tier: listing.tier,
         featuredImageUrl: normalizedFeaturedImageUrl || normalizedCategoryImageUrl || undefined,
-        href: buildLangPath(langPrefix, `/listing/${listing.slug || listing.id}`),
+        href: l(`/listing/${listing.slug || listing.id}`),
         isPrimary: true,
       },
     ];
@@ -614,8 +613,8 @@ function ListingDetailClientInner({
     baseLatitude,
     baseLongitude,
     effectiveTitle,
-    langPrefix,
     listing,
+    l,
     normalizedCategoryImageUrl,
     normalizedFeaturedImageUrl,
     t,
@@ -641,7 +640,7 @@ function ListingDetailClientInner({
           <div className="text-center">
             <h1 className="text-2xl font-serif mb-4">{t("listing.notFound")}</h1>
             <p className="text-muted-foreground mb-6">{t("listing.notFoundMessage")}</p>
-            <Link href={buildLangPath(langPrefix, "/")}>
+            <Link href={l("/")}>
               <Button>
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 {t("listing.backToHome")}
@@ -689,12 +688,12 @@ function ListingDetailClientInner({
   const categoryDirectoryPath = canonicalCategorySlug ? `/directory?category=${canonicalCategorySlug}` : "/directory";
 
   const visualBreadcrumbs = [
-    { name: t("nav.home"), to: buildLangPath(langPrefix, "/"), current: false },
-    { name: directoryLabel, to: buildLangPath(langPrefix, "/directory"), current: false },
+    { name: t("nav.home"), to: l("/"), current: false },
+    { name: directoryLabel, to: l("/directory"), current: false },
     ...(canonicalCategorySlug
-      ? [{ name: categoryLabel, to: buildLangPath(langPrefix, categoryDirectoryPath), current: false }]
+      ? [{ name: categoryLabel, to: l(categoryDirectoryPath), current: false }]
       : []),
-    { name: listingTitle, to: buildLangPath(langPrefix, `/listing/${listing.slug || listing.id}`), current: true },
+    { name: listingTitle, to: l(`/listing/${listing.slug || listing.id}`), current: true },
   ];
 
   return (
@@ -1035,7 +1034,7 @@ function ListingDetailClientInner({
                         {t("listing.isYourBusiness", "Is this your business?")}
                       </p>
                       <Link
-                        href={buildLangPath(langPrefix, "/partner?type=claim-business")}
+                        href={l("/partner?type=claim-business")}
                         className="text-body-xs text-primary hover:underline font-medium"
                       >
                         {t("listing.claimThisListing", "Claim this listing")} →
@@ -1073,7 +1072,7 @@ function ListingDetailClientInner({
                   return (
                     <Link
                       key={related.id}
-                      href={buildLangPath(langPrefix, `/listing/${related.slug || related.id}`)}
+                      href={l(`/listing/${related.slug || related.id}`)}
                       className="group block rounded-xl overflow-hidden border border-border hover:border-primary/40 transition-colors bg-card"
                     >
                       <div className="aspect-[16/10] overflow-hidden bg-muted">
@@ -1100,7 +1099,7 @@ function ListingDetailClientInner({
 
         <section className="py-8 px-4 border-t border-border">
           <div className="container mx-auto max-w-7xl">
-            <Link href={buildLangPath(langPrefix, "/")}>
+            <Link href={l("/")}>
               <Button variant="ghost">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 {t("listing.backToListings")}
@@ -1186,21 +1185,6 @@ function ListingDetailClientInner({
 }
 
 export function ListingDetailClient(props: ListingDetailClientProps) {
-  const hydrated = useHydrated();
-
-  useEffect(() => {
-    if (!hydrated) return;
-
-    const serverShell = document.getElementById("listing-detail-server-shell");
-    if (serverShell) {
-      serverShell.style.display = "none";
-    }
-  }, [hydrated]);
-
-  if (!hydrated) {
-    return null;
-  }
-
   return <ListingDetailClientInner {...props} />;
 }
 

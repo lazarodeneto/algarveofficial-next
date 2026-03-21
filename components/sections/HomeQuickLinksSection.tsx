@@ -4,7 +4,7 @@ import Image from "next/image";
 import { BedSingle, Binoculars, CalendarDays, LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
-import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import {
   HOME_QUICK_LINK_CARDS,
   HOME_QUICK_LINK_SETTING_KEYS,
@@ -19,7 +19,7 @@ const CARD_ICONS: Record<"stay" | "see-do" | "whats-on", LucideIcon> = {
 
 export function HomeQuickLinksSection() {
   const { t } = useTranslation();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const { settings, isLoading } = useGlobalSettings({ keys: HOME_QUICK_LINK_SETTING_KEYS });
 
   const enforceMutedPlayback = useCallback((video: HTMLVideoElement | null) => {
@@ -68,7 +68,7 @@ export function HomeQuickLinksSection() {
             return (
               <Link
                 key={card.id}
-                href={buildLangPath(langPrefix, `/directory?category=${card.categorySlug}`)}
+                href={l(`/directory?category=${card.categorySlug}`)}
                 className="glass-box glass-box-silver-liquid glass-box-contour group relative isolate block w-[min(77vw,17rem)] flex-none snap-center rounded-[24px] font-sans transition-transform duration-300 hover:-translate-y-1 sm:w-full sm:max-w-[236px]"
               >
                 <span

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { translateCategoryValue } from "@/lib/translateCategoryValue";
 import ListingImage from "@/components/ListingImage";
-import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import { cn } from "@/lib/utils";
 import {
@@ -52,7 +52,7 @@ function asString(value: unknown): string | null {
 
 export function RealEstateCard({ listing }: RealEstateCardProps) {
     const { t } = useTranslation();
-    const langPrefix = useLangPrefix();
+    const l = useLocalizedHref();
     const {
         id,
         name,
@@ -131,7 +131,7 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
     const hasOverlay = listing.tier !== "unverified";
 
     return (
-        <Link href={buildLangPath(langPrefix, `/listing/${slug || id}`)} className="block h-full group">
+        <Link href={l(`/listing/${slug || id}`)} className="block h-full group">
             <Card className={cn(
                 "overflow-hidden group relative isolate flex flex-col h-full",
                 tierCardClass,

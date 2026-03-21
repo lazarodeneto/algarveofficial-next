@@ -7,13 +7,13 @@ import { useSavedDestinations } from "@/hooks/useSavedDestinations";
 import { useCities } from "@/hooks/useReferenceData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
-import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 
 export function CitiesSection() {
   const { isDestinationSaved, toggleCity } = useSavedDestinations();
   const { data: cities = [], isLoading } = useCities();
   const { t } = useTranslation();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const featuredCities = cities.filter((city) => city.is_featured);
 
   return (
@@ -55,7 +55,7 @@ export function CitiesSection() {
             {featuredCities.map((city) => (
               <div key={city.id}>
                 <Link
-                  href={buildLangPath(langPrefix, `/city/${city.slug}`)}
+                  href={l(`/city/${city.slug}`)}
                   className="glass-box flex items-center gap-3 p-4 rounded-xl hover:border-primary/30 cursor-pointer"
                 >
                   {/* Favorite Heart Icon - Clickable (stops propagation) */}
@@ -88,7 +88,7 @@ export function CitiesSection() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-12 text-center"
         >
-          <Link href={buildLangPath(langPrefix, "/directory")}>
+          <Link href={l("/directory")}>
             <Button variant="luxury" size="lg">
               {t("sections.cities.viewAll")}
               <ArrowRight className="ml-2 h-4 w-4" />

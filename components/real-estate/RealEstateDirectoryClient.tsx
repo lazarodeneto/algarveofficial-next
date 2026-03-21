@@ -16,7 +16,7 @@ import { ConciergeContactDialog } from "@/components/real-estate/ConciergeContac
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { useHydrated } from "@/hooks/useHydrated";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database, Tables } from "@/integrations/supabase/types";
@@ -172,7 +172,7 @@ function RealEstateDirectoryClientInner({
 }: RealEstateDirectoryClientProps) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const locale = normalizePublicContentLocale(i18n.language);
 
   const [filters, setFilters] = useState<FilterState>({
@@ -253,8 +253,8 @@ function RealEstateDirectoryClientInner({
   const addListingHref = useMemo(() => {
     if (user?.role === "admin" || user?.role === "editor") return "/admin/listings/new";
     if (user?.role === "owner") return "/owner/support";
-    return buildLangPath(langPrefix, "/partner");
-  }, [langPrefix, user?.role]);
+    return l("/partner");
+  }, [l, user?.role]);
 
   const addListingNote = useMemo(() => {
     if (user?.role === "admin" || user?.role === "editor") {
@@ -313,7 +313,7 @@ function RealEstateDirectoryClientInner({
                     {t("realEstate.addListing", "Add Real Estate Listing")}
                   </Button>
                 </Link>
-                <Link href={buildLangPath(langPrefix, "/invest")}>
+                <Link href={l("/invest")}>
                   <Button variant="heroOutline" size="lg" className="w-full sm:w-auto">
                     {t("realEstate.backToInvest", "Back to Invest")}
                     <ArrowRight className="h-4 w-4 ml-1" />

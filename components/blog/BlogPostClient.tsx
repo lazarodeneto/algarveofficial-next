@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { getSessionId } from "@/lib/sessionId";
 
 export type BlogPostAuthor = Pick<Tables<"public_profiles">, "id" | "full_name" | "avatar_url">;
@@ -112,7 +112,7 @@ async function fetchBlogPost(slug: string, locale: string): Promise<BlogPostWith
 
 function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClientProps) {
   const { t, i18n } = useTranslation();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const locale = normalizeBlogLocale(i18n.language);
   const seededPost = useMemo(
     () => mergePostWithAuthor(initialPost, initialAuthor),
@@ -166,7 +166,7 @@ function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClient
     >
       <div className="flex flex-wrap items-center gap-3">
         <Button variant="ghost" size="sm" asChild className="rounded-full">
-          <Link href={buildLangPath(langPrefix, "/blog")}>
+          <Link href={l("/blog")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             {t("blog.backToBlog", "Back to Blog")}
           </Link>

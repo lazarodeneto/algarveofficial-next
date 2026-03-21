@@ -56,10 +56,6 @@ const securityHeaders = [
     key: "Cross-Origin-Resource-Policy",
     value: "same-site",
   },
-  {
-    key: "Cross-Origin-Embedder-Policy",
-    value: "require-corp",
-  },
 ];
 
 const reportOnlyHeaders = [

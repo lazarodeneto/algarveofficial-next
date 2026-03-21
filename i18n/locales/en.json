@@ -26,6 +26,7 @@
     "primaryCta": "Explore Regions",
     "secondaryCta": "Signature Selection",
     "scroll": "Scroll",
+    "listYourBusiness": "List Your Business",
     "searchPlaceholder": "Ask our smart concierge... (e.g. 'Sea view villas in Quinta do Lago')",
     "searchButton": "CONCIERGE",
     "aiPlannerPlaceholder": "AI Agent Algarve Planner... (e.g. 'Plan a 3-day stay in Algarve')",
@@ -401,6 +402,7 @@
     "legal": "Legal",
     "aboutUs": "About Us",
     "becomePartner": "Become a Partner",
+    "pricing": "Partner Pricing",
     "contact": "Contact",
     "blog": "Blog",
     "events": "Events",
@@ -512,6 +514,78 @@
       "a4": "Basic listings are free. Verified and Signature tiers have monthly fees with additional benefits. Contact us for current pricing."
     },
     "success": "Thank you! Your request has been submitted. We'll contact you within 2-3 business days."
+  },
+  "pricing": {
+    "badge": "Partnership Investment",
+    "title": "Partner Investment",
+    "subtitle": "Transparent pricing for every stage of growth. From verified visibility to exclusive Signature placement.",
+    "calculator": {
+      "title": "Estimate Your Visibility",
+      "subtitle": "See how AlgarveOfficial drives qualified inquiries to your business.",
+      "visitors": "Monthly Platform Visitors",
+      "conversion": "Conversion Rate",
+      "verifiedInquiries": "Verified Inquiries",
+      "signatureInquiries": "Signature Inquiries",
+      "inquiryValue": "Est. Inquiry Value",
+      "perMonth": "/month",
+      "disclaimer": "Estimates based on average platform conversion rates. Actual results vary."
+    },
+    "tiers": {
+      "verified": {
+        "name": "Verified Partner",
+        "badge": "Recommended",
+        "price": "From €99",
+        "priceNote": "/month",
+        "description": "Enhanced visibility and trust for established businesses."
+      },
+      "signature": {
+        "name": "Signature Partner",
+        "badge": "Most Exclusive",
+        "price": "From €299",
+        "priceNote": "/month",
+        "description": "Maximum visibility, homepage placement, and exclusive partner benefits.",
+        "highlight": "Best ROI"
+      },
+      "note": "All prices exclude VAT. Custom enterprise pricing available on request.",
+      "contact": "Contact us",
+      "forEnterprise": "for enterprise partnerships."
+    },
+    "feature": {
+      "profile": "Enhanced business profile",
+      "badge": "Verified trust badge",
+      "map": "Map visibility priority",
+      "directory": "Directory listings",
+      "photos": "Photo gallery (20+ images)",
+      "social": "Social media links",
+      "whatsapp": "WhatsApp integration",
+      "signature": "Signature Selection eligibility",
+      "homepage": "Homepage featured section"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "timing": {
+        "q": "How quickly will I see results?",
+        "a": "Most partners see increased inquiries within the first 30 days. Signature partners with homepage placement typically see results within the first week."
+      },
+      "tierchange": {
+        "q": "Can I change tiers later?",
+        "a": "Yes. You can upgrade or downgrade your tier at any time. Changes take effect at the start of the next billing cycle."
+      },
+      "audience": {
+        "q": "What kind of audience will my listing reach?",
+        "a": "Our audience is predominantly high-net-worth individuals, luxury travelers, and premium lifestyle buyers. 72% of visitors are from the UK, Germany, France, and Scandinavia."
+      },
+      "contract": {
+        "q": "Is there a minimum contract?",
+        "a": "No long-term contracts required. All tiers are month-to-month. Annual billing is available at a 20% discount."
+      }
+    },
+    "cta": {
+      "title": "Ready to grow your presence in the Algarve?",
+      "subtitle": "Apply today and our team will review your application within 2-3 business days.",
+      "primary": "Apply Now",
+      "secondary": "Contact Us"
+    }
   },
   "admin": {
     "sidebar": {
