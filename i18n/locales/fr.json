@@ -33,7 +33,8 @@
     "tagMichelinDining": "Restaurants Michelin",
     "tagPrivateAviation": "Aviation Privée",
     "aiPlannerPlaceholder": "Planificateur IA Algarve... (ex: 'Planifier 3 jours en Algarve')",
-    "aiPlannerButton": "PLANIFICATEUR IA"
+    "aiPlannerButton": "PLANIFICATEUR IA",
+    "listYourBusiness": "Référencer Votre Établissement"
   },
   "sections": {
     "regions": {
@@ -295,10 +296,10 @@
       "telephone": "Téléphone"
     },
     "inquiry": {
-      "title": "Envoyer une demande",
+      "title": "Contacter au sujet de {{name}}",
       "back": "Retour",
       "continue": "Continuer",
-      "step": "Étape",
+      "step": "Étape {{current}} sur {{total}}",
       "stepDates": "Dates de séjour",
       "stepParty": "Groupe",
       "stepMessage": "Message",
@@ -315,7 +316,7 @@
       "yourName": "Votre nom",
       "email": "Adresse e-mail",
       "phone": "Numéro de téléphone",
-      "reference": "Référence",
+      "reference": "Référence : {{ref}}",
       "fillContact": "Remplir les coordonnées",
       "message": "Message",
       "messagePlaceholder": "Décrivez vos besoins ou posez vos questions...",
@@ -378,7 +379,12 @@
     "free": "Gratuit",
     "adminUser": "Utilisateur Admin",
     "create": "Créer",
-    "description": "Description"
+    "description": "Description",
+    "openFullMap": "Ouvrir la Carte Complète",
+    "go": "Aller",
+    "noListingsYet": "Aucune Annonce Encore",
+    "noListingsYetDesc": "Nous sélectionnons les meilleures expériences pour cette région.",
+    "sendResetLink": "Envoyer le Lien de Réinitialisation"
   },
   "search": {
     "placeholder": "Rechercher des annonces, catégories, villes, régions...",
@@ -419,10 +425,11 @@
     },
     "privacyPolicy": "Politique de Confidentialité",
     "termsOfService": "Conditions d'Utilisation",
-    "cookiePolicy": "Politique des Cookies"
+    "cookiePolicy": "Politique des Cookies",
+    "pricing": "Tarifs Partenaires"
   },
   "blog": {
-    "title": "Blog & Insights",
+    "title": "Blog & Actualités",
     "label": "Histoires & Guides",
     "subtitle": "Découvrez le style de vie de l'Algarve, guides de voyage et conseils d'initiés",
     "searchPlaceholder": "Rechercher des articles...",
@@ -1263,7 +1270,8 @@
     "architectureDecoration": "Services de l'Algarve",
     "protectionServices": "Services de l'Algarve",
     "shoppingBoutiques": "Shopping & Boutiques",
-    "algarveServices": "Services de l'Algarve"
+    "algarveServices": "Services de l'Algarve",
+    "restaurants": "Gastronomie"
   },
   "tiers": {
     "signature": {
@@ -1287,7 +1295,6 @@
         "notEligibleCurated": "Non éligible à la section sélectionnée"
       }
     },
-    "unverified": "Non vérifié",
     "free": {
       "name": "Gratuit",
       "alwaysFree": "Toujours gratuit",
@@ -1872,6 +1879,78 @@
       "subtitle": "Parlez-nous de vos objectifs commerciaux et nous vous recommanderons la bonne voie de partenariat.",
       "primary": "Devenir Partenaire",
       "secondary": "Contacter l'Équipe"
+    }
+  },
+  "pricing": {
+    "badge": "Investissement Partenaire",
+    "title": "Plans Partenaires",
+    "subtitle": "Présentez votre établissement aux voyageurs premium du monde entier",
+    "calculator": {
+      "title": "Estimez Votre Visibilité",
+      "subtitle": "Calculez le retour sur investissement potentiel",
+      "visitors": "Visiteurs Mensuels de la Plateforme",
+      "conversion": "Taux de Conversion Estimé",
+      "verifiedInquiries": "Demandes Vérifiées/Mois",
+      "signatureInquiries": "Demandes Signature/Mois",
+      "inquiryValue": "Valeur par Demande",
+      "perMonth": "/mois",
+      "disclaimer": "Estimations basées sur les moyennes de la plateforme. Les résultats réels peuvent varier."
+    },
+    "tiers": {
+      "note": "Tous les plans incluent l'accès au tableau de bord partenaire et un support dédié",
+      "contact": "Nous Contacter",
+      "forEnterprise": "Pour les groupes hôteliers, resorts et entreprises multi-propriétés",
+      "verified": {
+        "name": "Partenaire Vérifié",
+        "badge": "Recommandé",
+        "price": "À partir de 99 €",
+        "priceNote": "/mois",
+        "description": "Pour les établissements souhaitant gagner en visibilité et en confiance auprès des voyageurs premium"
+      },
+      "signature": {
+        "name": "Partenaire Signature",
+        "badge": "Le Plus Exclusif",
+        "price": "À partir de 299 €",
+        "priceNote": "/mois",
+        "description": "Pour les meilleurs établissements de l'Algarve — exposition maximale, prestige maximal",
+        "highlight": "Meilleur ROI"
+      }
+    },
+    "feature": {
+      "profile": "Profil d'établissement amélioré",
+      "badge": "Badge de confiance Vérifié",
+      "map": "Priorité de visibilité sur la carte",
+      "directory": "Annonces dans l'annuaire",
+      "photos": "Jusqu'à 20 photos",
+      "social": "Liens réseaux sociaux",
+      "whatsapp": "Intégration WhatsApp",
+      "signature": "Sélection Signature",
+      "homepage": "Mise en avant sur la page d'accueil"
+    },
+    "faq": {
+      "title": "Questions Fréquentes",
+      "timing": {
+        "q": "À quelle vitesse verrai-je des résultats ?",
+        "a": "La plupart des partenaires constatent une augmentation de visibilité dans les 48 heures suivant l'activation. Les demandes commencent généralement dès la première semaine."
+      },
+      "tierchange": {
+        "q": "Puis-je changer de plan plus tard ?",
+        "a": "Oui. Vous pouvez passer à un plan supérieur ou inférieur à tout moment. Les changements prennent effet au début du prochain cycle de facturation."
+      },
+      "audience": {
+        "q": "Quel type d'audience atteindra ma liste ?",
+        "a": "Nos utilisateurs sont des voyageurs de loisirs et d'affaires haut de gamme, des acheteurs de biens immobiliers et des expatriés — avec un fort pouvoir d'achat et un intérêt réel pour l'offre premium de l'Algarve."
+      },
+      "contract": {
+        "q": "Y a-t-il un contrat minimum ?",
+        "a": "Non. Tous les plans sont mensuels sans engagement à long terme. Vous pouvez annuler à tout moment."
+      }
+    },
+    "cta": {
+      "title": "Prêt à Vous Développer ?",
+      "subtitle": "Rejoignez des centaines d'établissements premium qui font confiance à AlgarveOfficial pour toucher les voyageurs internationaux",
+      "primary": "Commencer Aujourd'hui",
+      "secondary": "Nous Contacter"
     }
   }
 }

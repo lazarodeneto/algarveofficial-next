@@ -33,7 +33,8 @@
     "tagMichelinDining": "Michelin middag",
     "tagPrivateAviation": "Privatflyg",
     "aiPlannerPlaceholder": "AI Algarve-planerare... (t.ex. 'Planera 3 dagar i Algarve')",
-    "aiPlannerButton": "AI-PLANERARE"
+    "aiPlannerButton": "AI-PLANERARE",
+    "listYourBusiness": "Lägg Till Ditt Företag"
   },
   "sections": {
     "regions": {
@@ -378,7 +379,12 @@
     "owner": "Ägare",
     "user": "Användare",
     "free": "Gratis",
-    "adminUser": "Admin användare"
+    "adminUser": "Admin användare",
+    "openFullMap": "Öppna Full Karta",
+    "go": "Gå",
+    "noListingsYet": "Inga Annonser Ännu",
+    "noListingsYetDesc": "Vi väljer de bästa upplevelserna för denna region.",
+    "sendResetLink": "Skicka Återställningslänk"
   },
   "search": {
     "placeholder": "Sök i listor, kategorier, städer, regioner...",
@@ -419,7 +425,8 @@
     },
     "privacyPolicy": "Sekretesspolicy",
     "termsOfService": "Användarvillkor",
-    "cookiePolicy": "Cookiepolicy"
+    "cookiePolicy": "Cookiepolicy",
+    "pricing": "Partnerpriser"
   },
   "blog": {
     "title": "Blogg & Insikter",
@@ -1263,7 +1270,8 @@
     "architectureDecoration": "Algarve-tjanster",
     "protectionServices": "Algarve-tjanster",
     "shoppingBoutiques": "Shopping och butiker",
-    "algarveServices": "Algarve-tjanster"
+    "algarveServices": "Algarve-tjanster",
+    "restaurants": "Gastronomi"
   },
   "tiers": {
     "free": {
@@ -1870,6 +1878,78 @@
       "subtitle": "Berätta om dina affärsmål så rekommenderar vi rätt partnerskapsväg.",
       "primary": "Bli Partner",
       "secondary": "Kontakta Team"
+    }
+  },
+  "pricing": {
+    "badge": "Partnerinvestering",
+    "title": "Partnerplaner",
+    "subtitle": "Presentera ditt företag för premiumresenärer från hela världen",
+    "calculator": {
+      "title": "Uppskatta Din Synlighet",
+      "subtitle": "Beräkna din potentiella avkastning på investering",
+      "visitors": "Månadsbesökare på Plattformen",
+      "conversion": "Uppskattad Konverteringsgrad",
+      "verifiedInquiries": "Verifierade Förfrågningar/Månad",
+      "signatureInquiries": "Signature-förfrågningar/Månad",
+      "inquiryValue": "Värde per Förfrågan",
+      "perMonth": "/månad",
+      "disclaimer": "Uppskattningar baserade på plattformsgenomsnitt. Faktiska resultat kan variera."
+    },
+    "tiers": {
+      "note": "Alla planer inkluderar åtkomst till partnerpanelen och dedikerad support",
+      "contact": "Kontakta Oss",
+      "forEnterprise": "För hotellgrupper, resorter och företag med flera fastigheter",
+      "verified": {
+        "name": "Verifierad Partner",
+        "badge": "Rekommenderad",
+        "price": "Från 99 €",
+        "priceNote": "/månad",
+        "description": "För företag som vill bygga synlighet och förtroende hos premiumresenärer"
+      },
+      "signature": {
+        "name": "Signature Partner",
+        "badge": "Mest Exklusivt",
+        "price": "Från 299 €",
+        "priceNote": "/månad",
+        "description": "För Algarvens bästa anläggningar — maximal räckvidd, maximalt prestige",
+        "highlight": "Bästa ROI"
+      }
+    },
+    "feature": {
+      "profile": "Utökat företagsprofil",
+      "badge": "Verifierat förtroendemärke",
+      "map": "Prioritet vid kartsynlighet",
+      "directory": "Katalogannonser",
+      "photos": "Upp till 20 foton",
+      "social": "Sociala medielänkar",
+      "whatsapp": "WhatsApp-integration",
+      "signature": "Signature-urval",
+      "homepage": "Presenterad på startsidan"
+    },
+    "faq": {
+      "title": "Vanliga Frågor",
+      "timing": {
+        "q": "Hur snabbt kommer jag att se resultat?",
+        "a": "De flesta partners upplever ökad synlighet inom 48 timmar efter aktivering. Förfrågningar börjar vanligtvis under den första veckan."
+      },
+      "tierchange": {
+        "q": "Kan jag byta plan senare?",
+        "a": "Ja. Du kan uppgradera eller nedgradera när som helst. Ändringar träder i kraft i början av nästa faktureringsperiod."
+      },
+      "audience": {
+        "q": "Vilken typ av publik når min annons?",
+        "a": "Våra användare är högkvalitativa fritids- och affärsresenärer, fastighetsköpare och expats — med hög köpkraft och genuint intresse för Algarvens premiumutbud."
+      },
+      "contract": {
+        "q": "Finns det ett minimiavtal?",
+        "a": "Nej. Alla planer är månadsvisa utan långsiktig bindning. Du kan säga upp när som helst."
+      }
+    },
+    "cta": {
+      "title": "Redo att Växa?",
+      "subtitle": "Gå med hundratals premiumföretag som litar på AlgarveOfficial för att nå internationella resenärer",
+      "primary": "Börja Idag",
+      "secondary": "Kontakta Oss"
     }
   }
 }
