@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { MapListingPoint } from "@/components/map/ListingsLeafletMap";
-import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { useSignatureListings } from "@/hooks/useListings";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { translateCategoryName } from "@/lib/translateCategory";
@@ -38,7 +38,7 @@ const FILTER_ICONS: Record<DiscoveryCategory, ComponentType<{ className?: string
 
 export function SignatureMapSection() {
   const { t } = useTranslation();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const { isFavorite, toggleFavorite } = useFavoriteListings();
   const [activeDiscoveryFilters, setActiveDiscoveryFilters] = useState<DiscoveryCategory[]>(() =>
     DISCOVERY_FILTERS.map((filter) => filter.key)
@@ -88,12 +88,12 @@ export function SignatureMapSection() {
             cityName: listing.city?.name || "Algarve",
             tier: listing.tier,
             featuredImageUrl: listing.featured_image_url,
-            href: buildLangPath(langPrefix, `/listing/${listing.slug}`),
+            href: l(`/listing/${listing.slug}`),
           } satisfies MapListingPoint;
         })
         .filter((point): point is MapListingPoint => point !== null)
         .slice(0, 240),
-    [filteredDiscoveryListings, langPrefix, t]
+    [filteredDiscoveryListings, t]
   );
 
   const mapEmptyMessage = useMemo(() => {
@@ -137,7 +137,7 @@ export function SignatureMapSection() {
               <MapPinned className="h-3.5 w-3.5 mr-1.5" />
               {mapPoints.length} mapped · {filteredDiscoveryListings.length} matching
             </Badge>
-            <Link href={buildLangPath(langPrefix, "/map")}>
+            <Link href={l("/map")}>
               <Button variant="outline">Open Full Map</Button>
             </Link>
           </div>
@@ -232,7 +232,7 @@ export function SignatureMapSection() {
               {previewListings.map(({ listing }) => (
                 <Link
                   key={listing.id}
-                  href={buildLangPath(langPrefix, `/listing/${listing.slug}`)}
+                  href={l(`/listing/${listing.slug}`)}
                   className="group block h-full"
                 >
                   <article className="glass-box glass-box-listing-shimmer overflow-hidden flex h-full flex-col">

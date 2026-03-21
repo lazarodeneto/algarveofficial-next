@@ -21,7 +21,7 @@ import {
     Sparkles,
 } from "lucide-react";
 import Link from "next/link";
-import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
@@ -31,7 +31,7 @@ import { PageHeroImage } from "@/components/sections/PageHeroImage";
 const Invest = () => {
     const { t } = useTranslation();
     const { getMetaDescription, getMetaTitle, getText, isBlockEnabled } = useCmsPageBuilder("invest");
-    const langPrefix = useLangPrefix();
+    const l = useLocalizedHref();
     const [purchasePrice, setPurchasePrice] = useState(1250000);
     const [occupancyRate, setOccupancyRate] = useState(62);
     const [averageNightlyRate, setAverageNightlyRate] = useState(580);
@@ -324,13 +324,13 @@ const Invest = () => {
                                 )}
                             </p>
                             <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-                                <Link href={buildLangPath(langPrefix, "/contact")}>
+                                <Link href={l("/contact")}>
                                     <Button variant="gold" size="lg">
                                         <BadgeEuro className="h-4 w-4" />
                                         {t("invest.cta.primary", "Request Investment Brief")}
                                     </Button>
                                 </Link>
-                                <Link href={buildLangPath(langPrefix, "/directory?category=algarve-services")}>
+                                <Link href={l("/directory?category=algarve-services")}>
                                     <Button variant="outline" size="lg">
                                         <CheckCircle2 className="h-4 w-4" />
                                         {t("invest.cta.secondary", "Browse Algarve Services")}

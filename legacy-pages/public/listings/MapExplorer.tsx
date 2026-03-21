@@ -21,7 +21,7 @@ const ListingsLeafletMap = dynamic(() => import("@/components/map/ListingsLeafle
 });
 import { usePublishedListings, type ListingFilters, type ListingTier } from "@/hooks/useListings";
 import { useCategories, useCities, useRegions } from "@/hooks/useReferenceData";
-import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { translateCategoryName } from "@/lib/translateCategory";
 import {
   buildMergedCategoryOptions,
@@ -39,7 +39,7 @@ function isWithinAlgarveBounds(latitude: number, longitude: number): boolean {
 
 export default function MapExplorer() {
   const { t } = useTranslation();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const router = useRouter();
   const pathname = usePathname() || "/map";
   const searchParams = useSearchParams();
@@ -170,11 +170,11 @@ export default function MapExplorer() {
             cityName: listing.city?.name || "Algarve",
             tier: listing.tier,
             featuredImageUrl: listing.featured_image_url,
-            href: buildLangPath(langPrefix, `/listing/${listing.slug}`),
+            href: l(`/listing/${listing.slug}`),
           } satisfies MapListingPoint;
         })
         .filter((point): point is MapListingPoint => point !== null),
-    [langPrefix, listings, t]
+    [l, listings, t]
   );
 
   useEffect(() => {
@@ -218,7 +218,7 @@ export default function MapExplorer() {
                 Clustered category markers with instant filtering across the Algarve.
               </p>
             </div>
-            <Link href={buildLangPath(langPrefix, "/directory")}>
+            <Link href={l("/directory")}>
               <Button variant="outline">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 {t("nav.directory")}

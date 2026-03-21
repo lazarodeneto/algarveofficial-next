@@ -37,10 +37,7 @@ export function useFavoritesSync() {
           return;
         }
 
-        console.log('[FavoritesSync] Starting sync...', {
-          listings: localListings.length,
-          categories: localCategories.length
-        });
+
 
         // Extract listing IDs to validate
         const listingIdsToCheck = localListings
@@ -59,7 +56,7 @@ export function useFavoritesSync() {
           
           const invalidCount = listingIdsToCheck.length - validListingIds.size;
           if (invalidCount > 0) {
-            console.log('[FavoritesSync] Skipping', invalidCount, 'favorites with non-existent listings');
+
           }
         }
 
@@ -116,14 +113,14 @@ export function useFavoritesSync() {
             return;
           }
 
-          console.log('[FavoritesSync] Synced', newFavorites.length, 'favorites to Supabase');
+
         }
 
         // Clear localStorage after sync (success or skip)
         localStorage.removeItem(LISTINGS_STORAGE_KEY);
         localStorage.removeItem(CATEGORIES_STORAGE_KEY);
         
-        console.log('[FavoritesSync] Sync complete, localStorage cleared');
+
         hasSynced.current = true;
 
       } catch (error) {

@@ -8,7 +8,7 @@ import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
 import { FavoriteButton } from "@/components/ui/favorite-button";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { useTranslation } from "react-i18next";
-import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { cn } from "@/lib/utils";
 import {
   Select,
@@ -68,7 +68,7 @@ export function AllListingsSection() {
   const loaderRef = useRef<HTMLDivElement>(null);
   const { isFavorite, toggleFavorite } = useFavoriteListings();
   const { t } = useTranslation();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
 
   // Fetch data from Supabase once and filter locally to avoid extra roundtrips
   const { data: allListings = [], isLoading: listingsLoading, error: listingsError } = usePublishedListings();
@@ -323,7 +323,7 @@ export function AllListingsSection() {
               className="h-full group"
             >
               <Link
-                href={buildLangPath(langPrefix, `/listing/${listing.slug}`)}
+                href={l(`/listing/${listing.slug}`)}
                 className="block h-full"
               >
                 <article className={cn(

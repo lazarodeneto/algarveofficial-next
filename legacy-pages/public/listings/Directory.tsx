@@ -2,7 +2,7 @@ import { useCallback, useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, Filter, X, MapPin, Tag, Building2, Crown, ShieldCheck, ChevronDown, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,7 @@ import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 export default function Directory() {
   const { t } = useTranslation();
   const { getMetaDescription, getMetaTitle, getText, isBlockEnabled } = useCmsPageBuilder("directory");
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const router = useRouter();
   const pathname = usePathname() || "/directory";
   const searchParams = useSearchParams();
@@ -253,8 +253,8 @@ export default function Directory() {
     if (selectedCategory !== "all") params.set("category", selectedCategory);
     if (selectedTier !== "all") params.set("tier", selectedTier);
     const query = params.toString();
-    return buildLangPath(langPrefix, query ? `/map?${query}` : "/map");
-  }, [langPrefix, search, selectedRegion, selectedCity, selectedCategory, selectedTier]);
+    return l(query ? `/map?${query}` : "/map");
+  }, [l, search, selectedRegion, selectedCity, selectedCategory, selectedTier]);
 
   return <div className="min-h-screen bg-background" data-cms-page="directory">
     <SeoHead
@@ -487,7 +487,7 @@ export default function Directory() {
             }} transition={{
               delay: Math.min(index * 0.05, 0.5)
             }}>
-              <Link href={buildLangPath(langPrefix, `/listing/${listing.slug}`)} className="group block h-full">
+              <Link href={l(`/listing/${listing.slug}`)} className="group block h-full">
                 <article className="glass-box glass-box-listing-shimmer overflow-hidden flex flex-col h-full">
                 {/* Image */}
                 <div className="relative aspect-[4/3] bg-muted overflow-hidden">

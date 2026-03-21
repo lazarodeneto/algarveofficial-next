@@ -179,7 +179,6 @@ export async function trimWhiteBorders(file: File): Promise<File> {
             lastModified: Date.now(),
           });
 
-          console.log(`Trimmed image: top=${topTrim}px, bottom=${bottomTrim}px, left=${leftTrim}px, right=${rightTrim}px`);
           resolve(trimmedFile);
         },
         file.type,

@@ -46,7 +46,7 @@ import { SeoHead } from "@/components/seo/SeoHead";
 import { LocalBusinessJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
-import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { translateCategoryValue } from "@/lib/translateCategoryValue";
 import { isUuid } from "@/lib/slugify";
@@ -181,7 +181,7 @@ const normalizeImageUrl = (value?: string | null): string | null => {
 export default function ListingDetail() {
   const { id: paramSlugOrId } = useParams<{ id: string }>();
   const { t, i18n } = useTranslation();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const router = useRouter();
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -208,17 +208,17 @@ export default function ListingDetail() {
 
     // If URL uses UUID, redirect to slug
     if (paramIsUuid && paramSlugOrId !== currentSlug) {
-      const target = buildLangPath(langPrefix, `/listing/${currentSlug}`);
+      const target = l(`/listing/${currentSlug}`);
       router.replace(target);
       return;
     }
 
     // If URL uses an old slug (not current), redirect to current slug
     if (!paramIsUuid && paramSlugOrId !== currentSlug && resolvedSlug?.listing_id === listing.id) {
-      const target = buildLangPath(langPrefix, `/listing/${currentSlug}`);
+      const target = l(`/listing/${currentSlug}`);
       router.replace(target);
     }
-  }, [listing, paramSlugOrId, paramIsUuid, resolvedSlug, langPrefix, router]);
+  }, [listing, paramSlugOrId, paramIsUuid, resolvedSlug, l, router]);
 
   // WhatsApp fallback
   const { data: waStatus } = useOwnerWhatsAppStatus(listing?.owner_id);
@@ -406,12 +406,12 @@ export default function ListingDetail() {
       cityName: listing.city?.name || "Algarve",
       tier: listing.tier,
       featuredImageUrl: normalizedFeaturedImageUrl || normalizedCategoryImageUrl || undefined,
-      href: buildLangPath(langPrefix, `/listing/${listing.slug}`),
+      href: l(`/listing/${listing.slug}`),
       isPrimary: true,
     };
 
     return [primaryListingPoint];
-  }, [baseLatitude, baseLongitude, langPrefix, listing, normalizedCategoryImageUrl, normalizedFeaturedImageUrl, t]);
+  }, [baseLatitude, baseLongitude, l, listing, normalizedCategoryImageUrl, normalizedFeaturedImageUrl, t]);
 
   if (isLoading) {
     return (
@@ -433,7 +433,7 @@ export default function ListingDetail() {
           <div className="text-center">
             <h1 className="text-2xl font-serif mb-4">{t("listing.notFound")}</h1>
             <p className="text-muted-foreground mb-6">{t("listing.notFoundMessage")}</p>
-            <Link href={buildLangPath(langPrefix, "/")}>
+            <Link href={l("/")}>
               <Button>
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 {t("listing.backToHome")}
@@ -500,12 +500,12 @@ export default function ListingDetail() {
   ];
 
   const visualBreadcrumbs = [
-    { name: t("nav.home"), to: buildLangPath(langPrefix, "/"), current: false },
-    { name: directoryLabel, to: buildLangPath(langPrefix, "/directory"), current: false },
+    { name: t("nav.home"), to: l("/"), current: false },
+    { name: directoryLabel, to: l("/directory"), current: false },
     ...(canonicalCategorySlug
-      ? [{ name: categoryLabel, to: buildLangPath(langPrefix, categoryDirectoryPath), current: false }]
+      ? [{ name: categoryLabel, to: l(categoryDirectoryPath), current: false }]
       : []),
-    { name: listingTitle, to: buildLangPath(langPrefix, `/listing/${listing.slug}`), current: true },
+    { name: listingTitle, to: l(`/listing/${listing.slug}`), current: true },
   ];
 
   return (
@@ -908,7 +908,7 @@ export default function ListingDetail() {
         {/* Back */}
         <section className="py-8 px-4 border-t border-border">
           <div className="container mx-auto max-w-7xl">
-            <Link href={buildLangPath(langPrefix, "/")}>
+            <Link href={l("/")}>
               <Button variant="ghost">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 {t("listing.backToListings")}

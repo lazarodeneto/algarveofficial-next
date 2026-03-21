@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { BlogFeaturedImage } from "@/components/blog/BlogFeaturedImage";
-import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { useHydrated } from "@/hooks/useHydrated";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
@@ -361,7 +361,7 @@ async function fetchGlobalSettings() {
 
 function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }: BlogClientProps) {
   const { t, i18n } = useTranslation();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const locale = normalizeBlogLocale(i18n.language);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<BlogCategory | "all">("all");
@@ -429,12 +429,12 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
               media={<PageHeroImage page="blog" alt={t("blog.hero.alt", "Editorial Algarve townscape")} />}
               ctas={
                 <>
-                  <Link href={buildLangPath(langPrefix, "/directory")}>
+                  <Link href={l("/directory")}>
                     <Button variant="gold" size="lg">
                       {t("blog.hero.ctaPrimary", "Explore Directory")}
                     </Button>
                   </Link>
-                  <Link href={buildLangPath(langPrefix, "/contact")}>
+                  <Link href={l("/contact")}>
                     <Button variant="heroOutline" size="lg">
                       {t("blog.hero.ctaSecondary", "Get Local Advice")}
                     </Button>
@@ -489,7 +489,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <Link href={buildLangPath(langPrefix, `/blog/${featuredPost.slug}`)}>
+              <Link href={l(`/blog/${featuredPost.slug}`)}>
                 <Card className="overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">
                   <div className="grid md:grid-cols-2 gap-0">
                     <div className="aspect-video md:aspect-auto md:h-full overflow-hidden">
@@ -565,7 +565,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
                     transition={{ delay: 0.1 * (index + 1), duration: 0.5, ease: "easeOut" }}
                     className="group"
                   >
-                    <Link href={buildLangPath(langPrefix, `/blog/${post.slug}`)}>
+                    <Link href={l(`/blog/${post.slug}`)}>
                       <article className="relative overflow-hidden rounded-2xl bg-card border border-border/50 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-[1.01] transition-all duration-300 ease-out h-full flex flex-col">
                         <div className="relative aspect-[16/10] overflow-hidden">
                           <BlogFeaturedImage

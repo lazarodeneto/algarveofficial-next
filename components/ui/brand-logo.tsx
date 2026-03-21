@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useLangPrefix } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { buildSupabaseImageUrl } from "@/lib/imageUrls";
@@ -50,7 +50,7 @@ export function BrandLogo({
   iconClassName,
 }: BrandLogoProps) {
   const config = sizeConfig[size];
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const { settings } = useSiteSettings();
   const hydrated = useHydrated();
   const hydratedSettings = hydrated ? settings : null;
@@ -94,7 +94,7 @@ export function BrandLogo({
 
   if (asLink) {
     return (
-      <Link href={langPrefix || "/"} className="hover:opacity-80 transition-opacity">
+      <Link href={l("/")} className="hover:opacity-80 transition-opacity">
         {content}
       </Link>
     );

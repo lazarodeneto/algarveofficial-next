@@ -8,7 +8,7 @@ import { FavoriteButton } from "@/components/ui/favorite-button";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { useCuratedAssignments } from "@/hooks/useCuratedAssignments";
 import { useTranslation } from "react-i18next";
-import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { supabase } from "@/integrations/supabase/client";
 import ListingImage from "@/components/ListingImage";
@@ -66,7 +66,7 @@ export function CuratedExcellence({
   showSectionHeader = true
 }: CuratedExcellenceProps) {
   const { t, i18n } = useTranslation();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const { isFavorite, toggleFavorite } = useFavoriteListings();
   const targetLang = normalizeLang(i18n.language);
 
@@ -162,7 +162,7 @@ export function CuratedExcellence({
         )}
 
         {/* Featured Listing Card */}
-        <Link href={buildLangPath(langPrefix, `/listing/${featuredListing.slug}`)} className="block">
+          <Link href={l(`/listing/${featuredListing.slug}`)} className="block">
           <motion.div
             initial={{ opacity: 0, y: 40, scale: 0.98 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}

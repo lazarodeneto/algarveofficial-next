@@ -49,10 +49,8 @@ export function useMediaLibrary() {
           processedFile = await convertToWebP(file);
           const reduction = getFileSizeReduction(originalSize, processedFile.size);
           if (reduction > 0) {
-            console.log(`Image optimized: ${reduction}% size reduction`);
           }
         } catch (conversionError) {
-          console.warn("WebP conversion failed, uploading original:", conversionError);
           processedFile = file;
         }
       }

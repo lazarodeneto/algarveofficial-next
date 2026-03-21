@@ -8,7 +8,7 @@ import { getCategoryIconComponent } from "@/lib/categoryIcons";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { buildMergedCategoryOptions } from "@/lib/categoryMerges";
 import { useTranslation } from "react-i18next";
-import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { Skeleton } from "@/components/ui/skeleton";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
 
@@ -17,7 +17,7 @@ export function CategoriesSection() {
   const { data: categories, isLoading: categoriesLoading } = useFeaturedCategories();
   const { data: listings, isLoading: listingsLoading } = usePublishedListings();
   const { t } = useTranslation();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
 
   const isLoading = categoriesLoading || listingsLoading;
 
@@ -108,7 +108,7 @@ export function CategoriesSection() {
                 </div>
 
                 <Link
-                  href={buildLangPath(langPrefix, `/directory?category=${category.slug}`)}
+                  href={l(`/directory?category=${category.slug}`)}
                   className="block w-full h-full min-w-0 min-h-[14.5rem] sm:min-h-[15rem] lg:min-h-[9rem] p-6 lg:px-6 lg:py-4 glass-box glass-box-silver-liquid text-center flex flex-col items-center"
                 >
                   <div className="relative z-10 w-14 h-14 rounded-lg bg-muted dark:bg-muted flex items-center justify-center mb-5 lg:mb-4">

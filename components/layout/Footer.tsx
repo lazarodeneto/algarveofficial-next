@@ -5,7 +5,7 @@ import Link from "next/link";
 import { MapPin, Mail } from "lucide-react";
 import { useFooterMenu } from "@/hooks/useFooterMenu";
 import { useTranslation } from "react-i18next";
-import { useLangPrefix, buildLangPath } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,7 @@ const fallbackLinks = {
   ],
   company: [
     { name: "About Us", href: "/about-us", translationKey: "footer.aboutUs" },
+    { name: "Partner Pricing", href: "/pricing", translationKey: "footer.pricing" },
     { name: "Become a Partner", href: "/partner", translationKey: "footer.becomePartner" },
     { name: "Blog", href: "/blog", translationKey: "nav.blog" },
     { name: "Events", href: "/events", translationKey: "nav.events" },
@@ -142,7 +143,7 @@ function normalizeFooterLinkHref(
   href: string,
   name: string,
   sectionSlug: string,
-  langPrefix: string,
+  localizedHref: (path: string) => string,
 ): string {
   if (!href || href.startsWith("http")) {
     return href;
@@ -167,19 +168,19 @@ function normalizeFooterLinkHref(
     if (canonicalCategorySlug) {
       params.set("category", canonicalCategorySlug);
       const normalizedPath = `${path}?${params.toString()}`;
-      return langPrefix && !LANGUAGE_PREFIX_RE.test(normalizedPath)
-        ? buildLangPath(langPrefix, normalizedPath)
+      return !LANGUAGE_PREFIX_RE.test(normalizedPath)
+        ? localizedHref(normalizedPath)
         : normalizedPath;
     }
   }
 
-  return langPrefix && !LANGUAGE_PREFIX_RE.test(href) ? buildLangPath(langPrefix, href) : href;
+  return !LANGUAGE_PREFIX_RE.test(href) ? localizedHref(href) : href;
 }
 
 export function Footer() {
   const { data: footerSections } = useFooterMenu();
   const { t } = useTranslation();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const { subscribe, isSubmitting } = useNewsletterSignup("footer-newsletter");
 
@@ -230,7 +231,7 @@ export function Footer() {
       <ul className="space-y-3">
         {links.map((link) => {
           const displayName = link.translationKey ? t(link.translationKey) : link.name;
-          const resolvedHref = normalizeFooterLinkHref(link.href, link.name, sectionSlug, langPrefix);
+          const resolvedHref = normalizeFooterLinkHref(link.href, link.name, sectionSlug, l);
           return (
             <li key={link.name}>
               {resolvedHref.startsWith("http") || link.open_in_new_tab ? (

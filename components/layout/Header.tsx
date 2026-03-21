@@ -151,7 +151,7 @@ export function Header() {
     <>
       <CommandSearch open={searchOpen} onOpenChange={setSearchOpen} />
 
-      <header className="site-header fixed top-0 left-0 right-0 z-50 transition-all duration-300 xl:left-16">
+      <header className="site-header fixed top-0 left-0 right-0 z-50 transition-all duration-300">
         <div
           className={`absolute inset-0 transition-all duration-300 ${isScrolled
             ? "border-b border-black/8 bg-[hsl(var(--background)/0.96)] shadow-[0_18px_48px_-38px_rgba(15,23,42,0.35)] backdrop-blur-2xl dark:border-white/10 dark:bg-[hsl(var(--background)/0.78)]"

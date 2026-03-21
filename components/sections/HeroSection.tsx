@@ -15,7 +15,7 @@ import Link from "next/link";
 import { HERO_OVERLAY_INTENSITY_SETTING_KEY, normalizeHeroOverlayIntensity } from "@/lib/heroOverlay";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { buildSupabaseImageUrl } from "@/lib/imageUrls";
 
@@ -332,7 +332,7 @@ export function HeroSection() {
   const { createTrip } = useTripPlanner();
   const { isAuthenticated } = useAuth();
   const router = useRouter();
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const { canUseCategory, isLoaded: isCookieConsentLoaded, openPreferences } = useCookieConsent();
   const hasFunctionalConsent = canUseCategory("functional");
 
@@ -410,7 +410,6 @@ export function HeroSection() {
   }, [heroHeadline]);
   const heroSubtitle = settings?.hero_subtitle?.trim() || t("hero.subtitle");
   const tripPlannerButtonLabel = t("hero.planTripCta", "Plan your Trip");
-  const directoryPath = buildLangPath(langPrefix, "/directory");
   // ... inside the component function ...
 
   const mediaMode = useMemo<"youtube" | "video" | "poster" | "none">(() => {
@@ -505,7 +504,7 @@ export function HeroSection() {
 
               <div className="flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
                 <Button asChild variant="secondary" size="lg" className="w-full sm:w-auto">
-                  <Link href={directoryPath}>{t("hero.exploreDirectory", "Explore Directory")}</Link>
+                  <Link href={l("/partner")}>{t("hero.listYourBusiness", "List Your Business")}</Link>
                 </Button>
               </div>
             </div>

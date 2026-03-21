@@ -47,8 +47,7 @@ import type { GlobalSetting } from "@/hooks/useGlobalSettings";
 import type { CityRow, RegionRow, CategoryRow } from "@/hooks/useReferenceData";
 import type { ListingFilters, ListingWithRelations, ListingTier } from "@/hooks/useListings";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
-import { useHydrated } from "@/hooks/useHydrated";
-import { buildLangPath, useLangPrefix } from "@/hooks/useLangPrefix";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -667,7 +666,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
 
     router.push(href);
   }, [pathname, router]);
-  const langPrefix = useLangPrefix();
+  const l = useLocalizedHref();
   const [search, setSearch] = useState(props.initialFilters.q);
   const [debouncedSearch, setDebouncedSearch] = useState(props.initialFilters.q);
   const [selectedRegion, setSelectedRegion] = useState<string>(props.initialFilters.region);
@@ -920,8 +919,8 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     if (selectedCategory !== "all") params.set("category", selectedCategory);
     if (selectedTier !== "all") params.set("tier", selectedTier);
     const query = params.toString();
-    return buildLangPath(langPrefix, query ? `/map?${query}` : "/map");
-  }, [langPrefix, search, selectedRegion, selectedCity, selectedCategory, selectedTier]);
+    return l(query ? `/map?${query}` : "/map");
+  }, [l, search, selectedRegion, selectedCity, selectedCategory, selectedTier]);
 
   return (
     <div className="min-h-screen bg-background" data-cms-page="directory">
@@ -942,12 +941,12 @@ function DirectoryClientInner(props: DirectoryClientProps) {
               media={<PageHeroImage page="directory" alt={t("directory.hero.alt", "Premium Algarve directory coastline view")} />}
               ctas={
                 <>
-                  <Link href={buildLangPath(langPrefix, "/contact")}>
+                  <Link href={l("/contact")}>
                     <Button variant="gold" size="lg">
                       {t("directory.hero.ctaPrimary", "Plan with Concierge")}
                     </Button>
                   </Link>
-                  <Link href={buildLangPath(langPrefix, "/live")}>
+                  <Link href={l("/live")}>
                     <Button variant="heroOutline" size="lg">
                       {t("directory.hero.ctaSecondary", "Explore Live in Algarve")}
                     </Button>
@@ -1172,7 +1171,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                       transition={{ delay: Math.min(index * 0.05, 0.5) }}
                       className="h-full"
                     >
-                      <Link href={buildLangPath(langPrefix, `/listing/${listing.slug}`)} className="group block h-full">
+                      <Link href={l(`/listing/${listing.slug}`)} className="group block h-full">
                         <article className="glass-box glass-box-listing-shimmer overflow-hidden flex flex-col h-full">
                           {listing.tier === "signature" ? (
                             <span
@@ -1263,19 +1262,6 @@ function DirectoryClientInner(props: DirectoryClientProps) {
 }
 
 export function DirectoryClient(props: DirectoryClientProps) {
-  const mounted = useHydrated();
-
-  useEffect(() => {
-    const serverShell = document.getElementById("directory-server-shell");
-    if (serverShell) {
-      serverShell.style.display = "none";
-    }
-  }, []);
-
-  if (!mounted) {
-    return null;
-  }
-
   return <DirectoryClientInner {...props} />;
 }
 
