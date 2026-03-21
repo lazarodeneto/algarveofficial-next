@@ -33,7 +33,8 @@
     "tagMichelinDining": "Michelin-servering",
     "tagPrivateAviation": "Privat luftfart",
     "aiPlannerPlaceholder": "AI Algarve-planlegger... (f.eks. 'Planlegg 3 dager i Algarve')",
-    "aiPlannerButton": "AI-PLANLEGGER"
+    "aiPlannerButton": "AI-PLANLEGGER",
+    "listYourBusiness": "Legg Til Bedriften Din"
   },
   "sections": {
     "regions": {
@@ -175,7 +176,7 @@
     "forgotPasswordDescription": "Skriv inn e-postadressen din, så sender vi deg en lenke for å tilbakestille passordet ditt.",
     "forgotPasswordSubtitle": "Ikke bekymre deg, det skjer med de beste av oss. Vi hjelper deg med å komme tilbake til kontoen din.",
     "resetYour": "Tilbakestill din",
-    "sendResetLink": "Send Reset Link",
+    "sendResetLink": "Send Tilbakestillingslenke",
     "sending": "Sender...",
     "rememberPassword": "Husker du passordet ditt?",
     "resetEmailSent": "E-post for tilbakestilling av passord er sendt!",
@@ -378,7 +379,12 @@
     "owner": "Eier",
     "user": "Bruker",
     "free": "Gratis",
-    "adminUser": "Admin bruker"
+    "adminUser": "Admin bruker",
+    "openFullMap": "Åpne Fullt Kart",
+    "go": "Gå",
+    "noListingsYet": "Ingen Oppføringer Ennå",
+    "noListingsYetDesc": "Vi velger de beste opplevelsene for denne regionen.",
+    "sendResetLink": "Send Tilbakestillingslenke"
   },
   "search": {
     "placeholder": "Søk i oppføringer, kategorier, byer, regioner...",
@@ -419,7 +425,8 @@
     },
     "privacyPolicy": "Personvernerklæring",
     "termsOfService": "Vilkår for bruk",
-    "cookiePolicy": "Retningslinjer for informasjonskapsler"
+    "cookiePolicy": "Retningslinjer for informasjonskapsler",
+    "pricing": "Partnerpriser"
   },
   "blog": {
     "title": "Blogg og innsikt",
@@ -1263,7 +1270,8 @@
     "architectureDecoration": "Algarve-tjenester",
     "protectionServices": "Algarve-tjenester",
     "shoppingBoutiques": "Shopping og butikker",
-    "algarveServices": "Algarve-tjenester"
+    "algarveServices": "Algarve-tjenester",
+    "restaurants": "Gastronomi"
   },
   "tiers": {
     "free": {
@@ -1870,6 +1878,78 @@
       "subtitle": "Fortell oss om dine forretningsmål, så anbefaler vi den rette partnerveien.",
       "primary": "Bli Partner",
       "secondary": "Kontakt Team"
+    }
+  },
+  "pricing": {
+    "badge": "Partnerinvestering",
+    "title": "Partnerplaner",
+    "subtitle": "Presenter bedriften din for premiumreisende fra hele verden",
+    "calculator": {
+      "title": "Anslå Din Synlighet",
+      "subtitle": "Beregn din potensielle avkastning på investering",
+      "visitors": "Månedlige Plattformbesøkende",
+      "conversion": "Anslått Konverteringsrate",
+      "verifiedInquiries": "Verifiserte Forespørsler/Måned",
+      "signatureInquiries": "Signature-forespørsler/Måned",
+      "inquiryValue": "Verdi per Forespørsel",
+      "perMonth": "/måned",
+      "disclaimer": "Estimater basert på plattformgjennomsnitt. Faktiske resultater kan variere."
+    },
+    "tiers": {
+      "note": "Alle planer inkluderer tilgang til partnerpanelet og dedikert støtte",
+      "contact": "Kontakt Oss",
+      "forEnterprise": "For hotelgrupper, resorter og bedrifter med flere eiendommer",
+      "verified": {
+        "name": "Verifisert Partner",
+        "badge": "Anbefalt",
+        "price": "Fra 99 €",
+        "priceNote": "/måned",
+        "description": "For bedrifter som ønsker å bygge synlighet og tillit hos premiumreisende"
+      },
+      "signature": {
+        "name": "Signature Partner",
+        "badge": "Mest Eksklusivt",
+        "price": "Fra 299 €",
+        "priceNote": "/måned",
+        "description": "For Algarvens beste steder — maksimal rekkevidde, maksimalt prestisje",
+        "highlight": "Beste ROI"
+      }
+    },
+    "feature": {
+      "profile": "Utvidet bedriftsprofil",
+      "badge": "Verifisert tillitsmerke",
+      "map": "Prioritet ved kartsynlighet",
+      "directory": "Katalogoppføringer",
+      "photos": "Opptil 20 bilder",
+      "social": "Lenker til sosiale medier",
+      "whatsapp": "WhatsApp-integrasjon",
+      "signature": "Signature-utvalg",
+      "homepage": "Presentert på forsiden"
+    },
+    "faq": {
+      "title": "Vanlige Spørsmål",
+      "timing": {
+        "q": "Hvor raskt vil jeg se resultater?",
+        "a": "De fleste partnere opplever økt synlighet innen 48 timer etter aktivering. Forespørsler begynner vanligvis i løpet av den første uken."
+      },
+      "tierchange": {
+        "q": "Kan jeg bytte plan senere?",
+        "a": "Ja. Du kan oppgradere eller nedgradere når som helst. Endringer trer i kraft i begynnelsen av neste faktureringssyklus."
+      },
+      "audience": {
+        "q": "Hva slags publikum vil oppføringen min nå?",
+        "a": "Våre brukere er høykvalitets ferie- og forretningsreisende, eiendomskjøpere og expater — med høy kjøpekraft og genuint interesse for Algarvens premiumtilbud."
+      },
+      "contract": {
+        "q": "Er det en minimumskontrakt?",
+        "a": "Nei. Alle planer er månedlige uten langsiktig forpliktelse. Du kan kansellere når som helst."
+      }
+    },
+    "cta": {
+      "title": "Klar til å Vokse?",
+      "subtitle": "Bli med hundrevis av premium bedrifter som stoler på AlgarveOfficial for å nå internasjonale reisende",
+      "primary": "Start I Dag",
+      "secondary": "Kontakt Oss"
     }
   }
 }

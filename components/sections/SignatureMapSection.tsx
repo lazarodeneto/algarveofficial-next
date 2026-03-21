@@ -138,7 +138,7 @@ export function SignatureMapSection() {
               {mapPoints.length} mapped · {filteredDiscoveryListings.length} matching
             </Badge>
             <Link href={l("/map")}>
-              <Button variant="outline">Open Full Map</Button>
+              <Button variant="outline">{t("common.openFullMap", "Open Full Map")}</Button>
             </Link>
           </div>
         </div>

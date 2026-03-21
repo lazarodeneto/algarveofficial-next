@@ -119,7 +119,7 @@ export function RegionsSection() {
                         </span>
                         <span className="inline-flex items-center gap-1 text-body-xs font-medium text-primary lg:gap-2">
                           <span className="hidden sm:inline">{t("sections.regions.explore")}</span>
-                          <span className="sm:hidden">Go</span>
+                          <span className="sm:hidden">{t("common.go", "Go")}</span>
                           <ArrowRight className="h-3 w-3 lg:h-4 lg:w-4" />
                         </span>
                       </div>

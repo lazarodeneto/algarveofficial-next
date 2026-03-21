@@ -4,39 +4,248 @@ on:
   push:
     branches:
       - main
+      - "feat/**"
+      - "fix/**"
   pull_request:
     branches:
       - main
+  # Allow manual runs with optional target URL
   workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Base URL to test against (leave blank for local build)"
+        required: false
+        default: ""
+      browsers:
+        description: "Browser set: chromium | all"
+        required: false
+        default: "chromium"
+
+# Cancel in-progress runs for the same branch/PR
+concurrency:
+  group: playwright-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"
 
 jobs:
-  test:
-    timeout-minutes: 30
+  # ────────────────────────────────────────────────────────────────────────────
+  # Job 1: Build + run fast smoke tests (chromium only, no sharding)
+  # ────────────────────────────────────────────────────────────────────────────
+  smoke:
+    name: Smoke (Chromium)
     runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    env:
+      # If a URL was provided in the workflow_dispatch input, skip local build
+      PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.base_url || '' }}
+      BROWSERS: ${{ github.event.inputs.browsers || 'chromium' }}
+      # Supabase keys must be set in GitHub repo/org secrets
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000' }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright Browsers
+      # Cache Playwright browser binaries between runs
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
 
-      - name: Run Playwright tests
-        run: npm run test:e2e
+      - name: Install Playwright system deps (if cached)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      # Cache Next.js build artefacts
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/.next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.ts', '**/*.tsx', '**/*.js', '**/*.json') }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-
+
+      - name: Run Playwright smoke tests (Chromium)
+        run: npx playwright test --project=chromium
+        env:
+          CI: "true"
 
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-smoke
           path: playwright-report/
           retention-days: 14
+
+      - name: Upload test results JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results-smoke
+          path: playwright-results.json
+          retention-days: 14
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Job 2: Full cross-browser run (only on push to main or manual dispatch)
+  # ────────────────────────────────────────────────────────────────────────────
+  cross-browser:
+    name: Cross-browser (${{ matrix.project }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Only run on main push or manual trigger requesting "all" browsers
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.browsers == 'all')
+    needs: smoke
+
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [firefox, webkit, mobile-chrome, mobile-safari]
+
+    env:
+      PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.base_url || '' }}
+      BROWSERS: all
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ matrix.project }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-${{ matrix.project }}-
+            playwright-${{ runner.os }}-
+
+      - name: Install Playwright browser (${{ matrix.project }})
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: |
+          BROWSER=$(echo "${{ matrix.project }}" | sed 's/mobile-//' | sed 's/chrome/chromium/' | sed 's/safari/webkit/')
+          npx playwright install --with-deps "$BROWSER"
+
+      - name: Install system deps (if cached)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: |
+          BROWSER=$(echo "${{ matrix.project }}" | sed 's/mobile-//' | sed 's/chrome/chromium/' | sed 's/safari/webkit/')
+          npx playwright install-deps "$BROWSER"
+
+      - name: Restore Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.ts', '**/*.tsx', '**/*.js', '**/*.json') }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-
+
+      - name: Run Playwright tests (${{ matrix.project }})
+        run: npx playwright test --project=${{ matrix.project }}
+        env:
+          CI: "true"
+
+      - name: Upload Playwright report (${{ matrix.project }})
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.project }}
+          path: playwright-report/
+          retention-days: 14
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Job 3: Production smoke — run against live site after deploy (main only)
+  # ────────────────────────────────────────────────────────────────────────────
+  production-smoke:
+    name: Production smoke (algarveofficial.com)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Only run on pushes to main, and only if PRODUCTION_URL secret is configured
+    if: |
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      vars.PRODUCTION_URL != ''
+    needs: smoke
+
+    env:
+      PLAYWRIGHT_BASE_URL: ${{ vars.PRODUCTION_URL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: playwright-${{ runner.os }}-
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Install system deps (if cached)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      # Run only routing + SEO tests against production (locale tests touch cookies)
+      - name: Run production smoke (routing + SEO only)
+        run: npx playwright test --project=chromium tests/e2e/routing.spec.ts tests/e2e/seo.spec.ts
+        env:
+          CI: "true"
+
+      - name: Upload production smoke report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-production
+          path: playwright-report/
+          retention-days: 7

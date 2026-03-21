@@ -296,10 +296,10 @@
       "telephone": "Telefone"
     },
     "inquiry": {
-      "title": "Enviar pedido",
+      "title": "Contactar sobre {{name}}",
       "back": "Voltar",
       "continue": "Continuar",
-      "step": "Passo",
+      "step": "Passo {{current}} de {{total}}",
       "stepDates": "Datas de viagem",
       "stepParty": "Grupo",
       "stepMessage": "Mensagem",
@@ -316,7 +316,7 @@
       "yourName": "O seu nome",
       "email": "Endereço de email",
       "phone": "Número de telefone",
-      "reference": "Referência",
+      "reference": "Referência: {{ref}}",
       "fillContact": "Preencher contacto",
       "message": "Mensagem",
       "messagePlaceholder": "Descreva os seus requisitos ou faça as suas perguntas...",
@@ -379,7 +379,12 @@
     "free": "Gratuito",
     "adminUser": "Utilizador Admin",
     "create": "Criar",
-    "description": "Descrição"
+    "description": "Descrição",
+    "openFullMap": "Abrir Mapa Completo",
+    "go": "Ir",
+    "noListingsYet": "Ainda sem Listagens",
+    "noListingsYetDesc": "Estamos a selecionar as melhores experiências para esta região.",
+    "sendResetLink": "Enviar Link de Redefinição"
   },
   "search": {
     "placeholder": "Pesquisar anúncios, categorias, cidades, regiões...",
@@ -420,7 +425,8 @@
     },
     "privacyPolicy": "Política de Privacidade",
     "termsOfService": "Termos de Serviço",
-    "cookiePolicy": "Política de Cookies"
+    "cookiePolicy": "Política de Cookies",
+    "pricing": "Preços para Parceiros"
   },
   "blog": {
     "title": "Blog e Insights",
@@ -1289,7 +1295,6 @@
         "notEligibleCurated": "Não elegível para secção Selecionada"
       }
     },
-    "unverified": "Não Verificado",
     "free": {
       "name": "Gratuito",
       "alwaysFree": "Sempre gratuito",
@@ -1874,6 +1879,78 @@
       "subtitle": "Conte-nos os seus objetivos de negócio e recomendaremos o caminho de parceria certo.",
       "primary": "Tornar-se Parceiro",
       "secondary": "Contactar Equipa"
+    }
+  },
+  "pricing": {
+    "badge": "Investimento em Parceria",
+    "title": "Planos de Parceria",
+    "subtitle": "Coloque o seu negócio no Algarve diante de viajantes premium de todo o mundo",
+    "calculator": {
+      "title": "Estimar a Sua Visibilidade",
+      "subtitle": "Calcule o potencial retorno do seu investimento",
+      "visitors": "Visitantes Mensais da Plataforma",
+      "conversion": "Taxa de Conversão Estimada",
+      "verifiedInquiries": "Consultas Verificadas/Mês",
+      "signatureInquiries": "Consultas Signature/Mês",
+      "inquiryValue": "Valor por Consulta",
+      "perMonth": "/mês",
+      "disclaimer": "Estimativas baseadas em médias da plataforma. Os resultados reais podem variar."
+    },
+    "tiers": {
+      "note": "Todos os planos incluem acesso ao painel do parceiro e suporte dedicado",
+      "contact": "Fale Connosco",
+      "forEnterprise": "Para grupos hoteleiros, resorts e negócios com múltiplas propriedades",
+      "verified": {
+        "name": "Parceiro Verificado",
+        "badge": "Recomendado",
+        "price": "A partir de €99",
+        "priceNote": "/mês",
+        "description": "Para negócios que querem ganhar visibilidade e confiança junto de viajantes premium"
+      },
+      "signature": {
+        "name": "Parceiro Signature",
+        "badge": "Mais Exclusivo",
+        "price": "A partir de €299",
+        "priceNote": "/mês",
+        "description": "Para os melhores estabelecimentos do Algarve — máxima exposição, máximo prestígio",
+        "highlight": "Melhor ROI"
+      }
+    },
+    "feature": {
+      "profile": "Perfil de negócio melhorado",
+      "badge": "Selo de confiança Verificado",
+      "map": "Prioridade de visibilidade no mapa",
+      "directory": "Listagens no diretório",
+      "photos": "Até 20 fotos",
+      "social": "Links para redes sociais",
+      "whatsapp": "Integração com WhatsApp",
+      "signature": "Seleção Signature",
+      "homepage": "Destaque na página principal"
+    },
+    "faq": {
+      "title": "Perguntas Frequentes",
+      "timing": {
+        "q": "Com que rapidez verei resultados?",
+        "a": "A maioria dos parceiros regista um aumento de visibilidade nas primeiras 48 horas após ativação. As consultas começam normalmente na primeira semana."
+      },
+      "tierchange": {
+        "q": "Posso mudar de plano mais tarde?",
+        "a": "Sim. Pode fazer upgrade ou downgrade em qualquer altura. As alterações entram em vigor no início do próximo ciclo de faturação."
+      },
+      "audience": {
+        "q": "Que tipo de audiência terá a minha listagem?",
+        "a": "Os nossos utilizadores são viajantes de lazer e negócios de alta qualidade, compradores de propriedades e expatriados — com elevado poder de compra e interesse genuíno na oferta premium do Algarve."
+      },
+      "contract": {
+        "q": "Existe um contrato mínimo?",
+        "a": "Não. Todos os planos são mensais sem compromisso de longo prazo. Pode cancelar em qualquer altura."
+      }
+    },
+    "cta": {
+      "title": "Pronto para Crescer?",
+      "subtitle": "Junte-se a centenas de negócios premium que confiam no AlgarveOfficial para alcançar viajantes internacionais",
+      "primary": "Começar Hoje",
+      "secondary": "Fale Connosco"
     }
   }
 }

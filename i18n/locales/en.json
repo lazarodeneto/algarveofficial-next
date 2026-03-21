@@ -379,7 +379,12 @@
     "owner": "Owner",
     "user": "User",
     "free": "Free",
-    "adminUser": "Admin User"
+    "adminUser": "Admin User",
+    "openFullMap": "Open Full Map",
+    "go": "Go",
+    "noListingsYet": "No Listings Yet",
+    "noListingsYetDesc": "We're selecting the finest experiences for this region.",
+    "sendResetLink": "Send Reset Link"
   },
   "search": {
     "placeholder": "Search listings, categories, cities, regions...",

@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 
 import type { Locale } from "@/lib/i18n/config";
 import { DEFAULT_LOCALE, addLocaleToPathname } from "@/lib/i18n/config";
+import { getServerTranslations } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { getRegionImageSet } from "@/lib/regionImages";
@@ -136,7 +137,15 @@ export async function generateMetadata({ params }: LocaleDestinationPageProps): 
 export default async function LocaleDestinationPage({ params }: LocaleDestinationPageProps) {
   const { locale, slug } = await params;
   const resolvedLocale = (locale ?? DEFAULT_LOCALE) as Locale;
-  const data = await getDestinationPageData(slug);
+  const [data, tx] = await Promise.all([
+    getDestinationPageData(slug),
+    getServerTranslations(resolvedLocale, [
+      "navigation.destinations",
+      "navigation.directory",
+      "common.noListingsYet",
+      "common.noListingsYetDesc",
+    ]),
+  ]);
 
   if (!data) notFound();
 
@@ -152,8 +161,8 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
             <span className="text-white">Official</span>
           </Link>
           <nav className="hidden gap-6 text-sm text-white/80 md:flex">
-            <Link href={lp(resolvedLocale, "/destinations")} className="hover:text-white">Destinations</Link>
-            <Link href={lp(resolvedLocale, "/directory")} className="hover:text-white">Directory</Link>
+            <Link href={lp(resolvedLocale, "/destinations")} className="hover:text-white">{tx["navigation.destinations"] ?? "Destinations"}</Link>
+            <Link href={lp(resolvedLocale, "/directory")} className="hover:text-white">{tx["navigation.directory"] ?? "Directory"}</Link>
           </nav>
         </div>
       </header>
@@ -264,9 +273,9 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
               </div>
             ) : (
               <div className="rounded-3xl border border-border bg-card px-8 py-14 text-center">
-                <h3 className="text-title font-serif text-foreground">No Listings Yet</h3>
+                <h3 className="text-title font-serif text-foreground">{tx["common.noListingsYet"] ?? "No Listings Yet"}</h3>
                 <p className="mt-3 text-body text-muted-foreground">
-                  We&apos;re selecting the finest experiences for this region.
+                  {tx["common.noListingsYetDesc"] ?? "We're selecting the finest experiences for this region."}
                 </p>
               </div>
             )}

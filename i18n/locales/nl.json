@@ -33,7 +33,8 @@
     "tagMichelinDining": "Michelin-dineren",
     "tagPrivateAviation": "Particuliere luchtvaart",
     "aiPlannerPlaceholder": "AI Algarve Planner... (bijv. 'Plan 3 dagen in de Algarve')",
-    "aiPlannerButton": "AI PLANNER"
+    "aiPlannerButton": "AI PLANNER",
+    "listYourBusiness": "Uw Bedrijf Aanmelden"
   },
   "sections": {
     "regions": {
@@ -378,7 +379,12 @@
     "owner": "Eigenaar",
     "user": "Gebruiker",
     "free": "Vrij",
-    "adminUser": "Beheerder gebruiker"
+    "adminUser": "Beheerder gebruiker",
+    "openFullMap": "Volledige Kaart Openen",
+    "go": "Ga",
+    "noListingsYet": "Nog Geen Vermeldingen",
+    "noListingsYetDesc": "We selecteren de beste ervaringen voor deze regio.",
+    "sendResetLink": "Herstelkoppeling Verzenden"
   },
   "search": {
     "placeholder": "Zoek vermeldingen, categorieën, steden, regio's...",
@@ -419,7 +425,8 @@
     },
     "privacyPolicy": "Privacybeleid",
     "termsOfService": "Servicevoorwaarden",
-    "cookiePolicy": "Cookiebeleid"
+    "cookiePolicy": "Cookiebeleid",
+    "pricing": "Partnerprijzen"
   },
   "blog": {
     "title": "Blog en inzichten",
@@ -1263,7 +1270,8 @@
     "architectureDecoration": "Algarve-diensten",
     "protectionServices": "Algarve-diensten",
     "shoppingBoutiques": "Winkelen en boetieks",
-    "algarveServices": "Algarve-diensten"
+    "algarveServices": "Algarve-diensten",
+    "restaurants": "Gastronomie"
   },
   "tiers": {
     "free": {
@@ -1870,6 +1878,78 @@
       "subtitle": "Vertel ons uw zakelijke doelen en we bevelen het juiste partnertraject aan.",
       "primary": "Word Partner",
       "secondary": "Contact Team"
+    }
+  },
+  "pricing": {
+    "badge": "Partnerinvestering",
+    "title": "Partnerplannen",
+    "subtitle": "Presenteer uw bedrijf aan premium reizigers van over de hele wereld",
+    "calculator": {
+      "title": "Schat Uw Zichtbaarheid",
+      "subtitle": "Bereken uw potentieel rendement op investering",
+      "visitors": "Maandelijkse Platformbezoekers",
+      "conversion": "Geschat Conversiepercentage",
+      "verifiedInquiries": "Geverifieerde Aanvragen/Maand",
+      "signatureInquiries": "Signature-aanvragen/Maand",
+      "inquiryValue": "Waarde per Aanvraag",
+      "perMonth": "/maand",
+      "disclaimer": "Schattingen op basis van platformgemiddelden. Werkelijke resultaten kunnen variëren."
+    },
+    "tiers": {
+      "note": "Alle plannen bevatten toegang tot het partnerdashboard en toegewijde ondersteuning",
+      "contact": "Neem Contact Op",
+      "forEnterprise": "Voor hotelgroepen, resorts en bedrijven met meerdere panden",
+      "verified": {
+        "name": "Geverifieerde Partner",
+        "badge": "Aanbevolen",
+        "price": "Vanaf €99",
+        "priceNote": "/maand",
+        "description": "Voor bedrijven die zichtbaarheid en vertrouwen willen opbouwen bij premium reizigers"
+      },
+      "signature": {
+        "name": "Signature Partner",
+        "badge": "Meest Exclusief",
+        "price": "Vanaf €299",
+        "priceNote": "/maand",
+        "description": "Voor de beste etablissementen van de Algarve — maximale bekendheid, maximaal prestige",
+        "highlight": "Beste ROI"
+      }
+    },
+    "feature": {
+      "profile": "Uitgebreid bedrijfsprofiel",
+      "badge": "Geverifieerd vertrouwenskeurmerk",
+      "map": "Prioriteit zichtbaarheid op de kaart",
+      "directory": "Vermeldingen in de directory",
+      "photos": "Tot 20 foto's",
+      "social": "Social media links",
+      "whatsapp": "WhatsApp-integratie",
+      "signature": "Signature-selectie",
+      "homepage": "Uitgelicht op de startpagina"
+    },
+    "faq": {
+      "title": "Veelgestelde Vragen",
+      "timing": {
+        "q": "Hoe snel zal ik resultaten zien?",
+        "a": "De meeste partners zien een toename in zichtbaarheid binnen 48 uur na activering. Aanvragen beginnen doorgaans in de eerste week."
+      },
+      "tierchange": {
+        "q": "Kan ik later van plan wisselen?",
+        "a": "Ja. U kunt op elk moment upgraden of downgraden. Wijzigingen worden van kracht aan het begin van de volgende factureringscyclus."
+      },
+      "audience": {
+        "q": "Welk publiek bereikt mijn vermelding?",
+        "a": "Onze gebruikers zijn hoogwaardige vakantie- en zakenreizigers, vastgoedkopers en expats — met hoge koopkracht en oprechte interesse in het premium aanbod van de Algarve."
+      },
+      "contract": {
+        "q": "Is er een minimumcontract?",
+        "a": "Nee. Alle plannen zijn maandelijks zonder langetermijnverplichting. U kunt op elk moment opzeggen."
+      }
+    },
+    "cta": {
+      "title": "Klaar om te Groeien?",
+      "subtitle": "Sluit u aan bij honderden premium bedrijven die AlgarveOfficial vertrouwen om internationale reizigers te bereiken",
+      "primary": "Start Vandaag",
+      "secondary": "Neem Contact Op"
     }
   }
 }

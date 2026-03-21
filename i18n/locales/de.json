@@ -33,7 +33,8 @@
     "tagMichelinDining": "Michelin-Restaurants",
     "tagPrivateAviation": "Privatfliegerei",
     "aiPlannerPlaceholder": "KI-Algarve-Planer... (z.B. 'Plane 3 Tage im Algarve')",
-    "aiPlannerButton": "KI-PLANER"
+    "aiPlannerButton": "KI-PLANER",
+    "listYourBusiness": "Ihr Unternehmen Eintragen"
   },
   "sections": {
     "regions": {
@@ -295,10 +296,10 @@
       "telephone": "Telefon"
     },
     "inquiry": {
-      "title": "Anfrage senden",
+      "title": "Kontaktaufnahme bezüglich {{name}}",
       "back": "Zurück",
       "continue": "Weiter",
-      "step": "Schritt",
+      "step": "Schritt {{current}} von {{total}}",
       "stepDates": "Reisedaten",
       "stepParty": "Reisegruppe",
       "stepMessage": "Ihre Nachricht",
@@ -315,7 +316,7 @@
       "yourName": "Ihr Name",
       "email": "E-Mail-Adresse",
       "phone": "Telefonnummer",
-      "reference": "Referenz",
+      "reference": "Referenz: {{ref}}",
       "fillContact": "Kontaktdaten ausfüllen",
       "message": "Nachricht",
       "messagePlaceholder": "Beschreiben Sie Ihre Anforderungen oder stellen Sie Fragen...",
@@ -378,7 +379,12 @@
     "free": "Kostenlos",
     "adminUser": "Admin-Benutzer",
     "create": "Erstellen",
-    "description": "Beschreibung"
+    "description": "Beschreibung",
+    "openFullMap": "Vollständige Karte Öffnen",
+    "go": "Los",
+    "noListingsYet": "Noch Keine Einträge",
+    "noListingsYetDesc": "Wir wählen die besten Erlebnisse für diese Region aus.",
+    "sendResetLink": "Link zum Zurücksetzen Senden"
   },
   "search": {
     "placeholder": "Suche nach Einträgen, Kategorien, Städten, Regionen...",
@@ -419,7 +425,8 @@
     },
     "privacyPolicy": "Datenschutzrichtlinie",
     "termsOfService": "Nutzungsbedingungen",
-    "cookiePolicy": "Cookie-Richtlinie"
+    "cookiePolicy": "Cookie-Richtlinie",
+    "pricing": "Partner-Preise"
   },
   "blog": {
     "title": "Blog & Einblicke",
@@ -1263,7 +1270,8 @@
     "architectureDecoration": "Algarve-Services",
     "protectionServices": "Algarve-Services",
     "shoppingBoutiques": "Shopping & Boutiquen",
-    "algarveServices": "Algarve-Services"
+    "algarveServices": "Algarve-Services",
+    "restaurants": "Gastronomie"
   },
   "tiers": {
     "signature": {
@@ -1287,7 +1295,6 @@
         "notEligibleCurated": "Nicht für ausgewählte Sektion berechtigt"
       }
     },
-    "unverified": "Nicht verifiziert",
     "free": {
       "name": "Kostenlos",
       "alwaysFree": "Immer kostenlos",
@@ -1872,6 +1879,78 @@
       "subtitle": "Erzählen Sie uns von Ihren Geschäftszielen und wir empfehlen den richtigen Partnerschaftsweg.",
       "primary": "Partner werden",
       "secondary": "Team kontaktieren"
+    }
+  },
+  "pricing": {
+    "badge": "Partnerinvestition",
+    "title": "Partnerpläne",
+    "subtitle": "Präsentieren Sie Ihr Unternehmen Premium-Reisenden aus aller Welt",
+    "calculator": {
+      "title": "Ihre Sichtbarkeit Schätzen",
+      "subtitle": "Berechnen Sie Ihren potenziellen Return on Investment",
+      "visitors": "Monatliche Plattformbesucher",
+      "conversion": "Geschätzte Konversionsrate",
+      "verifiedInquiries": "Verifizierte Anfragen/Monat",
+      "signatureInquiries": "Signature-Anfragen/Monat",
+      "inquiryValue": "Wert pro Anfrage",
+      "perMonth": "/Monat",
+      "disclaimer": "Schätzungen basieren auf Plattformdurchschnittswerten. Tatsächliche Ergebnisse können variieren."
+    },
+    "tiers": {
+      "note": "Alle Pläne beinhalten Zugang zum Partner-Dashboard und dedizierten Support",
+      "contact": "Kontakt Aufnehmen",
+      "forEnterprise": "Für Hotelgruppen, Resorts und Unternehmen mit mehreren Objekten",
+      "verified": {
+        "name": "Verifizierter Partner",
+        "badge": "Empfohlen",
+        "price": "Ab 99 €",
+        "priceNote": "/Monat",
+        "description": "Für Unternehmen, die bei Premium-Reisenden mehr Sichtbarkeit und Vertrauen aufbauen möchten"
+      },
+      "signature": {
+        "name": "Signature-Partner",
+        "badge": "Exklusivster Plan",
+        "price": "Ab 299 €",
+        "priceNote": "/Monat",
+        "description": "Für die besten Betriebe der Algarve — maximale Reichweite, maximales Prestige",
+        "highlight": "Bestes ROI"
+      }
+    },
+    "feature": {
+      "profile": "Erweitertes Unternehmensprofil",
+      "badge": "Verifiziertes Vertrauenssiegel",
+      "map": "Priorität bei der Kartensichtbarkeit",
+      "directory": "Verzeichniseinträge",
+      "photos": "Bis zu 20 Fotos",
+      "social": "Social-Media-Links",
+      "whatsapp": "WhatsApp-Integration",
+      "signature": "Signature-Auswahl",
+      "homepage": "Hervorgehoben auf der Startseite"
+    },
+    "faq": {
+      "title": "Häufige Fragen",
+      "timing": {
+        "q": "Wie schnell werde ich Ergebnisse sehen?",
+        "a": "Die meisten Partner verzeichnen innerhalb von 48 Stunden nach der Aktivierung einen Anstieg der Sichtbarkeit. Anfragen beginnen in der Regel innerhalb der ersten Woche."
+      },
+      "tierchange": {
+        "q": "Kann ich später den Plan wechseln?",
+        "a": "Ja. Sie können jederzeit upgraden oder downgraden. Änderungen treten zu Beginn des nächsten Abrechnungszyklus in Kraft."
+      },
+      "audience": {
+        "q": "Welche Art von Publikum wird mein Eintrag erreichen?",
+        "a": "Unsere Nutzer sind hochwertige Freizeit- und Geschäftsreisende, Immobilienkäufer und Expatriates — mit hoher Kaufkraft und echtem Interesse am Premium-Angebot der Algarve."
+      },
+      "contract": {
+        "q": "Gibt es einen Mindestvertrag?",
+        "a": "Nein. Alle Pläne sind monatlich ohne langfristige Bindung. Sie können jederzeit kündigen."
+      }
+    },
+    "cta": {
+      "title": "Bereit zu Wachsen?",
+      "subtitle": "Schließen Sie sich Hunderten von Premium-Unternehmen an, die AlgarveOfficial vertrauen, um internationale Reisende zu erreichen",
+      "primary": "Jetzt Starten",
+      "secondary": "Kontakt Aufnehmen"
     }
   }
 }

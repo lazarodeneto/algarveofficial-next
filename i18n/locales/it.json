@@ -33,7 +33,8 @@
     "tagMichelinDining": "Ristoranti Michelin",
     "tagPrivateAviation": "Aviazione Privata",
     "aiPlannerPlaceholder": "Pianificatore IA dell'Algarve... (es. 'Pianifica 3 giorni in Algarve')",
-    "aiPlannerButton": "PIANIFICATORE IA"
+    "aiPlannerButton": "PIANIFICATORE IA",
+    "listYourBusiness": "Aggiungi La Tua Attività"
   },
   "sections": {
     "regions": {
@@ -87,7 +88,7 @@
       "subtitle": "Unisciti a migliaia di viaggiatori esigenti che si affidano ad AlgarveOfficial per le loro esperienze premium nella più raffinata regione costiera del Portogallo.",
       "primaryButton": "Inizia a Esplorare",
       "secondaryButton": "Diventa Partner",
-      "stats": "Oltre 1.000 annunci selezionati in tutto l'Algarve"
+      "stats": "Oltre {{count}}+ selezioni in tutto l'Algarve"
     },
     "curated": {
       "badge": "Selezione Signature",
@@ -295,10 +296,10 @@
       "telephone": "Telefono"
     },
     "inquiry": {
-      "title": "Invia una richiesta",
+      "title": "Contatta riguardo a {{name}}",
       "back": "Indietro",
       "continue": "Continua",
-      "step": "Fase",
+      "step": "Fase {{current}} di {{total}}",
       "stepDates": "Date di soggiorno",
       "stepParty": "Gruppo",
       "stepMessage": "Messaggio",
@@ -315,7 +316,7 @@
       "yourName": "Il tuo nome",
       "email": "Indirizzo email",
       "phone": "Numero di telefono",
-      "reference": "Riferimento",
+      "reference": "Riferimento: {{ref}}",
       "fillContact": "Compila i dati di contatto",
       "message": "Messaggio",
       "messagePlaceholder": "Descrivi le tue esigenze o fai le tue domande...",
@@ -378,7 +379,12 @@
     "free": "Gratuito",
     "adminUser": "Utente Admin",
     "create": "Crea",
-    "description": "Descrizione"
+    "description": "Descrizione",
+    "openFullMap": "Apri Mappa Completa",
+    "go": "Vai",
+    "noListingsYet": "Nessun Annuncio Ancora",
+    "noListingsYetDesc": "Stiamo selezionando le migliori esperienze per questa regione.",
+    "sendResetLink": "Invia Link di Reimpostazione"
   },
   "search": {
     "placeholder": "Cerca annunci, categorie, città, regioni...",
@@ -419,7 +425,8 @@
     },
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Termini di Servizio",
-    "cookiePolicy": "Cookie Policy"
+    "cookiePolicy": "Cookie Policy",
+    "pricing": "Prezzi Partner"
   },
   "blog": {
     "title": "Blog e Approfondimenti",
@@ -1263,7 +1270,8 @@
     "architectureDecoration": "Servizi dell'Algarve",
     "protectionServices": "Servizi dell'Algarve",
     "shoppingBoutiques": "Shopping e Boutique",
-    "algarveServices": "Servizi dell'Algarve"
+    "algarveServices": "Servizi dell'Algarve",
+    "restaurants": "Gastronomia"
   },
   "tiers": {
     "signature": {
@@ -1287,7 +1295,6 @@
         "notEligibleCurated": "Non idoneo per la sezione selezionata"
       }
     },
-    "unverified": "Non Verificato",
     "free": {
       "name": "Gratuito",
       "alwaysFree": "Sempre gratuito",
@@ -1872,6 +1879,78 @@
       "subtitle": "Raccontateci i vostri obiettivi aziendali e vi consiglieremo il percorso di partnership giusto.",
       "primary": "Diventa Partner",
       "secondary": "Contatta il Team"
+    }
+  },
+  "pricing": {
+    "badge": "Investimento Partner",
+    "title": "Piani Partner",
+    "subtitle": "Metti la tua attività davanti a viaggiatori premium di tutto il mondo",
+    "calculator": {
+      "title": "Stima la Tua Visibilità",
+      "subtitle": "Calcola il potenziale ritorno sul tuo investimento",
+      "visitors": "Visitatori Mensili della Piattaforma",
+      "conversion": "Tasso di Conversione Stimato",
+      "verifiedInquiries": "Richieste Verificate/Mese",
+      "signatureInquiries": "Richieste Signature/Mese",
+      "inquiryValue": "Valore per Richiesta",
+      "perMonth": "/mese",
+      "disclaimer": "Stime basate sulle medie della piattaforma. I risultati effettivi possono variare."
+    },
+    "tiers": {
+      "note": "Tutti i piani includono accesso al pannello partner e supporto dedicato",
+      "contact": "Contattaci",
+      "forEnterprise": "Per gruppi alberghieri, resort e aziende con più proprietà",
+      "verified": {
+        "name": "Partner Verificato",
+        "badge": "Consigliato",
+        "price": "Da €99",
+        "priceNote": "/mese",
+        "description": "Per le attività che vogliono guadagnare visibilità e fiducia tra i viaggiatori premium"
+      },
+      "signature": {
+        "name": "Partner Signature",
+        "badge": "Il Più Esclusivo",
+        "price": "Da €299",
+        "priceNote": "/mese",
+        "description": "Per i migliori esercizi dell'Algarve — massima esposizione, massimo prestigio",
+        "highlight": "Miglior ROI"
+      }
+    },
+    "feature": {
+      "profile": "Profilo aziendale potenziato",
+      "badge": "Badge di fiducia Verificato",
+      "map": "Priorità di visibilità sulla mappa",
+      "directory": "Annunci nella directory",
+      "photos": "Fino a 20 foto",
+      "social": "Link ai social media",
+      "whatsapp": "Integrazione WhatsApp",
+      "signature": "Selezione Signature",
+      "homepage": "In evidenza nella home page"
+    },
+    "faq": {
+      "title": "Domande Frequenti",
+      "timing": {
+        "q": "Quanto velocemente vedrò i risultati?",
+        "a": "La maggior parte dei partner registra un aumento della visibilità entro 48 ore dall'attivazione. Le richieste iniziano di solito nella prima settimana."
+      },
+      "tierchange": {
+        "q": "Posso cambiare piano in seguito?",
+        "a": "Sì. Puoi passare a un piano superiore o inferiore in qualsiasi momento. Le modifiche entrano in vigore all'inizio del ciclo di fatturazione successivo."
+      },
+      "audience": {
+        "q": "Che tipo di pubblico raggiungerà il mio annuncio?",
+        "a": "I nostri utenti sono viaggiatori di alto livello, acquirenti di immobili ed espatriati — con elevato potere d'acquisto e genuino interesse per l'offerta premium dell'Algarve."
+      },
+      "contract": {
+        "q": "Esiste un contratto minimo?",
+        "a": "No. Tutti i piani sono mensili senza impegno a lungo termine. Puoi annullare in qualsiasi momento."
+      }
+    },
+    "cta": {
+      "title": "Pronto a Crescere?",
+      "subtitle": "Unisciti a centinaia di attività premium che si affidano ad AlgarveOfficial per raggiungere i viaggiatori internazionali",
+      "primary": "Inizia Oggi",
+      "secondary": "Contattaci"
     }
   }
 }
