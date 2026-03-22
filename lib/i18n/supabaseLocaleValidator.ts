@@ -187,8 +187,8 @@ export function applyNamedEntityTranslation(
   return {
     id: base.id,
     name: txRow.name?.trim() || base.name,
-    short_description: txRow.short_description?.trim() || base.short_description ?? null,
-    description: txRow.description?.trim() || base.description ?? null,
+    short_description: (txRow.short_description?.trim() || base.short_description) ?? null,
+    description: (txRow.description?.trim() || base.description) ?? null,
     _locale: locale,
     _isEnglishFallback: missingFields.length > 0,
   };
