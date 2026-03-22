@@ -86,7 +86,9 @@ const VERBOSE = args.includes("--verbose") || args.includes("-v");
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type TranslationNode = Record<string, string | TranslationNode>;
+interface TranslationNode {
+  [key: string]: string | TranslationNode;
+}
 
 interface LocaleData {
   name: string;
