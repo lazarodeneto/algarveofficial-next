@@ -146,12 +146,25 @@ export async function proxy(request: NextRequest) {
 
   response.headers.set("x-locale", localeFromPath);
 
-  if (pathname === "/" && !hasLocalePrefix) {
-    const acceptLanguage = request.headers.get("accept-language");
-    const detectedLocale = resolveLocaleFromAcceptLanguage(acceptLanguage);
-    const suffix = normalizedPath === "/" ? "" : `/${normalizedPath.replace(/^\//, "")}`;
-    const redirectUrl = new URL("/" + detectedLocale + suffix, request.url);
-    return NextResponse.redirect(redirectUrl);
+  // Redirect any public path that lacks a locale prefix to /{locale}/path
+  // This covers /, /directory, /destinations, /blog, /partner, etc.
+  if (!hasLocalePrefix) {
+    const isPassThrough =
+      PASS_THROUGH_PREFIXES.some((prefix) => hasPathPrefix(normalizedPath, prefix)) ||
+      PASS_THROUGH_PATHS.includes(pathname) ||
+      isAuthWhitelistedPath(normalizedPath) ||
+      PUBLIC_FILE_REGEX.test(pathname);
+
+    if (!isPassThrough) {
+      const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
+      const acceptLanguage = request.headers.get("accept-language");
+      const detectedLocale =
+        (cookieLocale && isValidLocale(cookieLocale) ? cookieLocale : null) ??
+        resolveLocaleFromAcceptLanguage(acceptLanguage);
+      const suffix = pathname === "/" ? "" : pathname;
+      const redirectUrl = new URL(`/${detectedLocale}${suffix}`, request.url);
+      return NextResponse.redirect(redirectUrl, 307);
+    }
   }
 
   if (pathname.startsWith("/api/")) {
