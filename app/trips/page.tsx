@@ -1,13 +1,6 @@
-"use client";
-
-import { Suspense } from "react";
-
-import Trips from "@/legacy-pages/public/Trips";
+import { redirect } from "next/navigation";
+import { DEFAULT_LOCALE } from "@/lib/i18n/config";
 
 export default function TripsPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <Trips />
-    </Suspense>
-  );
+  redirect(`/${DEFAULT_LOCALE}/trips`);
 }
