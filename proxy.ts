@@ -1,237 +1,148 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-import { isMaintenanceIpWhitelisted } from "@/lib/maintenance";
-import { updateSession } from "@/lib/supabase/middleware";
-import {
-  SUPPORTED_LOCALES,
-  DEFAULT_LOCALE,
-  LOCALE_PREFIX_REGEX,
-  isValidLocale,
-  getLocaleFromPathname,
-  stripLocaleFromPathname,
-  resolveLocaleFromAcceptLanguage,
-  addLocaleToPathname,
-} from "@/lib/i18n/config";
+const PUBLIC_FILE = /\.(.*)$/;
 
-interface MaintenanceSettings {
-  maintenance_mode: boolean | null;
-  maintenance_ip_whitelist: string[] | null;
-}
+const SUPPORTED_LOCALES = ["en", "pt-pt", "fr", "de", "es", "it", "nl", "sv", "no", "da"] as const;
+const DEFAULT_LOCALE = "en";
 
-const MAINTENANCE_CACHE_TTL_MS = 15_000;
-const AUTH_WHITELIST_ROUTES = ["/login", "/signup", "/forgot-password", "/auth/callback", "/auth/reset-password"];
-const PASS_THROUGH_PREFIXES = ["/_next", "/api", "/maintenance", "/admin", "/dashboard", "/owner"];
-const PASS_THROUGH_PATHS = ["/favicon.ico", "/robots.txt", "/sitemap.xml", "/manifest.json"];
-const PUBLIC_FILE_REGEX = /\.[^/]+$/;
+const CANONICAL_CATEGORY_SLUGS = [
+  "restaurants", "places-to-stay", "golf", "things-to-do",
+  "beaches-clubs", "wellness-spas", "whats-on", "algarve-services", "shopping-boutiques",
+  "restaurantes", "alojamento", "golfe", "atividades", "praias",
+  "bem-estar", "eventos", "servicos", "compras",
+];
 
-const PROTECTED_ROUTES = ["/admin", "/dashboard", "/owner"];
-const PUBLIC_ONLY_ROUTES = ["/login", "/signup", "/forgot-password"];
-
-const API_ROUTE_RATE_LIMIT = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT_WINDOW_MS = 60 * 1000;
-const RATE_LIMIT_MAX_REQUESTS = 100;
-
-let cachedSettings: MaintenanceSettings | null = null;
-let cachedAt = 0;
-
-const SECURITY_HEADERS = {
-  "X-DNS-Prefetch-Control": "on",
-  "X-Content-Type-Options": "nosniff",
-  "X-Frame-Options": "SAMEORIGIN",
-  "X-XSS-Protection": "1; mode=block",
-  "Referrer-Policy": "strict-origin-when-cross-origin",
-  "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
-};
-
-function normalizePathname(pathname: string): string {
-  const normalized = pathname.replace(LOCALE_PREFIX_REGEX, "");
-  return normalized || "/";
-}
-
-function isAuthWhitelistedPath(pathname: string): boolean {
-  return AUTH_WHITELIST_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
-}
-
-function hasPathPrefix(pathname: string, prefix: string): boolean {
-  return pathname === prefix || pathname.startsWith(`${prefix}/`);
-}
-
-function getRequestIp(request: NextRequest): string | null {
-  const forwardedFor = request.headers.get("x-forwarded-for");
-  if (forwardedFor) {
-    const first = forwardedFor.split(",")[0]?.trim();
-    if (first) {
-      return first;
-    }
+function getLocale(request: NextRequest): string {
+  const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
+  if (cookieLocale && SUPPORTED_LOCALES.includes(cookieLocale as typeof SUPPORTED_LOCALES[number])) {
+    return cookieLocale;
   }
 
-  const realIp = request.headers.get("x-real-ip")?.trim();
-  return realIp || null;
+  const acceptLang = request.headers.get("accept-language");
+  if (acceptLang) {
+    const preferred = acceptLang.split(",")[0].toLowerCase();
+    const match = SUPPORTED_LOCALES.find((l) =>
+      preferred.startsWith(l)
+    );
+    if (match) return match;
+  }
+
+  return DEFAULT_LOCALE;
 }
 
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const record = API_ROUTE_RATE_LIMIT.get(ip);
-
-  if (!record || now > record.resetTime) {
-    API_ROUTE_RATE_LIMIT.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
-    return false;
-  }
-
-  if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
-    return true;
-  }
-
-  record.count++;
-  return false;
-}
-
-async function fetchMaintenanceSettings(): Promise<MaintenanceSettings | null> {
-  const now = Date.now();
-  if (cachedSettings && now - cachedAt < MAINTENANCE_CACHE_TTL_MS) {
-    return cachedSettings;
-  }
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return null;
-  }
-
-  try {
-    const url = `${supabaseUrl}/rest/v1/site_settings?select=maintenance_mode,maintenance_ip_whitelist&id=eq.default`;
-    const response = await fetch(url, {
-      headers: {
-        apikey: supabaseAnonKey,
-        Authorization: `Bearer ${supabaseAnonKey}`,
-        Accept: "application/json",
-      },
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const payload = (await response.json()) as MaintenanceSettings[] | null;
-    const first = payload?.[0];
-    if (!first) {
-      return null;
-    }
-
-    cachedSettings = first;
-    cachedAt = now;
-    return first;
-  } catch {
-    return null;
-  }
-}
-
-export async function proxy(request: NextRequest) {
+function redirectOldCategoryCityStructure(request: NextRequest): NextResponse | null {
   const { pathname } = request.nextUrl;
-  const localeFromPath = getLocaleFromPathname(pathname);
-  const hasLocalePrefix = isValidLocale(localeFromPath) && localeFromPath !== DEFAULT_LOCALE
-    ? pathname.match(LOCALE_PREFIX_REGEX) !== null
-    : pathname !== "/" && pathname.match(LOCALE_PREFIX_REGEX) !== null;
-  const normalizedPath = normalizePathname(pathname);
+  const segments = pathname.split("/").filter(Boolean);
 
-  let response = await updateSession(request);
+  if (segments.length === 3) {
+    const [locale, segment1, segment2] = segments;
 
-  const securityHeaderEntries = Object.entries(SECURITY_HEADERS);
-  for (let i = 0; i < securityHeaderEntries.length; i++) {
-    const entry = securityHeaderEntries[i];
-    response.headers.set(entry[0], entry[1]);
-  }
-
-  response.headers.set("x-locale", localeFromPath);
-
-  // Redirect any public path that lacks a locale prefix to /{locale}/path
-  // This covers /, /directory, /destinations, /blog, /partner, etc.
-  if (!hasLocalePrefix) {
-    const isPassThrough =
-      PASS_THROUGH_PREFIXES.some((prefix) => hasPathPrefix(normalizedPath, prefix)) ||
-      PASS_THROUGH_PATHS.includes(pathname) ||
-      isAuthWhitelistedPath(normalizedPath) ||
-      PUBLIC_FILE_REGEX.test(pathname);
-
-    if (!isPassThrough) {
-      const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
-      const acceptLanguage = request.headers.get("accept-language");
-      const detectedLocale =
-        (cookieLocale && isValidLocale(cookieLocale) ? cookieLocale : null) ??
-        resolveLocaleFromAcceptLanguage(acceptLanguage);
-      const suffix = pathname === "/" ? "" : pathname;
-      const redirectUrl = new URL(`/${detectedLocale}${suffix}`, request.url);
-      return NextResponse.redirect(redirectUrl, 307);
-    }
-  }
-
-  if (pathname.startsWith("/api/")) {
-    const ip = getRequestIp(request) || "unknown";
-    if (isRateLimited(ip)) {
-      return NextResponse.json(
-        { error: "Too many requests" },
-        { status: 429, headers: { "Retry-After": "60" } }
+    if (SUPPORTED_LOCALES.includes(locale as typeof SUPPORTED_LOCALES[number])) {
+      const isSegment1Category = CANONICAL_CATEGORY_SLUGS.some(
+        (cat) => segment1.toLowerCase() === cat.toLowerCase()
       );
+      const isSegment2Category = CANONICAL_CATEGORY_SLUGS.some(
+        (cat) => segment2.toLowerCase() === cat.toLowerCase()
+      );
+
+      if (isSegment1Category && !isSegment2Category) {
+        const url = request.nextUrl.clone();
+        url.pathname = `/${locale}/${segment2}/${segment1}`;
+        return NextResponse.redirect(url, 301);
+      }
     }
   }
 
-  if (PROTECTED_ROUTES.some((route) => normalizedPath.startsWith(route))) {
-    const supabaseCookie = request.cookies.get("sb-access-token");
-    const isAuthenticated = !!supabaseCookie?.value;
+  return null;
+}
 
-    if (!isAuthenticated && !normalizedPath.includes("/auth/")) {
-      const redirectUrl = new URL("/login", request.url);
-      redirectUrl.searchParams.set("redirect", normalizedPath);
-      return NextResponse.redirect(redirectUrl);
+function normalizeTrailingSlash(pathname: string): string | null {
+  if (pathname.endsWith("/") && pathname !== "/") {
+    return pathname.slice(0, -1);
+  }
+  return null;
+}
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/images") ||
+    pathname.startsWith("/fonts") ||
+    pathname === "/favicon.ico" ||
+    PUBLIC_FILE.test(pathname)
+  ) {
+    return NextResponse.next();
+  }
+
+  // 1. Old URL structure redirect: /{locale}/{category}/{city} -> /{locale}/{city}/{category}
+  const oldStructureRedirect = redirectOldCategoryCityStructure(request);
+  if (oldStructureRedirect) {
+    return oldStructureRedirect;
+  }
+
+  // 2. Strip default locale prefix: /en/... -> /...
+  if (pathname.startsWith("/en/")) {
+    const url = request.nextUrl.clone();
+    const newPath = pathname.replace("/en", "") || "/";
+    const trailingSlash = normalizeTrailingSlash(newPath);
+    if (trailingSlash) {
+      url.pathname = trailingSlash;
+    } else {
+      url.pathname = newPath;
     }
+    return NextResponse.redirect(url, 301);
   }
 
-  if (PUBLIC_ONLY_ROUTES.some((route) => normalizedPath.startsWith(route))) {
-    const supabaseCookie = request.cookies.get("sb-access-token");
-    const isAuthenticated = !!supabaseCookie?.value;
+  // 3. Check if path has non-default locale prefix
+  const pathnameHasLocale = SUPPORTED_LOCALES.some(
+    (locale) =>
+      locale !== DEFAULT_LOCALE &&
+      (pathname === `/${locale}` || pathname.startsWith(`/${locale}/`))
+  );
 
-    if (isAuthenticated) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+  if (pathnameHasLocale) {
+    // Normalize trailing slash if present
+    const trailingSlash = normalizeTrailingSlash(pathname);
+    if (trailingSlash) {
+      const url = request.nextUrl.clone();
+      url.pathname = trailingSlash;
+      return NextResponse.redirect(url);
     }
+    return NextResponse.next();
   }
 
-  if (PUBLIC_FILE_REGEX.test(pathname)) {
-    return response;
+  // 4. No locale prefix - detect locale and redirect
+  const locale = getLocale(request);
+
+  if (locale === DEFAULT_LOCALE) {
+    // Normalize trailing slash for default locale
+    const trailingSlash = normalizeTrailingSlash(pathname);
+    if (trailingSlash) {
+      const url = request.nextUrl.clone();
+      url.pathname = trailingSlash;
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next();
   }
 
-  if (PASS_THROUGH_PATHS.includes(pathname)) {
-    return response;
+  // 5. Redirect to non-default locale with trailing slash normalized
+  let newPathname = `/${locale}${pathname}`;
+  const trailingSlash = normalizeTrailingSlash(newPathname);
+  if (trailingSlash) {
+    newPathname = trailingSlash;
   }
 
-  if (PASS_THROUGH_PREFIXES.some((prefix) => hasPathPrefix(normalizedPath, prefix))) {
-    return response;
-  }
-
-  if (isAuthWhitelistedPath(normalizedPath)) {
-    return response;
-  }
-
-  const settings = await fetchMaintenanceSettings();
-  if (!settings?.maintenance_mode) {
-    return response;
-  }
-
-  const requestIp = getRequestIp(request);
-  if (isMaintenanceIpWhitelisted(requestIp, settings.maintenance_ip_whitelist)) {
-    return response;
-  }
-
-  const maintenanceUrl = new URL("/maintenance", request.url);
-  response = NextResponse.rewrite(maintenanceUrl);
-  response.headers.set("x-maintenance-mode", "true");
-  response.headers.set("Retry-After", "600");
-  return response;
+  const url = request.nextUrl.clone();
+  url.pathname = newPathname;
+  return NextResponse.redirect(url);
 }
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js)).*)",
+    "/((?!api|_next|favicon.ico|images|fonts).*)",
   ],
 };

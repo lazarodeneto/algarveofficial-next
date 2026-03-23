@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
-import { SUPPORTED_LOCALES, LOCALE_CONFIGS, addLocaleToPathname } from "@/lib/i18n/config";
+import { SUPPORTED_LOCALES, LOCALE_CONFIGS, DEFAULT_LOCALE } from "@/lib/i18n/config";
 
 const DEFAULT_SITE_URL = "https://algarveofficial.com";
 const SITEMAP_FETCH_LIMIT = 5000;
@@ -24,9 +24,10 @@ function buildAlternates(localizedPath: string): MetadataRoute.Sitemap[number]["
   const siteUrl = getSiteUrl();
   const languages: Record<string, string> = {};
   for (const locale of SUPPORTED_LOCALES) {
-    languages[LOCALE_CONFIGS[locale].hreflang] = `${siteUrl}${addLocaleToPathname(localizedPath, locale)}`;
+    const localePath = locale === DEFAULT_LOCALE ? localizedPath : `/${locale}${localizedPath}`;
+    languages[LOCALE_CONFIGS[locale].hreflang] = `${siteUrl}${localePath}`;
   }
-  languages["x-default"] = `${siteUrl}/en${localizedPath}`;
+  languages["x-default"] = `${siteUrl}${localizedPath}`;
   return { languages };
 }
 
@@ -46,13 +47,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return events.flatMap((event) => {
     const basePath = `/events/${event.slug}`;
-    return SUPPORTED_LOCALES.map((locale) => ({
-      url: `${siteUrl}${addLocaleToPathname(basePath, locale)}`,
-      lastModified: toValidDate(event.updated_at, toValidDate(event.start_date, now)),
-      changeFrequency: event.start_date && new Date(event.start_date) > now ? "weekly" : "monthly",
-      priority: 0.74,
-      alternates: buildAlternates(basePath),
-      images: event.image_url ? [event.image_url] : undefined,
-    }));
+    return SUPPORTED_LOCALES.map((locale) => {
+      const localePath = locale === DEFAULT_LOCALE ? basePath : `/${locale}${basePath}`;
+      return {
+        url: `${siteUrl}${localePath}`,
+        lastModified: toValidDate(event.updated_at, toValidDate(event.start_date, now)),
+        changeFrequency: event.start_date && new Date(event.start_date) > now ? "weekly" : "monthly",
+        priority: 0.74,
+        alternates: buildAlternates(basePath),
+        images: event.image_url ? [event.image_url] : undefined,
+      };
+    });
   });
 }
