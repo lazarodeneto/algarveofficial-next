@@ -67,6 +67,7 @@ const reportOnlyHeaders = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  trailingSlash: false,
 
   images: {
     formats: ["image/avif", "image/webp"],
