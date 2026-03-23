@@ -7,8 +7,6 @@ import Script from "next/script";
 import {
   SUPPORTED_LOCALES,
   LOCALE_CONFIGS,
-  isValidLocale,
-  type Locale,
 } from "@/lib/i18n/config";
 import {
   getCanonicalFromUrlSlug,
@@ -34,8 +32,10 @@ import { LocalizedLink } from "@/components/navigation/LocalizedLink";
 
 export const revalidate = 3600;
 
+// English is the default locale — no prefix in URL
+const LOCALE = "en" as const;
+
 interface PageParams {
-  locale: string;
   city: string;
   category: string;
 }
@@ -47,37 +47,27 @@ interface PageProps {
 export async function generateStaticParams(): Promise<PageParams[]> {
   const combinations = await getAllCategoryCityCombinations();
 
-  const params: PageParams[] = [];
-
-  for (const { categorySlug, citySlug } of combinations) {
-    if (!ALL_CANONICAL_SLUGS.includes(categorySlug as CanonicalCategorySlug)) continue;
-
-    for (const locale of SUPPORTED_LOCALES) {
-      params.push({
-        locale,
-        city: citySlug,
-        category: getCategoryUrlSlug(categorySlug as CanonicalCategorySlug, locale),
-      });
-    }
-  }
-
-  return params;
+  return combinations
+    .filter(({ categorySlug }) =>
+      ALL_CANONICAL_SLUGS.includes(categorySlug as CanonicalCategorySlug),
+    )
+    .map(({ categorySlug, citySlug }) => ({
+      city: citySlug,
+      category: getCategoryUrlSlug(categorySlug as CanonicalCategorySlug, LOCALE),
+    }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { locale: rawLocale, city: citySlug, category: categoryUrlSlug } = await params;
+  const { city: citySlug, category: categoryUrlSlug } = await params;
 
-  if (!isValidLocale(rawLocale)) return {};
-  const locale = rawLocale as Locale;
-
-  const canonical = getCanonicalFromUrlSlug(categoryUrlSlug, locale);
+  const canonical = getCanonicalFromUrlSlug(categoryUrlSlug, LOCALE);
   if (!canonical) return {};
 
   const data = await getCategoryCityPageData(canonical, citySlug);
   if (!data) return {};
 
   const content = generateSeoContentBlock(
-    locale,
+    LOCALE,
     canonical,
     data.city.name,
     data.city.description ?? null,
@@ -90,16 +80,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   for (const loc of SUPPORTED_LOCALES) {
     const locCatSlug = getCategoryUrlSlug(canonical, loc);
     const hreflang = LOCALE_CONFIGS[loc].hreflang;
-    const localePath = loc === "en" 
-      ? `/${citySlug}/${locCatSlug}` 
-      : `/${loc}/${citySlug}/${locCatSlug}`;
+    const localePath =
+      loc === "en"
+        ? `/${citySlug}/${locCatSlug}`
+        : `/${loc}/${citySlug}/${locCatSlug}`;
     hreflangAlternates[hreflang] = `${siteUrl}${localePath}`;
   }
   hreflangAlternates["x-default"] = `${siteUrl}/${citySlug}/${getCategoryUrlSlug(canonical, "en")}`;
 
-  const canonical_url = locale === "en" 
-    ? `${siteUrl}/${citySlug}/${categoryUrlSlug}`
-    : `${siteUrl}/${locale}/${citySlug}/${categoryUrlSlug}`;
+  const canonical_url = `${siteUrl}/${citySlug}/${categoryUrlSlug}`;
 
   return {
     title: content.metaTitle,
@@ -114,10 +103,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: content.metaDescription,
       url: canonical_url,
       siteName: "AlgarveOfficial",
-      locale: LOCALE_CONFIGS[locale]?.dateLocale ?? "en_GB",
+      locale: LOCALE_CONFIGS[LOCALE].dateLocale ?? "en_GB",
       type: "website",
       images: data.city.image_url
-        ? [{ url: data.city.image_url, width: 1200, height: 630, alt: `${data.city.name} ${getCategoryDisplayName(canonical, locale)}` }]
+        ? [{ url: data.city.image_url, width: 1200, height: 630, alt: `${data.city.name} ${getCategoryDisplayName(canonical, LOCALE)}` }]
         : [{ url: "/og-image.png", width: 1200, height: 630 }],
     },
     twitter: {
@@ -139,19 +128,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function CityCategoryPage({ params }: PageProps) {
-  const { locale: rawLocale, city: citySlug, category: categoryUrlSlug } = await params;
+  const { city: citySlug, category: categoryUrlSlug } = await params;
 
-  if (!isValidLocale(rawLocale)) notFound();
-  const locale = rawLocale as Locale;
-
-  const canonical = getCanonicalFromUrlSlug(categoryUrlSlug, locale);
+  const canonical = getCanonicalFromUrlSlug(categoryUrlSlug, LOCALE);
   if (!canonical) notFound();
 
   const data = await getCategoryCityPageData(canonical, citySlug);
   if (!data) notFound();
 
   const content = generateSeoContentBlock(
-    locale,
+    LOCALE,
     canonical,
     data.city.name,
     data.city.description ?? null,
@@ -160,9 +146,9 @@ export default async function CityCategoryPage({ params }: PageProps) {
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ?? "https://algarveofficial.com";
 
-  const itemListSchema = buildItemListSchema(locale, canonical, data.city.name, citySlug, categoryUrlSlug, data.listings);
-  const breadcrumbSchema = buildBreadcrumbSchema(locale, canonical, data.city.name, citySlug, categoryUrlSlug);
-  const collectionSchema = buildCollectionPageSchema(locale, canonical, data.city.name, citySlug, categoryUrlSlug, data.totalCount);
+  const itemListSchema = buildItemListSchema(LOCALE, canonical, data.city.name, citySlug, categoryUrlSlug, data.listings);
+  const breadcrumbSchema = buildBreadcrumbSchema(LOCALE, canonical, data.city.name, citySlug, categoryUrlSlug);
+  const collectionSchema = buildCollectionPageSchema(LOCALE, canonical, data.city.name, citySlug, categoryUrlSlug, data.totalCount);
 
   return (
     <>
@@ -188,7 +174,7 @@ export default async function CityCategoryPage({ params }: PageProps) {
             <div className="absolute inset-0 -z-10">
               <Image
                 src={data.city.image_url}
-                alt={`${data.city.name} ${getCategoryDisplayName(canonical, locale)}`}
+                alt={`${data.city.name} ${getCategoryDisplayName(canonical, LOCALE)}`}
                 fill
                 className="object-cover opacity-15"
                 priority
@@ -215,7 +201,7 @@ export default async function CityCategoryPage({ params }: PageProps) {
                   </LocalizedLink>
                 </li>
                 <li aria-hidden="true" className="select-none">/</li>
-                <li className="text-foreground font-medium">{getCategoryDisplayName(canonical, locale)}</li>
+                <li className="text-foreground font-medium">{getCategoryDisplayName(canonical, LOCALE)}</li>
               </ol>
             </nav>
 
@@ -226,7 +212,7 @@ export default async function CityCategoryPage({ params }: PageProps) {
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mt-4">
               <span className="flex items-center gap-1.5">
                 <span className="inline-flex h-2 w-2 rounded-full bg-primary" />
-                {data.totalCount} {getCategoryDisplayName(canonical, locale).toLowerCase()}
+                {data.totalCount} {getCategoryDisplayName(canonical, LOCALE).toLowerCase()}
               </span>
               {data.listings.some((l) => l.google_rating) && (
                 <span>
@@ -259,7 +245,7 @@ export default async function CityCategoryPage({ params }: PageProps) {
         <section className="app-container py-4 pb-12">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {data.listings.map((listing) => (
-              <ListingCard key={listing.id} listing={listing} locale={locale} />
+              <ListingCard key={listing.id} listing={listing} />
             ))}
           </div>
         </section>
@@ -267,7 +253,7 @@ export default async function CityCategoryPage({ params }: PageProps) {
         {data.relatedCities.length > 0 && (
           <section className="app-container py-8 border-t border-border">
             <h2 className="text-lg font-semibold text-foreground mb-4">
-              {getCategoryDisplayName(canonical, locale)} in other Algarve cities
+              {getCategoryDisplayName(canonical, LOCALE)} in other Algarve cities
             </h2>
             <div className="flex flex-wrap gap-2">
               {data.relatedCities.map((city) => (
@@ -293,7 +279,7 @@ export default async function CityCategoryPage({ params }: PageProps) {
               {data.relatedCategories.map((cat) => {
                 const relCatCanonical = cat.slug as CanonicalCategorySlug;
                 const relCatUrlSlug = ALL_CANONICAL_SLUGS.includes(relCatCanonical)
-                  ? getCategoryUrlSlug(relCatCanonical, locale)
+                  ? getCategoryUrlSlug(relCatCanonical, LOCALE)
                   : cat.slug;
                 return (
                   <LocalizedLink
@@ -310,11 +296,16 @@ export default async function CityCategoryPage({ params }: PageProps) {
           </section>
         )}
 
+        {/* Hidden hreflang links for crawlers */}
         <div className="sr-only" aria-hidden="true">
           {SUPPORTED_LOCALES.map((loc) => {
             const locCatSlug = getCategoryUrlSlug(canonical, loc);
+            const href =
+              loc === "en"
+                ? `/${citySlug}/${locCatSlug}`
+                : `/${loc}/${citySlug}/${locCatSlug}`;
             return (
-              <Link key={loc} href={`/${loc}/${citySlug}/${locCatSlug}`} hrefLang={LOCALE_CONFIGS[loc].hreflang}>
+              <Link key={loc} href={href} hrefLang={LOCALE_CONFIGS[loc].hreflang}>
                 {getCategoryDisplayName(canonical, loc)} in {data.city.name}
               </Link>
             );
@@ -333,10 +324,8 @@ export default async function CityCategoryPage({ params }: PageProps) {
 
 function ListingCard({
   listing,
-  locale,
 }: {
   listing: CategoryCityPageData["listings"][number];
-  locale: Locale;
 }) {
   const tierBadge =
     listing.tier === "signature"
