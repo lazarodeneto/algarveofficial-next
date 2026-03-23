@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
-import { SUPPORTED_LOCALES, LOCALE_CONFIGS, addLocaleToPathname, DEFAULT_LOCALE } from "@/lib/i18n/config";
+import { SUPPORTED_LOCALES, LOCALE_CONFIGS, DEFAULT_LOCALE } from "@/lib/i18n/config";
 import {
   getAllCategoryCityCombinations,
 } from "@/lib/seo/programmatic/category-city-data";
@@ -40,9 +40,10 @@ function buildHreflangAlternates(basePath: string): MetadataRoute.Sitemap[number
 
   for (const locale of SUPPORTED_LOCALES) {
     const hreflang = LOCALE_CONFIGS[locale].hreflang;
-    languages[hreflang] = `${siteUrl}${addLocaleToPathname(basePath, locale)}`;
+    const localePath = locale === DEFAULT_LOCALE ? basePath : `/${locale}${basePath}`;
+    languages[hreflang] = `${siteUrl}${localePath}`;
   }
-  languages["x-default"] = `${siteUrl}${addLocaleToPathname(basePath, DEFAULT_LOCALE)}`;
+  languages["x-default"] = `${siteUrl}${basePath}`;
 
   return { languages };
 }
@@ -194,6 +195,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // ── Programmatic SEO pages: /{locale}/{category}/{city} ──────────────────
     // One canonical entry per combination (using /en canonical), with hreflang
     // pointing to each locale's translated category slug.
+    // NEW URL STRUCTURE: /{locale}/{city}/{category} (city-first hierarchy)
+    // NOTE: Default locale (en) does NOT have /en/ prefix - middleware strips it
     try {
       const programmaticCombinations = await getAllCategoryCityCombinations();
 
@@ -201,18 +204,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         if (!ALL_CANONICAL_SLUGS.includes(categorySlug as CanonicalCategorySlug)) continue;
 
         const canonical = categorySlug as CanonicalCategorySlug;
-        // Canonical URL uses English slug
+        // Canonical URL uses English slug - NO /en/ prefix (default locale)
         const enCatSlug = getCategoryUrlSlug(canonical, "en");
-        const path = `/en/${enCatSlug}/${citySlug}`;
+        const path = `/${citySlug}/${enCatSlug}`; // No /en prefix
         const siteUrl = getSiteUrl();
 
         // Build full hreflang map with translated slugs per locale
         const hreflangLanguages: Record<string, string> = {};
         for (const loc of SUPPORTED_LOCALES) {
           const locCatSlug = getCategoryUrlSlug(canonical, loc);
-          hreflangLanguages[LOCALE_CONFIGS[loc].hreflang] = `${siteUrl}/${loc}/${locCatSlug}/${citySlug}`;
+          const localePath = loc === "en" ? path : `/${loc}${path}`;
+          hreflangLanguages[LOCALE_CONFIGS[loc].hreflang] = `${siteUrl}${localePath}`;
         }
-        hreflangLanguages["x-default"] = `${siteUrl}/${path}`;
+        hreflangLanguages["x-default"] = `${siteUrl}${path}`;
 
         entries.push({
           url: `${siteUrl}${path}`,

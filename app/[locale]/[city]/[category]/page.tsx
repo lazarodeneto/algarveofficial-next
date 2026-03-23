@@ -8,7 +8,6 @@ import {
   SUPPORTED_LOCALES,
   LOCALE_CONFIGS,
   isValidLocale,
-  addLocaleToPathname,
   type Locale,
 } from "@/lib/i18n/config";
 import {
@@ -31,48 +30,33 @@ import {
   buildBreadcrumbSchema,
   buildCollectionPageSchema,
 } from "@/lib/seo/programmatic/schema-builders";
-import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 import { LocalizedLink } from "@/components/navigation/LocalizedLink";
 
-// ─── ISR ───────────────────────────────────────────────────────────────────────
-
-export const revalidate = 3600; // 1 hour
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+export const revalidate = 3600;
 
 interface PageParams {
   locale: string;
-  category: string; // URL slug (locale-specific)
-  city: string;     // always the DB city slug (invariant across locales)
+  city: string;
+  category: string;
 }
 
 interface PageProps {
   params: Promise<PageParams>;
 }
 
-// ─── Static params ────────────────────────────────────────────────────────────
-
-/**
- * Generates all /{locale}/{category-url-slug}/{city-slug} combinations.
- * Only generates pages that have at least one published listing.
- *
- * With 1000+ listings spread across ~9 categories × ~20 cities = ~180 DB combos
- * × 10 locales = ~1,800 statically generated pages.
- */
 export async function generateStaticParams(): Promise<PageParams[]> {
   const combinations = await getAllCategoryCityCombinations();
 
   const params: PageParams[] = [];
 
   for (const { categorySlug, citySlug } of combinations) {
-    // Skip if this DB category slug is not in our programmatic set
     if (!ALL_CANONICAL_SLUGS.includes(categorySlug as CanonicalCategorySlug)) continue;
 
     for (const locale of SUPPORTED_LOCALES) {
       params.push({
         locale,
-        category: getCategoryUrlSlug(categorySlug as CanonicalCategorySlug, locale),
         city: citySlug,
+        category: getCategoryUrlSlug(categorySlug as CanonicalCategorySlug, locale),
       });
     }
   }
@@ -80,10 +64,8 @@ export async function generateStaticParams(): Promise<PageParams[]> {
   return params;
 }
 
-// ─── Metadata ─────────────────────────────────────────────────────────────────
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { locale: rawLocale, category: categoryUrlSlug, city: citySlug } = await params;
+  const { locale: rawLocale, city: citySlug, category: categoryUrlSlug } = await params;
 
   if (!isValidLocale(rawLocale)) return {};
   const locale = rawLocale as Locale;
@@ -102,11 +84,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     data.listings,
   );
 
-  // NEW URL STRUCTURE: /{locale}/{city}/{category}
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ?? "https://algarveofficial.com";
 
-  // Build correct hreflang: each locale gets its own translated category URL slug
-  // English has no /en/ prefix, other locales have /{locale}/ prefix
   const hreflangAlternates: Record<string, string> = {};
   for (const loc of SUPPORTED_LOCALES) {
     const locCatSlug = getCategoryUrlSlug(canonical, loc);
@@ -138,7 +117,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       locale: LOCALE_CONFIGS[locale]?.dateLocale ?? "en_GB",
       type: "website",
       images: data.city.image_url
-        ? [{ url: data.city.image_url, width: 1200, height: 630, alt: `${getCategoryDisplayName(canonical, locale)} in ${data.city.name}` }]
+        ? [{ url: data.city.image_url, width: 1200, height: 630, alt: `${data.city.name} ${getCategoryDisplayName(canonical, locale)}` }]
         : [{ url: "/og-image.png", width: 1200, height: 630 }],
     },
     twitter: {
@@ -159,10 +138,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-// ─── Page component ────────────────────────────────────────────────────────────
-
-export default async function CategoryCityPage({ params }: PageProps) {
-  const { locale: rawLocale, category: categoryUrlSlug, city: citySlug } = await params;
+export default async function CityCategoryPage({ params }: PageProps) {
+  const { locale: rawLocale, city: citySlug, category: categoryUrlSlug } = await params;
 
   if (!isValidLocale(rawLocale)) notFound();
   const locale = rawLocale as Locale;
@@ -189,7 +166,6 @@ export default async function CategoryCityPage({ params }: PageProps) {
 
   return (
     <>
-      {/* ── JSON-LD Structured Data ── */}
       <Script
         id="schema-itemlist"
         type="application/ld+json"
@@ -207,13 +183,12 @@ export default async function CategoryCityPage({ params }: PageProps) {
       />
 
       <main className="min-h-screen bg-background">
-        {/* ── Hero / Header ── */}
         <section className="relative overflow-hidden bg-gradient-to-b from-background to-muted/20">
           {data.city.image_url && (
             <div className="absolute inset-0 -z-10">
               <Image
                 src={data.city.image_url}
-                alt={`${getCategoryDisplayName(canonical, locale)} in ${data.city.name}`}
+                alt={`${data.city.name} ${getCategoryDisplayName(canonical, locale)}`}
                 fill
                 className="object-cover opacity-15"
                 priority
@@ -223,7 +198,6 @@ export default async function CategoryCityPage({ params }: PageProps) {
             </div>
           )}
           <div className="app-container py-12 md:py-16">
-            {/* Breadcrumb - NEW STRUCTURE: Home > City > Category */}
             <nav aria-label="Breadcrumb" className="mb-6">
               <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
                 <li>
@@ -245,12 +219,10 @@ export default async function CategoryCityPage({ params }: PageProps) {
               </ol>
             </nav>
 
-            {/* H1 — Primary keyword target */}
             <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl text-foreground mb-4 leading-tight">
               {content.h1}
             </h1>
 
-            {/* Stats bar */}
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mt-4">
               <span className="flex items-center gap-1.5">
                 <span className="inline-flex h-2 w-2 rounded-full bg-primary" />
@@ -273,7 +245,6 @@ export default async function CategoryCityPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* ── SEO Content Block (server-rendered, above listings) ── */}
         <section className="app-container py-8">
           <div className="max-w-3xl">
             <p className="text-base text-muted-foreground leading-relaxed mb-4">
@@ -285,7 +256,6 @@ export default async function CategoryCityPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* ── Listings Grid ── */}
         <section className="app-container py-4 pb-12">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {data.listings.map((listing) => (
@@ -294,8 +264,6 @@ export default async function CategoryCityPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* ── Internal Linking: Related Cities ── */}
-        {/* NEW URL STRUCTURE: /{locale}/{city}/{category} */}
         {data.relatedCities.length > 0 && (
           <section className="app-container py-8 border-t border-border">
             <h2 className="text-lg font-semibold text-foreground mb-4">
@@ -316,8 +284,6 @@ export default async function CategoryCityPage({ params }: PageProps) {
           </section>
         )}
 
-        {/* ── Internal Linking: Related Categories in Same City ── */}
-        {/* NEW URL STRUCTURE: /{locale}/{city}/{category} */}
         {data.relatedCategories.length > 0 && (
           <section className="app-container py-8 border-t border-border">
             <h2 className="text-lg font-semibold text-foreground mb-4">
@@ -344,8 +310,6 @@ export default async function CategoryCityPage({ params }: PageProps) {
           </section>
         )}
 
-        {/* ── Locale Language Switcher Links (hidden, SEO signals) ── */}
-        {/* NEW URL STRUCTURE: /{locale}/{city}/{category} */}
         <div className="sr-only" aria-hidden="true">
           {SUPPORTED_LOCALES.map((loc) => {
             const locCatSlug = getCategoryUrlSlug(canonical, loc);
@@ -357,7 +321,6 @@ export default async function CategoryCityPage({ params }: PageProps) {
           })}
         </div>
 
-        {/* ── SEO Closing Content ── */}
         <section className="app-container py-8 border-t border-border">
           <p className="max-w-3xl text-sm text-muted-foreground leading-relaxed">
             {content.closingParagraph}
@@ -367,8 +330,6 @@ export default async function CategoryCityPage({ params }: PageProps) {
     </>
   );
 }
-
-// ─── Listing Card ─────────────────────────────────────────────────────────────
 
 function ListingCard({
   listing,
@@ -389,7 +350,6 @@ function ListingCard({
       href={`/listing/${listing.slug}`}
       className="group flex flex-col rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/40 hover:shadow-lg transition-all duration-200"
     >
-      {/* Image */}
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         {listing.featured_image_url ? (
           <Image
@@ -414,7 +374,6 @@ function ListingCard({
         )}
       </div>
 
-      {/* Content */}
       <div className="flex flex-col flex-1 p-4 gap-2">
         <h3 className="font-semibold text-foreground text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors">
           {listing.name}

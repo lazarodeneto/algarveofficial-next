@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SITE_CONFIG, CATEGORY_META, LOCATION_META, DEFAULT_KEYWORDS } from "./seo-config";
-import { LOCALE_CONFIGS, SUPPORTED_LOCALES, addLocaleToPathname, type Locale } from "@/lib/i18n/config";
+import { LOCALE_CONFIGS, SUPPORTED_LOCALES, addLocaleToPathname, DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config";
 
 type PageType = "website" | "article" | "product" | "place" | "localbusiness" | "event";
 
@@ -30,11 +30,13 @@ function buildHreflangAlternates(
   const result: Record<string, string> = {};
 
   for (const locale of SUPPORTED_LOCALES) {
-    const localized = addLocaleToPathname(localizedPath, locale);
+    const localized = locale === DEFAULT_LOCALE 
+      ? localizedPath 
+      : addLocaleToPathname(localizedPath, locale);
     result[LOCALE_CONFIGS[locale].hreflang] = `${siteUrl}${localized}`;
   }
 
-  result["x-default"] = `${siteUrl}/en${localizedPath}`;
+  result["x-default"] = `${siteUrl}${localizedPath}`;
 
   return result;
 }
@@ -100,7 +102,9 @@ export function buildPageMetadata({
       );
 
   const canonical = localizedPath
-    ? `${siteUrl}${addLocaleToPathname(localizedPath, locale)}`
+    ? locale === DEFAULT_LOCALE
+      ? `${siteUrl}${localizedPath}`
+      : `${siteUrl}${addLocaleToPathname(localizedPath, locale)}`
     : siteUrl;
 
   return {

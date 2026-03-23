@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
-import { SUPPORTED_LOCALES, LOCALE_CONFIGS, addLocaleToPathname } from "@/lib/i18n/config";
+import { SUPPORTED_LOCALES, LOCALE_CONFIGS, DEFAULT_LOCALE } from "@/lib/i18n/config";
 
 const DEFAULT_SITE_URL = "https://algarveofficial.com";
 const SITEMAP_FETCH_LIMIT = 5000;
@@ -24,9 +24,10 @@ function buildAlternates(localizedPath: string): MetadataRoute.Sitemap[number]["
   const siteUrl = getSiteUrl();
   const languages: Record<string, string> = {};
   for (const locale of SUPPORTED_LOCALES) {
-    languages[LOCALE_CONFIGS[locale].hreflang] = `${siteUrl}${addLocaleToPathname(localizedPath, locale)}`;
+    const localePath = locale === DEFAULT_LOCALE ? localizedPath : `/${locale}${localizedPath}`;
+    languages[LOCALE_CONFIGS[locale].hreflang] = `${siteUrl}${localePath}`;
   }
-  languages["x-default"] = `${siteUrl}/en${localizedPath}`;
+  languages["x-default"] = `${siteUrl}${localizedPath}`;
   return { languages };
 }
 
@@ -51,13 +52,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return validPosts.flatMap((post) => {
     const basePath = `/blog/${post.slug}`;
-    return SUPPORTED_LOCALES.map((locale) => ({
-      url: `${siteUrl}${addLocaleToPathname(basePath, locale)}`,
-      lastModified: toValidDate(post.updated_at, toValidDate(post.published_at, now)),
-      changeFrequency: "monthly" as const,
-      priority: 0.76,
-      alternates: buildAlternates(basePath),
-      images: post.featured_image ? [post.featured_image] : undefined,
-    }));
+    return SUPPORTED_LOCALES.map((locale) => {
+      const localePath = locale === DEFAULT_LOCALE ? basePath : `/${locale}${basePath}`;
+      return {
+        url: `${siteUrl}${localePath}`,
+        lastModified: toValidDate(post.updated_at, toValidDate(post.published_at, now)),
+        changeFrequency: "monthly" as const,
+        priority: 0.76,
+        alternates: buildAlternates(basePath),
+        images: post.featured_image ? [post.featured_image] : undefined,
+      };
+    });
   });
 }
