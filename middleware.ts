@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PUBLIC_FILE = /\.(.*)$/;
-
 const SUPPORTED_LOCALES = ["en", "pt-pt", "fr", "de", "es", "it", "nl", "sv", "no", "da"] as const;
 const DEFAULT_LOCALE = "en";
 
@@ -31,8 +29,36 @@ function getLocale(request: NextRequest): string {
   return DEFAULT_LOCALE;
 }
 
-function redirectOldCategoryCityStructure(request: NextRequest): NextResponse | null {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (request.method === "HEAD") {
+    return NextResponse.next();
+  }
+
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api") ||
+    pathname === "/favicon.ico"
+  ) {
+    return NextResponse.next();
+  }
+
+  const hasFileExtension = /\.[^/]+$/.test(pathname);
+  if (hasFileExtension) {
+    return NextResponse.next();
+  }
+
+  if (pathname === "/" || pathname.startsWith("/directory") || pathname.startsWith("/destinations") || pathname.startsWith("/blog") || pathname.startsWith("/events")) {
+    const locale = getLocale(request);
+    if (locale === DEFAULT_LOCALE) {
+      return NextResponse.next();
+    }
+    const url = request.nextUrl.clone();
+    url.pathname = `/${locale}${pathname}`;
+    return NextResponse.redirect(url);
+  }
+
   const segments = pathname.split("/").filter(Boolean);
 
   if (segments.length === 3) {
@@ -42,64 +68,33 @@ function redirectOldCategoryCityStructure(request: NextRequest): NextResponse | 
       const isSegment1Category = CANONICAL_CATEGORY_SLUGS.some(
         (cat) => segment1.toLowerCase() === cat.toLowerCase()
       );
-      const isSegment2Category = CANONICAL_CATEGORY_SLUGS.some(
-        (cat) => segment2.toLowerCase() === cat.toLowerCase()
-      );
 
-      if (isSegment1Category && !isSegment2Category) {
+      if (isSegment1Category) {
         const url = request.nextUrl.clone();
         url.pathname = locale === DEFAULT_LOCALE
           ? `/${segment2}/${segment1}`
           : `/${locale}/${segment2}/${segment1}`;
         return NextResponse.redirect(url, 301);
       }
+
+      if (locale !== DEFAULT_LOCALE) {
+        const trailingSlash = pathname.endsWith("/") && pathname !== "/";
+        if (trailingSlash) {
+          const url = request.nextUrl.clone();
+          url.pathname = pathname.slice(0, -1);
+          return NextResponse.redirect(url);
+        }
+        return NextResponse.next();
+      }
     }
   }
 
-  return null;
-}
-
-function normalizeTrailingSlash(pathname: string): string | null {
-  if (pathname.endsWith("/") && pathname !== "/") {
-    return pathname.slice(0, -1);
-  }
-  return null;
-}
-
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/api") ||
-    pathname.startsWith("/images") ||
-    pathname.startsWith("/fonts") ||
-    pathname === "/favicon.ico" ||
-    PUBLIC_FILE.test(pathname)
-  ) {
-    return NextResponse.next();
-  }
-
-  // 1. Old URL structure redirect: /{locale}/{category}/{city} -> /{locale}/{city}/{category}
-  const oldStructureRedirect = redirectOldCategoryCityStructure(request);
-  if (oldStructureRedirect) {
-    return oldStructureRedirect;
-  }
-
-  // 2. Strip default locale prefix: /en/... -> /...
   if (pathname.startsWith("/en/")) {
     const url = request.nextUrl.clone();
-    const newPath = pathname.replace("/en", "") || "/";
-    const trailingSlash = normalizeTrailingSlash(newPath);
-    if (trailingSlash) {
-      url.pathname = trailingSlash;
-    } else {
-      url.pathname = newPath;
-    }
+    url.pathname = pathname.replace("/en", "") || "/";
     return NextResponse.redirect(url, 301);
   }
 
-  // 3. Check if path has non-default locale prefix
   const pathnameHasLocale = SUPPORTED_LOCALES.some(
     (locale) =>
       locale !== DEFAULT_LOCALE &&
@@ -107,44 +102,27 @@ export function middleware(request: NextRequest) {
   );
 
   if (pathnameHasLocale) {
-    // Normalize trailing slash if present
-    const trailingSlash = normalizeTrailingSlash(pathname);
+    const trailingSlash = pathname.endsWith("/") && pathname !== "/";
     if (trailingSlash) {
       const url = request.nextUrl.clone();
-      url.pathname = trailingSlash;
+      url.pathname = pathname.slice(0, -1);
       return NextResponse.redirect(url);
     }
     return NextResponse.next();
   }
 
-  // 4. No locale prefix - detect locale and redirect
-  const locale = getLocale(request);
-
-  if (locale === DEFAULT_LOCALE) {
-    // Normalize trailing slash for default locale
-    const trailingSlash = normalizeTrailingSlash(pathname);
-    if (trailingSlash) {
-      const url = request.nextUrl.clone();
-      url.pathname = trailingSlash;
-      return NextResponse.redirect(url);
-    }
-    return NextResponse.next();
-  }
-
-  // 5. Redirect to non-default locale with trailing slash normalized
-  let newPathname = `/${locale}${pathname}`;
-  const trailingSlash = normalizeTrailingSlash(newPathname);
+  const trailingSlash = pathname.endsWith("/") && pathname !== "/";
   if (trailingSlash) {
-    newPathname = trailingSlash;
+    const url = request.nextUrl.clone();
+    url.pathname = pathname.slice(0, -1);
+    return NextResponse.redirect(url);
   }
 
-  const url = request.nextUrl.clone();
-  url.pathname = newPathname;
-  return NextResponse.redirect(url);
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    "/((?!api|_next|favicon.ico|images|fonts).*)",
+    "/((?!_next|api|favicon.ico|.*\\..*).*)",
   ],
 };
