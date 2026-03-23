@@ -1,12 +1,6 @@
-"use client";
-
-import { Suspense } from "react";
-import Contact from "@/legacy-pages/public/Contact";
+import { redirect } from "next/navigation";
+import { DEFAULT_LOCALE } from "@/lib/i18n/config";
 
 export default function ContactPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <Contact />
-    </Suspense>
-  );
+  redirect(`/${DEFAULT_LOCALE}/contact`);
 }

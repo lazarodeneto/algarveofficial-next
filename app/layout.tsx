@@ -12,7 +12,12 @@ import { LocaleProvider } from "@/lib/i18n/locale-context";
 import { buildMetadata } from "@/lib/metadata";
 import { buildOrganizationSchema, buildWebsiteSchema } from "@/lib/seo/schemaBuilders.js";
 import { CookieConsentBannerWrapper } from "@/components/gdpr/CookieConsentBannerWrapper";
-import { LOCALE_CONFIGS, type Locale } from "@/lib/i18n/config";
+import {
+  LOCALE_CONFIGS,
+  getLocaleFromPathname,
+  isValidLocale,
+  type Locale,
+} from "@/lib/i18n/config";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -66,9 +71,15 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   const cookieStore = await cookies();
   const headersList = await headers();
 
+  // Locale detection priority: URL path > middleware header > cookie > default
+  const headerLocale = headersList.get("x-locale");
   const cookieLocale = cookieStore.get("NEXT_LOCALE")?.value;
-  const headerLocale = headersList.get("x-locale") as Locale | null;
-  const resolvedLocale: Locale = (cookieLocale || headerLocale || "en") as Locale;
+  const urlLocale = headerLocale && isValidLocale(headerLocale) ? headerLocale : null;
+  const resolvedLocale: Locale = (
+    urlLocale ??
+    (cookieLocale && isValidLocale(cookieLocale) ? cookieLocale : null) ??
+    "en"
+  ) as Locale;
   const localeConfig = LOCALE_CONFIGS[resolvedLocale] ?? LOCALE_CONFIGS.en;
   const htmlLang = localeConfig?.hreflang ?? "en-GB";
 

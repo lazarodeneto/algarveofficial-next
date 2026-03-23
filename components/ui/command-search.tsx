@@ -13,6 +13,7 @@ import {
 import { useGlobalSearch, SearchResult } from "@/hooks/useGlobalSearch";
 import { Building2, Grid3X3, MapPin, Search, Clock, Sparkles, TrendingUp } from "lucide-react";
 import { Button } from "./button";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 
 const getIcon = (type: SearchResult["type"]) => {
   switch (type) {
@@ -35,13 +36,14 @@ interface CommandSearchProps {
 
 export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearchProps) {
   const router = useRouter();
+  const l = useLocalizedHref();
   const { query, setQuery, results, recentSearches, addToRecent, clearRecent } = useGlobalSearch();
 
   const handleSelect = (result: SearchResult) => {
     addToRecent(result);
     setQuery("");
     onOpenChange(false);
-    router.push(result.href);
+    router.push(l(result.href));
   };
 
   // Pre-fill query when dialog opens with initialQuery
@@ -146,7 +148,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
                   value="directory browse all listings"
                   onSelect={() => {
                     onOpenChange(false);
-                    router.push("/directory");
+                    router.push(l("/directory"));
                   }}
                   className="flex items-center gap-3 py-3 px-4 cursor-pointer"
                 >
@@ -157,7 +159,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
                   value="destinations regions explore"
                   onSelect={() => {
                     onOpenChange(false);
-                    router.push("/destinations");
+                    router.push(l("/destinations"));
                   }}
                   className="flex items-center gap-3 py-3 px-4 cursor-pointer"
                 >
@@ -168,7 +170,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
                   value="map explorer listings"
                   onSelect={() => {
                     onOpenChange(false);
-                    router.push("/map");
+                    router.push(l("/map"));
                   }}
                   className="flex items-center gap-3 py-3 px-4 cursor-pointer"
                 >
@@ -179,7 +181,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
                   value="invest market strategy"
                   onSelect={() => {
                     onOpenChange(false);
-                    router.push("/invest");
+                    router.push(l("/invest"));
                   }}
                   className="flex items-center gap-3 py-3 px-4 cursor-pointer"
                 >
