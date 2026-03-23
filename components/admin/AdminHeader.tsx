@@ -38,11 +38,13 @@ import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 export function AdminHeader() {
   const { t } = useTranslation();
   const { logout, user } = useAuth();
   const router = useRouter();
+  const locale = useLocale();
   const { data: pendingCount = 0 } = usePendingReviewCount();
   const { data: pendingListingReviewsCount = 0 } = usePendingListingReviewCount();
   const { data: unreadMessagesCount = 0 } = useUnreadMessagesCount();
@@ -176,7 +178,7 @@ export function AdminHeader() {
           </div>
 
           <Button variant="ghost" size="icon" asChild className="hidden h-9 w-9 text-muted-foreground hover:text-foreground group xl:inline-flex">
-            <Link href="/">
+            <Link href={`/${locale}`}>
               <Home className="h-5 w-5 transition-colors group-hover:text-foreground" />
             </Link>
           </Button>
