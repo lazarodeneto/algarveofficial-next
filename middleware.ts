@@ -48,7 +48,9 @@ function redirectOldCategoryCityStructure(request: NextRequest): NextResponse | 
 
       if (isSegment1Category && !isSegment2Category) {
         const url = request.nextUrl.clone();
-        url.pathname = `/${locale}/${segment2}/${segment1}`;
+        url.pathname = locale === DEFAULT_LOCALE
+          ? `/${segment2}/${segment1}`
+          : `/${locale}/${segment2}/${segment1}`;
         return NextResponse.redirect(url, 301);
       }
     }
