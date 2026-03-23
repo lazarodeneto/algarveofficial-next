@@ -16,10 +16,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSupabaseFavoritesCount } from "@/hooks/useSupabaseFavoritesCount";
 import { useUserUnreadMessagesCount } from "@/hooks/useUserUnreadMessagesCount";
 import { useTranslation } from "react-i18next";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 export function UserHeader() {
   const { t } = useTranslation();
   const { logout, user } = useAuth();
+  const locale = useLocale();
   const isAdminViewing = user?.role === 'admin';
   const { data: favoritesCount = 0 } = useSupabaseFavoritesCount();
   const { data: unreadCount = 0 } = useUserUnreadMessagesCount();
@@ -48,7 +50,7 @@ export function UserHeader() {
 
           {/* Explore Site */}
           <Button variant="ghost" size="sm" asChild className="hidden xl:flex text-muted-foreground hover:text-foreground [&>svg]:hover:text-foreground">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href={`/${locale}`} className="flex items-center gap-2">
               <ExternalLink className="h-4 w-4 transition-colors" />
               {t('common.explore')}
             </Link>

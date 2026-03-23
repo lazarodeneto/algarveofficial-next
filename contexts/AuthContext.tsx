@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/integrations/supabase/client';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 export type UserRole = 'admin' | 'editor' | 'owner' | 'viewer_logged' | 'viewer';
 
@@ -198,6 +199,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname() ?? "/";
+  const locale = useLocale();
 
   // Initialize auth state with onAuthStateChange FIRST, then getSession
   useEffect(() => {
@@ -401,7 +403,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     setIsLoading(true);
-    
+
     try {
       const { error } = await supabase.auth.signOut({ scope: 'local' });
       if (error) {
@@ -409,13 +411,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       clearCachedUser();
       setUser(null);
-      router.replace('/login');
+      // Redirect to the localized homepage after logout
+      router.replace(`/${locale}`);
     } catch (error) {
       console.error('Error signing out:', error);
       // Always clear local app auth state even if remote sign-out fails.
       clearCachedUser();
       setUser(null);
-      router.replace('/login');
+      router.replace(`/${locale}`);
     } finally {
       setIsLoading(false);
     }
