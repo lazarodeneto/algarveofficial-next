@@ -8,8 +8,9 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ?? "https
 // ─── ItemList schema ───────────────────────────────────────────────────────────
 
 /**
- * Generates an ItemList JSON-LD schema for a programmatic category+city page.
+ * Generates an ItemList JSON-LD schema for a programmatic city+category page.
  * This directly contributes to rich results in Google Search.
+ * URL STRUCTURE: /{locale}/{city}/{category}
  */
 export function buildItemListSchema(
   locale: Locale,
@@ -20,7 +21,7 @@ export function buildItemListSchema(
   listings: ProgrammaticListing[],
 ) {
   const categoryName = getCategoryDisplayName(canonical, locale);
-  const pageUrl = `${SITE_URL}/${locale}/${categoryUrlSlug}/${citySlug}`;
+  const pageUrl = `${SITE_URL}/${locale}/${citySlug}/${categoryUrlSlug}`;
 
   return {
     "@context": "https://schema.org",
@@ -63,7 +64,10 @@ export function buildItemListSchema(
 }
 
 // ─── BreadcrumbList schema ─────────────────────────────────────────────────────
-
+/**
+ * URL STRUCTURE: /{locale}/{city}/{category}
+ * Breadcrumb: Home > City > Category
+ */
 export function buildBreadcrumbSchema(
   locale: Locale,
   canonical: CanonicalCategorySlug,
@@ -86,21 +90,23 @@ export function buildBreadcrumbSchema(
       {
         "@type": "ListItem",
         position: 2,
-        name: categoryName,
-        item: `${SITE_URL}/${locale}/${categoryUrlSlug}`,
+        name: cityName,
+        item: `${SITE_URL}/${locale}/${citySlug}`,
       },
       {
         "@type": "ListItem",
         position: 3,
-        name: cityName,
-        item: `${SITE_URL}/${locale}/${categoryUrlSlug}/${citySlug}`,
+        name: categoryName,
+        item: `${SITE_URL}/${locale}/${citySlug}/${categoryUrlSlug}`,
       },
     ],
   };
 }
 
 // ─── CollectionPage schema ────────────────────────────────────────────────────
-
+/**
+ * URL STRUCTURE: /{locale}/{city}/{category}
+ */
 export function buildCollectionPageSchema(
   locale: Locale,
   canonical: CanonicalCategorySlug,
@@ -110,7 +116,7 @@ export function buildCollectionPageSchema(
   count: number,
 ) {
   const categoryName = getCategoryDisplayName(canonical, locale);
-  const pageUrl = `${SITE_URL}/${locale}/${categoryUrlSlug}/${citySlug}`;
+  const pageUrl = `${SITE_URL}/${locale}/${citySlug}/${categoryUrlSlug}`;
 
   return {
     "@context": "https://schema.org",

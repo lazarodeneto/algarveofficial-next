@@ -778,7 +778,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     props.initialFilters.category === selectedCategory &&
     props.initialFilters.tier === selectedTier;
 
-  const { data: listings = props.initialListings, isLoading: listingsLoading, error } = useQuery({
+  const { data: listings = props.initialListings, isLoading: listingsLoading, isPlaceholderData, error } = useQuery({
     queryKey: ["listings", "published", listingFilters, locale],
     queryFn: () => fetchListings(listingFilters, categories, cities, regions, locale),
     initialData: initialFilterMatch ? props.initialListings : undefined,
@@ -786,6 +786,8 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     gcTime: 1000 * 60 * 15,
     enabled: categories.length > 0 && cities.length > 0 && regions.length > 0,
   });
+
+  const showInitialData = isPlaceholderData && props.initialListings.length > 0;
 
   useEffect(() => {
     const categoryParam = searchParams.get("category");
@@ -906,7 +908,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     selectedCategory !== "all" ||
     selectedTier !== "all";
   const isLoading = listingsLoading || citiesLoading || regionsLoading || categoriesLoading;
-  const showGridSkeleton = isLoading && !error && listings.length === 0;
+  const showGridSkeleton = isLoading && !error && listings.length === 0 && !isPlaceholderData;
   const totalListingsCount = listings.length;
 
   const activeCms = useDirectoryCmsHelpers(globalSettings);
@@ -1150,7 +1152,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                 </div>
               ) : null}
 
-              {!showGridSkeleton && !isLoading && !error && listings.length === 0 ? (
+              {!showGridSkeleton && !error && listings.length === 0 ? (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
                   <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-xl font-medium text-foreground mb-2">{t("directory.noListingsTitle")}</h3>
@@ -1161,7 +1163,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                 </motion.div>
               ) : null}
 
-              {!showGridSkeleton && !isLoading && !error && listings.length > 0 ? (
+              {!showGridSkeleton && !error && listings.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
                   {listings.map((listing, index) => (
                     <motion.div
