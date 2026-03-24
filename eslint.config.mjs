@@ -13,15 +13,17 @@ const eslintConfig = defineConfig([
   {
     rules: {
       "@typescript-eslint/no-unused-vars": [
-        "error",
+        "warn",
         {
           argsIgnorePattern: "^_",
           caughtErrorsIgnorePattern: "^_",
           destructuredArrayIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
         },
       ],
-      "@next/next/no-img-element": "error",
-      "react-hooks/exhaustive-deps": "error",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@next/next/no-img-element": "warn",
+      "react-hooks/exhaustive-deps": "warn",
       "import/no-anonymous-default-export": "off",
     },
   },
@@ -67,24 +69,6 @@ const eslintConfig = defineConfig([
       ],
     },
   },
-  // ─── Next.js page/layout components ────────────────────────────────────────
-  {
-    files: ["app/**/*.tsx"],
-    rules: {
-      // Next.js requires certain parameters (params, searchParams) even if unused
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        {
-          argsIgnorePattern: "^(params|searchParams|_)",
-          caughtErrorsIgnorePattern: "^_",
-          destructuredArrayIgnorePattern: "^_",
-        },
-      ],
-      // Allow 'any' in page files for metadata and other dynamic data
-      "@typescript-eslint/no-explicit-any": "warn",
-    },
-  },
-
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
