@@ -43,10 +43,34 @@ export default async function DirectoryPage({ params }: PageProps) {
     return <div>Invalid locale</div>;
   }
 
+  const { createClient } = await import("@/lib/supabase/server");
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("listings")
+    .select("id, name, Nome")
+    .limit(10);
+
+  if (error) {
+    console.error(error);
+    return <div>Error loading</div>;
+  }
+
   return (
     <main>
       <h1>Directory</h1>
-      <p>SSR TEST OK</p>
+
+      {data?.length ? (
+        <ul>
+          {data.map((item) => (
+            <li key={item.id}>
+              {item.name || item.Nome || "Unnamed"}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No listings</p>
+      )}
     </main>
   );
 }
