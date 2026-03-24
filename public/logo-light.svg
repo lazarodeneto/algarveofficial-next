@@ -1,0 +1,25 @@
+<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gold Crown Icon for Light Mode -->
+  <defs>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FDB913;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F5A623;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Left circle -->
+  <circle cx="64" cy="80" r="24" fill="url(#goldGradient)"/>
+
+  <!-- Center circle (top of crown) -->
+  <circle cx="128" cy="40" r="28" fill="url(#goldGradient)"/>
+
+  <!-- Right circle -->
+  <circle cx="192" cy="80" r="24" fill="url(#goldGradient)"/>
+
+  <!-- Main crown shape -->
+  <path d="M 40 120 L 70 80 L 100 140 L 128 70 L 156 140 L 186 80 L 216 120 C 220 130 222 140 220 150 L 220 170 Q 220 180 210 180 L 46 180 Q 36 180 36 170 L 36 150 Q 34 140 40 120 Z"
+        fill="url(#goldGradient)" stroke="none"/>
+
+  <!-- Crown band base -->
+  <rect x="40" y="175" width="176" height="20" rx="4" fill="url(#goldGradient)"/>
+</svg>

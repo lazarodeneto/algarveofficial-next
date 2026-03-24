@@ -1,0 +1,25 @@
+<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <!-- Favicon Crown Icon - Simplified version -->
+  <defs>
+    <linearGradient id="faviconGold" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FDB913;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F5A623;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Left circle -->
+  <circle cx="52" cy="90" r="20" fill="url(#faviconGold)"/>
+
+  <!-- Center circle (top of crown) -->
+  <circle cx="128" cy="50" r="24" fill="url(#faviconGold)"/>
+
+  <!-- Right circle -->
+  <circle cx="204" cy="90" r="20" fill="url(#faviconGold)"/>
+
+  <!-- Main crown shape -->
+  <path d="M 30 130 L 60 95 L 90 145 L 128 75 L 166 145 L 196 95 L 226 130 C 230 138 232 146 230 155 L 230 170 Q 230 180 220 180 L 36 180 Q 26 180 26 170 L 26 155 Q 24 146 30 130 Z"
+        fill="url(#faviconGold)" stroke="none"/>
+
+  <!-- Crown band base -->
+  <rect x="36" y="175" width="184" height="16" rx="3" fill="url(#faviconGold)"/>
+</svg>
