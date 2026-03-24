@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, type ReactNode } from "react";
+import { Suspense, type ReactNode, useMemo } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { I18nProvider } from "./I18nProvider";
@@ -19,24 +19,26 @@ import { CmsPageBuilderProvider } from "@/contexts/CmsPageBuilderContext";
 import { MobileMenuProvider } from "@/contexts/MobileMenuContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 2,
-      gcTime: 1000 * 60 * 10,
-      refetchOnWindowFocus: false,
-      retry: 3,
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    },
-  },
-});
-
 interface AppProvidersProps {
   children: ReactNode;
   locale?: string;
 }
 
 export function AppProviders({ children, locale = "en" }: AppProvidersProps) {
+  // Create QueryClient per render to avoid SSR cache pollution
+  // useMemo ensures same instance throughout component lifecycle
+  const queryClient = useMemo(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 2,
+        gcTime: 1000 * 60 * 10,
+        refetchOnWindowFocus: false,
+        retry: 3,
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      },
+    },
+  }), []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider locale={locale}>

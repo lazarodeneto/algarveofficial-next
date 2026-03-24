@@ -18,6 +18,8 @@ interface I18nProviderProps {
  * SINGLE SOURCE OF TRUTH: locale from LocaleContext (derived from URL params).
  * NO localStorage fallback. NO pathname parsing.
  * The locale prop is only used as initial fallback before context is available.
+ *
+ * ✅ SSR-Safe: Uses ref to skip redundant initializations, defers heavy work to useEffect
  */
 export function I18nProvider({ children, locale: propLocale = "en" }: I18nProviderProps) {
   const initialized = useRef(false);
@@ -30,18 +32,42 @@ export function I18nProvider({ children, locale: propLocale = "en" }: I18nProvid
     let cancelled = false;
 
     const syncI18n = async () => {
-      if (!initialized.current) {
-        await initI18n();
-        initialized.current = true;
+      // Skip if already initialized or request is cancelled
+      if (initialized.current || cancelled) {
+        return;
       }
 
-      await ensureLocaleLoaded(targetLocale);
+      // Initialize i18n once on client
+      if (!initialized.current) {
+        try {
+          await initI18n();
+          initialized.current = true;
+        } catch {
+          // Fail silently - i18n will use fallback
+          initialized.current = true;
+        }
+      }
 
+      // Ensure locale resources are loaded
+      if (!cancelled) {
+        try {
+          await ensureLocaleLoaded(targetLocale);
+        } catch {
+          // Fail silently
+        }
+      }
+
+      // Change language if needed
       if (!cancelled && i18n.language !== targetLocale) {
-        await i18n.changeLanguage(targetLocale);
+        try {
+          await i18n.changeLanguage(targetLocale);
+        } catch {
+          // Fail silently
+        }
       }
     };
 
+    // Start async sync without blocking render
     void syncI18n();
 
     return () => {
