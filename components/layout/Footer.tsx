@@ -179,7 +179,7 @@ function normalizeFooterLinkHref(
   return !LANGUAGE_PREFIX_RE.test(href) ? localizedHref(href) : href;
 }
 
-export function Footer() {
+export default function Footer() {
   const { data: footerSections } = useFooterMenu();
   const { t } = useTranslation();
   const l = useLocalizedHref();
@@ -364,3 +364,6 @@ export function Footer() {
     </footer>
   );
 }
+
+// Named export for components that import { Footer }
+export { Footer };
