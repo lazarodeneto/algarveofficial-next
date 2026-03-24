@@ -6,7 +6,8 @@
 import type { Metadata } from "next";
 import { LOCALE_CONFIGS, type Locale } from "@/lib/i18n/config";
 import {
-  buildMetadataAlternates,
+  buildCanonicalUrl,
+  buildHreflangs,
   toHtmlLang,
   toOpenGraphLocale,
   getHreflangForLocale,
@@ -95,7 +96,15 @@ export function buildLocalizedMetadata(params: LocalizedMetadataParams): Metadat
   const htmlLang = toHtmlLang(locale);
   const ogLocale = toOpenGraphLocale(locale);
 
-  const alternates = buildMetadataAlternates(locale, path);
+  // Build canonical and hreflangs
+  const canonical = buildCanonicalUrl(locale, path);
+  const hreflangs = buildHreflangs(path);
+
+  // Build alternates with hreflangs
+  const alternates = {
+    canonical: canonical,
+    languages: hreflangs,
+  };
 
   return {
     title: brandedTitle,
@@ -111,7 +120,7 @@ export function buildLocalizedMetadata(params: LocalizedMetadataParams): Metadat
       "Portugal",
       "travel",
     ],
-    alternates,
+    alternates: alternates as any,
     robots: {
       index: !noIndex,
       follow: !noIndex,
