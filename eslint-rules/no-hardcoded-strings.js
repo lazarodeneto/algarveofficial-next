@@ -4,27 +4,27 @@
  * Detects hardcoded English string literals inside JSX that bypass the
  * translation system.  Works with ESLint v9 flat-config (used by this project).
  *
- * ─── What it catches ─────────────────────────────────────────────────────────
- *  ❌  <Button>Book Now</Button>
- *  ❌  <p>Welcome to the Algarve</p>
- *  ❌  <h1>Our Partners</h1>
+ * --- What it catches ---
+ *  FAIL: <Button>Book Now</Button>
+ *  FAIL: <p>Welcome to the Algarve</p>
+ *  FAIL: <h1>Our Partners</h1>
  *
- * ─── What it allows ──────────────────────────────────────────────────────────
- *  ✅  <Button>{t("cta.book")}</Button>
- *  ✅  <p>{t("hero.subtitle")}</p>
- *  ✅  <span>{count}</span>          ← variable, not a literal
- *  ✅  <div className="foo">         ← attribute string, not JSX text
- *  ✅  <img alt="logo" />            ← alt text exempt when short
- *  ✅  {/* comment */}               ← JSX comments ignored
- *  ✅  AlgarveOfficial               ← brand name (configurable)
- *  ✅  &amp; / © 2025                ← punctuation-only strings
- *  ✅  Numbers / prices              ← e.g. "€299", "4.8"
+ * --- What it allows ---
+ *  OK: <Button>{t("cta.book")}</Button>
+ *  OK: <p>{t("hero.subtitle")}</p>
+ *  OK: <span>{count}</span>          (variable, not a literal)
+ *  OK: <div className="foo">         (attribute string, not JSX text)
+ *  OK: <img alt="logo" />            (alt text exempt when short)
+ *  OK: Comments are ignored
+ *  OK: AlgarveOfficial               (brand name - configurable)
+ *  OK: &amp; / © 2025                (punctuation-only strings)
+ *  OK: Numbers / prices              (e.g. "€299", "4.8")
  *
- * ─── Options ────────────────────────────────────────────────────────────────
- *  allowedTerms: string[]     — exact terms that are always allowed
- *  minWordLength: number      — strings shorter than this are skipped (default 3)
- *  ignoreComponents: string[] — component names whose JSX text is never checked
- *  ignoreAttributes: string[] — JSX attribute names that are never checked
+ * --- Options ---
+ *  allowedTerms: string[]     - exact terms that are always allowed
+ *  minWordLength: number      - strings shorter than this are skipped (default 3)
+ *  ignoreComponents: string[] - component names whose JSX text is never checked
+ *  ignoreAttributes: string[] - JSX attribute names that are never checked
  */
 
 "use strict";

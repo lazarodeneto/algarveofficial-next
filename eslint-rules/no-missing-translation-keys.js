@@ -2,22 +2,22 @@
  * eslint-rules/no-missing-translation-keys.js
  *
  * Validates that every key passed to t() / tSafe() exists in ALL locale JSON
- * files.  Runs statically at lint-time — no runtime required.
+ * files.  Runs statically at lint-time - no runtime required.
  *
- * ─── What it catches ─────────────────────────────────────────────────────────
- *  ❌  t("pricing.title")          → key missing in fr.json
- *  ❌  tSafe("hero.nonExistentKey")
+ * --- What it catches ---
+ *  FAIL: t("pricing.title")          - key missing in fr.json
+ *  FAIL: tSafe("hero.nonExistentKey")
  *
- * ─── What it ignores ─────────────────────────────────────────────────────────
- *  ✅  t("key", { defaultValue: "..." })  — has explicit fallback
- *  ✅  Dynamic keys: t(`namespace.${variable}`)  — cannot validate statically
- *  ✅  Admin-only namespaces (configurable via ignoreNamespaces)
+ * --- What it ignores ---
+ *  OK: t("key", { defaultValue: "..." })  - has explicit fallback
+ *  OK: Dynamic keys: t(`namespace.${variable}`) - cannot validate statically
+ *  OK: Admin-only namespaces (configurable via ignoreNamespaces)
  *
- * ─── Configuration (in eslint.config.js options) ─────────────────────────────
- *  localeDir: string          — path to locale JSON files (default: "i18n/locales")
- *  locales: string[]          — locale filenames to check (default: all *.json in dir)
- *  ignoreNamespaces: string[] — namespace prefixes to skip (default: ["admin","owner","dashboard"])
- *  warnOnly: boolean          — downgrade errors to warnings (default: false)
+ * --- Configuration (in eslint.config.js options) ---
+ *  localeDir: string          - path to locale JSON files (default: "i18n/locales")
+ *  locales: string[]          - locale filenames to check (default: all *.json in dir)
+ *  ignoreNamespaces: string[] - namespace prefixes to skip (default: ["admin","owner","dashboard"])
+ *  warnOnly: boolean          - downgrade errors to warnings (default: false)
  */
 
 "use strict";
@@ -25,7 +25,7 @@
 const fs = require("fs");
 const path = require("path");
 
-// ─── Build a flat key set from a nested JSON object ──────────────────────────
+// ---- Build a flat key set from a nested JSON object ----
 
 function flattenKeys(obj, prefix = "", acc = new Set()) {
   for (const [k, v] of Object.entries(obj)) {
@@ -39,7 +39,7 @@ function flattenKeys(obj, prefix = "", acc = new Set()) {
   return acc;
 }
 
-// ─── Lazy-load and cache locale key sets ─────────────────────────────────────
+// ---- Lazy-load and cache locale key sets ----
 
 const _cache = new Map(); // cwd+localeDir → { locales: Map<name, Set<key>> }
 
@@ -73,7 +73,7 @@ function getLocaleData(cwd, localeDir, requestedLocales) {
   return result;
 }
 
-// ─── Extract static string from first argument of t() ────────────────────────
+// ---- Extract static string from first argument of t() ----
 
 function extractStaticKey(node) {
   // t("namespace.key")  →  "namespace.key"
@@ -91,7 +91,7 @@ function extractStaticKey(node) {
   return null; // dynamic key — cannot validate
 }
 
-// ─── Rule implementation ──────────────────────────────────────────────────────
+// ---- Rule implementation ----
 
 module.exports = {
   meta: {
