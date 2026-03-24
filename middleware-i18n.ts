@@ -41,8 +41,10 @@ export function middleware(request: NextRequest) {
 
   // Skip if path already has a locale prefix
   const locale = getLocaleFromPathname(pathname);
-  if (locale !== DEFAULT_LOCALE || SUPPORTED_LOCALES.includes(pathname.split("/")[1] ?? "")) {
-    // Path has valid locale, just set header and continue
+  const firstSegment = pathname.split("/")[1]?.toLowerCase();
+
+  // If path starts with a valid locale, just set header and continue
+  if (firstSegment && SUPPORTED_LOCALES.includes(firstSegment as any)) {
     const response = NextResponse.next();
     response.headers.set("x-locale", locale);
     return response;
