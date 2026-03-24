@@ -34,7 +34,29 @@
     "tagPrivateAviation": "Particuliere luchtvaart",
     "aiPlannerPlaceholder": "AI Algarve Planner... (bijv. 'Plan 3 dagen in de Algarve')",
     "aiPlannerButton": "AI PLANNER",
-    "listYourBusiness": "Uw Bedrijf Aanmelden"
+    "listYourBusiness": "Uw Bedrijf Aanmelden",
+    "planTripCta": "Plan je reis",
+    "loginRequired": "Meld je aan of maak een account aan om een reis te maken en op te slaan.",
+    "tripCreated": "Reis succesvol aangemaakt.",
+    "trust": {
+      "subtitle": "Zichtbaar sociaal bewijs van echte advertenties, echt beoordelingsvolume en samengestelde venuenamen op het moment van eerste indruk.",
+      "defaultVenue": "AlgarveOfficial-selectie",
+      "fallbackWordmarkStay": "Premium verblijven",
+      "fallbackWordmarkDining": "Verfijnd eten",
+      "fallbackWordmarkGolf": "Golf",
+      "fallbackWordmarkLiving": "Lifestyle",
+      "coverageLabel": "geselecteerde advertenties",
+      "signatureFallbackValue": "geselecteerd",
+      "signatureLabel": "handtekening venues",
+      "partnersLabel": "aanbevolen partners",
+      "eyebrow": "Vertrouweningsbewijs",
+      "title": "Bewijs dat de selectie je tijd waard is",
+      "reviewEyebrow": "Bezoekersbeoordeling",
+      "approvedReview": "Goedgekeurde beoordeling",
+      "anonymousVisitor": "Geverifieerde bezoeker",
+      "fallbackQuote": "Een scherpere eerste indruk komt voort uit zichtbaar bewijs: echte beoordelingen, echte venues en een selectie die al vertrouwd aanvoelt voordat je klikt.",
+      "fallbackSource": "Samengesteld uit handtekeningverblijven, gastronomie, golf en lifestyle partners"
+    }
   },
   "sections": {
     "regions": {
@@ -91,10 +113,10 @@
       "stats": "Meer dan {{count}}+ geselecteerde advertenties in de Algarve"
     },
     "curated": {
-      "badge": "Handtekening selectie",
-      "title": "Handtekening selectie",
-      "subtitle": "Met de hand geselecteerde kenmerkende eigenschappen en ervaringen, gekozen voor veeleisende gasten die op zoek zijn naar het buitengewone.",
-      "viewDetails": "Details bekijken"
+      "badge": "Handtekeningselectie",
+      "title": "Handtekeningselectie",
+      "subtitle": "Zorgvuldig geselecteerde handtekeningeneigenschappen en ervaringen, gekozen voor veeleisende gasten die het buitengewone zoeken.",
+      "viewDetails": "Bekijk details"
     },
     "vip": {
       "title": "Handtekening selectie",
@@ -111,6 +133,33 @@
       "noUpcomingHint": "Kom snel terug voor nieuwe evenementen en gebeurtenissen in de Algarve.",
       "pastEvents": "Gebeurtenissen uit het verleden",
       "showPast": "Toon gebeurtenissen uit het verleden"
+    },
+    "algarveGuide": {
+      "title": "Je essentiële Algarve-gids",
+      "intro1": "Een premium reis naar de Algarve werkt het best als je verblijf, gastronomie en dagplannen van tevoren zijn geselecteerd.",
+      "intro2": "Deze gids verbindt de belangrijkste beslissingen die bezoekers gewoonlijk eerst nemen: waar je wilt overnachten, welke bestemmingen je wilt prioriteren en welke ervaringen je tijd waard zijn.",
+      "intro3": "Gebruik het als snelstartpunt en spring vervolgens naar de directory, bestemmingspagina's of kaart om een scherpere selectie samen te stellen.",
+      "and": "en",
+      "stayTitle": "Waar overnachten",
+      "stayBody": "Begin met de juiste basis voor je reis.",
+      "stayLinksPrefix": "Blader door premium",
+      "links": {
+        "algarveHotels": "Algarve-hotels",
+        "placesToStay": "plaatsen om te verblijven",
+        "destinations": "bestemmingen",
+        "beaches": "stranden",
+        "interactiveMap": "de interactieve kaart",
+        "golf": "golf",
+        "restaurants": "restaurants",
+        "thingsToDo": "dingen om te doen",
+        "events": "evenementen"
+      },
+      "destinationsTitle": "Waar heen gaan",
+      "destinationsBody": "Vergelijk de Algarve per regio voordat je je plan vastlegt.",
+      "destinationsLinksPrefix": "Verken",
+      "doTitle": "Wat te doen",
+      "doBody": "Balanceer de selectie met ervaringen die bij jouw tempo passen.",
+      "doLinksPrefix": "Spring naar"
     }
   },
   "newsletter": {
