@@ -384,7 +384,11 @@
     "go": "Vai",
     "noListingsYet": "Nessun Annuncio Ancora",
     "noListingsYetDesc": "Stiamo selezionando le migliori esperienze per questa regione.",
-    "sendResetLink": "Invia Link di Reimpostazione"
+    "sendResetLink": "Invia Link di Reimpostazione",
+    "curated": "Selezionato",
+    "avgRating": "valutazione media",
+    "inOtherCities": "in altre città dell'Algarve",
+    "moreToExploreIn": "Altro da esplorare a"
   },
   "search": {
     "placeholder": "Cerca annunci, categorie, città, regioni...",
