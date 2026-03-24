@@ -34,7 +34,29 @@
     "popular": "Popular",
     "tagGoldenVisa": "Golden Visa",
     "tagMichelinDining": "Michelin Dining",
-    "tagPrivateAviation": "Private Aviation"
+    "tagPrivateAviation": "Private Aviation",
+    "planTripCta": "Plan your Trip",
+    "loginRequired": "Log in or create an account to create and save your trip.",
+    "tripCreated": "Trip created successfully.",
+    "trust": {
+      "subtitle": "Visible social proof from real listings, real review volume, and curated venue names right at the point of first impression.",
+      "defaultVenue": "AlgarveOfficial selection",
+      "fallbackWordmarkStay": "Premium stays",
+      "fallbackWordmarkDining": "Fine dining",
+      "fallbackWordmarkGolf": "Golf",
+      "fallbackWordmarkLiving": "Lifestyle",
+      "coverageLabel": "selected listings",
+      "signatureFallbackValue": "selected",
+      "signatureLabel": "signature venues",
+      "partnersLabel": "featured partners",
+      "eyebrow": "Trust Proof",
+      "title": "Proof that the shortlist is worth your time",
+      "reviewEyebrow": "Visitor Review",
+      "approvedReview": "Approved review",
+      "anonymousVisitor": "Verified visitor",
+      "fallbackQuote": "A sharper first impression comes from visible proof: real ratings, real venues, and a selection that already feels trusted before the first click.",
+      "fallbackSource": "Curated across signature stays, dining, golf, and lifestyle partners"
+    }
   },
   "sections": {
     "regions": {
@@ -111,6 +133,33 @@
       "noUpcomingHint": "Check back soon for new events and happenings in the Algarve.",
       "pastEvents": "Past Events",
       "showPast": "Show Past Events"
+    },
+    "algarveGuide": {
+      "title": "Your essential Algarve guide",
+      "intro1": "A premium Algarve trip works best when your stay, dining, and day plans are shortlisted before you land.",
+      "intro2": "This guide connects the core decisions visitors usually make first: where to stay, which destinations to prioritize, and what experiences are worth time on the ground.",
+      "intro3": "Use it as a fast starting point, then jump into the directory, destination pages, or map to build a sharper shortlist.",
+      "and": "and",
+      "stayTitle": "Where to stay",
+      "stayBody": "Start with the right base for your trip.",
+      "stayLinksPrefix": "Browse premium",
+      "links": {
+        "algarveHotels": "Algarve hotels",
+        "placesToStay": "places to stay",
+        "destinations": "destinations",
+        "beaches": "beaches",
+        "interactiveMap": "the interactive map",
+        "golf": "golf",
+        "restaurants": "restaurants",
+        "thingsToDo": "things to do",
+        "events": "events"
+      },
+      "destinationsTitle": "Where to go",
+      "destinationsBody": "Compare the Algarve by region before locking your plan.",
+      "destinationsLinksPrefix": "Explore",
+      "doTitle": "What to do",
+      "doBody": "Balance the shortlist with experiences that fit your pace.",
+      "doLinksPrefix": "Jump into"
     }
   },
   "newsletter": {

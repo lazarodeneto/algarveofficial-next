@@ -34,7 +34,29 @@
     "tagPrivateAviation": "Aviación Privada",
     "aiPlannerPlaceholder": "Planificador IA del Algarve... (p.ej. 'Planear 3 días en el Algarve')",
     "aiPlannerButton": "PLANIFICADOR IA",
-    "listYourBusiness": "Registre Su Negocio"
+    "listYourBusiness": "Registre Su Negocio",
+    "planTripCta": "Planifique su viaje",
+    "loginRequired": "Inicie sesión o cree una cuenta para crear y guardar su viaje.",
+    "tripCreated": "Viaje creado con éxito.",
+    "trust": {
+      "subtitle": "Prueba social visible de listados reales, volumen de reseñas real y nombres de establecimientos curados en el momento de la primera impresión.",
+      "defaultVenue": "Selección AlgarveOfficial",
+      "fallbackWordmarkStay": "Alojamientos premium",
+      "fallbackWordmarkDining": "Gastronomía fina",
+      "fallbackWordmarkGolf": "Golf",
+      "fallbackWordmarkLiving": "Estilo de vida",
+      "coverageLabel": "listados seleccionados",
+      "signatureFallbackValue": "seleccionado",
+      "signatureLabel": "establecimientos de firma",
+      "partnersLabel": "socios destacados",
+      "eyebrow": "Prueba de confianza",
+      "title": "Prueba de que la selección vale su tiempo",
+      "reviewEyebrow": "Reseña del visitante",
+      "approvedReview": "Reseña aprobada",
+      "anonymousVisitor": "Visitante verificado",
+      "fallbackQuote": "Una primera impresión más aguda proviene de prueba visible: calificaciones reales, establecimientos reales y una selección que ya se siente confiable antes del primer clic.",
+      "fallbackSource": "Curado en alojamientos de firma, gastronomía, golf y socios de estilo de vida"
+    }
   },
   "sections": {
     "regions": {
@@ -91,10 +113,10 @@
       "stats": "Más de {{count}}+ listados seleccionados en todo el Algarve"
     },
     "curated": {
-      "badge": "Selección Signature",
-      "title": "Selección Signature",
-      "subtitle": "Propiedades y experiencias signature seleccionadas a mano, elegidas para huéspedes exigentes que buscan lo extraordinario.",
-      "viewDetails": "Ver Detalles"
+      "badge": "Selección de firma",
+      "title": "Selección de firma",
+      "subtitle": "Propiedades y experiencias de firma cuidadosamente seleccionadas, elegidas para huéspedes exigentes que buscan lo extraordinario.",
+      "viewDetails": "Ver detalles"
     },
     "vip": {
       "title": "Selección Signature",
@@ -111,6 +133,33 @@
       "noUpcomingHint": "Vuelva pronto para nuevos eventos y actividades en el Algarve.",
       "pastEvents": "Eventos pasados",
       "showPast": "Mostrar eventos pasados"
+    },
+    "algarveGuide": {
+      "title": "Su guía esencial del Algarve",
+      "intro1": "Un viaje premium al Algarve funciona mejor cuando su alojamiento, gastronomía y planes de días se preseleccionan antes de llegar.",
+      "intro2": "Esta guía conecta las decisiones principales que los visitantes generalmente toman primero: dónde alojarse, qué destinos priorizar y qué experiencias vale la pena el tiempo en el terreno.",
+      "intro3": "Úselo como punto de partida rápido, luego salte al directorio, páginas de destino o mapa para crear una selección más afilada.",
+      "and": "y",
+      "stayTitle": "Dónde alojarse",
+      "stayBody": "Comience con la base adecuada para su viaje.",
+      "stayLinksPrefix": "Explore premium",
+      "links": {
+        "algarveHotels": "hoteles del Algarve",
+        "placesToStay": "lugares para alojarse",
+        "destinations": "destinos",
+        "beaches": "playas",
+        "interactiveMap": "el mapa interactivo",
+        "golf": "golf",
+        "restaurants": "restaurantes",
+        "thingsToDo": "cosas que hacer",
+        "events": "eventos"
+      },
+      "destinationsTitle": "Dónde ir",
+      "destinationsBody": "Compare el Algarve por región antes de bloquear su plan.",
+      "destinationsLinksPrefix": "Explore",
+      "doTitle": "Qué hacer",
+      "doBody": "Equilibre la selección con experiencias que se adapten a su ritmo.",
+      "doLinksPrefix": "Salte a"
     }
   },
   "newsletter": {
