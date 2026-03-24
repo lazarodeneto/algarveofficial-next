@@ -534,3 +534,6 @@ export default function Header() {
     </>
   );
 }
+
+// Named export for components that import { Header }
+export { Header };
