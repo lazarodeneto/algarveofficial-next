@@ -7,6 +7,6 @@ declare module "@/assets/*.webp" {
 }
 
 declare module "leaflet/dist/images/*.png" {
-  const content: string;
+  const content: { src: string };
   export default content;
 }
