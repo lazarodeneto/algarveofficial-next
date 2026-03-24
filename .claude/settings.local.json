@@ -4,7 +4,8 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(curl -s https://algarveofficial.com/en/directory)"
+      "Bash(curl -s https://algarveofficial.com/en/directory)",
+      "Bash(/Users/mini/algarveofficial-next/DEPLOYMENT-CHECKLIST.md:*)"
     ]
   }
 }
