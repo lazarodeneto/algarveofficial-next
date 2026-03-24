@@ -34,7 +34,29 @@
     "tagPrivateAviation": "Aviation Privée",
     "aiPlannerPlaceholder": "Planificateur IA Algarve... (ex: 'Planifier 3 jours en Algarve')",
     "aiPlannerButton": "PLANIFICATEUR IA",
-    "listYourBusiness": "Référencer Votre Établissement"
+    "listYourBusiness": "Référencer Votre Établissement",
+    "planTripCta": "Planifiez votre voyage",
+    "loginRequired": "Connectez-vous ou créez un compte pour créer et enregistrer votre voyage.",
+    "tripCreated": "Voyage créé avec succès.",
+    "trust": {
+      "subtitle": "Preuve sociale visible de véritables annonces, de vrais volumes d'avis et de noms d'établissements curés au moment de la première impression.",
+      "defaultVenue": "Sélection AlgarveOfficial",
+      "fallbackWordmarkStay": "Séjours premium",
+      "fallbackWordmarkDining": "Gastronomie fine",
+      "fallbackWordmarkGolf": "Golf",
+      "fallbackWordmarkLiving": "Mode de vie",
+      "coverageLabel": "annonces sélectionnées",
+      "signatureFallbackValue": "sélectionné",
+      "signatureLabel": "établissements signature",
+      "partnersLabel": "partenaires vedette",
+      "eyebrow": "Preuve de Confiance",
+      "title": "Preuve que la sélection mérite votre temps",
+      "reviewEyebrow": "Avis de visiteur",
+      "approvedReview": "Avis approuvé",
+      "anonymousVisitor": "Visiteur vérifié",
+      "fallbackQuote": "Une première impression plus affûtée provient d'une preuve visible : des évaluations réelles, des établissements réels et une sélection qui semble déjà digne de confiance avant le premier clic.",
+      "fallbackSource": "Curé dans les séjours signature, la gastronomie, le golf et les partenaires mode de vie"
+    }
   },
   "sections": {
     "regions": {
@@ -93,8 +115,8 @@
     "curated": {
       "badge": "Sélection Signature",
       "title": "Sélection Signature",
-      "subtitle": "Propriétés et expériences signature triées sur le volet, sélectionnées pour les clients exigeants à la recherche de l'extraordinaire.",
-      "viewDetails": "Voir les Détails"
+      "subtitle": "Propriétés et expériences signature sélectionnées avec soin, choisies pour les clients exigeants à la recherche de l'extraordinaire.",
+      "viewDetails": "Voir les détails"
     },
     "vip": {
       "title": "Sélection Signature",
@@ -111,6 +133,33 @@
       "noUpcomingHint": "Revenez bientôt pour de nouveaux événements et activités en Algarve.",
       "pastEvents": "Événements passés",
       "showPast": "Afficher les événements passés"
+    },
+    "algarveGuide": {
+      "title": "Votre guide essentiel de l'Algarve",
+      "intro1": "Un voyage premium en Algarve fonctionne mieux quand votre séjour, votre gastronomie et vos plans de journées sont présélectionnés avant votre arrivée.",
+      "intro2": "Ce guide relie les principales décisions que les visitants prennent généralement en premier : où séjourner, quelles destinations prioriser et quelles expériences valent le temps sur place.",
+      "intro3": "Utilisez-le comme point de départ rapide, puis accédez à l'annuaire, aux pages de destination ou à la carte pour créer une sélection plus affûtée.",
+      "and": "et",
+      "stayTitle": "Où séjourner",
+      "stayBody": "Commencez avec la bonne base pour votre voyage.",
+      "stayLinksPrefix": "Parcourez les",
+      "links": {
+        "algarveHotels": "hôtels de l'Algarve",
+        "placesToStay": "lieux de séjour",
+        "destinations": "destinations",
+        "beaches": "plages",
+        "interactiveMap": "carte interactive",
+        "golf": "golf",
+        "restaurants": "restaurants",
+        "thingsToDo": "choses à faire",
+        "events": "événements"
+      },
+      "destinationsTitle": "Où aller",
+      "destinationsBody": "Comparez l'Algarve par région avant de verrouiller votre plan.",
+      "destinationsLinksPrefix": "Explorez",
+      "doTitle": "Que faire",
+      "doBody": "Équilibrez la sélection avec des expériences qui correspondent à votre rythme.",
+      "doLinksPrefix": "Accédez à"
     }
   },
   "newsletter": {

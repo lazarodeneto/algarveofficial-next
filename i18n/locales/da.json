@@ -34,7 +34,29 @@
     "tagPrivateAviation": "Privat luftfart",
     "aiPlannerPlaceholder": "AI Algarve-planlægger... (f.eks. 'Planlæg 3 dage i Algarve')",
     "aiPlannerButton": "AI-PLANLÆGGER",
-    "listYourBusiness": "Tilføj Din Virksomhed"
+    "listYourBusiness": "Tilføj Din Virksomhed",
+    "planTripCta": "Planlæg dit rejseeventyr",
+    "loginRequired": "Log ind eller opret en konto for at oprette og gemme din tur.",
+    "tripCreated": "Tur oprettet med succes.",
+    "trust": {
+      "subtitle": "Synlig social bevis fra rigtige annoncer, reelt anmeldelsesvolumen og kuraterede venunavne på tidspunktet for første indtryk.",
+      "defaultVenue": "AlgarveOfficial-udvalg",
+      "fallbackWordmarkStay": "Premium overnatninger",
+      "fallbackWordmarkDining": "Fine dining",
+      "fallbackWordmarkGolf": "Golf",
+      "fallbackWordmarkLiving": "Livsstil",
+      "coverageLabel": "udvalgte annoncer",
+      "signatureFallbackValue": "udvalgt",
+      "signatureLabel": "signaturvenue",
+      "partnersLabel": "fremhævede partnere",
+      "eyebrow": "Tillidsbevis",
+      "title": "Bevis på, at udvælgelsen er værd din tid",
+      "reviewEyebrow": "Besøgende anmeldelse",
+      "approvedReview": "Godkendt anmeldelse",
+      "anonymousVisitor": "Bekræftet besøgende",
+      "fallbackQuote": "Et skarpere første indtryk kommer fra synligt bevis: rigtige vurderinger, rigtige venue og et udvalg der allerede føles pålidelig før det første klik.",
+      "fallbackSource": "Kurateret blandt signaturovernatninger, gastronomi, golf og livsstilspartnere"
+    }
   },
   "sections": {
     "regions": {
@@ -91,9 +113,9 @@
       "stats": "Over {{count}}+ udvalgte fortegnelser på tværs af Algarve"
     },
     "curated": {
-      "badge": "Signaturvalg",
-      "title": "Signaturvalg",
-      "subtitle": "Håndudvalgte signaturejendomme og oplevelser, valgt til kræsne gæster, der søger det ekstraordinære.",
+      "badge": "Signaturudvalg",
+      "title": "Signaturudvalg",
+      "subtitle": "Omhyggeligt udvalgte signaturegenskaber og oplevelser, valgt til kræsne gæster der søger det usædvanlige.",
       "viewDetails": "Se detaljer"
     },
     "vip": {
@@ -111,6 +133,33 @@
       "noUpcomingHint": "Kom snart tilbage for nye begivenheder og begivenheder i Algarve.",
       "pastEvents": "Tidligere begivenheder",
       "showPast": "Vis tidligere begivenheder"
+    },
+    "algarveGuide": {
+      "title": "Din væsentlige Algarveguide",
+      "intro1": "En premium Algarve-tur fungerer bedst, når dit ophold, gastronomi og dagsplaner er forudvalgt før du ankommer.",
+      "intro2": "Denne guide forbinder de vigtigste beslutninger, som besøgende normalt træffer først: hvor du skal bo, hvilke destinationer du skal prioritere og hvilke oplevelser der er værd at tilbringe tid på stedet.",
+      "intro3": "Brug det som et hurtigt startpunkt, og hopp derefter til katalogen, destinationssider eller kortet for at bygge et skarpere udvalg.",
+      "and": "og",
+      "stayTitle": "Hvor skal du bo",
+      "stayBody": "Start med det rette grundlag for din tur.",
+      "stayLinksPrefix": "Gennemse premium",
+      "links": {
+        "algarveHotels": "Algarve-hoteller",
+        "placesToStay": "steder at bo",
+        "destinations": "destinationer",
+        "beaches": "strande",
+        "interactiveMap": "det interaktive kort",
+        "golf": "golf",
+        "restaurants": "restauranter",
+        "thingsToDo": "ting at lave",
+        "events": "begivenheder"
+      },
+      "destinationsTitle": "Hvor skal du gå",
+      "destinationsBody": "Sammenlign Algarve efter region før du låser din plan.",
+      "destinationsLinksPrefix": "Udforsk",
+      "doTitle": "Hvad du skal lave",
+      "doBody": "Balanser udvalget med oplevelser der passer dit tempo.",
+      "doLinksPrefix": "Spring til"
     }
   },
   "newsletter": {

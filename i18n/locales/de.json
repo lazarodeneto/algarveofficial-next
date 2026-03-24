@@ -34,7 +34,29 @@
     "tagPrivateAviation": "Privatfliegerei",
     "aiPlannerPlaceholder": "KI-Algarve-Planer... (z.B. 'Plane 3 Tage im Algarve')",
     "aiPlannerButton": "KI-PLANER",
-    "listYourBusiness": "Ihr Unternehmen Eintragen"
+    "listYourBusiness": "Ihr Unternehmen Eintragen",
+    "planTripCta": "Planen Sie Ihre Reise",
+    "loginRequired": "Melden Sie sich an oder erstellen Sie ein Konto, um eine Reise zu erstellen und zu speichern.",
+    "tripCreated": "Reise erfolgreich erstellt.",
+    "trust": {
+      "subtitle": "Sichtbarer sozialer Beweis aus echten Angeboten, echtem Bewertungsvolumen und kuratierten Veranstaltungsnamen beim ersten Eindruck.",
+      "defaultVenue": "AlgarveOfficial-Auswahl",
+      "fallbackWordmarkStay": "Premium-Unterkünfte",
+      "fallbackWordmarkDining": "Fine Dining",
+      "fallbackWordmarkGolf": "Golf",
+      "fallbackWordmarkLiving": "Lebensstil",
+      "coverageLabel": "ausgewählte Angebote",
+      "signatureFallbackValue": "ausgewählt",
+      "signatureLabel": "Signature-Veranstaltungsorte",
+      "partnersLabel": "Featured Partner",
+      "eyebrow": "Vertrauensbeweis",
+      "title": "Beweis, dass die Auswahl Ihre Zeit wert ist",
+      "reviewEyebrow": "Besucherbewertung",
+      "approvedReview": "Genehmigte Bewertung",
+      "anonymousVisitor": "Verifizierter Besucher",
+      "fallbackQuote": "Ein schärferer erster Eindruck kommt von sichtbarem Beweis: echten Bewertungen, echten Veranstaltungsorten und einer Auswahl, die bereits vor dem ersten Klick vertrauenswürdig wirkt.",
+      "fallbackSource": "Kuratiert bei Signature-Unterkünften, Gastronomie, Golf und Lifestyle-Partnern"
+    }
   },
   "sections": {
     "regions": {
@@ -91,10 +113,10 @@
       "stats": "Über {{count}}+ ausgewählte Angebote an der Algarve"
     },
     "curated": {
-      "badge": "Signature Auswahl",
-      "title": "Signature Auswahl",
-      "subtitle": "Handverlesene Signature-Immobilien und Erlebnisse, ausgewählt für anspruchsvolle Gäste, die das Außergewöhnliche suchen.",
-      "viewDetails": "Details anzeigen"
+      "badge": "Signature-Auswahl",
+      "title": "Signature-Auswahl",
+      "subtitle": "Sorgfältig ausgewählte Signature-Immobilien und Erlebnisse, ausgewählt für anspruchsvolle Gäste, die das Außergewöhnliche suchen.",
+      "viewDetails": "Details ansehen"
     },
     "vip": {
       "title": "Signature Auswahl",
@@ -111,6 +133,33 @@
       "noUpcomingHint": "Schauen Sie bald wieder vorbei für neue Events und Veranstaltungen in der Algarve.",
       "pastEvents": "Vergangene Veranstaltungen",
       "showPast": "Vergangene anzeigen"
+    },
+    "algarveGuide": {
+      "title": "Ihr essentieller Algarve-Reiseführer",
+      "intro1": "Eine Premium-Reise an die Algarve funktioniert am besten, wenn Ihre Unterkunft, Gastronomie und Tagesplanungen vor Ihrer Ankunft vorgefiltert sind.",
+      "intro2": "Dieser Leitfaden verbindet die wichtigsten Entscheidungen, die Besucher normalerweise zuerst treffen: wo übernachten, welche Ziele priorisieren und welche Erlebnisse Zeit vor Ort wert sind.",
+      "intro3": "Nutzen Sie es als schnellen Ausgangspunkt und springen Sie dann ins Verzeichnis, auf Zielseiten oder in die Karte, um eine schärfere Auswahl zu erstellen.",
+      "and": "und",
+      "stayTitle": "Wo übernachten",
+      "stayBody": "Beginnen Sie mit der richtigen Basis für Ihre Reise.",
+      "stayLinksPrefix": "Durchsuchen Sie Premium",
+      "links": {
+        "algarveHotels": "Algarve-Hotels",
+        "placesToStay": "Übernachtungsorte",
+        "destinations": "Ziele",
+        "beaches": "Strände",
+        "interactiveMap": "die interaktive Karte",
+        "golf": "Golf",
+        "restaurants": "Restaurants",
+        "thingsToDo": "Aktivitäten",
+        "events": "Veranstaltungen"
+      },
+      "destinationsTitle": "Wohin gehen",
+      "destinationsBody": "Vergleichen Sie die Algarve nach Region, bevor Sie Ihren Plan sperren.",
+      "destinationsLinksPrefix": "Erkunden Sie",
+      "doTitle": "Was zu tun ist",
+      "doBody": "Gleichen Sie die Auswahl mit Erlebnissen ab, die Ihrem Tempo entsprechen.",
+      "doLinksPrefix": "Springen Sie zu"
     }
   },
   "newsletter": {

@@ -34,7 +34,29 @@
     "tagMichelinDining": "Restaurantes Michelin",
     "tagPrivateAviation": "Aviação Privada",
     "aiPlannerPlaceholder": "Planeador IA do Algarve... (ex: 'Planear 3 dias no Algarve')",
-    "aiPlannerButton": "PLANEADOR IA"
+    "aiPlannerButton": "PLANEADOR IA",
+    "planTripCta": "Planeie sua Viagem",
+    "loginRequired": "Faça login ou crie uma conta para criar e guardar sua viagem.",
+    "tripCreated": "Viagem criada com sucesso.",
+    "trust": {
+      "subtitle": "Prova social visível de listagens reais, volume de avaliações real e nomes de estabelecimentos curados no ponto de primeira impressão.",
+      "defaultVenue": "Seleção AlgarveOfficial",
+      "fallbackWordmarkStay": "Alojamento premium",
+      "fallbackWordmarkDining": "Gastronomia fina",
+      "fallbackWordmarkGolf": "Golfe",
+      "fallbackWordmarkLiving": "Lifestyle",
+      "coverageLabel": "listagens selecionadas",
+      "signatureFallbackValue": "selecionado",
+      "signatureLabel": "estabelecimentos assinatura",
+      "partnersLabel": "parceiros destaque",
+      "eyebrow": "Prova de Confiança",
+      "title": "Prova de que a seleção vale seu tempo",
+      "reviewEyebrow": "Avaliação de Visitante",
+      "approvedReview": "Avaliação aprovada",
+      "anonymousVisitor": "Visitante verificado",
+      "fallbackQuote": "Uma primeira impressão mais aguçada vem de prova visível: classificações reais, estabelecimentos reais e uma seleção que já se sente confiável antes do primeiro clique.",
+      "fallbackSource": "Curado em alojamentos de assinatura, gastronomia, golfe e parceiros lifestyle"
+    }
   },
   "sections": {
     "regions": {
@@ -91,9 +113,9 @@
       "stats": "Mais de {{count}}+ listagens selecionadas em todo o Algarve"
     },
     "curated": {
-      "badge": "Seleção Signature",
-      "title": "Seleção Signature",
-      "subtitle": "Propriedades e experiências assinatura selecionadas a dedo, curadas para hóspedes exigentes que procuram o extraordinário.",
+      "badge": "Seleção Assinatura",
+      "title": "Seleção Assinatura",
+      "subtitle": "Propriedades e experiências de assinatura cuidadosamente selecionadas, escolhidas para hóspedes exigentes que buscam o extraordinário.",
       "viewDetails": "Ver Detalhes"
     },
     "vip": {
@@ -111,6 +133,33 @@
       "noUpcomingHint": "Volte em breve para novos eventos e acontecimentos no Algarve.",
       "pastEvents": "Eventos passados",
       "showPast": "Mostrar eventos passados"
+    },
+    "algarveGuide": {
+      "title": "Seu guia essencial do Algarve",
+      "intro1": "Uma viagem premium ao Algarve funciona melhor quando sua hospedagem, gastronomia e planos de dias estão pré-selecionados antes de você chegar.",
+      "intro2": "Este guia conecta as decisões principais que os visitantes geralmente fazem primeiro: onde ficar, quais destinos priorizar e quais experiências valem tempo no local.",
+      "intro3": "Use como ponto de partida rápido, depois pule para o diretório, páginas de destino ou mapa para criar uma seleção mais aguçada.",
+      "and": "e",
+      "stayTitle": "Onde ficar",
+      "stayBody": "Comece com a base certa para sua viagem.",
+      "stayLinksPrefix": "Navegue por",
+      "links": {
+        "algarveHotels": "hotéis do Algarve",
+        "placesToStay": "lugares para ficar",
+        "destinations": "destinos",
+        "beaches": "praias",
+        "interactiveMap": "mapa interativo",
+        "golf": "golfe",
+        "restaurants": "restaurantes",
+        "thingsToDo": "coisas para fazer",
+        "events": "eventos"
+      },
+      "destinationsTitle": "Onde ir",
+      "destinationsBody": "Compare o Algarve por região antes de travar seu plano.",
+      "destinationsLinksPrefix": "Explore",
+      "doTitle": "O que fazer",
+      "doBody": "Equilibre a seleção com experiências que se adequem ao seu ritmo.",
+      "doLinksPrefix": "Pule para"
     }
   },
   "newsletter": {

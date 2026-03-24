@@ -34,7 +34,29 @@
     "tagPrivateAviation": "Privat luftfart",
     "aiPlannerPlaceholder": "AI Algarve-planlegger... (f.eks. 'Planlegg 3 dager i Algarve')",
     "aiPlannerButton": "AI-PLANLEGGER",
-    "listYourBusiness": "Legg Til Bedriften Din"
+    "listYourBusiness": "Legg Til Bedriften Din",
+    "planTripCta": "Planlegg reisen din",
+    "loginRequired": "Logg inn eller lag en konto for å lage og lagre reisen din.",
+    "tripCreated": "Reise opprettet vellykket.",
+    "trust": {
+      "subtitle": "Synlig sosial bevis fra ekte oppføringer, reelt recensjonsvolum og kuraterte venuenavn på det tidspunktet for første inntrykk.",
+      "defaultVenue": "AlgarveOfficial valg",
+      "fallbackWordmarkStay": "Premium opphold",
+      "fallbackWordmarkDining": "Fin spising",
+      "fallbackWordmarkGolf": "Golf",
+      "fallbackWordmarkLiving": "Livsstil",
+      "coverageLabel": "utvalgte oppføringer",
+      "signatureFallbackValue": "valgt",
+      "signatureLabel": "signaturvenue",
+      "partnersLabel": "presenterte partnere",
+      "eyebrow": "Tillitsbevis",
+      "title": "Bevis på at utvalget er verdt din tid",
+      "reviewEyebrow": "Besøkerrecensjon",
+      "approvedReview": "Godkjent anmeldelse",
+      "anonymousVisitor": "Verifisert besøkende",
+      "fallbackQuote": "Et skarpere første inntrykk kommer fra synlige bevis: ekte vurderinger, ekte venue og et valg som allerede føles pålitelig før du klikker.",
+      "fallbackSource": "Kuratert på tvers av signaturopphold, spisemål, golf og livsstilspartnere"
+    }
   },
   "sections": {
     "regions": {
@@ -93,7 +115,7 @@
     "curated": {
       "badge": "Signaturvalg",
       "title": "Signaturvalg",
-      "subtitle": "Håndvalgte signaturegenskaper og opplevelser, valgt for kresne gjester som søker det ekstraordinære.",
+      "subtitle": "Nøye valgte signatureiendom og opplevelser, valgt for krevende gjester som søker det ekstraordinære.",
       "viewDetails": "Se detaljer"
     },
     "vip": {
@@ -111,6 +133,33 @@
       "noUpcomingHint": "Kom tilbake snart for nye hendelser og hendelser i Algarve.",
       "pastEvents": "Tidligere hendelser",
       "showPast": "Vis tidligere hendelser"
+    },
+    "algarveGuide": {
+      "title": "Din essensielle Algarveguide",
+      "intro1": "En premiumreise til Algarve fungerer best når oppholdet, spiseopplevelser og dagplaner er forhåndsvalgt før du ankommer.",
+      "intro2": "Denne guiden forbinder de viktigste beslutningene som besøkende vanligvis tar først: hvor du skal bo, hvilke destinasjoner du skal prioritere og hvilke opplevelser som er verdt tiden på bakken.",
+      "intro3": "Bruk det som et raskt utgangspunkt, og hopp deretter til katalogen, destinasjonssider eller kartet for å bygge et skarpere utvalg.",
+      "and": "og",
+      "stayTitle": "Hvor du skal bo",
+      "stayBody": "Start med riktig base for reisen din.",
+      "stayLinksPrefix": "Se gjennom premium",
+      "links": {
+        "algarveHotels": "Algarvehoteller",
+        "placesToStay": "steder å bo",
+        "destinations": "destinasjoner",
+        "beaches": "strender",
+        "interactiveMap": "det interaktive kartet",
+        "golf": "golf",
+        "restaurants": "restauranter",
+        "thingsToDo": "ting å gjøre",
+        "events": "events"
+      },
+      "destinationsTitle": "Hvor du skal gå",
+      "destinationsBody": "Sammenlign Algarve etter region før du låser planen din.",
+      "destinationsLinksPrefix": "Utforsk",
+      "doTitle": "Hva du skal gjøre",
+      "doBody": "Balanser utvalget med opplevelser som passer tempoet ditt.",
+      "doLinksPrefix": "Hopp til"
     }
   },
   "newsletter": {
