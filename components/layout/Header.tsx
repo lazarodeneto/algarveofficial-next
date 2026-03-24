@@ -50,7 +50,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-export function Header() {
+export default function Header() {
   const { mobileMenuOpen, setMobileMenuOpen } = useMobileMenu();
   const { isAuthenticated, user, logout, getDashboardPath } = useAuth();
   const { t } = useTranslation();
