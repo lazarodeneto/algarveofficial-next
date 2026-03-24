@@ -1,10 +1,10 @@
-import { createServerClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase";
 
 export default async function DirectoryPage() {
-  let listings = [];
+  let listings: any[] = [];
 
   try {
-    const supabase = createServerClient();
+    const supabase = createClient();
 
     const { data, error } = await supabase
       .from("listings")
@@ -28,7 +28,7 @@ export default async function DirectoryPage() {
         <p>No listings found</p>
       ) : (
         <ul>
-          {listings.map((listing: any) => (
+          {listings.map((listing) => (
             <li key={listing.id}>
               {listing.name || listing.Nome || "Unnamed"}
             </li>
