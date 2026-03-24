@@ -4,6 +4,14 @@ import type { NextRequest } from "next/server";
 const SUPPORTED_LOCALES = ["en", "pt-pt", "fr", "de", "es", "it", "nl", "sv", "no", "da"] as const;
 type SupportedLocale = typeof SUPPORTED_LOCALES[number];
 
+// Tracking-only query parameters that should be stripped via redirect.
+// We only redirect when ALL remaining params are tracking params (i.e. no
+// functional params survive stripping), to avoid breaking ?category= filters.
+const TRACKING_PARAMS = new Set([
+  "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content",
+  "fbclid", "gclid", "msclkid", "mc_cid", "mc_eid", "ref", "ttclid",
+]);
+
 // All known category slugs in every language — used to detect old /category/city URL format
 const CANONICAL_CATEGORY_SLUGS = new Set([
   "restaurants", "places-to-stay", "golf", "things-to-do",
@@ -19,14 +27,31 @@ function isLocale(value: string): value is SupportedLocale {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip internal Next.js, API routes, and static assets
+  // Skip internal Next.js, API routes, and static assets.
+  // Note: /favicon.ico is redundant here — it contains "." and is caught above.
+  // Note: /admin, /owner, /dashboard, /auth, /maintenance are excluded via the
+  // matcher below so they never reach this function.
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
-    pathname.includes(".") ||
-    pathname === "/favicon.ico"
+    pathname.includes(".")
   ) {
     return NextResponse.next();
+  }
+
+  // ── 0. Strip tracking-only query params ──────────────────────────────────
+  // Redirect to the clean URL when every query param is a known tracking param.
+  // Preserves functional params (e.g. ?category=... on /directory).
+  const searchParams = request.nextUrl.searchParams;
+  if (searchParams.size > 0) {
+    const hasNonTracking = Array.from(searchParams.keys()).some(
+      (k) => !TRACKING_PARAMS.has(k),
+    );
+    if (!hasNonTracking) {
+      const url = request.nextUrl.clone();
+      url.search = "";
+      return NextResponse.redirect(url, 301);
+    }
   }
 
   const segments = pathname.split("/").filter(Boolean);
@@ -75,9 +100,27 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 301);
   }
 
-  return NextResponse.next();
+  // ── 5. Pass locale to RootLayout via request header ───────────────────────
+  // Set x-locale on the INCOMING request headers so server components can read
+  // it via `headers()`. Setting it on response headers (response.headers.set)
+  // sends it to the browser but NOT to the server component tree.
+  const localeFromUrl =
+    segments.length >= 1 && isLocale(segments[0])
+      ? (segments[0].toLowerCase() as SupportedLocale)
+      : "en";
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-locale", localeFromUrl);
+  return NextResponse.next({
+    request: { headers: requestHeaders },
+  });
 }
 
 export const config = {
-  matcher: ["/((?!_next|api|.*\\..*).*)",],
+  // Exclude: Next.js internals, API routes, static assets (any path with a "."),
+  // and internal tool paths that are intentionally unlocalized and never need
+  // redirects or locale detection.
+  matcher: [
+    "/((?!_next|api|admin|owner|dashboard|auth|maintenance|.*\\..*).*)",
+  ],
 };

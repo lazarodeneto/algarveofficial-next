@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { LocalizedLink } from "@/components/navigation/LocalizedLink";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, ArrowRight, MapPin, Loader2 } from "lucide-react";
 
@@ -608,13 +609,13 @@ function DestinationDetailClientInner({
           <p className="text-body text-muted-foreground mb-8">
             {cms.getText("notFound.description", "The destination you're looking for doesn't exist.")}
           </p>
-          <Link
+          <LocalizedLink
             href="/destinations"
             className="inline-flex items-center gap-2 text-primary hover:underline"
           >
             <ArrowLeft className="w-4 h-4" />
             {cms.getText("notFound.back", "Back to Destinations")}
-          </Link>
+          </LocalizedLink>
         </div>
         <Footer />
       </div>
@@ -658,13 +659,13 @@ function DestinationDetailClientInner({
               transition={{ duration: 0.6 }}
               className="mb-8"
             >
-              <Link
+              <LocalizedLink
                 href="/destinations"
                 className="inline-flex items-center gap-2 text-sm text-white/75 hover:text-white transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 {cms.getText("hero.backToDestinations", "Back to Destinations")}
-              </Link>
+              </LocalizedLink>
             </motion.div>
 
             <motion.span
@@ -846,13 +847,13 @@ function DestinationDetailClientInner({
                     "We're selecting the finest experiences for this region.",
                   )}
                 </p>
-                <Link
+                <LocalizedLink
                   href="/destinations"
                   className="inline-flex items-center gap-2 text-primary hover:underline"
                 >
                   {cms.getText("listings.emptyCta", "Explore Other Destinations")}
                   <ArrowRight className="w-4 h-4" />
-                </Link>
+                </LocalizedLink>
               </div>
             )}
           </div>
@@ -882,13 +883,13 @@ function DestinationDetailClientInner({
                   "Discover other prestigious regions across the Algarve",
                 )}
               </p>
-              <Link
+              <LocalizedLink
                 href="/destinations"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors tap-target"
               >
                 {cms.getText("faq.cta", "View All Destinations")}
                 <ArrowRight className="w-4 h-4" />
-              </Link>
+              </LocalizedLink>
             </motion.div>
           </div>
         </DestinationDetailCmsBlock>

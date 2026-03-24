@@ -28,6 +28,18 @@ interface ContentContext {
 
 // ─── City landmark hints (supplements DB descriptions) ───────────────────────
 
+/**
+ * Normalise a city name to a consistent ASCII key for CITY_CONTEXT lookup.
+ * Strips diacritics so that both "Portimão" and "Portimao" resolve to "portimao".
+ */
+function normalizeCityKey(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // strip combining diacritical marks
+    .replace(/\s+/g, "-");           // spaces → hyphens (e.g. "armacao de pera" → "armacao-de-pera")
+}
+
 const CITY_CONTEXT: Record<string, string> = {
   albufeira: "golden beaches and vibrant marina",
   vilamoura: "luxury marina and championship golf courses",
@@ -36,14 +48,23 @@ const CITY_CONTEXT: Record<string, string> = {
   tavira: "Roman bridge and Ria Formosa lagoon",
   faro: "old city walls and Ria Formosa Nature Park",
   "quinta-do-lago": "prestigious golf estates and nature reserve",
+  "vale-do-lobo": "luxury resort and championship golf courses",
   carvoeiro: "dramatic rock formations and sea caves",
-  sagres: "Atlantic cliffs and surf beaches",
+  sagres: "Atlantic cliffs and surf beaches at Europe's southwestern tip",
   quarteira: "long sandy promenade and traditional fish market",
   silves: "Moorish castle and orange groves",
   "armacao-de-pera": "sweeping bay and fishing heritage",
   monchique: "mountain spa retreats and eucalyptus forests",
   olhao: "cubist architecture and island beaches",
-  loulé: "weekly market and craft traditions",
+  loule: "weekly market and craft traditions",
+  alvor: "tranquil lagoon estuary and medieval fishing village",
+  ferragudo: "hilltop castle overlooking the Arade river mouth",
+  luz: "sheltered beach and dramatic cliff walks",
+  aljezur: "wild surf beaches within Costa Vicentina Natural Park",
+  altura: "long sandy beach on the eastern Algarve coast",
+  "vila-real-de-santo-antonio": "riverside promenade on the Spanish border",
+  alcoutim: "medieval hilltop village on the Guadiana river",
+  fuseta: "lagoon island beaches within Ria Formosa",
 };
 
 // ─── Template systems ─────────────────────────────────────────────────────────
@@ -71,7 +92,7 @@ const TEMPLATES: Record<Locale, Templates> = {
       return `${cityName} is home to ${count} curated ${categoryDisplayName.toLowerCase()} listings on AlgarveOfficial.${ratingStr} you'll find premium options including ${topNames || "handpicked local gems"} — all verified by our team of Algarve experts.`;
     },
     body: ({ categoryDisplayName, cityName, canonical, cityDescription }) => {
-      const cityContext = CITY_CONTEXT[cityName.toLowerCase()] ?? "stunning Atlantic coastline";
+      const cityContext = CITY_CONTEXT[normalizeCityKey(cityName)] ?? "stunning Atlantic coastline";
       const cityDesc =
         cityDescription?.slice(0, 120) ?? `${cityName}'s ${cityContext}`;
       const categoryBlurbs: Record<CanonicalCategorySlug, string> = {
@@ -113,7 +134,7 @@ const TEMPLATES: Record<Locale, Templates> = {
       return `${cityName} tem ${count} opções de ${categoryDisplayName.toLowerCase()} selecionadas no AlgarveOfficial.${ratingStr} encontrará propostas de qualidade como ${topNames || "as melhores opções locais"} — todas verificadas pela nossa equipa de especialistas do Algarve.`;
     },
     body: ({ categoryDisplayName, cityName, canonical, cityDescription }) => {
-      const cityContext = CITY_CONTEXT[cityName.toLowerCase()] ?? "costa atlântica deslumbrante";
+      const cityContext = CITY_CONTEXT[normalizeCityKey(cityName)] ?? "costa atlântica deslumbrante";
       const cityDesc = cityDescription?.slice(0, 120) ?? `${cityName}, com ${cityContext}`;
       const blurbs: Record<CanonicalCategorySlug, string> = {
         restaurants: `De mariscos frescos e petiscos tradicionais a mesas de fine dining com ambição Michelin, a cena gastronómica de ${cityName} é uma das mais interessantes do Algarve. ${cityDesc}. Seja para um jantar romântico, almoço em família ou brunch à beira-mar, a nossa seleção garante uma experiência inesquecível.`,
@@ -143,7 +164,7 @@ const TEMPLATES: Record<Locale, Templates> = {
       return `${cityName} compte ${count} options de ${categoryDisplayName.toLowerCase()} sélectionnées sur AlgarveOfficial. Parmi les meilleures adresses : ${topNames || "une sélection soigneuse d'établissements locaux"} — toutes vérifiées par notre équipe d'experts de l'Algarve.`;
     },
     body: ({ categoryDisplayName, cityName, canonical }) => {
-      const cityContext = CITY_CONTEXT[cityName.toLowerCase()] ?? "côte atlantique exceptionnelle";
+      const cityContext = CITY_CONTEXT[normalizeCityKey(cityName)] ?? "côte atlantique exceptionnelle";
       const blurbs: Record<CanonicalCategorySlug, string> = {
         restaurants: `De fruits de mer frais et tapas traditionnels aux tables gastronomiques, ${cityName} propose une scène culinaire remarquable. Avec ses ${cityContext}, la ville se prête à tous les plaisirs de table. AlgarveOfficial sélectionne les meilleures adresses pour chaque occasion.`,
         "places-to-stay": `L'hébergement à ${cityName} va des maisons d'hôtes boutique aux complexes cinq étoiles avec piscine privée et vue sur l'Atlantique. Grâce à ses ${cityContext}, chaque séjour devient une expérience à part entière.`,
@@ -172,7 +193,7 @@ const TEMPLATES: Record<Locale, Templates> = {
       return `${cityName} bietet ${count} kuratierte ${categoryDisplayName}-Einträge auf AlgarveOfficial. Zu den Top-Adressen zählen ${topNames || "handverlesene lokale Highlights"} — alle von unserem Algarve-Expertenteam geprüft.`;
     },
     body: ({ categoryDisplayName, cityName, canonical }) => {
-      const cityContext = CITY_CONTEXT[cityName.toLowerCase()] ?? "atemberaubende Atlantikküste";
+      const cityContext = CITY_CONTEXT[normalizeCityKey(cityName)] ?? "atemberaubende Atlantikküste";
       const blurbs: Record<CanonicalCategorySlug, string> = {
         restaurants: `Von frischen Meeresfrüchten und traditionellen Petiscos bis hin zu Fine-Dining-Restaurants mit Michelin-Ambitionen bietet ${cityName} eine beeindruckende Gastronomieszene. Mit seinen ${cityContext} ist die Stadt der perfekte Rahmen für unvergessliche Mahlzeiten.`,
         "places-to-stay": `Die Unterkünfte in ${cityName} reichen von charmanten Boutique-Hotels bis zu Fünf-Sterne-Resorts mit Privatpool und Atlantikblick. AlgarveOfficial listet nur Immobilien, die unseren Premium-Standards entsprechen.`,
@@ -201,7 +222,7 @@ const TEMPLATES: Record<Locale, Templates> = {
       return `${cityName} alberga ${count} opciones de ${categoryDisplayName.toLowerCase()} en AlgarveOfficial. Entre las mejores: ${topNames || "joyas locales seleccionadas a mano"} — todas verificadas por nuestro equipo de expertos del Algarve.`;
     },
     body: ({ categoryDisplayName, cityName, canonical }) => {
-      const cityContext = CITY_CONTEXT[cityName.toLowerCase()] ?? "espectacular costa atlántica";
+      const cityContext = CITY_CONTEXT[normalizeCityKey(cityName)] ?? "espectacular costa atlántica";
       const blurbs: Record<CanonicalCategorySlug, string> = {
         restaurants: `Desde mariscos frescos y petiscos tradicionales hasta mesas de alta cocina con ambición Michelin, ${cityName} ofrece una escena gastronómica excepcional. Con sus ${cityContext}, la ciudad invita a cada tipo de experiencia culinaria.`,
         "places-to-stay": `El alojamiento en ${cityName} va desde casas rurales boutique con azulejos pintados hasta resorts de cinco estrellas con piscina privada y vistas al Atlántico.`,
@@ -231,7 +252,7 @@ const TEMPLATES: Record<Locale, Templates> = {
       return `${cityName} ospita ${count} opzioni di ${categoryDisplayName.toLowerCase()} su AlgarveOfficial.${ratingStr} Tra i migliori: ${topNames || "gemme locali scelte a mano"} — tutte verificate dal nostro team di esperti dell'Algarve.`;
     },
     body: ({ categoryDisplayName, cityName, canonical, cityDescription }) => {
-      const cityContext = CITY_CONTEXT[cityName.toLowerCase()] ?? "splendida costa atlantica";
+      const cityContext = CITY_CONTEXT[normalizeCityKey(cityName)] ?? "splendida costa atlantica";
       const cityDesc = cityDescription?.slice(0, 120) ?? `${cityName} con ${cityContext}`;
       const blurbs: Record<CanonicalCategorySlug, string> = {
         restaurants: `Da frutti di mare freschi e petiscos tradizionali a tavole di alta cucina con ambizioni Michelin, ${cityName} offre una scena gastronomica eccezionale. ${cityDesc}. Che stiate pianificando una cena romantica, un pranzo in famiglia o un brunch vista mare, la nostra selezione garantisce un'esperienza indimenticabile.`,
@@ -262,7 +283,7 @@ const TEMPLATES: Record<Locale, Templates> = {
       return `${cityName} heeft ${count} gecureerde ${categoryDisplayName.toLowerCase()}-vermeldingen op AlgarveOfficial.${ratingStr} vindt u premium opties zoals ${topNames || "zorgvuldig geselecteerde lokale toppers"} — allemaal geverifieerd door ons team van Algarve-experts.`;
     },
     body: ({ categoryDisplayName, cityName, canonical, cityDescription }) => {
-      const cityContext = CITY_CONTEXT[cityName.toLowerCase()] ?? "prachtige Atlantische kust";
+      const cityContext = CITY_CONTEXT[normalizeCityKey(cityName)] ?? "prachtige Atlantische kust";
       const cityDesc = cityDescription?.slice(0, 120) ?? `${cityName} met ${cityContext}`;
       const blurbs: Record<CanonicalCategorySlug, string> = {
         restaurants: `Van verse zeevruchten en traditionele petiscos tot gastronomische tafels met Michelin-ambities biedt ${cityName} een indrukwekkende culinaire scene. ${cityDesc}. Of u nu een romantisch diner, een familiemaaltijd of een relaxte brunch aan het water plant, onze gecureerde selectie garandeert een onvergetelijke ervaring.`,
@@ -293,7 +314,7 @@ const TEMPLATES: Record<Locale, Templates> = {
       return `${cityName} erbjuder ${count} utvalda ${categoryDisplayName.toLowerCase()}-alternativ på AlgarveOfficial.${ratingStr} hittar du premiumalternativ som ${topNames || "handplockade lokala pärlor"} — alla granskade av våra Algarve-experter.`;
     },
     body: ({ categoryDisplayName, cityName, canonical, cityDescription }) => {
-      const cityContext = CITY_CONTEXT[cityName.toLowerCase()] ?? "fantastiska atlantkusten";
+      const cityContext = CITY_CONTEXT[normalizeCityKey(cityName)] ?? "fantastiska atlantkusten";
       const cityDesc = cityDescription?.slice(0, 120) ?? `${cityName} med ${cityContext}`;
       const blurbs: Record<CanonicalCategorySlug, string> = {
         restaurants: `Från färsk skaldjur och traditionella petiscos till fine dining-restauranger med Michelin-ambitioner erbjuder ${cityName} en enastående gastronomisk scen. ${cityDesc}. Oavsett om du planerar en romantisk middag, en familjemiddag eller en avslappnad brunch vid vattnet säkerställer vårt urval en oförglömlig upplevelse.`,
@@ -324,7 +345,7 @@ const TEMPLATES: Record<Locale, Templates> = {
       return `${cityName} tilbyr ${count} kuraterte ${categoryDisplayName.toLowerCase()}-alternativer på AlgarveOfficial.${ratingStr} finner du premiumalternativer som ${topNames || "håndplukkede lokale perler"} — alle gjennomgått av våre Algarve-eksperter.`;
     },
     body: ({ categoryDisplayName, cityName, canonical, cityDescription }) => {
-      const cityContext = CITY_CONTEXT[cityName.toLowerCase()] ?? "fantastiske Atlanterhavskysten";
+      const cityContext = CITY_CONTEXT[normalizeCityKey(cityName)] ?? "fantastiske Atlanterhavskysten";
       const cityDesc = cityDescription?.slice(0, 120) ?? `${cityName} med ${cityContext}`;
       const blurbs: Record<CanonicalCategorySlug, string> = {
         restaurants: `Fra fersk sjømat og tradisjonelle petiscos til fine dining-restauranter med Michelin-ambisjoner tilbyr ${cityName} en enestående gastronomisk scene. ${cityDesc}. Enten du planlegger en romantisk middag, en familiemiddag eller en avslappet brunch ved vannet, sikrer vårt kuraterte utvalg en uforglemmelig opplevelse.`,
@@ -355,7 +376,7 @@ const TEMPLATES: Record<Locale, Templates> = {
       return `${cityName} byder på ${count} udvalgte ${categoryDisplayName.toLowerCase()}-muligheder på AlgarveOfficial.${ratingStr} finder du premiumvalg som ${topNames || "håndplukkede lokale perler"} — alle gennemgået af vores Algarve-eksperter.`;
     },
     body: ({ categoryDisplayName, cityName, canonical, cityDescription }) => {
-      const cityContext = CITY_CONTEXT[cityName.toLowerCase()] ?? "fantastiske Atlanterhavskyst";
+      const cityContext = CITY_CONTEXT[normalizeCityKey(cityName)] ?? "fantastiske Atlanterhavskyst";
       const cityDesc = cityDescription?.slice(0, 120) ?? `${cityName} med ${cityContext}`;
       const blurbs: Record<CanonicalCategorySlug, string> = {
         restaurants: `Fra frisk skaldyr og traditionelle petiscos til fine dining-restauranter med Michelin-ambitioner tilbyder ${cityName} en enestående gastronomisk scene. ${cityDesc}. Hvad enten du planlægger en romantisk middag, en familiefrokost eller en afslappet brunch ved vandet, sikrer vores kuraterede udvalg en uforglemmelig oplevelse.`,

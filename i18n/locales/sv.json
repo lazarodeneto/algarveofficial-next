@@ -384,7 +384,11 @@
     "go": "Gå",
     "noListingsYet": "Inga Annonser Ännu",
     "noListingsYetDesc": "Vi väljer de bästa upplevelserna för denna region.",
-    "sendResetLink": "Skicka Återställningslänk"
+    "sendResetLink": "Skicka Återställningslänk",
+    "curated": "Utvald",
+    "avgRating": "genomsnittsbetyg",
+    "inOtherCities": "i andra städer på Algarve",
+    "moreToExploreIn": "Mer att utforska i"
   },
   "search": {
     "placeholder": "Sök i listor, kategorier, städer, regioner...",

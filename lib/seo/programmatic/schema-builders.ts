@@ -5,12 +5,21 @@ import { getCategoryDisplayName } from "./category-slugs";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ?? "https://algarveofficial.com";
 
+/**
+ * Builds a locale-aware path.
+ * English has no prefix: /city/category
+ * Other locales prefix:  /pt-pt/city/category
+ */
+function localePath(locale: Locale, path: string): string {
+  return locale === "en" ? path : `/${locale}${path}`;
+}
+
 // ─── ItemList schema ───────────────────────────────────────────────────────────
 
 /**
  * Generates an ItemList JSON-LD schema for a programmatic city+category page.
  * This directly contributes to rich results in Google Search.
- * URL STRUCTURE: /{locale}/{city}/{category}
+ * URL STRUCTURE: /[city]/[category] (en) | /[locale]/[city]/[category] (others)
  */
 export function buildItemListSchema(
   locale: Locale,
@@ -21,7 +30,7 @@ export function buildItemListSchema(
   listings: ProgrammaticListing[],
 ) {
   const categoryName = getCategoryDisplayName(canonical, locale);
-  const pageUrl = `${SITE_URL}/${locale}/${citySlug}/${categoryUrlSlug}`;
+  const pageUrl = `${SITE_URL}${localePath(locale, `/${citySlug}/${categoryUrlSlug}`)}`;
 
   return {
     "@context": "https://schema.org",
@@ -36,7 +45,7 @@ export function buildItemListSchema(
       item: {
         "@type": "LocalBusiness",
         name: listing.name,
-        url: `${SITE_URL}/${locale}/listing/${listing.slug}`,
+        url: `${SITE_URL}${localePath(locale, `/listing/${listing.slug}`)}`,
         ...(listing.featured_image_url && {
           image: listing.featured_image_url,
         }),
@@ -65,7 +74,7 @@ export function buildItemListSchema(
 
 // ─── BreadcrumbList schema ─────────────────────────────────────────────────────
 /**
- * URL STRUCTURE: /{locale}/{city}/{category}
+ * URL STRUCTURE: /[city]/[category] (en) | /[locale]/[city]/[category] (others)
  * Breadcrumb: Home > City > Category
  */
 export function buildBreadcrumbSchema(
@@ -85,19 +94,19 @@ export function buildBreadcrumbSchema(
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: `${SITE_URL}/${locale}`,
+        item: `${SITE_URL}${localePath(locale, "/")}`,
       },
       {
         "@type": "ListItem",
         position: 2,
         name: cityName,
-        item: `${SITE_URL}/${locale}/${citySlug}`,
+        item: `${SITE_URL}${localePath(locale, `/${citySlug}`)}`,
       },
       {
         "@type": "ListItem",
         position: 3,
         name: categoryName,
-        item: `${SITE_URL}/${locale}/${citySlug}/${categoryUrlSlug}`,
+        item: `${SITE_URL}${localePath(locale, `/${citySlug}/${categoryUrlSlug}`)}`,
       },
     ],
   };
@@ -105,7 +114,7 @@ export function buildBreadcrumbSchema(
 
 // ─── CollectionPage schema ────────────────────────────────────────────────────
 /**
- * URL STRUCTURE: /{locale}/{city}/{category}
+ * URL STRUCTURE: /[city]/[category] (en) | /[locale]/[city]/[category] (others)
  */
 export function buildCollectionPageSchema(
   locale: Locale,
@@ -116,7 +125,7 @@ export function buildCollectionPageSchema(
   count: number,
 ) {
   const categoryName = getCategoryDisplayName(canonical, locale);
-  const pageUrl = `${SITE_URL}/${locale}/${citySlug}/${categoryUrlSlug}`;
+  const pageUrl = `${SITE_URL}${localePath(locale, `/${citySlug}/${categoryUrlSlug}`)}`;
 
   return {
     "@context": "https://schema.org",
