@@ -384,7 +384,11 @@
     "go": "Gå",
     "noListingsYet": "Ingen Opføringer Endnu",
     "noListingsYetDesc": "Vi udvælger de bedste oplevelser for denne region.",
-    "sendResetLink": "Send Nulstillingslink"
+    "sendResetLink": "Send Nulstillingslink",
+    "curated": "Udvalgt",
+    "avgRating": "gennemsnitlig bedømmelse",
+    "inOtherCities": "i andre byer på Algarve",
+    "moreToExploreIn": "Mere at udforske i"
   },
   "search": {
     "placeholder": "Søg fortegnelser, kategorier, byer, regioner...",

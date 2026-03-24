@@ -45,6 +45,21 @@ const LISTING_FIELDS = `
   price_from, price_currency, website_url
 `;
 
+// ─── Slug validation ─────────────────────────────────────────────────────────
+
+/**
+ * Fast format-only check for city slugs before hitting the database.
+ * Accepts lowercase ASCII letters, digits, and hyphens; 2–60 chars;
+ * no leading or trailing hyphens. Rejects garbage strings, locale codes
+ * passed in the wrong segment, SQL fragments, and oversized inputs.
+ *
+ * Note: this does NOT verify the slug exists in the DB — that is
+ * `getCategoryCityPageData`'s responsibility.
+ */
+export function isValidCitySlug(slug: string): boolean {
+  return /^[a-z0-9][a-z0-9-]{0,58}[a-z0-9]$/.test(slug);
+}
+
 // ─── Static params ────────────────────────────────────────────────────────────
 
 /**

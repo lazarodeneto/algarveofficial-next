@@ -384,7 +384,11 @@
     "go": "Ga",
     "noListingsYet": "Nog Geen Vermeldingen",
     "noListingsYetDesc": "We selecteren de beste ervaringen voor deze regio.",
-    "sendResetLink": "Herstelkoppeling Verzenden"
+    "sendResetLink": "Herstelkoppeling Verzenden",
+    "curated": "Geselecteerd",
+    "avgRating": "gemiddelde beoordeling",
+    "inOtherCities": "in andere steden van de Algarve",
+    "moreToExploreIn": "Meer te ontdekken in"
   },
   "search": {
     "placeholder": "Zoek vermeldingen, categorieën, steden, regio's...",

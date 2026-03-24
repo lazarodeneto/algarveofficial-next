@@ -1,5 +1,6 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { LocalizedLink } from "@/components/navigation/LocalizedLink";
 import { ChevronRight, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
@@ -156,13 +157,13 @@ export function DashboardBreadcrumb() {
 
   return (
     <nav className="flex min-w-0 items-center gap-1 overflow-hidden text-xs sm:text-sm" aria-label="Breadcrumb">
-      <Link
+      <LocalizedLink
         href="/"
         className="flex shrink-0 items-center text-muted-foreground transition-colors hover:text-foreground"
         title={t("common.goToHomepage")}
       >
         <Home className="h-4 w-4" />
-      </Link>
+      </LocalizedLink>
       
       {segments.map((segment, index) => (
         <div

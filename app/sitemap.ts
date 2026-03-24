@@ -84,22 +84,16 @@ const STATIC_PATHS = [
   { path: "/cookie-policy", priority: 0.3, changefreq: "yearly" as const },
 ];
 
-const CATEGORY_PATHS = [
-  { path: "/directory/restaurants", priority: 0.9, changefreq: "daily" as const },
-  { path: "/directory/places-to-stay", priority: 0.9, changefreq: "daily" as const },
-  { path: "/directory/golf", priority: 0.85, changefreq: "weekly" as const },
-  { path: "/directory/beaches", priority: 0.85, changefreq: "weekly" as const },
-  { path: "/directory/things-to-do", priority: 0.85, changefreq: "weekly" as const },
-  { path: "/directory/real-estate", priority: 0.85, changefreq: "weekly" as const },
-  { path: "/directory/wellness", priority: 0.8, changefreq: "weekly" as const },
-  { path: "/directory/events", priority: 0.8, changefreq: "daily" as const },
-];
+// NOTE: /directory/[slug] paths are intentionally excluded from the sitemap.
+// The directory page uses query params (?category=...) for filtering — there are
+// no real pages at /directory/restaurants etc., only the programmatic
+// /[city]/[category] pages which are added further below with proper hreflang.
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const entries: MetadataRoute.Sitemap = [];
 
-  for (const { path, priority, changefreq } of [...STATIC_PATHS, ...CATEGORY_PATHS]) {
+  for (const { path, priority, changefreq } of STATIC_PATHS) {
     entries.push(makeEntry(path, now, changefreq, priority));
   }
 
@@ -167,12 +161,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       entries.push(makeEntry(path, toValidDate(city.updated_at, now), "weekly", 0.75, city.image_url ?? undefined));
     }
 
-    // Categories
-    for (const cat of categoriesResponse.data ?? []) {
-      if (!cat.slug) continue;
-      const path = `/directory/${cat.slug}`;
-      entries.push(makeEntry(path, now, "weekly", 0.8, cat.image_url ?? undefined));
-    }
+    // NOTE: Category entries intentionally omitted from the sitemap.
+    // The categories query above is fetched for potential future use, but
+    // /directory/[slug] pages do not exist — the directory page uses query
+    // params (?category=...) for filtering. The programmatic /[city]/[category]
+    // pages below already provide full coverage with correct hreflang alternates.
+    void categoriesResponse; // suppress unused variable warning
 
     // Blog posts
     for (const post of blogPostsResponse.data ?? []) {
@@ -192,11 +186,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       entries.push(makeEntry(path, lastMod, changeFreq, 0.74, event.image_url ?? undefined));
     }
 
-    // ── Programmatic SEO pages: /{locale}/{category}/{city} ──────────────────
-    // One canonical entry per combination (using /en canonical), with hreflang
-    // pointing to each locale's translated category slug.
-    // NEW URL STRUCTURE: /{locale}/{city}/{category} (city-first hierarchy)
-    // NOTE: Default locale (en) does NOT have /en/ prefix - middleware strips it
+    // ── Programmatic SEO pages: /[city]/[category] (en) | /[locale]/[city]/[category] ──
+    // One canonical entry per city+category combination (English URL, no /en/ prefix).
+    // Each entry includes hreflang alternates with per-locale translated category slugs.
     try {
       const programmaticCombinations = await getAllCategoryCityCombinations();
 
@@ -209,11 +201,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         const path = `/${citySlug}/${enCatSlug}`; // No /en prefix
         const siteUrl = getSiteUrl();
 
-        // Build full hreflang map with translated slugs per locale
+        // Build full hreflang map with per-locale translated category slugs
         const hreflangLanguages: Record<string, string> = {};
         for (const loc of SUPPORTED_LOCALES) {
           const locCatSlug = getCategoryUrlSlug(canonical, loc);
-          const localePath = loc === "en" ? path : `/${loc}${path}`;
+          const localePath =
+            loc === "en"
+              ? `/${citySlug}/${locCatSlug}`
+              : `/${loc}/${citySlug}/${locCatSlug}`;
           hreflangLanguages[LOCALE_CONFIGS[loc].hreflang] = `${siteUrl}${localePath}`;
         }
         hreflangLanguages["x-default"] = `${siteUrl}${path}`;

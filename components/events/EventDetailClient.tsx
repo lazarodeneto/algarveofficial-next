@@ -6,6 +6,7 @@ import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { LocalizedLink } from "@/components/navigation/LocalizedLink";
 import {
   Calendar,
   MapPin,
@@ -294,10 +295,10 @@ function EventDetailClientInner({
               {cms.getText("notFound.description", "The event you're looking for doesn't exist or has been removed.")}
             </p>
             <Button variant="gold" asChild>
-              <Link href="/events">
+              <LocalizedLink href="/events">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 {cms.getText("notFound.back", "Back to Events")}
-              </Link>
+              </LocalizedLink>
             </Button>
           </div>
         </main>
@@ -341,13 +342,13 @@ function EventDetailClientInner({
             animate={{ opacity: 1, x: 0 }}
             className="mb-6"
           >
-            <Link
+            <LocalizedLink
               href="/events"
               className="inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-primary"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               {cms.getText("hero.backToEvents", "Back to Events")}
-            </Link>
+            </LocalizedLink>
           </motion.div>
 
           {eventHeroImage ? (
@@ -613,13 +614,13 @@ function EventDetailClientInner({
                 <h2 className="text-2xl font-serif font-medium text-foreground">
                   {cms.getText("related.title", "Related Events")}
                 </h2>
-                <Link
+                <LocalizedLink
                   href="/events"
                   className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
                   {cms.getText("related.viewAll", "View All")}
                   <ChevronRight className="h-4 w-4" />
-                </Link>
+                </LocalizedLink>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

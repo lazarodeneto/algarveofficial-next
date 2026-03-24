@@ -384,7 +384,11 @@
     "go": "Go",
     "noListingsYet": "No Listings Yet",
     "noListingsYetDesc": "We're selecting the finest experiences for this region.",
-    "sendResetLink": "Send Reset Link"
+    "sendResetLink": "Send Reset Link",
+    "curated": "Curated",
+    "avgRating": "avg rating",
+    "inOtherCities": "in other Algarve cities",
+    "moreToExploreIn": "More to explore in"
   },
   "search": {
     "placeholder": "Search listings, categories, cities, regions...",

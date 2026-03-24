@@ -1,3 +1,4 @@
+import { cache } from "react";
 import type { Locale } from "./locales";
 import { createClient } from "../supabase/server";
 import {
@@ -55,10 +56,17 @@ function pickTranslationKeys(
   }, {});
 }
 
-export async function getServerTranslations(
-  locale: Locale,
-  keys?: string[],
-): Promise<Record<string, string>> {
+/**
+ * Internal: loads, merges, and caches the FULL translation bundle for a locale.
+ *
+ * Wrapped with React.cache so that multiple server components (or generateMetadata
+ * + the page body) calling getServerTranslations for the same locale within one
+ * render tree share a single Supabase round-trip rather than firing one each.
+ *
+ * Cache is per-request (React.cache is scoped to the current React rendering
+ * context — it does NOT persist across separate requests).
+ */
+const getFullLocaleBundle = cache(async (locale: Locale): Promise<TranslationLeafMap> => {
   const englishBundleNode = await localeLoaders.en();
   const localeBundleNode = await localeLoaders[locale]();
   const premiumSafeBundleNode =
@@ -76,7 +84,7 @@ export async function getServerTranslations(
       .maybeSingle();
 
     if (error || !data?.data || typeof data.data !== "object") {
-      return pickTranslationKeys(bundle, keys);
+      return bundle;
     }
 
     const mergedFlat = {
@@ -85,11 +93,24 @@ export async function getServerTranslations(
     };
     const mergedNode = unflattenI18nData(mergedFlat);
     const premiumSafeMerged = enforcePremiumInLocaleData(mergedNode, englishBundleNode);
-    const premiumSafeFlat = flattenI18nData(premiumSafeMerged);
-
-    return pickTranslationKeys(premiumSafeFlat, keys);
-  } catch (error) {
-    console.error("[i18n] Failed to load server translations", { locale, error });
-    return pickTranslationKeys(bundle, keys);
+    return flattenI18nData(premiumSafeMerged);
+  } catch (err) {
+    console.error("[i18n] Failed to load server translations", { locale, error: err });
+    return bundle;
   }
+});
+
+/**
+ * Public API — returns translated strings for the given locale.
+ * Pass `keys` to receive only the subset needed; omit for the full bundle.
+ *
+ * Shares the underlying Supabase fetch with any other call for the same locale
+ * in the same render tree via React.cache deduplication.
+ */
+export async function getServerTranslations(
+  locale: Locale,
+  keys?: string[],
+): Promise<Record<string, string>> {
+  const fullBundle = await getFullLocaleBundle(locale);
+  return pickTranslationKeys(fullBundle, keys);
 }

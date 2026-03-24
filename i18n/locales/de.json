@@ -384,7 +384,11 @@
     "go": "Los",
     "noListingsYet": "Noch Keine Einträge",
     "noListingsYetDesc": "Wir wählen die besten Erlebnisse für diese Region aus.",
-    "sendResetLink": "Link zum Zurücksetzen Senden"
+    "sendResetLink": "Link zum Zurücksetzen Senden",
+    "curated": "Kuratiert",
+    "avgRating": "Ø Bewertung",
+    "inOtherCities": "in anderen Städten der Algarve",
+    "moreToExploreIn": "Mehr entdecken in"
   },
   "search": {
     "placeholder": "Suche nach Einträgen, Kategorien, Städten, Regionen...",
