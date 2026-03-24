@@ -134,7 +134,26 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CityCategoryPage({ params }: PageProps) {
   const { city: citySlug, category: categoryUrlSlug } = await params;
 
-  if (!isValidCitySlug(citySlug)) notFound();
+  // ✅ FIX: prevent collision with static routes like /directory
+  const VALID_CATEGORIES = [
+    "restaurants",
+    "hotels",
+    "experiences",
+    "real-estate",
+    "golf",
+    "beach-clubs",
+    "wellness",
+  ];
+
+  // Validate city
+  if (!isValidCitySlug(citySlug)) {
+    notFound();
+  }
+
+  // ✅ NEW: validate category BEFORE anything else
+  if (!VALID_CATEGORIES.includes(categoryUrlSlug)) {
+    notFound();
+  }
 
   const canonical = getCanonicalFromUrlSlug(categoryUrlSlug, LOCALE);
   if (!canonical) notFound();
