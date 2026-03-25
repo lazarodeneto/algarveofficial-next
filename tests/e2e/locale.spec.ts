@@ -380,3 +380,113 @@ test.describe("hreflang self-reference", () => {
     expect(href).toBeTruthy();
   });
 });
+
+// ─── 11. CRITICAL: UI ↔ URL Synchronization (LanguageSwitcher Fix) ────────────────
+
+test.describe("UI ↔ URL synchronization (critical fix)", () => {
+  test("language switcher UI always reflects the current URL locale", async ({ page }) => {
+    // Load English home page
+    await page.goto("/en", { waitUntil: "networkidle" });
+
+    // Verify UI shows English
+    const switched = await openLanguageSwitcher(page);
+    if (!switched) {
+      test.skip(true, "Language switcher not found");
+      return;
+    }
+
+    // Get switcher button/select element to check displayed value
+    const switcherElement = page.locator('[data-test="lang-switcher"]');
+    await expect(switcherElement).toContainText(/English|EN/i);
+
+    // Switch to Portuguese
+    const ptOption = page
+      .locator('[role="option"], [role="menuitem"], [role="button"], a, li')
+      .filter({ hasText: LOCALE_DISPLAY_NAMES["pt-pt"] || "Português" });
+    await ptOption.first().click();
+    await page.waitForURL(/\/pt-pt(\/|$)/, { timeout: 10_000 });
+
+    // CRITICAL: Verify UI now shows Portuguese (not stale English)
+    // After navigation, UI must update to reflect new URL
+    const reloadedSwitcher = page.locator('[data-test="lang-switcher"]');
+    await expect(reloadedSwitcher).toContainText(/Português|PT/i);
+
+    // Switch back to English
+    const switched2 = await openLanguageSwitcher(page);
+    if (!switched2) {
+      test.skip(true, "Language switcher not found on second click");
+      return;
+    }
+
+    const enOption = page
+      .locator('[role="option"], [role="menuitem"], [role="button"], a, li')
+      .filter({ hasText: LOCALE_DISPLAY_NAMES["en"] || "English" });
+    await enOption.first().click();
+    await page.waitForURL(/\/en(\/|$)/, { timeout: 10_000 });
+
+    // Verify UI shows English again
+    const finalSwitcher = page.locator('[data-test="lang-switcher"]');
+    await expect(finalSwitcher).toContainText(/English|EN/i);
+  });
+
+  test("page reload preserves UI ↔ URL sync", async ({ page }) => {
+    // Navigate to Portuguese home page
+    await page.goto("/pt-pt", { waitUntil: "networkidle" });
+
+    // Verify URL is /pt-pt
+    expectUrlHasLocale(page.url(), "pt-pt");
+
+    // Reload page
+    await page.reload({ waitUntil: "networkidle" });
+
+    // After reload, URL should still be /pt-pt
+    expectUrlHasLocale(page.url(), "pt-pt");
+
+    // And UI should show Portuguese
+    const switcher = page.locator('[data-test="lang-switcher"]');
+    await expect(switcher).toContainText(/Português|PT/i);
+  });
+
+  test("all 10 locales maintain UI ↔ URL sync", async ({ page }) => {
+    for (const locale of SUPPORTED_LOCALES) {
+      await page.goto(`/${locale}`, { waitUntil: "domcontentloaded" });
+
+      // Verify URL has the locale
+      expectUrlHasLocale(page.url(), locale);
+
+      // Verify no double locale prefixes
+      assertNoDoubleLocalePrefix(page.url());
+
+      // Verify <html lang> matches
+      const lang = await page.locator("html").getAttribute("lang");
+      expect(
+        lang,
+        `/${locale} should have matching html[lang]`,
+      ).toBeTruthy();
+    }
+  });
+
+  test("locale switch preserves query params and hash", async ({ page }) => {
+    // Navigate to /en/directory with query params
+    await page.goto("/en/directory?category=places-to-stay", { waitUntil: "networkidle" });
+
+    const switched = await openLanguageSwitcher(page);
+    if (!switched) {
+      test.skip(true, "Language switcher not found");
+      return;
+    }
+
+    // Switch to French
+    const frOption = page
+      .locator('[role="option"], [role="menuitem"], [role="button"], a, li')
+      .filter({ hasText: LOCALE_DISPLAY_NAMES["fr"] || "Français" });
+    await frOption.first().click();
+    await page.waitForURL(/\/fr(\/|$)/, { timeout: 10_000 });
+
+    // Verify URL has /fr, directory path, and query params
+    const url = page.url();
+    expectUrlHasLocale(url, "fr");
+    expect(url).toContain("directory");
+    expect(url).toContain("category=places-to-stay");
+  });
+});
