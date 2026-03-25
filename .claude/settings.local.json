@@ -5,7 +5,26 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(curl -s https://algarveofficial.com/en/directory)",
-      "Bash(/Users/mini/algarveofficial-next/DEPLOYMENT-CHECKLIST.md:*)"
+      "Bash(/Users/mini/algarveofficial-next/DEPLOYMENT-CHECKLIST.md:*)",
+      "Bash(npm run:*)",
+      "Bash(xargs grep:*)",
+      "Bash(find /Users/mini/algarveofficial-next -name *refactored* -type f)",
+      "Bash(curl -s http://localhost:3000/en/directory)",
+      "Bash(curl -s -I https://algarveofficial.com/en/directory)",
+      "Bash(git show:*)",
+      "Bash(git diff:*)",
+      "Bash(git checkout:*)",
+      "Bash(git stash:*)",
+      "Bash(gh pr:*)",
+      "Bash(gh run:*)",
+      "Bash(node -c /Users/mini/algarveofficial-next/eslint-rules/index.js)",
+      "Bash(node -c /Users/mini/algarveofficial-next/eslint-rules/no-hardcoded-strings.js)",
+      "Bash(node -c /Users/mini/algarveofficial-next/eslint-rules/no-missing-translation-keys.js)",
+      "Bash(grep -n 'page.goto\\(\"\"/[^e]' /Users/mini/algarveofficial-next/tests/e2e/*.spec.ts)",
+      "Bash(find /Users/mini/algarveofficial-next -name *.webp -type f)",
+      "Bash(grep -l \"sections.algarveGuide.stayTitle\\\\|hero.planTripCta\\\\|sections.homeQuickLinks\\\\|hero.trust.title\" /Users/mini/algarveofficial-next/i18n/locales/*.json)",
+      "Bash(grep -r \"t\\(\"\"hero\\\\.\" /Users/mini/algarveofficial-next/components/sections/*.tsx)",
+      "Bash(grep -r \"t\\(\"\"sections\\\\.\" /Users/mini/algarveofficial-next/components/sections/*.tsx)"
     ]
   }
 }

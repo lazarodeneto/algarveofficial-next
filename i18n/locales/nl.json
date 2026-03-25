@@ -18,6 +18,29 @@
     "myTrip": "Mijn reis",
     "account": "Rekening"
   },
+  "menu": {
+    "visit": "Bezoek",
+    "live": "Woon",
+    "invest": "Investeer",
+    "browseCategories": "Categorieën Verkennen",
+    "hero": {
+      "visit": {
+        "title": "Bezoek de Algarve",
+        "desc": "Wereldklas ervaringen langs Europas mooiste kustlijn.",
+        "label": "Alles ontdekken"
+      },
+      "live": {
+        "title": "Wonen in de Algarve",
+        "desc": "Alles wat u nodig heeft om van de Algarve uw permanente thuis te maken.",
+        "label": "Meer informatie"
+      },
+      "invest": {
+        "title": "Investeer in de Algarve",
+        "desc": "Zeker uw stuk paradijs en bouw duurzame waarde op.",
+        "label": "Strategie verkennen"
+      }
+    }
+  },
   "hero": {
     "location": "District Faro, Portugal",
     "headline": "Ontdek de",

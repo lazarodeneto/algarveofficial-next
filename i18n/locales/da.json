@@ -18,6 +18,29 @@
     "myTrip": "Min tur",
     "account": "Konto"
   },
+  "menu": {
+    "visit": "Besøg",
+    "live": "Lev",
+    "invest": "Investere",
+    "browseCategories": "Udforsk Kategorier",
+    "hero": {
+      "visit": {
+        "title": "Besøg Algarve",
+        "desc": "Verdensklasse oplevelser langs Europas smukkeste kystlinje.",
+        "label": "Udforsk alt"
+      },
+      "live": {
+        "title": "Lev i Algarve",
+        "desc": "Alt hvad du har brug for for at gøre Algarve til dit permanente hjem.",
+        "label": "Lær mere"
+      },
+      "invest": {
+        "title": "Investere i Algarve",
+        "desc": "Sikre dit stykke paradis og opbyg varig værdi.",
+        "label": "Udforsk strategi"
+      }
+    }
+  },
   "hero": {
     "location": "Distriktet Faro, Portugal",
     "headline": "Opdag",
