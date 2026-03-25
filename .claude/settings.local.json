@@ -24,7 +24,8 @@
       "Bash(find /Users/mini/algarveofficial-next -name *.webp -type f)",
       "Bash(grep -l \"sections.algarveGuide.stayTitle\\\\|hero.planTripCta\\\\|sections.homeQuickLinks\\\\|hero.trust.title\" /Users/mini/algarveofficial-next/i18n/locales/*.json)",
       "Bash(grep -r \"t\\(\"\"hero\\\\.\" /Users/mini/algarveofficial-next/components/sections/*.tsx)",
-      "Bash(grep -r \"t\\(\"\"sections\\\\.\" /Users/mini/algarveofficial-next/components/sections/*.tsx)"
+      "Bash(grep -r \"t\\(\"\"sections\\\\.\" /Users/mini/algarveofficial-next/components/sections/*.tsx)",
+      "Bash(grep -r \"middleware\\\\|proxy\" /Users/mini/algarveofficial-next --include=*.ts --include=*.tsx --include=next.config.* -l)"
     ]
   }
 }
