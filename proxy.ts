@@ -24,6 +24,14 @@ import {
  */
 const UNLOCALIZED_ROUTES = ["/api", "/_next", "/static", "/favicon", "/robots", "/sitemap"];
 
+/**
+ * Public SEO pages that should use 301 redirects (preserve page rank)
+ */
+const PUBLIC_SEO_PAGES = [
+  "destinations", "about-us", "blog", "contact", "cookie-policy",
+  "events", "invest", "map", "partner", "privacy-policy", "real-estate", "terms"
+];
+
 export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
@@ -70,12 +78,19 @@ export function proxy(request: NextRequest) {
 
   // ✅ HANDLE: Root path "/" → redirect to locale-specific root
   if (pathname === "/") {
-    return NextResponse.redirect(new URL(`/${locale}/`, request.url));
+    return NextResponse.redirect(new URL(`/${locale}/`, request.url), 307);
   }
 
   // ✅ REDIRECT: Unlocalized path → add locale prefix
   // Example: /map → /en/map
-  return NextResponse.redirect(new URL(`/${locale}${pathname}`, request.url));
+  const newUrl = new URL(`/${locale}${pathname}`, request.url);
+
+  // Use 301 (permanent) for public SEO pages to preserve page rank
+  // Use 307 (temporary) for private routes
+  const isPublicPage = PUBLIC_SEO_PAGES.some(page => pathname === `/${page}` || pathname.startsWith(`/${page}/`));
+  const statusCode = isPublicPage ? 301 : 307;
+
+  return NextResponse.redirect(newUrl, statusCode);
 }
 
 export const config = {
