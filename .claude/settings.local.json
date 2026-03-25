@@ -25,7 +25,14 @@
       "Bash(grep -l \"sections.algarveGuide.stayTitle\\\\|hero.planTripCta\\\\|sections.homeQuickLinks\\\\|hero.trust.title\" /Users/mini/algarveofficial-next/i18n/locales/*.json)",
       "Bash(grep -r \"t\\(\"\"hero\\\\.\" /Users/mini/algarveofficial-next/components/sections/*.tsx)",
       "Bash(grep -r \"t\\(\"\"sections\\\\.\" /Users/mini/algarveofficial-next/components/sections/*.tsx)",
-      "Bash(grep -r \"middleware\\\\|proxy\" /Users/mini/algarveofficial-next --include=*.ts --include=*.tsx --include=next.config.* -l)"
+      "Bash(grep -r \"middleware\\\\|proxy\" /Users/mini/algarveofficial-next --include=*.ts --include=*.tsx --include=next.config.* -l)",
+      "Bash(grep -n export.*getLocaleFromPathname lib/i18n/config.ts lib/i18n/*.ts)",
+      "Bash(xargs ps:*)",
+      "Bash(while ps:*)",
+      "Bash(! grep:*)",
+      "Bash(do sleep:*)",
+      "Bash(find . -name *.log -mmin -40 -type f)",
+      "Bash(pkill -f \"playwright test\")"
     ]
   }
 }
