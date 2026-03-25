@@ -18,6 +18,29 @@
     "myTrip": "Minha Viagem",
     "account": "Minha Conta"
   },
+  "menu": {
+    "visit": "Visitar",
+    "live": "Viver",
+    "invest": "Investir",
+    "browseCategories": "Explorar Categorias",
+    "hero": {
+      "visit": {
+        "title": "Visite o Algarve",
+        "desc": "Experiências de classe mundial ao longo da costa mais bonita da Europa.",
+        "label": "Explorar tudo"
+      },
+      "live": {
+        "title": "Viver no Algarve",
+        "desc": "Tudo o que precisa para fazer do Algarve sua residência permanente.",
+        "label": "Saiba mais"
+      },
+      "invest": {
+        "title": "Investir no Algarve",
+        "desc": "Assegure seu pedaço de paraíso e construa valor duradouro.",
+        "label": "Explorar estratégia"
+      }
+    }
+  },
   "hero": {
     "location": "Distrito de Faro, Portugal",
     "headline": "Descubra o",
