@@ -16,7 +16,15 @@
     "live": "Leben",
     "invest": "Investieren",
     "myTrip": "Meine Reise",
-    "account": "Mein Konto"
+    "account": "Mein Konto",
+    "map": "Karte",
+    "saved": "Favoriten",
+    "search": "Suchen",
+    "discover": "Entdecken",
+    "yourSpace": "Ihr Bereich",
+    "openMenu": "Menü öffnen",
+    "closeMenu": "Menü schließen",
+    "mobilePrimary": "Hauptnavigation"
   },
   "menu": {
     "visit": "Besuchen",
@@ -185,6 +193,16 @@
       "doLinksPrefix": "Springen Sie zu"
     }
   },
+  "map": {
+    "title": "Karten-Explorer",
+    "subtitle": "Gebündelte Kategoriemarker mit sofortiger Filterung in der gesamten Algarve.",
+    "description": "Entdecken Sie Algarve-Einträge auf einer interaktiven Karte mit gebündelten Markern und sofortiger Filterung.",
+    "visibleOnMap": "Auf der Karte sichtbar",
+    "mappableListings": "{{count}} kartierbare Einträge",
+    "totalResults": "{{count}} Ergebnisse entsprechen Ihren Filtern",
+    "noMappedListings": "Für diese Filter gibt es keine kartierten Einträge.",
+    "emptyCoordinates": "Für die ausgewählten Filter sind keine Eintragskoordinaten verfügbar."
+  },
   "newsletter": {
     "title": "Exklusiver Zugang zur",
     "titleHighlight": "Luxus-Algarve",
@@ -200,7 +218,10 @@
     "errorGeneric": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
     "alreadySubscribed": "Sie sind bereits für unseren Newsletter angemeldet!",
     "welcomeMessage": "Willkommen bei AlgarveOfficial! Prüfen Sie bald Ihren Posteingang.",
-    "errorRateLimit": "Zu viele Versuche. Bitte versuchen Sie es später erneut."
+    "errorRateLimit": "Zu viele Versuche. Bitte versuchen Sie es später erneut.",
+    "footerTitle": "Holen Sie sich den Algarve Insider Guide",
+    "footerSubtitle": "Monatlich kuratierte Empfehlungen, Events und Geheimtipps.",
+    "footerCta": "Guide holen"
   },
   "cookie": {
     "title": "Ihre Privatsphäre ist wichtig",
@@ -209,7 +230,19 @@
     "decline": "Ablehnen",
     "accept": "Analyse akzeptieren",
     "gdprBadge": "DSGVO-konform",
-    "dataRetention": "Daten werden 90 Tage aufbewahrt"
+    "dataRetention": "Daten werden 90 Tage aufbewahrt",
+    "acceptAll": "Alle akzeptieren",
+    "denyAll": "Alles ablehnen",
+    "saveSettings": "Einstellungen speichern",
+    "savePreferences": "Präferenzen speichern",
+    "optionalCategories": "Optionale Kategorien bleiben deaktiviert, bis Sie sie aktivieren",
+    "essential": "Essenziell",
+    "functional": "Funktional",
+    "analytics": "Analysen",
+    "marketing": "Marketing",
+    "details": "Details",
+    "preferencesTitle": "Cookie-Einstellungen",
+    "closePreferences": "Cookie-Einstellungen schließen"
   },
   "auth": {
     "backToHome": "Zurück zur Startseite",
@@ -460,7 +493,9 @@
     "curated": "Kuratiert",
     "avgRating": "Ø Bewertung",
     "inOtherCities": "in anderen Städten der Algarve",
-    "moreToExploreIn": "Mehr entdecken in"
+    "moreToExploreIn": "Mehr entdecken in",
+    "language": "Sprache",
+    "theme": "Thema"
   },
   "search": {
     "placeholder": "Suche nach Einträgen, Kategorien, Städten, Regionen...",
@@ -502,7 +537,8 @@
     "privacyPolicy": "Datenschutzrichtlinie",
     "termsOfService": "Nutzungsbedingungen",
     "cookiePolicy": "Cookie-Richtlinie",
-    "pricing": "Partner-Preise"
+    "pricing": "Partner-Preise",
+    "cookieSettings": "Cookie-Einstellungen"
   },
   "blog": {
     "title": "Blog & Einblicke",

@@ -16,7 +16,15 @@
     "live": "Live",
     "invest": "Investeren",
     "myTrip": "Mijn reis",
-    "account": "Rekening"
+    "account": "Rekening",
+    "map": "Kaart",
+    "saved": "Favorieten",
+    "search": "Zoeken",
+    "discover": "Ontdekken",
+    "yourSpace": "Jouw Ruimte",
+    "openMenu": "Menu openen",
+    "closeMenu": "Menu sluiten",
+    "mobilePrimary": "Hoofdnavigatie"
   },
   "menu": {
     "visit": "Bezoek",
@@ -185,6 +193,16 @@
       "doLinksPrefix": "Spring naar"
     }
   },
+  "map": {
+    "title": "Kaartverkenner",
+    "subtitle": "Geclusterde categoriemarkeringen met directe filtering in de hele Algarve.",
+    "description": "Verken Algarve-vermeldingen op een interactieve kaart met geclusterde markeringen en directe filtering.",
+    "visibleOnMap": "Zichtbaar op de kaart",
+    "mappableListings": "{{count}} vermeldingen op de kaart",
+    "totalResults": "{{count}} resultaten komen overeen met je filters",
+    "noMappedListings": "Geen kaartvermeldingen voor deze filters.",
+    "emptyCoordinates": "Geen coördinaten beschikbaar voor de geselecteerde filters."
+  },
   "newsletter": {
     "title": "Insider-toegang tot",
     "titleHighlight": "Luxe Algarve",
@@ -200,7 +218,10 @@
     "errorGeneric": "Er is iets misgegaan. Probeer het opnieuw.",
     "alreadySubscribed": "Je bent al geabonneerd op onze nieuwsbrief!",
     "welcomeMessage": "Welkom bij AlgarveOfficial! Controleer binnenkort uw inbox.",
-    "errorRateLimit": "Te veel pogingen. Probeer het later opnieuw."
+    "errorRateLimit": "Te veel pogingen. Probeer het later opnieuw.",
+    "footerTitle": "Ontvang de Algarve Insider-gids",
+    "footerSubtitle": "Maandelijkse tips, evenementen en verborgen parels.",
+    "footerCta": "Gids ontvangen"
   },
   "cookie": {
     "title": "Uw privacy is belangrijk",
@@ -209,7 +230,19 @@
     "decline": "Afwijzen",
     "accept": "Accepteer analyses",
     "gdprBadge": "AVG-compatibel",
-    "dataRetention": "Gegevens worden 90 dagen bewaard"
+    "dataRetention": "Gegevens worden 90 dagen bewaard",
+    "acceptAll": "Alles accepteren",
+    "denyAll": "Alles weigeren",
+    "saveSettings": "Instellingen opslaan",
+    "savePreferences": "Voorkeuren opslaan",
+    "optionalCategories": "Optionele categorieën blijven uitgeschakeld totdat je ze inschakelt",
+    "essential": "Essentieel",
+    "functional": "Functioneel",
+    "analytics": "Analyse",
+    "marketing": "Marketing",
+    "details": "Details",
+    "preferencesTitle": "Cookievoorkeuren",
+    "closePreferences": "Cookievoorkeuren sluiten"
   },
   "auth": {
     "backToHome": "Terug naar huis",
@@ -460,7 +493,9 @@
     "curated": "Geselecteerd",
     "avgRating": "gemiddelde beoordeling",
     "inOtherCities": "in andere steden van de Algarve",
-    "moreToExploreIn": "Meer te ontdekken in"
+    "moreToExploreIn": "Meer te ontdekken in",
+    "language": "Taal",
+    "theme": "Thema"
   },
   "search": {
     "placeholder": "Zoek vermeldingen, categorieën, steden, regio's...",
@@ -502,7 +537,8 @@
     "privacyPolicy": "Privacybeleid",
     "termsOfService": "Servicevoorwaarden",
     "cookiePolicy": "Cookiebeleid",
-    "pricing": "Partnerprijzen"
+    "pricing": "Partnerprijzen",
+    "cookieSettings": "Cookie-instellingen"
   },
   "blog": {
     "title": "Blog en inzichten",

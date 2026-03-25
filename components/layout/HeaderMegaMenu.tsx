@@ -63,10 +63,10 @@ const liveItems = [
 ];
 
 const investItems = [
-    { href: "/real-estate", label: "Real Estate Directory", desc: "Independent listings focused on property investment", icon: Building2 },
-    { href: "/invest", label: "Why Invest", desc: "Algarve market insights & data", icon: TrendingUp },
-    { href: "/partner", label: "Add Real Estate Listing", desc: "Submit your property as an agency or owner", icon: PlusCircle },
-    { href: "/map", label: "Map Explorer", desc: "Clustered view across all listings", icon: MapPin },
+    { href: "/real-estate", label: "Real Estate Directory", translationKey: "blog.blogCategories.realEstate", desc: "Independent listings focused on property investment", icon: Building2 },
+    { href: "/invest", label: "Why Invest", translationKey: "nav.invest", desc: "Algarve market insights & data", icon: TrendingUp },
+    { href: "/partner", label: "Add Real Estate Listing", translationKey: "footer.becomePartner", desc: "Submit your property as an agency or owner", icon: PlusCircle },
+    { href: "/map", label: "Map Explorer", translationKey: "nav.map", desc: "Clustered view across all listings", icon: MapPin },
 ];
 
 // ─── Section config ───────────────────────────────────────────────────────────
@@ -420,9 +420,11 @@ function PanelItem({
     item: { href: string; label: string; translationKey?: string; desc: string; icon: React.ElementType };
     accent: string;
 }) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const Icon = item.icon;
-    const label = item.translationKey ? t(item.translationKey) : item.label;
+    const label = item.translationKey ? t(item.translationKey, item.label) : item.label;
+    const locale = (i18n.resolvedLanguage ?? i18n.language ?? "").toLowerCase();
+    const desc = locale.startsWith("en") ? item.desc : "";
     return (
         <NavigationMenuLink asChild>
             <Link
@@ -451,9 +453,11 @@ function PanelItem({
                     <span className="block text-[13px] font-bold text-foreground group-hover:text-[#9A6E00] dark:group-hover:text-[#F5D98B] transition-colors leading-tight truncate">
                         {label}
                     </span>
-                    <span className="block text-[11.5px] text-muted-foreground group-hover:text-[#9A6E00]/80 dark:group-hover:text-[#F5D98B]/85 transition-colors leading-tight mt-0.5 truncate">
-                        {item.desc}
-                    </span>
+                    {desc ? (
+                        <span className="block text-[11.5px] text-muted-foreground group-hover:text-[#9A6E00]/80 dark:group-hover:text-[#F5D98B]/85 transition-colors leading-tight mt-0.5 truncate">
+                            {desc}
+                        </span>
+                    ) : null}
                 </span>
             </Link>
         </NavigationMenuLink>

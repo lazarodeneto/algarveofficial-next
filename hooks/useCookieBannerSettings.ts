@@ -18,7 +18,7 @@ export interface CookieBannerSettings {
   updated_at: string;
 }
 
-const defaultSettings: CookieBannerSettings = {
+export const DEFAULT_COOKIE_BANNER_SETTINGS: CookieBannerSettings = {
   id: 'default',
   title: 'Your Privacy Matters',
   description: 'We use cookies and similar technologies to analyze site usage and improve your experience. This includes collecting anonymized data such as page views and session information. You can choose to accept or decline analytics tracking.',
@@ -35,8 +35,8 @@ const defaultSettings: CookieBannerSettings = {
 
 // Merge DB record with defaults: empty strings are treated as "not set"
 function mergeWithDefaults(data: Partial<CookieBannerSettings> | null): CookieBannerSettings {
-  if (!data) return defaultSettings;
-  const merged = { ...defaultSettings };
+  if (!data) return DEFAULT_COOKIE_BANNER_SETTINGS;
+  const merged = { ...DEFAULT_COOKIE_BANNER_SETTINGS };
 
   const assignIfPresent = <K extends keyof CookieBannerSettings>(key: K) => {
     const val = data[key];
@@ -45,7 +45,7 @@ function mergeWithDefaults(data: Partial<CookieBannerSettings> | null): CookieBa
     }
   };
 
-  for (const key of Object.keys(defaultSettings) as (keyof CookieBannerSettings)[]) {
+  for (const key of Object.keys(DEFAULT_COOKIE_BANNER_SETTINGS) as (keyof CookieBannerSettings)[]) {
     assignIfPresent(key);
   }
 
@@ -75,7 +75,7 @@ export function useCookieBannerSettings() {
   const updateSettings = useMutation({
     mutationFn: async (newSettings: Partial<CookieBannerSettings>) => {
       if (!isBrowser) {
-        return defaultSettings;
+        return DEFAULT_COOKIE_BANNER_SETTINGS;
       }
 
       const { data, error } = await supabase
@@ -103,7 +103,7 @@ export function useCookieBannerSettings() {
   });
 
   return {
-    settings: isBrowser ? settings || defaultSettings : defaultSettings,
+    settings: isBrowser ? settings || DEFAULT_COOKIE_BANNER_SETTINGS : DEFAULT_COOKIE_BANNER_SETTINGS,
     isLoading: isBrowser ? isLoading : false,
     error: isBrowser ? error : null,
     updateSettings,

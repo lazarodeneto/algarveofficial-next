@@ -1,13 +1,28 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Cookie, Shield, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
 import { useAnalyticsConsent } from '@/hooks/useAnalyticsConsent';
 import { useCookieBannerSettings } from '@/hooks/useCookieBannerSettings';
+import { useLocalizedHref } from '@/hooks/useLocalizedHref';
 import Link from "next/link";
 
 export function CookieConsentBanner() {
   const { showBanner, acceptConsent, rejectConsent } = useAnalyticsConsent();
   const { settings, isLoading } = useCookieBannerSettings();
+  const { t, i18n } = useTranslation();
+  const l = useLocalizedHref();
+  const locale = (i18n.resolvedLanguage ?? i18n.language ?? '').toLowerCase();
+  const isEnglish = locale.startsWith('en');
+
+  const title = isEnglish ? settings.title : t('cookie.title');
+  const description = isEnglish ? settings.description : t('cookie.description');
+  const learnMoreText = isEnglish ? settings.learn_more_text : t('cookie.learnMore');
+  const declineText = isEnglish ? settings.decline_button_text : t('cookie.decline');
+  const acceptText = isEnglish ? settings.accept_button_text : t('cookie.accept');
+  const gdprBadgeText = isEnglish ? settings.gdpr_badge_text : t('cookie.gdprBadge');
+  const dataRetentionText = isEnglish ? settings.data_retention_text : t('cookie.dataRetention');
+  const learnMoreLink = isEnglish ? settings.learn_more_link : l('/privacy-policy');
 
   // Don't show while loading settings
   if (isLoading) return null;
@@ -38,16 +53,16 @@ export function CookieConsentBanner() {
                   <div className="flex items-center gap-2">
                     <Cookie className="h-5 w-5 text-primary md:hidden" />
                     <h3 className="font-serif text-lg font-medium text-foreground">
-                      {settings.title}
+                      {title}
                     </h3>
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    {settings.description}{' '}
+                    {description}{' '}
                     <Link 
-                      href={settings.learn_more_link} 
+                      href={learnMoreLink} 
                       className="text-primary hover:underline font-medium"
                     >
-                      {settings.learn_more_text}
+                      {learnMoreText}
                     </Link>
                   </p>
                 </div>
@@ -60,14 +75,14 @@ export function CookieConsentBanner() {
                     className="text-muted-foreground hover:text-foreground"
                   >
                     <X className="h-4 w-4 mr-2" />
-                    {settings.decline_button_text}
+                    {declineText}
                   </Button>
                   <Button
                     onClick={acceptConsent}
                     className="bg-primary text-primary-foreground hover:bg-primary/90"
                   >
                     <Shield className="h-4 w-4 mr-2" />
-                    {settings.accept_button_text}
+                    {acceptText}
                   </Button>
                 </div>
               </div>
@@ -78,14 +93,14 @@ export function CookieConsentBanner() {
                   {settings.show_gdpr_badge && (
                     <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-muted/50 border border-border">
                       <span className="text-primary">🇪🇺</span>
-                      {settings.gdpr_badge_text}
+                      {gdprBadgeText}
                     </span>
                   )}
                   {settings.show_gdpr_badge && settings.show_data_retention && (
                     <span className="text-muted-foreground/60">•</span>
                   )}
                   {settings.show_data_retention && (
-                    <span>{settings.data_retention_text}</span>
+                    <span>{dataRetentionText}</span>
                   )}
                 </div>
               )}
