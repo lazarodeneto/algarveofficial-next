@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,6 @@ import {
 import { Globe, Check, ChevronDown } from "lucide-react";
 import { ensureLocaleLoaded } from "@/i18n";
 import { cn } from "@/lib/utils";
-import { useLocale } from "@/lib/i18n/locale-context";
 import { swapLocaleInPath } from "@/lib/i18n/navigation";
 import { SUPPORTED_LOCALES, LOCALE_CONFIGS, type Locale } from "@/lib/i18n/config";
 
@@ -28,8 +27,26 @@ export function LanguageSwitcher() {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
-  const currentLocale = useLocale();
   const [isPending, setIsPending] = useState(false);
+
+  // ✅ SOURCE OF TRUTH = URL
+  // Derive locale from pathname ONLY, not from context or cookie
+  const currentLocale = useMemo(() => {
+    const segments = pathname.split("/").filter(Boolean);
+    const firstSegment = segments[0]?.toLowerCase();
+    return SUPPORTED_LOCALES.includes(firstSegment as Locale)
+      ? (firstSegment as Locale)
+      : ("en" as Locale);
+  }, [pathname]);
+
+  // ✅ Sync i18n library to match URL locale
+  useEffect(() => {
+    if (i18n.language !== currentLocale) {
+      void ensureLocaleLoaded(currentLocale).then(() => {
+        void i18n.changeLanguage(currentLocale);
+      });
+    }
+  }, [currentLocale, i18n]);
 
   const currentLanguage =
     languages.find((l) => l.code === currentLocale) || languages[0];
@@ -48,7 +65,7 @@ export function LanguageSwitcher() {
         await i18n.changeLanguage(newLocale);
       }
 
-      // 3. Sync cookie so server + middleware know the preference
+      // 3. Persist preference to cookie (optional, for future visits)
       if (typeof document !== "undefined") {
         document.cookie = `NEXT_LOCALE=${newLocale};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`;
       }
@@ -60,7 +77,7 @@ export function LanguageSwitcher() {
         typeof window !== "undefined" ? window.location.hash || "" : "";
       const fullUrl = `${newPath}${search ? `?${search}` : ""}${hash}`;
 
-      // 5. Navigate after all async operations complete (preserve scroll on long pages)
+      // 5. Navigate (UI will update automatically since currentLocale derives from pathname)
       router.push(fullUrl, { scroll: false });
     } finally {
       setIsPending(false);
@@ -74,6 +91,7 @@ export function LanguageSwitcher() {
           variant="ghost"
           size="sm"
           disabled={isPending}
+          data-test="lang-switcher"
           className="group h-9 px-3 rounded-full text-[13px] font-medium text-foreground/80 hover:text-foreground transition-all duration-200 ease-out gap-1.5 dark:text-white/80 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Globe className="h-[15px] w-[15px] text-[#C7A35A] group-hover:scale-110 transition-transform duration-200" />
