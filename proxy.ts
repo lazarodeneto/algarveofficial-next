@@ -52,6 +52,16 @@ export function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL(`/${firstSegment}/`, request.url));
     }
 
+    // ✅ CRITICAL: Block double-prefix bug (/en/en/map, /pt-pt/pt-pt/map)
+    const segments = pathname.split("/").filter(Boolean);
+    if (segments.length > 1) {
+      const secondSegment = segments[1]?.toLowerCase();
+      // If second segment is also a valid locale, reject as malformed
+      if (secondSegment && SUPPORTED_LOCALES.includes(secondSegment as any)) {
+        return new NextResponse(null, { status: 404 });
+      }
+    }
+
     // Normalize trailing slash for other paths: /en/map/ → /en/map
     if (pathname !== "/" && pathname.endsWith("/")) {
       return NextResponse.redirect(
