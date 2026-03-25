@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import i18n from "@/lib/i18n/i18n";
 import {
   Heart,
   LayoutDashboard,
@@ -33,11 +34,23 @@ export function PublicSiteSidebar() {
   const [collapsed, setCollapsed] = useState(true);
   const l = useLocalizedHref();
 
+  // ✅ Extract locale from URL (source of truth)
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1];
+
+  // ✅ CRITICAL: Force i18n to sync with URL locale
+  // This prevents stale i18n.language causing sidebar desync on back/forward/fast navigation
+  useEffect(() => {
+    if (locale && i18n.language !== locale) {
+      i18n.changeLanguage(locale);
+    }
+  }, [locale]);
+
   const loginPath = l("/login");
   const memberDashboardPath = isAuthenticated && user ? getDashboardPath(user.role) : loginPath;
-  const tripsPath = isAuthenticated ? "/dashboard/trips" : loginPath;
-  const favoritesPath = isAuthenticated ? "/dashboard/favorites" : loginPath;
-  const messagesPath = isAuthenticated ? "/dashboard/messages" : loginPath;
+  const tripsPath = isAuthenticated ? l("/dashboard/trips") : loginPath;
+  const favoritesPath = isAuthenticated ? l("/dashboard/favorites") : loginPath;
+  const messagesPath = isAuthenticated ? l("/dashboard/messages") : loginPath;
 
   const primaryItems = useMemo(() => {
     return fallbackPrimaryItems.map((item) => ({
