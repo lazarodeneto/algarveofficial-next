@@ -4,6 +4,7 @@ import { Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { getOptimizedImageUrl } from "@/lib/image";
+import { canUseNextImage } from "@/lib/nextImageSafety";
 
 interface ImageWithFallbackProps {
   src?: string | null;
@@ -41,6 +42,7 @@ function LoadedImageWithFallback({
 }: LoadedImageProps) {
   const [hasError, setHasError] = useState(false);
   const resolvedAlt = typeof alt === "string" && alt.trim().length > 0 ? alt : "Image";
+  const useNativeImg = !canUseNextImage(src);
 
   if (hasError) {
     return (
@@ -51,6 +53,19 @@ function LoadedImageWithFallback({
   }
 
   if (fill) {
+    if (useNativeImg) {
+      return (
+        <img
+          src={src}
+          alt={resolvedAlt}
+          className={cn("absolute inset-0 h-full w-full object-cover", className)}
+          loading={loading}
+          onError={() => setHasError(true)}
+          style={style}
+        />
+      );
+    }
+
     return (
       <Image
         src={src}
@@ -70,6 +85,21 @@ function LoadedImageWithFallback({
   const aspectRatio = 4 / 3;
   const displayWidth = width ?? 800;
   const displayHeight = height ?? Math.round(displayWidth / aspectRatio);
+
+  if (useNativeImg) {
+    return (
+      <img
+        src={src}
+        alt={resolvedAlt}
+        width={displayWidth}
+        height={displayHeight}
+        className={cn("bg-muted", className)}
+        loading={loading}
+        onError={() => setHasError(true)}
+        style={style}
+      />
+    );
+  }
 
   return (
     <Image

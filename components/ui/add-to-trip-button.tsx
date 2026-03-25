@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useTripPlanner } from "@/hooks/useTripPlanner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { LoginModal } from "@/components/ui/login-modal";
 import { toast } from "sonner";
 import { format, eachDayOfInterval, parseISO } from "date-fns";
@@ -56,6 +57,7 @@ export function AddToTripButton({
   const [isAdding, setIsAdding] = useState(false);
 
   const { isAuthenticated } = useAuth();
+  const l = useLocalizedHref();
   const { trips, createTrip, addEventToTrip, getTripById } = useTripPlanner();
 
   const handleOpenChange = (newOpen: boolean) => {
@@ -133,7 +135,7 @@ export function AddToTripButton({
     toast.success(`Added "${listingName}" to your trip!`, {
       action: {
         label: "View Trip",
-        onClick: () => window.location.href = "/dashboard/trips",
+        onClick: () => window.location.href = l("/dashboard/trips"),
       },
     });
   };

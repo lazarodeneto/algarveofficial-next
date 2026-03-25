@@ -5,7 +5,6 @@ import { ArrowLeft, Building2, Filter, Loader2, MapPinned, Search, Tag } from "l
 import { useTranslation } from "react-i18next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { SeoHead } from "@/components/seo/SeoHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -202,11 +201,6 @@ export default function MapExplorer() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SeoHead
-        title="Map Explorer · Algarve Listings"
-        description="Explore Algarve listings on an interactive map with clustered, category-colored markers and advanced filters."
-        canonicalUrl="https://algarveofficial.com/map"
-      />
       <Header />
 
       <main className="pt-28 pb-16">
@@ -406,7 +400,7 @@ export default function MapExplorer() {
                   minZoom={8}
                   enforceBoundsOnPoints
                   enableClustering
-                  showPopups
+                  showPopups={false}
                   autoFit
                   scrollWheelZoom
                   activeListingId={selectedListingId}

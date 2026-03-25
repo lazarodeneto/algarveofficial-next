@@ -36,6 +36,7 @@ import {
   type BlogStatus
 } from "@/hooks/useBlogPosts";
 import { extractIdParam } from "@/lib/routeParams";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 
 interface FormData {
   title: string;
@@ -65,6 +66,7 @@ const defaultFormData: FormData = {
 
 export default function AdminBlogForm() {
   const router = useRouter();
+  const l = useLocalizedHref();
   const params = useParams<Record<string, string | string[] | undefined>>();
   const id = extractIdParam(params);
   const { user } = useAuth();
@@ -167,7 +169,7 @@ export default function AdminBlogForm() {
         });
       }
 
-      router.push("/admin/blog");
+      router.push(l("/admin/blog"));
     } catch (error) {
       // Error is handled by the mutation
     } finally {
@@ -198,7 +200,7 @@ export default function AdminBlogForm() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => router.push("/admin/blog")}
+            onClick={() => router.push(l("/admin/blog"))}
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>

@@ -20,6 +20,7 @@ import { LISTING_FORM_STEPS, type ListingFormData } from "@/types/listing";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 
 const getEmptyFormData = (): ListingFormData => ({
   name: "",
@@ -52,6 +53,7 @@ export default function ListingForm() {
     return match?.[1] ? decodeURIComponent(match[1]) : undefined;
   }, [params, pathname]);
   const router = useRouter();
+  const l = useLocalizedHref();
   const { user } = useAuth();
   const isEditMode = Boolean(id);
 
@@ -284,7 +286,7 @@ export default function ListingForm() {
           listing: listingData as any,
           images: imagesData,
         });
-        router.push("/admin/listings");
+        router.push(l("/admin/listings"));
       }
     } catch (error) {
       // Error is handled by mutation
@@ -423,7 +425,7 @@ export default function ListingForm() {
       {/* Header */}
       <div className="mb-6">
         <Button variant="ghost" size="sm" asChild className="mb-4">
-          <Link href="/admin/listings">
+          <Link href={l("/admin/listings")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Listings
           </Link>

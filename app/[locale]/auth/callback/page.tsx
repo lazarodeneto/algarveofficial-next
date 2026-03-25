@@ -1,9 +1,12 @@
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function AuthCallbackPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  redirect("/auth/callback");
+import { Suspense } from "react";
+import AuthCallback from "@/legacy-pages/auth/AuthCallback";
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <AuthCallback />
+    </Suspense>
+  );
 }

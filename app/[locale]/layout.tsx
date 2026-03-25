@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
-import { cookies } from "next/headers";
 
 import { AppProviders } from "@/components/providers/AppProviders";
+import { LocaleDocumentSync } from "@/components/layout/LocaleDocumentSync";
 import { PublicSiteFrame } from "@/components/layout/PublicSiteFrame";
 import { LocaleProvider } from "@/lib/i18n/locale-context";
 import { CookieConsentBannerWrapper } from "@/components/gdpr/CookieConsentBannerWrapper";
@@ -66,29 +66,20 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  // ✅ Optional: Set cookie for UX (only for subsequent requests, never for rendering)
-  const cookieStore = await cookies();
-  cookieStore.set("NEXT_LOCALE", locale, {
-    path: "/",
-    maxAge: 60 * 60 * 24 * 365,
-    sameSite: "lax",
-  });
-
   // ✅ Get locale config
   const localeConfig = LOCALE_CONFIGS[locale] ?? LOCALE_CONFIGS.en;
   const htmlLang = localeConfig?.hreflang ?? "en-GB";
 
   return (
-    <html lang={htmlLang} suppressHydrationWarning>
-      <body>
-        {/* ✅ CRITICAL: LocaleProvider syncs i18n to match URL locale */}
-        <LocaleProvider locale={locale}>
-          <AppProviders locale={locale}>
-            <PublicSiteFrame>{children}</PublicSiteFrame>
-            <CookieConsentBannerWrapper />
-          </AppProviders>
-        </LocaleProvider>
-      </body>
-    </html>
+    <>
+      <LocaleDocumentSync lang={htmlLang} locale={locale} />
+      {/* ✅ CRITICAL: LocaleProvider syncs i18n to match URL locale */}
+      <LocaleProvider locale={locale}>
+        <AppProviders locale={locale}>
+          <PublicSiteFrame>{children}</PublicSiteFrame>
+          <CookieConsentBannerWrapper />
+        </AppProviders>
+      </LocaleProvider>
+    </>
   );
 }

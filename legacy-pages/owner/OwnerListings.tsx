@@ -34,9 +34,11 @@ import { StatusBadgeOwner } from "@/components/owner/StatusBadgeOwner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 
 export default function OwnerListings() {
   const { t } = useTranslation();
+  const l = useLocalizedHref();
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -138,7 +140,7 @@ export default function OwnerListings() {
             <CardContent className="flex flex-col items-center justify-center py-12">
               <p className="text-muted-foreground mb-4">{t('owner.listings.noListings')}</p>
               <Button asChild>
-                <Link href="/owner/support">
+                <Link href={l("/owner/support")}>
                   <Plus className="h-4 w-4 mr-2" />
                   {t('owner.listings.requestNewListing')}
                 </Link>
@@ -192,7 +194,7 @@ export default function OwnerListings() {
                         {/* Actions */}
                         <div className="flex items-center gap-2 self-end sm:self-auto lg:shrink-0">
                           <Button variant="outline" size="sm" asChild>
-                            <Link href={`/owner/listings/${listing.id}/edit`}>
+                            <Link href={l(`/owner/listings/${listing.id}/edit`)}>
                               <Edit className="h-4 w-4 sm:mr-2" />
                               <span className="hidden sm:inline">{t('common.edit')}</span>
                             </Link>

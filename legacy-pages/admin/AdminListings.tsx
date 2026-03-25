@@ -44,17 +44,19 @@ import { TierBadge } from "@/components/admin/TierBadge";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
-import { 
+import {
   useBulkDeleteListings, 
   useBulkPublishListings, 
   useBulkUpdateTier,
   useUpdateListingStatus,
 } from "@/hooks/useListingMutations";
 import { toast } from "sonner";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 
 export default function AdminListings() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const l = useLocalizedHref();
   
   const [search, setSearch] = useState("");
   const [cityFilter, setCityFilter] = useState<string>("all");
@@ -289,7 +291,7 @@ export default function AdminListings() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href={`/admin/listings/${listing.id}/edit`}>
+              <Link href={l(`/admin/listings/${listing.id}/edit`)}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit
               </Link>
@@ -373,7 +375,7 @@ export default function AdminListings() {
           </p>
         </div>
         <Button asChild className="w-full sm:w-auto">
-          <Link href="/admin/listings/new">
+          <Link href={l("/admin/listings/new")}>
             <Plus className="h-4 w-4 mr-2" />
             Create Listing
           </Link>
@@ -459,7 +461,7 @@ export default function AdminListings() {
             </span>
             {selectedIds.length === 1 && (
               <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
-                <Link href={`/admin/listings/${selectedIds[0]}/edit`}>
+                <Link href={l(`/admin/listings/${selectedIds[0]}/edit`)}>
                   <Edit className="h-4 w-4 mr-1" />
                   Edit
                 </Link>
