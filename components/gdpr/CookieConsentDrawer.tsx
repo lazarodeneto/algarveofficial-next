@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Crown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   COOKIE_PREFERENCES_OPEN_EVENT,
   DEFAULT_COOKIE_PREFERENCES,
@@ -74,6 +75,7 @@ export function CookieConsentDrawer({
   version,
   onConsentChange,
 }: CookieConsentDrawerProps) {
+  const { t, i18n } = useTranslation();
   const [initialConsentState] = useState(() => getInitialConsentState(version));
   const [isVisible, setIsVisible] = useState(initialConsentState.isVisible);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -150,6 +152,9 @@ export function CookieConsentDrawer({
     commitConsent(draftPreferences);
   }, [commitConsent, draftPreferences, hasChanges]);
 
+  const locale = (i18n.resolvedLanguage ?? i18n.language ?? "").toLowerCase();
+  const isEnglish = locale.startsWith("en");
+
   return (
     <>
       {isVisible ? (
@@ -167,22 +172,20 @@ export function CookieConsentDrawer({
 
                   <div className="space-y-2 sm:space-y-3">
                     <h2 className="text-lg font-semibold leading-tight text-zinc-900 sm:text-2xl lg:text-3xl">
-                      Our transparency, your trust.
+                      {t("cookie.title")}
                     </h2>
                     <p className="max-w-3xl text-[11px] leading-relaxed text-zinc-600 sm:hidden">
-                      Essential cookies stay on. Analytics, embedded media, and marketing remain off until you opt in.
+                      {t("cookie.description")}
                     </p>
                     <p className="hidden max-w-3xl text-xs leading-relaxed text-zinc-600 sm:block sm:text-sm lg:text-base">
-                      We only activate optional technologies after your choice. Essential cookies stay on for security
-                      and core functionality. Analytics, embedded media, and marketing are off until you opt in, and you
-                      can withdraw consent at any time from Cookie Settings.
+                      {t("cookie.description")}
                     </p>
                     <div className="flex flex-wrap items-center gap-2.5 text-[11px] font-medium sm:gap-4 sm:text-sm">
                       <a className="text-zinc-800 underline-offset-4 hover:underline" href={privacyUrl}>
-                        Privacy Policy
+                        {t("footer.privacyPolicy")}
                       </a>
                       <a className="text-zinc-800 underline-offset-4 hover:underline" href={cookieUrl}>
-                        Cookie Policy
+                        {t("footer.cookiePolicy")}
                       </a>
                     </div>
                   </div>
@@ -195,7 +198,7 @@ export function CookieConsentDrawer({
                   onClick={handleDenyAll}
                   className="h-9 w-full rounded-xl border border-zinc-300 bg-white px-2 text-[10px] font-semibold text-zinc-900 transition hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 sm:h-12 sm:px-4 sm:text-sm"
                 >
-                  Deny
+                  {t("cookie.denyAll", t("cookie.decline"))}
                 </button>
                 <button
                   type="button"
@@ -203,28 +206,28 @@ export function CookieConsentDrawer({
                   disabled={!hasChanges}
                   className="h-9 w-full rounded-xl border border-zinc-300 bg-zinc-200 px-2 text-[10px] font-semibold text-zinc-800 transition hover:bg-zinc-300 disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 sm:h-12 sm:px-4 sm:text-sm"
                 >
-                  Save Settings
+                  {t("cookie.saveSettings")}
                 </button>
                 <button
                   type="button"
                   onClick={handleAcceptAll}
                   className="h-9 w-full rounded-xl bg-emerald-600 px-2 text-[10px] font-semibold text-white transition hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 sm:h-12 sm:px-4 sm:text-sm"
                 >
-                  Accept All
+                  {t("cookie.acceptAll", t("cookie.accept"))}
                 </button>
               </div>
             </div>
 
             <div className="mt-3 flex flex-wrap items-center justify-between gap-2.5 border-t border-zinc-200 pt-2.5 sm:mt-5 sm:gap-4 sm:pt-4">
               <div className="hidden text-xs font-medium uppercase tracking-wide text-zinc-500 sm:block">
-                Optional categories stay off until you enable them
+                {t("cookie.optionalCategories")}
               </div>
 
               <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                <QuickToggle id="cookie-essential" label="Essential" checked disabled />
+                <QuickToggle id="cookie-essential" label={t("cookie.essential")} checked disabled />
                 <QuickToggle
                   id="cookie-functional"
-                  label="Functional"
+                  label={t("cookie.functional")}
                   checked={draftPreferences.functional}
                   onChange={(checked) =>
                     setDraftPreferences((current) => ({
@@ -235,7 +238,7 @@ export function CookieConsentDrawer({
                 />
                 <QuickToggle
                   id="cookie-analytics"
-                  label="Analytics"
+                  label={t("cookie.analytics")}
                   checked={draftPreferences.analytics}
                   onChange={(checked) =>
                     setDraftPreferences((current) => ({
@@ -246,7 +249,7 @@ export function CookieConsentDrawer({
                 />
                 <QuickToggle
                   id="cookie-marketing"
-                  label="Marketing"
+                  label={t("cookie.marketing")}
                   checked={draftPreferences.marketing}
                   onChange={(checked) =>
                     setDraftPreferences((current) => ({
@@ -260,7 +263,7 @@ export function CookieConsentDrawer({
                   onClick={() => setIsModalOpen(true)}
                   className="text-xs font-semibold text-zinc-800 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 sm:text-sm"
                 >
-                  Details &gt;
+                  {t("cookie.details")} &gt;
                 </button>
               </div>
             </div>
@@ -274,6 +277,7 @@ export function CookieConsentDrawer({
         cookieUrl={cookieUrl}
         preferences={draftPreferences}
         saveDisabled={!hasChanges}
+        showEnglishDescriptions={isEnglish}
         onClose={() => setIsModalOpen(false)}
         onPreferencesChange={setDraftPreferences}
         onAcceptAll={handleAcceptAll}

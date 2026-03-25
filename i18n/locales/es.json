@@ -16,7 +16,15 @@
     "live": "Vivir",
     "invest": "Invertir",
     "myTrip": "Mi Viaje",
-    "account": "Mi Cuenta"
+    "account": "Mi Cuenta",
+    "map": "Mapa",
+    "saved": "Favoritos",
+    "search": "Buscar",
+    "discover": "Descubrir",
+    "yourSpace": "Tu Espacio",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "mobilePrimary": "Navegación principal"
   },
   "menu": {
     "visit": "Visitar",
@@ -185,6 +193,16 @@
       "doLinksPrefix": "Salte a"
     }
   },
+  "map": {
+    "title": "Explorador del Mapa",
+    "subtitle": "Marcadores de categorías agrupados con filtrado instantáneo en todo el Algarve.",
+    "description": "Explora los listados del Algarve en un mapa interactivo con marcadores agrupados y filtrado instantáneo.",
+    "visibleOnMap": "Visible en el mapa",
+    "mappableListings": "{{count}} listados ubicables en el mapa",
+    "totalResults": "{{count}} resultados coinciden con tus filtros",
+    "noMappedListings": "No hay listados en el mapa para estos filtros.",
+    "emptyCoordinates": "No hay coordenadas de listados disponibles para los filtros seleccionados."
+  },
   "newsletter": {
     "title": "Acceso Exclusivo al",
     "titleHighlight": "Algarve de Lujo",
@@ -200,7 +218,10 @@
     "errorGeneric": "Algo salió mal. Por favor intente de nuevo.",
     "alreadySubscribed": "¡Ya está suscrito a nuestro boletín!",
     "welcomeMessage": "¡Bienvenido a AlgarveOfficial! Revise su bandeja de entrada pronto.",
-    "errorRateLimit": "Demasiados intentos. Por favor inténtelo más tarde."
+    "errorRateLimit": "Demasiados intentos. Por favor inténtelo más tarde.",
+    "footerTitle": "Consigue la guía insider del Algarve",
+    "footerSubtitle": "Selecciones mensuales, eventos y rincones escondidos.",
+    "footerCta": "Obtener guía"
   },
   "cookie": {
     "title": "Su Privacidad Importa",
@@ -209,7 +230,19 @@
     "decline": "Rechazar",
     "accept": "Aceptar Analíticas",
     "gdprBadge": "Cumple con RGPD",
-    "dataRetention": "Datos retenidos por 90 días"
+    "dataRetention": "Datos retenidos por 90 días",
+    "acceptAll": "Aceptar todo",
+    "denyAll": "Rechazar todo",
+    "saveSettings": "Guardar ajustes",
+    "savePreferences": "Guardar preferencias",
+    "optionalCategories": "Las categorías opcionales permanecen desactivadas hasta que las actives",
+    "essential": "Esenciales",
+    "functional": "Funcionales",
+    "analytics": "Analítica",
+    "marketing": "Marketing",
+    "details": "Detalles",
+    "preferencesTitle": "Preferencias de cookies",
+    "closePreferences": "Cerrar preferencias de cookies"
   },
   "auth": {
     "backToHome": "Volver al inicio",
@@ -460,7 +493,9 @@
     "curated": "Seleccionado",
     "avgRating": "valoración media",
     "inOtherCities": "en otras ciudades del Algarve",
-    "moreToExploreIn": "Más para explorar en"
+    "moreToExploreIn": "Más para explorar en",
+    "language": "Idioma",
+    "theme": "Tema"
   },
   "search": {
     "placeholder": "Buscar listados, categorías, ciudades, regiones...",
@@ -502,7 +537,8 @@
     "privacyPolicy": "Política de Privacidad",
     "termsOfService": "Términos de Servicio",
     "cookiePolicy": "Política de Cookies",
-    "pricing": "Precios para Socios"
+    "pricing": "Precios para Socios",
+    "cookieSettings": "Configuración de cookies"
   },
   "blog": {
     "title": "Blog e Ideas",

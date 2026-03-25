@@ -16,7 +16,15 @@
     "live": "Live",
     "invest": "Invest",
     "myTrip": "My Trip",
-    "account": "Account"
+    "account": "Account",
+    "map": "Map",
+    "saved": "Saved",
+    "search": "Search",
+    "discover": "Discover",
+    "yourSpace": "Your Space",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "mobilePrimary": "Primary navigation"
   },
   "menu": {
     "visit": "Visit",
@@ -185,6 +193,16 @@
       "doLinksPrefix": "Jump into"
     }
   },
+  "map": {
+    "title": "Map Explorer",
+    "subtitle": "Clustered category markers with instant filtering across the Algarve.",
+    "description": "Explore Algarve listings on an interactive map with clustered markers and instant filtering.",
+    "visibleOnMap": "Visible on map",
+    "mappableListings": "{{count}} mappable listings",
+    "totalResults": "{{count}} total results match your filters",
+    "noMappedListings": "No mapped listings for these filters.",
+    "emptyCoordinates": "No listing coordinates available for the selected filters."
+  },
   "newsletter": {
     "title": "Insider Access to",
     "titleHighlight": "Premium Algarve",
@@ -200,7 +218,10 @@
     "errorGeneric": "Something went wrong. Please try again.",
     "alreadySubscribed": "You're already subscribed to our newsletter!",
     "welcomeMessage": "Welcome to AlgarveOfficial! Check your inbox soon.",
-    "errorRateLimit": "Too many attempts. Please try again later."
+    "errorRateLimit": "Too many attempts. Please try again later.",
+    "footerTitle": "Get the free Algarve Insider Guide",
+    "footerSubtitle": "Monthly curated picks, events, and hidden gems.",
+    "footerCta": "Get It"
   },
   "cookie": {
     "title": "Your Privacy Matters",
@@ -209,7 +230,19 @@
     "decline": "Decline",
     "accept": "Accept Analytics",
     "gdprBadge": "GDPR Compliant",
-    "dataRetention": "Data retained for 90 days"
+    "dataRetention": "Data retained for 90 days",
+    "acceptAll": "Accept All",
+    "denyAll": "Deny All",
+    "saveSettings": "Save Settings",
+    "savePreferences": "Save Preferences",
+    "optionalCategories": "Optional categories stay off until you enable them",
+    "essential": "Essential",
+    "functional": "Functional",
+    "analytics": "Analytics",
+    "marketing": "Marketing",
+    "details": "Details",
+    "preferencesTitle": "Cookie Preferences",
+    "closePreferences": "Close cookie preferences"
   },
   "auth": {
     "backToHome": "Back to home",
@@ -460,7 +493,9 @@
     "curated": "Curated",
     "avgRating": "avg rating",
     "inOtherCities": "in other Algarve cities",
-    "moreToExploreIn": "More to explore in"
+    "moreToExploreIn": "More to explore in",
+    "language": "Language",
+    "theme": "Theme"
   },
   "search": {
     "placeholder": "Search listings, categories, cities, regions...",
@@ -502,7 +537,8 @@
     },
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Terms of Service",
-    "cookiePolicy": "Cookie Policy"
+    "cookiePolicy": "Cookie Policy",
+    "cookieSettings": "Cookie Settings"
   },
   "blog": {
     "title": "Blog & Insights",

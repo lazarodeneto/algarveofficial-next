@@ -16,7 +16,15 @@
     "live": "Levende",
     "invest": "Investere",
     "myTrip": "Min tur",
-    "account": "Konto"
+    "account": "Konto",
+    "map": "Kort",
+    "saved": "Favoritter",
+    "search": "Søg",
+    "discover": "Udforsk",
+    "yourSpace": "Dit Område",
+    "openMenu": "Åbn menu",
+    "closeMenu": "Luk menu",
+    "mobilePrimary": "Primær navigation"
   },
   "menu": {
     "visit": "Besøg",
@@ -185,6 +193,16 @@
       "doLinksPrefix": "Spring til"
     }
   },
+  "map": {
+    "title": "Kortudforsker",
+    "subtitle": "Klyngede kategorimarkører med øjeblikkelig filtrering i hele Algarve.",
+    "description": "Udforsk Algarve-opslag på et interaktivt kort med klyngede markører og øjeblikkelig filtrering.",
+    "visibleOnMap": "Synlig på kortet",
+    "mappableListings": "{{count}} kortbare opslag",
+    "totalResults": "{{count}} resultater matcher dine filtre",
+    "noMappedListings": "Ingen kortlagte opslag for disse filtre.",
+    "emptyCoordinates": "Ingen koordinater for opslag er tilgængelige for de valgte filtre."
+  },
   "newsletter": {
     "title": "Insideradgang til",
     "titleHighlight": "Luksus Algarve",
@@ -200,7 +218,10 @@
     "errorGeneric": "Noget gik galt. Prøv venligst igen.",
     "alreadySubscribed": "Du er allerede tilmeldt vores nyhedsbrev!",
     "welcomeMessage": "Velkommen til AlgarveOfficial! Tjek din indbakke snart.",
-    "errorRateLimit": "For mange forsøg. Prøv venligst igen senere."
+    "errorRateLimit": "For mange forsøg. Prøv venligst igen senere.",
+    "footerTitle": "Få Algarve Insider-guiden",
+    "footerSubtitle": "Månedlige udvalgte anbefalinger, events og skjulte perler.",
+    "footerCta": "Få guiden"
   },
   "cookie": {
     "title": "Dit privatliv er vigtigt",
@@ -209,7 +230,19 @@
     "decline": "Nedgang",
     "accept": "Accepter Analytics",
     "gdprBadge": "GDPR-kompatibel",
-    "dataRetention": "Data opbevares i 90 dage"
+    "dataRetention": "Data opbevares i 90 dage",
+    "acceptAll": "Accepter alle",
+    "denyAll": "Afvis alle",
+    "saveSettings": "Gem indstillinger",
+    "savePreferences": "Gem præferencer",
+    "optionalCategories": "Valgfrie kategorier forbliver slået fra, indtil du aktiverer dem",
+    "essential": "Nødvendige",
+    "functional": "Funktionelle",
+    "analytics": "Analyse",
+    "marketing": "Markedsføring",
+    "details": "Detaljer",
+    "preferencesTitle": "Cookieindstillinger",
+    "closePreferences": "Luk cookieindstillinger"
   },
   "auth": {
     "backToHome": "Tilbage til hjemmet",
@@ -460,7 +493,9 @@
     "curated": "Udvalgt",
     "avgRating": "gennemsnitlig bedømmelse",
     "inOtherCities": "i andre byer på Algarve",
-    "moreToExploreIn": "Mere at udforske i"
+    "moreToExploreIn": "Mere at udforske i",
+    "language": "Sprog",
+    "theme": "Tema"
   },
   "search": {
     "placeholder": "Søg fortegnelser, kategorier, byer, regioner...",
@@ -502,7 +537,8 @@
     "privacyPolicy": "Privatlivspolitik",
     "termsOfService": "Servicevilkår",
     "cookiePolicy": "Cookiepolitik",
-    "pricing": "Partnerpriser"
+    "pricing": "Partnerpriser",
+    "cookieSettings": "Cookie-indstillinger"
   },
   "blog": {
     "title": "Blog & Indsigt",
