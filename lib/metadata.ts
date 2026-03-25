@@ -28,7 +28,8 @@ export interface MetadataParams {
   type?: "website" | "article" | "product" | "place";
   noIndex?: boolean;
   noFollow?: boolean;
-  locale?: string;
+  locale?: string; // OpenGraph locale (e.g., "en_GB", "pt_PT")
+  localeCode?: string; // URL locale prefix (e.g., "en", "pt-pt")
   keywords?: string[] | string;
   authors?: Array<{ name: string; url?: string }>;
   publishedTime?: string;
@@ -61,15 +62,26 @@ function toAbsoluteUrl(siteUrl: string, value: string) {
   return `${siteUrl}${normalizePath(value)}`;
 }
 
-export function buildAlternates(path: string) {
+export function buildAlternates(path: string, localeCode?: string) {
   const siteUrl = getSiteUrl();
   const normalizedPath = normalizePath(path);
+  const localePrefix = localeCode ? `/${localeCode}` : "";
+  const canonicalPath = localeCode ? `${localePrefix}${normalizedPath}` : normalizedPath;
 
   return {
-    canonical: toAbsoluteUrl(siteUrl, normalizedPath),
+    canonical: toAbsoluteUrl(siteUrl, canonicalPath),
     languages: {
-      en: toAbsoluteUrl(siteUrl, normalizedPath),
-      "x-default": toAbsoluteUrl(siteUrl, normalizedPath),
+      en: toAbsoluteUrl(siteUrl, "/en" + normalizedPath),
+      "pt-pt": toAbsoluteUrl(siteUrl, "/pt-pt" + normalizedPath),
+      fr: toAbsoluteUrl(siteUrl, "/fr" + normalizedPath),
+      de: toAbsoluteUrl(siteUrl, "/de" + normalizedPath),
+      es: toAbsoluteUrl(siteUrl, "/es" + normalizedPath),
+      it: toAbsoluteUrl(siteUrl, "/it" + normalizedPath),
+      nl: toAbsoluteUrl(siteUrl, "/nl" + normalizedPath),
+      sv: toAbsoluteUrl(siteUrl, "/sv" + normalizedPath),
+      no: toAbsoluteUrl(siteUrl, "/no" + normalizedPath),
+      da: toAbsoluteUrl(siteUrl, "/da" + normalizedPath),
+      "x-default": toAbsoluteUrl(siteUrl, "/en" + normalizedPath),
     },
   };
 }
@@ -126,6 +138,7 @@ export function buildMetadata({
   noIndex = false,
   noFollow = false,
   locale = DEFAULT_LOCALE,
+  localeCode,
   keywords,
   authors,
   publishedTime,
@@ -134,7 +147,8 @@ export function buildMetadata({
 }: MetadataParams): Metadata {
   const siteUrl = getSiteUrl();
   const normalizedPath = normalizePath(path);
-  const canonical = toAbsoluteUrl(siteUrl, normalizedPath);
+  const localePrefix = localeCode ? `/${localeCode}` : "";
+  const canonical = toAbsoluteUrl(siteUrl, `${localePrefix}${normalizedPath}`);
   const resolvedImage = toAbsoluteUrl(siteUrl, image);
   const resolvedTitle = ensureBrandedTitle(title);
   const resolvedDescription = normalizeDescription(description);
@@ -158,7 +172,7 @@ export function buildMetadata({
       apple: [{ url: "/icons/apple-touch-icon.png" }],
       shortcut: [{ url: "/favicon.ico" }],
     },
-    alternates: buildAlternates(normalizedPath),
+    alternates: buildAlternates(normalizedPath, localeCode),
     robots: {
       index: !noIndex,
       follow: !noFollow,

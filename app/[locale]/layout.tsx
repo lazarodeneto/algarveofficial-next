@@ -27,13 +27,16 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale: localeParam } = await params;
-  const locale = isValidLocale(localeParam) ? localeParam : "en";
+  const locale = isValidLocale(localeParam) ? localeParam : ("en" as Locale);
+  const localeConfig = LOCALE_CONFIGS[locale] ?? LOCALE_CONFIGS.en;
 
   return buildMetadata({
     title: "AlgarveOfficial | Luxury Villas, Golf & Restaurants",
     description:
       "Discover the Algarve's finest villas, restaurants and golf courses — curated by experts who know every corner of Portugal's most prestigious coast.",
     path: "/",
+    localeCode: locale,
+    locale: localeConfig.dateLocale,
   });
 }
 
