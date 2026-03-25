@@ -60,8 +60,8 @@ export function LanguageSwitcher() {
         typeof window !== "undefined" ? window.location.hash || "" : "";
       const fullUrl = `${newPath}${search ? `?${search}` : ""}${hash}`;
 
-      // 5. Navigate after all async operations complete
-      router.push(fullUrl);
+      // 5. Navigate after all async operations complete (preserve scroll on long pages)
+      router.push(fullUrl, { scroll: false });
     } finally {
       setIsPending(false);
     }

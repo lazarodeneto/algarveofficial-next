@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import Script from "next/script";
 import type { ReactNode } from "react";
 import { Inter, Playfair_Display } from "next/font/google";
@@ -69,17 +69,17 @@ interface RootLayoutProps {
 
 export default async function RootLayout({ children }: RootLayoutProps) {
   const cookieStore = await cookies();
-  const headersList = await headers();
 
-  // Locale detection priority: URL path > middleware header > cookie > default
-  const headerLocale = headersList.get("x-locale");
+  // Locale detection: cookie (set by proxy) > default
+  // The proxy ensures all requests are locale-prefixed and sets the cookie,
+  // so we can rely on the cookie as the source of truth
   const cookieLocale = cookieStore.get("NEXT_LOCALE")?.value;
-  const urlLocale = headerLocale && isValidLocale(headerLocale) ? headerLocale : null;
+
+  // Validate and set locale
   const resolvedLocale: Locale = (
-    urlLocale ??
-    (cookieLocale && isValidLocale(cookieLocale) ? cookieLocale : null) ??
-    "en"
+    (cookieLocale && isValidLocale(cookieLocale) ? cookieLocale : null) ?? "en"
   ) as Locale;
+
   const localeConfig = LOCALE_CONFIGS[resolvedLocale] ?? LOCALE_CONFIGS.en;
   const htmlLang = localeConfig?.hreflang ?? "en-GB";
 
