@@ -3,7 +3,7 @@ import { SUPPORTED_LOCALES, type Locale } from "./config";
 const LOCALE_SET = new Set<string>(SUPPORTED_LOCALES);
 
 /** Routes that should NOT receive a locale prefix */
-const UNLOCALIZED_PREFIXES = ["/api", "/auth", "/dashboard", "/admin", "/owner"];
+const UNLOCALIZED_PREFIXES = ["/api", "/auth"];
 
 /**
  * Creates a localized href by prepending the locale prefix.

@@ -66,10 +66,10 @@ export default function Header() {
   const blogPath = l("/blog");
   const eventsPath = l("/events");
   const loginPath = l("/login");
-  const favoritesPath = isAuthenticated ? "/dashboard/favorites" : loginPath;
+  const favoritesPath = isAuthenticated ? l("/dashboard/favorites") : loginPath;
   const accountPath = isAuthenticated && user ? getDashboardPath(user.role) : loginPath;
-  const tripsPath = isAuthenticated ? "/dashboard/trips" : loginPath;
-  const messagesPath = isAuthenticated ? "/dashboard/messages" : loginPath;
+  const tripsPath = isAuthenticated ? l("/dashboard/trips") : loginPath;
+  const messagesPath = isAuthenticated ? l("/dashboard/messages") : loginPath;
   const buildDirectoryCategoryPath = (category: string) =>
     l(`/directory?category=${category}`);
 
@@ -278,7 +278,7 @@ export default function Header() {
                 {isAuthenticated && user ? (
                   <div className="flex items-center gap-1">
                     {(user.role === "admin" || user.role === "editor") && (
-                      <Link href="/admin">
+                      <Link href={l("/admin")}>
                         <Button
                           variant="ghost"
                           size="icon"

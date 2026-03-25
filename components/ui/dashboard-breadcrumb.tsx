@@ -4,6 +4,8 @@ import { LocalizedLink } from "@/components/navigation/LocalizedLink";
 import { ChevronRight, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { createLocalizedHref } from "@/lib/i18n/navigation";
+import { getLocaleFromPathname, stripLocaleFromPathname } from "@/lib/i18n/config";
 
 interface BreadcrumbConfig {
   basePath: string;
@@ -89,20 +91,22 @@ const dashboardConfigs: Record<string, BreadcrumbConfig> = {
 export function DashboardBreadcrumb() {
   const { t } = useTranslation();
   const pathname = usePathname() ?? "";
+  const locale = getLocaleFromPathname(pathname);
+  const barePath = stripLocaleFromPathname(pathname);
 
   // Determine which dashboard we're in
-  const dashboardType = pathname.startsWith("/admin")
+  const dashboardType = barePath.startsWith("/admin")
     ? "admin"
-    : pathname.startsWith("/owner")
+    : barePath.startsWith("/owner")
     ? "owner"
-    : pathname.startsWith("/dashboard")
+    : barePath.startsWith("/dashboard")
     ? "dashboard"
     : null;
 
   if (!dashboardType) return null;
 
   const config = dashboardConfigs[dashboardType];
-  const relativePath = pathname.replace(config.basePath, "").replace(/^\//, "");
+  const relativePath = barePath.replace(config.basePath, "").replace(/^\//, "");
   
   // Build breadcrumb segments
   const segments: { label: string; href: string; isLast: boolean }[] = [
@@ -180,7 +184,7 @@ export function DashboardBreadcrumb() {
             </span>
           ) : (
             <Link
-              href={segment.href}
+              href={createLocalizedHref(segment.href, locale)}
               className={cn(
                 "text-muted-foreground hover:text-foreground transition-colors",
                 index === 0 && "hidden lg:inline"

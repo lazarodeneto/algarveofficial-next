@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+
+import { DirectoryClient } from "@/components/directory/DirectoryClient";
 import { isValidLocale, type Locale } from "@/lib/i18n/config";
+import { getDirectoryPageData } from "@/lib/directory-data";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
 import { buildHreflangs } from "@/lib/i18n/seo";
 
@@ -25,14 +28,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     keywords: ["Algarve directory", "luxury listings", "restaurants", "golf"],
   });
 
-  // Explicitly add hreflang links to alternates
-  const hreflangs = buildHreflangs("/directory");
   return {
     ...metadata,
     alternates: {
-      canonical: (metadata.alternates as any)?.canonical,
-      languages: hreflangs,
-    } as any,
+      canonical: (metadata.alternates as { canonical?: string } | undefined)?.canonical,
+      languages: buildHreflangs("/directory"),
+    } as Metadata["alternates"],
   };
 }
 
@@ -43,34 +44,24 @@ export default async function DirectoryPage({ params }: PageProps) {
     return <div>Invalid locale</div>;
   }
 
-  const { createClient } = await import("@/lib/supabase/server");
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from("listings")
-    .select("id, name, Nome")
-    .limit(10);
-
-  if (error) {
-    console.error(error);
-    return <div>Error loading</div>;
-  }
+  const data = await getDirectoryPageData(rawLocale, {
+    q: "",
+    city: "all",
+    region: "all",
+    category: "all",
+    tier: "all",
+  });
 
   return (
-    <main>
-      <h1>Directory</h1>
-
-      {data?.length ? (
-        <ul>
-          {data.map((item) => (
-            <li key={item.id}>
-              {item.name || item.Nome || "Unnamed"}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No listings</p>
-      )}
-    </main>
+    <DirectoryClient
+      locale={data.locale}
+      initialListings={data.listings}
+      initialCities={data.cities}
+      initialRegions={data.regions}
+      initialCategories={data.categories}
+      initialCategoryCounts={data.categoryCounts}
+      initialFilters={data.filters}
+      globalSettings={data.globalSettings}
+    />
   );
 }

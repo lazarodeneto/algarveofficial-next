@@ -21,9 +21,11 @@ import { StatusBadgeOwner } from "@/components/owner/StatusBadgeOwner";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 
 export default function OwnerOverview() {
   const { t } = useTranslation();
+  const l = useLocalizedHref();
   const { user } = useAuth();
 
   // Fetch owner's listings
@@ -189,7 +191,7 @@ export default function OwnerOverview() {
         </CardHeader>
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <Button variant="outline" asChild className="justify-start h-auto py-3">
-            <Link href="/owner/listings" className="flex items-center gap-3">
+            <Link href={l("/owner/listings")} className="flex items-center gap-3">
               <Edit className="h-5 w-5 text-primary" />
               <div className="text-left">
                 <p className="font-medium">{t('owner.overview.editListings')}</p>
@@ -199,7 +201,7 @@ export default function OwnerOverview() {
           </Button>
           
           <Button variant="outline" asChild className="justify-start h-auto py-3">
-            <Link href="/owner/media" className="flex items-center gap-3">
+            <Link href={l("/owner/media")} className="flex items-center gap-3">
               <Image className="h-5 w-5 text-primary" />
               <div className="text-left">
                 <p className="font-medium">{t('owner.overview.uploadPhotos')}</p>
@@ -209,7 +211,7 @@ export default function OwnerOverview() {
           </Button>
           
           <Button variant="outline" asChild className="justify-start h-auto py-3">
-            <Link href="/owner/membership" className="flex items-center gap-3">
+            <Link href={l("/owner/membership")} className="flex items-center gap-3">
               <Crown className="h-5 w-5 text-amber-400" />
               <div className="text-left">
                 <p className="font-medium">{t('owner.overview.upgradePlan')}</p>
@@ -219,7 +221,7 @@ export default function OwnerOverview() {
           </Button>
           
           <Button variant="outline" asChild className="justify-start h-auto py-3">
-            <Link href="/owner/support" className="flex items-center gap-3">
+            <Link href={l("/owner/support")} className="flex items-center gap-3">
               <AlertCircle className="h-5 w-5 text-muted-foreground" />
               <div className="text-left">
                 <p className="font-medium">{t('owner.overview.getHelp')}</p>
@@ -237,7 +239,7 @@ export default function OwnerOverview() {
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg font-medium">{t('owner.overview.mostRecentUpdate')}</CardTitle>
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/owner/listings" className="flex items-center gap-1">
+                <Link href={l("/owner/listings")} className="flex items-center gap-1">
                   {t('owner.overview.viewAll')} <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
@@ -269,7 +271,7 @@ export default function OwnerOverview() {
                 </div>
                 <div className="pt-2">
                   <Button size="sm" asChild>
-                    <Link href={`/owner/listings/${recentListing.id}/edit`}>
+                    <Link href={l(`/owner/listings/${recentListing.id}/edit`)}>
                       <Edit className="h-4 w-4 mr-2" />
                       {t('owner.overview.editListing')}
                     </Link>
@@ -297,7 +299,7 @@ export default function OwnerOverview() {
               </div>
             </div>
             <Button asChild variant="outline" className="border-amber-500/30 hover:bg-amber-500/10">
-              <Link href="/owner/membership">{t('owner.overview.learnMore')}</Link>
+              <Link href={l("/owner/membership")}>{t('owner.overview.learnMore')}</Link>
             </Button>
           </div>
         </CardContent>

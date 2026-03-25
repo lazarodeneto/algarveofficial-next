@@ -46,6 +46,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Tables } from "@/integrations/supabase/types";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 
 type Region = Tables<"regions">;
 
@@ -55,6 +56,7 @@ interface SortableRegionItemProps {
 }
 
 function SortableRegionItem({ region, onToggle }: SortableRegionItemProps) {
+  const l = useLocalizedHref();
   const {
     attributes,
     listeners,
@@ -135,7 +137,7 @@ function SortableRegionItem({ region, onToggle }: SortableRegionItemProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
-                  <Link href="/admin/content/regions">
+                  <Link href={l("/admin/content/regions")}>
                     <Edit className="h-4 w-4 mr-2" />
                     Edit in Regions
                   </Link>
@@ -155,6 +157,7 @@ function SortableRegionItem({ region, onToggle }: SortableRegionItemProps) {
 
 export default function AdminCmsDestinations() {
   const queryClient = useQueryClient();
+  const l = useLocalizedHref();
   const [searchQuery, setSearchQuery] = useState("");
 
   const sensors = useSensors(
@@ -258,7 +261,7 @@ export default function AdminCmsDestinations() {
           <p className="text-muted-foreground">Manage which premium regions appear on the Destinations page</p>
         </div>
         <Button asChild variant="outline">
-          <Link href="/admin/content/regions">
+          <Link href={l("/admin/content/regions")}>
             <Settings className="h-4 w-4 mr-2" />
             Manage Regions
             <ExternalLink className="h-3 w-3 ml-2" />
@@ -305,7 +308,7 @@ export default function AdminCmsDestinations() {
           <h3 className="text-lg font-medium text-foreground mb-2">No regions available</h3>
           <p className="text-muted-foreground mb-4">Create regions in the Regions management page</p>
           <Button asChild>
-            <Link href="/admin/content/regions">
+            <Link href={l("/admin/content/regions")}>
               <Settings className="h-4 w-4 mr-2" />
               Go to Regions
             </Link>

@@ -19,7 +19,7 @@ type LocalizedLinkProps = Omit<LinkProps, "href"> &
  *   <LocalizedLink href="/directory">Visit</LocalizedLink>
  *   // Renders: /en/directory, /pt-pt/directory, etc.
  *
- * Paths starting with /api, /auth, /dashboard, /admin, /owner are
+ * Paths starting with /api or /auth are
  * passed through without locale prefix.
  */
 export const LocalizedLink = forwardRef<HTMLAnchorElement, LocalizedLinkProps>(

@@ -35,8 +35,7 @@ export function I18nProvider({ children, locale: propLocale = "en" }: I18nProvid
     let cancelled = false;
 
     const syncI18n = async () => {
-      // Skip if already initialized or request is cancelled
-      if (initialized.current || cancelled) {
+      if (cancelled) {
         return;
       }
 
@@ -49,6 +48,10 @@ export function I18nProvider({ children, locale: propLocale = "en" }: I18nProvid
           // Fail silently - i18n will use fallback
           initialized.current = true;
         }
+      }
+
+      if (!cancelled && i18n.language !== targetLocale) {
+        setIsReady(false);
       }
 
       // Ensure locale resources are loaded

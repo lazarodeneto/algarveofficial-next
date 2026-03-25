@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Script from "next/script";
 import type { ReactNode } from "react";
 import { Inter, Playfair_Display } from "next/font/google";
@@ -58,14 +59,16 @@ interface RootLayoutProps {
   children: ReactNode;
 }
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default async function RootLayout({ children }: RootLayoutProps) {
   // ✅ CRITICAL CHANGE: No cookie reading - all locale detection moved to [locale]/layout.tsx
   // This layout provides DEFAULT providers for non-locale routes (auth, maintenance, etc.)
   // The [locale]/layout.tsx will override with the actual locale from URL params
   const DEFAULT_LOCALE = "en";
+  const requestHeaders = await headers();
+  const htmlLang = requestHeaders.get("x-html-lang") || "en-GB";
 
   return (
-    <html suppressHydrationWarning className={fontVariables}>
+    <html lang={htmlLang} suppressHydrationWarning className={fontVariables}>
       <body className={fontVariables}>
         <script
           type="application/ld+json"

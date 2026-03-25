@@ -373,7 +373,7 @@ export function HeroSection() {
 
     const newTrip = createTrip(data);
     toast.success(t("hero.tripCreated", "Trip created successfully."));
-    router.push(`/dashboard/trips?trip=${encodeURIComponent(newTrip.id)}`);
+    router.push(`${l("/dashboard/trips")}?trip=${encodeURIComponent(newTrip.id)}`);
   };
 
   // Use only admin-configured media (no local fallback assets).

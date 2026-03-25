@@ -9,6 +9,7 @@ import { BrandLogo } from "@/components/ui/brand-logo";
 import { ExpandableSidebar, type SidebarNavSection } from "@/components/navigation/ExpandableSidebar";
 import { useSupabaseFavoritesCount } from "@/hooks/useSupabaseFavoritesCount";
 import { useUserUnreadMessagesCount } from "@/hooks/useUserUnreadMessagesCount";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { useTranslation } from "react-i18next";
 
 interface UserSidebarProps {
@@ -18,6 +19,7 @@ interface UserSidebarProps {
 
 export function UserSidebar({ collapsed, onToggle }: UserSidebarProps) {
   const { t } = useTranslation();
+  const l = useLocalizedHref();
   const { data: unreadMessagesCount = 0 } = useUserUnreadMessagesCount();
   const { data: favoritesCount = 0 } = useSupabaseFavoritesCount();
 
@@ -25,23 +27,23 @@ export function UserSidebar({ collapsed, onToggle }: UserSidebarProps) {
     {
       id: "user-main",
       items: [
-        { label: t("dashboard.sidebar.overview"), href: "/dashboard", icon: LayoutDashboard, end: true },
-        { label: t("dashboard.sidebar.tripPlanner"), href: "/dashboard/trips", icon: CalendarDays },
+        { label: t("dashboard.sidebar.overview"), href: l("/dashboard"), icon: LayoutDashboard, end: true },
+        { label: t("dashboard.sidebar.tripPlanner"), href: l("/dashboard/trips"), icon: CalendarDays },
         {
           label: t("dashboard.sidebar.favorites"),
-          href: "/dashboard/favorites",
+          href: l("/dashboard/favorites"),
           icon: Heart,
           badge: favoritesCount > 0 ? favoritesCount : undefined,
           badgeTone: "primary",
         },
         {
           label: t("dashboard.sidebar.messages"),
-          href: "/dashboard/messages",
+          href: l("/dashboard/messages"),
           icon: MessageSquare,
           badge: unreadMessagesCount > 0 ? unreadMessagesCount : undefined,
           badgeTone: "primary",
         },
-        { label: t("dashboard.sidebar.profile"), href: "/dashboard/profile", icon: User },
+        { label: t("dashboard.sidebar.profile"), href: l("/dashboard/profile"), icon: User },
       ],
     },
   ];

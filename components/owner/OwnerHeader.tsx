@@ -17,13 +17,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useOwnerListings } from "@/hooks/useOwnerListings";
 import { useOwnerUnreadMessagesCount } from "@/hooks/useOwnerUnreadMessagesCount";
 import { usePendingReviewCount } from "@/hooks/usePendingReviewCount";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 import { useTranslation } from "react-i18next";
-import { useLocale } from "@/lib/i18n/locale-context";
 
 export function OwnerHeader() {
   const { t } = useTranslation();
   const { logout, user } = useAuth();
-  const locale = useLocale();
+  const l = useLocalizedHref();
   const isAdminViewing = user?.role === 'admin';
   const { data: listings = [] } = useOwnerListings();
   const { data: unreadCount = 0 } = useOwnerUnreadMessagesCount();
@@ -68,7 +68,7 @@ export function OwnerHeader() {
 
           {/* View Public Site */}
           <Button variant="ghost" size="sm" asChild className="hidden xl:flex text-muted-foreground hover:text-foreground [&>svg]:hover:text-foreground">
-            <Link href={`/${locale}`} className="flex items-center gap-2">
+            <Link href={l("/")} className="flex items-center gap-2">
               <ExternalLink className="h-4 w-4 transition-colors" />
               {t('common.viewSite')}
             </Link>
@@ -76,7 +76,7 @@ export function OwnerHeader() {
 
           {/* Notifications - links to messages page */}
           <Button variant="ghost" size="icon" asChild className="relative text-muted-foreground hover:text-foreground group">
-            <Link href="/owner/messages">
+            <Link href={l("/owner/messages")}>
               <Bell className="h-5 w-5 transition-colors group-hover:text-foreground" />
               {totalNotifications > 0 && (
                 <span className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary text-[9px] font-semibold text-primary-foreground px-1">
@@ -121,14 +121,14 @@ export function OwnerHeader() {
                     {t('common.switchDashboard')}
                   </DropdownMenuLabel>
                   <DropdownMenuItem asChild>
-                    <Link href="/admin" className="cursor-pointer flex items-center">
+                    <Link href={l("/admin")} className="cursor-pointer flex items-center">
                       <span className="w-4 mr-2" />
                       <LayoutDashboard className="h-4 w-4 mr-2" />
                       {t('common.adminDashboard')}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/owner" className="cursor-pointer flex items-center">
+                    <Link href={l("/owner")} className="cursor-pointer flex items-center">
                       <Check className="h-4 w-4 mr-2 text-primary" />
                       <Building2 className="h-4 w-4 mr-2" />
                       {t('common.ownerDashboard')}
@@ -140,7 +140,7 @@ export function OwnerHeader() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="cursor-pointer flex items-center">
+                    <Link href={l("/dashboard")} className="cursor-pointer flex items-center">
                       <span className="w-4 mr-2" />
                       <UserCheck className="h-4 w-4 mr-2" />
                       {t('common.userDashboard')}
@@ -152,7 +152,7 @@ export function OwnerHeader() {
 
               {/* Owner-specific items */}
               <DropdownMenuItem asChild>
-                <Link href="/owner/membership" className="flex items-center gap-2 cursor-pointer">
+                <Link href={l("/owner/membership")} className="flex items-center gap-2 cursor-pointer">
                   <Crown className="h-4 w-4" />
                   <span>{t('owner.sidebar.membership')}</span>
                 </Link>

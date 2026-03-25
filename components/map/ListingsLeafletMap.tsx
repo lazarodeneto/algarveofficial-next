@@ -418,18 +418,20 @@ function ClusteredMarkers({
               },
             }}
           >
-            <Popup>
-              <div className="min-w-[210px] space-y-2">
-                <p className="text-sm font-semibold text-foreground">{node.count} listings in this area</p>
-                <ul className="text-xs text-muted-foreground space-y-1">
-                  {node.samples.map((sample) => (
-                    <li key={sample.id} className="line-clamp-1">
-                      • {sample.name}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </Popup>
+            {showPopups && (
+              <Popup>
+                <div className="min-w-[210px] space-y-2">
+                  <p className="text-sm font-semibold text-foreground">{node.count} listings in this area</p>
+                  <ul className="text-xs text-muted-foreground space-y-1">
+                    {node.samples.map((sample) => (
+                      <li key={sample.id} className="line-clamp-1">
+                        • {sample.name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Popup>
+            )}
           </Marker>
         );
       })}

@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -10,11 +12,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Eye, EyeOff, ArrowLeft, Mail, Lock, CheckCircle, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { useLocalizedHref } from '@/hooks/useLocalizedHref';
 
 export default function Login() {
   const { t } = useTranslation();
   const { login, loginWithGoogle, isLoading, isAuthenticated, user, getDashboardPath } = useAuth();
   const router = useRouter();
+  const l = useLocalizedHref();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -71,7 +75,7 @@ export default function Login() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-background" />
         <div className="absolute inset-0 bg-[url('/placeholder.svg')] bg-cover bg-center opacity-10" />
         <div className="relative z-10 flex flex-col justify-between p-12 w-full">
-          <Link href="/" className="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
+          <Link href={l("/")} className="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
             <ArrowLeft className="h-5 w-5" />
             <span className="font-sans">{t('auth.backToHome')}</span>
           </Link>
@@ -116,7 +120,7 @@ export default function Login() {
         >
           {/* Mobile back link */}
           <Link 
-            href="/" 
+            href={l("/")} 
             className="lg:hidden flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
           >
             <ArrowLeft className="h-4 w-4" />
