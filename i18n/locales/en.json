@@ -18,6 +18,29 @@
     "myTrip": "My Trip",
     "account": "Account"
   },
+  "menu": {
+    "visit": "Visit",
+    "live": "Live",
+    "invest": "Invest",
+    "browseCategories": "Browse Categories",
+    "hero": {
+      "visit": {
+        "title": "Visit Algarve",
+        "desc": "World-class experiences along Europe's most beautiful coastline.",
+        "label": "Explore all"
+      },
+      "live": {
+        "title": "Live in Algarve",
+        "desc": "Everything you need to make the Algarve your permanent home.",
+        "label": "Learn more"
+      },
+      "invest": {
+        "title": "Invest in Algarve",
+        "desc": "Secure your piece of paradise and build lasting value.",
+        "label": "Explore strategy"
+      }
+    }
+  },
   "hero": {
     "location": "District of Faro, Portugal",
     "headline": "Discover the",

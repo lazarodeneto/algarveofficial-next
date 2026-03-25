@@ -18,6 +18,29 @@
     "myTrip": "Min tur",
     "account": "Konto"
   },
+  "menu": {
+    "visit": "Besøk",
+    "live": "Bo",
+    "invest": "Investere",
+    "browseCategories": "Utforsk Kategorier",
+    "hero": {
+      "visit": {
+        "title": "Besøk Algarve",
+        "desc": "Verdensklasse opplevelser langs Europas vakreste kystlinje.",
+        "label": "Utforsk alt"
+      },
+      "live": {
+        "title": "Bo i Algarve",
+        "desc": "Alt du trenger for å gjøre Algarve til ditt permanente hjem.",
+        "label": "Lær mer"
+      },
+      "invest": {
+        "title": "Investere i Algarve",
+        "desc": "Sikre ditt paradiskrøkke og bygge varig verdi.",
+        "label": "Utforsk strategi"
+      }
+    }
+  },
   "hero": {
     "location": "Distriktet Faro, Portugal",
     "headline": "Oppdag",

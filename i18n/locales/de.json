@@ -18,6 +18,29 @@
     "myTrip": "Meine Reise",
     "account": "Mein Konto"
   },
+  "menu": {
+    "visit": "Besuchen",
+    "live": "Leben",
+    "invest": "Investieren",
+    "browseCategories": "Kategorien durchsuchen",
+    "hero": {
+      "visit": {
+        "title": "Die Algarve besuchen",
+        "desc": "Weltklasse-Erlebnisse an Europas schönster Küste.",
+        "label": "Alles erkunden"
+      },
+      "live": {
+        "title": "In der Algarve leben",
+        "desc": "Alles, was Sie brauchen, um die Algarve zu Ihrer ständigen Residenz zu machen.",
+        "label": "Mehr erfahren"
+      },
+      "invest": {
+        "title": "In der Algarve investieren",
+        "desc": "Sichern Sie sich Ihr Stück Paradies und schaffen Sie dauerhaften Wert.",
+        "label": "Strategie erkunden"
+      }
+    }
+  },
   "hero": {
     "location": "Bezirk Faro, Portugal",
     "headline": "Entdecken Sie das",
