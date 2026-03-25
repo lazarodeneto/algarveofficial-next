@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import Script from "next/script";
 import type { ReactNode } from "react";
 import { Inter, Playfair_Display } from "next/font/google";
@@ -7,17 +6,9 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import "../index.css";
 import { AppProviders } from "@/components/providers/AppProviders";
-import { PublicSiteFrame } from "@/components/layout/PublicSiteFrame";
 import { LocaleProvider } from "@/lib/i18n/locale-context";
 import { buildMetadata } from "@/lib/metadata";
 import { buildOrganizationSchema, buildWebsiteSchema } from "@/lib/seo/schemaBuilders.js";
-import { CookieConsentBannerWrapper } from "@/components/gdpr/CookieConsentBannerWrapper";
-import {
-  LOCALE_CONFIGS,
-  getLocaleFromPathname,
-  isValidLocale,
-  type Locale,
-} from "@/lib/i18n/config";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -67,24 +58,14 @@ interface RootLayoutProps {
   children: ReactNode;
 }
 
-export default async function RootLayout({ children }: RootLayoutProps) {
-  const cookieStore = await cookies();
-
-  // Locale detection: cookie (set by proxy) > default
-  // The proxy ensures all requests are locale-prefixed and sets the cookie,
-  // so we can rely on the cookie as the source of truth
-  const cookieLocale = cookieStore.get("NEXT_LOCALE")?.value;
-
-  // Validate and set locale
-  const resolvedLocale: Locale = (
-    (cookieLocale && isValidLocale(cookieLocale) ? cookieLocale : null) ?? "en"
-  ) as Locale;
-
-  const localeConfig = LOCALE_CONFIGS[resolvedLocale] ?? LOCALE_CONFIGS.en;
-  const htmlLang = localeConfig?.hreflang ?? "en-GB";
+export default function RootLayout({ children }: RootLayoutProps) {
+  // ✅ CRITICAL CHANGE: No cookie reading - all locale detection moved to [locale]/layout.tsx
+  // This layout provides DEFAULT providers for non-locale routes (auth, maintenance, etc.)
+  // The [locale]/layout.tsx will override with the actual locale from URL params
+  const DEFAULT_LOCALE = "en";
 
   return (
-    <html lang={htmlLang} className={fontVariables} suppressHydrationWarning>
+    <html suppressHydrationWarning className={fontVariables}>
       <body className={fontVariables}>
         <script
           type="application/ld+json"
@@ -97,10 +78,10 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         <Script id="theme-init" strategy="beforeInteractive">
           {themeInitScript}
         </Script>
-        <LocaleProvider locale={resolvedLocale}>
-          <AppProviders locale={resolvedLocale}>
-            <PublicSiteFrame>{children}</PublicSiteFrame>
-            <CookieConsentBannerWrapper />
+        {/* Provide default locale for non-[locale] routes - will be overridden by [locale] layout */}
+        <LocaleProvider locale={DEFAULT_LOCALE}>
+          <AppProviders locale={DEFAULT_LOCALE}>
+            {children}
           </AppProviders>
         </LocaleProvider>
         <SpeedInsights />
