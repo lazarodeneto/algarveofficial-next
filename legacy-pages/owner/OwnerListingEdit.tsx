@@ -26,11 +26,13 @@ import { OwnerListingImageManager } from "@/components/owner/OwnerListingImageMa
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { extractIdParam } from "@/lib/routeParams";
+import { useLocalizedHref } from "@/hooks/useLocalizedHref";
 
 export default function OwnerListingEdit() {
   const params = useParams<Record<string, string | string[] | undefined>>();
   const id = extractIdParam(params);
   const router = useRouter();
+  const l = useLocalizedHref();
   const queryClient = useQueryClient();
   const { user } = useAuth();
   
@@ -171,7 +173,7 @@ export default function OwnerListingEdit() {
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <p className="text-muted-foreground mb-4">Listing not found</p>
-        <Button onClick={() => router.push('/owner/listings')}>
+        <Button onClick={() => router.push(l('/owner/listings'))}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Listings
         </Button>
@@ -194,7 +196,7 @@ export default function OwnerListingEdit() {
         <Button 
           variant="ghost" 
           size="sm" 
-          onClick={() => router.push('/owner/listings')}
+          onClick={() => router.push(l('/owner/listings'))}
           className="w-fit"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -438,7 +440,7 @@ export default function OwnerListingEdit() {
           )}
           
           <Button variant="outline" asChild>
-            <a href="/owner/membership">View Membership Options</a>
+            <a href={l("/owner/membership")}>View Membership Options</a>
           </Button>
         </CardContent>
       </Card>

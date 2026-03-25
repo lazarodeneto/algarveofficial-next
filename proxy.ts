@@ -7,8 +7,9 @@
  * 3. Normalize trailing slashes for SEO consistency
  * 4. Guard against double-locale-prefix bugs
  * 5. Skip API routes and static assets
+ * 6. Pass locale-derived document language to the root layout
  *
- * NOTE: Does NOT set x-locale header (we use params.locale from routing instead)
+ * NOTE: params.locale remains the route source of truth; headers are only for root document attrs.
  */
 
 import { type NextRequest, NextResponse } from "next/server";
@@ -16,6 +17,7 @@ import {
   SUPPORTED_LOCALES,
   DEFAULT_LOCALE,
   getLocaleFromPathname,
+  LOCALE_CONFIGS,
   resolveLocaleFromAcceptLanguage,
 } from "@/lib/i18n/config";
 
@@ -34,10 +36,20 @@ const PUBLIC_SEO_PAGES = [
 
 export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  const attachLocaleHeaders = (locale: string) => {
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-locale", locale);
+    requestHeaders.set("x-html-lang", LOCALE_CONFIGS[locale as keyof typeof LOCALE_CONFIGS]?.hreflang ?? "en-GB");
+    return requestHeaders;
+  };
 
   // Skip unlocalized routes (API, static assets, etc.)
   if (UNLOCALIZED_ROUTES.some((route) => pathname.startsWith(route))) {
-    return NextResponse.next();
+    return NextResponse.next({
+      request: {
+        headers: attachLocaleHeaders(DEFAULT_LOCALE),
+      },
+    });
   }
 
   // Get current locale from pathname
@@ -69,7 +81,11 @@ export function proxy(request: NextRequest) {
       );
     }
 
-    return NextResponse.next();
+    return NextResponse.next({
+      request: {
+        headers: attachLocaleHeaders(currentLocale),
+      },
+    });
   }
 
   // Detect which locale to use

@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useMemo } from 'react';
 import { Search, Star, MapPin } from 'lucide-react';
 import {

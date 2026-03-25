@@ -57,27 +57,22 @@ export function LanguageSwitcher() {
     setIsPending(true);
 
     try {
-      // 1. Load translations for new locale
+      // 1. Preload translations for the next locale so the destination route can render immediately.
       await ensureLocaleLoaded(newLocale);
 
-      // 2. Update i18n instance
-      if (typeof i18n.changeLanguage === "function") {
-        await i18n.changeLanguage(newLocale);
-      }
-
-      // 3. Persist preference to cookie (optional, for future visits)
+      // 2. Persist preference to cookie (optional, for future visits)
       if (typeof document !== "undefined") {
         document.cookie = `NEXT_LOCALE=${newLocale};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`;
       }
 
-      // 4. Build new URL: swap locale, preserve path + search + hash
+      // 3. Build new URL: swap locale, preserve path + search + hash
       const newPath = swapLocaleInPath(pathname, newLocale);
       const search = searchParams?.toString() ?? "";
       const hash =
         typeof window !== "undefined" ? window.location.hash || "" : "";
       const fullUrl = `${newPath}${search ? `?${search}` : ""}${hash}`;
 
-      // 5. Navigate (UI will update automatically since currentLocale derives from pathname)
+      // 4. Navigate. The URL remains the single source of truth; i18n will sync from pathname on the destination route.
       router.push(fullUrl, { scroll: false });
     } finally {
       setIsPending(false);
@@ -85,7 +80,7 @@ export function LanguageSwitcher() {
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu key={pathname}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"

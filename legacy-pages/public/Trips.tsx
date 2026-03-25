@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from 'react';
 import { format, differenceInDays } from 'date-fns';
 import { motion } from 'framer-motion';

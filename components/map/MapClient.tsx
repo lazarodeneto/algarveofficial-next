@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { HelmetProvider } from "react-helmet-async";
 import type { Tables } from "@/integrations/supabase/types";
 import { useHydrated } from "@/hooks/useHydrated";
 
@@ -26,16 +25,17 @@ type RegionSeed = Tables<"regions">;
 type CategorySeed = Tables<"categories">;
 
 export interface MapClientProps {
+  locale?: string;
   initialListings: MapListingSeed[];
   initialCities: CitySeed[];
   initialRegions: RegionSeed[];
   initialCategories: CategorySeed[];
 }
 
-const DEFAULT_LOCALE = "en";
 const DEFAULT_LISTING_FILTERS = {};
 
 export default function MapClient({
+  locale = "en",
   initialListings,
   initialCities,
   initialRegions,
@@ -45,11 +45,11 @@ export default function MapClient({
   const mounted = useHydrated();
 
   useEffect(() => {
-    queryClient.setQueryData(["cities", DEFAULT_LOCALE], initialCities);
-    queryClient.setQueryData(["regions", DEFAULT_LOCALE], initialRegions);
-    queryClient.setQueryData(["categories", DEFAULT_LOCALE], initialCategories);
+    queryClient.setQueryData(["cities", locale], initialCities);
+    queryClient.setQueryData(["regions", locale], initialRegions);
+    queryClient.setQueryData(["categories", locale], initialCategories);
     queryClient.setQueryData(
-      ["listings", "published", DEFAULT_LISTING_FILTERS, DEFAULT_LOCALE],
+      ["listings", "published", DEFAULT_LISTING_FILTERS, locale],
       initialListings,
     );
 
@@ -57,15 +57,11 @@ export default function MapClient({
     if (serverShell) {
       serverShell.style.display = "none";
     }
-  }, [initialCategories, initialCities, initialListings, initialRegions, queryClient]);
+  }, [initialCategories, initialCities, initialListings, initialRegions, locale, queryClient]);
 
   if (!mounted) {
     return null;
   }
 
-  return (
-    <HelmetProvider>
-      <MapExplorerPage />
-    </HelmetProvider>
-  );
+  return <MapExplorerPage />;
 }
