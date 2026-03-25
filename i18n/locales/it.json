@@ -16,7 +16,15 @@
     "live": "Vivere",
     "invest": "Investire",
     "myTrip": "Il Mio Viaggio",
-    "account": "Il Mio Account"
+    "account": "Il Mio Account",
+    "map": "Mappa",
+    "saved": "Preferiti",
+    "search": "Cerca",
+    "discover": "Scopri",
+    "yourSpace": "Il Tuo Spazio",
+    "openMenu": "Apri menu",
+    "closeMenu": "Chiudi menu",
+    "mobilePrimary": "Navigazione principale"
   },
   "menu": {
     "visit": "Visitare",
@@ -185,6 +193,16 @@
       "doLinksPrefix": "Salta a"
     }
   },
+  "map": {
+    "title": "Esplora Mappa",
+    "subtitle": "Marcatori di categoria raggruppati con filtri istantanei in tutto l'Algarve.",
+    "description": "Esplora gli annunci dell'Algarve su una mappa interattiva con marcatori raggruppati e filtri istantanei.",
+    "visibleOnMap": "Visibile sulla mappa",
+    "mappableListings": "{{count}} annunci mappabili",
+    "totalResults": "{{count}} risultati corrispondono ai tuoi filtri",
+    "noMappedListings": "Nessun annuncio mappato per questi filtri.",
+    "emptyCoordinates": "Nessuna coordinata disponibile per gli annunci con i filtri selezionati."
+  },
   "newsletter": {
     "title": "Accesso Esclusivo al",
     "titleHighlight": "Lusso dell'Algarve",
@@ -200,7 +218,10 @@
     "errorGeneric": "Qualcosa è andato storto. Riprova.",
     "alreadySubscribed": "Sei già iscritto alla nostra newsletter!",
     "welcomeMessage": "Benvenuto su AlgarveOfficial! Controlla la tua casella di posta.",
-    "errorRateLimit": "Troppi tentativi. Riprova più tardi."
+    "errorRateLimit": "Troppi tentativi. Riprova più tardi.",
+    "footerTitle": "Ottieni la guida insider dell'Algarve",
+    "footerSubtitle": "Selezioni mensili, eventi e gemme nascoste.",
+    "footerCta": "Ottieni la guida"
   },
   "cookie": {
     "title": "La Tua Privacy è Importante",
@@ -209,7 +230,19 @@
     "decline": "Rifiuta",
     "accept": "Accetta Analytics",
     "gdprBadge": "Conforme al GDPR",
-    "dataRetention": "Dati conservati per 90 giorni"
+    "dataRetention": "Dati conservati per 90 giorni",
+    "acceptAll": "Accetta tutto",
+    "denyAll": "Rifiuta tutto",
+    "saveSettings": "Salva impostazioni",
+    "savePreferences": "Salva preferenze",
+    "optionalCategories": "Le categorie opzionali restano disattivate finché non le attivi",
+    "essential": "Essenziali",
+    "functional": "Funzionali",
+    "analytics": "Analisi",
+    "marketing": "Marketing",
+    "details": "Dettagli",
+    "preferencesTitle": "Preferenze cookie",
+    "closePreferences": "Chiudi preferenze cookie"
   },
   "auth": {
     "backToHome": "Torna alla home",
@@ -460,7 +493,9 @@
     "curated": "Selezionato",
     "avgRating": "valutazione media",
     "inOtherCities": "in altre città dell'Algarve",
-    "moreToExploreIn": "Altro da esplorare a"
+    "moreToExploreIn": "Altro da esplorare a",
+    "language": "Lingua",
+    "theme": "Tema"
   },
   "search": {
     "placeholder": "Cerca annunci, categorie, città, regioni...",
@@ -502,7 +537,8 @@
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Termini di Servizio",
     "cookiePolicy": "Cookie Policy",
-    "pricing": "Prezzi Partner"
+    "pricing": "Prezzi Partner",
+    "cookieSettings": "Impostazioni cookie"
   },
   "blog": {
     "title": "Blog e Approfondimenti",
