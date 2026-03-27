@@ -97,7 +97,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const categoryName = getCategoryDisplayName(canonical, locale);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ?? "https://algarveofficial.com";
 
-  const localizedPaths: Partial<Record<string, string>> = {};
+  const localizedPaths: Partial<Record<Locale, string>> = {};
   for (const loc of SUPPORTED_LOCALES) {
     const localizedCategorySlug = getCategoryUrlSlug(canonical, loc);
     localizedPaths[loc] = `/${loc}/visit/${citySlug}/${localizedCategorySlug}`;

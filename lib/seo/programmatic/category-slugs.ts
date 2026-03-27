@@ -37,7 +37,7 @@ export const ALL_CANONICAL_SLUGS: CanonicalCategorySlug[] = [
  * - Other locales use the native-language equivalent
  * - All slugs are lowercase, hyphen-separated, URL-safe
  */
-export const CATEGORY_URL_SLUGS: Record<CanonicalCategorySlug, Record<string, string>> = {
+export const CATEGORY_URL_SLUGS: Record<CanonicalCategorySlug, Record<Locale, string>> = {
   restaurants: {
     en: "restaurants",
     "pt-pt": "restaurantes",
@@ -152,7 +152,7 @@ export const CATEGORY_URL_SLUGS: Record<CanonicalCategorySlug, Record<string, st
  * Reverse index: for a given locale, maps URL slug → canonical slug.
  * Built lazily; used for fast lookups in page params.
  */
-const _reverseIndex: Partial<Record<string, Record<string, CanonicalCategorySlug>>> = {};
+const _reverseIndex: Partial<Record<Locale, Record<string, CanonicalCategorySlug>>> = {};
 
 function buildReverseIndex(locale: Locale): Record<string, CanonicalCategorySlug> {
   const map: Record<string, CanonicalCategorySlug> = {};
@@ -190,7 +190,7 @@ export function getCategoryUrlSlug(
 /**
  * Human-readable display names per canonical slug and locale.
  */
-export const CATEGORY_DISPLAY_NAMES: Record<CanonicalCategorySlug, Record<string, string>> = {
+export const CATEGORY_DISPLAY_NAMES: Record<CanonicalCategorySlug, Record<Locale, string>> = {
   restaurants: {
     en: "Restaurants",
     "pt-pt": "Restaurantes",

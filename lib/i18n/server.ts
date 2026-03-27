@@ -10,12 +10,30 @@ import {
 type TranslationLeafMap = Record<string, string>;
 type TranslationNode = Record<string, unknown>;
 
-const DB_LOCALE_MAP: Record<string, string> = {
+const DB_LOCALE_MAP: Record<Locale, string> = {
   en: "en",
+  "pt-pt": "pt",
+  de: "de",
+  fr: "fr",
+  es: "es",
+  it: "it",
+  nl: "nl",
+  sv: "sv",
+  no: "no",
+  da: "da",
 };
 
-const localeLoaders: Record<string, () => Promise<TranslationNode>> = {
+const localeLoaders: Record<Locale, () => Promise<TranslationNode>> = {
   en: () => import("@/i18n/locales/en.json").then((module) => module.default as TranslationNode),
+  "pt-pt": () => import("@/i18n/locales/pt.json").then((module) => module.default as TranslationNode),
+  de: () => import("@/i18n/locales/de.json").then((module) => module.default as TranslationNode),
+  fr: () => import("@/i18n/locales/fr.json").then((module) => module.default as TranslationNode),
+  es: () => import("@/i18n/locales/es.json").then((module) => module.default as TranslationNode),
+  it: () => import("@/i18n/locales/it.json").then((module) => module.default as TranslationNode),
+  nl: () => import("@/i18n/locales/nl.json").then((module) => module.default as TranslationNode),
+  sv: () => import("@/i18n/locales/sv.json").then((module) => module.default as TranslationNode),
+  no: () => import("@/i18n/locales/no.json").then((module) => module.default as TranslationNode),
+  da: () => import("@/i18n/locales/da.json").then((module) => module.default as TranslationNode),
 };
 
 function pickTranslationKeys(
