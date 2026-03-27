@@ -20,7 +20,6 @@ import {
   DEFAULT_LOCALE,
   getLocaleFromPathname,
   LOCALE_CONFIGS,
-  resolveLocaleFromAcceptLanguage,
 } from "@/lib/i18n/config";
 
 const UNLOCALIZED_PREFIXES = [
@@ -70,16 +69,9 @@ function isUnlocalizedRoute(pathname: string): boolean {
   return false;
 }
 
-function getPreferredLocale(request: NextRequest): string {
-  const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
-  if (isSupportedLocale(cookieLocale)) {
-    return cookieLocale;
-  }
-
-  const acceptLanguage = request.headers.get("accept-language");
-  const resolved = resolveLocaleFromAcceptLanguage(acceptLanguage);
-
-  return isSupportedLocale(resolved) ? resolved : DEFAULT_LOCALE;
+function getPreferredLocale(_request: NextRequest): string {
+  // Only English is supported — always return the default locale
+  return DEFAULT_LOCALE;
 }
 
 function buildRequestHeaders(request: NextRequest, locale: string): Headers {
