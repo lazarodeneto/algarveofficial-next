@@ -5,12 +5,12 @@ import { useEmailStats, useRecentCampaignActivity } from "@/hooks/useEmailStats"
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 const EmailMarketingOverview = () => {
   const { t } = useTranslation();
   const router = useRouter();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const { data: stats, isLoading } = useEmailStats();
   const { data: recentCampaigns } = useRecentCampaignActivity();
 

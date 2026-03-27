@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { translateCategoryValue } from "@/lib/translateCategoryValue";
 import ListingImage from "@/components/ListingImage";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import { cn } from "@/lib/utils";
 import {
@@ -52,7 +52,7 @@ function asString(value: unknown): string | null {
 
 export function RealEstateCard({ listing }: RealEstateCardProps) {
     const { t } = useTranslation();
-    const l = useLocalizedHref();
+    const l = useLocalePath();
     const {
         id,
         name,

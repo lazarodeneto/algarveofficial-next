@@ -20,7 +20,7 @@ import { LISTING_FORM_STEPS, type ListingFormData } from "@/types/listing";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 const getEmptyFormData = (): ListingFormData => ({
   name: "",
@@ -53,7 +53,7 @@ export default function ListingForm() {
     return match?.[1] ? decodeURIComponent(match[1]) : undefined;
   }, [params, pathname]);
   const router = useRouter();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const { user } = useAuth();
   const isEditMode = Boolean(id);
 

@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { getSessionId } from "@/lib/sessionId";
 
 export type BlogPostAuthor = Pick<Tables<"public_profiles">, "id" | "full_name" | "avatar_url">;
@@ -112,7 +112,7 @@ async function fetchBlogPost(slug: string, locale: string): Promise<BlogPostWith
 
 function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClientProps) {
   const { t, i18n } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const locale = normalizeBlogLocale(i18n.language);
   const seededPost = useMemo(
     () => mergePostWithAuthor(initialPost, initialAuthor),

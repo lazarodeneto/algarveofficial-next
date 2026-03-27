@@ -17,13 +17,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useOwnerListings } from "@/hooks/useOwnerListings";
 import { useOwnerUnreadMessagesCount } from "@/hooks/useOwnerUnreadMessagesCount";
 import { usePendingReviewCount } from "@/hooks/usePendingReviewCount";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { useTranslation } from "react-i18next";
 
 export function OwnerHeader() {
   const { t } = useTranslation();
   const { logout, user } = useAuth();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const isAdminViewing = user?.role === 'admin';
   const { data: listings = [] } = useOwnerListings();
   const { data: unreadCount = 0 } = useOwnerUnreadMessagesCount();

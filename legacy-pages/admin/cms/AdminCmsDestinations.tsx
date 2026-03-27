@@ -46,7 +46,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Tables } from "@/integrations/supabase/types";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 type Region = Tables<"regions">;
 
@@ -56,7 +56,7 @@ interface SortableRegionItemProps {
 }
 
 function SortableRegionItem({ region, onToggle }: SortableRegionItemProps) {
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const {
     attributes,
     listeners,
@@ -157,7 +157,7 @@ function SortableRegionItem({ region, onToggle }: SortableRegionItemProps) {
 
 export default function AdminCmsDestinations() {
   const queryClient = useQueryClient();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const [searchQuery, setSearchQuery] = useState("");
 
   const sensors = useSensors(

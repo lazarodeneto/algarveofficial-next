@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/integrations/supabase/client';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { useLocale } from '@/lib/i18n/locale-context';
-import { createLocalizedHref } from '@/lib/i18n/navigation';
+import { buildLocalizedPath } from '@/lib/i18n/routing';
 
 export type UserRole = 'admin' | 'editor' | 'owner' | 'viewer_logged' | 'viewer';
 
@@ -278,13 +278,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     switch (role) {
       case 'admin':
       case 'editor':
-        return createLocalizedHref('/admin', locale);
+        return buildLocalizedPath(locale, '/admin');
       case 'owner':
-        return createLocalizedHref('/owner', locale);
+        return buildLocalizedPath(locale, '/owner');
       case 'viewer_logged':
-        return createLocalizedHref('/dashboard', locale);
+        return buildLocalizedPath(locale, '/dashboard');
       default:
-        return createLocalizedHref('/', locale);
+        return buildLocalizedPath(locale, '/');
     }
   };
 

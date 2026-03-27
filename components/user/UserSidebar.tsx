@@ -9,7 +9,7 @@ import { BrandLogo } from "@/components/ui/brand-logo";
 import { ExpandableSidebar, type SidebarNavSection } from "@/components/navigation/ExpandableSidebar";
 import { useSupabaseFavoritesCount } from "@/hooks/useSupabaseFavoritesCount";
 import { useUserUnreadMessagesCount } from "@/hooks/useUserUnreadMessagesCount";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { useTranslation } from "react-i18next";
 
 interface UserSidebarProps {
@@ -19,7 +19,7 @@ interface UserSidebarProps {
 
 export function UserSidebar({ collapsed, onToggle }: UserSidebarProps) {
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const { data: unreadMessagesCount = 0 } = useUserUnreadMessagesCount();
   const { data: favoritesCount = 0 } = useSupabaseFavoritesCount();
 

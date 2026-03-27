@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
 import { SITE_CONFIG, CATEGORY_META, LOCATION_META, DEFAULT_KEYWORDS } from "./seo-config";
-import { LOCALE_CONFIGS, SUPPORTED_LOCALES, addLocaleToPathname, DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config";
+import type { Locale } from "@/lib/i18n/config";
+import {
+  buildMetadataAlternates,
+  buildUnlocalizedAlternates,
+  getSiteUrl,
+  toOpenGraphLocale,
+} from "@/lib/i18n/seo";
 
 type PageType = "website" | "article" | "product" | "place" | "localbusiness" | "event";
-
-function getSiteUrl(): string {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  if (configured && /^https?:\/\//i.test(configured)) {
-    return configured.replace(/\/+$/, "");
-  }
-  return SITE_CONFIG.url;
-}
 
 function normalizePath(path: string): string {
   if (!path || path === "/") return "/";
@@ -20,25 +18,6 @@ function normalizePath(path: string): string {
 function toAbsoluteUrl(pathOrUrl: string): string {
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
   return `${getSiteUrl()}${normalizePath(pathOrUrl)}`;
-}
-
-function buildHreflangAlternates(
-  localizedPath: string,
-  currentLocale?: Locale,
-): Record<string, string> {
-  const siteUrl = getSiteUrl();
-  const result: Record<string, string> = {};
-
-  for (const locale of SUPPORTED_LOCALES) {
-    const localized = locale === DEFAULT_LOCALE 
-      ? localizedPath 
-      : addLocaleToPathname(localizedPath, locale);
-    result[LOCALE_CONFIGS[locale].hreflang] = `${siteUrl}${localized}`;
-  }
-
-  result["x-default"] = `${siteUrl}${localizedPath}`;
-
-  return result;
 }
 
 function formatLocationName(name: string): string {
@@ -95,17 +74,11 @@ export function buildPageMetadata({
   );
   const resolvedImage = toAbsoluteUrl(image || SITE_CONFIG.ogImage);
 
-  const hreflangAlternates = localizedPath
-    ? buildHreflangAlternates(localizedPath, locale)
-    : Object.fromEntries(
-        SUPPORTED_LOCALES.map((l) => [LOCALE_CONFIGS[l].hreflang, siteUrl])
-      );
-
-  const canonical = localizedPath
-    ? locale === DEFAULT_LOCALE
-      ? `${siteUrl}${localizedPath}`
-      : `${siteUrl}${addLocaleToPathname(localizedPath, locale)}`
-    : siteUrl;
+  const alternates = localizedPath
+    ? buildMetadataAlternates(locale, localizedPath)
+    : buildUnlocalizedAlternates("/");
+  const canonical =
+    typeof alternates.canonical === "string" ? alternates.canonical : siteUrl;
 
   return {
     title: resolvedTitle,
@@ -125,10 +98,7 @@ export function buildPageMetadata({
       apple: [{ url: "/icons/apple-touch-icon.png" }],
       shortcut: [{ url: "/favicon.ico" }],
     },
-    alternates: {
-      canonical,
-      languages: hreflangAlternates,
-    },
+    alternates,
     robots: {
       index: !noIndex,
       follow: !noFollow,
@@ -145,7 +115,7 @@ export function buildPageMetadata({
       description: resolvedDescription,
       url: canonical,
       siteName: SITE_CONFIG.name,
-      locale: LOCALE_CONFIGS[locale]?.dateLocale ?? SITE_CONFIG.locale,
+      locale: toOpenGraphLocale(locale),
       type: type === "article" ? "article" : "website",
       images: [
         {

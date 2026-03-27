@@ -3,7 +3,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Home, Binoculars, Building2, TrendingUp, List } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { useMobileMenu } from "@/contexts/MobileMenuContext";
 import { useTranslation } from "react-i18next";
 
@@ -18,7 +18,7 @@ const navItems = [
 export function MobileBottomNav() {
   const pathname = usePathname() ?? "";
   const { mobileMenuOpen } = useMobileMenu();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const { t } = useTranslation();
   const [isUserScrolling, setIsUserScrolling] = useState(false);
   const scrollTimeoutRef = useRef<number | null>(null);

@@ -8,11 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { useSupportSettings, FAQ } from "@/hooks/useSupportSettings";
 import Link from "next/link";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function AdminSupportPage() {
   const { settings, isLoading, updateSettings } = useSupportSettings();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const [isSaving, setIsSaving] = useState(false);
 
   // Form state

@@ -5,11 +5,12 @@ import Link from "next/link";
 import { MapPin, Mail } from "lucide-react";
 import { useFooterMenu } from "@/hooks/useFooterMenu";
 import { useTranslation } from "react-i18next";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { FooterNav } from "@/components/layout/FooterNav";
 import { toast } from "sonner";
 import { useNewsletterSignup } from "@/hooks/useNewsletterSignup";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
@@ -182,7 +183,7 @@ function normalizeFooterLinkHref(
 export default function Footer() {
   const { data: footerSections } = useFooterMenu();
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const { subscribe, isSubmitting } = useNewsletterSignup("footer-newsletter");
 
@@ -347,8 +348,12 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Dynamic Sections */}
-          {sections.map((section) => renderSection(section.title, section.titleKey, section.slug, section.links))}
+        {/* Dynamic Sections */}
+        {sections.map((section) => renderSection(section.title, section.titleKey, section.slug, section.links))}
+        </div>
+
+        <div className="pb-6">
+          <FooterNav />
         </div>
 
         {/* Bottom Bar */}

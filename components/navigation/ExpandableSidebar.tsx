@@ -1,7 +1,7 @@
 import { type ReactNode, useCallback, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
 import { ChevronDown, ChevronLeft, ChevronRight, Menu, X, type LucideIcon } from "lucide-react";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -227,7 +227,7 @@ export function ExpandableSidebar({
         )}
       </a>
     ) : (
-      <Link
+      <LocaleLink
         key={keyHint ?? getItemKey(item, `leaf-${depth}`)}
         href={item.href}
         prefetch
@@ -251,7 +251,7 @@ export function ExpandableSidebar({
             {item.badge > 9 ? "9+" : item.badge}
           </span>
         ) : null}
-      </Link>
+      </LocaleLink>
     );
 
     if (!compact || disableCollapsedTooltips) {
@@ -284,7 +284,7 @@ export function ExpandableSidebar({
       if (!primaryHref) return null;
 
       const navItem = (
-        <Link
+        <LocaleLink
           key={key}
           href={primaryHref}
           prefetch
@@ -298,7 +298,7 @@ export function ExpandableSidebar({
           )}
         >
           <item.icon className={cn("h-5 w-5", active && "text-primary")} />
-        </Link>
+        </LocaleLink>
       );
 
       if (disableCollapsedTooltips) {
@@ -319,7 +319,7 @@ export function ExpandableSidebar({
       <Collapsible key={key} open={open} onOpenChange={(next) => setManualOpenGroups((prev) => ({ ...prev, [key]: next }))}>
         <div className="flex items-center gap-1">
           {primaryHref ? (
-            <Link
+            <LocaleLink
               href={primaryHref}
               onClick={closeMobileDeferred}
               className={cn(
@@ -336,7 +336,7 @@ export function ExpandableSidebar({
                   {item.badge > 99 ? "99+" : item.badge}
                 </span>
               ) : null}
-            </Link>
+            </LocaleLink>
           ) : (
             <button
               type="button"
@@ -434,9 +434,9 @@ export function ExpandableSidebar({
                     {content}
                   </a>
                 ) : (
-                  <Link key={item.id} href={item.href} onClick={closeMobileDeferred} aria-label={compact ? item.label : undefined}>
+                  <LocaleLink key={item.id} href={item.href} onClick={closeMobileDeferred} aria-label={compact ? item.label : undefined}>
                     {content}
-                  </Link>
+                  </LocaleLink>
                 );
 
                 if (!compact) {

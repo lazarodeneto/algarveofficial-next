@@ -42,7 +42,7 @@ import { useUnreadMessagesCount } from "@/hooks/useUnreadMessagesCount";
 import { usePendingClaimsCount } from "@/hooks/useListingClaims";
 import { useTranslationQueueCount } from "@/hooks/useTranslationQueueCount";
 import { usePendingListingReviewCount } from "@/hooks/useListingReviews";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { useTranslation } from "react-i18next";
 
 interface AdminSidebarProps {
@@ -52,7 +52,7 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
 
   const { data: pendingCount = 0 } = usePendingReviewCount();
   const { data: pendingEventsCount = 0 } = usePendingEventsCount();

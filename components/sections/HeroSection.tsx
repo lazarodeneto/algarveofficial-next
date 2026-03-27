@@ -15,7 +15,7 @@ import Link from "next/link";
 import { HERO_OVERLAY_INTENSITY_SETTING_KEY, normalizeHeroOverlayIntensity } from "@/lib/heroOverlay";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { buildSupabaseImageUrl } from "@/lib/imageUrls";
 
@@ -332,7 +332,7 @@ export function HeroSection() {
   const { createTrip } = useTripPlanner();
   const { isAuthenticated } = useAuth();
   const router = useRouter();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const { canUseCategory, isLoaded: isCookieConsentLoaded, openPreferences } = useCookieConsent();
   const hasFunctionalConsent = canUseCategory("functional");
 

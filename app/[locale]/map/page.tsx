@@ -5,7 +5,6 @@ import { getDirectoryPageData } from "@/lib/directory-data";
 import { isValidLocale, type Locale } from "@/lib/i18n/config";
 import { getServerTranslations } from "@/lib/i18n/server";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
-import { buildHreflangs } from "@/lib/i18n/seo";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -35,13 +34,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     keywords: ["Algarve map", "interactive map", "luxury listings", "restaurants", "golf"],
   });
 
-  return {
-    ...metadata,
-    alternates: {
-      canonical: (metadata.alternates as { canonical?: string } | undefined)?.canonical,
-      languages: buildHreflangs("/map"),
-    } as Metadata["alternates"],
-  };
+  return metadata;
 }
 
 export default async function MapPage({ params }: PageProps) {

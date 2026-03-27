@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
-import { createLocalizedHref } from '@/lib/i18n/navigation';
+import { buildLocalizedPath } from '@/lib/i18n/routing';
 import { isValidLocale } from '@/lib/i18n/config';
 import { useLocale } from '@/lib/i18n/locale-context';
 
@@ -43,17 +43,17 @@ export default function AuthCallback() {
           switch (role) {
             case 'admin':
             case 'editor':
-              router.replace(createLocalizedHref('/admin', resolvedLocale));
+              router.replace(buildLocalizedPath(resolvedLocale, '/admin'));
               break;
             case 'owner':
-              router.replace(createLocalizedHref('/owner', resolvedLocale));
+              router.replace(buildLocalizedPath(resolvedLocale, '/owner'));
               break;
             default:
-              router.replace(createLocalizedHref('/dashboard', resolvedLocale));
+              router.replace(buildLocalizedPath(resolvedLocale, '/dashboard'));
           }
         } else {
           // No session, redirect to login
-          router.replace(createLocalizedHref('/login', resolvedLocale));
+          router.replace(buildLocalizedPath(resolvedLocale, '/login'));
         }
       } catch (err) {
         console.error('Unexpected error in auth callback:', err);
@@ -73,7 +73,7 @@ export default function AuthCallback() {
             onClick={() => {
               const requestedLocale = searchParams.get('locale');
               const resolvedLocale = requestedLocale && isValidLocale(requestedLocale) ? requestedLocale : locale;
-              router.push(createLocalizedHref('/login', resolvedLocale));
+              router.push(buildLocalizedPath(resolvedLocale, '/login'));
             }}
             className="text-primary hover:underline"
           >

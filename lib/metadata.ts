@@ -1,4 +1,10 @@
 import type { Metadata } from "next";
+import { isValidLocale, type Locale } from "@/lib/i18n/config";
+import {
+  buildMetadataAlternates,
+  buildUnlocalizedAlternates,
+  toOpenGraphLocale,
+} from "@/lib/i18n/seo";
 
 const SITE_NAME = "AlgarveOfficial";
 const DEFAULT_SITE_URL = "https://algarveofficial.com";
@@ -63,27 +69,12 @@ function toAbsoluteUrl(siteUrl: string, value: string) {
 }
 
 export function buildAlternates(path: string, localeCode?: string) {
-  const siteUrl = getSiteUrl();
   const normalizedPath = normalizePath(path);
-  const localePrefix = localeCode ? `/${localeCode}` : "";
-  const canonicalPath = localeCode ? `${localePrefix}${normalizedPath}` : normalizedPath;
+  if (localeCode && isValidLocale(localeCode)) {
+    return buildMetadataAlternates(localeCode as Locale, normalizedPath);
+  }
 
-  return {
-    canonical: toAbsoluteUrl(siteUrl, canonicalPath),
-    languages: {
-      en: toAbsoluteUrl(siteUrl, "/en" + normalizedPath),
-      "pt-pt": toAbsoluteUrl(siteUrl, "/pt-pt" + normalizedPath),
-      fr: toAbsoluteUrl(siteUrl, "/fr" + normalizedPath),
-      de: toAbsoluteUrl(siteUrl, "/de" + normalizedPath),
-      es: toAbsoluteUrl(siteUrl, "/es" + normalizedPath),
-      it: toAbsoluteUrl(siteUrl, "/it" + normalizedPath),
-      nl: toAbsoluteUrl(siteUrl, "/nl" + normalizedPath),
-      sv: toAbsoluteUrl(siteUrl, "/sv" + normalizedPath),
-      no: toAbsoluteUrl(siteUrl, "/no" + normalizedPath),
-      da: toAbsoluteUrl(siteUrl, "/da" + normalizedPath),
-      "x-default": toAbsoluteUrl(siteUrl, "/en" + normalizedPath),
-    },
-  };
+  return buildUnlocalizedAlternates(normalizedPath);
 }
 
 function normalizeKeywords(
@@ -153,6 +144,10 @@ export function buildMetadata({
   const resolvedTitle = ensureBrandedTitle(title);
   const resolvedDescription = normalizeDescription(description);
   const openGraphType = type === "article" ? "article" : "website";
+  const resolvedOpenGraphLocale =
+    localeCode && isValidLocale(localeCode)
+      ? toOpenGraphLocale(localeCode as Locale)
+      : locale;
 
   const metadata: Metadata = {
     title: resolvedTitle,
@@ -189,7 +184,7 @@ export function buildMetadata({
       description: resolvedDescription,
       url: canonical,
       siteName: SITE_NAME,
-      locale,
+      locale: resolvedOpenGraphLocale,
       type: openGraphType,
       images: [
         {

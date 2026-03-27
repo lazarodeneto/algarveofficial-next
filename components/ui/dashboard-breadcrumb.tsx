@@ -1,11 +1,11 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { LocalizedLink } from "@/components/navigation/LocalizedLink";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { ChevronRight, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
-import { createLocalizedHref } from "@/lib/i18n/navigation";
-import { getLocaleFromPathname, stripLocaleFromPathname } from "@/lib/i18n/config";
+import { useLocalePath } from "@/hooks/useLocalePath";
+import { stripLocaleFromPathname } from "@/lib/i18n/config";
 
 interface BreadcrumbConfig {
   basePath: string;
@@ -91,7 +91,7 @@ const dashboardConfigs: Record<string, BreadcrumbConfig> = {
 export function DashboardBreadcrumb() {
   const { t } = useTranslation();
   const pathname = usePathname() ?? "";
-  const locale = getLocaleFromPathname(pathname);
+  const l = useLocalePath();
   const barePath = stripLocaleFromPathname(pathname);
 
   // Determine which dashboard we're in
@@ -161,13 +161,13 @@ export function DashboardBreadcrumb() {
 
   return (
     <nav className="flex min-w-0 items-center gap-1 overflow-hidden text-xs sm:text-sm" aria-label="Breadcrumb">
-      <LocalizedLink
+      <LocaleLink
         href="/"
         className="flex shrink-0 items-center text-muted-foreground transition-colors hover:text-foreground"
         title={t("common.goToHomepage")}
       >
         <Home className="h-4 w-4" />
-      </LocalizedLink>
+      </LocaleLink>
       
       {segments.map((segment, index) => (
         <div
@@ -184,7 +184,7 @@ export function DashboardBreadcrumb() {
             </span>
           ) : (
             <Link
-              href={createLocalizedHref(segment.href, locale)}
+              href={l(segment.href)}
               className={cn(
                 "text-muted-foreground hover:text-foreground transition-colors",
                 index === 0 && "hidden lg:inline"

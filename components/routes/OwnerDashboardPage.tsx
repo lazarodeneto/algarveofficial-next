@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { LocalizedLink } from "@/components/navigation/LocalizedLink";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { Button } from "@/components/ui/button";
 import { OwnerLayout } from "@/components/owner/OwnerLayout";
 import OwnerEventSubmit from "@/legacy-pages/owner/OwnerEventSubmit";
@@ -28,10 +28,10 @@ function OwnerRouteNotFound({ route }: { route: string }) {
       </p>
       <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
         <Button asChild>
-          <LocalizedLink href="/owner">Back to Overview</LocalizedLink>
+          <LocaleLink href="/owner">Back to Overview</LocaleLink>
         </Button>
         <Button variant="outline" asChild>
-          <LocalizedLink href="/owner/listings">Go to Listings</LocalizedLink>
+          <LocaleLink href="/owner/listings">Go to Listings</LocaleLink>
         </Button>
       </div>
     </div>

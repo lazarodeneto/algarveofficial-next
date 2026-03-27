@@ -1,67 +1,22 @@
-import type { Metadata } from "next";
-
-import { DirectoryClient } from "@/components/directory/DirectoryClient";
-import { isValidLocale, type Locale } from "@/lib/i18n/config";
-import { getDirectoryPageData } from "@/lib/directory-data";
-import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
-import { buildHreflangs } from "@/lib/i18n/seo";
+import { permanentRedirect } from "next/navigation";
+import { isValidLocale, DEFAULT_LOCALE } from "@/lib/i18n/config";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export const revalidate = 3600;
-
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export default async function DirectoryPage({ params, searchParams }: PageProps) {
   const { locale: rawLocale } = await params;
+  const locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
 
-  if (!isValidLocale(rawLocale)) {
-    return {};
+  const sp = await searchParams;
+  const qs = new URLSearchParams();
+  for (const [k, v] of Object.entries(sp)) {
+    if (typeof v === "string") qs.set(k, v);
+    else if (Array.isArray(v)) v.forEach((val) => qs.append(k, val));
   }
+  const query = qs.toString();
 
-  const locale = rawLocale as Locale;
-  const metadata = buildLocalizedMetadata({
-    locale,
-    path: "/directory",
-    title: "Directory",
-    description: "Browse our curated directory of premium listings in the Algarve.",
-    keywords: ["Algarve directory", "luxury listings", "restaurants", "golf"],
-  });
-
-  return {
-    ...metadata,
-    alternates: {
-      canonical: (metadata.alternates as { canonical?: string } | undefined)?.canonical,
-      languages: buildHreflangs("/directory"),
-    } as Metadata["alternates"],
-  };
-}
-
-export default async function DirectoryPage({ params }: PageProps) {
-  const { locale: rawLocale } = await params;
-
-  if (!isValidLocale(rawLocale)) {
-    return <div>Invalid locale</div>;
-  }
-
-  const data = await getDirectoryPageData(rawLocale, {
-    q: "",
-    city: "all",
-    region: "all",
-    category: "all",
-    tier: "all",
-  });
-
-  return (
-    <DirectoryClient
-      locale={data.locale}
-      initialListings={data.listings}
-      initialCities={data.cities}
-      initialRegions={data.regions}
-      initialCategories={data.categories}
-      initialCategoryCounts={data.categoryCounts}
-      initialFilters={data.filters}
-      globalSettings={data.globalSettings}
-    />
-  );
+  permanentRedirect(`/${locale}/visit${query ? `?${query}` : ""}`);
 }

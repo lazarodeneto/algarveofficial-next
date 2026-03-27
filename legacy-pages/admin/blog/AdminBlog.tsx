@@ -42,11 +42,11 @@ import {
 } from "@/hooks/useBlogPosts";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function AdminBlog() {
   const router = useRouter();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");

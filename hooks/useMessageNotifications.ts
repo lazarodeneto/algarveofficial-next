@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLocaleRouter } from "@/hooks/useLocaleRouter";
 
 type NotificationPermissionState = "default" | "granted" | "denied";
 
@@ -27,6 +28,7 @@ interface NotificationPayload {
 export function useMessageNotifications(options: UseMessageNotificationsOptions = {}) {
   const { enabled = true } = options;
   const { user } = useAuth();
+  const { push } = useLocaleRouter();
   const isSupported = typeof window !== "undefined" && "Notification" in window;
   const [permission, setPermission] = useState<NotificationPermissionState>(() =>
     isSupported ? (Notification.permission as NotificationPermissionState) : "default",
@@ -58,14 +60,16 @@ export function useMessageNotifications(options: UseMessageNotificationsOptions 
           notification.onclick = () => {
             window.focus();
             const url = payload.data?.url;
-            if (url && url.startsWith("/")) window.location.href = url;
+            if (url && url.startsWith("/")) {
+              push(url);
+            }
             notification.close();
           };
       } catch (error) {
         console.error("Failed to show notification:", error);
       }
     },
-    [enabled, isSupported, permission]
+    [enabled, isSupported, permission, push]
   );
 
   // URL by role

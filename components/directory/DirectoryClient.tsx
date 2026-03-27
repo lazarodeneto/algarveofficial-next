@@ -47,7 +47,7 @@ import type { GlobalSetting } from "@/hooks/useGlobalSettings";
 import type { CityRow, RegionRow, CategoryRow } from "@/hooks/useReferenceData";
 import type { ListingFilters, ListingWithRelations, ListingTier } from "@/hooks/useListings";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -666,7 +666,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
 
     router.push(href);
   }, [pathname, router]);
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const [search, setSearch] = useState(props.initialFilters.q);
   const [debouncedSearch, setDebouncedSearch] = useState(props.initialFilters.q);
   const [selectedRegion, setSelectedRegion] = useState<string>(props.initialFilters.region);
