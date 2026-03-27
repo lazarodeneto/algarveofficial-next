@@ -6,7 +6,7 @@ import { AlertTriangle } from "lucide-react";
 
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { LocalizedLink } from "@/components/navigation/LocalizedLink";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { Button } from "@/components/ui/button";
 import AdminAnalytics from "@/legacy-pages/admin/AdminAnalytics";
 import AdminCategories from "@/legacy-pages/admin/AdminCategories";
@@ -68,10 +68,10 @@ function AdminRouteNotFound({ route }: { route: string }) {
       </p>
       <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
         <Button asChild>
-          <LocalizedLink href="/admin">Back to Overview</LocalizedLink>
+          <LocaleLink href="/admin">Back to Overview</LocaleLink>
         </Button>
         <Button variant="outline" asChild>
-          <LocalizedLink href="/admin/listings">Go to Listings</LocalizedLink>
+          <LocaleLink href="/admin/listings">Go to Listings</LocaleLink>
         </Button>
       </div>
     </div>

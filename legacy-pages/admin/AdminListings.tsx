@@ -51,12 +51,12 @@ import {
   useUpdateListingStatus,
 } from "@/hooks/useListingMutations";
 import { toast } from "sonner";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function AdminListings() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   
   const [search, setSearch] = useState("");
   const [cityFilter, setCityFilter] = useState<string>("all");

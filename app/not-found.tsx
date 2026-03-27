@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { buildMetadata } from "@/lib/metadata";
-import { DEFAULT_LOCALE } from "@/lib/i18n/config";
 
 export const metadata: Metadata = buildMetadata({
   title: "Page Not Found",
@@ -19,12 +18,12 @@ export default function NotFound() {
       <p className="mt-4 max-w-xl text-sm text-muted-foreground sm:text-base">
         The page you requested could not be found. Let&apos;s get you back to curated experiences in the Algarve.
       </p>
-      <Link
-        href={`/${DEFAULT_LOCALE}`}
+      <LocaleLink
+        href="/"
         className="mt-8 inline-flex items-center rounded-full border border-primary/40 px-6 py-3 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary"
       >
         Back to Home
-      </Link>
+      </LocaleLink>
     </main>
   );
 }

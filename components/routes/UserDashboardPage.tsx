@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { LocalizedLink } from "@/components/navigation/LocalizedLink";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { Button } from "@/components/ui/button";
 import { UserLayout } from "@/components/user/UserLayout";
 import UserFavorites from "@/legacy-pages/user/UserFavorites";
@@ -24,10 +24,10 @@ function DashboardRouteNotFound({ route }: { route: string }) {
       </p>
       <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
         <Button asChild>
-          <LocalizedLink href="/dashboard">Back to Overview</LocalizedLink>
+          <LocaleLink href="/dashboard">Back to Overview</LocaleLink>
         </Button>
         <Button variant="outline" asChild>
-          <LocalizedLink href="/dashboard/favorites">Go to Favorites</LocalizedLink>
+          <LocaleLink href="/dashboard/favorites">Go to Favorites</LocaleLink>
         </Button>
       </div>
     </div>

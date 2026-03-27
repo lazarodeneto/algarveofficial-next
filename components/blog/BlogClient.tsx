@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { BlogFeaturedImage } from "@/components/blog/BlogFeaturedImage";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { useHydrated } from "@/hooks/useHydrated";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
@@ -361,7 +361,7 @@ async function fetchGlobalSettings() {
 
 function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }: BlogClientProps) {
   const { t, i18n } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const locale = normalizeBlogLocale(i18n.language);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<BlogCategory | "all">("all");

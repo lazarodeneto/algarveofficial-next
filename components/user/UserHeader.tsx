@@ -16,12 +16,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSupabaseFavoritesCount } from "@/hooks/useSupabaseFavoritesCount";
 import { useUserUnreadMessagesCount } from "@/hooks/useUserUnreadMessagesCount";
 import { useTranslation } from "react-i18next";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export function UserHeader() {
   const { t } = useTranslation();
   const { logout, user } = useAuth();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const isAdminViewing = user?.role === 'admin';
   const { data: favoritesCount = 0 } = useSupabaseFavoritesCount();
   const { data: unreadCount = 0 } = useUserUnreadMessagesCount();

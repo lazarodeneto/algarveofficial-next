@@ -6,8 +6,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import "../index.css";
-import { AppProviders } from "@/components/providers/AppProviders";
-import { LocaleProvider } from "@/lib/i18n/locale-context";
+import { RootProviders } from "@/components/providers/RootProviders";
 import { buildMetadata } from "@/lib/metadata";
 import { buildOrganizationSchema, buildWebsiteSchema } from "@/lib/seo/schemaBuilders.js";
 
@@ -60,10 +59,6 @@ interface RootLayoutProps {
 }
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-  // ✅ CRITICAL CHANGE: No cookie reading - all locale detection moved to [locale]/layout.tsx
-  // This layout provides DEFAULT providers for non-locale routes (auth, maintenance, etc.)
-  // The [locale]/layout.tsx will override with the actual locale from URL params
-  const DEFAULT_LOCALE = "en";
   const requestHeaders = await headers();
   const htmlLang = requestHeaders.get("x-html-lang") || "en-GB";
 
@@ -81,12 +76,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         <Script id="theme-init" strategy="beforeInteractive">
           {themeInitScript}
         </Script>
-        {/* Provide default locale for non-[locale] routes - will be overridden by [locale] layout */}
-        <LocaleProvider locale={DEFAULT_LOCALE}>
-          <AppProviders locale={DEFAULT_LOCALE}>
-            {children}
-          </AppProviders>
-        </LocaleProvider>
+        <RootProviders>{children}</RootProviders>
         <SpeedInsights />
       </body>
     </html>

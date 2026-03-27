@@ -25,11 +25,11 @@ import {
   type CalendarEvent,
 } from '@/types/events';
 import { toast } from '@/hooks/use-toast';
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function OwnerEvents() {
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const { data: events = [], isLoading } = useOwnerEvents() as {

@@ -13,7 +13,7 @@ import {
 import { useGlobalSearch, SearchResult } from "@/hooks/useGlobalSearch";
 import { Building2, Grid3X3, MapPin, Search, Clock, Sparkles, TrendingUp } from "lucide-react";
 import { Button } from "./button";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 const getIcon = (type: SearchResult["type"]) => {
   switch (type) {
@@ -36,7 +36,7 @@ interface CommandSearchProps {
 
 export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearchProps) {
   const router = useRouter();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const { query, setQuery, results, recentSearches, addToRecent, clearRecent } = useGlobalSearch();
 
   const handleSelect = (result: SearchResult) => {

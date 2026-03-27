@@ -27,7 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCities } from "@/hooks/useReferenceData";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
@@ -38,7 +38,7 @@ const Live = () => {
   const { t } = useTranslation();
   const { getMetaDescription, getMetaTitle, getText, isBlockEnabled } = useCmsPageBuilder("live");
   const { data: cities = [], isLoading } = useCities();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const [timeline, setTimeline] = useState("3-6");
   const [household, setHousehold] = useState("couple");
   const [housingPlan, setHousingPlan] = useState("rent-first");

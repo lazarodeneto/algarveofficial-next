@@ -39,7 +39,7 @@ import { ImageLightbox } from "@/components/ui/image-lightbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { translateCategoryValue } from "@/lib/translateCategoryValue";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { formatRichTextDescription } from "@/lib/formatRichText";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 import { hasRealEstateSignals, isRealEstateCategorySlug } from "@/lib/realEstateDetection";
@@ -369,7 +369,7 @@ function ListingDetailClientInner({
   initialLookupValue,
 }: ListingDetailClientProps) {
   const { t, i18n } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const { user } = useAuth();
   const { openChat } = useChatModal();
   const { isFavorite, toggleFavorite } = useFavoriteListings();

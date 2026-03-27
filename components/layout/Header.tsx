@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   AlignJustify,
@@ -41,7 +41,7 @@ import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useTranslation } from "react-i18next";
 import { BrandLogo } from "@/components/ui/brand-logo";
-import { HeaderCompactNav, HeaderMegaMenu } from "./HeaderMegaMenu";
+import { HeaderNav } from "./HeaderNav";
 import { MobileBottomNav } from "./MobileBottomNav";
 import {
   Accordion,
@@ -54,7 +54,7 @@ export default function Header() {
   const { mobileMenuOpen, setMobileMenuOpen } = useMobileMenu();
   const { isAuthenticated, user, logout, getDashboardPath } = useAuth();
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
 
   const directoryPath = l("/directory");
   const investPath = l("/invest");
@@ -166,12 +166,9 @@ export default function Header() {
               <BrandLogo size="md" showIcon className="whitespace-nowrap" />
             </div>
 
-            {/* Tablet Navigation */}
-            <HeaderCompactNav />
-
-            {/* Desktop Navigation (Mega Menu) */}
-            <div className="hidden xl:flex xl:min-w-0 xl:flex-1 xl:items-center xl:justify-end">
-              <HeaderMegaMenu />
+            {/* Primary Navigation */}
+            <div className="hidden lg:flex lg:min-w-0 lg:flex-1 lg:items-center lg:justify-center xl:justify-start">
+              <HeaderNav />
             </div>
 
             <div className="hidden xl:flex xl:items-center xl:shrink-0">

@@ -38,13 +38,13 @@ import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export function AdminHeader() {
   const { t } = useTranslation();
   const { logout, user } = useAuth();
   const router = useRouter();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const { data: pendingCount = 0 } = usePendingReviewCount();
   const { data: pendingListingReviewsCount = 0 } = usePendingListingReviewCount();
   const { data: unreadMessagesCount = 0 } = useUnreadMessagesCount();

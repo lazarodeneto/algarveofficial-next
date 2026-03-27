@@ -44,10 +44,10 @@ import {
   type CalendarEvent,
 } from '@/types/events';
 import { toast } from '@/hooks/use-toast';
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function AdminEvents() {
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<EventStatus | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState<EventCategory | 'all'>('all');

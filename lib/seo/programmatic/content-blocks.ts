@@ -1,4 +1,4 @@
-import type { Locale } from "@/lib/i18n/config";
+import { LOCALE_CONFIGS, type Locale } from "@/lib/i18n/config";
 import type { CanonicalCategorySlug } from "./category-slugs";
 import { getCategoryDisplayName } from "./category-slugs";
 import type { ProgrammaticListing } from "./category-city-data";
@@ -6,6 +6,15 @@ import type { ProgrammaticListing } from "./category-city-data";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface SeoContentBlock {
+  h1: string;
+  intro: string;
+  bodyParagraph: string;
+  closingParagraph: string;
+  metaTitle: string;
+  metaDescription: string;
+}
+
+export interface CitySeoContentBlock {
   h1: string;
   intro: string;
   bodyParagraph: string;
@@ -24,6 +33,17 @@ interface ContentContext {
   topListings: Pick<ProgrammaticListing, "name" | "google_rating" | "tier">[];
   avgRating: number | null;
   highestTier: string;
+}
+
+interface CityContentContext {
+  locale: Locale;
+  cityName: string;
+  cityDescription: string | null;
+  count: number;
+  topCategoryNames: string[];
+  topListingNames: string[];
+  avgRating: number | null;
+  year: number;
 }
 
 // ─── City landmark hints (supplements DB descriptions) ───────────────────────
@@ -400,7 +420,419 @@ const TEMPLATES: Record<Locale, Templates> = {
   },
 };
 
+type CityTemplates = {
+  h1: (ctx: CityContentContext) => string;
+  intro: (ctx: CityContentContext) => string;
+  body: (ctx: CityContentContext) => string;
+  closing: (ctx: CityContentContext) => string;
+  metaTitle: (ctx: CityContentContext) => string;
+  metaDescription: (ctx: CityContentContext) => string;
+};
+
+function formatLocalizedList(locale: Locale, values: string[], fallback: string): string {
+  if (values.length === 0) return fallback;
+
+  try {
+    const formatter = new Intl.ListFormat(LOCALE_CONFIGS[locale].hreflang, {
+      style: "long",
+      type: "conjunction",
+    });
+    return formatter.format(values);
+  } catch {
+    return values.join(", ");
+  }
+}
+
+const CITY_TEMPLATES: Record<Locale, CityTemplates> = {
+  en: {
+    h1: ({ cityName }) => `Best Things to Do in ${cityName}, Algarve`,
+    intro: ({ cityName, count, topCategoryNames, topListingNames, avgRating }) => {
+      const categories = formatLocalizedList("en", topCategoryNames, "restaurants, hotels and experiences");
+      const highlights = formatLocalizedList("en", topListingNames, "handpicked local favourites");
+      const rating = avgRating !== null ? ` With an average rating of ${avgRating.toFixed(1)} stars across rated listings,` : "";
+      return `${cityName} is one of the Algarve's most searched coastal destinations, and this guide brings together ${count} curated listings across ${categories}.${rating} you can start with standout options such as ${highlights}, then branch out into the experiences, places to stay, and local services that shape a stronger stay in southern Portugal.`;
+    },
+    body: ({ cityName, cityDescription, topCategoryNames }) => {
+      const categories = formatLocalizedList("en", topCategoryNames, "dining, stays and experiences");
+      const context = cityDescription?.trim() || `${cityName} combines Atlantic scenery, walkable local character, and easy access to the best of the Algarve.`;
+      return `${context} Rather than relying on thin filter pages, this city landing page is built to help travellers and residents discover high-quality ${categories} in one place, with real listing inventory, descriptive context, and clear onward paths into deeper category pages for more specific intent.`;
+    },
+    closing: ({ cityName, topListingNames }) => {
+      const highlights = formatLocalizedList("en", topListingNames, "the city's most trusted addresses");
+      return `Use this page as your starting point for ${cityName}: compare the top options, save favourites, and continue into the dedicated category pages when you want a more focused shortlist around ${highlights}.`;
+    },
+    metaTitle: ({ cityName, year }) => `Best Things to Do in ${cityName}, Algarve (${year} Guide)`,
+    metaDescription: ({ cityName }) => `Discover the best restaurants, hotels, and experiences in ${cityName}, Algarve. Curated local recommendations.`,
+  },
+  "pt-pt": {
+    h1: ({ cityName }) => `Melhores coisas para fazer em ${cityName}, Algarve`,
+    intro: ({ cityName, count, topCategoryNames, topListingNames, avgRating }) => {
+      const categories = formatLocalizedList("pt-pt", topCategoryNames, "restaurantes, alojamento e experiências");
+      const highlights = formatLocalizedList("pt-pt", topListingNames, "sugestões locais selecionadas");
+      const rating = avgRating !== null ? ` Com uma avaliação média de ${avgRating.toFixed(1)} estrelas nas opções avaliadas,` : "";
+      return `${cityName} é um dos destinos mais procurados do Algarve e este guia reúne ${count} listagens curadas em áreas como ${categories}.${rating} pode começar por nomes em destaque como ${highlights} e depois aprofundar restaurantes, alojamentos, atividades e serviços locais com contexto útil para planear melhor a estadia.`;
+    },
+    body: ({ cityName, cityDescription, topCategoryNames }) => {
+      const categories = formatLocalizedList("pt-pt", topCategoryNames, "gastronomia, estadias e experiências");
+      const context = cityDescription?.trim() || `${cityName} combina paisagem atlântica, identidade local e acesso fácil ao melhor do Algarve.`;
+      return `${context} Em vez de depender de páginas vazias ou filtros soltos, esta landing page da cidade foi pensada para apresentar ${categories} com inventário real, texto útil e ligações internas claras para páginas de categoria mais específicas.`;
+    },
+    closing: ({ cityName, topListingNames }) => {
+      const highlights = formatLocalizedList("pt-pt", topListingNames, "alguns dos melhores locais da cidade");
+      return `Use esta página como ponto de partida para explorar ${cityName}, comparar opções e avançar para páginas dedicadas quando quiser uma seleção mais focada em torno de ${highlights}.`;
+    },
+    metaTitle: ({ cityName, year }) => `Melhores coisas para fazer em ${cityName}, Algarve (${year})`,
+    metaDescription: ({ cityName }) => `Descubra os melhores restaurantes, hotéis e experiências em ${cityName}, Algarve. Recomendações locais selecionadas.`,
+  },
+  fr: {
+    h1: ({ cityName }) => `Les meilleures choses à faire à ${cityName}, Algarve`,
+    intro: ({ cityName, count, topCategoryNames, topListingNames, avgRating }) => {
+      const categories = formatLocalizedList("fr", topCategoryNames, "restaurants, hébergements et expériences");
+      const highlights = formatLocalizedList("fr", topListingNames, "adresses locales sélectionnées");
+      const rating = avgRating !== null ? ` Avec une note moyenne de ${avgRating.toFixed(1)} étoiles pour les lieux notés,` : "";
+      return `${cityName} fait partie des destinations les plus recherchées de l'Algarve et ce guide réunit ${count} adresses sélectionnées dans des univers comme ${categories}.${rating} vous pouvez commencer par ${highlights}, puis explorer plus en profondeur les restaurants, hôtels, activités et services locaux.`;
+    },
+    body: ({ cityName, cityDescription, topCategoryNames }) => {
+      const categories = formatLocalizedList("fr", topCategoryNames, "gastronomie, séjours et expériences");
+      const context = cityDescription?.trim() || `${cityName} combine paysages atlantiques, charme local et accès facile au meilleur de l'Algarve.`;
+      return `${context} Plutôt qu'une simple page de filtres, cette page ville est conçue pour aider les voyageurs à découvrir les meilleures options de ${categories} avec du contenu utile, un vrai inventaire et des liens internes vers des pages de catégorie plus ciblées.`;
+    },
+    closing: ({ cityName, topListingNames }) => {
+      const highlights = formatLocalizedList("fr", topListingNames, "les adresses les plus fiables de la ville");
+      return `Utilisez cette page comme point de départ pour organiser votre séjour à ${cityName}, comparer les meilleures options et poursuivre vers des pages thématiques autour de ${highlights}.`;
+    },
+    metaTitle: ({ cityName, year }) => `Les meilleures choses à faire à ${cityName}, Algarve (${year})`,
+    metaDescription: ({ cityName }) => `Découvrez les meilleurs restaurants, hôtels et expériences à ${cityName}, Algarve. Recommandations locales sélectionnées.`,
+  },
+  de: {
+    h1: ({ cityName }) => `Die besten Aktivitäten in ${cityName}, Algarve`,
+    intro: ({ cityName, count, topCategoryNames, topListingNames, avgRating }) => {
+      const categories = formatLocalizedList("de", topCategoryNames, "Restaurants, Unterkünfte und Erlebnisse");
+      const highlights = formatLocalizedList("de", topListingNames, "ausgewählte lokale Favoriten");
+      const rating = avgRating !== null ? ` Mit einer durchschnittlichen Bewertung von ${avgRating.toFixed(1)} Sternen bei bewerteten Einträgen` : "";
+      return `${cityName} gehört zu den gefragtesten Reisezielen der Algarve, und dieser Guide bündelt ${count} kuratierte Einträge aus Bereichen wie ${categories}.${rating} starten Sie mit Highlights wie ${highlights} und entdecken Sie danach tiefergehende Seiten für Restaurants, Hotels, Aktivitäten und Services.`;
+    },
+    body: ({ cityName, cityDescription, topCategoryNames }) => {
+      const categories = formatLocalizedList("de", topCategoryNames, "Kulinarik, Aufenthalte und Erlebnisse");
+      const context = cityDescription?.trim() || `${cityName} verbindet Atlantikküste, authentischen Ortscharakter und schnellen Zugang zu den besten Seiten der Algarve.`;
+      return `${context} Statt einer dünnen Filterseite bietet diese Städte-Seite echte Listings, nützlichen Kontext und klare interne Weiterleitungen, damit Besucher hochwertige Optionen für ${categories} direkt entdecken können.`;
+    },
+    closing: ({ cityName, topListingNames }) => {
+      const highlights = formatLocalizedList("de", topListingNames, "den zuverlässigsten Adressen der Stadt");
+      return `Nutzen Sie diese Seite als Ausgangspunkt für ${cityName}, vergleichen Sie die besten Optionen und wechseln Sie danach in fokussierte Kategorieseiten rund um ${highlights}.`;
+    },
+    metaTitle: ({ cityName, year }) => `Die besten Aktivitäten in ${cityName}, Algarve (${year})`,
+    metaDescription: ({ cityName }) => `Entdecken Sie die besten Restaurants, Hotels und Erlebnisse in ${cityName}, Algarve. Kuratierte lokale Empfehlungen.`,
+  },
+  es: {
+    h1: ({ cityName }) => `Las mejores cosas que hacer en ${cityName}, Algarve`,
+    intro: ({ cityName, count, topCategoryNames, topListingNames, avgRating }) => {
+      const categories = formatLocalizedList("es", topCategoryNames, "restaurantes, alojamientos y experiencias");
+      const highlights = formatLocalizedList("es", topListingNames, "lugares locales seleccionados");
+      const rating = avgRating !== null ? ` Con una valoración media de ${avgRating.toFixed(1)} estrellas en los perfiles valorados,` : "";
+      return `${cityName} es uno de los destinos más buscados del Algarve y esta guía reúne ${count} recomendaciones curadas en categorías como ${categories}.${rating} puede empezar por ${highlights} y seguir con páginas más específicas para comer, alojarse, descubrir actividades y reservar servicios locales.`;
+    },
+    body: ({ cityName, cityDescription, topCategoryNames }) => {
+      const categories = formatLocalizedList("es", topCategoryNames, "gastronomía, estancias y experiencias");
+      const context = cityDescription?.trim() || `${cityName} combina paisaje atlántico, ambiente local y acceso fácil a lo mejor del Algarve.`;
+      return `${context} En lugar de una página vacía basada solo en filtros, esta landing de ciudad reúne inventario real, contexto útil y enlaces internos claros para descubrir mejores opciones de ${categories}.`;
+    },
+    closing: ({ cityName, topListingNames }) => {
+      const highlights = formatLocalizedList("es", topListingNames, "las direcciones más fiables de la ciudad");
+      return `Use esta página como punto de partida para explorar ${cityName}, comparar opciones y avanzar hacia páginas de categoría más específicas alrededor de ${highlights}.`;
+    },
+    metaTitle: ({ cityName, year }) => `Las mejores cosas que hacer en ${cityName}, Algarve (${year})`,
+    metaDescription: ({ cityName }) => `Descubra los mejores restaurantes, hoteles y experiencias en ${cityName}, Algarve. Recomendaciones locales seleccionadas.`,
+  },
+  it: {
+    h1: ({ cityName }) => `Le migliori cose da fare a ${cityName}, Algarve`,
+    intro: ({ cityName, count, topCategoryNames, topListingNames, avgRating }) => {
+      const categories = formatLocalizedList("it", topCategoryNames, "ristoranti, alloggi ed esperienze");
+      const highlights = formatLocalizedList("it", topListingNames, "indirizzi locali selezionati");
+      const rating = avgRating !== null ? ` Con una valutazione media di ${avgRating.toFixed(1)} stelle tra le schede recensite,` : "";
+      return `${cityName} è una delle destinazioni più ricercate dell'Algarve e questa guida riunisce ${count} proposte curate tra ${categories}.${rating} si può iniziare da ${highlights} e poi approfondire ristoranti, soggiorni, attività e servizi locali attraverso pagine più specifiche.`;
+    },
+    body: ({ cityName, cityDescription, topCategoryNames }) => {
+      const categories = formatLocalizedList("it", topCategoryNames, "gastronomia, soggiorni ed esperienze");
+      const context = cityDescription?.trim() || `${cityName} unisce paesaggi atlantici, carattere locale e accesso rapido al meglio dell'Algarve.`;
+      return `${context} Invece di una semplice pagina di filtri, questa landing cittadina mette insieme inventario reale, contenuti utili e link interni chiari per aiutare gli utenti a scoprire il meglio di ${categories}.`;
+    },
+    closing: ({ cityName, topListingNames }) => {
+      const highlights = formatLocalizedList("it", topListingNames, "gli indirizzi più affidabili della città");
+      return `Usa questa pagina come punto di partenza per ${cityName}, confronta le migliori opzioni e prosegui verso pagine di categoria dedicate intorno a ${highlights}.`;
+    },
+    metaTitle: ({ cityName, year }) => `Le migliori cose da fare a ${cityName}, Algarve (${year})`,
+    metaDescription: ({ cityName }) => `Scopri i migliori ristoranti, hotel ed esperienze a ${cityName}, Algarve. Raccomandazioni locali selezionate.`,
+  },
+  nl: {
+    h1: ({ cityName }) => `De beste dingen om te doen in ${cityName}, Algarve`,
+    intro: ({ cityName, count, topCategoryNames, topListingNames, avgRating }) => {
+      const categories = formatLocalizedList("nl", topCategoryNames, "restaurants, accommodaties en ervaringen");
+      const highlights = formatLocalizedList("nl", topListingNames, "geselecteerde lokale favorieten");
+      const rating = avgRating !== null ? ` Met een gemiddelde beoordeling van ${avgRating.toFixed(1)} sterren bij beoordeelde vermeldingen,` : "";
+      return `${cityName} is een van de populairste bestemmingen van de Algarve en deze gids bundelt ${count} zorgvuldig geselecteerde vermeldingen in categorieën zoals ${categories}.${rating} begin met ${highlights} en ga daarna verder naar meer gerichte pagina's voor eten, overnachten, activiteiten en lokale diensten.`;
+    },
+    body: ({ cityName, cityDescription, topCategoryNames }) => {
+      const categories = formatLocalizedList("nl", topCategoryNames, "eten, verblijf en ervaringen");
+      const context = cityDescription?.trim() || `${cityName} combineert Atlantische landschappen, lokale charme en snelle toegang tot het beste van de Algarve.`;
+      return `${context} In plaats van een dunne filterpagina biedt deze stadspagina echte inventaris, nuttige context en duidelijke interne links om betere opties voor ${categories} te ontdekken.`;
+    },
+    closing: ({ cityName, topListingNames }) => {
+      const highlights = formatLocalizedList("nl", topListingNames, "de meest betrouwbare adressen van de stad");
+      return `Gebruik deze pagina als vertrekpunt voor ${cityName}, vergelijk de beste opties en ga daarna door naar gerichte categoriepagina's rond ${highlights}.`;
+    },
+    metaTitle: ({ cityName, year }) => `De beste dingen om te doen in ${cityName}, Algarve (${year})`,
+    metaDescription: ({ cityName }) => `Ontdek de beste restaurants, hotels en ervaringen in ${cityName}, Algarve. Samengestelde lokale aanbevelingen.`,
+  },
+  sv: {
+    h1: ({ cityName }) => `De bästa sakerna att göra i ${cityName}, Algarve`,
+    intro: ({ cityName, count, topCategoryNames, topListingNames, avgRating }) => {
+      const categories = formatLocalizedList("sv", topCategoryNames, "restauranger, boenden och upplevelser");
+      const highlights = formatLocalizedList("sv", topListingNames, "utvalda lokala favoriter");
+      const rating = avgRating !== null ? ` Med ett genomsnittsbetyg på ${avgRating.toFixed(1)} stjärnor bland betygsatta listningar,` : "";
+      return `${cityName} är en av Algarves mest efterfrågade destinationer och den här guiden samlar ${count} kurerade listningar inom områden som ${categories}.${rating} börja med ${highlights} och gå sedan vidare till mer fokuserade sidor för mat, boende, aktiviteter och lokala tjänster.`;
+    },
+    body: ({ cityName, cityDescription, topCategoryNames }) => {
+      const categories = formatLocalizedList("sv", topCategoryNames, "mat, boende och upplevelser");
+      const context = cityDescription?.trim() || `${cityName} kombinerar atlantkust, lokal karaktär och enkel tillgång till det bästa av Algarve.`;
+      return `${context} I stället för en tunn filtersida samlar denna stadssida verkligt innehåll, användbar kontext och tydliga interna länkar för att hjälpa besökare att hitta bättre alternativ inom ${categories}.`;
+    },
+    closing: ({ cityName, topListingNames }) => {
+      const highlights = formatLocalizedList("sv", topListingNames, "stadens mest pålitliga adresser");
+      return `Använd den här sidan som startpunkt för ${cityName}, jämför de bästa alternativen och gå vidare till dedikerade kategorisidor kring ${highlights}.`;
+    },
+    metaTitle: ({ cityName, year }) => `De bästa sakerna att göra i ${cityName}, Algarve (${year})`,
+    metaDescription: ({ cityName }) => `Upptäck de bästa restaurangerna, hotellen och upplevelserna i ${cityName}, Algarve. Kurerade lokala rekommendationer.`,
+  },
+  no: {
+    h1: ({ cityName }) => `De beste tingene å gjøre i ${cityName}, Algarve`,
+    intro: ({ cityName, count, topCategoryNames, topListingNames, avgRating }) => {
+      const categories = formatLocalizedList("no", topCategoryNames, "restauranter, overnatting og opplevelser");
+      const highlights = formatLocalizedList("no", topListingNames, "utvalgte lokale favoritter");
+      const rating = avgRating !== null ? ` Med en gjennomsnittsvurdering på ${avgRating.toFixed(1)} stjerner blant vurderte oppføringer,` : "";
+      return `${cityName} er en av Algarves mest etterspurte destinasjoner, og denne guiden samler ${count} kuraterte oppføringer innen ${categories}.${rating} start med ${highlights} og fortsett deretter til mer fokuserte sider for mat, overnatting, aktiviteter og lokale tjenester.`;
+    },
+    body: ({ cityName, cityDescription, topCategoryNames }) => {
+      const categories = formatLocalizedList("no", topCategoryNames, "mat, opphold og opplevelser");
+      const context = cityDescription?.trim() || `${cityName} kombinerer atlanterhavskyst, lokal karakter og enkel tilgang til det beste av Algarve.`;
+      return `${context} I stedet for en tynn filterside gir denne bysiden ekte innhold, nyttig kontekst og tydelige interne lenker slik at besøkende kan finne bedre alternativer innen ${categories}.`;
+    },
+    closing: ({ cityName, topListingNames }) => {
+      const highlights = formatLocalizedList("no", topListingNames, "byens mest pålitelige adresser");
+      return `Bruk denne siden som startpunkt for ${cityName}, sammenlign de beste valgene og gå videre til dedikerte kategorisider rundt ${highlights}.`;
+    },
+    metaTitle: ({ cityName, year }) => `De beste tingene å gjøre i ${cityName}, Algarve (${year})`,
+    metaDescription: ({ cityName }) => `Oppdag de beste restaurantene, hotellene og opplevelsene i ${cityName}, Algarve. Kuraterte lokale anbefalinger.`,
+  },
+  da: {
+    h1: ({ cityName }) => `De bedste ting at lave i ${cityName}, Algarve`,
+    intro: ({ cityName, count, topCategoryNames, topListingNames, avgRating }) => {
+      const categories = formatLocalizedList("da", topCategoryNames, "restauranter, overnatning og oplevelser");
+      const highlights = formatLocalizedList("da", topListingNames, "udvalgte lokale favoritter");
+      const rating = avgRating !== null ? ` Med en gennemsnitlig vurdering på ${avgRating.toFixed(1)} stjerner blandt bedømte profiler,` : "";
+      return `${cityName} er en af Algarves mest eftertragtede destinationer, og denne guide samler ${count} kuraterede profiler på tværs af ${categories}.${rating} start med ${highlights}, og fortsæt derefter til mere fokuserede sider for mad, ophold, aktiviteter og lokale services.`;
+    },
+    body: ({ cityName, cityDescription, topCategoryNames }) => {
+      const categories = formatLocalizedList("da", topCategoryNames, "mad, ophold og oplevelser");
+      const context = cityDescription?.trim() || `${cityName} kombinerer Atlanterhavskyst, lokal karakter og nem adgang til det bedste af Algarve.`;
+      return `${context} I stedet for en tynd filterside giver denne byside rigtigt indhold, nyttig kontekst og klare interne links, så besøgende kan opdage stærkere muligheder inden for ${categories}.`;
+    },
+    closing: ({ cityName, topListingNames }) => {
+      const highlights = formatLocalizedList("da", topListingNames, "byens mest pålidelige adresser");
+      return `Brug denne side som startpunkt for ${cityName}, sammenlign de bedste muligheder, og gå videre til dedikerede kategorisider omkring ${highlights}.`;
+    },
+    metaTitle: ({ cityName, year }) => `De bedste ting at lave i ${cityName}, Algarve (${year})`,
+    metaDescription: ({ cityName }) => `Opdag de bedste restauranter, hoteller og oplevelser i ${cityName}, Algarve. Kuraterede lokale anbefalinger.`,
+  },
+};
+
 // ─── Public API ────────────────────────────────────────────────────────────────
+
+function buildZeroResultCategoryContent(
+  locale: Locale,
+  categoryDisplayName: string,
+  cityName: string,
+): SeoContentBlock {
+  const categoryLabel = categoryDisplayName.toLowerCase();
+  const year = new Date().getFullYear();
+
+  const byLocale: Record<Locale, SeoContentBlock> = {
+    en: {
+      h1: `Explore ${categoryDisplayName} in ${cityName}, Algarve`,
+      intro: `Explore ${categoryLabel} in ${cityName}, Algarve. New listings are being added.`,
+      bodyParagraph: `This page is available to help visitors discover ${categoryLabel} in ${cityName} as new listings go live.`,
+      closingParagraph: "Check back soon for new listings, or explore other cities and categories across the Algarve.",
+      metaTitle: `Explore ${categoryDisplayName} in ${cityName}, Algarve (${year})`,
+      metaDescription: `Explore ${categoryLabel} in ${cityName}, Algarve. New listings are being added.`,
+    },
+    "pt-pt": {
+      h1: `Explorar ${categoryDisplayName} em ${cityName}, Algarve`,
+      intro: `Explore ${categoryLabel} em ${cityName}, Algarve. Novas listagens estão a ser adicionadas.`,
+      bodyParagraph: `Esta página está disponível para ajudar visitantes a descobrir ${categoryLabel} em ${cityName} à medida que novas listagens são publicadas.`,
+      closingParagraph: "Volte em breve para ver novas listagens ou explore outras cidades e categorias do Algarve.",
+      metaTitle: `Explorar ${categoryDisplayName} em ${cityName}, Algarve (${year})`,
+      metaDescription: `Explore ${categoryLabel} em ${cityName}, Algarve. Novas listagens estão a ser adicionadas.`,
+    },
+    fr: {
+      h1: `Explorer ${categoryDisplayName} à ${cityName}, Algarve`,
+      intro: `Explorez ${categoryLabel} à ${cityName}, Algarve. De nouvelles adresses sont en cours d'ajout.`,
+      bodyParagraph: `Cette page est disponible pour aider les visiteurs à découvrir ${categoryLabel} à ${cityName} au fur et à mesure de la publication de nouvelles adresses.`,
+      closingParagraph: "Revenez bientôt pour consulter les nouvelles adresses ou explorez d'autres villes et catégories de l'Algarve.",
+      metaTitle: `Explorer ${categoryDisplayName} à ${cityName}, Algarve (${year})`,
+      metaDescription: `Explorez ${categoryLabel} à ${cityName}, Algarve. De nouvelles adresses sont en cours d'ajout.`,
+    },
+    de: {
+      h1: `Entdecken Sie ${categoryDisplayName} in ${cityName}, Algarve`,
+      intro: `Entdecken Sie ${categoryLabel} in ${cityName}, Algarve. Neue Einträge werden derzeit hinzugefügt.`,
+      bodyParagraph: `Diese Seite hilft Besuchern dabei, ${categoryLabel} in ${cityName} zu entdecken, während neue Einträge veröffentlicht werden.`,
+      closingParagraph: "Schauen Sie bald wieder vorbei oder entdecken Sie weitere Städte und Kategorien an der Algarve.",
+      metaTitle: `${categoryDisplayName} in ${cityName}, Algarve entdecken (${year})`,
+      metaDescription: `Entdecken Sie ${categoryLabel} in ${cityName}, Algarve. Neue Einträge werden derzeit hinzugefügt.`,
+    },
+    es: {
+      h1: `Explorar ${categoryDisplayName} en ${cityName}, Algarve`,
+      intro: `Explore ${categoryLabel} en ${cityName}, Algarve. Se están añadiendo nuevas fichas.`,
+      bodyParagraph: `Esta página está disponible para ayudar a los visitantes a descubrir ${categoryLabel} en ${cityName} a medida que se publican nuevas fichas.`,
+      closingParagraph: "Vuelva pronto para ver nuevas fichas o explore otras ciudades y categorías del Algarve.",
+      metaTitle: `Explorar ${categoryDisplayName} en ${cityName}, Algarve (${year})`,
+      metaDescription: `Explore ${categoryLabel} en ${cityName}, Algarve. Se están añadiendo nuevas fichas.`,
+    },
+    it: {
+      h1: `Esplora ${categoryDisplayName} a ${cityName}, Algarve`,
+      intro: `Esplora ${categoryLabel} a ${cityName}, Algarve. Nuove schede stanno per essere aggiunte.`,
+      bodyParagraph: `Questa pagina aiuta i visitatori a scoprire ${categoryLabel} a ${cityName} mentre nuove schede vengono pubblicate.`,
+      closingParagraph: "Torna presto per vedere nuove schede oppure esplora altre città e categorie dell'Algarve.",
+      metaTitle: `Esplora ${categoryDisplayName} a ${cityName}, Algarve (${year})`,
+      metaDescription: `Esplora ${categoryLabel} a ${cityName}, Algarve. Nuove schede stanno per essere aggiunte.`,
+    },
+    nl: {
+      h1: `Ontdek ${categoryDisplayName} in ${cityName}, Algarve`,
+      intro: `Ontdek ${categoryLabel} in ${cityName}, Algarve. Nieuwe vermeldingen worden toegevoegd.`,
+      bodyParagraph: `Deze pagina helpt bezoekers om ${categoryLabel} in ${cityName} te ontdekken terwijl nieuwe vermeldingen live gaan.`,
+      closingParagraph: "Kom binnenkort terug voor nieuwe vermeldingen of ontdek andere steden en categorieën in de Algarve.",
+      metaTitle: `${categoryDisplayName} in ${cityName}, Algarve ontdekken (${year})`,
+      metaDescription: `Ontdek ${categoryLabel} in ${cityName}, Algarve. Nieuwe vermeldingen worden toegevoegd.`,
+    },
+    sv: {
+      h1: `Utforska ${categoryDisplayName} i ${cityName}, Algarve`,
+      intro: `Utforska ${categoryLabel} i ${cityName}, Algarve. Nya listningar läggs till.`,
+      bodyParagraph: `Den här sidan hjälper besökare att upptäcka ${categoryLabel} i ${cityName} medan nya listningar publiceras.`,
+      closingParagraph: "Kom snart tillbaka för nya listningar eller utforska andra städer och kategorier i Algarve.",
+      metaTitle: `Utforska ${categoryDisplayName} i ${cityName}, Algarve (${year})`,
+      metaDescription: `Utforska ${categoryLabel} i ${cityName}, Algarve. Nya listningar läggs till.`,
+    },
+    no: {
+      h1: `Utforsk ${categoryDisplayName} i ${cityName}, Algarve`,
+      intro: `Utforsk ${categoryLabel} i ${cityName}, Algarve. Nye oppføringer blir lagt til.`,
+      bodyParagraph: `Denne siden hjelper besøkende med å oppdage ${categoryLabel} i ${cityName} mens nye oppføringer publiseres.`,
+      closingParagraph: "Kom snart tilbake for nye oppføringer eller utforsk andre byer og kategorier i Algarve.",
+      metaTitle: `Utforsk ${categoryDisplayName} i ${cityName}, Algarve (${year})`,
+      metaDescription: `Utforsk ${categoryLabel} i ${cityName}, Algarve. Nye oppføringer blir lagt til.`,
+    },
+    da: {
+      h1: `Udforsk ${categoryDisplayName} i ${cityName}, Algarve`,
+      intro: `Udforsk ${categoryLabel} i ${cityName}, Algarve. Nye profiler bliver tilføjet.`,
+      bodyParagraph: `Denne side hjælper besøgende med at opdage ${categoryLabel} i ${cityName}, mens nye profiler bliver offentliggjort.`,
+      closingParagraph: "Kom snart tilbage for nye profiler, eller udforsk andre byer og kategorier i Algarve.",
+      metaTitle: `Udforsk ${categoryDisplayName} i ${cityName}, Algarve (${year})`,
+      metaDescription: `Udforsk ${categoryLabel} i ${cityName}, Algarve. Nye profiler bliver tilføjet.`,
+    },
+  };
+
+  return byLocale[locale] ?? byLocale.en;
+}
+
+function buildZeroResultCityContent(
+  locale: Locale,
+  cityName: string,
+): CitySeoContentBlock {
+  const year = new Date().getFullYear();
+
+  const byLocale: Record<Locale, CitySeoContentBlock> = {
+    en: {
+      h1: `Explore ${cityName}, Algarve`,
+      intro: `Explore ${cityName}, Algarve. New listings and local recommendations are being added.`,
+      bodyParagraph: `This page is available to help visitors discover places to stay, restaurants, activities, and local services in ${cityName} as new listings go live.`,
+      closingParagraph: "Check back soon for new listings, or continue exploring other cities and categories across the Algarve.",
+      metaTitle: `Explore ${cityName}, Algarve (${year} Guide)`,
+      metaDescription: `Explore ${cityName}, Algarve. New listings and local recommendations are being added.`,
+    },
+    "pt-pt": {
+      h1: `Explorar ${cityName}, Algarve`,
+      intro: `Explore ${cityName}, Algarve. Novas listagens e recomendações locais estão a ser adicionadas.`,
+      bodyParagraph: `Esta página está disponível para ajudar visitantes a descobrir alojamento, restauração, atividades e serviços locais em ${cityName} à medida que novas listagens são publicadas.`,
+      closingParagraph: "Volte em breve para ver novas listagens ou continue a explorar outras cidades e categorias do Algarve.",
+      metaTitle: `Explorar ${cityName}, Algarve (${year})`,
+      metaDescription: `Explore ${cityName}, Algarve. Novas listagens e recomendações locais estão a ser adicionadas.`,
+    },
+    fr: {
+      h1: `Explorer ${cityName}, Algarve`,
+      intro: `Explorez ${cityName}, Algarve. De nouvelles adresses et recommandations locales sont en cours d'ajout.`,
+      bodyParagraph: `Cette page aide les visiteurs à découvrir hébergements, restaurants, activités et services locaux à ${cityName} au fur et à mesure de la publication de nouvelles adresses.`,
+      closingParagraph: "Revenez bientôt pour consulter les nouvelles adresses ou explorez d'autres villes et catégories de l'Algarve.",
+      metaTitle: `Explorer ${cityName}, Algarve (${year})`,
+      metaDescription: `Explorez ${cityName}, Algarve. De nouvelles adresses et recommandations locales sont en cours d'ajout.`,
+    },
+    de: {
+      h1: `${cityName}, Algarve entdecken`,
+      intro: `Entdecken Sie ${cityName}, Algarve. Neue Einträge und lokale Empfehlungen werden derzeit hinzugefügt.`,
+      bodyParagraph: `Diese Seite hilft Besuchern dabei, Unterkünfte, Restaurants, Aktivitäten und lokale Services in ${cityName} zu entdecken, während neue Einträge veröffentlicht werden.`,
+      closingParagraph: "Schauen Sie bald wieder vorbei oder entdecken Sie weitere Städte und Kategorien an der Algarve.",
+      metaTitle: `${cityName}, Algarve entdecken (${year})`,
+      metaDescription: `Entdecken Sie ${cityName}, Algarve. Neue Einträge und lokale Empfehlungen werden derzeit hinzugefügt.`,
+    },
+    es: {
+      h1: `Explorar ${cityName}, Algarve`,
+      intro: `Explore ${cityName}, Algarve. Se están añadiendo nuevas fichas y recomendaciones locales.`,
+      bodyParagraph: `Esta página ayuda a los visitantes a descubrir alojamiento, restaurantes, actividades y servicios locales en ${cityName} a medida que se publican nuevas fichas.`,
+      closingParagraph: "Vuelva pronto para ver nuevas fichas o explore otras ciudades y categorías del Algarve.",
+      metaTitle: `Explorar ${cityName}, Algarve (${year})`,
+      metaDescription: `Explore ${cityName}, Algarve. Se están añadiendo nuevas fichas y recomendaciones locales.`,
+    },
+    it: {
+      h1: `Esplora ${cityName}, Algarve`,
+      intro: `Esplora ${cityName}, Algarve. Nuove schede e consigli locali stanno per essere aggiunti.`,
+      bodyParagraph: `Questa pagina aiuta i visitatori a scoprire alloggi, ristoranti, attività e servizi locali a ${cityName} mentre nuove schede vengono pubblicate.`,
+      closingParagraph: "Torna presto per vedere nuove schede oppure esplora altre città e categorie dell'Algarve.",
+      metaTitle: `Esplora ${cityName}, Algarve (${year})`,
+      metaDescription: `Esplora ${cityName}, Algarve. Nuove schede e consigli locali stanno per essere aggiunti.`,
+    },
+    nl: {
+      h1: `Ontdek ${cityName}, Algarve`,
+      intro: `Ontdek ${cityName}, Algarve. Nieuwe vermeldingen en lokale aanbevelingen worden toegevoegd.`,
+      bodyParagraph: `Deze pagina helpt bezoekers om verblijven, restaurants, activiteiten en lokale diensten in ${cityName} te ontdekken terwijl nieuwe vermeldingen live gaan.`,
+      closingParagraph: "Kom binnenkort terug voor nieuwe vermeldingen of ontdek andere steden en categorieën in de Algarve.",
+      metaTitle: `Ontdek ${cityName}, Algarve (${year})`,
+      metaDescription: `Ontdek ${cityName}, Algarve. Nieuwe vermeldingen en lokale aanbevelingen worden toegevoegd.`,
+    },
+    sv: {
+      h1: `Utforska ${cityName}, Algarve`,
+      intro: `Utforska ${cityName}, Algarve. Nya listningar och lokala rekommendationer läggs till.`,
+      bodyParagraph: `Den här sidan hjälper besökare att upptäcka boenden, restauranger, aktiviteter och lokala tjänster i ${cityName} medan nya listningar publiceras.`,
+      closingParagraph: "Kom snart tillbaka för nya listningar eller utforska andra städer och kategorier i Algarve.",
+      metaTitle: `Utforska ${cityName}, Algarve (${year})`,
+      metaDescription: `Utforska ${cityName}, Algarve. Nya listningar och lokala rekommendationer läggs till.`,
+    },
+    no: {
+      h1: `Utforsk ${cityName}, Algarve`,
+      intro: `Utforsk ${cityName}, Algarve. Nye oppføringer og lokale anbefalinger blir lagt til.`,
+      bodyParagraph: `Denne siden hjelper besøkende med å oppdage overnatting, restauranter, aktiviteter og lokale tjenester i ${cityName} mens nye oppføringer publiseres.`,
+      closingParagraph: "Kom snart tilbake for nye oppføringer eller utforsk andre byer og kategorier i Algarve.",
+      metaTitle: `Utforsk ${cityName}, Algarve (${year})`,
+      metaDescription: `Utforsk ${cityName}, Algarve. Nye oppføringer og lokale anbefalinger blir lagt til.`,
+    },
+    da: {
+      h1: `Udforsk ${cityName}, Algarve`,
+      intro: `Udforsk ${cityName}, Algarve. Nye profiler og lokale anbefalinger bliver tilføjet.`,
+      bodyParagraph: `Denne side hjælper besøgende med at opdage overnatning, restauranter, aktiviteter og lokale services i ${cityName}, mens nye profiler bliver offentliggjort.`,
+      closingParagraph: "Kom snart tilbage for nye profiler, eller udforsk andre byer og kategorier i Algarve.",
+      metaTitle: `Udforsk ${cityName}, Algarve (${year})`,
+      metaDescription: `Udforsk ${cityName}, Algarve. Nye profiler og lokale anbefalinger bliver tilføjet.`,
+    },
+  };
+
+  return byLocale[locale] ?? byLocale.en;
+}
 
 export function generateSeoContentBlock(
   locale: Locale,
@@ -408,9 +840,14 @@ export function generateSeoContentBlock(
   cityName: string,
   cityDescription: string | null,
   listings: ProgrammaticListing[],
+  totalCount?: number,
 ): SeoContentBlock {
-  const count = listings.length;
+  const count = totalCount ?? listings.length;
   const categoryDisplayName = getCategoryDisplayName(canonical, locale);
+
+  if (count === 0) {
+    return buildZeroResultCategoryContent(locale, categoryDisplayName, cityName);
+  }
 
   // Compute avg rating from listings with ratings
   const rated = listings.filter((l) => l.google_rating !== null);
@@ -452,5 +889,47 @@ export function generateSeoContentBlock(
     closingParagraph: T.closing(ctx),
     metaTitle: T.metaTitle(ctx),
     metaDescription: T.metaDescription(ctx),
+  };
+}
+
+export function generateCitySeoContentBlock(
+  locale: Locale,
+  cityName: string,
+  cityDescription: string | null,
+  listings: ProgrammaticListing[],
+  topCategoryNames: string[],
+  totalCount?: number,
+): CitySeoContentBlock {
+  const count = totalCount ?? listings.length;
+  if (count === 0) {
+    return buildZeroResultCityContent(locale, cityName);
+  }
+
+  const rated = listings.filter((listing) => listing.google_rating !== null);
+  const avgRating =
+    rated.length > 0
+      ? rated.reduce((sum, listing) => sum + (listing.google_rating ?? 0), 0) / rated.length
+      : null;
+
+  const ctx: CityContentContext = {
+    locale,
+    cityName,
+    cityDescription,
+    count,
+    topCategoryNames: topCategoryNames.slice(0, 4),
+    topListingNames: listings.slice(0, 4).map((listing) => listing.name),
+    avgRating: avgRating ? Math.round(avgRating * 10) / 10 : null,
+    year: new Date().getFullYear(),
+  };
+
+  const template = CITY_TEMPLATES[locale] ?? CITY_TEMPLATES.en;
+
+  return {
+    h1: template.h1(ctx),
+    intro: template.intro(ctx),
+    bodyParagraph: template.body(ctx),
+    closingParagraph: template.closing(ctx),
+    metaTitle: template.metaTitle(ctx),
+    metaDescription: template.metaDescription(ctx),
   };
 }

@@ -26,13 +26,13 @@ import { OwnerListingImageManager } from "@/components/owner/OwnerListingImageMa
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { extractIdParam } from "@/lib/routeParams";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function OwnerListingEdit() {
   const params = useParams<Record<string, string | string[] | undefined>>();
   const id = extractIdParam(params);
   const router = useRouter();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const queryClient = useQueryClient();
   const { user } = useAuth();
   
