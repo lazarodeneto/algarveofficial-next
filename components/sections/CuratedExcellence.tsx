@@ -8,7 +8,7 @@ import { FavoriteButton } from "@/components/ui/favorite-button";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { useCuratedAssignments } from "@/hooks/useCuratedAssignments";
 import { useTranslation } from "react-i18next";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { supabase } from "@/integrations/supabase/client";
 import ListingImage from "@/components/ListingImage";
@@ -66,7 +66,7 @@ export function CuratedExcellence({
   showSectionHeader = true
 }: CuratedExcellenceProps) {
   const { t, i18n } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const { isFavorite, toggleFavorite } = useFavoriteListings();
   const targetLang = normalizeLang(i18n.language);
 

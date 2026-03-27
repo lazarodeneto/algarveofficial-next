@@ -1,4 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { Button } from "@/components/ui/button";
 
 interface Props {
@@ -36,8 +37,10 @@ export class GlobalErrorBoundary extends Component<Props, State> {
             <Button onClick={() => window.location.reload()}>
               Refresh Page
             </Button>
-            <Button variant="outline" onClick={() => window.location.href = '/'}>
-              Go Home
+            <Button variant="outline" asChild>
+              <LocaleLink href="/">
+                Go Home
+              </LocaleLink>
             </Button>
           </div>
           {process.env.NODE_ENV === 'development' && this.state.error && (

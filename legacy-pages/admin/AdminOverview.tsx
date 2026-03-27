@@ -25,10 +25,10 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { useGoogleRatingsSync } from "@/hooks/useGoogleRatingsSync";
 import { format } from "date-fns";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function AdminOverview() {
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   // Google Ratings Sync
   const {
     syncStatus,

@@ -8,7 +8,7 @@ import { getCategoryIconComponent } from "@/lib/categoryIcons";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { buildMergedCategoryOptions } from "@/lib/categoryMerges";
 import { useTranslation } from "react-i18next";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { Skeleton } from "@/components/ui/skeleton";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
 
@@ -17,7 +17,7 @@ export function CategoriesSection() {
   const { data: categories, isLoading: categoriesLoading } = useFeaturedCategories();
   const { data: listings, isLoading: listingsLoading } = usePublishedListings();
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
 
   const isLoading = categoriesLoading || listingsLoading;
 

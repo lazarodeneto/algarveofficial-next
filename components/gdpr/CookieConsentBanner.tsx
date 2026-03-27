@@ -4,14 +4,14 @@ import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 import { useAnalyticsConsent } from '@/hooks/useAnalyticsConsent';
 import { useCookieBannerSettings } from '@/hooks/useCookieBannerSettings';
-import { useLocalizedHref } from '@/hooks/useLocalizedHref';
+import { useLocalePath } from "@/hooks/useLocalePath";
 import Link from "next/link";
 
 export function CookieConsentBanner() {
   const { showBanner, acceptConsent, rejectConsent } = useAnalyticsConsent();
   const { settings, isLoading } = useCookieBannerSettings();
   const { t, i18n } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const locale = (i18n.resolvedLanguage ?? i18n.language ?? '').toLowerCase();
   const isEnglish = locale.startsWith('en');
 

@@ -20,7 +20,7 @@ const ListingsLeafletMap = dynamic(() => import("@/components/map/ListingsLeafle
 });
 import { usePublishedListings, type ListingFilters, type ListingTier } from "@/hooks/useListings";
 import { useCategories, useCities, useRegions } from "@/hooks/useReferenceData";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { translateCategoryName } from "@/lib/translateCategory";
 import {
   buildMergedCategoryOptions,
@@ -38,7 +38,7 @@ function isWithinAlgarveBounds(latitude: number, longitude: number): boolean {
 
 export default function MapExplorer() {
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const router = useRouter();
   const pathname = usePathname() || "/map";
   const searchParams = useSearchParams();

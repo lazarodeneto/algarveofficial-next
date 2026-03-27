@@ -1,9 +1,5 @@
-import { redirect } from "next/navigation";
+import ContactClient from "@/components/contact/ContactClient";
 
-export default async function ContactPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  redirect("/contact");
+export default function ContactPage() {
+  return <ContactClient initialContactSettings={null} />;
 }

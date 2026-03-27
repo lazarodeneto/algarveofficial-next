@@ -21,7 +21,7 @@ import { useSavedDestinations } from "@/hooks/useSavedDestinations";
 import { useTranslation } from "react-i18next";
 import { getRegionImageSet } from "@/lib/regionImages";
 import ListingImage from "@/components/ListingImage";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 function resolveRegionImageSrc(value: string | { src: string } | null | undefined) {
   if (!value) return undefined;
@@ -31,7 +31,7 @@ function resolveRegionImageSrc(value: string | { src: string } | null | undefine
 export default function UserOverview() {
   const { user } = useAuth();
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const { favoriteListingIds, favoriteListings } = useFavoriteListings();
   const { savedCityIds, savedRegionIds } = useSavedDestinations();
   

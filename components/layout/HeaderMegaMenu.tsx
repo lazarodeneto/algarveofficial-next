@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import { useHeaderMenu } from "@/hooks/useHeaderMenu";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { getMenuIcon } from "@/lib/menu-icons";
 import {
     MapPin,
@@ -163,7 +163,7 @@ type HeaderRuntimeSection = (typeof sections)[SectionKey] & {
 function useHeaderRuntimeSections(): HeaderRuntimeSection[] {
     const { t } = useTranslation();
     const { data: headerMenuItems = [] } = useHeaderMenu();
-    const l = useLocalizedHref();
+    const l = useLocalePath();
     const sectionEntries = React.useMemo(() => Object.entries(sections) as Array<[SectionKey, (typeof sections)[SectionKey]]>, []);
     
     return React.useMemo(() => {

@@ -36,7 +36,7 @@ import {
   type BlogStatus
 } from "@/hooks/useBlogPosts";
 import { extractIdParam } from "@/lib/routeParams";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 interface FormData {
   title: string;
@@ -66,7 +66,7 @@ const defaultFormData: FormData = {
 
 export default function AdminBlogForm() {
   const router = useRouter();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const params = useParams<Record<string, string | string[] | undefined>>();
   const id = extractIdParam(params);
   const { user } = useAuth();

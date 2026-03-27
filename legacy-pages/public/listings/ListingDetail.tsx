@@ -46,7 +46,7 @@ import { SeoHead } from "@/components/seo/SeoHead";
 import { LocalBusinessJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { translateCategoryValue } from "@/lib/translateCategoryValue";
 import { isUuid } from "@/lib/slugify";
@@ -181,7 +181,7 @@ const normalizeImageUrl = (value?: string | null): string | null => {
 export default function ListingDetail() {
   const { id: paramSlugOrId } = useParams<{ id: string }>();
   const { t, i18n } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const router = useRouter();
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);

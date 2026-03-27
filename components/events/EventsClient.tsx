@@ -31,7 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { eventCategoryLabels, eventCategoryColors, type CalendarEvent, type EventCategory } from "@/types/events";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { useHydrated } from "@/hooks/useHydrated";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
@@ -96,7 +96,7 @@ async function fetchEventGlobalSettings() {
 
 function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClientProps) {
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
 
   const [selectedCategory, setSelectedCategory] = useState<EventCategory | "all">("all");
   const [showPast, setShowPast] = useState(false);

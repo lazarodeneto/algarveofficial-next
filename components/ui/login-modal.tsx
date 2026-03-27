@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { LocalizedLink } from "@/components/navigation/LocalizedLink";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { Heart, Mail, Lock } from "lucide-react";
 import {
   Dialog,
@@ -95,13 +94,13 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="modal-password">{t('auth.password')}</Label>
-              <LocalizedLink
+              <LocaleLink
                 href="/forgot-password"
                 onClick={() => onOpenChange(false)}
                 className="text-xs text-primary hover:underline"
               >
                 {t('auth.forgotPassword')}
-              </LocalizedLink>
+              </LocaleLink>
             </div>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -141,13 +140,13 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 
         <p className="text-center text-sm text-muted-foreground mt-4">
           {t('auth.noAccount')}{" "}
-          <LocalizedLink
+          <LocaleLink
             href="/signup"
             onClick={() => onOpenChange(false)}
             className="text-primary hover:underline font-medium"
           >
             {t('auth.createOne')}
-          </LocalizedLink>
+          </LocaleLink>
         </p>
       </DialogContent>
     </Dialog>

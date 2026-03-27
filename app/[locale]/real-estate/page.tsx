@@ -1,9 +1,7 @@
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function RealEstatePage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  redirect("/real-estate");
+import RealEstateDirectory from "@/legacy-pages/public/RealEstateDirectory";
+
+export default function RealEstatePage() {
+  return <RealEstateDirectory />;
 }

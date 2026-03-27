@@ -1,9 +1,12 @@
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function AuthResetPasswordPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  redirect("/auth/reset-password");
+import { Suspense } from "react";
+import ResetPassword from "@/legacy-pages/auth/ResetPassword";
+
+export default function AuthResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <ResetPassword />
+    </Suspense>
+  );
 }

@@ -16,7 +16,7 @@ import { ConciergeContactDialog } from "@/components/real-estate/ConciergeContac
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { useHydrated } from "@/hooks/useHydrated";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database, Tables } from "@/integrations/supabase/types";
@@ -172,7 +172,7 @@ function RealEstateDirectoryClientInner({
 }: RealEstateDirectoryClientProps) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const locale = normalizePublicContentLocale(i18n.language);
 
   const [filters, setFilters] = useState<FilterState>({

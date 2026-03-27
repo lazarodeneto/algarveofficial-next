@@ -12,13 +12,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Eye, EyeOff, ArrowLeft, Mail, Lock, CheckCircle, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { useLocalizedHref } from '@/hooks/useLocalizedHref';
+import { useLocalePath } from '@/hooks/useLocalePath';
 
 export default function Login() {
   const { t } = useTranslation();
   const { login, loginWithGoogle, isLoading, isAuthenticated, user, getDashboardPath } = useAuth();
   const router = useRouter();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);

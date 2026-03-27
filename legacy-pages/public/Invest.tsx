@@ -21,7 +21,7 @@ import {
     Sparkles,
 } from "lucide-react";
 import Link from "next/link";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
@@ -31,7 +31,7 @@ import { PageHeroImage } from "@/components/sections/PageHeroImage";
 const Invest = () => {
     const { t } = useTranslation();
     const { getMetaDescription, getMetaTitle, getText, isBlockEnabled } = useCmsPageBuilder("invest");
-    const l = useLocalizedHref();
+    const l = useLocalePath();
     const [purchasePrice, setPurchasePrice] = useState(1250000);
     const [occupancyRate, setOccupancyRate] = useState(62);
     const [averageNightlyRate, setAverageNightlyRate] = useState(580);

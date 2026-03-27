@@ -34,11 +34,11 @@ import { StatusBadgeOwner } from "@/components/owner/StatusBadgeOwner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function OwnerListings() {
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");

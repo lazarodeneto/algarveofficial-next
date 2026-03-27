@@ -4,7 +4,7 @@ import Image from "next/image";
 import { BedSingle, Binoculars, CalendarDays, LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import {
   HOME_QUICK_LINK_CARDS,
   HOME_QUICK_LINK_SETTING_KEYS,
@@ -19,7 +19,7 @@ const CARD_ICONS: Record<"stay" | "see-do" | "whats-on", LucideIcon> = {
 
 export function HomeQuickLinksSection() {
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const { settings, isLoading } = useGlobalSettings({ keys: HOME_QUICK_LINK_SETTING_KEYS });
 
   const enforceMutedPlayback = useCallback((video: HTMLVideoElement | null) => {

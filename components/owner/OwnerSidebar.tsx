@@ -10,7 +10,7 @@ import {
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { ExpandableSidebar, type SidebarNavSection } from "@/components/navigation/ExpandableSidebar";
 import { useOwnerUnreadMessagesCount } from "@/hooks/useOwnerUnreadMessagesCount";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { useTranslation } from "react-i18next";
 
 interface OwnerSidebarProps {
@@ -20,7 +20,7 @@ interface OwnerSidebarProps {
 
 export function OwnerSidebar({ collapsed, onToggle }: OwnerSidebarProps) {
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const { data: unreadCount = 0 } = useOwnerUnreadMessagesCount();
 
   const sections: SidebarNavSection[] = [

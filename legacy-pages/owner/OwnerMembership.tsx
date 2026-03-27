@@ -23,12 +23,12 @@ import { useStripeSubscription } from "@/hooks/useStripeSubscription";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { SubscriptionTier, BillingPeriod } from "@/lib/stripePricing";
 import Link from "next/link";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function OwnerMembership() {
   const { t } = useTranslation();
   const router = useRouter();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const pathname = usePathname() || "/owner/membership";
   const searchParams = useSearchParams();
   const { data: listings = [], isLoading: isListingsLoading } = useOwnerListings();

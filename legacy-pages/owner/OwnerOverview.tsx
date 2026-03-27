@@ -21,11 +21,11 @@ import { StatusBadgeOwner } from "@/components/owner/StatusBadgeOwner";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function OwnerOverview() {
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const { user } = useAuth();
 
   // Fetch owner's listings

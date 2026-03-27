@@ -46,7 +46,7 @@ import {
   useAdminOwnerCrmSummaries,
   useEnsureOwnerEmailContact,
 } from "@/hooks/useAdminOwnerCRM";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 interface BillingInvoice {
   id: string;
@@ -234,7 +234,7 @@ function MetricTile({
 
 export default function AdminOwnerCRM() {
   const router = useRouter();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const [search, setSearch] = useState("");
   const [ownerSort, setOwnerSort] = useState<OwnerSort>("activity");
   const [ownerStatusFilter, setOwnerStatusFilter] = useState<OwnerStatusFilter>("all");

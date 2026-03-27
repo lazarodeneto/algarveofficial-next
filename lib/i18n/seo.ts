@@ -14,7 +14,32 @@ import {
   type Locale,
 } from "./config";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ?? "https://algarveofficial.com";
+const DEFAULT_SITE_URL = "https://algarveofficial.com";
+
+function normalizeSeoPath(path: string = ""): string {
+  if (!path || path === "/") {
+    return "/";
+  }
+
+  return path.startsWith("/") ? path : `/${path}`;
+}
+
+export function getSiteUrl(): string {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (configured && /^https?:\/\//i.test(configured)) {
+    return configured.replace(/\/+$/, "");
+  }
+
+  return DEFAULT_SITE_URL;
+}
+
+export function toAbsoluteSiteUrl(pathOrUrl: string): string {
+  if (/^https?:\/\//i.test(pathOrUrl)) {
+    return pathOrUrl;
+  }
+
+  return `${getSiteUrl()}${normalizeSeoPath(pathOrUrl)}`;
+}
 
 /**
  * Get the URL prefix for a locale.
@@ -35,9 +60,9 @@ export function getLocaleUrlPrefix(locale: Locale): string {
  * @returns Full canonical URL (e.g., "https://algarveofficial.com/en/directory")
  */
 export function buildCanonicalUrl(locale: Locale, path: string = ""): string {
-  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  const cleanPath = normalizeSeoPath(path);
   const pathWithoutTrailingSlash = cleanPath === "/" ? "" : cleanPath.replace(/\/+$/, "");
-  return `${SITE_URL}${getLocaleUrlPrefix(locale)}${pathWithoutTrailingSlash}`;
+  return toAbsoluteSiteUrl(`${getLocaleUrlPrefix(locale)}${pathWithoutTrailingSlash}`);
 }
 
 /**
@@ -60,16 +85,15 @@ export function buildCanonicalUrl(locale: Locale, path: string = ""): string {
  */
 export function buildHreflangs(path: string = ""): Record<string, string> {
   const hreflangs: Record<string, string> = {};
+  const normalizedPath = normalizeSeoPath(path);
 
-  // Add all supported locales
   for (const locale of SUPPORTED_LOCALES) {
     const hreflang = LOCALE_CONFIGS[locale].hreflang;
-    const canonicalUrl = buildCanonicalUrl(locale, path);
+    const canonicalUrl = buildCanonicalUrl(locale, normalizedPath);
     hreflangs[hreflang] = canonicalUrl;
   }
 
-  // Add x-default (points to English version)
-  hreflangs["x-default"] = buildCanonicalUrl(DEFAULT_LOCALE, path);
+  hreflangs["x-default"] = buildCanonicalUrl(DEFAULT_LOCALE, normalizedPath);
 
   return hreflangs;
 }
@@ -103,12 +127,54 @@ export function buildCanonicalUrlString(locale: Locale, path: string = ""): stri
  * }
  */
 export function buildMetadataAlternates(locale: Locale, path: string = "") {
-  const canonical = buildCanonicalUrl(locale, path);
-  const hreflangs = buildHreflangs(path);
+  const normalizedPath = normalizeSeoPath(path);
+  const canonical = buildCanonicalUrl(locale, normalizedPath);
+  const hreflangs = buildHreflangs(normalizedPath);
 
   return {
     canonical,
     languages: hreflangs,
+  };
+}
+
+export function buildUnlocalizedAlternates(path: string = "") {
+  const normalizedPath = normalizeSeoPath(path);
+  return {
+    canonical: toAbsoluteSiteUrl(normalizedPath),
+    languages: buildHreflangs(normalizedPath),
+  };
+}
+
+export function buildLocalizedPathAlternates(
+  locale: Locale,
+  localizedPaths: Partial<Record<Locale, string>>,
+  options?: { xDefaultLocale?: Locale },
+) {
+  const languages: Record<string, string> = {};
+
+  for (const supportedLocale of SUPPORTED_LOCALES) {
+    const path = localizedPaths[supportedLocale];
+    if (!path) {
+      continue;
+    }
+
+    languages[LOCALE_CONFIGS[supportedLocale].hreflang] = toAbsoluteSiteUrl(path);
+  }
+
+  const xDefaultLocale = options?.xDefaultLocale ?? DEFAULT_LOCALE;
+  const canonicalPath =
+    localizedPaths[locale] ??
+    localizedPaths[xDefaultLocale] ??
+    `/${locale}`;
+  const xDefaultPath =
+    localizedPaths[xDefaultLocale] ??
+    canonicalPath;
+
+  languages["x-default"] = toAbsoluteSiteUrl(xDefaultPath);
+
+  return {
+    canonical: toAbsoluteSiteUrl(canonicalPath),
+    languages,
   };
 }
 
