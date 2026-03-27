@@ -47,12 +47,12 @@ type ListingReviewRow = ListingReview & {
 
 interface ListingPageData {
   listing: ListingWithRelations;
-  translations: Record<Locale, ListingTranslationRow | null>;
+  translations: Record<string, ListingTranslationRow | null>;
   reviews: ListingReviewRow[];
   relatedListings: RelatedListing[];
   whatsappStatus: WhatsAppStatus;
   canonicalSlug: string;
-  localizedSlugs: Partial<Record<Locale, string>>;
+  localizedSlugs: Partial<Record<string, string>>;
 }
 
 interface ListingPageProps {
@@ -139,7 +139,7 @@ async function fetchAllTranslations(listingId: string) {
 
   if (error) throw error;
 
-  const translations: Record<Locale, ListingTranslationRow | null> = {} as Record<
+  const translations: Record<string, ListingTranslationRow | null> = {} as Record<
     Locale,
     ListingTranslationRow | null
   >;
@@ -162,7 +162,7 @@ async function fetchLocalizedSlugs(listingId: string) {
 
   if (error) return {};
 
-  const slugs: Partial<Record<Locale, string>> = {};
+  const slugs: Partial<Record<string, string>> = {};
 
   for (const row of data ?? []) {
     const locale = row.language_code as Locale;
