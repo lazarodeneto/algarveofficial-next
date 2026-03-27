@@ -98,7 +98,7 @@ type Templates = {
   metaDescription: (ctx: ContentContext) => string;
 };
 
-const TEMPLATES: Record<string, Templates> = {
+const TEMPLATES: Record<Locale, Templates> = {
   en: {
     h1: ({ categoryDisplayName, cityName }) =>
       `${categoryDisplayName} in ${cityName}, Algarve`,
@@ -429,12 +429,11 @@ type CityTemplates = {
   metaDescription: (ctx: CityContentContext) => string;
 };
 
-function formatLocalizedList(locale: string, values: string[], fallback: string): string {
+function formatLocalizedList(locale: Locale, values: string[], fallback: string): string {
   if (values.length === 0) return fallback;
 
   try {
-    const config = LOCALE_CONFIGS[locale as keyof typeof LOCALE_CONFIGS] ?? LOCALE_CONFIGS.en;
-    const formatter = new Intl.ListFormat(config.hreflang, {
+    const formatter = new Intl.ListFormat(LOCALE_CONFIGS[locale].hreflang, {
       style: "long",
       type: "conjunction",
     });
@@ -444,7 +443,7 @@ function formatLocalizedList(locale: string, values: string[], fallback: string)
   }
 }
 
-const CITY_TEMPLATES: Record<string, CityTemplates> = {
+const CITY_TEMPLATES: Record<Locale, CityTemplates> = {
   en: {
     h1: ({ cityName }) => `Best Things to Do in ${cityName}, Algarve`,
     intro: ({ cityName, count, topCategoryNames, topListingNames, avgRating }) => {
@@ -657,7 +656,7 @@ function buildZeroResultCategoryContent(
   const categoryLabel = categoryDisplayName.toLowerCase();
   const year = new Date().getFullYear();
 
-  const byLocale: Record<string, SeoContentBlock> = {
+  const byLocale: Record<Locale, SeoContentBlock> = {
     en: {
       h1: `Explore ${categoryDisplayName} in ${cityName}, Algarve`,
       intro: `Explore ${categoryLabel} in ${cityName}, Algarve. New listings are being added.`,
@@ -749,7 +748,7 @@ function buildZeroResultCityContent(
 ): CitySeoContentBlock {
   const year = new Date().getFullYear();
 
-  const byLocale: Record<string, CitySeoContentBlock> = {
+  const byLocale: Record<Locale, CitySeoContentBlock> = {
     en: {
       h1: `Explore ${cityName}, Algarve`,
       intro: `Explore ${cityName}, Algarve. New listings and local recommendations are being added.`,

@@ -37,6 +37,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useMobileMenu } from "@/contexts/MobileMenuContext";
 import { CommandSearch } from "@/components/ui/command-search";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useTranslation } from "react-i18next";
 import { BrandLogo } from "@/components/ui/brand-logo";
@@ -216,6 +217,7 @@ export default function Header() {
                 <span className="sr-only">{t("nav.search", "Search")}</span>
               </Button>
 
+              <LanguageSwitcher />
               <ThemeToggle variant="header" />
 
               {isAuthenticated && user ? (
@@ -267,6 +269,8 @@ export default function Header() {
                   <Search className="h-4.5 w-4.5" />
                   <span className="sr-only">{t("nav.search", "Search")}</span>
                 </Button>
+
+                <LanguageSwitcher />
 
                 {isAuthenticated && user ? (
                   <div className="flex items-center gap-1">
@@ -361,6 +365,12 @@ export default function Header() {
                   <div className="flex min-h-full flex-col">
                     <div className="mb-4 rounded-2xl border border-black/10 bg-white/70 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
                       <div className="flex items-center justify-between gap-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                          {t("common.language", "Language")}
+                        </div>
+                        <LanguageSwitcher />
+                      </div>
+                      <div className="mt-3 flex items-center justify-between gap-3">
                         <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                           {t("common.theme", "Theme")}
                         </div>
