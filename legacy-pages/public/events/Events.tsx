@@ -8,15 +8,12 @@ import {
   MapPin, 
   Ticket, 
   Filter,
-  Star,
-  Archive
+  Star
 } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Select,
@@ -34,7 +31,6 @@ export default function Events() {
   const today = startOfDay(new Date());
   
   const [selectedCategory, setSelectedCategory] = useState<EventCategory | 'all'>('all');
-  const [showPast, setShowPast] = useState(false);
 
   const categories = Object.entries(eventCategoryLabels) as [EventCategory, string][];
 
@@ -54,9 +50,9 @@ export default function Events() {
   };
 
   // Fetch events from database
-  const timeFilter = showPast ? 'past' : 'upcoming';
+  const timeFilter = 'upcoming';
   const { data: events = [], isLoading } = usePublishedEvents(selectedCategory, timeFilter);
-  const featuredEvents = showPast ? [] : events.filter((e) => e.is_featured).slice(0, 3);
+  const featuredEvents = events.filter((e) => e.is_featured).slice(0, 3);
   const upcomingEvents = events.filter((e) => !featuredEvents.includes(e));
 
   // Group by month
@@ -135,17 +131,6 @@ export default function Events() {
                     ))}
                 </SelectContent>
               </Select>
-              <div className="flex items-center gap-2 glass-box border border-white/20 rounded-md px-4 py-2">
-                <Archive className="h-4 w-4 text-muted-foreground" />
-                <Label htmlFor="past-toggle" className="text-sm cursor-pointer select-none">
-                  {t('sections.events.showPast', 'Past Events')}
-                </Label>
-                <Switch
-                  id="past-toggle"
-                  checked={showPast}
-                  onCheckedChange={setShowPast}
-                />
-              </div>
             </motion.div>
           </div>
         </section>
@@ -235,10 +220,7 @@ export default function Events() {
         {/* All Events by Month */}
         <section className="py-12 app-container content-max">
           <h2 className="text-title font-serif font-semibold mb-8">
-            {showPast 
-              ? t('sections.events.pastEvents', 'Past Events') 
-              : t('common.upcomingEvents', 'Upcoming Events')
-            }
+            {t('common.upcomingEvents', 'Upcoming Events')}
           </h2>
           
           {Object.entries(eventsByMonth).length === 0 ? (

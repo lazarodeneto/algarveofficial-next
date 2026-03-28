@@ -16,12 +16,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSupabaseFavoritesCount } from "@/hooks/useSupabaseFavoritesCount";
 import { useUserUnreadMessagesCount } from "@/hooks/useUserUnreadMessagesCount";
 import { useTranslation } from "react-i18next";
-import { useLocale } from "@/lib/i18n/locale-context";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export function UserHeader() {
   const { t } = useTranslation();
   const { logout, user } = useAuth();
-  const locale = useLocale();
+  const l = useLocalePath();
   const isAdminViewing = user?.role === 'admin';
   const { data: favoritesCount = 0 } = useSupabaseFavoritesCount();
   const { data: unreadCount = 0 } = useUserUnreadMessagesCount();
@@ -50,7 +50,7 @@ export function UserHeader() {
 
           {/* Explore Site */}
           <Button variant="ghost" size="sm" asChild className="hidden xl:flex text-muted-foreground hover:text-foreground [&>svg]:hover:text-foreground">
-            <Link href={`/${locale}`} className="flex items-center gap-2">
+            <Link href={l("/")} className="flex items-center gap-2">
               <ExternalLink className="h-4 w-4 transition-colors" />
               {t('common.explore')}
             </Link>
@@ -58,7 +58,7 @@ export function UserHeader() {
 
           {/* Favorites Quick Access */}
           <Button variant="ghost" size="icon" asChild className="relative text-muted-foreground hover:text-foreground group">
-            <Link href="/dashboard/favorites">
+            <Link href={l("/dashboard/favorites")}>
               <Heart className="h-5 w-5 transition-colors group-hover:text-foreground" />
               {favoritesCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary text-[9px] font-semibold text-primary-foreground px-1">
@@ -70,7 +70,7 @@ export function UserHeader() {
 
           {/* Notifications - links to messages */}
           <Button variant="ghost" size="icon" asChild className="relative text-muted-foreground hover:text-foreground group">
-            <Link href="/dashboard/messages">
+            <Link href={l("/dashboard/messages")}>
               <Bell className="h-5 w-5 transition-colors group-hover:text-foreground" />
               {unreadCount > 0 && (
                 <span className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary text-[9px] font-semibold text-primary-foreground px-1">
@@ -110,21 +110,21 @@ export function UserHeader() {
                     {t('common.switchDashboard')}
                   </DropdownMenuLabel>
                   <DropdownMenuItem asChild>
-                    <Link href="/admin" className="cursor-pointer flex items-center">
+                    <Link href={l("/admin")} className="cursor-pointer flex items-center">
                       <span className="w-4 mr-2" />
                       <LayoutDashboard className="h-4 w-4 mr-2" />
                       {t('common.adminDashboard')}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/owner" className="cursor-pointer flex items-center">
+                    <Link href={l("/owner")} className="cursor-pointer flex items-center">
                       <span className="w-4 mr-2" />
                       <Building2 className="h-4 w-4 mr-2" />
                       {t('common.ownerDashboard')}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="cursor-pointer flex items-center">
+                    <Link href={l("/dashboard")} className="cursor-pointer flex items-center">
                       <Check className="h-4 w-4 mr-2 text-primary" />
                       <UserCheck className="h-4 w-4 mr-2" />
                       {t('common.userDashboard')}
@@ -136,13 +136,13 @@ export function UserHeader() {
               
               {/* User-specific items */}
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/favorites" className="flex items-center gap-2 cursor-pointer">
+                <Link href={l("/dashboard/favorites")} className="flex items-center gap-2 cursor-pointer">
                   <Heart className="h-4 w-4" />
                   {t('dashboard.overview.myFavorites')}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/profile" className="flex items-center gap-2 cursor-pointer">
+                <Link href={l("/dashboard/profile")} className="flex items-center gap-2 cursor-pointer">
                   <Settings className="h-4 w-4" />
                   {t('common.profileSettings')}
                 </Link>

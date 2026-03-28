@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/integrations/supabase/client';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { useLocale } from '@/lib/i18n/locale-context';
+import { buildLocalizedPath } from '@/lib/i18n/routing';
 
 export type UserRole = 'admin' | 'editor' | 'owner' | 'viewer_logged' | 'viewer';
 
@@ -74,7 +75,7 @@ function clearCachedUser() {
   }
 }
 
-function resolveGoogleOAuthRedirectUrl(): string {
+function resolveGoogleOAuthRedirectUrl(locale: string): string {
   if (typeof window === "undefined") {
     return "https://algarveofficial.com/auth/callback";
   }
@@ -97,7 +98,7 @@ function resolveGoogleOAuthRedirectUrl(): string {
         ? "https://algarveofficial.com"
         : window.location.origin));
 
-  return `${origin}/auth/callback`;
+  return `${origin}/auth/callback?locale=${encodeURIComponent(locale)}`;
 }
 
 // Helper to fetch user role using the database function with proper hierarchy
@@ -277,13 +278,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     switch (role) {
       case 'admin':
       case 'editor':
-        return '/admin';
+        return buildLocalizedPath(locale, '/admin');
       case 'owner':
-        return '/owner';
+        return buildLocalizedPath(locale, '/owner');
       case 'viewer_logged':
-        return '/dashboard';
+        return buildLocalizedPath(locale, '/dashboard');
       default:
-        return '/';
+        return buildLocalizedPath(locale, '/');
     }
   };
 
@@ -365,7 +366,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
         
         // Redirect to user dashboard
-        router.replace('/dashboard');
+        router.replace(getDashboardPath(appUser.role));
         
         return { success: true };
       }
@@ -383,7 +384,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: resolveGoogleOAuthRedirectUrl(),
+          redirectTo: resolveGoogleOAuthRedirectUrl(locale),
           queryParams: {
             prompt: "select_account",
           },

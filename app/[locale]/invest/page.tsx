@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 
-export default async function InvestPage({
-  params,
-}: {
+interface PageProps {
   params: Promise<{ locale: string }>;
-}) {
-  redirect("/invest");
+}
+
+export default async function InvestPage({ params }: PageProps) {
+  const { locale } = await params;
+  redirect(`/${locale}/real-estate`);
 }

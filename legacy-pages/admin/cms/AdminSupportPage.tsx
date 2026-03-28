@@ -8,9 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { useSupportSettings, FAQ } from "@/hooks/useSupportSettings";
 import Link from "next/link";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function AdminSupportPage() {
   const { settings, isLoading, updateSettings } = useSupportSettings();
+  const l = useLocalePath();
   const [isSaving, setIsSaving] = useState(false);
 
   // Form state
@@ -114,7 +116,7 @@ export default function AdminSupportPage() {
         </div>
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm" asChild>
-            <Link href="/owner/support" target="_blank">
+            <Link href={l("/owner/support")} target="_blank">
               <ExternalLink className="mr-2 h-4 w-4" />
               View Page
             </Link>

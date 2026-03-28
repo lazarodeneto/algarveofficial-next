@@ -5,11 +5,12 @@ import Link from "next/link";
 import { MapPin, Mail } from "lucide-react";
 import { useFooterMenu } from "@/hooks/useFooterMenu";
 import { useTranslation } from "react-i18next";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { FooterNav } from "@/components/layout/FooterNav";
 import { toast } from "sonner";
 import { useNewsletterSignup } from "@/hooks/useNewsletterSignup";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
@@ -182,7 +183,7 @@ function normalizeFooterLinkHref(
 export default function Footer() {
   const { data: footerSections } = useFooterMenu();
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const { subscribe, isSubmitting } = useNewsletterSignup("footer-newsletter");
 
@@ -304,10 +305,10 @@ export default function Footer() {
 
             <div className="mt-5 rounded-xl border border-border/70 bg-card/70 p-4">
               <p className="text-body-sm font-semibold text-foreground">
-                {t("newsletter.footerTitle", "Get the free Algarve Insider Guide")}
+                {t("newsletter.footerTitle", "Get Algarve news and updates")}
               </p>
               <p className="mt-1 text-body-xs text-muted-foreground">
-                {t("newsletter.footerSubtitle", "Monthly curated picks, events, and hidden gems.")}
+                {t("newsletter.footerSubtitle", "Curated local news, events, openings, and highlights from across the Algarve.")}
               </p>
               <form onSubmit={handleNewsletterSubmit} className="mt-3 flex gap-2">
                 <Label htmlFor="footer-newsletter-email" className="sr-only">
@@ -330,7 +331,7 @@ export default function Footer() {
                   className="h-10 px-4 whitespace-nowrap"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? t("newsletter.subscribing") : t("newsletter.footerCta", "Get It")}
+                  {isSubmitting ? t("newsletter.subscribing") : t("newsletter.footerCta", "Subscribe")}
                 </Button>
               </form>
             </div>
@@ -347,8 +348,12 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Dynamic Sections */}
-          {sections.map((section) => renderSection(section.title, section.titleKey, section.slug, section.links))}
+        {/* Dynamic Sections */}
+        {sections.map((section) => renderSection(section.title, section.titleKey, section.slug, section.links))}
+        </div>
+
+        <div className="pb-6">
+          <FooterNav />
         </div>
 
         {/* Bottom Bar */}

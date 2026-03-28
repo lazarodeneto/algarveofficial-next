@@ -1,13 +1,21 @@
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
+import { buildLocalizedPath } from '@/lib/i18n/routing';
+import { isValidLocale } from '@/lib/i18n/config';
+import { useLocale } from '@/lib/i18n/locale-context';
 
 export default function AuthCallback() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const locale = useLocale();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const requestedLocale = searchParams.get('locale');
+    const resolvedLocale = requestedLocale && isValidLocale(requestedLocale) ? requestedLocale : locale;
+
     const handleCallback = async () => {
       try {
         // Get the session from the URL hash (OAuth callback)
@@ -35,17 +43,17 @@ export default function AuthCallback() {
           switch (role) {
             case 'admin':
             case 'editor':
-              router.replace('/admin');
+              router.replace(buildLocalizedPath(resolvedLocale, '/admin'));
               break;
             case 'owner':
-              router.replace('/owner');
+              router.replace(buildLocalizedPath(resolvedLocale, '/owner'));
               break;
             default:
-              router.replace('/dashboard');
+              router.replace(buildLocalizedPath(resolvedLocale, '/dashboard'));
           }
         } else {
           // No session, redirect to login
-          router.replace('/login');
+          router.replace(buildLocalizedPath(resolvedLocale, '/login'));
         }
       } catch (err) {
         console.error('Unexpected error in auth callback:', err);
@@ -54,7 +62,7 @@ export default function AuthCallback() {
     };
 
     handleCallback();
-  }, [router]);
+  }, [locale, router, searchParams]);
 
   if (error) {
     return (
@@ -62,7 +70,11 @@ export default function AuthCallback() {
         <div className="text-center space-y-4">
           <p className="text-destructive">{error}</p>
           <button
-            onClick={() => router.push('/login')}
+            onClick={() => {
+              const requestedLocale = searchParams.get('locale');
+              const resolvedLocale = requestedLocale && isValidLocale(requestedLocale) ? requestedLocale : locale;
+              router.push(buildLocalizedPath(resolvedLocale, '/login'));
+            }}
             className="text-primary hover:underline"
           >
             Return to login

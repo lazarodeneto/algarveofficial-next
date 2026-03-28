@@ -3,12 +3,12 @@
 import { useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
-import Link from "next/link";
 import { usePublishedListings } from "@/hooks/useListings";
 import { useCities, useCategories } from "@/hooks/useReferenceData";
 import { MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ListingImage from "@/components/ListingImage";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import "leaflet/dist/leaflet.css";
 
@@ -192,11 +192,11 @@ export function DirectoryMapView({ filteredListingIds }: DirectoryMapViewProps) 
                     {listing.cityName}
                   </p>
                   <p className="text-xs text-muted-foreground">{listing.categoryName}</p>
-                  <Link href={`/listing/${listing.slug}`}>
+                  <LocaleLink href={`/listing/${listing.slug}`}>
                     <Button size="sm" className="w-full mt-2">
                       View Details
                     </Button>
-                  </Link>
+                  </LocaleLink>
                 </div>
               </div>
             </Popup>

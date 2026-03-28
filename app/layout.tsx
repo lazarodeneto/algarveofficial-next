@@ -1,23 +1,14 @@
 import type { Metadata } from "next";
-import { cookies, headers } from "next/headers";
 import Script from "next/script";
 import type { ReactNode } from "react";
 import { Inter, Playfair_Display } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import "../index.css";
-import { AppProviders } from "@/components/providers/AppProviders";
-import { PublicSiteFrame } from "@/components/layout/PublicSiteFrame";
-import { LocaleProvider } from "@/lib/i18n/locale-context";
+import { RootProviders } from "@/components/providers/RootProviders";
+import { DEFAULT_LOCALE, LOCALE_CONFIGS } from "@/lib/i18n/config";
 import { buildMetadata } from "@/lib/metadata";
 import { buildOrganizationSchema, buildWebsiteSchema } from "@/lib/seo/schemaBuilders.js";
-import { CookieConsentBannerWrapper } from "@/components/gdpr/CookieConsentBannerWrapper";
-import {
-  LOCALE_CONFIGS,
-  getLocaleFromPathname,
-  isValidLocale,
-  type Locale,
-} from "@/lib/i18n/config";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -38,6 +29,10 @@ const fontVariables = `${playfair.variable} ${inter.variable}`;
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim()?.replace(/\/+$/, "") || "https://algarveofficial.com";
 const organizationSchema = buildOrganizationSchema(siteUrl);
 const websiteSchema = buildWebsiteSchema(siteUrl);
+const defaultHtmlLang = LOCALE_CONFIGS[DEFAULT_LOCALE].hreflang;
+const localeHtmlLangMap = Object.fromEntries(
+  Object.entries(LOCALE_CONFIGS).map(([locale, config]) => [locale, config.hreflang]),
+);
 const themeInitScript = `
   (() => {
     try {
@@ -49,6 +44,19 @@ const themeInitScript = `
 
       document.documentElement.classList.remove('dark', 'light');
       document.documentElement.classList.add(resolvedTheme);
+    } catch {}
+  })();
+`;
+const localeInitScript = `
+  (() => {
+    try {
+      const localeMap = ${JSON.stringify(localeHtmlLangMap)};
+      const segments = window.location.pathname.split('/').filter(Boolean);
+      const routeLocale = segments[0]?.toLowerCase();
+      const resolvedLocale = localeMap[routeLocale] ? routeLocale : ${JSON.stringify(DEFAULT_LOCALE)};
+
+      document.documentElement.lang = localeMap[resolvedLocale] || ${JSON.stringify(defaultHtmlLang)};
+      document.documentElement.dataset.locale = resolvedLocale;
     } catch {}
   })();
 `;
@@ -67,24 +75,9 @@ interface RootLayoutProps {
   children: ReactNode;
 }
 
-export default async function RootLayout({ children }: RootLayoutProps) {
-  const cookieStore = await cookies();
-  const headersList = await headers();
-
-  // Locale detection priority: URL path > middleware header > cookie > default
-  const headerLocale = headersList.get("x-locale");
-  const cookieLocale = cookieStore.get("NEXT_LOCALE")?.value;
-  const urlLocale = headerLocale && isValidLocale(headerLocale) ? headerLocale : null;
-  const resolvedLocale: Locale = (
-    urlLocale ??
-    (cookieLocale && isValidLocale(cookieLocale) ? cookieLocale : null) ??
-    "en"
-  ) as Locale;
-  const localeConfig = LOCALE_CONFIGS[resolvedLocale] ?? LOCALE_CONFIGS.en;
-  const htmlLang = localeConfig?.hreflang ?? "en-GB";
-
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang={htmlLang} className={fontVariables} suppressHydrationWarning>
+    <html lang={defaultHtmlLang} suppressHydrationWarning className={fontVariables}>
       <body className={fontVariables}>
         <script
           type="application/ld+json"
@@ -97,12 +90,10 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         <Script id="theme-init" strategy="beforeInteractive">
           {themeInitScript}
         </Script>
-        <LocaleProvider locale={resolvedLocale}>
-          <AppProviders locale={resolvedLocale}>
-            <PublicSiteFrame>{children}</PublicSiteFrame>
-            <CookieConsentBannerWrapper />
-          </AppProviders>
-        </LocaleProvider>
+        <Script id="locale-init" strategy="beforeInteractive">
+          {localeInitScript}
+        </Script>
+        <RootProviders>{children}</RootProviders>
         <SpeedInsights />
       </body>
     </html>

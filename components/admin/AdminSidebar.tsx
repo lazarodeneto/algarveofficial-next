@@ -42,6 +42,7 @@ import { useUnreadMessagesCount } from "@/hooks/useUnreadMessagesCount";
 import { usePendingClaimsCount } from "@/hooks/useListingClaims";
 import { useTranslationQueueCount } from "@/hooks/useTranslationQueueCount";
 import { usePendingListingReviewCount } from "@/hooks/useListingReviews";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { useTranslation } from "react-i18next";
 
 interface AdminSidebarProps {
@@ -51,6 +52,7 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
   const { t } = useTranslation();
+  const l = useLocalePath();
 
   const { data: pendingCount = 0 } = usePendingReviewCount();
   const { data: pendingEventsCount = 0 } = usePendingEventsCount();
@@ -254,15 +256,28 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
     },
   ];
 
+  const localizeItems = (items: SidebarNavItem[]): SidebarNavItem[] =>
+    items.map((item) => ({
+      ...item,
+      href: item.href ? l(item.href) : undefined,
+      children: item.children ? localizeItems(item.children) : undefined,
+    }));
+
+  const localizedSections = sections.map((section) => ({
+    ...section,
+    items: localizeItems(section.items),
+  }));
+
   return (
     <ExpandableSidebar
       collapsed={collapsed}
       onToggle={onToggle}
       density="compact"
-      logo={<BrandLogo size="sm" showIcon={collapsed} showText={!collapsed} className="gap-2" />}
+      logo={<BrandLogo size="sm" showIcon={collapsed} showText className="gap-2" />}
+      desktopBreakpoint="xl"
       sectionVariant="cards"
       childIndentStyle="soft"
-      sections={sections}
+      sections={localizedSections}
       footerText={
         collapsed ? undefined : `${t("admin.footer")} · ${actionCenterCount} ${t("admin.sidebar.actionCenter", "Action Center").toLowerCase()}`
       }

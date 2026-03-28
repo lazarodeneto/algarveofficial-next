@@ -7,6 +7,10 @@
     "cities": "Städte",
     "directory": "Verzeichnis",
     "blog": "Blog",
+    "about": "Über uns",
+    "privacy": "Datenschutzrichtlinie",
+    "cookies": "Cookie-Richtlinie",
+    "terms": "Nutzungsbedingungen",
     "login": "Anmelden / Registrieren",
     "signOut": "Abmelden",
     "myDashboard": "Mein Dashboard",
@@ -16,7 +20,39 @@
     "live": "Leben",
     "invest": "Investieren",
     "myTrip": "Meine Reise",
-    "account": "Mein Konto"
+    "account": "Mein Konto",
+    "map": "Karte",
+    "contact": "Kontakt",
+    "saved": "Favoriten",
+    "search": "Suchen",
+    "discover": "Entdecken",
+    "yourSpace": "Ihr Bereich",
+    "openMenu": "Menü öffnen",
+    "closeMenu": "Menü schließen",
+    "mobilePrimary": "Hauptnavigation"
+  },
+  "menu": {
+    "visit": "Besuchen",
+    "live": "Leben",
+    "invest": "Investieren",
+    "browseCategories": "Kategorien durchsuchen",
+    "hero": {
+      "visit": {
+        "title": "Die Algarve besuchen",
+        "desc": "Weltklasse-Erlebnisse an Europas schönster Küste.",
+        "label": "Alles erkunden"
+      },
+      "live": {
+        "title": "In der Algarve leben",
+        "desc": "Alles, was Sie brauchen, um die Algarve zu Ihrer ständigen Residenz zu machen.",
+        "label": "Mehr erfahren"
+      },
+      "invest": {
+        "title": "In der Algarve investieren",
+        "desc": "Sichern Sie sich Ihr Stück Paradies und schaffen Sie dauerhaften Wert.",
+        "label": "Strategie erkunden"
+      }
+    }
   },
   "hero": {
     "location": "Bezirk Faro, Portugal",
@@ -34,7 +70,29 @@
     "tagPrivateAviation": "Privatfliegerei",
     "aiPlannerPlaceholder": "KI-Algarve-Planer... (z.B. 'Plane 3 Tage im Algarve')",
     "aiPlannerButton": "KI-PLANER",
-    "listYourBusiness": "Ihr Unternehmen Eintragen"
+    "listYourBusiness": "Ihr Unternehmen Eintragen",
+    "planTripCta": "Planen Sie Ihre Reise",
+    "loginRequired": "Melden Sie sich an oder erstellen Sie ein Konto, um eine Reise zu erstellen und zu speichern.",
+    "tripCreated": "Reise erfolgreich erstellt.",
+    "trust": {
+      "subtitle": "Sichtbarer sozialer Beweis aus echten Angeboten, echtem Bewertungsvolumen und kuratierten Veranstaltungsnamen beim ersten Eindruck.",
+      "defaultVenue": "AlgarveOfficial-Auswahl",
+      "fallbackWordmarkStay": "Premium-Unterkünfte",
+      "fallbackWordmarkDining": "Fine Dining",
+      "fallbackWordmarkGolf": "Golf",
+      "fallbackWordmarkLiving": "Lebensstil",
+      "coverageLabel": "ausgewählte Angebote",
+      "signatureFallbackValue": "ausgewählt",
+      "signatureLabel": "Signature-Veranstaltungsorte",
+      "partnersLabel": "Featured Partner",
+      "eyebrow": "Vertrauensbeweis",
+      "title": "Beweis, dass die Auswahl Ihre Zeit wert ist",
+      "reviewEyebrow": "Besucherbewertung",
+      "approvedReview": "Genehmigte Bewertung",
+      "anonymousVisitor": "Verifizierter Besucher",
+      "fallbackQuote": "Ein schärferer erster Eindruck kommt von sichtbarem Beweis: echten Bewertungen, echten Veranstaltungsorten und einer Auswahl, die bereits vor dem ersten Klick vertrauenswürdig wirkt.",
+      "fallbackSource": "Kuratiert bei Signature-Unterkünften, Gastronomie, Golf und Lifestyle-Partnern"
+    }
   },
   "sections": {
     "regions": {
@@ -91,10 +149,10 @@
       "stats": "Über {{count}}+ ausgewählte Angebote an der Algarve"
     },
     "curated": {
-      "badge": "Signature Auswahl",
-      "title": "Signature Auswahl",
-      "subtitle": "Handverlesene Signature-Immobilien und Erlebnisse, ausgewählt für anspruchsvolle Gäste, die das Außergewöhnliche suchen.",
-      "viewDetails": "Details anzeigen"
+      "badge": "Signature-Auswahl",
+      "title": "Signature-Auswahl",
+      "subtitle": "Sorgfältig ausgewählte Signature-Immobilien und Erlebnisse, ausgewählt für anspruchsvolle Gäste, die das Außergewöhnliche suchen.",
+      "viewDetails": "Details ansehen"
     },
     "vip": {
       "title": "Signature Auswahl",
@@ -111,7 +169,44 @@
       "noUpcomingHint": "Schauen Sie bald wieder vorbei für neue Events und Veranstaltungen in der Algarve.",
       "pastEvents": "Vergangene Veranstaltungen",
       "showPast": "Vergangene anzeigen"
+    },
+    "algarveGuide": {
+      "title": "Ihr essentieller Algarve-Reiseführer",
+      "intro1": "Eine Premium-Reise an die Algarve funktioniert am besten, wenn Ihre Unterkunft, Gastronomie und Tagesplanungen vor Ihrer Ankunft vorgefiltert sind.",
+      "intro2": "Dieser Leitfaden verbindet die wichtigsten Entscheidungen, die Besucher normalerweise zuerst treffen: wo übernachten, welche Ziele priorisieren und welche Erlebnisse Zeit vor Ort wert sind.",
+      "intro3": "Nutzen Sie es als schnellen Ausgangspunkt und springen Sie dann ins Verzeichnis, auf Zielseiten oder in die Karte, um eine schärfere Auswahl zu erstellen.",
+      "and": "und",
+      "stayTitle": "Wo übernachten",
+      "stayBody": "Beginnen Sie mit der richtigen Basis für Ihre Reise.",
+      "stayLinksPrefix": "Durchsuchen Sie Premium",
+      "links": {
+        "algarveHotels": "Algarve-Hotels",
+        "placesToStay": "Übernachtungsorte",
+        "destinations": "Ziele",
+        "beaches": "Strände",
+        "interactiveMap": "die interaktive Karte",
+        "golf": "Golf",
+        "restaurants": "Restaurants",
+        "thingsToDo": "Aktivitäten",
+        "events": "Veranstaltungen"
+      },
+      "destinationsTitle": "Wohin gehen",
+      "destinationsBody": "Vergleichen Sie die Algarve nach Region, bevor Sie Ihren Plan sperren.",
+      "destinationsLinksPrefix": "Erkunden Sie",
+      "doTitle": "Was zu tun ist",
+      "doBody": "Gleichen Sie die Auswahl mit Erlebnissen ab, die Ihrem Tempo entsprechen.",
+      "doLinksPrefix": "Springen Sie zu"
     }
+  },
+  "map": {
+    "title": "Karten-Explorer",
+    "subtitle": "Gebündelte Kategoriemarker mit sofortiger Filterung in der gesamten Algarve.",
+    "description": "Entdecken Sie Algarve-Einträge auf einer interaktiven Karte mit gebündelten Markern und sofortiger Filterung.",
+    "visibleOnMap": "Auf der Karte sichtbar",
+    "mappableListings": "{{count}} kartierbare Einträge",
+    "totalResults": "{{count}} Ergebnisse entsprechen Ihren Filtern",
+    "noMappedListings": "Für diese Filter gibt es keine kartierten Einträge.",
+    "emptyCoordinates": "Für die ausgewählten Filter sind keine Eintragskoordinaten verfügbar."
   },
   "newsletter": {
     "title": "Exklusiver Zugang zur",
@@ -128,7 +223,10 @@
     "errorGeneric": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
     "alreadySubscribed": "Sie sind bereits für unseren Newsletter angemeldet!",
     "welcomeMessage": "Willkommen bei AlgarveOfficial! Prüfen Sie bald Ihren Posteingang.",
-    "errorRateLimit": "Zu viele Versuche. Bitte versuchen Sie es später erneut."
+    "errorRateLimit": "Zu viele Versuche. Bitte versuchen Sie es später erneut.",
+    "footerTitle": "Erhalten Sie Nachrichten und Updates aus der Algarve",
+    "footerSubtitle": "Kuratierte lokale Nachrichten, Events, Neueröffnungen und Highlights aus der ganzen Algarve.",
+    "footerCta": "Abonnieren"
   },
   "cookie": {
     "title": "Ihre Privatsphäre ist wichtig",
@@ -137,7 +235,19 @@
     "decline": "Ablehnen",
     "accept": "Analyse akzeptieren",
     "gdprBadge": "DSGVO-konform",
-    "dataRetention": "Daten werden 90 Tage aufbewahrt"
+    "dataRetention": "Daten werden 90 Tage aufbewahrt",
+    "acceptAll": "Alle akzeptieren",
+    "denyAll": "Alles ablehnen",
+    "saveSettings": "Einstellungen speichern",
+    "savePreferences": "Präferenzen speichern",
+    "optionalCategories": "Optionale Kategorien bleiben deaktiviert, bis Sie sie aktivieren",
+    "essential": "Essenziell",
+    "functional": "Funktional",
+    "analytics": "Analysen",
+    "marketing": "Marketing",
+    "details": "Details",
+    "preferencesTitle": "Cookie-Einstellungen",
+    "closePreferences": "Cookie-Einstellungen schließen"
   },
   "auth": {
     "backToHome": "Zurück zur Startseite",
@@ -388,7 +498,9 @@
     "curated": "Kuratiert",
     "avgRating": "Ø Bewertung",
     "inOtherCities": "in anderen Städten der Algarve",
-    "moreToExploreIn": "Mehr entdecken in"
+    "moreToExploreIn": "Mehr entdecken in",
+    "language": "Sprache",
+    "theme": "Thema"
   },
   "search": {
     "placeholder": "Suche nach Einträgen, Kategorien, Städten, Regionen...",
@@ -430,7 +542,8 @@
     "privacyPolicy": "Datenschutzrichtlinie",
     "termsOfService": "Nutzungsbedingungen",
     "cookiePolicy": "Cookie-Richtlinie",
-    "pricing": "Partner-Preise"
+    "pricing": "Partner-Preise",
+    "cookieSettings": "Cookie-Einstellungen"
   },
   "blog": {
     "title": "Blog & Einblicke",
@@ -1591,6 +1704,9 @@
     "fine-dining": "Gastronomie",
     "golf": "Golf & Turniere",
     "beaches-clubs": "Strände & Beach Clubs",
+    "places-to-stay": "Unterkünfte",
+    "things-to-do": "Aktivitäten",
+    "whats-on": "Was Los Ist",
     "wellness-spas": "Wellness & Spas",
     "private-chefs": "Gastronomie",
     "vip-concierge": "Algarve-Services",

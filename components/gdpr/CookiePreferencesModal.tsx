@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import type { CookiePreferenceDraft } from "@/lib/cookieConsent";
 
 interface CookiePreferencesModalProps {
@@ -7,6 +8,7 @@ interface CookiePreferencesModalProps {
   cookieUrl: string;
   preferences: CookiePreferenceDraft;
   saveDisabled: boolean;
+  showEnglishDescriptions: boolean;
   onClose: () => void;
   onPreferencesChange: (next: CookiePreferenceDraft) => void;
   onAcceptAll: () => void;
@@ -41,7 +43,9 @@ function PreferenceSwitch({
           <label htmlFor={id} className="text-sm font-semibold text-zinc-900">
             {label}
           </label>
-          <p className="text-sm leading-relaxed text-zinc-600">{description}</p>
+          {description ? (
+            <p className="text-sm leading-relaxed text-zinc-600">{description}</p>
+          ) : null}
         </div>
 
         <label htmlFor={id} className="relative inline-flex cursor-pointer items-center">
@@ -67,12 +71,14 @@ export function CookiePreferencesModal({
   cookieUrl,
   preferences,
   saveDisabled,
+  showEnglishDescriptions,
   onClose,
   onPreferencesChange,
   onAcceptAll,
   onDenyAll,
   onSave,
 }: CookiePreferencesModalProps) {
+  const { t } = useTranslation();
   const dialogRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const descriptionId = useId();
@@ -154,18 +160,17 @@ export function CookiePreferencesModal({
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
             <h2 id={titleId} className="text-2xl font-semibold text-zinc-900">
-              Cookie Preferences
+              {t("cookie.preferencesTitle", t("cookie.title"))}
             </h2>
             <p id={descriptionId} className="mt-2 text-sm text-zinc-600">
-              Choose which optional technologies you allow. Essential cookies remain enabled to keep
-              core site functionality running, and you can return here at any time to withdraw consent.
+              {t("cookie.description")}
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-3 text-sm font-medium text-zinc-700">
               <a href={privacyUrl} className="underline-offset-4 hover:underline">
-                Privacy Policy
+                {t("footer.privacyPolicy")}
               </a>
               <a href={cookieUrl} className="underline-offset-4 hover:underline">
-                Cookie Policy
+                {t("footer.cookiePolicy")}
               </a>
             </div>
           </div>
@@ -173,7 +178,7 @@ export function CookiePreferencesModal({
             type="button"
             onClick={onClose}
             className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-300 text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900"
-            aria-label="Close cookie preferences"
+            aria-label={t("cookie.closePreferences")}
           >
             <span aria-hidden>×</span>
           </button>
@@ -182,15 +187,23 @@ export function CookiePreferencesModal({
         <div className="space-y-3">
           <PreferenceSwitch
             id="modal-essential"
-            label="Essential"
-            description="Required for security, authentication, and core website functionality."
+            label={t("cookie.essential")}
+            description={
+              showEnglishDescriptions
+                ? "Required for security, authentication, and core website functionality."
+                : ""
+            }
             checked
             disabled
           />
           <PreferenceSwitch
             id="modal-functional"
-            label="Functional"
-            description="Enables embedded media and convenience features such as richer interactive experiences."
+            label={t("cookie.functional")}
+            description={
+              showEnglishDescriptions
+                ? "Enables embedded media and convenience features such as richer interactive experiences."
+                : ""
+            }
             checked={preferences.functional}
             onChange={(checked) =>
               onPreferencesChange({
@@ -201,8 +214,12 @@ export function CookiePreferencesModal({
           />
           <PreferenceSwitch
             id="modal-analytics"
-            label="Analytics"
-            description="Measures visits, page views, and site performance so we can improve the experience."
+            label={t("cookie.analytics")}
+            description={
+              showEnglishDescriptions
+                ? "Measures visits, page views, and site performance so we can improve the experience."
+                : ""
+            }
             checked={preferences.analytics}
             onChange={(checked) =>
               onPreferencesChange({
@@ -213,8 +230,12 @@ export function CookiePreferencesModal({
           />
           <PreferenceSwitch
             id="modal-marketing"
-            label="Marketing"
-            description="Controls marketing prompts, campaign measurement, and related promotional technologies."
+            label={t("cookie.marketing")}
+            description={
+              showEnglishDescriptions
+                ? "Controls marketing prompts, campaign measurement, and related promotional technologies."
+                : ""
+            }
             checked={preferences.marketing}
             onChange={(checked) =>
               onPreferencesChange({
@@ -231,14 +252,14 @@ export function CookiePreferencesModal({
             onClick={onDenyAll}
             className="h-12 rounded-xl border border-zinc-300 bg-white px-4 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900"
           >
-            Deny All
+            {t("cookie.denyAll", t("cookie.decline"))}
           </button>
           <button
             type="button"
             onClick={onAcceptAll}
             className="h-12 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
           >
-            Accept All
+            {t("cookie.acceptAll", t("cookie.accept"))}
           </button>
           <button
             type="button"
@@ -246,7 +267,7 @@ export function CookiePreferencesModal({
             disabled={saveDisabled}
             className="col-span-2 h-12 rounded-xl border border-zinc-300 bg-zinc-200 px-4 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-300 disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
           >
-            Save Preferences
+            {t("cookie.savePreferences", t("cookie.saveSettings"))}
           </button>
         </div>
       </div>

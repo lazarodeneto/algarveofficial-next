@@ -4,7 +4,7 @@ import { ItemListJsonLd } from "@/components/seo/JsonLd";
 import { useFeaturedCategories, useFeaturedRegions } from "@/hooks/useReferenceData";
 import { buildMergedCategoryOptions } from "@/lib/categoryMerges";
 import { translateCategoryName } from "@/lib/translateCategory";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 const SITE_URL = "https://algarveofficial.com";
 
@@ -14,7 +14,7 @@ function absoluteUrl(path: string) {
 
 export function HomepageItemListsJsonLd() {
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const { data: featuredCategories = [] } = useFeaturedCategories();
   const { data: featuredRegions = [] } = useFeaturedRegions();
 

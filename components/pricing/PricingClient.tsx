@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Check, X, Sparkles, ShieldCheck, Crown, ArrowRight, Calculator } from "lucide-react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +28,7 @@ interface PricingTier {
 
 export function PricingClient() {
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
 
   const [monthlyVisitors, setMonthlyVisitors] = useState(5000);
   const [conversionRate, setConversionRate] = useState(2);

@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { UserSidebar } from "@/components/user/UserSidebar";
 import { UserHeader } from "@/components/user/UserHeader";
-import { SeoHead } from "@/components/seo/SeoHead";
 
 interface UserLayoutProps {
   children?: ReactNode;
@@ -12,7 +11,6 @@ export function UserLayout({ children }: UserLayoutProps) {
 
   return (
     <div className="min-h-screen overflow-hidden bg-background flex w-full">
-      <SeoHead noIndex noFollow />
       <UserSidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}

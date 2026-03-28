@@ -5,8 +5,7 @@ import { useEffect, useMemo } from "react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import Link from "next/link";
-import { LocalizedLink } from "@/components/navigation/LocalizedLink";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, ArrowRight, MapPin, Loader2, Crown } from "lucide-react";
 
@@ -579,13 +578,13 @@ function CityDetailClientInner({
           <p className="text-body text-muted-foreground mb-8">
             {cms.getText("notFound.description", "The city you're looking for doesn't exist.")}
           </p>
-          <LocalizedLink
+          <LocaleLink
             href="/"
             className="inline-flex items-center gap-2 text-primary hover:underline"
           >
             <ArrowLeft className="w-4 h-4" />
             {cms.getText("notFound.back", "Back to Home")}
-          </LocalizedLink>
+          </LocaleLink>
         </div>
         <Footer />
       </div>
@@ -628,13 +627,13 @@ function CityDetailClientInner({
               transition={{ duration: 0.6 }}
               className="mb-8 flex items-center justify-between"
             >
-              <LocalizedLink
+              <LocaleLink
                 href="/#cities"
                 className="inline-flex items-center gap-2 text-sm text-white/75 hover:text-white transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 {cms.getText("hero.backToCities", "Back to Cities")}
-              </LocalizedLink>
+              </LocaleLink>
 
               <FavoriteButton
                 isFavorite={city.slug ? isDestinationSaved("city", city.slug) : false}
@@ -690,7 +689,7 @@ function CityDetailClientInner({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
               >
-                <Link
+                <LocaleLink
                   href={`/destinations/${cityRegion.slug}`}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/25 backdrop-blur-sm border border-white/20 text-sm text-white hover:bg-black/35 transition-colors"
                 >
@@ -699,7 +698,7 @@ function CityDetailClientInner({
                     .getText("hero.regionTag", "Part of {{region}}")
                     .replace("{{region}}", cityRegion.name)}
                   <ArrowRight className="w-3 h-3" />
-                </Link>
+                </LocaleLink>
               </motion.div>
             ) : null}
           </div>
@@ -754,7 +753,7 @@ function CityDetailClientInner({
                     transition={{ duration: 0.4, delay: index * 0.05 }}
                     className="h-full"
                   >
-                    <Link href={`/listing/${listing.slug}`} className="group block h-full">
+                    <LocaleLink href={`/listing/${listing.slug}`} className="group block h-full">
                       <article className="luxury-card overflow-hidden flex flex-col h-full hoverable">
                         {listing.tier === "signature" ? (
                           <span
@@ -816,7 +815,7 @@ function CityDetailClientInner({
                           </div>
                         </div>
                       </article>
-                    </Link>
+                    </LocaleLink>
                   </motion.div>
                 ))}
               </div>
@@ -832,13 +831,13 @@ function CityDetailClientInner({
                     "We're selecting the finest experiences for this city.",
                   )}
                 </p>
-                <LocalizedLink
+                <LocaleLink
                   href="/"
                   className="inline-flex items-center gap-2 text-primary hover:underline"
                 >
                   {cms.getText("listings.emptyCta", "Explore All Listings")}
                   <ArrowRight className="w-4 h-4" />
-                </LocalizedLink>
+                </LocaleLink>
               </div>
             )}
           </div>
@@ -865,13 +864,13 @@ function CityDetailClientInner({
               <p className="text-body text-muted-foreground mb-8 readable mx-auto">
                 {cms.getText("faq.description", "Discover other vibrant cities across the Algarve")}
               </p>
-              <LocalizedLink
+              <LocaleLink
                 href="/#cities"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors tap-target"
               >
                 {cms.getText("faq.cta", "View All Cities")}
                 <ArrowRight className="w-4 h-4" />
-              </LocalizedLink>
+              </LocaleLink>
             </motion.div>
           </div>
         </CityDetailCmsBlock>

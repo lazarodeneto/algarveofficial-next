@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -11,8 +11,7 @@ import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
-import { getSessionId } from "@/lib/sessionId";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export type BlogPostAuthor = Pick<Tables<"public_profiles">, "id" | "full_name" | "avatar_url">;
 export type BlogPostRecord = Pick<
@@ -112,7 +111,7 @@ async function fetchBlogPost(slug: string, locale: string): Promise<BlogPostWith
 
 function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClientProps) {
   const { t, i18n } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const locale = normalizeBlogLocale(i18n.language);
   const seededPost = useMemo(
     () => mergePostWithAuthor(initialPost, initialAuthor),
@@ -125,19 +124,6 @@ function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClient
     initialData: locale === "en" ? seededPost : undefined,
     staleTime: 1000 * 60 * 10,
   });
-
-  useEffect(() => {
-    const sessionId = getSessionId();
-    void fetch(`/api/blog/${initialPost.slug}/view`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ sessionId }),
-    }).catch(() => {
-      // View tracking should never block article interaction.
-    });
-  }, [initialPost.slug]);
 
   const handleShare = (platform: "facebook" | "twitter" | "linkedin" | "copy") => {
     const url = window.location.href;

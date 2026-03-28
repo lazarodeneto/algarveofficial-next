@@ -7,6 +7,10 @@
     "cities": "Byer",
     "directory": "Vejviser",
     "blog": "Blog",
+    "about": "Om os",
+    "privacy": "Privatlivspolitik",
+    "cookies": "Cookiepolitik",
+    "terms": "Servicevilkår",
     "login": "Log ind / Tilmeld dig",
     "signOut": "Log ud",
     "myDashboard": "Mit Dashboard",
@@ -16,7 +20,39 @@
     "live": "Levende",
     "invest": "Investere",
     "myTrip": "Min tur",
-    "account": "Konto"
+    "account": "Konto",
+    "map": "Kort",
+    "contact": "Kontakt",
+    "saved": "Favoritter",
+    "search": "Søg",
+    "discover": "Udforsk",
+    "yourSpace": "Dit Område",
+    "openMenu": "Åbn menu",
+    "closeMenu": "Luk menu",
+    "mobilePrimary": "Primær navigation"
+  },
+  "menu": {
+    "visit": "Besøg",
+    "live": "Lev",
+    "invest": "Investere",
+    "browseCategories": "Udforsk Kategorier",
+    "hero": {
+      "visit": {
+        "title": "Besøg Algarve",
+        "desc": "Verdensklasse oplevelser langs Europas smukkeste kystlinje.",
+        "label": "Udforsk alt"
+      },
+      "live": {
+        "title": "Lev i Algarve",
+        "desc": "Alt hvad du har brug for for at gøre Algarve til dit permanente hjem.",
+        "label": "Lær mere"
+      },
+      "invest": {
+        "title": "Investere i Algarve",
+        "desc": "Sikre dit stykke paradis og opbyg varig værdi.",
+        "label": "Udforsk strategi"
+      }
+    }
   },
   "hero": {
     "location": "Distriktet Faro, Portugal",
@@ -34,7 +70,29 @@
     "tagPrivateAviation": "Privat luftfart",
     "aiPlannerPlaceholder": "AI Algarve-planlægger... (f.eks. 'Planlæg 3 dage i Algarve')",
     "aiPlannerButton": "AI-PLANLÆGGER",
-    "listYourBusiness": "Tilføj Din Virksomhed"
+    "listYourBusiness": "Tilføj Din Virksomhed",
+    "planTripCta": "Planlæg dit rejseeventyr",
+    "loginRequired": "Log ind eller opret en konto for at oprette og gemme din tur.",
+    "tripCreated": "Tur oprettet med succes.",
+    "trust": {
+      "subtitle": "Synlig social bevis fra rigtige annoncer, reelt anmeldelsesvolumen og kuraterede venunavne på tidspunktet for første indtryk.",
+      "defaultVenue": "AlgarveOfficial-udvalg",
+      "fallbackWordmarkStay": "Premium overnatninger",
+      "fallbackWordmarkDining": "Fine dining",
+      "fallbackWordmarkGolf": "Golf",
+      "fallbackWordmarkLiving": "Livsstil",
+      "coverageLabel": "udvalgte annoncer",
+      "signatureFallbackValue": "udvalgt",
+      "signatureLabel": "signaturvenue",
+      "partnersLabel": "fremhævede partnere",
+      "eyebrow": "Tillidsbevis",
+      "title": "Bevis på, at udvælgelsen er værd din tid",
+      "reviewEyebrow": "Besøgende anmeldelse",
+      "approvedReview": "Godkendt anmeldelse",
+      "anonymousVisitor": "Bekræftet besøgende",
+      "fallbackQuote": "Et skarpere første indtryk kommer fra synligt bevis: rigtige vurderinger, rigtige venue og et udvalg der allerede føles pålidelig før det første klik.",
+      "fallbackSource": "Kurateret blandt signaturovernatninger, gastronomi, golf og livsstilspartnere"
+    }
   },
   "sections": {
     "regions": {
@@ -91,9 +149,9 @@
       "stats": "Over {{count}}+ udvalgte fortegnelser på tværs af Algarve"
     },
     "curated": {
-      "badge": "Signaturvalg",
-      "title": "Signaturvalg",
-      "subtitle": "Håndudvalgte signaturejendomme og oplevelser, valgt til kræsne gæster, der søger det ekstraordinære.",
+      "badge": "Signaturudvalg",
+      "title": "Signaturudvalg",
+      "subtitle": "Omhyggeligt udvalgte signaturegenskaber og oplevelser, valgt til kræsne gæster der søger det usædvanlige.",
       "viewDetails": "Se detaljer"
     },
     "vip": {
@@ -111,7 +169,44 @@
       "noUpcomingHint": "Kom snart tilbage for nye begivenheder og begivenheder i Algarve.",
       "pastEvents": "Tidligere begivenheder",
       "showPast": "Vis tidligere begivenheder"
+    },
+    "algarveGuide": {
+      "title": "Din væsentlige Algarveguide",
+      "intro1": "En premium Algarve-tur fungerer bedst, når dit ophold, gastronomi og dagsplaner er forudvalgt før du ankommer.",
+      "intro2": "Denne guide forbinder de vigtigste beslutninger, som besøgende normalt træffer først: hvor du skal bo, hvilke destinationer du skal prioritere og hvilke oplevelser der er værd at tilbringe tid på stedet.",
+      "intro3": "Brug det som et hurtigt startpunkt, og hopp derefter til katalogen, destinationssider eller kortet for at bygge et skarpere udvalg.",
+      "and": "og",
+      "stayTitle": "Hvor skal du bo",
+      "stayBody": "Start med det rette grundlag for din tur.",
+      "stayLinksPrefix": "Gennemse premium",
+      "links": {
+        "algarveHotels": "Algarve-hoteller",
+        "placesToStay": "steder at bo",
+        "destinations": "destinationer",
+        "beaches": "strande",
+        "interactiveMap": "det interaktive kort",
+        "golf": "golf",
+        "restaurants": "restauranter",
+        "thingsToDo": "ting at lave",
+        "events": "begivenheder"
+      },
+      "destinationsTitle": "Hvor skal du gå",
+      "destinationsBody": "Sammenlign Algarve efter region før du låser din plan.",
+      "destinationsLinksPrefix": "Udforsk",
+      "doTitle": "Hvad du skal lave",
+      "doBody": "Balanser udvalget med oplevelser der passer dit tempo.",
+      "doLinksPrefix": "Spring til"
     }
+  },
+  "map": {
+    "title": "Kortudforsker",
+    "subtitle": "Klyngede kategorimarkører med øjeblikkelig filtrering i hele Algarve.",
+    "description": "Udforsk Algarve-opslag på et interaktivt kort med klyngede markører og øjeblikkelig filtrering.",
+    "visibleOnMap": "Synlig på kortet",
+    "mappableListings": "{{count}} kortbare opslag",
+    "totalResults": "{{count}} resultater matcher dine filtre",
+    "noMappedListings": "Ingen kortlagte opslag for disse filtre.",
+    "emptyCoordinates": "Ingen koordinater for opslag er tilgængelige for de valgte filtre."
   },
   "newsletter": {
     "title": "Insideradgang til",
@@ -128,7 +223,10 @@
     "errorGeneric": "Noget gik galt. Prøv venligst igen.",
     "alreadySubscribed": "Du er allerede tilmeldt vores nyhedsbrev!",
     "welcomeMessage": "Velkommen til AlgarveOfficial! Tjek din indbakke snart.",
-    "errorRateLimit": "For mange forsøg. Prøv venligst igen senere."
+    "errorRateLimit": "For mange forsøg. Prøv venligst igen senere.",
+    "footerTitle": "Få nyheder og opdateringer fra Algarve",
+    "footerSubtitle": "Udvalgte lokale nyheder, events, nyåbninger og højdepunkter fra hele Algarve.",
+    "footerCta": "Abonner"
   },
   "cookie": {
     "title": "Dit privatliv er vigtigt",
@@ -137,7 +235,19 @@
     "decline": "Nedgang",
     "accept": "Accepter Analytics",
     "gdprBadge": "GDPR-kompatibel",
-    "dataRetention": "Data opbevares i 90 dage"
+    "dataRetention": "Data opbevares i 90 dage",
+    "acceptAll": "Accepter alle",
+    "denyAll": "Afvis alle",
+    "saveSettings": "Gem indstillinger",
+    "savePreferences": "Gem præferencer",
+    "optionalCategories": "Valgfrie kategorier forbliver slået fra, indtil du aktiverer dem",
+    "essential": "Nødvendige",
+    "functional": "Funktionelle",
+    "analytics": "Analyse",
+    "marketing": "Markedsføring",
+    "details": "Detaljer",
+    "preferencesTitle": "Cookieindstillinger",
+    "closePreferences": "Luk cookieindstillinger"
   },
   "auth": {
     "backToHome": "Tilbage til hjemmet",
@@ -388,7 +498,9 @@
     "curated": "Udvalgt",
     "avgRating": "gennemsnitlig bedømmelse",
     "inOtherCities": "i andre byer på Algarve",
-    "moreToExploreIn": "Mere at udforske i"
+    "moreToExploreIn": "Mere at udforske i",
+    "language": "Sprog",
+    "theme": "Tema"
   },
   "search": {
     "placeholder": "Søg fortegnelser, kategorier, byer, regioner...",
@@ -430,7 +542,8 @@
     "privacyPolicy": "Privatlivspolitik",
     "termsOfService": "Servicevilkår",
     "cookiePolicy": "Cookiepolitik",
-    "pricing": "Partnerpriser"
+    "pricing": "Partnerpriser",
+    "cookieSettings": "Cookie-indstillinger"
   },
   "blog": {
     "title": "Blog & Indsigt",
@@ -1590,6 +1703,9 @@
     "fine-dining": "Gastronomi",
     "golf": "Golf og turneringer",
     "beaches-clubs": "Strande og strandklubber",
+    "places-to-stay": "Steder at Bo",
+    "things-to-do": "Ting at Lave",
+    "whats-on": "Hvad Sker",
     "wellness-spas": "Wellness & Spas",
     "private-chefs": "Gastronomi",
     "vip-concierge": "Algarve-tjenester",

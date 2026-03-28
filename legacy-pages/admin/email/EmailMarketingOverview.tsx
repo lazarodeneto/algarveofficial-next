@@ -5,10 +5,12 @@ import { useEmailStats, useRecentCampaignActivity } from "@/hooks/useEmailStats"
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 const EmailMarketingOverview = () => {
   const { t } = useTranslation();
   const router = useRouter();
+  const l = useLocalePath();
   const { data: stats, isLoading } = useEmailStats();
   const { data: recentCampaigns } = useRecentCampaignActivity();
 
@@ -24,7 +26,7 @@ const EmailMarketingOverview = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">{t("admin.emailOverview.title")}</h1>
-        <Button onClick={() => router.push("/admin/email/campaigns")} className="gap-2">
+        <Button onClick={() => router.push(l("/admin/email/campaigns"))} className="gap-2">
           <Plus className="h-4 w-4" />
           {t("admin.emailOverview.newCampaign")}
         </Button>

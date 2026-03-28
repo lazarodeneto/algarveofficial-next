@@ -1,8 +1,8 @@
-import { createClient } from "@/lib/supabase/server";
+import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { SITE_CONFIG } from "./seo-config";
 
 export async function getListingWithSeo(listingSlug: string, locale = "en") {
-  const supabase = await createClient();
+  const supabase = createPublicServerClient();
   
   const { data: listing, error } = await supabase
     .from("listings")
@@ -35,7 +35,7 @@ export async function getListingWithSeo(listingSlug: string, locale = "en") {
 }
 
 export async function getBlogPostWithSeo(postSlug: string, locale = "en") {
-  const supabase = await createClient();
+  const supabase = createPublicServerClient();
   
   const { data: post, error } = await supabase
     .from("blog_posts")
@@ -61,7 +61,7 @@ export async function getBlogPostWithSeo(postSlug: string, locale = "en") {
 }
 
 export async function getEventWithSeo(eventSlug: string, locale = "en") {
-  const supabase = await createClient();
+  const supabase = createPublicServerClient();
   
   const { data: event, error } = await supabase
     .from("events")
@@ -84,7 +84,7 @@ export async function getEventWithSeo(eventSlug: string, locale = "en") {
 }
 
 export async function getCategoryWithSeo(categorySlug: string, locale = "en") {
-  const supabase = await createClient();
+  const supabase = createPublicServerClient();
   
   const { data: category, error } = await supabase
     .from("categories")
@@ -109,7 +109,7 @@ export async function getCategoryWithSeo(categorySlug: string, locale = "en") {
 }
 
 export async function getCityWithSeo(citySlug: string, locale = "en") {
-  const supabase = await createClient();
+  const supabase = createPublicServerClient();
   
   const { data: city, error } = await supabase
     .from("cities")
@@ -139,7 +139,7 @@ export async function getCityWithSeo(citySlug: string, locale = "en") {
 }
 
 export async function getRegionWithSeo(regionSlug: string, locale = "en") {
-  const supabase = await createClient();
+  const supabase = createPublicServerClient();
   
   const { data: region, error } = await supabase
     .from("regions")
@@ -164,7 +164,7 @@ export async function getRegionWithSeo(regionSlug: string, locale = "en") {
 }
 
 export async function getSiteSettingsSeo() {
-  const supabase = await createClient();
+  const supabase = createPublicServerClient();
   const { data, error } = await supabase
     .from("site_settings")
     .select("meta_title, meta_description, og_image, canonical_url, logo_url")
@@ -191,7 +191,7 @@ export async function getSiteSettingsSeo() {
 }
 
 export async function getSitemapData() {
-  const supabase = await createClient();
+  const supabase = createPublicServerClient();
 
   const [listingsRes, regionsRes, citiesRes, blogRes, eventsRes, categoriesRes] = await Promise.all([
     supabase

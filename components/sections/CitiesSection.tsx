@@ -7,13 +7,13 @@ import { useSavedDestinations } from "@/hooks/useSavedDestinations";
 import { useCities } from "@/hooks/useReferenceData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export function CitiesSection() {
   const { isDestinationSaved, toggleCity } = useSavedDestinations();
   const { data: cities = [], isLoading } = useCities();
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const featuredCities = cities.filter((city) => city.is_featured);
 
   return (

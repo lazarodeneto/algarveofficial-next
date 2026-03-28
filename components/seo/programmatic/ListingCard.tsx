@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { LocalizedLink } from "@/components/navigation/LocalizedLink";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 import type { ProgrammaticListing } from "@/lib/seo/programmatic/category-city-data";
 
 interface ListingCardProps {
@@ -24,7 +24,7 @@ export function ListingCard({ listing, tx }: ListingCardProps) {
         : null;
 
   return (
-    <LocalizedLink
+    <LocaleLink
       href={`/listing/${listing.slug}`}
       className="group flex flex-col rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/40 hover:shadow-lg transition-all duration-200"
     >
@@ -36,6 +36,7 @@ export function ListingCard({ listing, tx }: ListingCardProps) {
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            unoptimized
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-muted to-muted/50" />
@@ -80,6 +81,6 @@ export function ListingCard({ listing, tx }: ListingCardProps) {
           )}
         </div>
       </div>
-    </LocalizedLink>
+    </LocaleLink>
   );
 }

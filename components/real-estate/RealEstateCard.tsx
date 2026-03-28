@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { translateCategoryValue } from "@/lib/translateCategoryValue";
 import ListingImage from "@/components/ListingImage";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import { cn } from "@/lib/utils";
 import {
@@ -52,7 +52,7 @@ function asString(value: unknown): string | null {
 
 export function RealEstateCard({ listing }: RealEstateCardProps) {
     const { t } = useTranslation();
-    const l = useLocalizedHref();
+    const l = useLocalePath();
     const {
         id,
         name,
@@ -161,7 +161,9 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                     )}
                     <div className="absolute top-6 left-6 flex flex-col gap-2">
                         <ListingTierBadge tier={listing.tier} />
-                        <Badge variant="secondary" className="backdrop-blur-xl bg-black/60 text-white/95 font-semibold tracking-wider text-body-xs uppercase px-3.5 py-1.5 rounded-full border-0">
+                        <Badge
+                            className="border border-white/70 bg-white/92 text-slate-900 shadow-[0_10px_24px_-16px_rgba(15,23,42,0.45)] backdrop-blur-xl font-semibold tracking-wider text-body-xs uppercase px-3.5 py-1.5 rounded-full dark:border-white/10 dark:bg-black/60 dark:text-white/95"
+                        >
                             {translateCategoryValue(t, propertyType)}
                         </Badge>
                     </div>
@@ -201,9 +203,11 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                             {listing.cities?.name || "Algarve"}
                         </div>
                         <h3 className={cn(
-                            "min-h-[3.5rem] font-serif text-foreground leading-tight mb-4 line-clamp-2 transition-colors duration-300",
+                            "min-h-[3.5rem] font-serif leading-[1.08] mb-4 line-clamp-2 transition-colors duration-300 text-slate-950 dark:text-foreground",
                             tierTitleClass,
-                            isPremium ? "text-xl sm:text-2xl" : "text-xl sm:text-2xl"
+                            isPremium
+                                ? "text-[1.45rem] sm:text-[1.72rem] font-medium tracking-[-0.02em] not-italic"
+                                : "text-[1.35rem] sm:text-[1.58rem] font-medium tracking-[-0.02em]"
                         )}>
                             {name}
                         </h3>
