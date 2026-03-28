@@ -350,7 +350,8 @@
     "retry": "Försöka igen",
     "errorMessage": "Det gick inte att läsa in listor. Försök igen.",
     "failedToLoad": "Det gick inte att läsa in listor. Försök igen.",
-    "active": "Aktiv"
+    "active": "Aktiv",
+    "mapView": "Kartvy"
   },
   "listing": {
     "about": "Om",
@@ -517,7 +518,7 @@
     "location": "Distriktet Faro, Portugal",
     "email": "info@algarveofficial.com",
     "copyright": "© {{year}} AlgarveOfficial. Alla rättigheter reserverade.",
-    "tagline": "Välj lyxupplevelser i Algarve sedan 2024",
+    "tagline": "Välj lyxupplevelser i Algarve",
     "explore": "Utforska",
     "company": "Företag",
     "legal": "Rättslig",
@@ -1959,7 +1960,7 @@
     "formDesc": "Fyll i formuläret nedan så återkommer vi till dig så snart som möjligt.",
     "getInTouch": "Hör av dig",
     "touchDesc": "Vårt concierge-team finns tillgängligt för att hjälpa dig med alla frågor om lyxupplevelser i Algarve.",
-    "email": "concierge@algarveofficial.com",
+    "email": "info@algarveofficial.com",
     "location": "Faro-distriktet, Portugal",
     "sendEmail": "Skicka e-post",
     "startChat": "Starta chatt",
