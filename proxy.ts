@@ -7,11 +7,9 @@
  * 3. Normalize trailing slashes for SEO consistency
  * 4. Guard against malformed double-locale-prefix paths
  * 5. Skip API routes, Next internals, and static asset/file requests
- * 6. Pass locale-derived document language headers downstream
  *
  * NOTE:
  * - params.locale remains the route source of truth
- * - headers are only supplemental for root layout / document attributes
  */
 
 import { type NextRequest, NextResponse } from "next/server";
@@ -19,7 +17,6 @@ import {
   SUPPORTED_LOCALES,
   DEFAULT_LOCALE,
   getLocaleFromPathname,
-  LOCALE_CONFIGS,
   resolveLocaleFromAcceptLanguage,
 } from "@/lib/i18n/config";
 
@@ -82,18 +79,6 @@ function getPreferredLocale(request: NextRequest): string {
   return isSupportedLocale(resolved) ? resolved : DEFAULT_LOCALE;
 }
 
-function buildRequestHeaders(request: NextRequest, locale: string): Headers {
-  const headers = new Headers(request.headers);
-
-  headers.set("x-locale", locale);
-  headers.set(
-    "x-html-lang",
-    LOCALE_CONFIGS[locale as keyof typeof LOCALE_CONFIGS]?.hreflang ?? "en-GB",
-  );
-
-  return headers;
-}
-
 function redirectTo(
   request: NextRequest,
   pathname: string,
@@ -104,19 +89,11 @@ function redirectTo(
   return NextResponse.redirect(url, status);
 }
 
-function nextWithLocaleHeaders(request: NextRequest, locale: string) {
-  return NextResponse.next({
-    request: {
-      headers: buildRequestHeaders(request, locale),
-    },
-  });
-}
-
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (isUnlocalizedRoute(pathname)) {
-    return nextWithLocaleHeaders(request, DEFAULT_LOCALE);
+    return NextResponse.next();
   }
 
   const segments = pathname.split("/").filter(Boolean);
@@ -135,7 +112,7 @@ export function proxy(request: NextRequest) {
       return redirectTo(request, normalized, 308);
     }
 
-    return nextWithLocaleHeaders(request, currentLocale);
+    return NextResponse.next();
   }
 
   const locale = getPreferredLocale(request);
