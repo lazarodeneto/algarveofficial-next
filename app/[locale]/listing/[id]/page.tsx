@@ -1,6 +1,5 @@
 import { cache } from "react";
 import type { Metadata } from "next";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import type { Locale } from "@/lib/i18n/config";
@@ -376,13 +375,6 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
     { name: title, url: absoluteUrl(canonicalPath) },
   ]);
 
-  const primaryImage =
-    normalizePublicImageUrl(data.listing.images?.find((image) => image.is_featured)?.image_url) ||
-    normalizePublicImageUrl(data.listing.images?.[0]?.image_url) ||
-    normalizePublicImageUrl(data.listing.featured_image_url) ||
-    normalizePublicImageUrl(data.listing.category?.image_url) ||
-    "/og-image.png";
-
   return (
     <>
       <script
@@ -394,34 +386,8 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      <div id="listing-detail-server-shell" className="min-h-screen bg-background text-foreground">
-        <main className="app-container pt-32 pb-20">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(18rem,1fr)]">
-            <div className="overflow-hidden rounded-[2rem] border border-border/60 bg-card">
-              <div className="relative min-h-[24rem]">
-                <Image
-                  src={primaryImage}
-                  alt={title}
-                  fill
-                  priority
-                  sizes="(min-width: 1024px) 60vw, 100vw"
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            </div>
-            <aside className="rounded-[2rem] border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur">
-              <p className="text-xs uppercase tracking-[0.2em] text-primary">{categoryName}</p>
-              <h1 className="mt-4 font-serif text-4xl text-foreground">{title}</h1>
-              <p className="mt-4 text-sm text-muted-foreground">
-                {data.listing.city?.name ? `${data.listing.city.name}, Algarve, Portugal` : "Algarve, Portugal"}
-              </p>
-              <p className="mt-6 text-sm leading-7 text-muted-foreground">{description}</p>
-            </aside>
-          </div>
-        </main>
-      </div>
-
       <ListingDetailClient
+        locale={resolvedLocale}
         listing={data.listing}
         initialTranslation={currentTranslation}
         initialReviews={data.reviews}

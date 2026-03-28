@@ -977,11 +977,11 @@ function DirectoryClientInner(props: DirectoryClientProps) {
               blockId="filters"
               cms={activeCms}
               as={motion.div}
-              className="mb-8"
+              className="relative z-20 mb-8"
               style={undefined}
             >
               <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
-                <Card className="border-border">
+                <Card className="relative isolate overflow-hidden border-border bg-background/95 shadow-lg supports-[backdrop-filter]:bg-background/90">
                   <CollapsibleTrigger asChild>
                     <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors rounded-t-[var(--glass-radius)]">
                       <div className="flex items-center gap-3">
@@ -1123,7 +1123,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
           ) : null}
 
           {activeCms.isBlockEnabled("results", true) ? (
-            <DirectoryCmsBlock blockId="results" cms={activeCms}>
+            <DirectoryCmsBlock blockId="results" cms={activeCms} className="relative z-0">
               <div className="flex items-center justify-between mb-6">
                 <p className="text-body-sm text-muted-foreground">
                   {isLoading ? (
@@ -1138,7 +1138,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                 <Link href={mapHref}>
                   <Button variant="outline" size="sm">
                     <MapPin className="h-4 w-4 mr-2" />
-                    Map View
+                    {t("directory.mapView", "Map View")}
                   </Button>
                 </Link>
               </div>

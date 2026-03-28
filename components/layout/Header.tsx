@@ -160,14 +160,19 @@ export default function Header() {
         />
 
         <nav className="relative mx-auto max-w-[1680px] px-3 sm:px-5 lg:px-4 xl:pr-8 xl:pl-11 2xl:pr-10 2xl:pl-14">
-          <div className="flex h-[4.5rem] sm:h-20 items-center gap-2 sm:gap-3 lg:gap-3 xl:gap-5">
+          <div className="flex h-[4.5rem] sm:h-20 items-center gap-2 sm:gap-3 lg:gap-2.5 xl:gap-5">
             {/* Logo */}
-            <div className="flex-shrink-0 min-w-0 overflow-hidden lg:max-w-[11.5rem] xl:mr-3 xl:max-w-[14.5rem] 2xl:mr-5 2xl:max-w-none">
+            <div className="flex-shrink-0 min-w-0 overflow-hidden lg:max-w-[10.25rem] xl:mr-3 xl:max-w-[14.5rem] 2xl:mr-5 2xl:max-w-none">
               <div className="lg:hidden">
                 <BrandLogo size="md" showIcon className="whitespace-nowrap" />
               </div>
               <div className="hidden items-center justify-center lg:flex xl:hidden">
-                <BrandLogo size="sm" showIcon className="whitespace-nowrap" iconClassName="h-7 w-7" />
+                <BrandLogo
+                  size="sm"
+                  showIcon
+                  className="whitespace-nowrap gap-1.5"
+                  iconClassName="h-5 w-5"
+                />
               </div>
               <div className="hidden xl:block">
                 <BrandLogo size="md" className="whitespace-nowrap" />
@@ -203,7 +208,7 @@ export default function Header() {
             </div>
 
             {/* Laptop Actions (1024-1279): compact utility row */}
-            <div className="hidden lg:flex xl:hidden items-center gap-1 rounded-full border border-black/10 bg-white/82 px-1.5 py-1 shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
+            <div className="hidden lg:flex xl:hidden items-center gap-0.5 rounded-full border border-black/10 bg-white/82 px-1 py-1 shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
               <Link href={favoritesPath}>
                 <Button
                   variant="ghost"
@@ -227,7 +232,7 @@ export default function Header() {
 
               <LanguageSwitcher
                 containerClassName="min-w-0"
-                selectClassName="h-8 w-[8.75rem] rounded-full border-black/10 bg-white/70 px-3 py-1 text-sm shadow-none dark:border-white/12 dark:bg-white/5"
+                selectClassName="h-8 w-[7.5rem] rounded-full border-black/10 bg-white/70 px-2.5 py-1 text-sm shadow-none dark:border-white/12 dark:bg-white/5"
               />
               <ThemeToggle variant="header" />
 
@@ -390,18 +395,18 @@ export default function Header() {
                     <div className="mb-4 rounded-2xl border border-black/10 bg-white/70 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
                       <div className="flex items-center justify-between gap-3">
                         <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                          {t("common.theme", "Theme")}
+                        </div>
+                        <ThemeToggle />
+                      </div>
+                      <div className="mt-3 flex items-center justify-between gap-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                           {t("common.language", "Language")}
                         </div>
                         <LanguageSwitcher
                           containerClassName="min-w-0"
                           selectClassName="h-10 w-[10rem] rounded-full border-black/12 bg-white px-4 py-2 text-sm text-black shadow-none dark:border-white/12 dark:bg-white dark:text-black"
                         />
-                      </div>
-                      <div className="mt-3 flex items-center justify-between gap-3">
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                          {t("common.theme", "Theme")}
-                        </div>
-                        <ThemeToggle />
                       </div>
                     </div>
 

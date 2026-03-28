@@ -1,6 +1,7 @@
 export const COOKIE_CONSENT_STORAGE_KEY = "cookie_consent_preferences";
 export const COOKIE_CONSENT_CHANGE_EVENT = "cookie-consent:changed";
 export const COOKIE_PREFERENCES_OPEN_EVENT = "cookie-consent:open-preferences";
+export const CURRENT_COOKIE_CONSENT_VERSION = "cookie-consent-v1";
 
 export type CookieConsentVersion = string;
 export type CookieConsentCategory = "essential" | "functional" | "analytics" | "marketing";

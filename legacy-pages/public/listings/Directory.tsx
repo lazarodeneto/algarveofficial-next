@@ -300,9 +300,9 @@ export default function Directory() {
       <div className="app-container content-max pb-16">
 
         {/* Advanced Filters */}
-        {isBlockEnabled("filters", true) && <CmsBlock pageId="directory" blockId="filters" className="mb-8">
+        {isBlockEnabled("filters", true) && <CmsBlock pageId="directory" blockId="filters" className="relative z-20 mb-8">
           <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
-            <Card className="border-border">
+            <Card className="relative isolate overflow-hidden border-border bg-background/95 shadow-lg supports-[backdrop-filter]:bg-background/90">
               <CollapsibleTrigger asChild>
                 <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors rounded-t-[var(--glass-radius)]">
                   <div className="flex items-center gap-3">
@@ -426,7 +426,7 @@ export default function Directory() {
           </Collapsible>
         </CmsBlock>}
 
-        {isBlockEnabled("results", true) && <CmsBlock pageId="directory" blockId="results">
+        {isBlockEnabled("results", true) && <CmsBlock pageId="directory" blockId="results" className="relative z-0">
           {/* Results Count */}
           <div className="flex items-center justify-between mb-6">
             <p className="text-muted-foreground">
@@ -440,7 +440,7 @@ export default function Directory() {
             <Link href={mapHref}>
               <Button variant="outline" size="sm">
                 <MapPin className="h-4 w-4 mr-2" />
-                Map View
+                {t("directory.mapView", "Map View")}
               </Button>
             </Link>
           </div>

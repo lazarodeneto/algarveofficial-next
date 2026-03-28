@@ -350,7 +350,8 @@
     "retry": "Retry",
     "errorMessage": "Failed to load listings. Please try again.",
     "failedToLoad": "Failed to load listings. Please try again.",
-    "active": "Active"
+    "active": "Active",
+    "mapView": "Map View"
   },
   "listing": {
     "about": "About",
@@ -517,7 +518,7 @@
     "location": "District of Faro, Portugal",
     "email": "info@algarveofficial.com",
     "copyright": "© {{year}} AlgarveOfficial. All rights reserved.",
-    "tagline": "Selecting premium experiences in the Algarve since 2024",
+    "tagline": "Selecting premium experiences in the Algarve",
     "explore": "Explore",
     "company": "Company",
     "legal": "Legal",
@@ -2102,7 +2103,7 @@
     "formDesc": "Fill in the form below and we'll get back to you as soon as possible.",
     "getInTouch": "Get in Touch",
     "touchDesc": "Our concierge team is available to assist you with any questions about premium experiences in the Algarve.",
-    "email": "concierge@algarveofficial.com",
+    "email": "info@algarveofficial.com",
     "location": "Faro District, Portugal",
     "sendEmail": "Send Email",
     "startChat": "Start Chat",

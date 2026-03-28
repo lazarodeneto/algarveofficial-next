@@ -350,7 +350,8 @@
     "retry": "Reintentar",
     "errorMessage": "Error al cargar listados. Por favor intente de nuevo.",
     "failedToLoad": "Error al cargar listados. Por favor intente de nuevo.",
-    "active": "Activo"
+    "active": "Activo",
+    "mapView": "Ver Mapa"
   },
   "listing": {
     "about": "Acerca de",
@@ -517,7 +518,7 @@
     "location": "Distrito de Faro, Portugal",
     "email": "info@algarveofficial.com",
     "copyright": "© {{year}} AlgarveOfficial. Todos los derechos reservados.",
-    "tagline": "Seleccionando experiencias de lujo en el Algarve desde 2024",
+    "tagline": "Seleccionando experiencias de lujo en el Algarve",
     "explore": "Explorar",
     "company": "Empresa",
     "legal": "Legal",
@@ -1960,7 +1961,7 @@
     "formDesc": "Complete el formulario y le responderemos lo antes posible.",
     "getInTouch": "Ponerse en contacto",
     "touchDesc": "Nuestro equipo de conserjería está disponible para responder todas sus preguntas sobre experiencias de lujo en el Algarve.",
-    "email": "concierge@algarveofficial.com",
+    "email": "info@algarveofficial.com",
     "location": "Distrito de Faro, Portugal",
     "sendEmail": "Enviar email",
     "startChat": "Iniciar chat",

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Script from "next/script";
 
+import Header from "@/components/layout/Header";
 import {
   SUPPORTED_LOCALES,
   isValidLocale,
@@ -171,6 +172,7 @@ export default async function VisitCityPage({ params }: PageProps) {
       />
 
       <main className="min-h-screen bg-background">
+        <Header />
         <section className="relative overflow-hidden bg-gradient-to-b from-background to-muted/20">
           {data.city.image_url && (
             <div className="absolute inset-0 -z-10">
@@ -185,7 +187,7 @@ export default async function VisitCityPage({ params }: PageProps) {
               <div className="absolute inset-0 bg-gradient-to-b from-background/60 to-background" />
             </div>
           )}
-          <div className="app-container py-12 md:py-16">
+          <div className="app-container pt-[calc(6rem+10px)] pb-12 md:pt-[calc(6.5rem+10px)] md:pb-16">
             <nav aria-label="Breadcrumb" className="mb-6">
               <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
                 <li>

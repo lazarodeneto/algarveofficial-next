@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import {
+  CURRENT_COOKIE_CONSENT_VERSION,
   COOKIE_CONSENT_CHANGE_EVENT,
   COOKIE_CONSENT_STORAGE_KEY,
   saveCookieConsent,
@@ -78,7 +79,7 @@ export function useAnalyticsConsent() {
       analytics: true,
       marketing: false,
       timestamp,
-      version: "legacy-analytics-banner-v2",
+      version: CURRENT_COOKIE_CONSENT_VERSION,
     });
     localStorage.setItem(CONSENT_KEY, "accepted");
     localStorage.setItem(CONSENT_TIMESTAMP_KEY, timestamp.toString());
@@ -93,7 +94,7 @@ export function useAnalyticsConsent() {
       analytics: false,
       marketing: false,
       timestamp,
-      version: "legacy-analytics-banner-v2",
+      version: CURRENT_COOKIE_CONSENT_VERSION,
     });
     localStorage.setItem(CONSENT_KEY, "rejected");
     localStorage.setItem(CONSENT_TIMESTAMP_KEY, timestamp.toString());
