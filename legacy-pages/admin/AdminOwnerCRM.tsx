@@ -599,7 +599,7 @@ export default function AdminOwnerCRM() {
           </div>
         </div>
         <CardContent className={cn(compactMode ? "pt-4" : "pt-5")}>
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
             <MetricTile
               title="Owners"
               value={ownerSummaryMetrics.totalOwners}
@@ -634,8 +634,8 @@ export default function AdminOwnerCRM() {
         </CardContent>
       </Card>
 
-      <div className={cn("grid xl:grid-cols-[360px,1fr]", compactMode ? "gap-4" : "gap-6")}>
-        <Card className={cn("h-fit xl:sticky", compactMode ? "xl:top-4" : "xl:top-6")}>
+      <div className={cn("grid 2xl:grid-cols-[360px,1fr]", compactMode ? "gap-4" : "gap-6")}>
+        <Card className={cn("h-fit 2xl:sticky", compactMode ? "2xl:top-4" : "2xl:top-6")}>
           <CardHeader className={cn(compactMode ? "pb-2" : "pb-3")}>
             <CardTitle className="text-lg flex items-center gap-2">
               <Users className="h-5 w-5" />
@@ -867,7 +867,7 @@ export default function AdminOwnerCRM() {
               </div>
 
               <CardContent className={cn(compactMode ? "pt-4" : "pt-5")}>
-                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
                   <MetricTile
                     title="Listings"
                     value={selectedOwnerSummary.listingCount}
@@ -919,7 +919,7 @@ export default function AdminOwnerCRM() {
               </TabsList>
 
               <TabsContent value="overview" className={cn("space-y-4", compactMode && "space-y-3")}>
-                <div className={cn("grid xl:grid-cols-2", compactMode ? "gap-3" : "gap-4")}>
+                <div className={cn("grid 2xl:grid-cols-2", compactMode ? "gap-3" : "gap-4")}>
                   <Card>
                     <CardHeader className={cn(compactMode && "pb-4")}>
                       <CardTitle className="text-lg flex items-center gap-2">
@@ -1127,7 +1127,7 @@ export default function AdminOwnerCRM() {
               </TabsContent>
 
               <TabsContent value="communication" className={cn("space-y-4", compactMode && "space-y-3")}>
-                <div className={cn("grid xl:grid-cols-[1.1fr,1fr]", compactMode ? "gap-3" : "gap-4")}>
+                <div className={cn("grid 2xl:grid-cols-[1.1fr,1fr]", compactMode ? "gap-3" : "gap-4")}>
                   <Card>
                     <CardHeader className={cn(compactMode && "pb-4")}>
                       <CardTitle className="text-lg">Communication Actions</CardTitle>
@@ -1305,7 +1305,7 @@ export default function AdminOwnerCRM() {
               </TabsContent>
 
               <TabsContent value="billing" className={cn("space-y-4", compactMode && "space-y-3")}>
-                <div className={cn("grid xl:grid-cols-2", compactMode ? "gap-3" : "gap-4")}>
+                <div className={cn("grid 2xl:grid-cols-2", compactMode ? "gap-3" : "gap-4")}>
                   <Card>
                     <CardHeader className={cn(compactMode && "pb-4")}>
                       <CardTitle className="text-lg flex items-center gap-2">

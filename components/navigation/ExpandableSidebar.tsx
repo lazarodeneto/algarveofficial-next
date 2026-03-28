@@ -62,7 +62,7 @@ interface ExpandableSidebarProps {
   sectionVariant?: "default" | "cards";
   childIndentStyle?: "rail" | "soft";
   disableMobile?: boolean;
-  desktopBreakpoint?: "lg" | "xl";
+  desktopBreakpoint?: "lg" | "xl" | "2xl";
   className?: string;
 }
 
@@ -95,10 +95,13 @@ export function ExpandableSidebar({
   const pathname = usePathname() ?? "";
   const [mobileOpen, setMobileOpen] = useState(false);
   const desktopVisibilityClass =
-    desktopBreakpoint === "xl"
+    desktopBreakpoint === "2xl"
+      ? "hidden 2xl:sticky 2xl:top-0 2xl:h-screen 2xl:flex"
+      : desktopBreakpoint === "xl"
       ? "hidden xl:sticky xl:top-0 xl:h-screen xl:flex"
       : "hidden lg:sticky lg:top-0 lg:h-screen lg:flex";
-  const mobileVisibilityClass = desktopBreakpoint === "xl" ? "xl:hidden" : "lg:hidden";
+  const mobileVisibilityClass =
+    desktopBreakpoint === "2xl" ? "2xl:hidden" : desktopBreakpoint === "xl" ? "xl:hidden" : "lg:hidden";
   const compactDensity = density === "compact";
   const navItemPaddingY = compactDensity ? "py-1.5" : "py-2.5";
   const footerItemPaddingY = compactDensity ? "py-1" : "py-1.5";

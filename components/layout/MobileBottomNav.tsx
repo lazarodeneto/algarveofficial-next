@@ -72,6 +72,7 @@ export function MobileBottomNav() {
             <Link
               key={item.name}
               href={l(item.href)}
+              title={t(item.name)}
               className={cn(
                 "bottom-nav__link tap-target",
                 active

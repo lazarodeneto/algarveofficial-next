@@ -232,7 +232,7 @@ export default function Header() {
 
               <LanguageSwitcher
                 containerClassName="min-w-0"
-                selectClassName="h-8 w-[7.5rem] rounded-full border-black/10 bg-white/70 px-2.5 py-1 text-sm shadow-none dark:border-white/12 dark:bg-white/5"
+                selectClassName="h-8 w-[7.5rem] rounded-full border-black/10 bg-white/70 px-2.5 py-1 text-sm text-black shadow-none dark:border-white/12 dark:bg-white dark:text-black"
               />
               <ThemeToggle variant="header" />
 
@@ -286,7 +286,9 @@ export default function Header() {
                   <span className="sr-only">{t("nav.search", "Search")}</span>
                 </Button>
 
-                <LanguageSwitcher />
+                <LanguageSwitcher
+                  selectClassName="h-10 rounded-full border-black/10 bg-white px-4 py-2 text-black shadow-none dark:border-white/12 dark:bg-white dark:text-black"
+                />
 
                 {isAuthenticated && user ? (
                   <div className="flex items-center gap-1">
