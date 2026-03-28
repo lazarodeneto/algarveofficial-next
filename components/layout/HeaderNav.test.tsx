@@ -33,6 +33,7 @@ describe("HeaderNav", () => {
   it("renders the desktop header nav without the contact item", () => {
     render(<HeaderNav />);
 
+    expect(screen.getByRole("navigation", { name: "Primary navigation" })).toHaveClass("uppercase");
     expect(screen.getByRole("link", { name: "Events" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Contact" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Map" })).not.toBeInTheDocument();

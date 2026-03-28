@@ -16,6 +16,7 @@ import { Database } from "@/integrations/supabase/types";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
+import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 
@@ -151,7 +152,7 @@ export default function RealEstateDirectory() {
 
             <main className="flex-grow">
                 {isBlockEnabled("hero", true) ? (
-                    <CmsBlock pageId="real-estate" blockId="hero" as="section" className="px-0 sm:px-4 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4">
+                    <CmsBlock pageId="real-estate" blockId="hero" as="section" className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
                         <LiveStyleHero
                             badge={t("realEstate.hero.badge", "Exclusive Portfolio")}
                             title={t("realEstate.hero.title", "Prime Real Estate")}

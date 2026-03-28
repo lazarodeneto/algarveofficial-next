@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { buildSupabaseImageUrl } from "@/lib/imageUrls";
+import { STANDARD_PUBLIC_HERO_SURFACE_CLASS, STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 
 const parseYouTubeTimeToSeconds = (value: string | null): number | null => {
   if (!value) return null;
@@ -439,8 +440,8 @@ export function HeroSection() {
     mediaMode === "poster";
 
   return (
-    <div className="px-2.5 sm:px-4 lg:px-6 pt-[calc(4.5rem+0.85rem)] sm:pt-[calc(5rem+0.95rem)] lg:pt-[calc(5rem+1.1rem)] pb-3 sm:pb-4">
-      <section className="hero-golden-outline relative min-h-[34rem] sm:min-h-[35rem] md:min-h-[40rem] flex items-center justify-center overflow-hidden rounded-[1.65rem] lg:rounded-3xl shadow-sm">
+    <div className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
+      <section className={STANDARD_PUBLIC_HERO_SURFACE_CLASS}>
         {/* Video Background */}
         <div className="absolute inset-0">
           {mediaMode !== "none" ? (

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { convertToWebP, trimWhiteBorders } from "@/lib/imageUtils";
+import { normalizePublicImageUrl, resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
 
 interface SingleImageUploadFieldProps {
     value?: string;
@@ -21,6 +22,8 @@ export function SingleImageUploadField({
     folder = "agents",
 }: SingleImageUploadFieldProps) {
     const [isUploading, setIsUploading] = useState(false);
+    const resolvedValue =
+        resolveSupabaseBucketImageUrl(value, "listing-images") ?? normalizePublicImageUrl(value);
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -63,10 +66,10 @@ export function SingleImageUploadField({
 
     return (
         <div className="space-y-4">
-            {value ? (
+            {resolvedValue ? (
                 <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-border group">
                     <Image
-                        src={value}
+                        src={resolvedValue}
                         alt="Uploaded content"
                         fill
                         unoptimized

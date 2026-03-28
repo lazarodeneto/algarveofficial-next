@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Cookie } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
@@ -7,7 +8,11 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useHydrated } from "@/hooks/useHydrated";
 import { stripLocaleFromPathname } from "@/lib/i18n/config";
-import { openCookiePreferences } from "@/lib/cookieConsent";
+import {
+  COOKIE_CONSENT_CHANGE_EVENT,
+  getStoredCookieConsent,
+  openCookiePreferences,
+} from "@/lib/cookieConsent";
 
 const HIDDEN_ROUTE_PREFIXES = ["/admin", "/owner", "/dashboard"];
 
@@ -15,18 +20,36 @@ export function FloatingCookieSettingsButton() {
   const pathname = usePathname() || "/";
   const { t } = useTranslation();
   const mounted = useHydrated();
+  const [hasConsent, setHasConsent] = useState(false);
 
   const barePath = stripLocaleFromPathname(pathname);
   const shouldHide = HIDDEN_ROUTE_PREFIXES.some((prefix) => barePath.startsWith(prefix));
 
-  if (!mounted || shouldHide) {
+  useEffect(() => {
+    if (!mounted) return;
+
+    const syncConsentState = () => {
+      setHasConsent(Boolean(getStoredCookieConsent()));
+    };
+
+    syncConsentState();
+    window.addEventListener(COOKIE_CONSENT_CHANGE_EVENT, syncConsentState);
+    window.addEventListener("storage", syncConsentState);
+
+    return () => {
+      window.removeEventListener(COOKIE_CONSENT_CHANGE_EVENT, syncConsentState);
+      window.removeEventListener("storage", syncConsentState);
+    };
+  }, [mounted]);
+
+  if (!mounted || shouldHide || !hasConsent) {
     return null;
   }
 
   const label = t("footer.cookieSettings", "Cookie Settings");
 
   return (
-    <div className="pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] right-4 z-40 sm:bottom-5 sm:right-5 xl:right-7">
+    <div className="pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] left-4 z-40 sm:bottom-5 sm:left-5 xl:left-24">
       <Button
         type="button"
         size="icon"

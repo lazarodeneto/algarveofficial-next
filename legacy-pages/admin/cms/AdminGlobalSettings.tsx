@@ -58,6 +58,7 @@ import {
   isValidMaintenanceWhitelistEntry,
   normalizeMaintenanceWhitelistEntry,
 } from "@/lib/maintenance";
+import { normalizePublicImageUrl, resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
 
 export default function AdminGlobalSettings() {
   const { settings: siteSettings, isLoading: siteLoading, updateSettingsAsync, isUpdating } = useSiteSettings();
@@ -97,6 +98,12 @@ export default function AdminGlobalSettings() {
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [isUploadingLogoDark, setIsUploadingLogoDark] = useState(false);
   const [isUploadingFavicon, setIsUploadingFavicon] = useState(false);
+  const resolvedLogoUrl =
+    resolveSupabaseBucketImageUrl(logoUrl, "branding") ?? normalizePublicImageUrl(logoUrl);
+  const resolvedLogoDarkUrl =
+    resolveSupabaseBucketImageUrl(logoDarkUrl, "branding") ?? normalizePublicImageUrl(logoDarkUrl);
+  const resolvedFaviconUrl =
+    resolveSupabaseBucketImageUrl(faviconUrl, "branding") ?? normalizePublicImageUrl(faviconUrl);
 
   // Google Analytics
   const [gaMeasurementId, setGaMeasurementId] = useState("");
@@ -502,6 +509,7 @@ export default function AdminGlobalSettings() {
       [`__cat__${key}`]: category ?? "",
     }));
   };
+  const resolvedOgImageUrl = normalizePublicImageUrl(getSettingValue("og_image"));
 
   // Apply colors in real-time as user changes them
   const handlePrimaryColorChange = (color: string) => {
@@ -1173,8 +1181,8 @@ export default function AdminGlobalSettings() {
                         <Label>Site Logo (Light Mode)</Label>
                         <div className="flex flex-col gap-4">
                           <div className="h-32 w-full rounded-lg border-2 border-dashed border-border bg-muted/30 flex items-center justify-center overflow-hidden">
-                            {logoUrl ? (
-                              <img src={logoUrl} alt="Logo Preview" className="max-h-full max-w-full object-contain p-4" />
+                            {resolvedLogoUrl ? (
+                              <img src={resolvedLogoUrl} alt="Logo Preview" className="max-h-full max-w-full object-contain p-4" />
                             ) : (
                               <div className="flex flex-col items-center gap-2 text-muted-foreground">
                                 <Image className="h-8 w-8 opacity-20" />
@@ -1224,8 +1232,8 @@ export default function AdminGlobalSettings() {
                         <Label>Site Logo (Dark Mode)</Label>
                         <div className="flex flex-col gap-4">
                           <div className="h-32 w-full rounded-lg border-2 border-dashed border-border bg-slate-900 flex items-center justify-center overflow-hidden">
-                            {logoDarkUrl ? (
-                              <img src={logoDarkUrl} alt="Dark Logic Preview" className="max-h-full max-w-full object-contain p-4" />
+                            {resolvedLogoDarkUrl ? (
+                              <img src={resolvedLogoDarkUrl} alt="Dark Logic Preview" className="max-h-full max-w-full object-contain p-4" />
                             ) : (
                               <div className="flex flex-col items-center gap-2 text-muted-foreground">
                                 <Image className="h-8 w-8 opacity-20" />
@@ -1275,9 +1283,9 @@ export default function AdminGlobalSettings() {
                         <Label>Browser Favicon</Label>
                         <div className="flex flex-col gap-4">
                           <div className="h-32 w-full rounded-lg border-2 border-dashed border-border bg-muted/30 flex items-center justify-center">
-                            {faviconUrl ? (
+                            {resolvedFaviconUrl ? (
                               <div className="bg-white p-2 rounded shadow-sm">
-                                <img src={faviconUrl} alt="Favicon Preview" className="h-12 w-12 object-contain" />
+                                <img src={resolvedFaviconUrl} alt="Favicon Preview" className="h-12 w-12 object-contain" />
                               </div>
                             ) : (
                               <div className="flex flex-col items-center gap-2 text-muted-foreground">
@@ -1514,8 +1522,8 @@ export default function AdminGlobalSettings() {
                 <Label>OG Image</Label>
                 <div className="flex gap-4 items-start">
                   <div className="w-48 h-[100px] bg-muted rounded-lg overflow-hidden flex-shrink-0 border border-border">
-                    {getSettingValue("og_image") ? (
-                      <img src={getSettingValue("og_image")} alt="OG Preview" className="w-full h-full object-cover" />
+                    {resolvedOgImageUrl ? (
+                      <img src={resolvedOgImageUrl} alt="OG Preview" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center gap-1">
                         <Image className="h-6 w-6 text-muted-foreground" />

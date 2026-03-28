@@ -23,6 +23,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { normalizePublicImageUrl } from "@/lib/imageUrls";
 
 export interface SeoData {
   meta_title?: string | null;
@@ -71,6 +72,7 @@ export function SeoFieldsPanel({
   const previewTitle = data.meta_title || pageName;
   const previewDesc = data.meta_description || "No description set";
   const previewUrl = `${siteUrl}/${pageSlug}`.replace(/\/+$/, '');
+  const resolvedOgImage = normalizePublicImageUrl(data.og_image);
 
   return (
     <div className="space-y-6">
@@ -212,10 +214,10 @@ export function SeoFieldsPanel({
               <div className="space-y-2">
                 <Label htmlFor="og_image">OG Image URL</Label>
                 <div className="flex gap-3">
-                  {data.og_image && (
+                  {resolvedOgImage && (
                     <div className="relative w-24 h-14 bg-muted rounded overflow-hidden flex-shrink-0">
                       <Image
-                        src={data.og_image}
+                        src={resolvedOgImage}
                         alt="OG Preview"
                         fill
                         unoptimized
@@ -244,9 +246,9 @@ export function SeoFieldsPanel({
                 <p className="text-xs text-muted-foreground mb-2">Facebook/LinkedIn Preview</p>
                 <div className="bg-white dark:bg-zinc-800 rounded border border-border overflow-hidden">
                   <div className="relative aspect-[1.91/1] bg-muted flex items-center justify-center">
-                    {data.og_image ? (
+                    {resolvedOgImage ? (
                       <Image
-                        src={data.og_image}
+                        src={resolvedOgImage}
                         alt="Social preview"
                         fill
                         unoptimized
