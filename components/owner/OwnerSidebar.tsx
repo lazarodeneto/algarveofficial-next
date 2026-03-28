@@ -48,7 +48,8 @@ export function OwnerSidebar({ collapsed, onToggle }: OwnerSidebarProps) {
     <ExpandableSidebar
       collapsed={collapsed}
       onToggle={onToggle}
-      logo={<BrandLogo size="sm" showIcon={collapsed} showText={!collapsed} className="gap-2" />}
+      logo={<BrandLogo size="sm" showIcon={collapsed} showText className="gap-2" />}
+      desktopBreakpoint="xl"
       sections={sections}
       footerText={t("owner.footer")}
     />

@@ -151,7 +151,7 @@ export default function Header() {
     <>
       <CommandSearch open={searchOpen} onOpenChange={setSearchOpen} />
 
-      <header className="site-header fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+      <header className="site-header fixed top-0 left-0 right-0 z-50 transition-all duration-300 xl:left-20">
         <div
           className={`absolute inset-0 transition-all duration-300 ${isScrolled
             ? "border-b border-black/8 bg-[hsl(var(--background)/0.96)] shadow-[0_18px_48px_-38px_rgba(15,23,42,0.35)] backdrop-blur-2xl dark:border-white/10 dark:bg-[hsl(var(--background)/0.78)]"
@@ -159,11 +159,19 @@ export default function Header() {
             }`}
         />
 
-        <nav className="relative mx-auto max-w-[1680px] px-3 sm:px-5 lg:px-4 xl:px-8 2xl:px-10">
+        <nav className="relative mx-auto max-w-[1680px] px-3 sm:px-5 lg:px-4 xl:pr-8 xl:pl-11 2xl:pr-10 2xl:pl-14">
           <div className="flex h-[4.5rem] sm:h-20 items-center gap-2 sm:gap-3 lg:gap-3 xl:gap-5">
             {/* Logo */}
-            <div className="flex-shrink-0 min-w-0 lg:max-w-[11.5rem] xl:max-w-[13rem] 2xl:max-w-none">
-              <BrandLogo size="md" showIcon className="whitespace-nowrap" />
+            <div className="flex-shrink-0 min-w-0 overflow-hidden lg:max-w-[11.5rem] xl:mr-3 xl:max-w-[14.5rem] 2xl:mr-5 2xl:max-w-none">
+              <div className="lg:hidden">
+                <BrandLogo size="md" className="whitespace-nowrap" />
+              </div>
+              <div className="hidden items-center justify-center lg:flex xl:hidden">
+                <BrandLogo size="sm" showIcon showText={false} className="justify-center" iconClassName="h-7 w-7" />
+              </div>
+              <div className="hidden xl:block">
+                <BrandLogo size="md" className="whitespace-nowrap" />
+              </div>
             </div>
 
             {/* Primary Navigation */}
@@ -217,7 +225,10 @@ export default function Header() {
                 <span className="sr-only">{t("nav.search", "Search")}</span>
               </Button>
 
-              <LanguageSwitcher />
+              <LanguageSwitcher
+                containerClassName="min-w-0"
+                selectClassName="h-8 w-[8.75rem] rounded-full border-black/10 bg-white/70 px-3 py-1 text-sm shadow-none dark:border-white/12 dark:bg-white/5"
+              />
               <ThemeToggle variant="header" />
 
               {isAuthenticated && user ? (
@@ -315,8 +326,21 @@ export default function Header() {
               </div>
             </div>
 
+            {/* Laptop menu button */}
+            <div className="hidden lg:flex xl:hidden items-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 rounded-full border border-black/10 bg-white/80 text-foreground shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10 dark:text-white/85"
+                aria-label={mobileMenuOpen ? t("nav.closeMenu", "Close menu") : t("nav.openMenu", "Open menu")}
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X className="h-6 w-6" /> : <AlignJustify className="h-6 w-6" />}
+              </Button>
+            </div>
+
             {/* Mobile menu button */}
-            <div className="xl:hidden ml-auto flex items-center gap-1 sm:gap-3">
+            <div className="lg:hidden ml-auto flex items-center gap-1 sm:gap-3">
               <Link href={favoritesPath}>
                 <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full border border-black/10 bg-white/80 text-foreground shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10 dark:text-white/85">
                   <Heart className="h-5 w-5 sm:h-5 sm:w-5" />

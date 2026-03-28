@@ -4,17 +4,18 @@ import { useId, useTransition } from "react";
 import { useTranslation } from "react-i18next";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocaleRouter } from "@/hooks/useLocaleRouter";
-import { SUPPORTED_LOCALES } from "@/lib/i18n/config";
+import { LOCALE_CONFIGS, SUPPORTED_LOCALES } from "@/lib/i18n/config";
+import { cn } from "@/lib/utils";
 
-const LABELS: Record<string, string> = {
-  en: "English",
-  "pt-pt": "Português",
-  fr: "Français",
-  es: "Español",
-  de: "Deutsch",
-};
+interface LanguageSwitcherProps {
+  containerClassName?: string;
+  selectClassName?: string;
+}
 
-export function LanguageSwitcher() {
+export function LanguageSwitcher({
+  containerClassName,
+  selectClassName,
+}: LanguageSwitcherProps = {}) {
   const { t } = useTranslation();
   const currentLocale = useCurrentLocale();
   const { switchLocale } = useLocaleRouter();
@@ -23,7 +24,7 @@ export function LanguageSwitcher() {
   const switcherId = useId();
 
   return (
-    <div className="flex items-center gap-2">
+    <div className={cn("flex items-center gap-2", containerClassName)}>
       <label htmlFor={switcherId} className="sr-only">
         {languageLabel}
       </label>
@@ -40,11 +41,11 @@ export function LanguageSwitcher() {
             switchLocale(nextLocale);
           });
         }}
-        className="rounded-md border px-3 py-2"
+        className={cn("rounded-md border px-3 py-2", selectClassName)}
       >
         {SUPPORTED_LOCALES.map((locale) => (
           <option key={locale} value={locale}>
-            {LABELS[locale] || locale}
+            {LOCALE_CONFIGS[locale].name}
           </option>
         ))}
       </select>

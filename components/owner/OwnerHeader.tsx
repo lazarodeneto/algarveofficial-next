@@ -52,7 +52,7 @@ export function OwnerHeader() {
     <header className="border-b border-white/10 glass-header px-3 py-2 sm:px-4 lg:px-6">
       {/* Left side - Breadcrumb */}
       <div className="flex min-h-12 items-center justify-between gap-2 sm:gap-3">
-        <div className="min-w-0 flex flex-1 items-center gap-4 pl-12 lg:pl-0">
+        <div className="min-w-0 flex flex-1 items-center gap-4 pl-12 xl:pl-0">
           <div className="min-w-0">
             <DashboardBreadcrumb />
           </div>
@@ -61,7 +61,10 @@ export function OwnerHeader() {
         {/* Right side - Actions */}
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           {/* Language Switcher */}
-          <LanguageSwitcher />
+          <LanguageSwitcher
+            containerClassName="min-w-0"
+            selectClassName="h-9 w-[8.25rem] rounded-full border-border/80 bg-background/80 px-3 py-1 text-sm shadow-none"
+          />
 
           {/* Theme Toggle */}
           <ThemeToggle />
