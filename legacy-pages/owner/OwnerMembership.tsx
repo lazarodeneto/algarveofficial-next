@@ -22,10 +22,13 @@ import { useSubscriptionPricing } from "@/hooks/useSubscriptionPricing";
 import { useStripeSubscription } from "@/hooks/useStripeSubscription";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { SubscriptionTier, BillingPeriod } from "@/lib/stripePricing";
+import Link from "next/link";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function OwnerMembership() {
   const { t } = useTranslation();
   const router = useRouter();
+  const l = useLocalePath();
   const pathname = usePathname() || "/owner/membership";
   const searchParams = useSearchParams();
   const { data: listings = [], isLoading: isListingsLoading } = useOwnerListings();
@@ -487,7 +490,7 @@ export default function OwnerMembership() {
               </div>
             </div>
             <Button variant="outline" asChild>
-              <a href="/owner/support">{t('owner.membership.contactSupport')}</a>
+              <Link href={l("/owner/support")}>{t('owner.membership.contactSupport')}</Link>
             </Button>
           </div>
         </CardContent>

@@ -1,11 +1,7 @@
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function AdminPage({
-  params,
-}: {
-  params: Promise<{ locale: string; slug?: string[] }>;
-}) {
-  const { locale, slug } = await params;
-  const path = slug ? slug.join("/") : "";
-  redirect(`/admin${path ? `/${path}` : ""}`);
+import { AdminDashboardPage } from "@/components/routes/AdminDashboardPage";
+
+export default function LocaleAdminPage() {
+  return <AdminDashboardPage />;
 }

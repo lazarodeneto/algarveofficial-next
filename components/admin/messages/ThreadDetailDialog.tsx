@@ -21,7 +21,7 @@ import {
 import { User, Building2, MessageSquare, ExternalLink, Shield, Send, Loader2, Trash2 } from "lucide-react";
 import { ChatThread, ChatMessage, useAdminChatMessages, useUpdateThreadStatus, useAdminSendMessage, useMarkThreadAsRead, useDeleteThread, useDeleteChatMessage } from "@/hooks/useAdminChat";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { normalizeThreadStatus, type ThreadStatus } from "@/lib/chatThreadStatus";
 
@@ -131,18 +131,18 @@ export const ThreadDetailDialog = forwardRef<HTMLDivElement, ThreadDetailDialogP
               </div>
             </div>
             <div className="space-y-3">
-              <div>
-                <p className="text-xs text-muted-foreground">Listing</p>
-                {thread.listing ? (
-                  <Link
-                    href={`/listing/${thread.listing.slug}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-medium hover:text-primary flex items-center gap-1"
-                  >
-                    {thread.listing.name}
-                    <ExternalLink className="h-3 w-3" />
-                  </Link>
+                <div>
+                  <p className="text-xs text-muted-foreground">Listing</p>
+                  {thread.listing ? (
+                    <LocaleLink
+                      href={`/listing/${thread.listing.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium hover:text-primary flex items-center gap-1"
+                    >
+                      {thread.listing.name}
+                      <ExternalLink className="h-3 w-3" />
+                    </LocaleLink>
                 ) : (
                   <p className="text-muted-foreground italic">General Inquiry</p>
                 )}

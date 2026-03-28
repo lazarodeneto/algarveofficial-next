@@ -10,7 +10,10 @@ import nl from "./locales/nl.json";
 import sv from "./locales/sv.json";
 import no from "./locales/no.json";
 import da from "./locales/da.json";
-import { enforcePremiumInLocaleData } from "@/lib/i18n/premiumGuard";
+import {
+  enforcePremiumInLocaleData,
+  preserveBundledLocaleValues,
+} from "@/lib/i18n/premiumGuard";
 
 const SUPPORTED_LANGS = ["en", "pt-pt", "de", "fr", "es", "it", "nl", "sv", "no", "da"];
 
@@ -74,6 +77,12 @@ const bundled = Object.fromEntries(
   ]),
 ) as Record<string, Record<string, unknown>>;
 
+const BUNDLED_PRIORITY_I18N_KEYS = [
+  "newsletter.footerTitle",
+  "newsletter.footerSubtitle",
+  "newsletter.footerCta",
+];
+
 // ── Initialise i18n with bundled data first (instant) ────────────────────────
 // Next.js server rendering must start from a deterministic locale.
 // Route-level locale handling can change the language after hydration.
@@ -122,7 +131,13 @@ async function patchLocaleFromSupabase(locale: string) {
       bundled[locale] ?? {},
       data.data as Record<string, unknown>,
     );
-    const premiumSafeMerged = enforcePremiumInLocaleData(merged, englishSource);
+    const bundledSafeMerged = preserveBundledLocaleValues(
+      merged,
+      bundled[locale] ?? {},
+      englishSource,
+      BUNDLED_PRIORITY_I18N_KEYS,
+    );
+    const premiumSafeMerged = enforcePremiumInLocaleData(bundledSafeMerged, englishSource);
 
     i18n.addResourceBundle(locale, "translation", premiumSafeMerged, true, true);
   } catch {

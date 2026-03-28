@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useMemo } from 'react';
 import { format, addDays, startOfWeek, isSameDay, parseISO, isWithinInterval, isBefore, startOfDay } from 'date-fns';
 import { ChevronLeft, ChevronRight, Plus, Clock, Euro, Trash2, Edit2, CirclePlus, CircleX } from 'lucide-react';

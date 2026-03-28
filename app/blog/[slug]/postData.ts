@@ -1,6 +1,6 @@
 import { cache } from "react";
 import type { Tables } from "@/integrations/supabase/types";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicServerClient } from "@/lib/supabase/public-server";
 import type { Locale } from "@/lib/i18n/config";
 
 export type BlogPostSeoRecord = Pick<
@@ -29,7 +29,7 @@ export const getPublishedBlogPostBySlug = cache(async (slug: string, locale: Loc
   const normalizedSlug = slug.trim();
   if (!normalizedSlug) return null;
 
-  const supabase = await createClient();
+  const supabase = createPublicServerClient();
   const localeCode = dbLocale(locale);
 
   const { data, error } = await supabase

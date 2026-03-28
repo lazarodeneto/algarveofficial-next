@@ -1,9 +1,11 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { LocalizedLink } from "@/components/navigation/LocalizedLink";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { ChevronRight, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { useLocalePath } from "@/hooks/useLocalePath";
+import { stripLocaleFromPathname } from "@/lib/i18n/config";
 
 interface BreadcrumbConfig {
   basePath: string;
@@ -89,20 +91,22 @@ const dashboardConfigs: Record<string, BreadcrumbConfig> = {
 export function DashboardBreadcrumb() {
   const { t } = useTranslation();
   const pathname = usePathname() ?? "";
+  const l = useLocalePath();
+  const barePath = stripLocaleFromPathname(pathname);
 
   // Determine which dashboard we're in
-  const dashboardType = pathname.startsWith("/admin")
+  const dashboardType = barePath.startsWith("/admin")
     ? "admin"
-    : pathname.startsWith("/owner")
+    : barePath.startsWith("/owner")
     ? "owner"
-    : pathname.startsWith("/dashboard")
+    : barePath.startsWith("/dashboard")
     ? "dashboard"
     : null;
 
   if (!dashboardType) return null;
 
   const config = dashboardConfigs[dashboardType];
-  const relativePath = pathname.replace(config.basePath, "").replace(/^\//, "");
+  const relativePath = barePath.replace(config.basePath, "").replace(/^\//, "");
   
   // Build breadcrumb segments
   const segments: { label: string; href: string; isLast: boolean }[] = [
@@ -157,13 +161,13 @@ export function DashboardBreadcrumb() {
 
   return (
     <nav className="flex min-w-0 items-center gap-1 overflow-hidden text-xs sm:text-sm" aria-label="Breadcrumb">
-      <LocalizedLink
+      <LocaleLink
         href="/"
         className="flex shrink-0 items-center text-muted-foreground transition-colors hover:text-foreground"
         title={t("common.goToHomepage")}
       >
         <Home className="h-4 w-4" />
-      </LocalizedLink>
+      </LocaleLink>
       
       {segments.map((segment, index) => (
         <div
@@ -180,7 +184,7 @@ export function DashboardBreadcrumb() {
             </span>
           ) : (
             <Link
-              href={segment.href}
+              href={l(segment.href)}
               className={cn(
                 "text-muted-foreground hover:text-foreground transition-colors",
                 index === 0 && "hidden lg:inline"

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { MapListingPoint } from "@/components/map/ListingsLeafletMap";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { useSignatureListings } from "@/hooks/useListings";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { translateCategoryName } from "@/lib/translateCategory";
@@ -38,7 +38,7 @@ const FILTER_ICONS: Record<DiscoveryCategory, ComponentType<{ className?: string
 
 export function SignatureMapSection() {
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const { isFavorite, toggleFavorite } = useFavoriteListings();
   const [activeDiscoveryFilters, setActiveDiscoveryFilters] = useState<DiscoveryCategory[]>(() =>
     DISCOVERY_FILTERS.map((filter) => filter.key)

@@ -44,8 +44,10 @@ import {
   type CalendarEvent,
 } from '@/types/events';
 import { toast } from '@/hooks/use-toast';
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function AdminEvents() {
+  const l = useLocalePath();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<EventStatus | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState<EventCategory | 'all'>('all');
@@ -90,7 +92,7 @@ export default function AdminEvents() {
           <p className="text-muted-foreground">Manage all events across the platform</p>
         </div>
         <Button asChild>
-          <Link href="/admin/content/events/new">
+          <Link href={l("/admin/content/events/new")}>
             <Plus className="h-4 w-4 mr-2" />
             New Event
           </Link>
@@ -177,7 +179,7 @@ export default function AdminEvents() {
               </p>
                {!search && statusFilter === 'all' && categoryFilter === 'all' && (
                 <Button asChild>
-                  <Link href="/admin/content/events/new">
+                  <Link href={l("/admin/content/events/new")}>
                     <Plus className="h-4 w-4 mr-2" />
                     Create Event
                   </Link>
@@ -253,7 +255,7 @@ export default function AdminEvents() {
                             </Link>
                           </Button>
                           <Button variant="ghost" size="icon" asChild>
-                            <Link href={`/admin/content/events/${event.id}/edit`}>
+                            <Link href={l(`/admin/content/events/${event.id}/edit`)}>
                               <Edit className="h-4 w-4" />
                             </Link>
                           </Button>

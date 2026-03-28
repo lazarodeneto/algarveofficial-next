@@ -1,9 +1,7 @@
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function PrivacyPolicyPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  redirect("/privacy-policy");
+import PrivacyPolicy from "@/legacy-pages/legal/PrivacyPolicy";
+
+export default function PrivacyPolicyPage() {
+  return <PrivacyPolicy />;
 }

@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { SITE_URL, localizeCanonicalUrl } from "@/lib/seoUrls";
 import {
@@ -158,40 +157,6 @@ export function SeoHead({
 
   // x-default always points to English version
   const xDefaultUrl = buildLangUrl("");
-
-  useEffect(() => {
-    if (typeof document === "undefined") return;
-
-    const dedupeCanonicals = () => {
-      const canonicalLinks = Array.from(document.head.querySelectorAll<HTMLLinkElement>('link[rel="canonical"]'));
-      if (canonicalLinks.length === 0) return;
-
-      const matchingCanonical = canonicalLinks.filter((link) => link.href === canonical);
-      const keeper =
-        matchingCanonical.find((link) => link.hasAttribute("data-rh")) ||
-        matchingCanonical[matchingCanonical.length - 1] ||
-        canonicalLinks.find((link) => link.hasAttribute("data-rh")) ||
-        canonicalLinks[canonicalLinks.length - 1];
-
-      if (!keeper) return;
-
-      keeper.setAttribute("href", canonical);
-
-      canonicalLinks.forEach((link) => {
-        if (link !== keeper) {
-          link.remove();
-        }
-      });
-    };
-
-    const frame = window.requestAnimationFrame(dedupeCanonicals);
-    const timeout = window.setTimeout(dedupeCanonicals, 0);
-
-    return () => {
-      window.cancelAnimationFrame(frame);
-      window.clearTimeout(timeout);
-    };
-  }, [canonical]);
 
   return (
     <Helmet>

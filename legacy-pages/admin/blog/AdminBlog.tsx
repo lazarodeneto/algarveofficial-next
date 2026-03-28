@@ -42,9 +42,11 @@ import {
 } from "@/hooks/useBlogPosts";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function AdminBlog() {
   const router = useRouter();
+  const l = useLocalePath();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -186,7 +188,7 @@ export default function AdminBlog() {
               <Eye className="h-4 w-4 mr-2" />
               View
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => router.push(`/admin/blog/${post.id}/edit`)}>
+            <DropdownMenuItem onClick={() => router.push(l(`/admin/blog/${post.id}/edit`))}>
               <Edit className="h-4 w-4 mr-2" />
               Edit
             </DropdownMenuItem>
@@ -223,7 +225,7 @@ export default function AdminBlog() {
             Manage articles, drafts, and scheduled publications
           </p>
         </div>
-        <Button onClick={() => router.push("/admin/blog/new")} className="gap-2">
+        <Button onClick={() => router.push(l("/admin/blog/new"))} className="gap-2">
           <Plus className="h-4 w-4" />
           New Post
         </Button>

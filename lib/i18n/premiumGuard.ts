@@ -100,3 +100,33 @@ export function enforcePremiumInLocaleData(
 
   return unflattenI18nData(premiumSafeFlat);
 }
+
+export function preserveBundledLocaleValues(
+  localeData: Record<string, unknown>,
+  bundledLocaleData: Record<string, unknown>,
+  englishData: Record<string, unknown>,
+  keys: string[],
+): Record<string, unknown> {
+  const localeFlat = flattenI18nData(localeData);
+  const bundledFlat = flattenI18nData(bundledLocaleData);
+  const englishFlat = flattenI18nData(englishData);
+  const normalizedFlat = { ...localeFlat };
+
+  for (const key of keys) {
+    const localeValue = localeFlat[key];
+    const bundledValue = bundledFlat[key];
+    const englishValue = englishFlat[key];
+
+    if (
+      typeof localeValue === "string" &&
+      typeof bundledValue === "string" &&
+      typeof englishValue === "string" &&
+      localeValue === englishValue &&
+      bundledValue !== englishValue
+    ) {
+      normalizedFlat[key] = bundledValue;
+    }
+  }
+
+  return unflattenI18nData(normalizedFlat);
+}

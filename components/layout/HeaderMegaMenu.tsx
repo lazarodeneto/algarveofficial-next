@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import { useHeaderMenu } from "@/hooks/useHeaderMenu";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { getMenuIcon } from "@/lib/menu-icons";
 import {
     MapPin,
@@ -63,10 +63,10 @@ const liveItems = [
 ];
 
 const investItems = [
-    { href: "/real-estate", label: "Real Estate Directory", desc: "Independent listings focused on property investment", icon: Building2 },
-    { href: "/invest", label: "Why Invest", desc: "Algarve market insights & data", icon: TrendingUp },
-    { href: "/partner", label: "Add Real Estate Listing", desc: "Submit your property as an agency or owner", icon: PlusCircle },
-    { href: "/map", label: "Map Explorer", desc: "Clustered view across all listings", icon: MapPin },
+    { href: "/real-estate", label: "Real Estate Directory", translationKey: "blog.blogCategories.realEstate", desc: "Independent listings focused on property investment", icon: Building2 },
+    { href: "/invest", label: "Why Invest", translationKey: "nav.invest", desc: "Algarve market insights & data", icon: TrendingUp },
+    { href: "/partner", label: "Add Real Estate Listing", translationKey: "footer.becomePartner", desc: "Submit your property as an agency or owner", icon: PlusCircle },
+    { href: "/map", label: "Map Explorer", translationKey: "nav.map", desc: "Clustered view across all listings", icon: MapPin },
 ];
 
 // ─── Section config ───────────────────────────────────────────────────────────
@@ -83,12 +83,16 @@ const sections = {
         accentLight: "#FDE68A",     // light gold for text on dark bg
         accentBright: "#F5C842",
         pill: "text-amber-700 bg-amber-50 border-amber-200",
-        pillLabel: "Visit",
+        pillLabel: "menu.visit",
+        pillLabelI18n: true,
         navBorder: "border-black dark:border-white",
-        heroTitle: "Visit Algarve",
-        heroDesc: "World-class experiences along Europe's most beautiful coastline.",
+        heroTitle: "menu.hero.visit.title",
+        heroTitleI18n: true,
+        heroDesc: "menu.hero.visit.desc",
+        heroDescI18n: true,
         heroLink: "/directory",
-        heroLabel: "Explore all",
+        heroLabel: "menu.hero.visit.label",
+        heroLabelI18n: true,
         items: visitItems,
     },
     live: {
@@ -102,31 +106,39 @@ const sections = {
         accentLight: "#BAE6FD",
         accentBright: "#60A5FA",
         pill: "text-blue-700 bg-blue-50 border-blue-200",
-        pillLabel: "Live",
+        pillLabel: "menu.live",
+        pillLabelI18n: true,
         navBorder: "border-black dark:border-white",
-        heroTitle: "Live in Algarve",
-        heroDesc: "Everything you need to make the Algarve your permanent home.",
+        heroTitle: "menu.hero.live.title",
+        heroTitleI18n: true,
+        heroDesc: "menu.hero.live.desc",
+        heroDescI18n: true,
         heroLink: "/directory",
-        heroLabel: "Learn more",
+        heroLabel: "menu.hero.live.label",
+        heroLabelI18n: true,
         items: liveItems,
     },
     invest: {
         value: "invest",
         label: "nav.invest",
         icon: TrendingUp,
-        navPath: "/invest",
+        navPath: "/real-estate",
         image: imgTavira,
         imageAlt: "Tavira historic architecture",
         accent: "#065F46",
         accentLight: "#A7F3D0",
         accentBright: "#4ADE80",
         pill: "text-emerald-700 bg-emerald-50 border-emerald-200",
-        pillLabel: "Invest",
+        pillLabel: "menu.invest",
+        pillLabelI18n: true,
         navBorder: "border-black dark:border-white",
-        heroTitle: "Invest in Algarve",
-        heroDesc: "Secure your piece of paradise and build lasting value.",
-        heroLink: "/invest",
-        heroLabel: "Explore strategy",
+        heroTitle: "menu.hero.invest.title",
+        heroTitleI18n: true,
+        heroDesc: "menu.hero.invest.desc",
+        heroDescI18n: true,
+        heroLink: "/real-estate",
+        heroLabel: "menu.hero.invest.label",
+        heroLabelI18n: true,
         items: investItems,
     },
 };
@@ -151,7 +163,7 @@ type HeaderRuntimeSection = (typeof sections)[SectionKey] & {
 function useHeaderRuntimeSections(): HeaderRuntimeSection[] {
     const { t } = useTranslation();
     const { data: headerMenuItems = [] } = useHeaderMenu();
-    const l = useLocalizedHref();
+    const l = useLocalePath();
     const sectionEntries = React.useMemo(() => Object.entries(sections) as Array<[SectionKey, (typeof sections)[SectionKey]]>, []);
     
     return React.useMemo(() => {
@@ -333,6 +345,14 @@ export function HeaderMegaMenu() {
 // ─── Mega Panel ───────────────────────────────────────────────────────────────
 
 function MegaPanel({ section }: { section: HeaderRuntimeSection }) {
+    const { t } = useTranslation();
+
+    // Translate hero text if marked as i18n
+    const pillLabel = (section as any).pillLabelI18n ? t(section.pillLabel) : section.pillLabel;
+    const heroTitle = (section as any).heroTitleI18n ? t(section.heroTitle) : section.heroTitle;
+    const heroDesc = (section as any).heroDescI18n ? t(section.heroDesc) : section.heroDesc;
+    const heroLabel = (section as any).heroLabelI18n ? t(section.heroLabel) : section.heroLabel;
+
     return (
         <div className="header-mega-panel flex w-[min(820px,calc(100vw-8rem))] overflow-hidden rounded-2xl border border-border shadow-[0_24px_64px_-12px_rgba(0,0,0,0.22)] bg-background">
 
@@ -354,14 +374,14 @@ function MegaPanel({ section }: { section: HeaderRuntimeSection }) {
                         "self-start text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border mb-4",
                         section.pill
                     )}>
-                        {section.pillLabel}
+                        {pillLabel}
                     </span>
 
                     <h3 className="text-white font-extrabold text-2xl leading-snug mb-2 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
-                        {section.heroTitle}
+                        {heroTitle}
                     </h3>
                     <p className="text-white/85 text-[13px] font-medium leading-relaxed mb-6 [text-shadow:0_1px_6px_rgba(0,0,0,0.9)]">
-                        {section.heroDesc}
+                        {heroDesc}
                     </p>
 
                     <NavigationMenuLink asChild>
@@ -369,7 +389,7 @@ function MegaPanel({ section }: { section: HeaderRuntimeSection }) {
                             href={section.heroLink}
                             className="group self-start inline-flex items-center gap-2 text-[13px] font-bold text-white bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/40 px-5 py-2.5 rounded-xl transition-all duration-200"
                         >
-                            {section.heroLabel}
+                            {heroLabel}
                             <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
                         </Link>
                     </NavigationMenuLink>
@@ -379,7 +399,7 @@ function MegaPanel({ section }: { section: HeaderRuntimeSection }) {
             {/* ── Right: frosted glass items column ── */}
             <div className="flex-1 p-6 bg-background">
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3 px-2">
-                    Browse Categories
+                    {t("menu.browseCategories")}
                 </p>
                 <div className="grid grid-cols-2 gap-0.5">
                     {section.items.map((item) => (
@@ -400,9 +420,11 @@ function PanelItem({
     item: { href: string; label: string; translationKey?: string; desc: string; icon: React.ElementType };
     accent: string;
 }) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const Icon = item.icon;
-    const label = item.translationKey ? t(item.translationKey) : item.label;
+    const label = item.translationKey ? t(item.translationKey, item.label) : item.label;
+    const locale = (i18n.resolvedLanguage ?? i18n.language ?? "").toLowerCase();
+    const desc = locale.startsWith("en") ? item.desc : "";
     return (
         <NavigationMenuLink asChild>
             <Link
@@ -431,9 +453,11 @@ function PanelItem({
                     <span className="block text-[13px] font-bold text-foreground group-hover:text-[#9A6E00] dark:group-hover:text-[#F5D98B] transition-colors leading-tight truncate">
                         {label}
                     </span>
-                    <span className="block text-[11.5px] text-muted-foreground group-hover:text-[#9A6E00]/80 dark:group-hover:text-[#F5D98B]/85 transition-colors leading-tight mt-0.5 truncate">
-                        {item.desc}
-                    </span>
+                    {desc ? (
+                        <span className="block text-[11.5px] text-muted-foreground group-hover:text-[#9A6E00]/80 dark:group-hover:text-[#F5D98B]/85 transition-colors leading-tight mt-0.5 truncate">
+                            {desc}
+                        </span>
+                    ) : null}
                 </span>
             </Link>
         </NavigationMenuLink>

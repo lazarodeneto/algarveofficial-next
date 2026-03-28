@@ -38,13 +38,13 @@ import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
-import { useLocale } from "@/lib/i18n/locale-context";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export function AdminHeader() {
   const { t } = useTranslation();
   const { logout, user } = useAuth();
   const router = useRouter();
-  const locale = useLocale();
+  const l = useLocalePath();
   const { data: pendingCount = 0 } = usePendingReviewCount();
   const { data: pendingListingReviewsCount = 0 } = usePendingListingReviewCount();
   const { data: unreadMessagesCount = 0 } = useUnreadMessagesCount();
@@ -56,45 +56,45 @@ export function AdminHeader() {
 
   const quickJumpOptions = useMemo(
     () => [
-      { label: t("admin.sidebar.overview", "Overview"), value: "/admin" },
-      { label: t("admin.sidebar.listings", "Listings"), value: "/admin/listings" },
-      { label: t("admin.overview.createListing", "Create Listing"), value: "/admin/listings/new" },
-      { label: t("admin.sidebar.moderationQueue", "Moderation Queue"), value: "/admin/moderation" },
-      { label: t("admin.sidebar.reviewModeration", "Review Moderation"), value: "/admin/reviews" },
-      { label: t("admin.sidebar.messages", "Messages"), value: "/admin/messages" },
-      { label: t("admin.sidebar.translations", "Translations"), value: "/admin/content/translations" },
-      { label: t("admin.sidebar.pageBuilder", "Full Page Builder"), value: "/admin/content/page-builder" },
-      { label: t("admin.sidebar.homePage", "Home Page"), value: "/admin/content/home" },
-      { label: t("admin.sidebar.events", "Events"), value: "/admin/content/events" },
-      { label: t("admin.sidebar.mediaLibrary", "Media Library"), value: "/admin/content/media" },
-      { label: t("admin.sidebar.settings", "Settings"), value: "/admin/settings" },
-      { label: t("admin.sidebar.usersRoles", "Users"), value: "/admin/users" },
+      { label: t("admin.sidebar.overview", "Overview"), value: l("/admin") },
+      { label: t("admin.sidebar.listings", "Listings"), value: l("/admin/listings") },
+      { label: t("admin.overview.createListing", "Create Listing"), value: l("/admin/listings/new") },
+      { label: t("admin.sidebar.moderationQueue", "Moderation Queue"), value: l("/admin/moderation") },
+      { label: t("admin.sidebar.reviewModeration", "Review Moderation"), value: l("/admin/reviews") },
+      { label: t("admin.sidebar.messages", "Messages"), value: l("/admin/messages") },
+      { label: t("admin.sidebar.translations", "Translations"), value: l("/admin/content/translations") },
+      { label: t("admin.sidebar.pageBuilder", "Full Page Builder"), value: l("/admin/content/page-builder") },
+      { label: t("admin.sidebar.homePage", "Home Page"), value: l("/admin/content/home") },
+      { label: t("admin.sidebar.events", "Events"), value: l("/admin/content/events") },
+      { label: t("admin.sidebar.mediaLibrary", "Media Library"), value: l("/admin/content/media") },
+      { label: t("admin.sidebar.settings", "Settings"), value: l("/admin/settings") },
+      { label: t("admin.sidebar.usersRoles", "Users"), value: l("/admin/users") },
     ],
-    [t],
+    [l, t],
   );
 
   const quickActionLinks = useMemo(
     () => [
       {
         label: t("admin.overview.createListing", "Create Listing"),
-        href: "/admin/listings/new",
+        href: l("/admin/listings/new"),
       },
       {
         label: t("admin.sidebar.moderationQueue", "Moderation Queue"),
-        href: "/admin/moderation",
+        href: l("/admin/moderation"),
         badge: pendingCount || undefined,
       },
       {
         label: t("admin.sidebar.reviewModeration", "Review Moderation"),
-        href: "/admin/reviews",
+        href: l("/admin/reviews"),
         badge: pendingListingReviewsCount || undefined,
       },
       {
         label: t("admin.sidebar.translations", "Translations"),
-        href: "/admin/content/translations",
+        href: l("/admin/content/translations"),
       },
     ],
-    [pendingCount, pendingListingReviewsCount, t],
+    [l, pendingCount, pendingListingReviewsCount, t],
   );
 
   const handleQuickJumpSubmit = (event: FormEvent) => {
@@ -124,7 +124,7 @@ export function AdminHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/88 backdrop-blur-xl supports-[backdrop-filter]:bg-background/72">
       <div className="flex min-h-14 items-center justify-between gap-2 px-2.5 py-2 sm:min-h-16 sm:px-3 lg:px-5">
-        <div className="flex min-w-0 flex-1 items-center gap-2 pl-11 sm:pl-12 md:gap-3 lg:pl-0 xl:gap-4">
+        <div className="flex min-w-0 flex-1 items-center gap-2 pl-11 sm:pl-12 md:gap-3 xl:pl-0 xl:gap-4">
           <div className="min-w-0 flex-1">
             <DashboardBreadcrumb />
           </div>
@@ -178,13 +178,13 @@ export function AdminHeader() {
           </div>
 
           <Button variant="ghost" size="icon" asChild className="hidden h-9 w-9 text-muted-foreground hover:text-foreground group xl:inline-flex">
-            <Link href={`/${locale}`}>
+            <Link href={l("/")}>
               <Home className="h-5 w-5 transition-colors group-hover:text-foreground" />
             </Link>
           </Button>
 
           <Button variant="ghost" size="icon" asChild className="relative h-9 w-9 text-muted-foreground hover:text-foreground group">
-            <Link href="/admin/moderation">
+            <Link href={l("/admin/moderation")}>
               <Bell className="h-5 w-5 transition-colors group-hover:text-foreground" />
               {totalNotifications > 0 && (
                 <span className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-destructive-foreground">
@@ -195,7 +195,7 @@ export function AdminHeader() {
           </Button>
 
           <Button variant="ghost" size="icon" asChild className="relative h-9 w-9 text-muted-foreground hover:text-foreground group">
-            <Link href="/admin/messages">
+            <Link href={l("/admin/messages")}>
               <MessageSquare className="h-5 w-5 transition-colors group-hover:text-foreground" />
               {unreadMessagesCount > 0 && (
                 <span className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
@@ -205,7 +205,10 @@ export function AdminHeader() {
             </Link>
           </Button>
 
-          <LanguageSwitcher />
+          <LanguageSwitcher
+            containerClassName="min-w-0"
+            selectClassName="h-9 w-[8.5rem] rounded-full border-border/80 bg-background/80 px-3 py-1 text-sm shadow-none"
+          />
           <ThemeToggle />
 
           <DropdownMenu>
@@ -235,14 +238,14 @@ export function AdminHeader() {
                 {t("common.switchDashboard")}
               </DropdownMenuLabel>
               <DropdownMenuItem asChild>
-                <Link href="/admin" className="flex cursor-pointer items-center">
+                <Link href={l("/admin")} className="flex cursor-pointer items-center">
                   <Check className="mr-2 h-4 w-4 text-primary" />
                   <LayoutDashboard className="mr-2 h-4 w-4" />
                   {t("common.adminDashboard")}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/owner" className="flex cursor-pointer items-center">
+                <Link href={l("/owner")} className="flex cursor-pointer items-center">
                   <span className="mr-2 w-4" />
                   <Building2 className="mr-2 h-4 w-4" />
                   {t("common.ownerDashboard")}
@@ -254,7 +257,7 @@ export function AdminHeader() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/dashboard" className="flex cursor-pointer items-center">
+                <Link href={l("/dashboard")} className="flex cursor-pointer items-center">
                   <span className="mr-2 w-4" />
                   <UserCheck className="mr-2 h-4 w-4" />
                   {t("common.userDashboard")}
@@ -263,7 +266,7 @@ export function AdminHeader() {
               <DropdownMenuSeparator />
 
               <DropdownMenuItem asChild>
-                <Link href="/admin/settings" className="flex cursor-pointer items-center">
+                <Link href={l("/admin/settings")} className="flex cursor-pointer items-center">
                   <Settings className="mr-2 h-4 w-4" />
                   {t("admin.sidebar.settings")}
                 </Link>

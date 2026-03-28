@@ -3,12 +3,12 @@ import { ArrowRight, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { usePublishedListings } from "@/hooks/useListings";
 
 export function CTASection() {
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const { data: listings } = usePublishedListings();
   const listingCount = listings?.length ?? 0;
 

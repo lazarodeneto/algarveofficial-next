@@ -5,7 +5,6 @@ import { ArrowLeft, Building2, Filter, Loader2, MapPinned, Search, Tag } from "l
 import { useTranslation } from "react-i18next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { SeoHead } from "@/components/seo/SeoHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,7 +20,7 @@ const ListingsLeafletMap = dynamic(() => import("@/components/map/ListingsLeafle
 });
 import { usePublishedListings, type ListingFilters, type ListingTier } from "@/hooks/useListings";
 import { useCategories, useCities, useRegions } from "@/hooks/useReferenceData";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { translateCategoryName } from "@/lib/translateCategory";
 import {
   buildMergedCategoryOptions,
@@ -39,7 +38,7 @@ function isWithinAlgarveBounds(latitude: number, longitude: number): boolean {
 
 export default function MapExplorer() {
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const router = useRouter();
   const pathname = usePathname() || "/map";
   const searchParams = useSearchParams();
@@ -202,20 +201,17 @@ export default function MapExplorer() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SeoHead
-        title="Map Explorer · Algarve Listings"
-        description="Explore Algarve listings on an interactive map with clustered, category-colored markers and advanced filters."
-        canonicalUrl="https://algarveofficial.com/map"
-      />
       <Header />
 
       <main className="pt-28 pb-16">
         <div className="app-container content-max">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-3xl md:text-4xl font-serif font-medium text-foreground">Map Explorer</h1>
+              <h1 className="text-3xl md:text-4xl font-serif font-medium text-foreground">
+                {t("map.title")}
+              </h1>
               <p className="text-muted-foreground mt-2">
-                Clustered category markers with instant filtering across the Algarve.
+                {t("map.subtitle")}
               </p>
             </div>
             <Link href={l("/directory")}>
@@ -299,7 +295,7 @@ export default function MapExplorer() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">Tier</label>
+                    <label className="text-xs font-medium text-muted-foreground">{t("directory.tier")}</label>
                     <Select value={selectedTier} onValueChange={setSelectedTier}>
                       <SelectTrigger>
                         <SelectValue placeholder={t("directory.allTiers")} />
@@ -314,10 +310,10 @@ export default function MapExplorer() {
 
                   <div className="rounded-lg bg-muted/40 p-3">
                     <p className="text-sm text-foreground font-medium">
-                      {mapPoints.length} mappable listings
+                      {t("map.mappableListings", { count: mapPoints.length })}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {listings.length} total results match your filters
+                      {t("map.totalResults", { count: listings.length })}
                     </p>
                   </div>
 
@@ -333,7 +329,7 @@ export default function MapExplorer() {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base flex items-center gap-2">
                     <MapPinned className="h-4 w-4 text-primary" />
-                    Visible on map
+                    {t("map.visibleOnMap")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="max-h-[360px] overflow-auto pr-2 space-y-2">
@@ -346,7 +342,7 @@ export default function MapExplorer() {
                   )}
 
                   {!isLoading && mapPoints.length === 0 && (
-                    <p className="text-sm text-muted-foreground py-2">No mapped listings for these filters.</p>
+                    <p className="text-sm text-muted-foreground py-2">{t("map.noMappedListings")}</p>
                   )}
 
                   {!isLoading &&
@@ -406,14 +402,14 @@ export default function MapExplorer() {
                   minZoom={8}
                   enforceBoundsOnPoints
                   enableClustering
-                  showPopups
+                  showPopups={false}
                   autoFit
                   scrollWheelZoom
                   activeListingId={selectedListingId}
                   focusListingId={selectedListingId}
                   onListingSelect={setSelectedListingId}
                   mapClassName="h-[calc(100vh-13rem)] min-h-[560px]"
-                  emptyMessage="No listing coordinates available for the selected filters."
+                  emptyMessage={t("map.emptyCoordinates")}
                 />
               )}
             </section>

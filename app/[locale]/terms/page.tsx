@@ -1,9 +1,7 @@
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function TermsPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  redirect("/terms");
+import TermsOfService from "@/legacy-pages/legal/TermsOfService";
+
+export default function TermsPage() {
+  return <TermsOfService />;
 }

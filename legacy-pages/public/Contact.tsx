@@ -111,39 +111,42 @@ export default function Contact() {
                                     </CardHeader>
                                     <CardContent className="p-0 space-y-10">
 
-                                        <div className="flex items-center gap-6 group">
-                                            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 transition-colors group-hover:bg-primary/20">
-                                                <Mail className="w-7 h-7 text-primary" />
+                                        <div className="flex items-start gap-4 sm:gap-6 group">
+                                            <div className="h-12 w-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 transition-colors group-hover:bg-primary/20">
+                                                <Mail className="h-6 w-6 sm:w-7 sm:h-7 text-primary" />
                                             </div>
-                                            <div>
+                                            <div className="min-w-0 flex-1">
                                                 <h4 className="font-semibold text-foreground text-lg">{t('contact.email', 'Email')}</h4>
-                                                <p className="text-muted-foreground">{settings?.display_email || 'hello@algarveofficial.com'}</p>
-                                                <a href={`mailto:${settings?.display_email || 'hello@algarveofficial.com'}`} className="text-primary text-sm hover:underline mt-1 inline-block font-medium">
+                                                <p className="break-all text-muted-foreground leading-relaxed">{settings?.display_email || 'hello@algarveofficial.com'}</p>
+                                                <a
+                                                    href={`mailto:${settings?.display_email || 'hello@algarveofficial.com'}`}
+                                                    className="mt-1 inline-block break-words text-sm font-medium text-primary hover:underline"
+                                                >
                                                     {t('contact.sendEmail', 'Send an email')}
                                                 </a>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-6 group">
-                                            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 transition-colors group-hover:bg-primary/20">
-                                                <MessageSquare className="w-7 h-7 text-primary" />
+                                        <div className="flex items-start gap-4 sm:gap-6 group">
+                                            <div className="h-12 w-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 transition-colors group-hover:bg-primary/20">
+                                                <MessageSquare className="h-6 w-6 sm:w-7 sm:h-7 text-primary" />
                                             </div>
-                                            <div>
+                                            <div className="min-w-0 flex-1">
                                                 <h4 className="font-semibold text-foreground text-lg">WhatsApp</h4>
-                                                <p className="text-muted-foreground">{t('contact.waDesc', 'Chat with us directly for quick support.')}</p>
-                                                <a href={`https://wa.me/${(settings?.whatsapp_number || '351123456789').replace(/\+/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-primary text-sm hover:underline mt-1 inline-block font-medium">
+                                                <p className="text-muted-foreground leading-relaxed">{t('contact.waDesc', 'Chat with us directly for quick support.')}</p>
+                                                <a href={`https://wa.me/${(settings?.whatsapp_number || '351123456789').replace(/\+/g, '')}`} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block break-words text-sm font-medium text-primary hover:underline">
                                                     {t('contact.startChat', 'Start a chat')}
                                                 </a>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-6 group">
-                                            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 transition-colors group-hover:bg-primary/20">
-                                                <MapPin className="w-7 h-7 text-primary" />
+                                        <div className="flex items-start gap-4 sm:gap-6 group">
+                                            <div className="h-12 w-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 transition-colors group-hover:bg-primary/20">
+                                                <MapPin className="h-6 w-6 sm:w-7 sm:h-7 text-primary" />
                                             </div>
-                                            <div>
+                                            <div className="min-w-0 flex-1">
                                                 <h4 className="font-semibold text-foreground text-lg">{t('contact.location', 'Office')}</h4>
-                                                <p className="text-muted-foreground">{settings?.office_location || 'Vilamoura, Algarve, Portugal'}</p>
+                                                <p className="break-words text-muted-foreground leading-relaxed">{settings?.office_location || 'Vilamoura, Algarve, Portugal'}</p>
                                             </div>
                                         </div>
 

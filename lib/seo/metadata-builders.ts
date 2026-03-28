@@ -4,16 +4,15 @@
  */
 
 import type { Metadata } from "next";
-import { LOCALE_CONFIGS, type Locale } from "@/lib/i18n/config";
+import type { Locale } from "@/lib/i18n/config";
 import {
-  buildCanonicalUrl,
   buildHreflangs,
-  toHtmlLang,
+  buildMetadataAlternates,
   toOpenGraphLocale,
-  getHreflangForLocale,
+  getSiteUrl,
 } from "@/lib/i18n/seo";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ?? "https://algarveofficial.com";
+const SITE_URL = getSiteUrl();
 const SITE_NAME = "AlgarveOfficial";
 const DEFAULT_IMAGE = "/og-image.png";
 
@@ -34,10 +33,17 @@ export interface LocalizedMetadataParams {
   keywords?: string[];
   /** Disable indexing */
   noIndex?: boolean;
+  /** Override robots follow behavior */
+  follow?: boolean;
   /** Article metadata */
   publishedTime?: string;
   modifiedTime?: string;
   authorName?: string;
+}
+
+export interface LocalizedAliasMetadataParams extends Omit<LocalizedMetadataParams, "path"> {
+  /** Canonical destination used for aliases such as /visit -> /directory */
+  canonicalPath: string;
 }
 
 /**
@@ -85,6 +91,7 @@ export function buildLocalizedMetadata(params: LocalizedMetadataParams): Metadat
     type = "website",
     keywords,
     noIndex = false,
+    follow = !noIndex,
     publishedTime,
     modifiedTime,
     authorName,
@@ -93,18 +100,8 @@ export function buildLocalizedMetadata(params: LocalizedMetadataParams): Metadat
   const brandedTitle = ensureBrandedTitle(title);
   const normalizedDescription = normalizeDescription(description);
   const imageUrl = image.startsWith("http") ? image : `${SITE_URL}${image}`;
-  const htmlLang = toHtmlLang(locale);
   const ogLocale = toOpenGraphLocale(locale);
-
-  // Build canonical and hreflangs
-  const canonical = buildCanonicalUrl(locale, path);
-  const hreflangs = buildHreflangs(path);
-
-  // Build alternates with hreflangs
-  const alternates = {
-    canonical: canonical,
-    languages: hreflangs,
-  };
+  const alternates = buildMetadataAlternates(locale, path);
 
   return {
     title: brandedTitle,
@@ -123,10 +120,10 @@ export function buildLocalizedMetadata(params: LocalizedMetadataParams): Metadat
     alternates: alternates as any,
     robots: {
       index: !noIndex,
-      follow: !noIndex,
+      follow,
       googleBot: {
         index: !noIndex,
-        follow: !noIndex,
+        follow,
         "max-image-preview": "large",
         "max-snippet": -1,
         "max-video-preview": -1,
@@ -188,6 +185,20 @@ export function buildStaticPageMetadata(params: LocalizedMetadataParams): Metada
 }
 
 /**
+ * Build metadata for an alias route that should consolidate SEO signals onto
+ * a different canonical localized path.
+ */
+export function buildLocalizedAliasMetadata(
+  params: LocalizedAliasMetadataParams,
+): Metadata {
+  const { canonicalPath, ...metadata } = params;
+  return buildLocalizedMetadata({
+    ...metadata,
+    path: canonicalPath,
+  });
+}
+
+/**
  * Utility to generate hreflang links as HTML strings
  * Useful for debugging or custom implementations
  *
@@ -201,18 +212,9 @@ export function buildStaticPageMetadata(params: LocalizedMetadataParams): Metada
 export function generateHreflangLinks(path: string = ""): string {
   let html = "";
 
-  for (const locale of Object.keys(LOCALE_CONFIGS) as Locale[]) {
-    const hreflang = getHreflangForLocale(locale);
-    const cleanPath = path.startsWith("/") ? path : `/${path}`;
-    const pathWithoutTrailingSlash = cleanPath === "/" ? "" : cleanPath.replace(/\/+$/, "");
-    const url = `${SITE_URL}/${locale}${pathWithoutTrailingSlash}`;
+  for (const [hreflang, url] of Object.entries(buildHreflangs(path))) {
     html += `<link rel="alternate" hreflang="${hreflang}" href="${url}" />\n`;
   }
-
-  // Add x-default
-  const defaultPath = path.startsWith("/") ? path : `/${path}`;
-  const defaultUrl = `${SITE_URL}/en${defaultPath === "/" ? "" : defaultPath}`;
-  html += `<link rel="alternate" hreflang="x-default" href="${defaultUrl}" />`;
 
   return html;
 }

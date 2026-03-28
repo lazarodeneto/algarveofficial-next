@@ -1,16 +1,16 @@
 "use client";
 
 import type { CSSProperties, ElementType, ReactNode } from "react";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { ArrowRight, MapPin, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import type { Tables } from "@/integrations/supabase/types";
 import { supabase } from "@/integrations/supabase/client";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -20,8 +20,7 @@ import {
   type CmsTextOverrideMap,
 } from "@/lib/cms/pageBuilderRegistry";
 import { getRegionImageSet } from "@/lib/regionImages";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
-import { useHydrated } from "@/hooks/useHydrated";
+
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
 
@@ -238,7 +237,6 @@ async function fetchGlobalSettings() {
 
 function DestinationsClientInner({ initialRegions, initialGlobalSettings }: DestinationsClientProps) {
   const { t } = useTranslation();
-  const l = useLocalizedHref();
 
   const { data: regions = initialRegions, isLoading } = useQuery({
     queryKey: ["regions", { destinationsOnly: true, activeOnly: false }],
@@ -284,16 +282,16 @@ function DestinationsClientInner({ initialRegions, initialGlobalSettings }: Dest
             media={<PageHeroImage page="destinations" alt={t("destinations.hero.alt", "Scenic Algarve destination coastline")} />}
             ctas={
               <>
-                <Link href={l("/directory")}>
+                <LocaleLink href="/directory">
                   <Button variant="gold" size="lg">
                     {t("destinations.hero.ctaPrimary", "Browse Premium Listings")}
                   </Button>
-                </Link>
-                <Link href={l("/live")}>
+                </LocaleLink>
+                <LocaleLink href="/live">
                   <Button variant="heroOutline" size="lg">
                     {t("destinations.hero.ctaSecondary", "Plan Relocation")}
                   </Button>
-                </Link>
+                </LocaleLink>
               </>
             }
           />
@@ -324,7 +322,7 @@ function DestinationsClientInner({ initialRegions, initialGlobalSettings }: Dest
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: index * 0.1 }}
                   >
-                    <Link
+                    <LocaleLink
                       href={`/destinations/${region.slug}`}
                       className="glass-box group relative overflow-hidden rounded-xl aspect-[4/5] luxury-card cursor-pointer block"
                     >
@@ -368,7 +366,7 @@ function DestinationsClientInner({ initialRegions, initialGlobalSettings }: Dest
                           </span>
                         </div>
                       </div>
-                    </Link>
+                    </LocaleLink>
                   </motion.div>
                 );
               })}
@@ -399,7 +397,7 @@ function DestinationsClientInner({ initialRegions, initialGlobalSettings }: Dest
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                 >
-                  <Link
+                  <LocaleLink
                     href={`/destinations/${region.slug}`}
                     className="group block p-6 rounded-xl bg-background border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-elevated"
                   >
@@ -414,7 +412,7 @@ function DestinationsClientInner({ initialRegions, initialGlobalSettings }: Dest
                     <p className="text-sm text-muted-foreground mb-3">
                       {region.short_description || region.description}
                     </p>
-                  </Link>
+                  </LocaleLink>
                 </motion.div>
               ))}
             </div>
@@ -438,9 +436,9 @@ function DestinationsClientInner({ initialRegions, initialGlobalSettings }: Dest
                 {t("sections.regions.cantDecideSubtitle")}
               </p>
               <Button asChild variant="gold" size="lg">
-                <Link href="/#categories">
+                <LocaleLink href="/#categories">
                   {t("sections.regions.browseByCategory")} <ArrowRight className="w-4 h-4" />
-                </Link>
+                </LocaleLink>
               </Button>
             </motion.div>
           </div>
@@ -453,19 +451,6 @@ function DestinationsClientInner({ initialRegions, initialGlobalSettings }: Dest
 }
 
 export function DestinationsClient(props: DestinationsClientProps) {
-  const mounted = useHydrated();
-
-  useEffect(() => {
-    const serverShell = document.getElementById("destinations-server-shell");
-    if (serverShell) {
-      serverShell.style.display = "none";
-    }
-  }, []);
-
-  if (!mounted) {
-    return null;
-  }
-
   return <DestinationsClientInner {...props} />;
 }
 

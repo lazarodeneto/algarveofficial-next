@@ -1,9 +1,7 @@
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function CookiePolicyPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  redirect("/cookie-policy");
+import CookiePolicy from "@/legacy-pages/legal/CookiePolicy";
+
+export default function CookiePolicyPage() {
+  return <CookiePolicy />;
 }

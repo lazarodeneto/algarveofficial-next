@@ -1,6 +1,5 @@
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import type { CanonicalCategorySlug } from "./category-slugs";
-import type { Locale } from "@/lib/i18n/config";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -32,9 +31,32 @@ export interface CategoryCityPageData {
   totalCount: number;
 }
 
+export interface CityPageData {
+  listings: ProgrammaticListing[];
+  city: { id: string; slug: string; name: string; description: string | null; image_url: string | null };
+  relatedCities: { slug: string; name: string; count: number }[];
+  relatedCategories: { slug: string; name: string; count: number }[];
+  totalCount: number;
+}
+
 export interface StaticParamCombination {
   categorySlug: CanonicalCategorySlug;
   citySlug: string;
+}
+
+export interface ProgrammaticCityIndexEntry {
+  citySlug: string;
+  cityName: string;
+  sortOrder: number | null;
+  totalCount: number;
+  lastModified: string | null;
+}
+
+export interface ProgrammaticCategoryCityIndexEntry {
+  categorySlug: CanonicalCategorySlug;
+  citySlug: string;
+  totalCount: number;
+  lastModified: string | null;
 }
 
 // ─── Field selects ─────────────────────────────────────────────────────────
@@ -43,6 +65,11 @@ const LISTING_FIELDS = `
   id, slug, name, short_description, featured_image_url,
   tier, is_curated, google_rating, google_review_count,
   price_from, price_currency, website_url
+`;
+
+const LISTING_RELATION_FIELDS = `
+  ${LISTING_FIELDS},
+  categories(id, slug, name)
 `;
 
 // ─── Slug validation ─────────────────────────────────────────────────────────
@@ -70,59 +97,278 @@ export function isValidCitySlug(slug: string): boolean {
  * then join to categories/cities in memory.
  */
 export async function getAllCategoryCityCombinations(): Promise<StaticParamCombination[]> {
+  const entries = await getProgrammaticCategoryCityIndexEntries();
+
+  return entries.map(({ categorySlug, citySlug }) => ({
+    categorySlug,
+    citySlug,
+  }));
+}
+
+export async function getAllProgrammaticCitySlugs(): Promise<string[]> {
+  const entries = await getProgrammaticCityIndexEntries();
+  return entries.map(({ citySlug }) => citySlug);
+}
+
+function getLatestTimestamp(
+  current: string | null,
+  candidate: string | null | undefined,
+): string | null {
+  if (!candidate) return current;
+  if (!current) return candidate;
+
+  return new Date(candidate) > new Date(current) ? candidate : current;
+}
+
+export async function getProgrammaticCityIndexEntries(): Promise<ProgrammaticCityIndexEntry[]> {
+  const supabase = createPublicServerClient();
+
+  const [listingsRes, citiesRes] = await Promise.all([
+    supabase
+      .from("listings")
+      .select("city_id, updated_at")
+      .eq("status", "published")
+      .not("city_id", "is", null),
+    supabase
+      .from("cities")
+      .select("id, slug, name, display_order")
+      .eq("is_active", true)
+      .not("slug", "is", null),
+  ]);
+
+  const cityById = new Map(
+    (citiesRes.data ?? []).map((city) => [city.id, city]),
+  );
+
+  const aggregates = new Map<string, ProgrammaticCityIndexEntry>();
+
+  for (const row of listingsRes.data ?? []) {
+    if (!row.city_id) continue;
+
+    const city = cityById.get(row.city_id);
+    if (!city || !city.slug) continue;
+
+    const existing = aggregates.get(city.id);
+    if (existing) {
+      existing.totalCount += 1;
+      existing.lastModified = getLatestTimestamp(existing.lastModified, row.updated_at);
+      continue;
+    }
+
+    aggregates.set(city.id, {
+      citySlug: city.slug.trim().toLowerCase(),
+      cityName: city.name,
+      sortOrder: city.display_order ?? null,
+      totalCount: 1,
+      lastModified: row.updated_at ?? null,
+    });
+  }
+
+  return Array.from(aggregates.values()).sort((a, b) => {
+    const orderDelta = (a.sortOrder ?? Number.MAX_SAFE_INTEGER) - (b.sortOrder ?? Number.MAX_SAFE_INTEGER);
+    if (orderDelta !== 0) return orderDelta;
+    return a.cityName.localeCompare(b.cityName, "en");
+  });
+}
+
+export async function getProgrammaticCategoryCityIndexEntries(): Promise<ProgrammaticCategoryCityIndexEntry[]> {
   const supabase = createPublicServerClient();
 
   const [listingsRes, categoriesRes, citiesRes] = await Promise.all([
     supabase
       .from("listings")
-      .select("category_id, city_id")
+      .select("category_id, city_id, updated_at")
       .eq("status", "published")
       .not("category_id", "is", null)
       .not("city_id", "is", null),
     supabase.from("categories").select("id, slug"),
-    supabase.from("cities").select("id, slug"),
+    supabase
+      .from("cities")
+      .select("id, slug")
+      .eq("is_active", true)
+      .not("slug", "is", null),
   ]);
 
-  if (!listingsRes.data?.length) return [];
-
-  const catSlugById = new Map<string, string>(
-    (categoriesRes.data ?? []).map((c) => [c.id, c.slug])
+  const categorySlugById = new Map<string, string>(
+    (categoriesRes.data ?? []).map((category) => [category.id, category.slug]),
   );
   const citySlugById = new Map<string, string>(
-    (citiesRes.data ?? []).map((c) => [c.id, c.slug])
+    (citiesRes.data ?? []).map((city) => [city.id, city.slug]),
   );
 
-  // Deduplicate by categorySlug+citySlug using a Set
-  const seen = new Set<string>();
-  const combinations: StaticParamCombination[] = [];
+  const aggregates = new Map<string, ProgrammaticCategoryCityIndexEntry>();
 
-  for (const row of listingsRes.data) {
+  for (const row of listingsRes.data ?? []) {
     if (!row.category_id || !row.city_id) continue;
-    const catSlug = catSlugById.get(row.category_id);
-    const citySlug = citySlugById.get(row.city_id);
-    if (!catSlug || !citySlug) continue;
 
-    const key = `${catSlug}:${citySlug}`;
-    if (!seen.has(key)) {
-      seen.add(key);
-      combinations.push({
-        categorySlug: catSlug as CanonicalCategorySlug,
-        citySlug,
-      });
+    const categorySlug = categorySlugById.get(row.category_id);
+    const citySlug = citySlugById.get(row.city_id);
+    if (!categorySlug || !citySlug) continue;
+
+    const key = `${citySlug}:${categorySlug}`;
+    const existing = aggregates.get(key);
+    if (existing) {
+      existing.totalCount += 1;
+      existing.lastModified = getLatestTimestamp(existing.lastModified, row.updated_at);
+      continue;
+    }
+
+    aggregates.set(key, {
+      categorySlug: categorySlug as CanonicalCategorySlug,
+      citySlug,
+      totalCount: 1,
+      lastModified: row.updated_at ?? null,
+    });
+  }
+
+  return Array.from(aggregates.values()).sort((a, b) => {
+    const cityDelta = a.citySlug.localeCompare(b.citySlug, "en");
+    if (cityDelta !== 0) return cityDelta;
+    return a.categorySlug.localeCompare(b.categorySlug, "en");
+  });
+}
+
+function mapProgrammaticListing(
+  listing: Record<string, unknown>,
+  city: { slug: string; name: string },
+  fallbackCategory?: { slug: string; name: string },
+): ProgrammaticListing {
+  const nestedCategory = Array.isArray(listing.categories)
+    ? listing.categories[0]
+    : (listing.categories as { slug?: string | null; name?: string | null } | null | undefined);
+
+  const category = nestedCategory ?? fallbackCategory ?? { slug: "", name: "" };
+
+  return {
+    id: String(listing.id ?? ""),
+    slug: String(listing.slug ?? ""),
+    name: String(listing.name ?? ""),
+    short_description:
+      typeof listing.short_description === "string" ? listing.short_description : null,
+    featured_image_url:
+      typeof listing.featured_image_url === "string" ? listing.featured_image_url : null,
+    tier: typeof listing.tier === "string" ? listing.tier : "unverified",
+    is_curated: Boolean(listing.is_curated),
+    google_rating:
+      typeof listing.google_rating === "number" ? listing.google_rating : null,
+    google_review_count:
+      typeof listing.google_review_count === "number" ? listing.google_review_count : null,
+    price_from: typeof listing.price_from === "number" ? listing.price_from : null,
+    price_currency:
+      typeof listing.price_currency === "string" ? listing.price_currency : null,
+    website_url: typeof listing.website_url === "string" ? listing.website_url : null,
+    city_slug: city.slug,
+    city_name: city.name,
+    category_slug: category.slug ?? "",
+    category_name: category.name ?? "",
+  };
+}
+
+async function getPopularAlternativeCities(excludeCityId: string) {
+  const supabase = createPublicServerClient();
+
+  const relatedCitiesRes = await supabase
+    .from("listings")
+    .select("city_id, cities!inner(id, slug, name)")
+    .eq("status", "published")
+    .neq("city_id", excludeCityId)
+    .not("city_id", "is", null)
+    .limit(300);
+
+  const cityCounts = new Map<string, { slug: string; name: string; count: number }>();
+  for (const row of relatedCitiesRes.data ?? []) {
+    const city = Array.isArray(row.cities)
+      ? row.cities[0]
+      : (row.cities as { id: string; slug: string; name: string } | null);
+    if (!city) continue;
+    const existing = cityCounts.get(city.id);
+    if (existing) {
+      existing.count++;
+    } else {
+      cityCounts.set(city.id, { slug: city.slug, name: city.name, count: 1 });
     }
   }
 
-  return combinations;
+  return Array.from(cityCounts.values())
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
+}
+
+export async function getCityPageData(citySlug: string): Promise<CityPageData | null> {
+  const supabase = createPublicServerClient();
+
+  const cityRes = await supabase
+    .from("cities")
+    .select("id, slug, name, description, image_url")
+    .eq("slug", citySlug)
+    .single();
+
+  if (!cityRes.data) return null;
+
+  const city = cityRes.data;
+
+  const [countRes, listingsRes, relatedCatsRes, relatedCities] = await Promise.all([
+    supabase
+      .from("listings")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "published")
+      .eq("city_id", city.id),
+    supabase
+      .from("listings")
+      .select(LISTING_RELATION_FIELDS)
+      .eq("status", "published")
+      .eq("city_id", city.id)
+      .order("is_curated", { ascending: false })
+      .order("google_rating", { ascending: false, nullsFirst: false })
+      .limit(24),
+    supabase
+      .from("listings")
+      .select("category_id, categories!inner(id, slug, name)")
+      .eq("status", "published")
+      .eq("city_id", city.id)
+      .not("category_id", "is", null)
+      .limit(300),
+    getPopularAlternativeCities(city.id),
+  ]);
+
+  const listings: ProgrammaticListing[] = (listingsRes.data ?? []).map((listing) =>
+    mapProgrammaticListing(listing as Record<string, unknown>, city),
+  );
+
+  const catCounts = new Map<string, { slug: string; name: string; count: number }>();
+  for (const row of relatedCatsRes.data ?? []) {
+    const category = Array.isArray(row.categories)
+      ? row.categories[0]
+      : (row.categories as { id: string; slug: string; name: string } | null);
+    if (!category) continue;
+    const existing = catCounts.get(category.id);
+    if (existing) {
+      existing.count++;
+    } else {
+      catCounts.set(category.id, { slug: category.slug, name: category.name, count: 1 });
+    }
+  }
+
+  const relatedCategories = Array.from(catCounts.values())
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
+
+  return {
+    listings,
+    city,
+    relatedCities,
+    relatedCategories,
+    totalCount: countRes.count ?? 0,
+  };
 }
 
 // ─── Page data ───────────────────────────────────────────────────────────────
 
 /**
- * Fetches all data needed to render a /{locale}/{category}/{city} page.
- *
- * Returns null if no published listings exist (triggers notFound).
+ * Fetches all data needed to render a localized /visit/{city}/{category} page.
+ * Returns null only when the city/category slugs do not exist.
  */
-export async function getCategoryCityPageData(
+export async function getCategoryCityPageDataAllowEmpty(
   canonicalCategorySlug: string,
   citySlug: string,
 ): Promise<CategoryCityPageData | null> {
@@ -147,36 +393,46 @@ export async function getCategoryCityPageData(
   const categoryId = catRes.data.id;
   const cityId = cityRes.data.id;
 
-  // 2. Fetch published listings for this combination
-  const listingsRes = await supabase
-    .from("listings")
-    .select(LISTING_FIELDS)
-    .eq("status", "published")
-    .eq("category_id", categoryId)
-    .eq("city_id", cityId)
-    .order("is_curated", { ascending: false })
-    .order("google_rating", { ascending: false, nullsFirst: false })
-    .limit(50);
+  const [countRes, listingsRes, relatedCitiesRes, relatedCatsRes] = await Promise.all([
+    supabase
+      .from("listings")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "published")
+      .eq("category_id", categoryId)
+      .eq("city_id", cityId),
+    supabase
+      .from("listings")
+      .select(LISTING_FIELDS)
+      .eq("status", "published")
+      .eq("category_id", categoryId)
+      .eq("city_id", cityId)
+      .order("is_curated", { ascending: false })
+      .order("google_rating", { ascending: false, nullsFirst: false })
+      .limit(24),
+    supabase
+      .from("listings")
+      .select("city_id, cities!inner(id, slug, name)")
+      .eq("status", "published")
+      .eq("category_id", categoryId)
+      .neq("city_id", cityId)
+      .limit(200),
+    supabase
+      .from("listings")
+      .select("category_id, categories!inner(id, slug, name)")
+      .eq("status", "published")
+      .eq("city_id", cityId)
+      .neq("category_id", categoryId)
+      .limit(200),
+  ]);
 
   const rawListings = listingsRes.data ?? [];
-  if (rawListings.length === 0) return null;
-
-  const listings: ProgrammaticListing[] = rawListings.map((l) => ({
-    ...l,
-    city_slug: cityRes.data.slug,
-    city_name: cityRes.data.name,
-    category_slug: catRes.data.slug,
-    category_name: catRes.data.name,
-  }));
-
-  // 3. Fetch related cities (same category, different cities — for internal linking)
-  const relatedCitiesRes = await supabase
-    .from("listings")
-    .select("city_id, cities!inner(id, slug, name)")
-    .eq("status", "published")
-    .eq("category_id", categoryId)
-    .neq("city_id", cityId)
-    .limit(200);
+  const listings: ProgrammaticListing[] = rawListings.map((listing) =>
+    mapProgrammaticListing(
+      listing as Record<string, unknown>,
+      { slug: cityRes.data.slug, name: cityRes.data.name },
+      { slug: catRes.data.slug, name: catRes.data.name },
+    ),
+  );
 
   const cityCounts = new Map<string, { slug: string; name: string; count: number }>();
   for (const row of relatedCitiesRes.data ?? []) {
@@ -193,15 +449,6 @@ export async function getCategoryCityPageData(
   const relatedCities = Array.from(cityCounts.values())
     .sort((a, b) => b.count - a.count)
     .slice(0, 8);
-
-  // 4. Fetch related categories (same city, different categories — for internal linking)
-  const relatedCatsRes = await supabase
-    .from("listings")
-    .select("category_id, categories!inner(id, slug, name)")
-    .eq("status", "published")
-    .eq("city_id", cityId)
-    .neq("category_id", categoryId)
-    .limit(200);
 
   const catCounts = new Map<string, { slug: string; name: string; count: number }>();
   for (const row of relatedCatsRes.data ?? []) {
@@ -225,6 +472,18 @@ export async function getCategoryCityPageData(
     category: catRes.data,
     relatedCities,
     relatedCategories,
-    totalCount: rawListings.length,
+    totalCount: countRes.count ?? 0,
   };
+}
+
+export async function getCategoryCityPageData(
+  canonicalCategorySlug: string,
+  citySlug: string,
+): Promise<CategoryCityPageData | null> {
+  const data = await getCategoryCityPageDataAllowEmpty(canonicalCategorySlug, citySlug);
+  if (!data || data.totalCount === 0) {
+    return null;
+  }
+
+  return data;
 }

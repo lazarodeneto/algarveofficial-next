@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { useTranslation } from "react-i18next";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { HeroTrustSignals } from "@/components/sections/HeroTrustSignals";
 
 export function AlgarveGuideSection() {
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const { t } = useTranslation();
   const { getText } = useCmsPageBuilder("home");
 

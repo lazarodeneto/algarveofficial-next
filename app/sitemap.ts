@@ -2,7 +2,8 @@ import type { MetadataRoute } from "next";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { SUPPORTED_LOCALES, LOCALE_CONFIGS, DEFAULT_LOCALE } from "@/lib/i18n/config";
 import {
-  getAllCategoryCityCombinations,
+  getProgrammaticCategoryCityIndexEntries,
+  getProgrammaticCityIndexEntries,
 } from "@/lib/seo/programmatic/category-city-data";
 import {
   getCategoryUrlSlug,
@@ -17,6 +18,11 @@ const EVENT_LIMIT = 2000;
 const CITY_LIMIT = 2000;
 const REGION_LIMIT = 500;
 const CATEGORY_LIMIT = 100;
+const SITEMAP_BUILD_TIME = new Date(
+  process.env.VERCEL_GIT_COMMIT_DATE ??
+    process.env.BUILD_TIME ??
+    new Date().toISOString(),
+);
 
 export const revalidate = 3600;
 
@@ -34,16 +40,21 @@ function toValidDate(value: string | null | undefined, fallback: Date): Date {
   return Number.isNaN(parsed.getTime()) ? fallback : parsed;
 }
 
+function withLocalePrefix(path: string, locale: string = DEFAULT_LOCALE) {
+  const normalized = path === "/" ? "" : path;
+  return `/${locale}${normalized}`;
+}
+
 function buildHreflangAlternates(basePath: string): MetadataRoute.Sitemap[number]["alternates"] {
   const siteUrl = getSiteUrl();
   const languages: Record<string, string> = {};
 
   for (const locale of SUPPORTED_LOCALES) {
     const hreflang = LOCALE_CONFIGS[locale].hreflang;
-    const localePath = locale === DEFAULT_LOCALE ? basePath : `/${locale}${basePath}`;
+    const localePath = withLocalePrefix(basePath, locale);
     languages[hreflang] = `${siteUrl}${localePath}`;
   }
-  languages["x-default"] = `${siteUrl}${basePath}`;
+  languages["x-default"] = `${siteUrl}${withLocalePrefix(basePath, DEFAULT_LOCALE)}`;
 
   return { languages };
 }
@@ -56,7 +67,7 @@ function makeEntry(
   imageUrl?: string | null,
 ): MetadataRoute.Sitemap[number] {
   return {
-    url: `${getSiteUrl()}${path}`,
+    url: `${getSiteUrl()}${withLocalePrefix(path, DEFAULT_LOCALE)}`,
     lastModified,
     changeFrequency,
     priority,
@@ -67,7 +78,7 @@ function makeEntry(
 
 const STATIC_PATHS = [
   { path: "/", priority: 1.0, changefreq: "daily" as const },
-  { path: "/directory", priority: 0.9, changefreq: "daily" as const },
+  { path: "/visit", priority: 0.9, changefreq: "daily" as const },
   { path: "/destinations", priority: 0.9, changefreq: "weekly" as const },
   { path: "/events", priority: 0.85, changefreq: "daily" as const },
   { path: "/blog", priority: 0.85, changefreq: "weekly" as const },
@@ -90,7 +101,7 @@ const STATIC_PATHS = [
 // /[city]/[category] pages which are added further below with proper hreflang.
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
+  const now = SITEMAP_BUILD_TIME;
   const entries: MetadataRoute.Sitemap = [];
 
   for (const { path, priority, changefreq } of STATIC_PATHS) {
@@ -139,7 +150,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           .limit(EVENT_LIMIT),
       ]);
 
-    // Listings — one entry per slug, /en canonical
+    // Listings — one entry per slug, English locale canonical
     for (const listing of listingsResponse.data ?? []) {
       if (!listing.slug) continue;
       const path = `/listing/${listing.slug}`;
@@ -186,36 +197,50 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       entries.push(makeEntry(path, lastMod, changeFreq, 0.74, event.image_url ?? undefined));
     }
 
-    // ── Programmatic SEO pages: /[city]/[category] (en) | /[locale]/[city]/[category] ──
-    // One canonical entry per city+category combination (English URL, no /en/ prefix).
-    // Each entry includes hreflang alternates with per-locale translated category slugs.
     try {
-      const programmaticCombinations = await getAllCategoryCityCombinations();
+      const programmaticCities = await getProgrammaticCityIndexEntries();
+      const programmaticCombinations = await getProgrammaticCategoryCityIndexEntries();
+      const siteUrl = getSiteUrl();
 
-      for (const { categorySlug, citySlug } of programmaticCombinations) {
+      for (const cityEntry of programmaticCities) {
+        const path = `/visit/${cityEntry.citySlug}`;
+        const lastModified = toValidDate(cityEntry.lastModified, SITEMAP_BUILD_TIME);
+        const hreflangLanguages: Record<string, string> = {};
+
+        for (const loc of SUPPORTED_LOCALES) {
+          hreflangLanguages[LOCALE_CONFIGS[loc].hreflang] =
+            `${siteUrl}${withLocalePrefix(path, loc)}`;
+        }
+        hreflangLanguages["x-default"] = `${siteUrl}${withLocalePrefix(path, DEFAULT_LOCALE)}`;
+
+        entries.push({
+          url: `${siteUrl}${withLocalePrefix(path, DEFAULT_LOCALE)}`,
+          lastModified,
+          changeFrequency: "weekly",
+          priority: 0.84,
+          alternates: { languages: hreflangLanguages },
+        });
+      }
+
+      for (const { categorySlug, citySlug, lastModified: rawLastModified } of programmaticCombinations) {
         if (!ALL_CANONICAL_SLUGS.includes(categorySlug as CanonicalCategorySlug)) continue;
 
         const canonical = categorySlug as CanonicalCategorySlug;
-        // Canonical URL uses English slug - NO /en/ prefix (default locale)
         const enCatSlug = getCategoryUrlSlug(canonical, "en");
-        const path = `/${citySlug}/${enCatSlug}`; // No /en prefix
-        const siteUrl = getSiteUrl();
+        const path = `/visit/${citySlug}/${enCatSlug}`;
+        const lastModified = toValidDate(rawLastModified, SITEMAP_BUILD_TIME);
 
-        // Build full hreflang map with per-locale translated category slugs
         const hreflangLanguages: Record<string, string> = {};
         for (const loc of SUPPORTED_LOCALES) {
           const locCatSlug = getCategoryUrlSlug(canonical, loc);
-          const localePath =
-            loc === "en"
-              ? `/${citySlug}/${locCatSlug}`
-              : `/${loc}/${citySlug}/${locCatSlug}`;
+          const localePath = withLocalePrefix(`/visit/${citySlug}/${locCatSlug}`, loc);
           hreflangLanguages[LOCALE_CONFIGS[loc].hreflang] = `${siteUrl}${localePath}`;
         }
-        hreflangLanguages["x-default"] = `${siteUrl}${path}`;
+        hreflangLanguages["x-default"] = `${siteUrl}${withLocalePrefix(path, DEFAULT_LOCALE)}`;
 
         entries.push({
-          url: `${siteUrl}${path}`,
-          lastModified: now,
+          url: `${siteUrl}${withLocalePrefix(path, DEFAULT_LOCALE)}`,
+          lastModified,
           changeFrequency: "weekly",
           priority: 0.85,
           alternates: { languages: hreflangLanguages },

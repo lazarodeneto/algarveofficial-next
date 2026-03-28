@@ -1,116 +1,34 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import {
-  Heart,
-  LayoutDashboard,
-  MessageSquare,
-  Plane,
-} from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { BrandLogo } from "@/components/ui/brand-logo";
-import { ExpandableSidebar, type SidebarNavSection } from "@/components/navigation/ExpandableSidebar";
-import { useAuth } from "@/contexts/AuthContext";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
-import { getMenuIcon } from "@/lib/menu-icons";
-
-const fallbackPrimaryItems = [
-  { label: "Home", href: "/", icon: "Home", end: true },
-  { label: "Visit", href: "/directory", icon: "Binoculars" },
-  { label: "Live", href: "/live", icon: "Link" },
-  { label: "Invest", href: "/invest", icon: "TrendingUp" },
-  { label: "Destinations", href: "/destinations", icon: "Compass" },
-  { label: "Map", href: "/map", icon: "MapPin" },
-  { label: "Blog", href: "/blog", icon: "BookOpen" },
-  { label: "Events", href: "/events", icon: "Calendar" },
-];
+import { SidebarNav } from "@/components/layout/SidebarNav";
 
 export function PublicSiteSidebar() {
-  const { t } = useTranslation();
-  const router = useRouter();
-  const { isAuthenticated, getDashboardPath, user } = useAuth();
-  const [collapsed, setCollapsed] = useState(true);
-  const l = useLocalizedHref();
-
-  const loginPath = l("/login");
-  const memberDashboardPath = isAuthenticated && user ? getDashboardPath(user.role) : loginPath;
-  const tripsPath = isAuthenticated ? "/dashboard/trips" : loginPath;
-  const favoritesPath = isAuthenticated ? "/dashboard/favorites" : loginPath;
-  const messagesPath = isAuthenticated ? "/dashboard/messages" : loginPath;
-
-  const primaryItems = useMemo(() => {
-    return fallbackPrimaryItems.map((item) => ({
-      label:
-        item.label === "Home" ? t("nav.home", "Home")
-        : item.label === "Visit" ? t("nav.visit", "Visit")
-        : item.label === "Live" ? t("nav.live", "Live")
-        : item.label === "Invest" ? t("nav.invest", "Invest")
-        : item.label === "Destinations" ? t("nav.destinations", "Destinations")
-        : item.label === "Map" ? t("nav.map", "Map")
-        : item.label === "Blog" ? t("nav.blog", "Blog")
-        : item.label === "Events" ? t("nav.events", "Events")
-        : item.label,
-      href: l(item.href),
-      icon: getMenuIcon(item.icon),
-      end: Boolean(item.end),
-    }));
-  }, [l, t]);
-
-  const sections: SidebarNavSection[] = useMemo(
-    () => [
-      {
-        id: "public-nav",
-        items: [
-          ...primaryItems,
-          { label: t("nav.account", "Account"), href: memberDashboardPath, icon: LayoutDashboard },
-          { label: t("nav.myTrip", "My Trips"), href: tripsPath, icon: Plane },
-          {
-            label: t("dashboard.favorites.title", "Favorites"),
-            href: favoritesPath,
-            icon: Heart,
-          },
-          {
-            label: t("nav.messages", "Messages"),
-            href: messagesPath,
-            icon: MessageSquare,
-          },
-        ],
-      },
-    ],
-    [t, primaryItems, memberDashboardPath, tripsPath, favoritesPath, messagesPath],
-  );
-
-  const prefetchHrefs = useMemo(
-    () =>
-      sections
-        .flatMap((section) => section.items.map((item) => item.href))
-        .filter((href): href is string => typeof href === "string" && href.startsWith("/")),
-    [sections],
-  );
-
-  useEffect(() => {
-    const uniqueHrefs = Array.from(new Set(prefetchHrefs));
-    uniqueHrefs.forEach((href) => {
-      router.prefetch(href);
-    });
-  }, [prefetchHrefs, router]);
-
   return (
-    <ExpandableSidebar
-      collapsed={collapsed}
-      onToggle={() => setCollapsed((prev) => !prev)}
-      logo={<BrandLogo size="sm" showText={!collapsed} className="gap-2" />}
-      showHeader={false}
-      disableMobile
-      desktopBreakpoint="xl"
-      sections={sections}
-      hideSeparators
-      disableCollapsedTooltips
-      desktopExpandedWidthClass="w-72"
-      desktopCollapsedWidthClass="w-16"
-      mobileToggleClassName="top-24"
-      className="lg:!fixed lg:!inset-y-0 lg:!top-0 lg:!left-0 lg:!h-screen lg:!min-h-screen lg:!max-h-none lg:!border-y-0 lg:!rounded-none lg:!bg-background lg:!backdrop-blur-none lg:!shadow-none lg:z-[120]"
-    />
+    <TooltipProvider delayDuration={0} skipDelayDuration={0}>
+      <aside className="hidden xl:flex fixed inset-y-0 left-0 z-[120] w-20 flex-col border-r border-border bg-background/92 shadow-[0_20px_48px_-36px_rgba(15,23,42,0.45)] backdrop-blur-xl">
+        <div className="flex h-20 items-center justify-center border-b border-border">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border/70 bg-white/80 shadow-[0_12px_24px_-18px_rgba(15,23,42,0.45)] dark:bg-white/10">
+                <BrandLogo size="sm" showIcon showText={false} className="justify-center" iconClassName="h-6 w-6" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent
+              side="right"
+              align="center"
+              sideOffset={12}
+              className="rounded-xl border border-black/10 bg-white px-3 py-2 text-sm font-medium text-slate-900 shadow-[0_18px_40px_-24px_rgba(15,23,42,0.28)]"
+            >
+              Algarve Official
+            </TooltipContent>
+          </Tooltip>
+        </div>
+        <div className="flex-1 overflow-y-auto px-3 py-5">
+          <SidebarNav />
+        </div>
+      </aside>
+    </TooltipProvider>
   );
 }

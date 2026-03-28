@@ -1,9 +1,7 @@
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function AboutUsPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  redirect("/about-us");
+import AboutUs from "@/legacy-pages/public/AboutUs";
+
+export default function AboutUsPage() {
+  return <AboutUs />;
 }

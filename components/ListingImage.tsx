@@ -1,8 +1,11 @@
+"use client";
+
 import { useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { getOptimizedImageUrl, SIZES } from "@/lib/image";
+import { canUseNextImage } from "@/lib/nextImageSafety";
 
 export interface ListingImageProps {
   src?: string | null;
@@ -74,6 +77,7 @@ export default function ListingImage({
   ].filter((url): url is string => url !== null);
 
   const currentUrl = sourceCandidates[0] ?? "/placeholder.svg";
+  const useNativeImg = !canUseNextImage(currentUrl);
 
   const handleError = () => {
     setHasError(true);
@@ -82,6 +86,20 @@ export default function ListingImage({
   const resolvedAlt = typeof alt === "string" && alt.trim().length > 0 ? alt : "Algarve listing";
 
   if (fill) {
+    if (useNativeImg) {
+      return (
+        <img
+          src={currentUrl}
+          alt={resolvedAlt}
+          className={cn("absolute inset-0 h-full w-full object-cover", className)}
+          loading={loading}
+          fetchPriority={fetchPriority}
+          onError={handleError}
+          style={style}
+        />
+      );
+    }
+
     return (
       <Image
         src={currentUrl}
@@ -102,6 +120,22 @@ export default function ListingImage({
   const aspectRatio = 4 / 3;
   const displayWidth = width ?? 800;
   const displayHeight = height ?? Math.round(displayWidth / aspectRatio);
+
+  if (useNativeImg) {
+    return (
+      <img
+        src={currentUrl}
+        alt={resolvedAlt}
+        width={displayWidth}
+        height={displayHeight}
+        className={cn("bg-muted", className)}
+        loading={loading}
+        fetchPriority={fetchPriority}
+        onError={handleError}
+        style={style}
+      />
+    );
+  }
 
   return (
     <Image
