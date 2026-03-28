@@ -8,6 +8,7 @@ import { PublicSiteFrame } from "@/components/layout/PublicSiteFrame";
 import { LocaleProvider } from "@/lib/i18n/locale-context";
 import { CookieConsentBannerWrapper } from "@/components/gdpr/CookieConsentBannerWrapper";
 import { FloatingCookieSettingsButton } from "@/components/gdpr/FloatingCookieSettingsButton";
+import { WhatsAppChatButtonWrapper } from "@/components/ui/WhatsAppChatButtonWrapper";
 import {
   LOCALE_CONFIGS,
   isValidLocale,
@@ -75,6 +76,7 @@ export default async function LocaleLayout({
       <LocaleProvider locale={locale}>
         <AppProviders locale={locale}>
           <PublicSiteFrame>{children}</PublicSiteFrame>
+          <WhatsAppChatButtonWrapper />
           <FloatingCookieSettingsButton />
           <CookieConsentBannerWrapper />
         </AppProviders>

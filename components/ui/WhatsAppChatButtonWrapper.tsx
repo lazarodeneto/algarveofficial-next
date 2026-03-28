@@ -1,24 +1,34 @@
-import { useState } from "react";
+"use client";
+
+import { usePathname } from "next/navigation";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
+import { PRIMARY_WHATSAPP_NUMBER, toWhatsAppDigits } from "@/lib/contactPhone";
+import { useHydrated } from "@/hooks/useHydrated";
+import { stripLocaleFromPathname } from "@/lib/i18n/config";
 import { WhatsAppChatButton } from "./whatsapp-chat-button";
 
+const HIDDEN_ROUTE_PREFIXES = ["/admin", "/owner", "/dashboard"];
+
 export function WhatsAppChatButtonWrapper() {
-  const [shouldLoadSettings, setShouldLoadSettings] = useState(false);
+  const pathname = usePathname() || "/";
+  const mounted = useHydrated();
   const { settings } = useGlobalSettings({
-    enabled: shouldLoadSettings,
+    enabled: mounted,
     keys: ["whatsapp_number", "whatsapp_default_message"],
   });
+  const barePath = stripLocaleFromPathname(pathname);
+  const shouldHide = HIDDEN_ROUTE_PREFIXES.some((prefix) => barePath.startsWith(prefix));
 
-  const phoneNumber = settings.find((s) => s.key === "whatsapp_number")?.value || "351910000000";
+  const phoneNumber = toWhatsAppDigits(
+    settings.find((s) => s.key === "whatsapp_number")?.value || PRIMARY_WHATSAPP_NUMBER,
+  );
   const defaultMessage =
     settings.find((s) => s.key === "whatsapp_default_message")?.value ||
     "Hello! I'm interested in learning more about your premium services in Algarve.";
 
-  return (
-    <WhatsAppChatButton
-      phoneNumber={phoneNumber}
-      defaultMessage={defaultMessage}
-      onFirstOpen={() => setShouldLoadSettings(true)}
-    />
-  );
+  if (!mounted || shouldHide) {
+    return null;
+  }
+
+  return <WhatsAppChatButton phoneNumber={phoneNumber} defaultMessage={defaultMessage} />;
 }
