@@ -1,6 +1,6 @@
 import { cache } from "react";
 import type { Locale } from "./locales";
-import { createClient } from "../supabase/server";
+import { createPublicServerClient } from "../supabase/public-server";
 import {
   enforcePremiumInLocaleData,
   flattenI18nData,
@@ -81,7 +81,7 @@ const getFullLocaleBundle = cache(async (locale: Locale): Promise<TranslationLea
       ? localeBundleNode
       : enforcePremiumInLocaleData(localeBundleNode, englishBundleNode);
   const bundle = flattenI18nData(premiumSafeBundleNode);
-  const supabase = await createClient();
+  const supabase = createPublicServerClient();
 
   try {
     const { data, error } = await supabase

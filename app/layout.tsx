@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import Script from "next/script";
 import type { ReactNode } from "react";
 import { Inter, Playfair_Display } from "next/font/google";
@@ -7,6 +6,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import "../index.css";
 import { RootProviders } from "@/components/providers/RootProviders";
+import { DEFAULT_LOCALE, LOCALE_CONFIGS } from "@/lib/i18n/config";
 import { buildMetadata } from "@/lib/metadata";
 import { buildOrganizationSchema, buildWebsiteSchema } from "@/lib/seo/schemaBuilders.js";
 
@@ -29,6 +29,10 @@ const fontVariables = `${playfair.variable} ${inter.variable}`;
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim()?.replace(/\/+$/, "") || "https://algarveofficial.com";
 const organizationSchema = buildOrganizationSchema(siteUrl);
 const websiteSchema = buildWebsiteSchema(siteUrl);
+const defaultHtmlLang = LOCALE_CONFIGS[DEFAULT_LOCALE].hreflang;
+const localeHtmlLangMap = Object.fromEntries(
+  Object.entries(LOCALE_CONFIGS).map(([locale, config]) => [locale, config.hreflang]),
+);
 const themeInitScript = `
   (() => {
     try {
@@ -40,6 +44,19 @@ const themeInitScript = `
 
       document.documentElement.classList.remove('dark', 'light');
       document.documentElement.classList.add(resolvedTheme);
+    } catch {}
+  })();
+`;
+const localeInitScript = `
+  (() => {
+    try {
+      const localeMap = ${JSON.stringify(localeHtmlLangMap)};
+      const segments = window.location.pathname.split('/').filter(Boolean);
+      const routeLocale = segments[0]?.toLowerCase();
+      const resolvedLocale = localeMap[routeLocale] ? routeLocale : ${JSON.stringify(DEFAULT_LOCALE)};
+
+      document.documentElement.lang = localeMap[resolvedLocale] || ${JSON.stringify(defaultHtmlLang)};
+      document.documentElement.dataset.locale = resolvedLocale;
     } catch {}
   })();
 `;
@@ -58,12 +75,9 @@ interface RootLayoutProps {
   children: ReactNode;
 }
 
-export default async function RootLayout({ children }: RootLayoutProps) {
-  const requestHeaders = await headers();
-  const htmlLang = requestHeaders.get("x-html-lang") || "en-GB";
-
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang={htmlLang} suppressHydrationWarning className={fontVariables}>
+    <html lang={defaultHtmlLang} suppressHydrationWarning className={fontVariables}>
       <body className={fontVariables}>
         <script
           type="application/ld+json"
@@ -75,6 +89,9 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         />
         <Script id="theme-init" strategy="beforeInteractive">
           {themeInitScript}
+        </Script>
+        <Script id="locale-init" strategy="beforeInteractive">
+          {localeInitScript}
         </Script>
         <RootProviders>{children}</RootProviders>
         <SpeedInsights />

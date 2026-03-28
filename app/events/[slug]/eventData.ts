@@ -1,7 +1,7 @@
 import { cache } from "react";
 
 import type { Tables } from "@/integrations/supabase/types";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicServerClient } from "@/lib/supabase/public-server";
 
 export type EventSeoRecord = Pick<
   Tables<"events">,
@@ -22,7 +22,7 @@ export const getPublishedEventBySlug = cache(async (slug: string): Promise<Event
     return null;
   }
 
-  const supabase = await createClient();
+  const supabase = createPublicServerClient();
   const { data, error } = await supabase
     .from("events")
     .select("slug, title, short_description, meta_title, meta_description, image, start_date, created_at, updated_at, status")

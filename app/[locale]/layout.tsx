@@ -40,9 +40,6 @@ export async function generateMetadata({
   });
 }
 
-// ✅ Force dynamic rendering to prevent cache poisoning
-export const dynamic = "force-dynamic";
-
 // ✅ Static locale segments for build optimization
 export async function generateStaticParams() {
   return SUPPORTED_LOCALES.map((locale) => ({

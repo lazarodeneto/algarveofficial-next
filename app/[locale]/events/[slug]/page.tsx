@@ -10,6 +10,8 @@ interface LocaleEventDetailPageProps {
   params: Promise<{ locale: string; slug: string }>;
 }
 
+export const revalidate = 3600;
+
 export async function generateMetadata({ params }: LocaleEventDetailPageProps): Promise<Metadata> {
   const { locale, slug } = await params;
   const resolvedLocale = (locale ?? DEFAULT_LOCALE) as Locale;
