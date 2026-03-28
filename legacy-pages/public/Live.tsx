@@ -33,6 +33,7 @@ import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
+import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 
 const Live = () => {
   const { t } = useTranslation();
@@ -203,7 +204,7 @@ const Live = () => {
 
       <main className="flex-grow">
         {isBlockEnabled("hero", true) && (
-          <CmsBlock pageId="live" blockId="hero" className="px-3 sm:px-4 lg:px-6 pt-16 sm:pt-20 pb-4">
+          <CmsBlock pageId="live" blockId="hero" className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
             <LiveStyleHero
               badge={t("live.hero.badge", "Relocation Guidance")}
               title={t("live.hero.title", "Live in the Algarve, with clarity from day one")}

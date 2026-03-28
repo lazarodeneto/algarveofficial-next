@@ -6,38 +6,34 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
  * and dynamically updates the browser's favicon.
  */
 export function FaviconUpdater() {
-    const { settings } = useSiteSettings();
-    const faviconUrl = settings?.favicon_url;
+    useSiteSettings();
 
     useEffect(() => {
-        if (!faviconUrl) return;
+        const faviconUrl = "/algarveofficial-icon-gold.png";
+        const appleTouchIconUrl = "/icons/apple-touch-icon.png";
 
-        // Support both .svg and modern icon formats
-        const isSvg = faviconUrl.toLowerCase().endsWith(".svg");
+        const upsertLink = (selector: string, rel: string, href: string, type?: string, sizes?: string) => {
+            let link = document.querySelector<HTMLLinkElement>(selector);
 
-        // Find or create favicon links
-        let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
+            if (!link) {
+                link = document.createElement("link");
+                link.rel = rel;
+                document.head.appendChild(link);
+            }
 
-        if (!link) {
-            link = document.createElement("link");
-            link.rel = "icon";
-            document.getElementsByTagName("head")[0].appendChild(link);
-        }
+            link.href = href;
+            if (type) link.type = type;
+            if (sizes) {
+                link.sizes.value = sizes;
+            } else {
+                link.removeAttribute("sizes");
+            }
+        };
 
-        link.type = isSvg ? "image/svg+xml" : "image/x-icon";
-        link.href = faviconUrl;
-
-        // Handle SVG specific link if it exists in index.html
-        const svgLink: HTMLLinkElement | null = document.querySelector("link[type='image/svg+xml']");
-        if (svgLink && isSvg) {
-            svgLink.href = faviconUrl;
-        } else if (svgLink && !isSvg) {
-            // If we have an .ico but index.html has an .svg link, we might want to disable the svg one
-            // or just let the generic 'icon' link take precedence.
-            // For best compatibility, we update the main one.
-        }
-
-    }, [faviconUrl]);
+        upsertLink("link[rel='shortcut icon']", "shortcut icon", faviconUrl, "image/png", "128x128");
+        upsertLink("link[rel='icon']", "icon", faviconUrl, "image/png", "128x128");
+        upsertLink("link[rel='apple-touch-icon']", "apple-touch-icon", appleTouchIconUrl, "image/png", "180x180");
+    }, []);
 
     return null;
 }

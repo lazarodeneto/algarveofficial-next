@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { STANDARD_PUBLIC_HERO_SURFACE_CLASS } from "@/components/sections/hero-layout";
 
 interface LiveStyleHeroProps {
   badge: ReactNode;
@@ -32,7 +33,7 @@ export function LiveStyleHero({
   return (
     <section
       className={cn(
-        "hero-golden-outline relative min-h-[560px] md:min-h-[680px] flex items-center justify-center overflow-hidden rounded-[1.65rem] lg:rounded-3xl shadow-sm",
+        STANDARD_PUBLIC_HERO_SURFACE_CLASS,
         className,
       )}
     >

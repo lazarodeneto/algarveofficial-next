@@ -64,6 +64,7 @@ import SkeletonCard from "@/components/skeleton/SkeletonCard";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
+import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 
 const EMPTY_CATEGORY_IDS: string[] = [];
 const DIRECTORY_CMS_KEYS = [
@@ -935,7 +936,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
             blockId="hero"
             as="section"
             cms={activeCms}
-            className="px-0 sm:px-4 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4"
+            className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}
           >
             <LiveStyleHero
               badge={t("directory.heroLabel")}

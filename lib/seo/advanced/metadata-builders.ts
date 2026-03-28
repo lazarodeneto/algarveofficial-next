@@ -92,11 +92,10 @@ export function buildPageMetadata({
     authors,
     icons: {
       icon: [
-        { url: "/favicon.ico" },
-        { url: "/favicon.svg", type: "image/svg+xml" },
+        { url: "/algarveofficial-icon-gold.png", type: "image/png", sizes: "128x128" },
       ],
       apple: [{ url: "/icons/apple-touch-icon.png" }],
-      shortcut: [{ url: "/favicon.ico" }],
+      shortcut: [{ url: "/algarveofficial-icon-gold.png", type: "image/png", sizes: "128x128" }],
     },
     alternates,
     robots: {

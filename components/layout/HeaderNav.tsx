@@ -35,7 +35,7 @@ export function HeaderNav() {
   return (
     <nav
       aria-label={ariaLabel}
-      className="flex items-center gap-5 text-[1.02rem] font-medium tracking-[-0.02em] text-foreground/86 xl:gap-6 xl:text-[1.08rem] 2xl:gap-7 2xl:text-[1.12rem]"
+      className="flex items-center gap-5 text-[1.22rem] font-medium uppercase tracking-[0.08em] text-foreground/86 xl:gap-6 xl:text-[1.3rem] 2xl:gap-7 2xl:text-[1.34rem]"
     >
       {HEADER_NAV_ITEMS.map((item) => {
         const isActive =

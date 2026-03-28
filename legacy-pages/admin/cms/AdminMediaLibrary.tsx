@@ -45,6 +45,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useMediaLibrary, type MediaItem } from "@/hooks/useMediaLibrary";
+import { resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
 
 type ViewMode = 'grid' | 'list';
 type MediaCategory = 'all' | 'hero' | 'region' | 'city' | 'listing' | 'page' | 'general';
@@ -77,6 +78,9 @@ export default function AdminMediaLibrary() {
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
+
+  const resolveMediaPreviewUrl = (value?: string | null) =>
+    resolveSupabaseBucketImageUrl(value, "media") ?? value ?? undefined;
 
   const handleUploadClick = () => {
     setIsUploadOpen(true);
@@ -254,8 +258,8 @@ export default function AdminMediaLibrary() {
             >
               <div className="aspect-square bg-muted relative">
                 {item.file_type === 'image' ? (
-                  <img 
-                    src={item.file_url} 
+                  <img
+                    src={resolveMediaPreviewUrl(item.file_url)}
                     alt={item.alt_text || item.file_name}
                     className="w-full h-full object-cover"
                   />
@@ -301,10 +305,10 @@ export default function AdminMediaLibrary() {
                   onClick={() => handleViewDetails(item)}
                 >
                   {/* Thumbnail */}
-                  <div className="w-16 h-16 bg-muted rounded-lg overflow-hidden flex-shrink-0">
+                  <div className="relative w-16 h-16 bg-muted rounded-lg overflow-hidden flex-shrink-0">
                     {item.file_type === 'image' ? (
-                      <img 
-                        src={item.file_url} 
+                      <img
+                        src={resolveMediaPreviewUrl(item.file_url)}
                         alt={item.alt_text || item.file_name}
                         className="w-full h-full object-cover"
                       />
@@ -456,10 +460,10 @@ export default function AdminMediaLibrary() {
           {selectedMedia && (
             <div className="space-y-4 py-4">
               {/* Preview */}
-              <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+              <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
                 {selectedMedia.file_type === 'image' ? (
-                  <img 
-                    src={selectedMedia.file_url} 
+                  <img
+                    src={resolveMediaPreviewUrl(selectedMedia.file_url)}
                     alt={selectedMedia.alt_text || selectedMedia.file_name}
                     className="w-full h-full object-contain"
                   />

@@ -24,6 +24,7 @@ import { getRegionImageSet } from "@/lib/regionImages";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
+import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 
 export type RegionRow = Tables<"regions">;
 export type GlobalSettingRow = Pick<Tables<"global_settings">, "key" | "value" | "category">;
@@ -274,7 +275,7 @@ function DestinationsClientInner({ initialRegions, initialGlobalSettings }: Dest
           blockId="hero"
           as="section"
           cms={cms}
-          className="px-0 sm:px-4 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4"
+          className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}
         >
           <LiveStyleHero
             badge={t("sections.regions.label")}
