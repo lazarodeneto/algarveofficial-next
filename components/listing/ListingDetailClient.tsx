@@ -45,7 +45,6 @@ import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 import { hasRealEstateSignals, isRealEstateCategorySlug } from "@/lib/realEstateDetection";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { normalizePublicContentLocale, type PublicContentLocale } from "@/lib/publicContentLocale";
-import { getSessionId } from "@/lib/sessionId";
 import ListingImage from "@/components/ListingImage";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import { ListingReviews } from "@/components/listing-details/ListingReviews";
@@ -480,20 +479,6 @@ function ListingDetailClientInner({
       cancelled = true;
     };
   }, [initialTranslation, lang, listing?.id]);
-
-  useEffect(() => {
-    if (!listing?.id) return;
-
-    const sessionId = getSessionId();
-    if (!sessionId) return;
-
-    void fetch(`/api/listing/${listing.id}/view`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId }),
-      keepalive: true,
-    }).catch(() => undefined);
-  }, [listing?.id]);
 
   const isAdminOrEditor = user?.role === "admin" || user?.role === "editor";
 

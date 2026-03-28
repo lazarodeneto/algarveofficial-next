@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import { cache } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -20,7 +18,9 @@ import {
   type WhatsAppStatus,
 } from "@/components/listing/ListingDetailClient";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicServerClient } from "@/lib/supabase/public-server";
+
+export const revalidate = 3600;
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://algarveofficial.com";
 
@@ -91,7 +91,7 @@ function buildListingDescription({
 }
 
 async function fetchApprovedReviews(listingId: string) {
-  const supabase = await createClient();
+  const supabase = createPublicServerClient();
   const { data, error } = await supabase
     .from("listing_reviews")
     .select("*")
@@ -130,7 +130,7 @@ async function fetchApprovedReviews(listingId: string) {
 }
 
 async function fetchAllTranslations(listingId: string) {
-  const supabase = await createClient();
+  const supabase = createPublicServerClient();
 
   const { data: allTranslations, error } = await supabase
     .from("listing_translations")
@@ -154,7 +154,7 @@ async function fetchAllTranslations(listingId: string) {
 }
 
 async function fetchLocalizedSlugs(listingId: string) {
-  const supabase = await createClient();
+  const supabase = createPublicServerClient();
   const { data, error } = await supabase
     .from("listing_slugs")
     .select("slug, language_code, is_current")
@@ -177,7 +177,7 @@ async function fetchLocalizedSlugs(listingId: string) {
 }
 
 const getListingPageData = cache(async (locale: Locale, idOrSlug: string): Promise<ListingPageData | null> => {
-  const supabase = await createClient();
+  const supabase = createPublicServerClient();
   const isParamUuid = isUuid(idOrSlug);
 
   let resolvedListingId: string | null = isParamUuid ? idOrSlug : null;
