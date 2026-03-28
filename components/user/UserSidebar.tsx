@@ -52,7 +52,7 @@ export function UserSidebar({ collapsed, onToggle }: UserSidebarProps) {
     <ExpandableSidebar
       collapsed={collapsed}
       onToggle={onToggle}
-      logo={<BrandLogo size="sm" showIcon={collapsed} showText={!collapsed} className="gap-2" />}
+      logo={<BrandLogo size="sm" showIcon={collapsed} showText className="gap-2" />}
       sections={sections}
       footerText={t("dashboard.footer")}
     />

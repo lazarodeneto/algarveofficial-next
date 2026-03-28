@@ -33,7 +33,8 @@
       "Bash(do sleep:*)",
       "Bash(find . -name *.log -mmin -40 -type f)",
       "Bash(pkill -f \"playwright test\")",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(git revert:*)"
     ]
   }
 }

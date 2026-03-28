@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { OwnerSidebar } from "@/components/owner/OwnerSidebar";
 import { OwnerHeader } from "@/components/owner/OwnerHeader";
-import { SeoHead } from "@/components/seo/SeoHead";
 
 interface OwnerLayoutProps {
   children?: ReactNode;
@@ -12,7 +11,6 @@ export function OwnerLayout({ children }: OwnerLayoutProps) {
 
   return (
     <div className="min-h-screen overflow-hidden bg-background flex w-full">
-      <SeoHead noIndex noFollow />
       <OwnerSidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}

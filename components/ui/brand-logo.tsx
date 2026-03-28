@@ -2,12 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { buildSupabaseImageUrl } from "@/lib/imageUrls";
+import { useTheme } from "@/contexts/ThemeContext";
+
+type BrandLogoIconTone = "auto" | "gold" | "black" | "white";
 
 interface BrandLogoProps {
   /** Size variant */
@@ -22,6 +24,8 @@ interface BrandLogoProps {
   className?: string;
   /** Additional className for the icon */
   iconClassName?: string;
+  /** Official icon tone */
+  iconTone?: BrandLogoIconTone;
 }
 
 const sizeConfig = {
@@ -41,6 +45,12 @@ const sizeConfig = {
 
 const passthroughImageLoader = ({ src }: { src: string }) => src;
 
+const officialIconSrcByTone: Record<Exclude<BrandLogoIconTone, "auto">, string> = {
+  gold: "/algarveofficial-icon-gold.png",
+  black: "/algarveofficial-icon-black.png",
+  white: "/algarveofficial-icon-white.png",
+};
+
 export function BrandLogo({
   size = "md",
   showIcon = false,
@@ -48,10 +58,12 @@ export function BrandLogo({
   asLink = true,
   className,
   iconClassName,
+  iconTone = "auto",
 }: BrandLogoProps) {
   const config = sizeConfig[size];
   const l = useLocalePath();
   const { settings } = useSiteSettings();
+  const { resolvedTheme } = useTheme();
   const hydrated = useHydrated();
   const hydratedSettings = hydrated ? settings : null;
   const logoUrl = hydratedSettings?.logo_url;
@@ -64,6 +76,9 @@ export function BrandLogo({
     }) || logoUrl;
   const siteName = hydratedSettings?.site_name || "Algarve Official";
   const [siteFirstWord, ...siteRestWords] = siteName.split(" ");
+  const effectiveIconTone =
+    iconTone === "auto" ? (hydrated && resolvedTheme === "dark" ? "white" : "gold") : iconTone;
+  const officialIconSrc = officialIconSrcByTone[effectiveIconTone];
 
   const content = (
     <div className={cn("flex items-center gap-2", className)}>
@@ -80,7 +95,14 @@ export function BrandLogo({
             priority
           />
         ) : (
-          <Crown className={cn(config.icon, "text-primary", iconClassName)} />
+          <Image
+            src={officialIconSrc}
+            alt={`${siteName} crown mark`}
+            className={cn(config.icon, "object-contain", iconClassName)}
+            width={48}
+            height={48}
+            priority
+          />
         )
       ) : null}
       {showText && (

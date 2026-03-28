@@ -124,7 +124,7 @@ export function AdminHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/88 backdrop-blur-xl supports-[backdrop-filter]:bg-background/72">
       <div className="flex min-h-14 items-center justify-between gap-2 px-2.5 py-2 sm:min-h-16 sm:px-3 lg:px-5">
-        <div className="flex min-w-0 flex-1 items-center gap-2 pl-11 sm:pl-12 md:gap-3 lg:pl-0 xl:gap-4">
+        <div className="flex min-w-0 flex-1 items-center gap-2 pl-11 sm:pl-12 md:gap-3 xl:pl-0 xl:gap-4">
           <div className="min-w-0 flex-1">
             <DashboardBreadcrumb />
           </div>
@@ -205,7 +205,10 @@ export function AdminHeader() {
             </Link>
           </Button>
 
-          <LanguageSwitcher />
+          <LanguageSwitcher
+            containerClassName="min-w-0"
+            selectClassName="h-9 w-[8.5rem] rounded-full border-border/80 bg-background/80 px-3 py-1 text-sm shadow-none"
+          />
           <ThemeToggle />
 
           <DropdownMenu>
