@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { normalizePublicContactEmail } from "@/lib/contactEmail";
+import { normalizePublicWhatsAppNumber } from "@/lib/contactPhone";
 import { toast } from "sonner";
 
 export interface ContactSettings {
@@ -39,6 +40,7 @@ export function useContactSettings() {
       return {
         ...settings,
         display_email: normalizePublicContactEmail(settings.display_email),
+        whatsapp_number: normalizePublicWhatsAppNumber(settings.whatsapp_number),
         forwarding_email: normalizePublicContactEmail(settings.forwarding_email),
       };
     },

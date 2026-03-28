@@ -14,6 +14,7 @@ import { useContactForm } from "@/hooks/useContactForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { useContactSettings } from "@/hooks/useContactSettings";
 import { PRIMARY_CONTACT_EMAIL, normalizePublicContactEmail } from "@/lib/contactEmail";
+import { PRIMARY_WHATSAPP_NUMBER, toWhatsAppDigits } from "@/lib/contactPhone";
 
 const ENGLISH_CONTACT_FALLBACKS = {
     heroTitle: new Set(["Contact Us", "Get in Touch"]),
@@ -128,6 +129,7 @@ export default function Contact() {
         ENGLISH_CONTACT_FALLBACKS.formDescription,
     );
     const displayEmail = normalizePublicContactEmail(settings?.display_email) || PRIMARY_CONTACT_EMAIL;
+    const whatsappDigits = toWhatsAppDigits(settings?.whatsapp_number || PRIMARY_WHATSAPP_NUMBER);
 
     if (isLoading) {
         return (
@@ -213,7 +215,7 @@ export default function Contact() {
                                             <div className="min-w-0 flex-1">
                                                 <h4 className="font-semibold text-foreground text-lg">WhatsApp</h4>
                                                 <p className="text-muted-foreground leading-relaxed">{t('contact.waDesc', 'Chat with us directly for quick support.')}</p>
-                                                <a href={`https://wa.me/${(settings?.whatsapp_number || '351123456789').replace(/\+/g, '')}`} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block break-words text-sm font-medium text-primary hover:underline">
+                                                <a href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block break-words text-sm font-medium text-primary hover:underline">
                                                     {t('contact.startChat', 'Start a chat')}
                                                 </a>
                                             </div>

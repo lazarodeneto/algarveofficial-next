@@ -174,7 +174,7 @@ export default function AdminContactPage() {
                                 <Input
                                     value={whatsappNumber}
                                     onChange={(e) => setWhatsappNumber(e.target.value)}
-                                    placeholder="+351 912 345 678"
+                                    placeholder="+351 927 071 708"
                                 />
                             </div>
                         </div>
