@@ -300,7 +300,7 @@ export default function Directory() {
       <div className="app-container content-max pb-16">
 
         {/* Advanced Filters */}
-        {isBlockEnabled("filters", true) && <CmsBlock pageId="directory" blockId="filters" className="relative z-20 mb-8">
+        {isBlockEnabled("filters", true) && <CmsBlock pageId="directory" blockId="filters" className="relative z-30 isolate mb-8">
           <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
             <Card className="relative isolate overflow-hidden border-border bg-background/95 shadow-lg supports-[backdrop-filter]:bg-background/90">
               <CollapsibleTrigger asChild>
@@ -317,7 +317,7 @@ export default function Directory() {
               </CollapsibleTrigger>
 
               <CollapsibleContent>
-                <CardContent className="pt-0 pb-6 px-4 space-y-6">
+                <CardContent className="relative z-10 pt-0 pb-6 px-4 space-y-6">
                   {/* Search */}
                   <div className="relative">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -426,7 +426,7 @@ export default function Directory() {
           </Collapsible>
         </CmsBlock>}
 
-        {isBlockEnabled("results", true) && <CmsBlock pageId="directory" blockId="results" className="relative z-0">
+        {isBlockEnabled("results", true) && <CmsBlock pageId="directory" blockId="results" className="relative z-0 isolate">
           {/* Results Count */}
           <div className="flex items-center justify-between mb-6">
             <p className="text-muted-foreground">
@@ -488,9 +488,9 @@ export default function Directory() {
               delay: Math.min(index * 0.05, 0.5)
             }}>
               <Link href={l(`/listing/${listing.slug}`)} className="group block h-full">
-                <article className="glass-box glass-box-listing-shimmer overflow-hidden flex flex-col h-full">
+                <article className="relative z-0 isolate glass-box glass-box-listing-shimmer overflow-hidden flex flex-col h-full">
                 {/* Image */}
-                <div className="relative aspect-[4/3] bg-muted overflow-hidden">
+                <div className="relative z-0 aspect-[4/3] bg-muted overflow-hidden">
                   <ListingImage
                     src={listing.featured_image_url}
                     category={listing.category?.slug}

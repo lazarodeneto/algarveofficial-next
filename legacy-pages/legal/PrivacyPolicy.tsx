@@ -47,7 +47,7 @@ const PrivacyPolicy = () => {
                 any questions about this Privacy Policy or our data practices, please contact us at:
               </p>
               <div className="bg-card border border-border rounded-lg p-4">
-                <p><strong>Email:</strong> privacy@algarveofficial.com</p>
+                <p><strong>Email:</strong> info@algarveofficial.com</p>
                 <p><strong>Address:</strong> Algarve, District of Faro, Portugal</p>
               </div>
             </div>
@@ -209,8 +209,8 @@ const PrivacyPolicy = () => {
               </div>
               <p className="mt-4">
                 To exercise any of these rights, please contact us at{" "}
-                <a href="mailto:privacy@algarveofficial.com" className="text-primary hover:underline">
-                  privacy@algarveofficial.com
+                <a href="mailto:info@algarveofficial.com" className="text-primary hover:underline">
+                  info@algarveofficial.com
                 </a>
               </p>
             </div>
@@ -321,7 +321,7 @@ const PrivacyPolicy = () => {
                 or have a complaint, please contact us:
               </p>
               <div className="bg-card border border-border rounded-lg p-4">
-                <p><strong>Email:</strong> privacy@algarveofficial.com</p>
+                <p><strong>Email:</strong> info@algarveofficial.com</p>
                 <p><strong>Response Time:</strong> Within 30 days as required by GDPR</p>
               </div>
               <p>

@@ -255,13 +255,13 @@ export default function AdminGlobalSettings() {
   const [cfHeroSubtitle, setCfHeroSubtitle] = useState("");
   const [cfGetInTouchTitle, setCfGetInTouchTitle] = useState("Connect with Us");
   const [cfGetInTouchDescription, setCfGetInTouchDescription] = useState("");
-  const [cfDisplayEmail, setCfDisplayEmail] = useState("hello@algarveofficial.com");
+  const [cfDisplayEmail, setCfDisplayEmail] = useState("info@algarveofficial.com");
   const [cfWhatsappNumber, setCfWhatsappNumber] = useState("+351 912 345 678");
   const [cfOfficeLocation, setCfOfficeLocation] = useState("Vilamoura, Algarve, Portugal");
   const [cfFormTitle, setCfFormTitle] = useState("Send us a Message");
   const [cfFormDescription, setCfFormDescription] = useState("");
   const [cfSuccessMessage, setCfSuccessMessage] = useState("");
-  const [cfForwardingEmail, setCfForwardingEmail] = useState("admin@algarveofficial.com");
+  const [cfForwardingEmail, setCfForwardingEmail] = useState("info@algarveofficial.com");
   const [activeTab, setActiveTab] = useState("status");
 
   async function runTranslationsNow() {
@@ -487,13 +487,13 @@ export default function AdminGlobalSettings() {
       setCfHeroSubtitle(contactFormSettings.hero_subtitle ?? "");
       setCfGetInTouchTitle(contactFormSettings.get_in_touch_title ?? "Connect with Us");
       setCfGetInTouchDescription(contactFormSettings.get_in_touch_description ?? "");
-      setCfDisplayEmail(contactFormSettings.display_email ?? "hello@algarveofficial.com");
+      setCfDisplayEmail(contactFormSettings.display_email ?? "info@algarveofficial.com");
       setCfWhatsappNumber(contactFormSettings.whatsapp_number ?? "+351 912 345 678");
       setCfOfficeLocation(contactFormSettings.office_location ?? "Vilamoura, Algarve, Portugal");
       setCfFormTitle(contactFormSettings.form_title ?? "Send us a Message");
       setCfFormDescription(contactFormSettings.form_description ?? "");
       setCfSuccessMessage(contactFormSettings.success_message ?? "");
-      setCfForwardingEmail(contactFormSettings.forwarding_email ?? "admin@algarveofficial.com");
+      setCfForwardingEmail(contactFormSettings.forwarding_email ?? "info@algarveofficial.com");
     }
   }, [contactFormSettings]);
 
@@ -2129,7 +2129,7 @@ export default function AdminGlobalSettings() {
                         value={cfDisplayEmail}
                         onChange={(e) => setCfDisplayEmail(e.target.value)}
                         className="bg-background"
-                        placeholder="hello@algarveofficial.com"
+                        placeholder="info@algarveofficial.com"
                       />
                     </div>
                   </div>
@@ -2207,7 +2207,7 @@ export default function AdminGlobalSettings() {
                         value={cfForwardingEmail}
                         onChange={(e) => setCfForwardingEmail(e.target.value)}
                         className="bg-background"
-                        placeholder="admin@algarveofficial.com"
+                        placeholder="info@algarveofficial.com"
                       />
                       <p className="text-xs text-muted-foreground">Submissions are forwarded here</p>
                     </div>

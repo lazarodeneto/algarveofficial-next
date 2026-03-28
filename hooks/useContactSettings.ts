@@ -1,6 +1,7 @@
 "use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { normalizePublicContactEmail } from "@/lib/contactEmail";
 import { toast } from "sonner";
 
 export interface ContactSettings {
@@ -33,7 +34,13 @@ export function useContactSettings() {
         .maybeSingle();
 
       if (error) throw error;
-      return data as ContactSettings;
+      const settings = data as ContactSettings;
+
+      return {
+        ...settings,
+        display_email: normalizePublicContactEmail(settings.display_email),
+        forwarding_email: normalizePublicContactEmail(settings.forwarding_email),
+      };
     },
     enabled: isBrowser,
   });

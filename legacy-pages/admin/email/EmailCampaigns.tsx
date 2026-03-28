@@ -140,7 +140,7 @@ const EmailCampaigns = () => {
                     id="from_email" 
                     type="email"
                     {...register("from_email", { required: true })} 
-                    placeholder="hello@algarveofficial.com"
+                    placeholder="info@algarveofficial.com"
                   />
                 </div>
               </div>

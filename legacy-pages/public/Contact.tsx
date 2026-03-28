@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { useContactForm } from "@/hooks/useContactForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { useContactSettings } from "@/hooks/useContactSettings";
+import { PRIMARY_CONTACT_EMAIL, normalizePublicContactEmail } from "@/lib/contactEmail";
 
 const ENGLISH_CONTACT_FALLBACKS = {
     heroTitle: new Set(["Contact Us", "Get in Touch"]),
@@ -126,6 +127,7 @@ export default function Contact() {
         t('contact.formDesc', 'Fill in the form below and we\'ll get back to you as soon as possible.'),
         ENGLISH_CONTACT_FALLBACKS.formDescription,
     );
+    const displayEmail = normalizePublicContactEmail(settings?.display_email) || PRIMARY_CONTACT_EMAIL;
 
     if (isLoading) {
         return (
@@ -194,9 +196,9 @@ export default function Contact() {
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <h4 className="font-semibold text-foreground text-lg">{t('contact.email', 'Email')}</h4>
-                                                <p className="break-all text-muted-foreground leading-relaxed">{settings?.display_email || 'hello@algarveofficial.com'}</p>
+                                                <p className="break-all text-muted-foreground leading-relaxed">{displayEmail}</p>
                                                 <a
-                                                    href={`mailto:${settings?.display_email || 'hello@algarveofficial.com'}`}
+                                                    href={`mailto:${displayEmail}`}
                                                     className="mt-1 inline-block break-words text-sm font-medium text-primary hover:underline"
                                                 >
                                                     {t('contact.sendEmail', 'Send an email')}
