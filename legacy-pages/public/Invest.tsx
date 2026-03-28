@@ -27,6 +27,7 @@ import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
+import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 
 const Invest = () => {
     const { t } = useTranslation();
@@ -138,7 +139,7 @@ const Invest = () => {
 
             <main className="flex-grow">
                 {isBlockEnabled("hero", true) && (
-                    <CmsBlock pageId="invest" blockId="hero" className="px-3 sm:px-4 lg:px-6 pt-16 sm:pt-20 pb-4">
+                    <CmsBlock pageId="invest" blockId="hero" className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
                         <LiveStyleHero
                             badge={t("nav.invest")}
                             title={getText("hero.title", "Invest in Algarve")}

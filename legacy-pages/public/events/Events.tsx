@@ -31,6 +31,7 @@ import { CmsBlock } from '@/components/cms/CmsBlock';
 import { LiveStyleHero } from '@/components/sections/LiveStyleHero';
 import { HeroBackgroundMedia } from '@/components/sections/HeroBackgroundMedia';
 import { PageHeroImage } from '@/components/sections/PageHeroImage';
+import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 
 export default function Events() {
   const { t } = useTranslation();
@@ -86,7 +87,7 @@ export default function Events() {
       
       <main>
         {isBlockEnabled("hero", true) ? (
-          <CmsBlock pageId="events" blockId="hero" as="section" className="px-0 sm:px-4 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4">
+          <CmsBlock pageId="events" blockId="hero" as="section" className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
             <LiveStyleHero
               badge={t('sections.events.label', 'Algarve Calendar')}
               title={t('sections.events.title', 'Events & Season')}

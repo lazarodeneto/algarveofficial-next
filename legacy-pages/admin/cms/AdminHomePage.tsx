@@ -49,6 +49,7 @@ import { useHomepageSettings, HomepageSettings } from "@/hooks/useHomepageSettin
 import { GlobalSetting, useGlobalSettings } from "@/hooks/useGlobalSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { convertToWebP } from "@/lib/imageUtils";
+import { normalizePublicImageUrl, resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
 import {
   HOME_QUICK_LINK_CARDS,
   HOME_QUICK_LINK_SETTING_KEYS,
@@ -119,6 +120,9 @@ const getYouTubeEmbedUrl = (url: string): string => {
   }
   return url;
 };
+
+const resolveMediaAssetUrl = (value?: string | null) =>
+  resolveSupabaseBucketImageUrl(value, "media") ?? normalizePublicImageUrl(value);
 
 interface SortableSectionItemProps {
   section: HomeSection;
@@ -733,15 +737,16 @@ export default function AdminHomePage() {
                       allow="autoplay; encrypted-media"
                       allowFullScreen
                     />
-                  ) : heroContent.mediaType === 'poster' && heroContent.posterUrl ? (
+                  ) : heroContent.mediaType === 'poster' && resolveMediaAssetUrl(heroContent.posterUrl) ? (
                     <img
-                      src={heroContent.posterUrl}
+                      src={resolveMediaAssetUrl(heroContent.posterUrl) ?? undefined}
                       className="w-full h-full object-cover"
                       alt="Hero poster"
                     />
                   ) : (
                     <video
-                      src={heroContent.videoUrl}
+                      src={resolveMediaAssetUrl(heroContent.videoUrl) ?? undefined}
+                      poster={resolveMediaAssetUrl(heroContent.posterUrl) ?? undefined}
                       className="w-full h-full object-cover"
                       muted
                       loop
@@ -1009,8 +1014,10 @@ export default function AdminHomePage() {
             <CardContent className="space-y-5">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 {HOME_QUICK_LINK_CARDS.map((card) => {
-                  const imageUrl = quickLinkImages[card.imageSettingKey]?.trim() || card.fallbackImageUrl;
-                  const videoUrl = quickLinkVideos[card.videoSettingKey]?.trim() || "";
+                  const imageUrl = resolveMediaAssetUrl(
+                    quickLinkImages[card.imageSettingKey]?.trim() || card.fallbackImageUrl,
+                  );
+                  const videoUrl = resolveMediaAssetUrl(quickLinkVideos[card.videoSettingKey]?.trim());
                   const hasCustomImage = Boolean(quickLinkImages[card.imageSettingKey]?.trim());
                   const hasCustomVideo = Boolean(videoUrl);
                   const isCardBusy = isSaving || isSavingQuickLinks;
@@ -1021,11 +1028,11 @@ export default function AdminHomePage() {
                         /directory?category={card.categorySlug}
                       </p>
 
-                      <div className="aspect-[4/3] rounded-md border border-border bg-muted/40 overflow-hidden mb-3">
+                      <div className="relative aspect-[4/3] rounded-md border border-border bg-muted/40 overflow-hidden mb-3">
                         {hasCustomVideo ? (
                           <video
-                            src={videoUrl}
-                            poster={imageUrl}
+                            src={videoUrl ?? undefined}
+                            poster={imageUrl ?? undefined}
                             className="w-full h-full object-cover"
                             controls
                             muted
@@ -1033,7 +1040,7 @@ export default function AdminHomePage() {
                           />
                         ) : (
                           <img
-                            src={imageUrl}
+                            src={imageUrl ?? undefined}
                             alt={`${card.title} card preview`}
                             className="w-full h-full object-cover"
                           />

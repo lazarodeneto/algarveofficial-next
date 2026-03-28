@@ -167,7 +167,7 @@ export default function Header() {
                 <BrandLogo size="md" showIcon className="whitespace-nowrap" />
               </div>
               <div className="hidden items-center justify-center lg:flex xl:hidden">
-                <BrandLogo size="sm" showIcon showText={false} className="justify-center" iconClassName="h-7 w-7" />
+                <BrandLogo size="sm" showIcon className="whitespace-nowrap" iconClassName="h-7 w-7" />
               </div>
               <div className="hidden xl:block">
                 <BrandLogo size="md" className="whitespace-nowrap" />

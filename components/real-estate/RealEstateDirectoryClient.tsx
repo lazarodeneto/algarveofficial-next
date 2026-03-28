@@ -11,6 +11,7 @@ import { Footer } from "@/components/layout/Footer";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
+import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 import { RealEstateCard } from "@/components/real-estate/RealEstateCard";
 import { RealEstateFilters } from "@/components/real-estate/RealEstateFilters";
 import { ConciergeContactDialog } from "@/components/real-estate/ConciergeContactDialog";
@@ -292,7 +293,7 @@ function RealEstateDirectoryClientInner({
       <Header />
 
       <main className="flex-grow">
-        <section className="px-0 sm:px-4 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4">
+        <section className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
           <LiveStyleHero
             badge={t("realEstate.hero.badge", "Exclusive Portfolio")}
             title={t("realEstate.hero.title", "Prime Real Estate")}

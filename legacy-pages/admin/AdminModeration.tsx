@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { TierBadge } from "@/components/admin/TierBadge";
 import { toast } from "sonner";
+import { resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
 
 export default function AdminModeration() {
   const queryClient = useQueryClient();
@@ -360,9 +361,10 @@ export default function AdminModeration() {
             <ScrollArea className="px-6 pb-6 max-h-[65vh]">
               <div className="space-y-6 pt-4">
                 {/* Featured Image */}
-                {previewListing.featured_image_url && (
+                {(resolveSupabaseBucketImageUrl(previewListing.featured_image_url, "listing-images")
+                  ?? previewListing.featured_image_url) && (
                   <img
-                    src={previewListing.featured_image_url}
+                    src={resolveSupabaseBucketImageUrl(previewListing.featured_image_url, "listing-images") ?? previewListing.featured_image_url}
                     alt={previewListing.name}
                     className="w-full h-56 object-cover rounded-lg border border-border"
                   />
@@ -464,7 +466,7 @@ export default function AdminModeration() {
                         .map((img: any) => (
                           <img
                             key={img.id}
-                            src={img.image_url}
+                            src={resolveSupabaseBucketImageUrl(img.image_url, "listing-images") ?? img.image_url}
                             alt={img.alt_text || ''}
                             className="w-full h-24 object-cover rounded border border-border"
                           />

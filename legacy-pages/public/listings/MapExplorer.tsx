@@ -212,7 +212,7 @@ export default function MapExplorer() {
       <main className="pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-16" data-cms-page="map">
         <div className="app-container content-max">
           {isBlockEnabled("hero", true) ? (
-            <CmsBlock pageId="map" blockId="hero" as="section" className="pb-6">
+            <CmsBlock pageId="map" blockId="hero" as="section" className="pb-6 -mx-4 md:-mx-6 lg:mx-0">
               <LiveStyleHero
                 badge={getText("hero.badge", "Map Explorer")}
                 title={getText("hero.title", t("map.title"))}
