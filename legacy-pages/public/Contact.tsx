@@ -14,8 +14,48 @@ import { useContactForm } from "@/hooks/useContactForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { useContactSettings } from "@/hooks/useContactSettings";
 
+const ENGLISH_CONTACT_FALLBACKS = {
+    heroTitle: new Set(["Contact Us", "Get in Touch"]),
+    heroSubtitle: new Set([
+        "We'd love to hear from you. Get in touch with our team.",
+        "Have a question or need assistance? Our team is here to help you make the most of your Algarve experience.",
+        "Have a question? We'd love to hear from you...",
+        "Have a question? We'd love to hear from you…",
+        "Have a question? We'd love to hear from you. Send us a message and we'll respond within 24 hours.",
+    ]),
+    getInTouchTitle: new Set(["Get in Touch", "Connect with Us"]),
+    getInTouchDescription: new Set([
+        "Our concierge team is available to assist you with any questions about premium experiences in the Algarve.",
+        "Choose your preferred way to reach us. We usually respond within 24 hours.",
+        "Whether you have a question about our services or just want to say hello, we are here to help.",
+        "Whether you have a question about our services…",
+    ]),
+    formTitle: new Set(["Send a Message", "Send Us a Message", "Send us a Message"]),
+    formDescription: new Set([
+        "Fill in the form below and we'll get back to you as soon as possible.",
+        "Fill out the form below and we will get back to you as soon as possible.",
+        "Fill out the form below and our team will get back to you shortly.",
+        "Fill out the form below...",
+    ]),
+};
+
+function resolveLocalizedContactCopy(
+    locale: string | undefined,
+    configuredValue: string | null | undefined,
+    translatedValue: string,
+    englishFallbacks: Set<string>,
+) {
+    const trimmed = configuredValue?.trim();
+    if (!trimmed) return translatedValue;
+
+    const isEnglishLocale = (locale ?? "").toLowerCase().startsWith("en");
+    if (isEnglishLocale) return trimmed;
+
+    return englishFallbacks.has(trimmed) ? translatedValue : trimmed;
+}
+
 export default function Contact() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { user } = useAuth();
     const searchParams = useSearchParams();
     const contactMutation = useContactForm();
@@ -50,6 +90,43 @@ export default function Contact() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const heroTitle = resolveLocalizedContactCopy(
+        i18n.resolvedLanguage,
+        settings?.hero_title,
+        t('contact.title', 'Contact Us'),
+        ENGLISH_CONTACT_FALLBACKS.heroTitle,
+    );
+    const heroSubtitle = resolveLocalizedContactCopy(
+        i18n.resolvedLanguage,
+        settings?.hero_subtitle,
+        t('contact.subtitle', 'Have a question or need assistance? Our team is here to help you make the most of your Algarve experience.'),
+        ENGLISH_CONTACT_FALLBACKS.heroSubtitle,
+    );
+    const getInTouchTitle = resolveLocalizedContactCopy(
+        i18n.resolvedLanguage,
+        settings?.get_in_touch_title,
+        t('contact.getInTouch', 'Get in Touch'),
+        ENGLISH_CONTACT_FALLBACKS.getInTouchTitle,
+    );
+    const getInTouchDescription = resolveLocalizedContactCopy(
+        i18n.resolvedLanguage,
+        settings?.get_in_touch_description,
+        t('contact.touchDesc', 'Choose your preferred way to reach us. We usually respond within 24 hours.'),
+        ENGLISH_CONTACT_FALLBACKS.getInTouchDescription,
+    );
+    const formTitle = resolveLocalizedContactCopy(
+        i18n.resolvedLanguage,
+        settings?.form_title,
+        t('contact.formTitle', 'Send Us a Message'),
+        ENGLISH_CONTACT_FALLBACKS.formTitle,
+    );
+    const formDescription = resolveLocalizedContactCopy(
+        i18n.resolvedLanguage,
+        settings?.form_description,
+        t('contact.formDesc', 'Fill in the form below and we\'ll get back to you as soon as possible.'),
+        ENGLISH_CONTACT_FALLBACKS.formDescription,
+    );
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-background">
@@ -79,10 +156,10 @@ export default function Contact() {
                         transition={{ duration: 0.6 }}
                     >
                         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-medium text-foreground leading-tight">
-                            {settings?.hero_title || t('contact.title', 'Contact Us')}
+                            {heroTitle}
                         </h1>
                         <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-                            {settings?.hero_subtitle || t('contact.subtitle', 'Have a question or need assistance? Our team is here to help you make the most of your Algarve experience.')}
+                            {heroSubtitle}
                         </p>
                     </motion.div>
                 </div>
@@ -103,10 +180,10 @@ export default function Contact() {
                                 <Card className="glass-box border-none shadow-xl bg-card/30 backdrop-blur-sm p-6 lg:p-10">
                                     <CardHeader className="p-0 mb-8">
                                         <CardTitle className="text-3xl font-serif">
-                                            {settings?.get_in_touch_title || t('contact.getInTouch', 'Get in Touch')}
+                                            {getInTouchTitle}
                                         </CardTitle>
                                         <CardDescription className="text-base mt-2">
-                                            {settings?.get_in_touch_description || t('contact.touchDesc', 'Choose your preferred way to reach us. We usually respond within 24 hours.')}
+                                            {getInTouchDescription}
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent className="p-0 space-y-10">
@@ -165,9 +242,9 @@ export default function Contact() {
                             >
                                 <Card className="glass-box">
                                     <CardHeader>
-                                        <CardTitle className="font-serif">{settings?.form_title || t('contact.formTitle', 'Send a Message')}</CardTitle>
+                                        <CardTitle className="font-serif">{formTitle}</CardTitle>
                                         <CardDescription>
-                                            {settings?.form_description || t('contact.formDesc', 'Fill out the form below and we will get back to you as soon as possible.')}
+                                            {formDescription}
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>

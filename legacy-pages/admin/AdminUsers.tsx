@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, Search, MoreHorizontal, Shield, Edit, Mail, UserCog, Loader2 } from "lucide-react";
+import { Users, Search, MoreHorizontal, Shield, Edit, Mail, UserCog, Loader2, Trash2, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,8 +31,18 @@ import {
 import { DataTable, Column } from "@/components/admin/DataTable";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { toast } from "sonner";
+import { getValidAccessToken } from "@/lib/authToken";
 
 type UserRole = "admin" | "editor" | "owner" | "viewer_logged";
+type AdminUser = {
+  id: string;
+  email: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  created_at: string;
+  phone: string | null;
+  role: UserRole;
+};
 
 const roleConfig: Record<UserRole, { label: string; className: string }> = {
   admin: {
@@ -59,8 +69,13 @@ export default function AdminUsers() {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [roleDialogOpen, setRoleDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [newRole, setNewRole] = useState<UserRole | null>(null);
+  const [editFullName, setEditFullName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editPhone, setEditPhone] = useState("");
 
   // Fetch users with their roles
   const { data: users = [], isLoading } = useQuery({
@@ -68,7 +83,7 @@ export default function AdminUsers() {
     queryFn: async () => {
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, email, full_name, avatar_url, created_at');
+        .select('id, email, full_name, avatar_url, created_at, phone');
 
       if (profilesError) throw profilesError;
 
@@ -79,7 +94,7 @@ export default function AdminUsers() {
       if (rolesError) throw rolesError;
 
       // Combine profiles with roles
-      return (profiles || []).map(profile => ({
+      return ((profiles || []) as Omit<AdminUser, "role">[]).map(profile => ({
         ...profile,
         role: roles?.find(r => r.user_id === profile.id)?.role || 'viewer_logged',
       }));
@@ -91,24 +106,19 @@ export default function AdminUsers() {
   // Update role mutation
   const updateRoleMutation = useMutation({
     mutationFn: async ({ userId, role }: { userId: string; role: UserRole }) => {
-      // First check if user has a role entry
-      const { data: existing } = await supabase
-        .from('user_roles')
-        .select('id')
-        .eq('user_id', userId)
-        .single();
+      const accessToken = await getValidAccessToken();
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ role }),
+      });
 
-      if (existing) {
-        const { error } = await supabase
-          .from('user_roles')
-          .update({ role })
-          .eq('user_id', userId);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('user_roles')
-          .insert({ user_id: userId, role });
-        if (error) throw error;
+      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+      if (!response.ok) {
+        throw new Error(payload?.error || "Failed to update user role.");
       }
     },
     onSuccess: () => {
@@ -123,7 +133,80 @@ export default function AdminUsers() {
     },
   });
 
-  const filteredUsers = users.filter((user: any) => {
+  const updateUserMutation = useMutation({
+    mutationFn: async ({
+      userId,
+      fullName,
+      email,
+      phone,
+    }: {
+      userId: string;
+      fullName: string;
+      email: string;
+      phone: string;
+    }) => {
+      const accessToken = await getValidAccessToken();
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          fullName,
+          email,
+          phone,
+        }),
+      });
+
+      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+      if (!response.ok) {
+        throw new Error(payload?.error || "Failed to update user.");
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      toast.success("User profile updated");
+      setEditDialogOpen(false);
+      setSelectedUser(null);
+    },
+    onError: (error: Error) => {
+      toast.error("Failed to update user: " + error.message);
+    },
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async ({ userId }: { userId: string }) => {
+      const accessToken = await getValidAccessToken();
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const payload = (await response.json().catch(() => null)) as { error?: string; warning?: string | null } | null;
+      if (!response.ok) {
+        throw new Error(payload?.error || "Failed to permanently delete user.");
+      }
+
+      return payload;
+    },
+    onSuccess: (payload) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      toast.success("User permanently deleted");
+      if (payload?.warning) {
+        toast.warning(payload.warning);
+      }
+      setDeleteDialogOpen(false);
+      setSelectedUser(null);
+    },
+    onError: (error: Error) => {
+      toast.error("Failed to delete user: " + error.message);
+    },
+  });
+
+  const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.email?.toLowerCase().includes(search.toLowerCase()) ||
       user.full_name?.toLowerCase().includes(search.toLowerCase());
@@ -131,7 +214,7 @@ export default function AdminUsers() {
     return matchesSearch && matchesRole;
   });
 
-  const handleRoleChange = (user: any) => {
+  const handleRoleChange = (user: AdminUser) => {
     setSelectedUser(user);
     setNewRole(user.role);
     setRoleDialogOpen(true);
@@ -140,7 +223,7 @@ export default function AdminUsers() {
   const confirmRoleChange = () => {
     if (selectedUser && newRole) {
       // Check if trying to remove last admin
-      const adminCount = users.filter((u: any) => u.role === "admin").length;
+      const adminCount = users.filter((u) => u.role === "admin").length;
       if (selectedUser.role === "admin" && newRole !== "admin" && adminCount <= 1) {
         toast.error("Cannot remove the last admin!");
         return;
@@ -156,7 +239,30 @@ export default function AdminUsers() {
     }
   };
 
-  const columns: Column<any>[] = [
+  const handleEditUser = (user: AdminUser) => {
+    setSelectedUser(user);
+    setEditFullName(user.full_name || "");
+    setEditEmail(user.email || "");
+    setEditPhone(user.phone || "");
+    setEditDialogOpen(true);
+  };
+
+  const handleDeleteUser = (user: AdminUser) => {
+    setSelectedUser(user);
+    setDeleteDialogOpen(true);
+  };
+
+  const saveUserProfile = () => {
+    if (!selectedUser) return;
+    updateUserMutation.mutate({
+      userId: selectedUser.id,
+      fullName: editFullName,
+      email: editEmail,
+      phone: editPhone,
+    });
+  };
+
+  const columns: Column<AdminUser>[] = [
     {
       key: "user",
       label: "User",
@@ -213,14 +319,21 @@ export default function AdminUsers() {
               <UserCog className="h-4 w-4 mr-2" />
               Change Role
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleEditUser(user)}>
               <Edit className="h-4 w-4 mr-2" />
               Edit Profile
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => window.open(`mailto:${user.email}`, "_self")}>
               <Mail className="h-4 w-4 mr-2" />
               Send Email
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleDeleteUser(user)}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Permanently
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -337,6 +450,68 @@ export default function AdminUsers() {
         </DialogContent>
       </Dialog>
 
+      {/* Edit User Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="font-serif">Edit User</DialogTitle>
+            <DialogDescription>
+              Update the profile details for {selectedUser?.email}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="user-full-name">Full Name</Label>
+              <Input
+                id="user-full-name"
+                value={editFullName}
+                onChange={(event) => setEditFullName(event.target.value)}
+                placeholder="Full name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="user-email">Email</Label>
+              <div className="relative">
+                <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="user-email"
+                  type="email"
+                  value={editEmail}
+                  onChange={(event) => setEditEmail(event.target.value)}
+                  className="pl-10"
+                  placeholder="name@example.com"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="user-phone">Phone</Label>
+              <div className="relative">
+                <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="user-phone"
+                  value={editPhone}
+                  onChange={(event) => setEditPhone(event.target.value)}
+                  className="pl-10"
+                  placeholder="+351 ..."
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={saveUserProfile}
+              disabled={updateUserMutation.isPending || !selectedUser}
+            >
+              {updateUserMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Confirmation Dialog */}
       <ConfirmDialog
         open={confirmDialogOpen}
@@ -345,6 +520,20 @@ export default function AdminUsers() {
         description={`Are you sure you want to change ${selectedUser?.email}'s role from "${selectedUser?.role}" to "${newRole}"? This will affect their permissions immediately.`}
         confirmLabel="Confirm"
         onConfirm={applyRoleChange}
+      />
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Permanently Delete User"
+        description={`Delete ${selectedUser?.email} permanently? This removes their login and profile data. If the user owns listings, reassign or remove those listings first.`}
+        confirmLabel={deleteUserMutation.isPending ? "Deleting..." : "Delete Permanently"}
+        onConfirm={() => {
+          if (selectedUser) {
+            deleteUserMutation.mutate({ userId: selectedUser.id });
+          }
+        }}
+        variant="destructive"
       />
     </div>
   );

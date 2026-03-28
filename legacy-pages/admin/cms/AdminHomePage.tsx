@@ -106,6 +106,17 @@ const defaultSections: HomeSection[] = [
   { id: 'cta', title: 'Call to Action', type: 'cta', enabled: true, order: 8 },
 ];
 
+const areStringRecordValuesEqual = (
+  a: Record<string, string>,
+  b: Record<string, string>,
+): boolean => {
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+  if (aKeys.length !== bKeys.length) return false;
+
+  return aKeys.every((key) => a[key] === b[key]);
+};
+
 // Helper to convert YouTube URL to embed URL
 const getYouTubeEmbedUrl = (url: string): string => {
   if (!url) return '';
@@ -284,8 +295,12 @@ export default function AdminHomePage() {
       acc[card.videoSettingKey] = match?.value ?? "";
       return acc;
     }, {});
-    setQuickLinkImages(mappedImages);
-    setQuickLinkVideos(mappedVideos);
+    setQuickLinkImages((prev) => (
+      areStringRecordValuesEqual(prev, mappedImages) ? prev : mappedImages
+    ));
+    setQuickLinkVideos((prev) => (
+      areStringRecordValuesEqual(prev, mappedVideos) ? prev : mappedVideos
+    ));
   }, [quickLinkSettings]);
 
   const sensors = useSensors(
