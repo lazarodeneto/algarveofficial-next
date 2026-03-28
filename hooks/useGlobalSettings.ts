@@ -12,6 +12,8 @@ interface UseGlobalSettingsOptions {
   keys?: string[];
 }
 
+const EMPTY_GLOBAL_SETTINGS: GlobalSetting[] = [];
+
 export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
   const queryClient = useQueryClient();
   const isBrowser = typeof window !== "undefined";
@@ -71,7 +73,7 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
     : async (): Promise<GlobalSetting[]> => [];
 
   return {
-    settings: isBrowser ? query.data ?? [] : [],
+    settings: isBrowser ? query.data ?? EMPTY_GLOBAL_SETTINGS : EMPTY_GLOBAL_SETTINGS,
     isLoading: isBrowser ? query.isLoading : false,
     error: isBrowser ? query.error : null,
     saveSettingsAsync,

@@ -274,7 +274,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
       onToggle={onToggle}
       density="compact"
       logo={<BrandLogo size="sm" showIcon={collapsed} showText className="gap-2" />}
-      desktopBreakpoint="xl"
+      desktopBreakpoint="2xl"
       sectionVariant="cards"
       childIndentStyle="soft"
       sections={localizedSections}

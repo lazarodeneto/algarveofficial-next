@@ -382,10 +382,10 @@ export default function AdminTranslations() {
             </div>
             <div>
               <h1 className="text-2xl font-serif font-semibold text-foreground">
-                Translation Sync
+                UI Locale Sync
               </h1>
               <p className="text-sm text-muted-foreground">
-                {enKeys.length} keys in English · {syncedCount}/{LOCALES.length} locales fully synced
+                {enKeys.length} bundled UI keys in English · {syncedCount}/{LOCALES.length} locales fully synced
               </p>
             </div>
           </div>
@@ -532,7 +532,7 @@ export default function AdminTranslations() {
         <Card className="bg-muted/40 border-dashed">
           <CardContent className="pt-4 pb-4">
             <p className="text-xs text-muted-foreground leading-relaxed">
-              <strong className="text-foreground">How it works:</strong> This panel compares each locale against the English source (`en.json`), identifies missing keys, translates them via AI, and saves the results to Supabase. Translations are served from the database at runtime — no rebuild needed. Add a new English key, then hit Sync.
+              <strong className="text-foreground">How it works:</strong> This panel compares each locale against the English source (`en.json`), identifies missing UI keys, translates them via AI, and saves the results to Supabase in <code>i18n_locale_data</code>. It does not manage listing/content records such as <code>listing_translations</code> or <code>translation_jobs</code>. Add a new English UI key, then hit Sync.
             </p>
           </CardContent>
         </Card>

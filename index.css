@@ -485,23 +485,22 @@
 
   /* Bottom nav mobile com safe-area */
   .bottom-nav {
-    @apply fixed inset-x-0 bottom-0 z-50 px-3 pb-3 pt-0;
-    padding-bottom: calc(env(safe-area-inset-bottom) + 0.75rem);
+    @apply fixed inset-x-0 bottom-0 z-50 pt-0;
+    padding-bottom: 0;
   }
 
   .bottom-nav__inner {
-    @apply mx-auto flex max-w-[32rem] items-center justify-between gap-1 rounded-[1.6rem] border px-2 py-2 shadow-[0_22px_55px_-28px_rgba(15,23,42,0.36)] backdrop-blur-2xl dark:bg-[hsl(var(--background)/0.82)];
+    @apply flex w-full items-center justify-between gap-0 border-x-0 border-b-0 border-t px-2 py-2 shadow-[0_-16px_36px_-24px_rgba(15,23,42,0.28)] backdrop-blur-2xl dark:bg-[hsl(var(--background)/0.9)];
     background-color: rgb(255 255 255 / 0.92);
     border-color: rgb(0 0 0 / 0.08);
   }
 
   .bottom-nav__link {
-    @apply flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-[1rem] px-2 py-2.5 text-center transition-all duration-200;
+    @apply relative flex min-w-0 flex-1 items-center justify-center px-2 py-3 text-center transition-all duration-200;
   }
 
   .bottom-nav__link--active {
-    @apply text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.42)];
-    background-color: hsl(var(--primary) / 0.12);
+    @apply text-primary;
   }
 
   .bottom-nav__icon {
@@ -509,11 +508,23 @@
   }
 
   .bottom-nav__label {
-    font-size: 0.67rem;
+    @apply pointer-events-none absolute left-1/2 -translate-x-1/2 rounded-full border px-2.5 py-1 text-[0.68rem] font-semibold opacity-0 transition-all duration-200;
+    bottom: calc(100% + 0.55rem);
     line-height: 1;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-weight: 700;
+    white-space: nowrap;
+    background-color: rgb(255 255 255 / 0.96);
+    border-color: rgb(0 0 0 / 0.08);
+    color: hsl(var(--foreground));
+    transform: translateX(-50%) translateY(0.25rem);
+    box-shadow: 0 12px 28px -18px rgba(15, 23, 42, 0.35);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .bottom-nav__link:hover .bottom-nav__label,
+    .bottom-nav__link:focus-visible .bottom-nav__label {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
   }
 
   /* CSS failsafe: hide bottom nav when mobile menu is open (production caching workaround) */

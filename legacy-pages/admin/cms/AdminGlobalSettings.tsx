@@ -229,10 +229,10 @@ export default function AdminGlobalSettings() {
             toast.warning(
               `Direct translation endpoint is unavailable. Queued ${queueResult.queued} language job${queueResult.queued !== 1 ? "s" : ""} for background processing.`,
             );
-            setMissingTranslations((prev) => prev.filter((l) => l.id !== listingId));
           } else {
             toast.info("No new translation jobs were queued. Languages are already translated or queued.");
           }
+          await fetchMissingTranslations();
           return;
         }
 
@@ -240,8 +240,7 @@ export default function AdminGlobalSettings() {
       }
       if (data?.ok === false) throw new Error(data?.error || "Translation request failed");
       toast.success("Translation queued successfully.");
-      // Remove from missing list
-      setMissingTranslations((prev) => prev.filter((l) => l.id !== listingId));
+      await fetchMissingTranslations();
     } catch (e: any) {
       toast.error("Translation failed: " + e.message);
     } finally {
@@ -263,6 +262,7 @@ export default function AdminGlobalSettings() {
   const [cfFormDescription, setCfFormDescription] = useState("");
   const [cfSuccessMessage, setCfSuccessMessage] = useState("");
   const [cfForwardingEmail, setCfForwardingEmail] = useState("admin@algarveofficial.com");
+  const [activeTab, setActiveTab] = useState("status");
 
   async function runTranslationsNow() {
     setTranslateLoading(true);
@@ -306,6 +306,7 @@ export default function AdminGlobalSettings() {
       if (!listings || listings.length === 0) {
         setTranslateResult({ message: "No listings require translation", processed: 0 });
         toast.success("All listings are already translated.");
+        await fetchMissingTranslations();
         return;
       }
 
@@ -378,6 +379,7 @@ export default function AdminGlobalSettings() {
           `Batch done: ${succeeded} translated, ${queued} queued, ${failed} failed. Check results below.`,
         );
       }
+      await fetchMissingTranslations();
     } catch (e: any) {
       const msg = e?.message || String(e);
       setTranslateError(msg);
@@ -494,6 +496,11 @@ export default function AdminGlobalSettings() {
       setCfForwardingEmail(contactFormSettings.forwarding_email ?? "admin@algarveofficial.com");
     }
   }, [contactFormSettings]);
+
+  useEffect(() => {
+    if (activeTab !== "translations") return;
+    void fetchMissingTranslations();
+  }, [activeTab]);
 
   // ─────────────────────────────────────────────────────────────────────────────
   // HELPERS for Global Settings key-value
@@ -851,7 +858,7 @@ export default function AdminGlobalSettings() {
         </div>
       </div>
 
-      <Tabs defaultValue="status" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="bg-card border border-border flex-wrap">
           <TabsTrigger
             value="status"
@@ -923,7 +930,7 @@ export default function AdminGlobalSettings() {
             className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
             <RefreshCw className="h-4 w-4 mr-2" />
-            Translations
+            Content Translations
           </TabsTrigger>
         </TabsList>
 
@@ -2419,12 +2426,20 @@ export default function AdminGlobalSettings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <RefreshCw className="h-5 w-5 text-primary" />
-                Manual Translation Runner
+                Content Translation Jobs
               </CardTitle>
-              <CardDescription>Process queued translation jobs in batches (manual control).</CardDescription>
+              <CardDescription>
+                Process listing content translations stored in Supabase. This area does not manage bundled UI locale keys.
+              </CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-4">
+              <div className="rounded-lg border border-primary/20 bg-primary/10 p-4 text-sm text-muted-foreground">
+                <Info className="mr-2 inline-block h-4 w-4 text-primary" />
+                Use <strong className="text-foreground">Content &rarr; Translations</strong> for interface/UI locale key sync.
+                This tab only works with <code>listing_translations</code> and <code>translation_jobs</code>.
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-[220px,1fr] gap-4 items-end">
                 <div className="space-y-2">
                   <Label htmlFor="translate_batch">Batch size (n)</Label>
@@ -2499,7 +2514,7 @@ export default function AdminGlobalSettings() {
                 <div>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <AlertCircle className="h-5 w-5 text-amber-500" />
-                    Listings Missing Translations
+                    Listings Missing Content Translations
                   </CardTitle>
                   <CardDescription>Published listings missing one or more of: pt-pt · fr · de · es · it · nl · sv · no · da</CardDescription>
                 </div>
@@ -2512,7 +2527,7 @@ export default function AdminGlobalSettings() {
             <CardContent>
               {missingTranslations.length === 0 && !missingLoading ? (
                 <div className="text-center py-8 text-muted-foreground text-sm">
-                  Click <strong>Refresh</strong> to check for listings missing translations.
+                  All published listings are currently translated for the supported content locales.
                 </div>
               ) : missingLoading ? (
                 <div className="flex items-center justify-center py-8 gap-2 text-muted-foreground text-sm">
