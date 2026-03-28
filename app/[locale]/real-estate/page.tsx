@@ -1,6 +1,6 @@
-import RealEstateDirectory from "@/legacy-pages/public/RealEstateDirectory";
+"use client";
 
-export const revalidate = 3600;
+import RealEstateDirectory from "@/legacy-pages/public/RealEstateDirectory";
 
 export default function RealEstatePage() {
   return <RealEstateDirectory />;
