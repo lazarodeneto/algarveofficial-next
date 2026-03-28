@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   AlignJustify,
@@ -41,7 +41,7 @@ import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useTranslation } from "react-i18next";
 import { BrandLogo } from "@/components/ui/brand-logo";
-import { HeaderCompactNav, HeaderMegaMenu } from "./HeaderMegaMenu";
+import { HeaderNav } from "./HeaderNav";
 import { MobileBottomNav } from "./MobileBottomNav";
 import {
   Accordion,
@@ -54,11 +54,11 @@ export default function Header() {
   const { mobileMenuOpen, setMobileMenuOpen } = useMobileMenu();
   const { isAuthenticated, user, logout, getDashboardPath } = useAuth();
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
 
   const directoryPath = l("/directory");
-  const investPath = l("/invest");
-  const realEstatePath = l("/real-estate");
+  const investPath = l("/real-estate");
+  const realEstatePath = investPath;
   const partnerPath = l("/partner");
   const homePath = l("/");
   const destinationsPath = l("/destinations");
@@ -66,10 +66,10 @@ export default function Header() {
   const blogPath = l("/blog");
   const eventsPath = l("/events");
   const loginPath = l("/login");
-  const favoritesPath = isAuthenticated ? "/dashboard/favorites" : loginPath;
+  const favoritesPath = isAuthenticated ? l("/dashboard/favorites") : loginPath;
   const accountPath = isAuthenticated && user ? getDashboardPath(user.role) : loginPath;
-  const tripsPath = isAuthenticated ? "/dashboard/trips" : loginPath;
-  const messagesPath = isAuthenticated ? "/dashboard/messages" : loginPath;
+  const tripsPath = isAuthenticated ? l("/dashboard/trips") : loginPath;
+  const messagesPath = isAuthenticated ? l("/dashboard/messages") : loginPath;
   const buildDirectoryCategoryPath = (category: string) =>
     l(`/directory?category=${category}`);
 
@@ -151,7 +151,7 @@ export default function Header() {
     <>
       <CommandSearch open={searchOpen} onOpenChange={setSearchOpen} />
 
-      <header className="site-header fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+      <header className="site-header fixed top-0 left-0 right-0 z-50 transition-all duration-300 xl:left-20">
         <div
           className={`absolute inset-0 transition-all duration-300 ${isScrolled
             ? "border-b border-black/8 bg-[hsl(var(--background)/0.96)] shadow-[0_18px_48px_-38px_rgba(15,23,42,0.35)] backdrop-blur-2xl dark:border-white/10 dark:bg-[hsl(var(--background)/0.78)]"
@@ -159,19 +159,24 @@ export default function Header() {
             }`}
         />
 
-        <nav className="relative mx-auto max-w-[1680px] px-3 sm:px-5 lg:px-4 xl:px-8 2xl:px-10">
+        <nav className="relative mx-auto max-w-[1680px] px-3 sm:px-5 lg:px-4 xl:pr-8 xl:pl-11 2xl:pr-10 2xl:pl-14">
           <div className="flex h-[4.5rem] sm:h-20 items-center gap-2 sm:gap-3 lg:gap-3 xl:gap-5">
             {/* Logo */}
-            <div className="flex-shrink-0 min-w-0 lg:max-w-[11.5rem] xl:max-w-[13rem] 2xl:max-w-none">
-              <BrandLogo size="md" showIcon className="whitespace-nowrap" />
+            <div className="flex-shrink-0 min-w-0 overflow-hidden lg:max-w-[11.5rem] xl:mr-3 xl:max-w-[14.5rem] 2xl:mr-5 2xl:max-w-none">
+              <div className="lg:hidden">
+                <BrandLogo size="md" className="whitespace-nowrap" />
+              </div>
+              <div className="hidden items-center justify-center lg:flex xl:hidden">
+                <BrandLogo size="sm" showIcon showText={false} className="justify-center" iconClassName="h-7 w-7" />
+              </div>
+              <div className="hidden xl:block">
+                <BrandLogo size="md" className="whitespace-nowrap" />
+              </div>
             </div>
 
-            {/* Tablet Navigation */}
-            <HeaderCompactNav />
-
-            {/* Desktop Navigation (Mega Menu) */}
-            <div className="hidden xl:flex xl:min-w-0 xl:flex-1 xl:items-center xl:justify-end">
-              <HeaderMegaMenu />
+            {/* Primary Navigation */}
+            <div className="hidden lg:flex lg:min-w-0 lg:flex-1 lg:items-center lg:justify-center xl:justify-start">
+              <HeaderNav />
             </div>
 
             <div className="hidden xl:flex xl:items-center xl:shrink-0">
@@ -220,7 +225,10 @@ export default function Header() {
                 <span className="sr-only">{t("nav.search", "Search")}</span>
               </Button>
 
-              <LanguageSwitcher />
+              <LanguageSwitcher
+                containerClassName="min-w-0"
+                selectClassName="h-8 w-[8.75rem] rounded-full border-black/10 bg-white/70 px-3 py-1 text-sm shadow-none dark:border-white/12 dark:bg-white/5"
+              />
               <ThemeToggle variant="header" />
 
               {isAuthenticated && user ? (
@@ -278,7 +286,7 @@ export default function Header() {
                 {isAuthenticated && user ? (
                   <div className="flex items-center gap-1">
                     {(user.role === "admin" || user.role === "editor") && (
-                      <Link href="/admin">
+                      <Link href={l("/admin")}>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -318,8 +326,21 @@ export default function Header() {
               </div>
             </div>
 
+            {/* Laptop menu button */}
+            <div className="hidden lg:flex xl:hidden items-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 rounded-full border border-black/10 bg-white/80 text-foreground shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10 dark:text-white/85"
+                aria-label={mobileMenuOpen ? t("nav.closeMenu", "Close menu") : t("nav.openMenu", "Open menu")}
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X className="h-6 w-6" /> : <AlignJustify className="h-6 w-6" />}
+              </Button>
+            </div>
+
             {/* Mobile menu button */}
-            <div className="xl:hidden ml-auto flex items-center gap-1 sm:gap-3">
+            <div className="lg:hidden ml-auto flex items-center gap-1 sm:gap-3">
               <Link href={favoritesPath}>
                 <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full border border-black/10 bg-white/80 text-foreground shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10 dark:text-white/85">
                   <Heart className="h-5 w-5 sm:h-5 sm:w-5" />
@@ -443,7 +464,6 @@ export default function Header() {
                       </div>
                       <AccordionContent>
                         <div className="mb-1 flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
-                          <Link href={investPath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><TrendingUp className="h-4 w-4" /> {t("nav.invest", "Invest")}</Link>
                           <Link href={realEstatePath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Building2 className="h-4 w-4" /> {t("realEstate.title", "Real Estate Directory")}</Link>
                           <Link href={partnerPath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Plus className="h-4 w-4" /> {t("realEstate.addListing", "Add Real Estate Listing")}</Link>
                         </div>

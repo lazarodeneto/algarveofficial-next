@@ -6,7 +6,7 @@ import { FavoriteButton } from "@/components/ui/favorite-button";
 import { useSavedDestinations } from "@/hooks/useSavedDestinations";
 import { useRegionListingCounts, useRegions } from "@/hooks/useReferenceData";
 import { useTranslation } from "react-i18next";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { getRegionImageSet } from "@/lib/regionImages";
@@ -17,7 +17,7 @@ export function RegionsSection() {
   const { data: regionCounts } = useRegionListingCounts();
   const { data: regions, isLoading: regionsLoading } = useRegions();
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const isLoading = regionsLoading;
 
   // Filter to only regions that have local images available

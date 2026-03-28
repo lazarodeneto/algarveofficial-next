@@ -21,6 +21,7 @@ import { useSavedDestinations } from "@/hooks/useSavedDestinations";
 import { useTranslation } from "react-i18next";
 import { getRegionImageSet } from "@/lib/regionImages";
 import ListingImage from "@/components/ListingImage";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 function resolveRegionImageSrc(value: string | { src: string } | null | undefined) {
   if (!value) return undefined;
@@ -30,6 +31,7 @@ function resolveRegionImageSrc(value: string | { src: string } | null | undefine
 export default function UserOverview() {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const l = useLocalePath();
   const { favoriteListingIds, favoriteListings } = useFavoriteListings();
   const { savedCityIds, savedRegionIds } = useSavedDestinations();
   
@@ -126,7 +128,7 @@ export default function UserOverview() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
         >
-          <Link href="/dashboard/profile">
+          <Link href={l("/dashboard/profile")}>
             <Card className="bg-card border-border hover:border-primary/30 transition-colors cursor-pointer">
               <CardContent className="p-4 flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-purple-500/10">
@@ -164,7 +166,7 @@ export default function UserOverview() {
                 {t("dashboard.overview.signatureDescription")}
               </p>
               <Button asChild className="w-fit">
-                <Link href="/destinations">
+                <Link href={l("/destinations")}>
                   {t("dashboard.overview.exploreDestinations")}
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>
@@ -193,7 +195,7 @@ export default function UserOverview() {
                 {t("dashboard.overview.curatedDescription")}
               </p>
               <Button asChild variant="outline" className="w-fit border-amber-500/30 hover:bg-amber-500/10">
-                <Link href="/">
+                <Link href={l("/")}>
                   {t("dashboard.overview.viewVipSelection")}
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>
@@ -212,7 +214,7 @@ export default function UserOverview() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-serif font-semibold">{t("dashboard.overview.featuredRegions")}</h2>
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/destinations" className="flex items-center gap-1">
+            <Link href={l("/destinations")} className="flex items-center gap-1">
               {t("common.viewAll")} <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
@@ -245,7 +247,7 @@ export default function UserOverview() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 + index * 0.1 }}
               >
-                <Link href={`/destinations/${region.slug}`}>
+                <Link href={l(`/destinations/${region.slug}`)}>
                   <Card className="bg-card border-border hover:border-primary/30 transition-all group overflow-hidden">
                     <div className="aspect-[16/9] overflow-hidden relative">
                       <img
@@ -281,7 +283,7 @@ export default function UserOverview() {
               {t("dashboard.overview.myFavorites")}
             </h2>
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/dashboard/favorites" className="flex items-center gap-1">
+              <Link href={l("/dashboard/favorites")} className="flex items-center gap-1">
                 {t("common.viewAll")} <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
@@ -326,7 +328,7 @@ export default function UserOverview() {
                     </p>
                     <div className="mt-3">
                       <Button size="sm" variant="outline" className="w-full" asChild>
-                        <Link href={`/listing/${listing.slug || listing.id}`}>{t("dashboard.overview.viewDetails")}</Link>
+                        <Link href={l(`/listing/${listing.slug || listing.id}`)}>{t("dashboard.overview.viewDetails")}</Link>
                       </Button>
                     </div>
                   </CardContent>
@@ -355,7 +357,7 @@ export default function UserOverview() {
               <Heart className="h-12 w-12 mx-auto mb-3 opacity-50" />
               <p className="mb-4">{t("dashboard.overview.noFavoritesYet")}</p>
               <Button asChild>
-                <Link href="/directory">
+                <Link href={l("/directory")}>
                   {t("dashboard.overview.exploreListings")}
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>

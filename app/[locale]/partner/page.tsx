@@ -4,11 +4,12 @@ import type { Locale } from "@/lib/i18n/config";
 import { DEFAULT_LOCALE, addLocaleToPathname } from "@/lib/i18n/config";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 import { buildWebPageSchema, buildFaqSchema } from "@/lib/seo/schemaBuilders.js";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicServerClient } from "@/lib/supabase/public-server";
 import PartnerClient from "@/components/partner/PartnerClient";
 import type { PartnerSettings } from "@/hooks/usePartnerSettings";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ?? "https://algarveofficial.com";
+export const revalidate = 3600;
 
 export interface FAQ {
   question: string;
@@ -30,7 +31,7 @@ function normalizeFaqs(value: unknown): FAQ[] {
 }
 
 const getPartnerSettings = cache(async (): Promise<PartnerSettings | null> => {
-  const supabase = await createClient();
+  const supabase = createPublicServerClient();
   const { data, error } = await supabase
     .from("partner_settings")
     .select(

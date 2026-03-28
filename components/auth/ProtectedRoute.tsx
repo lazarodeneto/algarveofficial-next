@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useAuth, UserRole } from '@/contexts/AuthContext';
-import { useLocale } from '@/lib/i18n/locale-context';
+import { useLocaleRouter } from "@/hooks/useLocaleRouter";
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
@@ -11,9 +11,8 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, isLoading, isAuthenticated, getDashboardPath } = useAuth();
-  const router = useRouter();
+  const { replace, locale } = useLocaleRouter();
   const pathname = usePathname() ?? "/";
-  const locale = useLocale();
 
   const shouldRedirectToLogin = !isAuthenticated;
   const shouldRedirectByRole = Boolean(allowedRoles && user && !allowedRoles.includes(user.role));
@@ -23,18 +22,19 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
 
     if (shouldRedirectToLogin) {
       // Preserve locale in the "next" param so user returns to the right page after login
-      router.replace(`/login?next=${encodeURIComponent(pathname)}&locale=${locale}`);
+      replace(`/login?next=${encodeURIComponent(pathname)}&locale=${locale}`);
       return;
     }
 
     if (shouldRedirectByRole && user) {
-      router.replace(getDashboardPath(user.role));
+      replace(getDashboardPath(user.role));
     }
   }, [
     getDashboardPath,
     isLoading,
+    locale,
     pathname,
-    router,
+    replace,
     shouldRedirectByRole,
     shouldRedirectToLogin,
     user,

@@ -1,39 +1,34 @@
+"use client";
+
 import { useMemo, useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { ensureLocaleLoaded } from "@/i18n";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import { useLocaleRouter } from "@/hooks/useLocaleRouter";
 
 const STORAGE_KEY = "algarve-language-chosen";
-const LANG_PREFIXES = ["/pt-pt", "/fr", "/de", "/es", "/it", "/nl", "/sv", "/no", "/da"];
 
 /** All supported languages with display names and URL prefixes */
-const SUPPORTED_LANGS: Record<string, { code: string; name: string; path: string }> = {
-  pt: { code: "pt-pt", name: "Português", path: "/pt-pt/" },
-  de: { code: "de", name: "Deutsch", path: "/de/" },
-  fr: { code: "fr", name: "Français", path: "/fr/" },
-  es: { code: "es", name: "Español", path: "/es/" },
-  it: { code: "it", name: "Italiano", path: "/it/" },
-  nl: { code: "nl", name: "Nederlands", path: "/nl/" },
-  sv: { code: "sv", name: "Svenska", path: "/sv/" },
-  no: { code: "no", name: "Norsk", path: "/no/" },
-  da: { code: "da", name: "Dansk", path: "/da/" },
-  en: { code: "en", name: "English", path: "/" },
-  nb: { code: "no", name: "Norsk", path: "/no/" },
-  nn: { code: "no", name: "Norsk", path: "/no/" },
+const SUPPORTED_LANGS: Record<string, { code: string; name: string }> = {
+  pt: { code: "pt-pt", name: "Português" },
+  de: { code: "de", name: "Deutsch" },
+  fr: { code: "fr", name: "Français" },
+  es: { code: "es", name: "Español" },
+  it: { code: "it", name: "Italiano" },
+  nl: { code: "nl", name: "Nederlands" },
+  sv: { code: "sv", name: "Svenska" },
+  no: { code: "no", name: "Norsk" },
+  da: { code: "da", name: "Dansk" },
+  en: { code: "en", name: "English" },
+  nb: { code: "no", name: "Norsk" },
+  nn: { code: "no", name: "Norsk" },
 };
 
-function stripLangPrefix(pathname: string): string {
-  for (const prefix of LANG_PREFIXES) {
-    if (pathname === prefix || pathname.startsWith(`${prefix}/`)) {
-      return pathname.slice(prefix.length) || "/";
-    }
-  }
-  return pathname || "/";
-}
-
 export function LanguageSuggestionBanner() {
-  const { i18n, t } = useTranslation();
+  const { t } = useTranslation();
+  const currentLocale = useCurrentLocale();
+  const { switchLocale } = useLocaleRouter();
   const [dismissed, setDismissed] = useState(
     () => typeof window !== "undefined" && localStorage.getItem(STORAGE_KEY) === "true",
   );
@@ -47,36 +42,18 @@ export function LanguageSuggestionBanner() {
     const match = SUPPORTED_LANGS[prefix];
     if (!match) return null;
 
-    const current = i18n.language?.toLowerCase();
-    if (match.code === current) return null;
+    if (match.code === currentLocale) return null;
 
     return match;
-  }, [dismissed, i18n.language]);
+  }, [currentLocale, dismissed]);
 
   if (!suggestion) return null;
 
   const accept = () => {
-    void (async () => {
-      await ensureLocaleLoaded(suggestion.code);
-      if (typeof i18n.changeLanguage !== "function") return;
-      await i18n.changeLanguage(suggestion.code);
-      localStorage.setItem("algarve-language", suggestion.code);
-      localStorage.setItem(STORAGE_KEY, "true");
-      setDismissed(true);
-
-      // Keep the current working App Router path while localized prefix routes
-      // are still being migrated. If the visitor is already on a legacy
-      // prefixed path, strip that prefix rather than navigating deeper into it.
-      const currentPath = window.location.pathname;
-      const barePath = stripLangPrefix(currentPath);
-      const targetPath = barePath || "/";
-      const nextUrl = `${targetPath}${window.location.search}${window.location.hash}`;
-      const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-
-      if (nextUrl !== currentUrl) {
-        window.location.assign(nextUrl);
-      }
-    })();
+    localStorage.setItem("algarve-language", suggestion.code);
+    localStorage.setItem(STORAGE_KEY, "true");
+    setDismissed(true);
+    switchLocale(suggestion.code);
   };
 
   const dismiss = () => {

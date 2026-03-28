@@ -2,48 +2,52 @@ import { expect, test } from "@playwright/test";
 
 test.describe("Blog page", () => {
   test("loads successfully", async ({ page }) => {
-    const response = await page.goto("/blog");
+    const response = await page.goto("/en/blog");
     expect(response?.ok()).toBeTruthy();
   });
 
   test("displays blog heading", async ({ page }) => {
-    await page.goto("/blog");
+    const response = await page.goto("/en/blog");
+    expect(response?.ok()).toBeTruthy();
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   });
 });
 
 test.describe("Events page", () => {
   test("loads successfully", async ({ page }) => {
-    const response = await page.goto("/events");
+    const response = await page.goto("/en/events");
     expect(response?.ok()).toBeTruthy();
   });
 
   test("displays events heading", async ({ page }) => {
-    await page.goto("/events");
+    const response = await page.goto("/en/events");
+    expect(response?.ok()).toBeTruthy();
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   });
 });
 
 test.describe("Directory page", () => {
   test("loads successfully", async ({ page }) => {
-    const response = await page.goto("/directory");
+    const response = await page.goto("/en/directory");
     expect(response?.ok()).toBeTruthy();
   });
 
   test("displays directory content", async ({ page }) => {
-    await page.goto("/directory");
+    const response = await page.goto("/en/directory");
+    expect(response?.ok()).toBeTruthy();
     await expect(page.getByRole("main")).toBeVisible();
   });
 });
 
 test.describe("Login page", () => {
   test("loads successfully", async ({ page }) => {
-    const response = await page.goto("/login");
+    const response = await page.goto("/en/login");
     expect(response?.ok()).toBeTruthy();
   });
 
   test("displays login form", async ({ page }) => {
-    await page.goto("/login");
+    const response = await page.goto("/en/login");
+    expect(response?.ok()).toBeTruthy();
     await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible();
   });
 });
@@ -62,14 +66,16 @@ test.describe("Navigation", () => {
 
 test.describe("SEO", () => {
   test("homepage has meta description", async ({ page }) => {
-    await page.goto("/");
+    const response = await page.goto("/en");
+    expect(response?.ok()).toBeTruthy();
     const description = await page.locator('meta[name="description"]').getAttribute("content");
     expect(description).toBeTruthy();
     expect(description?.length).toBeGreaterThan(0);
   });
 
   test("pages have canonical URLs", async ({ page }) => {
-    await page.goto("/blog");
+    const response = await page.goto("/en/blog");
+    expect(response?.ok()).toBeTruthy();
     const canonical = await page.locator('link[rel="canonical"]').getAttribute("href");
     expect(canonical).toBeTruthy();
   });

@@ -13,15 +13,12 @@ import {
   Ticket,
   Filter,
   Star,
-  Archive,
 } from "lucide-react";
 
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
@@ -31,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { eventCategoryLabels, eventCategoryColors, type CalendarEvent, type EventCategory } from "@/types/events";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { useHydrated } from "@/hooks/useHydrated";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
@@ -96,10 +93,9 @@ async function fetchEventGlobalSettings() {
 
 function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClientProps) {
   const { t } = useTranslation();
-  const l = useLocalizedHref();
+  const l = useLocalePath();
 
   const [selectedCategory, setSelectedCategory] = useState<EventCategory | "all">("all");
-  const [showPast, setShowPast] = useState(false);
 
   const categories = Object.entries(eventCategoryLabels) as [EventCategory, string][];
 
@@ -117,7 +113,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
     return t(translationKeyMap[category] || category, eventCategoryLabels[category]);
   };
 
-  const timeFilter = showPast ? "past" : "upcoming";
+  const timeFilter = "upcoming";
 
   const { data: events = [] } = useQuery({
     queryKey: ["events", "published", selectedCategory, timeFilter],
@@ -133,7 +129,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
     staleTime: 1000 * 60 * 10,
   });
 
-  const featuredEvents = showPast ? [] : events.filter((event) => event.is_featured).slice(0, 3);
+  const featuredEvents = events.filter((event) => event.is_featured).slice(0, 3);
   const upcomingEvents = events.filter((event) => !featuredEvents.some((featured) => featured.id === event.id));
 
   const eventsByMonth: Record<string, CalendarEvent[]> = {};
@@ -193,13 +189,6 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                     ))}
                 </SelectContent>
               </Select>
-              <div className="flex items-center gap-2 rounded-md border border-border bg-card/90 px-4 py-2 text-foreground">
-                <Archive className="h-4 w-4 text-muted-foreground" />
-                <Label htmlFor="past-toggle" className="cursor-pointer select-none text-sm">
-                  {t("sections.events.showPast", "Past Events")}
-                </Label>
-                <Switch id="past-toggle" checked={showPast} onCheckedChange={setShowPast} />
-              </div>
             </div>
           </LiveStyleHero>
         </section>
@@ -289,9 +278,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
 
         <section className="py-12 app-container content-max">
           <h2 className="mb-8 text-title font-serif font-semibold">
-            {showPast
-              ? t("sections.events.pastEvents", "Past Events")
-              : t("common.upcomingEvents", "Upcoming Events")}
+            {t("common.upcomingEvents", "Upcoming Events")}
           </h2>
 
           {Object.entries(eventsByMonth).length === 0 ? (

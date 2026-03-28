@@ -25,9 +25,11 @@ import {
   type CalendarEvent,
 } from '@/types/events';
 import { toast } from '@/hooks/use-toast';
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function OwnerEvents() {
   const { t } = useTranslation();
+  const l = useLocalePath();
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const { data: events = [], isLoading } = useOwnerEvents() as {
@@ -57,7 +59,7 @@ export default function OwnerEvents() {
           <p className="text-muted-foreground">{t('owner.events.subtitle')}</p>
         </div>
         <Button asChild>
-          <Link href="/owner/events/new">
+          <Link href={l("/owner/events/new")}>
             <Plus className="h-4 w-4 mr-2" />
             {t('owner.events.submitNewEvent')}
           </Link>
@@ -78,7 +80,7 @@ export default function OwnerEvents() {
               {t('owner.events.noEventsDescription')}
             </p>
             <Button asChild>
-              <Link href="/owner/events/new">
+              <Link href={l("/owner/events/new")}>
                 <Plus className="h-4 w-4 mr-2" />
                 {t('owner.events.submitNewEvent')}
               </Link>
@@ -157,7 +159,7 @@ export default function OwnerEvents() {
                   )}
                   {(event.status === 'draft' || event.status === 'rejected') && (
                     <Button variant="outline" size="sm" className="flex-1" asChild>
-                      <Link href={`/owner/events/${event.id}/edit`}>
+                      <Link href={l(`/owner/events/${event.id}/edit`)}>
                         <Edit className="h-4 w-4 mr-1" />
                         {t('common.edit')}
                       </Link>

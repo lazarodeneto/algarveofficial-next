@@ -2,7 +2,7 @@ import { useCallback, useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, Filter, X, MapPin, Tag, Building2, Crown, ShieldCheck, ChevronDown, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useLocalizedHref } from "@/hooks/useLocalizedHref";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,7 @@ import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 export default function Directory() {
   const { t } = useTranslation();
   const { getMetaDescription, getMetaTitle, getText, isBlockEnabled } = useCmsPageBuilder("directory");
-  const l = useLocalizedHref();
+  const l = useLocalePath();
   const router = useRouter();
   const pathname = usePathname() || "/directory";
   const searchParams = useSearchParams();

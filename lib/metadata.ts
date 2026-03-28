@@ -1,4 +1,10 @@
 import type { Metadata } from "next";
+import { isValidLocale, type Locale } from "@/lib/i18n/config";
+import {
+  buildMetadataAlternates,
+  buildUnlocalizedAlternates,
+  toOpenGraphLocale,
+} from "@/lib/i18n/seo";
 
 const SITE_NAME = "AlgarveOfficial";
 const DEFAULT_SITE_URL = "https://algarveofficial.com";
@@ -28,7 +34,8 @@ export interface MetadataParams {
   type?: "website" | "article" | "product" | "place";
   noIndex?: boolean;
   noFollow?: boolean;
-  locale?: string;
+  locale?: string; // OpenGraph locale (e.g., "en_GB", "pt_PT")
+  localeCode?: string; // URL locale prefix (e.g., "en", "pt-pt")
   keywords?: string[] | string;
   authors?: Array<{ name: string; url?: string }>;
   publishedTime?: string;
@@ -61,17 +68,13 @@ function toAbsoluteUrl(siteUrl: string, value: string) {
   return `${siteUrl}${normalizePath(value)}`;
 }
 
-export function buildAlternates(path: string) {
-  const siteUrl = getSiteUrl();
+export function buildAlternates(path: string, localeCode?: string) {
   const normalizedPath = normalizePath(path);
+  if (localeCode && isValidLocale(localeCode)) {
+    return buildMetadataAlternates(localeCode as Locale, normalizedPath);
+  }
 
-  return {
-    canonical: toAbsoluteUrl(siteUrl, normalizedPath),
-    languages: {
-      en: toAbsoluteUrl(siteUrl, normalizedPath),
-      "x-default": toAbsoluteUrl(siteUrl, normalizedPath),
-    },
-  };
+  return buildUnlocalizedAlternates(normalizedPath);
 }
 
 function normalizeKeywords(
@@ -126,6 +129,7 @@ export function buildMetadata({
   noIndex = false,
   noFollow = false,
   locale = DEFAULT_LOCALE,
+  localeCode,
   keywords,
   authors,
   publishedTime,
@@ -134,11 +138,16 @@ export function buildMetadata({
 }: MetadataParams): Metadata {
   const siteUrl = getSiteUrl();
   const normalizedPath = normalizePath(path);
-  const canonical = toAbsoluteUrl(siteUrl, normalizedPath);
+  const localePrefix = localeCode ? `/${localeCode}` : "";
+  const canonical = toAbsoluteUrl(siteUrl, `${localePrefix}${normalizedPath}`);
   const resolvedImage = toAbsoluteUrl(siteUrl, image);
   const resolvedTitle = ensureBrandedTitle(title);
   const resolvedDescription = normalizeDescription(description);
   const openGraphType = type === "article" ? "article" : "website";
+  const resolvedOpenGraphLocale =
+    localeCode && isValidLocale(localeCode)
+      ? toOpenGraphLocale(localeCode as Locale)
+      : locale;
 
   const metadata: Metadata = {
     title: resolvedTitle,
@@ -158,7 +167,7 @@ export function buildMetadata({
       apple: [{ url: "/icons/apple-touch-icon.png" }],
       shortcut: [{ url: "/favicon.ico" }],
     },
-    alternates: buildAlternates(normalizedPath),
+    alternates: buildAlternates(normalizedPath, localeCode),
     robots: {
       index: !noIndex,
       follow: !noFollow,
@@ -175,7 +184,7 @@ export function buildMetadata({
       description: resolvedDescription,
       url: canonical,
       siteName: SITE_NAME,
-      locale,
+      locale: resolvedOpenGraphLocale,
       type: openGraphType,
       images: [
         {

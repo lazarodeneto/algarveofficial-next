@@ -1,11 +1,7 @@
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function OwnerPage({
-  params,
-}: {
-  params: Promise<{ locale: string; slug?: string[] }>;
-}) {
-  const { locale, slug } = await params;
-  const path = slug ? slug.join("/") : "";
-  redirect(`/owner${path ? `/${path}` : ""}`);
+import { OwnerDashboardPage } from "@/components/routes/OwnerDashboardPage";
+
+export default function LocaleOwnerPage() {
+  return <OwnerDashboardPage />;
 }

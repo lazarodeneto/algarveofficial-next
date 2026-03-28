@@ -5,8 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import Link from "next/link";
-import { LocalizedLink } from "@/components/navigation/LocalizedLink";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 import {
   Calendar,
   MapPin,
@@ -295,10 +294,10 @@ function EventDetailClientInner({
               {cms.getText("notFound.description", "The event you're looking for doesn't exist or has been removed.")}
             </p>
             <Button variant="gold" asChild>
-              <LocalizedLink href="/events">
+              <LocaleLink href="/events">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 {cms.getText("notFound.back", "Back to Events")}
-              </LocalizedLink>
+              </LocaleLink>
             </Button>
           </div>
         </main>
@@ -342,13 +341,13 @@ function EventDetailClientInner({
             animate={{ opacity: 1, x: 0 }}
             className="mb-6"
           >
-            <LocalizedLink
+            <LocaleLink
               href="/events"
               className="inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-primary"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               {cms.getText("hero.backToEvents", "Back to Events")}
-            </LocalizedLink>
+            </LocaleLink>
           </motion.div>
 
           {eventHeroImage ? (
@@ -614,13 +613,13 @@ function EventDetailClientInner({
                 <h2 className="text-2xl font-serif font-medium text-foreground">
                   {cms.getText("related.title", "Related Events")}
                 </h2>
-                <LocalizedLink
+                <LocaleLink
                   href="/events"
                   className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
                   {cms.getText("related.viewAll", "View All")}
                   <ChevronRight className="h-4 w-4" />
-                </LocalizedLink>
+                </LocaleLink>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -631,7 +630,7 @@ function EventDetailClientInner({
                   const relatedEventImage = normalizePublicImageUrl(relatedEvent.image);
 
                   return (
-                    <Link key={relatedEvent.id} href={`/events/${relatedEvent.slug}`} className="group">
+                    <LocaleLink key={relatedEvent.id} href={`/events/${relatedEvent.slug}`} className="group">
                       <Card className="h-full overflow-hidden border-border bg-card transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-lg group-hover:shadow-primary/5">
                         <div className="relative aspect-[16/10] overflow-hidden">
                           {relatedEventImage ? (
@@ -681,7 +680,7 @@ function EventDetailClientInner({
                           ) : null}
                         </CardContent>
                       </Card>
-                    </Link>
+                    </LocaleLink>
                   );
                 })}
               </div>
