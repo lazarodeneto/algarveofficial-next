@@ -1,6 +1,7 @@
 "use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { normalizePublicContactEmail } from "@/lib/contactEmail";
 import { toast } from "sonner";
 
 export interface FAQ {
@@ -63,6 +64,7 @@ export function useSupportSettings() {
       // Parse JSONB fields
       return {
         ...raw,
+        email: normalizePublicContactEmail(raw.email),
         categories: Array.isArray(raw.categories) ? raw.categories as string[] : [],
         faqs: Array.isArray(raw.faqs) ? (raw.faqs as FAQ[]) : [],
       };
