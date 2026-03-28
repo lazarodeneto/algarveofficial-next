@@ -977,7 +977,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
               blockId="filters"
               cms={activeCms}
               as={motion.div}
-              className="relative z-20 mb-8"
+              className="relative z-30 isolate mb-8"
               style={undefined}
             >
               <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
@@ -1000,7 +1000,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                   </CollapsibleTrigger>
 
                   <CollapsibleContent>
-                    <CardContent className="pt-0 pb-6 px-4 space-y-6">
+                    <CardContent className="relative z-10 pt-0 pb-6 px-4 space-y-6">
                       <div className="relative">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                         <Input
@@ -1123,7 +1123,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
           ) : null}
 
           {activeCms.isBlockEnabled("results", true) ? (
-            <DirectoryCmsBlock blockId="results" cms={activeCms} className="relative z-0">
+            <DirectoryCmsBlock blockId="results" cms={activeCms} className="relative z-0 isolate">
               <div className="flex items-center justify-between mb-6">
                 <p className="text-body-sm text-muted-foreground">
                   {isLoading ? (
@@ -1186,7 +1186,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                       className="h-full"
                     >
                       <Link href={l(`/listing/${listing.slug}`)} className="group block h-full">
-                        <article className="glass-box glass-box-listing-shimmer overflow-hidden flex flex-col h-full">
+                        <article className="relative z-0 isolate glass-box glass-box-listing-shimmer overflow-hidden flex flex-col h-full">
                           {listing.tier === "signature" ? (
                             <span
                               aria-hidden
@@ -1194,7 +1194,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                             />
                           ) : null}
 
-                          <div className="relative aspect-square bg-muted overflow-hidden">
+                          <div className="relative z-0 aspect-square bg-muted overflow-hidden">
                             <ListingImage
                               src={listing.featured_image_url}
                               category={listing.category?.slug}

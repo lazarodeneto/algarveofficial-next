@@ -166,7 +166,7 @@ export function ConciergeContactDialog({ children }: ConciergeContactDialogProps
                             </Select>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="name">Name *</Label>
                                 <div className="relative">

@@ -35,6 +35,7 @@ import { useOwnerListings } from "@/hooks/useOwnerListings";
 import { useSupportSettings } from "@/hooks/useSupportSettings";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { PRIMARY_CONTACT_EMAIL, normalizePublicContactEmail } from "@/lib/contactEmail";
 
 export default function OwnerSupport() {
   const { t } = useTranslation();
@@ -125,7 +126,7 @@ export default function OwnerSupport() {
   };
 
   // Use database values with fallbacks
-  const email = settings?.email || "support@algarveofficial.com";
+  const email = normalizePublicContactEmail(settings?.email) || PRIMARY_CONTACT_EMAIL;
   const phone = settings?.phone || "+351 289 123 456";
   const phoneHours = settings?.phone_hours || "Mon-Fri, 9:00-18:00";
   const helpCenterUrl = settings?.help_center_url || "#";

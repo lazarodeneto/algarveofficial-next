@@ -290,8 +290,8 @@ const TermsOfService = () => {
                 <h3 className="text-lg font-semibold text-foreground mb-2">7.3 DMCA Compliance</h3>
                 <p>
                   If you believe your copyrighted work has been infringed, please contact us at{" "}
-                  <a href="mailto:legal@algarveofficial.com" className="text-primary hover:underline">
-                    legal@algarveofficial.com
+                  <a href="mailto:info@algarveofficial.com" className="text-primary hover:underline">
+                    info@algarveofficial.com
                   </a>{" "}
                   with the required DMCA notice information.
                 </p>
@@ -415,7 +415,7 @@ const TermsOfService = () => {
             <div className="pl-9 space-y-4 text-muted-foreground">
               <p>If you have any questions about these Terms, please contact us:</p>
               <div className="bg-card border border-border rounded-lg p-4">
-                <p><strong>Email:</strong> legal@algarveofficial.com</p>
+                <p><strong>Email:</strong> info@algarveofficial.com</p>
                 <p><strong>Address:</strong> Algarve, District of Faro, Portugal</p>
               </div>
             </div>

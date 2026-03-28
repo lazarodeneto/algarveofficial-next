@@ -116,13 +116,19 @@ export function preserveBundledLocaleValues(
     const localeValue = localeFlat[key];
     const bundledValue = bundledFlat[key];
     const englishValue = englishFlat[key];
-
-    if (
+    const hasStaleYearSuffix =
       typeof localeValue === "string" &&
       typeof bundledValue === "string" &&
-      typeof englishValue === "string" &&
-      localeValue === englishValue &&
-      bundledValue !== englishValue
+      localeValue.includes("2024") &&
+      !bundledValue.includes("2024");
+
+    if (
+      hasStaleYearSuffix ||
+      (typeof localeValue === "string" &&
+        typeof bundledValue === "string" &&
+        typeof englishValue === "string" &&
+        localeValue === englishValue &&
+        bundledValue !== englishValue)
     ) {
       normalizedFlat[key] = bundledValue;
     }

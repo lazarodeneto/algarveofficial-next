@@ -164,7 +164,7 @@ export default function AdminContactPage() {
                                 <Input
                                     value={displayEmail}
                                     onChange={(e) => setDisplayEmail(e.target.value)}
-                                    placeholder="hello@algarveofficial.com"
+                                    placeholder="info@algarveofficial.com"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -247,7 +247,7 @@ export default function AdminContactPage() {
                                 type="email"
                                 value={forwardingEmail}
                                 onChange={(e) => setForwardingEmail(e.target.value)}
-                                placeholder="admin@algarveofficial.com"
+                                placeholder="info@algarveofficial.com"
                             />
                             <p className="text-xs text-muted-foreground">
                                 Inquiries will be forwarded to this address in addition to appearing in the Admin Messages section.

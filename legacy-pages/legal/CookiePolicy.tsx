@@ -215,7 +215,7 @@ const CookiePolicy = () => {
                     If you have any questions about our use of cookies, please contact us:
                   </p>
                   <div className="bg-card border border-border rounded-lg p-4">
-                    <p><strong>Email:</strong> privacy@algarveofficial.com</p>
+                    <p><strong>Email:</strong> info@algarveofficial.com</p>
                   </div>
                 </div>
               </section>

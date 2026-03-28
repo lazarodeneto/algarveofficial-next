@@ -41,6 +41,7 @@ const BUNDLED_PRIORITY_I18N_KEYS = [
   "newsletter.footerTitle",
   "newsletter.footerSubtitle",
   "newsletter.footerCta",
+  "footer.tagline",
 ];
 
 function pickTranslationKeys(

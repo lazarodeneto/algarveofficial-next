@@ -148,7 +148,7 @@ export default function AdminSupportPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="support@algarveofficial.com"
+                  placeholder="info@algarveofficial.com"
                 />
               </div>
               <div className="space-y-2">
