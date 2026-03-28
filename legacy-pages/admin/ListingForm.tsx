@@ -21,6 +21,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
 
 const getEmptyFormData = (): ListingFormData => ({
   name: "",
@@ -97,7 +98,7 @@ export default function ListingForm() {
       const normalizedImages = dbImages.length > 0
         ? dbImages.map((img: any, i: number) => ({
             id: img.id || `img-${i}`,
-            url: img.image_url,
+            url: resolveSupabaseBucketImageUrl(img.image_url, "listing-images") || img.image_url,
             alt: img.alt_text || "",
             is_featured: Boolean(img.is_featured) || i === 0,
             order: typeof img.display_order === "number" ? img.display_order : i,
@@ -105,7 +106,11 @@ export default function ListingForm() {
         : (existingListing.featured_image_url
             ? [{
                 id: "featured-fallback",
-                url: existingListing.featured_image_url,
+                url:
+                  resolveSupabaseBucketImageUrl(
+                    existingListing.featured_image_url,
+                    "listing-images",
+                  ) || existingListing.featured_image_url,
                 alt: "",
                 is_featured: true,
                 order: 0,

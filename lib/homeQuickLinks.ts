@@ -5,6 +5,7 @@ export interface HomeQuickLinkCardDefinition {
   imageSettingKey: string;
   videoSettingKey: string;
   categorySlug: string;
+  fallbackImageUrl: string;
   imagePosition?: string;
 }
 
@@ -18,6 +19,7 @@ export const HOME_QUICK_LINK_CARDS: HomeQuickLinkCardDefinition[] = [
     imageSettingKey: "home_card_see_do_image",
     videoSettingKey: "home_card_see_do_video",
     categorySlug: "things-to-do",
+    fallbackImageUrl: "/home-quick-links/things-to-do.svg",
     imagePosition: "center",
   },
   {
@@ -27,6 +29,7 @@ export const HOME_QUICK_LINK_CARDS: HomeQuickLinkCardDefinition[] = [
     imageSettingKey: "home_card_stay_image",
     videoSettingKey: "home_card_stay_video",
     categorySlug: "places-to-stay",
+    fallbackImageUrl: "/home-quick-links/places-to-stay.svg",
     imagePosition: "center",
   },
   {
@@ -36,6 +39,7 @@ export const HOME_QUICK_LINK_CARDS: HomeQuickLinkCardDefinition[] = [
     imageSettingKey: "home_card_whats_on_image",
     videoSettingKey: "home_card_whats_on_video",
     categorySlug: "whats-on",
+    fallbackImageUrl: "/home-quick-links/whats-on.svg",
     imagePosition: "center",
   },
 ];

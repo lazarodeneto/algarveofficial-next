@@ -62,6 +62,7 @@ import ListingImage from "@/components/ListingImage";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
+import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
 
 const EMPTY_CATEGORY_IDS: string[] = [];
@@ -940,7 +941,17 @@ function DirectoryClientInner(props: DirectoryClientProps) {
               badge={t("directory.heroLabel")}
               title={t("directory.title")}
               subtitle={t("directory.subtitle")}
-              media={<PageHeroImage page="directory" alt={t("directory.hero.alt", "Premium Algarve directory coastline view")} />}
+              media={
+                <HeroBackgroundMedia
+                  mediaType={activeCms.getText("hero.mediaType", "image")}
+                  imageUrl={activeCms.getText("hero.imageUrl", "")}
+                  videoUrl={activeCms.getText("hero.videoUrl", "")}
+                  youtubeUrl={activeCms.getText("hero.youtubeUrl", "")}
+                  posterUrl={activeCms.getText("hero.posterUrl", "")}
+                  alt={t("directory.hero.alt", "Premium Algarve directory coastline view")}
+                  fallback={<PageHeroImage page="directory" alt={t("directory.hero.alt", "Premium Algarve directory coastline view")} />}
+                />
+              }
               ctas={
                 <>
                   <Link href={l("/contact")}>

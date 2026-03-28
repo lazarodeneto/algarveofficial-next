@@ -26,6 +26,12 @@ export function isBlockedPublicImageUrl(value?: string | null): boolean {
   return false;
 }
 
+function joinSupabaseBaseUrl(pathname: string): string | null {
+  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim().replace(/\/+$/, "");
+  if (!baseUrl) return null;
+  return `${baseUrl}/${pathname.replace(/^\/+/, "")}`;
+}
+
 export function normalizePublicImageUrl(value?: string | null): string | null {
   if (!value || typeof value !== "string") return null;
 
@@ -39,6 +45,15 @@ export function normalizePublicImageUrl(value?: string | null): string | null {
 
   if (trimmed.startsWith("http://")) {
     return `https://${trimmed.slice("http://".length)}`;
+  }
+
+  if (
+    trimmed.startsWith(SUPABASE_PUBLIC_OBJECT_SEGMENT)
+    || trimmed.startsWith(SUPABASE_PUBLIC_RENDER_SEGMENT)
+    || trimmed.startsWith("storage/v1/object/public/")
+    || trimmed.startsWith("storage/v1/render/image/public/")
+  ) {
+    return joinSupabaseBaseUrl(trimmed) ?? trimmed;
   }
 
   return trimmed;
@@ -120,6 +135,32 @@ export function buildSupabaseImageUrl(
   if (resize) renderUrl.searchParams.set("resize", resize);
 
   return renderUrl.toString();
+}
+
+export function resolveSupabaseBucketImageUrl(
+  value: string | null | undefined,
+  bucket: string,
+): string | null {
+  const normalized = normalizePublicImageUrl(value);
+  if (!normalized) return null;
+
+  if (
+    normalized.startsWith("blob:")
+    || normalized.startsWith("data:")
+    || normalized.startsWith("/")
+    || /^[a-z]+:\/\//i.test(normalized)
+  ) {
+    return normalized;
+  }
+
+  const cleanedBucket = bucket.replace(/^\/+|\/+$/g, "");
+  const cleanedPath = normalized
+    .replace(new RegExp(`^${cleanedBucket}/`), "")
+    .replace(/^\/+/, "");
+
+  return joinSupabaseBaseUrl(
+    `${SUPABASE_PUBLIC_OBJECT_SEGMENT.replace(/^\/+/, "")}${cleanedBucket}/${cleanedPath}`,
+  );
 }
 
 export function buildSupabaseImageSrcSet(

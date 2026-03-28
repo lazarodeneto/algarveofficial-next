@@ -37,5 +37,6 @@ describe("HeaderNav", () => {
     expect(screen.queryByRole("link", { name: "Contact" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Map" })).not.toBeInTheDocument();
     expect(screen.queryByText("nav.contact")).not.toBeInTheDocument();
+    expect(document.querySelectorAll("svg")).toHaveLength(4);
   });
 });

@@ -6,14 +6,18 @@ import { RealEstateCard } from "@/components/real-estate/RealEstateCard";
 import { RealEstateFilters } from "@/components/real-estate/RealEstateFilters";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { ChevronRight, Home, Loader2, Search, X, Building2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Loader2, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CuratedExcellence } from "@/components/sections/CuratedExcellence";
 import { ConciergeContactDialog } from "@/components/real-estate/ConciergeContactDialog";
 import { useTranslation } from "react-i18next";
 import { SeoHead } from "@/components/seo/SeoHead";
 import { Database } from "@/integrations/supabase/types";
+import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
+import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
+import { PageHeroImage } from "@/components/sections/PageHeroImage";
+import { CmsBlock } from "@/components/cms/CmsBlock";
+import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 
 type Lang = "en" | "pt-pt" | "fr" | "de" | "es" | "it" | "nl" | "sv" | "no" | "da";
 
@@ -38,6 +42,7 @@ type RealEstateListing = Database["public"]["Tables"]["listings"]["Row"] & {
 
 export default function RealEstateDirectory() {
     const { t, i18n } = useTranslation();
+    const { getText, isBlockEnabled } = useCmsPageBuilder("real-estate");
     const targetLang = normalizeLang(i18n.language);
     const [filters, setFilters] = useState({
         priceMin: "",
@@ -135,7 +140,7 @@ export default function RealEstateDirectory() {
     };
 
     return (
-        <div className="min-h-screen bg-background flex flex-col">
+        <div className="min-h-screen bg-background flex flex-col" data-cms-page="real-estate">
             <SeoHead
                 title="Prime Real Estate in the Algarve"
                 description="Browse premium villas, modern residences, and high-value real estate opportunities in the Algarve's most prestigious coastal locations."
@@ -145,36 +150,29 @@ export default function RealEstateDirectory() {
             <Header />
 
             <main className="flex-grow">
-                {/* Hero Section - Following the global padding strategy */}
-                <div className="px-3 sm:px-4 lg:px-6 pt-16 sm:pt-20 pb-4">
-                    <section className="relative h-[60vh] md:h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden rounded-t-2xl lg:rounded-t-3xl rounded-b-none border-0 shadow-none">
-                        <div className="absolute inset-0">
-                            <video
-                                autoPlay
-                                loop
-                                muted
-                                playsInline
-                                className="w-full h-full object-cover scale-[1.02]"
-                                poster="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?q=80&w=2070&auto=format&fit=crop"
-                            >
-                                <source src="/videos/invest-pool.mp4" type="video/mp4" />
-                            </video>
-                            <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
-                            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-background" />
-                            <div className="absolute inset-x-0 bottom-0 h-72 bg-gradient-to-t from-background from-20% via-background/98 via-45% to-transparent pointer-events-none" />
-                        </div>
-                        <div className="relative z-10 text-center text-white space-y-6 px-4 max-w-4xl mx-auto">
-                            <span className="text-sm font-medium tracking-[0.3em] uppercase opacity-90 animate-fade-in">Exclusive Portfolio</span>
-                            <h1 className="font-serif text-5xl md:text-7xl font-light italic leading-tight animate-fade-up">
-                                Prime Real <span className="not-italic">Estate</span>
-                            </h1>
-                            <div className="w-24 h-1 bg-primary mx-auto rounded-full" />
-                            <p className="text-lg md:text-xl font-light max-w-2xl mx-auto text-white/90 leading-relaxed font-sans">
-                                Discover the finest collection of premium properties in Portugal's most prestigious coastal region.
-                            </p>
-                        </div>
-                    </section>
-                </div>
+                {isBlockEnabled("hero", true) ? (
+                    <CmsBlock pageId="real-estate" blockId="hero" as="section" className="px-0 sm:px-4 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4">
+                        <LiveStyleHero
+                            badge={t("realEstate.hero.badge", "Exclusive Portfolio")}
+                            title={t("realEstate.hero.title", "Prime Real Estate")}
+                            subtitle={t(
+                                "realEstate.hero.subtitle",
+                                "Discover the finest collection of premium properties in Portugal's most prestigious coastal region.",
+                            )}
+                            media={
+                                <HeroBackgroundMedia
+                                    mediaType={getText("hero.mediaType", "image")}
+                                    imageUrl={getText("hero.imageUrl", "")}
+                                    videoUrl={getText("hero.videoUrl", "")}
+                                    youtubeUrl={getText("hero.youtubeUrl", "")}
+                                    posterUrl={getText("hero.posterUrl", "")}
+                                    alt={t("realEstate.hero.alt", "Luxury Algarve real estate exterior")}
+                                    fallback={<PageHeroImage page="real-estate" alt={t("realEstate.hero.alt", "Luxury Algarve real estate exterior")} />}
+                                />
+                            }
+                        />
+                    </CmsBlock>
+                ) : null}
 
                 <div className="app-container py-14 sm:py-20 -mt-16 sm:-mt-20 relative z-20">
                     <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8">
@@ -213,9 +211,9 @@ export default function RealEstateDirectory() {
 
                             <div className="mb-8 sm:mb-10 flex flex-col md:flex-row justify-between items-baseline gap-3 sm:gap-4 border-b border-primary/20 pb-5 sm:pb-6">
                                 <h2 className="text-2xl sm:text-3xl font-serif italic text-foreground">
-                                    {filteredListings?.length || 0} <span className="not-italic font-sans text-sm sm:text-lg text-muted-foreground sm:ml-2 tracking-[0.16em] uppercase">Properties Available</span>
+                                    {filteredListings?.length || 0} <span className="not-italic font-sans text-sm sm:text-lg text-muted-foreground sm:ml-2 tracking-[0.16em] uppercase">{t("realEstate.propertiesAvailable", "Properties Available")}</span>
                                 </h2>
-                                <div className="text-xs sm:text-sm text-muted-foreground uppercase tracking-[0.16em] font-medium">Sorted by: Featured</div>
+                                <div className="text-xs sm:text-sm text-muted-foreground uppercase tracking-[0.16em] font-medium">{t("realEstate.sortedByFeatured", "Sorted by: Featured")}</div>
                             </div>
 
                             {isLoading ? (

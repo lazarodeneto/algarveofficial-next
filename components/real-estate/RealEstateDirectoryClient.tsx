@@ -9,6 +9,7 @@ import { ArrowRight, Building2, Loader2, Plus } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
+import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
 import { RealEstateCard } from "@/components/real-estate/RealEstateCard";
 import { RealEstateFilters } from "@/components/real-estate/RealEstateFilters";
@@ -293,16 +294,22 @@ function RealEstateDirectoryClientInner({
       <main className="flex-grow">
         <section className="px-0 sm:px-4 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4">
           <LiveStyleHero
-            badge={t("nav.invest", "Invest")}
-            title={t("realEstate.title", "Independent Real Estate Directory")}
+            badge={t("realEstate.hero.badge", "Exclusive Portfolio")}
+            title={t("realEstate.hero.title", "Prime Real Estate")}
             subtitle={t(
-              "realEstate.subtitle",
-              "Browse only real estate listings, separate from the main directory, with dedicated filters for investment properties.",
+              "realEstate.hero.subtitle",
+              "Discover the finest collection of premium properties in Portugal's most prestigious coastal region.",
             )}
             media={
-              <PageHeroImage
-                page="real-estate"
+              <HeroBackgroundMedia
+                mediaType="image"
                 alt={t("realEstate.hero.alt", "Luxury Algarve real estate exterior")}
+                fallback={
+                  <PageHeroImage
+                    page="real-estate"
+                    alt={t("realEstate.hero.alt", "Luxury Algarve real estate exterior")}
+                  />
+                }
               />
             }
             ctas={

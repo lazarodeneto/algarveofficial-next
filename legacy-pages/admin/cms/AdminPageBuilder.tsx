@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DashboardBreadcrumb } from "@/components/ui/dashboard-breadcrumb";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,9 +16,10 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Plus, Save, Trash2, ExternalLink, Paintbrush } from "lucide-react";
+import { Loader2, Plus, Save, Trash2, ExternalLink, Paintbrush, Video, ImageIcon, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
+import { supabase } from "@/integrations/supabase/client";
 import {
   CMS_GLOBAL_SETTING_KEYS,
   CMS_PAGE_DEFINITIONS,
@@ -27,6 +28,19 @@ import {
   type CmsPageConfigMap,
   type CmsTextOverrideMap,
 } from "@/lib/cms/pageBuilderRegistry";
+import { convertToWebP } from "@/lib/imageUtils";
+import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
+
+const HERO_MEDIA_SUPPORTED_PAGE_IDS = new Set([
+  "blog",
+  "destinations",
+  "directory",
+  "events",
+  "invest",
+  "live",
+  "map",
+  "real-estate",
+]);
 
 function parseJson<T>(raw: string | undefined, fallback: T): T {
   if (!raw) return fallback;
@@ -159,6 +173,10 @@ export default function AdminPageBuilder() {
   const [designTokenRows, setDesignTokenRows] = useState<KeyValueRow[]>([]);
   const [customCss, setCustomCss] = useState<string>("");
   const [initialized, setInitialized] = useState(false);
+  const [heroUploadTarget, setHeroUploadTarget] = useState<"image" | "video" | "poster" | null>(null);
+  const heroImageInputRef = useRef<HTMLInputElement | null>(null);
+  const heroVideoInputRef = useRef<HTMLInputElement | null>(null);
+  const heroPosterInputRef = useRef<HTMLInputElement | null>(null);
 
   const setSearchParams = (nextParams: URLSearchParams, options?: { replace?: boolean }) => {
     const query = nextParams.toString();
@@ -219,6 +237,13 @@ export default function AdminPageBuilder() {
   );
 
   const selectedPageConfig = pageConfigs[selectedPageId] ?? {};
+  const selectedPageTextMap = selectedPageConfig.text ?? {};
+  const heroMediaSupported = HERO_MEDIA_SUPPORTED_PAGE_IDS.has(selectedPageId);
+  const heroMediaType = selectedPageTextMap["hero.mediaType"] ?? "image";
+  const heroImageUrl = selectedPageTextMap["hero.imageUrl"] ?? "";
+  const heroVideoUrl = selectedPageTextMap["hero.videoUrl"] ?? "";
+  const heroYoutubeUrl = selectedPageTextMap["hero.youtubeUrl"] ?? "";
+  const heroPosterUrl = selectedPageTextMap["hero.posterUrl"] ?? "";
 
   const selectedPageTextRows = useMemo(
     () => toRows(selectedPageConfig.text ?? {}),
@@ -270,6 +295,87 @@ export default function AdminPageBuilder() {
         },
       };
     });
+  };
+
+  const setPageTextValue = (textKey: string, value: string) => {
+    setPageConfigs((prev) => {
+      const currentPage = prev[selectedPageId] ?? {};
+      const nextText = { ...(currentPage.text ?? {}) };
+      const trimmed = value.trim();
+
+      if (trimmed) {
+        nextText[textKey] = value;
+      } else {
+        delete nextText[textKey];
+      }
+
+      return {
+        ...prev,
+        [selectedPageId]: {
+          ...currentPage,
+          text: nextText,
+        },
+      };
+    });
+  };
+
+  const resetHeroMedia = () => {
+    ["hero.mediaType", "hero.imageUrl", "hero.videoUrl", "hero.youtubeUrl", "hero.posterUrl"].forEach((key) =>
+      setPageTextValue(key, ""),
+    );
+  };
+
+  const handleHeroMediaUpload = async (
+    file: File,
+    target: "image" | "video" | "poster",
+  ) => {
+    try {
+      setHeroUploadTarget(target);
+
+      let uploadFile = file;
+      let extension = file.name.split(".").pop()?.toLowerCase() || (target === "video" ? "mp4" : "webp");
+
+      if (target !== "video" && file.type.startsWith("image/") && file.type !== "image/webp") {
+        uploadFile = await convertToWebP(file, 0.88);
+        extension = "webp";
+      }
+
+      const filePath = `page-heroes/${selectedPageId}/${target}-${Date.now()}.${extension}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("media")
+        .upload(filePath, uploadFile, {
+          upsert: true,
+          cacheControl: "31536000",
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("media").getPublicUrl(filePath);
+
+      if (target === "image") {
+        setPageTextValue("hero.imageUrl", publicUrl);
+        setPageTextValue("hero.mediaType", "image");
+      } else if (target === "video") {
+        setPageTextValue("hero.videoUrl", publicUrl);
+        setPageTextValue("hero.mediaType", "video");
+      } else {
+        setPageTextValue("hero.posterUrl", publicUrl);
+        if (!heroImageUrl) {
+          setPageTextValue("hero.imageUrl", publicUrl);
+        }
+      }
+
+      toast.success(`Hero ${target} uploaded`);
+    } catch (error) {
+      toast.error(`Failed to upload hero ${target}: ${(error as Error).message}`);
+    } finally {
+      setHeroUploadTarget(null);
+    }
   };
 
   const addPageTextRow = () => {
@@ -409,6 +515,184 @@ export default function AdminPageBuilder() {
       </Card>
 
       <div className="grid gap-6 xl:grid-cols-2">
+        {selectedPageDefinition?.blocks.some((block) => block.id === "hero") ? (
+          <Card className="border-border bg-card/50 xl:col-span-2">
+            <CardHeader>
+              <CardTitle>Hero Media</CardTitle>
+              <CardDescription>
+                {heroMediaSupported
+                  ? "Upload or paste image, video, or YouTube media for the selected page hero."
+                  : selectedPageId === "home"
+                    ? "Homepage hero media is managed in the dedicated Home CMS editor."
+                    : "This page currently uses its own dedicated hero-data source instead of the shared page-builder hero media."}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              {heroMediaSupported ? (
+                <>
+                  <div className="grid gap-6 xl:grid-cols-[1.2fr_1fr]">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Media Type</Label>
+                        <Select value={heroMediaType} onValueChange={(value) => setPageTextValue("hero.mediaType", value)}>
+                          <SelectTrigger className="bg-background">
+                            <SelectValue placeholder="Choose hero media type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="image">Image</SelectItem>
+                            <SelectItem value="video">Video</SelectItem>
+                            <SelectItem value="youtube">YouTube</SelectItem>
+                            <SelectItem value="poster">Poster Only</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label>Hero Image URL</Label>
+                          <Input
+                            value={heroImageUrl}
+                            onChange={(e) => setPageTextValue("hero.imageUrl", e.target.value)}
+                            className="bg-background"
+                            placeholder="https://..."
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Poster URL</Label>
+                          <Input
+                            value={heroPosterUrl}
+                            onChange={(e) => setPageTextValue("hero.posterUrl", e.target.value)}
+                            className="bg-background"
+                            placeholder="https://..."
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Hero Video URL</Label>
+                          <Input
+                            value={heroVideoUrl}
+                            onChange={(e) => setPageTextValue("hero.videoUrl", e.target.value)}
+                            className="bg-background"
+                            placeholder="https://..."
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>YouTube URL</Label>
+                          <Input
+                            value={heroYoutubeUrl}
+                            onChange={(e) => setPageTextValue("hero.youtubeUrl", e.target.value)}
+                            className="bg-background"
+                            placeholder="https://www.youtube.com/watch?v=..."
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        <input
+                          ref={heroImageInputRef}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={async (event) => {
+                            const file = event.target.files?.[0];
+                            if (!file) return;
+                            await handleHeroMediaUpload(file, "image");
+                            event.target.value = "";
+                          }}
+                        />
+                        <input
+                          ref={heroPosterInputRef}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={async (event) => {
+                            const file = event.target.files?.[0];
+                            if (!file) return;
+                            await handleHeroMediaUpload(file, "poster");
+                            event.target.value = "";
+                          }}
+                        />
+                        <input
+                          ref={heroVideoInputRef}
+                          type="file"
+                          accept="video/mp4,video/webm,video/ogg"
+                          className="hidden"
+                          onChange={async (event) => {
+                            const file = event.target.files?.[0];
+                            if (!file) return;
+                            await handleHeroMediaUpload(file, "video");
+                            event.target.value = "";
+                          }}
+                        />
+
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => heroImageInputRef.current?.click()}
+                          disabled={heroUploadTarget !== null}
+                        >
+                          {heroUploadTarget === "image" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <ImageIcon className="h-4 w-4 mr-2" />}
+                          Upload Image
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => heroPosterInputRef.current?.click()}
+                          disabled={heroUploadTarget !== null}
+                        >
+                          {heroUploadTarget === "poster" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <ImageIcon className="h-4 w-4 mr-2" />}
+                          Upload Poster
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => heroVideoInputRef.current?.click()}
+                          disabled={heroUploadTarget !== null}
+                        >
+                          {heroUploadTarget === "video" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Video className="h-4 w-4 mr-2" />}
+                          Upload Video
+                        </Button>
+                        <Button type="button" variant="ghost" onClick={resetHeroMedia}>
+                          <RotateCcw className="h-4 w-4 mr-2" />
+                          Reset Hero Media
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <Label>Preview</Label>
+                      <div className="relative aspect-video overflow-hidden rounded-xl border border-border bg-muted/40">
+                        <HeroBackgroundMedia
+                          mediaType={heroMediaType}
+                          imageUrl={heroImageUrl}
+                          videoUrl={heroVideoUrl}
+                          youtubeUrl={heroYoutubeUrl}
+                          posterUrl={heroPosterUrl}
+                          alt={`${selectedPageDefinition.label} hero preview`}
+                          fallback={<div className="h-full w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950" />}
+                        />
+                        <div className="absolute inset-0 bg-black/35" />
+                        <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+                          <p className="text-xs uppercase tracking-[0.24em] text-white/75">Preview</p>
+                          <p className="text-lg font-serif">{selectedPageDefinition.label}</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Image uploads are auto-converted to WebP. Video uploads keep their original format.
+                      </p>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {selectedPageId === "home"
+                    ? "Use the Home CMS screen for homepage video/poster management. Region and city detail pages also keep their own dedicated hero image editors."
+                    : "No shared hero-media editor is enabled for this page yet."}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        ) : null}
+
         <Card className="border-border bg-card/50">
           <CardHeader>
             <CardTitle>Block Controls</CardTitle>

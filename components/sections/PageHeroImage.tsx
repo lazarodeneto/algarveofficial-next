@@ -11,6 +11,7 @@ export type PageHeroImageKey =
   | "events"
   | "invest"
   | "live"
+  | "map"
   | "partner"
   | "real-estate";
 
@@ -52,6 +53,10 @@ const PAGE_HERO_IMAGE_CONFIG: Record<
   live: {
     regionSlug: "lagos-signature",
     objectPosition: "center 48%",
+  },
+  map: {
+    regionSlug: "golden-triangle",
+    objectPosition: "center 50%",
   },
   partner: {
     regionSlug: "golden-triangle",

@@ -515,7 +515,7 @@
   "footer": {
     "description": "Ihr Portal für Luxuserlebnisse in Portugals prestigeträchtigster Küstenregion.",
     "location": "Bezirk Faro, Portugal",
-    "email": "concierge@algarveofficial.com",
+    "email": "info@algarveofficial.com",
     "copyright": "© {{year}} AlgarveOfficial. Alle Rechte vorbehalten.",
     "tagline": "Auswahl von Luxuserlebnissen an der Algarve seit 2024",
     "explore": "Erkunden",
@@ -636,6 +636,33 @@
       "a4": "Basiseinträge sind kostenlos. Die Stufen Verifiziert und Signatur haben monatliche Gebühren mit zusätzlichen Vorteilen. Kontaktieren Sie uns für aktuelle Preise."
     },
     "success": "Vielen Dank! Ihre Anfrage wurde eingereicht. Wir werden Sie innerhalb von 2-3 Werktagen kontaktieren."
+  },
+  "live": {
+    "hero": {
+      "badge": "Relocation-Beratung",
+      "title": "Leben Sie an der Algarve, mit Klarheit vom ersten Tag an",
+      "subtitle": "Strukturierte Begleitung für Aufenthaltsfragen, Wohnen und den Alltag, damit Ihr Umzug reibungslos, regelkonform und zukunftssicher gelingt.",
+      "ctaPrimary": "Meinen Umzug planen",
+      "ctaSecondary": "Lokale Experten finden",
+      "alt": "Algarve-Küste zum Leben"
+    }
+  },
+  "realEstate": {
+    "hero": {
+      "badge": "Exklusives Portfolio",
+      "title": "Premium-Immobilien",
+      "subtitle": "Entdecken Sie die feinste Auswahl an Premium-Immobilien in Portugals prestigeträchtigster Küstenregion.",
+      "alt": "Außenansicht einer Luxusimmobilie an der Algarve"
+    },
+    "propertiesAvailable": "Verfügbare Immobilien",
+    "sortedByFeatured": "Sortiert nach: Hervorgehoben"
+  },
+  "destinationDetail": {
+    "backToDestinations": "Zurück zu den Reisezielen",
+    "badge": "Premium-Region",
+    "exploreRegion": "{{region}} entdecken",
+    "listingsCount": "{{count}} Premium-Einträge in dieser Region",
+    "metaTitleSuffix": "Algarve-Reiseführer"
   },
   "admin": {
     "sidebar": {
@@ -1544,7 +1571,27 @@
       "rentalPrice": "Mietpreis",
       "askingPrice": "Kaufpreis",
       "scheduleViewing": "Besichtigung Vereinbaren",
-      "propertyFallback": "Immobilie"
+      "propertyFallback": "Immobilie",
+      "filters": {
+        "refineSearch": "Suche verfeinern",
+        "location": "Standort",
+        "cityOrRegion": "Stadt oder Region",
+        "propertyType": "Immobilientyp",
+        "anyType": "Alle Typen",
+        "priceRange": "Preisspanne",
+        "minPrice": "Min. €",
+        "maxPrice": "Max. €",
+        "bedrooms": "Schlafzimmer",
+        "any": "Beliebig",
+        "searchProperties": "Immobilien suchen",
+        "clearFilters": "Filter löschen",
+        "propertyTypes": {
+          "villa": "Villa",
+          "apartment": "Wohnung",
+          "townhouse": "Reihenhaus",
+          "land": "Grundstück"
+        }
+      }
     },
     "privateChef": {
       "chefProfile": "Chef-Profil",

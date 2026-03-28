@@ -164,7 +164,7 @@ export default function Header() {
             {/* Logo */}
             <div className="flex-shrink-0 min-w-0 overflow-hidden lg:max-w-[11.5rem] xl:mr-3 xl:max-w-[14.5rem] 2xl:mr-5 2xl:max-w-none">
               <div className="lg:hidden">
-                <BrandLogo size="md" className="whitespace-nowrap" />
+                <BrandLogo size="md" showIcon className="whitespace-nowrap" />
               </div>
               <div className="hidden items-center justify-center lg:flex xl:hidden">
                 <BrandLogo size="sm" showIcon showText={false} className="justify-center" iconClassName="h-7 w-7" />
@@ -392,7 +392,10 @@ export default function Header() {
                         <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                           {t("common.language", "Language")}
                         </div>
-                        <LanguageSwitcher />
+                        <LanguageSwitcher
+                          containerClassName="min-w-0"
+                          selectClassName="h-10 w-[10rem] rounded-full border-black/12 bg-white px-4 py-2 text-sm text-black shadow-none dark:border-white/12 dark:bg-white dark:text-black"
+                        />
                       </div>
                       <div className="mt-3 flex items-center justify-between gap-3">
                         <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
@@ -469,6 +472,17 @@ export default function Header() {
                         </div>
                       </AccordionContent>
                     </AccordionItem>
+
+                    <div className="border-t border-black/10 dark:border-white/10">
+                      <Link
+                        href={eventsPath}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex w-full items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest text-foreground transition-colors hover:text-primary"
+                      >
+                        <Calendar className="h-6 w-6 text-primary" />
+                        {t("nav.events", "Events")}
+                      </Link>
+                    </div>
                   </Accordion>
 
                     <div className="mt-4 rounded-2xl border border-black/10 bg-white/66 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
@@ -491,10 +505,6 @@ export default function Header() {
                         <Link href={blogPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
                           <BookOpen className="h-4 w-4 text-primary" />
                           {t("nav.blog", "Blog")}
-                        </Link>
-                        <Link href={eventsPath} onClick={() => setMobileMenuOpen(false)} className="col-span-2 inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
-                          <Calendar className="h-4 w-4 text-primary" />
-                          {t("nav.events", "Events")}
                         </Link>
                       </div>
                     </div>
