@@ -2,11 +2,10 @@
 
 import { CookieConsentBanner } from "@/components/gdpr/CookieConsentBanner";
 import { CookieConsentDrawer } from "@/components/gdpr/CookieConsentDrawer";
-import { useCookieBannerSettings } from "@/hooks/useCookieBannerSettings";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { CURRENT_COOKIE_CONSENT_VERSION } from "@/lib/cookieConsent";
 
 export function CookieConsentBannerWrapper() {
-  const { settings } = useCookieBannerSettings();
   const l = useLocalePath();
 
   return (
@@ -15,7 +14,7 @@ export function CookieConsentBannerWrapper() {
       <CookieConsentDrawer
         privacyUrl={l("/privacy-policy")}
         cookieUrl={l("/cookie-policy")}
-        version={`cookie-consent-${settings.updated_at}`}
+        version={CURRENT_COOKIE_CONSENT_VERSION}
       />
     </>
   );

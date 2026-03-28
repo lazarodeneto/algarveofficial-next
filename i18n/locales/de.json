@@ -350,7 +350,8 @@
     "retry": "Erneut versuchen",
     "errorMessage": "Einträge konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
     "failedToLoad": "Einträge konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
-    "active": "Aktiv"
+    "active": "Aktiv",
+    "mapView": "Kartenansicht"
   },
   "listing": {
     "about": "Über",
@@ -517,7 +518,7 @@
     "location": "Bezirk Faro, Portugal",
     "email": "info@algarveofficial.com",
     "copyright": "© {{year}} AlgarveOfficial. Alle Rechte vorbehalten.",
-    "tagline": "Auswahl von Luxuserlebnissen an der Algarve seit 2024",
+    "tagline": "Auswahl von Luxuserlebnissen an der Algarve",
     "explore": "Erkunden",
     "company": "Unternehmen",
     "legal": "Rechtliches",
@@ -1960,7 +1961,7 @@
     "formDesc": "Füllen Sie das Formular aus und wir melden uns so schnell wie möglich.",
     "getInTouch": "Kontakt aufnehmen",
     "touchDesc": "Unser Concierge-Team steht Ihnen für alle Fragen zu Luxuserlebnissen in der Algarve zur Verfügung.",
-    "email": "concierge@algarveofficial.com",
+    "email": "info@algarveofficial.com",
     "location": "Bezirk Faro, Portugal",
     "sendEmail": "E-Mail senden",
     "startChat": "Chat starten",

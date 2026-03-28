@@ -350,7 +350,8 @@
     "retry": "Opnieuw proberen",
     "errorMessage": "Kan vermeldingen niet laden. Probeer het opnieuw.",
     "failedToLoad": "Kan vermeldingen niet laden. Probeer het opnieuw.",
-    "active": "Actief"
+    "active": "Actief",
+    "mapView": "Kaartweergave"
   },
   "listing": {
     "about": "Over",
@@ -517,7 +518,7 @@
     "location": "District Faro, Portugal",
     "email": "info@algarveofficial.com",
     "copyright": "© {{year}} AlgarveOfficieel. Alle rechten voorbehouden.",
-    "tagline": "Selecteren van luxe ervaringen in de Algarve sinds 2024",
+    "tagline": "Selecteren van luxe ervaringen in de Algarve",
     "explore": "Ontdekken",
     "company": "Bedrijf",
     "legal": "Legaal",
@@ -1959,7 +1960,7 @@
     "formDesc": "Vul het onderstaande formulier in en wij nemen zo snel mogelijk contact met u op.",
     "getInTouch": "Neem contact op",
     "touchDesc": "Ons conciërgeteam staat klaar om u te helpen met al uw vragen over luxe ervaringen in de Algarve.",
-    "email": "concierge@algarveofficial.com",
+    "email": "info@algarveofficial.com",
     "location": "Faro-district, Portugal",
     "sendEmail": "E-mail verzenden",
     "startChat": "Chat starten",

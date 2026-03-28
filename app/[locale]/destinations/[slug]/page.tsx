@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
+import Header from "@/components/layout/Header";
 import type { Locale } from "@/lib/i18n/config";
 import { DEFAULT_LOCALE, addLocaleToPathname } from "@/lib/i18n/config";
 import { getServerTranslations } from "@/lib/i18n/server";
@@ -246,8 +247,6 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
   const [data, tx] = await Promise.all([
     getDestinationPageData(slug, resolvedLocale),
     getServerTranslations(resolvedLocale, [
-      "navigation.destinations",
-      "navigation.directory",
       "destinationDetail.backToDestinations",
       "destinationDetail.badge",
       "destinationDetail.exploreRegion",
@@ -265,18 +264,7 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
 
   return (
     <div id="destination-detail-server-shell" className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border/60 bg-[var(--colour-ink)] text-white">
-        <div className="app-container flex items-center justify-between py-5">
-          <Link href={lp(resolvedLocale, "/")} className="font-serif text-2xl tracking-tight">
-            <span className="text-gradient-gold">Algarve</span>
-            <span className="text-white">Official</span>
-          </Link>
-          <nav className="hidden gap-6 text-sm text-white/80 md:flex">
-            <Link href={lp(resolvedLocale, "/destinations")} className="hover:text-white">{tx["navigation.destinations"] ?? "Destinations"}</Link>
-            <Link href={lp(resolvedLocale, "/directory")} className="hover:text-white">{tx["navigation.directory"] ?? "Directory"}</Link>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       <main>
         <section className="relative overflow-hidden pt-[calc(6rem+10px)] pb-16 lg:pt-[calc(8rem+10px)] lg:pb-24">

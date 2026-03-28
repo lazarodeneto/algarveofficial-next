@@ -64,7 +64,7 @@ function getInitialConsentState(version: string) {
   }
 
   return {
-    isVisible: storedConsent.version !== version,
+    isVisible: false,
     preferences: draftFromCookieConsent(storedConsent),
   };
 }
@@ -94,7 +94,7 @@ export function CookieConsentDrawer({
       setDraftPreferences(nextPreferences);
       setIsModalOpen(true);
 
-      if (!storedConsent || storedConsent.version !== version) {
+      if (!storedConsent) {
         setIsVisible(true);
       }
     };
