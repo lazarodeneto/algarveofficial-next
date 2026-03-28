@@ -21,6 +21,7 @@ import { BlogFeaturedImage } from "@/components/blog/BlogFeaturedImage";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useHydrated } from "@/hooks/useHydrated";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
+import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
 import {
   CMS_GLOBAL_SETTING_KEYS,
@@ -426,7 +427,17 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
               badge={t("blog.label", "Stories & Guides")}
               title={t("blog.title", "Blog & Insights")}
               subtitle={t("blog.subtitle", "Discover the Algarve lifestyle, travel guides, and insider tips")}
-              media={<PageHeroImage page="blog" alt={t("blog.hero.alt", "Editorial Algarve townscape")} />}
+              media={
+                <HeroBackgroundMedia
+                  mediaType={cms.getText("hero.mediaType", "image")}
+                  imageUrl={cms.getText("hero.imageUrl", "")}
+                  videoUrl={cms.getText("hero.videoUrl", "")}
+                  youtubeUrl={cms.getText("hero.youtubeUrl", "")}
+                  posterUrl={cms.getText("hero.posterUrl", "")}
+                  alt={t("blog.hero.alt", "Editorial Algarve townscape")}
+                  fallback={<PageHeroImage page="blog" alt={t("blog.hero.alt", "Editorial Algarve townscape")} />}
+                />
+              }
               ctas={
                 <>
                   <Link href={l("/directory")}>

@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { SidebarNav } from "./SidebarNav";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/visit",
@@ -33,12 +32,8 @@ vi.mock("@/components/navigation/LocaleLink", () => ({
 }));
 
 describe("SidebarNav", () => {
-  it("renders an icon rail with accessible labels", () => {
-    render(
-      <TooltipProvider>
-        <SidebarNav />
-      </TooltipProvider>,
-    );
+  it("renders an icon rail with accessible labels when collapsed", () => {
+    render(<SidebarNav />);
 
     expect(screen.getByRole("link", { name: "Visit" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Live" })).toBeInTheDocument();
@@ -49,5 +44,16 @@ describe("SidebarNav", () => {
 
     expect(screen.queryByText("Visit")).not.toBeInTheDocument();
     expect(screen.queryByText("Contact")).not.toBeInTheDocument();
+  });
+
+  it("renders icon labels when expanded", () => {
+    render(<SidebarNav expanded />);
+
+    expect(screen.getByText("Visit")).toBeInTheDocument();
+    expect(screen.getByText("Live")).toBeInTheDocument();
+    expect(screen.getByText("Invest")).toBeInTheDocument();
+    expect(screen.getByText("Map")).toBeInTheDocument();
+    expect(screen.getByText("Events")).toBeInTheDocument();
+    expect(screen.getByText("Contact")).toBeInTheDocument();
   });
 });

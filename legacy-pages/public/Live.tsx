@@ -216,6 +216,8 @@ const Live = () => {
                   mediaType={getText("hero.mediaType", "image")}
                   imageUrl={getText("hero.imageUrl", "")}
                   videoUrl={getText("hero.videoUrl", "")}
+                  youtubeUrl={getText("hero.youtubeUrl", "")}
+                  posterUrl={getText("hero.posterUrl", "")}
                   alt={t("live.hero.alt", "Live in Algarve coastline")}
                   fallback={<PageHeroImage page="live" alt={t("live.hero.alt", "Live in Algarve coastline")} />}
                 />

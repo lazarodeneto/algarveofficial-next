@@ -515,7 +515,7 @@
   "footer": {
     "description": "O seu portal para experiências de luxo na região costeira mais prestigiada de Portugal.",
     "location": "Distrito de Faro, Portugal",
-    "email": "concierge@algarveofficial.com",
+    "email": "info@algarveofficial.com",
     "copyright": "© {{year}} AlgarveOfficial. Todos os direitos reservados.",
     "tagline": "A selecionar experiências de luxo no Algarve desde 2024",
     "explore": "Explorar",
@@ -636,6 +636,33 @@
       "a4": "Os anúncios básicos são gratuitos. Os níveis Verificado e Assinatura têm taxas mensais com benefícios adicionais. Contacte-nos para preços atuais."
     },
     "success": "Obrigado! O seu pedido foi submetido. Contactaremos dentro de 2-3 dias úteis."
+  },
+  "live": {
+    "hero": {
+      "badge": "Orientação de Relocalização",
+      "title": "Viva no Algarve, com clareza desde o primeiro dia",
+      "subtitle": "Orientação estruturada para residência, habitação e vida diária para que a sua mudança seja simples, em conformidade e preparada para o futuro.",
+      "ctaPrimary": "Planear a Minha Mudança",
+      "ctaSecondary": "Explorar Especialistas Locais",
+      "alt": "Costa do Algarve para viver"
+    }
+  },
+  "realEstate": {
+    "hero": {
+      "badge": "Portefólio Exclusivo",
+      "title": "Imobiliário de Prestígio",
+      "subtitle": "Descubra a melhor seleção de propriedades premium na região costeira mais prestigiada de Portugal.",
+      "alt": "Exterior de imóvel de luxo no Algarve"
+    },
+    "propertiesAvailable": "Propriedades Disponíveis",
+    "sortedByFeatured": "Ordenado por: Destaque"
+  },
+  "destinationDetail": {
+    "backToDestinations": "Voltar aos Destinos",
+    "badge": "Região Premium",
+    "exploreRegion": "Explorar {{region}}",
+    "listingsCount": "{{count}} anúncios premium nesta região",
+    "metaTitleSuffix": "Guia de Destino do Algarve"
   },
   "admin": {
     "sidebar": {
@@ -1544,7 +1571,27 @@
       "rentalPrice": "Preço de Arrendamento",
       "askingPrice": "Preço de Venda",
       "scheduleViewing": "Agendar Visita",
-      "propertyFallback": "Propriedade"
+      "propertyFallback": "Propriedade",
+      "filters": {
+        "refineSearch": "Refinar Pesquisa",
+        "location": "Localização",
+        "cityOrRegion": "Cidade ou Região",
+        "propertyType": "Tipo de Imóvel",
+        "anyType": "Qualquer Tipo",
+        "priceRange": "Intervalo de Preço",
+        "minPrice": "Mín €",
+        "maxPrice": "Máx €",
+        "bedrooms": "Quartos",
+        "any": "Qualquer",
+        "searchProperties": "Pesquisar Imóveis",
+        "clearFilters": "Limpar Filtros",
+        "propertyTypes": {
+          "villa": "Moradia",
+          "apartment": "Apartamento",
+          "townhouse": "Moradia em Banda",
+          "land": "Terreno"
+        }
+      }
     },
     "privateChef": {
       "chefProfile": "Perfil do Chef",

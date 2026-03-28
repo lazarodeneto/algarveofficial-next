@@ -25,9 +25,17 @@ import {
 import { eventCategoryLabels, eventCategoryColors, type EventCategory } from '@/types/events';
 import { usePublishedEvents } from '@/hooks/useEvents';
 import { SeoHead } from '@/components/seo/SeoHead';
+import { useLocalePath } from '@/hooks/useLocalePath';
+import { useCmsPageBuilder } from '@/hooks/useCmsPageBuilder';
+import { CmsBlock } from '@/components/cms/CmsBlock';
+import { LiveStyleHero } from '@/components/sections/LiveStyleHero';
+import { HeroBackgroundMedia } from '@/components/sections/HeroBackgroundMedia';
+import { PageHeroImage } from '@/components/sections/PageHeroImage';
 
 export default function Events() {
   const { t } = useTranslation();
+  const l = useLocalePath();
+  const { getText, isBlockEnabled } = useCmsPageBuilder("events");
   const today = startOfDay(new Date());
   
   const [selectedCategory, setSelectedCategory] = useState<EventCategory | 'all'>('all');
@@ -67,7 +75,7 @@ export default function Events() {
   }, [upcomingEvents]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" data-cms-page="events">
       <SeoHead
         title="Algarve Events Calendar"
         description="Browse festivals, golf tournaments, gastronomy events, and seasonal highlights across the Algarve with regularly updated event listings."
@@ -77,63 +85,61 @@ export default function Events() {
       <Header />
       
       <main>
-        {/* Hero Section */}
-        <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-card via-background to-background" />
-          <div className="relative app-container text-center">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-block text-sm font-medium text-primary tracking-[0.3em] uppercase mb-6"
+        {isBlockEnabled("hero", true) ? (
+          <CmsBlock pageId="events" blockId="hero" as="section" className="px-0 sm:px-4 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4">
+            <LiveStyleHero
+              badge={t('sections.events.label', 'Algarve Calendar')}
+              title={t('sections.events.title', 'Events & Season')}
+              subtitle={t('sections.events.subtitle', 'Festivals, markets, and seasonal highlights across Portugal\'s stunning southern coast.')}
+              media={
+                <HeroBackgroundMedia
+                  mediaType={getText("hero.mediaType", "image")}
+                  imageUrl={getText("hero.imageUrl", "")}
+                  videoUrl={getText("hero.videoUrl", "")}
+                  youtubeUrl={getText("hero.youtubeUrl", "")}
+                  posterUrl={getText("hero.posterUrl", "")}
+                  alt={t("events.hero.alt", "Premium Algarve event destination")}
+                  fallback={<PageHeroImage page="events" alt={t("events.hero.alt", "Premium Algarve event destination")} />}
+                />
+              }
+              ctas={
+                <>
+                  <Link href={l("/directory")}>
+                    <Button variant="gold" size="lg">
+                      {t("events.hero.ctaPrimary", "Explore Experiences")}
+                    </Button>
+                  </Link>
+                  <Link href={l("/contact")}>
+                    <Button variant="heroOutline" size="lg">
+                      {t("events.hero.ctaSecondary", "Plan My Calendar")}
+                    </Button>
+                  </Link>
+                </>
+              }
             >
-              {t('sections.events.label', 'Algarve Calendar')}
-            </motion.span>
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-hero font-serif font-medium text-foreground"
-            >
-              {t('sections.events.title', 'Events & Season')}
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="mt-6 text-body text-muted-foreground max-w-3xl mx-auto readable"
-            >
-              {t('sections.events.subtitle', 'Festivals, markets, and seasonal highlights across Portugal\'s stunning southern coast.')}
-            </motion.p>
-
-            {/* Filters */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-wrap items-center justify-center gap-4 mt-10"
-            >
-              <Select
-                value={selectedCategory}
-                onValueChange={(v) => setSelectedCategory(v as EventCategory | 'all')}
-              >
-                <SelectTrigger className="w-[200px] glass-box border border-white/20">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="All Categories" />
-                </SelectTrigger>
-                <SelectContent className="glass-box border border-white/20">
-                  <SelectItem value="all">{t('sections.events.allCategories')}</SelectItem>
-                  {[...categories]
-                    .map(([key]) => ({ key, label: getEventCategoryLabel(key) }))
-                    .sort((a, b) => a.label.localeCompare(b.label))
-                    .map(({ key, label }) => (
-                      <SelectItem key={key} value={key}>{label}</SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </motion.div>
-          </div>
-        </section>
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
+                <Select
+                  value={selectedCategory}
+                  onValueChange={(v) => setSelectedCategory(v as EventCategory | 'all')}
+                >
+                  <SelectTrigger className="w-[220px] bg-card/90 border-border text-foreground">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-border">
+                    <SelectItem value="all">{t('sections.events.allCategories')}</SelectItem>
+                    {[...categories]
+                      .map(([key]) => ({ key, label: getEventCategoryLabel(key) }))
+                      .sort((a, b) => a.label.localeCompare(b.label))
+                      .map(({ key, label }) => (
+                        <SelectItem key={key} value={key}>{label}</SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </LiveStyleHero>
+          </CmsBlock>
+        ) : null}
 
         {/* Featured Events */}
         {featuredEvents.length > 0 && (

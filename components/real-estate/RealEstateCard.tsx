@@ -203,7 +203,7 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                             {listing.cities?.name || "Algarve"}
                         </div>
                         <h3 className={cn(
-                            "min-h-[3.5rem] font-serif leading-[1.08] mb-4 line-clamp-2 transition-colors duration-300 text-slate-950 dark:text-foreground",
+                            "min-h-[4rem] sm:min-h-[4.5rem] font-serif leading-[1.16] sm:leading-[1.18] mb-4 line-clamp-2 break-words transition-colors duration-300 text-slate-950 dark:text-foreground",
                             tierTitleClass,
                             isPremium
                                 ? "text-[1.45rem] sm:text-[1.72rem] font-medium tracking-[-0.02em] not-italic"

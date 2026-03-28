@@ -3,12 +3,14 @@ import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 
-type HeroMediaType = "image" | "video";
+export type HeroMediaType = "image" | "video" | "youtube" | "poster";
 
 interface HeroBackgroundMediaProps {
   mediaType?: string;
   imageUrl?: string;
   videoUrl?: string;
+  youtubeUrl?: string;
+  posterUrl?: string;
   alt: string;
   fallback?: ReactNode;
   className?: string;
@@ -17,13 +19,63 @@ interface HeroBackgroundMediaProps {
 
 function normalizeMediaType(value: string | undefined): HeroMediaType {
   const normalized = value?.trim().toLowerCase();
-  return normalized === "video" ? "video" : "image";
+  if (normalized === "video") return "video";
+  if (normalized === "youtube") return "youtube";
+  if (normalized === "poster") return "poster";
+  return "image";
+}
+
+function extractYouTubeVideoId(rawUrl: string): string | null {
+  try {
+    const url = new URL(rawUrl);
+    const host = url.hostname.toLowerCase();
+
+    if (host === "youtu.be") {
+      return url.pathname.split("/").filter(Boolean)[0] ?? null;
+    }
+
+    if (host.endsWith("youtube.com")) {
+      if (url.pathname === "/watch") {
+        return url.searchParams.get("v");
+      }
+
+      const segments = url.pathname.split("/").filter(Boolean);
+      const embedIndex = segments.findIndex((segment) => segment === "embed" || segment === "shorts" || segment === "live");
+      if (embedIndex >= 0) {
+        return segments[embedIndex + 1] ?? null;
+      }
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+function getYouTubeEmbedUrl(rawUrl: string): string | null {
+  const videoId = extractYouTubeVideoId(rawUrl);
+  if (!videoId) return null;
+
+  const params = new URLSearchParams({
+    autoplay: "1",
+    mute: "1",
+    loop: "1",
+    controls: "0",
+    modestbranding: "1",
+    playsinline: "1",
+    rel: "0",
+    playlist: videoId,
+  });
+
+  return `https://www.youtube-nocookie.com/embed/${videoId}?${params.toString()}`;
 }
 
 export function HeroBackgroundMedia({
   mediaType,
   imageUrl,
   videoUrl,
+  youtubeUrl,
+  posterUrl,
   alt,
   fallback,
   className,
@@ -32,8 +84,14 @@ export function HeroBackgroundMedia({
   const resolvedMediaType = normalizeMediaType(mediaType);
   const trimmedImageUrl = imageUrl?.trim() ?? "";
   const trimmedVideoUrl = videoUrl?.trim() ?? "";
+  const trimmedYoutubeUrl = youtubeUrl?.trim() ?? "";
+  const trimmedPosterUrl = posterUrl?.trim() ?? "";
   const hasImage = trimmedImageUrl.length > 0;
   const hasVideo = trimmedVideoUrl.length > 0;
+  const hasPoster = trimmedPosterUrl.length > 0;
+  const youtubeEmbedUrl = trimmedYoutubeUrl ? getYouTubeEmbedUrl(trimmedYoutubeUrl) : null;
+
+  const resolvedPosterUrl = hasPoster ? trimmedPosterUrl : hasImage ? trimmedImageUrl : undefined;
 
   if (resolvedMediaType === "video" && hasVideo) {
     return (
@@ -43,7 +101,7 @@ export function HeroBackgroundMedia({
         muted
         playsInline
         preload="metadata"
-        poster={hasImage ? trimmedImageUrl : undefined}
+        poster={resolvedPosterUrl}
         className={cn("h-full w-full object-cover", className)}
       >
         <source src={trimmedVideoUrl} type="video/mp4" />
@@ -51,10 +109,22 @@ export function HeroBackgroundMedia({
     );
   }
 
-  if (hasImage) {
+  if (resolvedMediaType === "youtube" && youtubeEmbedUrl) {
+    return (
+      <iframe
+        src={youtubeEmbedUrl}
+        title={alt}
+        allow="autoplay; encrypted-media; picture-in-picture"
+        allowFullScreen
+        className={cn("h-full w-full border-0 object-cover", className)}
+      />
+    );
+  }
+
+  if ((resolvedMediaType === "poster" && hasPoster) || hasImage) {
     return (
       <Image
-        src={trimmedImageUrl}
+        src={resolvedMediaType === "poster" && hasPoster ? trimmedPosterUrl : trimmedImageUrl}
         alt={alt}
         fill
         priority={priority}

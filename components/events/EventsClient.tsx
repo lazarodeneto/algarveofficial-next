@@ -31,6 +31,7 @@ import { eventCategoryLabels, eventCategoryColors, type CalendarEvent, type Even
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useHydrated } from "@/hooks/useHydrated";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
+import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -131,6 +132,17 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
 
   const featuredEvents = events.filter((event) => event.is_featured).slice(0, 3);
   const upcomingEvents = events.filter((event) => !featuredEvents.some((featured) => featured.id === event.id));
+  const pageConfigText = (() => {
+    const pageConfigSetting = initialGlobalSettings.find((setting) => setting.key === CMS_GLOBAL_SETTING_KEYS.pageConfigs)?.value;
+    if (!pageConfigSetting) return {} as Record<string, string>;
+    try {
+      const parsed = JSON.parse(pageConfigSetting) as Record<string, { text?: Record<string, string> }>;
+      return parsed?.events?.text ?? {};
+    } catch {
+      return {} as Record<string, string>;
+    }
+  })();
+  const cmsText = (key: string, fallback: string) => pageConfigText[key] ?? fallback;
 
   const eventsByMonth: Record<string, CalendarEvent[]> = {};
   upcomingEvents.forEach((event) => {
@@ -152,7 +164,17 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
               "sections.events.subtitle",
               "Festivals, markets, and seasonal highlights across Portugal's stunning southern coast.",
             )}
-            media={<PageHeroImage page="events" alt={t("events.hero.alt", "Premium Algarve event destination")} />}
+            media={
+              <HeroBackgroundMedia
+                mediaType={cmsText("hero.mediaType", "image")}
+                imageUrl={cmsText("hero.imageUrl", "")}
+                videoUrl={cmsText("hero.videoUrl", "")}
+                youtubeUrl={cmsText("hero.youtubeUrl", "")}
+                posterUrl={cmsText("hero.posterUrl", "")}
+                alt={t("events.hero.alt", "Premium Algarve event destination")}
+                fallback={<PageHeroImage page="events" alt={t("events.hero.alt", "Premium Algarve event destination")} />}
+              />
+            }
             ctas={
               <>
                 <Link href={l("/directory")}>

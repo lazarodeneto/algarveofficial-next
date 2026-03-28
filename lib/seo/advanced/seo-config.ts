@@ -20,7 +20,7 @@ export const SITE_CONFIG = {
     latitude: 37.0179,
     longitude: -7.9304,
   },
-  email: "concierge@algarveofficial.com",
+  email: "info@algarveofficial.com",
 } as const;
 
 export const CATEGORY_META: Record<string, { title: string; description: string; keywords: string[] }> = {

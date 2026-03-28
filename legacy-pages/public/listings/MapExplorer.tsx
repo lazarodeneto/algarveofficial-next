@@ -12,6 +12,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { type MapListingPoint } from "@/components/map/ListingsLeafletMap";
+import { CmsBlock } from "@/components/cms/CmsBlock";
+import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
+import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
+import { PageHeroImage } from "@/components/sections/PageHeroImage";
 
 import dynamic from "next/dynamic";
 const ListingsLeafletMap = dynamic(() => import("@/components/map/ListingsLeafletMap"), { 
@@ -27,6 +31,7 @@ import {
   getMergedCategoryBySlug,
   resolveCategoryFilterSlug,
 } from "@/lib/categoryMerges";
+import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 
 const DEFAULT_CENTER: [number, number] = [37.08, -8.15];
 const DEFAULT_ZOOM = 9.5;
@@ -39,6 +44,7 @@ function isWithinAlgarveBounds(latitude: number, longitude: number): boolean {
 export default function MapExplorer() {
   const { t } = useTranslation();
   const l = useLocalePath();
+  const { getText, isBlockEnabled } = useCmsPageBuilder("map");
   const router = useRouter();
   const pathname = usePathname() || "/map";
   const searchParams = useSearchParams();
@@ -203,24 +209,36 @@ export default function MapExplorer() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="pt-28 pb-16">
+      <main className="pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-16" data-cms-page="map">
         <div className="app-container content-max">
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-serif font-medium text-foreground">
-                {t("map.title")}
-              </h1>
-              <p className="text-muted-foreground mt-2">
-                {t("map.subtitle")}
-              </p>
-            </div>
-            <Link href={l("/directory")}>
-              <Button variant="outline">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                {t("nav.directory")}
-              </Button>
-            </Link>
-          </div>
+          {isBlockEnabled("hero", true) ? (
+            <CmsBlock pageId="map" blockId="hero" as="section" className="pb-6">
+              <LiveStyleHero
+                badge={getText("hero.badge", "Map Explorer")}
+                title={getText("hero.title", t("map.title"))}
+                subtitle={getText("hero.subtitle", t("map.subtitle"))}
+                media={
+                  <HeroBackgroundMedia
+                    mediaType={getText("hero.mediaType", "image")}
+                    imageUrl={getText("hero.imageUrl", "")}
+                    videoUrl={getText("hero.videoUrl", "")}
+                    youtubeUrl={getText("hero.youtubeUrl", "")}
+                    posterUrl={getText("hero.posterUrl", "")}
+                    alt={t("map.title")}
+                    fallback={<PageHeroImage page="map" alt={t("map.title")} />}
+                  />
+                }
+                ctas={
+                  <Link href={l("/directory")}>
+                    <Button variant="gold" size="lg">
+                      <ArrowLeft className="h-4 w-4 mr-2" />
+                      {t("nav.directory")}
+                    </Button>
+                  </Link>
+                }
+              />
+            </CmsBlock>
+          ) : null}
 
           <div className="grid gap-6 lg:grid-cols-[340px,1fr]">
             <aside className="space-y-4">

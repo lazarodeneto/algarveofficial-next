@@ -3,6 +3,13 @@
 import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import clsx from "clsx";
+import {
+  Binoculars,
+  CalendarDays,
+  Home,
+  TrendingUp,
+  type LucideIcon,
+} from "lucide-react";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 import { PRIMARY_NAV_ITEMS } from "@/lib/navigation/nav-items";
@@ -10,6 +17,13 @@ import { PRIMARY_NAV_ITEMS } from "@/lib/navigation/nav-items";
 const HEADER_NAV_ITEMS = PRIMARY_NAV_ITEMS.filter(
   (item) => item.href !== "/contact" && item.href !== "/map",
 );
+
+const HEADER_NAV_ICONS: Record<string, LucideIcon> = {
+  "nav.visit": Binoculars,
+  "nav.live": Home,
+  "nav.invest": TrendingUp,
+  "nav.events": CalendarDays,
+};
 
 export function HeaderNav() {
   const pathname = usePathname();
@@ -27,17 +41,20 @@ export function HeaderNav() {
         const isActive =
           currentPath === item.href ||
           (item.href !== "/" && currentPath.startsWith(`${item.href}/`));
+        const Icon = HEADER_NAV_ICONS[item.labelKey];
+        const label = t(item.labelKey, item.fallbackLabel);
 
         return (
           <LocaleLink
             key={item.href}
             href={item.href}
             className={clsx(
-              "relative whitespace-nowrap py-1.5 transition-colors duration-200 hover:text-foreground after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:origin-left after:scale-x-0 after:rounded-full after:bg-primary after:transition-transform after:duration-200 hover:after:scale-x-100",
+              "relative inline-flex items-center gap-2 whitespace-nowrap py-1.5 transition-colors duration-200 hover:text-foreground after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:origin-left after:scale-x-0 after:rounded-full after:bg-primary after:transition-transform after:duration-200 hover:after:scale-x-100",
               isActive ? "font-semibold text-foreground after:scale-x-100" : ""
             )}
           >
-            {t(item.labelKey, item.fallbackLabel)}
+            {Icon ? <Icon aria-hidden="true" className="h-[0.95rem] w-[0.95rem] shrink-0 text-current/80" /> : null}
+            <span>{label}</span>
           </LocaleLink>
         );
       })}

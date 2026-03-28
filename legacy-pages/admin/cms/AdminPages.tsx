@@ -104,7 +104,7 @@ const SYSTEM_PAGE_DEFINITIONS: SystemPageDefinition[] = [
   { id: "reset-password", title: "Reset Password", path: "/auth/reset-password", description: "Password reset page", editorPageId: "auth-reset-password" },
   { id: "auth-callback", title: "Auth Callback", path: "/auth/callback", description: "OAuth callback route", editorPageId: "auth-callback" },
   { id: "snake", title: "Snake", path: "/snake", description: "Snake mini-game page", editorPageId: "snake" },
-  { id: "legacy-real-estate", title: "Real Estate (Legacy)", path: "/real-estate", description: "Legacy redirect to Algarve Services", kind: "redirect", editorPageId: "directory" },
+  { id: "real-estate", title: "Real Estate", path: "/real-estate", description: "Prime real estate directory page", editorPageId: "real-estate" },
   { id: "legacy-real-estate-detail", title: "Real Estate Detail (Legacy)", path: "/real-estate/:slug", description: "Legacy redirect to listing detail", kind: "redirect", dynamic: true, editorPageId: "listing-detail" },
   { id: "legacy-about", title: "About (Legacy)", path: "/about", description: "Legacy redirect to /about-us", kind: "redirect", editorPageId: "about" },
 ];

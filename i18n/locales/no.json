@@ -515,7 +515,7 @@
   "footer": {
     "description": "Din inngangsport til luksusopplevelser over Portugals mest prestisjefylte kystregion.",
     "location": "Distriktet Faro, Portugal",
-    "email": "concierge@algarveofficial.com",
+    "email": "info@algarveofficial.com",
     "copyright": "© {{year}} AlgarveOfficial. Alle rettigheter forbeholdt.",
     "tagline": "Valg av luksusopplevelser i Algarve siden 2024",
     "explore": "Utforske",
@@ -636,6 +636,33 @@
       "a4": "Grunnleggende oppføringer er gratis. Verifiserte og signaturnivåer har månedlige avgifter med tilleggsfordeler. Kontakt oss for gjeldende priser."
     },
     "success": "Takk! Din forespørsel er sendt. Vi kontakter deg innen 2-3 virkedager."
+  },
+  "live": {
+    "hero": {
+      "badge": "Flytteveiledning",
+      "title": "Bo i Algarve, med klarhet fra første dag",
+      "subtitle": "Strukturert veiledning for opphold, bolig og hverdagsliv slik at flyttingen din blir smidig, i samsvar med reglene og klar for fremtiden.",
+      "ctaPrimary": "Planlegg flyttingen min",
+      "ctaSecondary": "Utforsk lokale eksperter",
+      "alt": "Algarvekyst for å bo"
+    }
+  },
+  "realEstate": {
+    "hero": {
+      "badge": "Eksklusiv portefølje",
+      "title": "Eksklusive eiendommer",
+      "subtitle": "Oppdag det fineste utvalget av premiumeiendommer i Portugals mest prestisjefylte kystregion.",
+      "alt": "Eksteriør av luksuseiendom i Algarve"
+    },
+    "propertiesAvailable": "Tilgjengelige Eiendommer",
+    "sortedByFeatured": "Sortert etter: Utvalgte"
+  },
+  "destinationDetail": {
+    "backToDestinations": "Tilbake til Destinasjoner",
+    "badge": "Premiumregion",
+    "exploreRegion": "Utforsk {{region}}",
+    "listingsCount": "{{count}} premiumoppføringer i denne regionen",
+    "metaTitleSuffix": "Algarves destinasjonsguide"
   },
   "admin": {
     "sidebar": {
@@ -1543,7 +1570,27 @@
       "rentalPrice": "Leiepris",
       "askingPrice": "Prisantydning",
       "scheduleViewing": "Planlegg visning",
-      "propertyFallback": "Eiendom"
+      "propertyFallback": "Eiendom",
+      "filters": {
+        "refineSearch": "Forfin søket",
+        "location": "Sted",
+        "cityOrRegion": "By eller region",
+        "propertyType": "Eiendomstype",
+        "anyType": "Alle typer",
+        "priceRange": "Prisspenn",
+        "minPrice": "Min €",
+        "maxPrice": "Maks €",
+        "bedrooms": "Soverom",
+        "any": "Alle",
+        "searchProperties": "Søk eiendommer",
+        "clearFilters": "Fjern filtre",
+        "propertyTypes": {
+          "villa": "Villa",
+          "apartment": "Leilighet",
+          "townhouse": "Rekkehus",
+          "land": "Tomt"
+        }
+      }
     },
     "privateChef": {
       "chefProfile": "Kokkens profil",

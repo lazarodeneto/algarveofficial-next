@@ -151,6 +151,8 @@ const Invest = () => {
                                     mediaType={getText("hero.mediaType", "image")}
                                     imageUrl={getText("hero.imageUrl", "")}
                                     videoUrl={getText("hero.videoUrl", "")}
+                                    youtubeUrl={getText("hero.youtubeUrl", "")}
+                                    posterUrl={getText("hero.posterUrl", "")}
                                     alt={t("invest.hero.alt", "Invest in Algarve real estate")}
                                     fallback={<PageHeroImage page="invest" alt={t("invest.hero.alt", "Invest in Algarve real estate")} />}
                                 />

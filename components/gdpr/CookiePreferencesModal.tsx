@@ -143,7 +143,7 @@ export function CookiePreferencesModal({
 
   return (
     <div
-      className="fixed inset-0 z-[90] bg-zinc-900/45 p-4 backdrop-blur-[1px]"
+      className="fixed inset-0 z-[90] bg-zinc-900/45 p-0 sm:p-4 backdrop-blur-[1px]"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -155,7 +155,7 @@ export function CookiePreferencesModal({
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
         tabIndex={-1}
-        className="mx-auto mt-4 max-h-[90vh] w-full max-w-3xl overflow-auto rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl"
+        className="mx-auto mt-0 max-h-[100vh] w-full max-w-none overflow-auto rounded-none border border-zinc-200 bg-white p-4 shadow-2xl sm:mt-4 sm:max-h-[90vh] sm:max-w-3xl sm:rounded-2xl sm:p-6"
       >
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
