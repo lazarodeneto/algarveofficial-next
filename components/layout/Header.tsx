@@ -57,8 +57,8 @@ export default function Header() {
   const l = useLocalePath();
 
   const directoryPath = l("/directory");
-  const investPath = l("/invest");
-  const realEstatePath = l("/real-estate");
+  const investPath = l("/real-estate");
+  const realEstatePath = investPath;
   const partnerPath = l("/partner");
   const homePath = l("/");
   const destinationsPath = l("/destinations");
@@ -464,7 +464,6 @@ export default function Header() {
                       </div>
                       <AccordionContent>
                         <div className="mb-1 flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
-                          <Link href={investPath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><TrendingUp className="h-4 w-4" /> {t("nav.invest", "Invest")}</Link>
                           <Link href={realEstatePath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Building2 className="h-4 w-4" /> {t("realEstate.title", "Real Estate Directory")}</Link>
                           <Link href={partnerPath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Plus className="h-4 w-4" /> {t("realEstate.addListing", "Add Real Estate Listing")}</Link>
                         </div>
