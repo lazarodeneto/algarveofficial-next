@@ -256,7 +256,7 @@ export default function AdminGlobalSettings() {
   const [cfGetInTouchTitle, setCfGetInTouchTitle] = useState("Connect with Us");
   const [cfGetInTouchDescription, setCfGetInTouchDescription] = useState("");
   const [cfDisplayEmail, setCfDisplayEmail] = useState("info@algarveofficial.com");
-  const [cfWhatsappNumber, setCfWhatsappNumber] = useState("+351 912 345 678");
+  const [cfWhatsappNumber, setCfWhatsappNumber] = useState("+351 927 071 708");
   const [cfOfficeLocation, setCfOfficeLocation] = useState("Vilamoura, Algarve, Portugal");
   const [cfFormTitle, setCfFormTitle] = useState("Send us a Message");
   const [cfFormDescription, setCfFormDescription] = useState("");
@@ -488,7 +488,7 @@ export default function AdminGlobalSettings() {
       setCfGetInTouchTitle(contactFormSettings.get_in_touch_title ?? "Connect with Us");
       setCfGetInTouchDescription(contactFormSettings.get_in_touch_description ?? "");
       setCfDisplayEmail(contactFormSettings.display_email ?? "info@algarveofficial.com");
-      setCfWhatsappNumber(contactFormSettings.whatsapp_number ?? "+351 912 345 678");
+      setCfWhatsappNumber(contactFormSettings.whatsapp_number ?? "+351 927 071 708");
       setCfOfficeLocation(contactFormSettings.office_location ?? "Vilamoura, Algarve, Portugal");
       setCfFormTitle(contactFormSettings.form_title ?? "Send us a Message");
       setCfFormDescription(contactFormSettings.form_description ?? "");
@@ -2026,10 +2026,10 @@ export default function AdminGlobalSettings() {
                   value={getSettingValue("whatsapp_number")}
                   onChange={(e) => updateSetting("whatsapp_number", e.target.value, "contact")}
                   className="bg-background"
-                  placeholder="351910000000"
+                  placeholder="351927071708"
                 />
                 <p className="text-xs text-muted-foreground">
-                  International format without + or spaces (e.g. 351910000000)
+                  International format without + or spaces (e.g. 351927071708)
                 </p>
               </div>
               <div className="space-y-2">
@@ -2152,7 +2152,7 @@ export default function AdminGlobalSettings() {
                         value={cfWhatsappNumber}
                         onChange={(e) => setCfWhatsappNumber(e.target.value)}
                         className="bg-background"
-                        placeholder="+351 912 345 678"
+                        placeholder="+351 927 071 708"
                       />
                       <p className="text-xs text-muted-foreground">Shown in sidebar + used for WhatsApp link</p>
                     </div>
