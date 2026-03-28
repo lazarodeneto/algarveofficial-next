@@ -12,7 +12,7 @@ export function FooterNav() {
     <nav aria-label={ariaLabel} className="flex flex-wrap gap-4">
       {FOOTER_NAV_ITEMS.map((item) => (
         <LocaleLink key={item.href} href={item.href} className="hover:underline">
-          {t(item.labelKey)}
+          {t(item.labelKey, item.fallbackLabel)}
         </LocaleLink>
       ))}
     </nav>

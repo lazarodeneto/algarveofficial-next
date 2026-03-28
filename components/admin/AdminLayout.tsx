@@ -4,7 +4,6 @@ import { AdminHeader } from "@/components/admin/AdminHeader";
 import { useAdminMessagePolling } from "@/hooks/useAdminMessagePolling";
 import { useAdminGeoRestriction } from "@/hooks/useAdminGeoRestriction";
 import { ShieldX, Loader2 } from "lucide-react";
-import { SeoHead } from "@/components/seo/SeoHead";
 
 interface AdminLayoutProps {
   children?: ReactNode;
@@ -49,7 +48,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,#f6f2e6_0%,transparent_36%),linear-gradient(180deg,hsl(var(--background))_0%,hsl(var(--muted)/0.18)_100%)] flex w-full dark:bg-[radial-gradient(circle_at_top,rgba(201,169,110,0.08)_0%,transparent_34%),linear-gradient(180deg,hsl(var(--background))_0%,hsl(var(--muted)/0.1)_100%)]">
-      <SeoHead noIndex noFollow />
       <AdminSidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}

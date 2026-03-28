@@ -305,10 +305,10 @@ export default function Footer() {
 
             <div className="mt-5 rounded-xl border border-border/70 bg-card/70 p-4">
               <p className="text-body-sm font-semibold text-foreground">
-                {t("newsletter.footerTitle", "Get the free Algarve Insider Guide")}
+                {t("newsletter.footerTitle", "Get Algarve news and updates")}
               </p>
               <p className="mt-1 text-body-xs text-muted-foreground">
-                {t("newsletter.footerSubtitle", "Monthly curated picks, events, and hidden gems.")}
+                {t("newsletter.footerSubtitle", "Curated local news, events, openings, and highlights from across the Algarve.")}
               </p>
               <form onSubmit={handleNewsletterSubmit} className="mt-3 flex gap-2">
                 <Label htmlFor="footer-newsletter-email" className="sr-only">
@@ -331,7 +331,7 @@ export default function Footer() {
                   className="h-10 px-4 whitespace-nowrap"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? t("newsletter.subscribing") : t("newsletter.footerCta", "Get It")}
+                  {isSubmitting ? t("newsletter.subscribing") : t("newsletter.footerCta", "Subscribe")}
                 </Button>
               </form>
             </div>

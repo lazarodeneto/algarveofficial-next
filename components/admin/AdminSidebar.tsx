@@ -273,7 +273,8 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
       collapsed={collapsed}
       onToggle={onToggle}
       density="compact"
-      logo={<BrandLogo size="sm" showIcon={collapsed} showText={!collapsed} className="gap-2" />}
+      logo={<BrandLogo size="sm" showIcon={collapsed} showText className="gap-2" />}
+      desktopBreakpoint="xl"
       sectionVariant="cards"
       childIndentStyle="soft"
       sections={localizedSections}
