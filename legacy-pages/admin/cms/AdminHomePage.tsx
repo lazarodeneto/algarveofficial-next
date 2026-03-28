@@ -40,6 +40,7 @@ import {
   Youtube,
   Loader2,
   X,
+  RotateCcw,
 } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
@@ -77,6 +78,21 @@ interface HomeSection {
   enabled: boolean;
   order: number;
 }
+
+const DEFAULT_HERO_CONTENT: HeroContent = {
+  videoUrl: '',
+  posterUrl: '',
+  youtubeUrl: '',
+  mediaType: 'video',
+  headline: '',
+  subtitle: '',
+  primaryCta: { label: 'AI PLANNER', link: '#regions' },
+  secondaryCta: { label: 'Signature Selection', link: '#curated-excellence' },
+  overlayIntensity: 50,
+  autoplay: true,
+  loop: true,
+  muted: true,
+};
 
 const defaultSections: HomeSection[] = [
   { id: 'hero', title: 'Hero Section', type: 'hero', enabled: true, order: 1 },
@@ -176,49 +192,39 @@ export default function AdminHomePage() {
     saveSettingsAsync: saveQuickLinkSettingsAsync,
     isSaving: isSavingQuickLinks,
   } = useGlobalSettings({ keys: HOME_QUICK_LINK_SETTING_KEYS });
-  const [heroContent, setHeroContent] = useState<HeroContent>({
-    videoUrl: '',
-    posterUrl: '',
-    youtubeUrl: '',
-    mediaType: 'video',
-    headline: '',
-    subtitle: '',
-    primaryCta: { label: 'AI PLANNER', link: '#regions' },
-    secondaryCta: { label: 'Signature Selection', link: '#curated-excellence' },
-    overlayIntensity: 50,
-    autoplay: true,
-    loop: true,
-    muted: true,
-  });
+  const [heroContent, setHeroContent] = useState<HeroContent>(DEFAULT_HERO_CONTENT);
   const [sections, setSections] = useState<HomeSection[]>(defaultSections);
   const [quickLinkImages, setQuickLinkImages] = useState<Record<string, string>>({});
+  const [quickLinkVideos, setQuickLinkVideos] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const posterInputRef = useRef<HTMLInputElement>(null);
-  const quickLinkInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const quickLinkImageInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const quickLinkVideoInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   // Sync with database settings
   useEffect(() => {
     if (settings) {
       setHeroContent(prev => ({
         ...prev,
+        ...DEFAULT_HERO_CONTENT,
         videoUrl: settings.hero_video_url || '',
         posterUrl: settings.hero_poster_url || '',
         youtubeUrl: settings.hero_youtube_url || '',
         mediaType: (settings as any).hero_media_type || 'video',
-        overlayIntensity: (settings as any).hero_overlay_intensity ?? 50,
-        autoplay: (settings as any).hero_autoplay ?? true,
-        loop: (settings as any).hero_loop ?? true,
-        muted: (settings as any).hero_muted ?? true,
+        overlayIntensity: (settings as any).hero_overlay_intensity ?? DEFAULT_HERO_CONTENT.overlayIntensity,
+        autoplay: (settings as any).hero_autoplay ?? DEFAULT_HERO_CONTENT.autoplay,
+        loop: (settings as any).hero_loop ?? DEFAULT_HERO_CONTENT.loop,
+        muted: (settings as any).hero_muted ?? DEFAULT_HERO_CONTENT.muted,
         headline: settings.hero_title || '',
         subtitle: settings.hero_subtitle || '',
         primaryCta: {
-          label: settings.hero_cta_primary_text || 'AI PLANNER',
-          link: settings.hero_cta_primary_link || '#regions',
+          label: settings.hero_cta_primary_text || DEFAULT_HERO_CONTENT.primaryCta.label,
+          link: settings.hero_cta_primary_link || DEFAULT_HERO_CONTENT.primaryCta.link,
         },
         secondaryCta: {
-          label: settings.hero_cta_secondary_text || 'Signature Selection',
-          link: settings.hero_cta_secondary_link || '#curated-excellence',
+          label: settings.hero_cta_secondary_text || DEFAULT_HERO_CONTENT.secondaryCta.label,
+          link: settings.hero_cta_secondary_link || DEFAULT_HERO_CONTENT.secondaryCta.link,
         },
       }));
 
@@ -264,12 +270,18 @@ export default function AdminHomePage() {
   }, [settings]);
 
   useEffect(() => {
-    const mapped = HOME_QUICK_LINK_CARDS.reduce<Record<string, string>>((acc, card) => {
+    const mappedImages = HOME_QUICK_LINK_CARDS.reduce<Record<string, string>>((acc, card) => {
       const match = quickLinkSettings.find((setting) => setting.key === card.imageSettingKey);
       acc[card.imageSettingKey] = match?.value ?? "";
       return acc;
     }, {});
-    setQuickLinkImages(mapped);
+    const mappedVideos = HOME_QUICK_LINK_CARDS.reduce<Record<string, string>>((acc, card) => {
+      const match = quickLinkSettings.find((setting) => setting.key === card.videoSettingKey);
+      acc[card.videoSettingKey] = match?.value ?? "";
+      return acc;
+    }, {});
+    setQuickLinkImages(mappedImages);
+    setQuickLinkVideos(mappedVideos);
   }, [quickLinkSettings]);
 
   const sensors = useSensors(
@@ -349,6 +361,7 @@ export default function AdminHomePage() {
   const handleQuickLinkUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     settingKey: string,
+    videoSettingKey: string,
     cardId: string,
     cardTitle: string,
   ) => {
@@ -368,15 +381,64 @@ export default function AdminHomePage() {
           value: url,
           category: HOME_QUICK_LINKS_CATEGORY,
         },
+        {
+          key: videoSettingKey,
+          value: "",
+          category: HOME_QUICK_LINKS_CATEGORY,
+        },
       ];
 
       await saveQuickLinkSettingsAsync(payload);
       setQuickLinkImages((prev) => ({ ...prev, [settingKey]: url }));
+      setQuickLinkVideos((prev) => ({ ...prev, [videoSettingKey]: "" }));
       toast.success(`${cardTitle} image updated`);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown error";
       console.error(`Failed to upload ${cardTitle} image:`, error);
       toast.error(`Failed to upload ${cardTitle} image: ${message}`);
+    } finally {
+      e.target.value = "";
+      setIsSaving(false);
+    }
+  };
+
+  const handleQuickLinkVideoUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    imageSettingKey: string,
+    videoSettingKey: string,
+    cardId: string,
+    cardTitle: string,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsSaving(true);
+    try {
+      const url = await handleFileUpload(file, "quick-link", `${cardId}-video`);
+      if (!url) {
+        throw new Error("Upload failed");
+      }
+
+      const payload: GlobalSetting[] = [
+        {
+          key: imageSettingKey,
+          value: quickLinkImages[imageSettingKey] ?? "",
+          category: HOME_QUICK_LINKS_CATEGORY,
+        },
+        {
+          key: videoSettingKey,
+          value: url,
+          category: HOME_QUICK_LINKS_CATEGORY,
+        },
+      ];
+
+      await saveQuickLinkSettingsAsync(payload);
+      setQuickLinkVideos((prev) => ({ ...prev, [videoSettingKey]: url }));
+      toast.success(`${cardTitle} video updated`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      console.error(`Failed to upload ${cardTitle} video:`, error);
+      toast.error(`Failed to upload ${cardTitle} video: ${message}`);
     } finally {
       e.target.value = "";
       setIsSaving(false);
@@ -409,6 +471,32 @@ export default function AdminHomePage() {
     }
   };
 
+  const handleRemoveQuickLinkVideo = async (settingKey: string, cardTitle: string) => {
+    const previous = quickLinkVideos[settingKey] ?? "";
+    setIsSaving(true);
+    setQuickLinkVideos((prev) => ({ ...prev, [settingKey]: "" }));
+
+    try {
+      const payload: GlobalSetting[] = [
+        {
+          key: settingKey,
+          value: "",
+          category: HOME_QUICK_LINKS_CATEGORY,
+        },
+      ];
+
+      await saveQuickLinkSettingsAsync(payload);
+      toast.success(`${cardTitle} video removed`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      setQuickLinkVideos((prev) => ({ ...prev, [settingKey]: previous }));
+      console.error(`Failed to remove ${cardTitle} video:`, error);
+      toast.error(`Failed to remove ${cardTitle} video: ${message}`);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleSaveHero = async () => {
     setIsSaving(true);
     try {
@@ -435,6 +523,50 @@ export default function AdminHomePage() {
       toast.error(`Failed to save hero content: ${message}`);
     }
     setIsSaving(false);
+  };
+
+  const handleResetHeroMedia = async () => {
+    const confirmed = window.confirm(
+      "Clear all hero media and reset the hero media settings to defaults?",
+    );
+    if (!confirmed) return;
+
+    setIsSaving(true);
+    try {
+      await updateSettingsAsync({
+        hero_video_url: null,
+        hero_poster_url: null,
+        hero_youtube_url: null,
+        hero_media_type: DEFAULT_HERO_CONTENT.mediaType,
+        hero_overlay_intensity: DEFAULT_HERO_CONTENT.overlayIntensity,
+        hero_autoplay: DEFAULT_HERO_CONTENT.autoplay,
+        hero_loop: DEFAULT_HERO_CONTENT.loop,
+        hero_muted: DEFAULT_HERO_CONTENT.muted,
+      } as any);
+
+      setHeroContent((prev) => ({
+        ...prev,
+        videoUrl: DEFAULT_HERO_CONTENT.videoUrl,
+        posterUrl: DEFAULT_HERO_CONTENT.posterUrl,
+        youtubeUrl: DEFAULT_HERO_CONTENT.youtubeUrl,
+        mediaType: DEFAULT_HERO_CONTENT.mediaType,
+        overlayIntensity: DEFAULT_HERO_CONTENT.overlayIntensity,
+        autoplay: DEFAULT_HERO_CONTENT.autoplay,
+        loop: DEFAULT_HERO_CONTENT.loop,
+        muted: DEFAULT_HERO_CONTENT.muted,
+      }));
+
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      if (posterInputRef.current) posterInputRef.current.value = "";
+
+      toast.success("Hero media cleared and reset");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      console.error("Failed to reset hero media:", error);
+      toast.error(`Failed to reset hero media: ${message}`);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleSaveSections = async () => {
@@ -534,11 +666,30 @@ export default function AdminHomePage() {
             {/* Video & Media */}
             <Card className="border-border bg-card/50">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Video className="h-5 w-5 text-primary" />
-                  Hero Video
-                </CardTitle>
-                <CardDescription>Background video for the hero section</CardDescription>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Video className="h-5 w-5 text-primary" />
+                      Hero Video
+                    </CardTitle>
+                    <CardDescription>Background video for the hero section</CardDescription>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleResetHeroMedia}
+                    disabled={isSaving}
+                    className="sm:self-start"
+                  >
+                    {isSaving ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <RotateCcw className="h-4 w-4 mr-2" />
+                    )}
+                    Reset Media
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Media Type Selector */}
@@ -858,8 +1009,10 @@ export default function AdminHomePage() {
             <CardContent className="space-y-5">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 {HOME_QUICK_LINK_CARDS.map((card) => {
-                  const imageUrl = quickLinkImages[card.imageSettingKey]?.trim() || "";
+                  const imageUrl = quickLinkImages[card.imageSettingKey]?.trim() || card.fallbackImageUrl;
+                  const videoUrl = quickLinkVideos[card.videoSettingKey]?.trim() || "";
                   const hasCustomImage = Boolean(quickLinkImages[card.imageSettingKey]?.trim());
+                  const hasCustomVideo = Boolean(videoUrl);
                   const isCardBusy = isSaving || isSavingQuickLinks;
                   return (
                     <div key={card.id} className="rounded-lg border border-border bg-background/40 p-3">
@@ -869,24 +1022,65 @@ export default function AdminHomePage() {
                       </p>
 
                       <div className="aspect-[4/3] rounded-md border border-border bg-muted/40 overflow-hidden mb-3">
-                        <img
-                          src={imageUrl}
-                          alt={`${card.title} card preview`}
-                          className="w-full h-full object-cover"
-                        />
+                        {hasCustomVideo ? (
+                          <video
+                            src={videoUrl}
+                            poster={imageUrl}
+                            className="w-full h-full object-cover"
+                            controls
+                            muted
+                            playsInline
+                          />
+                        ) : (
+                          <img
+                            src={imageUrl}
+                            alt={`${card.title} card preview`}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
                       </div>
                       <p className="text-[11px] text-muted-foreground mb-3">
-                        {hasCustomImage ? "Custom image uploaded" : "Using themed default image"}
+                        {hasCustomVideo
+                          ? "Custom video uploaded"
+                          : hasCustomImage
+                            ? "Custom image uploaded"
+                            : "Using themed default image"}
                       </p>
 
                       <input
                         ref={(element) => {
-                          quickLinkInputRefs.current[card.id] = element;
+                          quickLinkImageInputRefs.current[card.id] = element;
                         }}
                         type="file"
                         accept="image/*"
                         className="hidden"
-                        onChange={(event) => handleQuickLinkUpload(event, card.imageSettingKey, card.id, card.title)}
+                        onChange={(event) => {
+                          handleQuickLinkUpload(
+                            event,
+                            card.imageSettingKey,
+                            card.videoSettingKey,
+                            card.id,
+                            card.title,
+                          );
+                        }}
+                      />
+
+                      <input
+                        ref={(element) => {
+                          quickLinkVideoInputRefs.current[card.id] = element;
+                        }}
+                        type="file"
+                        accept="video/mp4,video/webm,video/ogg"
+                        className="hidden"
+                        onChange={(event) => {
+                          handleQuickLinkVideoUpload(
+                            event,
+                            card.imageSettingKey,
+                            card.videoSettingKey,
+                            card.id,
+                            card.title,
+                          );
+                        }}
                       />
 
                       <div className="flex gap-2">
@@ -894,7 +1088,7 @@ export default function AdminHomePage() {
                           variant="outline"
                           size="sm"
                           className="flex-1"
-                          onClick={() => quickLinkInputRefs.current[card.id]?.click()}
+                          onClick={() => quickLinkImageInputRefs.current[card.id]?.click()}
                           disabled={isCardBusy}
                         >
                           {isCardBusy ? (
@@ -902,8 +1096,25 @@ export default function AdminHomePage() {
                           ) : (
                             <Upload className="h-4 w-4 mr-2" />
                           )}
-                          {hasCustomImage ? "Change" : "Upload"}
+                          {hasCustomImage ? "Change Image" : "Upload Image"}
                         </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => quickLinkVideoInputRefs.current[card.id]?.click()}
+                          disabled={isCardBusy}
+                        >
+                          {isCardBusy ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <Video className="h-4 w-4 mr-2" />
+                          )}
+                          {hasCustomVideo ? "Change Video" : "Upload Video"}
+                        </Button>
+                      </div>
+
+                      <div className="mt-2 flex gap-2">
                         {hasCustomImage && (
                           <Button
                             variant="ghost"
@@ -912,7 +1123,18 @@ export default function AdminHomePage() {
                             disabled={isCardBusy}
                             className="text-destructive hover:text-destructive"
                           >
-                            <X className="h-4 w-4" />
+                            Remove Image
+                          </Button>
+                        )}
+                        {hasCustomVideo && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveQuickLinkVideo(card.videoSettingKey, card.title)}
+                            disabled={isCardBusy}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            Remove Video
                           </Button>
                         )}
                       </div>

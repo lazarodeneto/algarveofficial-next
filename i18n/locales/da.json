@@ -515,7 +515,7 @@
   "footer": {
     "description": "Din indgang til luksusoplevelser på tværs af Portugals mest prestigefyldte kystregion.",
     "location": "Distriktet Faro, Portugal",
-    "email": "concierge@algarveofficial.com",
+    "email": "info@algarveofficial.com",
     "copyright": "© {{year}} AlgarveOfficial. Alle rettigheder forbeholdes.",
     "tagline": "Valg af luksusoplevelser i Algarve siden 2024",
     "explore": "Udforske",
@@ -636,6 +636,33 @@
       "a4": "Grundlæggende lister er gratis. Verified og Signature tiers har månedlige gebyrer med yderligere fordele. Kontakt os for aktuelle priser."
     },
     "success": "Tak! Din anmodning er blevet indsendt. Vi kontakter dig inden for 2-3 hverdage."
+  },
+  "live": {
+    "hero": {
+      "badge": "Flyttevejledning",
+      "title": "Bo i Algarve, med klarhed fra første dag",
+      "subtitle": "Struktureret vejledning om ophold, bolig og hverdagsliv, så din flytning bliver smidig, lovmedholdelig og klar til fremtiden.",
+      "ctaPrimary": "Planlæg min flytning",
+      "ctaSecondary": "Udforsk lokale eksperter",
+      "alt": "Algarvekyst at bo ved"
+    }
+  },
+  "realEstate": {
+    "hero": {
+      "badge": "Eksklusiv portefølje",
+      "title": "Eksklusive ejendomme",
+      "subtitle": "Oplev det fineste udvalg af premiumejendomme i Portugals mest prestigefyldte kystregion.",
+      "alt": "Eksteriør af luksusejendom i Algarve"
+    },
+    "propertiesAvailable": "Tilgængelige Ejendomme",
+    "sortedByFeatured": "Sorteret efter: Udvalgte"
+  },
+  "destinationDetail": {
+    "backToDestinations": "Tilbage til Destinationer",
+    "badge": "Premiumregion",
+    "exploreRegion": "Udforsk {{region}}",
+    "listingsCount": "{{count}} premiumannoncer i denne region",
+    "metaTitleSuffix": "Algarves destinationsguide"
   },
   "admin": {
     "sidebar": {
@@ -1543,7 +1570,27 @@
       "rentalPrice": "Lejepris",
       "askingPrice": "Forlangende pris",
       "scheduleViewing": "Planlæg visning",
-      "propertyFallback": "Ejendom"
+      "propertyFallback": "Ejendom",
+      "filters": {
+        "refineSearch": "Forfin søgning",
+        "location": "Placering",
+        "cityOrRegion": "By eller region",
+        "propertyType": "Ejendomstype",
+        "anyType": "Alle typer",
+        "priceRange": "Prisinterval",
+        "minPrice": "Min. €",
+        "maxPrice": "Maks. €",
+        "bedrooms": "Soveværelser",
+        "any": "Alle",
+        "searchProperties": "Søg ejendomme",
+        "clearFilters": "Ryd filtre",
+        "propertyTypes": {
+          "villa": "Villa",
+          "apartment": "Lejlighed",
+          "townhouse": "Rækkehus",
+          "land": "Grund"
+        }
+      }
     },
     "privateChef": {
       "chefProfile": "Kokkens profil",

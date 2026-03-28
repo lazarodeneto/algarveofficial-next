@@ -10,6 +10,13 @@ import { getServerTranslations } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { getRegionImageSet } from "@/lib/regionImages";
+import {
+  fetchCityTranslations,
+  fetchListingTranslations,
+  fetchRegionTranslations,
+  normalizePublicContentLocale,
+  type PublicContentLocale,
+} from "@/lib/publicContentLocale";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 
 const PUBLIC_LISTING_FIELDS = `
@@ -35,6 +42,28 @@ interface LocaleDestinationPageProps {
   params: Promise<{ locale: string; slug: string }>;
 }
 
+type DestinationCity = {
+  id: string;
+  name: string;
+  slug: string;
+  short_description?: string | null;
+  description?: string | null;
+};
+
+type DestinationListing = {
+  id: string;
+  slug: string | null;
+  name: string;
+  short_description: string | null;
+  description?: string | null;
+  featured_image_url: string | null;
+  city?: DestinationCity | null;
+};
+
+type DestinationListingRow = Omit<DestinationListing, "city"> & {
+  city?: DestinationCity | DestinationCity[] | null;
+};
+
 function lp(locale: Locale, path: string): string {
   return addLocaleToPathname(path, locale);
 }
@@ -55,8 +84,23 @@ function truncateMeta(value?: string | null, max = 155) {
   return `${normalized.slice(0, max - 1).trimEnd()}…`;
 }
 
-const getDestinationPageData = cache(async (slug: string) => {
+function normalizeDestinationListing(row: DestinationListingRow): DestinationListing {
+  const city = Array.isArray(row.city) ? (row.city[0] ?? null) : (row.city ?? null);
+
+  return {
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+    short_description: row.short_description,
+    description: row.description,
+    featured_image_url: row.featured_image_url,
+    city,
+  };
+}
+
+const getDestinationPageData = cache(async (slug: string, locale: Locale) => {
   const supabase = createPublicServerClient();
+  const contentLocale: PublicContentLocale = normalizePublicContentLocale(locale);
 
   const { data: regionData, error: regionError } = await supabase
     .from("regions")
@@ -67,8 +111,20 @@ const getDestinationPageData = cache(async (slug: string) => {
 
   if (regionError) throw regionError;
 
-  const region = (regionData as RegionRow | null) ?? null;
+  let region = (regionData as RegionRow | null) ?? null;
   if (!region) return null;
+
+  if (contentLocale !== "en") {
+    const [translation] = await fetchRegionTranslations(contentLocale, [region.id]);
+    if (translation) {
+      region = {
+        ...region,
+        name: translation.name?.trim() || region.name,
+        short_description: translation.short_description?.trim() || region.short_description,
+        description: translation.description?.trim() || region.description,
+      };
+    }
+  }
 
   const [citiesResponse, listingsResponse] = await Promise.all([
     supabase
@@ -92,14 +148,63 @@ const getDestinationPageData = cache(async (slug: string) => {
   if (citiesResponse.error) throw citiesResponse.error;
   if (listingsResponse.error) throw listingsResponse.error;
 
-  const cities = (citiesResponse.data ?? [])
-    .map((row) => row.city as unknown as { id: string; name: string; slug: string } | null)
-    .filter((city): city is { id: string; name: string; slug: string } => Boolean(city));
+  let cities = (citiesResponse.data ?? [])
+    .map((row) => row.city as unknown as DestinationCity | null)
+    .filter((city): city is DestinationCity => Boolean(city));
+
+  let listings = ((listingsResponse.data ?? []) as DestinationListingRow[]).map(
+    normalizeDestinationListing,
+  );
+
+  if (contentLocale !== "en") {
+    const [cityTranslations, listingTranslations] = await Promise.all([
+      fetchCityTranslations(contentLocale, cities.map((city) => city.id)),
+      fetchListingTranslations(contentLocale, listings.map((listing) => listing.id)),
+    ]);
+
+    const cityTranslationMap = new Map(
+      cityTranslations.map((translation) => [translation.city_id, translation]),
+    );
+    const listingTranslationMap = new Map(
+      listingTranslations.map((translation) => [translation.listing_id, translation]),
+    );
+
+    cities = cities.map((city) => {
+      const translation = cityTranslationMap.get(city.id);
+      return {
+        ...city,
+        name: translation?.name?.trim() || city.name,
+        short_description: translation?.short_description?.trim() || city.short_description,
+        description: translation?.description?.trim() || city.description,
+      };
+    });
+
+    listings = listings.map((listing) => {
+      const listingTranslation = listingTranslationMap.get(listing.id);
+      const cityTranslation = listing.city?.id ? cityTranslationMap.get(listing.city.id) : undefined;
+
+      return {
+        ...listing,
+        name: listingTranslation?.title?.trim() || listing.name,
+        short_description: listingTranslation?.short_description?.trim() || listing.short_description,
+        description: listingTranslation?.description?.trim() || listing.description,
+        city: listing.city
+          ? {
+              ...listing.city,
+              name: cityTranslation?.name?.trim() || listing.city.name,
+              short_description:
+                cityTranslation?.short_description?.trim() || listing.city.short_description,
+              description: cityTranslation?.description?.trim() || listing.city.description,
+            }
+          : listing.city,
+      };
+    });
+  }
 
   return {
     region,
     cities,
-    listings: listingsResponse.data ?? [],
+    listings,
   };
 });
 
@@ -108,7 +213,8 @@ export const revalidate = 3600;
 export async function generateMetadata({ params }: LocaleDestinationPageProps): Promise<Metadata> {
   const { locale, slug } = await params;
   const resolvedLocale = (locale ?? DEFAULT_LOCALE) as Locale;
-  const data = await getDestinationPageData(slug);
+  const data = await getDestinationPageData(slug, resolvedLocale);
+  const tx = await getServerTranslations(resolvedLocale, ["destinationDetail.metaTitleSuffix"]);
 
   if (!data) {
     return buildPageMetadata({
@@ -125,7 +231,7 @@ export async function generateMetadata({ params }: LocaleDestinationPageProps): 
   const resolvedImage = resolveRegionImage(region);
 
   return buildPageMetadata({
-    title: `${region.name} | Algarve Destination Guide`,
+    title: `${region.name} | ${tx["destinationDetail.metaTitleSuffix"] ?? "Algarve Destination Guide"}`,
     description: description || undefined,
     localizedPath: `/destinations/${region.slug}`,
     image: resolvedImage ?? undefined,
@@ -138,10 +244,15 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
   const { locale, slug } = await params;
   const resolvedLocale = (locale ?? DEFAULT_LOCALE) as Locale;
   const [data, tx] = await Promise.all([
-    getDestinationPageData(slug),
+    getDestinationPageData(slug, resolvedLocale),
     getServerTranslations(resolvedLocale, [
       "navigation.destinations",
       "navigation.directory",
+      "destinationDetail.backToDestinations",
+      "destinationDetail.badge",
+      "destinationDetail.exploreRegion",
+      "destinationDetail.listingsCount",
+      "destinationDetail.metaTitleSuffix",
       "common.noListingsYet",
       "common.noListingsYetDesc",
     ]),
@@ -192,11 +303,11 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
               href={lp(resolvedLocale, "/destinations")}
               className="inline-flex items-center gap-2 text-sm text-white/75 hover:text-white transition-colors"
             >
-              ← Back to Destinations
+              ← {tx["destinationDetail.backToDestinations"] ?? "Back to Destinations"}
             </Link>
 
             <span className="mt-8 inline-block text-sm font-medium text-primary tracking-[0.3em] uppercase">
-              Premium Region
+              {tx["destinationDetail.badge"] ?? "Premium Region"}
             </span>
 
             <h1 className="mt-6 text-hero font-serif font-medium text-white">{region.name}</h1>
@@ -226,10 +337,13 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
           <div className="app-container content-max density">
             <div className="mb-12">
               <h2 className="text-title font-serif font-medium text-foreground">
-                Explore {region.name}
+                {(tx["destinationDetail.exploreRegion"] ?? "Explore {{region}}").replace("{{region}}", region.name)}
               </h2>
               <p className="mt-2 text-body text-muted-foreground">
-                {listings.length} premium listings in this region
+                {(tx["destinationDetail.listingsCount"] ?? "{{count}} premium listings in this region").replace(
+                  "{{count}}",
+                  String(listings.length),
+                )}
               </p>
             </div>
 

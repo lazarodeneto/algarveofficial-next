@@ -515,7 +515,7 @@
   "footer": {
     "description": "Din inkörsport till lyxupplevelser över Portugals mest prestigefyllda kustregion.",
     "location": "Distriktet Faro, Portugal",
-    "email": "concierge@algarveofficial.com",
+    "email": "info@algarveofficial.com",
     "copyright": "© {{year}} AlgarveOfficial. Alla rättigheter reserverade.",
     "tagline": "Välj lyxupplevelser i Algarve sedan 2024",
     "explore": "Utforska",
@@ -636,6 +636,33 @@
       "a4": "Grundläggande listor är gratis. Verifierade och Signaturnivåer har månadsavgifter med ytterligare förmåner. Kontakta oss för aktuella priser."
     },
     "success": "Tack! Din begäran har skickats. Vi kontaktar dig inom 2-3 arbetsdagar."
+  },
+  "live": {
+    "hero": {
+      "badge": "Flyttvägledning",
+      "title": "Bo i Algarve, med tydlighet från första dagen",
+      "subtitle": "Strukturerad vägledning för uppehåll, boende och vardagsliv så att din flytt blir smidig, korrekt och framtidssäker.",
+      "ctaPrimary": "Planera min flytt",
+      "ctaSecondary": "Utforska lokala experter",
+      "alt": "Algarvekust för boende"
+    }
+  },
+  "realEstate": {
+    "hero": {
+      "badge": "Exklusiv portfölj",
+      "title": "Premiumfastigheter",
+      "subtitle": "Upptäck det finaste urvalet av premiumfastigheter i Portugals mest prestigefyllda kustregion.",
+      "alt": "Exteriör av lyxfastighet i Algarve"
+    },
+    "propertiesAvailable": "Tillgängliga Bostäder",
+    "sortedByFeatured": "Sorterat efter: Utvalda"
+  },
+  "destinationDetail": {
+    "backToDestinations": "Tillbaka till Destinationer",
+    "badge": "Premiumregion",
+    "exploreRegion": "Utforska {{region}}",
+    "listingsCount": "{{count}} premiumlistningar i denna region",
+    "metaTitleSuffix": "Algarves destinationsguide"
   },
   "admin": {
     "sidebar": {
@@ -1543,7 +1570,27 @@
       "rentalPrice": "Hyrespris",
       "askingPrice": "Begärt pris",
       "scheduleViewing": "Schemalägg visning",
-      "propertyFallback": "Egendom"
+      "propertyFallback": "Egendom",
+      "filters": {
+        "refineSearch": "Förfina sökningen",
+        "location": "Plats",
+        "cityOrRegion": "Stad eller region",
+        "propertyType": "Fastighetstyp",
+        "anyType": "Alla typer",
+        "priceRange": "Prisspann",
+        "minPrice": "Min €",
+        "maxPrice": "Max €",
+        "bedrooms": "Sovrum",
+        "any": "Alla",
+        "searchProperties": "Sök bostäder",
+        "clearFilters": "Rensa filter",
+        "propertyTypes": {
+          "villa": "Villa",
+          "apartment": "Lägenhet",
+          "townhouse": "Radhus",
+          "land": "Tomt"
+        }
+      }
     },
     "privateChef": {
       "chefProfile": "Kock profil",

@@ -22,6 +22,7 @@ import {
 import { getRegionImageSet } from "@/lib/regionImages";
 
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
+import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
 
 export type RegionRow = Tables<"regions">;
@@ -279,7 +280,17 @@ function DestinationsClientInner({ initialRegions, initialGlobalSettings }: Dest
             badge={t("sections.regions.label")}
             title={t("sections.regions.title")}
             subtitle={t("sections.regions.subtitleLong")}
-            media={<PageHeroImage page="destinations" alt={t("destinations.hero.alt", "Scenic Algarve destination coastline")} />}
+            media={
+              <HeroBackgroundMedia
+                mediaType={cms.getText("hero.mediaType", "image")}
+                imageUrl={cms.getText("hero.imageUrl", "")}
+                videoUrl={cms.getText("hero.videoUrl", "")}
+                youtubeUrl={cms.getText("hero.youtubeUrl", "")}
+                posterUrl={cms.getText("hero.posterUrl", "")}
+                alt={t("destinations.hero.alt", "Scenic Algarve destination coastline")}
+                fallback={<PageHeroImage page="destinations" alt={t("destinations.hero.alt", "Scenic Algarve destination coastline")} />}
+              />
+            }
             ctas={
               <>
                 <LocaleLink href="/directory">

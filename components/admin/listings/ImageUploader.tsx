@@ -3,6 +3,7 @@ import { Upload, X, GripVertical, Star, ImageIcon, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { convertToWebP, trimWhiteBorders } from "@/lib/imageUtils";
+import { resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
 import { toast } from "sonner";
 import type { ListingImage } from "@/types/listing";
 
@@ -207,7 +208,7 @@ export function ImageUploader({
                 {/* Local blob previews are intentionally rendered with img for immediate feedback. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={image.url}
+                  src={resolveSupabaseBucketImageUrl(image.url, "listing-images") || image.url}
                   alt={image.alt || "Listing image"}
                   className="w-full h-full object-cover"
                 />

@@ -515,7 +515,7 @@
   "footer": {
     "description": "La tua porta d'accesso alle esperienze di lusso nella regione costiera più prestigiosa del Portogallo.",
     "location": "Distretto di Faro, Portogallo",
-    "email": "concierge@algarveofficial.com",
+    "email": "info@algarveofficial.com",
     "copyright": "© {{year}} AlgarveOfficial. Tutti i diritti riservati.",
     "tagline": "Selezionare esperienze di lusso in Algarve dal 2024",
     "explore": "Esplora",
@@ -636,6 +636,33 @@
       "a4": "Gli annunci base sono gratuiti. I livelli Verificato e Signature hanno tariffe mensili con vantaggi aggiuntivi. Contattaci per i prezzi attuali."
     },
     "success": "Grazie! La tua richiesta è stata inviata. Ti contatteremo entro 2-3 giorni lavorativi."
+  },
+  "live": {
+    "hero": {
+      "badge": "Guida al trasferimento",
+      "title": "Vivi in Algarve, con chiarezza fin dal primo giorno",
+      "subtitle": "Una guida strutturata per residenza, casa e vita quotidiana, così il tuo trasferimento sarà fluido, conforme e pronto per il futuro.",
+      "ctaPrimary": "Pianifica il mio trasferimento",
+      "ctaSecondary": "Scopri gli esperti locali",
+      "alt": "Costa dell'Algarve per viverci"
+    }
+  },
+  "realEstate": {
+    "hero": {
+      "badge": "Portafoglio esclusivo",
+      "title": "Immobili di Prestigio",
+      "subtitle": "Scopri la migliore selezione di proprietà premium nella regione costiera più prestigiosa del Portogallo.",
+      "alt": "Esterno di proprietà di lusso in Algarve"
+    },
+    "propertiesAvailable": "Proprietà Disponibili",
+    "sortedByFeatured": "Ordinate per: In evidenza"
+  },
+  "destinationDetail": {
+    "backToDestinations": "Torna alle Destinazioni",
+    "badge": "Regione Premium",
+    "exploreRegion": "Esplora {{region}}",
+    "listingsCount": "{{count}} annunci premium in questa regione",
+    "metaTitleSuffix": "Guida alle Destinazioni dell'Algarve"
   },
   "admin": {
     "sidebar": {
@@ -1544,7 +1571,27 @@
       "rentalPrice": "Prezzo di Affitto",
       "askingPrice": "Prezzo di Vendita",
       "scheduleViewing": "Programma Visita",
-      "propertyFallback": "Proprietà"
+      "propertyFallback": "Proprietà",
+      "filters": {
+        "refineSearch": "Affina la ricerca",
+        "location": "Posizione",
+        "cityOrRegion": "Città o regione",
+        "propertyType": "Tipo di proprietà",
+        "anyType": "Qualsiasi tipo",
+        "priceRange": "Fascia di prezzo",
+        "minPrice": "Min €",
+        "maxPrice": "Max €",
+        "bedrooms": "Camere da letto",
+        "any": "Qualsiasi",
+        "searchProperties": "Cerca proprietà",
+        "clearFilters": "Cancella filtri",
+        "propertyTypes": {
+          "villa": "Villa",
+          "apartment": "Appartamento",
+          "townhouse": "Casa a schiera",
+          "land": "Terreno"
+        }
+      }
     },
     "privateChef": {
       "chefProfile": "Profilo dello Chef",

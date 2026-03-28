@@ -515,7 +515,7 @@
   "footer": {
     "description": "Uw toegangspoort tot luxe ervaringen in de meest prestigieuze kustregio van Portugal.",
     "location": "District Faro, Portugal",
-    "email": "concierge@algarveofficial.com",
+    "email": "info@algarveofficial.com",
     "copyright": "© {{year}} AlgarveOfficieel. Alle rechten voorbehouden.",
     "tagline": "Selecteren van luxe ervaringen in de Algarve sinds 2024",
     "explore": "Ontdekken",
@@ -636,6 +636,33 @@
       "a4": "Basisvermeldingen zijn gratis. Voor de niveaus Geverifieerd en Handtekening gelden maandelijkse kosten met extra voordelen. Neem contact met ons op voor de huidige prijzen."
     },
     "success": "Bedankt! Uw aanvraag is ingediend. Wij nemen binnen 2-3 werkdagen contact met u op."
+  },
+  "live": {
+    "hero": {
+      "badge": "Verhuisbegeleiding",
+      "title": "Wonen in de Algarve, met duidelijkheid vanaf dag één",
+      "subtitle": "Gestructureerde begeleiding bij verblijf, wonen en het dagelijks leven, zodat uw verhuizing soepel, conform en toekomstbestendig verloopt.",
+      "ctaPrimary": "Mijn verhuizing plannen",
+      "ctaSecondary": "Lokale experts bekijken",
+      "alt": "Algarve-kust om te wonen"
+    }
+  },
+  "realEstate": {
+    "hero": {
+      "badge": "Exclusieve portefeuille",
+      "title": "Topvastgoed",
+      "subtitle": "Ontdek de beste collectie premium vastgoed in de meest prestigieuze kustregio van Portugal.",
+      "alt": "Buitenzijde van luxe vastgoed in de Algarve"
+    },
+    "propertiesAvailable": "Beschikbare Woningen",
+    "sortedByFeatured": "Gesorteerd op: Uitgelicht"
+  },
+  "destinationDetail": {
+    "backToDestinations": "Terug naar Bestemmingen",
+    "badge": "Premium Regio",
+    "exploreRegion": "Ontdek {{region}}",
+    "listingsCount": "{{count}} premium vermeldingen in deze regio",
+    "metaTitleSuffix": "Bestemmingsgids Algarve"
   },
   "admin": {
     "sidebar": {
@@ -1543,7 +1570,27 @@
       "rentalPrice": "Huurprijs",
       "askingPrice": "Vraagprijs",
       "scheduleViewing": "Bezichtiging plannen",
-      "propertyFallback": "Eigendom"
+      "propertyFallback": "Eigendom",
+      "filters": {
+        "refineSearch": "Verfijn zoekopdracht",
+        "location": "Locatie",
+        "cityOrRegion": "Stad of regio",
+        "propertyType": "Woningtype",
+        "anyType": "Elk type",
+        "priceRange": "Prijsklasse",
+        "minPrice": "Min €",
+        "maxPrice": "Max €",
+        "bedrooms": "Slaapkamers",
+        "any": "Elke",
+        "searchProperties": "Zoek woningen",
+        "clearFilters": "Filters wissen",
+        "propertyTypes": {
+          "villa": "Villa",
+          "apartment": "Appartement",
+          "townhouse": "Stadswoning",
+          "land": "Grond"
+        }
+      }
     },
     "privateChef": {
       "chefProfile": "Chef-profiel",

@@ -515,7 +515,7 @@
   "footer": {
     "description": "Your gateway to premium experiences across Portugal's most prestigious coastal region.",
     "location": "District of Faro, Portugal",
-    "email": "concierge@algarveofficial.com",
+    "email": "info@algarveofficial.com",
     "copyright": "© {{year}} AlgarveOfficial. All rights reserved.",
     "tagline": "Selecting premium experiences in the Algarve since 2024",
     "explore": "Explore",
@@ -636,6 +636,33 @@
       "a4": "Basic listings are free. Verified and Signature tiers have monthly fees with additional benefits. Contact us for current pricing."
     },
     "success": "Thank you! Your request has been submitted. We'll contact you within 2-3 business days."
+  },
+  "live": {
+    "hero": {
+      "badge": "Relocation Guidance",
+      "title": "Live in the Algarve, with clarity from day one",
+      "subtitle": "Structured guidance for residency, housing, and daily life so your move is smooth, compliant, and future-ready.",
+      "ctaPrimary": "Plan My Move",
+      "ctaSecondary": "Browse Local Experts",
+      "alt": "Live in Algarve coastline"
+    }
+  },
+  "realEstate": {
+    "hero": {
+      "badge": "Exclusive Portfolio",
+      "title": "Prime Real Estate",
+      "subtitle": "Discover the finest collection of premium properties in Portugal's most prestigious coastal region.",
+      "alt": "Luxury Algarve real estate exterior"
+    },
+    "propertiesAvailable": "Properties Available",
+    "sortedByFeatured": "Sorted by: Featured"
+  },
+  "destinationDetail": {
+    "backToDestinations": "Back to Destinations",
+    "badge": "Premium Region",
+    "exploreRegion": "Explore {{region}}",
+    "listingsCount": "{{count}} premium listings in this region",
+    "metaTitleSuffix": "Algarve Destination Guide"
   },
   "pricing": {
     "badge": "Partnership Investment",
@@ -1616,7 +1643,27 @@
       "rentalPrice": "Rental Price",
       "askingPrice": "Asking Price",
       "scheduleViewing": "Schedule Viewing",
-      "propertyFallback": "Property"
+      "propertyFallback": "Property",
+      "filters": {
+        "refineSearch": "Refine Search",
+        "location": "Location",
+        "cityOrRegion": "City or Region",
+        "propertyType": "Property Type",
+        "anyType": "Any Type",
+        "priceRange": "Price Range",
+        "minPrice": "Min €",
+        "maxPrice": "Max €",
+        "bedrooms": "Bedrooms",
+        "any": "Any",
+        "searchProperties": "Search Properties",
+        "clearFilters": "Clear Filters",
+        "propertyTypes": {
+          "villa": "Villa",
+          "apartment": "Apartment",
+          "townhouse": "Townhouse",
+          "land": "Land"
+        }
+      }
     },
     "privateChef": {
       "chefProfile": "Chef Profile",
