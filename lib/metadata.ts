@@ -138,8 +138,6 @@ export function buildMetadata({
 }: MetadataParams): Metadata {
   const siteUrl = getSiteUrl();
   const normalizedPath = normalizePath(path);
-  const localePrefix = localeCode ? `/${localeCode}` : "";
-  const canonical = toAbsoluteUrl(siteUrl, `${localePrefix}${normalizedPath}`);
   const resolvedImage = toAbsoluteUrl(siteUrl, image);
   const resolvedTitle = ensureBrandedTitle(title);
   const resolvedDescription = normalizeDescription(description);
@@ -148,6 +146,11 @@ export function buildMetadata({
     localeCode && isValidLocale(localeCode)
       ? toOpenGraphLocale(localeCode as Locale)
       : locale;
+  const alternates = buildAlternates(normalizedPath, localeCode);
+  const canonical =
+    typeof alternates.canonical === "string"
+      ? alternates.canonical
+      : toAbsoluteUrl(siteUrl, normalizedPath);
 
   const metadata: Metadata = {
     title: resolvedTitle,
@@ -166,7 +169,7 @@ export function buildMetadata({
       apple: [{ url: "/icons/apple-touch-icon.png" }],
       shortcut: [{ url: "/algarveofficial-icon-gold.png", type: "image/png", sizes: "128x128" }],
     },
-    alternates: buildAlternates(normalizedPath, localeCode),
+    alternates,
     robots: {
       index: !noIndex,
       follow: !noFollow,

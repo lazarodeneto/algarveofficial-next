@@ -1,11 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ComponentProps } from "react";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
+import NextLink from "next/link";
 import { Home, Binoculars, Building2, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useMobileMenu } from "@/contexts/MobileMenuContext";
 import { useTranslation } from "react-i18next";
+
+function Link(props: ComponentProps<typeof NextLink>) {
+  return <NextLink prefetch={false} {...props} />;
+}
 
 const navItems = [
   { name: "nav.home", href: "/", icon: Home },

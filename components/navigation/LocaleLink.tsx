@@ -25,7 +25,7 @@ const isExternalHref = (href: string) =>
   href.startsWith("#");
 
 export const LocaleLink = forwardRef<HTMLAnchorElement, LocaleLinkProps>(
-  ({ href, locale, children, ...props }, ref) => {
+  ({ href, locale, children, prefetch = false, ...props }, ref) => {
     const currentLocale = useCurrentLocale();
 
     if (isExternalHref(href)) {
@@ -41,7 +41,7 @@ export const LocaleLink = forwardRef<HTMLAnchorElement, LocaleLinkProps>(
       : buildLocalizedPath(locale || currentLocale, href);
 
     return (
-      <Link ref={ref} href={finalHref} {...props}>
+      <Link ref={ref} href={finalHref} prefetch={prefetch} {...props}>
         {children}
       </Link>
     );

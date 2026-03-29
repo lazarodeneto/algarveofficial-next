@@ -108,17 +108,10 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // ✅ OPTION 2: Proxy Pattern - Redirects handled via next.config.ts (modern approach)
   async redirects() {
-    return [
-      // Redirect /directory → /en/directory (from old middleware pattern)
-      {
-        source: "/directory",
-        destination: "/en/directory",
-        permanent: true,
-      },
-      // Add more redirects here as needed
-    ];
+    // Locale negotiation is handled centrally in proxy.ts.
+    // Avoid static redirects here that could bypass cookie-based locale selection.
+    return [];
   },
 
   // ✅ Experimental features (modern Next.js 16)

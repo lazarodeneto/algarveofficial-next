@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import Link from "next/link";
+import { useState, useEffect, useRef, useCallback, type ComponentProps } from "react";
+import NextLink from "next/link";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -50,6 +50,10 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
+function Link(props: ComponentProps<typeof NextLink>) {
+  return <NextLink prefetch={false} {...props} />;
+}
+
 export default function Header() {
   const { mobileMenuOpen, setMobileMenuOpen } = useMobileMenu();
   const { isAuthenticated, user, logout, getDashboardPath } = useAuth();
@@ -57,6 +61,7 @@ export default function Header() {
   const l = useLocalePath();
 
   const directoryPath = l("/directory");
+  const livePath = l("/live");
   const investPath = l("/real-estate");
   const realEstatePath = investPath;
   const partnerPath = l("/partner");
@@ -442,7 +447,7 @@ export default function Header() {
                     {/* LIVE */}
                     <AccordionItem value="live">
                       <div className="flex items-center">
-                        <Link href={directoryPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
+                        <Link href={livePath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
                           <div className="flex items-center gap-3">
                             <Home className="h-6 w-6 text-primary" />
                             {t("nav.live")}

@@ -1,9 +1,24 @@
+import type { Metadata } from "next";
 import { permanentRedirect } from "next/navigation";
 import { isValidLocale, DEFAULT_LOCALE } from "@/lib/i18n/config";
+import { buildLocalizedAliasMetadata } from "@/lib/seo/metadata-builders";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale: rawLocale } = await params;
+  const locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+
+  return buildLocalizedAliasMetadata({
+    locale,
+    canonicalPath: "/visit",
+    title: "Redirecting to the directory",
+    description: "Redirecting to the Algarve directory page.",
+    noIndex: true,
+  });
 }
 
 export default async function DirectoryPage({ params, searchParams }: PageProps) {

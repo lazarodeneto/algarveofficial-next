@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useState, type FormEvent } from "react";
-import Link from "next/link";
+import { useCallback, useState, type ComponentProps, type FormEvent } from "react";
+import NextLink from "next/link";
 import { MapPin, Mail } from "lucide-react";
 import { useFooterMenu } from "@/hooks/useFooterMenu";
 import { useTranslation } from "react-i18next";
@@ -16,6 +16,11 @@ import { useNewsletterSignup } from "@/hooks/useNewsletterSignup";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 import { openCookiePreferences } from "@/lib/cookieConsent";
 import { LOCALE_PREFIX_PATTERN } from "@/lib/i18n/config";
+import { stripLocaleFromPathname } from "@/lib/i18n/routing";
+
+function Link(props: ComponentProps<typeof NextLink>) {
+  return <NextLink prefetch={false} {...props} />;
+}
 
 // Fallback data for when database is empty or loading
 const fallbackLinks = {
@@ -142,7 +147,7 @@ const LEGACY_FOOTER_CATEGORY_SLUG_BY_PARAM: Record<string, string> = {
 const LANGUAGE_PREFIX_RE = LOCALE_PREFIX_PATTERN;
 const NUMERIC_PARAM_RE = /^\d+$/;
 
-function normalizeFooterLinkHref(
+export function normalizeFooterLinkHref(
   href: string,
   name: string,
   sectionSlug: string,
@@ -152,8 +157,15 @@ function normalizeFooterLinkHref(
     return href;
   }
 
-  if (sectionSlug === "categories" && href.startsWith("/directory")) {
-    const [path, query = ""] = href.split("?");
+  const match = href.match(/^([^?#]*)(.*)$/);
+  const rawPath = match?.[1] ?? href;
+  const suffix = match?.[2] ?? "";
+  const normalizedPath = LANGUAGE_PREFIX_RE.test(rawPath)
+    ? stripLocaleFromPathname(rawPath)
+    : rawPath;
+
+  if (sectionSlug === "categories" && normalizedPath.startsWith("/directory")) {
+    const [path, query = ""] = normalizedPath.split("?");
     const params = new URLSearchParams(query);
     const rawCategoryParam = params.get("category");
     const normalizedName = name.trim().toLowerCase();
@@ -170,14 +182,11 @@ function normalizeFooterLinkHref(
 
     if (canonicalCategorySlug) {
       params.set("category", canonicalCategorySlug);
-      const normalizedPath = `${path}?${params.toString()}`;
-      return !LANGUAGE_PREFIX_RE.test(normalizedPath)
-        ? localizedHref(normalizedPath)
-        : normalizedPath;
+      return localizedHref(`${path}?${params.toString()}`);
     }
   }
 
-  return !LANGUAGE_PREFIX_RE.test(href) ? localizedHref(href) : href;
+  return localizedHref(`${normalizedPath}${suffix}`);
 }
 
 export default function Footer() {
