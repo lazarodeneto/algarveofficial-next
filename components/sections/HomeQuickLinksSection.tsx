@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useState } from "react";
-import Link from "next/link";
+import { useCallback, useMemo, useState, type ComponentProps } from "react";
+import NextLink from "next/link";
 import Image from "next/image";
 import { BedSingle, Binoculars, CalendarDays, LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -10,6 +10,10 @@ import {
   HOME_QUICK_LINK_SETTING_KEYS,
 } from "@/lib/homeQuickLinks";
 import { buildSupabaseImageUrl } from "@/lib/imageUrls";
+
+function Link(props: ComponentProps<typeof NextLink>) {
+  return <NextLink prefetch={false} {...props} />;
+}
 
 const CARD_ICONS: Record<"stay" | "see-do" | "whats-on", LucideIcon> = {
   "see-do": Binoculars,

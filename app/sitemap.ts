@@ -222,8 +222,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         });
       }
 
-      for (const { categorySlug, citySlug, lastModified: rawLastModified } of programmaticCombinations) {
+      for (const { categorySlug, citySlug, totalCount, lastModified: rawLastModified } of programmaticCombinations) {
         if (!ALL_CANONICAL_SLUGS.includes(categorySlug as CanonicalCategorySlug)) continue;
+        if (totalCount <= 0) continue;
 
         const canonical = categorySlug as CanonicalCategorySlug;
         const enCatSlug = getCategoryUrlSlug(canonical, "en");

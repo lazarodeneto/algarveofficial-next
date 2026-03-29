@@ -1,7 +1,8 @@
 import { LazyMotion, domAnimation, m } from "framer-motion";
 import Image from "next/image";
-import Link from "next/link";
+import NextLink from "next/link";
 import { ArrowRight, Compass } from "lucide-react";
+import { type ComponentProps } from "react";
 import { FavoriteButton } from "@/components/ui/favorite-button";
 import { useSavedDestinations } from "@/hooks/useSavedDestinations";
 import { useRegionListingCounts, useRegions } from "@/hooks/useReferenceData";
@@ -11,6 +12,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { getRegionImageSet } from "@/lib/regionImages";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
+
+function Link(props: ComponentProps<typeof NextLink>) {
+  return <NextLink prefetch={false} {...props} />;
+}
 
 export function RegionsSection() {
   const { isDestinationSaved, toggleRegion } = useSavedDestinations();

@@ -99,7 +99,9 @@ export function isValidCitySlug(slug: string): boolean {
 export async function getAllCategoryCityCombinations(): Promise<StaticParamCombination[]> {
   const entries = await getProgrammaticCategoryCityIndexEntries();
 
-  return entries.map(({ categorySlug, citySlug }) => ({
+  return entries
+    .filter(({ totalCount }) => totalCount > 0)
+    .map(({ categorySlug, citySlug }) => ({
     categorySlug,
     citySlug,
   }));
@@ -221,7 +223,9 @@ export async function getProgrammaticCategoryCityIndexEntries(): Promise<Program
     });
   }
 
-  return Array.from(aggregates.values()).sort((a, b) => {
+  return Array.from(aggregates.values())
+    .filter((entry) => entry.totalCount > 0)
+    .sort((a, b) => {
     const cityDelta = a.citySlug.localeCompare(b.citySlug, "en");
     if (cityDelta !== 0) return cityDelta;
     return a.categorySlug.localeCompare(b.categorySlug, "en");

@@ -82,7 +82,7 @@ function getPreferredLocale(request: NextRequest): string {
 function redirectTo(
   request: NextRequest,
   pathname: string,
-  status: 301 | 307 | 308,
+  status: 301 | 302 | 307 | 308,
 ) {
   const url = request.nextUrl.clone();
   url.pathname = pathname;
@@ -118,7 +118,7 @@ export function proxy(request: NextRequest) {
   const locale = getPreferredLocale(request);
 
   if (pathname === "/") {
-    return redirectTo(request, `/${locale}`, 307);
+    return redirectTo(request, `/${locale}`, 302);
   }
 
   const localizedPath = `/${locale}${pathname}`;
@@ -131,10 +131,18 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Run on all paths except the most obvious Next internals.
-     * Fine-grained skipping for files/assets is handled inside proxy().
-     */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    {
+      /*
+       * Run on all paths except the most obvious Next internals.
+       * Fine-grained skipping for files/assets is handled inside proxy().
+       * Skip client-side route prefetches so viewport-visible links do not
+       * trigger proxy work before a user actually navigates.
+       */
+      source: "/((?!api|_next/static|_next/image|favicon.ico).*)",
+      missing: [
+        { type: "header", key: "next-router-prefetch" },
+        { type: "header", key: "purpose", value: "prefetch" },
+      ],
+    },
   ],
 };
