@@ -2,6 +2,8 @@
  * @deprecated Import directly from "@/lib/i18n/config" instead.
  * This file exists only for backward compatibility.
  */
+import { isValidLocale } from "./config";
+
 export {
   SUPPORTED_LOCALES,
   DEFAULT_LOCALE,
@@ -14,6 +16,5 @@ export {
 
 /** @deprecated Use isValidLocale from config instead */
 export function isSupportedLocalePrefix(lang: string): boolean {
-  const { SUPPORTED_LOCALES } = require("./config");
-  return SUPPORTED_LOCALES.includes(lang);
+  return isValidLocale(lang);
 }

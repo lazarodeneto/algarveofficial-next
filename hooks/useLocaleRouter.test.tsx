@@ -32,6 +32,7 @@ describe("useLocaleRouter", () => {
   beforeEach(() => {
     pushMock.mockClear();
     replaceMock.mockClear();
+    document.cookie = "NEXT_LOCALE=; Max-Age=0; path=/";
   });
 
   it("preserves the current query string when switching locale", () => {
@@ -42,5 +43,13 @@ describe("useLocaleRouter", () => {
     expect(pushMock).toHaveBeenCalledWith(
       "/pt-pt/map?city=lagos&category=restaurants"
     );
+  });
+
+  it("persists the selected locale in the NEXT_LOCALE cookie", () => {
+    render(<TestHarness />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Switch locale" }));
+
+    expect(document.cookie).toContain("NEXT_LOCALE=pt-pt");
   });
 });

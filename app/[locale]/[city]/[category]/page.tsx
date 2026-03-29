@@ -4,6 +4,32 @@ import { isValidLocale, type Locale } from "@/lib/i18n/config";
 import { getCanonicalFromUrlSlug } from "@/lib/seo/programmatic/category-slugs";
 import { isValidCitySlug } from "@/lib/seo/programmatic/category-city-data";
 
+const RESERVED_TOP_LEVEL_SEGMENTS = new Set([
+  "about-us",
+  "admin",
+  "auth",
+  "blog",
+  "contact",
+  "cookie-policy",
+  "dashboard",
+  "destinations",
+  "directory",
+  "events",
+  "invest",
+  "listing",
+  "live",
+  "login",
+  "map",
+  "owner",
+  "partner",
+  "pricing",
+  "privacy-policy",
+  "real-estate",
+  "terms",
+  "trips",
+  "visit",
+]);
+
 interface PageProps {
   params: Promise<{
     locale: string;
@@ -23,7 +49,11 @@ export default async function LegacyCityCategoryPage({ params }: PageProps) {
   const city = rawCity.toLowerCase();
   const category = rawCategory.toLowerCase();
 
-  if (!isValidCitySlug(city) || !getCanonicalFromUrlSlug(category, locale)) {
+  if (
+    RESERVED_TOP_LEVEL_SEGMENTS.has(city) ||
+    !isValidCitySlug(city) ||
+    !getCanonicalFromUrlSlug(category, locale)
+  ) {
     notFound();
   }
 

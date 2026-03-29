@@ -404,6 +404,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     setIsLoading(true);
+    const localizedHomePath = buildLocalizedPath(locale, '/');
 
     try {
       const { error } = await supabase.auth.signOut({ scope: 'local' });
@@ -413,13 +414,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearCachedUser();
       setUser(null);
       // Redirect to the localized homepage after logout
-      router.replace(`/${locale}`);
+      router.replace(localizedHomePath);
     } catch (error) {
       console.error('Error signing out:', error);
       // Always clear local app auth state even if remote sign-out fails.
       clearCachedUser();
       setUser(null);
-      router.replace(`/${locale}`);
+      router.replace(localizedHomePath);
     } finally {
       setIsLoading(false);
     }

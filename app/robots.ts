@@ -1,6 +1,25 @@
 import type { MetadataRoute } from "next";
 
 const DEFAULT_SITE_URL = "https://algarveofficial.com";
+const PROTECTED_DISALLOW_PATHS = [
+  "/api/",
+  "/admin/",
+  "/dashboard/",
+  "/owner/",
+  "/maintenance",
+  "/auth/",
+  "/_next/",
+  "/uch/",
+  "/owner/api/",
+  "/api/admin/",
+];
+
+const LOCALIZED_PROTECTED_DISALLOW_PATHS = [
+  "/*/admin/",
+  "/*/dashboard/",
+  "/*/owner/",
+  "/*/auth/",
+];
 
 function getSiteUrl() {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
@@ -19,40 +38,24 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: "/",
         disallow: [
-          "/api/",
-          "/admin/",
-          "/dashboard/",
-          "/owner/",
-          "/maintenance",
-          "/auth/",
-          "/_next/",
-          "/uch/",
-          "/owner/api/",
-          "/api/admin/",
+          ...PROTECTED_DISALLOW_PATHS,
+          ...LOCALIZED_PROTECTED_DISALLOW_PATHS,
         ],
       },
       {
         userAgent: "Googlebot",
         allow: "/",
         disallow: [
-          "/api/",
-          "/admin/",
-          "/dashboard/",
-          "/owner/",
-          "/maintenance",
-          "/auth/",
+          ...PROTECTED_DISALLOW_PATHS,
+          ...LOCALIZED_PROTECTED_DISALLOW_PATHS,
         ],
       },
       {
         userAgent: "Bingbot",
         allow: "/",
         disallow: [
-          "/api/",
-          "/admin/",
-          "/dashboard/",
-          "/owner/",
-          "/maintenance",
-          "/auth/",
+          ...PROTECTED_DISALLOW_PATHS,
+          ...LOCALIZED_PROTECTED_DISALLOW_PATHS,
         ],
       },
     ],

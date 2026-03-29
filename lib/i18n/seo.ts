@@ -15,6 +15,7 @@ import {
 } from "./config";
 
 const DEFAULT_SITE_URL = "https://algarveofficial.com";
+const DEFAULT_LOCALE_USES_PREFIX = true;
 
 function normalizeSeoPath(path: string = ""): string {
   if (!path || path === "/") {
@@ -43,12 +44,15 @@ export function toAbsoluteSiteUrl(pathOrUrl: string): string {
 
 /**
  * Get the URL prefix for a locale.
- * Always includes locale in URL for consistency:
- * - "en" → "/en"
- * - "pt-pt" → "/pt-pt"
- * - etc.
+ * The current routing system canonicalizes every locale with a prefix,
+ * including the default English locale, because unlocalized public routes
+ * redirect to `/${DEFAULT_LOCALE}/...`.
  */
 export function getLocaleUrlPrefix(locale: Locale): string {
+  if (locale === DEFAULT_LOCALE && !DEFAULT_LOCALE_USES_PREFIX) {
+    return "";
+  }
+
   return `/${locale}`;
 }
 
