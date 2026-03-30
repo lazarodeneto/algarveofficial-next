@@ -364,7 +364,17 @@
     "errorMessage": "Einträge konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
     "failedToLoad": "Einträge konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
     "active": "Aktiv",
-    "mapView": "Kartenansicht"
+    "mapView": "Kartenansicht",
+    "exploreCity": "Stadt erkunden",
+    "featuredCityHub": "Empfohlene Stadt",
+    "exploreAlgarveCities": "Algarve-Städte erkunden",
+    "cityIndex": "Städteverzeichnis",
+    "cityIndexDescription": "Durchsuchen Sie Städte mit aktuellen Inseratszahlen, dann springen Sie zu Restaurants, Unterkünften, Veranstaltungen und mehr.",
+    "allActiveCityHubs": "Alle aktiven Städte",
+    "allActiveCityHubsDescription": "Stadtseiten mit kuratierten Inseraten und Kategorierouten.",
+    "listingsCount": "{{count}} Inserate",
+    "featuredCityHubDescription": "Entdecken Sie {{count}} kuratierte Inserate und Stadtführer in {{name}}, Algarve.",
+    "cityCardDescription": "Entdecken Sie erstklassige Aktivitäten, Unterkünfte und besondere Erlebnisse in {{name}}."
   },
   "listing": {
     "about": "Über",

@@ -978,7 +978,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
           </DirectoryCmsBlock>
         ) : null}
 
-        <div className="app-container content-max pb-16">
+        <div className="app-container content-max pb-16 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
           {pathname.endsWith("/visit") && props.visitCityIndex && props.visitCityIndex.length > 0 ? (
             <section className="mb-10 space-y-8">
               {props.featuredVisitCity ? (
@@ -989,21 +989,21 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                   >
                     <div className="relative aspect-[16/9]">
                       <ListingImage
-                        src={props.featuredVisitCity.image_url}
+                        src={props.featuredVisitCity.hero_image_url || props.featuredVisitCity.image_url}
                         alt={props.featuredVisitCity.name}
                         className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
                       <div className="absolute inset-x-0 bottom-0 p-6 text-white">
                         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
-                          Featured city hub
+                          {t("directory.featuredCityHub")}
                         </p>
                         <h2 className="font-serif text-3xl md:text-4xl leading-tight">
                           {props.featuredVisitCity.name}
                         </h2>
                         <p className="mt-3 max-w-2xl text-sm text-white/85">
                           {props.featuredVisitCity.short_description ||
-                            `Explore ${props.featuredVisitCity.totalCount} curated listings and city guides in ${props.featuredVisitCity.name}, Algarve.`}
+                            t("directory.featuredCityHubDescription", "Explore {{count}} curated listings and city guides in {{name}}, Algarve.", { count: props.featuredVisitCity.totalCount, name: props.featuredVisitCity.name })}
                         </p>
                       </div>
                     </div>
@@ -1011,13 +1011,13 @@ function DirectoryClientInner(props: DirectoryClientProps) {
 
                   <div className="rounded-[32px] border border-border bg-card p-6 shadow-sm">
                     <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                      City index
+                      {t("directory.cityIndex")}
                     </p>
                     <h2 className="mt-3 font-serif text-2xl text-foreground">
-                      Explore Algarve cities
+                      {t("directory.exploreAlgarveCities")}
                     </h2>
                     <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                      Browse city hubs with current listing totals, then jump into restaurants, accommodation, events, and more.
+                      {t("directory.cityIndexDescription")}
                     </p>
                     <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
                       {props.visitCityIndex.slice(0, 6).map((city) => (
@@ -1028,7 +1028,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                         >
                           <div className="font-medium text-foreground">{city.name}</div>
                           <div className="text-sm text-muted-foreground">
-                            {city.totalCount} listings
+                            {t("directory.listingsCount", "{{count}} listings", { count: city.totalCount })}
                           </div>
                         </Link>
                       ))}
@@ -1040,9 +1040,9 @@ function DirectoryClientInner(props: DirectoryClientProps) {
               <div>
                 <div className="mb-4 flex items-center justify-between gap-4">
                   <div>
-                    <h2 className="font-serif text-2xl text-foreground">All active city hubs</h2>
+                    <h2 className="font-serif text-2xl text-foreground">{t("directory.allActiveCityHubs")}</h2>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      City-level entry pages with curated listings and category routes.
+                      {t("directory.allActiveCityHubsDescription")}
                     </p>
                   </div>
                 </div>
@@ -1054,7 +1054,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                     >
                       <div className="h-36 w-full overflow-hidden">
                         <ListingImage
-                          src={city.image_url}
+                          src={city.hero_image_url || city.image_url}
                           alt={city.name}
                           className="w-full h-full object-cover"
                         />
@@ -1063,7 +1063,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                         <h3 className="text-xl font-medium mb-2">{city.name}</h3>
                         <p className="text-sm text-muted-foreground min-h-[2.5rem]">
                           {city.short_description ||
-                            `Discover premium things to do, places to stay, and signature experiences in ${city.name}.`}
+                            t("directory.cityCardDescription", "Discover premium things to do, places to stay, and signature experiences in {{name}}.", { name: city.name })}
                         </p>
                         <Link
                           href={l(`/visit/${city.slug}`)}

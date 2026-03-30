@@ -364,7 +364,17 @@
     "errorMessage": "Fortegnelser kunne ikke indlæses. Prøv venligst igen.",
     "failedToLoad": "Fortegnelser kunne ikke indlæses. Prøv venligst igen.",
     "active": "Aktiv",
-    "mapView": "Kortvisning"
+    "mapView": "Kort",
+    "exploreCity": "Udforsk by",
+    "featuredCityHub": "Fremhævet by",
+    "exploreAlgarveCities": "Udforsk byer i Algarve",
+    "cityIndex": "Byindeks",
+    "cityIndexDescription": "Gennemse byer med aktuelle fortegnelsestal, gå videre til restauranter, indkvartering, begivenheder og mere.",
+    "allActiveCityHubs": "Alle aktive byer",
+    "allActiveCityHubsDescription": "Byindgangssider med kuraterede fortegnelser og kategoriruter.",
+    "listingsCount": "{{count}} fortegnelser",
+    "featuredCityHubDescription": "Udforsk {{count}} kuraterede fortegnelser og byguider i {{name}}, Algarve.",
+    "cityCardDescription": "Opdag premium ting at lave, steder at bo og signatur-oplevelser i {{name}}."
   },
   "listing": {
     "about": "Om",

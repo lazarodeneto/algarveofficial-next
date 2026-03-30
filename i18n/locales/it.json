@@ -364,7 +364,17 @@
     "errorMessage": "Impossibile caricare gli annunci. Riprova.",
     "failedToLoad": "Impossibile caricare gli annunci. Riprova.",
     "active": "Attivo",
-    "mapView": "Vista Mappa"
+    "mapView": "Vista Mappa",
+    "exploreCity": "Esplora Città",
+    "featuredCityHub": "Città in evidenza",
+    "exploreAlgarveCities": "Esplora le città dell'Algarve",
+    "cityIndex": "Indice delle città",
+    "cityIndexDescription": "Sfoglia le città con i totali degli annunci attuali, poi esplora ristoranti, alloggio, eventi e altro.",
+    "allActiveCityHubs": "Tutte le città attive",
+    "allActiveCityHubsDescription": "Pagine di accesso a livello di città con annunci curati e percorsi per categoria.",
+    "listingsCount": "{{count}} annunci",
+    "featuredCityHubDescription": "Esplora {{count}} annunci in evidenza e guide della città a {{name}}, Algarve.",
+    "cityCardDescription": "Scopri cose premium da fare, luoghi dove soggiornare ed esperienze esclusive a {{name}}."
   },
   "listing": {
     "about": "Informazioni",

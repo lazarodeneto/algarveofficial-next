@@ -58,11 +58,14 @@ export default function Destinations() {
             <div className="flex-grid-centered">
               {featuredRegions.map((region, index) => {
                 const image = getRegionImageSet(region.slug);
+                const heroSrc = region.hero_image_url || region.image_url;
                 return (
                   <motion.div key={region.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: index * 0.1 }}>
                     <Link href={`/destinations/${region.slug}`} className="glass-box group relative overflow-hidden rounded-xl aspect-[4/5] luxury-card cursor-pointer block">
                       <div className="absolute inset-0">
-                        {image ? (
+                        {heroSrc ? (
+                          <img src={heroSrc} alt={region.name} width={400} height={500} loading="lazy" decoding="async" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                        ) : image ? (
                           <img src={image.image} srcSet={`${image.image400} 400w, ${image.image800} 800w, ${image.image} 1200w`} alt={region.name} width={400} height={500} loading="lazy" decoding="async" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-charcoal-light to-charcoal flex items-center justify-center"><MapPin className="w-16 h-16 text-muted-foreground/30" /></div>

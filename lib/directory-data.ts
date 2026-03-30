@@ -64,6 +64,7 @@ export interface VisitCityIndexItem {
   name: string;
   short_description: string | null;
   image_url: string | null;
+  hero_image_url: string | null;
   totalCount: number;
 }
 
@@ -261,6 +262,7 @@ async function buildVisitCityIndex(cities: CityRow[]): Promise<{
         name: city.name,
         short_description: city.short_description ?? null,
         image_url: "image_url" in city && typeof city.image_url === "string" ? city.image_url : null,
+        hero_image_url: "hero_image_url" in city && typeof city.hero_image_url === "string" ? city.hero_image_url : null,
         totalCount: entry.totalCount,
       } satisfies VisitCityIndexItem;
     })

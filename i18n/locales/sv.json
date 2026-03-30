@@ -364,7 +364,17 @@
     "errorMessage": "Det gick inte att läsa in listor. Försök igen.",
     "failedToLoad": "Det gick inte att läsa in listor. Försök igen.",
     "active": "Aktiv",
-    "mapView": "Kartvy"
+    "mapView": "Karta",
+    "exploreCity": "Utforska stad",
+    "featuredCityHub": "Utvald stad",
+    "exploreAlgarveCities": "Utforska städer i Algarve",
+    "cityIndex": "Stadregister",
+    "cityIndexDescription": "Bläddra bland städer med aktuella listor, gå vidare till restauranger, boende, evenemang och mer.",
+    "allActiveCityHubs": "Alla aktiva städer",
+    "allActiveCityHubsDescription": "Stadsingångssidor med kuraterade listor och kategorirutter.",
+    "listingsCount": "{{count}} listor",
+    "featuredCityHubDescription": "Utforska {{count}} utvalda listor och stadsguider i {{name}}, Algarve.",
+    "cityCardDescription": "Upptäck premium saker att göra, ställen att stanna på och签名upplevelser i {{name}}."
   },
   "listing": {
     "about": "Om",
