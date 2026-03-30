@@ -13,6 +13,7 @@ import {
 
 interface PageProps {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export const revalidate = 60;
@@ -98,20 +99,30 @@ export async function generateMetadata({
   });
 }
 
-export default async function VisitPage({ params }: PageProps) {
+export default async function VisitPage({ params, searchParams }: PageProps) {
   const { locale: rawLocale } = await params;
 
   if (!isValidLocale(rawLocale)) {
     notFound();
   }
 
-  const data = await getDirectoryPageData(rawLocale, {
-    q: "",
-    city: "all",
-    region: "all",
-    category: "all",
-    tier: "all",
-  });
+  const sp = await searchParams;
+  const getFilterValue = (key: string, defaultValue: string) => {
+    const value = sp[key];
+    if (Array.isArray(value)) return value[0];
+    if (typeof value === "string") return value;
+    return defaultValue;
+  };
+
+  const initialFilters = {
+    q: getFilterValue("q", ""),
+    city: getFilterValue("city", "all"),
+    region: getFilterValue("region", "all"),
+    category: getFilterValue("category", "all"),
+    tier: getFilterValue("tier", "all"),
+  };
+
+  const data = await getDirectoryPageData(rawLocale, initialFilters);
 
   const visitCityItemListSchema = buildVisitIndexCityItemListSchema(
     data.locale as Locale,

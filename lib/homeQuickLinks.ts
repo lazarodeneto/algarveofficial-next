@@ -7,6 +7,7 @@ export interface HomeQuickLinkCardDefinition {
   categorySlug: string;
   fallbackImageUrl: string;
   imagePosition?: string;
+  customHref?: string;
 }
 
 export const HOME_QUICK_LINKS_CATEGORY = "homepage";
@@ -41,6 +42,7 @@ export const HOME_QUICK_LINK_CARDS: HomeQuickLinkCardDefinition[] = [
     categorySlug: "whats-on",
     fallbackImageUrl: "/home-quick-links/whats-on.svg",
     imagePosition: "center",
+    customHref: "/events",
   },
 ];
 
