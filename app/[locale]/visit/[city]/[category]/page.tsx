@@ -45,7 +45,7 @@ interface PageProps {
   params: Promise<PageParams>;
 }
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 function buildLocalizedCategoryPaths(
   canonical: CanonicalCategorySlug,

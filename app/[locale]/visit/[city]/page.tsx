@@ -43,7 +43,7 @@ interface PageProps {
   params: Promise<PageParams>;
 }
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export async function generateStaticParams(): Promise<PageParams[]> {
   const citySlugs = await getAllProgrammaticCitySlugs();
