@@ -80,6 +80,7 @@ interface AdminPageListItem {
 const SYSTEM_PAGE_DEFINITIONS: SystemPageDefinition[] = [
   { id: "home", title: "Home", path: "/", description: "Main landing page", editorPageId: "home" },
   { id: "live", title: "Live", path: "/live", description: "Relocation and living guide", editorPageId: "live" },
+  { id: "visit", title: "Visit (City Hubs)", path: "/visit", description: "Visit index showing all city hubs", editorPageId: "visit" },
   { id: "destinations", title: "Destinations", path: "/destinations", description: "Destinations overview", editorPageId: "destinations" },
   { id: "destination-detail", title: "Destination Detail", path: "/destinations/:slug", description: "Dynamic destination detail template", dynamic: true, editorPageId: "destination-detail" },
   { id: "city-detail", title: "City Detail", path: "/city/:slug", description: "Dynamic city detail template", dynamic: true, editorPageId: "city-detail" },

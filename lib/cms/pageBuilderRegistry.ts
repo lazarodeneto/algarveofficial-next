@@ -72,6 +72,18 @@ export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
     ],
   },
   {
+    id: "visit",
+    label: "Visit (City Hubs)",
+    path: "/visit",
+    description: "Visit index page showing all city hubs.",
+    blocks: [
+      { id: "hero", label: "Hero" },
+      { id: "filters", label: "Filters" },
+      { id: "results", label: "Results" },
+      { id: "pagination", label: "Pagination / Load More" },
+    ],
+  },
+  {
     id: "map",
     label: "Map Explorer",
     path: "/map",

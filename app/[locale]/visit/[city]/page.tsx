@@ -23,6 +23,7 @@ import {
 } from "@/lib/seo/programmatic/content-blocks";
 import {
   buildVisitCityBreadcrumbSchema,
+  buildVisitCityCategoryItemListSchema,
   buildVisitCityCollectionPageSchema,
   buildVisitCityItemListSchema,
 } from "@/lib/seo/programmatic/schema-builders";
@@ -148,6 +149,16 @@ export default async function VisitCityPage({ params }: PageProps) {
   ]);
 
   const itemListSchema = buildVisitCityItemListSchema(locale, data.city.name, citySlug, data.listings);
+  const categoryItemListSchema = buildVisitCityCategoryItemListSchema(
+    locale,
+    data.city.name,
+    citySlug,
+    programmaticCategories.map((category) => ({
+      slug: category.slug as CanonicalCategorySlug,
+      name: category.name,
+      count: category.count,
+    })),
+  );
   const breadcrumbSchema = buildVisitCityBreadcrumbSchema(locale, data.city.name, citySlug);
   const collectionSchema = buildVisitCityCollectionPageSchema(locale, data.city.name, citySlug, data.totalCount);
 
@@ -158,6 +169,13 @@ export default async function VisitCityPage({ params }: PageProps) {
           id="schema-visit-city-itemlist"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+        />
+      )}
+      {categoryItemListSchema && (
+        <Script
+          id="schema-visit-city-category-itemlist"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(categoryItemListSchema) }}
         />
       )}
       <Script

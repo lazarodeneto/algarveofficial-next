@@ -135,7 +135,7 @@ export function SignatureMapSection() {
           <div className="flex items-center gap-3">
             <Badge variant="outline" className="text-body-xs">
               <MapPinned className="h-3.5 w-3.5 mr-1.5" />
-              {mapPoints.length} mapped · {filteredDiscoveryListings.length} matching
+              {t("sections.vip.discovery.mapped", "{{count}} mapped", { count: mapPoints.length })} · {t("sections.vip.discovery.matching", "{{count}} matching", { count: filteredDiscoveryListings.length })}
             </Badge>
             <Link href={l("/map")}>
               <Button variant="outline">{t("common.openFullMap", "Open Full Map")}</Button>

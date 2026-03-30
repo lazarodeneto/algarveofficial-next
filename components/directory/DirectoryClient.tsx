@@ -3,7 +3,7 @@
 import type { CSSProperties, ElementType, ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { LazyMotion, domAnimation, m } from "framer-motion";
 import {
   Search,
   Filter,
@@ -65,6 +65,7 @@ import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
 import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
+import type { VisitCityIndexItem } from "@/lib/directory-data";
 
 const EMPTY_CATEGORY_IDS: string[] = [];
 const DIRECTORY_CMS_KEYS = [
@@ -87,8 +88,11 @@ export interface DirectoryClientProps {
   initialRegions: RegionRow[];
   initialCategories: CategoryRow[];
   initialCategoryCounts: Record<string, number>;
+  visitCityIndex?: VisitCityIndexItem[];
+  featuredVisitCity?: VisitCityIndexItem | null;
   initialFilters: DirectoryInitialFilters;
   globalSettings: GlobalSetting[];
+  cmsPageId?: string;
 }
 
 function parseJsonSetting<T>(raw: string | undefined, fallback: T): T {
@@ -565,7 +569,7 @@ async function fetchListings(
   });
 }
 
-function useDirectoryCmsHelpers(globalSettings: GlobalSetting[]) {
+function useDirectoryCmsHelpers(globalSettings: GlobalSetting[], cmsPageId: string = "directory") {
   return useMemo(() => {
     const settingMap = globalSettings.reduce<Record<string, string>>((acc, setting) => {
       acc[setting.key] = setting.value ?? "";
@@ -576,7 +580,7 @@ function useDirectoryCmsHelpers(globalSettings: GlobalSetting[]) {
       parseJsonSetting(settingMap[CMS_GLOBAL_SETTING_KEYS.textOverrides], {}),
     );
     const pageConfigs = normalizePageConfigs(parseJsonSetting(settingMap[CMS_GLOBAL_SETTING_KEYS.pageConfigs], {}));
-    const pageConfig = pageConfigs.directory ?? {};
+    const pageConfig = pageConfigs[cmsPageId] ?? {};
     const blocks = pageConfig.blocks ?? {};
     const pageText = pageConfig.text ?? {};
 
@@ -597,7 +601,7 @@ function useDirectoryCmsHelpers(globalSettings: GlobalSetting[]) {
     };
 
     const getText = (textKey: string, fallback: string) =>
-      pageText[textKey] ?? textOverrides[`directory.${textKey}`] ?? textOverrides[textKey] ?? fallback;
+      pageText[textKey] ?? textOverrides[`${cmsPageId}.${textKey}`] ?? textOverrides[textKey] ?? fallback;
 
     const getMetaTitle = (fallback: string) => pageConfig.meta?.title ?? getText("meta.title", fallback);
     const getMetaDescription = (fallback: string) =>
@@ -649,6 +653,7 @@ function DirectoryCmsBlock({
 
 function DirectoryClientInner(props: DirectoryClientProps) {
   const { t, i18n } = useTranslation();
+  const cmsPageId = props.cmsPageId ?? "directory";
   const router = useRouter();
   const pathname = usePathname() ?? "/directory";
   const nextSearchParams = useNextSearchParams();
@@ -913,7 +918,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   const showGridSkeleton = isLoading && !error && listings.length === 0 && !isPlaceholderData;
   const totalListingsCount = listings.length;
 
-  const activeCms = useDirectoryCmsHelpers(globalSettings);
+  const activeCms = useDirectoryCmsHelpers(globalSettings, cmsPageId);
 
   const mapHref = useMemo(() => {
     const params = new URLSearchParams();
@@ -931,6 +936,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
       <Header />
 
       <main>
+        <LazyMotion features={domAnimation}>
         {activeCms.isBlockEnabled("hero", true) ? (
           <DirectoryCmsBlock
             blockId="hero"
@@ -972,11 +978,110 @@ function DirectoryClientInner(props: DirectoryClientProps) {
         ) : null}
 
         <div className="app-container content-max pb-16">
+          {pathname.endsWith("/visit") && props.visitCityIndex && props.visitCityIndex.length > 0 ? (
+            <section className="mb-10 space-y-8">
+              {props.featuredVisitCity ? (
+                <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+                  <Link
+                    href={l(`/visit/${props.featuredVisitCity.slug}`)}
+                    className="group overflow-hidden rounded-[32px] border border-border bg-card shadow-sm"
+                  >
+                    <div className="relative aspect-[16/9]">
+                      <ListingImage
+                        src={props.featuredVisitCity.image_url}
+                        alt={props.featuredVisitCity.name}
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
+                      <div className="absolute inset-x-0 bottom-0 p-6 text-white">
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
+                          Featured city hub
+                        </p>
+                        <h2 className="font-serif text-3xl md:text-4xl leading-tight">
+                          {props.featuredVisitCity.name}
+                        </h2>
+                        <p className="mt-3 max-w-2xl text-sm text-white/85">
+                          {props.featuredVisitCity.short_description ||
+                            `Explore ${props.featuredVisitCity.totalCount} curated listings and city guides in ${props.featuredVisitCity.name}, Algarve.`}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+
+                  <div className="rounded-[32px] border border-border bg-card p-6 shadow-sm">
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                      City index
+                    </p>
+                    <h2 className="mt-3 font-serif text-2xl text-foreground">
+                      Explore Algarve cities
+                    </h2>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      Browse city hubs with current listing totals, then jump into restaurants, accommodation, events, and more.
+                    </p>
+                    <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      {props.visitCityIndex.slice(0, 6).map((city) => (
+                        <Link
+                          key={city.id}
+                          href={l(`/visit/${city.slug}`)}
+                          className="rounded-2xl border border-border px-4 py-3 transition-colors hover:border-primary/40 hover:bg-muted/40"
+                        >
+                          <div className="font-medium text-foreground">{city.name}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {city.totalCount} listings
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              <div>
+                <div className="mb-4 flex items-center justify-between gap-4">
+                  <div>
+                    <h2 className="font-serif text-2xl text-foreground">All active city hubs</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      City-level entry pages with curated listings and category routes.
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {props.visitCityIndex.map((city) => (
+                    <Link
+                      key={city.id}
+                      href={l(`/visit/${city.slug}`)}
+                      className="group overflow-hidden rounded-[28px] border border-border bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                    >
+                      <div className="relative aspect-[16/10] bg-muted">
+                        <ListingImage
+                          src={city.image_url}
+                          alt={city.name}
+                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                        <div className="absolute bottom-3 left-3 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                          {city.totalCount} listings
+                        </div>
+                      </div>
+                      <div className="p-5">
+                        <h3 className="font-serif text-xl text-foreground">{city.name}</h3>
+                        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                          {city.short_description ||
+                            `Discover premium things to do, places to stay, and signature experiences in ${city.name}.`}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </section>
+          ) : null}
+
           {activeCms.isBlockEnabled("filters", true) ? (
             <DirectoryCmsBlock
               blockId="filters"
               cms={activeCms}
-              as={motion.div}
+              as={m.div}
               className="relative z-30 isolate mb-8"
               style={undefined}
             >
@@ -1144,12 +1249,12 @@ function DirectoryClientInner(props: DirectoryClientProps) {
               </div>
 
               {error ? (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
+                <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
                   <p className="text-destructive mb-4">{t("directory.errorMessage")}</p>
                   <Button variant="outline" onClick={() => router.refresh()}>
                     {t("directory.retry")}
                   </Button>
-                </motion.div>
+                </m.div>
               ) : null}
 
               {showGridSkeleton ? (
@@ -1165,20 +1270,20 @@ function DirectoryClientInner(props: DirectoryClientProps) {
               ) : null}
 
               {!showGridSkeleton && !error && listings.length === 0 ? (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
+                <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
                   <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-xl font-medium text-foreground mb-2">{t("directory.noListingsTitle")}</h3>
                   <p className="text-muted-foreground mb-6">{t("directory.noListingsSubtitle")}</p>
                   <Button variant="outline" onClick={clearFilters}>
                     {t("directory.clearAllFilters")}
                   </Button>
-                </motion.div>
+                </m.div>
               ) : null}
 
               {!showGridSkeleton && !error && listings.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
                   {listings.map((listing, index) => (
-                    <motion.div
+                    <m.div
                       key={listing.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -1261,13 +1366,14 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                           </div>
                         </article>
                       </Link>
-                    </motion.div>
+                    </m.div>
                   ))}
                 </div>
               ) : null}
             </DirectoryCmsBlock>
           ) : null}
         </div>
+        </LazyMotion>
       </main>
 
       <Footer />

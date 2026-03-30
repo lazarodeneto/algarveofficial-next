@@ -156,7 +156,20 @@
     },
     "vip": {
       "title": "Selección Signature",
-      "subtitle": "Experiencias signature seleccionadas a mano"
+      "subtitle": "Experiencias signature seleccionadas a mano",
+      "discovery": {
+        "filterLabel": "Explorar por categoría",
+        "previewTitle": "Destacados de Descubrimiento",
+        "selectAtLeastOne": "Seleccione al menos una categoría para explorar el mapa.",
+        "mapped": "{{count}} mapeados",
+        "matching": "{{count}} coincidencias",
+        "filters": {
+          "hotels": "Hoteles",
+          "restaurants": "Restaurantes",
+          "experiences": "Experiencias",
+          "real-estate": "Bienes raíces"
+        }
+      }
     },
     "events": {
       "label": "Calendario del Algarve",

@@ -6,8 +6,14 @@ import type { Locale } from "@/lib/i18n/config";
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/lib/i18n/config";
 import { withTimeout } from "@/lib/supabase/db-utils";
 import { buildBreadcrumbSchema, buildLocalBusinessSchema } from "@/lib/seo/advanced/schema-builders";
+import { buildLocalizedPathAlternates } from "@/lib/i18n/seo";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
+import {
+  ALL_CANONICAL_SLUGS,
+  getCategoryUrlSlug,
+  type CanonicalCategorySlug as ProgrammaticCategorySlug,
+} from "@/lib/seo/programmatic/category-slugs";
 import type { ListingReview } from "@/hooks/useListingReviews";
 import {
   ListingDetailClient,
@@ -36,6 +42,10 @@ const PUBLIC_LISTING_FIELDS = `
 const PUBLIC_CITY_FIELDS = "id, name, slug, short_description, image_url, latitude, longitude";
 const PUBLIC_REGION_FIELDS = "id, name, slug, short_description, image_url";
 const PUBLIC_CATEGORY_FIELDS = "id, name, slug, icon, short_description, image_url";
+const RELATED_LISTING_FIELDS = `
+  id, slug, name, featured_image_url,
+  city:cities(id, name)
+`;
 
 type ListingReviewRow = ListingReview & {
   profile?: {
@@ -225,21 +235,12 @@ const getListingPageData = cache(async (locale: Locale, idOrSlug: string): Promi
     (await withTimeout(
       Promise.all([
         fetchApprovedReviews(listing.id),
+        fetchAllTranslations(listing.id),
+        fetchLocalizedSlugs(listing.id),
         listing.category_id
           ? supabase
               .from("listings")
-              .select(`
-                id, slug, name, short_description, description, featured_image_url,
-                price_from, price_to, price_currency, tier, is_curated, status,
-                city_id, region_id, category_id, owner_id, latitude, longitude,
-                address, website_url, facebook_url, instagram_url, twitter_url,
-                linkedin_url, youtube_url, tiktok_url, telegram_url,
-                google_business_url, google_rating, google_review_count,
-                tags, category_data, view_count, published_at, created_at, updated_at,
-                city:cities(${PUBLIC_CITY_FIELDS}),
-                region:regions(${PUBLIC_REGION_FIELDS}),
-                category:categories(${PUBLIC_CATEGORY_FIELDS})
-              `)
+              .select(RELATED_LISTING_FIELDS)
               .eq("status", "published")
               .eq("category_id", listing.category_id)
               .neq("id", listing.id)
@@ -257,21 +258,18 @@ const getListingPageData = cache(async (locale: Locale, idOrSlug: string): Promi
       ]),
       20000,
       null,
-    )) ?? [null, [], { data: [], error: null }, { data: null, error: null }];
+    )) ?? [null, {}, {}, { data: [], error: null }, { data: null, error: null }];
 
-  const [reviews, relatedResponse, whatsappResponse] = settledResults as [
+  const [reviews, translations, localizedSlugs, relatedResponse, whatsappResponse] = settledResults as [
     ListingReviewRow[],
+    Record<Locale, ListingTranslationRow | null>,
+    Partial<Record<Locale, string>>,
     { data: RelatedListing[] | null; error: { message: string } | null },
     { data: { wa_enabled?: boolean | null; business_phone_e164?: string | null } | null; error: { message: string } | null },
   ];
 
   if (relatedResponse.error) throw relatedResponse.error;
   if (whatsappResponse.error) throw whatsappResponse.error;
-
-  const [translations, localizedSlugs] = await Promise.all([
-    fetchAllTranslations(listing.id),
-    fetchLocalizedSlugs(listing.id),
-  ]);
 
   return {
     listing,
@@ -313,11 +311,18 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
     "/og-image.png";
 
   const localizedPath = `/listing/${data.localizedSlugs[resolvedLocale] ?? data.canonicalSlug}`;
+  const listingPathByLocale = Object.fromEntries(
+    SUPPORTED_LOCALES.map((supportedLocale) => [
+      supportedLocale,
+      `/listing/${data.localizedSlugs[supportedLocale] ?? data.canonicalSlug}`,
+    ]),
+  ) as Record<Locale, string>;
 
   return buildPageMetadata({
     title,
     description,
     localizedPath,
+    alternatesOverride: buildLocalizedPathAlternates(resolvedLocale, listingPathByLocale),
     image: ogImage,
     type: "place",
     locale: resolvedLocale,
@@ -336,7 +341,17 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
   const description = buildListingDescription({ listing: data.listing, translation: currentTranslation });
   const categoryName = data.listing.category?.name || "Directory";
   const categorySlug = getCanonicalCategorySlug(data.listing.category?.slug);
+  const programmaticCategorySlug = ALL_CANONICAL_SLUGS.includes(categorySlug as ProgrammaticCategorySlug)
+    ? (categorySlug as ProgrammaticCategorySlug)
+    : null;
+  const citySlug = data.listing.city?.slug?.trim() || null;
+  const localeCategorySlug = programmaticCategorySlug
+    ? getCategoryUrlSlug(programmaticCategorySlug, resolvedLocale)
+    : null;
   const categoryPath = categorySlug ? `/directory?category=${categorySlug}` : "/directory";
+  const cityPath = citySlug ? `/visit/${citySlug}` : null;
+  const cityCategoryPath =
+    citySlug && localeCategorySlug ? `/visit/${citySlug}/${localeCategorySlug}` : null;
   const canonicalPath = `/listing/${data.localizedSlugs[resolvedLocale] ?? data.canonicalSlug}`;
   const ogImage =
     normalizePublicImageUrl(data.listing.images?.find((image) => image.is_featured)?.image_url) ||
@@ -348,6 +363,7 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
   const businessSchema = buildLocalBusinessSchema({
     id: data.listing.id,
     slug: data.localizedSlugs[resolvedLocale] ?? data.canonicalSlug,
+    url: absoluteUrl(canonicalPath),
     name: title,
     description: truncateMeta(currentTranslation?.description) || truncateMeta(data.listing.description) || undefined,
     image_url: absoluteUrl(String(ogImage)),
@@ -371,7 +387,13 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
 
   const breadcrumbSchema = buildBreadcrumbSchema([
     { name: "Home", url: absoluteUrl("/") },
-    { name: categoryName, url: absoluteUrl(categoryPath) },
+    ...(cityPath && data.listing.city?.name
+      ? [{ name: data.listing.city.name, url: absoluteUrl(cityPath) }]
+      : []),
+    {
+      name: categoryName,
+      url: absoluteUrl(cityCategoryPath || categoryPath),
+    },
     { name: title, url: absoluteUrl(canonicalPath) },
   ]);
 

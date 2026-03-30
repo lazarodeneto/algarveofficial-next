@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import type { Locale } from "@/lib/i18n/config";
 import { DEFAULT_LOCALE, addLocaleToPathname } from "@/lib/i18n/config";
+import { SITE_URL } from "@/lib/seoUrls";
 import { getServerTranslations } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
@@ -19,6 +20,8 @@ import {
   type PublicContentLocale,
 } from "@/lib/publicContentLocale";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
+import { buildFaqSchema, buildTouristDestinationSchema } from "@/lib/seo/schemaBuilders.js";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const PUBLIC_LISTING_FIELDS = `
   id, slug, name, short_description, featured_image_url, tier,
@@ -252,6 +255,7 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
       "destinationDetail.exploreRegion",
       "destinationDetail.listingsCount",
       "destinationDetail.metaTitleSuffix",
+      "destinationDetail.faqTitle",
       "common.noListingsYet",
       "common.noListingsYetDesc",
     ]),
@@ -261,10 +265,56 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
 
   const { region, cities, listings } = data;
   const resolvedImage = resolveRegionImage(region);
+  const canonicalUrl = `${SITE_URL}${lp(resolvedLocale, `/destinations/${region.slug}`)}`;
+
+  const destinationFaqs = [
+    {
+      question: `Best things to do in ${region.name} Algarve`,
+      answer: `${region.name} offers a diverse range of activities for visitors. From beautiful beaches and golf courses to cultural attractions and local cuisine, the region provides unforgettable experiences for all types of travelers.`,
+    },
+    {
+      question: `Best restaurants in ${region.name} Algarve`,
+      answer: `${region.name} boasts excellent dining options ranging from traditional Portuguese tavernas to upscale international restaurants. Be sure to try fresh seafood, local wines, and regional specialties.`,
+    },
+    {
+      question: `Family-friendly activities in ${region.name} Algarve`,
+      answer: `${region.name} is ideal for families with beautiful safe beaches, water parks, nature reserves, and interactive attractions suitable for children of all ages.`,
+    },
+    {
+      question: `Best beaches in ${region.name} Algarve`,
+      answer: `${region.name} features stunning coastline with pristine beaches, some with golden sands and others with unique rock formations. Many beaches offer excellent facilities and Blue Flag status.`,
+    },
+    {
+      question: `Golf courses near ${region.name} Algarve`,
+      answer: `${region.name} is home to several world-class golf courses designed by renowned architects, making it a premier golfing destination in Europe with stunning ocean and landscape views.`,
+    },
+  ];
+
+  const touristDestinationSchema = buildTouristDestinationSchema({
+    name: region.name,
+    description: region.description || region.short_description || undefined,
+    image: resolvedImage || undefined,
+    url: canonicalUrl,
+    latitude: region.latitude ?? undefined,
+    longitude: region.longitude ?? undefined,
+    containedInPlace: "Algarve",
+    touristType: ["Luxury Traveler", "Cultural Tourist", "Golf Enthusiast", "Beach Lover", "Family Traveler"],
+  });
+
+  const faqSchema = buildFaqSchema(destinationFaqs);
 
   return (
-    <div id="destination-detail-server-shell" className="min-h-screen bg-background text-foreground">
-      <Header />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(touristDestinationSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <div id="destination-detail-server-shell" className="min-h-screen bg-background text-foreground">
+        <Header />
 
       <main>
         <section className="relative overflow-hidden pt-[calc(6rem+10px)] pb-16 lg:pt-[calc(8rem+10px)] lg:pb-24">
@@ -383,7 +433,28 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
             )}
           </div>
         </section>
+
+        <section className="py-16 lg:py-24 bg-muted/30">
+          <div className="mx-auto max-w-3xl app-container density">
+            <h2 className="text-2xl font-serif font-medium text-center mb-8">
+              {tx["destinationDetail.faqTitle"] ?? "Frequently Asked Questions"}
+            </h2>
+            <Accordion type="single" collapsible className="space-y-4">
+              {destinationFaqs.map((faq, index) => (
+                <AccordionItem key={index} value={`q${index}`} className="border rounded-lg px-6 bg-card">
+                  <AccordionTrigger className="text-left hover:no-underline">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </section>
       </main>
     </div>
+    </>
   );
 }

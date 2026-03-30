@@ -20,7 +20,7 @@ export function WhatsAppChatButton({
   };
 
   return (
-    <div className="pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+7rem)] right-4 z-40 lg:bottom-6 lg:right-6">
+    <div className="pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] right-4 z-40 lg:bottom-4 lg:right-6">
       <button
         type="button"
         onClick={handleOpenWhatsApp}

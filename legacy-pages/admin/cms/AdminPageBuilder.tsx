@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DashboardBreadcrumb } from "@/components/ui/dashboard-breadcrumb";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,6 +40,7 @@ const HERO_MEDIA_SUPPORTED_PAGE_IDS = new Set([
   "live",
   "map",
   "real-estate",
+  "visit",
 ]);
 
 function parseJson<T>(raw: string | undefined, fallback: T): T {
@@ -147,7 +148,7 @@ function fromRows(rows: KeyValueRow[]): Record<string, string> {
   }, {});
 }
 
-export default function AdminPageBuilder() {
+function AdminPageBuilderContent() {
   const router = useRouter();
   const pathname = usePathname() || "/admin/cms/page-builder";
   const searchParams = useSearchParams();
@@ -930,5 +931,17 @@ export default function AdminPageBuilder() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function AdminPageBuilder() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[360px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <AdminPageBuilderContent />
+    </Suspense>
   );
 }
