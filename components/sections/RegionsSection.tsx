@@ -81,6 +81,7 @@ export function RegionsSection() {
               const images = getRegionImageSet(region.slug);
               const hasCustomImage = !!region.image_url;
               const listingCount = regionCounts?.[region.id] || 0;
+              const imageTimestamp = Date.now();
 
               return (
                 <div key={region.id} className="relative min-w-0">
@@ -102,11 +103,12 @@ export function RegionsSection() {
                     <div className="absolute inset-0 rounded-[inherit]">
                       {hasCustomImage ? (
                         <Image
-                          src={region.image_url!}
+                          src={`${region.image_url}?_t=${imageTimestamp}`}
                           alt={region.name}
                           fill
                           sizes="(max-width: 639px) 48vw, (max-width: 1023px) 31vw, 384px"
                           className="object-cover rounded-[inherit]"
+                          unoptimized
                         />
                       ) : images ? (
                         <Image

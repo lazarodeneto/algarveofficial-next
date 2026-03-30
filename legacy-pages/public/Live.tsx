@@ -46,6 +46,7 @@ const Live = () => {
   const [lifestyleFocus, setLifestyleFocus] = useState("coastal");
   const [monthlyBudget, setMonthlyBudget] = useState(4200);
   const [schoolingNeed, setSchoolingNeed] = useState("no");
+  const imageTimestamp = Date.now();
 
   const featuredCities = useMemo(
     () => cities.filter((city) => city.is_featured).slice(0, 6),
@@ -505,7 +506,7 @@ const Live = () => {
                 >
                   <div className="h-36 w-full overflow-hidden">
                     <img
-                      src={city.image_url || "/placeholder.svg"}
+                      src={city.image_url ? `${city.image_url}?_t=${imageTimestamp}` : "/placeholder.svg"}
                       alt={city.name}
                       className="w-full h-full object-cover"
                       loading="lazy"

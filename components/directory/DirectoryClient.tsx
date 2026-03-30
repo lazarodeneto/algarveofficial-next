@@ -659,6 +659,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   const pathname = usePathname() ?? "/directory";
   const nextSearchParams = useNextSearchParams();
   const searchParamsString = nextSearchParams?.toString() ?? "";
+  const imageTimestamp = Date.now();
   const searchParams = useMemo(
     () => new URLSearchParams(searchParamsString),
     [searchParamsString],
@@ -989,7 +990,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                   >
                     <div className="relative aspect-[16/9]">
                       <ListingImage
-                        src={props.featuredVisitCity.hero_image_url || props.featuredVisitCity.image_url}
+                        src={props.featuredVisitCity.hero_image_url ? `${props.featuredVisitCity.hero_image_url}?_t=${imageTimestamp}` : props.featuredVisitCity.image_url ? `${props.featuredVisitCity.image_url}?_t=${imageTimestamp}` : undefined}
                         alt={props.featuredVisitCity.name}
                         className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
@@ -1054,7 +1055,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                     >
                       <div className="h-36 w-full overflow-hidden">
                         <ListingImage
-                          src={city.hero_image_url || city.image_url}
+                          src={city.hero_image_url ? `${city.hero_image_url}?_t=${imageTimestamp}` : city.image_url ? `${city.image_url}?_t=${imageTimestamp}` : undefined}
                           alt={city.name}
                           className="w-full h-full object-cover"
                         />
