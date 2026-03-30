@@ -17,7 +17,7 @@ import { getProgrammaticCityIndexEntries } from "@/lib/seo/programmatic/category
 
 type ListingRow = Tables<"listings">;
 
-const PUBLIC_CITY_FIELDS = "id, name, slug, short_description, latitude, longitude";
+const PUBLIC_CITY_FIELDS = "id, name, slug, short_description, image_url, hero_image_url, latitude, longitude";
 const PUBLIC_REGION_FIELDS = "id, slug, name, short_description";
 const PUBLIC_CATEGORY_FIELDS = "id, slug, name, icon, short_description, image_url";
 
