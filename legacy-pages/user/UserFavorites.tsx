@@ -428,7 +428,7 @@ export default function UserFavorites() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {sortedListings.map((listing: any) => (
                 <div key={listing.id}>
-                  <Card className="bg-card border-border overflow-hidden h-full">
+                  <Card className={`bg-card border-border overflow-hidden h-full ${listing.tier === 'signature' ? 'border-[2px] border-[hsl(43,86%,58%)] shadow-[0_0_10px_hsla(43,86%,58%,0.34)]' : ''}`}>
                     <div className="aspect-[4/3] overflow-hidden relative">
                       <ListingImage
                         src={listing.featured_image_url}
@@ -493,7 +493,7 @@ export default function UserFavorites() {
             <div className="space-y-3">
               {sortedListings.map((listing: any) => (
                 <div key={listing.id}>
-                  <Card className="bg-card border-border">
+                  <Card className={`bg-card border-border ${listing.tier === 'signature' ? 'border-[2px] border-[hsl(43,86%,58%)] shadow-[0_0_10px_hsla(43,86%,58%,0.34)]' : ''}`}>
                     <CardContent className="p-3 sm:p-4">
                       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                         <div className="w-full h-36 sm:w-32 sm:h-24 rounded-lg flex-shrink-0 overflow-hidden bg-muted">
