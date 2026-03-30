@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, type ComponentProps } from "react";
 import NextLink from "next/link";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import type { Locale } from "@/lib/i18n/config";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   AlignJustify,
@@ -54,7 +55,11 @@ function Link(props: ComponentProps<typeof NextLink>) {
   return <NextLink prefetch={false} {...props} />;
 }
 
-export default function Header() {
+interface HeaderProps {
+  localeSwitchPaths?: Partial<Record<Locale, string>>;
+}
+
+export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const { mobileMenuOpen, setMobileMenuOpen } = useMobileMenu();
   const { isAuthenticated, user, logout, getDashboardPath } = useAuth();
   const { t } = useTranslation();
@@ -236,6 +241,7 @@ export default function Header() {
               </Button>
 
               <LanguageSwitcher
+                localePathByLocale={localeSwitchPaths}
                 containerClassName="min-w-0"
                 selectClassName="h-8 w-[7.5rem] rounded-full border-black/10 bg-white/70 px-2.5 py-1 text-sm text-black shadow-none dark:border-white/12 dark:bg-white dark:text-black"
               />
@@ -292,6 +298,7 @@ export default function Header() {
                 </Button>
 
                 <LanguageSwitcher
+                  localePathByLocale={localeSwitchPaths}
                   selectClassName="h-10 rounded-full border-black/10 bg-white px-4 py-2 text-black shadow-none dark:border-white/12 dark:bg-white dark:text-black"
                 />
 
@@ -411,6 +418,7 @@ export default function Header() {
                           {t("common.language", "Language")}
                         </div>
                         <LanguageSwitcher
+                          localePathByLocale={localeSwitchPaths}
                           containerClassName="min-w-0"
                           selectClassName="h-10 w-[10rem] rounded-full border-black/12 bg-white px-4 py-2 text-sm text-black shadow-none dark:border-white/12 dark:bg-white dark:text-black"
                         />

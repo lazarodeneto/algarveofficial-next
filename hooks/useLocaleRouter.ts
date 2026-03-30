@@ -55,13 +55,15 @@ export function useLocaleRouter() {
       const target = buildLocalizedPath(locale, href);
       router.replace(`${target}${currentQueryString}`);
     },
-    switchLocale: (nextLocale: string) => {
+    switchLocale: (nextLocale: string, targetPath?: string) => {
       if (!isValidLocale(nextLocale)) {
         return;
       }
 
       persistLocaleCookie(nextLocale);
-      const nextPath = switchLocaleInPathname(pathname || "/", nextLocale);
+      const nextPath = targetPath
+        ? buildLocalizedPath(nextLocale, targetPath)
+        : switchLocaleInPathname(pathname || "/", nextLocale);
       router.push(`${nextPath}${currentQueryString}`);
     },
   };

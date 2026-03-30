@@ -4,17 +4,19 @@ import { useId, useTransition } from "react";
 import { useTranslation } from "react-i18next";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocaleRouter } from "@/hooks/useLocaleRouter";
-import { LOCALE_CONFIGS, SUPPORTED_LOCALES } from "@/lib/i18n/config";
+import { LOCALE_CONFIGS, SUPPORTED_LOCALES, type Locale } from "@/lib/i18n/config";
 import { cn } from "@/lib/utils";
 
 interface LanguageSwitcherProps {
   containerClassName?: string;
   selectClassName?: string;
+  localePathByLocale?: Partial<Record<Locale, string>>;
 }
 
 export function LanguageSwitcher({
   containerClassName,
   selectClassName,
+  localePathByLocale,
 }: LanguageSwitcherProps = {}) {
   const { t } = useTranslation();
   const currentLocale = useCurrentLocale();
@@ -38,7 +40,7 @@ export function LanguageSwitcher({
           if (nextLocale === currentLocale) return;
 
           startTransition(() => {
-            switchLocale(nextLocale);
+            switchLocale(nextLocale, localePathByLocale?.[nextLocale as Locale]);
           });
         }}
         className={cn("rounded-md border px-3 py-2", selectClassName)}

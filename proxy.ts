@@ -83,10 +83,19 @@ function redirectTo(
   request: NextRequest,
   pathname: string,
   status: 301 | 302 | 307 | 308,
+  options?: {
+    varyByLocaleSignals?: boolean;
+  },
 ) {
   const url = request.nextUrl.clone();
   url.pathname = pathname;
-  return NextResponse.redirect(url, status);
+  const response = NextResponse.redirect(url, status);
+
+  if (options?.varyByLocaleSignals) {
+    response.headers.set("Vary", "Accept-Language, Cookie");
+  }
+
+  return response;
 }
 
 export function proxy(request: NextRequest) {
@@ -118,7 +127,9 @@ export function proxy(request: NextRequest) {
   const locale = getPreferredLocale(request);
 
   if (pathname === "/") {
-    return redirectTo(request, `/${locale}`, 302);
+    return redirectTo(request, `/${locale}`, 302, {
+      varyByLocaleSignals: true,
+    });
   }
 
   const localizedPath = `/${locale}${pathname}`;
