@@ -663,12 +663,142 @@
   },
   "live": {
     "hero": {
-      "badge": "Guida al trasferimento",
-      "title": "Vivi in Algarve, con chiarezza fin dal primo giorno",
-      "subtitle": "Una guida strutturata per residenza, casa e vita quotidiana, così il tuo trasferimento sarà fluido, conforme e pronto per il futuro.",
-      "ctaPrimary": "Pianifica il mio trasferimento",
-      "ctaSecondary": "Scopri gli esperti locali",
-      "alt": "Costa dell'Algarve per viverci"
+      "badge": "Guida al Trasferimento",
+      "title": "Vivi in Algarve, con chiarezza dal primo giorno",
+      "subtitle": "Guida strutturata per residenza, alloggio e vita quotidiana per un trasferimento fluido, conforme e pronto per il futuro.",
+      "ctaPrimary": "Pianifica il Mio Trasferimento",
+      "ctaSecondary": "Sfoglia Esperti Locali",
+      "alt": "Costa dell'Algarve"
+    },
+    "stats": {
+      "sun": "Giorni di Sole / Anno",
+      "municipalities": "Municipi da Esplorare",
+      "concierge": "Servizio di Trasferimento Unificato"
+    },
+    "roadmap": {
+      "label": "Tabella di Marcia",
+      "title": "Il tuo trasferimento, diviso in passi pratici",
+      "legal": {
+        "title": "Configurazione Legale e di Residenza",
+        "description": "Traccia il percorso di residenza, registrazione fiscale, NIF, banche e documentazione conforme con esperti locali."
+      },
+      "home": {
+        "title": "Casa e Quartiere Adatti",
+        "description": "Seleziona l'area giusta in base al tuo stile di vita: famiglia, golf, marina o villaggi costieri tranquilli."
+      },
+      "move": {
+        "title": "Piano di Atterraggio di 90 Giorni",
+        "description": "Lista pratica del primo trimestre: utenze, iscrizione sanitaria, scuole, mobilità e servizi locali di fiducia."
+      }
+    },
+    "pillars": {
+      "label": "Essenziali della Vita",
+      "title": "Ciò che conta quando sei arrivato",
+      "health": {
+        "title": "Sanità",
+        "description": "Opzioni di accesso privato e pubblico, cliniche anglofone e supporto medico di portineria."
+      },
+      "education": {
+        "title": "Istruzione",
+        "description": "Scuole internazionali, percorsi linguistici e allineamento per trasferimenti familiari."
+      },
+      "cost": {
+        "title": "Chiarrezza su Costi e Tasse",
+        "description": "Guida trasparente sui costi di vita, scenari acquisto vs affitto e passaggio di pianificazione fiscale."
+      },
+      "security": {
+        "title": "Sicurezza e Servizi",
+        "description": "Contesto del quartiere, fornitori di sicurezza domestica e reti di manutenzione verificate."
+      }
+    },
+    "planner": {
+      "label": "Pianificatore di Trasferimento",
+      "title": "Costruisci il tuo piano di trasferimento in meno di 2 minuti",
+      "timelineLabel": "Cronologia",
+      "timeline": {
+        "0_3": "0-3 mesi",
+        "3_6": "3-6 mesi",
+        "6_12": "6-12 mesi",
+        "12plus": "12+ mesi"
+      },
+      "householdLabel": "Famiglia",
+      "household": {
+        "solo": "Solo",
+        "couple": "Coppia",
+        "family": "Famiglia",
+        "retired": "Pensionato"
+      },
+      "housingLabel": "Strategia Abitativa",
+      "housing": {
+        "rentFirst": "Affittare prima, poi decidere",
+        "buySoon": "Acquistare entro i primi 6 mesi",
+        "buyNow": "Acquistare immediatamente"
+      },
+      "lifestyleLabel": "Focus Stile di Vita",
+      "lifestyle": {
+        "coastal": "Equilibrio costiero",
+        "marina": "Marina + servizi premium",
+        "family": "Routine familiari"
+      },
+      "budgetLabel": "Budget Mensile di Vita",
+      "budget": {
+        "lean": "Configurazione Minimale",
+        "balanced": "Premium Bilanciato",
+        "luxury": "Comfort Premium"
+      },
+      "schoolingLabel": "Hai Bisogno di Supporto Scolastico?",
+      "schooling": {
+        "yes": "Sì",
+        "no": "No",
+        "required": "Richiesto",
+        "notRequired": "Non richiesto"
+      },
+      "output": {
+        "budgetBand": "Fascia di Budget",
+        "timeline": "Cronologia",
+        "schooling": "Istruzione",
+        "priority": "Priorità di Residenza",
+        "neighborhood": "Focus Quartiere",
+        "first90": "Lista dei Primi 90 Giorni"
+      },
+      "residency": {
+        "fast": "Sequenziamento legale immediato: NIF, banche, conformità affitto/acquisto e percorso di residenza.",
+        "standard": "Configurazione parallela: preparazione documentale mentre filtra località e fornitori.",
+        "progressive": "Preparazione graduale: ottimizzare struttura fiscale/legal prima, poi eseguire alloggio."
+      },
+      "focus": {
+        "coastal": "Lagos, Tavira e tasche costiere selezionate che bilanciano accesso, calma e comodità quotidiana.",
+        "marina": "Vilamoura, Quinta do Lago e quartieri adiacenti alla marina con alta densità di servizi.",
+        "family": "Loulé, dintorni di Lagos e zone residenziali vicine alle scuole con vivibilità annuale."
+      },
+      "checklist": {
+        "legal": "Definire sequenza di onboarding legale/fiscale con consulenti locali.",
+        "rent": "Assicurare base di affitto a breve termine prima dell'impegno a lungo termine.",
+        "buy": "Avviare screening acquisto con due diligence legale dal primo giorno.",
+        "school": "Elencare scuole internazionali e allineare raggio di pendolarismo prima della selezione della casa.",
+        "service": "Prioritizzare salute + configurazione mobilità per affidabilità quotidiana.",
+        "family": "Mappare routine familiari: scuola, attività e servizi domestici di fiducia.",
+        "household": "Mappare supporto alle routine domestiche: trasporto, benessere e flussi di portineria."
+      },
+      "handoff": {
+        "subject": "Richiesta di Pianificazione del Trasferimento",
+        "primary": "Invia Questo Piano alla Portineria",
+        "secondary": "Visualizza Partner Locali di Fiducia"
+      }
+    },
+    "destinations": {
+      "label": "Sintesi della Destinazione",
+      "title": "Esplora città che corrispondono al tuo stile di vita",
+      "viewAll": "Vedi Tutte le Destinazioni",
+      "empty": "Le guide delle città in evidenza si stanno aggiornando. Torna presto.",
+      "fallbackDescription": "Infrastruttura di alta qualità e accesso allo stile di vita.",
+      "exploreCity": "Esplora Città"
+    },
+    "final": {
+      "title": "Pronto a stabilire la tua base in Algarve?",
+      "description": "Raccontaci la tua cronologia, priorità e profilo familiare. Mappiamo i prossimi passi con partner locali di fiducia.",
+      "primary": "Avvia Pianificazione del Trasferimento",
+      "secondary": "Richiedi Introduzione del Partner"
     }
   },
   "realEstate": {

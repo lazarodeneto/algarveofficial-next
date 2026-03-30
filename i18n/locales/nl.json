@@ -663,12 +663,142 @@
   },
   "live": {
     "hero": {
-      "badge": "Verhuisbegeleiding",
-      "title": "Wonen in de Algarve, met duidelijkheid vanaf dag één",
-      "subtitle": "Gestructureerde begeleiding bij verblijf, wonen en het dagelijks leven, zodat uw verhuizing soepel, conform en toekomstbestendig verloopt.",
-      "ctaPrimary": "Mijn verhuizing plannen",
-      "ctaSecondary": "Lokale experts bekijken",
-      "alt": "Algarve-kust om te wonen"
+      "badge": "Verhuisgids",
+      "title": "Woon in de Algarve, met duidelijkheid vanaf dag één",
+      "subtitle": "Gestructureerde begeleiding voor verblijf, huisvesting en dagelijks leven voor een soepele, conforme en toekomstgerichte verhuizing.",
+      "ctaPrimary": "Plan Mijn Verhuizing",
+      "ctaSecondary": "Blader Lokale Experts",
+      "alt": "Algarve kustlijn"
+    },
+    "stats": {
+      "sun": "Zonnige Dagen / Jaar",
+      "municipalities": "Gemeentes te Ontdekken",
+      "concierge": "Uniforme Verhuisconciërge"
+    },
+    "roadmap": {
+      "label": "Verhuisroutekaart",
+      "title": "Je verhuizing, opgedeeld in praktische stappen",
+      "legal": {
+        "title": "Juridische & Verblijfsopzet",
+        "description": "Traceer je verblijfsroute, belastingregistratie, NIF, banken en conforme documentatie met lokale experts."
+      },
+      "home": {
+        "title": "Huis & Buurt Passend",
+        "description": "Selecteer het juiste gebied op basis van je levensstijl: gezinsgericht, golf-centraal, marina of rustige kustdorpen."
+      },
+      "move": {
+        "title": "90-Dagen Landingsplan",
+        "description": "Praktische checklist voor het eerste kwartaal: nutsvoorzieningen, gezondheidsinschrijving, scholen, mobiliteit en vertrouwde lokale diensten."
+      }
+    },
+    "pillars": {
+      "label": "Levensessenties",
+      "title": "Wat telt als je eenmaal bent aangekomen",
+      "health": {
+        "title": "Gezondheid",
+        "description": "Private en openbare toegangsopties, Engelssprekende klinieken en medische conciërge-ondersteuning."
+      },
+      "education": {
+        "title": "Onderwijs",
+        "description": "Internationale scholen, taalroutes en afstemming voor gezinsverhuizing."
+      },
+      "cost": {
+        "title": "Kosten & Belastinghelderheid",
+        "description": "Transparante begeleiding over levenskosten, koop vs huur scenario's en belastingplanning overdracht."
+      },
+      "security": {
+        "title": "Veiligheid & Diensten",
+        "description": "Buurtcontext, huissicherheidsaanbieders en geverifieerde onderhoudsnetwerken."
+      }
+    },
+    "planner": {
+      "label": "Verhuisplanner",
+      "title": "Bouw je verhuisplan in minder dan 2 minuten",
+      "timelineLabel": "Tijdlijn",
+      "timeline": {
+        "0_3": "0-3 maanden",
+        "3_6": "3-6 maanden",
+        "6_12": "6-12 maanden",
+        "12plus": "12+ maanden"
+      },
+      "householdLabel": "Huishouden",
+      "household": {
+        "solo": "Alleenstaand",
+        "couple": "Paar",
+        "family": "Gezin",
+        "retired": "Gepensioneerd"
+      },
+      "housingLabel": "Huisvestingsstrategie",
+      "housing": {
+        "rentFirst": "Huur eerst, beslis dan",
+        "buySoon": "Koop binnen eerste 6 maanden",
+        "buyNow": "Koop onmiddellijk"
+      },
+      "lifestyleLabel": "Levensstijl Focus",
+      "lifestyle": {
+        "coastal": "Kustbalans",
+        "marina": "Marina + premium diensten",
+        "family": "Gezinsroutines"
+      },
+      "budgetLabel": "Maandelijks Levensbudget",
+      "budget": {
+        "lean": "Slanke Opzet",
+        "balanced": "Gebalanceerd Premium",
+        "luxury": "Premium Comfort"
+      },
+      "schoolingLabel": "Ondersteuning Nodig?",
+      "schooling": {
+        "yes": "Ja",
+        "no": "Nee",
+        "required": "Vereist",
+        "notRequired": "Niet vereist"
+      },
+      "output": {
+        "budgetBand": "Budgetband",
+        "timeline": "Tijdlijn",
+        "schooling": "Onderwijs",
+        "priority": "Verblijfsprioriteit",
+        "neighborhood": "Buurtfocus",
+        "first90": "90-Dagen Checklist"
+      },
+      "residency": {
+        "fast": "Onmiddellijke juridische volgorde: NIF, banken, huur/koop-conformiteit en verblijfsroute.",
+        "standard": "Parallelle opzet: documentatiegereedheid terwijl locaties en dienstverleners gefilterd worden.",
+        "progressive": "Gefaseerde voorbereiding: optimaliseer fiscaal/juridische structuur eerst, voer dan huisvesting uit."
+      },
+      "focus": {
+        "coastal": "Lagos, Tavira en geselecteerde kustgebieden met balans tussen toegang, rust en dagelijks gemak.",
+        "marina": "Vilamoura, Quinta do Lago en marina-aangrenzende buurten met sterke dienstdichtheid.",
+        "family": "Loulé, Lagos-buitenwijken en school-verbonden woonzones met jaarlijkse bewoonbaarheid."
+      },
+      "checklist": {
+        "legal": "Stel juridische/fiscale onboarding volgorde vast met lokale adviseurs.",
+        "rent": "Beveilig korte-termijn huurbasis voor langetermijncommitment.",
+        "buy": "Start koopscreening met juridische due diligence vanaf dag één.",
+        "school": "Shortlist internationale scholen en stem woon-werk afstand af voor huis selectie.",
+        "service": "Prioriteer gezondheid + mobiliteitsopzet voor dag betrouwbaarheid.",
+        "family": "Map gezinsroutines: school, activiteiten en vertrouwde huishoudelijke diensten.",
+        "household": "Map huishoudelijke routine-ondersteuning: transport, welzijn en conciërge workflows."
+      },
+      "handoff": {
+        "subject": "Verhuisplanningsverzoek",
+        "primary": "Stuur Dit Plan Naar Conciërge",
+        "secondary": "Bekijk Vertrouwde Lokale Partners"
+      }
+    },
+    "destinations": {
+      "label": "Bestemmingsoverzicht",
+      "title": "Verken steden die bij je levensstijl passen",
+      "viewAll": "Alle Bestemmingen Bekijken",
+      "empty": "Aanbevolen stadsgidsen worden bijgewerkt. Kom binnenkort terug.",
+      "fallbackDescription": "Hoge kwaliteit infrastructuur en levensstijl toegang.",
+      "exploreCity": "Stad Verken"
+    },
+    "final": {
+      "title": "Klaar om je basis te vestigen in de Algarve?",
+      "description": "Vertel ons je tijdlijn, prioriteiten en huishoudprofiel. We plannen de juiste volgende stappen met vertrouwde lokale partners.",
+      "primary": "Start Verhuisplanning",
+      "secondary": "Partnerintroductie Aanvragen"
     }
   },
   "realEstate": {

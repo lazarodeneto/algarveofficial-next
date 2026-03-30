@@ -664,11 +664,141 @@
   "live": {
     "hero": {
       "badge": "Flyttevejledning",
-      "title": "Bo i Algarve, med klarhed fra første dag",
-      "subtitle": "Struktureret vejledning om ophold, bolig og hverdagsliv, så din flytning bliver smidig, lovmedholdelig og klar til fremtiden.",
-      "ctaPrimary": "Planlæg min flytning",
-      "ctaSecondary": "Udforsk lokale eksperter",
-      "alt": "Algarvekyst at bo ved"
+      "title": "Bo i Algarve, med klarhed fra dag et",
+      "subtitle": "Struktureret vejledning om ophold, bolig og hverdagsliv så din flytning er smidig, compliant og fremtidsklar.",
+      "ctaPrimary": "Planlæg Min Flytning",
+      "ctaSecondary": "Gennemse Lokale Eksperter",
+      "alt": "Algarve kystlinje"
+    },
+    "stats": {
+      "sun": "Solrige Dage / År",
+      "municipalities": "Kommuner at Udforske",
+      "concierge": "Samlet Flytning-Concierge"
+    },
+    "roadmap": {
+      "label": "Flytningskort",
+      "title": "Din flytning, opdelt i praktiske trin",
+      "legal": {
+        "title": "Juridisk & Ophold Opsætning",
+        "description": "Kortlæg opholdsrute, skatteregistrering, NIF, bank og compliant dokumentation med lokale eksperter."
+      },
+      "home": {
+        "title": "Hjem & Kvarter der Passer",
+        "description": "Vælg det rigtige område baseret på din livsstil: familie-fokuseret, golf-centreret, marina eller rolige kystbyer."
+      },
+      "move": {
+        "title": "90-Dages landingsplan",
+        "description": "Praktisk tjekliste for første kvartal: forsyninger, sundhedsregistrering, skoler, mobilitet og betroede lokale tjenester."
+      }
+    },
+    "pillars": {
+      "label": "Livsvæsentligheder",
+      "title": "Det der betyder noget når du er kommet",
+      "health": {
+        "title": "Sundhed",
+        "description": "Private og offentlige adgangs_muligheder, engelsktalende klinikker og concierge medicinsk støtte."
+      },
+      "education": {
+        "title": "Uddannelse",
+        "description": "Internationale skoler, sprogveje og familie-flytningstilpasning."
+      },
+      "cost": {
+        "title": "Omkostning & Skatteklarhed",
+        "description": "Transparent vejledning om leveomkostninger, køb vs leje-scenarier og skatteplanlægning."
+      },
+      "security": {
+        "title": "Sikkerhed & Tjenester",
+        "description": "Kvarter-kontekst, hjemmesikkerhedsleverandører og verificerede vedligeholdelsesnetværk."
+      }
+    },
+    "planner": {
+      "label": "Flytningsplanlægger",
+      "title": "Byg din flytningsplan på under 2 minutter",
+      "timelineLabel": "Tidsramme",
+      "timeline": {
+        "0_3": "0-3 måneder",
+        "3_6": "3-6 måneder",
+        "6_12": "6-12 måneder",
+        "12plus": "12+ måneder"
+      },
+      "householdLabel": "Husholdning",
+      "household": {
+        "solo": "Enlig",
+        "couple": "Par",
+        "family": "Familie",
+        "retired": "Pensionist"
+      },
+      "housingLabel": "Boligstrategi",
+      "housing": {
+        "rentFirst": "Leje først, derefter beslutte",
+        "buySoon": "Købe inden for første 6 måneder",
+        "buyNow": "Købe straks"
+      },
+      "lifestyleLabel": "Livsstilsfokus",
+      "lifestyle": {
+        "coastal": "Kystbalance",
+        "marina": "Marina + premium tjenester",
+        "family": "Familierutiner"
+      },
+      "budgetLabel": "Månedligt Levnbudget",
+      "budget": {
+        "lean": "Minimalt Opsætning",
+        "balanced": "Balanceret Premium",
+        "luxury": "Premium Komfort"
+      },
+      "schoolingLabel": "Har Brug for Skolestøtte?",
+      "schooling": {
+        "yes": "Ja",
+        "no": "Nej",
+        "required": "Påkrævet",
+        "notRequired": "Ikke påkrævet"
+      },
+      "output": {
+        "budgetBand": "Budgetinterval",
+        "timeline": "Tidsramme",
+        "schooling": "Skole",
+        "priority": "Opholdsprioritet",
+        "neighborhood": "Kvarter-fokus",
+        "first90": "90-Dages Tjekliste"
+      },
+      "residency": {
+        "fast": "Øjeblikkelig juridisk sekventering: NIF, banker, leje/køb-compliance og opholds-fil.",
+        "standard": "Parallel opsætning: dokumentationsberedskab samtidig med at lokationer og tjenesteudbydere filtreres.",
+        "progressive": "Trinvis forberedelse: optimer skat/juridisk struktur først, udfør derefter bolig."
+      },
+      "focus": {
+        "coastal": "Lagos, Tavira og udvalgte kystlommer med balance mellem adgang, ro og daglig bekvemmelighed.",
+        "marina": "Vilamoura, Quinta do Lago og marina-nære kvarterer med stærk tjenestetæthed.",
+        "family": "Loulé, Lagos-udkanter og skole-tilknyttede boligområder med helårs beboelighed."
+      },
+      "checklist": {
+        "legal": "Fastlæg juridisk/skatte-mæssig onboarding-sekvens med lokale rådgivere.",
+        "rent": "Sikre kortvarig lejebase før langsigtet forpligtelse.",
+        "buy": "Starte købsscreening med juridisk due diligence fra dag et.",
+        "school": "Shortliste internationale skoler og justere pendlerradius før hjemmevalg.",
+        "service": "Prioritere sundhed + mobilitetsopsætning for daglig pålidelighed.",
+        "family": "Kortlæg familierutiner: skole, aktiviteter og betroede husholdningstjenester.",
+        "household": "Kortlæg husholdningsstøtterutiner: transport, velvære og concierge-arbejdsgange."
+      },
+      "handoff": {
+        "subject": "Flytningsplanlægningsanmodning",
+        "primary": "Send Denne Plan til Concierge",
+        "secondary": "Se Betroede Lokale Partnere"
+      }
+    },
+    "destinations": {
+      "label": "Destinationsoversigt",
+      "title": "Udforsk byer der matcher din livsstil",
+      "viewAll": "Se Alle Destinationer",
+      "empty": "Fremhævede byguider opdateres. Kom snart tilbage.",
+      "fallbackDescription": "Høj kvalitet infrastruktur og livsstilsadgang.",
+      "exploreCity": "Udforsk By"
+    },
+    "final": {
+      "title": "Klar til at etablere din base i Algarve?",
+      "description": "Fortæl os din tidsramme, prioriteter og husholdningsprofil. Vi kortlægger de rigtige næste trin med betroede lokale partnere.",
+      "primary": "Start Flytningsplanlægning",
+      "secondary": "Anmod om Partnerintroduktion"
     }
   },
   "realEstate": {

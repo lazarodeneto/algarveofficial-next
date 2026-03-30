@@ -663,12 +663,142 @@
   },
   "live": {
     "hero": {
-      "badge": "Asesoría de reubicación",
+      "badge": "Guía de Reubicación",
       "title": "Vive en el Algarve, con claridad desde el primer día",
-      "subtitle": "Orientación estructurada sobre residencia, vivienda y vida diaria para que tu traslado sea fluido, conforme y preparado para el futuro.",
-      "ctaPrimary": "Planificar mi mudanza",
-      "ctaSecondary": "Explorar expertos locales",
-      "alt": "Costa del Algarve para vivir"
+      "subtitle": "Orientación estructurada para residencia, vivienda y vida diaria para que tu mudanza sea fluida, conforme y futura.",
+      "ctaPrimary": "Planificar Mi Mudanza",
+      "ctaSecondary": "Explorar Expertos Locales",
+      "alt": "Costa del Algarve"
+    },
+    "stats": {
+      "sun": "Días Soleados / Año",
+      "municipalities": "Municipios por Explorar",
+      "concierge": "Conserjería de Reubicación Unificada"
+    },
+    "roadmap": {
+      "label": "Hoja de Ruta de Reubicación",
+      "title": "Tu mudanza, dividida en pasos prácticos",
+      "legal": {
+        "title": "Configuración Legal y de Residencia",
+        "description": "Traza tu ruta de residencia, registro fiscal, NIF, banca y documentación conforme con expertos locales."
+      },
+      "home": {
+        "title": "Hogar y Vecindario Adecuados",
+        "description": "Selecciona el área adecuada según tu estilo de vida: familia, golf, marina o Villages costeros tranquilos."
+      },
+      "move": {
+        "title": "Plan de Aterrizaje de 90 Días",
+        "description": "Lista práctica del primer trimestre: servicios públicos, inscripción de salud, escuelas, movilidad y servicios locales de confianza."
+      }
+    },
+    "pillars": {
+      "label": "Esenciales de la Vida",
+      "title": "Lo que importa cuando hayas llegado",
+      "health": {
+        "title": "Salud",
+        "description": "Opciones de acceso privado y público, clínicas angloparlantes y apoyo médico de conserjería."
+      },
+      "education": {
+        "title": "Educación",
+        "description": "Escuelas internacionales, caminos lingüísticos y alineación familiar para reubicación."
+      },
+      "cost": {
+        "title": "Claridad de Costos e Impuestos",
+        "description": "Orientación transparente sobre costos de vida, escenarios de compra vs alquiler y planificación fiscal."
+      },
+      "security": {
+        "title": "Seguridad y Servicios",
+        "description": "Contexto de vecindario, proveedores de seguridad del hogar y redes de mantenimiento verificadas."
+      }
+    },
+    "planner": {
+      "label": "Planificador de Reubicación",
+      "title": "Construye tu plan de mudanza en menos de 2 minutos",
+      "timelineLabel": "Línea de Tiempo",
+      "timeline": {
+        "0_3": "0-3 meses",
+        "3_6": "3-6 meses",
+        "6_12": "6-12 meses",
+        "12plus": "12+ meses"
+      },
+      "householdLabel": "Hogar",
+      "household": {
+        "solo": "Solo",
+        "couple": "Pareja",
+        "family": "Familia",
+        "retired": "Jubilado"
+      },
+      "housingLabel": "Estrategia de Vivienda",
+      "housing": {
+        "rentFirst": "Alquilar primero, luego decidir",
+        "buySoon": "Comprar en los primeros 6 meses",
+        "buyNow": "Comprar inmediatamente"
+      },
+      "lifestyleLabel": "Enfoque de Estilo de Vida",
+      "lifestyle": {
+        "coastal": "Equilibrio costero",
+        "marina": "Marina + servicios premium",
+        "family": "Rutinas familiares"
+      },
+      "budgetLabel": "Presupuesto Mensual de Vida",
+      "budget": {
+        "lean": "Configuración Austera",
+        "balanced": "Premium Equilibrado",
+        "luxury": "Comodidad Premium"
+      },
+      "schoolingLabel": "Necesitas Apoyo Escolar?",
+      "schooling": {
+        "yes": "Sí",
+        "no": "No",
+        "required": "Requerido",
+        "notRequired": "No requerido"
+      },
+      "output": {
+        "budgetBand": "Banda de Presupuesto",
+        "timeline": "Línea de Tiempo",
+        "schooling": "Escolaridad",
+        "priority": "Prioridad de Residencia",
+        "neighborhood": "Enfoque de Vecindario",
+        "first90": "Lista de los Primeros 90 Días"
+      },
+      "residency": {
+        "fast": "Secuenciación legal inmediata: NIF, banca, conformidad de alquiler/compra y ruta de residencia.",
+        "standard": "Configuración paralela: preparación documental mientras filtra ubicaciones y proveedores.",
+        "progressive": "Preparación por etapas: optimizar estructura fiscal/legal primero, luego ejecutar vivienda."
+      },
+      "focus": {
+        "coastal": "Lagos, Tavira y bolsas costeras seleccionadas equilibrando acceso, calma y comodidad diaria.",
+        "marina": "Vilamoura, Quinta do Lago y barrios adyacentes a la marina con fuerte densidad de servicios.",
+        "family": "Loulé, alrededores de Lagos y zonas residenciales cerca de escuelas con vivibilidad anual."
+      },
+      "checklist": {
+        "legal": "Definir secuencia de onboarding legal/fiscal con asesores locales.",
+        "rent": "Asegurar base de alquiler a corto plazo antes del compromiso a largo plazo.",
+        "buy": "Iniciar selección de compra con due diligence legal desde el primer día.",
+        "school": "Listar escuelas internacionales y alinear radio de desplazamiento antes de selección de hogar.",
+        "service": "Priorizar salud + configuración de movilidad para fiabilidad diaria.",
+        "family": "Mapear rutinas familiares: escuela, actividades y servicios domésticos de confianza.",
+        "household": "Mapear apoyo a rutinas domésticas: transporte, bienestar y flujos de conserjería."
+      },
+      "handoff": {
+        "subject": "Solicitud de Planificación de Reubicación",
+        "primary": "Enviar Este Plan a Conserjería",
+        "secondary": "Ver Socios Locales de Confianza"
+      }
+    },
+    "destinations": {
+      "label": "Resumen del Destino",
+      "title": "Explorar ciudades que coincidan con tu estilo de vida",
+      "viewAll": "Ver Todos los Destinos",
+      "empty": "Las guías de ciudades destacadas se están actualizando. Vuelve pronto.",
+      "fallbackDescription": "Infraestructura de alta calidad y acceso al estilo de vida.",
+      "exploreCity": "Explorar Ciudad"
+    },
+    "final": {
+      "title": "Listo para establecer tu base en el Algarve?",
+      "description": "Cuéntanos tu línea de tiempo, prioridades y perfil familiar. Mapearemos los siguientes pasos con socios locales de confianza.",
+      "primary": "Iniciar Planificación de Reubicación",
+      "secondary": "Solicitar Introducción de Socio"
     }
   },
   "realEstate": {
