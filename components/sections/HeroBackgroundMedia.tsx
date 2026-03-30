@@ -3,6 +3,12 @@ import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 
+function addCacheBust(url: string): string {
+  if (!url || url.startsWith("data:") || url.startsWith("//") || url.startsWith("/")) return url;
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}_t=${Date.now()}`;
+}
+
 export type HeroMediaType = "image" | "video" | "youtube" | "poster";
 
 interface HeroBackgroundMediaProps {
@@ -82,10 +88,10 @@ export function HeroBackgroundMedia({
   priority = true,
 }: HeroBackgroundMediaProps) {
   const resolvedMediaType = normalizeMediaType(mediaType);
-  const trimmedImageUrl = imageUrl?.trim() ?? "";
+  const trimmedImageUrl = addCacheBust(imageUrl?.trim() ?? "");
   const trimmedVideoUrl = videoUrl?.trim() ?? "";
   const trimmedYoutubeUrl = youtubeUrl?.trim() ?? "";
-  const trimmedPosterUrl = posterUrl?.trim() ?? "";
+  const trimmedPosterUrl = addCacheBust(posterUrl?.trim() ?? "");
   const hasImage = trimmedImageUrl.length > 0;
   const hasVideo = trimmedVideoUrl.length > 0;
   const hasPoster = trimmedPosterUrl.length > 0;
