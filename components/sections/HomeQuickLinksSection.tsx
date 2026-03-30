@@ -102,7 +102,7 @@ export function HomeQuickLinksSection() {
             return (
               <Link
                 key={card.id}
-                href={l(`/directory?category=${card.categorySlug}`)}
+                href={card.customHref ? l(card.customHref) : l(`/visit?category=${card.categorySlug}`)}
                 className="glass-box glass-box-silver-liquid glass-box-contour group relative isolate flex h-full w-full flex-col rounded-[24px] font-sans transition-transform duration-300 hover:-translate-y-1 sm:max-w-[236px]"
               >
                 <span
