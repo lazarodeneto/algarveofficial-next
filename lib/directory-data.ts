@@ -269,7 +269,7 @@ async function buildVisitCityIndex(cities: CityRow[]): Promise<{
     .filter((city): city is VisitCityIndexItem => city !== null);
 
   const featuredVisitCity =
-    visitCityIndex.find((city) => city.image_url) ??
+    visitCityIndex.find((city) => city.hero_image_url || city.image_url) ??
     visitCityIndex[0] ??
     null;
 
