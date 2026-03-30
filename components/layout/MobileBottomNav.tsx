@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ComponentProps } from "react";
 import { usePathname } from "next/navigation";
 import NextLink from "next/link";
-import { Home, Binoculars, Building2, List } from "lucide-react";
+import { Home, Binoculars, TrendingUp, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useMobileMenu } from "@/contexts/MobileMenuContext";
@@ -14,8 +14,8 @@ function Link(props: ComponentProps<typeof NextLink>) {
 const navItems = [
   { name: "nav.home", href: "/", icon: Home },
   { name: "nav.visit", href: "/destinations", icon: Binoculars },
-  { name: "nav.live", href: "/live", icon: Building2 },
-  { name: "nav.invest", href: "/real-estate", icon: Building2 },
+  { name: "nav.live", href: "/live", icon: Home },
+  { name: "nav.invest", href: "/real-estate", icon: TrendingUp },
   { name: "nav.directory", href: "/directory", icon: List },
 ];
 

@@ -13,23 +13,24 @@ interface I18nProviderProps {
 }
 
 /**
- * I18nProvider — syncs react-i18next with the current locale and blocks rendering until ready.
+ * I18nProvider — syncs react-i18next with the current locale without
+ * replacing already server-rendered content with a fullscreen loader.
  *
  * SINGLE SOURCE OF TRUTH: locale from LocaleContext (derived from URL params).
  * NO localStorage fallback. NO pathname parsing.
  * The locale prop is only used as initial fallback before context is available.
  *
- * ✅ Synchronization Guaranteed: Waits for translations to load before rendering children
+ * ✅ Synchronization Guaranteed: Keeps client i18n in sync with the route locale
  * ✅ SSR-Safe: Uses ref to skip redundant initializations, defers heavy work to useEffect
- * ✅ Shows loading spinner while syncing
+ * ✅ No fullscreen flash over server-rendered content while syncing
  */
 export function I18nProvider({ children, locale: propLocale = "en" }: I18nProviderProps) {
   const initialized = useRef(false);
-  const [isReady, setIsReady] = useState(false);
   const contextLocale = useLocale();
 
   // Prefer context (from URL), fall back to prop (from server)
   const targetLocale: Locale = (contextLocale || propLocale) as Locale;
+  const [isReady, setIsReady] = useState(() => i18n.language === targetLocale);
 
   useEffect(() => {
     let cancelled = false;
@@ -86,22 +87,14 @@ export function I18nProvider({ children, locale: propLocale = "en" }: I18nProvid
     };
   }, [targetLocale]);
 
-  // Show loading spinner while translations are being synced
-  if (!isReady) {
-    return (
-      <I18nextProvider i18n={i18n}>
-        <div className="flex items-center justify-center w-full h-full min-h-screen bg-background">
-          <div className="flex flex-col items-center gap-4">
-            <div className="relative w-12 h-12">
-              <div className="absolute inset-0 rounded-full border-2 border-border" />
-              <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-foreground animate-spin" />
-            </div>
-            <p className="text-sm text-muted-foreground">Loading...</p>
-          </div>
-        </div>
-      </I18nextProvider>
-    );
-  }
-
-  return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;
+  return (
+    <I18nextProvider i18n={i18n}>
+      <div
+        className="contents"
+        data-i18n-loading={isReady ? undefined : "true"}
+      >
+        {children}
+      </div>
+    </I18nextProvider>
+  );
 }

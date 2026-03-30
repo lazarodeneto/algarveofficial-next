@@ -9,7 +9,7 @@ import {
 import {
   DEFAULT_LOCALE,
   type Locale,
-} from "./locales";
+} from "./config";
 
 const LocaleContext = createContext<Locale>(DEFAULT_LOCALE);
 
