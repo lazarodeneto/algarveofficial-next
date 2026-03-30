@@ -1,6 +1,14 @@
 import { useMemo } from "react";
 import type { CSSProperties } from "react";
 import { useCmsPageBuilderContext } from "@/contexts/CmsPageBuilderContext";
+import { normalizePublicContactEmail } from "@/lib/contactEmail";
+
+function normalizeEmailInText(text: string): string {
+  if (!text.includes("@")) return text;
+  
+  const emailRegex = /[\w.-]+@algarveofficial\.com/gi;
+  return text.replace(emailRegex, (match) => normalizePublicContactEmail(match) ?? match);
+}
 
 export function useCmsPageBuilder(pageId: string) {
   const { pageConfigs, textOverrides, isLoading } = useCmsPageBuilderContext();
@@ -43,12 +51,13 @@ export function useCmsPageBuilder(pageId: string) {
     };
 
     const getText = (textKey: string, fallback: string): string => {
-      return (
+      const text = (
         pageText[textKey] ??
         textOverrides[`${pageId}.${textKey}`] ??
         textOverrides[textKey] ??
         fallback
       );
+      return normalizeEmailInText(text);
     };
 
     const getMetaTitle = (fallback: string): string => {
