@@ -1,4 +1,5 @@
 import { createPublicServerClient } from "@/lib/supabase/public-server";
+import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import {
   fetchCategoryTranslations,
   fetchCityTranslations,
@@ -354,8 +355,8 @@ async function fetchDirectoryGlobalSettings(
   supabase: ReturnType<typeof createPublicServerClient>,
 ): Promise<GlobalSetting[]> {
   const keys = [
-    "cms_text_overrides",
-    "cms_page_configs",
+    CMS_GLOBAL_SETTING_KEYS.textOverrides,
+    CMS_GLOBAL_SETTING_KEYS.pageConfigs,
   ];
 
   const { data, error } = await supabase
