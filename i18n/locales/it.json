@@ -679,7 +679,12 @@
       "alt": "Esterno di proprietà di lusso in Algarve"
     },
     "propertiesAvailable": "Proprietà Disponibili",
-    "sortedByFeatured": "Ordinate per: In evidenza"
+    "sortedByFeatured": "Ordinate per: In evidenza",
+    "searchAssistance": {
+      "title": "Assistenza alla Ricerca",
+      "description": "Non trovi quello che cerchi? Il nostro team di portineria ha accesso a proprietà fuori mercato.",
+      "cta": "Contatta la Portineria"
+    }
   },
   "destinationDetail": {
     "backToDestinations": "Torna alle Destinazioni",

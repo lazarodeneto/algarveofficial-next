@@ -679,7 +679,12 @@
       "alt": "Außenansicht einer Luxusimmobilie an der Algarve"
     },
     "propertiesAvailable": "Verfügbare Immobilien",
-    "sortedByFeatured": "Sortiert nach: Hervorgehoben"
+    "sortedByFeatured": "Sortiert nach: Hervorgehoben",
+    "searchAssistance": {
+      "title": "Suchunterstützung",
+      "description": "Finden Sie nicht, was Sie suchen? Unser Concierge-Team hat Zugang zu Immobilien außerhalb des Marktes.",
+      "cta": "Concierge kontaktieren"
+    }
   },
   "destinationDetail": {
     "backToDestinations": "Zurück zu den Reisezielen",

@@ -679,7 +679,12 @@
       "alt": "Extérieur d'une propriété de luxe en Algarve"
     },
     "propertiesAvailable": "Propriétés Disponibles",
-    "sortedByFeatured": "Triées par : À la une"
+    "sortedByFeatured": "Triées par : À la une",
+    "searchAssistance": {
+      "title": "Assistance Recherche",
+      "description": "Vous ne trouvez pas ce que vous recherchez? Notre équipe de conciergerie a accès à des propriétés hors marché.",
+      "cta": "Contacter la Conciergerie"
+    }
   },
   "destinationDetail": {
     "backToDestinations": "Retour aux Destinations",

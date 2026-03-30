@@ -188,13 +188,13 @@ export default function RealEstateDirectory() {
                                 />
 
                                 <div className="mt-6 sm:mt-8 p-5 sm:p-8 bg-black text-white rounded-2xl space-y-4">
-                                    <h4 className="font-serif text-xl italic">Search Assistance</h4>
+                                    <h4 className="font-serif text-xl italic">{t("realEstate.searchAssistance.title", "Search Assistance")}</h4>
                                     <p className="text-sm text-white/70 font-light leading-relaxed">
-                                        Cannot find what you are looking for? Our concierge team has access to off-market properties.
+                                        {t("realEstate.searchAssistance.description", "Cannot find what you are looking for? Our concierge team has access to off-market properties.")}
                                     </p>
                                     <ConciergeContactDialog>
                                         <Button className="w-full bg-primary hover:bg-primary/90 text-black rounded-full text-[11px] sm:text-xs tracking-[0.18em] uppercase py-4 sm:py-6 whitespace-normal">
-                                            Contact Concierge
+                                            {t("realEstate.searchAssistance.cta", "Contact Concierge")}
                                         </Button>
                                     </ConciergeContactDialog>
                                 </div>
