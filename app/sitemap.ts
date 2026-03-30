@@ -115,7 +115,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       await Promise.all([
         supabase
           .from("listings")
-          .select("slug, updated_at, published_at, image_url")
+          .select("slug, updated_at, published_at, featured_image_url")
           .eq("status", "published")
           .not("slug", "is", null)
           .order("updated_at", { ascending: false })
@@ -144,18 +144,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           .limit(BLOG_LIMIT),
         supabase
           .from("events")
-          .select("slug, updated_at, start_date, image_url")
+          .select("slug, updated_at, start_date, image")
           .eq("status", "published")
           .not("slug", "is", null)
           .limit(EVENT_LIMIT),
       ]);
+
+    if (listingsResponse.error) {
+      console.error("[sitemap] Failed to fetch published listings", listingsResponse.error);
+    }
+    if (regionsResponse.error) {
+      console.error("[sitemap] Failed to fetch visible regions", regionsResponse.error);
+    }
+    if (citiesResponse.error) {
+      console.error("[sitemap] Failed to fetch cities", citiesResponse.error);
+    }
+    if (categoriesResponse.error) {
+      console.error("[sitemap] Failed to fetch categories", categoriesResponse.error);
+    }
+    if (blogPostsResponse.error) {
+      console.error("[sitemap] Failed to fetch blog posts", blogPostsResponse.error);
+    }
+    if (eventsResponse.error) {
+      console.error("[sitemap] Failed to fetch events", eventsResponse.error);
+    }
 
     // Listings — one entry per slug, English locale canonical
     for (const listing of listingsResponse.data ?? []) {
       if (!listing.slug) continue;
       const path = `/listing/${listing.slug}`;
       const lastMod = toValidDate(listing.updated_at, toValidDate(listing.published_at, now));
-      entries.push(makeEntry(path, lastMod, "weekly", 0.82, listing.image_url ?? undefined));
+      entries.push(makeEntry(path, lastMod, "weekly", 0.82, listing.featured_image_url ?? undefined));
     }
 
     // Regions
@@ -194,7 +213,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const lastMod = toValidDate(event.updated_at, toValidDate(event.start_date, now));
       const changeFreq: MetadataRoute.Sitemap[number]["changeFrequency"] =
         event.start_date && new Date(event.start_date) > now ? "weekly" : "monthly";
-      entries.push(makeEntry(path, lastMod, changeFreq, 0.74, event.image_url ?? undefined));
+      entries.push(makeEntry(path, lastMod, changeFreq, 0.74, event.image ?? undefined));
     }
 
     try {

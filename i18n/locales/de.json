@@ -156,7 +156,20 @@
     },
     "vip": {
       "title": "Signature Auswahl",
-      "subtitle": "Handverlesene Signature-Erlebnisse"
+      "subtitle": "Handverlesene Signature-Erlebnisse",
+      "discovery": {
+        "filterLabel": "Nach Kategorie erkunden",
+        "previewTitle": "Entdeckungshöhepunkte",
+        "selectAtLeastOne": "Wählen Sie mindestens eine Kategorie, um die Karte zu erkunden.",
+        "mapped": "{{count}} kartiert",
+        "matching": "{{count}} Treffer",
+        "filters": {
+          "hotels": "Hotels",
+          "restaurants": "Restaurants",
+          "experiences": "Erlebnisse",
+          "real-estate": "Immobilien"
+        }
+      }
     },
     "events": {
       "label": "Algarve Kalender",

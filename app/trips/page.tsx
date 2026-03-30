@@ -1,6 +1,5 @@
-import { redirect } from "next/navigation";
-import { DEFAULT_LOCALE } from "@/lib/i18n/config";
+import { redirectToPreferredLocalePath } from "@/lib/i18n/serverRedirect";
 
-export default function TripsPage() {
-  redirect(`/${DEFAULT_LOCALE}/trips`);
+export default async function TripsPage() {
+  await redirectToPreferredLocalePath("/trips");
 }

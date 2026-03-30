@@ -156,7 +156,20 @@
     },
     "vip": {
       "title": "Handtekening selectie",
-      "subtitle": "Handgekozen kenmerkende ervaringen"
+      "subtitle": "Handgekozen kenmerkende ervaringen",
+      "discovery": {
+        "filterLabel": "Verkennen per categorie",
+        "previewTitle": "Ontdekking hoogtepunten",
+        "selectAtLeastOne": "Selecteer ten minste één categorie om de kaart te verkennen.",
+        "mapped": "{{count}} in kaart gebracht",
+        "matching": "{{count}} overeenkomsten",
+        "filters": {
+          "hotels": "Hotels",
+          "restaurants": "Restaurants",
+          "experiences": "Ervaringen",
+          "real-estate": "Vastgoed"
+        }
+      }
     },
     "events": {
       "label": "Algarve-kalender",

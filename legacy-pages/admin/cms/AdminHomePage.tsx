@@ -117,6 +117,24 @@ const areStringRecordValuesEqual = (
   return aKeys.every((key) => a[key] === b[key]);
 };
 
+const formatFileSize = (bytes: number) => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const getUploadErrorMessage = (
+  uploadErrorMessage: string,
+  file: File,
+  assetType: "image" | "video",
+) => {
+  if (/maximum allowed size/i.test(uploadErrorMessage)) {
+    return `This ${assetType} is too large for the current media storage limit (${formatFileSize(file.size)}). Please upload a smaller/compressed ${assetType} file.`;
+  }
+
+  return uploadErrorMessage;
+};
+
 // Helper to convert YouTube URL to embed URL
 const getYouTubeEmbedUrl = (url: string): string => {
   if (!url) return '';
@@ -310,8 +328,15 @@ export default function AdminHomePage() {
     })
   );
 
-  const handleFileUpload = async (file: File, type: 'video' | 'poster' | 'quick-link', scopeId?: string) => {
+  const handleFileUpload = async (
+    file: File,
+    type: 'video' | 'poster' | 'quick-link',
+    scopeId?: string,
+    assetType?: "image" | "video",
+  ) => {
     let processedFile = file;
+    const resolvedAssetType =
+      assetType ?? (file.type.startsWith("video/") ? "video" : "image");
 
     // Convert images to WebP for better performance
     if (type !== 'video' && file.type.startsWith('image/') && file.type !== 'image/webp') {
@@ -338,7 +363,9 @@ export default function AdminHomePage() {
       });
 
     if (uploadError) {
-      toast.error(`Failed to upload ${type}: ${uploadError.message}`);
+      toast.error(
+        getUploadErrorMessage(uploadError.message, file, resolvedAssetType),
+      );
       return null;
     }
 
@@ -354,7 +381,7 @@ export default function AdminHomePage() {
     if (!file) return;
 
     setIsSaving(true);
-    const url = await handleFileUpload(file, 'video');
+    const url = await handleFileUpload(file, 'video', undefined, "video");
     if (url) {
       setHeroContent(prev => ({ ...prev, videoUrl: url }));
       await updateSettingsAsync({ hero_video_url: url });
@@ -368,7 +395,7 @@ export default function AdminHomePage() {
     if (!file) return;
 
     setIsSaving(true);
-    const url = await handleFileUpload(file, 'poster');
+    const url = await handleFileUpload(file, 'poster', undefined, "image");
     if (url) {
       setHeroContent(prev => ({ ...prev, posterUrl: url }));
       await updateSettingsAsync({ hero_poster_url: url });
@@ -389,10 +416,8 @@ export default function AdminHomePage() {
 
     setIsSaving(true);
     try {
-      const url = await handleFileUpload(file, "quick-link", cardId);
-      if (!url) {
-        throw new Error("Upload failed");
-      }
+      const url = await handleFileUpload(file, "quick-link", cardId, "image");
+      if (!url) return;
 
       const payload: GlobalSetting[] = [
         {
@@ -433,10 +458,8 @@ export default function AdminHomePage() {
 
     setIsSaving(true);
     try {
-      const url = await handleFileUpload(file, "quick-link", `${cardId}-video`);
-      if (!url) {
-        throw new Error("Upload failed");
-      }
+      const url = await handleFileUpload(file, "quick-link", `${cardId}-video`, "video");
+      if (!url) return;
 
       const payload: GlobalSetting[] = [
         {

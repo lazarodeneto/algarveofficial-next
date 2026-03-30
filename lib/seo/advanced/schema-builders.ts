@@ -7,6 +7,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || SITE_CONFIG.url;
 interface ListingSchemaInput {
   id: string;
   slug: string;
+  url?: string | null;
   name: string;
   description?: string | null;
   category_slug: string;
@@ -32,6 +33,7 @@ interface ListingSchemaInput {
 interface BlogPostSchemaInput {
   id: string;
   slug: string;
+  url?: string | null;
   title: string;
   excerpt?: string | null;
   featured_image?: string | null;
@@ -46,6 +48,7 @@ interface BlogPostSchemaInput {
 interface EventSchemaInput {
   id: string;
   slug: string;
+  url?: string | null;
   name: string;
   title?: string;
   description?: string | null;
@@ -137,7 +140,7 @@ export function buildWebSiteSchema() {
 }
 
 export function buildLocalBusinessSchema(listing: ListingSchemaInput) {
-  const url = `${SITE_URL}/listing/${listing.slug}`;
+  const url = listing.url || `${SITE_URL}/listing/${listing.slug}`;
   
   const categoryTypes: Record<string, string[]> = {
     "places-to-stay": ["LodgingBusiness", "Hotel", "Resort"],
@@ -237,7 +240,7 @@ export function buildBreadcrumbSchema(items: Array<{ name: string; url: string }
 }
 
 export function buildArticleSchema(post: BlogPostSchemaInput) {
-  const url = `${SITE_URL}/blog/${post.slug}`;
+  const url = post.url || `${SITE_URL}/blog/${post.slug}`;
   const schemaLocale = post.locale ? LOCALE_CONFIGS[post.locale]?.hreflang ?? "en-GB" : "en-GB";
 
   return {
@@ -269,7 +272,7 @@ export function buildArticleSchema(post: BlogPostSchemaInput) {
 }
 
 export function buildEventSchema(event: EventSchemaInput) {
-  const url = `${SITE_URL}/events/${event.slug}`;
+  const url = event.url || `${SITE_URL}/events/${event.slug}`;
   
   return {
     "@context": "https://schema.org",

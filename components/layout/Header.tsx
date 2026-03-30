@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback, type ComponentProps } from "r
 import NextLink from "next/link";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import type { Locale } from "@/lib/i18n/config";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, LazyMotion, domAnimation, m } from "framer-motion";
 import {
   AlignJustify,
   X,
@@ -74,7 +74,6 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const destinationsPath = l("/destinations");
   const mapPath = l("/map");
   const blogPath = l("/blog");
-  const eventsPath = l("/events");
   const loginPath = l("/login");
   const favoritesPath = isAuthenticated ? l("/dashboard/favorites") : loginPath;
   const accountPath = isAuthenticated && user ? getDashboardPath(user.role) : loginPath;
@@ -379,31 +378,32 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
         </nav>
 
         {/* Mobile menu */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <>
-              {/* Backdrop overlay */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="xl:hidden fixed inset-0 top-20 z-[55] bg-black/50 backdrop-blur-sm"
-                onClick={() => setMobileMenuOpen(false)}
-                aria-hidden="true"
-              />
+        <LazyMotion features={domAnimation}>
+          <AnimatePresence>
+            {mobileMenuOpen && (
+              <>
+                {/* Backdrop overlay */}
+                <m.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="xl:hidden fixed inset-0 top-20 z-[55] bg-black/50 backdrop-blur-sm"
+                  onClick={() => setMobileMenuOpen(false)}
+                  aria-hidden="true"
+                />
 
-              {/* Mobile menu panel */}
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "calc(100vh - 5rem)" }}
-                style={{ height: 'calc(100dvh - 5rem)' }}
-                exit={{ opacity: 0, height: 0 }}
-                data-mobile-menu-expanded="true"
-                className="xl:hidden fixed left-0 right-0 top-20 z-[60] overflow-y-auto bg-background/95 text-foreground backdrop-blur-2xl border-b border-border dark:bg-background/70 dark:border-white/10 touch-pan-y"
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-              >
+                {/* Mobile menu panel */}
+                <m.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "calc(100vh - 5rem)" }}
+                  style={{ height: 'calc(100dvh - 5rem)' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  data-mobile-menu-expanded="true"
+                  className="xl:hidden fixed left-0 right-0 top-20 z-[60] overflow-y-auto bg-background/95 text-foreground backdrop-blur-2xl border-b border-border dark:bg-background/70 dark:border-white/10 touch-pan-y"
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                >
                 <div className="px-4 py-6 space-y-4">
                   <div className="flex min-h-full flex-col">
                     <div className="mb-4 rounded-2xl border border-black/10 bg-white/70 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
@@ -492,17 +492,6 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                         </div>
                       </AccordionContent>
                     </AccordionItem>
-
-                    <div className="border-t border-black/10 dark:border-white/10">
-                      <Link
-                        href={eventsPath}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="flex w-full items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest text-foreground transition-colors hover:text-primary"
-                      >
-                        <Calendar className="h-6 w-6 text-primary" />
-                        {t("nav.events", "Events")}
-                      </Link>
-                    </div>
                   </Accordion>
 
                     <div className="mt-4 rounded-2xl border border-black/10 bg-white/66 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
@@ -575,10 +564,11 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                     </div>
                   </div>
                 </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
+                </m.div>
+              </>
+            )}
+          </AnimatePresence>
+        </LazyMotion>
       </header>
       <MobileBottomNav />
     </>

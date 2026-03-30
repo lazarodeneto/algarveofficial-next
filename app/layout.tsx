@@ -6,7 +6,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import "../index.css";
 import { RootProviders } from "@/components/providers/RootProviders";
-import { DEFAULT_LOCALE, LOCALE_CONFIGS } from "@/lib/i18n/config";
+import { DEFAULT_LOCALE, LOCALE_CONFIGS, SUPPORTED_LOCALES } from "@/lib/i18n/config";
 import { buildMetadata } from "@/lib/metadata";
 import { buildOrganizationSchema, buildWebsiteSchema } from "@/lib/seo/schemaBuilders.js";
 
@@ -30,9 +30,6 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim()?.replace(/\/+$/, "") ||
 const organizationSchema = buildOrganizationSchema(siteUrl);
 const websiteSchema = buildWebsiteSchema(siteUrl);
 const defaultHtmlLang = LOCALE_CONFIGS[DEFAULT_LOCALE].hreflang;
-const localeHtmlLangMap = Object.fromEntries(
-  Object.entries(LOCALE_CONFIGS).map(([locale, config]) => [locale, config.hreflang]),
-);
 const themeInitScript = `
   (() => {
     try {
@@ -47,19 +44,11 @@ const themeInitScript = `
     } catch {}
   })();
 `;
-const localeInitScript = `
-  (() => {
-    try {
-      const localeMap = ${JSON.stringify(localeHtmlLangMap)};
-      const segments = window.location.pathname.split('/').filter(Boolean);
-      const routeLocale = segments[0]?.toLowerCase();
-      const resolvedLocale = localeMap[routeLocale] ? routeLocale : ${JSON.stringify(DEFAULT_LOCALE)};
-
-      document.documentElement.lang = localeMap[resolvedLocale] || ${JSON.stringify(defaultHtmlLang)};
-      document.documentElement.dataset.locale = resolvedLocale;
-    } catch {}
-  })();
-`;
+const localeInitScript = `(()=>{try{const s=location.pathname.split('/')[1]?.toLowerCase(),l=${JSON.stringify(
+  SUPPORTED_LOCALES,
+)}.includes(s)?s:${JSON.stringify(DEFAULT_LOCALE)},m={en:'en','pt-pt':'pt-PT',fr:'fr-FR',de:'de-DE',es:'es-ES',it:'it-IT',nl:'nl-NL',sv:'sv-SE',no:'nb-NO',da:'da-DK'};document.documentElement.lang=m[l]||${JSON.stringify(
+  defaultHtmlLang,
+)};document.documentElement.dataset.locale=l}catch{}})();`;
 
 export const metadata: Metadata = {
   ...buildMetadata({

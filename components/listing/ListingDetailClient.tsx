@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import {
@@ -40,6 +41,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { translateCategoryName } from "@/lib/translateCategory";
 import { translateCategoryValue } from "@/lib/translateCategoryValue";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { formatRichTextDescription } from "@/lib/formatRichText";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 import { hasRealEstateSignals, isRealEstateCategorySlug } from "@/lib/realEstateDetection";
@@ -156,6 +158,13 @@ const PUBLIC_LISTING_FIELDS = `
 const PUBLIC_CITY_FIELDS = "id, name, slug, short_description, image_url, latitude, longitude";
 const PUBLIC_REGION_FIELDS = "id, name, slug, short_description, image_url";
 const PUBLIC_CATEGORY_FIELDS = "id, name, slug, icon, short_description, image_url";
+const RELATED_LISTING_FIELDS = `
+  id,
+  slug,
+  name,
+  featured_image_url,
+  city:cities(id, name)
+`;
 
 const ListingsLeafletMap = dynamic(() => import("@/components/map/ListingsLeafletMap"), {
   ssr: false,
@@ -287,47 +296,7 @@ async function fetchRelatedListings(listing: ListingWithRelations) {
 
   const { data, error } = await supabase
     .from("listings")
-    .select(`
-      id,
-      slug,
-      name,
-      short_description,
-      description,
-      featured_image_url,
-      price_from,
-      price_to,
-      price_currency,
-      tier,
-      is_curated,
-      status,
-      city_id,
-      region_id,
-      category_id,
-      owner_id,
-      latitude,
-      longitude,
-      address,
-      website_url,
-      facebook_url,
-      instagram_url,
-      twitter_url,
-      linkedin_url,
-      youtube_url,
-      tiktok_url,
-      telegram_url,
-      google_business_url,
-      google_rating,
-      google_review_count,
-      tags,
-      category_data,
-      view_count,
-      published_at,
-      created_at,
-      updated_at,
-      city:cities(${PUBLIC_CITY_FIELDS}),
-      region:regions(${PUBLIC_REGION_FIELDS}),
-      category:categories(${PUBLIC_CATEGORY_FIELDS})
-    `)
+    .select(RELATED_LISTING_FIELDS)
     .eq("status", "published")
     .eq("category_id", listing.category_id)
     .neq("id", listing.id)
@@ -737,6 +706,12 @@ function ListingDetailClientInner({
                   categoryImageUrl={normalizedCategoryImageUrl}
                   fallbackSrc="/placeholder.svg"
                   alt={galleryImages[currentImageIndex]?.alt_text || listing.name}
+                  width={1600}
+                  height={1000}
+                  sizes="(max-width: 1024px) 100vw, 66vw"
+                  priority={true}
+                  loading="eager"
+                  fetchPriority="high"
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
 
@@ -869,9 +844,22 @@ function ListingDetailClientInner({
               <div className="lg:col-span-2 space-y-8">
                 <div>
                   <div className="flex items-center gap-3 mb-3">
-                    <Badge variant="secondary" className="text-body-xs">
-                      {translateCategoryName(t, listing.category?.slug, listing.category?.name)}
-                    </Badge>
+                    {listing.category?.slug ? (
+                      <LocaleLink
+                        href={listing.city?.slug 
+                          ? `/visit/${listing.city.slug}/${listing.category.slug}` 
+                          : `/directory?category=${listing.category.slug}`}
+                        className="hover:opacity-80"
+                      >
+                        <Badge variant="secondary" className="text-body-xs">
+                          {translateCategoryName(t, listing.category?.slug, listing.category?.name)}
+                        </Badge>
+                      </LocaleLink>
+                    ) : listing.category ? (
+                      <Badge variant="secondary" className="text-body-xs">
+                        {translateCategoryName(t, listing.category?.slug, listing.category?.name)}
+                      </Badge>
+                    ) : null}
                     {listing.region ? (
                       <Badge variant="outline" className="text-body-xs">
                         {listing.region.name}
@@ -883,7 +871,13 @@ function ListingDetailClientInner({
 
                   <div className="flex items-center gap-2 text-body-sm text-muted-foreground">
                     <MapPin className="h-4 w-4" />
-                    <span>{listing.city?.name}, Algarve, Portugal</span>
+                    {listing.city?.slug ? (
+                      <LocaleLink href={`/visit/${listing.city.slug}`} className="hover:text-primary transition-colors">
+                        {listing.city.name}, Algarve, Portugal
+                      </LocaleLink>
+                    ) : (
+                      <span>{listing.city?.name}, Algarve, Portugal</span>
+                    )}
                   </div>
 
                   {(listing.google_rating || listing.tier === "signature" || listing.tier === "verified") ? (
@@ -1081,6 +1075,47 @@ function ListingDetailClientInner({
             </div>
           </section>
         ) : null}
+
+        {listing.region && (
+          <section className="py-8 px-4 border-t border-border bg-muted/30">
+            <div className="container mx-auto max-w-7xl">
+              <h2 className="text-2xl font-serif font-medium mb-6">
+                {t("listing.relatedDestinations", "Explore More Destinations")}
+              </h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                {[
+                  { name: "Golden Triangle", slug: "golden-triangle", image: "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=600&h=400&fit=crop" },
+                  { name: "Vilamoura", slug: "vilamoura-prestige", image: "https://images.unsplash.com/photo-1565099824688-ab2c0c4e5d88?w=600&h=400&fit=crop" },
+                  { name: "Carvoeiro", slug: "carvoeiro-cliffs", image: "https://images.unsplash.com/photo-1580522154071-c6ca47a859ad?w=600&h=400&fit=crop" },
+                  { name: "Lagos", slug: "lagos-signature", image: "https://images.unsplash.com/photo-1513725160889-e1f8564c3f54?w=600&h=400&fit=crop" },
+                  { name: "Tavira", slug: "tavira-heritage", image: "https://images.unsplash.com/photo-1563796248-1c6fb66f4a9e?w=600&h=400&fit=crop" },
+                ].map((dest) => (
+                  <Link
+                    key={dest.slug}
+                    href={l(`/destinations/${dest.slug}`)}
+                    className="group block rounded-xl overflow-hidden border border-border hover:border-primary/40 transition-colors bg-card"
+                  >
+                    <div className="aspect-[4/3] relative overflow-hidden bg-muted">
+                      <Image
+                        src={dest.image}
+                        alt={dest.name}
+                        fill
+                        unoptimized
+                        sizes="(max-width: 768px) 50vw, 20vw"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="p-3">
+                      <h3 className="font-medium text-sm group-hover:text-primary transition-colors">
+                        {dest.name}
+                      </h3>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         <section className="py-8 px-4 border-t border-border">
           <div className="container mx-auto max-w-7xl">

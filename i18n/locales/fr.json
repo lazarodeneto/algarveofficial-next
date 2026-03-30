@@ -156,7 +156,20 @@
     },
     "vip": {
       "title": "Sélection Signature",
-      "subtitle": "Expériences signature triées sur le volet"
+      "subtitle": "Expériences signature triées sur le volet",
+      "discovery": {
+        "filterLabel": "Explorer par catégorie",
+        "previewTitle": "Temps forts",
+        "selectAtLeastOne": "Sélectionnez au moins une catégorie pour explorer la carte.",
+        "mapped": "{{count}} cartographiés",
+        "matching": "{{count}} correspondances",
+        "filters": {
+          "hotels": "Hôtels",
+          "restaurants": "Restaurants",
+          "experiences": "Expériences",
+          "real-estate": "Immobilier"
+        }
+      }
     },
     "events": {
       "label": "Calendrier de l'Algarve",

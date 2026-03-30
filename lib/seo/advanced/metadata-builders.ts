@@ -49,6 +49,7 @@ interface PageMetadata {
   section?: string;
   authors?: Array<{ name: string; url?: string }>;
   localizedPath?: string;
+  alternatesOverride?: Metadata["alternates"];
 }
 
 export function buildPageMetadata({
@@ -65,6 +66,7 @@ export function buildPageMetadata({
   section,
   authors,
   localizedPath,
+  alternatesOverride,
 }: PageMetadata = {}): Metadata {
   const siteUrl = getSiteUrl();
   const resolvedTitle = title ? `${title} | ${SITE_CONFIG.name}` : SITE_CONFIG.name;
@@ -74,9 +76,11 @@ export function buildPageMetadata({
   );
   const resolvedImage = toAbsoluteUrl(image || SITE_CONFIG.ogImage);
 
-  const alternates = localizedPath
-    ? buildMetadataAlternates(locale, localizedPath)
-    : buildUnlocalizedAlternates("/");
+  const alternates =
+    alternatesOverride ??
+    (localizedPath
+      ? buildMetadataAlternates(locale, localizedPath)
+      : buildUnlocalizedAlternates("/"));
   const canonical =
     typeof alternates.canonical === "string" ? alternates.canonical : siteUrl;
 

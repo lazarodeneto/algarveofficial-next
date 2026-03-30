@@ -1,6 +1,5 @@
-import { redirect } from "next/navigation";
-import { DEFAULT_LOCALE } from "@/lib/i18n/config";
+import { redirectToPreferredLocalePath } from "@/lib/i18n/serverRedirect";
 
-export default function BlogPage() {
-  redirect(`/${DEFAULT_LOCALE}/blog`);
+export default async function BlogPage() {
+  await redirectToPreferredLocalePath("/blog");
 }

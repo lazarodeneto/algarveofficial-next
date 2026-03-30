@@ -51,10 +51,6 @@ export function I18nProvider({ children, locale: propLocale = "en" }: I18nProvid
         }
       }
 
-      if (!cancelled && i18n.language !== targetLocale) {
-        setIsReady(false);
-      }
-
       // Ensure locale resources are loaded
       if (!cancelled) {
         try {

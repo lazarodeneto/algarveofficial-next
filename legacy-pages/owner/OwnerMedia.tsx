@@ -42,6 +42,13 @@ interface ImageItem {
   isFeatured: boolean;
 }
 
+interface ListingImageRow {
+  id: string;
+  image_url: string;
+  is_featured: boolean;
+  display_order: number;
+}
+
 export default function OwnerMedia() {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -59,9 +66,9 @@ export default function OwnerMedia() {
   // Convert listing images to ImageItem format
   const images: ImageItem[] = useMemo(() => {
     if (!selectedListing?.images) return [];
-    return selectedListing.images
+    return (selectedListing.images as ListingImageRow[])
       .sort((a, b) => a.display_order - b.display_order)
-      .map(img => ({
+      .map((img) => ({
         id: img.id,
         url: img.image_url,
         isFeatured: img.is_featured,

@@ -12,6 +12,7 @@ import type { CityRow, RegionRow, CategoryRow } from "@/hooks/useReferenceData";
 import type { ListingWithRelations, ListingFilters } from "@/hooks/useListings";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
 import { buildMergedCategoryOptions, getMergedCategoryBySlug, resolveCategoryFilterSlug } from "@/lib/categoryMerges";
+import { getProgrammaticCityIndexEntries } from "@/lib/seo/programmatic/category-city-data";
 
 type ListingRow = Tables<"listings">;
 
@@ -49,9 +50,20 @@ export interface DirectoryPageData {
   categories: CategoryRow[];
   listings: ListingWithRelations[];
   categoryCounts: Record<string, number>;
+  visitCityIndex: VisitCityIndexItem[];
+  featuredVisitCity: VisitCityIndexItem | null;
   globalSettings: GlobalSetting[];
   filters: DirectoryInitialFilters;
   locale: string;
+}
+
+export interface VisitCityIndexItem {
+  id: string;
+  slug: string;
+  name: string;
+  short_description: string | null;
+  image_url: string | null;
+  totalCount: number;
 }
 
 function resolveFilterEntityId<T extends { id: string; slug: string }>(
@@ -230,6 +242,37 @@ async function fetchDirectoryCategoryCounts(
   return counts;
 }
 
+async function buildVisitCityIndex(cities: CityRow[]): Promise<{
+  visitCityIndex: VisitCityIndexItem[];
+  featuredVisitCity: VisitCityIndexItem | null;
+}> {
+  const indexEntries = await getProgrammaticCityIndexEntries();
+  const cityBySlug = new Map(cities.map((city) => [city.slug, city]));
+
+  const visitCityIndex = indexEntries
+    .map((entry) => {
+      const city = cityBySlug.get(entry.citySlug);
+      if (!city) return null;
+
+      return {
+        id: city.id,
+        slug: city.slug,
+        name: city.name,
+        short_description: city.short_description ?? null,
+        image_url: "image_url" in city && typeof city.image_url === "string" ? city.image_url : null,
+        totalCount: entry.totalCount,
+      } satisfies VisitCityIndexItem;
+    })
+    .filter((city): city is VisitCityIndexItem => city !== null);
+
+  const featuredVisitCity =
+    visitCityIndex.find((city) => city.image_url) ??
+    visitCityIndex[0] ??
+    null;
+
+  return { visitCityIndex, featuredVisitCity };
+}
+
 async function fetchDirectoryListings(
   supabase: ReturnType<typeof createPublicServerClient>,
   filters: ListingFilters,
@@ -347,6 +390,8 @@ export async function getDirectoryPageData(
     fetchDirectoryGlobalSettings(supabase),
   ]);
 
+  const { visitCityIndex, featuredVisitCity } = await buildVisitCityIndex(cities);
+
   const listings = await fetchDirectoryListings(
     supabase,
     normalizedFilters,
@@ -363,6 +408,8 @@ export async function getDirectoryPageData(
     categories,
     listings,
     categoryCounts,
+    visitCityIndex,
+    featuredVisitCity,
     globalSettings,
     filters,
     locale: contentLocale,

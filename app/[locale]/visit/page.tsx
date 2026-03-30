@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 
 import { DirectoryClient } from "@/components/directory/DirectoryClient";
 import { isValidLocale, type Locale } from "@/lib/i18n/config";
 import { getDirectoryPageData } from "@/lib/directory-data";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
+import {
+  buildVisitIndexBreadcrumbSchema,
+  buildVisitIndexCityItemListSchema,
+} from "@/lib/seo/programmatic/schema-builders";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -108,16 +113,43 @@ export default async function VisitPage({ params }: PageProps) {
     tier: "all",
   });
 
+  const visitCityItemListSchema = buildVisitIndexCityItemListSchema(
+    data.locale as Locale,
+    data.visitCityIndex.map((city) => ({
+      slug: city.slug,
+      name: city.name,
+      count: city.totalCount,
+    })),
+  );
+  const breadcrumbSchema = buildVisitIndexBreadcrumbSchema(data.locale as Locale);
+
   return (
-    <DirectoryClient
-      locale={data.locale}
-      initialListings={data.listings}
-      initialCities={data.cities}
-      initialRegions={data.regions}
-      initialCategories={data.categories}
-      initialCategoryCounts={data.categoryCounts}
-      initialFilters={data.filters}
-      globalSettings={data.globalSettings}
-    />
+    <>
+      {visitCityItemListSchema ? (
+        <Script
+          id="schema-visit-index-city-itemlist"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(visitCityItemListSchema) }}
+        />
+      ) : null}
+      <Script
+        id="schema-visit-index-breadcrumb"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <DirectoryClient
+        locale={data.locale}
+        initialListings={data.listings}
+        initialCities={data.cities}
+        initialRegions={data.regions}
+        initialCategories={data.categories}
+        initialCategoryCounts={data.categoryCounts}
+        visitCityIndex={data.visitCityIndex}
+        featuredVisitCity={data.featuredVisitCity}
+        initialFilters={data.filters}
+        globalSettings={data.globalSettings}
+        cmsPageId="visit"
+      />
+    </>
   );
 }

@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import Script from "next/script";
 import type { Locale } from "@/lib/i18n/config";
 import { DEFAULT_LOCALE } from "@/lib/i18n/config";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
+import { buildEventSchema } from "@/lib/seo/advanced/schema-builders";
 import { EventDetailPageClient } from "@/app/events/[slug]/EventDetailPageClient";
 import { getPublishedEventBySlug } from "@/app/events/[slug]/eventData";
 
@@ -38,10 +40,35 @@ export async function generateMetadata({ params }: LocaleEventDetailPageProps): 
 }
 
 export default async function LocaleEventDetailPage({ params }: LocaleEventDetailPageProps) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  const resolvedLocale = (locale ?? DEFAULT_LOCALE) as Locale;
   const event = await getPublishedEventBySlug(slug);
 
   if (!event) notFound();
 
-  return <EventDetailPageClient />;
+  const eventSchema = buildEventSchema({
+    id: event.slug,
+    slug: event.slug,
+    url: `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://algarveofficial.com"}/${resolvedLocale}/events/${event.slug}`,
+    name: event.meta_title || event.title,
+    description: event.meta_description || event.short_description || undefined,
+    image_url: event.image || undefined,
+    venue_name: event.venue || undefined,
+    city: event.location || undefined,
+    start_date: event.start_date || undefined,
+    end_date: event.end_date || undefined,
+    ticket_url: event.ticket_url || undefined,
+    locale: resolvedLocale,
+  });
+
+  return (
+    <>
+      <Script
+        id="schema-event"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventSchema) }}
+      />
+      <EventDetailPageClient />
+    </>
+  );
 }
