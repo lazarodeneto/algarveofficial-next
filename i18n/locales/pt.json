@@ -679,7 +679,12 @@
       "alt": "Exterior de imóvel de luxo no Algarve"
     },
     "propertiesAvailable": "Propriedades Disponíveis",
-    "sortedByFeatured": "Ordenado por: Destaque"
+    "sortedByFeatured": "Ordenado por: Destaque",
+    "searchAssistance": {
+      "title": "Ajuda na Pesquisa",
+      "description": "Não encontra o que procura? A nossa equipa de concierge tem acesso a imóveis fora do mercado.",
+      "cta": "Contactar Concierge"
+    }
   },
   "destinationDetail": {
     "backToDestinations": "Voltar aos Destinos",

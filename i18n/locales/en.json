@@ -679,7 +679,12 @@
       "alt": "Luxury Algarve real estate exterior"
     },
     "propertiesAvailable": "Properties Available",
-    "sortedByFeatured": "Sorted by: Featured"
+    "sortedByFeatured": "Sorted by: Featured",
+    "searchAssistance": {
+      "title": "Search Assistance",
+      "description": "Cannot find what you are looking for? Our concierge team has access to off-market properties.",
+      "cta": "Contact Concierge"
+    }
   },
   "destinationDetail": {
     "backToDestinations": "Back to Destinations",

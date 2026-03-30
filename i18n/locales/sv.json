@@ -679,7 +679,12 @@
       "alt": "Exteriör av lyxfastighet i Algarve"
     },
     "propertiesAvailable": "Tillgängliga Bostäder",
-    "sortedByFeatured": "Sorterat efter: Utvalda"
+    "sortedByFeatured": "Sorterat efter: Utvalda",
+    "searchAssistance": {
+      "title": "Sökassistent",
+      "description": "Hittar du inte vad du letar efter? Vår portvaktsgrupp har tillgång till fastigheter utanför marknaden.",
+      "cta": "Kontakta Portvakt"
+    }
   },
   "destinationDetail": {
     "backToDestinations": "Tillbaka till Destinationer",

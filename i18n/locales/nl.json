@@ -679,7 +679,12 @@
       "alt": "Buitenzijde van luxe vastgoed in de Algarve"
     },
     "propertiesAvailable": "Beschikbare Woningen",
-    "sortedByFeatured": "Gesorteerd op: Uitgelicht"
+    "sortedByFeatured": "Gesorteerd op: Uitgelicht",
+    "searchAssistance": {
+      "title": "Zoekassistentie",
+      "description": "Vindt u niet wat u zoekt? Ons gastenservice-team heeft toegang tot woningen buiten de markt.",
+      "cta": "Contact Gastenservice"
+    }
   },
   "destinationDetail": {
     "backToDestinations": "Terug naar Bestemmingen",
