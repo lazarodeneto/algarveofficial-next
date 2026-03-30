@@ -25,8 +25,8 @@ export function RegionsSection() {
   const l = useLocalePath();
   const isLoading = regionsLoading;
 
-  // Filter to only regions that have local images available
-  const displayRegions = regions?.filter((region) => !!getRegionImageSet(region.slug)) || [];
+  // Filter to only regions that have images available (from DB or static)
+  const displayRegions = regions?.filter((region) => region.image_url || getRegionImageSet(region.slug)) || [];
 
   if (isLoading) {
     return (
@@ -79,7 +79,7 @@ export function RegionsSection() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-3 lg:gap-4">
             {displayRegions.map((region) => {
               const images = getRegionImageSet(region.slug);
-              if (!images) return null;
+              const hasCustomImage = !!region.image_url;
               const listingCount = regionCounts?.[region.id] || 0;
 
               return (
@@ -100,13 +100,23 @@ export function RegionsSection() {
                   >
                     {/* Image */}
                     <div className="absolute inset-0 rounded-[inherit]">
-                      <Image
-                        src={images.image800}
-                        alt={region.name}
-                        fill
-                        sizes="(max-width: 639px) 48vw, (max-width: 1023px) 31vw, 384px"
-                        className="object-cover rounded-[inherit]"
-                      />
+                      {hasCustomImage ? (
+                        <Image
+                          src={region.image_url!}
+                          alt={region.name}
+                          fill
+                          sizes="(max-width: 639px) 48vw, (max-width: 1023px) 31vw, 384px"
+                          className="object-cover rounded-[inherit]"
+                        />
+                      ) : images ? (
+                        <Image
+                          src={images.image800}
+                          alt={region.name}
+                          fill
+                          sizes="(max-width: 639px) 48vw, (max-width: 1023px) 31vw, 384px"
+                          className="object-cover rounded-[inherit]"
+                        />
+                      ) : null}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 rounded-[inherit]" />
                     </div>
 
