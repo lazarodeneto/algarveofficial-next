@@ -88,10 +88,10 @@ const TIER_CONFIG: Record<ListingTier, TierConfig> = {
   signature: {
     name: "signature",
     card: {
-      base: "bg-card border-[#C7A35A]/30 dark:border-[#C7A35A]/40 rounded-2xl",
-      hover: "hover:shadow-2xl hover:-translate-y-1 hover:scale-[1.01] hover:border-[#C7A35A]/50",
-      border: "border border-[#C7A35A]/30 dark:border-[#C7A35A]/40",
-      shadow: "shadow-lg shadow-[#C7A35A]/10",
+      base: "bg-card border-[#C7A35A]/50 dark:border-[#C7A35A]/60 rounded-2xl",
+      hover: "hover:shadow-[0_0_20px_hsla(43,86%,58%,0.35)] hover:-translate-y-1 hover:scale-[1.01] hover:border-[#C7A35A]/80",
+      border: "border-[2px] border-[hsl(43,86%,58%)] shadow-[0_0_10px_hsla(43,86%,58%,0.34)]",
+      shadow: "shadow-[0_0_10px_hsla(43,86%,58%,0.25)]",
     },
     badge: {
       base: "bg-gradient-to-r from-[#C7A35A] via-[#D4AF37] to-[#C7A35A] text-black ring-1 ring-[#C7A35A]/50 shadow-lg shadow-[#C7A35A]/30",
