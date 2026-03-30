@@ -8,10 +8,14 @@ export type EventSeoRecord = Pick<
   | "slug"
   | "title"
   | "short_description"
+  | "location"
+  | "venue"
   | "meta_title"
   | "meta_description"
   | "image"
   | "start_date"
+  | "end_date"
+  | "ticket_url"
   | "created_at"
   | "updated_at"
 >;
@@ -25,7 +29,7 @@ export const getPublishedEventBySlug = cache(async (slug: string): Promise<Event
   const supabase = createPublicServerClient();
   const { data, error } = await supabase
     .from("events")
-    .select("slug, title, short_description, meta_title, meta_description, image, start_date, created_at, updated_at, status")
+    .select("slug, title, short_description, location, venue, meta_title, meta_description, image, start_date, end_date, ticket_url, created_at, updated_at, status")
     .eq("slug", normalizedSlug)
     .eq("status", "published")
     .maybeSingle();

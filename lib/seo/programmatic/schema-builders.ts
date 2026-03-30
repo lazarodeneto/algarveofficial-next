@@ -1,7 +1,7 @@
 import type { Locale } from "@/lib/i18n/config";
 import type { ProgrammaticListing } from "./category-city-data";
 import type { CanonicalCategorySlug } from "./category-slugs";
-import { getCategoryDisplayName } from "./category-slugs";
+import { getCategoryDisplayName, getCategoryUrlSlug } from "./category-slugs";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ?? "https://algarveofficial.com";
 
@@ -273,5 +273,100 @@ export function buildVisitCityCollectionPageSchema(
       name: "AlgarveOfficial",
       url: SITE_URL,
     },
+  };
+}
+
+export function buildVisitCityCategoryItemListSchema(
+  locale: Locale,
+  cityName: string,
+  citySlug: string,
+  categories: Array<{ slug: CanonicalCategorySlug; name: string; count: number }>,
+) {
+  if (categories.length === 0) {
+    return null;
+  }
+
+  const pageUrl = `${SITE_URL}${localePath(locale, `/visit/${citySlug}`)}`;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `Explore categories in ${cityName}, Algarve`,
+    description: `Browse the main premium categories available in ${cityName}, Algarve, with current listing counts for each category.`,
+    url: pageUrl,
+    numberOfItems: categories.length,
+    itemListElement: categories.map((category, index) => {
+      const categoryName = getCategoryDisplayName(category.slug, locale);
+      const categoryUrl = `${SITE_URL}${localePath(
+        locale,
+        `/visit/${citySlug}/${getCategoryUrlSlug(category.slug, locale)}`,
+      )}`;
+
+      return {
+        "@type": "ListItem",
+        position: index + 1,
+        name: categoryName,
+        url: categoryUrl,
+        item: {
+          "@type": "CollectionPage",
+          name: categoryName,
+          url: categoryUrl,
+          description: `${category.count} listings in ${cityName} for ${categoryName}.`,
+        },
+      };
+    }),
+  };
+}
+
+export function buildVisitIndexBreadcrumbSchema(locale: Locale) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: `${SITE_URL}${localePath(locale, "/")}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Visit",
+        item: `${SITE_URL}${localePath(locale, "/visit")}`,
+      },
+    ],
+  };
+}
+
+export function buildVisitIndexCityItemListSchema(
+  locale: Locale,
+  cities: Array<{ slug: string; name: string; count: number }>,
+) {
+  if (cities.length === 0) {
+    return null;
+  }
+
+  const pageUrl = `${SITE_URL}${localePath(locale, "/visit")}`;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Algarve city hubs",
+    description: "Browse Algarve city hubs with current listing totals and local category landing pages.",
+    url: pageUrl,
+    numberOfItems: cities.length,
+    itemListElement: cities.map((city, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: city.name,
+      url: `${SITE_URL}${localePath(locale, `/visit/${city.slug}`)}`,
+      item: {
+        "@type": "CollectionPage",
+        name: city.name,
+        url: `${SITE_URL}${localePath(locale, `/visit/${city.slug}`)}`,
+        description: `${city.count} listings in ${city.name}, Algarve.`,
+      },
+    })),
   };
 }

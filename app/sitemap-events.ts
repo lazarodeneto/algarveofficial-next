@@ -18,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const { data: events, error } = await supabase
     .from("events")
-    .select("slug, updated_at, start_date, image_url")
+    .select("slug, updated_at, start_date, image")
     .eq("status", "published")
     .order("start_date", { ascending: false, nullsFirst: false })
     .limit(SITEMAP_FETCH_LIMIT);
@@ -35,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       alternates: {
         languages: buildHreflangs(basePath),
       },
-      images: event.image_url ? [event.image_url] : undefined,
+      images: event.image ? [event.image] : undefined,
     };
   });
 }

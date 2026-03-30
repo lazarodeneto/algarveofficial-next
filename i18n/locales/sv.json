@@ -156,7 +156,20 @@
     },
     "vip": {
       "title": "Signaturval",
-      "subtitle": "Handplockade signaturupplevelser"
+      "subtitle": "Handplockade signaturupplevelser",
+      "discovery": {
+        "filterLabel": "Utforska efter kategori",
+        "previewTitle": "Upptäcktshöjdpunkter",
+        "selectAtLeastOne": "Välj minst en kategori för att utforska kartan.",
+        "mapped": "{{count}} kartlagda",
+        "matching": "{{count}} träffar",
+        "filters": {
+          "hotels": "Hotell",
+          "restaurants": "Restauranger",
+          "experiences": "Upplevelser",
+          "real-estate": "Fastigheter"
+        }
+      }
     },
     "events": {
       "label": "Algarve kalender",

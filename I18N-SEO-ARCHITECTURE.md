@@ -128,6 +128,46 @@ algarveofficial-next/
 
 ## 🔄 Data Flow
 
+## Known Gap: SSR `<html lang>`
+
+The current App Router structure uses a single root [`app/layout.tsx`](/Users/mini/algarveofficial-next/app/layout.tsx) for both localized and non-localized routes, so the raw server-rendered `<html lang>` attribute is emitted with the default language (`en-GB`) before client-side locale correction runs.
+
+What happens today:
+- the route locale is still reflected correctly in canonical URLs and `hreflang` alternates
+- the locale initialization script updates `document.documentElement.lang` before paint for normal browser users
+- [`LocaleDocumentSync.tsx`](/Users/mini/algarveofficial-next/components/layout/LocaleDocumentSync.tsx) re-applies the correct `lang` attribute after hydration
+
+Why this is still acceptable:
+- the visible user experience is correct with JavaScript enabled
+- multilingual SEO signals primarily come from locale-prefixed URLs and `hreflang`, which are already server-correct
+- fixing SSR `html[lang]` properly requires a root layout refactor, not a small isolated patch
+
+Recommended future fix:
+- move ownership of the `<html>` element into a locale-aware layout boundary, or
+- refactor the root layout so it can derive locale server-side before rendering `<html>`
+
+Until that refactor is scheduled, treat this as a documented best-practice gap rather than a release blocker.
+
+## Known Boundary: `localeSwitchPaths` is only required for locale-specific slugs
+
+The shared [`Header.tsx`](/Users/mini/algarveofficial-next/components/layout/Header.tsx) now accepts optional `localeSwitchPaths` so the language switcher can navigate correctly on routes whose slugs change by locale.
+
+Where it is required today:
+- programmatic city/category pages such as `/en/visit/lagos/restaurants`
+- these pages need locale-specific category slug remapping like `/pt-pt/visit/lagos/restaurantes`
+
+Where it is not currently required:
+- legacy pages that render `<Header />` directly but use language-agnostic route segments
+- examples include `/about-us`, `/real-estate/[slug]`, `/blog/[slug]`, `/events/[slug]`, `/contact`, `/privacy-policy`, `/cookie-policy`, `/terms`, `/trips`, and `/login`
+- the generic pathname-based locale switch remains correct for those routes because their slugs do not vary by locale
+
+Practical guidance:
+- do not rush a broad refactor of all existing `<Header />` call sites just to pass `localeSwitchPaths`
+- only introduce localized path maps when a route actually has per-locale slug variants
+- when legacy pages are eventually migrated to App Router-native page components, pass locale-specific alternates down only for routes that need them
+
+This is technical debt to monitor, not a current navigation defect.
+
 ### Scenario 1: User visits `/pt-pt/directory`
 
 ```

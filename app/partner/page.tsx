@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { redirectToPreferredLocalePath } from "@/lib/i18n/serverRedirect";
 
 export default async function RootPartnerPage() {
-  redirect("/en/partner");
+  await redirectToPreferredLocalePath("/partner");
 }

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
+import { normalizePublicContactEmail } from "@/lib/contactEmail";
 
 export interface SiteSettings {
   id: string;
@@ -77,6 +78,13 @@ const applyColorsToDocument = (settings: SiteSettings) => {
 
 const STORAGE_KEY = 'site-settings-v1';
 
+function normalizeSiteSettings(settings: SiteSettings): SiteSettings {
+  return {
+    ...settings,
+    contact_email: normalizePublicContactEmail(settings.contact_email),
+  };
+}
+
 export function useSiteSettings() {
   const queryClient = useQueryClient();
   const isBrowser = typeof window !== "undefined";
@@ -90,7 +98,7 @@ export function useSiteSettings() {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        return JSON.parse(stored);
+        return normalizeSiteSettings(JSON.parse(stored) as SiteSettings);
       }
     } catch (e) {
       console.warn('Failed to parse stored site settings', e);
@@ -110,12 +118,14 @@ export function useSiteSettings() {
       if (error) throw error;
       if (!data) throw new Error('Site settings not found');
 
+      const normalized = normalizeSiteSettings(data as SiteSettings);
+
       // Update local storage
       if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
       }
 
-      return data as SiteSettings;
+      return normalized;
     },
     // Use stored data initially to avoid loading state if possible
     initialData: getStoredSettings,
@@ -153,7 +163,7 @@ export function useSiteSettings() {
 
       if (error) throw error;
       if (!data) throw new Error('Site settings not found after update');
-      return data as SiteSettings;
+      return normalizeSiteSettings(data as SiteSettings);
     },
     onSuccess: (data) => {
       queryClient.setQueryData(['site-settings'], data);

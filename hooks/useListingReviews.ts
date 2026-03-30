@@ -191,7 +191,13 @@ export function useUpsertListingReview() {
       const { data, error } = await supabase
         .from("listing_reviews")
         .upsert(
-          { listing_id: listingId, user_id: userId, rating, comment: comment || null },
+          { 
+            listing_id: listingId, 
+            user_id: userId, 
+            rating, 
+            comment: comment || null,
+            status: 'pending' 
+          },
           { onConflict: "listing_id,user_id" }
         )
         .select()
