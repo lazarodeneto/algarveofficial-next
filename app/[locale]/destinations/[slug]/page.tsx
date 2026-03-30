@@ -212,7 +212,7 @@ const getDestinationPageData = cache(async (slug: string, locale: Locale) => {
   };
 });
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export async function generateMetadata({ params }: LocaleDestinationPageProps): Promise<Metadata> {
   const { locale, slug } = await params;
