@@ -669,6 +669,136 @@
       "ctaPrimary": "Plan My Move",
       "ctaSecondary": "Browse Local Experts",
       "alt": "Live in Algarve coastline"
+    },
+    "stats": {
+      "sun": "Sunny Days / Year",
+      "municipalities": "Municipalities to Explore",
+      "concierge": "Unified Relocation Concierge"
+    },
+    "roadmap": {
+      "label": "Relocation Roadmap",
+      "title": "Your move, broken into practical steps",
+      "legal": {
+        "title": "Legal & Residency Setup",
+        "description": "Map residency route, tax registration, NIF, banking, and compliant documentation with local experts."
+      },
+      "home": {
+        "title": "Home & Neighborhood Match",
+        "description": "Select the right area based on your lifestyle: family-focused, golf-centric, marina living, or tranquil coastal villages."
+      },
+      "move": {
+        "title": "90-Day Landing Plan",
+        "description": "A practical first-quarter checklist for utilities, healthcare enrollment, schools, mobility, and trusted local services."
+      }
+    },
+    "pillars": {
+      "label": "Life Essentials",
+      "title": "What matters once you have arrived",
+      "health": {
+        "title": "Healthcare",
+        "description": "Private and public access options, English-speaking clinics, and concierge medical support."
+      },
+      "education": {
+        "title": "Education",
+        "description": "International schools, language pathways, and family relocation alignment."
+      },
+      "cost": {
+        "title": "Cost & Tax Clarity",
+        "description": "Transparent guidance on living costs, ownership vs rent scenarios, and tax planning handoff."
+      },
+      "security": {
+        "title": "Safety & Services",
+        "description": "Neighborhood context, home security providers, and vetted maintenance networks."
+      }
+    },
+    "planner": {
+      "label": "Relocation Planner",
+      "title": "Build your move blueprint in under 2 minutes",
+      "timelineLabel": "Timeline",
+      "timeline": {
+        "0_3": "0-3 months",
+        "3_6": "3-6 months",
+        "6_12": "6-12 months",
+        "12plus": "12+ months"
+      },
+      "householdLabel": "Household",
+      "household": {
+        "solo": "Solo",
+        "couple": "Couple",
+        "family": "Family",
+        "retired": "Retired"
+      },
+      "housingLabel": "Housing Strategy",
+      "housing": {
+        "rentFirst": "Rent first, then decide",
+        "buySoon": "Buy within first 6 months",
+        "buyNow": "Buy immediately"
+      },
+      "lifestyleLabel": "Lifestyle Focus",
+      "lifestyle": {
+        "coastal": "Coastal balance",
+        "marina": "Marina + premium services",
+        "family": "Family-first routines"
+      },
+      "budgetLabel": "Monthly Living Budget",
+      "budget": {
+        "lean": "Lean Setup",
+        "balanced": "Balanced Premium",
+        "luxury": "Premium Comfort"
+      },
+      "schoolingLabel": "Need School Support?",
+      "schooling": {
+        "yes": "Yes",
+        "no": "No",
+        "required": "Required",
+        "notRequired": "Not required"
+      },
+      "output": {
+        "budgetBand": "Budget Band",
+        "timeline": "Timeline",
+        "schooling": "Schooling",
+        "priority": "Residency Priority",
+        "neighborhood": "Neighborhood Focus",
+        "first90": "First 90-Day Checklist"
+      },
+      "residency": {
+        "fast": "Immediate legal sequencing: NIF, banking, lease/purchase compliance, and residency filing path.",
+        "standard": "Parallel track setup: documentation readiness while filtering locations and service providers.",
+        "progressive": "Staged preparation: optimize tax/legal structure first, then execute housing and move timeline."
+      },
+      "focus": {
+        "coastal": "Lagos, Tavira, and selected coastal pockets balancing access, calm, and daily convenience.",
+        "marina": "Vilamoura, Quinta do Lago, and marina-adjacent neighborhoods with strong service density.",
+        "family": "Loulé, Lagos outskirts, and school-connected residential zones with year-round livability."
+      },
+      "checklist": {
+        "legal": "Set legal/tax onboarding sequence with local advisors.",
+        "rent": "Secure short-term rental base before long-term commitment.",
+        "buy": "Start purchase screening with legal due-diligence gate from day one.",
+        "school": "Shortlist international schools and align commute radius before home selection.",
+        "service": "Prioritize healthcare + mobility setup for daily reliability.",
+        "family": "Map family routines: school, activities, and trusted domestic services.",
+        "household": "Map household routine support: transport, wellness, and concierge workflows."
+      },
+      "handoff": {
+        "subject": "Relocation Planning Request",
+        "primary": "Send This Plan to Concierge",
+        "secondary": "View Trusted Local Partners"
+      }
+    },
+    "destinations": {
+      "label": "Destination Snapshot",
+      "title": "Explore cities to match your lifestyle",
+      "viewAll": "View All Destinations",
+      "empty": "Featured city guides are being updated. Check back shortly.",
+      "fallbackDescription": "High-quality infrastructure and lifestyle access.",
+      "exploreCity": "Explore City"
+    },
+    "final": {
+      "title": "Ready to establish your base in the Algarve?",
+      "description": "Tell us your timeline, priorities, and household profile. We will map the right next steps with vetted local partners.",
+      "primary": "Start Relocation Planning",
+      "secondary": "Request Partner Introduction"
     }
   },
   "realEstate": {

@@ -663,12 +663,142 @@
   },
   "live": {
     "hero": {
-      "badge": "Relocation-Beratung",
-      "title": "Leben Sie an der Algarve, mit Klarheit vom ersten Tag an",
-      "subtitle": "Strukturierte Begleitung für Aufenthaltsfragen, Wohnen und den Alltag, damit Ihr Umzug reibungslos, regelkonform und zukunftssicher gelingt.",
-      "ctaPrimary": "Meinen Umzug planen",
-      "ctaSecondary": "Lokale Experten finden",
-      "alt": "Algarve-Küste zum Leben"
+      "badge": "Umzugshilfe",
+      "title": "Leben Sie an der Algarve, mit Klarheit von Tag eins",
+      "subtitle": "Strukturierte Anleitung für Aufenthalt, Wohnen und Alltag, damit Ihr Umzug reibungslos, konform und zukunftsreif ist.",
+      "ctaPrimary": "Meinen Umzug Planen",
+      "ctaSecondary": "Lokale Experten Durchsuchen",
+      "alt": "Algarve Küste"
+    },
+    "stats": {
+      "sun": "Sonnige Tage / Jahr",
+      "municipalities": "Gemeinden zu Erkunden",
+      "concierge": "Einheitlicher Umzugsservice"
+    },
+    "roadmap": {
+      "label": "Umzugskarte",
+      "title": "Ihr Umzug, in praktische Schritte unterteilt",
+      "legal": {
+        "title": "Rechtliche Aufenthaltsgenehmigung",
+        "description": "Planen Sie Ihren Aufenthaltsweg, Steuerregistrierung, NIF, Banken und konforme Dokumentation mit lokalen Experten."
+      },
+      "home": {
+        "title": "Wohnung & Nachbarschaft Passend",
+        "description": "Wählen Sie den richtigen Bereich basierend auf Ihrem Lebensstil: familieorientiert, Golf-zentriert, Marina-Leben oder ruhige Küstendörfer."
+      },
+      "move": {
+        "title": "90-Tage-Landungsplan",
+        "description": "Praktische Checkliste für das erste Quartal: Versorgung, Gesundheitsanmeldung, Schulen, Mobilität und vertrauenswürdige lokale Dienste."
+      }
+    },
+    "pillars": {
+      "label": "Lebenswertes",
+      "title": "Was zählt, wenn Sie angekommen sind",
+      "health": {
+        "title": "Gesundheit",
+        "description": "Private und öffentliche Zugangsoptionen, englischsprachige Kliniken und Concierge-medizinische Unterstützung."
+      },
+      "education": {
+        "title": "Bildung",
+        "description": "Internationale Schulen, Sprachwege und Familien-Umzugsabstimmung."
+      },
+      "cost": {
+        "title": "Kosten & Steuerklarheit",
+        "description": "Transparente Anleitung zu Lebenshaltungskosten, Kauf vs. Miet-Szenarien und Steuerplanungsübergabe."
+      },
+      "security": {
+        "title": "Sicherheit & Dienste",
+        "description": "Nachbarschaftskontext, Haussicherheitsanbieter und geprüfte Wartungsnetzwerke."
+      }
+    },
+    "planner": {
+      "label": "Umzugsplaner",
+      "title": "Erstellen Sie Ihren Umzugsplan in unter 2 Minuten",
+      "timelineLabel": "Zeitrahmen",
+      "timeline": {
+        "0_3": "0-3 Monate",
+        "3_6": "3-6 Monate",
+        "6_12": "6-12 Monate",
+        "12plus": "12+ Monate"
+      },
+      "householdLabel": "Haushalt",
+      "household": {
+        "solo": "Alleinstehend",
+        "couple": "Paar",
+        "family": "Familie",
+        "retired": "Rentner"
+      },
+      "housingLabel": "Wohnstrategie",
+      "housing": {
+        "rentFirst": "Erst mieten, dann entscheiden",
+        "buySoon": "Innerhalb von 6 Monaten kaufen",
+        "buyNow": "Sofort kaufen"
+      },
+      "lifestyleLabel": "Lebensstil-Fokus",
+      "lifestyle": {
+        "coastal": "Küstenbalance",
+        "marina": "Marina + Premium-Dienste",
+        "family": "Familienroutinen"
+      },
+      "budgetLabel": "Monatliches Lebensbudget",
+      "budget": {
+        "lean": "Schlanke Einrichtung",
+        "balanced": "Ausgewogenes Premium",
+        "luxury": "Premium-Komfort"
+      },
+      "schoolingLabel": "Schulunterstützung Benötigt?",
+      "schooling": {
+        "yes": "Ja",
+        "no": "Nein",
+        "required": "Erforderlich",
+        "notRequired": "Nicht erforderlich"
+      },
+      "output": {
+        "budgetBand": "Budgetbereich",
+        "timeline": "Zeitrahmen",
+        "schooling": "Schulbildung",
+        "priority": "Aufenthaltspriorität",
+        "neighborhood": "Nachbarschaftsfokus",
+        "first90": "90-Tage-Checkliste"
+      },
+      "residency": {
+        "fast": "Sofortige rechtliche Sequenz: NIF, Banken, Miet-/Kaufkonformität und Aufenthaltsgenehmigungsweg.",
+        "standard": "Parallele Einrichtung: Dokumentationsbereitschaft während Filterung von Standorten und Diensten.",
+        "progressive": "Stufenweise Vorbereitung: Steuer-/Rechtsstruktur zuerst optimieren, dann Wohnung und Umzug umsetzen."
+      },
+      "focus": {
+        "coastal": "Lagos, Tavira und ausgewählte Küstentaschen mit Zugang, Ruhe und täglichem Komfort.",
+        "marina": "Vilamoura, Quinta do Lago und marina-nahe Nachbarschaften mit starker Dienstleistungsdichte.",
+        "family": "Loulé, Lagos-Vororte und schulnahe Wohnzonen mit ganzjähriger Wohnqualität."
+      },
+      "checklist": {
+        "legal": "Rechtliche/steuerliche Onboarding-Sequenz mit lokalen Beratern festlegen.",
+        "rent": "Kurzzeitige Mietbasis vor langfristigem Engagement sichern.",
+        "buy": "Kauf-Screening mit rechtlicher Sorgfaltspflicht ab Tag eins starten.",
+        "school": "Internationale Schulen vor Hausauswahl listen und Pendelradius abstimmen.",
+        "service": "Gesundheit + Mobilität für tägliche Zuverlässigkeit priorisieren.",
+        "family": "Familienroutinen planen: Schule, Aktivitäten und vertrauenswürdige Hausservices.",
+        "household": "Haushaltsunterstützung planen: Transport, Wellness und Concierge-Workflows."
+      },
+      "handoff": {
+        "subject": "Umzugsplanungsanfrage",
+        "primary": "Diesen Plan an Concierge Senden",
+        "secondary": "Vertrauenswürdige Lokale Partner Ansehen"
+      }
+    },
+    "destinations": {
+      "label": "Zielübersicht",
+      "title": "Städte erkunden, die zu Ihrem Lebensstil passen",
+      "viewAll": "Alle Ziele Ansehen",
+      "empty": "Stadtführer werden aktualisiert. Schauen Sie bald vorbei.",
+      "fallbackDescription": "Hochwertige Infrastruktur und Lifestyle-Zugang.",
+      "exploreCity": "Stadt Erkunden"
+    },
+    "final": {
+      "title": "Bereit, Ihre Basis an der Algarve zu etablieren?",
+      "description": "Teilen Sie uns Ihren Zeitrahmen, Prioritäten und Haushaltsprofil mit. Wir planen die nächsten Schritte mit vertrauenswürdigen lokalen Partnern.",
+      "primary": "Umzugsplanung Starten",
+      "secondary": "Partner-Empfehlung Anfordern"
     }
   },
   "realEstate": {
