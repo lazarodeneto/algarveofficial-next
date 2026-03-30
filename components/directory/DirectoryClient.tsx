@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   ChevronDown,
   Loader2,
+  ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
@@ -1045,32 +1046,34 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                     </p>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {props.visitCityIndex.map((city) => (
-                    <Link
+                    <article
                       key={city.id}
-                      href={l(`/visit/${city.slug}`)}
-                      className="group overflow-hidden rounded-[28px] border border-border bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                      className="glass-box overflow-hidden"
                     >
-                      <div className="relative aspect-[16/10] bg-muted">
+                      <div className="h-36 w-full overflow-hidden">
                         <ListingImage
                           src={city.image_url}
                           alt={city.name}
-                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          className="w-full h-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-                        <div className="absolute bottom-3 left-3 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                          {city.totalCount} listings
-                        </div>
                       </div>
                       <div className="p-5">
-                        <h3 className="font-serif text-xl text-foreground">{city.name}</h3>
-                        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                        <h3 className="text-xl font-medium mb-2">{city.name}</h3>
+                        <p className="text-sm text-muted-foreground min-h-[2.5rem]">
                           {city.short_description ||
                             `Discover premium things to do, places to stay, and signature experiences in ${city.name}.`}
                         </p>
+                        <Link
+                          href={l(`/visit/${city.slug}`)}
+                          className="inline-flex items-center mt-4 text-primary font-medium hover:text-primary/80 transition-colors"
+                        >
+                          {t("directory.exploreCity", "Explore City")}
+                          <ArrowRight className="h-4 w-4 ml-1" />
+                        </Link>
                       </div>
-                    </Link>
+                    </article>
                   ))}
                 </div>
               </div>
