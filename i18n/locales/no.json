@@ -679,7 +679,12 @@
       "alt": "Eksteriør av luksuseiendom i Algarve"
     },
     "propertiesAvailable": "Tilgjengelige Eiendommer",
-    "sortedByFeatured": "Sortert etter: Utvalgte"
+    "sortedByFeatured": "Sortert etter: Utvalgte",
+    "searchAssistance": {
+      "title": "Søkeassistanse",
+      "description": "Finner du ikke det du leter etter? Vårt portnerteam har tilgang til eiendommer utenfor markedet.",
+      "cta": "Kontakt Portner"
+    }
   },
   "destinationDetail": {
     "backToDestinations": "Tilbake til Destinasjoner",
