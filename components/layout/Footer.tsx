@@ -17,6 +17,7 @@ import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 import { openCookiePreferences } from "@/lib/cookieConsent";
 import { LOCALE_PREFIX_PATTERN } from "@/lib/i18n/config";
 import { stripLocaleFromPathname } from "@/lib/i18n/routing";
+import { normalizePublicContactEmail } from "@/lib/contactEmail";
 
 function Link(props: ComponentProps<typeof NextLink>) {
   return <NextLink prefetch={false} {...props} />;
@@ -352,7 +353,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-3 text-body-sm text-muted-foreground">
                 <Mail className="h-4 w-4 text-primary" />
-                <span>{t("footer.email")}</span>
+                <span>{normalizePublicContactEmail(t("footer.email"))}</span>
               </div>
             </div>
           </div>
