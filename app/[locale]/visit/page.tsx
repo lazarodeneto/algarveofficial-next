@@ -15,7 +15,7 @@ interface PageProps {
   params: Promise<{ locale: string }>;
 }
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 const VISIT_META: Record<Locale, { title: string; description: string }> = {
   en: {
