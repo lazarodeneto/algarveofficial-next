@@ -202,15 +202,15 @@ function AdminPageBuilderContent() {
     if (isValidRequested && requestedPageId !== selectedPageId) {
       setSelectedPageId(requestedPageId);
     }
-  }, [requestedPageId, selectedPageId]);
+  }, [requestedPageId]);
 
   useEffect(() => {
-    if (!selectedPageId) return;
+    if (!selectedPageId || !initialized) return;
     if (requestedPageId === selectedPageId) return;
     const next = new URLSearchParams(searchParams);
     next.set("page", selectedPageId);
     setSearchParams(next, { replace: true });
-  }, [requestedPageId, searchParams, selectedPageId, setSearchParams]);
+  }, [initialized, requestedPageId, searchParams, selectedPageId, setSearchParams]);
 
   useEffect(() => {
     if (isLoading || initialized) return;
