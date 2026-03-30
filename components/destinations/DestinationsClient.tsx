@@ -239,6 +239,7 @@ async function fetchGlobalSettings() {
 
 function DestinationsClientInner({ initialRegions, initialGlobalSettings }: DestinationsClientProps) {
   const { t } = useTranslation();
+  const imageTimestamp = Date.now();
 
   const { data: regions = initialRegions, isLoading } = useQuery({
     queryKey: ["regions", { destinationsOnly: true, activeOnly: false }],
@@ -349,7 +350,7 @@ function DestinationsClientInner({ initialRegions, initialGlobalSettings }: Dest
                           />
                         ) : region.image_url || region.hero_image_url ? (
                           <Image
-                            src={region.hero_image_url || region.image_url || ""}
+                            src={region.hero_image_url ? `${region.hero_image_url}?_t=${imageTimestamp}` : region.image_url ? `${region.image_url}?_t=${imageTimestamp}` : ""}
                             alt={region.name}
                             fill
                             unoptimized
