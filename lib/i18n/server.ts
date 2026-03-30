@@ -1,5 +1,5 @@
 import { cache } from "react";
-import type { Locale } from "./locales";
+import type { Locale } from "./config";
 import { createPublicServerClient } from "../supabase/public-server";
 import {
   enforcePremiumInLocaleData,

@@ -47,6 +47,20 @@ interface PageProps {
 
 export const revalidate = 3600;
 
+function buildLocalizedCategoryPaths(
+  canonical: CanonicalCategorySlug,
+  citySlug: string,
+): Partial<Record<Locale, string>> {
+  const localizedPaths: Partial<Record<Locale, string>> = {};
+
+  for (const locale of SUPPORTED_LOCALES) {
+    const localizedCategorySlug = getCategoryUrlSlug(canonical, locale);
+    localizedPaths[locale] = `/${locale}/visit/${citySlug}/${localizedCategorySlug}`;
+  }
+
+  return localizedPaths;
+}
+
 export async function generateStaticParams(): Promise<PageParams[]> {
   const combinations = await getAllCategoryCityCombinations();
 
@@ -98,11 +112,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const categoryName = getCategoryDisplayName(canonical, locale);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ?? "https://algarveofficial.com";
 
-  const localizedPaths: Partial<Record<Locale, string>> = {};
-  for (const loc of SUPPORTED_LOCALES) {
-    const localizedCategorySlug = getCategoryUrlSlug(canonical, loc);
-    localizedPaths[loc] = `/${loc}/visit/${citySlug}/${localizedCategorySlug}`;
-  }
+  const localizedPaths = buildLocalizedCategoryPaths(canonical, citySlug);
 
   const alternates = buildLocalizedPathAlternates(locale, localizedPaths);
   const canonicalUrl =
@@ -173,6 +183,7 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
 
   const canonical = getCanonicalFromUrlSlug(categoryUrlSlug, locale);
   if (!canonical) notFound();
+  const localizedPaths = buildLocalizedCategoryPaths(canonical, citySlug);
 
   const data = await getCategoryCityPageDataAllowEmpty(canonical, citySlug);
   if (!data) notFound();
@@ -227,7 +238,7 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
       />
 
       <main className="min-h-screen bg-background">
-        <Header />
+        <Header localeSwitchPaths={localizedPaths} />
         <section className="relative overflow-hidden bg-gradient-to-b from-background to-muted/20">
           {data.city.image_url && (
             <div className="absolute inset-0 -z-10">
