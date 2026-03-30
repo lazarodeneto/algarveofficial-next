@@ -41,6 +41,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SeoFieldsPanel } from "@/components/admin/seo/SeoFieldsPanel";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { SingleImageUploadField } from "@/components/admin/listings/SingleImageUploadField";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 
 type CityRow = Tables<"cities">;
@@ -499,22 +500,20 @@ export default function AdminCmsCities() {
 
               {/* Hero Image */}
               <div className="space-y-2">
-                <Label>Hero Image URL</Label>
-                <Input
-                  value={editingCity.hero_image_url || ''}
-                  onChange={(e) => setEditingCity({ ...editingCity, hero_image_url: e.target.value })}
-                  className="bg-background"
-                  placeholder="https://..."
+                <Label>Hero Image</Label>
+                <SingleImageUploadField
+                  value={editingCity.hero_image_url || undefined}
+                  onChange={(value) => setEditingCity({ ...editingCity, hero_image_url: value || null })}
+                  folder="cities"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>Card Image URL</Label>
-                <Input
-                  value={editingCity.image_url || ""}
-                  onChange={(e) => setEditingCity({ ...editingCity, image_url: e.target.value })}
-                  className="bg-background"
-                  placeholder="https://..."
+                <Label>Card Image</Label>
+                <SingleImageUploadField
+                  value={editingCity.image_url || undefined}
+                  onChange={(value) => setEditingCity({ ...editingCity, image_url: value || null })}
+                  folder="cities"
                 />
               </div>
 
