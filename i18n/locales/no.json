@@ -364,7 +364,17 @@
     "errorMessage": "Kunne ikke laste inn oppføringer. Vennligst prøv igjen.",
     "failedToLoad": "Kunne ikke laste inn oppføringer. Vennligst prøv igjen.",
     "active": "Aktiv",
-    "mapView": "Kartvisning"
+    "mapView": "Kart",
+    "exploreCity": "Utforsk by",
+    "featuredCityHub": "Fremhevet by",
+    "exploreAlgarveCities": "Utforsk byer i Algarve",
+    "cityIndex": "Byindeks",
+    "cityIndexDescription": "Bla gjennom byer med oppdaterte antall oppføringer, gå videre til restauranter, overnatting, arrangementer og mer.",
+    "allActiveCityHubs": "Alle aktive byer",
+    "allActiveCityHubsDescription": "Byinngangssider med kuraterte oppføringer og kategoriruter.",
+    "listingsCount": "{{count}} oppføringer",
+    "featuredCityHubDescription": "Utforsk {{count}} kuraterte oppføringer og byguider i {{name}}, Algarve.",
+    "cityCardDescription": "Oppdag premium ting å gjøre, steder å bo og signatur-opplevelser i {{name}}."
   },
   "listing": {
     "about": "Om",

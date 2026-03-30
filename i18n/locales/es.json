@@ -364,7 +364,17 @@
     "errorMessage": "Error al cargar listados. Por favor intente de nuevo.",
     "failedToLoad": "Error al cargar listados. Por favor intente de nuevo.",
     "active": "Activo",
-    "mapView": "Ver Mapa"
+    "mapView": "Ver Mapa",
+    "exploreCity": "Explorar Ciudad",
+    "featuredCityHub": "Ciudad destacada",
+    "exploreAlgarveCities": "Explorar ciudades del Algarve",
+    "cityIndex": "Índice de ciudades",
+    "cityIndexDescription": "Navegue por las ciudades con totales de anuncios actuales, luego explore restaurantes, alojamiento, eventos y más.",
+    "allActiveCityHubs": "Todas las ciudades activas",
+    "allActiveCityHubsDescription": "Páginas de entrada a nivel de ciudad con anuncios seleccionados y rutas por categoría.",
+    "listingsCount": "{{count}} anuncios",
+    "featuredCityHubDescription": "Explora {{count}} anuncios seleccionados y guías de la ciudad en {{name}}, Algarve.",
+    "cityCardDescription": "Descubre cosas premium que hacer, lugares para hospedarte y experiencias exclusivas en {{name}}."
   },
   "listing": {
     "about": "Acerca de",

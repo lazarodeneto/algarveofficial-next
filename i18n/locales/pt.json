@@ -364,7 +364,17 @@
     "errorMessage": "Falha ao carregar anúncios. Por favor tente novamente.",
     "failedToLoad": "Falha ao carregar anúncios. Por favor tente novamente.",
     "active": "Ativo",
-    "mapView": "Ver Mapa"
+    "mapView": "Ver Mapa",
+    "exploreCity": "Explorar Cidade",
+    "featuredCityHub": "Cidade em destaque",
+    "exploreAlgarveCities": "Explorar cidades do Algarve",
+    "cityIndex": "Índice de cidades",
+    "cityIndexDescription": "Navegue pelas cidades com totais de anúncios atuais, depois explore restaurantes,alojamento, eventos e muito mais.",
+    "allActiveCityHubs": "Todas as cidades ativas",
+    "allActiveCityHubsDescription": "Páginas de entrada ao nível da cidade com anúncios curados e rotas de categorias.",
+    "listingsCount": "{{count}} anúncios",
+    "featuredCityHubDescription": "Explore {{count}} anúncios curados e guias da cidade em {{name}}, Algarve.",
+    "cityCardDescription": "Descubra coisas premium para fazer, locais para ficar e experiências de assinatura em {{name}}."
   },
   "listing": {
     "about": "Sobre",
