@@ -26,7 +26,11 @@ export function ListingCard({ listing, tx }: ListingCardProps) {
   return (
     <LocaleLink
       href={`/listing/${listing.slug}`}
-      className="group flex flex-col rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/40 hover:shadow-lg transition-all duration-200"
+      className={`group flex flex-col rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/40 hover:shadow-lg transition-all duration-200 ${
+        listing.tier === "signature" 
+          ? "border-[2px] border-[hsl(43,86%,58%)] shadow-[0_0_10px_hsla(43,86%,58%,0.34)]" 
+          : ""
+      }`}
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         {listing.featured_image_url ? (
