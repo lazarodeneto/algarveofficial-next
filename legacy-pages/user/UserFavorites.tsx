@@ -577,7 +577,7 @@ export default function UserFavorites() {
                   <Card className="bg-card border-border overflow-hidden">
                     <div className="aspect-video overflow-hidden relative">
                       <ImageWithFallback
-                        src={getRegionImageSet(region.slug)?.image || region.image_url}
+                        src={region.hero_image_url || getRegionImageSet(region.slug)?.image || region.image_url}
                         alt={region.name}
                         containerClassName="w-full h-full"
                         fallbackIconSize={48}

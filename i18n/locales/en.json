@@ -364,7 +364,17 @@
     "errorMessage": "Failed to load listings. Please try again.",
     "failedToLoad": "Failed to load listings. Please try again.",
     "active": "Active",
-    "mapView": "Map View"
+    "mapView": "Map View",
+    "exploreCity": "Explore City",
+    "featuredCityHub": "Featured city hub",
+    "exploreAlgarveCities": "Explore Algarve cities",
+    "cityIndex": "City index",
+    "cityIndexDescription": "Browse city hubs with current listing totals, then jump into restaurants, accommodation, events, and more.",
+    "allActiveCityHubs": "All active city hubs",
+    "allActiveCityHubsDescription": "City-level entry pages with curated listings and category routes.",
+    "listingsCount": "{{count}} listings",
+    "featuredCityHubDescription": "Explore {{count}} curated listings and city guides in {{name}}, Algarve.",
+    "cityCardDescription": "Discover premium things to do, places to stay, and signature experiences in {{name}}."
   },
   "listing": {
     "about": "About",

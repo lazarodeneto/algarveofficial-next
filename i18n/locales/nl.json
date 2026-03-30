@@ -364,7 +364,17 @@
     "errorMessage": "Kan vermeldingen niet laden. Probeer het opnieuw.",
     "failedToLoad": "Kan vermeldingen niet laden. Probeer het opnieuw.",
     "active": "Actief",
-    "mapView": "Kaartweergave"
+    "mapView": "Kaartografie",
+    "exploreCity": "Stad verkennen",
+    "featuredCityHub": "Uitgelichte stad",
+    "exploreAlgarveCities": "Verken steden in de Algarve",
+    "cityIndex": "Stedenregister",
+    "cityIndexDescription": "Blader door steden met actuele vermeldingen, spring naar restaurants, accommodatie, evenementen en meer.",
+    "allActiveCityHubs": "Alle actieve steden",
+    "allActiveCityHubsDescription": "Stadspagina's met samengestelde vermeldingen en categorieroutes.",
+    "listingsCount": "{{count}} vermeldingen",
+    "featuredCityHubDescription": "Verken {{count}} samengestelde vermeldingen en stadsgidsen in {{name}}, Algarve.",
+    "cityCardDescription": "Ontdek premium dingen om te doen, verblijfplaatsen en bijzondere ervaringen in {{name}}."
   },
   "listing": {
     "about": "Over",

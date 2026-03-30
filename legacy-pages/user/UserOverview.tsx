@@ -236,9 +236,9 @@ export default function UserOverview() {
             {featuredRegions.slice(0, 3).map((region, index) => {
               const mappedRegionImage = getRegionImageSet(region.slug);
               const regionImageSrc =
-                resolveRegionImageSrc(mappedRegionImage?.image) ||
-                region.image_url ||
                 region.hero_image_url ||
+                region.image_url ||
+                resolveRegionImageSrc(mappedRegionImage?.image) ||
                 "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80";
               return (
               <motion.div
