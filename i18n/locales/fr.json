@@ -836,7 +836,61 @@
       "eventModeration": "Modération des Événements",
       "termsOfService": "Conditions d'Utilisation",
       "privacyPolicy": "Politique de Confidentialité",
-      "cookiePolicy": "Politique des Cookies",
+  "cookiePolicy": {
+    "title": "Politique de Cookies",
+    "lastUpdated": "Dernière mise à jour : {{date}}",
+    "introduction": "Cette Politique de Cookies explique comment AlgarveOfficial utilise des cookies et des technologies similaires pour vous reconnaître lorsque vous visitez notre site web. Elle explique quelles sont ces technologies et pourquoi nous les utilisons, ainsi que vos droits pour contrôler notre utilisation.",
+    "sections": {
+      "whatAreCookies": {
+        "title": "Que Sont les Cookies",
+        "content": "Les cookies sont de petits fichiers de données qui sont placés sur votre ordinateur ou appareil mobile lorsque vous visitez un site web."
+      },
+      "types": {
+        "title": "Types de Cookies Que Nous Utilisons",
+        "table": {
+          "type": "Type",
+          "purpose": "Finalité",
+          "duration": "Durée",
+          "essential": "Essentiels",
+          "essentialPurpose": "Authentification, sécurité, préférences de langue",
+          "essentialDuration": "Session / 1 an",
+          "functional": "Fonctionnels",
+          "functionalPurpose": "Préférences de thème, paramètres utilisateur",
+          "functionalDuration": "1 an",
+          "analytics": "Analytiques",
+          "analyticsPurpose": "Pages vues, suivi de session (avec consentement)",
+          "analyticsDuration": "90 jours"
+        }
+      },
+      "essential": {
+        "title": "Cookies Essentiels",
+        "description": "Ces cookies sont strictement nécessaires au fonctionnement du site web et ne peuvent pas être désactivés dans nos systèmes.",
+        "items": ["Définir vos préférences de confidentialité", "Vous connecter à votre compte", "Remplir des formulaires", "Maintenir la sécurité"],
+        "note": "Vous pouvez configurer votre navigateur pour bloquer ou vous alerter sur ces cookies, mais certaines parties du site ne fonctionneront pas correctement sans eux."
+      },
+      "analytics": {
+        "title": "Cookies Analytiques",
+        "description": "Ces cookies nous permettent de compter les visites et les sources de trafic pour mesurer et améliorer les performances de notre site.",
+        "dataCollected": "Données que nous collectons avec votre consentement :",
+        "dataItems": ["Pages visitées et temps passé", "Adresse IP anonymisée", "Type de navigateur et appareil", "Source de référence"]
+      },
+      "managing": {
+        "title": "Gérer Vos Préférences de Cookies",
+        "description": "Vous avez le droit de décider si vous acceptez ou rejetez les cookies.",
+        "items": ["Bannière de consentement aux cookies", "Paramètres du navigateur", "Stockage local"],
+        "note": "Veuillez noter que si vous choisissez de rejeter les cookies, vous pouvez toujours utiliser notre site web bien que votre accès à certaines fonctionnalités puisse être limité."
+      },
+      "contact": {
+        "title": "Contactez-Nous",
+        "description": "Si vous avez des questions sur notre utilisation des cookies, veuillez nous contacter :"
+      }
+    },
+    "footer": {
+      "privacyPolicy": "Politique de Confidentialité",
+      "termsOfService": "Conditions d'Utilisation",
+      "backToHome": "Retour à l'Accueil"
+    }
+  },
       "pages": "Pages",
       "regions": "Régions",
       "destinations": "Destinations",

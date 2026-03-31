@@ -837,8 +837,55 @@
       "eventModeration": "Begivenhedsmoderering",
       "termsOfService": "Servicevilkår",
       "privacyPolicy": "Privatlivspolitik",
-      "cookiePolicy": "Cookiepolitik",
-      "pages": "Sider",
+    "cookiePolicy": {
+    "title": "Cookiepolitik",
+    "lastUpdated": "Sidst opdateret: {{date}}",
+    "introduction": "Denne cookiepolitik forklarer, hvordan AlgarveOfficial bruger cookies og lignende teknologi til at genkende dig, når du besøger vores hjemmeside.",
+    "sections": {
+      "types": {
+        "title": "Typer af Cookies Vi Bruger",
+        "table": {
+          "type": "Type",
+          "purpose": "Formål",
+          "duration": "Varighed",
+          "essential": "Nødvendige",
+          "essentialPurpose": "Autentificering, sikkerhed, sprogpræferencer",
+          "essentialDuration": "Session / 1 år",
+          "functional": "Funktionelle",
+          "functionalPurpose": "Temapræferencer, brugerindstillinger",
+          "functionalDuration": "1 år",
+          "analytics": "Analytiske",
+          "analyticsPurpose": "Sidevisninger, sessionssporing (med samtykke)",
+          "analyticsDuration": "90 dage"
+        }
+      },
+      "essential": {
+        "title": "Nødvendige Cookies",
+        "description": "Disse cookies er strengt nødvendige for, at hjemmesiden kan fungere, og kan ikke slås fra i vores systemer.",
+        "note": "Du kan indstille din browser til at blokke eller advare om disse cookies, men nogle dele af webstedet vil ikke fungere korrekt uden dem."
+      },
+      "analytics": {
+        "title": "Analytiske Cookies",
+        "description": "Disse cookies giver os mulighed for at tælle besøg og trafikkilder, så vi kan måle og forbedre ydeevnen af vores websted.",
+        "dataCollected": "Data vi indsamler med dit samtykke:"
+      },
+      "managing": {
+        "title": "Administrer Dine Cookie-præferencer",
+        "description": "Du har ret til at beslutte, om du accepterer eller afviser cookies.",
+        "note": "Hvis du vælger at afvise cookies, kan du stadig bruge vores websted, selvom adgangen til visse funktioner kan være begrænset."
+      },
+      "contact": {
+        "title": "Kontakt Os",
+        "description": "Hvis du har spørgsmål om vores brug af cookies, bedes du kontakte os:"
+      }
+    },
+    "footer": {
+      "privacyPolicy": "Privatlivspolitik",
+      "termsOfService": "Vilkår for service",
+      "backToHome": "Tilbage til Start"
+    }
+  },
+  "pages": "Sider",
       "regions": "Regioner",
       "destinations": "Destinationer",
       "cities": "Byer",

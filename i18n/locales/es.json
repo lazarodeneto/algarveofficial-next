@@ -836,7 +836,61 @@
       "eventModeration": "Moderación de Eventos",
       "termsOfService": "Términos de Servicio",
       "privacyPolicy": "Política de Privacidad",
-      "cookiePolicy": "Política de Cookies",
+  "cookiePolicy": {
+    "title": "Política de Cookies",
+    "lastUpdated": "Última actualización: {{date}}",
+    "introduction": "Esta Política de Cookies explica cómo AlgarveOfficial usa cookies y tecnologías similares para reconocerte cuando visitas nuestro sitio web.",
+    "sections": {
+      "whatAreCookies": {
+        "title": "Qué Son las Cookies",
+        "content": "Las cookies son pequeños archivos de datos que se placingen en tu ordenador o dispositivo móvil cuando visitas un sitio web."
+      },
+      "types": {
+        "title": "Tipos de Cookies Que Usamos",
+        "table": {
+          "type": "Tipo",
+          "purpose": "Propósito",
+          "duration": "Duración",
+          "essential": "Esenciales",
+          "essentialPurpose": "Autenticación, seguridad, preferencias de idioma",
+          "essentialDuration": "Sesión / 1 año",
+          "functional": "Funcionales",
+          "functionalPurpose": "Preferencias de tema, configuración del usuario",
+          "functionalDuration": "1 año",
+          "analytics": "Analíticas",
+          "analyticsPurpose": "Vistas de página, seguimiento de sesión (con consentimiento)",
+          "analyticsDuration": "90 días"
+        }
+      },
+      "essential": {
+        "title": "Cookies Esenciales",
+        "description": "Estas cookies son estrictamente necesarias para que el sitio web funcione y no pueden desactivarse en nuestros sistemas.",
+        "items": ["Establecer tus preferencias de privacidad", "Iniciar sesión en tu cuenta", "Rellenar formularios", "Mantener la seguridad"],
+        "note": "Puedes configurar tu navegador para bloquear o alertarte sobre estas cookies, pero algunas partes del sitio no funcionarán correctamente sin ellas."
+      },
+      "analytics": {
+        "title": "Cookies Analíticas",
+        "description": "Estas cookies nos permiten contar visitas y fuentes de tráfico para medir y mejorar el rendimiento de nuestro sitio.",
+        "dataCollected": "Datos que recopilamos con tu consentimiento:",
+        "dataItems": ["Páginas visitadas y tiempo empleado", "Dirección IP anonimizada", "Tipo de navegador y dispositivo", "Fuente de referencia"]
+      },
+      "managing": {
+        "title": "Gestionar Tus Preferencias de Cookies",
+        "description": "Tienes el derecho de decidir si aceptas o rechazas las cookies.",
+        "items": ["Banner de consentimiento de cookies", "Configuración del navegador", "Almacenamiento local"],
+        "note": "Ten en cuenta que si eliges rechazar cookies, aún puedes usar nuestro sitio web aunque tu acceso a algunas funciones puede estar restringido."
+      },
+      "contact": {
+        "title": "Contáctanos",
+        "description": "Si tienes alguna pregunta sobre nuestro uso de cookies, contáctanos:"
+      }
+    },
+    "footer": {
+      "privacyPolicy": "Política de Privacidad",
+      "termsOfService": "Términos de Servicio",
+      "backToHome": "Volver al Inicio"
+    }
+  },
       "pages": "Páginas",
       "regions": "Regiones",
       "destinations": "Destinos",

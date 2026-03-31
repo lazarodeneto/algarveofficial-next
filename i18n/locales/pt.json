@@ -836,7 +836,61 @@
       "eventModeration": "Moderação de Eventos",
       "termsOfService": "Termos de Serviço",
       "privacyPolicy": "Política de Privacidade",
-      "cookiePolicy": "Política de Cookies",
+  "cookiePolicy": {
+    "title": "Política de Cookies",
+    "lastUpdated": "Última atualização: {{date}}",
+    "introduction": "Esta Política de Cookies explica como a AlgarveOfficial usa cookies e tecnologias similares para reconhecê-lo quando visita o nosso website. Explica o que são estas tecnologias e porque as usamos, bem como os seus direitos para controlar o nosso uso delas.",
+    "sections": {
+      "whatAreCookies": {
+        "title": "O Que São Cookies",
+        "content": "Cookies são pequenos ficheiros de dados que são colocados no seu computador ou dispositivo móvel quando visita um website. Os cookies são amplamente usados pelos proprietários de websites para fazer os seus websites funcionar, ou funcionar de forma mais eficiente, bem como para fornecer informações de relatórios."
+      },
+      "types": {
+        "title": "Tipos de Cookies Que Usamos",
+        "table": {
+          "type": "Tipo",
+          "purpose": "Finalidade",
+          "duration": "Duração",
+          "essential": "Essenciais",
+          "essentialPurpose": "Autenticação, segurança, preferências de idioma",
+          "essentialDuration": "Sessão / 1 ano",
+          "functional": "Funcionais",
+          "functionalPurpose": "Preferências de tema, configurações do utilizador",
+          "functionalDuration": "1 ano",
+          "analytics": "Analíticos",
+          "analyticsPurpose": "Visualizações de página, rastreamento de sessão (com consentimento)",
+          "analyticsDuration": "90 dias"
+        }
+      },
+      "essential": {
+        "title": "Cookies Essenciais",
+        "description": "Estes cookies são estritamente necessários para o funcionamento do website e não podem ser desligados nos nossos sistemas. São normalmente definidos apenas em resposta a ações feitas por si que equivalem a um pedido de serviços, tais como:",
+        "items": ["Definir as suas preferências de privacidade", "Iniciar sessão na sua conta", "Preencher formulários", "Manter a segurança"],
+        "note": "Pode definir o seu navegador para bloquear ou alertá-lo sobre estes cookies, mas algumas partes do site não funcionarão corretamente sem eles."
+      },
+      "analytics": {
+        "title": "Cookies Analíticos",
+        "description": "Estes cookies permitem-nos contar visitas e fontes de tráfego para podermos medir e melhorar o desempenho do nosso site. Ajudam-nos a saber quais páginas são mais e menos populares e ver como os visitantes se movem pelo site. Todas as informações que estes cookies recolhem são agregadas e anónimas. Apenas definimos estes cookies após ter dado o seu consentimento explícito através do nosso banner de consentimento de cookies.",
+        "dataCollected": "Dados que recolhemos com o seu consentimento:",
+        "dataItems": ["Páginas visitadas e tempo gasto", "Endereço IP anonimizado (últimos dois octetos mascarados)", "Tipo de navegador e dispositivo", "Fonte de referência"]
+      },
+      "managing": {
+        "title": "Gerir as Suas Preferências de Cookies",
+        "description": "Tem o direito de decidir se aceita ou rejeita cookies. Pode exercer as suas preferências de cookies através de:",
+        "items": ["Banner de Consentimento de Cookies: Quando visita o nosso site pela primeira vez, pode aceitar ou rejeitar cookies não essenciais", "Configurações do Navegador: Pode definir o seu navegador para recusar todos ou alguns cookies", "Armazenamento Local: Limpe o armazenamento local do seu navegador para redefinir as suas preferências"],
+        "note": "Note que se escolher rejeitar cookies, ainda pode usar o nosso website embora o seu acesso a alguma funcionalidade e áreas possa ser restringido."
+      },
+      "contact": {
+        "title": "Contacte-Nos",
+        "description": "Se tiver alguma questão sobre o nosso uso de cookies, por favor contacte-nos:"
+      }
+    },
+    "footer": {
+      "privacyPolicy": "Política de Privacidade",
+      "termsOfService": "Termos de Serviço",
+      "backToHome": "Voltar ao Início"
+    }
+  },
       "pages": "Páginas",
       "regions": "Regiões",
       "destinations": "Destinos",

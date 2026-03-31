@@ -837,8 +837,55 @@
       "eventModeration": "Eventmoderering",
       "termsOfService": "Vilkår for bruk",
       "privacyPolicy": "Personvernerklæring",
-      "cookiePolicy": "Retningslinjer for informasjonskapsler",
-      "pages": "Sider",
+    "cookiePolicy": {
+    "title": "Retningslinjer for informasjonskapsler",
+    "lastUpdated": "Sist oppdatert: {{date}}",
+    "introduction": "Denne informasjonskapselpolitikken forklarer hvordan AlgarveOfficial bruker informasjonskapsler og lignende teknologi for å gjenkjenne deg når du besøker nettsiden vår.",
+    "sections": {
+      "types": {
+        "title": "Typer Informasjonskapsler Vi Bruker",
+        "table": {
+          "type": "Type",
+          "purpose": "Formål",
+          "duration": "Varighet",
+          "essential": "Nødvendige",
+          "essentialPurpose": "Autentisering, sikkerhet, språkpreferanser",
+          "essentialDuration": "Økt / 1 år",
+          "functional": "Funksjonelle",
+          "functionalPurpose": "Temapreferanser, brukerinnstillinger",
+          "functionalDuration": "1 år",
+          "analytics": "Analytiske",
+          "analyticsPurpose": "Sidevisninger, økt-sporing (med samtykke)",
+          "analyticsDuration": "90 dager"
+        }
+      },
+      "essential": {
+        "title": "Nødvendige Informasjonskapsler",
+        "description": "Disse informasjonskapslene er strengt nødvendige for at nettsiden skal fungere og kan ikke slås av i våre systemer.",
+        "note": "Du kan angi at nettleseren skal blokkere eller varsle om disse informasjonskapslene, men noen deler av nettstedet vil ikke fungere skikkelig uten dem."
+      },
+      "analytics": {
+        "title": "Analytiske Informasjonskapsler",
+        "description": "Disse informasjonskapslene lar oss telle besøk og trafikkilder slik at vi kan måle og forbedre ytelsen til nettstedet vårt.",
+        "dataCollected": "Data vi samler inn med ditt samtykke:"
+      },
+      "managing": {
+        "title": "Administrer Dine Informasjonskapselpreferanser",
+        "description": "Du har rett til å avgjøre om du aksepterer eller avviser informasjonskapsler.",
+        "note": "Hvis du velger å avvise informasjonskapsler, kan du fortsatt bruke nettstedet vårt, selv om tilgangen til enkelte funksjoner kan være begrenset."
+      },
+      "contact": {
+        "title": "Kontakt Oss",
+        "description": "Hvis du har spørsmål om vår bruk av informasjonskapsler, vennligst kontakt oss:"
+      }
+    },
+    "footer": {
+      "privacyPolicy": "Personvernpolicy",
+      "termsOfService": "Vilkår for bruk",
+      "backToHome": "Tilbake til Hjem"
+    }
+  },
+  "pages": "Sider",
       "regions": "Regioner",
       "destinations": "Destinasjoner",
       "cities": "Byer",
