@@ -17,7 +17,7 @@ const ALGARVE_DEFAULT_CENTER: [number, number] = [37.08, -8.15];
 const ALGARVE_DEFAULT_ZOOM = 9.5;
 
 const TILE_LAYERS = {
-  dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?language=en",
+  dark: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?language=en",
   light: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?language=en",
 };
 
@@ -525,6 +525,9 @@ export function ListingsLeafletMap({
 
   return (
     <div className={cn("rounded-xl overflow-hidden border border-border relative z-0", className)}>
+      {isDark ? (
+        <div className="absolute inset-0 z-[400] pointer-events-none bg-black/25 mix-blend-multiply" />
+      ) : null}
       <MapContainer
         center={defaultCenter}
         zoom={defaultZoom}
