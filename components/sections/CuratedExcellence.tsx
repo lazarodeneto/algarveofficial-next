@@ -31,6 +31,7 @@ interface CuratedExcellenceProps {
   context: CuratedContext;
   limit?: number; // 3-6 items, defaults to 3
   showSectionHeader?: boolean;
+  fullWidth?: boolean;
 }
 
 type Lang = "en" | "pt-pt" | "fr" | "de" | "es" | "it" | "nl" | "sv" | "no" | "da";
@@ -63,7 +64,8 @@ const normalizeLang = (raw?: string | null): Lang => {
 export function CuratedExcellence({
   context,
   limit = 3,
-  showSectionHeader = true
+  showSectionHeader = true,
+  fullWidth = false
 }: CuratedExcellenceProps) {
   const { t, i18n } = useTranslation();
   const l = useLocalePath();
@@ -135,12 +137,15 @@ export function CuratedExcellence({
   const featuredListing = displayListings[0];
 
   return (
-    <section id="curated-excellence" className="py-24 bg-background relative overflow-hidden lg:py-[40px]">
-      {/* Decorative Elements */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-primary/[0.02] rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/[0.02] rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none" />
+    <section id="curated-excellence" className={fullWidth ? "relative overflow-hidden" : "py-24 bg-background relative overflow-hidden lg:py-[40px]"}>
+      {!fullWidth && (
+        <>
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary/[0.02] rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/[0.02] rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none" />
+        </>
+      )}
 
-      <div className="relative app-container">
+      <div className={fullWidth ? "relative" : "relative app-container"}>
         {/* Section Header */}
         {showSectionHeader && (
           <motion.div
@@ -168,13 +173,19 @@ export function CuratedExcellence({
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
-            className="group relative flex flex-col md:flex-row overflow-hidden glass-box glass-box-listing-shimmer glass-box-contour cursor-pointer transition-all duration-500 hover:border-primary/40 hover:shadow-[0_0_26px_rgba(172,184,198,0.28),0_0_52px_rgba(172,184,198,0.14)]"
+            className={fullWidth
+              ? "group relative flex flex-col overflow-hidden glass-box glass-box-listing-shimmer glass-box-contour cursor-pointer transition-all duration-500 hover:border-primary/40 hover:shadow-[0_0_26px_rgba(172,184,198,0.28),0_0_52px_rgba(172,184,198,0.14)]"
+              : "group relative flex flex-col md:flex-row overflow-hidden glass-box glass-box-listing-shimmer glass-box-contour cursor-pointer transition-all duration-500 hover:border-primary/40 hover:shadow-[0_0_26px_rgba(172,184,198,0.28),0_0_52px_rgba(172,184,198,0.14)]"
+            }
           >
             {/* Gold accent border on left */}
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[hsl(43,74%,49%)] via-[hsl(43,80%,35%)] to-[hsl(43,74%,49%)] rounded-l-lg z-10" />
 
             {/* Image */}
-            <div className="md:w-2/5 h-64 md:h-80 overflow-hidden relative">
+            <div className={fullWidth
+              ? "h-56 sm:h-64 overflow-hidden relative"
+              : "md:w-2/5 h-64 md:h-80 overflow-hidden relative"
+            }>
               <ListingImage
                 src={featuredListing.featured_image_url}
                 category={featuredListing.category?.slug}
@@ -207,7 +218,10 @@ export function CuratedExcellence({
             </div>
 
             {/* Content */}
-            <div className="md:w-3/5 p-6 lg:p-10 flex flex-col justify-center relative z-10">
+            <div className={fullWidth
+              ? "p-5 sm:p-6 flex flex-col justify-center relative z-10"
+              : "md:w-3/5 p-6 lg:p-10 flex flex-col justify-center relative z-10"
+            }>
               <div className="flex flex-wrap items-center gap-3 mb-4">
                 {/* Badge */}
                 <ListingTierBadge tier="signature" />

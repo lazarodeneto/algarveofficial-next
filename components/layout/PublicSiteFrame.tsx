@@ -32,7 +32,7 @@ export function PublicSiteFrame({ children }: PublicSiteFrameProps) {
       <Suspense fallback={null}>
         <PublicSiteSidebar />
       </Suspense>
-      <div className="xl:pl-20 lg:pr-6">{children}</div>
+      <div className="lg:pl-20">{children}</div>
     </>
   );
 }

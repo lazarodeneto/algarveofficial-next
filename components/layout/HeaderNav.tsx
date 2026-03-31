@@ -6,6 +6,7 @@ import clsx from "clsx";
 import {
   Binoculars,
   CalendarDays,
+  Compass,
   Home,
   TrendingUp,
   type LucideIcon,
@@ -20,8 +21,11 @@ const HEADER_NAV_ITEMS = PRIMARY_NAV_ITEMS.filter(
 
 const HEADER_NAV_ICONS: Record<string, LucideIcon> = {
   "nav.visit": Binoculars,
+  "nav.stay": Binoculars,
   "nav.live": Home,
   "nav.invest": TrendingUp,
+  "nav.properties": TrendingUp,
+  "nav.experiences": Compass,
   "nav.events": CalendarDays,
 };
 
@@ -35,7 +39,7 @@ export function HeaderNav() {
   return (
     <nav
       aria-label={ariaLabel}
-      className="flex items-center gap-3 text-[0.98rem] font-medium uppercase tracking-[0.055em] text-foreground/86 xl:gap-5 xl:text-[1.22rem] xl:tracking-[0.08em] 2xl:gap-6 2xl:text-[1.3rem]"
+      className="font-['Archivo_Narrow'] flex items-center gap-3 text-[0.98rem] font-medium uppercase tracking-[0.055em] text-foreground/86 xl:gap-5 xl:text-[1.22rem] xl:tracking-[0.08em] 2xl:gap-6 2xl:text-[1.3rem]"
     >
       {HEADER_NAV_ITEMS.map((item) => {
         const isActive =
@@ -53,7 +57,7 @@ export function HeaderNav() {
               isActive ? "font-semibold text-foreground after:scale-x-100" : ""
             )}
           >
-            {Icon ? <Icon aria-hidden="true" className="hidden h-[0.95rem] w-[0.95rem] shrink-0 text-current/80 xl:block" /> : null}
+            {Icon ? <Icon aria-hidden="true" className="h-[0.95rem] w-[0.95rem] shrink-0 text-current/80" /> : null}
             <span>{label}</span>
           </LocaleLink>
         );

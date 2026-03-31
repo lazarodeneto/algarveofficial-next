@@ -29,7 +29,10 @@
     "yourSpace": "Il Tuo Spazio",
     "openMenu": "Apri menu",
     "closeMenu": "Chiudi menu",
-    "mobilePrimary": "Navigazione principale"
+    "mobilePrimary": "Navigazione principale",
+    "stay": "Soggiornare",
+    "properties": "Proprietà",
+    "experiences": "Esperienze"
   },
   "menu": {
     "visit": "Visitare",
@@ -51,8 +54,26 @@
         "title": "Investire in Algarve",
         "desc": "Assicurati il tuo pezzo di paradiso e costruisci un valore duraturo.",
         "label": "Esplora la strategia"
+      },
+      "stay": {
+        "title": "Soggiorno in Algarve",
+        "desc": "I migliori alloggi sulla costa più prestigiosa del Portogallo.",
+        "label": "Esplora soggiorni"
+      },
+      "properties": {
+        "title": "Proprietà in Algarve",
+        "desc": "Immobiliari premium e opportunità di investimento.",
+        "label": "Esplora proprietà"
+      },
+      "experiences": {
+        "title": "Esperienze in Algarve",
+        "desc": "Avventure, gastronomia, cultura e benessere selezionati.",
+        "label": "Scopri di più"
       }
-    }
+    },
+    "stay": "Soggiornare",
+    "properties": "Proprietà",
+    "experiences": "Esperienze"
   },
   "hero": {
     "location": "Distretto di Faro, Portogallo",
@@ -836,58 +857,58 @@
       "eventModeration": "Moderazione Eventi",
       "termsOfService": "Termini di Servizio",
       "privacyPolicy": "Privacy Policy",
-    "cookiePolicy": {
-    "title": "Politica sui Cookie",
-    "lastUpdated": "Ultimo aggiornamento: {{date}}",
-    "introduction": "Questa Politica sui Cookie spiega come AlgarveOfficial utilizza i cookie e tecnologie simili per riconoscerti quando visiti il nostro sito web.",
-    "sections": {
-      "whatAreCookies": {
-        "title": "Cosa Sono i Cookie"
-      },
-      "types": {
-        "title": "Tipi di Cookie Che Utilizziamo",
-        "table": {
-          "type": "Tipo",
-          "purpose": "Scopo",
-          "duration": "Durata",
-          "essential": "Essenziali",
-          "essentialPurpose": "Autenticazione, sicurezza, preferenze di lingua",
-          "essentialDuration": "Sessione / 1 anno",
-          "functional": "Funzionali",
-          "functionalPurpose": "Preferenze tema, impostazioni utente",
-          "functionalDuration": "1 anno",
-          "analytics": "Analitici",
-          "analyticsPurpose": "Visualizzazioni pagina, tracciamento sessione (con consenso)",
-          "analyticsDuration": "90 giorni"
+      "cookiePolicy": {
+        "title": "Politica sui Cookie",
+        "lastUpdated": "Ultimo aggiornamento: {{date}}",
+        "introduction": "Questa Politica sui Cookie spiega come AlgarveOfficial utilizza i cookie e tecnologie simili per riconoscerti quando visiti il nostro sito web.",
+        "sections": {
+          "whatAreCookies": {
+            "title": "Cosa Sono i Cookie"
+          },
+          "types": {
+            "title": "Tipi di Cookie Che Utilizziamo",
+            "table": {
+              "type": "Tipo",
+              "purpose": "Scopo",
+              "duration": "Durata",
+              "essential": "Essenziali",
+              "essentialPurpose": "Autenticazione, sicurezza, preferenze di lingua",
+              "essentialDuration": "Sessione / 1 anno",
+              "functional": "Funzionali",
+              "functionalPurpose": "Preferenze tema, impostazioni utente",
+              "functionalDuration": "1 anno",
+              "analytics": "Analitici",
+              "analyticsPurpose": "Visualizzazioni pagina, tracciamento sessione (con consenso)",
+              "analyticsDuration": "90 giorni"
+            }
+          },
+          "essential": {
+            "title": "Cookie Essenziali",
+            "description": "Questi cookie sono strettamente necessari per il funzionamento del sito web e non possono essere disattivati nei nostri sistemi.",
+            "note": "Puoi impostare il tuo browser per bloccare o avvisarti di questi cookie, ma alcune parti del sito non funzioneranno correttamente senza di essi."
+          },
+          "analytics": {
+            "title": "Cookie Analitici",
+            "description": "Questi cookie ci permettono di contare le visite e le fonti di traffico per misurare e migliorare le prestazioni del nostro sito.",
+            "dataCollected": "Dati che raccogliamo con il tuo consenso:"
+          },
+          "managing": {
+            "title": "Gestire le Tue Preferenze sui Cookie",
+            "description": "Hai il diritto di decidere se accettare o rifiutare i cookie.",
+            "note": "Tieni presente che se scegli di rifiutare i cookie, potresti comunque utilizzare il nostro sito web, sebbene l'accesso ad alcune funzionalità potrebbe essere limitato."
+          },
+          "contact": {
+            "title": "Contattaci",
+            "description": "Se hai domande sul nostro utilizzo dei cookie, contattaci:"
+          }
+        },
+        "footer": {
+          "privacyPolicy": "Politica sulla Privacy",
+          "termsOfService": "Termini di Servizio",
+          "backToHome": "Torna alla Home"
         }
       },
-      "essential": {
-        "title": "Cookie Essenziali",
-        "description": "Questi cookie sono strettamente necessari per il funzionamento del sito web e non possono essere disattivati nei nostri sistemi.",
-        "note": "Puoi impostare il tuo browser per bloccare o avvisarti di questi cookie, ma alcune parti del sito non funzioneranno correttamente senza di essi."
-      },
-      "analytics": {
-        "title": "Cookie Analitici",
-        "description": "Questi cookie ci permettono di contare le visite e le fonti di traffico per misurare e migliorare le prestazioni del nostro sito.",
-        "dataCollected": "Dati che raccogliamo con il tuo consenso:"
-      },
-      "managing": {
-        "title": "Gestire le Tue Preferenze sui Cookie",
-        "description": "Hai il diritto di decidere se accettare o rifiutare i cookie.",
-        "note": "Tieni presente che se scegli di rifiutare i cookie, potresti comunque utilizzare il nostro sito web, sebbene l'accesso ad alcune funzionalità potrebbe essere limitato."
-      },
-      "contact": {
-        "title": "Contattaci",
-        "description": "Se hai domande sul nostro utilizzo dei cookie, contattaci:"
-      }
-    },
-    "footer": {
-      "privacyPolicy": "Politica sulla Privacy",
-      "termsOfService": "Termini di Servizio",
-      "backToHome": "Torna alla Home"
-    }
-  },
-  "pages": "Pagine",
+      "pages": "Pagine",
       "regions": "Regioni",
       "destinations": "Destinazioni",
       "cities": "Città",

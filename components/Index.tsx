@@ -81,8 +81,18 @@ const Index = () => {
         <CmsBlock pageId="home" blockId="quick-links" as="section">
           <HomeQuickLinksSection />
         </CmsBlock>
+        {(settings?.show_vip_section ?? true) && (
+          <CmsBlock pageId="home" blockId="vip" as="section">
+            <SignatureMapSection />
+          </CmsBlock>
+        )}
+        {(settings?.show_all_listings_section ?? true) && isBlockEnabled("all-listings", true) && (
+          <CmsBlock pageId="home" blockId="all-listings" as="section">
+            <AllListingsSection />
+          </CmsBlock>
+        )}
         <div className="mx-auto w-full content-max density">
-          {sectionsToRender.map(({ id, enabled }) => {
+          {sectionsToRender.filter(({ id }) => id !== "vip" && id !== "all-listings").map(({ id, enabled }) => {
             if (!enabled || !isBlockEnabled(id, true)) return null;
             
             const SectionComponent = SECTION_COMPONENTS[id];

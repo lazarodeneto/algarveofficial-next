@@ -21,7 +21,7 @@ export function ThemeToggle({ variant = "default", className }: ThemeToggleProps
       <button
         onClick={toggleTheme}
         className={cn(
-          "relative flex h-10 w-[4.65rem] items-center rounded-full border border-black/10 bg-white/75 p-1 shadow-[0_10px_28px_-18px_rgba(15,23,42,0.45)] backdrop-blur-xl transition-all hover:border-primary/30 dark:border-white/12 dark:bg-white/10 dark:hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "relative flex h-10 w-[4.65rem] items-center rounded-full border border-black/10 bg-white/75 p-1 shadow-[0_10px_28px_-18px_rgba(15,23,42,0.45)] backdrop-blur-xl transition-all hover:border-primary/30 dark:border-white/25 dark:bg-white/15 dark:hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           className,
         )}
         aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}

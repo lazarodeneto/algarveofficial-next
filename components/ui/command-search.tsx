@@ -181,7 +181,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
                   value="invest market strategy"
                   onSelect={() => {
                     onOpenChange(false);
-                    router.push(l("/invest"));
+                    router.push(l("/properties"));
                   }}
                   className="flex items-center gap-3 py-3 px-4 cursor-pointer"
                 >

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { RealEstateCard } from "@/components/real-estate/RealEstateCard";
@@ -16,9 +16,11 @@ import { Database } from "@/integrations/supabase/types";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
-import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
+import { useCities } from "@/hooks/useReferenceData";
+import Link from "next/link";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 type Lang = "en" | "pt-pt" | "fr" | "de" | "es" | "it" | "nl" | "sv" | "no" | "da";
 
@@ -44,6 +46,8 @@ type RealEstateListing = Database["public"]["Tables"]["listings"]["Row"] & {
 export default function RealEstateDirectory() {
     const { t, i18n } = useTranslation();
     const { getText, isBlockEnabled } = useCmsPageBuilder("real-estate");
+    const l = useLocalePath();
+    const { data: cities = [] } = useCities();
     const targetLang = normalizeLang(i18n.language);
     const [filters, setFilters] = useState({
         priceMin: "",
@@ -51,6 +55,34 @@ export default function RealEstateDirectory() {
         type: "all",
         beds: "all",
         location: ""
+    });
+    const imageTimestamp = Date.now();
+
+    const featuredCities = useMemo(
+        () => cities.filter((city) => city.is_featured).slice(0, 6),
+        [cities],
+    );
+
+    const { data: cityListingCounts = {} } = useQuery<Record<string, number>>({
+        queryKey: ["real-estate-city-counts"],
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from("listings")
+                .select("city_id")
+                .eq("category_id", "11df48fe-34e4-4743-8837-e5a1fb399a37")
+                .eq("status", "published");
+
+            if (error) throw error;
+
+            const counts: Record<string, number> = {};
+            for (const row of data ?? []) {
+                if (row.city_id) {
+                    counts[row.city_id] = (counts[row.city_id] ?? 0) + 1;
+                }
+            }
+            return counts;
+        },
+        staleTime: 1000 * 60 * 5,
     });
 
     const { data: listings, isLoading } = useQuery({
@@ -152,8 +184,9 @@ export default function RealEstateDirectory() {
 
             <main className="flex-grow">
                 {isBlockEnabled("hero", true) ? (
-                    <CmsBlock pageId="real-estate" blockId="hero" as="section" className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
+                    <CmsBlock pageId="real-estate" blockId="hero" as="section" className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4">
                         <LiveStyleHero
+                            className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
                             badge={t("realEstate.hero.badge", "Exclusive Portfolio")}
                             title={t("realEstate.hero.title", "Prime Real Estate")}
                             subtitle={t(
@@ -175,7 +208,114 @@ export default function RealEstateDirectory() {
                     </CmsBlock>
                 ) : null}
 
-                <div className="app-container py-14 sm:py-20 -mt-16 sm:-mt-20 relative z-20">
+                {cities.length > 0 && isBlockEnabled("city-hubs", true) ? (
+                    <div className="app-container content-max pb-16 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
+                        <section className="mb-10 space-y-8">
+                            {featuredCities.length > 0 && isBlockEnabled("featured-city-hub", true) ? (
+                                <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+                                    <Link
+                                        href={l(`/city/${featuredCities[0].slug}`)}
+                                        className="group block h-full overflow-hidden rounded-[32px] border border-border bg-card shadow-sm"
+                                    >
+                                        <div className="relative h-full min-h-[20rem]">
+                                            <img
+                                                src={featuredCities[0].image_url ? `${featuredCities[0].image_url}?_t=${imageTimestamp}` : "/placeholder.svg"}
+                                                alt={featuredCities[0].name}
+                                                className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
+                                            <div className="absolute inset-x-0 bottom-0 p-6 text-white">
+                                                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
+                                                    {t("realEstate.featuredCityHub", "Featured City Hub")}
+                                                </p>
+                                                <h2 className="font-serif text-3xl md:text-4xl leading-tight">
+                                                    {featuredCities[0].name}
+                                                </h2>
+                                                <p className="mt-3 max-w-2xl text-sm text-white/85">
+                                                    {featuredCities[0].short_description ||
+                                                        t("realEstate.featuredCityHubDescription", "Explore premium real estate in {{name}}, Algarve.", { name: featuredCities[0].name })}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </Link>
+
+                                    <div className="rounded-[32px] border border-border bg-card p-6 shadow-sm">
+                                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                                            {t("realEstate.cityIndex", "City Index")}
+                                        </p>
+                                        <h2 className="mt-3 font-serif text-2xl text-foreground">
+                                            {t("realEstate.exploreAlgarveCities", "Explore Algarve Cities")}
+                                        </h2>
+                                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                                            {t("realEstate.cityIndexDescription", "Browse premium properties and investment zones by city.")}
+                                        </p>
+                                        <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                            {cities
+                                                .filter((city) => (cityListingCounts[city.id] ?? 0) > 0)
+                                                .sort((a, b) => (cityListingCounts[b.id] ?? 0) - (cityListingCounts[a.id] ?? 0))
+                                                .slice(0, 6)
+                                                .map((city) => (
+                                                <Link
+                                                    key={city.id}
+                                                    href={l(`/city/${city.slug}`)}
+                                                    className="rounded-2xl border border-border px-4 py-3 transition-colors hover:border-primary/40 hover:bg-muted/40"
+                                                >
+                                                    <div className="font-medium text-foreground">{city.name}</div>
+                                                    <div className="text-sm text-muted-foreground">
+                                                        {t("realEstate.listingsCount", "{{count}} listings", { count: cityListingCounts[city.id] ?? 0 })}
+                                                    </div>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : null}
+
+                            {isBlockEnabled("all-active-city-hubs", true) ? (
+                            <div>
+                                <div className="mb-4 flex items-center justify-between gap-4">
+                                    <div>
+                                        <h2 className="font-serif text-2xl text-foreground">{t("realEstate.allActiveCityHubs", "All Active City Hubs")}</h2>
+                                        <p className="mt-1 text-sm text-muted-foreground">
+                                            {t("realEstate.allActiveCityHubsDescription", "Discover premium property opportunities across the Algarve.")}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                    {cities.filter((city) => (cityListingCounts[city.id] ?? 0) > 0).map((city) => (
+                                        <Link
+                                            key={city.id}
+                                            href={l(`/city/${city.slug}`)}
+                                            className="group block"
+                                        >
+                                            <article className="glass-box overflow-hidden">
+                                                <div className="h-36 w-full overflow-hidden">
+                                                    <img
+                                                        src={city.image_url ? `${city.image_url}?_t=${imageTimestamp}` : "/placeholder.svg"}
+                                                        alt={city.name}
+                                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                        loading="lazy"
+                                                    />
+                                                </div>
+                                                <div className="p-4">
+                                                    <h3 className="font-serif font-medium text-lg text-foreground group-hover:text-primary transition-colors">
+                                                        {city.name}
+                                                    </h3>
+                                                    <div className="mt-1 text-sm text-muted-foreground">
+                                                        {t("realEstate.listingsCount", "{{count}} listings", { count: cityListingCounts[city.id] ?? 0 })}
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                            ) : null}
+                        </section>
+                    </div>
+                ) : null}
+
+                <div className="app-container py-14 sm:py-20 relative z-20">
                     <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8">
                         {/* Sidebar Filters */}
                         <div className="xl:col-span-4 2xl:col-span-3">
@@ -208,6 +348,7 @@ export default function RealEstateDirectory() {
                                 context={{ type: 'category', categoryId: '11df48fe-34e4-4743-8837-e5a1fb399a37' }}
                                 limit={1}
                                 showSectionHeader={false}
+                                fullWidth
                             />
 
                             <div className="mb-8 sm:mb-10 flex flex-col md:flex-row justify-between items-baseline gap-3 sm:gap-4 border-b border-primary/20 pb-5 sm:pb-6">
