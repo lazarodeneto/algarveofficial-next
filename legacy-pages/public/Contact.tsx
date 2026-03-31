@@ -181,23 +181,23 @@ export default function Contact() {
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.5 }}
                             >
-                                <Card className="glass-box border-none shadow-xl bg-card/30 backdrop-blur-sm p-6 lg:p-10">
-                                    <CardHeader className="p-0 mb-8">
-                                        <CardTitle className="text-3xl font-serif">
+                                <Card className="glass-box border-none shadow-xl bg-card/30 backdrop-blur-sm p-5 lg:p-8">
+                                    <CardHeader className="p-0 mb-5">
+                                        <CardTitle className="text-2xl font-serif">
                                             {getInTouchTitle}
                                         </CardTitle>
-                                        <CardDescription className="text-base mt-2">
+                                        <CardDescription className="text-sm mt-2">
                                             {getInTouchDescription}
                                         </CardDescription>
                                     </CardHeader>
-                                    <CardContent className="p-0 space-y-10">
+                                    <CardContent className="p-0 space-y-6">
 
-                                        <div className="flex items-start gap-4 sm:gap-6 group">
-                                            <div className="h-12 w-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 transition-colors group-hover:bg-primary/20">
-                                                <Mail className="h-6 w-6 sm:w-7 sm:h-7 text-primary" />
+                                        <div className="flex items-start gap-3 sm:gap-4 group">
+                                            <div className="h-10 w-10 sm:w-11 sm:h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 transition-colors group-hover:bg-primary/20">
+                                                <Mail className="h-5 w-5 sm:w-5 sm:h-5 text-primary" />
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <h4 className="font-semibold text-foreground text-lg">{t('contact.email', 'Email')}</h4>
+                                                <h4 className="font-semibold text-foreground text-base">{t('contact.email', 'Email')}</h4>
                                                 <p className="break-all text-muted-foreground leading-relaxed">{displayEmail}</p>
                                                 <a
                                                     href={`mailto:${displayEmail}`}
@@ -208,12 +208,12 @@ export default function Contact() {
                                             </div>
                                         </div>
 
-                                        <div className="flex items-start gap-4 sm:gap-6 group">
-                                            <div className="h-12 w-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 transition-colors group-hover:bg-primary/20">
-                                                <MessageSquare className="h-6 w-6 sm:w-7 sm:h-7 text-primary" />
+                                        <div className="flex items-start gap-3 sm:gap-4 group">
+                                            <div className="h-10 w-10 sm:w-11 sm:h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 transition-colors group-hover:bg-primary/20">
+                                                <MessageSquare className="h-5 w-5 sm:w-5 sm:h-5 text-primary" />
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <h4 className="font-semibold text-foreground text-lg">WhatsApp</h4>
+                                                <h4 className="font-semibold text-foreground text-base">WhatsApp</h4>
                                                 <p className="text-muted-foreground leading-relaxed">{t('contact.waDesc', 'Chat with us directly for quick support.')}</p>
                                                 <a href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block break-words text-sm font-medium text-primary hover:underline">
                                                     {t('contact.startChat', 'Start a chat')}
@@ -221,12 +221,12 @@ export default function Contact() {
                                             </div>
                                         </div>
 
-                                        <div className="flex items-start gap-4 sm:gap-6 group">
-                                            <div className="h-12 w-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 transition-colors group-hover:bg-primary/20">
-                                                <MapPin className="h-6 w-6 sm:w-7 sm:h-7 text-primary" />
+                                        <div className="flex items-start gap-3 sm:gap-4 group">
+                                            <div className="h-10 w-10 sm:w-11 sm:h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 transition-colors group-hover:bg-primary/20">
+                                                <MapPin className="h-5 w-5 sm:w-5 sm:h-5 text-primary" />
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <h4 className="font-semibold text-foreground text-lg">{t('contact.location', 'Office')}</h4>
+                                                <h4 className="font-semibold text-foreground text-base">{t('contact.location', 'Office')}</h4>
                                                 <p className="break-words text-muted-foreground leading-relaxed">{settings?.office_location || 'Vilamoura, Algarve, Portugal'}</p>
                                             </div>
                                         </div>
