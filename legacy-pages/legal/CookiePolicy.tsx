@@ -3,6 +3,7 @@ import { Footer } from "@/components/layout/Footer";
 import Link from "next/link";
 import { Cookie, Shield, Database, Settings, Info, CheckCircle, Clock, Globe } from "lucide-react";
 import { useCookieSettings } from "@/hooks/useCookieSettings";
+import { useTranslation } from "react-i18next";
 import DOMPurify from "dompurify";
 
 const iconMap: Record<string, React.ElementType> = {
@@ -17,13 +18,14 @@ const iconMap: Record<string, React.ElementType> = {
 };
 
 const CookiePolicy = () => {
+  const { t, i18n } = useTranslation();
   const { settings, isLoading } = useCookieSettings();
+  const locale = i18n.language;
 
   // Use database content or fallback to defaults
-  const pageTitle = settings?.page_title || "Cookie Policy";
-  const lastUpdated = settings?.last_updated_date || "January 21, 2026";
-  const introduction = settings?.introduction || 
-    "This Cookie Policy explains how AlgarveOfficial uses cookies and similar technologies to recognize you when you visit our website. It explains what these technologies are and why we use them, as well as your rights to control our use of them.";
+  const pageTitle = settings?.page_title || t("cookiePolicy.title");
+  const lastUpdated = settings?.last_updated_date || t("cookiePolicy.lastUpdated", { date: "January 21, 2026" });
+  const introduction = settings?.introduction || t("cookiePolicy.introduction");
   
   const hasSections = settings?.sections && settings.sections.length > 0;
 
@@ -42,7 +44,7 @@ const CookiePolicy = () => {
               {pageTitle}
             </h1>
             <p className="text-muted-foreground">
-              Last updated: {lastUpdated}
+              {lastUpdated}
             </p>
           </div>
 

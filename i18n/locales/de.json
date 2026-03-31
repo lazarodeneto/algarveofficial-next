@@ -836,7 +836,61 @@
       "eventModeration": "Veranstaltungsmoderation",
       "termsOfService": "Nutzungsbedingungen",
       "privacyPolicy": "Datenschutzrichtlinie",
-      "cookiePolicy": "Cookie-Richtlinie",
+  "cookiePolicy": {
+    "title": "Cookie-Richtlinie",
+    "lastUpdated": "Zuletzt aktualisiert: {{date}}",
+    "introduction": "Diese Cookie-Richtlinie erklärt, wie AlgarveOfficial Cookies und ähnliche Technologien verwendet, um Sie zu erkennen, wenn Sie unsere Website besuchen.",
+    "sections": {
+      "whatAreCookies": {
+        "title": "Was Sind Cookies",
+        "content": "Cookies sind kleine Datendateien, die auf Ihrem Computer oder Mobilgerät platziert werden, wenn Sie eine Website besuchen."
+      },
+      "types": {
+        "title": "Arten von Cookies Die Wir Verwenden",
+        "table": {
+          "type": "Typ",
+          "purpose": "Zweck",
+          "duration": "Dauer",
+          "essential": "Essentiell",
+          "essentialPurpose": "Authentifizierung, Sicherheit, Sprachpräferenzen",
+          "essentialDuration": "Sitzung / 1 Jahr",
+          "functional": "Funktional",
+          "functionalPurpose": "Themenpräferenzen, Benutzereinstellungen",
+          "functionalDuration": "1 Jahr",
+          "analytics": "Analytisch",
+          "analyticsPurpose": "Seitenaufrufe, Sitzungsverfolgung (mit Einwilligung)",
+          "analyticsDuration": "90 Tage"
+        }
+      },
+      "essential": {
+        "title": "Essentielle Cookies",
+        "description": "Diese Cookies sind für das Funktionieren der Website unbedingt erforderlich und können in unseren Systemen nicht deaktiviert werden.",
+        "items": ["Datenschutzeinstellungen festlegen", "In Ihr Konto einloggen", "Formulare ausfüllen", "Sicherheit aufrechterhalten"],
+        "note": "Sie können Ihren Browser so einstellen, dass er diese Cookies blockiert oder Sie darüber benachrichtigt, aber einige Teile der Website funktionieren ohne sie nicht richtig."
+      },
+      "analytics": {
+        "title": "Analytische Cookies",
+        "description": "Diese Cookies ermöglichen es uns, Besuche und Verkehrsquellen zu zählen, damit wir die Leistung unserer Website messen und verbessern können.",
+        "dataCollected": "Daten, die wir mit Ihrer Einwilligung sammeln:",
+        "dataItems": ["Besuchte Seiten und verbrachte Zeit", "Anonymisierte IP-Adresse", "Browser- und Gerätetyp", "Referrer-Quelle"]
+      },
+      "managing": {
+        "title": "Verwalten Ihrer Cookie-Präferenzen",
+        "description": "Sie haben das Recht zu entscheiden, ob Sie Cookies akzeptieren oder ablehnen.",
+        "items": ["Cookie-Einwilligungsbanner", "Browser-Einstellungen", "Lokaler Speicher"],
+        "note": "Bitte beachten Sie, dass Sie unsere Website möglicherweise noch nutzen können, wenn Sie Cookies ablehnen, aber der Zugang zu einigen Funktionen kann eingeschränkt sein."
+      },
+      "contact": {
+        "title": "Kontakt",
+        "description": "Wenn Sie Fragen zu unserer Verwendung von Cookies haben, kontaktieren Sie uns bitte:"
+      }
+    },
+    "footer": {
+      "privacyPolicy": "Datenschutzrichtlinie",
+      "termsOfService": "Nutzungsbedingungen",
+      "backToHome": "Zurück zur Startseite"
+    }
+  },
       "pages": "Seiten",
       "regions": "Regionen",
       "destinations": "Reiseziele",
