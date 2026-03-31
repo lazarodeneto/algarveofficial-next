@@ -67,7 +67,7 @@ export function HomeQuickLinksSection() {
   }
 
   return (
-    <section id="home-quick-links" className="relative z-20 -mt-2 pb-8 sm:-mt-14 sm:pb-10 lg:-mt-20 lg:pb-14">
+    <section id="home-quick-links" className="relative z-20 -mt-2 pb-4 sm:-mt-14 sm:pb-5 lg:-mt-20 lg:pb-7">
       <div className="app-container">
         <div className="mx-auto flex w-full flex-col gap-4 px-1 pb-2 sm:grid sm:max-w-[780px] sm:grid-cols-2 sm:justify-items-center sm:gap-4 sm:px-0 md:grid-cols-3 min-[940px]:grid-cols-3">
           {quickLinkCards.map((card) => {
@@ -110,14 +110,14 @@ export function HomeQuickLinksSection() {
                   className="pointer-events-none absolute inset-0 z-20 rounded-[24px] border-[2px] border-[hsl(43,86%,58%)] shadow-[0_0_10px_hsla(43,86%,58%,0.34)]"
                 />
 
-                <div className="relative z-10 flex min-h-[7.2rem] flex-col items-center justify-start gap-2 px-3.5 pb-3 pt-5 text-center sm:min-h-[8rem] sm:gap-2.5 sm:px-4 sm:pt-6">
-                  <h3 className="flex min-h-[2.6rem] max-w-[11.75rem] items-center justify-center font-sans text-balance text-[0.96rem] font-semibold uppercase leading-[1.1] tracking-[0.02em] text-black dark:text-white sm:min-h-[3.5rem] sm:text-[1.05rem] lg:text-[1.15rem]">
+                <div className="relative z-10 flex items-center justify-center gap-2.5 px-3.5 pt-4 pb-1 sm:gap-3 sm:px-4 sm:pt-5 sm:pb-1.5">
+                  <Icon className="h-5 w-5 shrink-0 sm:h-6 sm:w-6 text-[hsl(43,74%,49%)]" />
+                  <h3 className="font-['Archivo_Narrow'] text-[0.78rem] font-semibold uppercase leading-tight tracking-[0.02em] text-black dark:text-white sm:text-[0.88rem] lg:text-[0.96rem]">
                     {displayTitle}
                   </h3>
-                  <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-[hsl(43,74%,49%)]" />
                 </div>
 
-                <div className="relative z-10 mt-auto p-3.5 pt-1.5 sm:p-4 sm:pt-2">
+                <div className="relative z-10 mt-auto p-3 pt-1 sm:p-3.5 sm:pt-1.5">
                   <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-white/35 bg-white/25 dark:border-white/15 dark:bg-black/20">
                     {showVideo ? (
                       <video

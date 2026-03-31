@@ -17,8 +17,11 @@
     "messages": "Messages",
     "events": "Events",
     "visit": "Visit",
+    "stay": "Stay",
     "live": "Live",
     "invest": "Invest",
+    "properties": "Properties",
+    "experiences": "Experiences",
     "myTrip": "My Trip",
     "account": "Account",
     "map": "Map",
@@ -33,8 +36,11 @@
   },
   "menu": {
     "visit": "Visit",
+    "stay": "Stay",
     "live": "Live",
     "invest": "Invest",
+    "properties": "Properties",
+    "experiences": "Experiences",
     "browseCategories": "Browse Categories",
     "hero": {
       "visit": {
@@ -42,15 +48,30 @@
         "desc": "World-class experiences along Europe's most beautiful coastline.",
         "label": "Explore all"
       },
+      "stay": {
+        "title": "Stay in Algarve",
+        "desc": "The finest places to stay across Portugal's most prestigious coast.",
+        "label": "Explore stays"
+      },
       "live": {
         "title": "Live in Algarve",
         "desc": "Everything you need to make the Algarve your permanent home.",
         "label": "Learn more"
       },
+      "experiences": {
+        "title": "Experiences in Algarve",
+        "desc": "Curated adventures, gastronomy, culture, and wellness.",
+        "label": "Discover more"
+      },
       "invest": {
         "title": "Invest in Algarve",
         "desc": "Secure your piece of paradise and build lasting value.",
         "label": "Explore strategy"
+      },
+      "properties": {
+        "title": "Properties in Algarve",
+        "desc": "Premium real estate and investment opportunities.",
+        "label": "Explore properties"
       }
     }
   },

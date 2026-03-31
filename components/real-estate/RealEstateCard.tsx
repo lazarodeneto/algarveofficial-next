@@ -223,46 +223,37 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                     {propertyMetrics.length > 0 && (
                         <div className={cn(
                             "border-t",
-                            isPremium ? "pt-5 sm:pt-6 border-[#C7A35A]/20" : "pt-5 sm:pt-6 border-border/40"
+                            isPremium ? "pt-4 sm:pt-5 border-[#C7A35A]/20" : "pt-4 sm:pt-5 border-border/40"
                         )}>
-                            <div className="grid grid-cols-2 gap-3">
-                                {propertyMetrics.map((metric, index) => {
+                            <div className="grid grid-cols-4 gap-2">
+                                {propertyMetrics.map((metric) => {
                                     const Icon = metric.icon;
-                                    const isLastOddCard = propertyMetrics.length % 2 === 1 && index === propertyMetrics.length - 1;
 
                                     return (
                                         <div
                                             key={metric.key}
-                                            className={cn(
-                                                "rounded-xl px-4 py-4 shadow-sm transition-all duration-200",
-                                                isPremium 
-                                                    ? "border border-[#C7A35A]/15 bg-gradient-to-br from-[#C7A35A]/8 via-card to-card" 
-                                                    : "border border-border/30 bg-gradient-to-br from-muted/30 via-card to-card",
-                                                isLastOddCard ? "col-span-2" : ""
-                                            )}
+                                            className="flex flex-col items-center text-center gap-1.5 py-2"
                                         >
-                                            <div className="flex h-full items-start gap-3">
-                                                <div className={cn(
-                                                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm",
-                                                    isPremium 
-                                                        ? "border border-[#C7A35A]/20 bg-[#C7A35A]/10 text-[#C7A35A]" 
-                                                        : "border border-border/30 bg-muted/50 text-muted-foreground"
-                                                )}>
-                                                    <Icon className="h-4 w-4" />
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <p className="font-serif text-[1.1rem] sm:text-[1.2rem] font-semibold text-foreground leading-none">
-                                                        {metric.value}
-                                                        {metric.unit ? (
-                                                            <span className="ml-1.5 text-[0.82rem] sm:text-[0.9rem] font-medium text-muted-foreground">
-                                                                {metric.unit}
-                                                            </span>
-                                                        ) : null}
-                                                    </p>
-                                                    <p className="mt-2 text-[0.7rem] sm:text-[0.76rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground leading-tight">
-                                                        {metric.label}
-                                                    </p>
-                                                </div>
+                                            <div className={cn(
+                                                "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
+                                                isPremium
+                                                    ? "border border-[#C7A35A]/20 bg-[#C7A35A]/10 text-[#C7A35A]"
+                                                    : "border border-border/30 bg-muted/50 text-muted-foreground"
+                                            )}>
+                                                <Icon className="h-3.5 w-3.5" />
+                                            </div>
+                                            <div>
+                                                <p className="text-[0.95rem] sm:text-[1.05rem] font-semibold text-foreground leading-none">
+                                                    {metric.value}
+                                                    {metric.unit ? (
+                                                        <span className="ml-0.5 text-[0.72rem] sm:text-[0.78rem] font-medium text-muted-foreground">
+                                                            {metric.unit}
+                                                        </span>
+                                                    ) : null}
+                                                </p>
+                                                <p className="mt-1 text-[0.6rem] sm:text-[0.65rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground leading-tight">
+                                                    {metric.label}
+                                                </p>
                                             </div>
                                         </div>
                                     );

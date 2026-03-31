@@ -14,9 +14,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return buildLocalizedAliasMetadata({
     locale,
-    canonicalPath: "/visit",
-    title: "Redirecting to the directory",
-    description: "Redirecting to the Algarve directory page.",
+    canonicalPath: "/stay",
+    title: "Redirecting to Stay",
+    description: "Redirecting to the Stay in Algarve page.",
     noIndex: true,
   });
 }
@@ -33,5 +33,5 @@ export default async function DirectoryPage({ params, searchParams }: PageProps)
   }
   const query = qs.toString();
 
-  permanentRedirect(`/${locale}/visit${query ? `?${query}` : ""}`);
+  permanentRedirect(`/${locale}/stay${query ? `?${query}` : ""}`);
 }

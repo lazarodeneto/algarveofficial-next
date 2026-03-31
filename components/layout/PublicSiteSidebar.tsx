@@ -26,7 +26,7 @@ export function PublicSiteSidebar() {
       onFocusCapture={() => setExpanded(true)}
       onBlurCapture={handleBlurCapture}
       className={clsx(
-        "hidden xl:flex fixed inset-y-0 left-0 z-[120] flex-col overflow-hidden border-r border-border bg-background/95 backdrop-blur-xl",
+        "hidden lg:flex fixed inset-y-0 left-0 z-[120] flex-col overflow-hidden border-r border-border bg-background/95 backdrop-blur-xl",
         "shadow-[0_20px_48px_-36px_rgba(15,23,42,0.45)] transition-[width,box-shadow] duration-300 ease-out",
         expanded ? "w-[17rem]" : "w-20",
       )}

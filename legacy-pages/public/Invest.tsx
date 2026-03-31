@@ -27,16 +27,23 @@ import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
-import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
+import { useCities } from "@/hooks/useReferenceData";
 
 const Invest = () => {
     const { t } = useTranslation();
     const { getMetaDescription, getMetaTitle, getText, isBlockEnabled } = useCmsPageBuilder("invest");
     const l = useLocalePath();
+    const { data: cities = [] } = useCities();
     const [purchasePrice, setPurchasePrice] = useState(1250000);
     const [occupancyRate, setOccupancyRate] = useState(62);
     const [averageNightlyRate, setAverageNightlyRate] = useState(580);
     const [holdYears, setHoldYears] = useState(7);
+    const imageTimestamp = Date.now();
+
+    const featuredCities = useMemo(
+        () => cities.filter((city) => city.is_featured).slice(0, 6),
+        [cities],
+    );
 
     const projection = useMemo(() => {
         const grossAnnualIncome = averageNightlyRate * 365 * (occupancyRate / 100);
@@ -139,8 +146,9 @@ const Invest = () => {
 
             <main className="flex-grow">
                 {isBlockEnabled("hero", true) && (
-                    <CmsBlock pageId="invest" blockId="hero" className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
+                    <CmsBlock pageId="invest" blockId="hero" className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4">
                         <LiveStyleHero
+                            className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
                             badge={t("nav.invest")}
                             title={getText("hero.title", "Invest in Algarve")}
                             subtitle={getText(
@@ -161,6 +169,107 @@ const Invest = () => {
                         />
                     </CmsBlock>
                 )}
+
+                {cities.length > 0 && isBlockEnabled("city-hubs", true) ? (
+                    <div className="app-container content-max pb-16 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
+                        <section className="mb-10 space-y-8">
+                            {featuredCities.length > 0 && isBlockEnabled("featured-city-hub", true) ? (
+                                <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+                                    <Link
+                                        href={l(`/city/${featuredCities[0].slug}`)}
+                                        className="group block h-full overflow-hidden rounded-[32px] border border-border bg-card shadow-sm"
+                                    >
+                                        <div className="relative h-full min-h-[20rem]">
+                                            <img
+                                                src={featuredCities[0].image_url ? `${featuredCities[0].image_url}?_t=${imageTimestamp}` : "/placeholder.svg"}
+                                                alt={featuredCities[0].name}
+                                                className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
+                                            <div className="absolute inset-x-0 bottom-0 p-6 text-white">
+                                                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
+                                                    {t("invest.featuredCityHub", "Featured City Hub")}
+                                                </p>
+                                                <h2 className="font-serif text-3xl md:text-4xl leading-tight">
+                                                    {featuredCities[0].name}
+                                                </h2>
+                                                <p className="mt-3 max-w-2xl text-sm text-white/85">
+                                                    {featuredCities[0].short_description ||
+                                                        t("invest.featuredCityHubDescription", "Explore curated investment opportunities in {{name}}, Algarve.", { name: featuredCities[0].name })}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </Link>
+
+                                    <div className="rounded-[32px] border border-border bg-card p-6 shadow-sm">
+                                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                                            {t("invest.cityIndex", "City Index")}
+                                        </p>
+                                        <h2 className="mt-3 font-serif text-2xl text-foreground">
+                                            {t("invest.exploreAlgarveCities", "Explore Algarve Cities")}
+                                        </h2>
+                                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                                            {t("invest.cityIndexDescription", "Browse investment zones, market data, and property guides by city.")}
+                                        </p>
+                                        <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                            {cities.slice(0, 6).map((city) => (
+                                                <Link
+                                                    key={city.id}
+                                                    href={l(`/city/${city.slug}`)}
+                                                    className="rounded-2xl border border-border px-4 py-3 transition-colors hover:border-primary/40 hover:bg-muted/40"
+                                                >
+                                                    <div className="font-medium text-foreground">{city.name}</div>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : null}
+
+                            {isBlockEnabled("all-active-city-hubs", true) ? (
+                            <div>
+                                <div className="mb-4 flex items-center justify-between gap-4">
+                                    <div>
+                                        <h2 className="font-serif text-2xl text-foreground">{t("invest.allActiveCityHubs", "All Active City Hubs")}</h2>
+                                        <p className="mt-1 text-sm text-muted-foreground">
+                                            {t("invest.allActiveCityHubsDescription", "Discover every investment zone across the Algarve.")}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                    {cities.map((city) => (
+                                        <Link
+                                            key={city.id}
+                                            href={l(`/city/${city.slug}`)}
+                                            className="group block"
+                                        >
+                                            <article className="glass-box overflow-hidden">
+                                                <div className="h-36 w-full overflow-hidden">
+                                                    <img
+                                                        src={city.image_url ? `${city.image_url}?_t=${imageTimestamp}` : "/placeholder.svg"}
+                                                        alt={city.name}
+                                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                        loading="lazy"
+                                                    />
+                                                </div>
+                                                <div className="p-4">
+                                                    <h3 className="font-serif font-medium text-lg text-foreground group-hover:text-primary transition-colors">
+                                                        {city.name}
+                                                    </h3>
+                                                    <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+                                                        {city.short_description ||
+                                                            t("invest.cityFallbackDescription", "Premium investment opportunities and lifestyle infrastructure.")}
+                                                    </p>
+                                                </div>
+                                            </article>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                            ) : null}
+                        </section>
+                    </div>
+                ) : null}
 
                 {isBlockEnabled("market-overview", true) && <CmsBlock pageId="invest" blockId="market-overview" as="section" className="pt-8 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
                     <div className="grid gap-10 lg:gap-14">

@@ -65,7 +65,6 @@ import SkeletonCard from "@/components/skeleton/SkeletonCard";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
-import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 import type { VisitCityIndexItem } from "@/lib/directory-data";
 
 const EMPTY_CATEGORY_IDS: string[] = [];
@@ -944,9 +943,10 @@ function DirectoryClientInner(props: DirectoryClientProps) {
             blockId="hero"
             as="section"
             cms={activeCms}
-            className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}
+            className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4"
           >
             <LiveStyleHero
+              className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
               badge={t("directory.heroLabel")}
               title={t("directory.title")}
               subtitle={t("directory.subtitle")}
@@ -980,15 +980,15 @@ function DirectoryClientInner(props: DirectoryClientProps) {
         ) : null}
 
         <div className="app-container content-max pb-16 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
-          {pathname.endsWith("/visit") && props.visitCityIndex && props.visitCityIndex.length > 0 ? (
+          {(pathname.endsWith("/visit") || pathname.endsWith("/stay")) && props.visitCityIndex && props.visitCityIndex.length > 0 && activeCms.isBlockEnabled("city-hubs", true) ? (
             <section className="mb-10 space-y-8">
-              {props.featuredVisitCity ? (
+              {props.featuredVisitCity && activeCms.isBlockEnabled("featured-city-hub", true) ? (
                 <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
                   <Link
-                    href={l(`/visit/${props.featuredVisitCity.slug}`)}
-                    className="group overflow-hidden rounded-[32px] border border-border bg-card shadow-sm"
+                    href={l(`/stay/${props.featuredVisitCity.slug}`)}
+                    className="group block h-full overflow-hidden rounded-[32px] border border-border bg-card shadow-sm"
                   >
-                    <div className="relative aspect-[16/9]">
+                    <div className="relative h-full min-h-[20rem]">
                       <ListingImage
                         src={props.featuredVisitCity.hero_image_url ? `${props.featuredVisitCity.hero_image_url}?_t=${imageTimestamp}` : props.featuredVisitCity.image_url ? `${props.featuredVisitCity.image_url}?_t=${imageTimestamp}` : undefined}
                         alt={props.featuredVisitCity.name}
@@ -1024,7 +1024,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                       {props.visitCityIndex.slice(0, 6).map((city) => (
                         <Link
                           key={city.id}
-                          href={l(`/visit/${city.slug}`)}
+                          href={l(`/stay/${city.slug}`)}
                           className="rounded-2xl border border-border px-4 py-3 transition-colors hover:border-primary/40 hover:bg-muted/40"
                         >
                           <div className="font-medium text-foreground">{city.name}</div>
@@ -1038,6 +1038,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                 </div>
               ) : null}
 
+              {activeCms.isBlockEnabled("all-active-city-hubs", true) ? (
               <div>
                 <div className="mb-4 flex items-center justify-between gap-4">
                   <div>
@@ -1049,35 +1050,34 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {props.visitCityIndex.map((city) => (
-                    <article
+                    <Link
                       key={city.id}
-                      className="glass-box overflow-hidden"
+                      href={l(`/stay/${city.slug}`)}
+                      className="group block"
                     >
-                      <div className="h-36 w-full overflow-hidden">
-                        <ListingImage
-                          src={city.hero_image_url ? `${city.hero_image_url}?_t=${imageTimestamp}` : city.image_url ? `${city.image_url}?_t=${imageTimestamp}` : undefined}
-                          alt={city.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="p-5">
-                        <h3 className="text-xl font-medium mb-2">{city.name}</h3>
-                        <p className="text-sm text-muted-foreground min-h-[2.5rem]">
-                          {city.short_description ||
-                            t("directory.cityCardDescription", "Discover premium things to do, places to stay, and signature experiences in {{name}}.", { name: city.name })}
-                        </p>
-                        <Link
-                          href={l(`/visit/${city.slug}`)}
-                          className="inline-flex items-center mt-4 text-primary font-medium hover:text-primary/80 transition-colors"
-                        >
-                          {t("directory.exploreCity", "Explore City")}
-                          <ArrowRight className="h-4 w-4 ml-1" />
-                        </Link>
-                      </div>
-                    </article>
+                      <article className="glass-box overflow-hidden">
+                        <div className="h-36 w-full overflow-hidden">
+                          <ListingImage
+                            src={city.hero_image_url ? `${city.hero_image_url}?_t=${imageTimestamp}` : city.image_url ? `${city.image_url}?_t=${imageTimestamp}` : undefined}
+                            alt={city.name}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                        </div>
+                        <div className="p-4">
+                          <h3 className="font-serif font-medium text-lg text-foreground group-hover:text-primary transition-colors">
+                            {city.name}
+                          </h3>
+                          <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+                            {city.short_description ||
+                              t("directory.cityCardDescription", "Discover premium things to do, places to stay, and signature experiences in {{name}}.", { name: city.name })}
+                          </p>
+                        </div>
+                      </article>
+                    </Link>
                   ))}
                 </div>
               </div>
+              ) : null}
             </section>
           ) : null}
 

@@ -119,16 +119,18 @@ export function SignatureMapSection() {
   };
 
   return (
-    <section className="py-20 border-t border-border/60">
+    <section className="py-8 border-t border-border/60">
       <div className="app-container space-y-6">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div>
-            <ListingTierBadge tier="signature" size="sm" className="mb-3" />
-            <h2 className="text-title font-serif font-medium text-foreground">
-              {t("sections.vip.title")} <span className="text-gradient-gold">Map</span>
-            </h2>
+            <div className="flex items-center gap-3">
+              <ListingTierBadge tier="signature" size="sm" />
+              <h2 className="text-title font-serif font-medium text-foreground">
+                {t("sections.vip.title")} <span className="text-gradient-gold">Map</span>
+              </h2>
+            </div>
             <p className="text-body text-muted-foreground mt-2 max-w-2xl readable">
-              {t("sections.vip.subtitle")} across the Algarve, all in one interactive view.
+              {t("sections.vip.subtitleCustom", "Handpicked signature experiences in the Algarve.")}
             </p>
           </div>
 
@@ -142,59 +144,6 @@ export function SignatureMapSection() {
             </Link>
           </div>
         </div>
-
-        <div className="rounded-2xl border border-border/70 bg-card/40 p-3 sm:p-4 backdrop-blur-sm">
-          <p className="text-body-xs font-semibold tracking-[0.14em] uppercase text-muted-foreground">
-            {t("sections.vip.discovery.filterLabel", "Explore by category")}
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {DISCOVERY_FILTERS.map((filter) => {
-              const isActive = activeFilterSet.has(filter.key);
-              const Icon = FILTER_ICONS[filter.key];
-              const filterLabel = t(`sections.vip.discovery.filters.${filter.key}`, filter.label);
-
-              return (
-                <button
-                  key={filter.key}
-                  type="button"
-                  aria-pressed={isActive}
-                  onClick={() => toggleDiscoveryFilter(filter.key)}
-                  className={[
-                    "inline-flex min-h-10 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-all duration-200",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                    isActive
-                      ? "border-primary/70 bg-gradient-to-r from-[hsla(43,74%,49%,0.22)] to-[hsla(43,80%,35%,0.18)] text-foreground shadow-[0_6px_18px_hsla(43,74%,49%,0.18)]"
-                      : "border-border/80 bg-background/70 text-muted-foreground hover:border-primary/35 hover:text-foreground",
-                  ].join(" ")}
-                >
-                  <Icon className={isActive ? "h-4 w-4 text-primary" : "h-4 w-4"} />
-                  <span>{filterLabel}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {listingsLoading ? (
-          <div className="rounded-xl overflow-hidden border border-border bg-muted/30">
-            <div className="h-[460px] flex items-center justify-center">
-              <span className="inline-flex items-center gap-2 text-muted-foreground text-sm">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                {t("sections.vip.discovery.loadingMap", "Loading map...")}
-              </span>
-            </div>
-          </div>
-        ) : (
-          <ListingsLeafletMap
-            points={mapPoints}
-            enableClustering
-            showPopups
-            autoFit
-            scrollWheelZoom={false}
-            mapClassName="h-[460px]"
-            emptyMessage={mapEmptyMessage}
-          />
-        )}
 
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -308,6 +257,59 @@ export function SignatureMapSection() {
             </div>
           )}
         </div>
+
+        <div className="rounded-2xl border border-border/70 bg-card/40 p-3 sm:p-4 backdrop-blur-sm">
+          <p className="text-body-xs font-semibold tracking-[0.14em] uppercase text-muted-foreground">
+            {t("sections.vip.discovery.filterLabel", "Explore by category")}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {DISCOVERY_FILTERS.map((filter) => {
+              const isActive = activeFilterSet.has(filter.key);
+              const Icon = FILTER_ICONS[filter.key];
+              const filterLabel = t(`sections.vip.discovery.filters.${filter.key}`, filter.label);
+
+              return (
+                <button
+                  key={filter.key}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={() => toggleDiscoveryFilter(filter.key)}
+                  className={[
+                    "inline-flex min-h-10 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-all duration-200",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                    isActive
+                      ? "border-primary/70 bg-gradient-to-r from-[hsla(43,74%,49%,0.22)] to-[hsla(43,80%,35%,0.18)] text-foreground shadow-[0_6px_18px_hsla(43,74%,49%,0.18)]"
+                      : "border-border/80 bg-background/70 text-muted-foreground hover:border-primary/35 hover:text-foreground",
+                  ].join(" ")}
+                >
+                  <Icon className={isActive ? "h-4 w-4 text-primary" : "h-4 w-4"} />
+                  <span>{filterLabel}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {listingsLoading ? (
+          <div className="rounded-xl overflow-hidden border border-border bg-muted/30">
+            <div className="h-[460px] flex items-center justify-center">
+              <span className="inline-flex items-center gap-2 text-muted-foreground text-sm">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                {t("sections.vip.discovery.loadingMap", "Loading map...")}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <ListingsLeafletMap
+            points={mapPoints}
+            enableClustering
+            showPopups
+            autoFit
+            scrollWheelZoom={false}
+            mapClassName="h-[460px]"
+            emptyMessage={mapEmptyMessage}
+          />
+        )}
       </div>
     </section>
   );
