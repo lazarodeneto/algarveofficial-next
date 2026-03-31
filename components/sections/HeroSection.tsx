@@ -513,7 +513,7 @@ export function HeroSection() {
         {/* Scroll Indicator - keep above overlapping quick-links cards */}
         <div className="pointer-events-none absolute bottom-8 right-8 hidden z-30 lg:flex">
           <button
-            onClick={() => scrollToSection("home-quick-links")}
+            onClick={() => scrollToSection("all-premium-listings")}
             className="pointer-events-auto flex flex-col items-end gap-2 text-white/70 transition-colors cursor-pointer animate-bounce hover:text-white"
           >
             <span className="text-xs tracking-widest uppercase text-white/60">{t("hero.scroll")}</span>
