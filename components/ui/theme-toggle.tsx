@@ -34,7 +34,7 @@ export function ThemeToggle({ variant = "default", className }: ThemeToggleProps
           transition={{ type: "spring", stiffness: 500, damping: 34 }}
         />
         <span className="relative z-10 flex h-8 w-8 items-center justify-center">
-          <Sun className={cn("h-4 w-4 transition-colors", isDark ? "text-muted-foreground/70" : "text-primary")} />
+          <Sun className={cn("h-4 w-4 transition-colors", isDark ? "text-white/60" : "text-primary")} />
         </span>
         <span className="relative z-10 flex h-8 w-8 items-center justify-center">
           <Moon className={cn("h-4 w-4 transition-colors", isDark ? "text-foreground" : "text-muted-foreground/70")} />
