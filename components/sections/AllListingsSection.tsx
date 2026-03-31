@@ -228,7 +228,7 @@ export function AllListingsSection() {
   }
 
   return (
-    <section className="py-20 lg:py-28 bg-gradient-to-b from-[#F8F6F2] to-white dark:from-[#1a1a1f] dark:to-background">
+    <section id="all-premium-listings" className="py-20 lg:py-28 scroll-mt-24 bg-gradient-to-b from-[#F8F6F2] to-white dark:from-[#1a1a1f] dark:to-background">
       <div className="app-container content-max px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
