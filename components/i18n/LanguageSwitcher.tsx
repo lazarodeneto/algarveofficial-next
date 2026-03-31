@@ -43,7 +43,7 @@ export function LanguageSwitcher({
             switchLocale(nextLocale, localePathByLocale?.[nextLocale as Locale]);
           });
         }}
-        className={cn("rounded-md border px-3 py-2", selectClassName)}
+        className={cn("rounded-md border pl-3 pr-8 py-2", selectClassName)}
       >
         {SUPPORTED_LOCALES.map((locale) => (
           <option key={locale} value={locale}>

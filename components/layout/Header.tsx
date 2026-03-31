@@ -65,10 +65,10 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const { t } = useTranslation();
   const l = useLocalePath();
 
-  const directoryPath = l("/directory");
+  const directoryPath = l("/stay");
   const livePath = l("/live");
-  const investPath = l("/real-estate");
-  const realEstatePath = investPath;
+  const investPath = l("/properties");
+  const realEstatePath = l("/real-estate");
   const partnerPath = l("/partner");
   const homePath = l("/");
   const destinationsPath = l("/destinations");
@@ -160,7 +160,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
     <>
       <CommandSearch open={searchOpen} onOpenChange={setSearchOpen} />
 
-      <header className="site-header fixed top-0 left-0 right-0 z-50 transition-all duration-300 xl:left-20">
+      <header className="site-header fixed top-0 left-0 right-0 z-50 transition-all duration-300 lg:left-20">
         <div
           className={`absolute inset-0 transition-all duration-300 ${isScrolled
             ? "border-b border-black/8 bg-[hsl(var(--background)/0.96)] shadow-[0_18px_48px_-38px_rgba(15,23,42,0.35)] backdrop-blur-2xl dark:border-white/10 dark:bg-[hsl(var(--background)/0.78)]"
@@ -191,29 +191,6 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
             {/* Primary Navigation */}
             <div className="hidden lg:flex lg:min-w-0 lg:flex-1 lg:items-center lg:justify-center xl:justify-start">
               <HeaderNav />
-            </div>
-
-            <div className="hidden xl:flex xl:items-center xl:shrink-0">
-              <TooltipProvider delayDuration={0}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      asChild
-                      variant="ghost"
-                      size="icon"
-                      className="h-11 w-11 rounded-full border border-black/10 bg-white/82 text-primary shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl transition-all hover:border-primary/40 hover:bg-white hover:text-primary dark:border-white/14 dark:bg-white/10 [&_svg]:!size-5"
-                    >
-                      <Link href={directoryPath}>
-                        <ListChecks />
-                        <span className="sr-only">{t("nav.directory", "Directory")}</span>
-                      </Link>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" align="center">
-                    {t("nav.directory", "Directory")}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
             </div>
 
             {/* Laptop Actions (1024-1279): compact utility row */}
@@ -432,7 +409,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                         <Link href={directoryPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
                           <div className="flex items-center gap-3">
                             <Binoculars className="h-6 w-6 text-primary" />
-                            {t("nav.visit")}
+                            {t("nav.stay")}
                           </div>
                         </Link>
                         <AccordionTrigger className="w-12 h-12 flex items-center justify-center p-0" />
@@ -480,7 +457,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                         <Link href={investPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
                           <div className="flex items-center gap-3">
                             <TrendingUp className="h-6 w-6 text-primary" />
-                            {t("nav.invest")}
+                            {t("nav.properties")}
                           </div>
                         </Link>
                         <AccordionTrigger className="w-12 h-12 flex items-center justify-center p-0" />

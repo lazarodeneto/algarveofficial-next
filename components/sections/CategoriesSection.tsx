@@ -109,12 +109,12 @@ export function CategoriesSection() {
 
                 <Link
                   href={l(`/directory?category=${category.slug}`)}
-                  className="block w-full h-full min-w-0 min-h-[14.5rem] sm:min-h-[15rem] lg:min-h-[9rem] p-6 lg:px-6 lg:py-4 glass-box glass-box-silver-liquid text-center flex flex-col items-center"
+                  className="block w-full h-full min-w-0 min-h-[11.5rem] sm:min-h-[12rem] lg:min-h-[7rem] p-5 lg:px-5 lg:py-3 glass-box glass-box-silver-liquid text-center flex flex-col items-center"
                 >
-                  <div className="relative z-10 w-14 h-14 rounded-lg bg-muted dark:bg-muted flex items-center justify-center mb-5 lg:mb-4">
-                    <IconComponent className="w-7 h-7 text-primary" />
+                  <div className="relative z-10 w-12 h-12 rounded-lg bg-muted dark:bg-muted flex items-center justify-center mb-3 lg:mb-2">
+                    <IconComponent className="w-6 h-6 text-primary" />
                   </div>
-                  <h3 className="relative z-10 text-[1.28rem] sm:text-[1.4rem] lg:text-[1.65rem] font-medium text-foreground mb-4 break-words text-balance leading-[1.15] min-h-[3.75rem] sm:min-h-[4.2rem] lg:min-h-[4.3rem] lg:mb-3 flex items-center justify-center">
+                  <h3 className="relative z-10 text-[1.15rem] sm:text-[1.25rem] lg:text-[1.45rem] font-medium text-foreground mb-3 break-words text-balance leading-[1.15] min-h-[2.8rem] sm:min-h-[3.2rem] lg:min-h-[3.4rem] lg:mb-2 flex items-center justify-center">
                     {displayName}
                   </h3>
                   <span className="relative z-10 text-body-sm font-medium text-primary mt-auto">

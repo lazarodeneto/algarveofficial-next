@@ -6,6 +6,7 @@ import clsx from "clsx";
 import {
   Binoculars,
   CalendarDays,
+  Compass,
   Home,
   Mail,
   Map,
@@ -18,8 +19,11 @@ import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 
 const NAV_ICONS: Record<string, LucideIcon> = {
   "nav.visit": Binoculars,
+  "nav.stay": Binoculars,
   "nav.live": Home,
   "nav.invest": TrendingUp,
+  "nav.properties": TrendingUp,
+  "nav.experiences": Compass,
   "nav.map": Map,
   "nav.events": CalendarDays,
   "nav.contact": Mail,

@@ -29,7 +29,10 @@
     "yourSpace": "Jouw Ruimte",
     "openMenu": "Menu openen",
     "closeMenu": "Menu sluiten",
-    "mobilePrimary": "Hoofdnavigatie"
+    "mobilePrimary": "Hoofdnavigatie",
+    "stay": "Verblijven",
+    "properties": "Vastgoed",
+    "experiences": "Ervaringen"
   },
   "menu": {
     "visit": "Bezoek",
@@ -51,8 +54,26 @@
         "title": "Investeer in de Algarve",
         "desc": "Zeker uw stuk paradijs en bouw duurzame waarde op.",
         "label": "Strategie verkennen"
+      },
+      "stay": {
+        "title": "Verblijf in de Algarve",
+        "desc": "De beste accommodaties aan de meest prestigieuze kust van Portugal.",
+        "label": "Ontdek verblijven"
+      },
+      "properties": {
+        "title": "Vastgoed in de Algarve",
+        "desc": "Premium vastgoed en investeringsmogelijkheden.",
+        "label": "Ontdek vastgoed"
+      },
+      "experiences": {
+        "title": "Ervaringen in de Algarve",
+        "desc": "Geselecteerde avonturen, gastronomie, cultuur en wellness.",
+        "label": "Ontdek meer"
       }
-    }
+    },
+    "stay": "Verblijven",
+    "properties": "Vastgoed",
+    "experiences": "Ervaringen"
   },
   "hero": {
     "location": "District Faro, Portugal",
@@ -837,55 +858,55 @@
       "eventModeration": "Gebeurtenismoderatie",
       "termsOfService": "Servicevoorwaarden",
       "privacyPolicy": "Privacybeleid",
-    "cookiePolicy": {
-    "title": "Cookiebeleid",
-    "lastUpdated": "Laatst bijgewerkt: {{date}}",
-    "introduction": "Dit Cookiebeleid legt uit hoe AlgarveOfficial cookies en soortgelijke technologieën gebruikt om u te herkennen wanneer u onze website bezoekt.",
-    "sections": {
-      "types": {
-        "title": "Soorten Cookies Die We Gebruiken",
-        "table": {
-          "type": "Type",
-          "purpose": "Doel",
-          "duration": "Duur",
-          "essential": "Essentieel",
-          "essentialPurpose": "Authenticatie, beveiliging, taalvoorkeuren",
-          "essentialDuration": "Sessie / 1 jaar",
-          "functional": "Functioneel",
-          "functionalPurpose": "Themavoorkeuren, gebruikersinstellingen",
-          "functionalDuration": "1 jaar",
-          "analytics": "Analytisch",
-          "analyticsPurpose": "Paginabezoeken, sessietracking (met toestemming)",
-          "analyticsDuration": "90 dagen"
+      "cookiePolicy": {
+        "title": "Cookiebeleid",
+        "lastUpdated": "Laatst bijgewerkt: {{date}}",
+        "introduction": "Dit Cookiebeleid legt uit hoe AlgarveOfficial cookies en soortgelijke technologieën gebruikt om u te herkennen wanneer u onze website bezoekt.",
+        "sections": {
+          "types": {
+            "title": "Soorten Cookies Die We Gebruiken",
+            "table": {
+              "type": "Type",
+              "purpose": "Doel",
+              "duration": "Duur",
+              "essential": "Essentieel",
+              "essentialPurpose": "Authenticatie, beveiliging, taalvoorkeuren",
+              "essentialDuration": "Sessie / 1 jaar",
+              "functional": "Functioneel",
+              "functionalPurpose": "Themavoorkeuren, gebruikersinstellingen",
+              "functionalDuration": "1 jaar",
+              "analytics": "Analytisch",
+              "analyticsPurpose": "Paginabezoeken, sessietracking (met toestemming)",
+              "analyticsDuration": "90 dagen"
+            }
+          },
+          "essential": {
+            "title": "Essentiële Cookies",
+            "description": "Deze cookies zijn strikt noodzakelijk voor het functioneren van de website en kunnen niet in onze systemen worden uitgeschakeld.",
+            "note": "U kunt uw browser instellen om deze cookies te blokkeren of te waarschuwen, maar sommige delen van de site werken niet goed zonder hen."
+          },
+          "analytics": {
+            "title": "Analytische Cookies",
+            "description": "Met deze cookies kunnen we bezoeken en verkeersbronnen tellen om de prestaties van onze site te meten en te verbeteren.",
+            "dataCollected": "Gegevens die we verzamelen met uw toestemming:"
+          },
+          "managing": {
+            "title": "Uw Cookie-voorkeuren Beheren",
+            "description": "U hebt het recht om te beslissen of u cookies accepteert of weigert.",
+            "note": "Als u ervoor kiest om cookies te weigeren, kunt u nog steeds onze website gebruiken, hoewel uw toegang tot sommige functionaliteit beperkt kan zijn."
+          },
+          "contact": {
+            "title": "Neem Contact Met Ons",
+            "description": "Als u vragen hebt over ons gebruik van cookies, neem dan contact met ons op:"
+          }
+        },
+        "footer": {
+          "privacyPolicy": "Privacybeleid",
+          "termsOfService": "Servicevoorwaarden",
+          "backToHome": "Terug naar Home"
         }
       },
-      "essential": {
-        "title": "Essentiële Cookies",
-        "description": "Deze cookies zijn strikt noodzakelijk voor het functioneren van de website en kunnen niet in onze systemen worden uitgeschakeld.",
-        "note": "U kunt uw browser instellen om deze cookies te blokkeren of te waarschuwen, maar sommige delen van de site werken niet goed zonder hen."
-      },
-      "analytics": {
-        "title": "Analytische Cookies",
-        "description": "Met deze cookies kunnen we bezoeken en verkeersbronnen tellen om de prestaties van onze site te meten en te verbeteren.",
-        "dataCollected": "Gegevens die we verzamelen met uw toestemming:"
-      },
-      "managing": {
-        "title": "Uw Cookie-voorkeuren Beheren",
-        "description": "U hebt het recht om te beslissen of u cookies accepteert of weigert.",
-        "note": "Als u ervoor kiest om cookies te weigeren, kunt u nog steeds onze website gebruiken, hoewel uw toegang tot sommige functionaliteit beperkt kan zijn."
-      },
-      "contact": {
-        "title": "Neem Contact Met Ons",
-        "description": "Als u vragen hebt over ons gebruik van cookies, neem dan contact met ons op:"
-      }
-    },
-    "footer": {
-      "privacyPolicy": "Privacybeleid",
-      "termsOfService": "Servicevoorwaarden",
-      "backToHome": "Terug naar Home"
-    }
-  },
-  "pages": "Pagina's",
+      "pages": "Pagina's",
       "regions": "Regio's",
       "destinations": "Bestemmingen",
       "cities": "Steden",

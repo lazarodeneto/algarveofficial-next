@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { buildSupabaseImageUrl } from "@/lib/imageUrls";
+import { cn } from "@/lib/utils";
 import { STANDARD_PUBLIC_HERO_SURFACE_CLASS, STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 
 const parseYouTubeTimeToSeconds = (value: string | null): number | null => {
@@ -441,7 +442,7 @@ export function HeroSection() {
 
   return (
     <div className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
-      <section className={STANDARD_PUBLIC_HERO_SURFACE_CLASS}>
+      <section className={cn(STANDARD_PUBLIC_HERO_SURFACE_CLASS, "min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem]")}>
         {/* Video Background */}
         <div className="absolute inset-0">
           {mediaMode !== "none" ? (
@@ -472,14 +473,9 @@ export function HeroSection() {
         </div>
 
         <div className="relative z-10 mx-auto w-full max-w-[22rem] px-4 sm:max-w-4xl sm:px-4">
-          <div className="space-y-4 px-3 py-7 text-center text-white sm:space-y-6 sm:px-8 sm:py-8 md:px-10">
-            <div className="flex justify-center">
-              <Badge variant="gold" className="uppercase tracking-[0.18em] text-[10px] px-3.5 py-1.5 sm:tracking-[0.22em] sm:text-[11px] sm:px-4">
-                {t("hero.location")}
-              </Badge>
-            </div>
+          <div className="space-y-1.5 px-3 pt-5 pb-14 text-center text-white sm:space-y-2 sm:px-8 sm:pt-6 sm:pb-16 md:px-10">
 
-            <h1 className="text-shadow-hero font-serif text-[clamp(2.35rem,12vw,4.3rem)] sm:text-5xl md:text-7xl font-light leading-[0.92] sm:leading-tight tracking-[-0.03em] text-white">
+            <h1 className="text-shadow-hero font-serif text-[clamp(2rem,10vw,3.8rem)] sm:text-5xl md:text-6xl font-light leading-[0.95] sm:leading-tight tracking-[-0.03em] text-white">
               {heroHeadlineLines.map((line) => (
                 <span key={line} className="block">
                   {line}
@@ -487,13 +483,13 @@ export function HeroSection() {
               ))}
             </h1>
 
-            <div className="mx-auto h-1 w-20 rounded-full bg-[var(--colour-card-outline-gold)] shadow-[var(--shadow-card)] sm:w-24" />
+            <div className="mx-auto h-0.5 w-16 rounded-full bg-[var(--colour-card-outline-gold)] shadow-[var(--shadow-card)] sm:w-20" />
 
-            <p className="text-shadow-hero mx-auto max-w-[18.75rem] text-[0.92rem] font-light leading-7 text-white/90 sm:max-w-2xl sm:text-base sm:leading-relaxed md:text-xl">
+            <p className="text-shadow-hero mx-auto max-w-[17rem] text-[0.82rem] font-light leading-6 text-white/90 sm:max-w-xl sm:text-sm sm:leading-6 md:max-w-2xl md:text-base">
               {heroSubtitle}
             </p>
 
-            <div className="pt-1 sm:pt-2 flex flex-col items-center gap-3.5 sm:gap-4 w-full max-w-[22rem] sm:max-w-2xl mx-auto px-0">
+            <div className="flex flex-col items-center gap-3 sm:gap-3.5 w-full max-w-[22rem] sm:max-w-2xl mx-auto px-0">
               <button
                 type="button"
                 onClick={openTripPlanner}
@@ -502,12 +498,6 @@ export function HeroSection() {
                 <span>{tripPlannerButtonLabel}</span>
                 <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
               </button>
-
-              <div className="flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
-                <Button asChild variant="secondary" size="lg" className="w-full sm:w-auto">
-                  <Link href={l("/partner")}>{t("hero.listYourBusiness", "List Your Business")}</Link>
-                </Button>
-              </div>
             </div>
           </div>
         </div>
