@@ -16,7 +16,7 @@ import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 import { PRIMARY_NAV_ITEMS } from "@/lib/navigation/nav-items";
 
 const HEADER_NAV_ITEMS = PRIMARY_NAV_ITEMS.filter(
-  (item) => item.href !== "/contact" && item.href !== "/map",
+  (item) => item.href !== "/contact" && item.href !== "/map" && item.href !== "/events" && item.href !== "/live",
 );
 
 const HEADER_NAV_ICONS: Record<string, LucideIcon> = {

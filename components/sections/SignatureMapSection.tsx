@@ -300,15 +300,17 @@ export function SignatureMapSection() {
             </div>
           </div>
         ) : (
-          <ListingsLeafletMap
-            points={mapPoints}
-            enableClustering
-            showPopups
-            autoFit
-            scrollWheelZoom={false}
-            mapClassName="h-[460px]"
-            emptyMessage={mapEmptyMessage}
-          />
+          <div className="rounded-2xl overflow-hidden border-2 border-border dark:border-white/25 dark:shadow-[0_0_20px_rgba(255,255,255,0.06)]">
+            <ListingsLeafletMap
+              points={mapPoints}
+              enableClustering
+              showPopups
+              autoFit
+              scrollWheelZoom={false}
+              mapClassName="h-[460px]"
+              emptyMessage={mapEmptyMessage}
+            />
+          </div>
         )}
       </div>
     </section>
