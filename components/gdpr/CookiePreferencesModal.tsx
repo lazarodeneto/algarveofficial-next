@@ -177,10 +177,10 @@ export function CookiePreferencesModal({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-300 text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900"
+            className="inline-flex h-12 w-12 items-center justify-center rounded-lg border border-zinc-300 text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900"
             aria-label={t("cookie.closePreferences")}
           >
-            <span aria-hidden>×</span>
+            <span aria-hidden className="text-2xl">×</span>
           </button>
         </div>
 
