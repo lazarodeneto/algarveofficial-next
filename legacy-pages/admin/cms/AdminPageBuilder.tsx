@@ -36,10 +36,12 @@ const HERO_MEDIA_SUPPORTED_PAGE_IDS = new Set([
   "destinations",
   "directory",
   "events",
+  "experiences",
   "invest",
   "live",
   "map",
   "real-estate",
+  "stay",
   "visit",
 ]);
 
