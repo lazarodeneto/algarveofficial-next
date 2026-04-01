@@ -75,13 +75,17 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main id="main-content" className="main">
-        <CmsBlock pageId="home" blockId="hero" as="section">
-          <HeroSection />
-        </CmsBlock>
-        <CmsBlock pageId="home" blockId="quick-links" as="section">
-          <HomeQuickLinksSection />
-        </CmsBlock>
-        {(settings?.show_vip_section ?? true) && (
+        {isBlockEnabled("hero", true) && (
+          <CmsBlock pageId="home" blockId="hero" as="section">
+            <HeroSection />
+          </CmsBlock>
+        )}
+        {isBlockEnabled("quick-links", true) && (
+          <CmsBlock pageId="home" blockId="quick-links" as="section">
+            <HomeQuickLinksSection />
+          </CmsBlock>
+        )}
+        {(settings?.show_vip_section ?? true) && isBlockEnabled("vip", true) && (
           <CmsBlock pageId="home" blockId="vip" as="section">
             <SignatureMapSection />
           </CmsBlock>
@@ -94,16 +98,16 @@ const Index = () => {
         <div className="mx-auto w-full content-max density">
           {sectionsToRender.filter(({ id }) => id !== "vip" && id !== "all-listings").map(({ id, enabled }) => {
             if (!enabled || !isBlockEnabled(id, true)) return null;
-            
+
             const SectionComponent = SECTION_COMPONENTS[id];
             if (!SectionComponent) return null;
 
             if (id === 'curated') {
               return (
                 <CmsBlock pageId="home" blockId={id} key={id} as="section">
-                  <CuratedExcellence 
-                    context={{ type: 'home' }} 
-                    limit={4} 
+                  <CuratedExcellence
+                    context={{ type: 'home' }}
+                    limit={4}
                   />
                 </CmsBlock>
               );
@@ -115,14 +119,18 @@ const Index = () => {
               </CmsBlock>
             );
           })}
-          <CmsBlock pageId="home" blockId="algarve-guide" as="section">
-            <AlgarveGuideSection />
-          </CmsBlock>
+          {isBlockEnabled("algarve-guide", true) && (
+            <CmsBlock pageId="home" blockId="algarve-guide" as="section">
+              <AlgarveGuideSection />
+            </CmsBlock>
+          )}
         </div>
-        <CmsBlock pageId="home" blockId="newsletter" as="section">
-          <NewsletterSection />
-        </CmsBlock>
-        {showCta && (
+        {isBlockEnabled("newsletter", true) && (
+          <CmsBlock pageId="home" blockId="newsletter" as="section">
+            <NewsletterSection />
+          </CmsBlock>
+        )}
+        {showCta && isBlockEnabled("cta", true) && (
           <CmsBlock pageId="home" blockId="cta" as="section">
             <CTASection />
           </CmsBlock>
