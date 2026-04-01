@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { ConciergeBell } from "lucide-react";
 
 import { toWhatsAppDigits } from "@/lib/contactPhone";
@@ -13,6 +14,29 @@ export function WhatsAppChatButton({
   phoneNumber = toWhatsAppDigits("+351927071708"),
   defaultMessage = "Hello! I'm interested in learning more about your premium services in Algarve.",
 }: WhatsAppChatButtonProps) {
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
+  const scrollTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsUserScrolling(true);
+      if (scrollTimeoutRef.current !== null) {
+        window.clearTimeout(scrollTimeoutRef.current);
+      }
+      scrollTimeoutRef.current = window.setTimeout(() => {
+        setIsUserScrolling(false);
+      }, 180);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollTimeoutRef.current !== null) {
+        window.clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleOpenWhatsApp = () => {
     const encodedMessage = encodeURIComponent(defaultMessage);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
@@ -20,7 +44,9 @@ export function WhatsAppChatButton({
   };
 
   return (
-    <div className="pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] right-4 z-40 lg:bottom-4 lg:right-6">
+    <div className={`pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] right-4 z-40 lg:bottom-4 lg:right-6 transition-transform duration-200 ease-out ${
+      isUserScrolling ? "translate-y-[calc(100%+env(safe-area-inset-bottom))]" : ""
+    }`}>
       <button
         type="button"
         onClick={handleOpenWhatsApp}
