@@ -7,6 +7,7 @@ import {
   Binoculars,
   CalendarDays,
   Compass,
+  FlagTriangleRight,
   Home,
   Mail,
   Map,
@@ -25,6 +26,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   "nav.properties": TrendingUp,
   "nav.experiences": Compass,
   "nav.map": Map,
+  "nav.golf": FlagTriangleRight,
   "nav.events": CalendarDays,
   "nav.contact": Mail,
 };
