@@ -16,7 +16,7 @@ function GolfApp() {
   }, [searchParams])
 
   return (
-    <div className="fixed inset-0 z-50 bg-black overflow-hidden">
+    <div className="fixed inset-0 top-0 left-0 w-screen h-[100dvh] z-50 bg-black overflow-hidden">
       {/* Loading overlay */}
       <div
         className={`absolute inset-0 z-20 flex flex-col items-center justify-center bg-black transition-opacity duration-500 ${
@@ -35,10 +35,10 @@ function GolfApp() {
         </div>
       </div>
 
-      {/* Back button */}
+      {/* Back button - mobile safe positioning */}
       <button
         onClick={() => router.back()}
-        className="absolute top-4 left-4 z-30 flex items-center gap-1.5 rounded-full bg-black/40 backdrop-blur-sm px-3.5 py-2 text-white/90 text-sm shadow-lg transition-colors hover:bg-black/60 active:bg-black/70"
+        className="absolute top-4 left-4 z-30 flex items-center gap-1.5 rounded-full bg-black/40 backdrop-blur-sm px-3.5 py-2 text-white/90 text-sm shadow-lg transition-colors hover:bg-black/60 active:bg-black/70 sm:top-6 sm:left-6"
         aria-label="Back to previous page"
       >
         <svg
@@ -54,17 +54,17 @@ function GolfApp() {
         >
           <path d="m15 18-6-6 6-6" />
         </svg>
-        Back
+        <span className="hidden sm:inline">Back</span>
       </button>
 
-      {/* Iframe */}
+      {/* Iframe - responsive and mobile-safe */}
       <iframe
         src={iframeSrc}
         onLoad={() => setLoaded(true)}
-        className={`absolute inset-0 border-0 transition-opacity duration-500 ${
+        className={`absolute inset-0 w-full h-full border-0 transition-opacity duration-500 ${
           loaded ? 'opacity-100' : 'opacity-0'
         }`}
-        allow="geolocation; fullscreen"
+        allow="geolocation; fullscreen; accelerometer; gyroscope"
         title="AlgarveOfficial Golf"
       />
     </div>
@@ -75,7 +75,7 @@ export default function GolfPage() {
   return (
     <Suspense
       fallback={
-        <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center">
+        <div className="fixed inset-0 top-0 left-0 w-screen h-[100dvh] z-50 bg-black flex flex-col items-center justify-center">
           <div className="flex flex-col items-center gap-6">
             <div className="relative h-12 w-12">
               <div className="absolute inset-0 rounded-full border-2 border-white/20" />
