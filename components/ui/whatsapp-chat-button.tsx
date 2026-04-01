@@ -28,9 +28,10 @@ export function WhatsAppChatButton({
       }, 180);
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    const scrollTarget = document.documentElement;
+    scrollTarget.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      scrollTarget.removeEventListener("scroll", handleScroll);
       if (scrollTimeoutRef.current !== null) {
         window.clearTimeout(scrollTimeoutRef.current);
       }
@@ -50,13 +51,11 @@ export function WhatsAppChatButton({
       <button
         type="button"
         onClick={handleOpenWhatsApp}
-        className="pointer-events-auto relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_18px_38px_-18px_rgba(15,23,42,0.55)] transition-all hover:scale-[1.03] hover:shadow-[0_22px_46px_-18px_rgba(15,23,42,0.6)]"
+        className="pointer-events-auto relative flex h-14 w-14 items-center justify-center rounded-full backdrop-blur-md bg-white/20 dark:bg-white/10 border border-white/40 dark:border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.2)] transition-all hover:scale-[1.03] hover:bg-white/30 dark:hover:bg-white/15"
         aria-label="Open concierge on WhatsApp"
         title="Open concierge on WhatsApp"
       >
-        <span className="absolute inset-0 rounded-full bg-gradient-to-br from-white/30 via-transparent to-black/10 pointer-events-none" />
-        <span className="absolute inset-1 rounded-full border border-white/20 pointer-events-none" />
-        <ConciergeBell className="relative z-10 h-7 w-7 drop-shadow-sm" />
+        <ConciergeBell className="relative z-10 h-7 w-7 text-white drop-shadow-md" />
         <span className="sr-only">Open concierge on WhatsApp</span>
       </button>
     </div>

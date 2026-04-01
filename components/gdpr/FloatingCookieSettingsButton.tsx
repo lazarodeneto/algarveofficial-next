@@ -38,9 +38,10 @@ export function FloatingCookieSettingsButton() {
       }, 180);
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    const scrollTarget = document.documentElement;
+    scrollTarget.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      scrollTarget.removeEventListener("scroll", handleScroll);
       if (scrollTimeoutRef.current !== null) {
         window.clearTimeout(scrollTimeoutRef.current);
       }
@@ -71,19 +72,17 @@ export function FloatingCookieSettingsButton() {
   const label = t("footer.cookieSettings", "Cookie Settings");
 
   return (
-    <div className={`pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] left-4 z-40 lg:left-6 transition-transform duration-200 ease-out backdrop-blur-sm bg-white/10 dark:bg-white/5 border border-white/20 rounded-full p-0 ${
+    <div className={`pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] left-4 z-40 lg:left-6 transition-transform duration-200 ease-out ${
       isUserScrolling ? "translate-y-[calc(100%+env(safe-area-inset-bottom))]" : ""
     }`}>
       <button
         type="button"
         onClick={openCookiePreferences}
-        className="pointer-events-auto relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_18px_38px_-18px_rgba(15,23,42,0.55)] transition-all hover:scale-[1.03] hover:shadow-[0_22px_46px_-18px_rgba(15,23,42,0.6)]"
+        className="pointer-events-auto relative flex h-14 w-14 items-center justify-center rounded-full backdrop-blur-md bg-white/20 dark:bg-white/10 border border-white/40 dark:border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.2)] transition-all hover:scale-[1.03] hover:bg-white/30 dark:hover:bg-white/15"
         aria-label={label}
         title={label}
       >
-        <span className="absolute inset-0 rounded-full bg-gradient-to-br from-white/30 via-transparent to-black/10 pointer-events-none" />
-        <span className="absolute inset-1 rounded-full border border-white/20 pointer-events-none" />
-        <Cookie className="relative z-10 h-7 w-7 drop-shadow-sm" />
+        <Cookie className="relative z-10 h-7 w-7 text-white drop-shadow-md" />
         <span className="sr-only">{label}</span>
       </button>
     </div>
