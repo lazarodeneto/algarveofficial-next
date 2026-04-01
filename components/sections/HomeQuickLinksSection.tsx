@@ -103,16 +103,16 @@ export function HomeQuickLinksSection() {
               <Link
                 key={card.id}
                 href={card.customHref ? l(card.customHref) : l(`/visit?category=${card.categorySlug}`)}
-                className="glass-box glass-box-silver-liquid glass-box-contour group relative isolate flex h-full w-full flex-col rounded-[24px] font-sans transition-transform duration-300 hover:-translate-y-1 sm:max-w-[236px]"
+                className="glass-box glass-box-silver-liquid glass-box-contour group relative isolate flex h-full w-full flex-col rounded-[24px] font-sans transition-transform duration-300 hover:-translate-y-1 sm:max-w-[280px]"
               >
                 <span
                   aria-hidden
                   className="pointer-events-none absolute inset-0 z-20 rounded-[24px] border-[2px] border-[hsl(43,86%,58%)] shadow-[0_0_10px_hsla(43,86%,58%,0.34)]"
                 />
 
-                <div className="relative z-10 flex items-center justify-center gap-2.5 px-3.5 pt-4 pb-1 sm:gap-3 sm:px-4 sm:pt-5 sm:pb-1.5">
-                  <Icon className="h-5 w-5 shrink-0 sm:h-6 sm:w-6 text-[hsl(43,74%,49%)]" />
-                  <h3 className="font-['Archivo_Narrow'] text-[0.875rem] font-semibold uppercase leading-tight tracking-[0.02em] text-black dark:text-white sm:text-[0.88rem] lg:text-[0.96rem] truncate">
+                <div className="relative z-10 flex items-center justify-center gap-2 px-2.5 pt-4 pb-1 sm:gap-2.5 sm:px-3 sm:pt-5 sm:pb-1.5">
+                  <Icon className="h-4 w-4 shrink-0 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-[hsl(43,74%,49%)]" />
+                  <h3 className="font-['Archivo_Narrow'] text-[0.95rem] font-semibold uppercase leading-tight tracking-[0.02em] text-black dark:text-white sm:text-[1rem] lg:text-[1.05rem] truncate">
                     {displayTitle}
                   </h3>
                 </div>
