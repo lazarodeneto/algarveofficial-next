@@ -15,7 +15,7 @@ const cspDirectives = [
   `img-src 'self' data: blob: https: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.ggpht.com https://*.ytimg.com https://*.unsplash.com`,
   `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://analytics.google.com https://analytics.tiktok.com https://*.onetrust.com https://geolocation.onetrust.com https://cdn.cookie-script.com`,
   `media-src 'self' blob: https:`,
-  `frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com`,
+  `frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com https://algarveofficialgolf.base44.app`,
   `frame-ancestors 'self' https://algarveofficial.com https://*.algarveofficial.com`,
   `upgrade-insecure-requests`,
 ].join("; ");
