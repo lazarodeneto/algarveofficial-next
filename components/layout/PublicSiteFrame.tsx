@@ -11,7 +11,7 @@ interface PublicSiteFrameProps {
   children: ReactNode;
 }
 
-const SIDEBAR_EXCLUDED_PREFIXES = ["/admin", "/owner", "/dashboard"];
+const SIDEBAR_EXCLUDED_PREFIXES = ["/admin", "/owner", "/dashboard", "/golf"];
 
 export function PublicSiteFrame({ children }: PublicSiteFrameProps) {
   const pathname = usePathname() || "/";
