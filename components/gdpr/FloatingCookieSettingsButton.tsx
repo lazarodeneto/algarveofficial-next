@@ -49,19 +49,19 @@ export function FloatingCookieSettingsButton() {
   const label = t("footer.cookieSettings", "Cookie Settings");
 
   return (
-    <div className="pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] left-4 z-40 sm:bottom-5 sm:left-5 xl:left-24">
-      <Button
+    <div className="pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] left-4 z-40 lg:left-6">
+      <button
         type="button"
-        size="icon"
-        variant="outline"
-        className="pointer-events-auto h-12 w-12 rounded-full border border-[#C7A35A]/35 bg-white/96 text-[#C7A35A] shadow-[0_16px_40px_-20px_rgba(15,23,42,0.45)] backdrop-blur-xl hover:border-[#C7A35A]/55 hover:bg-white hover:text-[#A17618] dark:border-white/16 dark:bg-[hsl(var(--background)/0.94)] dark:text-primary dark:hover:border-primary/40 dark:hover:bg-[hsl(var(--background))]"
-        aria-label={label}
-        title={`${label} · GDPR`}
         onClick={openCookiePreferences}
+        className="pointer-events-auto relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_18px_38px_-18px_rgba(15,23,42,0.55)] transition-all hover:scale-[1.03] hover:shadow-[0_22px_46px_-18px_rgba(15,23,42,0.6)]"
+        aria-label={label}
+        title={label}
       >
-        <Cookie className="h-5 w-5" />
+        <span className="absolute inset-0 rounded-full bg-gradient-to-br from-white/30 via-transparent to-black/10 pointer-events-none" />
+        <span className="absolute inset-1 rounded-full border border-white/20 pointer-events-none" />
+        <Cookie className="relative z-10 h-7 w-7 drop-shadow-sm" />
         <span className="sr-only">{label}</span>
-      </Button>
+      </button>
     </div>
   );
 }
