@@ -16,7 +16,7 @@ function GolfApp() {
   }, [searchParams])
 
   return (
-    <div className="relative h-[100dvh] w-full bg-black overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-black overflow-hidden">
       {/* Loading overlay */}
       <div
         className={`absolute inset-0 z-20 flex flex-col items-center justify-center bg-black transition-opacity duration-500 ${
@@ -61,7 +61,7 @@ function GolfApp() {
       <iframe
         src={iframeSrc}
         onLoad={() => setLoaded(true)}
-        className={`h-full w-full border-0 transition-opacity duration-500 ${
+        className={`absolute inset-0 border-0 transition-opacity duration-500 ${
           loaded ? 'opacity-100' : 'opacity-0'
         }`}
         allow="geolocation; fullscreen"
@@ -75,7 +75,7 @@ export default function GolfPage() {
   return (
     <Suspense
       fallback={
-        <div className="relative h-[100dvh] w-full bg-black flex flex-col items-center justify-center">
+        <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center">
           <div className="flex flex-col items-center gap-6">
             <div className="relative h-12 w-12">
               <div className="absolute inset-0 rounded-full border-2 border-white/20" />
