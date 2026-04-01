@@ -61,6 +61,31 @@ export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
     ],
   },
   {
+    id: "experiences",
+    label: "Experiences",
+    path: "/experiences",
+    description: "Curated experiences and activities across the Algarve.",
+    blocks: [
+      { id: "hero", label: "Hero" },
+      { id: "city-hubs", label: "City Hubs" },
+      { id: "stats", label: "Stats" },
+      { id: "pillars", label: "Experience Pillars" },
+      { id: "cta", label: "Call to Action" },
+    ],
+  },
+  {
+    id: "stay",
+    label: "Stay",
+    path: "/stay",
+    description: "Places to stay across the Algarve — hotels, resorts, and accommodation.",
+    blocks: [
+      { id: "hero", label: "Hero" },
+      { id: "filters", label: "Filters" },
+      { id: "results", label: "Results" },
+      { id: "pagination", label: "Pagination / Load More" },
+    ],
+  },
+  {
     id: "directory",
     label: "Directory",
     path: "/directory",
