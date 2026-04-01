@@ -112,7 +112,7 @@ export function HomeQuickLinksSection() {
 
                 <div className="relative z-10 flex items-center justify-center gap-2.5 px-3.5 pt-4 pb-1 sm:gap-3 sm:px-4 sm:pt-5 sm:pb-1.5">
                   <Icon className="h-5 w-5 shrink-0 sm:h-6 sm:w-6 text-[hsl(43,74%,49%)]" />
-                  <h3 className="font-['Archivo_Narrow'] text-[0.78rem] font-semibold uppercase leading-tight tracking-[0.02em] text-black dark:text-white sm:text-[0.88rem] lg:text-[0.96rem]">
+                  <h3 className="font-['Archivo_Narrow'] text-[0.875rem] font-semibold uppercase leading-tight tracking-[0.02em] text-black dark:text-white sm:text-[0.88rem] lg:text-[0.96rem] truncate">
                     {displayTitle}
                   </h3>
                 </div>
