@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ComponentProps } from "react";
 import { usePathname } from "next/navigation";
 import NextLink from "next/link";
-import { Home, Binoculars, TrendingUp, Compass } from "lucide-react";
+import { Home, Binoculars, TrendingUp, Compass, FlagTriangleRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useMobileMenu } from "@/contexts/MobileMenuContext";
@@ -16,7 +16,7 @@ const navItems = [
   { name: "nav.stay", href: "/stay", icon: Binoculars },
   { name: "nav.experiences", href: "/experiences", icon: Compass },
   { name: "nav.properties", href: "/properties", icon: TrendingUp },
-  { name: "nav.live", href: "/live", icon: Home },
+  { name: "nav.golf", href: "/golf", icon: FlagTriangleRight },
 ];
 
 export function MobileBottomNav() {
