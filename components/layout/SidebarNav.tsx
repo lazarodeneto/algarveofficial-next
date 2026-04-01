@@ -8,7 +8,6 @@ import {
   CalendarDays,
   Compass,
   FlagTriangleRight,
-  Home,
   Mail,
   Map,
   TrendingUp,
@@ -21,7 +20,6 @@ import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 const NAV_ICONS: Record<string, LucideIcon> = {
   "nav.visit": Binoculars,
   "nav.stay": Binoculars,
-  "nav.live": Home,
   "nav.invest": TrendingUp,
   "nav.properties": TrendingUp,
   "nav.experiences": Compass,
