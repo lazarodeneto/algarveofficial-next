@@ -24,7 +24,10 @@ declare global {
  * - Save Data mode enabled
  * - 2G/3G connections
  * - Low downlink speed (<1.5 Mbps)
- * - Mobile devices (as a fallback when connection info unavailable)
+ *
+ * Mobile devices are NOT assumed slow when connection info is unavailable
+ * (e.g. Safari/iOS which lacks the Network Information API). This ensures
+ * hero videos still play on mobile devices with good connectivity.
  */
 export function useConnectionQuality(): {
   quality: ConnectionQuality;
@@ -44,18 +47,20 @@ export function useConnectionQuality(): {
       return mobile;
     };
 
-    const mobile = checkMobile();
+    checkMobile();
 
     // Get network connection API
-    const connection = 
-      navigator.connection || 
-      navigator.mozConnection || 
+    const connection =
+      navigator.connection ||
+      navigator.mozConnection ||
       navigator.webkitConnection;
 
     const updateConnectionQuality = () => {
       if (!connection) {
-        // No connection API available - use mobile as fallback indicator
-        setQuality(mobile ? 'slow' : 'unknown');
+        // No connection API available (e.g. Safari/iOS).
+        // Default to 'unknown' — do NOT assume mobile means slow,
+        // since most mobile devices are on fast Wi-Fi or 4G/5G.
+        setQuality('unknown');
         return;
       }
 
@@ -95,10 +100,7 @@ export function useConnectionQuality(): {
 
     // Also listen for resize to update mobile status
     const handleResize = () => {
-      const nowMobile = checkMobile();
-      if (!connection) {
-        setQuality(nowMobile ? 'slow' : 'unknown');
-      }
+      checkMobile();
     };
 
     window.addEventListener('resize', handleResize);
@@ -107,7 +109,7 @@ export function useConnectionQuality(): {
 
   return {
     quality,
-    isSlow: quality === 'slow' || (quality === 'unknown' && isMobile),
+    isSlow: quality === 'slow',
     isMobile,
   };
 }

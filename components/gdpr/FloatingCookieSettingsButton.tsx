@@ -73,7 +73,7 @@ export function FloatingCookieSettingsButton() {
 
   return (
     <div className={`pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] left-4 z-40 lg:left-6 transition-transform duration-200 ease-out ${
-      isUserScrolling ? "translate-y-[calc(100%+env(safe-area-inset-bottom))]" : ""
+      isUserScrolling ? "lg:translate-y-0 translate-y-[calc(100%+env(safe-area-inset-bottom)+4.5rem+2rem)]" : ""
     }`}>
       <button
         type="button"
