@@ -66,7 +66,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const l = useLocalePath();
 
   const directoryPath = l("/stay");
-  const livePath = l("/live");
+  const experiencesPath = l("/experiences");
   const investPath = l("/properties");
   const realEstatePath = l("/real-estate");
   const partnerPath = l("/partner");
@@ -429,13 +429,13 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                       </AccordionContent>
                     </AccordionItem>
 
-                    {/* LIVE */}
-                    <AccordionItem value="live">
+                    {/* EXPERIENCES */}
+                    <AccordionItem value="experiences">
                       <div className="flex items-center">
-                        <Link href={livePath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
+                        <Link href={experiencesPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
                           <div className="flex items-center gap-3">
                             <Home className="h-6 w-6 text-primary" />
-                            {t("nav.live")}
+                            {t("nav.experiences")}
                           </div>
                         </Link>
                         <AccordionTrigger className="w-12 h-12 flex items-center justify-center p-0" />
