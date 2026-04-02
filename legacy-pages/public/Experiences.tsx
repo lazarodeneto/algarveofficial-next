@@ -48,6 +48,7 @@ import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
+import { CityHubsSection } from "@/components/shared/CityHubsSection";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -332,97 +333,15 @@ const Experiences = () => {
         ) : null}
 
         <div className="app-container content-max pb-16 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
-          {topCities.length > 0 &&
-          isBlockEnabled("city-hubs", true) ? (
-            <section className="mb-10 space-y-8">
-              {highlightedCity &&
-              isBlockEnabled("featured-city-hub", true) ? (
-                <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-                  <Link
-                    href={l(`/city/${highlightedCity.slug}`)}
-                    className="group block h-full overflow-hidden rounded-[32px] border border-border bg-card shadow-sm"
-                  >
-                    <div className="relative h-full min-h-[20rem]">
-                      {highlightedCity.hero_image_url ||
-                      highlightedCity.image_url ? (
-                        <img
-                          src={`${
-                            highlightedCity.hero_image_url ||
-                            highlightedCity.image_url
-                          }?_t=${imageTimestamp}`}
-                          alt={highlightedCity.name}
-                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-gradient-to-br from-charcoal-light to-charcoal" />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
-                      <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
-                          {t(
-                            "experiences.featuredCityHub",
-                            "Featured City Hub",
-                          )}
-                        </p>
-                        <h2 className="font-serif text-3xl md:text-4xl leading-tight">
-                          {highlightedCity.name}
-                        </h2>
-                        <p className="mt-3 max-w-2xl text-sm text-white/85">
-                          {highlightedCity.short_description ||
-                            t(
-                              "experiences.featuredCityHubDescription",
-                              "Explore curated experiences in {{name}}, Algarve.",
-                              { name: highlightedCity.name },
-                            )}
-                        </p>
-                      </div>
-                    </div>
-                  </Link>
-
-                  {isBlockEnabled("city-index", true) ? (
-                    <div className="rounded-[32px] border border-border bg-card p-6 shadow-sm">
-                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                        {t("experiences.cityIndex", "City Index")}
-                      </p>
-                      <h2 className="mt-3 font-serif text-2xl text-foreground">
-                        {t(
-                          "experiences.exploreAlgarveCities",
-                          "Explore Algarve Cities",
-                        )}
-                      </h2>
-                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                        {t(
-                          "experiences.cityIndexDescription",
-                          "Browse experiences and activities by city.",
-                        )}
-                      </p>
-                      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        {topCities.map((city) => (
-                          <Link
-                            key={city.id}
-                            href={l(`/city/${city.slug}`)}
-                            className="rounded-2xl border border-border px-4 py-3 transition-colors hover:border-primary/40 hover:bg-muted/40"
-                          >
-                            <div className="font-medium text-foreground">
-                              {city.name}
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              {t(
-                                "experiences.listingsCount",
-                                "{{count}} experiences",
-                                {
-                                  count: cityListingCounts[city.id] ?? 0,
-                                },
-                              )}
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-              ) : null}
-            </section>
+          {topCities.length > 0 && isBlockEnabled("city-hubs", true) ? (
+            <CityHubsSection
+              highlightedCity={highlightedCity}
+              topCities={topCities}
+              cityListingCounts={cityListingCounts}
+              imageTimestamp={imageTimestamp}
+              basePath="city"
+              translationPrefix="experiences"
+            />
           ) : null}
 
           {isBlockEnabled("filters", true) ? (

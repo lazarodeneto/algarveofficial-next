@@ -1,0 +1,125 @@
+"use client";
+
+import Link from "next/link";
+import { useTranslation } from "react-i18next";
+import { useLocalePath } from "@/hooks/useLocalePath";
+
+interface City {
+  id: string;
+  name: string;
+  slug: string;
+  hero_image_url: string | null;
+  image_url: string | null;
+  short_description: string | null;
+  totalCount?: number;
+}
+
+interface CityHubsSectionProps {
+  highlightedCity: City | undefined;
+  topCities: City[];
+  cityListingCounts: Record<string, number>;
+  imageTimestamp: number;
+  basePath: string;
+  translationPrefix: string;
+}
+
+export function CityHubsSection({
+  highlightedCity,
+  topCities,
+  cityListingCounts,
+  imageTimestamp,
+  basePath,
+  translationPrefix,
+}: CityHubsSectionProps) {
+  const { t } = useTranslation();
+  const l = useLocalePath();
+
+  const getCityCount = (city: City) =>
+    city.totalCount ?? cityListingCounts[city.id] ?? 0;
+
+  const featured = highlightedCity ?? topCities[0];
+  if (!featured) return null;
+
+  return (
+    <section className="mb-10 space-y-8">
+      <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+        <Link
+          href={l(`/${basePath}/${featured.slug}`)}
+          className="group block h-full overflow-hidden rounded-[32px] border border-border bg-card shadow-sm"
+        >
+          <div className="relative h-full min-h-[20rem]">
+            {featured.hero_image_url || featured.image_url ? (
+              <img
+                src={`${
+                  featured.hero_image_url || featured.image_url
+                }?_t=${imageTimestamp}`}
+                alt={featured.name}
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-charcoal-light to-charcoal" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 p-6 text-white">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
+                {t(
+                  `${translationPrefix}.featuredCityHub`,
+                  "Featured City Hub",
+                )}
+              </p>
+              <h2 className="font-serif text-3xl md:text-4xl leading-tight">
+                {featured.name}
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm text-white/85">
+                {featured.short_description ||
+                  t(
+                    `${translationPrefix}.featuredCityHubDescription`,
+                    "Explore {{count}} curated listings in {{name}}, Algarve.",
+                    { count: getCityCount(featured), name: featured.name },
+                  )}
+              </p>
+            </div>
+          </div>
+        </Link>
+
+        <div className="rounded-[32px] border border-border bg-card p-6 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+            {t(`${translationPrefix}.cityIndex`, "City Index")}
+          </p>
+          <h2 className="mt-3 font-serif text-2xl text-foreground">
+            {t(
+              `${translationPrefix}.exploreAlgarveCities`,
+              "Explore Algarve Cities",
+            )}
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            {t(
+              `${translationPrefix}.cityIndexDescription`,
+              "Browse listings by city.",
+            )}
+          </p>
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {topCities.map((city) => (
+              <Link
+                key={city.id}
+                href={l(`/${basePath}/${city.slug}`)}
+                className="rounded-2xl border border-border px-4 py-3 transition-colors hover:border-primary/40 hover:bg-muted/40"
+              >
+                <div className="font-medium text-foreground">
+                  {city.name}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {t(
+                    `${translationPrefix}.listingsCount`,
+                    "{{count}} listings",
+                    { count: getCityCount(city) },
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
