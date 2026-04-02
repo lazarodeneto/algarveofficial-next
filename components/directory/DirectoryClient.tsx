@@ -1038,46 +1038,6 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                 </div>
               ) : null}
 
-              {activeCms.isBlockEnabled("all-active-city-hubs", true) ? (
-              <div>
-                <div className="mb-4 flex items-center justify-between gap-4">
-                  <div>
-                    <h2 className="font-serif text-2xl text-foreground">{t("directory.allActiveCityHubs")}</h2>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {t("directory.allActiveCityHubsDescription")}
-                    </p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {props.visitCityIndex.map((city) => (
-                    <Link
-                      key={city.id}
-                      href={l(`/stay/${city.slug}`)}
-                      className="group block"
-                    >
-                      <article className="glass-box overflow-hidden">
-                        <div className="h-36 w-full overflow-hidden">
-                          <ListingImage
-                            src={city.hero_image_url ? `${city.hero_image_url}?_t=${imageTimestamp}` : city.image_url ? `${city.image_url}?_t=${imageTimestamp}` : undefined}
-                            alt={city.name}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                        </div>
-                        <div className="p-4">
-                          <h3 className="font-serif font-medium text-lg text-foreground group-hover:text-primary transition-colors">
-                            {city.name}
-                          </h3>
-                          <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-                            {city.short_description ||
-                              t("directory.cityCardDescription", "Discover premium things to do, places to stay, and signature experiences in {{name}}.", { name: city.name })}
-                          </p>
-                        </div>
-                      </article>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-              ) : null}
             </section>
           ) : null}
 
