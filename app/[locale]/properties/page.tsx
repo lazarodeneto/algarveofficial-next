@@ -1,7 +1,7 @@
 "use client";
 
-import RealEstateDirectory from "@/legacy-pages/public/RealEstateDirectory";
+import PropertiesClient from "@/components/properties/PropertiesClient";
 
 export default function PropertiesPage() {
-  return <RealEstateDirectory />;
+  return <PropertiesClient />;
 }
