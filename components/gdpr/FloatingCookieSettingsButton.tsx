@@ -72,8 +72,8 @@ export function FloatingCookieSettingsButton() {
   const label = t("footer.cookieSettings", "Cookie Settings");
 
   return (
-    <div className={`pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] left-4 z-40 lg:left-6 transition-transform duration-200 ease-out ${
-      isUserScrolling ? "lg:translate-y-0 translate-y-[calc(100%+env(safe-area-inset-bottom)+4.5rem+2rem)]" : ""
+    <div className={`pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] left-4 z-40 hidden lg:left-6 lg:block transition-transform duration-200 ease-out ${
+      isUserScrolling ? "translate-y-0" : ""
     }`}>
       <button
         type="button"
