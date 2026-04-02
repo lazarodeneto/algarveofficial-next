@@ -83,7 +83,7 @@ export function useCities() {
         .order('name', { ascending: true });
 
       if (error) {
-        console.error('Error fetching cities:', error);
+        console.warn('Error fetching cities:', error);
         throw error;
       }
 
@@ -117,7 +117,7 @@ export function useRegions() {
         .order('name', { ascending: true });
 
       if (error) {
-        console.error('Error fetching regions:', error);
+        console.warn('Error fetching regions:', error);
         throw error;
       }
 
@@ -149,7 +149,7 @@ export function useRegionListingCounts() {
         .not('region_id', 'is', null);
 
       if (error) {
-        console.error('Error fetching region counts:', error);
+        console.warn('Error fetching region counts:', error);
         return {};
       }
 
@@ -185,7 +185,7 @@ export function useCategories() {
         .order('name', { ascending: true });
 
       if (error) {
-        console.error('Error fetching categories:', error);
+        console.warn('Error fetching categories:', error);
         throw error;
       }
 
@@ -219,7 +219,7 @@ export function useFeaturedRegions() {
         .order('display_order', { ascending: true });
 
       if (error) {
-        console.error('Error fetching featured regions:', error);
+        console.warn('Error fetching featured regions:', error);
         throw error;
       }
 
@@ -253,7 +253,7 @@ export function useFeaturedCities() {
         .order('display_order', { ascending: true });
 
       if (error) {
-        console.error('Error fetching featured cities:', error);
+        console.warn('Error fetching featured cities:', error);
         throw error;
       }
 
@@ -287,7 +287,7 @@ export function useFeaturedCategories() {
         .order('display_order', { ascending: true });
 
       if (error) {
-        console.error('Error fetching featured categories:', error);
+        console.warn('Error fetching featured categories:', error);
         throw error;
       }
 
@@ -316,7 +316,7 @@ export function useCityRegionMappings() {
         .select('*');
 
       if (error) {
-        console.error('Error fetching city-region mappings:', error);
+        console.warn('Error fetching city-region mappings:', error);
         throw error;
       }
 
@@ -347,7 +347,7 @@ export function useAllCities() {
         .order('name', { ascending: true });
 
       if (error) {
-        console.error('Error fetching all cities:', error);
+        console.warn('Error fetching all cities:', error);
         throw error;
       }
 
@@ -374,7 +374,7 @@ export function useAllRegions() {
         .order('name', { ascending: true });
 
       if (error) {
-        console.error('Error fetching all regions:', error);
+        console.warn('Error fetching all regions:', error);
         throw error;
       }
 
@@ -401,7 +401,7 @@ export function useAllCategories() {
         .order('name', { ascending: true });
 
       if (error) {
-        console.error('Error fetching all categories:', error);
+        console.warn('Error fetching all categories:', error);
         throw error;
       }
 
