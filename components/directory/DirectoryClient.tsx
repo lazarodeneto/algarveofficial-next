@@ -62,6 +62,7 @@ import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
 import ListingImage from "@/components/ListingImage";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
+import { CityHubsSection } from "@/components/shared/CityHubsSection";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
@@ -981,64 +982,14 @@ function DirectoryClientInner(props: DirectoryClientProps) {
 
         <div className="app-container content-max pb-16 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
           {(pathname.endsWith("/visit") || pathname.endsWith("/stay")) && props.visitCityIndex && props.visitCityIndex.length > 0 && activeCms.isBlockEnabled("city-hubs", true) ? (
-            <section className="mb-10 space-y-8">
-              {props.featuredVisitCity && activeCms.isBlockEnabled("featured-city-hub", true) ? (
-                <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-                  <Link
-                    href={l(`/stay/${props.featuredVisitCity.slug}`)}
-                    className="group block h-full overflow-hidden rounded-[32px] border border-border bg-card shadow-sm"
-                  >
-                    <div className="relative h-full min-h-[20rem]">
-                      <ListingImage
-                        src={props.featuredVisitCity.hero_image_url ? `${props.featuredVisitCity.hero_image_url}?_t=${imageTimestamp}` : props.featuredVisitCity.image_url ? `${props.featuredVisitCity.image_url}?_t=${imageTimestamp}` : undefined}
-                        alt={props.featuredVisitCity.name}
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
-                      <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
-                          {t("directory.featuredCityHub")}
-                        </p>
-                        <h2 className="font-serif text-3xl md:text-4xl leading-tight">
-                          {props.featuredVisitCity.name}
-                        </h2>
-                        <p className="mt-3 max-w-2xl text-sm text-white/85">
-                          {props.featuredVisitCity.short_description ||
-                            t("directory.featuredCityHubDescription", "Explore {{count}} curated listings and city guides in {{name}}, Algarve.", { count: props.featuredVisitCity.totalCount, name: props.featuredVisitCity.name })}
-                        </p>
-                      </div>
-                    </div>
-                  </Link>
-
-                  <div className="rounded-[32px] border border-border bg-card p-6 shadow-sm">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                      {t("directory.cityIndex")}
-                    </p>
-                    <h2 className="mt-3 font-serif text-2xl text-foreground">
-                      {t("directory.exploreAlgarveCities")}
-                    </h2>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                      {t("directory.cityIndexDescription")}
-                    </p>
-                    <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                      {props.visitCityIndex.slice(0, 6).map((city) => (
-                        <Link
-                          key={city.id}
-                          href={l(`/stay/${city.slug}`)}
-                          className="rounded-2xl border border-border px-4 py-3 transition-colors hover:border-primary/40 hover:bg-muted/40"
-                        >
-                          <div className="font-medium text-foreground">{city.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {t("directory.listingsCount", "{{count}} listings", { count: city.totalCount })}
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-
-            </section>
+            <CityHubsSection
+              highlightedCity={props.featuredVisitCity ?? undefined}
+              topCities={props.visitCityIndex.slice(0, 6)}
+              cityListingCounts={{}}
+              imageTimestamp={imageTimestamp}
+              basePath="stay"
+              translationPrefix="directory"
+            />
           ) : null}
 
           {activeCms.isBlockEnabled("filters", true) ? (
