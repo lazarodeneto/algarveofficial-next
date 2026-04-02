@@ -90,6 +90,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
   return (
     <div className="min-h-screen bg-background" data-cms-page="destinations">
       <Header />
+      <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />
 
       <CmsBlock pageId="destinations" blockId="city-index" as="section" className="py-16 lg:py-24 bg-card">
         <div className="app-container content-max">
