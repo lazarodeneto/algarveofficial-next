@@ -4,12 +4,12 @@ import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import clsx from "clsx";
 import {
+  BedDouble,
   Binoculars,
   CalendarDays,
-  Compass,
+  FlagTriangleRight,
   Home,
-  TrendingUp,
-  Trophy,
+  HouseHeart,
   type LucideIcon,
 } from "lucide-react";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
@@ -22,12 +22,12 @@ const HEADER_NAV_ITEMS = PRIMARY_NAV_ITEMS.filter(
 
 const HEADER_NAV_ICONS: Record<string, LucideIcon> = {
   "nav.visit": Binoculars,
-  "nav.stay": Binoculars,
+  "nav.stay": BedDouble,
   "nav.live": Home,
-  "nav.invest": TrendingUp,
-  "nav.properties": TrendingUp,
-  "nav.experiences": Compass,
-  "nav.golf": Trophy,
+  "nav.invest": HouseHeart,
+  "nav.properties": HouseHeart,
+  "nav.experiences": Binoculars,
+  "nav.golf": FlagTriangleRight,
   "nav.events": CalendarDays,
 };
 

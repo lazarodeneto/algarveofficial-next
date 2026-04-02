@@ -12,18 +12,20 @@ import {
   Heart,
   Search,
   Settings2,
+  BedDouble,
   Binoculars,
   Home,
   MapPin,
   BookOpen,
   MessageSquare,
   Plane,
-  TrendingUp,
+  HouseHeart,
   Hotel,
   Utensils,
   Compass,
   Palmtree,
   Trophy,
+  FlagTriangleRight,
   Dumbbell,
   Users,
   ShoppingBag,
@@ -418,7 +420,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                       <div className="flex items-center">
                         <Link href={directoryPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
                           <div className="flex items-center gap-3">
-                            <Binoculars className="h-6 w-6 text-primary" />
+                            <BedDouble className="h-6 w-6 text-primary" />
                             {t("nav.stay")}
                           </div>
                         </Link>
@@ -443,7 +445,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                       <div className="flex items-center">
                         <Link href={experiencesPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
                           <div className="flex items-center gap-3">
-                            <Home className="h-6 w-6 text-primary" />
+                            <Binoculars className="h-6 w-6 text-primary" />
                             {t("nav.experiences")}
                           </div>
                         </Link>
@@ -465,7 +467,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                       <div className="flex items-center">
                         <Link href={golfPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
                           <div className="flex items-center gap-3">
-                            <Trophy className="h-6 w-6 text-primary" />
+                            <FlagTriangleRight className="h-6 w-6 text-primary" />
                             {t("nav.golf")}
                           </div>
                         </Link>
@@ -483,7 +485,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                       <div className="flex items-center">
                         <Link href={investPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
                           <div className="flex items-center gap-3">
-                            <TrendingUp className="h-6 w-6 text-primary" />
+                            <HouseHeart className="h-6 w-6 text-primary" />
                             {t("nav.properties")}
                           </div>
                         </Link>
