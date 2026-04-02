@@ -100,6 +100,27 @@ function normalizePageConfigs(input: unknown): CmsPageConfigMap {
         if (typeof rawBlock.enabled === "boolean") block.enabled = rawBlock.enabled;
         if (typeof rawBlock.order === "number" && Number.isFinite(rawBlock.order)) block.order = rawBlock.order;
         if (typeof rawBlock.className === "string") block.className = rawBlock.className;
+
+        if (isPlainRecord(rawBlock.style)) {
+          const style: Record<string, string | number> = {};
+          Object.entries(rawBlock.style).forEach(([styleKey, styleValue]) => {
+            if (typeof styleValue === "string" || typeof styleValue === "number") {
+              style[styleKey] = styleValue;
+            }
+          });
+          block.style = style;
+        }
+
+        if (isPlainRecord(rawBlock.data)) {
+          const data: Record<string, string | number | boolean | string[]> = {};
+          Object.entries(rawBlock.data).forEach(([dataKey, dataValue]) => {
+            if (typeof dataValue === "string" || typeof dataValue === "number" || typeof dataValue === "boolean" || Array.isArray(dataValue)) {
+              data[dataKey] = dataValue as string | number | boolean | string[];
+            }
+          });
+          block.data = data;
+        }
+
         blocks[blockId] = block;
       });
 
