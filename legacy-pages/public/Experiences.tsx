@@ -280,12 +280,11 @@ const Experiences = () => {
       <Header />
 
       <main>
-        {isBlockEnabled("hero", true) ? (
-          <CmsBlock
-            pageId="experiences"
-            blockId="hero"
-            className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4"
-          >
+        <CmsBlock
+          pageId="experiences"
+          blockId="hero"
+          className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4"
+        >
             <LiveStyleHero
               className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
               badge={t("experiences.hero.badge", "Curated Adventures")}
@@ -339,7 +338,6 @@ const Experiences = () => {
               }
             />
           </CmsBlock>
-        ) : null}
 
         <div className="app-container content-max pb-16 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
           {topCities.length > 0 && isBlockEnabled("city-hubs", true) ? (
