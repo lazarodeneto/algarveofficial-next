@@ -8,10 +8,12 @@ import {
   Building2,
   ChevronDown,
   Compass,
+  Crown,
   Filter,
   Loader2,
   MapPin,
   Search,
+  ShieldCheck,
   Sparkles,
   Star,
   Sun,
@@ -77,6 +79,7 @@ const Experiences = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("all");
   const [selectedCity, setSelectedCity] = useState("all");
+  const [selectedTier, setSelectedTier] = useState("all");
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 300);
@@ -91,6 +94,7 @@ const Experiences = () => {
   const hasActiveFilters =
     selectedRegion !== "all" ||
     selectedCity !== "all" ||
+    selectedTier !== "all" ||
     debouncedSearch !== "";
 
   const clearFilters = useCallback(() => {
@@ -98,6 +102,7 @@ const Experiences = () => {
     setDebouncedSearch("");
     setSelectedRegion("all");
     setSelectedCity("all");
+    setSelectedTier("all");
   }, []);
 
   // City listing counts for "things-to-do" category
@@ -153,6 +158,7 @@ const Experiences = () => {
       debouncedSearch,
       selectedRegion,
       selectedCity,
+      selectedTier,
       thingsToDoCategory?.id,
     ],
     queryFn: async () => {
@@ -172,6 +178,9 @@ const Experiences = () => {
       }
       if (selectedRegion !== "all") {
         query = query.eq("region_id", selectedRegion);
+      }
+      if (selectedTier !== "all") {
+        query = query.eq("tier", selectedTier);
       }
       query = query
         .order("tier", { ascending: true })
@@ -399,7 +408,7 @@ const Experiences = () => {
                         />
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="space-y-2">
                           <label className="text-body-xs font-medium text-muted-foreground flex items-center gap-2">
                             <MapPin className="h-4 w-4 text-primary" />
@@ -489,6 +498,43 @@ const Experiences = () => {
                                 "Things to Do",
                               )}
                           </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-body-xs font-medium text-muted-foreground flex items-center gap-2">
+                            <Crown className="h-4 w-4 text-primary" />
+                            {t("directory.tier", "Tier")}
+                          </label>
+                          <Select
+                            value={selectedTier}
+                            onValueChange={setSelectedTier}
+                          >
+                            <SelectTrigger className="h-12 bg-muted/30 border-border hover:bg-muted/50 focus:bg-background">
+                              <SelectValue
+                                placeholder={t(
+                                  "directory.allTiers",
+                                  "All Tiers",
+                                )}
+                              />
+                            </SelectTrigger>
+                            <SelectContent className="bg-popover border-border shadow-lg">
+                              <SelectItem value="all">
+                                {t("directory.allTiers", "All Tiers")}
+                              </SelectItem>
+                              <SelectItem value="signature">
+                                <div className="flex items-center gap-2">
+                                  <Crown className="h-4 w-4 text-primary" />
+                                  {t("directory.tierSignature", "Signature")}
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="verified">
+                                <div className="flex items-center gap-2">
+                                  <ShieldCheck className="h-4 w-4 text-green-500" />
+                                  {t("directory.tierVerified", "Verified")}
+                                </div>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
 
