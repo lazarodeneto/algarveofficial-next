@@ -7,9 +7,9 @@ export type NavItem = {
 export const PRIMARY_NAV_ITEMS: NavItem[] = [
   { labelKey: "nav.stay", fallbackLabel: "Stay", href: "/stay" },
   { labelKey: "nav.experiences", fallbackLabel: "Experiences", href: "/experiences" },
+  { labelKey: "nav.golf", fallbackLabel: "Golf", href: "/golf" },
   { labelKey: "nav.properties", fallbackLabel: "Properties", href: "/properties" },
   { labelKey: "nav.map", fallbackLabel: "Map", href: "/map" },
-  { labelKey: "nav.golf", fallbackLabel: "Golf", href: "/golf" },
   { labelKey: "nav.events", fallbackLabel: "Events", href: "/events" },
   { labelKey: "nav.live", fallbackLabel: "Live", href: "/live" },
   { labelKey: "nav.contact", fallbackLabel: "Contact", href: "/contact" },
