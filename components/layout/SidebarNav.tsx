@@ -4,14 +4,15 @@ import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import clsx from "clsx";
 import {
+  BedDouble,
   Binoculars,
   CalendarDays,
-  Compass,
   FlagTriangleRight,
   Home,
+  HouseHeart,
   Mail,
   Map,
-  TrendingUp,
+  MapPinHouse,
   type LucideIcon,
 } from "lucide-react";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
@@ -20,14 +21,14 @@ import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 
 const NAV_ICONS: Record<string, LucideIcon> = {
   "nav.visit": Binoculars,
-  "nav.stay": Binoculars,
-  "nav.invest": TrendingUp,
-  "nav.properties": TrendingUp,
-  "nav.experiences": Compass,
+  "nav.stay": BedDouble,
+  "nav.invest": HouseHeart,
+  "nav.properties": HouseHeart,
+  "nav.experiences": Binoculars,
   "nav.map": Map,
   "nav.golf": FlagTriangleRight,
   "nav.events": CalendarDays,
-  "nav.live": Home,
+  "nav.live": MapPinHouse,
   "nav.contact": Mail,
 };
 
