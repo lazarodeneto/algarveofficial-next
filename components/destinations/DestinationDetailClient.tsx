@@ -218,6 +218,16 @@ function normalizePageConfigs(input: unknown): CmsPageConfigMap {
           block.style = style;
         }
 
+        if (isPlainRecord(rawBlock.data)) {
+          const data: Record<string, string | number | boolean | string[]> = {};
+          Object.entries(rawBlock.data).forEach(([dataKey, dataValue]) => {
+            if (typeof dataValue === "string" || typeof dataValue === "number" || typeof dataValue === "boolean" || Array.isArray(dataValue)) {
+              data[dataKey] = dataValue as string | number | boolean | string[];
+            }
+          });
+          block.data = data;
+        }
+
         blocks[blockId] = block;
       });
 
