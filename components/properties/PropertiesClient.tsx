@@ -106,7 +106,7 @@ export default function PropertiesClient() {
                                     onSearch={() => { }}
                                     onClear={handleClear}
                                 />
-                                <div className="mt-6 sm:mt-8 p-5 sm:p-8 bg-black text-white rounded-2xl space-y-4">
+                                <div className="hidden xl:block mt-6 sm:mt-8 p-5 sm:p-8 bg-black text-white rounded-2xl space-y-4">
                                     <h4 className="font-serif text-xl italic">{t("realEstate.searchAssistance.title", "Search Assistance")}</h4>
                                     <p className="text-sm text-white/70 font-light leading-relaxed">
                                         {t("realEstate.searchAssistance.description", "Cannot find what you are looking for? Our concierge team has access to off-market properties.")}
@@ -152,6 +152,20 @@ export default function PropertiesClient() {
                                     <Button variant="link" onClick={handleClear} className="mt-4 text-primary hover:text-primary/80 uppercase tracking-widest text-xs font-semibold">Clear All Filters</Button>
                                 </div>
                             )}
+                        </div>
+
+                        <div className="xl:hidden xl:col-span-4 2xl:col-span-3">
+                            <div className="p-5 sm:p-8 bg-black text-white rounded-2xl space-y-4">
+                                <h4 className="font-serif text-xl italic">{t("realEstate.searchAssistance.title", "Search Assistance")}</h4>
+                                <p className="text-sm text-white/70 font-light leading-relaxed">
+                                    {t("realEstate.searchAssistance.description", "Cannot find what you are looking for? Our concierge team has access to off-market properties.")}
+                                </p>
+                                <ConciergeContactDialog>
+                                    <Button className="w-full bg-primary hover:bg-primary/90 text-black rounded-full text-[11px] sm:text-xs tracking-[0.18em] uppercase py-4 sm:py-6 whitespace-normal">
+                                        {t("realEstate.searchAssistance.cta", "Contact Concierge")}
+                                    </Button>
+                                </ConciergeContactDialog>
+                            </div>
                         </div>
                     </div>
                 </div>
