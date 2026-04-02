@@ -50,6 +50,12 @@ export function useCmsPageBuilder(pageId: string) {
       return style as CSSProperties;
     };
 
+    const getBlockData = (blockId: string): Record<string, string | number | boolean | string[]> => {
+      const data = blocks[blockId]?.data;
+      if (!data || typeof data !== "object") return {};
+      return data;
+    };
+
     const getText = (textKey: string, fallback: string): string => {
       const text = (
         pageText[textKey] ??
@@ -73,6 +79,7 @@ export function useCmsPageBuilder(pageId: string) {
       getBlockOrder,
       getBlockClassName,
       getBlockStyle,
+      getBlockData,
       isBlockEnabled,
       getText,
       getMetaTitle,

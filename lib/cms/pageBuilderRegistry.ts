@@ -12,6 +12,7 @@ export interface CmsBlockConfig {
   order?: number;
   className?: string;
   style?: Record<string, string | number>;
+  data?: Record<string, string | number | boolean | string[]>;
 }
 
 export interface CmsPageConfig {
@@ -138,6 +139,9 @@ export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
     path: "/destinations",
     blocks: [
       { id: "hero", label: "Hero" },
+      { id: "featured-city-hub", label: "Featured City Hub", description: "Highlight a single city with a large hero card." },
+      { id: "city-index", label: "City Index", description: "Grid of all active cities." },
+      { id: "all-city-hubs", label: "All Active City Hubs", description: "Showcase every active city hub." },
       { id: "featured-regions", label: "Featured Regions" },
       { id: "other-regions", label: "More Regions" },
       { id: "cta", label: "CTA" },
