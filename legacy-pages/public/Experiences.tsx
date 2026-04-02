@@ -1,31 +1,99 @@
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
-import { ArrowRight, Compass, Sparkles, Star, Sun } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowRight, Building2, ChevronDown, Compass, Filter, Loader2, MapPin, Search, Sparkles, Star, Sun, Tag, X } from "lucide-react";
+import { motion } from "framer-motion";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SeoHead } from "@/components/seo/SeoHead";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useCities } from "@/hooks/useReferenceData";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useCities, useCategories, useRegions } from "@/hooks/useReferenceData";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
-import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
-import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
-import { PageHeroImage } from "@/components/sections/PageHeroImage";
+import { supabase } from "@/integrations/supabase/client";
+import { RealEstateCard } from "@/components/real-estate/RealEstateCard";
+import type { Database } from "@/integrations/supabase/types";
+
+type ListingRow = Database["public"]["Tables"]["listings"]["Row"] & {
+  cities: { name: string; slug: string } | null;
+  categories: { name: string; slug: string } | null;
+};
 
 const Experiences = () => {
   const { t } = useTranslation();
   const { getMetaDescription, getMetaTitle, getText, isBlockEnabled } = useCmsPageBuilder("experiences");
   const l = useLocalePath();
   const { data: cities = [] } = useCities();
+  const { data: categories = [] } = useCategories();
+  const { data: regions = [] } = useRegions();
   const imageTimestamp = Date.now();
 
-  const featuredCities = useMemo(
-    () => cities.filter((city) => city.is_featured).slice(0, 6),
-    [cities],
+  const [filtersOpen, setFiltersOpen] = useState(true);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [selectedRegion, setSelectedRegion] = useState("all");
+  const [selectedCity, setSelectedCity] = useState("all");
+  const [selectedTier, setSelectedTier] = useState("all");
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const thingsToDoCategory = useMemo(
+    () => categories.find((c) => c.slug === "things-to-do"),
+    [categories],
   );
+
+  const hasActiveFilters = selectedRegion !== "all" || selectedCity !== "all" || selectedTier !== "all" || debouncedSearch !== "";
+
+  const clearFilters = useCallback(() => {
+    setSearch("");
+    setDebouncedSearch("");
+    setSelectedRegion("all");
+    setSelectedCity("all");
+    setSelectedTier("all");
+  }, []);
+
+  const { data: listings = [], isLoading: listingsLoading } = useQuery({
+    queryKey: ["experiences-listings", debouncedSearch, selectedRegion, selectedCity, selectedTier, thingsToDoCategory?.id],
+    queryFn: async () => {
+      if (!thingsToDoCategory?.id) return [];
+
+      let query = supabase
+        .from("listings")
+        .select("*, cities ( name, slug ), categories ( name, slug )")
+        .eq("category_id", thingsToDoCategory.id)
+        .eq("status", "published");
+
+      if (debouncedSearch) {
+        query = query.or(`name.ilike.%${debouncedSearch}%,description.ilike.%${debouncedSearch}%`);
+      }
+      if (selectedCity !== "all") {
+        query = query.eq("city_id", selectedCity);
+      }
+      if (selectedRegion !== "all") {
+        query = query.eq("region_id", selectedRegion);
+      }
+      if (selectedTier !== "all") {
+        query = query.eq("tier", selectedTier);
+      }
+
+      query = query.order("tier", { ascending: true }).order("created_at", { ascending: false });
+      const { data, error } = await query;
+      if (error) throw error;
+      return (data ?? []) as ListingRow[];
+    },
+    enabled: !!thingsToDoCategory?.id,
+    staleTime: 1000 * 60 * 5,
+  });
 
   const experienceStats = [
     { icon: Sparkles, value: "200+", label: t("experiences.stats.curated", "Curated Experiences") },
@@ -68,59 +136,19 @@ const Experiences = () => {
       <Header />
 
       <main className="flex-grow">
-        {isBlockEnabled("hero", true) && (
-          <CmsBlock pageId="experiences" blockId="hero" className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4">
-            <LiveStyleHero
-              className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
-              badge={t("experiences.hero.badge", "Curated Adventures")}
-              title={t("experiences.hero.title", "Experience the Algarve")}
-              subtitle={t(
-                "experiences.hero.subtitle",
-                "From coastal adventures to culinary discoveries — find unforgettable experiences handpicked for every taste and season.",
-              )}
-              media={
-                <HeroBackgroundMedia
-                  mediaType={getText("hero.mediaType", "image")}
-                  imageUrl={getText("hero.imageUrl", "")}
-                  videoUrl={getText("hero.videoUrl", "")}
-                  youtubeUrl={getText("hero.youtubeUrl", "")}
-                  posterUrl={getText("hero.posterUrl", "")}
-                  alt={t("experiences.hero.alt", "Algarve experiences")}
-                  fallback={<PageHeroImage page="directory" alt={t("experiences.hero.alt", "Algarve experiences")} />}
-                />
-              }
-              ctas={
-                <>
-                  <Link href={l("/directory?category=see-do")}>
-                    <Button variant="gold" size="lg">
-                      {t("experiences.hero.ctaPrimary", "Browse Experiences")}
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                  <Link href={l("/contact")}>
-                    <Button variant="heroOutline" size="lg">
-                      {t("experiences.hero.ctaSecondary", "Plan with Concierge")}
-                    </Button>
-                  </Link>
-                </>
-              }
-            />
-          </CmsBlock>
-        )}
-
-        {cities.length > 0 && isBlockEnabled("city-hubs", true) ? (
-          <div className="app-container content-max pb-16 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
-            <section className="mb-10 space-y-8">
-              {featuredCities.length > 0 && isBlockEnabled("featured-city-hub", true) ? (
+        {isBlockEnabled("city-hubs", true) && cities.length > 0 ? (
+          <div className="app-container content-max pb-8 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
+            <section className="mb-6 space-y-8">
+              {isBlockEnabled("featured-city-hub", true) && cities.filter(c => c.is_featured).length > 0 ? (
                 <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
                   <Link
-                    href={l(`/city/${featuredCities[0].slug}`)}
+                    href={l(`/city/${cities.filter(c => c.is_featured)[0].slug}`)}
                     className="group block h-full overflow-hidden rounded-[32px] border border-border bg-card shadow-sm"
                   >
                     <div className="relative h-full min-h-[20rem]">
                       <img
-                        src={featuredCities[0].image_url ? `${featuredCities[0].image_url}?_t=${imageTimestamp}` : "/placeholder.svg"}
-                        alt={featuredCities[0].name}
+                        src={cities.filter(c => c.is_featured)[0].image_url ? `${cities.filter(c => c.is_featured)[0].image_url}?_t=${imageTimestamp}` : "/placeholder.svg"}
+                        alt={cities.filter(c => c.is_featured)[0].name}
                         className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
@@ -129,11 +157,11 @@ const Experiences = () => {
                           {t("experiences.featuredCityHub", "Featured City Hub")}
                         </p>
                         <h2 className="font-serif text-3xl md:text-4xl leading-tight">
-                          {featuredCities[0].name}
+                          {cities.filter(c => c.is_featured)[0].name}
                         </h2>
                         <p className="mt-3 max-w-2xl text-sm text-white/85">
-                          {featuredCities[0].short_description ||
-                            t("experiences.featuredCityHubDescription", "Explore curated experiences in {{name}}, Algarve.", { name: featuredCities[0].name })}
+                          {cities.filter(c => c.is_featured)[0].short_description ||
+                            t("experiences.featuredCityHubDescription", "Explore curated experiences in {{name}}, Algarve.", { name: cities.filter(c => c.is_featured)[0].name })}
                         </p>
                       </div>
                     </div>
@@ -163,51 +191,182 @@ const Experiences = () => {
                   </div>
                 </div>
               ) : null}
-
-              {isBlockEnabled("all-active-city-hubs", true) ? (
-              <div>
-                <div className="mb-4 flex items-center justify-between gap-4">
-                  <div>
-                    <h2 className="font-serif text-2xl text-foreground">{t("experiences.allActiveCityHubs", "All Active City Hubs")}</h2>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {t("experiences.allActiveCityHubsDescription", "Discover experiences available across every city in the Algarve.")}
-                    </p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {cities.map((city) => (
-                    <Link
-                      key={city.id}
-                      href={l(`/city/${city.slug}`)}
-                      className="group block"
-                    >
-                      <article className="glass-box overflow-hidden">
-                        <div className="h-36 w-full overflow-hidden">
-                          <img
-                            src={city.image_url ? `${city.image_url}?_t=${imageTimestamp}` : "/placeholder.svg"}
-                            alt={city.name}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            loading="lazy"
-                          />
-                        </div>
-                        <div className="p-4">
-                          <h3 className="font-serif font-medium text-lg text-foreground group-hover:text-primary transition-colors">
-                            {city.name}
-                          </h3>
-                          <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-                            {city.short_description ||
-                              t("experiences.cityFallbackDescription", "Curated experiences and activities.")}
-                          </p>
-                        </div>
-                      </article>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-              ) : null}
             </section>
           </div>
         ) : null}
+
+        <div className="app-container py-8 relative z-20">
+          <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
+            <Card className="relative isolate overflow-hidden border-border bg-background/95 shadow-lg supports-[backdrop-filter]:bg-background/90">
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors rounded-t-[var(--glass-radius)]">
+                  <div className="flex items-center gap-3">
+                    <Filter className="h-5 w-5 text-primary" />
+                    <span className="font-medium text-foreground">{t("directory.advancedFilters", "Advanced Filters")}</span>
+                    {hasActiveFilters ? (
+                      <Badge variant="secondary" className="bg-primary/20 text-primary">
+                        {t("directory.active", "Active")}
+                      </Badge>
+                    ) : null}
+                  </div>
+                  <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${filtersOpen ? "rotate-180" : ""}`} />
+                </div>
+              </CollapsibleTrigger>
+
+              <CollapsibleContent>
+                <CardContent className="relative z-10 pt-0 pb-6 px-4 space-y-6">
+                  <div className="relative">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Input
+                      placeholder={t("directory.searchPlaceholder", "Search experiences...")}
+                      value={search}
+                      onChange={(event) => setSearch(event.target.value)}
+                      className="pl-12 h-12 text-lg bg-muted/30 border-border focus:bg-background"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-body-xs font-medium text-muted-foreground flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        {t("directory.region", "Region")}
+                      </label>
+                      <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+                        <SelectTrigger className="h-12 bg-muted/30 border-border hover:bg-muted/50 focus:bg-background">
+                          <SelectValue placeholder={t("directory.allRegions", "All Regions")} />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border-border shadow-lg">
+                          <SelectItem value="all">{t("directory.allRegions", "All Regions")}</SelectItem>
+                          {[...regions].sort((a, b) => a.name.localeCompare(b.name)).map((region) => (
+                            <SelectItem key={region.id} value={region.id}>
+                              {region.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-body-xs font-medium text-muted-foreground flex items-center gap-2">
+                        <Building2 className="h-4 w-4 text-primary" />
+                        {t("directory.city", "City")}
+                      </label>
+                      <Select value={selectedCity} onValueChange={setSelectedCity}>
+                        <SelectTrigger className="h-12 bg-muted/30 border-border hover:bg-muted/50 focus:bg-background">
+                          <SelectValue placeholder={t("directory.allCities", "All Cities")} />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border-border shadow-lg max-h-[280px]">
+                          <SelectItem value="all">{t("directory.allCities", "All Cities")}</SelectItem>
+                          {[...cities].sort((a, b) => a.name.localeCompare(b.name)).map((city) => (
+                            <SelectItem key={city.id} value={city.id}>
+                              {city.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-body-xs font-medium text-muted-foreground flex items-center gap-2">
+                        <Tag className="h-4 w-4 text-primary" />
+                        {t("directory.category", "Category")}
+                      </label>
+                      <div className="h-12 flex items-center px-4 bg-primary/10 border border-primary/30 rounded-md text-foreground font-medium">
+                        {thingsToDoCategory?.name ?? t("categoryNames.things-to-do", "Things to Do")}
+                      </div>
+                    </div>
+                  </div>
+
+                  {hasActiveFilters ? (
+                    <div className="flex justify-end">
+                      <Button variant="ghost" size="sm" onClick={clearFilters} className="text-muted-foreground hover:text-foreground">
+                        <X className="h-4 w-4 mr-2" />
+                        {t("directory.clearAllFilters", "Clear All Filters")}
+                      </Button>
+                    </div>
+                  ) : null}
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
+        </div>
+
+        <div className="app-container pb-12">
+          <div className="flex items-center justify-between mb-6">
+            <p className="text-body-sm text-muted-foreground">
+              {listingsLoading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {t("directory.loading", "Loading...")}
+                </span>
+              ) : (
+                <span>{listings.length} {t("experiences.resultsFound", "experiences found")}</span>
+              )}
+            </p>
+          </div>
+
+          {listingsLoading ? (
+            <div className="flex justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : listings.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+              {listings.map((listing) => (
+                <motion.div
+                  key={listing.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <Link href={l(`/listing/${listing.id}`)} className="group block">
+                    <article className="glass-box overflow-hidden">
+                      <div className="h-48 w-full overflow-hidden">
+                        {listing.featured_image_url ? (
+                          <img
+                            src={`${listing.featured_image_url}?_t=${imageTimestamp}`}
+                            alt={listing.name}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-charcoal-light to-charcoal flex items-center justify-center">
+                            <Compass className="w-12 h-12 text-muted-foreground/30" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-4 space-y-2">
+                        <div className="flex items-center gap-2">
+                          {listing.tier === "signature" && <Badge className="bg-primary/20 text-primary text-[10px]">Signature</Badge>}
+                          {listing.tier === "verified" && <Badge className="bg-green-500/20 text-green-600 text-[10px]">Verified</Badge>}
+                        </div>
+                        <h3 className="font-serif font-medium text-lg text-foreground group-hover:text-primary transition-colors">
+                          {listing.name}
+                        </h3>
+                        {listing.cities && (
+                          <p className="text-sm text-muted-foreground">{listing.cities.name}</p>
+                        )}
+                        {listing.description && (
+                          <p className="text-sm text-muted-foreground line-clamp-2">{listing.description}</p>
+                        )}
+                      </div>
+                    </article>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20">
+              <Compass className="w-12 h-12 text-primary/30 mb-4 mx-auto" />
+              <p className="text-xl font-serif italic text-muted-foreground">{t("experiences.noResults", "No experiences match your search")}</p>
+              {hasActiveFilters && (
+                <Button variant="link" onClick={clearFilters} className="mt-2 text-primary">
+                  {t("directory.clearAllFilters", "Clear All Filters")}
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
 
         {isBlockEnabled("stats", true) && (
           <CmsBlock pageId="experiences" blockId="stats" as="section" className="max-w-7xl mx-auto px-4 md:px-8 py-8 lg:py-12">
