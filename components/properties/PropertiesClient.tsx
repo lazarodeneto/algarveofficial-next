@@ -95,6 +95,7 @@ export default function PropertiesClient() {
                 keywords="Algarve properties, Portugal real estate, premium property Algarve"
             />
             <Header />
+            <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />
             <main className="flex-grow">
                 <div className="app-container py-14 sm:py-20 relative z-20">
                     <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8">
