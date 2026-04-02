@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { DashboardBreadcrumb } from "@/components/ui/dashboard-breadcrumb";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -99,6 +100,16 @@ function normalizePageConfigs(input: unknown): CmsPageConfigMap {
           block.style = style;
         }
 
+        if (isRecord(rawBlock.data)) {
+          const data: Record<string, string | number | boolean | string[]> = {};
+          Object.entries(rawBlock.data).forEach(([dataKey, dataValue]) => {
+            if (typeof dataValue === "string" || typeof dataValue === "number" || typeof dataValue === "boolean" || Array.isArray(dataValue)) {
+              data[dataKey] = dataValue as string | number | boolean | string[];
+            }
+          });
+          block.data = data;
+        }
+
         blocks[blockId] = block;
       });
       page.blocks = blocks;
@@ -180,6 +191,20 @@ function AdminPageBuilderContent() {
   const heroImageInputRef = useRef<HTMLInputElement | null>(null);
   const heroVideoInputRef = useRef<HTMLInputElement | null>(null);
   const heroPosterInputRef = useRef<HTMLInputElement | null>(null);
+
+  const { data: cities = [] } = useQuery({
+    queryKey: ["admin-cities-for-cms"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("cities")
+        .select("id, name, slug, is_active")
+        .eq("is_active", true)
+        .order("display_order", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+    staleTime: 1000 * 60 * 10,
+  });
 
   const setSearchParams = (nextParams: URLSearchParams, options?: { replace?: boolean }) => {
     const query = nextParams.toString();
@@ -753,6 +778,33 @@ function AdminPageBuilderContent() {
                       />
                     </div>
                   </div>
+
+                  {block.id === "featured-city-hub" && cities.length > 0 && (
+                    <div className="space-y-2 border-t border-border pt-3 mt-3">
+                      <Label>Highlighted City</Label>
+                      <Select
+                        value={typeof config.data?.cityId === "string" ? config.data.cityId : ""}
+                        onValueChange={(value) =>
+                          updateBlockConfig(block.id, (current) => ({
+                            ...current,
+                            data: { ...(current.data ?? {}), cityId: value },
+                          }))
+                        }
+                      >
+                        <SelectTrigger className="bg-background">
+                          <SelectValue placeholder="Select a city to highlight" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {cities.map((city) => (
+                            <SelectItem key={city.id} value={city.id}>
+                              {city.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground">Choose which city to feature prominently on the Destinations page.</p>
+                    </div>
+                  )}
                 </div>
               );
             })}
