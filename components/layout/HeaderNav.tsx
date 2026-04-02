@@ -9,6 +9,7 @@ import {
   Compass,
   Home,
   TrendingUp,
+  Trophy,
   type LucideIcon,
 } from "lucide-react";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
@@ -26,6 +27,7 @@ const HEADER_NAV_ICONS: Record<string, LucideIcon> = {
   "nav.invest": TrendingUp,
   "nav.properties": TrendingUp,
   "nav.experiences": Compass,
+  "nav.golf": Trophy,
   "nav.events": CalendarDays,
 };
 
@@ -39,7 +41,7 @@ export function HeaderNav() {
   return (
     <nav
       aria-label={ariaLabel}
-      className="font-['Archivo_Narrow'] flex items-center gap-3 text-[0.98rem] font-medium uppercase tracking-[0.055em] text-foreground/86 xl:gap-5 xl:text-[1.22rem] xl:tracking-[0.08em] 2xl:gap-6 2xl:text-[1.3rem]"
+      className="font-['Archivo_Narrow'] flex items-center gap-2.5 text-[0.82rem] font-medium uppercase tracking-[0.04em] text-foreground/86 lg:text-[0.88rem] lg:tracking-[0.05em] xl:gap-4 xl:text-[0.95rem] xl:tracking-[0.065em] 2xl:gap-5 2xl:text-[1.22rem] 2xl:tracking-[0.08em]"
     >
       {HEADER_NAV_ITEMS.map((item) => {
         const isActive =
