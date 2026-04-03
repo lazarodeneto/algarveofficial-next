@@ -418,6 +418,25 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
             {content.closingParagraph}
           </p>
         </section>
+
+        <section className="app-container py-8 border-t border-border bg-muted/30">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-2xl font-serif font-semibold mb-4">
+              Find the best {getCategoryDisplayName(canonical, locale)} in {data.city.name}
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              Discover curated listings for {getCategoryDisplayName(canonical, locale).toLowerCase()} in {data.city.name}. From local favorites to premium experiences.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <LocaleLink 
+                href={`/partner`}
+                className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+              >
+                List Your Business
+              </LocaleLink>
+            </div>
+          </div>
+        </section>
       </main>
     </>
   );
