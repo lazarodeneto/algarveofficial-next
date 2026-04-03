@@ -91,7 +91,7 @@ const sections = {
         heroTitleI18n: true,
         heroDesc: "menu.hero.stay.desc",
         heroDescI18n: true,
-        heroLink: "/stay",
+        heroLink: "/stay?category=places-to-stay",
         heroLabel: "menu.hero.stay.label",
         heroLabelI18n: true,
         items: visitItems,

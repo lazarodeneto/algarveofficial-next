@@ -5,7 +5,7 @@ export type NavItem = {
 };
 
 export const PRIMARY_NAV_ITEMS: NavItem[] = [
-  { labelKey: "nav.stay", fallbackLabel: "Stay", href: "/stay" },
+  { labelKey: "nav.stay", fallbackLabel: "Stay", href: "/stay?category=places-to-stay" },
   { labelKey: "nav.experiences", fallbackLabel: "Experiences", href: "/experiences" },
   { labelKey: "nav.golf", fallbackLabel: "Golf", href: "/golf" },
   { labelKey: "nav.properties", fallbackLabel: "Properties", href: "/properties" },
