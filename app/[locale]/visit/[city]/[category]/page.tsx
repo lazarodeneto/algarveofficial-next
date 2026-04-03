@@ -352,6 +352,16 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
           )}
         </section>
 
+        <InternalLinks
+          locale={locale}
+          currentCity={citySlug}
+          currentCategory={canonical}
+          showOtherCategories={true}
+          showOtherCities={true}
+          maxItems={8}
+          className="app-container py-8 border-t border-border"
+        />
+
         {data.relatedCities.length > 0 && (
           <section className="app-container py-8 border-t border-border">
             <h2 className="text-lg font-semibold text-foreground mb-4">
@@ -402,16 +412,6 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
             {content.closingParagraph}
           </p>
         </section>
-
-        <InternalLinks
-          locale={locale}
-          currentCity={citySlug}
-          currentCategory={canonical}
-          showOtherCategories={true}
-          showOtherCities={true}
-          maxItems={8}
-          className="app-container py-8 border-t border-border"
-        />
       </main>
     </>
   );
