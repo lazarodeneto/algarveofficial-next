@@ -496,3 +496,104 @@ export async function getCategoryCityPageData(
 
   return data;
 }
+
+export interface InternalLinksCategory {
+  slug: string;
+  name: string;
+  count: number;
+}
+
+export interface InternalLinksCity {
+  slug: string;
+  name: string;
+  count: number;
+}
+
+export async function getInternalLinksData(
+  canonicalCategorySlug: string,
+  citySlug: string,
+  maxItems: number = 8,
+): Promise<{
+  categoriesInCity: InternalLinksCategory[];
+  citiesWithCategory: InternalLinksCity[];
+}> {
+  const supabase = createPublicServerClient();
+
+  const [catRes, cityRes] = await Promise.all([
+    supabase
+      .from("categories")
+      .select("id, slug, name")
+      .eq("slug", canonicalCategorySlug)
+      .single(),
+    supabase
+      .from("cities")
+      .select("id, slug, name")
+      .eq("slug", citySlug)
+      .single(),
+  ]);
+
+  if (!catRes.data || !cityRes.data) {
+    return { categoriesInCity: [], citiesWithCategory: [] };
+  }
+
+  const categoryId = catRes.data.id;
+  const cityId = cityRes.data.id;
+
+  const { data: categoryCounts } = await supabase
+    .from("listings")
+    .select("category_id, categories!inner(slug, name)")
+    .eq("status", "published")
+    .eq("city_id", cityId)
+    .neq("category_id", categoryId);
+
+  const catMap = new Map<string, { slug: string; name: string; count: number }>();
+  for (const row of categoryCounts ?? []) {
+    const cat = Array.isArray(row.categories) ? row.categories[0] : (row.categories as { slug: string; name: string } | null);
+    if (!cat) continue;
+    const existing = catMap.get(cat.slug);
+    if (existing) {
+      existing.count++;
+    } else {
+      catMap.set(cat.slug, { slug: cat.slug, name: cat.name, count: 1 });
+    }
+  }
+
+  const categoriesInCity = Array.from(catMap.values())
+    .sort((a, b) => b.count - a.count)
+    .slice(0, maxItems)
+    .map((c) => ({
+      slug: c.slug,
+      name: c.name,
+      count: c.count,
+    }));
+
+  const { data: cityCounts } = await supabase
+    .from("listings")
+    .select("city_id, cities!inner(slug, name)")
+    .eq("status", "published")
+    .eq("category_id", categoryId)
+    .neq("city_id", cityId);
+
+  const cityMap = new Map<string, { slug: string; name: string; count: number }>();
+  for (const row of cityCounts ?? []) {
+    const city = Array.isArray(row.cities) ? row.cities[0] : (row.cities as { slug: string; name: string } | null);
+    if (!city) continue;
+    const existing = cityMap.get(city.slug);
+    if (existing) {
+      existing.count++;
+    } else {
+      cityMap.set(city.slug, { slug: city.slug, name: city.name, count: 1 });
+    }
+  }
+
+  const citiesWithCategory = Array.from(cityMap.values())
+    .sort((a, b) => b.count - a.count)
+    .slice(0, maxItems)
+    .map((c) => ({
+      slug: c.slug,
+      name: c.name,
+      count: c.count,
+    }));
+
+  return { categoriesInCity, citiesWithCategory };
+}
