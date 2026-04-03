@@ -34,6 +34,7 @@ import {
 import { getServerTranslations } from "@/lib/i18n/server";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { ListingCard } from "@/components/seo/programmatic/ListingCard";
+import InternalLinks from "@/components/seo/InternalLinks";
 
 interface PageParams {
   locale: string;
@@ -401,6 +402,16 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
             {content.closingParagraph}
           </p>
         </section>
+
+        <InternalLinks
+          locale={locale}
+          currentCity={citySlug}
+          currentCategory={canonical}
+          showOtherCategories={true}
+          showOtherCities={true}
+          maxItems={8}
+          className="app-container py-8 border-t border-border"
+        />
       </main>
     </>
   );
