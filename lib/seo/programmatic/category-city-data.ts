@@ -376,11 +376,11 @@ export async function getCategoryCityPageDataAllowEmpty(
   canonicalCategorySlug: string,
   citySlug: string,
 ): Promise<CategoryCityPageData | null> {
-  console.log("category param:", canonicalCategorySlug);
+  console.log("category param (direct):", canonicalCategorySlug);
   
   const supabase = createPublicServerClient();
 
-  // 1. Resolve IDs for the slugs
+  // 1. Resolve IDs for the slugs - USE EXACT SLUG from URL
   const [catRes, cityRes] = await Promise.all([
     supabase
       .from("categories")
@@ -394,7 +394,8 @@ export async function getCategoryCityPageDataAllowEmpty(
       .single(),
   ]);
 
-  console.log("db match:", catRes.data);
+  console.log("db category match:", catRes.data);
+  console.log("db city match:", cityRes.data);
   
   if (!catRes.data || !cityRes.data) return null;
 
