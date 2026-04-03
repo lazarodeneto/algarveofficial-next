@@ -264,6 +264,7 @@ export default function Directory() {
       keywords={getText("seo.keywords", "Algarve directory, premium experiences Algarve, Algarve accommodation, golf Algarve, fine dining Algarve")}
     />
     <Header />
+    {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
 
     <main>
       {/* Hero Section */}

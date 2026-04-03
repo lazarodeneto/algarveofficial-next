@@ -69,7 +69,8 @@ export default function Blog() {
         keywords={getText("seo.keywords", "Algarve blog, Portugal travel guides, Algarve lifestyle, premium travel tips")}
       />
       <Header />
-      
+      {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
+
       <main>
         {/* Hero Section */}
         {isBlockEnabled("hero", true) && (

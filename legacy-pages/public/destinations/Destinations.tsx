@@ -36,6 +36,7 @@ export default function Destinations() {
         keywords={getText("seo.keywords", "Algarve destinations, Golden Triangle Algarve, Vilamoura, Lagos, Tavira, premium travel Portugal")}
       />
       <Header />
+      {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
 
       {isBlockEnabled("hero", true) && (
         <CmsBlock pageId="destinations" blockId="hero" as="section" className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">

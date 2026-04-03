@@ -121,6 +121,7 @@ export default function DestinationDetail() {
         ]}
       />
       <Header />
+      {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
 
       {/* Hero Section */}
       {isBlockEnabled("hero", true) && <CmsBlock pageId="destination-detail" blockId="hero" as="section" className="relative pt-24 pb-16 lg:pt-32 lg:pb-24 overflow-hidden">

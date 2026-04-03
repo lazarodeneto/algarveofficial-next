@@ -84,7 +84,8 @@ export default function Events() {
         keywords="Algarve events, Algarve festivals, Portugal events calendar, golf tournaments Algarve, gastronomy Algarve"
       />
       <Header />
-      
+      {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
+
       <main>
         {isBlockEnabled("hero", true) ? (
           <CmsBlock pageId="events" blockId="hero" as="section" className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
