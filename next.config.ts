@@ -115,9 +115,28 @@ const nextConfig: NextConfig = {
   },
 
   async redirects() {
-    // Locale negotiation is handled centrally in proxy.ts.
-    // Avoid static redirects here that could bypass cookie-based locale selection.
-    return [];
+    return [
+      // Legacy category redirects (301 permanent)
+      { source: "/visit/:city/vip-transportation", destination: "/visit/:city/transportation", permanent: true },
+      { source: "/visit/:city/premier-events", destination: "/visit/:city/events", permanent: true },
+      { source: "/visit/:city/luxury-accommodation", destination: "/visit/:city/accommodation", permanent: true },
+      { source: "/visit/:city/luxury-experiences", destination: "/visit/:city/experiences", permanent: true },
+      { source: "/visit/:city/architecture-decoration", destination: "/visit/:city/architecture-design", permanent: true },
+      { source: "/visit/:city/beaches-clubs", destination: "/visit/:city/beach-clubs", permanent: true },
+      { source: "/visit/:city/vip-concierge", destination: "/visit/:city/concierge-services", permanent: true },
+      { source: "/visit/:city/family-fun", destination: "/visit/:city/family-attractions", permanent: true },
+      { source: "/visit/:city/protection-services", destination: "/visit/:city/security-services", permanent: true },
+      { source: "/visit/:city/shopping-boutiques", destination: "/visit/:city/shopping", permanent: true },
+      { source: "/visit/:city/private-chefs", destination: "/visit/:city/restaurants", permanent: true },
+      // Legacy slug variations
+      { source: "/visit/:city/places-to-stay", destination: "/visit/:city/accommodation", permanent: true },
+      { source: "/visit/:city/things-to-do", destination: "/visit/:city/experiences", permanent: true },
+      { source: "/visit/:city/whats-on", destination: "/visit/:city/events", permanent: true },
+      { source: "/visit/:city/algarve-services", destination: "/visit/:city/concierge-services", permanent: true },
+      { source: "/visit/:city/fine-dining", destination: "/visit/:city/restaurants", permanent: true },
+      { source: "/visit/:city/golf-tournaments", destination: "/visit/:city/golf", permanent: true },
+      { source: "/visit/:city/prime-real-estate", destination: "/visit/:city/real-estate", permanent: true },
+    ];
   },
 
   // ✅ Experimental features (modern Next.js 16)
