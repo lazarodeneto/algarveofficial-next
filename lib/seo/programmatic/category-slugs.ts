@@ -1,43 +1,53 @@
 import type { Locale } from "@/lib/i18n/config";
 
-/**
- * Canonical slugs are the DB-level slugs used by the categories table.
- * URL slugs are locale-specific, SEO-friendly slugs used in the programmatic URL:
- *   /{locale}/{url-slug}/{city}
- */
 export type CanonicalCategorySlug =
+  | "accommodation"
   | "restaurants"
-  | "places-to-stay"
+  | "beach-clubs"
+  | "experiences"
   | "golf"
-  | "things-to-do"
-  | "beaches-clubs"
+  | "events"
+  | "family-attractions"
   | "wellness-spas"
-  | "shopping-boutiques"
-  | "algarve-services"
-  | "whats-on";
+  | "beaches"
+  | "shopping"
+  | "real-estate"
+  | "concierge-services"
+  | "transportation"
+  | "security-services"
+  | "architecture-design";
 
 export const ALL_CANONICAL_SLUGS: CanonicalCategorySlug[] = [
+  "accommodation",
   "restaurants",
-  "places-to-stay",
+  "beach-clubs",
+  "experiences",
   "golf",
-  "things-to-do",
-  "beaches-clubs",
+  "events",
+  "family-attractions",
   "wellness-spas",
-  "shopping-boutiques",
-  "algarve-services",
-  "whats-on",
+  "beaches",
+  "shopping",
+  "real-estate",
+  "concierge-services",
+  "transportation",
+  "security-services",
+  "architecture-design",
 ];
 
-/**
- * Bidirectional URL slug map.
- * canonical DB slug → { locale → URL-visible slug }
- *
- * Design rules:
- * - English uses clean, short, high-volume keywords
- * - Other locales use the native-language equivalent
- * - All slugs are lowercase, hyphen-separated, URL-safe
- */
 export const CATEGORY_URL_SLUGS: Record<CanonicalCategorySlug, Record<Locale, string>> = {
+  accommodation: {
+    en: "accommodation",
+    "pt-pt": "alojamento",
+    fr: "hebergement",
+    de: "unterkunft",
+    es: "alojamiento",
+    it: "alloggio",
+    nl: "accommodatie",
+    sv: "boende",
+    no: "overnatting",
+    da: "overnatning",
+  },
   restaurants: {
     en: "restaurants",
     "pt-pt": "restaurantes",
@@ -50,17 +60,29 @@ export const CATEGORY_URL_SLUGS: Record<CanonicalCategorySlug, Record<Locale, st
     no: "restauranter",
     da: "restauranter",
   },
-  "places-to-stay": {
-    en: "accommodation",
-    "pt-pt": "alojamento",
-    fr: "hebergement",
-    de: "unterkunft",
-    es: "alojamiento",
-    it: "alloggio",
-    nl: "accommodatie",
-    sv: "boende",
-    no: "overnatting",
-    da: "overnatning",
+  "beach-clubs": {
+    en: "beach-clubs",
+    "pt-pt": "clubes-praia",
+    fr: "clubs-plage",
+    de: "strand-clubs",
+    es: "clubes-playa",
+    it: "club-spiaggia",
+    nl: "strand-clubs",
+    sv: "strand-klubbar",
+    no: "strandklubber",
+    da: "strandklubber",
+  },
+  experiences: {
+    en: "experiences",
+    "pt-pt": "experiencias",
+    fr: "experiences",
+    de: "erlebnisse",
+    es: "experiencias",
+    it: "esperienze",
+    nl: "ervaringen",
+    sv: "upplevelser",
+    no: "opplevelser",
+    da: "oplevelser",
   },
   golf: {
     en: "golf",
@@ -74,67 +96,7 @@ export const CATEGORY_URL_SLUGS: Record<CanonicalCategorySlug, Record<Locale, st
     no: "golf",
     da: "golf",
   },
-  "things-to-do": {
-    en: "activities",
-    "pt-pt": "atividades",
-    fr: "activites",
-    de: "aktivitaeten",
-    es: "actividades",
-    it: "attivita",
-    nl: "activiteiten",
-    sv: "aktiviteter",
-    no: "aktiviteter",
-    da: "aktiviteter",
-  },
-  "beaches-clubs": {
-    en: "beaches",
-    "pt-pt": "praias",
-    fr: "plages",
-    de: "straende",
-    es: "playas",
-    it: "spiagge",
-    nl: "stranden",
-    sv: "strander",
-    no: "strender",
-    da: "strande",
-  },
-  "wellness-spas": {
-    en: "wellness",
-    "pt-pt": "bem-estar",
-    fr: "bien-etre",
-    de: "wellness",
-    es: "bienestar",
-    it: "benessere",
-    nl: "wellness",
-    sv: "wellness",
-    no: "wellness",
-    da: "wellness",
-  },
-  "shopping-boutiques": {
-    en: "shopping",
-    "pt-pt": "compras",
-    fr: "shopping",
-    de: "shopping",
-    es: "compras",
-    it: "shopping",
-    nl: "winkelen",
-    sv: "shopping",
-    no: "shopping",
-    da: "shopping",
-  },
-  "algarve-services": {
-    en: "services",
-    "pt-pt": "servicos",
-    fr: "services",
-    de: "dienstleistungen",
-    es: "servicios",
-    it: "servizi",
-    nl: "diensten",
-    sv: "tjanster",
-    no: "tjenester",
-    da: "tjenester",
-  },
-  "whats-on": {
+  events: {
     en: "events",
     "pt-pt": "eventos",
     fr: "evenements",
@@ -146,12 +108,116 @@ export const CATEGORY_URL_SLUGS: Record<CanonicalCategorySlug, Record<Locale, st
     no: "arrangementer",
     da: "begivenheder",
   },
+  "family-attractions": {
+    en: "family-attractions",
+    "pt-pt": "atracoes-familia",
+    fr: "attractions-familiales",
+    de: "familienattraktionen",
+    es: "atracciones-familiares",
+    it: "attrazioni-famigliari",
+    nl: "familie-attracties",
+    sv: "familjesajonheter",
+    no: "familieattraksjoner",
+    da: "familieattraktioner",
+  },
+  "wellness-spas": {
+    en: "wellness-spas",
+    "pt-pt": "bem-estar-spas",
+    fr: "bien-etre-spas",
+    de: "wellness-spas",
+    es: "bienestar-spas",
+    it: "benessere-spa",
+    nl: "wellness-spas",
+    sv: "wellness-spa",
+    no: "wellness-spa",
+    da: "wellness-spa",
+  },
+  beaches: {
+    en: "beaches",
+    "pt-pt": "praias",
+    fr: "plages",
+    de: "straende",
+    es: "playas",
+    it: "spiagge",
+    nl: "stranden",
+    sv: "strander",
+    no: "strender",
+    da: "strande",
+  },
+  shopping: {
+    en: "shopping",
+    "pt-pt": "compras",
+    fr: "shopping",
+    de: "shopping",
+    es: "compras",
+    it: "shopping",
+    nl: "winkelen",
+    sv: "shopping",
+    no: "shopping",
+    da: "shopping",
+  },
+  "real-estate": {
+    en: "real-estate",
+    "pt-pt": "imoveis",
+    fr: "immobilier",
+    de: "immobilien",
+    es: "inmuebles",
+    it: "immobili",
+    nl: "vastgoed",
+    sv: "fastigheter",
+    no: "eiendom",
+    da: "ejendom",
+  },
+  "concierge-services": {
+    en: "concierge-services",
+    "pt-pt": "servicos-concierge",
+    fr: "services-concierge",
+    de: "concierge-dienste",
+    es: "servicios-concierge",
+    it: "servizi-concierge",
+    nl: "concierge-diensten",
+    sv: "conciergetjanster",
+    no: "concierge-tjenester",
+    da: "concierge-tjenester",
+  },
+  transportation: {
+    en: "transportation",
+    "pt-pt": "transportes",
+    fr: "transport",
+    de: "transport",
+    es: "transporte",
+    it: "trasporti",
+    nl: "vervoer",
+    sv: "transport",
+    no: "transport",
+    da: "transport",
+  },
+  "security-services": {
+    en: "security-services",
+    "pt-pt": "servicos-seguranca",
+    fr: "services-securite",
+    de: "sicherheitsdienste",
+    es: "servicios-seguridad",
+    it: "servizi-sicurezza",
+    nl: "beveiligingsdiensten",
+    sv: "sakerhetstjanster",
+    no: "sikkerhetstjenester",
+    da: "sikkerhedstjenester",
+  },
+  "architecture-design": {
+    en: "architecture-design",
+    "pt-pt": "arquitetura-design",
+    fr: "architecture-design",
+    de: "architektur-design",
+    es: "arquitectura-diseno",
+    it: "architettura-design",
+    nl: "architectuur-design",
+    sv: "arkitektur-design",
+    no: "arkitektur-design",
+    da: "arkitektur-design",
+  },
 };
 
-/**
- * Reverse index: for a given locale, maps URL slug → canonical slug.
- * Built lazily; used for fast lookups in page params.
- */
 const _reverseIndex: Partial<Record<Locale, Record<string, CanonicalCategorySlug>>> = {};
 
 function buildReverseIndex(locale: Locale): Record<string, CanonicalCategorySlug> {
@@ -163,10 +229,6 @@ function buildReverseIndex(locale: Locale): Record<string, CanonicalCategorySlug
   return map;
 }
 
-/**
- * Convert a locale URL slug → canonical DB slug.
- * Returns null if the slug is not a valid programmatic category.
- */
 export function getCanonicalFromUrlSlug(
   urlSlug: string,
   locale: Locale,
@@ -177,9 +239,6 @@ export function getCanonicalFromUrlSlug(
   return _reverseIndex[locale]![urlSlug] ?? null;
 }
 
-/**
- * Convert canonical slug → locale-specific URL slug.
- */
 export function getCategoryUrlSlug(
   canonical: CanonicalCategorySlug,
   locale: Locale,
@@ -187,10 +246,19 @@ export function getCategoryUrlSlug(
   return CATEGORY_URL_SLUGS[canonical][locale] ?? CATEGORY_URL_SLUGS[canonical].en;
 }
 
-/**
- * Human-readable display names per canonical slug and locale.
- */
 export const CATEGORY_DISPLAY_NAMES: Record<CanonicalCategorySlug, Record<Locale, string>> = {
+  accommodation: {
+    en: "Accommodation",
+    "pt-pt": "Alojamento",
+    fr: "Hébergement",
+    de: "Unterkunft",
+    es: "Alojamiento",
+    it: "Alloggio",
+    nl: "Accommodatie",
+    sv: "Boende",
+    no: "Overnatting",
+    da: "Overnatning",
+  },
   restaurants: {
     en: "Restaurants",
     "pt-pt": "Restaurantes",
@@ -203,17 +271,29 @@ export const CATEGORY_DISPLAY_NAMES: Record<CanonicalCategorySlug, Record<Locale
     no: "Restauranter",
     da: "Restauranter",
   },
-  "places-to-stay": {
-    en: "Accommodation",
-    "pt-pt": "Alojamento",
-    fr: "Hébergement",
-    de: "Unterkunft",
-    es: "Alojamiento",
-    it: "Alloggio",
-    nl: "Accommodatie",
-    sv: "Boende",
-    no: "Overnatting",
-    da: "Overnatning",
+  "beach-clubs": {
+    en: "Beach Clubs",
+    "pt-pt": "Clubes de Praia",
+    fr: "Clubs de Plage",
+    de: "Strand-Clubs",
+    es: "Clubes de Playa",
+    it: "Club Spiaggia",
+    nl: "Strand-Clubs",
+    sv: "Strand-klubbar",
+    no: "Strandklubber",
+    da: "Strandklubber",
+  },
+  experiences: {
+    en: "Experiences",
+    "pt-pt": "Experiências",
+    fr: "Expériences",
+    de: "Erlebnisse",
+    es: "Experiencias",
+    it: "Esperienze",
+    nl: "Ervaringen",
+    sv: "Upplevelser",
+    no: "Opplevelser",
+    da: "Oplevelser",
   },
   golf: {
     en: "Golf",
@@ -227,29 +307,29 @@ export const CATEGORY_DISPLAY_NAMES: Record<CanonicalCategorySlug, Record<Locale
     no: "Golf",
     da: "Golf",
   },
-  "things-to-do": {
-    en: "Activities",
-    "pt-pt": "Atividades",
-    fr: "Activités",
-    de: "Aktivitäten",
-    es: "Actividades",
-    it: "Attività",
-    nl: "Activiteiten",
-    sv: "Aktiviteter",
-    no: "Aktiviteter",
-    da: "Aktiviteter",
+  events: {
+    en: "Events",
+    "pt-pt": "Eventos",
+    fr: "Événements",
+    de: "Veranstaltungen",
+    es: "Eventos",
+    it: "Eventi",
+    nl: "Evenementen",
+    sv: "Evenemang",
+    no: "Arrangementer",
+    da: "Begivenheder",
   },
-  "beaches-clubs": {
-    en: "Beaches",
-    "pt-pt": "Praias",
-    fr: "Plages",
-    de: "Strände",
-    es: "Playas",
-    it: "Spiagge",
-    nl: "Stranden",
-    sv: "Stränder",
-    no: "Strender",
-    da: "Strande",
+  "family-attractions": {
+    en: "Family Attractions",
+    "pt-pt": "Atrações Familiares",
+    fr: "Attractions Familiales",
+    de: "Familienattraktionen",
+    es: "Atracciones Familiares",
+    it: "Attrazioni Famigliari",
+    nl: "Familie-Attracties",
+    sv: "Familjesajonheter",
+    no: "Familieattraksjoner",
+    da: "Familieattraktioner",
   },
   "wellness-spas": {
     en: "Wellness & Spas",
@@ -263,7 +343,19 @@ export const CATEGORY_DISPLAY_NAMES: Record<CanonicalCategorySlug, Record<Locale
     no: "Wellness & Spa",
     da: "Wellness & Spa",
   },
-  "shopping-boutiques": {
+  beaches: {
+    en: "Beaches",
+    "pt-pt": "Praias",
+    fr: "Plages",
+    de: "Strände",
+    es: "Playas",
+    it: "Spiagge",
+    nl: "Stranden",
+    sv: "Stränder",
+    no: "Strender",
+    da: "Strande",
+  },
+  shopping: {
     en: "Shopping",
     "pt-pt": "Compras",
     fr: "Shopping",
@@ -275,29 +367,65 @@ export const CATEGORY_DISPLAY_NAMES: Record<CanonicalCategorySlug, Record<Locale
     no: "Shopping",
     da: "Shopping",
   },
-  "algarve-services": {
-    en: "Services",
-    "pt-pt": "Serviços",
-    fr: "Services",
-    de: "Dienstleistungen",
-    es: "Servicios",
-    it: "Servizi",
-    nl: "Diensten",
-    sv: "Tjänster",
-    no: "Tjenester",
-    da: "Tjenester",
+  "real-estate": {
+    en: "Real Estate",
+    "pt-pt": "Imóveis",
+    fr: "Immobilier",
+    de: "Immobilien",
+    es: "Inmuebles",
+    it: "Immobili",
+    nl: "Vastgoed",
+    sv: "Fastigheter",
+    no: "Eiendom",
+    da: "Ejendom",
   },
-  "whats-on": {
-    en: "Events",
-    "pt-pt": "Eventos",
-    fr: "Événements",
-    de: "Veranstaltungen",
-    es: "Eventos",
-    it: "Eventi",
-    nl: "Evenementen",
-    sv: "Evenemang",
-    no: "Arrangementer",
-    da: "Begivenheder",
+  "concierge-services": {
+    en: "Concierge Services",
+    "pt-pt": "Serviços de Concierge",
+    fr: "Services Concierge",
+    de: "Concierge-Dienste",
+    es: "Servicios Concierge",
+    it: "Servizi Concierge",
+    nl: "Concierge-diensten",
+    sv: "Conciärgetjänster",
+    no: "Concierge-tjenester",
+    da: "Concierge-tjenester",
+  },
+  transportation: {
+    en: "Transportation",
+    "pt-pt": "Transportes",
+    fr: "Transport",
+    de: "Transport",
+    es: "Transporte",
+    it: "Trasporti",
+    nl: "Vervoer",
+    sv: "Transport",
+    no: "Transport",
+    da: "Transport",
+  },
+  "security-services": {
+    en: "Security Services",
+    "pt-pt": "Serviços de Segurança",
+    fr: "Services de Sécurité",
+    de: "Sicherheitsdienste",
+    es: "Servicios de Seguridad",
+    it: "Servizi di Sicurezza",
+    nl: "Beveiligingsdiensten",
+    sv: "Säkerhetstjänster",
+    no: "Sikkerhetstjenester",
+    da: "Sikkerhedstjenester",
+  },
+  "architecture-design": {
+    en: "Architecture & Design",
+    "pt-pt": "Arquitetura & Design",
+    fr: "Architecture & Design",
+    de: "Architektur & Design",
+    es: "Arquitectura & Diseño",
+    it: "Architettura & Design",
+    nl: "Architectuur & Design",
+    sv: "Arkitektur & Design",
+    no: "Arkitektur & Design",
+    da: "Arkitektur & Design",
   },
 };
 
@@ -308,10 +436,6 @@ export function getCategoryDisplayName(
   return CATEGORY_DISPLAY_NAMES[canonical][locale] ?? CATEGORY_DISPLAY_NAMES[canonical].en;
 }
 
-/**
- * Returns every valid URL slug for a given locale.
- * Used to build the full URL matrix in generateStaticParams.
- */
 export function getAllCategoryUrlSlugsForLocale(locale: Locale): string[] {
   return ALL_CANONICAL_SLUGS.map((slug) => getCategoryUrlSlug(slug, locale));
 }
