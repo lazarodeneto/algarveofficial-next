@@ -67,7 +67,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const { t } = useTranslation();
   const l = useLocalePath();
 
-  const directoryPath = l("/stay");
+  const directoryPath = l("/stay?category=places-to-stay");
   const experiencesPath = l("/experiences");
   const golfPath = l("/golf");
   const investPath = l("/properties");
