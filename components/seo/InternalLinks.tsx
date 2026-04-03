@@ -1,7 +1,5 @@
-"use client";
-
 import Link from "next/link";
-import { getCategoryDisplayName, getCategoryUrlSlug, type CanonicalCategorySlug } from "@/lib/seo/programmatic/category-slugs";
+import { getCategoryDisplayName, getCategoryUrlSlug, ALL_CANONICAL_SLUGS, type CanonicalCategorySlug } from "@/lib/seo/programmatic/category-slugs";
 import type { Locale } from "@/lib/i18n/config";
 
 const CITIES = [
@@ -60,10 +58,8 @@ function ExploreOtherCategories({
   currentCategory,
   maxItems = 8,
 }: ExploreOtherCategoriesProps) {
-  const { ALL_CANONICAL_SLUGS } = require("@/lib/seo/programmatic/category-slugs");
-  
   const otherCategories = ALL_CANONICAL_SLUGS.filter(
-    (cat: CanonicalCategorySlug) => cat !== currentCategory
+    (cat) => cat !== currentCategory
   ).slice(0, maxItems);
 
   if (otherCategories.length === 0) return null;
@@ -156,7 +152,6 @@ export default function InternalLinks({
     return null;
   }
 
-  const { ALL_CANONICAL_SLUGS } = require("@/lib/seo/programmatic/category-slugs");
   const isValidCategory = ALL_CANONICAL_SLUGS.includes(
     currentCategory as CanonicalCategorySlug
   );
