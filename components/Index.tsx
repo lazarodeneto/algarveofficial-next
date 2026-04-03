@@ -74,6 +74,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
       <main id="main-content" className="main">
         {isBlockEnabled("hero", true) && (
           <CmsBlock pageId="home" blockId="hero" as="section">

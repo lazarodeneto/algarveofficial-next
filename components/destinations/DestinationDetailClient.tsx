@@ -636,6 +636,7 @@ function DestinationDetailClientInner({
   return (
     <div className="min-h-screen bg-background" data-cms-page="destination-detail">
       <Header />
+      {!cms.isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
 
       {cms.isBlockEnabled("hero", true) ? (
         <DestinationDetailCmsBlock
