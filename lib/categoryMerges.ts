@@ -3,12 +3,21 @@ import type { Tables } from "@/integrations/supabase/types";
 type CategoryRow = Tables<"categories">;
 
 export type CanonicalCategorySlug =
-  | "places-to-stay"
+  | "accommodation"
   | "restaurants"
-  | "things-to-do"
-  | "whats-on"
-  | "algarve-services"
-  | string;
+  | "beach-clubs"
+  | "experiences"
+  | "golf"
+  | "events"
+  | "family-attractions"
+  | "wellness-spas"
+  | "beaches"
+  | "shopping"
+  | "real-estate"
+  | "concierge-services"
+  | "transportation"
+  | "security-services"
+  | "architecture-design";
 
 export interface MergedCategoryOption {
   id: string;
@@ -27,86 +36,132 @@ export interface MergedCategoryOption {
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const VIRTUAL_CANONICAL_CATEGORY_LABELS: Record<string, string> = {
-  "places-to-stay": "Places to Stay",
+  accommodation: "Accommodation",
   restaurants: "Restaurants",
-  "things-to-do": "Things to Do",
-  "whats-on": "What's On",
-  "algarve-services": "Algarve Services",
+  "beach-clubs": "Beach Clubs",
+  experiences: "Experiences",
+  golf: "Golf",
+  events: "Events",
+  "family-attractions": "Family Attractions",
+  "wellness-spas": "Wellness & Spas",
+  beaches: "Beaches",
+  shopping: "Shopping",
+  "real-estate": "Real Estate",
+  "concierge-services": "Concierge Services",
+  transportation: "Transportation",
+  "security-services": "Security Services",
+  "architecture-design": "Architecture & Design",
 };
 
 const VIRTUAL_CANONICAL_CATEGORY_ICONS: Record<string, string> = {
-  "places-to-stay": "Hotel",
+  accommodation: "Hotel",
   restaurants: "UtensilsCrossed",
-  "things-to-do": "Binoculars",
-  "whats-on": "CalendarHeart",
-  "algarve-services": "ConciergeBell",
+  "beach-clubs": "Palmtree",
+  experiences: "Binoculars",
+  golf: "Trophy",
+  events: "CalendarHeart",
+  "family-attractions": "Baby",
+  "wellness-spas": "Sparkles",
+  beaches: "Umbrella",
+  shopping: "ShoppingBag",
+  "real-estate": "Building2",
+  "concierge-services": "ConciergeBell",
+  transportation: "Car",
+  "security-services": "Shield",
+  "architecture-design": "Palette",
 };
 
 const CANONICAL_SLUG_BY_LEGACY_SLUG: Record<string, CanonicalCategorySlug> = {
-  "luxury-accommodation": "places-to-stay",
-  "luxury-hotels": "places-to-stay",
-  "luxury-hotels-resorts": "places-to-stay",
+  "luxury-accommodation": "accommodation",
+  "luxury-hotels": "accommodation",
+  "luxury-hotels-resorts": "accommodation",
+  "places-to-stay": "accommodation",
   "fine-dining": "restaurants",
   "fine-dining-algarve": "restaurants",
   "private-chefs": "restaurants",
   "restaurants-algarve": "restaurants",
-  "luxury-experiences": "things-to-do",
-  "experiences-algarve": "things-to-do",
-  "family-fun": "things-to-do",
-  "things-do-do": "things-to-do",
-  "premier-events": "whats-on",
-  "events-in-algarve": "whats-on",
-  "algarve-events": "whats-on",
-  events: "whats-on",
-  "vip-concierge": "algarve-services",
-  "concierge-services": "algarve-services",
-  "algarve-concierge-services": "algarve-services",
-  "real-estate": "algarve-services",
-  "algarve-real-estate": "algarve-services",
-  "vip-transportation": "algarve-services",
-  "architecture-decoration": "algarve-services",
-  "protection-services": "algarve-services",
+  "luxury-experiences": "experiences",
+  "experiences-algarve": "experiences",
+  "family-fun": "experiences",
+  "things-do-do": "experiences",
+  "algarve-experience": "experiences",
+  "premier-events": "events",
+  "events-in-algarve": "events",
+  "algarve-events": "events",
+  events: "events",
+  "golf-tournaments": "golf",
+  "beaches-clubs": "beach-clubs",
+  "wellness-spas": "wellness-spas",
+  "shopping-boutiques": "shopping",
+  "vip-concierge": "concierge-services",
+  "algarve-concierge-services": "concierge-services",
+  "prime-real-estate": "real-estate",
+  "algarve-real-estate": "real-estate",
+  "vip-transportation": "transportation",
+  "architecture-decoration": "architecture-design",
+  "protection-services": "security-services",
 };
 
 const ROUTE_ALIAS_SLUGS: Record<string, CanonicalCategorySlug> = {
-  accommodation: "places-to-stay",
-  "luxury-accommodation": "places-to-stay",
-  "luxury-hotels": "places-to-stay",
-  "algarve-accommodation": "places-to-stay",
-  "places-to-stay": "places-to-stay",
-  "place-to-stay": "places-to-stay",
-  "places-to-stay-algarve": "places-to-stay",
+  accommodation: "accommodation",
+  "luxury-accommodation": "accommodation",
+  "luxury-hotels": "accommodation",
+  "algarve-accommodation": "accommodation",
+  "places-to-stay": "accommodation",
+  "place-to-stay": "accommodation",
+  "places-to-stay-algarve": "accommodation",
   gastronomy: "restaurants",
   "fine-dining": "restaurants",
   "fine-dining-algarve": "restaurants",
   "restaurants": "restaurants",
   "restaurants-algarve": "restaurants",
-  "algarve-experience": "things-to-do",
-  "algarve-experiences": "things-to-do",
-  "algarve-things-to-do": "things-to-do",
-  "things-to-do-algarve": "things-to-do",
-  "things-to-do": "things-to-do",
-  "thing-to-do": "things-to-do",
-  "things-do-do": "things-to-do",
-  "whats-on": "whats-on",
-  whatson: "whats-on",
-  "what-s-on": "whats-on",
-  "events": "whats-on",
-  "algarve-events": "whats-on",
-  "events-in-algarve": "whats-on",
-  "algarve-services": "algarve-services",
-  "algarve-service": "algarve-services",
-  "concierge-services": "algarve-services",
-  services: "algarve-services",
+  "beach-clubs": "beach-clubs",
+  "beach-club": "beach-clubs",
+  "algarve-experience": "experiences",
+  "algarve-experiences": "experiences",
+  "algarve-things-to-do": "experiences",
+  "things-to-do-algarve": "experiences",
+  "things-to-do": "experiences",
+  "thing-to-do": "experiences",
+  "things-do-do": "experiences",
+  "experiences": "experiences",
+  golf: "golf",
+  "golf-tournaments": "golf",
+  "whats-on": "events",
+  whatson: "events",
+  "what-s-on": "events",
+  "algarve-events": "events",
+  "events-in-algarve": "events",
+  "events": "events",
+  "family-attractions": "family-attractions",
+  "family-fun": "family-attractions",
+  "wellness-spas": "wellness-spas",
+  wellness: "wellness-spas",
+  beaches: "beaches",
+  "beaches-clubs": "beaches",
+  shopping: "shopping",
+  "shopping-boutiques": "shopping",
+  "real-estate": "real-estate",
+  "concierge-services": "concierge-services",
+  "vip-concierge": "concierge-services",
+  transportation: "transportation",
+  "vip-transportation": "transportation",
+  "security-services": "security-services",
+  "protection-services": "security-services",
+  "architecture-design": "architecture-design",
+  "architecture-decoration": "architecture-design",
 };
 
 const SEARCH_ALIAS_TO_CANONICAL: Record<string, CanonicalCategorySlug> = {
-  accommodation: "places-to-stay",
-  "places to stay": "places-to-stay",
-  "place to stay": "places-to-stay",
-  "luxury accommodation": "places-to-stay",
-  "luxury hotels": "places-to-stay",
-  "algarve hotels": "places-to-stay",
+  accommodation: "accommodation",
+  "places to stay": "accommodation",
+  "place to stay": "accommodation",
+  "luxury accommodation": "accommodation",
+  "luxury hotels": "accommodation",
+  "algarve hotels": "accommodation",
+  hotels: "accommodation",
+  resorts: "accommodation",
+  villas: "accommodation",
   gastronomy: "restaurants",
   "fine dining": "restaurants",
   restaurant: "restaurants",
@@ -114,40 +169,62 @@ const SEARCH_ALIAS_TO_CANONICAL: Record<string, CanonicalCategorySlug> = {
   dining: "restaurants",
   "best restaurants algarve": "restaurants",
   "private dining": "restaurants",
-  "algarve experience": "things-to-do",
-  "things do do": "things-to-do",
-  "family attractions": "things-to-do",
-  "things to do": "things-to-do",
-  "things to do algarve": "things-to-do",
-  "algarve activities": "things-to-do",
-  activities: "things-to-do",
-  "whats on": "whats-on",
-  "what s on": "whats-on",
-  "events in algarve": "whats-on",
-  "algarve events": "whats-on",
-  events: "whats-on",
-  "algarve services": "algarve-services",
-  "concierge services": "algarve-services",
-  "algarve concierge": "algarve-services",
-  "prime real estate": "algarve-services",
-  "real estate algarve": "algarve-services",
-  "vip transportation": "algarve-services",
-  "architecture decoration": "algarve-services",
-  "protection services": "algarve-services",
+  "beach club": "beach-clubs",
+  "beach clubs": "beach-clubs",
+  "algarve experience": "experiences",
+  "things do do": "experiences",
+  "family attractions": "family-attractions",
+  "things to do": "experiences",
+  activities: "experiences",
+  "things to do algarve": "experiences",
+  golf: "golf",
+  "golf courses": "golf",
+  "golf tournaments": "golf",
+  events: "events",
+  "algarve events": "events",
+  "whats on": "events",
+  "family fun": "family-attractions",
+  "kids activities": "family-attractions",
+  "wellness spa": "wellness-spas",
+  "wellness spas": "wellness-spas",
+  spa: "wellness-spas",
+  beaches: "beaches",
+  "algarve beaches": "beaches",
+  shopping: "shopping",
+  "algarve shopping": "shopping",
+  boutiques: "shopping",
+  "real estate": "real-estate",
+  "property": "real-estate",
+  properties: "real-estate",
+  "algarve real estate": "real-estate",
+  "concierge services": "concierge-services",
+  concierge: "concierge-services",
+  transportation: "transportation",
+  "private transfer": "transportation",
+  "airport transfer": "transportation",
+  "security services": "security-services",
+  security: "security-services",
+  "architecture design": "architecture-design",
+  "interior design": "architecture-design",
+  architects: "architecture-design",
 };
 
 const MERGED_MEMBERS_BY_CANONICAL: Record<string, string[]> = {
-  "places-to-stay": ["places-to-stay", "luxury-accommodation"],
-  "restaurants": ["restaurants", "fine-dining", "private-chefs"],
-  "things-to-do": ["things-to-do", "luxury-experiences", "family-fun"],
-  "whats-on": ["whats-on", "premier-events", "events"],
-  "algarve-services": [
-    "vip-concierge",
-    "real-estate",
-    "vip-transportation",
-    "architecture-decoration",
-    "protection-services",
-  ],
+  accommodation: ["accommodation", "places-to-stay", "luxury-accommodation"],
+  restaurants: ["restaurants", "fine-dining", "private-chefs"],
+  "beach-clubs": ["beach-clubs", "beaches-clubs"],
+  experiences: ["experiences", "things-to-do", "luxury-experiences", "family-fun"],
+  golf: ["golf", "golf-tournaments"],
+  events: ["events", "whats-on", "premier-events"],
+  "family-attractions": ["family-attractions", "family-fun"],
+  "wellness-spas": ["wellness-spas"],
+  beaches: ["beaches", "beaches-clubs"],
+  shopping: ["shopping", "shopping-boutiques"],
+  "real-estate": ["real-estate", "prime-real-estate"],
+  "concierge-services": ["concierge-services", "vip-concierge"],
+  transportation: ["transportation", "vip-transportation"],
+  "security-services": ["security-services", "protection-services"],
+  "architecture-design": ["architecture-design", "architecture-decoration"],
 };
 
 function normalizeSlug(slug?: string | null): string | null {
@@ -173,7 +250,7 @@ export function getCanonicalCategorySlug(slug?: string | null): CanonicalCategor
     return CANONICAL_SLUG_BY_LEGACY_SLUG[normalized];
   }
 
-  return normalized;
+  return normalized as CanonicalCategorySlug;
 }
 
 export function getMergedMemberSlugs(slug?: string | null): string[] {
@@ -314,4 +391,65 @@ export function getMergedCategoryIds(
   if (!selectedSlug || selectedSlug === "all") return [];
   const mergedCategory = getMergedCategoryBySlug(selectedSlug, mergedCategories);
   return mergedCategory?.memberIds ?? [];
+}
+
+export const ALL_CANONICAL_SLUGS: CanonicalCategorySlug[] = [
+  "accommodation",
+  "restaurants",
+  "beach-clubs",
+  "experiences",
+  "golf",
+  "events",
+  "family-attractions",
+  "wellness-spas",
+  "beaches",
+  "shopping",
+  "real-estate",
+  "concierge-services",
+  "transportation",
+  "security-services",
+  "architecture-design",
+];
+
+export function getCanonicalFromRouteSlug(slug: string): CanonicalCategorySlug | null {
+  const normalized = slug.toLowerCase().trim();
+  return ROUTE_ALIAS_SLUGS[normalized] ?? getCanonicalCategorySlug(normalized);
+}
+
+export function normalizeCategoryForSearch(value: string): CanonicalCategorySlug | null {
+  const normalized = value.toLowerCase().trim();
+  const directMatch = SEARCH_ALIAS_TO_CANONICAL[normalized];
+  if (directMatch) return directMatch;
+  return getCanonicalCategorySlug(normalized);
+}
+
+export function matchCategoryByIdOrSlug(
+  value: string,
+  categories: CategoryRow[],
+): CanonicalCategorySlug | null {
+  const categoriesById = new Map<string, CategoryRow>();
+  const categoriesBySlug = new Map<string, CategoryRow>();
+  for (const category of categories) {
+    if (category.is_active) {
+      categoriesById.set(category.id, category);
+      categoriesBySlug.set(category.slug, category);
+    }
+  }
+  const matchedById = categoriesById.get(value);
+  if (matchedById) {
+    const canonicalSlug = getCanonicalCategorySlug(matchedById.slug);
+    return canonicalSlug;
+  }
+  const matchedBySlug = categoriesBySlug.get(value);
+  if (matchedBySlug) {
+    const canonicalSlug = getCanonicalCategorySlug(matchedBySlug.slug);
+    return canonicalSlug;
+  }
+  return normalizeCategoryForSearch(value);
+}
+
+export function getCategorySlugFromValue(value: string): string | null {
+  const normalized = value.toLowerCase().trim();
+  const canonical = getCanonicalFromRouteSlug(normalized);
+  return canonical;
 }
