@@ -86,6 +86,7 @@ const Index = () => {
       <WebsiteJsonLd />
       
       <Header />
+      {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
       <main className="main">
         <CmsBlock pageId="home" blockId="hero" as="section">
           <HeroSection />

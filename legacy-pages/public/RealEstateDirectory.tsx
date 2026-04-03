@@ -181,6 +181,7 @@ export default function RealEstateDirectory() {
                 keywords="Algarve real estate, premium villas Algarve, Portugal prime property, invest Algarve property"
             />
             <Header />
+            {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
 
             <main className="flex-grow">
                 {isBlockEnabled("hero", true) ? (

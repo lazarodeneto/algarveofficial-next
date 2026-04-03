@@ -425,6 +425,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
   return (
     <div className="min-h-screen bg-background" data-cms-page="blog">
       <Header />
+      {!cms.isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
 
       <main>
         {cms.isBlockEnabled("hero", true) ? (

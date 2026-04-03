@@ -947,6 +947,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   return (
     <div className="min-h-screen bg-background" data-cms-page="directory">
       <Header />
+      {!activeCms.isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
 
       <main>
         <LazyMotion features={domAnimation}>
