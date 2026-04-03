@@ -270,6 +270,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       console.error("[sitemap] Failed to fetch programmatic page combos", err);
     }
 
+    // Guide pages
+    const GUIDE_SLUGS = [
+      "best-restaurants-in-lagos", "golf-in-vilamoura", "beaches-in-tavira",
+      "things-to-do-in-albufeira", "family-attractions-in-albufeira",
+      "wellness-spas-in-lagos", "shopping-in-almancil",
+      "real-estate-in-quinta-do-lago", "beach-clubs-in-albufeira",
+      "experiences-in-faro",
+    ];
+
+    for (const guideSlug of GUIDE_SLUGS) {
+      entries.push(makeEntry(`/guides/${guideSlug}`, now, "weekly", 0.75));
+    }
+
     return entries;
   } catch (error) {
     console.error("[sitemap] Failed to fetch dynamic URLs, returning static sitemap only", error);
