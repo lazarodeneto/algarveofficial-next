@@ -376,6 +376,8 @@ export async function getCategoryCityPageDataAllowEmpty(
   canonicalCategorySlug: string,
   citySlug: string,
 ): Promise<CategoryCityPageData | null> {
+  console.log("category param:", canonicalCategorySlug);
+  
   const supabase = createPublicServerClient();
 
   // 1. Resolve IDs for the slugs
@@ -392,6 +394,8 @@ export async function getCategoryCityPageDataAllowEmpty(
       .single(),
   ]);
 
+  console.log("db match:", catRes.data);
+  
   if (!catRes.data || !cityRes.data) return null;
 
   const categoryId = catRes.data.id;
