@@ -199,6 +199,33 @@ export default async function GuidePage({ params }: PageProps) {
             </div>
           </div>
         </section>
+
+        {(listings as any[])?.some((l: any) => l.tier && l.tier !== 'free') && (
+          <section className="app-container py-8 border-t">
+            <div className="max-w-4xl mx-auto text-center">
+              <h2 className="text-2xl font-serif font-semibold mb-4">
+                Get Featured in {cityData.name}
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                Stand out to visitors researching {getCategoryDisplayName(guide.targetCategory as CanonicalCategorySlug, locale).toLowerCase()} in {cityData.name}.
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <LocaleLink 
+                  href={`/partner?category=${guide.targetCategory}`}
+                  className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                >
+                  Upgrade Your Listing
+                </LocaleLink>
+                <LocaleLink 
+                  href={`/partner`}
+                  className="inline-flex items-center justify-center rounded-full border border-primary px-6 py-3 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
+                >
+                  Get Featured
+                </LocaleLink>
+              </div>
+            </div>
+          </section>
+        )}
         
         <section className="app-container py-8 border-t">
           <h2 className="text-xl font-semibold mb-4">Explore More in {cityData.name}</h2>
