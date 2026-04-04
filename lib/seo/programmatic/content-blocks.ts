@@ -201,8 +201,9 @@ const TEMPLATES: Record<Locale, Templates> = {
       const topNames = topListings.slice(0, 3).map((l) => l.name).join(", ");
       return `${cityName} compte ${count} options de ${categoryDisplayName.toLowerCase()} sélectionnées sur AlgarveOfficial. Parmi les meilleures adresses : ${topNames || "une sélection soigneuse d'établissements locaux"} — toutes vérifiées par notre équipe d'experts de l'Algarve.`;
     },
-    body: ({ categoryDisplayName, cityName, canonical }) => {
+    body: ({ categoryDisplayName, cityName, canonical, cityDescription }) => {
       const cityContext = CITY_CONTEXT[normalizeCityKey(cityName)] ?? "côte atlantique exceptionnelle";
+      const cityDesc = cityDescription?.slice(0, 120) ?? `${cityName}, avec ${cityContext}`;
       const blurbs: Record<CanonicalCategorySlug, string> = {
         restaurants: `De fruits de mer frais et tapas traditionnels aux tables gastronomiques, ${cityName} propose une scène culinaire remarquable. Avec ses ${cityContext}, la ville se prête à tous les plaisirs de table. AlgarveOfficial sélectionne les meilleures adresses pour chaque occasion.`,
         "accommodation": `L'hébergement à ${cityName} va des maisons d'hôtes boutique aux complexes cinq étoiles avec piscine privée et vue sur l'Atlantique. Grâce à ses ${cityContext}, chaque séjour devient une expérience à part entière.`,
@@ -213,13 +214,13 @@ const TEMPLATES: Record<Locale, Templates> = {
         "shopping": `Faire du shopping à ${cityName}, c'est découvrir des boutiques indépendantes, marchés artisanaux et concept stores qui reflètent l'authenticité de l'Algarve.`,
         "concierge-services": `Pour profiter pleinement de l'Algarve, il faut les bons partenaires — transferts privés, conciergerie de luxe, gestion de propriété et location de yachts.`,
         "events": `L'agenda d'événements de ${cityName} reflète toute l'énergie de l'Algarve — soirées jazz en bord de mer, festivals gastronomiques et dîners privés exclusifs.`,
-        "family-attractions": `Les attractions familiales à ${cityName} offrent des expériences inoubliables pour tous les âges. ${cityDesc}. Des parks thématiques aux rencontres animales.`,
+        "family-attractions": `Les attractions familiales à ${cityName} offrent des expériences inoubliables pour tous les ages. ${cityDesc}. Des parks thématiques aux rencontres animales.`,
         "beaches": `Les plages de ${cityName} sont parmi les meilleures d'Europe. ${cityDesc}. Sable doré, eau turquoise et atmosphère décontractée.`,
         "real-estate": `L'immobilier à ${cityName} offre des opportunités exceptionnelles sur le marché Algarve. ${cityDesc}. Des villas de luxe aux propriétés d'investissement.`,
         "transportation": `Les services de transport à ${cityName} garantissent des voyages parfaits dans l'Algarve. ${cityDesc}. Des transferts privés à la location de voitures.`,
         "security-services": `Les services de sécurité à ${cityName} offrent une tranquillité d'esprit. ${cityDesc}. Nos listings vous connectent avec des professionnels de confiance.`,
         "architecture-design": `L'architecture et le design à ${cityName} mettent en valeur le meilleur de l'environnement construit de l'Algarve. ${cityDesc}. Des rénovations de luxe aux nouvelles constructions.`,
-      };
+      } as const;
       return blurbs[canonical] ?? `Découvrez les meilleurs ${categoryDisplayName.toLowerCase()} à ${cityName}, Algarve.`;
     },
     closing: ({ count, categoryDisplayName, cityName }) =>
@@ -236,8 +237,9 @@ const TEMPLATES: Record<Locale, Templates> = {
       const topNames = topListings.slice(0, 3).map((l) => l.name).join(", ");
       return `${cityName} bietet ${count} kuratierte ${categoryDisplayName}-Einträge auf AlgarveOfficial. Zu den Top-Adressen zählen ${topNames || "handverlesene lokale Highlights"} — alle von unserem Algarve-Expertenteam geprüft.`;
     },
-    body: ({ categoryDisplayName, cityName, canonical }) => {
+    body: ({ categoryDisplayName, cityName, canonical, cityDescription }) => {
       const cityContext = CITY_CONTEXT[normalizeCityKey(cityName)] ?? "atemberaubende Atlantikküste";
+      const cityDesc = cityDescription?.slice(0, 120) ?? `${cityName}, mit ${cityContext}`;
       const blurbs: Record<CanonicalCategorySlug, string> = {
         restaurants: `Von frischen Meeresfrüchten und traditionellen Petiscos bis hin zu Fine-Dining-Restaurants mit Michelin-Ambitionen bietet ${cityName} eine beeindruckende Gastronomieszene. Mit seinen ${cityContext} ist die Stadt der perfekte Rahmen für unvergessliche Mahlzeiten.`,
         "accommodation": `Die Unterkünfte in ${cityName} reichen von charmanten Boutique-Hotels bis zu Fünf-Sterne-Resorts mit Privatpool und Atlantikblick. AlgarveOfficial listet nur Immobilien, die unseren Premium-Standards entsprechen.`,
@@ -248,7 +250,13 @@ const TEMPLATES: Record<Locale, Templates> = {
         "shopping": `Shopping in ${cityName} bedeutet, unabhängige Boutiquen, Handwerksmärkte und Concept Stores zu entdecken, die den authentischen Charakter der Algarve widerspiegeln.`,
         "concierge-services": `Um das Beste aus der Algarve herauszuholen, brauchen Sie die richtigen Partner — Luxustransfers, privater Concierge-Service und Yachtcharter.`,
         "events": `Der Veranstaltungskalender in ${cityName} spiegelt die volle Energie der Algarve wider — Jazzabende am Meer, Gastronomiefestivals und exklusive private Dinners.`,
-      };
+        "family-attractions": `Familienattraktionen in ${cityName} bieten unvergessliche Erlebnisse für alle Altersgruppen. ${cityDesc}. Von Themenparks bis zu Tierbegegnungen.`,
+        "beaches": `Die Strände bei ${cityName} gehören zu Europas schönsten. ${cityDesc}. Goldener Sand, türkisfarbenes Wasser und entspannte Atmosphäre.`,
+        "real-estate": `Immobilien in ${cityName} bieten außergewöhnliche Möglichkeiten auf dem Algarve-Markt. ${cityDesc}. Von Luxusvillen bis zu Investitionsobjekten.`,
+        "transportation": `Transportdienste in ${cityName} gewährleisten perfekte Reisen durch die Algarve. ${cityDesc}. Von privaten Transfers bis zur Autovermietung.`,
+        "security-services": `Sicherheitsdienste in ${cityName} bieten Sicherheit. ${cityDesc}. Unsere Listings verbinden Sie mit vertrauenswürdigen Profis.`,
+        "architecture-design": `Architektur und Design in ${cityName} zeigen das Beste der gebauten Umgebung der Algarve. ${cityDesc}. Von Luxusrenovierungen bis zum Neubau.`,
+      } as const;
       return blurbs[canonical] ?? `Entdecken Sie die besten ${categoryDisplayName} in ${cityName}, Algarve.`;
     },
     closing: ({ count, categoryDisplayName, cityName }) =>
@@ -265,8 +273,9 @@ const TEMPLATES: Record<Locale, Templates> = {
       const topNames = topListings.slice(0, 3).map((l) => l.name).join(", ");
       return `${cityName} alberga ${count} opciones de ${categoryDisplayName.toLowerCase()} en AlgarveOfficial. Entre las mejores: ${topNames || "joyas locales seleccionadas a mano"} — todas verificadas por nuestro equipo de expertos del Algarve.`;
     },
-    body: ({ categoryDisplayName, cityName, canonical }) => {
+    body: ({ categoryDisplayName, cityName, canonical, cityDescription }) => {
       const cityContext = CITY_CONTEXT[normalizeCityKey(cityName)] ?? "espectacular costa atlántica";
+      const cityDesc = cityDescription?.slice(0, 120) ?? `${cityName}, con ${cityContext}`;
       const blurbs: Record<CanonicalCategorySlug, string> = {
         restaurants: `Desde mariscos frescos y petiscos tradicionales hasta mesas de alta cocina con ambición Michelin, ${cityName} ofrece una escena gastronómica excepcional. Con sus ${cityContext}, la ciudad invita a cada tipo de experiencia culinaria.`,
         "accommodation": `El alojamiento en ${cityName} va desde casas rurales boutique con azulejos pintados hasta resorts de cinco estrellas con piscina privada y vistas al Atlántico.`,
@@ -277,7 +286,13 @@ const TEMPLATES: Record<Locale, Templates> = {
         "shopping": `Hacer compras en ${cityName} es descubrir boutiques independientes, mercados de artesanos y concept stores que reflejan el carácter auténtico del Algarve.`,
         "concierge-services": `Para aprovechar al máximo el Algarve se necesitan los socios adecuados — transfers de lujo, servicio de conserjería privado y alquiler de yates.`,
         "events": `La agenda de eventos de ${cityName} refleja toda la energía del Algarve — noches de jazz junto al mar, festivales gastronómicos y cenas privadas exclusivas.`,
-      };
+        "family-attractions": `Las atracciones familiares en ${cityName} ofrecen experiencias inovidables para todas las edades. ${cityDesc}. De parques temáticos a encuentros con animales.`,
+        "beaches": `Las playas de ${cityName} están entre las mejores de Europa. ${cityDesc}. Arena dorada, aguas turquesas y atmósfera relajada.`,
+        "real-estate": `Bienes raíces en ${cityName} ofrecen oportunidades excepcionales en el mercado del Algarve. ${cityDesc}. De villas de lujo a propiedades de inversión.`,
+        "transportation": `Los servicios de transporte en ${cityName} garantizan viajes perfectos por el Algarve. ${cityDesc}. De transfers privados al alquiler de coches.`,
+        "security-services": `Los servicios de seguridad en ${cityName} ofrecen tranquilidad. ${cityDesc}. Nuestros listings le conectan con profesionales de confianza.`,
+        "architecture-design": `Arquitectura y diseño en ${cityName} muestran lo mejor del entorno construido del Algarve. ${cityDesc}. De renovaciones de lujo a nuevas construcciones.`,
+      } as const;
       return blurbs[canonical] ?? `Explore los mejores ${categoryDisplayName.toLowerCase()} en ${cityName}, Algarve.`;
     },
     closing: ({ count, categoryDisplayName, cityName }) =>
@@ -308,7 +323,13 @@ const TEMPLATES: Record<Locale, Templates> = {
         "shopping": `Fare shopping a ${cityName} significa scoprire boutique indipendenti, mercati artigianali e concept store che riflettono il carattere autentico dell'Algarve. ${cityDesc}. Da prodotti artigianali in sughero e ceramiche di design locale alla moda contemporanea e al cibo gourmet, le nostre selezioni vi guidano verso le migliori esperienze di acquisto.`,
         "concierge-services": `Sfruttare al massimo l'Algarve richiede il giusto supporto — da transfer di lusso e servizi di concierge privato alla gestione di proprietà e noleggio di yacht. ${cityDesc}. Le selezioni di servizi di AlgarveOfficial a ${cityName} sono verificate per professionalità, affidabilità e gli standard elevati che i nostri membri si aspettano.`,
         "events": `Il calendario eventi di ${cityName} riflette tutta l'energia della vita dell'Algarve. ${cityDesc}. Da serate jazz sul mare e festival gastronomici a cene private esclusive e celebrazioni culturali, le nostre selezioni di eventi vi tengono aggiornati su ciò che accade ora.`,
-      };
+        "family-attractions": `Le attrazioni familiari a ${cityName} offrono esperienze indimenticabili per tutte le età. ${cityDesc}. Da parchi tematici a incontri con animali.`,
+        "beaches": `Le spiagge vicino a ${cityName} sono tra le migliori d'Europa. ${cityDesc}. Sabbia dorata, acqua turchese e atmosfera rilassata.`,
+        "real-estate": `Immobili a ${cityName} offrono opportunità eccezionali sul mercato algarvio. ${cityDesc}. Dalle ville di lusso alle proprietà per investimento.`,
+        "transportation": `I servizi di trasporto a ${cityName} garantiscono viaggi perfetti in Algarve. ${cityDesc}. Dai transfer privati al noleggio auto.`,
+        "security-services": `I servizi di sicurezza a ${cityName} offrono tranquillità. ${cityDesc}. I nostri listings vi connettono con professionisti fidati.`,
+        "architecture-design": `Architettura e design a ${cityName} mostrano il meglio dell'ambiente costruito dell'Algarve. ${cityDesc}. Dalle ristrutturazioni di lusso alle nuove costruzioni.`,
+      } as const;
       return blurbs[canonical] ?? `Esplora i migliori ${categoryDisplayName.toLowerCase()} a ${cityName}, Algarve.`;
     },
     closing: ({ count, categoryDisplayName, cityName }) =>
@@ -339,7 +360,13 @@ const TEMPLATES: Record<Locale, Templates> = {
         "shopping": `Winkelen in ${cityName} betekent het ontdekken van onafhankelijke boetiekjes, ambachtsmarkten en conceptstores die het authentieke karakter van de Algarve weerspiegelen. ${cityDesc}. Van handgemaakte kurkproducten en lokaal ontworpen keramiek tot hedendaagse mode en gastronomisch voedsel, onze selecties leiden u naar de beste winkelervaring.`,
         "concierge-services": `Het meeste halen uit de Algarve vereist de juiste ondersteuning — van luxe transfers en privé-conciërgdiensten tot vastgoedbeheer en jachtcharter. ${cityDesc}. De servicevermeldingen van AlgarveOfficial in ${cityName} zijn gecontroleerd op professionaliteit, betrouwbaarheid en de hoge standaarden die onze leden verwachten.`,
         "events": `De evenementenagenda van ${cityName} weerspiegelt de volledige energie van het leven in de Algarve. ${cityDesc}. Van jazz-aan-zee-avonden en gastronomische festivals tot exclusieve privédineers en culturele vieringen, onze gecureerde evenementenselecties houden u verbonden met wat er nu gebeurt.`,
-      };
+        "family-attractions": `Familieattracties in ${cityName} bieden onvergetelijke ervaringen voor alle leeftijden. ${cityDesc}. Van themaparken tot dierenontmoetingen.`,
+        "beaches": `De stranden bij ${cityName} behoren tot de beste van Europa. ${cityDesc}. Goudkleurig zand, turquoise water en ontspannen sfeer.`,
+        "real-estate": `Onroerend goed in ${cityName} biedt uitzonderlijke kansen op de Algarve-markt. ${cityDesc}. Van luxevilla's tot investeringspanden.`,
+        "transportation": `Vervoersdiensten in ${cityName} garanderen perfecte reizen door de Algarve. ${cityDesc}. Van privétansfers tot autoverhuur.`,
+        "security-services": `Beveiligingsdiensten in ${cityName} bieden gemoedsrust. ${cityDesc}. Onze listings verbinden u met betrouwbare professionals.`,
+        "architecture-design": `Architectuur en design in ${cityName} tonen het beste van de gebouwde omgeving van de Algarve. ${cityDesc}. Van luxerenovaties tot nieuwbouw.`,
+      } as const;
       return blurbs[canonical] ?? `Ontdek de beste ${categoryDisplayName.toLowerCase()} in ${cityName}, Algarve.`;
     },
     closing: ({ count, categoryDisplayName, cityName }) =>
@@ -370,7 +397,13 @@ const TEMPLATES: Record<Locale, Templates> = {
         "shopping": `Shopping i ${cityName} innebär att upptäcka oberoende butiker, hantverksmarknader och konceptbutiker som speglar Algarvens autentiska karaktär. ${cityDesc}. Från handgjorda korkprodukter och lokalt designad keramik till modern mode och gourmetmat guidar våra urval dig till de bästa butiksupplevelserna.`,
         "concierge-services": `Att få ut det mesta av Algarve kräver rätt stöd — från lyxiga transfertjänster och privat concierge till fastighetsförvaltning och yacht-charter. ${cityDesc}. AlgarveOfficial:s serviceurval i ${cityName} är verifierade för professionalism, tillförlitlighet och de höga standarder våra medlemmar förväntar sig.`,
         "events": `${cityName}s evenemangskalender speglar all energi i Algarvens liv. ${cityDesc}. Från jazzkväll vid havet och gastronomiifestivaler till exklusiva privata middagar och kulturella firanden håller våra utvalda evenemang dig uppdaterad med vad som händer just nu.`,
-      };
+        "family-attractions": `Familjeattraktioner i ${cityName} erbjuder oförglömliga upplevelser för alla åldrar. ${cityDesc}. Från temaparker till djurmöten.`,
+        "beaches": `Stränderna nära ${cityName} tillhör de bästa i Europa. ${cityDesc}. Guldsand, turkost vatten och avslappnad atmosfär.`,
+        "real-estate": `Fastigheter i ${cityName} erbjuder exceptionella möjligheter på Algarve-marknaden. ${cityDesc}. Från lyxvillor till investeringsfastigheter.`,
+        "transportation": `Transporttjänster i ${cityName} garanterar perfekta resor genom Algarve. ${cityDesc}. Från privata transfer till biluthyrning.`,
+        "security-services": `Säkerhetstjänster i ${cityName} ger sinnesfrid. ${cityDesc}. Våra listings förbinder dig med pålitliga proffs.`,
+        "architecture-design": `Arkitektur och design i ${cityName} visar det bästa av Algarvens byggda miljö. ${cityDesc}. Från lyxrenoveringar till nybyggen.`,
+      } as const;
       return blurbs[canonical] ?? `Utforska de bästa ${categoryDisplayName.toLowerCase()} i ${cityName}, Algarve.`;
     },
     closing: ({ count, categoryDisplayName, cityName }) =>
@@ -401,7 +434,13 @@ const TEMPLATES: Record<Locale, Templates> = {
         "shopping": `Shopping i ${cityName} betyr å oppdage uavhengige butikker, håndverksmarkeder og konseptbutikker som gjenspeiler Algarvens autentiske karakter. ${cityDesc}. Fra håndlagde korkprodukter og lokalt designet keramikk til moderne mote og gourmetmat, guider utvalgene våre deg til de beste handleopplevelsene.`,
         "concierge-services": `Å få mest mulig ut av Algarve krever riktig støtte — fra luksustransfer og privat conciergjetjeneste til eiendomsforvaltning og yachtcharter. ${cityDesc}. AlgarveOfficial:s tjenesteutvalg i ${cityName} er verifisert for profesjonalitet, pålitelighet og de høye standardene våre medlemmer forventer.`,
         "events": `${cityName}s arrangementskalender gjenspeiler all energien i Algarvens liv. ${cityDesc}. Fra jazzkvelder ved sjøen og gastronomifestivaler til eksklusive private middager og kulturelle feiringer, holder våre kuraterte arrangementsvalg deg oppdatert med hva som skjer nå.`,
-      };
+        "family-attractions": `Familieattraksjoner i ${cityName} tilbyr uforglemmelige opplevelser for alle aldre. ${cityDesc}. Fra temaparker til dyremøter.`,
+        "beaches": `Strendene nær ${cityName} tilhører de beste i Europa. ${cityDesc}. Gylden sand, turkist vann og avslappet atmosfære.`,
+        "real-estate": `Eiendom i ${cityName} tilbyr exceptionelle muligheter i Algarve-markedet. ${cityDesc}. Fra luksusvillaer til investeringseiendom.`,
+        "transportation": `Transporttjenester i ${cityName} garanterer perfekte reiser gjennom Algarve. ${cityDesc}. Fra private transfer til bilutleie.`,
+        "security-services": `Sikkerhetstjenester i ${cityName} gir trygghet. ${cityDesc}. Våre listings kobler deg med pålitelige fagfolk.`,
+        "architecture-design": `Arkitektur og design i ${cityName} viser det beste av Algarvens bygde miljø. ${cityDesc}. Fra luksusrenoveringer til nybygg.`,
+      } as const;
       return blurbs[canonical] ?? `Utforsk de beste ${categoryDisplayName.toLowerCase()} i ${cityName}, Algarve.`;
     },
     closing: ({ count, categoryDisplayName, cityName }) =>
@@ -432,7 +471,13 @@ const TEMPLATES: Record<Locale, Templates> = {
         "shopping": `Shopping i ${cityName} betyder at opdage uafhængige butikker, håndværksmarkeder og konceptbutikker, der afspejler Algarvens autentiske karakter. ${cityDesc}. Fra håndlavede korkprodukter og lokalt designet keramik til moderne mode og gourmetmad guider vores udvalg dig til de bedste butiksoplevelser.`,
         "concierge-services": `At få mest muligt ud af Algarve kræver den rette støtte — fra luksuriøs transfer og privat concierge-service til ejendomsadministration og yachtcharter. ${cityDesc}. AlgarveOfficial:s servicevalg i ${cityName} er verificeret for professionalisme, pålidelighed og de høje standarder, som vores medlemmer forventer.`,
         "events": `${cityName}s begivenhedskalender afspejler al energien i det algarvske liv. ${cityDesc}. Fra jazz-ved-havet-aftener og gastronomifestivaler til eksklusive private middage og kulturelle fejringer holder vores kuraterede begivenhedsvalg dig forbundet med, hvad der sker lige nu.`,
-      };
+        "family-attractions": `Familieattraktioner i ${cityName} tilbyder uforglemmelige oplevelser for alle aldre. ${cityDesc}. Fra temaparker til dyreoplevelser.`,
+        "beaches": `Strændene nær ${cityName} hører til de bedste i Europa. ${cityDesc}. Gyldent sand, turkisblåt vand og afslappet atmosfære.`,
+        "real-estate": `Ejendom i ${cityName} tilbyder exceptionelle muligheder i Algarve-markedet. ${cityDesc}. Fra luksusvillaer til investeringsejendom.`,
+        "transportation": `Transporttjenester i ${cityName} garanterer perfekte rejser gennem Algarve. ${cityDesc}. Fra private transfer til biludlejning.`,
+        "security-services": `Sikkerhedstjenester i ${cityName} giver tryghed. ${cityDesc}. Vores listings forbinder dig med pålidelige fagfolk.`,
+        "architecture-design": `Arkitektur og design i ${cityName} viser det bedste af Algarvens byggede miljø. ${cityDesc}. Fra luksusrenoveringer til nybyggeri.`,
+      } as const;
       return blurbs[canonical] ?? `Udforsk de bedste ${categoryDisplayName.toLowerCase()} i ${cityName}, Algarve.`;
     },
     closing: ({ count, categoryDisplayName, cityName }) =>

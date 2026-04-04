@@ -29,7 +29,7 @@ import {
 
 // ── Static locale data (bundled at build time) ────────────────────────────────
 import en from "@/i18n/locales/en.json";
-import pt from "@/i18n/locales/pt.json";
+import pt from "@/i18n/locales/pt-pt.json";
 import de from "@/i18n/locales/de.json";
 import fr from "@/i18n/locales/fr.json";
 import es from "@/i18n/locales/es.json";
