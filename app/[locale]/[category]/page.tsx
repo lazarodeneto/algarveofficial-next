@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { SUPPORTED_LOCALES, isValidLocale, DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config";
-import { getCategoryDisplayName, getCategoryUrlSlug, ALL_CANONICAL_SLUGS, type CanonicalCategorySlug } from "@/lib/seo/programmatic/category-slugs";
+import { getCategoryDisplayName, getCategoryUrlSlug, getCanonicalFromUrlSlug, ALL_CANONICAL_SLUGS, type CanonicalCategorySlug } from "@/lib/seo/programmatic/category-slugs";
 import { getServerTranslations } from "@/lib/i18n/server";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { ListingCard } from "@/components/seo/programmatic/ListingCard";
@@ -40,17 +40,40 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { locale: rawLocale, category: rawCategory } = await params;
   const locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
   
-  const canonical = getCategoryUrlSlug(rawCategory as CanonicalCategorySlug, locale) 
-    ? ALL_CANONICAL_SLUGS.find(s => getCategoryUrlSlug(s, locale) === rawCategory)
-    : null;
-  
+  const canonical = getCanonicalFromUrlSlug(rawCategory.toLowerCase(), locale);
   if (!canonical) return {};
   
   const categoryName = getCategoryDisplayName(canonical, locale);
   
+  const metaTitles: Record<string, string> = {
+    en: `${categoryName} in the Algarve | AlgarveOfficial`,
+    "pt-pt": `${categoryName} no Algarve | AlgarveOfficial`,
+    fr: `${categoryName} en Algarve | AlgarveOfficial`,
+    de: `${categoryName} an der Algarve | AlgarveOfficial`,
+    es: `${categoryName} en el Algarve | AlgarveOfficial`,
+    it: `${categoryName} in Algarve | AlgarveOfficial`,
+    nl: `${categoryName} in de Algarve | AlgarveOfficial`,
+    sv: `${categoryName} i Algarve | AlgarveOfficial`,
+    no: `${categoryName} i Algarve | AlgarveOfficial`,
+    da: `${categoryName} i Algarve | AlgarveOfficial`,
+  };
+  
+  const metaDescriptions: Record<string, string> = {
+    en: `Discover the best ${categoryName.toLowerCase()} in the Algarve. Curated local recommendations on AlgarveOfficial.`,
+    "pt-pt": `Descubra os melhores ${categoryName.toLowerCase()} no Algarve. Recomendações locais seleccionadas no AlgarveOfficial.`,
+    fr: `Découvrez les meilleures ${categoryName.toLowerCase()} en Algarve. Recommandations locales sur AlgarveOfficial.`,
+    de: `Entdecken Sie die besten ${categoryName.toLowerCase()} an der Algarve. Lokale Empfehlungen auf AlgarveOfficial.`,
+    es: `Descubre los mejores ${categoryName.toLowerCase()} en el Algarve. Recomendaciones locales en AlgarveOfficial.`,
+    it: `Scopri i migliori ${categoryName.toLowerCase()} in Algarve. Raccomandazioni locali su AlgarveOfficial.`,
+    nl: `Ontdek de beste ${categoryName.toLowerCase()} in de Algarve. Lokale aanbevelingen op AlgarveOfficial.`,
+    sv: `Upptäck de bästa ${categoryName.toLowerCase()} i Algarve. Lokala rekommendationer på AlgarveOfficial.`,
+    no: `Oppdag de beste ${categoryName.toLowerCase()} i Algarve. Lokale anbefalinger på AlgarveOfficial.`,
+    da: `Opdag de bedste ${categoryName.toLowerCase()} i Algarve. Lokale anbefalinger på AlgarveOfficial.`,
+  };
+  
   return {
-    title: `${categoryName} in the Algarve | AlgarveOfficial`,
-    description: `Discover the best ${categoryName.toLowerCase()} in the Algarve. Curated local recommendations on AlgarveOfficial.`,
+    title: metaTitles[locale] ?? metaTitles.en,
+    description: metaDescriptions[locale] ?? metaDescriptions.en,
   };
 }
 
@@ -58,7 +81,7 @@ export default async function CategoryHubPage({ params }: PageProps) {
   const { locale: rawLocale, category: rawCategory } = await params;
   const locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
   
-  const canonicalSlug = ALL_CANONICAL_SLUGS.find(s => getCategoryUrlSlug(s, locale) === rawCategory);
+  const canonicalSlug = getCanonicalFromUrlSlug(rawCategory.toLowerCase(), locale);
   if (!canonicalSlug) notFound();
   
   const supabase = createPublicServerClient();
@@ -150,6 +173,33 @@ export default async function CategoryHubPage({ params }: PageProps) {
               {listingData.slice(0, 12).map((listing) => (
                 <ListingCard key={listing.id} listing={listing} tx={tx} />
               ))}
+            </div>
+          </section>
+        )}
+
+        {listingData && listingData.length > 0 && (
+          <section className="app-container py-8 border-t border-border bg-gradient-to-b from-primary/5 to-transparent">
+            <div className="max-w-4xl mx-auto text-center">
+              <h2 className="text-2xl font-serif font-semibold mb-3">
+                Get More Visibility in the Algarve
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                Stand out from the competition. Upgrade your {categoryName.toLowerCase()} listing to reach more customers.
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <LocaleLink 
+                  href={`/partner?category=${canonicalSlug}`}
+                  className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                >
+                  Upgrade Your Listing
+                </LocaleLink>
+                <LocaleLink 
+                  href={`/partner`}
+                  className="inline-flex items-center justify-center rounded-full border border-primary px-6 py-3 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
+                >
+                  Get Featured
+                </LocaleLink>
+              </div>
             </div>
           </section>
         )}

@@ -26,7 +26,7 @@ const DB_LOCALE_MAP: Record<Locale, string> = {
 
 const localeLoaders: Record<Locale, () => Promise<TranslationNode>> = {
   en: () => import("@/i18n/locales/en.json").then((module) => module.default as TranslationNode),
-  "pt-pt": () => import("@/i18n/locales/pt.json").then((module) => module.default as TranslationNode),
+  "pt-pt": () => import("@/i18n/locales/pt-pt.json").then((module) => module.default as TranslationNode),
   de: () => import("@/i18n/locales/de.json").then((module) => module.default as TranslationNode),
   fr: () => import("@/i18n/locales/fr.json").then((module) => module.default as TranslationNode),
   es: () => import("@/i18n/locales/es.json").then((module) => module.default as TranslationNode),
