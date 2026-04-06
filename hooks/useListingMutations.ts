@@ -1,6 +1,7 @@
 "use client";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { getValidAccessToken } from "@/lib/authToken";
 import { toast } from 'sonner';
 import type { TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
@@ -414,28 +415,30 @@ export function useBulkPublishListings() {
  */
 export function useBulkUpdateTier() {
   const queryClient = useQueryClient();
-  const BATCH_SIZE = 200;
   const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async ({ ids, tier }: { ids: string[]; tier: 'unverified' | 'verified' | 'signature' }) => {
       if (!isBrowser) return { ids, tier };
+      const accessToken = await getValidAccessToken();
+      const response = await fetch("/api/admin/listings/bulk-tier", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ ids, tier }),
+      });
 
-      for (let i = 0; i < ids.length; i += BATCH_SIZE) {
-        const batchIds = ids.slice(i, i + BATCH_SIZE);
-        const { error } = await supabase
-          .from('listings')
-          .update({ tier })
-          .in('id', batchIds);
+      let payload: { error?: string } | null = null;
+      try {
+        payload = (await response.json()) as { error?: string };
+      } catch {
+        payload = null;
+      }
 
-        if (error) {
-          console.error('Error bulk updating tier batch:', {
-            batchStart: i,
-            batchSize: batchIds.length,
-            error,
-          });
-          throw error;
-        }
+      if (!response.ok) {
+        throw new Error(payload?.error || "Failed to update listing tier.");
       }
 
       return { ids, tier };
