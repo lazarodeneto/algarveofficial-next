@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
-import { SUPPORTED_LOCALES, isValidLocale, DEFAULT_LOCALE } from "@/lib/i18n/config";
+import { SUPPORTED_LOCALES, isValidLocale, DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config";
 import { getCategoryDisplayName, getCategoryUrlSlug, ALL_CANONICAL_SLUGS, type CanonicalCategorySlug } from "@/lib/seo/programmatic/category-slugs";
 import { getServerTranslations } from "@/lib/i18n/server";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { ListingCard } from "@/components/seo/programmatic/ListingCard";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -91,15 +91,26 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale: rawLocale, slug } = await params;
-  const locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+  const locale: Locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
   const guide = GUIDES_CONFIG[slug as keyof typeof GUIDES_CONFIG];
   
-  if (!guide) return {};
+  if (!guide) {
+    return buildPageMetadata({
+      title: "Guide Not Found",
+      description: "The requested guide could not be found.",
+      localizedPath: `/guides/${slug}`,
+      locale,
+      noIndex: true,
+      noFollow: true,
+    });
+  }
   
-  return {
-    title: `${guide.title} | AlgarveOfficial`,
+  return buildPageMetadata({
+    title: guide.title,
     description: guide.description,
-  };
+    localizedPath: `/guides/${slug}`,
+    locale,
+  });
 }
 
 export default async function GuidePage({ params }: PageProps) {

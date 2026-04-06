@@ -13,7 +13,6 @@ import {
   Search,
   Settings,
   Sparkles,
-  User,
   UserCheck,
   LayoutDashboard,
 } from "lucide-react";
@@ -51,6 +50,9 @@ export function AdminHeader() {
   const { data: pendingClaimsCount = 0 } = usePendingClaimsCount();
   const { data: pendingEventsCount = 0 } = usePendingEventsCount();
   const [quickJump, setQuickJump] = useState("");
+  const adminName = user?.firstName || t("common.admin");
+  const adminEmail = user?.email || "";
+  const adminInitial = (adminName.trim().charAt(0) || adminEmail.trim().charAt(0) || "A").toUpperCase();
 
   const totalNotifications = pendingCount + pendingListingReviewsCount + pendingClaimsCount + pendingEventsCount;
 
@@ -215,7 +217,7 @@ export function AdminHeader() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2 rounded-full px-2.5 group">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 group-hover:bg-primary/30">
-                  <User className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-semibold leading-none text-primary">{adminInitial}</span>
                 </div>
                 <span className="hidden text-sm font-medium text-foreground group-hover:text-primary 2xl:block">
                   {t("common.admin")}

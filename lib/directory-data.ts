@@ -17,6 +17,18 @@ import { getProgrammaticCityIndexEntries } from "@/lib/seo/programmatic/category
 
 type ListingRow = Tables<"listings">;
 
+const DIRECTORY_CITY_FIELDS = `
+  id, name, slug, short_description, description, image_url, hero_image_url,
+  latitude, longitude, is_active, is_featured, display_order, created_at
+`;
+const DIRECTORY_REGION_FIELDS = `
+  id, slug, name, short_description, description, image_url, hero_image_url,
+  is_active, is_featured, is_visible_destinations, display_order, created_at
+`;
+const DIRECTORY_CATEGORY_FIELDS = `
+  id, slug, name, icon, short_description, description, image_url,
+  is_active, is_featured, display_order, created_at
+`;
 const PUBLIC_CITY_FIELDS = "id, name, slug, short_description, image_url, hero_image_url, latitude, longitude";
 const PUBLIC_REGION_FIELDS = "id, slug, name, short_description";
 const PUBLIC_CATEGORY_FIELDS = "id, slug, name, icon, short_description, image_url";
@@ -148,7 +160,7 @@ async function fetchDirectoryCities(
 ): Promise<CityRow[]> {
   const { data, error } = await supabase
     .from("cities")
-    .select("*")
+    .select(DIRECTORY_CITY_FIELDS)
     .eq("is_active", true)
     .order("display_order", { ascending: true })
     .order("name", { ascending: true });
@@ -175,7 +187,7 @@ async function fetchDirectoryRegions(
 ): Promise<RegionRow[]> {
   const { data, error } = await supabase
     .from("regions")
-    .select("*")
+    .select(DIRECTORY_REGION_FIELDS)
     .eq("is_active", true)
     .order("display_order", { ascending: true })
     .order("name", { ascending: true });
@@ -202,7 +214,7 @@ async function fetchDirectoryCategories(
 ): Promise<CategoryRow[]> {
   const { data, error } = await supabase
     .from("categories")
-    .select("*")
+    .select(DIRECTORY_CATEGORY_FIELDS)
     .eq("is_active", true)
     .order("display_order", { ascending: true })
     .order("name", { ascending: true });

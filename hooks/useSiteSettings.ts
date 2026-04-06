@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { normalizePublicContactEmail } from "@/lib/contactEmail";
+import { updateAdminSettingsRow } from "@/lib/admin/settings-client";
 
 export interface SiteSettings {
   id: string;
@@ -154,14 +155,11 @@ export function useSiteSettings() {
         return {} as SiteSettings;
       }
 
-      const { data, error } = await supabase
-        .from('site_settings')
-        .update(newSettings)
-        .eq('id', 'default')
-        .select('*')
-        .single();
-
-      if (error) throw error;
+      const data = await updateAdminSettingsRow<SiteSettings>({
+        table: "site_settings",
+        updates: newSettings as Record<string, unknown>,
+        mode: "upsert",
+      });
       if (!data) throw new Error('Site settings not found after update');
       return normalizeSiteSettings(data as SiteSettings);
     },

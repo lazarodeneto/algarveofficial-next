@@ -14,6 +14,7 @@ import { ConciergeContactDialog } from "@/components/real-estate/ConciergeContac
 import { useTranslation } from "react-i18next";
 import { SeoHead } from "@/components/seo/SeoHead";
 import { Database } from "@/integrations/supabase/types";
+import { matchesPropertyCategoryFilters } from "@/lib/properties/filters";
 
 type Lang = "en" | "pt-pt" | "fr" | "de" | "es" | "it" | "nl" | "sv" | "no" | "da";
 
@@ -32,9 +33,29 @@ const normalizeLang = (raw?: string | null): Lang => {
     return "en";
 };
 
-type RealEstateListing = Database["public"]["Tables"]["listings"]["Row"] & {
+type RealEstateListing = Pick<
+    Database["public"]["Tables"]["listings"]["Row"],
+    | "id"
+    | "slug"
+    | "name"
+    | "short_description"
+    | "featured_image_url"
+    | "category_data"
+    | "tier"
+    | "category_id"
+    | "status"
+    | "city_id"
+    | "price_from"
+    | "price_to"
+    | "created_at"
+> & {
     cities: { name: string; slug: string } | null;
 };
+
+const REAL_ESTATE_LISTING_FIELDS = `
+  id, slug, name, short_description, featured_image_url, category_data,
+  tier, category_id, status, city_id, price_from, price_to, created_at
+`;
 
 interface FilterState {
     priceMin: string;
@@ -60,14 +81,24 @@ export default function PropertiesClient() {
         queryFn: async () => {
             let query = supabase
                 .from("listings")
-                .select(`*, cities ( name, slug )`)
+                .select(`${REAL_ESTATE_LISTING_FIELDS}, cities ( name, slug )`)
                 .eq("category_id", "11df48fe-34e4-4743-8837-e5a1fb399a37")
                 .eq("status", "published");
 
-            if (filters.priceMin) query = query.gte("price", parseFloat(filters.priceMin));
-            if (filters.priceMax) query = query.lte("price", parseFloat(filters.priceMax));
-            if (filters.type !== "all") query = query.eq("subcategory", filters.type);
-            if (filters.beds !== "all") query = query.gte("bedrooms", parseInt(filters.beds));
+            if (filters.priceMin) {
+                const min = Number.parseFloat(filters.priceMin);
+                if (Number.isFinite(min)) {
+                    query = query.gte("price_from", min);
+                }
+            }
+
+            if (filters.priceMax) {
+                const max = Number.parseFloat(filters.priceMax);
+                if (Number.isFinite(max)) {
+                    query = query.or(`price_from.lte.${max},price_to.lte.${max}`);
+                }
+            }
+
             if (filters.location) {
                 const { data: cityData } = await supabase.from("cities").select("id").ilike("name", `%${filters.location}%`);
                 if (cityData && cityData.length > 0) query = query.in("city_id", cityData.map(c => c.id));
@@ -76,12 +107,23 @@ export default function PropertiesClient() {
             query = query.order("tier", { ascending: true }).order("created_at", { ascending: false });
             const { data, error } = await query;
             if (error) throw error;
-            return data as RealEstateListing[];
+            return ((data ?? []) as Array<RealEstateListing & { cities: { name: string; slug: string }[] | { name: string; slug: string } | null }>).map((row) => ({
+                ...row,
+                cities: Array.isArray(row.cities) ? (row.cities[0] ?? null) : (row.cities ?? null),
+            })) as RealEstateListing[];
         },
         staleTime: 1000 * 60 * 5,
     });
 
-    const filteredListings = useMemo(() => listings ?? [], [listings]);
+    const filteredListings = useMemo(() => {
+        const rows = listings ?? [];
+        return rows.filter((listing) =>
+            matchesPropertyCategoryFilters(listing, {
+                type: filters.type,
+                beds: filters.beds,
+            }),
+        );
+    }, [filters.beds, filters.type, listings]);
 
     const handleFilterChange = (key: string, value: string) => setFilters(prev => ({ ...prev, [key]: value }));
     const handleClear = () => setFilters({ priceMin: "", priceMax: "", type: "all", beds: "all", location: "" });

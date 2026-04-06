@@ -1,6 +1,12 @@
 "use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  buildLegalSettingsCandidateIds,
+  parseLegalSections,
+  pickLegalSettingsRowByLocale,
+} from "@/lib/legal/settings";
+import { updateAdminSettingsRow } from "@/lib/admin/settings-client";
 import { toast } from "sonner";
 
 export interface Section {
@@ -21,37 +27,31 @@ export interface TermsSettings {
   updated_at: string;
 }
 
-export function useTermsSettings() {
+export function useTermsSettings(locale?: string | null) {
   const queryClient = useQueryClient();
   const isBrowser = typeof window !== "undefined";
+  const localeKey = locale ?? "default";
 
   const { data: settings, isLoading, error } = useQuery({
-    queryKey: ['terms-settings'],
+    queryKey: ['terms-settings', localeKey],
     queryFn: async () => {
+      const candidateIds = buildLegalSettingsCandidateIds(locale);
       const { data, error } = await supabase
         .from('terms_settings')
         .select('*')
-        .eq('id', 'default')
-        .single();
+        .in('id', candidateIds);
       
       if (error) throw error;
+      if (!data || data.length === 0) return null;
+
+      const selected = pickLegalSettingsRowByLocale(data, locale);
+      if (!selected) return null;
       
       // Parse sections from Json to Section[]
-      let parsedSections: Section[] = [];
-      if (Array.isArray(data.sections)) {
-        parsedSections = (data.sections as unknown[]).map((item) => {
-          const obj = item as Record<string, unknown>;
-          return {
-            id: String(obj.id || ''),
-            title: String(obj.title || ''),
-            icon: String(obj.icon || 'FileText'),
-            content: String(obj.content || ''),
-          };
-        });
-      }
+      const parsedSections = parseLegalSections(selected.sections, 'FileText');
       
       const parsed: TermsSettings = {
-        ...data,
+        ...selected,
         sections: parsedSections,
       };
       return parsed;
@@ -70,13 +70,14 @@ export function useTermsSettings() {
       if (sections !== undefined) {
         supabaseUpdates.sections = sections as unknown;
       }
-      
-      const { error } = await supabase
-        .from('terms_settings')
-        .update(supabaseUpdates)
-        .eq('id', 'default');
-      
-      if (error) throw error;
+
+      const targetId = settings?.id ?? "default";
+      await updateAdminSettingsRow({
+        table: "terms_settings",
+        id: targetId,
+        updates: supabaseUpdates,
+        mode: "upsert",
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['terms-settings'] });

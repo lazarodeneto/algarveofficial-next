@@ -1,81 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { randomUUID } from "node:crypto";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
-import { getSupabasePublicEnv } from "@/lib/supabase/env";
-import { createServiceRoleClient } from "@/lib/supabase/service";
+import { requireAdminWriteClient } from "@/lib/server/admin-auth";
+import {
+  buildPricingApiErrorResponse,
+  type PricingApiSuccessResponse,
+} from "@/lib/subscriptions/pricing-api";
 
-type UserRole = Database["public"]["Enums"]["app_role"];
 type PricingInsert = Database["public"]["Tables"]["subscription_pricing"]["Insert"];
 type PricingUpdate = Database["public"]["Tables"]["subscription_pricing"]["Update"];
 type PricingInsertPayload = Omit<PricingInsert, "id"> & { id?: string };
+type PricingTier = "verified" | "signature";
+type BillingPeriod = "monthly" | "annual" | "period";
 
 const VALID_TIERS = new Set(["verified", "signature"]);
 const VALID_BILLING_PERIODS = new Set(["monthly", "annual", "period"]);
 const VALID_PERIOD_UNITS = new Set(["days", "months"]);
-const UUID_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const RETRIABLE_PERIOD_COLUMNS = [
+  "period_length",
+  "period_unit",
+  "period_start_date",
+  "period_end_date",
+] as const;
 
-function getBearerToken(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
-  if (!authHeader) return null;
-  const [scheme, token] = authHeader.split(" ");
-  if (!scheme || !token || scheme.toLowerCase() !== "bearer") return null;
-  return token.trim();
+function errorResponse(status: number, code: string, message: string) {
+  return NextResponse.json(buildPricingApiErrorResponse(code, message), { status });
 }
 
-async function requireAdminServiceClient(request: NextRequest) {
-  const token = getBearerToken(request);
-  if (!token) {
-    return { error: NextResponse.json({ error: "Missing authorization token." }, { status: 401 }) };
-  }
-
-  const serviceClient = createServiceRoleClient();
-  if (!serviceClient) {
-    return {
-      error: NextResponse.json(
-        { error: "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin writes." },
-        { status: 500 },
-      ),
-    };
-  }
-
-  const { url, anonKey } = getSupabasePublicEnv();
-  const userClient = createClient<Database>(url, anonKey, {
-    global: {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
-
-  const { data: userData, error: userError } = await userClient.auth.getUser();
-  if (userError || !userData.user) {
-    return { error: NextResponse.json({ error: "Unauthorized." }, { status: 401 }) };
-  }
-
-  const { data: requesterRole, error: roleError } = await userClient.rpc("get_user_role", {
-    _user_id: userData.user.id,
-  });
-
-  if (roleError) {
-    return {
-      error: NextResponse.json(
-        { error: roleError.message || "Failed to verify user role." },
-        { status: 403 },
-      ),
-    };
-  }
-
-  if ((requesterRole as UserRole) !== "admin") {
-    return { error: NextResponse.json({ error: "Only admins can update subscription pricing." }, { status: 403 }) };
-  }
-
-  return { serviceClient };
+function successResponse(id: string, action: PricingApiSuccessResponse["action"]) {
+  return NextResponse.json<PricingApiSuccessResponse>({ ok: true, id, action });
 }
 
 function isMissingColumnError(error: unknown, column: string) {
@@ -89,11 +44,17 @@ function isMissingColumnError(error: unknown, column: string) {
   );
 }
 
-function shouldRetryWithoutPeriodDates(error: unknown) {
-  return (
-    isMissingColumnError(error, "period_start_date") ||
-    isMissingColumnError(error, "period_end_date")
+function getRetriableMissingPeriodColumn(
+  error: unknown,
+  payload: Record<string, unknown>,
+): (typeof RETRIABLE_PERIOD_COLUMNS)[number] | null {
+  const column = RETRIABLE_PERIOD_COLUMNS.find((candidate) =>
+    isMissingColumnError(error, candidate),
   );
+
+  if (!column) return null;
+  if (!(column in payload)) return null;
+  return column;
 }
 
 function parseNullableString(value: unknown): string | null | undefined {
@@ -129,6 +90,41 @@ function parsePeriodUnit(value: unknown): "days" | "months" | null | undefined {
   return VALID_PERIOD_UNITS.has(value) ? (value as "days" | "months") : undefined;
 }
 
+function parseTier(value: unknown): PricingTier | null {
+  if (typeof value !== "string") return null;
+  const tier = value.trim().toLowerCase();
+  return VALID_TIERS.has(tier) ? (tier as PricingTier) : null;
+}
+
+function parseBillingPeriod(value: unknown): BillingPeriod | null {
+  if (typeof value !== "string") return null;
+  const period = value.trim().toLowerCase();
+  return VALID_BILLING_PERIODS.has(period) ? (period as BillingPeriod) : null;
+}
+
+function getErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  if (typeof error === "object" && error !== null) {
+    const maybeMessage = "message" in error ? String((error as { message?: unknown }).message ?? "") : "";
+    if (maybeMessage) return maybeMessage;
+  }
+
+  return fallback;
+}
+
+function getPricingApiErrorMessage(error: unknown, fallback: string) {
+  const message = getErrorMessage(error, fallback);
+
+  if (message.includes("subscription_pricing_billing_period_check")) {
+    return "Database schema does not support period billing yet. Apply migrations 006, 007, and 008, then retry.";
+  }
+
+  return message;
+}
+
 function buildPricingPayload(raw: Record<string, unknown>) {
   const price = parseOptionalNumber(raw.price);
   const displayPrice = parseOptionalString(raw.display_price);
@@ -153,146 +149,233 @@ function buildPricingPayload(raw: Record<string, unknown>) {
   return payload;
 }
 
-async function updatePricing(
-  serviceClient: NonNullable<ReturnType<typeof createServiceRoleClient>>,
-  id: string,
-  payload: PricingUpdate,
-) {
-  const firstAttempt = await serviceClient
-    .from("subscription_pricing")
-    .update(payload)
-    .eq("id", id);
+function buildInsertPayload(
+  raw: Record<string, unknown>,
+  tier: PricingTier,
+  billingPeriod: BillingPeriod,
+): PricingInsertPayload | null {
+  const price = parseOptionalNumber(raw.price);
+  const displayPrice = parseOptionalString(raw.display_price);
+  const note = parseOptionalString(raw.note);
 
-  if (!firstAttempt.error) return;
-  if (!shouldRetryWithoutPeriodDates(firstAttempt.error)) {
-    throw firstAttempt.error;
+  if (price === undefined || displayPrice === undefined || note === undefined) {
+    return null;
   }
 
-  const { period_start_date: _startDate, period_end_date: _endDate, ...fallbackPayload } = payload;
-  const retryAttempt = await serviceClient
-    .from("subscription_pricing")
-    .update(fallbackPayload)
-    .eq("id", id);
+  const periodLength = parseNullableNumber(raw.period_length);
+  const periodUnit = parsePeriodUnit(raw.period_unit);
+  const periodStartDate = parseNullableString(raw.period_start_date);
+  const periodEndDate = parseNullableString(raw.period_end_date);
+  const monthlyEquivalent = parseNullableString(raw.monthly_equivalent);
+  const savings = parseNullableNumber(raw.savings);
 
-  if (retryAttempt.error) throw retryAttempt.error;
+  return {
+    id: randomUUID(),
+    tier,
+    billing_period: billingPeriod,
+    price,
+    display_price: displayPrice,
+    note,
+    period_length: periodLength ?? null,
+    period_unit: periodUnit ?? null,
+    period_start_date: periodStartDate ?? null,
+    period_end_date: periodEndDate ?? null,
+    monthly_equivalent: monthlyEquivalent ?? null,
+    savings: savings ?? 0,
+  };
+}
+
+async function updatePricingById(
+  writeClient: SupabaseClient<Database>,
+  id: string,
+  payload: PricingUpdate,
+): Promise<string | null> {
+  let nextPayload = { ...payload } as Record<string, unknown>;
+
+  while (true) {
+    const attempt = await writeClient
+      .from("subscription_pricing")
+      .update(nextPayload as PricingUpdate)
+      .eq("id", id)
+      .select("id")
+      .maybeSingle();
+
+    if (!attempt.error) {
+      return attempt.data?.id ?? null;
+    }
+
+    if (attempt.error.code === "PGRST116") {
+      return null;
+    }
+
+    const missingColumn = getRetriableMissingPeriodColumn(attempt.error, nextPayload);
+    if (!missingColumn) {
+      throw attempt.error;
+    }
+
+    const { [missingColumn]: _removed, ...fallbackPayload } = nextPayload;
+    nextPayload = fallbackPayload;
+  }
+}
+
+async function findPricingIdByTierAndBilling(
+  writeClient: SupabaseClient<Database>,
+  tier: PricingTier,
+  billingPeriod: BillingPeriod,
+): Promise<string | null> {
+  const { data, error } = await writeClient
+    .from("subscription_pricing")
+    .select("id")
+    .eq("tier", tier)
+    .eq("billing_period", billingPeriod)
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error && error.code !== "PGRST116") {
+    throw error;
+  }
+
+  return data?.id ?? null;
 }
 
 async function insertPricing(
-  serviceClient: NonNullable<ReturnType<typeof createServiceRoleClient>>,
+  writeClient: SupabaseClient<Database>,
   payload: PricingInsertPayload,
-) {
-  const firstAttempt = await serviceClient
-    .from("subscription_pricing")
-    .insert(payload as PricingInsert);
+): Promise<string> {
+  let nextPayload = { ...payload } as Record<string, unknown>;
 
-  if (!firstAttempt.error) return;
-  if (!shouldRetryWithoutPeriodDates(firstAttempt.error)) {
-    throw firstAttempt.error;
+  while (true) {
+    const attempt = await writeClient
+      .from("subscription_pricing")
+      .insert(nextPayload as PricingInsert)
+      .select("id")
+      .single();
+
+    if (!attempt.error) {
+      return attempt.data.id;
+    }
+
+    const missingColumn = getRetriableMissingPeriodColumn(attempt.error, nextPayload);
+    if (!missingColumn) {
+      throw attempt.error;
+    }
+
+    const { [missingColumn]: _removed, ...fallbackPayload } = nextPayload;
+    nextPayload = fallbackPayload;
   }
-
-  const { period_start_date: _startDate, period_end_date: _endDate, ...fallbackPayload } = payload;
-  const retryAttempt = await serviceClient
-    .from("subscription_pricing")
-    .insert(fallbackPayload as PricingInsert);
-
-  if (retryAttempt.error) throw retryAttempt.error;
 }
 
 export async function PATCH(request: NextRequest) {
-  const auth = await requireAdminServiceClient(request);
+  const auth = await requireAdminWriteClient(request);
   if ("error" in auth) return auth.error;
 
   let body: Record<string, unknown>;
   try {
     body = (await request.json()) as Record<string, unknown>;
   } catch {
-    return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
+    return errorResponse(400, "INVALID_JSON", "Invalid JSON payload.");
   }
 
-  const id = typeof body.id === "string" ? body.id : "";
-  if (!UUID_PATTERN.test(id)) {
-    return NextResponse.json({ error: "Invalid pricing id." }, { status: 400 });
-  }
+  const id = typeof body.id === "string" ? body.id.trim() : "";
+  const tier = parseTier(body.tier);
+  const billingPeriod = parseBillingPeriod(body.billing_period);
 
   const payload = buildPricingPayload(body);
   if (Object.keys(payload).length === 0) {
-    return NextResponse.json({ error: "No pricing fields provided." }, { status: 400 });
+    return errorResponse(400, "EMPTY_UPDATE", "No pricing fields provided.");
+  }
+
+  if (!id && (!tier || !billingPeriod)) {
+    return errorResponse(
+      400,
+      "MISSING_SELECTOR",
+      "Provide either a valid pricing id or tier + billing_period.",
+    );
   }
 
   try {
-    await updatePricing(auth.serviceClient, id, payload);
-    return NextResponse.json({ ok: true, id });
+    if (id) {
+      const updatedId = await updatePricingById(auth.writeClient, id, payload);
+      if (updatedId) {
+        return successResponse(updatedId, "updated");
+      }
+    }
+
+    if (tier && billingPeriod) {
+      const existingId = await findPricingIdByTierAndBilling(auth.writeClient, tier, billingPeriod);
+      if (existingId) {
+        const updatedId = await updatePricingById(auth.writeClient, existingId, payload);
+        if (updatedId) {
+          return successResponse(updatedId, "updated");
+        }
+      }
+
+      const insertPayload = buildInsertPayload(body, tier, billingPeriod);
+      if (!insertPayload) {
+        return errorResponse(
+          400,
+          "MISSING_REQUIRED_FIELDS",
+          "Missing required pricing fields for create fallback.",
+        );
+      }
+
+      const createdId = await insertPricing(auth.writeClient, insertPayload);
+      return successResponse(createdId, "created");
+    }
+
+    return errorResponse(404, "PRICING_NOT_FOUND", "Invalid pricing id.");
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to update pricing.";
-    return NextResponse.json({ error: message }, { status: 400 });
+    const message = getPricingApiErrorMessage(error, "Failed to update pricing.");
+    return errorResponse(400, "PRICING_UPDATE_FAILED", message);
   }
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requireAdminServiceClient(request);
+  const auth = await requireAdminWriteClient(
+    request,
+    "Only admins can update subscription pricing.",
+  );
   if ("error" in auth) return auth.error;
 
   let body: Record<string, unknown>;
   try {
     body = (await request.json()) as Record<string, unknown>;
   } catch {
-    return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
+    return errorResponse(400, "INVALID_JSON", "Invalid JSON payload.");
   }
 
-  const tier = typeof body.tier === "string" ? body.tier : "";
-  const billingPeriod = typeof body.billing_period === "string" ? body.billing_period : "";
-  const price = parseOptionalNumber(body.price);
-  const displayPrice = parseOptionalString(body.display_price);
-  const note = parseOptionalString(body.note);
-  const periodLength = parseNullableNumber(body.period_length);
-  const periodUnit = parsePeriodUnit(body.period_unit);
-  const periodStartDate = parseNullableString(body.period_start_date);
-  const periodEndDate = parseNullableString(body.period_end_date);
-  const monthlyEquivalent = parseNullableString(body.monthly_equivalent);
-  const savings = parseNullableNumber(body.savings);
+  const tier = parseTier(body.tier);
+  const billingPeriod = parseBillingPeriod(body.billing_period);
 
-  if (!VALID_TIERS.has(tier)) {
-    return NextResponse.json({ error: "Invalid tier." }, { status: 400 });
+  if (!tier) {
+    return errorResponse(400, "INVALID_TIER", "Invalid tier.");
   }
-  if (!VALID_BILLING_PERIODS.has(billingPeriod)) {
-    return NextResponse.json({ error: "Invalid billing period." }, { status: 400 });
+
+  if (!billingPeriod) {
+    return errorResponse(400, "INVALID_BILLING_PERIOD", "Invalid billing period.");
   }
-  if (price === undefined || displayPrice === undefined || note === undefined) {
-    return NextResponse.json({ error: "Missing required pricing fields." }, { status: 400 });
+
+  const insertPayload = buildInsertPayload(body, tier, billingPeriod);
+  if (!insertPayload) {
+    return errorResponse(400, "MISSING_REQUIRED_FIELDS", "Missing required pricing fields.");
   }
 
   try {
-    const { data: existing, error: existingError } = await auth.serviceClient
-      .from("subscription_pricing")
-      .select("id")
-      .eq("tier", tier)
-      .eq("billing_period", billingPeriod)
-      .limit(1);
+    const existingId = await findPricingIdByTierAndBilling(auth.writeClient, tier, billingPeriod);
 
-    if (existingError) throw existingError;
-
-    if (existing && existing.length > 0) {
-      return NextResponse.json({ ok: true, existed: true, id: existing[0].id });
+    if (existingId) {
+      const updatedPayload = buildPricingPayload(body);
+      const updatedId = await updatePricingById(auth.writeClient, existingId, updatedPayload);
+      if (updatedId) {
+        return successResponse(updatedId, "updated");
+      }
     }
 
-    const payload: PricingInsertPayload = {
-      tier: tier as PricingInsert["tier"],
-      billing_period: billingPeriod,
-      price,
-      display_price: displayPrice,
-      note,
-      period_length: periodLength ?? null,
-      period_unit: periodUnit ?? null,
-      period_start_date: periodStartDate ?? null,
-      period_end_date: periodEndDate ?? null,
-      monthly_equivalent: monthlyEquivalent ?? null,
-      savings: savings ?? 0,
-    };
-
-    await insertPricing(auth.serviceClient, payload);
-    return NextResponse.json({ ok: true, existed: false });
+    const createdId = await insertPricing(auth.writeClient, insertPayload);
+    return successResponse(createdId, "created");
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to create pricing.";
-    return NextResponse.json({ error: message }, { status: 400 });
+    const message = getPricingApiErrorMessage(error, "Failed to create pricing.");
+    return errorResponse(400, "PRICING_CREATE_FAILED", message);
   }
 }

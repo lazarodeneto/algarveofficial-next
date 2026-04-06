@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { HelmetProvider } from "react-helmet-async";
 
 import LivePage from "@/legacy-pages/public/Live";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
@@ -37,8 +36,6 @@ export default function LiveClient({ initialGlobalSettings }: LiveClientProps) {
   }
 
   return (
-    <HelmetProvider>
-      <LivePage />
-    </HelmetProvider>
+    <LivePage />
   );
 }

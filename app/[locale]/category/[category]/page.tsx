@@ -9,6 +9,7 @@ import { ListingCard } from "@/components/seo/programmatic/ListingCard";
 import { generateSeoContentBlock } from "@/lib/seo/programmatic/content-blocks";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 
 const DEFAULT_SITE_URL = "https://algarveofficial.com";
 
@@ -41,7 +42,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
   
   const canonical = getCanonicalFromUrlSlug(rawCategory.toLowerCase(), locale);
-  if (!canonical) return {};
+  if (!canonical) {
+    return buildPageMetadata({
+      title: "Category Not Found",
+      description: "The requested category could not be found.",
+      localizedPath: `/category/${rawCategory}`,
+      locale,
+      noIndex: true,
+      noFollow: true,
+    });
+  }
   
   const categoryName = getCategoryDisplayName(canonical, locale);
   
@@ -71,10 +81,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     da: `Opdag de bedste ${categoryName.toLowerCase()} i Algarve. Lokale anbefalinger på AlgarveOfficial.`,
   };
   
-  return {
+  return buildPageMetadata({
     title: metaTitles[locale] ?? metaTitles.en,
     description: metaDescriptions[locale] ?? metaDescriptions.en,
-  };
+    localizedPath: `/category/${rawCategory}`,
+    locale,
+  });
 }
 
 export default async function CategoryHubPage({ params }: PageProps) {

@@ -218,6 +218,7 @@ export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
       { id: "details", label: "Details" },
       { id: "venue", label: "Venue" },
       { id: "cta", label: "CTA" },
+      { id: "related-events", label: "Related Events" },
     ],
   },
   {
@@ -226,6 +227,9 @@ export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
     path: "/live",
     blocks: [
       { id: "hero", label: "Hero" },
+      { id: "city-hubs", label: "City Hubs" },
+      { id: "featured-city-hub", label: "Featured City Hub" },
+      { id: "all-city-hubs", label: "All Active City Hubs" },
       { id: "planner", label: "Planner" },
       { id: "segments", label: "Segments" },
       { id: "cta", label: "CTA" },
@@ -237,6 +241,9 @@ export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
     path: "/real-estate",
     blocks: [
       { id: "hero", label: "Hero" },
+      { id: "city-hubs", label: "City Hubs" },
+      { id: "featured-city-hub", label: "Featured City Hub" },
+      { id: "all-city-hubs", label: "All Active City Hubs" },
       { id: "filters", label: "Filters" },
       { id: "listings", label: "Listings Grid" },
       { id: "concierge", label: "Concierge Callout" },
@@ -248,6 +255,9 @@ export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
     path: "/invest",
     blocks: [
       { id: "hero", label: "Hero" },
+      { id: "city-hubs", label: "City Hubs" },
+      { id: "featured-city-hub", label: "Featured City Hub" },
+      { id: "all-city-hubs", label: "All Active City Hubs" },
       { id: "market-overview", label: "Market Overview" },
       { id: "framework", label: "Investment Framework" },
       { id: "cta", label: "CTA" },
@@ -415,3 +425,197 @@ export const CMS_DEFAULT_DESIGN_TOKENS: CmsDesignTokenMap = {
   "--cms-section-gap": "1.5rem",
   "--cms-card-shadow": "0 10px 30px rgba(0,0,0,0.12)",
 };
+
+export const CMS_PAGE_DEFINITION_MAP: Record<string, CmsPageDefinition> =
+  CMS_PAGE_DEFINITIONS.reduce<Record<string, CmsPageDefinition>>((acc, page) => {
+    acc[page.id] = page;
+    return acc;
+  }, {});
+
+export const CMS_BLOCK_ID_ALIASES_BY_PAGE: Record<string, Record<string, string>> = {
+  invest: {
+    "all-active-city-hubs": "all-city-hubs",
+  },
+  live: {
+    "all-active-city-hubs": "all-city-hubs",
+  },
+  "real-estate": {
+    "all-active-city-hubs": "all-city-hubs",
+  },
+};
+
+export const CMS_CONTRACT_ENFORCED_PAGE_IDS: string[] = [
+  "home",
+  "blog",
+  "events",
+  "event-detail",
+  "destinations",
+  "destination-detail",
+  "city-detail",
+  "experiences",
+  "live",
+  "invest",
+  "real-estate",
+  "map",
+];
+
+export const CMS_CONTRACT_PLANNED_BLOCK_IDS: Record<string, string[]> = {
+  blog: ["search"],
+  destinations: ["featured-city-hub"],
+  events: ["filters", "featured", "timeline"],
+  "event-detail": ["hero", "details", "venue", "cta"],
+  experiences: ["city-index"],
+  invest: ["framework", "cta"],
+  map: ["search", "map", "results"],
+  "real-estate": ["filters", "listings", "concierge"],
+};
+
+interface CmsNormalizeIssueBase {
+  pageId: string;
+}
+
+export type CmsNormalizeIssue =
+  | (CmsNormalizeIssueBase & {
+      kind: "unknown-page-id";
+    })
+  | (CmsNormalizeIssueBase & {
+      kind: "unknown-block-id";
+      blockId: string;
+      resolvedBlockId?: string;
+    });
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export function isKnownCmsPageId(pageId: string): boolean {
+  return Boolean(CMS_PAGE_DEFINITION_MAP[pageId]);
+}
+
+export function resolveCmsBlockId(pageId: string, blockId: string): string | null {
+  const definition = CMS_PAGE_DEFINITION_MAP[pageId];
+  if (!definition) return null;
+
+  const directMatch = definition.blocks.some((block) => block.id === blockId);
+  if (directMatch) return blockId;
+
+  const alias = CMS_BLOCK_ID_ALIASES_BY_PAGE[pageId]?.[blockId];
+  if (!alias) return null;
+
+  const aliasExists = definition.blocks.some((block) => block.id === alias);
+  return aliasExists ? alias : null;
+}
+
+function normalizeCmsBlockConfig(input: unknown): CmsBlockConfig {
+  if (!isPlainRecord(input)) return {};
+
+  const block: CmsBlockConfig = {};
+
+  if (typeof input.enabled === "boolean") block.enabled = input.enabled;
+  if (typeof input.order === "number" && Number.isFinite(input.order)) block.order = input.order;
+  if (typeof input.className === "string") block.className = input.className;
+
+  if (isPlainRecord(input.style)) {
+    const style: Record<string, string | number> = {};
+    Object.entries(input.style).forEach(([styleKey, styleValue]) => {
+      if (typeof styleValue === "string" || typeof styleValue === "number") {
+        style[styleKey] = styleValue;
+      }
+    });
+    block.style = style;
+  }
+
+  if (isPlainRecord(input.data)) {
+    const data: Record<string, string | number | boolean | string[]> = {};
+    Object.entries(input.data).forEach(([dataKey, dataValue]) => {
+      if (
+        typeof dataValue === "string" ||
+        typeof dataValue === "number" ||
+        typeof dataValue === "boolean" ||
+        Array.isArray(dataValue)
+      ) {
+        data[dataKey] = dataValue as string | number | boolean | string[];
+      }
+    });
+    block.data = data;
+  }
+
+  return block;
+}
+
+function mergeAliasBlockConfig(existing: CmsBlockConfig | undefined, incoming: CmsBlockConfig): CmsBlockConfig {
+  if (!existing) return incoming;
+  return {
+    enabled: existing.enabled ?? incoming.enabled,
+    order: existing.order ?? incoming.order,
+    className: existing.className ?? incoming.className,
+    style: existing.style ?? incoming.style,
+    data: existing.data ?? incoming.data,
+  };
+}
+
+export function normalizeCmsPageConfigs(
+  input: unknown,
+  options?: { onIssue?: (issue: CmsNormalizeIssue) => void },
+): CmsPageConfigMap {
+  if (!isPlainRecord(input)) return {};
+
+  const out: CmsPageConfigMap = {};
+
+  Object.entries(input).forEach(([pageId, rawPage]) => {
+    if (!isPlainRecord(rawPage)) return;
+    if (!isKnownCmsPageId(pageId)) {
+      options?.onIssue?.({ kind: "unknown-page-id", pageId });
+      return;
+    }
+
+    const normalizedPage: CmsPageConfig = {};
+
+    if (isPlainRecord(rawPage.blocks)) {
+      const blocks: Record<string, CmsBlockConfig> = {};
+
+      Object.entries(rawPage.blocks).forEach(([rawBlockId, rawBlock]) => {
+        const resolvedBlockId = resolveCmsBlockId(pageId, rawBlockId);
+        if (!resolvedBlockId) {
+          options?.onIssue?.({
+            kind: "unknown-block-id",
+            pageId,
+            blockId: rawBlockId,
+          });
+          return;
+        }
+
+        const normalizedBlock = normalizeCmsBlockConfig(rawBlock);
+        if (rawBlockId === resolvedBlockId) {
+          blocks[resolvedBlockId] = normalizedBlock;
+          return;
+        }
+
+        blocks[resolvedBlockId] = mergeAliasBlockConfig(blocks[resolvedBlockId], normalizedBlock);
+      });
+
+      normalizedPage.blocks = blocks;
+    }
+
+    if (isPlainRecord(rawPage.text)) {
+      const text: Record<string, string> = {};
+      Object.entries(rawPage.text).forEach(([textKey, textValue]) => {
+        if (typeof textValue === "string") {
+          text[textKey] = textValue;
+        }
+      });
+      normalizedPage.text = text;
+    }
+
+    if (isPlainRecord(rawPage.meta)) {
+      const meta: { title?: string; description?: string } = {};
+      if (typeof rawPage.meta.title === "string") meta.title = rawPage.meta.title;
+      if (typeof rawPage.meta.description === "string") meta.description = rawPage.meta.description;
+      normalizedPage.meta = meta;
+    }
+
+    out[pageId] = normalizedPage;
+  });
+
+  return out;
+}

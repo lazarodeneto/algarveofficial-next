@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: LocaleBlogPostPageProps): Pro
       title: "Blog Post Not Found",
       description: "This blog post could not be found.",
       localizedPath: `/blog/${slug}`,
+      locale: resolvedLocale,
       noIndex: true,
       noFollow: true,
     });

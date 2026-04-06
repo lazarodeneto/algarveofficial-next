@@ -29,10 +29,20 @@ export interface DestinationsClientProps {
   initialRegions: RegionRow[];
 }
 
+const DESTINATIONS_REGION_FIELDS = `
+  id, name, slug, short_description, description, image_url, hero_image_url,
+  is_active, is_featured, is_visible_destinations, display_order, created_at
+`;
+
+const DESTINATIONS_CITY_FIELDS = `
+  id, name, slug, short_description, description, image_url, hero_image_url,
+  latitude, longitude, is_active, is_featured, display_order, created_at
+`;
+
 async function fetchRegions() {
   const { data, error } = await supabase
     .from("regions")
-    .select("*")
+    .select(DESTINATIONS_REGION_FIELDS)
     .eq("is_visible_destinations", true)
     .order("display_order", { ascending: true });
 
@@ -43,7 +53,7 @@ async function fetchRegions() {
 async function fetchCities() {
   const { data, error } = await supabase
     .from("cities")
-    .select("*")
+    .select(DESTINATIONS_CITY_FIELDS)
     .eq("is_active", true)
     .order("display_order", { ascending: true });
 

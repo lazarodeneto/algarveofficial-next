@@ -337,6 +337,34 @@ test.describe("key pages are directly accessible", () => {
   }
 });
 
+test.describe("unlocalized-only route parity", () => {
+  const unlocalizedPaths = ["/signup", "/forgot-password", "/maintenance"];
+
+  for (const path of unlocalizedPaths) {
+    test(`GET ${path} does not get forced into locale-prefixed 404`, async ({ request, page }) => {
+      const status = await fetchStatus(request, path);
+      expect([200, 301, 302, 307, 308]).toContain(status);
+
+      await page.goto(path, { waitUntil: "domcontentloaded" });
+      const finalUrl = page.url();
+      expect(finalUrl).not.toMatch(/\/(?:en|pt-pt|fr|de|es|it|nl|sv|no|da)\/(?:signup|forgot-password|maintenance)(?:\/|$)/);
+    });
+  }
+
+  test("legacy real-estate detail path does not redirect to locale-prefixed real-estate detail", async ({ page }) => {
+    await page.goto("/real-estate/test-slug", { waitUntil: "commit" });
+    const finalUrl = page.url();
+    expect(finalUrl).not.toMatch(/\/(?:en|pt-pt|fr|de|es|it|nl|sv|no|da)\/real-estate\/test-slug(?:\/|$)/);
+  });
+
+  test("locale-prefixed unlocalized-only routes fallback to canonical unlocalized paths", async ({ page }) => {
+    await page.goto("/fr/signup", { waitUntil: "domcontentloaded" });
+    const finalUrl = page.url();
+    expect(finalUrl).toMatch(/\/signup(?:\/|$)/);
+    expect(finalUrl).not.toContain("/fr/signup");
+  });
+});
+
 // ─── 14. /api routes are not locale-prefixed ─────────────────────────────────
 
 test.describe("/api routes are excluded from locale prefixing", () => {

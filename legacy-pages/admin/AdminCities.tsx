@@ -22,6 +22,7 @@ import {
 import { DataTable, Column } from "@/components/admin/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { callAdminTaxonomyApi } from "@/lib/admin/taxonomy-client";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -55,12 +56,7 @@ export default function AdminCities() {
   // Toggle featured mutation
   const toggleFeaturedMutation = useMutation({
     mutationFn: async ({ id, is_featured }: { id: string; is_featured: boolean }) => {
-      const { error } = await supabase
-        .from("cities")
-        .update({ is_featured })
-        .eq("id", id);
-
-      if (error) throw error;
+      await callAdminTaxonomyApi("cities", "PATCH", { id, is_featured });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-cities"] });
@@ -75,12 +71,7 @@ export default function AdminCities() {
   // Toggle active mutation
   const toggleActiveMutation = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { error } = await supabase
-        .from("cities")
-        .update({ is_active })
-        .eq("id", id);
-
-      if (error) throw error;
+      await callAdminTaxonomyApi("cities", "PATCH", { id, is_active });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-cities"] });
@@ -95,16 +86,12 @@ export default function AdminCities() {
   // Save city mutation (edit only - no create)
   const saveCityMutation = useMutation({
     mutationFn: async (data: typeof formData & { id: string }) => {
-      const { error } = await supabase
-        .from("cities")
-        .update({
-          short_description: data.short_description,
-          is_active: data.is_active,
-          is_featured: data.is_featured,
-        })
-        .eq("id", data.id);
-
-      if (error) throw error;
+      await callAdminTaxonomyApi("cities", "PATCH", {
+        id: data.id,
+        short_description: data.short_description,
+        is_active: data.is_active,
+        is_featured: data.is_featured,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-cities"] });
