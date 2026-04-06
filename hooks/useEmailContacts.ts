@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { callAdminEmailApi } from "@/lib/admin/email-client";
 import { invokeFunctionWithAuthRetry } from "@/lib/supabaseFunctionInvoke";
 import { getSupabaseFunctionErrorMessage } from "@/lib/supabaseFunctionError";
 
@@ -36,6 +37,12 @@ export interface EmailContactInsert {
 
 type ResendSyncType = "INSERT" | "UPDATE" | "DELETE";
 
+const EMAIL_CONTACT_FIELDS = `
+  id, email, full_name, user_id, status, tags, preferences, source, consent_given_at,
+  last_email_sent_at, last_email_opened_at, last_email_clicked_at, emails_sent, emails_opened,
+  emails_clicked, bounce_count, created_at, updated_at
+`;
+
 async function syncContactToResend(payload: {
   type: ResendSyncType;
   table: "email_contacts";
@@ -65,7 +72,7 @@ export function useEmailContacts(options?: {
     queryFn: async () => {
       let query = supabase
         .from("email_contacts")
-        .select("*")
+        .select(EMAIL_CONTACT_FIELDS)
         .order("created_at", { ascending: false });
 
       if (options?.status && options.status !== "all") {
@@ -116,20 +123,14 @@ export function useCreateEmailContact() {
 
   return useMutation({
     mutationFn: async (contact: EmailContactInsert) => {
-      const { data, error } = await supabase
-        .from("email_contacts")
-        .insert({
-          email: contact.email,
-          full_name: contact.full_name || null,
-          status: contact.status || "subscribed",
-          tags: contact.tags || [],
-          source: contact.source || "manual",
-          consent_given_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      const data = await callAdminEmailApi<EmailContact>("contacts", "POST", {
+        email: contact.email,
+        full_name: contact.full_name || null,
+        status: contact.status || "subscribed",
+        tags: contact.tags || [],
+        source: contact.source || "manual",
+        consent_given_at: new Date().toISOString(),
+      });
 
       try {
         await syncContactToResend({
@@ -172,14 +173,10 @@ export function useUpdateEmailContact() {
         .eq("id", id)
         .single();
 
-      const { data, error } = await supabase
-        .from("email_contacts")
-        .update(updates)
-        .eq("id", id)
-        .select()
-        .single();
-
-      if (error) throw error;
+      const data = await callAdminEmailApi<EmailContact>("contacts", "PATCH", {
+        id,
+        ...updates,
+      });
 
       try {
         await syncContactToResend({
@@ -243,12 +240,7 @@ export function useDeleteEmailContact() {
       }
 
       // Delete from local database
-      const { error } = await supabase
-        .from("email_contacts")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
+      await callAdminEmailApi("contacts", "DELETE", { id });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["email-contacts"] });
@@ -296,17 +288,21 @@ export function useImportEmailContacts() {
         (existingContacts || []).map((contact) => [contact.email.toLowerCase(), contact]),
       );
 
-      const { data, error } = await supabase
-        .from("email_contacts")
-        .upsert(contactsToInsert, { onConflict: "email", ignoreDuplicates: false })
-        .select();
-
-      if (error) throw error;
+      const upsertedContacts = [] as EmailContact[];
+      for (const contactToInsert of contactsToInsert) {
+        const existingContact = existingByEmail.get(contactToInsert.email.toLowerCase());
+        const payload = existingContact
+          ? { id: existingContact.id, ...contactToInsert }
+          : contactToInsert;
+        const method = existingContact ? "PATCH" : "POST";
+        const upserted = await callAdminEmailApi<EmailContact>("contacts", method, payload);
+        upsertedContacts.push(upserted);
+      }
 
       // Sync imported contacts to Resend (new + updated).
       let syncFailures = 0;
       await Promise.all(
-        (data || []).map(async (contact) => {
+        upsertedContacts.map(async (contact) => {
           const oldRecord = existingByEmail.get(contact.email.toLowerCase()) || null;
           const type: ResendSyncType = oldRecord ? "UPDATE" : "INSERT";
 
@@ -332,7 +328,7 @@ export function useImportEmailContacts() {
         });
       }
 
-      return data;
+      return upsertedContacts;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["email-contacts"] });

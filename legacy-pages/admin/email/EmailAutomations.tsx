@@ -23,6 +23,7 @@ import {
 import { Zap, CheckCircle, Loader2, Pencil, Trash2, Pause, Play, Plus } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { callAdminEmailApi } from "@/lib/admin/email-client";
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 import { useTranslation } from "react-i18next";
@@ -57,6 +58,10 @@ const EMPTY_FORM: AutomationForm = {
   status: "draft",
 };
 
+const AUTOMATION_LIST_FIELDS = `
+  id, name, description, trigger_type, status, total_enrolled, total_completed, created_at, steps
+`;
+
 const EmailAutomations = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -69,7 +74,7 @@ const EmailAutomations = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("email_automations")
-        .select("*")
+        .select(AUTOMATION_LIST_FIELDS)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -79,14 +84,13 @@ const EmailAutomations = () => {
 
   const createMutation = useMutation({
     mutationFn: async (payload: AutomationForm) => {
-      const { error } = await supabase.from("email_automations").insert({
+      await callAdminEmailApi("automations", "POST", {
         name: payload.name.trim(),
         description: payload.description.trim() || null,
         trigger_type: payload.trigger_type,
         status: payload.status,
         steps: [],
       });
-      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["email-automations"] });
@@ -101,17 +105,14 @@ const EmailAutomations = () => {
 
   const updateMutation = useMutation({
     mutationFn: async (payload: AutomationForm & { id: string }) => {
-      const { error } = await supabase
-        .from("email_automations")
-        .update({
-          name: payload.name.trim(),
-          description: payload.description.trim() || null,
-          trigger_type: payload.trigger_type,
-          status: payload.status,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", payload.id);
-      if (error) throw error;
+      await callAdminEmailApi("automations", "PATCH", {
+        id: payload.id,
+        name: payload.name.trim(),
+        description: payload.description.trim() || null,
+        trigger_type: payload.trigger_type,
+        status: payload.status,
+        updated_at: new Date().toISOString(),
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["email-automations"] });
@@ -126,8 +127,7 @@ const EmailAutomations = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("email_automations").delete().eq("id", id);
-      if (error) throw error;
+      await callAdminEmailApi("automations", "DELETE", { id });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["email-automations"] });
@@ -140,11 +140,11 @@ const EmailAutomations = () => {
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: AutomationStatus }) => {
-      const { error } = await supabase
-        .from("email_automations")
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq("id", id);
-      if (error) throw error;
+      await callAdminEmailApi("automations", "PATCH", {
+        id,
+        status,
+        updated_at: new Date().toISOString(),
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["email-automations"] });
