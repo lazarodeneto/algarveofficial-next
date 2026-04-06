@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { normalizeThreadStatus, type ThreadStatus } from "@/lib/chatThreadStatus";
+import { invokeFunctionWithAuthRetry } from "@/lib/supabaseFunctionInvoke";
+import { getSupabaseFunctionErrorMessage } from "@/lib/supabaseFunctionError";
 
 export interface ChatThread {
   id: string;
@@ -185,7 +187,7 @@ export function useAdminSendMessage() {
 
   return useMutation({
     mutationFn: async ({ threadId, messageText }: { threadId: string; messageText: string }) => {
-      const { data, error } = await supabase.functions.invoke("whatsapp-send", {
+      const { data, error } = await invokeFunctionWithAuthRetry("whatsapp-send", {
         body: {
           thread_id: threadId,
           message_text: messageText,
@@ -193,13 +195,7 @@ export function useAdminSendMessage() {
       });
 
       if (error) {
-        let detailedMessage = "";
-        const errorContext = (error as { context?: unknown }).context;
-        if (errorContext instanceof Response) {
-          const payload = await errorContext.json().catch(() => null) as { error?: string } | null;
-          if (payload?.error) detailedMessage = payload.error;
-        }
-        throw new Error(detailedMessage || error.message || "Failed to send message");
+        throw new Error(await getSupabaseFunctionErrorMessage(error, "Failed to send message"));
       }
 
       return data;

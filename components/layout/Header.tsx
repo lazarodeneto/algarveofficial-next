@@ -462,24 +462,6 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                       </AccordionContent>
                     </AccordionItem>
 
-                    {/* GOLF */}
-                    <AccordionItem value="golf">
-                      <div className="flex items-center">
-                        <Link href={golfPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
-                          <div className="flex items-center gap-3">
-                            <FlagTriangleRight className="h-6 w-6 text-primary" />
-                            {t("nav.golf")}
-                          </div>
-                        </Link>
-                        <AccordionTrigger className="w-12 h-12 flex items-center justify-center p-0" />
-                      </div>
-                      <AccordionContent>
-                        <div className="mb-1 flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
-                          <Link href={buildDirectoryCategoryPath("golf")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Trophy className="h-4 w-4" /> {t("categoryNames.golf")}</Link>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-
                     {/* INVEST */}
                     <AccordionItem value="invest">
                       <div className="flex items-center">
@@ -495,6 +477,24 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                         <div className="mb-1 flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
                           <Link href={realEstatePath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Building2 className="h-4 w-4" /> {t("realEstate.title", "Real Estate Directory")}</Link>
                           <Link href={partnerPath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Plus className="h-4 w-4" /> {t("realEstate.addListing", "Add Real Estate Listing")}</Link>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+
+                    {/* GOLF */}
+                    <AccordionItem value="golf">
+                      <div className="flex items-center">
+                        <Link href={golfPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
+                          <div className="flex items-center gap-3">
+                            <FlagTriangleRight className="h-6 w-6 text-primary" />
+                            {t("nav.golf")}
+                          </div>
+                        </Link>
+                        <AccordionTrigger className="w-12 h-12 flex items-center justify-center p-0" />
+                      </div>
+                      <AccordionContent>
+                        <div className="mb-1 flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
+                          <Link href={buildDirectoryCategoryPath("golf")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Trophy className="h-4 w-4" /> {t("categoryNames.golf")}</Link>
                         </div>
                       </AccordionContent>
                     </AccordionItem>

@@ -29,22 +29,31 @@ export default function OwnerMessages() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState("");
+  const [openedThreadIds, setOpenedThreadIds] = useState<Set<string>>(new Set());
 
   const selectedThread = threads.find(t => t.id === selectedThreadId) || null;
   const { data: messages = [], isLoading: messagesLoading } = useChatMessages(selectedThreadId);
   const sendMessage = useSendMessage();
   const markAsRead = useMarkThreadMessagesAsRead();
   
-  const unreadCount = threads.reduce((acc, t) => acc + t.unread_count, 0);
+  const getDisplayUnreadCount = (thread: OwnerChatThread) =>
+    openedThreadIds.has(thread.id) ? 0 : thread.unread_count;
+
+  const unreadCount = threads.reduce((acc, thread) => acc + getDisplayUnreadCount(thread), 0);
   
-  const filteredThreads = threads.filter(t =>
-    t.viewer?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.listing?.name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const filteredThreads = normalizedQuery.length === 0
+    ? threads
+    : threads.filter((thread) => {
+        const viewerName = thread.viewer?.full_name?.toLowerCase() ?? "";
+        const listingName = thread.listing?.name?.toLowerCase() ?? "";
+        return viewerName.includes(normalizedQuery) || listingName.includes(normalizedQuery);
+      });
   
   const handleSelectThread = (thread: OwnerChatThread) => {
     setSelectedThreadId(thread.id);
-    if (thread.unread_count > 0) {
+    setOpenedThreadIds((previous) => new Set(previous).add(thread.id));
+    if (getDisplayUnreadCount(thread) > 0) {
       markAsRead.mutate(thread.id);
     }
   };
@@ -91,10 +100,10 @@ export default function OwnerMessages() {
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-[600px]">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 min-h-0 lg:min-h-[600px]">
         {/* Threads List */}
         <Card className={cn(
-          "bg-card border-border lg:col-span-1",
+          "bg-card border-border lg:col-span-1 overflow-hidden",
           selectedThread && "hidden lg:block"
         )}>
           <CardHeader className="pb-3">
@@ -109,7 +118,7 @@ export default function OwnerMessages() {
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <ScrollArea className="h-[500px]">
+            <div className="h-auto lg:h-[500px] overflow-y-auto">
               {filteredThreads.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center px-4">
                   <MessageSquare className="h-12 w-12 text-muted-foreground mb-3" />
@@ -118,63 +127,66 @@ export default function OwnerMessages() {
                   </p>
                 </div>
               ) : (
-                filteredThreads.map((thread) => (
+                filteredThreads.map((thread) => {
+                  const displayUnreadCount = getDisplayUnreadCount(thread);
+                  return (
                   <button
                     key={thread.id}
                     onClick={() => handleSelectThread(thread)}
                     className={cn(
-                      "w-full text-left p-4 border-b border-border hover:bg-muted/50 transition-colors",
+                      "w-full text-left px-3 py-5 sm:px-4 sm:py-5 lg:py-6 border-b border-border hover:bg-muted/50 transition-colors last:border-b-0 flex flex-col gap-3 lg:gap-4",
                       selectedThreadId === thread.id && "bg-muted",
-                      thread.unread_count > 0 && "bg-primary/5"
+                      displayUnreadCount > 0 && "bg-primary/5"
                     )}
                   >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2">
+                    <div className="flex items-start justify-between gap-2 pr-1">
+                      <div className="min-w-0 flex items-center gap-2">
                         <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                           <User className="h-4 w-4 text-primary" />
                         </div>
                         <div className="min-w-0">
                           <p className={cn(
                             "text-sm truncate",
-                            thread.unread_count > 0 && "font-semibold"
+                            displayUnreadCount > 0 && "font-semibold"
                           )}>
                             {thread.viewer?.full_name || t('owner.messages.unknownUser')}
                           </p>
-                          <p className="text-xs text-muted-foreground truncate">
+                          <p className="truncate pr-2 text-xs text-muted-foreground">
                             {thread.listing?.name || t('owner.messages.unknownListing')}
                           </p>
                         </div>
                       </div>
-                      {thread.unread_count > 0 && (
+                      {displayUnreadCount > 0 && (
                         <Badge variant="default" className="bg-primary text-primary-foreground">
-                          {thread.unread_count}
+                          {displayUnreadCount}
                         </Badge>
                       )}
                     </div>
                     {thread.last_message && (
                       <p className={cn(
-                        "text-sm mt-2 truncate",
-                        thread.unread_count > 0 ? "text-foreground" : "text-muted-foreground"
+                        "truncate pr-2 pt-1 text-sm leading-5",
+                        displayUnreadCount > 0 ? "text-foreground" : "text-muted-foreground"
                       )}>
                         {thread.last_message.body_text}
                       </p>
                     )}
-                    <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1 pt-1 pb-2 text-xs text-muted-foreground lg:pb-3">
                       <Clock className="h-3 w-3" />
                       {thread.last_message_at
                         ? format(new Date(thread.last_message_at), 'MMM d, HH:mm')
                         : format(new Date(thread.created_at), 'MMM d, HH:mm')}
                     </div>
                   </button>
-                ))
+                  );
+                })
               )}
-            </ScrollArea>
+            </div>
           </CardContent>
         </Card>
 
         {/* Conversation Detail */}
         <Card className={cn(
-          "bg-card border-border lg:col-span-2",
+          "bg-card border-border lg:col-span-2 overflow-hidden",
           !selectedThread && "hidden lg:flex lg:items-center lg:justify-center"
         )}>
           {selectedThread ? (
@@ -189,9 +201,9 @@ export default function OwnerMessages() {
                   >
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
-                  <div className="flex-1">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">{selectedThread.viewer?.full_name || t('owner.messages.unknownUser')}</span>
+                      <span className="font-medium truncate">{selectedThread.viewer?.full_name || t('owner.messages.unknownUser')}</span>
                       <Badge variant="outline" className={cn(
                         selectedThread.status === "active" && "border-green-500/30 text-green-400",
                         selectedThread.status === "closed" && "border-muted text-muted-foreground",
@@ -204,7 +216,7 @@ export default function OwnerMessages() {
                       <Link
                         href={`/listing/${selectedThread.listing.slug}`}
                         target="_blank"
-                        className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 mt-1"
+                        className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 mt-1 truncate"
                       >
                         {t('owner.messages.about')}: {selectedThread.listing.name}
                         <ExternalLink className="h-3 w-3" />
@@ -214,7 +226,7 @@ export default function OwnerMessages() {
                 </div>
               </CardHeader>
               
-              <ScrollArea className="flex-1 p-4">
+              <ScrollArea className="h-auto p-4 lg:flex-1">
                 {messagesLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />

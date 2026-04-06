@@ -884,21 +884,42 @@
           "essential": {
             "title": "Essentiële Cookies",
             "description": "Deze cookies zijn strikt noodzakelijk voor het functioneren van de website en kunnen niet in onze systemen worden uitgeschakeld.",
-            "note": "U kunt uw browser instellen om deze cookies te blokkeren of te waarschuwen, maar sommige delen van de site werken niet goed zonder hen."
+            "note": "U kunt uw browser instellen om deze cookies te blokkeren of te waarschuwen, maar sommige delen van de site werken niet goed zonder hen.",
+            "items": [
+              "Setting your privacy preferences",
+              "Logging in to your account",
+              "Filling in forms",
+              "Maintaining security"
+            ]
           },
           "analytics": {
             "title": "Analytische Cookies",
             "description": "Met deze cookies kunnen we bezoeken en verkeersbronnen tellen om de prestaties van onze site te meten en te verbeteren.",
-            "dataCollected": "Gegevens die we verzamelen met uw toestemming:"
+            "dataCollected": "Gegevens die we verzamelen met uw toestemming:",
+            "dataItems": [
+              "Pages visited and time spent",
+              "Anonymized IP address (last two octets masked)",
+              "Browser and device type",
+              "Referral source"
+            ]
           },
           "managing": {
             "title": "Uw Cookie-voorkeuren Beheren",
             "description": "U hebt het recht om te beslissen of u cookies accepteert of weigert.",
-            "note": "Als u ervoor kiest om cookies te weigeren, kunt u nog steeds onze website gebruiken, hoewel uw toegang tot sommige functionaliteit beperkt kan zijn."
+            "note": "Als u ervoor kiest om cookies te weigeren, kunt u nog steeds onze website gebruiken, hoewel uw toegang tot sommige functionaliteit beperkt kan zijn.",
+            "items": [
+              "Cookie Consent Banner: When you first visit our site, you can accept or reject non-essential cookies",
+              "Browser Settings: You can set your browser to refuse all or some cookies",
+              "Local Storage: Clear your browser's local storage to reset your preferences"
+            ]
           },
           "contact": {
             "title": "Neem Contact Met Ons",
             "description": "Als u vragen hebt over ons gebruik van cookies, neem dan contact met ons op:"
+          },
+          "whatAreCookies": {
+            "title": "What Are Cookies",
+            "content": "Cookies are small data files that are placed on your computer or mobile device when you visit a website. Cookies are widely used by website owners to make their websites work, or to work more efficiently, as well as to provide reporting information. Cookies set by the website owner (in this case, AlgarveOfficial) are called 'first-party cookies.' Cookies set by parties other than the website owner are called 'third-party cookies.'"
           }
         },
         "footer": {

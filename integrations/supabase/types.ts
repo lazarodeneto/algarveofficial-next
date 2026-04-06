@@ -2549,6 +2549,8 @@ export type Database = {
           is_active: boolean
           max_uses: number | null
           name: string
+          period_length: number | null
+          period_unit: string | null
           start_date: string
           updated_at: string
         }
@@ -2565,6 +2567,8 @@ export type Database = {
           is_active?: boolean
           max_uses?: number | null
           name: string
+          period_length?: number | null
+          period_unit?: string | null
           start_date: string
           updated_at?: string
         }
@@ -2581,6 +2585,8 @@ export type Database = {
           is_active?: boolean
           max_uses?: number | null
           name?: string
+          period_length?: number | null
+          period_unit?: string | null
           start_date?: string
           updated_at?: string
         }
@@ -2785,6 +2791,10 @@ export type Database = {
           id: string
           monthly_equivalent: string | null
           note: string
+          period_length: number | null
+          period_start_date: string | null
+          period_end_date: string | null
+          period_unit: string | null
           price: number
           savings: number | null
           tier: string
@@ -2796,6 +2806,10 @@ export type Database = {
           id: string
           monthly_equivalent?: string | null
           note: string
+          period_length?: number | null
+          period_start_date?: string | null
+          period_end_date?: string | null
+          period_unit?: string | null
           price?: number
           savings?: number | null
           tier: string
@@ -2807,6 +2821,10 @@ export type Database = {
           id?: string
           monthly_equivalent?: string | null
           note?: string
+          period_length?: number | null
+          period_start_date?: string | null
+          period_end_date?: string | null
+          period_unit?: string | null
           price?: number
           savings?: number | null
           tier?: string

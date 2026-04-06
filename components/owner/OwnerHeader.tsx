@@ -29,11 +29,8 @@ export function OwnerHeader() {
   const { data: unreadCount = 0 } = useOwnerUnreadMessagesCount();
   const { data: pendingCount = 0 } = usePendingReviewCount();
 
-  // Count pending listings for this owner
-  const pendingListingsCount = listings.filter((l: { status?: string | null }) => l.status === "pending_review").length;
-
-  // Total notifications = unread messages + pending listings
-  const totalNotifications = unreadCount + pendingListingsCount;
+  // Bell badge reflects unread messages only.
+  const totalNotifications = unreadCount;
 
   // Get the highest tier among owner's listings
   const getTierBadge = () => {

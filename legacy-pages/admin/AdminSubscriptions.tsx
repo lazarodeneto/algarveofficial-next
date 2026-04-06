@@ -1,16 +1,13 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { format } from "date-fns";
 import {
   CreditCard,
-  Percent,
   Tag,
   Plus,
   Pencil,
   Trash2,
   Calendar,
   Loader2,
-  Check,
-  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -42,9 +39,15 @@ import {
 } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
-import { cn } from "@/lib/utils";
 import { useSubscriptionPricing, SubscriptionPricing, PromotionalCode } from "@/hooks/useSubscriptionPricing";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
+
+const BILLING_ORDER: Record<string, number> = {
+  monthly: 1,
+  annual: 2,
+  period: 3,
+};
 
 export default function AdminSubscriptions() {
   const { t } = useTranslation();
@@ -54,6 +57,7 @@ export default function AdminSubscriptions() {
     isLoading,
     isLoadingPromotions,
     updatePricing,
+    createPricing,
     createPromotion,
     updatePromotion,
     deletePromotion,
@@ -70,6 +74,10 @@ export default function AdminSubscriptions() {
     price: 0,
     display_price: '',
     note: '',
+    period_length: null as number | null,
+    period_unit: 'months' as 'days' | 'months',
+    period_start_date: null as Date | null,
+    period_end_date: null as Date | null,
     monthly_equivalent: '',
     savings: 0,
   });
@@ -82,6 +90,8 @@ export default function AdminSubscriptions() {
     discount_value: 0,
     applicable_tiers: [] as string[],
     applicable_billing: [] as string[],
+    period_length: null as number | null,
+    period_unit: 'months' as 'days' | 'months',
     start_date: new Date(),
     end_date: new Date(),
     is_active: false,
@@ -95,12 +105,21 @@ export default function AdminSubscriptions() {
     return isNaN(value) ? 0 : value;
   };
 
+  const buildPeriodNote = (startDate: Date | null, endDate: Date | null) => {
+    if (!startDate || !endDate) return t("admin.subscriptions.periodAdminDefined", "Admin-defined period");
+    return `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}`;
+  };
+
   const handleEditPricing = (p: SubscriptionPricing) => {
     setEditingPricing(p);
     setPricingForm({
       price: p.price,
       display_price: p.display_price,
       note: p.note,
+      period_length: p.period_length,
+      period_unit: p.period_unit || 'months',
+      period_start_date: p.period_start_date ? new Date(p.period_start_date) : null,
+      period_end_date: p.period_end_date ? new Date(p.period_end_date) : null,
       monthly_equivalent: p.monthly_equivalent || '',
       savings: p.savings,
     });
@@ -134,17 +153,80 @@ export default function AdminSubscriptions() {
       }
     }
 
+    if (editingPricing?.billing_period === 'period') {
+      updates.monthly_equivalent = '';
+      updates.savings = 0;
+    }
+
     setPricingForm((prev) => ({ ...prev, ...updates }));
   };
 
   const handleSavePricing = async () => {
     if (!editingPricing) return;
-    await updatePricing.mutateAsync({
-      id: editingPricing.id,
+
+    if (editingPricing.billing_period === 'period' && (!pricingForm.period_start_date || !pricingForm.period_end_date)) {
+      toast.error(t("admin.subscriptions.periodDateRangeRequired", "Please define start and end dates for period pricing."));
+      return;
+    }
+
+    if (
+      editingPricing.billing_period === 'period' &&
+      pricingForm.period_start_date &&
+      pricingForm.period_end_date &&
+      pricingForm.period_end_date < pricingForm.period_start_date
+    ) {
+      toast.error(t("admin.subscriptions.periodDateRangeInvalid", "End date must be after start date."));
+      return;
+    }
+
+    const isVirtualPeriod = editingPricing.id.startsWith("__virtual-period-");
+    const isPeriodPricing = editingPricing.billing_period === 'period';
+
+    const payload = {
       ...pricingForm,
-      monthly_equivalent: pricingForm.monthly_equivalent || null,
-    });
-    setEditingPricing(null);
+      note: isPeriodPricing
+        ? buildPeriodNote(pricingForm.period_start_date, pricingForm.period_end_date)
+        : pricingForm.note,
+      period_length: null,
+      period_unit: null,
+      period_start_date: isPeriodPricing && pricingForm.period_start_date
+        ? format(pricingForm.period_start_date, "yyyy-MM-dd")
+        : null,
+      period_end_date: isPeriodPricing && pricingForm.period_end_date
+        ? format(pricingForm.period_end_date, "yyyy-MM-dd")
+        : null,
+      monthly_equivalent: editingPricing.billing_period === 'annual'
+        ? (pricingForm.monthly_equivalent || null)
+        : null,
+      savings: editingPricing.billing_period === 'annual' ? pricingForm.savings : 0,
+    };
+
+    try {
+      if (isVirtualPeriod) {
+        await createPricing.mutateAsync({
+          tier: editingPricing.tier,
+          billing_period: 'period',
+          price: payload.price,
+          display_price: payload.display_price,
+          note: payload.note,
+          period_length: payload.period_length,
+          period_unit: payload.period_unit,
+          period_start_date: payload.period_start_date,
+          period_end_date: payload.period_end_date,
+          monthly_equivalent: null,
+          savings: 0,
+        });
+      } else {
+        await updatePricing.mutateAsync({
+          id: editingPricing.id,
+          ...payload,
+        });
+      }
+
+      setEditingPricing(null);
+    } catch {
+      // Error toasts are handled in the mutation hooks.
+    }
   };
 
   const handleOpenPromoDialog = (promo?: PromotionalCode) => {
@@ -157,6 +239,8 @@ export default function AdminSubscriptions() {
         discount_value: promo.discount_value,
         applicable_tiers: promo.applicable_tiers,
         applicable_billing: promo.applicable_billing,
+        period_length: promo.period_length,
+        period_unit: promo.period_unit || 'months',
         start_date: new Date(promo.start_date),
         end_date: new Date(promo.end_date),
         is_active: promo.is_active,
@@ -170,7 +254,9 @@ export default function AdminSubscriptions() {
         discount_type: 'percentage',
         discount_value: 0,
         applicable_tiers: ['unverified', 'verified', 'signature'],
-        applicable_billing: ['monthly', 'annual'],
+        applicable_billing: ['monthly', 'annual', 'period'],
+        period_length: null,
+        period_unit: 'months',
         start_date: new Date(),
         end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
         is_active: false,
@@ -181,24 +267,40 @@ export default function AdminSubscriptions() {
   };
 
   const handleSavePromo = async () => {
+    const hasPeriodBilling = promoForm.applicable_billing.includes('period');
+    if (hasPeriodBilling && (!promoForm.period_length || promoForm.period_length <= 0)) {
+      toast.error(t("admin.subscriptions.periodLengthRequired", "Please define a valid period length."));
+      return;
+    }
+
     const payload = {
       ...promoForm,
+      period_length: hasPeriodBilling ? promoForm.period_length : null,
+      period_unit: hasPeriodBilling ? promoForm.period_unit : null,
       start_date: promoForm.start_date.toISOString(),
       end_date: promoForm.end_date.toISOString(),
     };
 
-    if (editingPromo) {
-      await updatePromotion.mutateAsync({ id: editingPromo.id, ...payload });
-    } else {
-      await createPromotion.mutateAsync(payload);
+    try {
+      if (editingPromo) {
+        await updatePromotion.mutateAsync({ id: editingPromo.id, ...payload });
+      } else {
+        await createPromotion.mutateAsync(payload);
+      }
+      setPromoDialogOpen(false);
+    } catch {
+      // Error toasts are handled in the mutation hooks.
     }
-    setPromoDialogOpen(false);
   };
 
   const handleDeletePromo = async () => {
     if (!deletePromoId) return;
-    await deletePromotion.mutateAsync(deletePromoId);
-    setDeletePromoId(null);
+    try {
+      await deletePromotion.mutateAsync(deletePromoId);
+      setDeletePromoId(null);
+    } catch {
+      // Error toasts are handled in the mutation hooks.
+    }
   };
 
   const getPromoStatus = (promo: PromotionalCode) => {
@@ -222,8 +324,58 @@ export default function AdminSubscriptions() {
   };
 
   const billingLabels: Record<string, string> = {
-    monthly: t("admin.subscriptions.billing.monthly"),
-    annual: t("admin.subscriptions.billing.annual"),
+    monthly: t("admin.subscriptions.billing.monthly", "Monthly"),
+    annual: t("admin.subscriptions.billing.annual", "Annual"),
+    period: t("admin.subscriptions.billing.period", "Period"),
+  };
+
+  const sortedPricingByTier = useMemo(() => {
+    const ensurePeriodOption = (
+      tierPricing: SubscriptionPricing[],
+      tier: "verified" | "signature"
+    ): SubscriptionPricing[] => {
+      if (tierPricing.some((p) => p.billing_period === "period")) {
+        return tierPricing;
+      }
+
+      return [
+        ...tierPricing,
+        {
+          id: `__virtual-period-${tier}`,
+          tier,
+          billing_period: "period",
+          price: 0,
+          display_price: "€0",
+          note: t("admin.subscriptions.periodAdminDefined", "Admin-defined period"),
+          period_length: null,
+          period_unit: null,
+          period_start_date: null,
+          period_end_date: null,
+          monthly_equivalent: null,
+          savings: 0,
+          updated_at: new Date(0).toISOString(),
+        },
+      ];
+    };
+
+    const sortByBilling = (a: SubscriptionPricing, b: SubscriptionPricing) =>
+      (BILLING_ORDER[a.billing_period] ?? 99) - (BILLING_ORDER[b.billing_period] ?? 99);
+
+    return {
+      verified: ensurePeriodOption(
+        pricing.filter((p) => p.tier === "verified").sort(sortByBilling),
+        "verified"
+      ),
+      signature: ensurePeriodOption(
+        pricing.filter((p) => p.tier === "signature").sort(sortByBilling),
+        "signature"
+      ),
+    };
+  }, [pricing, t]);
+
+  const periodUnitLabels: Record<'days' | 'months', string> = {
+    days: t("admin.subscriptions.periodUnit.days", "Days"),
+    months: t("admin.subscriptions.periodUnit.months", "Months"),
   };
 
   if (isLoading) {
@@ -270,15 +422,14 @@ export default function AdminSubscriptions() {
               <CardDescription>{t("admin.subscriptions.verifiedDescription")}</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 md:grid-cols-2">
-                {pricing
-                  .filter((p) => p.tier === 'verified')
-                  .map((p) => (
+              <div className="grid gap-4 md:grid-cols-3">
+                {sortedPricingByTier.verified.map((p) => {
+                    return (
                     <Card key={p.id} className="bg-muted/30">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-3">
                           <span className="text-sm font-medium capitalize">
-                            {p.billing_period}
+                            {billingLabels[p.billing_period] || p.billing_period}
                           </span>
                           <Button
                             variant="ghost"
@@ -300,7 +451,7 @@ export default function AdminSubscriptions() {
                         </div>
                       </CardContent>
                     </Card>
-                  ))}
+                  )})}
               </div>
             </CardContent>
           </Card>
@@ -312,15 +463,14 @@ export default function AdminSubscriptions() {
               <CardDescription>{t("admin.subscriptions.signatureDescription")}</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 md:grid-cols-2">
-                {pricing
-                  .filter((p) => p.tier === 'signature')
-                  .map((p) => (
+              <div className="grid gap-4 md:grid-cols-3">
+                {sortedPricingByTier.signature.map((p) => {
+                    return (
                     <Card key={p.id} className="bg-amber-500/5 border-amber-500/20">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-3">
                           <span className="text-sm font-medium capitalize">
-                            {p.billing_period}
+                            {billingLabels[p.billing_period] || p.billing_period}
                           </span>
                           <Button
                             variant="ghost"
@@ -342,7 +492,7 @@ export default function AdminSubscriptions() {
                         </div>
                       </CardContent>
                     </Card>
-                  ))}
+                  )})}
               </div>
             </CardContent>
           </Card>
@@ -408,6 +558,14 @@ export default function AdminSubscriptions() {
                               {promo.applicable_tiers.map((t) => tierLabels[t] || t).join(', ')},{' '}
                               {promo.applicable_billing.map((b) => billingLabels[b] || b).join(', ')}
                             </p>
+                            {promo.applicable_billing.includes('period') && (
+                              <p>
+                                <span className="font-medium">{t("admin.subscriptions.periodLength", "Period Length")}:</span>{' '}
+                                {promo.period_length && promo.period_unit
+                                  ? `${promo.period_length} ${periodUnitLabels[promo.period_unit]}`
+                                  : t("admin.subscriptions.periodAdminDefined", "Admin-defined period")}
+                              </p>
+                            )}
                             <p>
                               <span className="font-medium">{t("admin.subscriptions.usesLabel")}:</span>{' '}
                               {promo.current_uses} / {promo.max_uses ?? t("admin.subscriptions.unlimited")}
@@ -493,8 +651,68 @@ export default function AdminSubscriptions() {
                 value={pricingForm.note}
                 onChange={(e) => setPricingForm({ ...pricingForm, note: e.target.value })}
                 placeholder={t("admin.subscriptions.notePlaceholder")}
+                readOnly={editingPricing?.billing_period === 'period'}
+                className={editingPricing?.billing_period === 'period' ? "bg-muted/50 cursor-not-allowed" : undefined}
               />
             </div>
+            {editingPricing?.billing_period === 'period' && (
+              <div className="grid grid-cols-2 gap-4 border-t pt-4 mt-4">
+                <div className="space-y-2">
+                  <Label>{t("admin.subscriptions.startDate", "Start Date")}</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full justify-start text-left">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        {pricingForm.period_start_date
+                          ? format(pricingForm.period_start_date, "MMM d, yyyy")
+                          : t("admin.subscriptions.selectDate", "Select date")}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <CalendarComponent
+                        mode="single"
+                        selected={pricingForm.period_start_date ?? undefined}
+                        onSelect={(date) =>
+                          setPricingForm((prev) => ({
+                            ...prev,
+                            period_start_date: date ?? null,
+                            note: buildPeriodNote(date ?? null, prev.period_end_date),
+                          }))
+                        }
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-2">
+                  <Label>{t("admin.subscriptions.endDate", "End Date")}</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full justify-start text-left">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        {pricingForm.period_end_date
+                          ? format(pricingForm.period_end_date, "MMM d, yyyy")
+                          : t("admin.subscriptions.selectDate", "Select date")}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <CalendarComponent
+                        mode="single"
+                        selected={pricingForm.period_end_date ?? undefined}
+                        onSelect={(date) =>
+                          setPricingForm((prev) => ({
+                            ...prev,
+                            period_end_date: date ?? null,
+                            note: buildPeriodNote(prev.period_start_date, date ?? null),
+                          }))
+                        }
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            )}
             {editingPricing?.billing_period === 'annual' && (
               <>
                 <div className="border-t pt-4 mt-4">
@@ -535,8 +753,8 @@ export default function AdminSubscriptions() {
             <Button variant="outline" onClick={() => setEditingPricing(null)}>
               {t("common.cancel")}
             </Button>
-            <Button onClick={handleSavePricing} disabled={updatePricing.isPending}>
-              {updatePricing.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            <Button onClick={handleSavePricing} disabled={updatePricing.isPending || createPricing.isPending}>
+              {(updatePricing.isPending || createPricing.isPending) && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {t("common.save")}
             </Button>
           </DialogFooter>
@@ -637,27 +855,71 @@ export default function AdminSubscriptions() {
             <div className="space-y-2">
               <Label>{t("admin.subscriptions.applicableBilling")}</Label>
               <div className="flex gap-4">
-                {['monthly', 'annual'].map((billing) => (
+                {['monthly', 'annual', 'period'].map((billing) => (
                   <div key={billing} className="flex items-center gap-2">
                     <Checkbox
                       id={`billing-${billing}`}
                       checked={promoForm.applicable_billing.includes(billing)}
                       onCheckedChange={(checked) => {
+                        const currentBilling = new Set(promoForm.applicable_billing);
+                        if (checked) {
+                          currentBilling.add(billing);
+                        } else {
+                          currentBilling.delete(billing);
+                        }
                         setPromoForm({
                           ...promoForm,
-                          applicable_billing: checked
-                            ? [...promoForm.applicable_billing, billing]
-                            : promoForm.applicable_billing.filter((b) => b !== billing),
+                          applicable_billing: [...currentBilling],
                         });
                       }}
                     />
-                    <Label htmlFor={`billing-${billing}`} className="capitalize cursor-pointer">
+                    <Label htmlFor={`billing-${billing}`} className="cursor-pointer">
                       {billingLabels[billing] || billing}
                     </Label>
                   </div>
                 ))}
               </div>
             </div>
+
+            {promoForm.applicable_billing.includes('period') && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t("admin.subscriptions.periodLength", "Period Length")}</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={promoForm.period_length ?? ''}
+                    onChange={(e) =>
+                      setPromoForm({
+                        ...promoForm,
+                        period_length: e.target.value ? Math.max(1, parseInt(e.target.value, 10)) : null,
+                      })
+                    }
+                    placeholder={t("admin.subscriptions.periodLengthPlaceholder", "e.g. 30")}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t("admin.subscriptions.periodUnit", "Period Unit")}</Label>
+                  <Select
+                    value={promoForm.period_unit}
+                    onValueChange={(value) =>
+                      setPromoForm({
+                        ...promoForm,
+                        period_unit: value as 'days' | 'months',
+                      })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="days">{periodUnitLabels.days}</SelectItem>
+                      <SelectItem value="months">{periodUnitLabels.months}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -737,7 +999,8 @@ export default function AdminSubscriptions() {
                 updatePromotion.isPending ||
                 !promoForm.name ||
                 !promoForm.code ||
-                promoForm.discount_value <= 0
+                promoForm.discount_value <= 0 ||
+                (promoForm.applicable_billing.includes('period') && (!promoForm.period_length || promoForm.period_length <= 0))
               }
             >
               {(createPromotion.isPending || updatePromotion.isPending) && (

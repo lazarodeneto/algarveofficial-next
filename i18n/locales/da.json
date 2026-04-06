@@ -884,21 +884,42 @@
           "essential": {
             "title": "Nødvendige Cookies",
             "description": "Disse cookies er strengt nødvendige for, at hjemmesiden kan fungere, og kan ikke slås fra i vores systemer.",
-            "note": "Du kan indstille din browser til at blokke eller advare om disse cookies, men nogle dele af webstedet vil ikke fungere korrekt uden dem."
+            "note": "Du kan indstille din browser til at blokke eller advare om disse cookies, men nogle dele af webstedet vil ikke fungere korrekt uden dem.",
+            "items": [
+              "Setting your privacy preferences",
+              "Logging in to your account",
+              "Filling in forms",
+              "Maintaining security"
+            ]
           },
           "analytics": {
             "title": "Analytiske Cookies",
             "description": "Disse cookies giver os mulighed for at tælle besøg og trafikkilder, så vi kan måle og forbedre ydeevnen af vores websted.",
-            "dataCollected": "Data vi indsamler med dit samtykke:"
+            "dataCollected": "Data vi indsamler med dit samtykke:",
+            "dataItems": [
+              "Pages visited and time spent",
+              "Anonymized IP address (last two octets masked)",
+              "Browser and device type",
+              "Referral source"
+            ]
           },
           "managing": {
             "title": "Administrer Dine Cookie-præferencer",
             "description": "Du har ret til at beslutte, om du accepterer eller afviser cookies.",
-            "note": "Hvis du vælger at afvise cookies, kan du stadig bruge vores websted, selvom adgangen til visse funktioner kan være begrænset."
+            "note": "Hvis du vælger at afvise cookies, kan du stadig bruge vores websted, selvom adgangen til visse funktioner kan være begrænset.",
+            "items": [
+              "Cookie Consent Banner: When you first visit our site, you can accept or reject non-essential cookies",
+              "Browser Settings: You can set your browser to refuse all or some cookies",
+              "Local Storage: Clear your browser's local storage to reset your preferences"
+            ]
           },
           "contact": {
             "title": "Kontakt Os",
             "description": "Hvis du har spørgsmål om vores brug af cookies, bedes du kontakte os:"
+          },
+          "whatAreCookies": {
+            "title": "What Are Cookies",
+            "content": "Cookies are small data files that are placed on your computer or mobile device when you visit a website. Cookies are widely used by website owners to make their websites work, or to work more efficiently, as well as to provide reporting information. Cookies set by the website owner (in this case, AlgarveOfficial) are called 'first-party cookies.' Cookies set by parties other than the website owner are called 'third-party cookies.'"
           }
         },
         "footer": {

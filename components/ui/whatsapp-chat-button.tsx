@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ConciergeBell } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import { toWhatsAppDigits } from "@/lib/contactPhone";
 
@@ -28,10 +29,9 @@ export function WhatsAppChatButton({
       }, 180);
     };
 
-    const scrollTarget = document.documentElement;
-    scrollTarget.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
-      scrollTarget.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", handleScroll);
       if (scrollTimeoutRef.current !== null) {
         window.clearTimeout(scrollTimeoutRef.current);
       }
@@ -45,17 +45,21 @@ export function WhatsAppChatButton({
   };
 
   return (
-    <div className={`pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] right-4 z-40 lg:bottom-4 lg:right-6 transition-transform duration-200 ease-out ${
-      isUserScrolling ? "lg:translate-y-0 translate-y-[calc(100%+env(safe-area-inset-bottom)+4.5rem+2rem)]" : ""
-    }`}>
+    <div
+      className={cn(
+        "pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] right-4 z-40 lg:bottom-4 lg:right-6 transition-transform duration-200 ease-out",
+        isUserScrolling &&
+          "translate-y-[calc(100%+env(safe-area-inset-bottom)+4.5rem+1rem)] lg:translate-y-0",
+      )}
+    >
       <button
         type="button"
         onClick={handleOpenWhatsApp}
-        className="pointer-events-auto relative flex h-14 w-14 items-center justify-center rounded-full backdrop-blur-md bg-white/20 dark:bg-white/10 border border-white/40 dark:border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.2)] transition-all hover:scale-[1.03] hover:bg-white/30 dark:hover:bg-white/15"
+        className="pointer-events-auto relative flex h-14 w-14 items-center justify-center rounded-full border border-[hsl(43_74%_49%/0.45)] bg-[linear-gradient(145deg,hsla(43,74%,49%,0.34),hsla(43,74%,49%,0.16))] backdrop-blur-xl shadow-[0_10px_30px_-14px_rgba(199,163,90,0.8)] transition-all hover:scale-[1.03] hover:border-[hsl(43_74%_49%/0.62)] hover:bg-[linear-gradient(145deg,hsla(43,74%,49%,0.44),hsla(43,74%,49%,0.22))]"
         aria-label="Open concierge on WhatsApp"
         title="Open concierge on WhatsApp"
       >
-        <ConciergeBell className="relative z-10 h-7 w-7 text-white drop-shadow-md" />
+        <ConciergeBell className="relative z-10 h-7 w-7 text-[hsl(43_82%_68%)] drop-shadow-[0_1px_6px_rgba(199,163,90,0.65)]" />
         <span className="sr-only">Open concierge on WhatsApp</span>
       </button>
     </div>

@@ -120,7 +120,7 @@ export default function CityDetail() {
         items={[
           { name: "Home", url: "https://algarveofficial.com/" },
           { name: "Destinations", url: "https://algarveofficial.com/destinations" },
-          { name: city.name, url: `https://algarveofficial.com/city/${city.slug}` },
+          { name: city.name, url: `https://algarveofficial.com/visit/${city.slug}` },
         ]}
       />
       <Header />

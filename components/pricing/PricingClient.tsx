@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, X, Sparkles, ShieldCheck, Crown, ArrowRight, Calculator } from "lucide-react";
+import { Check, X, Sparkles, Crown, ArrowRight, Calculator } from "lucide-react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { useSubscriptionPricing } from "@/hooks/useSubscriptionPricing";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +30,7 @@ interface PricingTier {
 export function PricingClient() {
   const { t } = useTranslation();
   const l = useLocalePath();
+  const { membershipTiers } = useSubscriptionPricing(t);
 
   const [monthlyVisitors, setMonthlyVisitors] = useState(5000);
   const [conversionRate, setConversionRate] = useState(2);
@@ -272,6 +274,17 @@ export function PricingClient() {
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-8 items-start">
             {tiers.map((tier, index) => (
+              (() => {
+                const dynamicTier = membershipTiers.find((candidate) => candidate.id === tier.id);
+                const monthlyPrice = dynamicTier?.monthly.display || tier.price;
+                const monthlyNote = dynamicTier?.monthly.note || tier.priceNote;
+                const annualLine = dynamicTier?.annual
+                  ? `${t("admin.subscriptions.billing.annual", "Annual")}: ${dynamicTier.annual.display} (${dynamicTier.annual.note})`
+                  : null;
+                const periodLine = dynamicTier?.period
+                  ? `${t("admin.subscriptions.billing.period", "Period")}: ${dynamicTier.period.display} (${dynamicTier.period.note})`
+                  : null;
+                return (
               <motion.div
                 key={tier.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -297,8 +310,14 @@ export function PricingClient() {
                     </Badge>
                     <CardTitle className="text-xl font-serif">{tier.name}</CardTitle>
                     <div className="mt-4">
-                      <span className="text-4xl font-serif font-medium text-foreground">{tier.price}</span>
-                      <span className="text-muted-foreground">{tier.priceNote}</span>
+                      <span className="text-4xl font-serif font-medium text-foreground">{monthlyPrice}</span>
+                      <p className="text-sm text-muted-foreground mt-1">{monthlyNote}</p>
+                      {annualLine && (
+                        <p className="text-xs text-muted-foreground mt-2">{annualLine}</p>
+                      )}
+                      {periodLine && (
+                        <p className="text-xs text-primary mt-1">{periodLine}</p>
+                      )}
                     </div>
                     <p className="mt-3 text-sm text-muted-foreground">{tier.description}</p>
                   </CardHeader>
@@ -331,6 +350,8 @@ export function PricingClient() {
                   </CardContent>
                 </Card>
               </motion.div>
+                );
+              })()
             ))}
           </div>
 

@@ -715,7 +715,7 @@ function DestinationDetailClientInner({
                 {regionCities.map((city) => (
                   <LocaleLink
                     key={city.id}
-                    href={`/city/${city.slug}`}
+                    href={`/visit/${city.slug}`}
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/25 backdrop-blur-sm border border-white/20 text-sm text-white hover:bg-black/35 hover:border-white/30 transition-colors tap-target"
                   >
                     <MapPin className="w-3 h-3 text-primary" />
