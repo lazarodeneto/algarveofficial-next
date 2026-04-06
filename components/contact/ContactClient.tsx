@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { HelmetProvider } from "react-helmet-async";
 
 import ContactPage from "@/legacy-pages/public/Contact";
 import type { ContactSettings } from "@/hooks/useContactSettings";
@@ -31,8 +30,6 @@ export default function ContactClient({
   }
 
   return (
-    <HelmetProvider>
-      <ContactPage />
-    </HelmetProvider>
+    <ContactPage />
   );
 }

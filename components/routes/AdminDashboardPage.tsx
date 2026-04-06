@@ -40,7 +40,7 @@ import AdminHomePage from "@/legacy-pages/admin/cms/AdminHomePage";
 import AdminLeftMenu from "@/legacy-pages/admin/cms/AdminLeftMenu";
 import AdminMediaLibrary from "@/legacy-pages/admin/cms/AdminMediaLibrary";
 import AdminPageBuilder from "@/legacy-pages/admin/cms/AdminPageBuilder";
-import AdminPages from "@/legacy-pages/admin/cms/AdminPages";
+import AdminPagesDeprecated from "@/legacy-pages/admin/cms/AdminPagesDeprecated";
 import AdminPartnerPage from "@/legacy-pages/admin/cms/AdminPartnerPage";
 import AdminPrivacyPage from "@/legacy-pages/admin/cms/AdminPrivacyPage";
 import AdminSupportPage from "@/legacy-pages/admin/cms/AdminSupportPage";
@@ -104,7 +104,7 @@ const staticRouteMap: Record<string, ReactElement> = {
   "content/terms": <AdminTermsPage />,
   "content/privacy": <AdminPrivacyPage />,
   "content/cookies": <AdminCookiePage />,
-  "content/pages": <AdminPages />,
+  "content/pages": <AdminPagesDeprecated />,
   "content/regions": <AdminCmsRegions />,
   "content/destinations": <AdminCmsDestinations />,
   "content/cities": <AdminCmsCities />,

@@ -7,12 +7,9 @@ import type { Metadata } from "next";
 import type { Locale } from "@/lib/i18n/config";
 import {
   buildHreflangs,
-  buildMetadataAlternates,
-  toOpenGraphLocale,
-  getSiteUrl,
 } from "@/lib/i18n/seo";
+import { buildMetadata } from "@/lib/metadata";
 
-const SITE_URL = getSiteUrl();
 const SITE_NAME = "AlgarveOfficial";
 const DEFAULT_IMAGE = "/og-image.png";
 
@@ -97,70 +94,32 @@ export function buildLocalizedMetadata(params: LocalizedMetadataParams): Metadat
     authorName,
   } = params;
 
-  const brandedTitle = ensureBrandedTitle(title);
-  const normalizedDescription = normalizeDescription(description);
-  const imageUrl = image.startsWith("http") ? image : `${SITE_URL}${image}`;
-  const ogLocale = toOpenGraphLocale(locale);
-  const alternates = buildMetadataAlternates(locale, path);
+  const normalizedType: "website" | "article" | "product" | "place" =
+    type === "article" || type === "product" || type === "place"
+      ? type
+      : "website";
 
-  return {
-    title: brandedTitle,
-    description: normalizedDescription,
-    metadataBase: new URL(SITE_URL),
-    applicationName: SITE_NAME,
-    creator: SITE_NAME,
-    publisher: SITE_NAME,
-    keywords: keywords || [
-      "Algarve",
-      "directory",
-      "premium listings",
-      "Portugal",
-      "travel",
-    ],
-    alternates: alternates as any,
-    robots: {
-      index: !noIndex,
-      follow,
-      googleBot: {
-        index: !noIndex,
-        follow,
-        "max-image-preview": "large",
-        "max-snippet": -1,
-        "max-video-preview": -1,
-      },
-    },
-    openGraph: {
-      title: brandedTitle,
-      description: normalizedDescription,
-      url: alternates.canonical,
-      siteName: SITE_NAME,
-      locale: ogLocale,
-      type: type === "article" ? "article" : "website",
-      images: [
-        {
-          url: imageUrl,
-          width: 1200,
-          height: 630,
-          alt: brandedTitle,
-        },
+  return buildMetadata({
+    title: ensureBrandedTitle(title),
+    description: normalizeDescription(description),
+    path,
+    image,
+    type: normalizedType,
+    noIndex,
+    noFollow: !follow,
+    localeCode: locale,
+    keywords:
+      keywords || [
+        "Algarve",
+        "directory",
+        "premium listings",
+        "Portugal",
+        "travel",
       ],
-      ...(type === "article"
-        ? {
-            publishedTime,
-            modifiedTime,
-            authors: authorName ? [authorName] : undefined,
-          }
-        : {}),
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: brandedTitle,
-      description: normalizedDescription,
-      images: [imageUrl],
-      site: "@AlgarveOfficial",
-      creator: "@AlgarveOfficial",
-    },
-  };
+    authors: authorName ? [{ name: authorName }] : undefined,
+    publishedTime,
+    modifiedTime,
+  });
 }
 
 /**

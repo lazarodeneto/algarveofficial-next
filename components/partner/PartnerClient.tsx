@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { HelmetProvider } from "react-helmet-async";
 
 import PartnerPage from "@/legacy-pages/public/Partner";
 import type { PartnerSettings } from "@/hooks/usePartnerSettings";
@@ -31,8 +30,6 @@ export default function PartnerClient({
   }
 
   return (
-    <HelmetProvider>
-      <PartnerPage />
-    </HelmetProvider>
+    <PartnerPage />
   );
 }

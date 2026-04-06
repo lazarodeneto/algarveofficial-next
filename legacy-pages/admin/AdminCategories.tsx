@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { callAdminTaxonomyApi } from "@/lib/admin/taxonomy-client";
 import { toast } from "sonner";
 import { Tables } from "@/integrations/supabase/types";
 
@@ -62,17 +63,15 @@ export default function AdminCategories() {
   const saveMutation = useMutation({
     mutationFn: async (data: Partial<Category>) => {
       if (selectedCategory) {
-        const { error } = await supabase
-          .from('categories')
-          .update(data)
-          .eq('id', selectedCategory.id);
-        if (error) throw error;
+        await callAdminTaxonomyApi("categories", "PATCH", {
+          id: selectedCategory.id,
+          ...data,
+        });
       } else {
-        const insertData = { ...data, display_order: categories.length } as any;
-        const { error } = await supabase
-          .from('categories')
-          .insert(insertData);
-        if (error) throw error;
+        await callAdminTaxonomyApi("categories", "POST", {
+          ...data,
+          display_order: categories.length,
+        });
       }
     },
     onSuccess: () => {
@@ -89,8 +88,7 @@ export default function AdminCategories() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('categories').delete().eq('id', id);
-      if (error) throw error;
+      await callAdminTaxonomyApi("categories", "DELETE", { id });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-categories'] });

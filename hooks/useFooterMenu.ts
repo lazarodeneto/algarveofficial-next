@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { getValidAccessToken } from "@/lib/authToken";
 import { toast } from "sonner";
 import {
   fetchFooterLinkTranslations,
@@ -192,29 +193,36 @@ export function useFooterSectionMutations() {
   const queryClient = useQueryClient();
   const isBrowser = typeof window !== "undefined";
 
+  const callFooterSectionsApi = async (
+    method: "POST" | "PATCH" | "DELETE" | "PUT",
+    payload: Record<string, unknown>,
+  ) => {
+    const accessToken = await getValidAccessToken();
+    const response = await fetch("/api/admin/footer/sections", {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = (await response.json().catch(() => null)) as
+      | { ok?: boolean; data?: FooterSection; error?: { message?: string } }
+      | null;
+
+    if (!response.ok || !data?.ok) {
+      throw new Error(data?.error?.message || "Failed to update footer sections.");
+    }
+
+    return data.data;
+  };
+
   const createSection = useMutation({
     mutationFn: async (data: { title: string; slug: string }) => {
       if (!isBrowser) return {} as FooterSection;
-
-      // Get max display_order
-      const { data: existing, error: existingError } = await supabase
-        .from("footer_sections")
-        .select("display_order")
-        .order("display_order", { ascending: false })
-        .limit(1);
-
-      if (existingError) throw existingError;
-      
-      const maxOrder = existing?.[0]?.display_order ?? 0;
-
-      const { data: created, error } = await supabase
-        .from("footer_sections")
-        .insert({ ...data, display_order: maxOrder + 1 })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return created as FooterSection;
+      const created = await callFooterSectionsApi("POST", data);
+      return (created ?? {}) as FooterSection;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-footer-sections"] });
@@ -229,16 +237,8 @@ export function useFooterSectionMutations() {
   const updateSection = useMutation({
     mutationFn: async ({ id, ...data }: Partial<FooterSection> & { id: string }) => {
       if (!isBrowser) return {} as FooterSection;
-
-      const { data: updated, error } = await supabase
-        .from("footer_sections")
-        .update(data)
-        .eq("id", id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return updated as FooterSection;
+      const updated = await callFooterSectionsApi("PATCH", { id, ...data });
+      return (updated ?? {}) as FooterSection;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-footer-sections"] });
@@ -253,13 +253,7 @@ export function useFooterSectionMutations() {
   const deleteSection = useMutation({
     mutationFn: async (id: string) => {
       if (!isBrowser) return;
-
-      const { error } = await supabase
-        .from("footer_sections")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
+      await callFooterSectionsApi("DELETE", { id });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-footer-sections"] });
@@ -274,18 +268,7 @@ export function useFooterSectionMutations() {
   const reorderSections = useMutation({
     mutationFn: async (orderedIds: string[]) => {
       if (!isBrowser) return;
-
-      const results = await Promise.all(
-        orderedIds.map((id, index) =>
-        supabase
-          .from("footer_sections")
-          .update({ display_order: index + 1 })
-          .eq("id", id)
-        ),
-      );
-
-      const failedResult = results.find((result) => result.error);
-      if (failedResult?.error) throw failedResult.error;
+      await callFooterSectionsApi("PUT", { orderedIds });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-footer-sections"] });
@@ -304,30 +287,36 @@ export function useFooterLinkMutations() {
   const queryClient = useQueryClient();
   const isBrowser = typeof window !== "undefined";
 
+  const callFooterLinksApi = async (
+    method: "POST" | "PATCH" | "DELETE" | "PUT",
+    payload: Record<string, unknown>,
+  ) => {
+    const accessToken = await getValidAccessToken();
+    const response = await fetch("/api/admin/footer/links", {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = (await response.json().catch(() => null)) as
+      | { ok?: boolean; data?: FooterLink; error?: { message?: string } }
+      | null;
+
+    if (!response.ok || !data?.ok) {
+      throw new Error(data?.error?.message || "Failed to update footer links.");
+    }
+
+    return data.data;
+  };
+
   const createLink = useMutation({
     mutationFn: async (data: { section_id: string; name: string; href: string; icon?: string; open_in_new_tab?: boolean }) => {
       if (!isBrowser) return {} as FooterLink;
-
-      // Get max display_order for this section
-      const { data: existing, error: existingError } = await supabase
-        .from("footer_links")
-        .select("display_order")
-        .eq("section_id", data.section_id)
-        .order("display_order", { ascending: false })
-        .limit(1);
-
-      if (existingError) throw existingError;
-      
-      const maxOrder = existing?.[0]?.display_order ?? 0;
-
-      const { data: created, error } = await supabase
-        .from("footer_links")
-        .insert({ ...data, icon: data.icon || "Link", display_order: maxOrder + 1 })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return created as FooterLink;
+      const created = await callFooterLinksApi("POST", data);
+      return (created ?? {}) as FooterLink;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-footer-links"] });
@@ -342,16 +331,8 @@ export function useFooterLinkMutations() {
   const updateLink = useMutation({
     mutationFn: async ({ id, ...data }: Partial<FooterLink> & { id: string }) => {
       if (!isBrowser) return {} as FooterLink;
-
-      const { data: updated, error } = await supabase
-        .from("footer_links")
-        .update(data)
-        .eq("id", id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return updated as FooterLink;
+      const updated = await callFooterLinksApi("PATCH", { id, ...data });
+      return (updated ?? {}) as FooterLink;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-footer-links"] });
@@ -366,13 +347,7 @@ export function useFooterLinkMutations() {
   const deleteLink = useMutation({
     mutationFn: async (id: string) => {
       if (!isBrowser) return;
-
-      const { error } = await supabase
-        .from("footer_links")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
+      await callFooterLinksApi("DELETE", { id });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-footer-links"] });
@@ -387,18 +362,7 @@ export function useFooterLinkMutations() {
   const reorderLinks = useMutation({
     mutationFn: async (orderedIds: string[]) => {
       if (!isBrowser) return;
-
-      const results = await Promise.all(
-        orderedIds.map((id, index) =>
-        supabase
-          .from("footer_links")
-          .update({ display_order: index + 1 })
-          .eq("id", id)
-        ),
-      );
-
-      const failedResult = results.find((result) => result.error);
-      if (failedResult?.error) throw failedResult.error;
+      await callFooterLinksApi("PUT", { orderedIds });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-footer-links"] });

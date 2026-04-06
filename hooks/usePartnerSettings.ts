@@ -1,6 +1,7 @@
 "use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { updateAdminSettingsRow } from "@/lib/admin/settings-client";
 import { toast } from "sonner";
 
 export interface FAQ {
@@ -83,12 +84,11 @@ export function usePartnerSettings() {
         supabaseUpdates.faqs = faqs as unknown;
       }
       
-      const { error } = await supabase
-        .from('partner_settings')
-        .update(supabaseUpdates)
-        .eq('id', 'default');
-      
-      if (error) throw error;
+      await updateAdminSettingsRow({
+        table: "partner_settings",
+        updates: supabaseUpdates,
+        mode: "upsert",
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['partner-settings'] });

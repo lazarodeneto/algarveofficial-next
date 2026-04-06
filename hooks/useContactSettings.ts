@@ -1,6 +1,7 @@
 "use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { updateAdminSettingsRow } from "@/lib/admin/settings-client";
 import { normalizePublicContactEmail } from "@/lib/contactEmail";
 import { normalizePublicWhatsAppNumber } from "@/lib/contactPhone";
 import { toast } from "sonner";
@@ -51,15 +52,14 @@ export function useContactSettings() {
     mutationFn: async (updates: Partial<Omit<ContactSettings, "id" | "updated_at">>) => {
       if (!isBrowser) return;
 
-      const { error } = await supabase
-        .from("contact_settings")
-        .update({
+      await updateAdminSettingsRow({
+        table: "contact_settings",
+        updates: {
           ...updates,
           updated_at: new Date().toISOString(),
-        })
-        .eq("id", "default");
-
-      if (error) throw error;
+        },
+        mode: "upsert",
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["contact-settings"] });

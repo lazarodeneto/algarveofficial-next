@@ -57,7 +57,6 @@ export default function AdminSubscriptions() {
     isLoading,
     isLoadingPromotions,
     updatePricing,
-    createPricing,
     createPromotion,
     updatePromotion,
     deletePromotion,
@@ -202,26 +201,12 @@ export default function AdminSubscriptions() {
     };
 
     try {
-      if (isVirtualPeriod) {
-        await createPricing.mutateAsync({
-          tier: editingPricing.tier,
-          billing_period: 'period',
-          price: payload.price,
-          display_price: payload.display_price,
-          note: payload.note,
-          period_length: payload.period_length,
-          period_unit: payload.period_unit,
-          period_start_date: payload.period_start_date,
-          period_end_date: payload.period_end_date,
-          monthly_equivalent: null,
-          savings: 0,
-        });
-      } else {
-        await updatePricing.mutateAsync({
-          id: editingPricing.id,
-          ...payload,
-        });
-      }
+      await updatePricing.mutateAsync({
+        ...(isVirtualPeriod ? {} : { id: editingPricing.id }),
+        tier: editingPricing.tier,
+        billing_period: editingPricing.billing_period,
+        ...payload,
+      });
 
       setEditingPricing(null);
     } catch {
@@ -753,8 +738,8 @@ export default function AdminSubscriptions() {
             <Button variant="outline" onClick={() => setEditingPricing(null)}>
               {t("common.cancel")}
             </Button>
-            <Button onClick={handleSavePricing} disabled={updatePricing.isPending || createPricing.isPending}>
-              {(updatePricing.isPending || createPricing.isPending) && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            <Button onClick={handleSavePricing} disabled={updatePricing.isPending}>
+              {updatePricing.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {t("common.save")}
             </Button>
           </DialogFooter>

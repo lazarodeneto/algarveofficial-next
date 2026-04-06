@@ -96,7 +96,8 @@ export function RouteAccessibility() {
       return;
     }
 
-    if (hash) return;
+    const activeHash = hash || (typeof window !== "undefined" ? window.location.hash : "");
+    if (activeHash) return;
 
     let cancelled = false;
     let timeoutId: number | undefined;

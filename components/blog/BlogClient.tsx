@@ -26,7 +26,7 @@ import { PageHeroImage } from "@/components/sections/PageHeroImage";
 import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 import {
   CMS_GLOBAL_SETTING_KEYS,
-  type CmsPageConfigMap,
+  normalizeCmsPageConfigs,
   type CmsTextOverrideMap,
 } from "@/lib/cms/pageBuilderRegistry";
 import { blogCategoryLabels, type BlogCategory } from "@/hooks/useBlogPosts";
@@ -115,76 +115,6 @@ function normalizeTextOverrides(input: unknown): CmsTextOverrideMap {
   return normalized;
 }
 
-function normalizePageConfigs(input: unknown): CmsPageConfigMap {
-  if (!isPlainRecord(input)) return {};
-
-  const out: CmsPageConfigMap = {};
-
-  Object.entries(input).forEach(([pageId, rawPage]) => {
-    if (!isPlainRecord(rawPage)) return;
-
-    const normalizedPage: CmsPageConfigMap[string] = {};
-
-    if (isPlainRecord(rawPage.blocks)) {
-      const blocks: NonNullable<CmsPageConfigMap[string]["blocks"]> = {};
-
-      Object.entries(rawPage.blocks).forEach(([blockId, rawBlock]) => {
-        if (!isPlainRecord(rawBlock)) return;
-
-        const block: NonNullable<NonNullable<CmsPageConfigMap[string]["blocks"]>[string]> = {};
-        if (typeof rawBlock.enabled === "boolean") block.enabled = rawBlock.enabled;
-        if (typeof rawBlock.order === "number" && Number.isFinite(rawBlock.order)) block.order = rawBlock.order;
-        if (typeof rawBlock.className === "string") block.className = rawBlock.className;
-
-        if (isPlainRecord(rawBlock.style)) {
-          const style: Record<string, string | number> = {};
-          Object.entries(rawBlock.style).forEach(([styleKey, styleValue]) => {
-            if (typeof styleValue === "string" || typeof styleValue === "number") {
-              style[styleKey] = styleValue;
-            }
-          });
-          block.style = style;
-        }
-
-        if (isPlainRecord(rawBlock.data)) {
-          const data: Record<string, string | number | boolean | string[]> = {};
-          Object.entries(rawBlock.data).forEach(([dataKey, dataValue]) => {
-            if (typeof dataValue === "string" || typeof dataValue === "number" || typeof dataValue === "boolean" || Array.isArray(dataValue)) {
-              data[dataKey] = dataValue as string | number | boolean | string[];
-            }
-          });
-          block.data = data;
-        }
-
-        blocks[blockId] = block;
-      });
-
-      normalizedPage.blocks = blocks;
-    }
-
-    if (isPlainRecord(rawPage.text)) {
-      const text: Record<string, string> = {};
-      Object.entries(rawPage.text).forEach(([textKey, textValue]) => {
-        if (typeof textValue === "string") {
-          text[textKey] = textValue;
-        }
-      });
-      normalizedPage.text = text;
-    }
-
-    if (isPlainRecord(rawPage.meta)) {
-      const meta: { title?: string; description?: string } = {};
-      if (typeof rawPage.meta.title === "string") meta.title = rawPage.meta.title;
-      if (typeof rawPage.meta.description === "string") meta.description = rawPage.meta.description;
-      normalizedPage.meta = meta;
-    }
-
-    out[pageId] = normalizedPage;
-  });
-
-  return out;
-}
-
 function useBlogCmsHelpers(globalSettings: BlogGlobalSetting[]) {
   return useMemo(() => {
     const settingMap = globalSettings.reduce<Record<string, string>>((acc, setting) => {
@@ -195,7 +125,7 @@ function useBlogCmsHelpers(globalSettings: BlogGlobalSetting[]) {
     const textOverrides = normalizeTextOverrides(
       parseJsonSetting(settingMap[CMS_GLOBAL_SETTING_KEYS.textOverrides], {}),
     );
-    const pageConfigs = normalizePageConfigs(
+    const pageConfigs = normalizeCmsPageConfigs(
       parseJsonSetting(settingMap[CMS_GLOBAL_SETTING_KEYS.pageConfigs], {}),
     );
     const pageConfig = pageConfigs.blog ?? {};

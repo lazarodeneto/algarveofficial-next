@@ -30,6 +30,9 @@ jobs:
       - name: Lint + Typecheck
         run: npm run check
 
+      - name: Contract regression suite
+        run: npm run test:contracts
+
       # ─── i18n parity check ──────────────────────────────────────────────────
       # Blocks the build if any locale is missing keys from the EN baseline.
       # Run BEFORE `npm run build` so untranslated strings never reach production.

@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: LocaleEventDetailPageProps): 
       title: "Event Not Found",
       description: "This event could not be found.",
       localizedPath: `/events/${slug}`,
+      locale: resolvedLocale,
       noIndex: true,
       noFollow: true,
     });

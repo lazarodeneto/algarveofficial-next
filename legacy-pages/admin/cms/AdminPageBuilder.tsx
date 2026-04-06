@@ -24,6 +24,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   CMS_GLOBAL_SETTING_KEYS,
   CMS_PAGE_DEFINITIONS,
+  normalizeCmsPageConfigs,
   type CmsBlockConfig,
   type CmsDesignTokenMap,
   type CmsPageConfigMap,
@@ -68,73 +69,6 @@ function normalizeStringMap(input: unknown): Record<string, string> {
       out[key] = value;
     }
   });
-  return out;
-}
-
-function normalizePageConfigs(input: unknown): CmsPageConfigMap {
-  if (!isRecord(input)) return {};
-
-  const out: CmsPageConfigMap = {};
-
-  Object.entries(input).forEach(([pageId, rawPage]) => {
-    if (!isRecord(rawPage)) return;
-
-    const page: CmsPageConfigMap[string] = {};
-
-    if (isRecord(rawPage.blocks)) {
-      const blocks: Record<string, CmsBlockConfig> = {};
-      Object.entries(rawPage.blocks).forEach(([blockId, rawBlock]) => {
-        if (!isRecord(rawBlock)) return;
-        const block: CmsBlockConfig = {};
-        if (typeof rawBlock.enabled === "boolean") block.enabled = rawBlock.enabled;
-        if (typeof rawBlock.order === "number" && Number.isFinite(rawBlock.order)) block.order = rawBlock.order;
-        if (typeof rawBlock.className === "string") block.className = rawBlock.className;
-
-        if (isRecord(rawBlock.style)) {
-          const style: Record<string, string | number> = {};
-          Object.entries(rawBlock.style).forEach(([styleKey, styleValue]) => {
-            if (typeof styleValue === "string" || typeof styleValue === "number") {
-              style[styleKey] = styleValue;
-            }
-          });
-          block.style = style;
-        }
-
-        if (isRecord(rawBlock.data)) {
-          const data: Record<string, string | number | boolean | string[]> = {};
-          Object.entries(rawBlock.data).forEach(([dataKey, dataValue]) => {
-            if (typeof dataValue === "string" || typeof dataValue === "number" || typeof dataValue === "boolean" || Array.isArray(dataValue)) {
-              data[dataKey] = dataValue as string | number | boolean | string[];
-            }
-          });
-          block.data = data;
-        }
-
-        blocks[blockId] = block;
-      });
-      page.blocks = blocks;
-    }
-
-    if (isRecord(rawPage.text)) {
-      const text: Record<string, string> = {};
-      Object.entries(rawPage.text).forEach(([textKey, textValue]) => {
-        if (typeof textValue === "string") {
-          text[textKey] = textValue;
-        }
-      });
-      page.text = text;
-    }
-
-    if (isRecord(rawPage.meta)) {
-      page.meta = {
-        title: typeof rawPage.meta.title === "string" ? rawPage.meta.title : undefined,
-        description: typeof rawPage.meta.description === "string" ? rawPage.meta.description : undefined,
-      };
-    }
-
-    out[pageId] = page;
-  });
-
   return out;
 }
 
@@ -242,8 +176,17 @@ function AdminPageBuilderContent() {
   useEffect(() => {
     if (isLoading || initialized) return;
 
-    const parsedPageConfigs = normalizePageConfigs(
+    const parsedPageConfigs = normalizeCmsPageConfigs(
       parseJson(settingMap[CMS_GLOBAL_SETTING_KEYS.pageConfigs], {}),
+      {
+        onIssue: (issue) => {
+          const label =
+            issue.kind === "unknown-block-id"
+              ? `unknown block "${issue.blockId}" in page "${issue.pageId}"`
+              : `unknown page "${issue.pageId}"`;
+          console.warn(`[admin-page-builder] Ignoring ${label} from stored config payload.`);
+        },
+      },
     );
     const parsedGlobalText = normalizeStringMap(
       parseJson(settingMap[CMS_GLOBAL_SETTING_KEYS.textOverrides], {}),

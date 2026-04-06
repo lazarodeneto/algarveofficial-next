@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
 import { SITE_CONFIG, CATEGORY_META, LOCATION_META, DEFAULT_KEYWORDS } from "./seo-config";
 import type { Locale } from "@/lib/i18n/config";
-import {
-  buildMetadataAlternates,
-  buildUnlocalizedAlternates,
-  getSiteUrl,
-  toOpenGraphLocale,
-} from "@/lib/i18n/seo";
+import { buildMetadata } from "@/lib/metadata";
+import { getSiteUrl } from "@/lib/i18n/seo";
 
 type PageType = "website" | "article" | "product" | "place" | "localbusiness" | "event";
 
@@ -68,87 +64,49 @@ export function buildPageMetadata({
   localizedPath,
   alternatesOverride,
 }: PageMetadata = {}): Metadata {
-  const siteUrl = getSiteUrl();
   const resolvedTitle = title ? `${title} | ${SITE_CONFIG.name}` : SITE_CONFIG.name;
   const resolvedDescription = truncate(
     description || SITE_CONFIG.description,
     155
   );
   const resolvedImage = toAbsoluteUrl(image || SITE_CONFIG.ogImage);
+  const normalizedType: "website" | "article" | "product" | "place" =
+    type === "article" || type === "product" || type === "place"
+      ? type
+      : "website";
 
-  const alternates =
-    alternatesOverride ??
-    (localizedPath
-      ? buildMetadataAlternates(locale, localizedPath)
-      : buildUnlocalizedAlternates("/"));
-  const canonical =
-    typeof alternates.canonical === "string" ? alternates.canonical : siteUrl;
-
-  return {
+  const metadata = buildMetadata({
     title: resolvedTitle,
     description: resolvedDescription,
-    applicationName: SITE_CONFIG.name,
-    creator: SITE_CONFIG.name,
-    publisher: SITE_CONFIG.name,
-    referrer: "origin-when-cross-origin",
-    metadataBase: new URL(siteUrl),
+    path: localizedPath ?? "/",
+    image: resolvedImage,
+    type: normalizedType,
+    noIndex,
+    noFollow,
+    localeCode: localizedPath ? locale : undefined,
     keywords: keywords?.length ? keywords : DEFAULT_KEYWORDS,
     authors,
-    icons: {
-      icon: [
-        { url: "/algarveofficial-icon-gold.png", type: "image/png", sizes: "128x128" },
-      ],
-      apple: [{ url: "/icons/apple-touch-icon.png" }],
-      shortcut: [{ url: "/algarveofficial-icon-gold.png", type: "image/png", sizes: "128x128" }],
-    },
-    alternates,
-    robots: {
-      index: !noIndex,
-      follow: !noFollow,
-      googleBot: {
-        index: !noIndex,
-        follow: !noFollow,
-        "max-image-preview": "large",
-        "max-snippet": -1,
-        "max-video-preview": -1,
-      },
-    },
+    publishedTime,
+    modifiedTime,
+    section,
+  });
+
+  if (!alternatesOverride) {
+    return metadata;
+  }
+
+  const siteUrl = getSiteUrl();
+  const canonical =
+    typeof alternatesOverride.canonical === "string"
+      ? alternatesOverride.canonical
+      : `${siteUrl}${localizedPath ?? "/"}`;
+
+  return {
+    ...metadata,
+    alternates: alternatesOverride,
     openGraph: {
-      title: resolvedTitle,
-      description: resolvedDescription,
+      ...metadata.openGraph,
       url: canonical,
-      siteName: SITE_CONFIG.name,
-      locale: toOpenGraphLocale(locale),
-      type: type === "article" ? "article" : "website",
-      images: [
-        {
-          url: resolvedImage,
-          width: SITE_CONFIG.ogImageWidth,
-          height: SITE_CONFIG.ogImageHeight,
-          alt: SITE_CONFIG.name,
-        },
-      ],
-      ...(type === "article" && {
-        publishedTime,
-        modifiedTime,
-        authors: authors?.map((a) => a.name),
-        section,
-      }),
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: resolvedTitle,
-      description: resolvedDescription,
-      images: [resolvedImage],
-      site: SITE_CONFIG.twitterSite,
-      creator: SITE_CONFIG.twitterCreator,
-    },
-    other: {
-      "format-detection": "telephone=no",
-      "geo.region": SITE_CONFIG.geo.region,
-      "geo.placename": SITE_CONFIG.geo.placename,
-      "geo.position": `${SITE_CONFIG.geo.latitude};${SITE_CONFIG.geo.longitude}`,
-      ICBM: `${SITE_CONFIG.geo.latitude}, ${SITE_CONFIG.geo.longitude}`,
     },
   };
 }

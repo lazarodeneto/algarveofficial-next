@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format as formatDate } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { getValidAccessToken } from "@/lib/authToken";
+import { extractPricingApiErrorMessage } from "@/lib/subscriptions/pricing-api";
 import { toast } from "sonner";
 import { TFunction } from "i18next";
 
@@ -76,9 +77,9 @@ async function callAdminPricingApi(
     body: JSON.stringify(payload),
   });
 
-  let data: { error?: string } | null = null;
+  let data: unknown = null;
   try {
-    data = (await response.json()) as { error?: string };
+    data = await response.json();
   } catch {
     data = null;
   }
@@ -88,7 +89,30 @@ async function callAdminPricingApi(
       method === "POST"
         ? "Failed to create subscription pricing."
         : "Failed to update subscription pricing.";
-    throw new Error(data?.error || fallbackMessage);
+    throw new Error(extractPricingApiErrorMessage(data, fallbackMessage));
+  }
+}
+
+async function callAdminPromotionsApi(
+  method: "POST" | "PATCH" | "DELETE",
+  payload: Record<string, unknown>,
+) {
+  const accessToken = await getValidAccessToken();
+  const response = await fetch("/api/admin/subscriptions/promotions", {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = (await response.json().catch(() => null)) as
+    | { ok?: boolean; error?: { message?: string } }
+    | null;
+
+  if (!response.ok || !data?.ok) {
+    throw new Error(data?.error?.message || "Failed to update promotional code.");
   }
 }
 
@@ -301,8 +325,16 @@ export function useSubscriptionPricing(t?: TFunction) {
 
   // Update pricing mutation
   const updatePricing = useMutation({
-    mutationFn: async (pricing: Partial<SubscriptionPricing> & { id: string }) => {
+    mutationFn: async (
+      pricing: Partial<SubscriptionPricing> & {
+        id?: string;
+        tier: SubscriptionPricing["tier"];
+        billing_period: SubscriptionPricing["billing_period"];
+      },
+    ) => {
       const payload = {
+        tier: pricing.tier,
+        billing_period: pricing.billing_period,
         price: pricing.price,
         display_price: pricing.display_price,
         note: pricing.note,
@@ -314,8 +346,9 @@ export function useSubscriptionPricing(t?: TFunction) {
         savings: pricing.savings,
       };
 
+      const id = typeof pricing.id === "string" ? pricing.id.trim() : "";
       await callAdminPricingApi("PATCH", {
-        id: pricing.id,
+        ...(id ? { id } : {}),
         ...payload,
       });
     },
@@ -356,24 +389,20 @@ export function useSubscriptionPricing(t?: TFunction) {
   // Create promotion mutation
   const createPromotion = useMutation({
     mutationFn: async (promo: Omit<PromotionalCode, 'id' | 'created_at' | 'updated_at' | 'current_uses'>) => {
-      const { error } = await supabase
-        .from('promotional_codes')
-        .insert({
-          name: promo.name,
-          code: promo.code.toUpperCase(),
-          discount_type: promo.discount_type,
-          discount_value: promo.discount_value,
-          applicable_tiers: promo.applicable_tiers,
-          applicable_billing: promo.applicable_billing,
-          start_date: promo.start_date,
-          end_date: promo.end_date,
-          is_active: promo.is_active,
-          max_uses: promo.max_uses,
-          period_length: promo.period_length,
-          period_unit: promo.period_unit,
-        });
-
-      if (error) throw error;
+      await callAdminPromotionsApi("POST", {
+        name: promo.name,
+        code: promo.code.toUpperCase(),
+        discount_type: promo.discount_type,
+        discount_value: promo.discount_value,
+        applicable_tiers: promo.applicable_tiers,
+        applicable_billing: promo.applicable_billing,
+        start_date: promo.start_date,
+        end_date: promo.end_date,
+        is_active: promo.is_active,
+        max_uses: promo.max_uses,
+        period_length: promo.period_length,
+        period_unit: promo.period_unit,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['promotional-codes'] });
@@ -387,25 +416,21 @@ export function useSubscriptionPricing(t?: TFunction) {
   // Update promotion mutation
   const updatePromotion = useMutation({
     mutationFn: async (promo: Partial<PromotionalCode> & { id: string }) => {
-      const { error } = await supabase
-        .from('promotional_codes')
-        .update({
-          name: promo.name,
-          code: promo.code?.toUpperCase(),
-          discount_type: promo.discount_type,
-          discount_value: promo.discount_value,
-          applicable_tiers: promo.applicable_tiers,
-          applicable_billing: promo.applicable_billing,
-          start_date: promo.start_date,
-          end_date: promo.end_date,
-          is_active: promo.is_active,
-          max_uses: promo.max_uses,
-          period_length: promo.period_length,
-          period_unit: promo.period_unit,
-        })
-        .eq('id', promo.id);
-
-      if (error) throw error;
+      await callAdminPromotionsApi("PATCH", {
+        id: promo.id,
+        name: promo.name,
+        code: promo.code?.toUpperCase(),
+        discount_type: promo.discount_type,
+        discount_value: promo.discount_value,
+        applicable_tiers: promo.applicable_tiers,
+        applicable_billing: promo.applicable_billing,
+        start_date: promo.start_date,
+        end_date: promo.end_date,
+        is_active: promo.is_active,
+        max_uses: promo.max_uses,
+        period_length: promo.period_length,
+        period_unit: promo.period_unit,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['promotional-codes'] });
@@ -419,12 +444,7 @@ export function useSubscriptionPricing(t?: TFunction) {
   // Delete promotion mutation
   const deletePromotion = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('promotional_codes')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await callAdminPromotionsApi("DELETE", { id });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['promotional-codes'] });
@@ -438,12 +458,7 @@ export function useSubscriptionPricing(t?: TFunction) {
   // Toggle promotion active status
   const togglePromotion = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { error } = await supabase
-        .from('promotional_codes')
-        .update({ is_active })
-        .eq('id', id);
-
-      if (error) throw error;
+      await callAdminPromotionsApi("PATCH", { id, is_active });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['promotional-codes'] });

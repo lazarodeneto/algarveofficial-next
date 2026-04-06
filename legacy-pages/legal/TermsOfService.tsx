@@ -1,10 +1,42 @@
+"use client";
+
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import type { ElementType } from "react";
 import Link from "next/link";
+import DOMPurify from "dompurify";
+import { useTranslation } from "react-i18next";
+import { useTermsSettings } from "@/hooks/useTermsSettings";
 import { FileText, Scale, Users, ShieldCheck, AlertTriangle, CreditCard, Ban, Globe } from "lucide-react";
 
+const iconMap: Record<string, ElementType> = {
+  FileText,
+  Scale,
+  Users,
+  ShieldCheck,
+  AlertTriangle,
+  CreditCard,
+  Ban,
+  Globe,
+};
+
 const TermsOfService = () => {
-  const lastUpdated = "January 21, 2026";
+  const { t, i18n } = useTranslation();
+  const locale = i18n.resolvedLanguage || i18n.language;
+  const { settings } = useTermsSettings(locale);
+  const hasCustomSections = Boolean(settings?.sections && settings.sections.length > 0);
+
+  const pageTitle = settings?.page_title || "Terms of Service";
+  const introduction =
+    settings?.introduction ||
+    'Welcome to AlgarveOfficial. These Terms of Service ("Terms") govern your access to and use of the AlgarveOfficial website, services, and platform (collectively, the "Service"). By accessing or using our Service, you agree to be bound by these Terms. If you do not agree to these Terms, please do not use our Service.';
+  const lastUpdatedDate = settings?.last_updated_date?.trim();
+  const hasLastUpdatedPrefix = Boolean(
+    lastUpdatedDate && /^last updated:/i.test(lastUpdatedDate),
+  );
+  const lastUpdated = lastUpdatedDate
+    ? (hasLastUpdatedPrefix ? lastUpdatedDate : `Last updated: ${lastUpdatedDate}`)
+    : "Last updated: January 21, 2026";
 
   return (
     <div className="min-h-screen bg-background">
@@ -18,23 +50,40 @@ const TermsOfService = () => {
               <Scale className="w-8 h-8 text-primary" />
             </div>
             <h1 className="text-hero font-serif font-medium text-foreground mb-4">
-              Terms of Service
+              {pageTitle}
             </h1>
             <p className="text-muted-foreground">
-              Last updated: {lastUpdated}
+              {lastUpdated}
             </p>
           </div>
 
           {/* Introduction */}
           <section className="prose prose-lg dark:prose-invert max-w-none mb-12">
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Welcome to AlgarveOfficial. These Terms of Service ("Terms") govern your access to and use of 
-              the AlgarveOfficial website, services, and platform (collectively, the "Service"). By accessing 
-              or using our Service, you agree to be bound by these Terms. If you do not agree to these Terms, 
-              please do not use our Service.
+              {introduction}
             </p>
           </section>
 
+          {hasCustomSections ? (
+            settings!.sections!.map((section, index) => {
+              const IconComponent = iconMap[section.icon] || FileText;
+              return (
+                <section key={section.id || index} className="mb-12">
+                  <div className="flex items-center gap-3 mb-4">
+                    <IconComponent className="w-6 h-6 text-primary" />
+                    <h2 className="text-2xl font-serif font-semibold text-foreground">
+                      {section.title}
+                    </h2>
+                  </div>
+                  <div
+                    className="pl-9 space-y-4 text-muted-foreground prose prose-sm dark:prose-invert max-w-none"
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(section.content) }}
+                  />
+                </section>
+              );
+            })
+          ) : (
+            <>
           {/* Definitions */}
           <section className="mb-12">
             <div className="flex items-center gap-3 mb-4">
@@ -420,17 +469,21 @@ const TermsOfService = () => {
               </div>
             </div>
           </section>
+            </>
+          )}
 
           {/* Related Links */}
           <div className="bg-card border border-border rounded-lg p-6 mb-12">
-            <h3 className="font-semibold text-foreground mb-4">Related Policies</h3>
+            <h3 className="font-semibold text-foreground mb-4">
+              {t("legal.relatedPolicies", "Related Policies")}
+            </h3>
             <div className="flex flex-wrap gap-4">
               <Link 
                 href="/privacy-policy" 
                 className="text-primary hover:underline inline-flex items-center gap-2"
               >
                 <ShieldCheck className="w-4 h-4" />
-                Privacy Policy
+                {t("footer.privacyPolicy", "Privacy Policy")}
               </Link>
             </div>
           </div>
@@ -441,7 +494,7 @@ const TermsOfService = () => {
               href="/" 
               className="text-primary hover:underline inline-flex items-center gap-2"
             >
-              ← Back to Home
+              ← {t("cookiePolicy.footer.backToHome", "Back to Home")}
             </Link>
           </div>
         </div>

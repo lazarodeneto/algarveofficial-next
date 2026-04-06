@@ -42,6 +42,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { SeoFieldsPanel } from "@/components/admin/seo/SeoFieldsPanel";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { SingleImageUploadField } from "@/components/admin/listings/SingleImageUploadField";
+import { callAdminTaxonomyApi } from "@/lib/admin/taxonomy-client";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 
 type CityRow = Tables<"cities">;
@@ -78,11 +79,7 @@ export default function AdminCmsCities() {
   // Toggle featured mutation
   const toggleFeaturedMutation = useMutation({
     mutationFn: async ({ id, is_featured }: { id: string; is_featured: boolean }) => {
-      const { error } = await supabase
-        .from("cities")
-        .update({ is_featured })
-        .eq("id", id);
-      if (error) throw error;
+      await callAdminTaxonomyApi("cities", "PATCH", { id, is_featured });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-cities"] });
@@ -96,11 +93,7 @@ export default function AdminCmsCities() {
   // Toggle active mutation
   const toggleActiveMutation = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { error } = await supabase
-        .from("cities")
-        .update({ is_active })
-        .eq("id", id);
-      if (error) throw error;
+      await callAdminTaxonomyApi("cities", "PATCH", { id, is_active });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-cities"] });
@@ -114,22 +107,19 @@ export default function AdminCmsCities() {
   // Save city mutation
   const saveCityMutation = useMutation({
     mutationFn: async (city: Partial<CityRow> & { id: string }) => {
-      const { error } = await supabase
-        .from("cities")
-        .update({
-          name: city.name,
-          slug: city.slug,
-          short_description: city.short_description,
-          description: city.description,
-          hero_image_url: city.hero_image_url,
-          image_url: city.image_url,
-          latitude: city.latitude,
-          longitude: city.longitude,
-          meta_title: city.meta_title,
-          meta_description: city.meta_description,
-        })
-        .eq("id", city.id);
-      if (error) throw error;
+      await callAdminTaxonomyApi("cities", "PATCH", {
+        id: city.id,
+        name: city.name,
+        slug: city.slug,
+        short_description: city.short_description,
+        description: city.description,
+        hero_image_url: city.hero_image_url,
+        image_url: city.image_url,
+        latitude: city.latitude,
+        longitude: city.longitude,
+        meta_title: city.meta_title,
+        meta_description: city.meta_description,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-cities"] });
@@ -160,8 +150,7 @@ export default function AdminCmsCities() {
         display_order: maxOrder + 1,
       };
 
-      const { error } = await supabase.from("cities").insert(payload);
-      if (error) throw error;
+      await callAdminTaxonomyApi("cities", "POST", payload as unknown as Record<string, unknown>);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-cities"] });
@@ -177,8 +166,7 @@ export default function AdminCmsCities() {
   // Delete city mutation
   const deleteCityMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("cities").delete().eq("id", id);
-      if (error) throw error;
+      await callAdminTaxonomyApi("cities", "DELETE", { id });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-cities"] });
@@ -191,14 +179,7 @@ export default function AdminCmsCities() {
 
   const reorderCitiesMutation = useMutation({
     mutationFn: async (orderedIds: string[]) => {
-      await Promise.all(
-        orderedIds.map((id, index) =>
-          supabase
-            .from("cities")
-            .update({ display_order: index + 1 })
-            .eq("id", id),
-        ),
-      );
+      await callAdminTaxonomyApi("cities", "PUT", { orderedIds });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-cities"] });

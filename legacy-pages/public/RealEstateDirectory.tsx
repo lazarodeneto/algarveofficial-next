@@ -272,7 +272,7 @@ export default function RealEstateDirectory() {
                                 </div>
                             ) : null}
 
-                            {isBlockEnabled("all-active-city-hubs", true) ? (
+                            {isBlockEnabled("all-city-hubs", true) ? (
                             <div>
                                 <div className="mb-4 flex items-center justify-between gap-4">
                                     <div>

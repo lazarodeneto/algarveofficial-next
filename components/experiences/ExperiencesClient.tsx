@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { HelmetProvider } from "react-helmet-async";
 
 import ExperiencesPage from "@/legacy-pages/public/Experiences";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
@@ -33,8 +32,6 @@ export default function ExperiencesClient({ initialGlobalSettings }: Experiences
   }
 
   return (
-    <HelmetProvider>
-      <ExperiencesPage />
-    </HelmetProvider>
+    <ExperiencesPage />
   );
 }

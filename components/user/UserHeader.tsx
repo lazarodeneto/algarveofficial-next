@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell, User, LogOut, Settings, ChevronDown, ExternalLink, Heart, LayoutDashboard, Building2, Check, UserCheck } from "lucide-react";
+import { Bell, LogOut, Settings, ChevronDown, ExternalLink, Heart, LayoutDashboard, Building2, Check, UserCheck } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,7 @@ export function UserHeader() {
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim();
   const displayName = fullName || user?.email?.split('@')[0] || t('common.user');
   const displayEmail = user?.email || '';
+  const userInitial = (displayName.trim().charAt(0) || displayEmail.trim().charAt(0) || "U").toUpperCase();
 
   return (
     <header className="border-b border-white/10 glass-header px-3 py-2 sm:px-4 lg:px-6">
@@ -85,7 +86,7 @@ export function UserHeader() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2 pl-1.5 pr-2 sm:pl-2 sm:pr-3 group">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:bg-primary/20">
-                  <User className="h-4 w-4" />
+                  <span className="text-sm font-semibold leading-none">{userInitial}</span>
                 </div>
                 <span className="hidden text-sm font-medium text-foreground group-hover:text-primary xl:block">
                   {displayName.split(' ')[0]}

@@ -29,6 +29,12 @@ const UNLOCALIZED_PREFIXES = [
   "/sitemap",
 ];
 
+const UNLOCALIZED_CANONICAL_PATHS = new Set([
+  "/signup",
+  "/forgot-password",
+  "/maintenance",
+]);
+
 const PUBLIC_SEO_PAGES = new Set([
   "destinations",
   "about-us",
@@ -67,6 +73,51 @@ function isUnlocalizedRoute(pathname: string): boolean {
   return false;
 }
 
+function normalizePathname(pathname: string): string {
+  if (pathname !== "/" && pathname.endsWith("/")) {
+    return pathname.slice(0, -1);
+  }
+
+  return pathname;
+}
+
+function buildPathnameFromSegments(segments: string[]): string {
+  if (segments.length === 0) {
+    return "/";
+  }
+
+  return `/${segments.join("/")}`;
+}
+
+function isUnlocalizedCanonicalPath(pathname: string): boolean {
+  const normalizedPathname = normalizePathname(pathname);
+
+  if (UNLOCALIZED_CANONICAL_PATHS.has(normalizedPathname)) {
+    return true;
+  }
+
+  const segments = normalizedPathname.split("/").filter(Boolean);
+  if (segments.length === 2 && segments[0]?.toLowerCase() === "real-estate") {
+    return true;
+  }
+
+  return false;
+}
+
+export function getUnlocalizedCanonicalPathFromRequestPath(pathname: string): string | null {
+  const normalizedPathname = normalizePathname(pathname);
+  const segments = normalizedPathname.split("/").filter(Boolean);
+  const firstSegment = segments[0]?.toLowerCase() ?? null;
+  const hasValidLocalePrefix = isSupportedLocale(firstSegment);
+
+  if (hasValidLocalePrefix) {
+    const pathWithoutLocale = buildPathnameFromSegments(segments.slice(1));
+    return isUnlocalizedCanonicalPath(pathWithoutLocale) ? pathWithoutLocale : null;
+  }
+
+  return isUnlocalizedCanonicalPath(normalizedPathname) ? normalizedPathname : null;
+}
+
 function getPreferredLocale(request: NextRequest): string {
   const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
   if (isSupportedLocale(cookieLocale)) {
@@ -99,7 +150,8 @@ function redirectTo(
 }
 
 export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const rawPathname = request.nextUrl.pathname;
+  const pathname = normalizePathname(rawPathname);
 
   if (isUnlocalizedRoute(pathname)) {
     return NextResponse.next();
@@ -110,15 +162,19 @@ export function proxy(request: NextRequest) {
   const secondSegment = segments[1]?.toLowerCase() ?? null;
   const hasValidLocalePrefix = isSupportedLocale(firstSegment);
   const currentLocale = getLocaleFromPathname(pathname);
+  const unlocalizedPath = getUnlocalizedCanonicalPathFromRequestPath(pathname);
 
   if (hasValidLocalePrefix && isSupportedLocale(secondSegment)) {
     return new NextResponse(null, { status: 404 });
   }
 
+  if (hasValidLocalePrefix && unlocalizedPath) {
+    return redirectTo(request, unlocalizedPath, 307);
+  }
+
   if (hasValidLocalePrefix && currentLocale) {
-    if (pathname !== "/" && pathname.endsWith("/")) {
-      const normalized = pathname.slice(0, -1);
-      return redirectTo(request, normalized, 308);
+    if (rawPathname !== "/" && rawPathname.endsWith("/")) {
+      return redirectTo(request, pathname, 308);
     }
 
     return NextResponse.next();
@@ -130,6 +186,10 @@ export function proxy(request: NextRequest) {
     return redirectTo(request, `/${locale}`, 302, {
       varyByLocaleSignals: true,
     });
+  }
+
+  if (unlocalizedPath) {
+    return NextResponse.next();
   }
 
   const localizedPath = `/${locale}${pathname}`;

@@ -4,6 +4,7 @@ import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 import {
   CMS_DEFAULT_DESIGN_TOKENS,
   CMS_GLOBAL_SETTING_KEYS,
+  normalizeCmsPageConfigs,
   type CmsDesignTokenMap,
   type CmsPageConfigMap,
   type CmsTextOverrideMap,
@@ -52,77 +53,6 @@ function normalizeTextOverrides(input: unknown): CmsTextOverrideMap {
   return normalized;
 }
 
-function normalizePageConfigs(input: unknown): CmsPageConfigMap {
-  if (!isPlainRecord(input)) return {};
-
-  const out: CmsPageConfigMap = {};
-
-  Object.entries(input).forEach(([pageId, rawPage]) => {
-    if (!isPlainRecord(rawPage)) return;
-
-    const normalizedPage: CmsPageConfigMap[string] = {};
-
-    if (isPlainRecord(rawPage.blocks)) {
-      const blocks: NonNullable<CmsPageConfigMap[string]["blocks"]> = {};
-
-      Object.entries(rawPage.blocks).forEach(([blockId, rawBlock]) => {
-        if (!isPlainRecord(rawBlock)) return;
-
-        const block: NonNullable<NonNullable<CmsPageConfigMap[string]["blocks"]>[string]> = {};
-
-        if (typeof rawBlock.enabled === "boolean") block.enabled = rawBlock.enabled;
-        if (typeof rawBlock.order === "number" && Number.isFinite(rawBlock.order)) block.order = rawBlock.order;
-        if (typeof rawBlock.className === "string") block.className = rawBlock.className;
-
-        if (isPlainRecord(rawBlock.style)) {
-          const style: Record<string, string | number> = {};
-          Object.entries(rawBlock.style).forEach(([styleKey, styleValue]) => {
-            if (typeof styleValue === "string" || typeof styleValue === "number") {
-              style[styleKey] = styleValue;
-            }
-          });
-          block.style = style;
-        }
-
-        if (isPlainRecord(rawBlock.data)) {
-          const data: Record<string, string | number | boolean | string[]> = {};
-          Object.entries(rawBlock.data).forEach(([dataKey, dataValue]) => {
-            if (typeof dataValue === "string" || typeof dataValue === "number" || typeof dataValue === "boolean" || Array.isArray(dataValue)) {
-              data[dataKey] = dataValue as string | number | boolean | string[];
-            }
-          });
-          block.data = data;
-        }
-
-        blocks[blockId] = block;
-      });
-
-      normalizedPage.blocks = blocks;
-    }
-
-    if (isPlainRecord(rawPage.text)) {
-      const text: Record<string, string> = {};
-      Object.entries(rawPage.text).forEach(([textKey, textValue]) => {
-        if (typeof textValue === "string") {
-          text[textKey] = textValue;
-        }
-      });
-      normalizedPage.text = text;
-    }
-
-    if (isPlainRecord(rawPage.meta)) {
-      const meta: { title?: string; description?: string } = {};
-      if (typeof rawPage.meta.title === "string") meta.title = rawPage.meta.title;
-      if (typeof rawPage.meta.description === "string") meta.description = rawPage.meta.description;
-      normalizedPage.meta = meta;
-    }
-
-    out[pageId] = normalizedPage;
-  });
-
-  return out;
-}
-
 function normalizeDesignTokens(input: unknown): CmsDesignTokenMap {
   if (!isPlainRecord(input)) return {};
 
@@ -168,6 +98,7 @@ export function CmsPageBuilderProvider({ children }: { children: ReactNode }) {
   const previousAppliedVarsRef = useRef<string[]>([]);
 
   const { settings, isLoading } = useGlobalSettings({
+    locale: i18n.resolvedLanguage ?? i18n.language,
     keys: [
       CMS_GLOBAL_SETTING_KEYS.textOverrides,
       CMS_GLOBAL_SETTING_KEYS.pageConfigs,
@@ -191,7 +122,17 @@ export function CmsPageBuilderProvider({ children }: { children: ReactNode }) {
   );
 
   const pageConfigs = useMemo(
-    () => normalizePageConfigs(parseJsonSetting(settingMap[CMS_GLOBAL_SETTING_KEYS.pageConfigs], {})),
+    () =>
+      normalizeCmsPageConfigs(parseJsonSetting(settingMap[CMS_GLOBAL_SETTING_KEYS.pageConfigs], {}), {
+        onIssue: (issue) => {
+          if (process.env.NODE_ENV === "production") return;
+          const label =
+            issue.kind === "unknown-block-id"
+              ? `unknown block "${issue.blockId}" for page "${issue.pageId}"`
+              : `unknown page "${issue.pageId}"`;
+          console.warn(`[cms-page-builder] Ignoring ${label} in stored CMS page configs.`);
+        },
+      }),
     [settingMap],
   );
 
@@ -202,9 +143,7 @@ export function CmsPageBuilderProvider({ children }: { children: ReactNode }) {
 
   const customCss = useMemo(() => settingMap[CMS_GLOBAL_SETTING_KEYS.customCss] ?? "", [settingMap]);
 
-  // Apply plain-text CMS overrides only to the English bundle. The current
-  // global setting shape is not locale-aware, so pushing those strings into
-  // every language bundle causes non-English pages to regress back to English.
+  // Apply plain-text CMS overrides to the active locale bundle.
   useEffect(() => {
     const nestedOverrides: Record<string, unknown> = {};
     Object.entries(textOverrides).forEach(([key, value]) => {
@@ -216,7 +155,8 @@ export function CmsPageBuilderProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    i18n.addResourceBundle("en", "translation", nestedOverrides, true, true);
+    const activeLocale = i18n.resolvedLanguage ?? i18n.language ?? "en";
+    i18n.addResourceBundle(activeLocale, "translation", nestedOverrides, true, true);
   }, [i18n, textOverrides]);
 
   // Apply design tokens as CSS variables on :root.
