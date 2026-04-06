@@ -26,6 +26,9 @@ export async function callAdminEmailApi<T = unknown>(
   if (!response.ok || !data?.ok) {
     throw new Error(data?.error?.message || "Failed to update email admin data.");
   }
+  if (typeof data.data === "undefined") {
+    throw new Error("Email admin API returned an empty response.");
+  }
 
   return data.data;
 }

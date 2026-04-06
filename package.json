@@ -20,7 +20,7 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:smoke": "playwright test tests/e2e/homepage.spec.ts",
     "test": "vitest run",
-    "test:contracts": "vitest run proxy.test.ts lib/i18n/seo.test.ts lib/cms/pageBuilderRegistry.contract.test.ts lib/cms/pageBuilderRegistry.normalize.test.ts lib/cms/server-persistence.test.ts lib/cms/runtime-resolver.test.ts lib/admin/settings-contract.test.ts lib/admin/navigation-contract.test.ts lib/admin/footer-contract.test.ts lib/admin/taxonomy-contract.test.ts lib/admin/email-contract.test.ts lib/subscriptions/pricing-api.test.ts lib/legal/settings.test.ts",
+    "test:contracts": "vitest run proxy.test.ts lib/i18n/seo.test.ts lib/i18n/localized-metadata-coverage.contract.test.ts lib/cms/pageBuilderRegistry.contract.test.ts lib/cms/pageBuilderRegistry.normalize.test.ts lib/cms/server-persistence.test.ts lib/cms/runtime-resolver.test.ts lib/admin/settings-contract.test.ts lib/admin/navigation-contract.test.ts lib/admin/footer-contract.test.ts lib/admin/taxonomy-contract.test.ts lib/admin/email-contract.test.ts lib/admin/admin-route-contract.test.ts lib/subscriptions/pricing-api.test.ts lib/legal/settings.test.ts",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
   },

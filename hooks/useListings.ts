@@ -309,6 +309,110 @@ const PUBLIC_CITY_FIELDS = 'id, name, slug, short_description, image_url, latitu
 const PUBLIC_REGION_FIELDS = 'id, name, slug, short_description, image_url';
 const PUBLIC_CATEGORY_FIELDS = 'id, name, slug, icon, short_description, image_url';
 
+const ADMIN_LISTING_FIELDS = `
+  id,
+  slug,
+  name,
+  short_description,
+  description,
+  category_id,
+  city_id,
+  region_id,
+  owner_id,
+  tier,
+  status,
+  is_curated,
+  featured_image_url,
+  contact_email,
+  contact_phone,
+  whatsapp_number,
+  website_url,
+  facebook_url,
+  instagram_url,
+  twitter_url,
+  linkedin_url,
+  youtube_url,
+  tiktok_url,
+  telegram_url,
+  google_business_url,
+  google_rating,
+  google_review_count,
+  address,
+  latitude,
+  longitude,
+  price_from,
+  price_to,
+  price_currency,
+  meta_title,
+  meta_description,
+  tags,
+  category_data,
+  admin_notes,
+  rejection_reason,
+  rejection_notes,
+  view_count,
+  published_at,
+  created_at,
+  updated_at
+`;
+
+const ADMIN_CITY_FIELDS = `
+  id,
+  name,
+  slug,
+  short_description,
+  description,
+  image_url,
+  hero_image_url,
+  latitude,
+  longitude,
+  is_active,
+  is_featured,
+  display_order,
+  meta_title,
+  meta_description,
+  created_at,
+  updated_at
+`;
+
+const ADMIN_REGION_FIELDS = `
+  id,
+  name,
+  slug,
+  short_description,
+  description,
+  image_url,
+  hero_image_url,
+  is_active,
+  is_featured,
+  is_visible_destinations,
+  display_order,
+  meta_title,
+  meta_description,
+  created_at,
+  updated_at
+`;
+
+const ADMIN_CATEGORY_FIELDS = `
+  id,
+  name,
+  slug,
+  short_description,
+  description,
+  icon,
+  image_url,
+  is_active,
+  is_featured,
+  display_order,
+  template_fields,
+  meta_title,
+  meta_description,
+  created_at,
+  updated_at
+`;
+
+const ADMIN_LISTING_IMAGE_FIELDS = "id, listing_id, image_url, alt_text, display_order, is_featured, created_at";
+
 /**
  * Fetch all published listings with optional filters
  * Uses explicit field selection to prevent PII exposure
@@ -605,11 +709,11 @@ export function useAdminListing(id: string | undefined) {
       const { data, error } = await supabase
         .from('listings')
         .select(`
-          *,
-          city:cities(*),
-          region:regions(*),
-          category:categories(*),
-          images:listing_images(*)
+          ${ADMIN_LISTING_FIELDS},
+          city:cities(${ADMIN_CITY_FIELDS}),
+          region:regions(${ADMIN_REGION_FIELDS}),
+          category:categories(${ADMIN_CATEGORY_FIELDS}),
+          images:listing_images(${ADMIN_LISTING_IMAGE_FIELDS})
         `)
         .eq('id', id)
         .single();
