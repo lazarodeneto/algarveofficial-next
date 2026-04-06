@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format as formatDate } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
+import { getValidAccessToken } from "@/lib/authToken";
 import { toast } from "sonner";
 import { TFunction } from "i18next";
 
@@ -61,22 +62,34 @@ export interface MembershipTier {
   highlight: boolean;
 }
 
-function isMissingColumnError(error: unknown, column: string) {
-  const message =
-    typeof error === "object" && error !== null && "message" in error
-      ? String((error as { message?: unknown }).message ?? "")
-      : "";
-  return (
-    message.includes(`'${column}'`) &&
-    (message.includes("column") || message.includes("schema cache"))
-  );
-}
+async function callAdminPricingApi(
+  method: "POST" | "PATCH",
+  payload: Record<string, unknown>,
+) {
+  const accessToken = await getValidAccessToken();
+  const response = await fetch("/api/admin/subscriptions/pricing", {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(payload),
+  });
 
-function shouldRetryWithoutPeriodDates(error: unknown) {
-  return (
-    isMissingColumnError(error, "period_start_date") ||
-    isMissingColumnError(error, "period_end_date")
-  );
+  let data: { error?: string } | null = null;
+  try {
+    data = (await response.json()) as { error?: string };
+  } catch {
+    data = null;
+  }
+
+  if (!response.ok) {
+    const fallbackMessage =
+      method === "POST"
+        ? "Failed to create subscription pricing."
+        : "Failed to update subscription pricing.";
+    throw new Error(data?.error || fallbackMessage);
+  }
 }
 
 // Static benefits/limitations keys for translation
@@ -301,23 +314,10 @@ export function useSubscriptionPricing(t?: TFunction) {
         savings: pricing.savings,
       };
 
-      const firstAttempt = await supabase
-        .from("subscription_pricing")
-        .update(payload)
-        .eq("id", pricing.id);
-
-      if (!firstAttempt.error) return;
-      if (!shouldRetryWithoutPeriodDates(firstAttempt.error)) {
-        throw firstAttempt.error;
-      }
-
-      const { period_start_date: _startDate, period_end_date: _endDate, ...fallbackPayload } = payload;
-      const retryAttempt = await supabase
-        .from("subscription_pricing")
-        .update(fallbackPayload)
-        .eq("id", pricing.id);
-
-      if (retryAttempt.error) throw retryAttempt.error;
+      await callAdminPricingApi("PATCH", {
+        id: pricing.id,
+        ...payload,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subscription-pricing'] });
@@ -331,17 +331,7 @@ export function useSubscriptionPricing(t?: TFunction) {
   // Create pricing mutation (used to provision missing billing periods)
   const createPricing = useMutation({
     mutationFn: async (pricing: Omit<SubscriptionPricing, 'id' | 'updated_at'>) => {
-      const { data: existing, error: existingError } = await supabase
-        .from('subscription_pricing')
-        .select('id')
-        .eq('tier', pricing.tier)
-        .eq('billing_period', pricing.billing_period)
-        .limit(1);
-
-      if (existingError) throw existingError;
-      if (existing && existing.length > 0) return;
-
-      const payload = {
+      await callAdminPricingApi("POST", {
         tier: pricing.tier,
         billing_period: pricing.billing_period,
         price: pricing.price,
@@ -353,23 +343,7 @@ export function useSubscriptionPricing(t?: TFunction) {
         period_end_date: pricing.period_end_date,
         monthly_equivalent: pricing.monthly_equivalent,
         savings: pricing.savings,
-      };
-
-      const firstAttempt = await supabase
-        .from("subscription_pricing")
-        .insert(payload);
-
-      if (!firstAttempt.error) return;
-      if (!shouldRetryWithoutPeriodDates(firstAttempt.error)) {
-        throw firstAttempt.error;
-      }
-
-      const { period_start_date: _startDate, period_end_date: _endDate, ...fallbackPayload } = payload;
-      const retryAttempt = await supabase
-        .from("subscription_pricing")
-        .insert(fallbackPayload);
-
-      if (retryAttempt.error) throw retryAttempt.error;
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subscription-pricing'] });
