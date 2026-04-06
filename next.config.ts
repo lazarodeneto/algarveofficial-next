@@ -73,6 +73,10 @@ const withBundleAnalyzer = bundleAnalyzer({
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   trailingSlash: false,
+  turbopack: {
+    // Avoid Next.js auto-selecting a parent directory when multiple lockfiles exist.
+    root: process.cwd(),
+  },
 
   images: {
     formats: ["image/avif", "image/webp"],
