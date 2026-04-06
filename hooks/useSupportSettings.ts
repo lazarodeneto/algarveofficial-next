@@ -1,6 +1,7 @@
 "use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { updateAdminSettingsRow } from "@/lib/admin/settings-client";
 import { normalizePublicContactEmail } from "@/lib/contactEmail";
 import { toast } from "sonner";
 
@@ -82,12 +83,11 @@ export function useSupportSettings() {
         updated_at: new Date().toISOString(),
       };
       
-      const { error } = await supabase
-        .from("support_settings")
-        .update(dbUpdates)
-        .eq("id", "default");
-
-      if (error) throw error;
+      await updateAdminSettingsRow({
+        table: "support_settings",
+        updates: dbUpdates,
+        mode: "upsert",
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["support-settings"] });

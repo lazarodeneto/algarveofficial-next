@@ -158,6 +158,10 @@ const PUBLIC_LISTING_FIELDS = `
 const PUBLIC_CITY_FIELDS = "id, name, slug, short_description, image_url, latitude, longitude";
 const PUBLIC_REGION_FIELDS = "id, name, slug, short_description, image_url";
 const PUBLIC_CATEGORY_FIELDS = "id, name, slug, icon, short_description, image_url";
+const LISTING_REVIEW_FIELDS = `
+  id, listing_id, user_id, rating, comment, status, rejection_reason,
+  created_at, updated_at, approved_at, moderated_at, moderated_by
+`;
 const RELATED_LISTING_FIELDS = `
   id,
   slug,
@@ -252,7 +256,7 @@ async function fetchListingByIdOrSlug(idOrSlug: string) {
 async function fetchApprovedListingReviews(listingId: string) {
   const { data, error } = await supabase
     .from("listing_reviews")
-    .select("*")
+    .select(LISTING_REVIEW_FIELDS)
     .eq("listing_id", listingId)
     .eq("status", "approved")
     .order("created_at", { ascending: false });

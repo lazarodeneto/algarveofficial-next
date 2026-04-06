@@ -25,7 +25,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { supabase } from "@/integrations/supabase/client";
 import {
   CMS_GLOBAL_SETTING_KEYS,
-  type CmsPageConfigMap,
+  normalizeCmsPageConfigs,
   type CmsTextOverrideMap,
 } from "@/lib/cms/pageBuilderRegistry";
 import {
@@ -73,6 +73,18 @@ const DIRECTORY_CMS_KEYS = [
   CMS_GLOBAL_SETTING_KEYS.textOverrides,
   CMS_GLOBAL_SETTING_KEYS.pageConfigs,
 ] as const;
+const DIRECTORY_CITY_FIELDS = `
+  id, name, slug, short_description, description, image_url, hero_image_url,
+  latitude, longitude, is_active, is_featured, display_order, created_at
+`;
+const DIRECTORY_REGION_FIELDS = `
+  id, slug, name, short_description, description, image_url, hero_image_url,
+  is_active, is_featured, is_visible_destinations, display_order, created_at
+`;
+const DIRECTORY_CATEGORY_FIELDS = `
+  id, slug, name, icon, short_description, description, image_url,
+  is_active, is_featured, display_order, created_at
+`;
 
 export interface DirectoryInitialFilters {
   q: string;
@@ -121,73 +133,6 @@ function normalizeTextOverrides(input: unknown): CmsTextOverrideMap {
   });
 
   return normalized;
-}
-
-function normalizePageConfigs(input: unknown): CmsPageConfigMap {
-  if (!isPlainRecord(input)) return {};
-
-  const out: CmsPageConfigMap = {};
-
-  Object.entries(input).forEach(([pageId, rawPage]) => {
-    if (!isPlainRecord(rawPage)) return;
-
-    const normalizedPage: CmsPageConfigMap[string] = {};
-
-    if (isPlainRecord(rawPage.blocks)) {
-      const blocks: NonNullable<CmsPageConfigMap[string]["blocks"]> = {};
-      Object.entries(rawPage.blocks).forEach(([blockId, rawBlock]) => {
-        if (!isPlainRecord(rawBlock)) return;
-
-        const block: NonNullable<NonNullable<CmsPageConfigMap[string]["blocks"]>[string]> = {};
-        if (typeof rawBlock.enabled === "boolean") block.enabled = rawBlock.enabled;
-        if (typeof rawBlock.order === "number" && Number.isFinite(rawBlock.order)) block.order = rawBlock.order;
-        if (typeof rawBlock.className === "string") block.className = rawBlock.className;
-        if (isPlainRecord(rawBlock.style)) {
-          const style: Record<string, string | number> = {};
-          Object.entries(rawBlock.style).forEach(([styleKey, styleValue]) => {
-            if (typeof styleValue === "string" || typeof styleValue === "number") {
-              style[styleKey] = styleValue;
-            }
-          });
-          block.style = style;
-        }
-
-        if (isPlainRecord(rawBlock.data)) {
-          const data: Record<string, string | number | boolean | string[]> = {};
-          Object.entries(rawBlock.data).forEach(([dataKey, dataValue]) => {
-            if (typeof dataValue === "string" || typeof dataValue === "number" || typeof dataValue === "boolean" || Array.isArray(dataValue)) {
-              data[dataKey] = dataValue as string | number | boolean | string[];
-            }
-          });
-          block.data = data;
-        }
-
-        blocks[blockId] = block;
-      });
-      normalizedPage.blocks = blocks;
-    }
-
-    if (isPlainRecord(rawPage.text)) {
-      const text: Record<string, string> = {};
-      Object.entries(rawPage.text).forEach(([textKey, textValue]) => {
-        if (typeof textValue === "string") {
-          text[textKey] = textValue;
-        }
-      });
-      normalizedPage.text = text;
-    }
-
-    if (isPlainRecord(rawPage.meta)) {
-      const meta: { title?: string; description?: string } = {};
-      if (typeof rawPage.meta.title === "string") meta.title = rawPage.meta.title;
-      if (typeof rawPage.meta.description === "string") meta.description = rawPage.meta.description;
-      normalizedPage.meta = meta;
-    }
-
-    out[pageId] = normalizedPage;
-  });
-
-  return out;
 }
 
 function sanitizeSearchTerm(raw: string) {
@@ -309,7 +254,7 @@ function applyListingFilters(
 async function fetchCities(locale: string) {
   const { data, error } = await supabase
     .from("cities")
-    .select("*")
+    .select(DIRECTORY_CITY_FIELDS)
     .eq("is_active", true)
     .order("display_order", { ascending: true })
     .order("name", { ascending: true });
@@ -339,7 +284,7 @@ async function fetchCities(locale: string) {
 async function fetchRegions(locale: string) {
   const { data, error } = await supabase
     .from("regions")
-    .select("*")
+    .select(DIRECTORY_REGION_FIELDS)
     .eq("is_active", true)
     .order("display_order", { ascending: true })
     .order("name", { ascending: true });
@@ -369,7 +314,7 @@ async function fetchRegions(locale: string) {
 async function fetchCategories(locale: string) {
   const { data, error } = await supabase
     .from("categories")
-    .select("*")
+    .select(DIRECTORY_CATEGORY_FIELDS)
     .eq("is_active", true)
     .order("display_order", { ascending: true })
     .order("name", { ascending: true });
@@ -591,7 +536,9 @@ function useDirectoryCmsHelpers(globalSettings: GlobalSetting[], cmsPageId: stri
     const textOverrides = normalizeTextOverrides(
       parseJsonSetting(settingMap[CMS_GLOBAL_SETTING_KEYS.textOverrides], {}),
     );
-    const pageConfigs = normalizePageConfigs(parseJsonSetting(settingMap[CMS_GLOBAL_SETTING_KEYS.pageConfigs], {}));
+    const pageConfigs = normalizeCmsPageConfigs(
+      parseJsonSetting(settingMap[CMS_GLOBAL_SETTING_KEYS.pageConfigs], {}),
+    );
     const pageConfig = pageConfigs[cmsPageId] ?? {};
     const blocks = pageConfig.blocks ?? {};
     const pageText = pageConfig.text ?? {};
@@ -677,16 +624,40 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   );
   const setSearchParams = useCallback((nextParams: URLSearchParams, options?: { replace?: boolean }) => {
     const query = nextParams.toString();
-    const href = query ? `${pathname}?${query}` : pathname;
+    const baseHref = query ? `${pathname}?${query}` : pathname;
+    const hash = typeof window !== "undefined" ? window.location.hash : "";
+    const href = `${baseHref}${hash}`;
 
     if (options?.replace) {
-      router.replace(href);
+      router.replace(href, { scroll: false });
       return;
     }
 
-    router.push(href);
+    router.push(href, { scroll: false });
   }, [pathname, router]);
   const l = useLocalePath();
+  const resultsAnchorId = "showing-listings";
+  const ensureResultsHash = useCallback(() => {
+    if (typeof window === "undefined") return;
+
+    const nextHash = `#${resultsAnchorId}`;
+    if (window.location.hash === nextHash) return;
+
+    window.history.replaceState(
+      window.history.state,
+      "",
+      `${window.location.pathname}${window.location.search}${nextHash}`,
+    );
+  }, [resultsAnchorId]);
+  const scrollToResults = useCallback(() => {
+    if (typeof window === "undefined") return;
+
+    window.requestAnimationFrame(() => {
+      const target = document.getElementById(resultsAnchorId);
+      if (!target) return;
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, [resultsAnchorId]);
   const [search, setSearch] = useState(props.initialFilters.q);
   const [debouncedSearch, setDebouncedSearch] = useState(props.initialFilters.q);
   const [selectedRegion, setSelectedRegion] = useState<string>(props.initialFilters.region);
@@ -868,8 +839,8 @@ function DirectoryClientInner(props: DirectoryClientProps) {
       category: "places-to-stay",
       city: city.id || city.slug,
     });
-    return `/stay?${params.toString()}`;
-  }, []);
+    return `/stay?${params.toString()}#${resultsAnchorId}`;
+  }, [resultsAnchorId]);
 
   const showCityHubs =
     activeCms.isBlockEnabled("city-hubs", true) &&
@@ -989,6 +960,12 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     setSelectedTier("all");
     setSearchParams(new URLSearchParams(), { replace: true });
   };
+  const handleCityChange = useCallback((value: string) => {
+    if (value === selectedCity) return;
+    ensureResultsHash();
+    setSelectedCity(value);
+    scrollToResults();
+  }, [ensureResultsHash, scrollToResults, selectedCity]);
 
   const hasActiveFilters =
     Boolean(search) ||
@@ -1138,7 +1115,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                             <Building2 className="h-4 w-4 text-primary" />
                             {t("directory.city")}
                           </label>
-                          <Select value={selectedCity} onValueChange={setSelectedCity}>
+                          <Select value={selectedCity} onValueChange={handleCityChange}>
                             <SelectTrigger className="h-12 bg-muted/30 border-border hover:bg-muted/50 focus:bg-background">
                               <SelectValue placeholder={t("directory.allCities")} />
                             </SelectTrigger>
@@ -1224,7 +1201,14 @@ function DirectoryClientInner(props: DirectoryClientProps) {
           ) : null}
 
           {activeCms.isBlockEnabled("results", true) ? (
-            <DirectoryCmsBlock blockId="results" cms={activeCms} className="relative z-0 isolate">
+            <DirectoryCmsBlock
+              blockId="results"
+              cms={activeCms}
+              className="relative z-0 isolate scroll-mt-28 sm:scroll-mt-32"
+              style={undefined}
+              as="section"
+            >
+              <div id={resultsAnchorId} />
               <div className="flex items-center justify-between mb-6">
                 <p className="text-body-sm text-muted-foreground">
                   {isLoading ? (

@@ -1,4 +1,3 @@
-import { Helmet } from "react-helmet-async";
 import {
   buildArticleSchema,
   buildBreadcrumbSchema,
@@ -17,22 +16,22 @@ import { SITE_URL, localizeSeoUrl, toAbsoluteSeoUrl } from "@/lib/seoUrls";
 // Organization Schema
 export function OrganizationJsonLd() {
   const schema = buildOrganizationSchema(SITE_URL);
-
   return (
-    <Helmet>
-      <script type="application/ld+json">{JSON.stringify(schema)}</script>
-    </Helmet>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
   );
 }
 
 // Website Schema with SearchAction
 export function WebsiteJsonLd() {
   const schema = buildWebsiteSchema(SITE_URL);
-
   return (
-    <Helmet>
-      <script type="application/ld+json">{JSON.stringify(schema)}</script>
-    </Helmet>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
   );
 }
 
@@ -49,11 +48,11 @@ export function BreadcrumbJsonLd({ items }: { items: BreadcrumbItem[] }) {
       url: localizeSeoUrl(item.url),
     })),
   );
-
   return (
-    <Helmet>
-      <script type="application/ld+json">{JSON.stringify(schema)}</script>
-    </Helmet>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
   );
 }
 
@@ -83,11 +82,11 @@ export function ItemListJsonLd({ name, url, description, items }: ItemListJsonLd
       image: item.image ? toAbsoluteSeoUrl(item.image) : undefined,
     })),
   });
-
   return (
-    <Helmet>
-      <script type="application/ld+json">{JSON.stringify(schema)}</script>
-    </Helmet>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
   );
 }
 
@@ -114,11 +113,11 @@ export function WebPageJsonLd({
     type,
     siteUrl: SITE_URL,
   });
-
   return (
-    <Helmet>
-      <script type="application/ld+json">{JSON.stringify(schema)}</script>
-    </Helmet>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
   );
 }
 
@@ -151,11 +150,11 @@ export function ContactPageJsonLd({
     areaServed,
     siteUrl: SITE_URL,
   });
-
   return (
-    <Helmet>
-      <script type="application/ld+json">{JSON.stringify(schema)}</script>
-    </Helmet>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
   );
 }
 
@@ -228,11 +227,11 @@ export function LocalBusinessJsonLd({
     openingHours,
     userReviews,
   });
-
   return (
-    <Helmet>
-      <script type="application/ld+json">{JSON.stringify(schema)}</script>
-    </Helmet>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
   );
 }
 
@@ -297,11 +296,11 @@ export function ProductJsonLd({
       worstRating: 1,
     };
   }
-
   return (
-    <Helmet>
-      <script type="application/ld+json">{JSON.stringify(schema)}</script>
-    </Helmet>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
   );
 }
 
@@ -345,11 +344,11 @@ export function EventJsonLd({
     ticketUrl,
     siteUrl: SITE_URL,
   });
-
   return (
-    <Helmet>
-      <script type="application/ld+json">{JSON.stringify(schema)}</script>
-    </Helmet>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
   );
 }
 
@@ -386,11 +385,11 @@ export function ArticleJsonLd({
     authorUrl,
     siteUrl: SITE_URL,
   });
-
   return (
-    <Helmet>
-      <script type="application/ld+json">{JSON.stringify(schema)}</script>
-    </Helmet>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
   );
 }
 
@@ -402,11 +401,11 @@ interface FaqItem {
 
 export function FaqJsonLd({ items }: { items: FaqItem[] }) {
   const schema = buildFaqSchema(items);
-
   return (
-    <Helmet>
-      <script type="application/ld+json">{JSON.stringify(schema)}</script>
-    </Helmet>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
   );
 }
 
@@ -442,11 +441,11 @@ export function TouristDestinationJsonLd({
     containedInPlace,
     touristType,
   });
-
   return (
-    <Helmet>
-      <script type="application/ld+json">{JSON.stringify(schema)}</script>
-    </Helmet>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
   );
 }
 

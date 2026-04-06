@@ -2,6 +2,10 @@ import { useMemo } from "react";
 import type { CSSProperties } from "react";
 import { useCmsPageBuilderContext } from "@/contexts/CmsPageBuilderContext";
 import { normalizePublicContactEmail } from "@/lib/contactEmail";
+import {
+  isKnownCmsPageId,
+  resolveCmsBlockId,
+} from "@/lib/cms/pageBuilderRegistry";
 
 function normalizeEmailInText(text: string): string {
   if (!text.includes("@")) return text;
@@ -13,14 +17,40 @@ function normalizeEmailInText(text: string): string {
 export function useCmsPageBuilder(pageId: string) {
   const { pageConfigs, textOverrides, isLoading } = useCmsPageBuilderContext();
 
-  const pageConfig = pageConfigs[pageId] ?? {};
+  const knownPageId = isKnownCmsPageId(pageId) ? pageId : null;
+
+  if (!knownPageId) {
+    const message = `[cms-page-builder] Unknown page id "${pageId}". Add it to CMS_PAGE_DEFINITIONS or update the runtime caller.`;
+    if (process.env.NODE_ENV !== "production") {
+      throw new Error(message);
+    } else if (typeof window !== "undefined") {
+      console.error(message);
+    }
+  }
+
+  const pageConfig = knownPageId ? pageConfigs[knownPageId] ?? {} : {};
 
   const helpers = useMemo(() => {
     const blocks = pageConfig.blocks ?? {};
     const pageText = pageConfig.text ?? {};
+    const resolveBlockId = (blockId: string): string | null => {
+      if (!knownPageId) return null;
+      const resolved = resolveCmsBlockId(knownPageId, blockId);
+      if (!resolved) {
+        const message = `[cms-page-builder] Unknown block id "${blockId}" for page "${knownPageId}".`;
+        if (process.env.NODE_ENV !== "production") {
+          throw new Error(message);
+        } else if (typeof window !== "undefined") {
+          console.error(message);
+        }
+      }
+      return resolved;
+    };
 
     const isBlockEnabled = (blockId: string, fallback = true): boolean => {
-      const configured = blocks[blockId]?.enabled;
+      const resolvedBlockId = resolveBlockId(blockId);
+      if (!resolvedBlockId) return fallback;
+      const configured = blocks[resolvedBlockId]?.enabled;
       return typeof configured === "boolean" ? configured : fallback;
     };
 
@@ -40,18 +70,24 @@ export function useCmsPageBuilder(pageId: string) {
     };
 
     const getBlockClassName = (blockId: string): string => {
-      const className = blocks[blockId]?.className;
+      const resolvedBlockId = resolveBlockId(blockId);
+      if (!resolvedBlockId) return "";
+      const className = blocks[resolvedBlockId]?.className;
       return typeof className === "string" ? className : "";
     };
 
     const getBlockStyle = (blockId: string): CSSProperties => {
-      const style = blocks[blockId]?.style;
+      const resolvedBlockId = resolveBlockId(blockId);
+      if (!resolvedBlockId) return {};
+      const style = blocks[resolvedBlockId]?.style;
       if (!style || typeof style !== "object") return {};
       return style as CSSProperties;
     };
 
     const getBlockData = (blockId: string): Record<string, string | number | boolean | string[]> => {
-      const data = blocks[blockId]?.data;
+      const resolvedBlockId = resolveBlockId(blockId);
+      if (!resolvedBlockId) return {};
+      const data = blocks[resolvedBlockId]?.data;
       if (!data || typeof data !== "object") return {};
       return data;
     };
@@ -85,7 +121,7 @@ export function useCmsPageBuilder(pageId: string) {
       getMetaTitle,
       getMetaDescription,
     };
-  }, [pageConfig.blocks, pageConfig.meta?.description, pageConfig.meta?.title, pageConfig.text, pageId, textOverrides]);
+  }, [knownPageId, pageConfig.blocks, pageConfig.meta?.description, pageConfig.meta?.title, pageConfig.text, pageId, textOverrides]);
 
   return {
     isLoading,

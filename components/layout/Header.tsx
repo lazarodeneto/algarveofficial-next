@@ -82,6 +82,8 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const accountPath = isAuthenticated && user ? getDashboardPath(user.role) : loginPath;
   const tripsPath = isAuthenticated ? l("/dashboard/trips") : loginPath;
   const messagesPath = isAuthenticated ? l("/dashboard/messages") : loginPath;
+  const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim();
+  const userInitial = (fullName.charAt(0) || user?.email?.trim().charAt(0) || "U").toUpperCase();
   const buildDirectoryCategoryPath = (category: string) =>
     l(`/directory?category=${category}`);
 
@@ -233,7 +235,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                     size="icon"
                     className="h-8 w-8 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
                   >
-                    <User className="h-4 w-4" />
+                    <span className="text-xs font-semibold leading-none">{userInitial}</span>
                     <span className="sr-only">{t("nav.account")}</span>
                   </Button>
                 </Link>
@@ -302,7 +304,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                         size="icon"
                         className="h-9 w-9 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
                       >
-                        <User className="h-4.5 w-4.5" />
+                        <span className="text-sm font-semibold leading-none">{userInitial}</span>
                         <span className="sr-only">{t("nav.account")}</span>
                       </Button>
                     </Link>

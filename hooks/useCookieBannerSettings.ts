@@ -1,6 +1,7 @@
 "use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { updateAdminSettingsRow } from "@/lib/admin/settings-client";
 import { toast } from "sonner";
 
 export interface CookieBannerSettings {
@@ -78,18 +79,16 @@ export function useCookieBannerSettings() {
         return DEFAULT_COOKIE_BANNER_SETTINGS;
       }
 
-      const { data, error } = await supabase
-        .from('cookie_banner_settings')
-        .upsert({
-          id: 'default',
+      const data = await updateAdminSettingsRow<CookieBannerSettings>({
+        table: "cookie_banner_settings",
+        updates: {
+          id: "default",
           ...newSettings,
           updated_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+        },
+        mode: "upsert",
+      });
+      return data ?? DEFAULT_COOKIE_BANNER_SETTINGS;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cookie-banner-settings'] });

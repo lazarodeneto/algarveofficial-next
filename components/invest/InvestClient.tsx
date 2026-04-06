@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { HelmetProvider } from "react-helmet-async";
 
 import InvestPage from "@/legacy-pages/public/Invest";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
@@ -40,8 +39,6 @@ export default function InvestClient({
   }
 
   return (
-    <HelmetProvider>
-      <InvestPage />
-    </HelmetProvider>
+    <InvestPage />
   );
 }

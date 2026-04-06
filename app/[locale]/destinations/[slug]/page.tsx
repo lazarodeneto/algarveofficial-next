@@ -27,6 +27,10 @@ const PUBLIC_LISTING_FIELDS = `
   id, slug, name, short_description, featured_image_url, tier,
   status, city_id, region_id, category_id, latitude, longitude
 `;
+const DESTINATION_REGION_FIELDS = `
+  id, slug, name, description, short_description, image_url, hero_image_url, latitude, longitude,
+  is_active, is_visible_destinations
+`;
 const PUBLIC_CITY_FIELDS = "id, name, slug, short_description, image_url";
 const PUBLIC_CATEGORY_FIELDS = "id, name, slug, icon, short_description, image_url";
 
@@ -108,7 +112,7 @@ const getDestinationPageData = cache(async (slug: string, locale: Locale) => {
 
   const { data: regionData, error: regionError } = await supabase
     .from("regions")
-    .select("*")
+    .select(DESTINATION_REGION_FIELDS)
     .eq("slug", slug)
     .or("is_active.eq.true,is_visible_destinations.eq.true")
     .maybeSingle();
@@ -133,7 +137,7 @@ const getDestinationPageData = cache(async (slug: string, locale: Locale) => {
   const [citiesResponse, listingsResponse] = await Promise.all([
     supabase
       .from("city_region_mapping")
-      .select("city:cities(*)")
+      .select(`city:cities(${PUBLIC_CITY_FIELDS})`)
       .eq("region_id", region.id),
     supabase
       .from("listings")
@@ -225,6 +229,7 @@ export async function generateMetadata({ params }: LocaleDestinationPageProps): 
       title: "Destination Not Found",
       description: "The requested destination could not be found.",
       localizedPath: `/destinations/${slug}`,
+      locale: resolvedLocale,
       noIndex: true,
       noFollow: true,
     });

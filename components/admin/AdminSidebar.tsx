@@ -106,7 +106,6 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
   ];
 
   const contentChildren: SidebarNavItem[] = [
-    { label: t("admin.sidebar.pages"), href: "/admin/content/pages", icon: FileText },
     { label: t("admin.sidebar.pageBuilder", "Full Page Builder"), href: "/admin/content/page-builder", icon: Layers },
     { label: t("admin.sidebar.homePage"), href: "/admin/content/home", icon: Home },
     { label: t("admin.sidebar.partnerPage"), href: "/admin/content/partner", icon: Users },
@@ -239,7 +238,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
         {
           id: "content",
           label: t("admin.sidebar.contentStudio", "Content"),
-          href: "/admin/content/pages",
+          href: "/admin/content/page-builder",
           icon: Layers,
           badge: translationQueueCount + pendingEventsCount > 0 ? translationQueueCount + pendingEventsCount : undefined,
           badgeTone: "destructive",

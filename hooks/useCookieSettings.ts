@@ -1,6 +1,7 @@
 "use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { updateAdminSettingsRow } from "@/lib/admin/settings-client";
 import { toast } from "sonner";
 
 export interface Section {
@@ -71,12 +72,11 @@ export function useCookieSettings() {
         supabaseUpdates.sections = sections as unknown;
       }
       
-      const { error } = await supabase
-        .from('cookie_settings')
-        .update(supabaseUpdates)
-        .eq('id', 'default');
-      
-      if (error) throw error;
+      await updateAdminSettingsRow({
+        table: "cookie_settings",
+        updates: supabaseUpdates,
+        mode: "upsert",
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cookie-settings'] });

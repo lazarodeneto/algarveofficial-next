@@ -42,6 +42,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { SeoFieldsPanel } from "@/components/admin/seo/SeoFieldsPanel";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { getCategoryIconComponent } from "@/lib/categoryIcons";
+import { callAdminTaxonomyApi } from "@/lib/admin/taxonomy-client";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 
 type CategoryRow = Tables<"categories">;
@@ -84,11 +85,7 @@ export default function AdminCmsCategories() {
   // Toggle featured mutation
   const toggleFeaturedMutation = useMutation({
     mutationFn: async ({ id, is_featured }: { id: string; is_featured: boolean }) => {
-      const { error } = await supabase
-        .from("categories")
-        .update({ is_featured })
-        .eq("id", id);
-      if (error) throw error;
+      await callAdminTaxonomyApi("categories", "PATCH", { id, is_featured });
     },
     onSuccess: () => {
       invalidateCategoryCaches();
@@ -102,11 +99,7 @@ export default function AdminCmsCategories() {
   // Toggle active mutation
   const toggleActiveMutation = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { error } = await supabase
-        .from("categories")
-        .update({ is_active })
-        .eq("id", id);
-      if (error) throw error;
+      await callAdminTaxonomyApi("categories", "PATCH", { id, is_active });
     },
     onSuccess: () => {
       invalidateCategoryCaches();
@@ -120,20 +113,17 @@ export default function AdminCmsCategories() {
   // Save category mutation
   const saveCategoryMutation = useMutation({
     mutationFn: async (category: Partial<CategoryRow> & { id: string }) => {
-      const { error } = await supabase
-        .from("categories")
-        .update({
-          name: category.name,
-          slug: category.slug,
-          short_description: category.short_description,
-          description: category.description,
-          image_url: category.image_url,
-          icon: category.icon,
-          meta_title: category.meta_title,
-          meta_description: category.meta_description,
-        })
-        .eq("id", category.id);
-      if (error) throw error;
+      await callAdminTaxonomyApi("categories", "PATCH", {
+        id: category.id,
+        name: category.name,
+        slug: category.slug,
+        short_description: category.short_description,
+        description: category.description,
+        image_url: category.image_url,
+        icon: category.icon,
+        meta_title: category.meta_title,
+        meta_description: category.meta_description,
+      });
     },
     onSuccess: () => {
       invalidateCategoryCaches();
@@ -162,8 +152,7 @@ export default function AdminCmsCategories() {
         display_order: maxOrder + 1,
       };
 
-      const { error } = await supabase.from("categories").insert(payload);
-      if (error) throw error;
+      await callAdminTaxonomyApi("categories", "POST", payload as unknown as Record<string, unknown>);
     },
     onSuccess: () => {
       invalidateCategoryCaches();
@@ -178,8 +167,7 @@ export default function AdminCmsCategories() {
   // Delete category mutation
   const deleteCategoryMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("categories").delete().eq("id", id);
-      if (error) throw error;
+      await callAdminTaxonomyApi("categories", "DELETE", { id });
     },
     onSuccess: () => {
       invalidateCategoryCaches();
@@ -192,14 +180,7 @@ export default function AdminCmsCategories() {
 
   const reorderCategoriesMutation = useMutation({
     mutationFn: async (orderedIds: string[]) => {
-      await Promise.all(
-        orderedIds.map((id, index) =>
-          supabase
-            .from("categories")
-            .update({ display_order: index + 1 })
-            .eq("id", id),
-        ),
-      );
+      await callAdminTaxonomyApi("categories", "PUT", { orderedIds });
     },
     onSuccess: () => {
       invalidateCategoryCaches();

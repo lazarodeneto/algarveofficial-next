@@ -14,6 +14,19 @@ const PUBLIC_LISTING_FIELDS =
 const PUBLIC_CITY_FIELDS = "id, slug, name, short_description, latitude, longitude";
 const PUBLIC_REGION_FIELDS = "id, slug, name, short_description";
 const PUBLIC_CATEGORY_FIELDS = "id, slug, name, icon, image_url";
+const HOMEPAGE_SETTINGS_FIELDS = `
+  id, hero_video_url, hero_youtube_url, hero_poster_url, hero_media_type, hero_overlay_intensity,
+  hero_autoplay, hero_loop, hero_muted, hero_title, hero_subtitle, hero_cta_primary_text,
+  hero_cta_primary_link, hero_cta_secondary_text, hero_cta_secondary_link, show_regions_section,
+  show_categories_section, show_cities_section, show_vip_section, show_curated_section,
+  show_all_listings_section, show_cta_section, section_order, updated_at
+`;
+const HOMEPAGE_REGION_FIELDS =
+  "id, name, slug, short_description, description, image_url, hero_image_url, is_active, is_featured, is_visible_destinations, display_order, created_at";
+const HOMEPAGE_CATEGORY_FIELDS =
+  "id, name, slug, short_description, description, icon, image_url, is_active, is_featured, display_order, created_at";
+const HOMEPAGE_CITY_FIELDS =
+  "id, name, slug, short_description, description, image_url, hero_image_url, latitude, longitude, is_active, is_featured, display_order, created_at";
 
 function getServerSupabase() {
   return createClient(supabaseUrl, supabaseAnonKey);
@@ -95,7 +108,7 @@ async function fetchHomepageSettingsWithTranslation(
 ): Promise<HomepageSettingsLike | null> {
   const { data, error } = await supabase
     .from("homepage_settings")
-    .select("*")
+    .select(HOMEPAGE_SETTINGS_FIELDS)
     .order("updated_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -136,7 +149,7 @@ async function fetchHomepageSettingsWithTranslation(
 async function fetchRegions(supabase: ReturnType<typeof getServerSupabase>): Promise<RegionRow[]> {
   const { data, error } = await supabase
     .from("regions")
-    .select("*")
+    .select(HOMEPAGE_REGION_FIELDS)
     .eq("active", true)
     .order("name", { ascending: true });
 
@@ -149,7 +162,7 @@ async function fetchCategories(
 ): Promise<CategoryRow[]> {
   const { data, error } = await supabase
     .from("categories")
-    .select("*")
+    .select(HOMEPAGE_CATEGORY_FIELDS)
     .eq("active", true)
     .order("name", { ascending: true });
 
@@ -160,7 +173,7 @@ async function fetchCategories(
 async function fetchCities(supabase: ReturnType<typeof getServerSupabase>): Promise<CityRow[]> {
   const { data, error } = await supabase
     .from("cities")
-    .select("*")
+    .select(HOMEPAGE_CITY_FIELDS)
     .eq("active", true)
     .order("name", { ascending: true });
 
@@ -218,7 +231,7 @@ async function fetchGlobalSettings(
 ): Promise<GlobalSetting[]> {
   const { data, error } = await supabase
     .from("global_settings")
-    .select("*")
+    .select("key, value, category")
     .eq("category", "homepage");
 
   if (error) return [];
