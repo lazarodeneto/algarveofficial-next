@@ -92,7 +92,7 @@ export const ThreadDetailDialog = forwardRef<HTMLDivElement, ThreadDetailDialogP
 
     return (
       <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-        <DialogContent ref={ref} className="max-w-2xl max-h-[85vh] flex flex-col">
+        <DialogContent ref={ref} className="flex max-h-[90dvh] w-[calc(100vw-1rem)] flex-col p-4 sm:max-w-2xl sm:p-6">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <MessageSquare className="h-5 w-5" />
@@ -110,23 +110,23 @@ export const ThreadDetailDialog = forwardRef<HTMLDivElement, ThreadDetailDialogP
           </DialogHeader>
 
           {/* Thread Info */}
-          <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
+          <div className="grid grid-cols-1 gap-4 rounded-lg bg-muted/30 p-4 sm:grid-cols-2">
             <div className="space-y-3">
               <div className="flex items-start gap-2">
                 <User className="h-4 w-4 mt-0.5 text-muted-foreground" />
-                <div>
+                <div className="min-w-0">
                   <p className="text-xs text-muted-foreground">Viewer</p>
-                  <p className="font-medium">{thread.viewer?.full_name || thread.contact_name || "Guest"}</p>
+                  <p className="font-medium truncate">{thread.viewer?.full_name || thread.contact_name || "Guest"}</p>
                   {thread.contact_email && !thread.viewer && (
-                    <p className="text-xs text-muted-foreground">{thread.contact_email}</p>
+                    <p className="text-xs text-muted-foreground truncate">{thread.contact_email}</p>
                   )}
                 </div>
               </div>
               <div className="flex items-start gap-2">
                 <Building2 className="h-4 w-4 mt-0.5 text-muted-foreground" />
-                <div>
+                <div className="min-w-0">
                   <p className="text-xs text-muted-foreground">Owner</p>
-                  <p className="font-medium">{thread.owner?.full_name || "Unknown"}</p>
+                  <p className="font-medium truncate">{thread.owner?.full_name || "Unknown"}</p>
                 </div>
               </div>
             </div>
@@ -138,7 +138,7 @@ export const ThreadDetailDialog = forwardRef<HTMLDivElement, ThreadDetailDialogP
                       href={`/listing/${thread.listing.slug}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-medium hover:text-primary flex items-center gap-1"
+                      className="flex items-center gap-1 truncate font-medium hover:text-primary"
                     >
                       {thread.listing.name}
                       <ExternalLink className="h-3 w-3" />
@@ -172,7 +172,7 @@ export const ThreadDetailDialog = forwardRef<HTMLDivElement, ThreadDetailDialogP
           {/* Messages */}
           <div className="flex-1 min-h-0">
             <p className="text-sm font-medium mb-2">Messages ({messages.length})</p>
-            <ScrollArea className="h-[250px] pr-4">
+            <ScrollArea className="h-[45dvh] pr-2 sm:h-[250px] sm:pr-4">
               {isLoading ? (
                 <div className="flex items-center justify-center py-8 text-muted-foreground">
                   Loading messages...
@@ -204,7 +204,7 @@ export const ThreadDetailDialog = forwardRef<HTMLDivElement, ThreadDetailDialogP
                   <Shield className="h-3 w-3 text-amber-500" />
                   <span>Replying as Platform Admin</span>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <Textarea
                     value={replyContent}
                     onChange={(e) => setReplyContent(e.target.value)}
@@ -217,7 +217,7 @@ export const ThreadDetailDialog = forwardRef<HTMLDivElement, ThreadDetailDialogP
                     onClick={handleSend}
                     disabled={!replyContent.trim() || sendMessage.isPending}
                     size="icon"
-                    className="h-auto"
+                    className="h-10 w-full shrink-0 sm:h-auto sm:w-10"
                     aria-label="Send admin reply"
                   >
                     {sendMessage.isPending ? (
@@ -285,7 +285,7 @@ function MessageItem({ message, onDelete }: { message: ChatMessage; onDelete: ()
   return (
     <div
       className={cn(
-        "flex flex-col max-w-[80%] rounded-lg p-3",
+        "flex flex-col max-w-full rounded-lg p-3 sm:max-w-[80%]",
         isAdmin
           ? "ml-auto bg-amber-500/10 text-foreground border border-amber-500/30"
           : isOutbound
@@ -312,7 +312,7 @@ function MessageItem({ message, onDelete }: { message: ChatMessage; onDelete: ()
           {format(new Date(message.created_at), "PPp")}
         </span>
       </div>
-      <p className="text-sm whitespace-pre-wrap">{message.body_text}</p>
+      <p className="text-sm whitespace-pre-wrap break-words">{message.body_text}</p>
       <div className="flex items-center justify-between gap-1 mt-1">
         <Badge
           variant="outline"

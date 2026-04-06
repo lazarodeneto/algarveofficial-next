@@ -25,6 +25,8 @@ import type { SubscriptionTier, BillingPeriod } from "@/lib/stripePricing";
 import Link from "next/link";
 import { useLocalePath } from "@/hooks/useLocalePath";
 
+type OwnerBillingPeriod = BillingPeriod | 'period';
+
 export default function OwnerMembership() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -41,7 +43,7 @@ export default function OwnerMembership() {
     checkSubscription 
   } = useStripeSubscription();
   
-  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly');
+  const [billingPeriod, setBillingPeriod] = useState<OwnerBillingPeriod>('monthly');
   const [checkoutInProgress, setCheckoutInProgress] = useState<string | null>(null);
   
   // Handle success/cancel redirects from Stripe
@@ -84,6 +86,10 @@ export default function OwnerMembership() {
   
   const handleCheckout = async (tierId: string) => {
     if (tierId === 'unverified') return;
+    if (billingPeriod === 'period') {
+      toast.info(t('owner.membership.customPeriodContactSupport', 'Custom period subscriptions are managed by support.'));
+      return;
+    }
     if (tierId === currentTier && billingPeriod === currentBillingPeriod) return;
 
     setCheckoutInProgress(tierId);
@@ -114,6 +120,7 @@ export default function OwnerMembership() {
   };
 
   const isLoading = isListingsLoading || isPricingLoading || isSubscriptionLoading;
+  const hasPeriodPricing = membershipTiers.some((tier) => tier.id !== "unverified" && !!tier.period);
 
   if (isLoading) {
     return (
@@ -186,6 +193,26 @@ export default function OwnerMembership() {
               {t('owner.membership.save17')}
             </span>
           </button>
+          {hasPeriodPricing && (
+            <button
+              onClick={() => setBillingPeriod('period')}
+              className={cn(
+                "relative px-5 py-2 text-sm font-medium rounded-full transition-all duration-200",
+                billingPeriod === 'period'
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {billingPeriod === 'period' && (
+                <motion.div
+                  layoutId="billingToggle"
+                  className="absolute inset-0 bg-background rounded-full shadow-sm border border-border"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+              <span className="relative z-10">{t('owner.membership.period', 'Period')}</span>
+            </button>
+          )}
         </div>
       </motion.div>
 
@@ -257,9 +284,31 @@ export default function OwnerMembership() {
             (tierMatches && billingPeriod !== currentBillingPeriod)
           );
           const isDowngrade = isPaidSwitch && !isUpgrade;
-          const pricing = billingPeriod === 'annual' ? tier.annual : tier.monthly;
+          const isSignatureMonthlyBlocked = tier.id === 'signature' && billingPeriod === 'monthly';
+          const pricing = isSignatureMonthlyBlocked
+            ? tier.annual
+            : billingPeriod === 'annual'
+            ? tier.annual
+            : billingPeriod === 'period'
+              ? (tier.period ?? tier.monthly)
+              : tier.monthly;
           const showSavings = billingPeriod === 'annual' && tier.annual.savings && tier.annual.savings > 0;
           const isCheckingOut = checkoutInProgress === tier.id;
+          const isPeriodUnavailableForTier = billingPeriod === 'period' && !tier.period;
+          const isVerifiedTier = tier.id === 'verified';
+          const isSignatureTier = tier.id === 'signature';
+          const cardToneClass = isSignatureTier
+            ? "border-amber-500/50 bg-amber-500/5"
+            : isVerifiedTier
+              ? "border-green-500/50 bg-green-500/5"
+              : "bg-card border-border";
+          const blockedToneClass = isSignatureMonthlyBlocked ? "border-border bg-muted/40 text-muted-foreground" : "";
+          const currentRingClass = isCurrentTier && !isSignatureMonthlyBlocked
+            ? (isSignatureTier ? "ring-2 ring-amber-500/70" : "ring-2 ring-green-500")
+            : "";
+          const currentBadgeClass = isSignatureTier
+            ? "inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full bg-amber-500 text-amber-950"
+            : "inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full bg-green-500 text-white";
           
           return (
               <motion.div
@@ -270,28 +319,34 @@ export default function OwnerMembership() {
               >
               <Card 
                 className={cn(
-                  "relative h-full transition-all",
-                  tier.highlight && "border-amber-500/50 bg-amber-500/5",
-                  isCurrentTier && "ring-2 ring-green-500",
-                  !tier.highlight && !isCurrentTier && "bg-card border-border"
+                  "relative h-full transition-all flex flex-col",
+                  cardToneClass,
+                  currentRingClass,
+                  blockedToneClass,
+                  isSignatureMonthlyBlocked && "opacity-75 saturate-50"
                 )}
               >
                 <CardHeader>
                   {/* Badges row - inside card, never clipped */}
-                  {(tier.highlight || isCurrentTier) && (
+                  {(tier.id === 'verified' || isCurrentTier || isSignatureMonthlyBlocked) && (
                     <div className="flex items-center gap-2 flex-wrap mb-2">
-                      {tier.highlight && !isCurrentTier && (
-                        <span className="px-3 py-1 text-xs font-medium rounded-full bg-amber-500 text-amber-950">
+                      {tier.id === 'verified' && !isCurrentTier && (
+                        <span className="px-3 py-1 text-xs font-medium rounded-full bg-green-500 text-white">
                           {t('owner.membership.mostPopular')}
                         </span>
                       )}
-                      {isCurrentTier && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full bg-green-500 text-white">
+                      {isSignatureMonthlyBlocked && (
+                        <span className="px-3 py-1 text-xs font-medium rounded-full bg-muted text-muted-foreground border border-border">
+                          {t('owner.membership.annualOnly', 'Annual only')}
+                        </span>
+                      )}
+                      {isCurrentTier && !isSignatureMonthlyBlocked && (
+                        <span className={currentBadgeClass}>
                           <CheckCircle2 className="h-3 w-3" />
                           {t('owner.membership.currentPlan')}
                           {currentBillingPeriod && (
                             <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide rounded bg-white/20">
-                              {t(`owner.membership.${currentBillingPeriod}`)}
+                              {t(`owner.membership.${currentBillingPeriod}`, currentBillingPeriod)}
                             </span>
                           )}
                         </span>
@@ -304,6 +359,11 @@ export default function OwnerMembership() {
                     {tier.id === 'verified' && <CheckCircle2 className="h-5 w-5 text-green-400" />}
                     {tier.id === 'unverified' && <Star className="h-5 w-5 text-muted-foreground" />}
                     <CardTitle>{tier.name}</CardTitle>
+                    {tier.id === 'signature' && (
+                      <span className="text-xs font-medium text-muted-foreground">
+                        {t('owner.membership.invitationOnly', 'Invitation only')}
+                      </span>
+                    )}
                   </div>
                   <div className="mt-4">
                     <AnimatePresence mode="wait">
@@ -336,7 +396,7 @@ export default function OwnerMembership() {
                   </div>
                 </CardHeader>
                 
-                <CardContent className="space-y-6">
+                <CardContent className="flex flex-1 flex-col gap-6">
                   {/* Benefits */}
                   <div className="space-y-3">
                     {tier.benefits.map((benefit, i) => (
@@ -362,7 +422,7 @@ export default function OwnerMembership() {
                   )}
                   
                   {/* Action */}
-                  <div className="pt-4">
+                  <div className="mt-auto pt-4">
                     {tier.id === 'unverified' ? (
                       subscription.hasStripeCustomer ? (
                         <Button
@@ -378,10 +438,31 @@ export default function OwnerMembership() {
                           {t('owner.membership.freeForever')}
                         </Button>
                       )
+                    ) : isSignatureMonthlyBlocked ? (
+                      <Button disabled className="w-full" variant="ghost">
+                        {t('owner.membership.annualOnly', 'Annual only')}
+                      </Button>
                     ) : isCurrentTier ? (
                       <Button disabled className="w-full" variant="outline">
                         <CheckCircle2 className="h-4 w-4 mr-2" />
                         {t('owner.membership.currentPlan')}
+                      </Button>
+                    ) : tier.id === 'signature' ? (
+                      <Button className="w-full" variant="outline" asChild>
+                        <Link href={l("/owner/support")}>
+                          {t('owner.membership.invitationOnlyCta', 'Invitation-only')}
+                          <ExternalLink className="h-3 w-3 ml-2" />
+                        </Link>
+                      </Button>
+                    ) : isPeriodUnavailableForTier ? (
+                      <Button disabled className="w-full" variant="ghost">
+                        {t('owner.membership.notAvailable')}
+                      </Button>
+                    ) : billingPeriod === 'period' ? (
+                      <Button className="w-full" variant="outline" asChild>
+                        <Link href={l("/owner/support")}>
+                          {t('owner.membership.contactSupportForPeriod', 'Contact support for custom period')}
+                        </Link>
                       </Button>
                     ) : isSameTierDifferentBilling ? (
                       <Button
@@ -396,13 +477,16 @@ export default function OwnerMembership() {
                             {t('owner.membership.openingCheckoutShort')}
                           </>
                         ) : (
-                          t('owner.membership.switchTo', { period: t(`owner.membership.${billingPeriod}`) })
+                          t('owner.membership.switchTo', { period: t(`owner.membership.${billingPeriod}`, billingPeriod) })
                         )}
                       </Button>
                     ) : isUpgrade ? (
                       <Button
-                        className="w-full"
-                        variant={tier.highlight ? "default" : "outline"}
+                        className={cn(
+                          "w-full",
+                          tier.id === "verified" && "bg-green-600 hover:bg-green-700 text-white border border-green-500 shadow-lg shadow-green-600/20"
+                        )}
+                        variant={tier.id === "verified" || tier.highlight ? "default" : "outline"}
                         onClick={() => handleCheckout(tier.id)}
                         disabled={isCheckingOut}
                       >

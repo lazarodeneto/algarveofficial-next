@@ -48,6 +48,7 @@ import { invokeFunctionWithAuthRetry } from "@/lib/supabaseFunctionInvoke";
 import {
   getSupabaseFunctionErrorMessage,
   isSupabaseFunctionAuthError,
+  isSupabaseFunctionTransportError,
 } from "@/lib/supabaseFunctionError";
 import {
   LISTING_TRANSLATION_TARGET_LANGS,
@@ -59,8 +60,10 @@ import {
   normalizeMaintenanceWhitelistEntry,
 } from "@/lib/maintenance";
 import { normalizePublicImageUrl, resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function AdminGlobalSettings() {
+  const l = useLocalePath();
   const { settings: siteSettings, isLoading: siteLoading, updateSettingsAsync, isUpdating } = useSiteSettings();
   const {
     settings: cookieBannerSettings,
@@ -223,7 +226,10 @@ export default function AdminGlobalSettings() {
         body: { listing_id: listingId },
       });
       if (error) {
-        if (await isSupabaseFunctionAuthError(error)) {
+        const isAuthError = await isSupabaseFunctionAuthError(error);
+        const isTransportError = await isSupabaseFunctionTransportError(error);
+
+        if (isAuthError || isTransportError) {
           const queueResult = await queueListingTranslationJobs(listingId, TARGET_LANGS);
           if (queueResult.queued > 0) {
             toast.warning(
@@ -318,7 +324,10 @@ export default function AdminGlobalSettings() {
             body: { listing_id: listing.id },
           });
           if (error) {
-            if (await isSupabaseFunctionAuthError(error)) {
+            const isAuthError = await isSupabaseFunctionAuthError(error);
+            const isTransportError = await isSupabaseFunctionTransportError(error);
+
+            if (isAuthError || isTransportError) {
               const queueResult = await queueListingTranslationJobs(listing.id, TARGET_LANGS);
               if (queueResult.queued > 0) {
                 results.push({
@@ -2426,164 +2435,22 @@ export default function AdminGlobalSettings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <RefreshCw className="h-5 w-5 text-primary" />
-                Content Translation Jobs
+                Translations Moved
               </CardTitle>
               <CardDescription>
-                Process listing content translations stored in Supabase. This area does not manage bundled UI locale keys.
+                Translation management has been consolidated into one place in the Admin dashboard.
               </CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-4">
               <div className="rounded-lg border border-primary/20 bg-primary/10 p-4 text-sm text-muted-foreground">
                 <Info className="mr-2 inline-block h-4 w-4 text-primary" />
-                Use <strong className="text-foreground">Content &rarr; Translations</strong> for interface/UI locale key sync.
-                This tab only works with <code>listing_translations</code> and <code>translation_jobs</code>.
+                Use <strong className="text-foreground">Content &rarr; Translations</strong> for both:
+                UI locale sync and listing content translation jobs.
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-[220px,1fr] gap-4 items-end">
-                <div className="space-y-2">
-                  <Label htmlFor="translate_batch">Batch size (n)</Label>
-                  <Input
-                    id="translate_batch"
-                    type="number"
-                    min={1}
-                    max={200}
-                    value={translateBatch}
-                    onChange={(e) => setTranslateBatch(Number(e.target.value))}
-                    className="bg-background"
-                  />
-                  <p className="text-xs text-muted-foreground">Recommended: 10–50 per run (cost-controlled).</p>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button onClick={runTranslationsNow} disabled={translateLoading}>
-                    {translateLoading ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                    )}
-                    {translateLoading ? "Translating..." : "Translate now"}
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    type="button"
-                    onClick={() => {
-                      setTranslateResult(null);
-                      setTranslateError(null);
-                    }}
-                    disabled={translateLoading}
-                  >
-                    Clear
-                  </Button>
-                </div>
-              </div>
-
-              {translateError && (
-                <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30">
-                  <p className="text-sm text-destructive font-medium flex items-center gap-2">
-                    <AlertCircle className="h-4 w-4" />
-                    {translateError}
-                  </p>
-                </div>
-              )}
-
-              {translateResult && (
-                <div className="space-y-2">
-                  <Label>Last run result</Label>
-                  <pre className="text-xs bg-muted p-4 rounded-md overflow-x-auto border border-border">
-                    {JSON.stringify(translateResult, null, 2)}
-                  </pre>
-                </div>
-              )}
-
-              <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
-                <p className="text-sm text-muted-foreground">
-                  <Info className="h-4 w-4 inline-block mr-2 text-primary" />
-                  After running, validate results in <code>listing_translations</code> and check remaining jobs in{" "}
-                  <code>translation_jobs</code> where status = <code>queued</code>.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* ── Missing Translations ── */}
-          <Card className="border-border bg-card/50">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <AlertCircle className="h-5 w-5 text-amber-500" />
-                    Listings Missing Content Translations
-                  </CardTitle>
-                  <CardDescription>Published listings missing one or more of: pt-pt · fr · de · es · it · nl · sv · no · da</CardDescription>
-                </div>
-                <Button variant="outline" size="sm" onClick={fetchMissingTranslations} disabled={missingLoading}>
-                  {missingLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                  <span className="ml-2">{missingLoading ? "Loading..." : "Refresh"}</span>
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {missingTranslations.length === 0 && !missingLoading ? (
-                <div className="text-center py-8 text-muted-foreground text-sm">
-                  All published listings are currently translated for the supported content locales.
-                </div>
-              ) : missingLoading ? (
-                <div className="flex items-center justify-center py-8 gap-2 text-muted-foreground text-sm">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Loading...
-                </div>
-              ) : (
-                <>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Badge variant="destructive">{missingTranslations.length} listing{missingTranslations.length !== 1 ? "s" : ""} incomplete</Badge>
-                  </div>
-                  <div className="rounded-md border border-border overflow-hidden">
-                    <table className="w-full text-sm">
-                      <thead className="bg-muted/50">
-                        <tr>
-                          <th className="text-left px-4 py-2 font-medium text-muted-foreground">Name</th>
-                          <th className="text-left px-4 py-2 font-medium text-muted-foreground hidden sm:table-cell">City</th>
-                          <th className="text-left px-4 py-2 font-medium text-muted-foreground hidden md:table-cell">Missing</th>
-                          <th className="text-right px-4 py-2 font-medium text-muted-foreground">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {missingTranslations.map((listing, i) => (
-                          <tr key={listing.id} className={i % 2 === 0 ? "bg-background" : "bg-muted/20"}>
-                            <td className="px-4 py-2 font-medium truncate max-w-[200px]">{listing.name}</td>
-                            <td className="px-4 py-2 text-muted-foreground hidden sm:table-cell">{listing.city}</td>
-                            <td className="px-4 py-2 hidden md:table-cell">
-                              <div className="flex flex-wrap gap-1">
-                                {listing.missingLangs.map((lang) => (
-                                  <Badge key={lang} variant="outline" className="text-[10px] px-1.5 py-0 border-amber-400 text-amber-600">
-                                    {lang}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </td>
-                            <td className="px-4 py-2 text-right">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                disabled={translatingId === listing.id}
-                                onClick={() => translateSingle(listing.id)}
-                              >
-                                {translatingId === listing.id ? (
-                                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                                ) : (
-                                  <RefreshCw className="h-3 w-3 mr-1" />
-                                )}
-                                Translate
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </>
-              )}
+              <Button type="button" onClick={() => window.location.assign(l("/admin/content/translations"))}>
+                Open Unified Translations Area
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>

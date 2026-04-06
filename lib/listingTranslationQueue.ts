@@ -21,8 +21,44 @@ interface QueueListingTranslationJobsResult {
   queuedLanguages: string[];
 }
 
+export function normalizeListingTranslationLanguageCode(raw: unknown): string {
+  if (typeof raw !== "string") return "";
+
+  const normalized = raw.toLowerCase().replaceAll("_", "-").trim();
+
+  if (normalized === "pt" || normalized === "pt-pt") return "pt-pt";
+  if (normalized.startsWith("de")) return "de";
+  if (normalized.startsWith("fr")) return "fr";
+  if (normalized.startsWith("es")) return "es";
+  if (normalized.startsWith("it")) return "it";
+  if (normalized.startsWith("nl")) return "nl";
+  if (normalized.startsWith("sv")) return "sv";
+  if (normalized === "no" || normalized.startsWith("nb") || normalized.startsWith("nn")) return "no";
+  if (normalized.startsWith("da")) return "da";
+  if (normalized.startsWith("en")) return "en";
+
+  return normalized;
+}
+
+function isCompletedTranslationStatus(status: unknown): boolean {
+  if (typeof status !== "string") return false;
+  const normalized = status.toLowerCase();
+  return (
+    normalized === "auto" ||
+    normalized === "reviewed" ||
+    normalized === "edited" ||
+    normalized === "translated"
+  );
+}
+
 function uniqueLanguages(languages: readonly string[]): string[] {
-  return Array.from(new Set(languages.map((lang) => lang.trim().toLowerCase()).filter(Boolean)));
+  return Array.from(
+    new Set(
+      languages
+        .map((lang) => normalizeListingTranslationLanguageCode(lang))
+        .filter(Boolean),
+    ),
+  );
 }
 
 export async function queueListingTranslationJobs(
@@ -69,8 +105,8 @@ export async function queueListingTranslationJobs(
   const translatedLanguages = new Set<string>();
   for (const row of existingTranslations ?? []) {
     if (!row?.language_code) continue;
-    const code = row.language_code.toLowerCase();
-    if (row.translation_status === "translated") {
+    const code = normalizeListingTranslationLanguageCode(row.language_code);
+    if (isCompletedTranslationStatus(row.translation_status)) {
       translatedLanguages.add(code);
     }
   }
@@ -78,8 +114,8 @@ export async function queueListingTranslationJobs(
   const queuedLanguages = new Set<string>();
   for (const row of existingJobs ?? []) {
     if (!row?.target_lang) continue;
-    const code = row.target_lang.toLowerCase();
-    if (row.status === "queued" || row.status === "processing") {
+    const code = normalizeListingTranslationLanguageCode(row.target_lang);
+    if (row.status === "queued") {
       queuedLanguages.add(code);
     }
   }
@@ -114,4 +150,3 @@ export async function queueListingTranslationJobs(
     queuedLanguages: languagesToQueue,
   };
 }
-

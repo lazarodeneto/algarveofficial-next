@@ -177,7 +177,7 @@ const Invest = () => {
                             {featuredCities.length > 0 && isBlockEnabled("featured-city-hub", true) ? (
                                 <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
                                     <Link
-                                        href={l(`/city/${featuredCities[0].slug}`)}
+                                        href={l(`/visit/${featuredCities[0].slug}`)}
                                         className="group block h-full overflow-hidden rounded-[32px] border border-border bg-card shadow-sm"
                                     >
                                         <div className="relative h-full min-h-[20rem]">
@@ -216,7 +216,7 @@ const Invest = () => {
                                             {cities.slice(0, 6).map((city) => (
                                                 <Link
                                                     key={city.id}
-                                                    href={l(`/city/${city.slug}`)}
+                                                    href={l(`/visit/${city.slug}`)}
                                                     className="rounded-2xl border border-border px-4 py-3 transition-colors hover:border-primary/40 hover:bg-muted/40"
                                                 >
                                                     <div className="font-medium text-foreground">{city.name}</div>
@@ -241,7 +241,7 @@ const Invest = () => {
                                     {cities.map((city) => (
                                         <Link
                                             key={city.id}
-                                            href={l(`/city/${city.slug}`)}
+                                            href={l(`/visit/${city.slug}`)}
                                             className="group block"
                                         >
                                             <article className="glass-box overflow-hidden">

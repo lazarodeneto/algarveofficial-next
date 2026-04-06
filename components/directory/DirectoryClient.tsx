@@ -627,7 +627,7 @@ function useDirectoryCmsHelpers(globalSettings: GlobalSetting[], cmsPageId: stri
       getBlockClassName,
       getBlockStyle,
     };
-  }, [globalSettings]);
+  }, [cmsPageId, globalSettings]);
 }
 
 function DirectoryCmsBlock({
@@ -724,6 +724,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     initialData: initialCmsSettings,
     staleTime: 1000 * 60 * 5,
   });
+  const activeCms = useDirectoryCmsHelpers(globalSettings, cmsPageId);
 
   const { data: cities = props.initialCities, isLoading: citiesLoading } = useQuery({
     queryKey: ["cities", locale],
@@ -758,10 +759,16 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     () => getMergedCategoryBySlug(selectedCategory, mergedCategories),
     [mergedCategories, selectedCategory],
   );
+  const accommodationCategoryIds = useMemo(
+    () => getMergedCategoryBySlug("accommodation", mergedCategories)?.memberIds ?? EMPTY_CATEGORY_IDS,
+    [mergedCategories],
+  );
   const selectedCategoryIds = useMemo(
     () => selectedCategoryItem?.memberIds ?? EMPTY_CATEGORY_IDS,
     [selectedCategoryItem],
   );
+  const isStayPage = cmsPageId === "stay" || pathname.includes("/stay");
+  const isVisitPage = cmsPageId === "visit" || pathname.includes("/visit");
   const resolveFilterEntityId = useCallback(
     <T extends { id: string; slug: string }>(value: string, entities: T[]) => {
       if (!value || value === "all") return "all";
@@ -806,6 +813,68 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     gcTime: 1000 * 60 * 15,
     enabled: categories.length > 0 && cities.length > 0 && regions.length > 0,
   });
+
+  const { data: stayCityListingCounts = {} } = useQuery<Record<string, number>>({
+    queryKey: ["stay-city-counts", [...accommodationCategoryIds].sort().join(",")],
+    queryFn: async () => {
+      if (accommodationCategoryIds.length === 0) return {};
+
+      const { data, error: cityCountError } = await supabase
+        .from("listings")
+        .select("city_id")
+        .in("category_id", accommodationCategoryIds)
+        .eq("status", "published");
+
+      if (cityCountError) throw cityCountError;
+
+      const counts: Record<string, number> = {};
+      for (const row of data ?? []) {
+        if (!row.city_id) continue;
+        counts[row.city_id] = (counts[row.city_id] ?? 0) + 1;
+      }
+
+      return counts;
+    },
+    enabled: isStayPage && accommodationCategoryIds.length > 0,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const stayCityIndex = useMemo(
+    () =>
+      (props.visitCityIndex ?? [])
+        .map((city) => ({
+          ...city,
+          totalCount: stayCityListingCounts[city.id] ?? 0,
+        }))
+        .filter((city) => city.totalCount > 0)
+        .sort((a, b) => b.totalCount - a.totalCount)
+        .slice(0, 6),
+    [props.visitCityIndex, stayCityListingCounts],
+  );
+
+  const cityHubsTopCities = useMemo(() => {
+    if (isStayPage) return stayCityIndex;
+    return props.visitCityIndex?.slice(0, 6) ?? [];
+  }, [isStayPage, props.visitCityIndex, stayCityIndex]);
+
+  const cityHubsHighlightedCity = useMemo(() => {
+    if (isStayPage) {
+      return stayCityIndex[0] ?? props.featuredVisitCity ?? undefined;
+    }
+    return props.featuredVisitCity ?? undefined;
+  }, [isStayPage, props.featuredVisitCity, stayCityIndex]);
+  const stayCityPathBuilder = useCallback((city: { id: string; slug: string }) => {
+    const params = new URLSearchParams({
+      category: "places-to-stay",
+      city: city.id || city.slug,
+    });
+    return `/stay?${params.toString()}`;
+  }, []);
+
+  const showCityHubs =
+    activeCms.isBlockEnabled("city-hubs", true) &&
+    ((isStayPage && cityHubsTopCities.length > 0) ||
+      (isVisitPage && (props.visitCityIndex?.length ?? 0) > 0));
 
   const showInitialData = isPlaceholderData && props.initialListings.length > 0;
 
@@ -931,8 +1000,6 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   const showGridSkeleton = isLoading && !error && listings.length === 0 && !isPlaceholderData;
   const totalListingsCount = listings.length;
 
-  const activeCms = useDirectoryCmsHelpers(globalSettings, cmsPageId);
-
   const mapHref = useMemo(() => {
     const params = new URLSearchParams();
     if (search.trim()) params.set("q", search.trim());
@@ -993,13 +1060,15 @@ function DirectoryClientInner(props: DirectoryClientProps) {
         ) : null}
 
         <div className="app-container content-max pb-16 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
-          {(pathname.endsWith("/visit") || pathname.endsWith("/stay")) && props.visitCityIndex && props.visitCityIndex.length > 0 && activeCms.isBlockEnabled("city-hubs", true) ? (
+          {showCityHubs ? (
             <CityHubsSection
-              highlightedCity={props.featuredVisitCity ?? undefined}
-              topCities={props.visitCityIndex.slice(0, 6)}
-              cityListingCounts={{}}
+              highlightedCity={cityHubsHighlightedCity}
+              topCities={cityHubsTopCities}
+              cityListingCounts={isStayPage ? stayCityListingCounts : {}}
+              preferCityListingCounts={isStayPage}
+              cityPathBuilder={isStayPage ? stayCityPathBuilder : undefined}
               imageTimestamp={imageTimestamp}
-              basePath="stay"
+              basePath="visit"
               translationPrefix="directory"
             />
           ) : null}

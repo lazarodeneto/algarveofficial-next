@@ -18,6 +18,8 @@ interface CityHubsSectionProps {
   highlightedCity: City | undefined;
   topCities: City[];
   cityListingCounts: Record<string, number>;
+  preferCityListingCounts?: boolean;
+  cityPathBuilder?: (city: City) => string;
   imageTimestamp: number;
   basePath: string;
   translationPrefix: string;
@@ -27,15 +29,28 @@ export function CityHubsSection({
   highlightedCity,
   topCities,
   cityListingCounts,
+  preferCityListingCounts = false,
+  cityPathBuilder,
   imageTimestamp,
   basePath,
   translationPrefix,
 }: CityHubsSectionProps) {
   const { t } = useTranslation();
   const l = useLocalePath();
+  const normalizedBasePath = basePath.replace(/^\/+|\/+$/g, "");
+  const cityHubBasePath =
+    normalizedBasePath === "city" || normalizedBasePath === "stay"
+      ? "visit"
+      : normalizedBasePath || "visit";
 
-  const getCityCount = (city: City) =>
-    city.totalCount ?? cityListingCounts[city.id] ?? 0;
+  const getCityCount = (city: City) => {
+    if (preferCityListingCounts) {
+      return cityListingCounts[city.id] ?? city.totalCount ?? 0;
+    }
+    return city.totalCount ?? cityListingCounts[city.id] ?? 0;
+  };
+  const getCityHref = (city: City) =>
+    l(cityPathBuilder?.(city) ?? `/${cityHubBasePath}/${city.slug}`);
 
   const featured = highlightedCity ?? topCities[0];
   if (!featured) return null;
@@ -44,7 +59,7 @@ export function CityHubsSection({
     <section className="mb-10 space-y-8">
       <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <Link
-          href={l(`/${basePath}/${featured.slug}`)}
+          href={getCityHref(featured)}
           className="group block h-full overflow-hidden rounded-[32px] border border-border bg-card shadow-sm"
         >
           <div className="relative h-full min-h-[20rem]">
@@ -102,7 +117,7 @@ export function CityHubsSection({
             {topCities.map((city) => (
               <Link
                 key={city.id}
-                href={l(`/${basePath}/${city.slug}`)}
+                href={getCityHref(city)}
                 className="rounded-2xl border border-border px-4 py-3 transition-colors hover:border-primary/40 hover:bg-muted/40"
               >
                 <div className="font-medium text-foreground">

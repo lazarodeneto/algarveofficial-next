@@ -201,16 +201,16 @@ export default function AdminMessages() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl lg:text-4xl font-serif font-semibold text-foreground">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-semibold text-foreground">
             Messages
           </h1>
           <p className="text-muted-foreground mt-1">
             View and moderate all chat threads across the platform
           </p>
         </div>
-        <Button variant="outline" onClick={() => refetch()} disabled={isLoading}>
+        <Button variant="outline" onClick={() => refetch()} disabled={isLoading} className="w-full sm:w-auto">
           <RefreshCw className={cn("h-4 w-4 mr-2", isLoading && "animate-spin")} />
           Refresh
         </Button>

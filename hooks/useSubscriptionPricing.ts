@@ -1,5 +1,6 @@
 "use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { format as formatDate } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { TFunction } from "i18next";
@@ -7,10 +8,14 @@ import { TFunction } from "i18next";
 export interface SubscriptionPricing {
   id: string;
   tier: 'verified' | 'signature';
-  billing_period: 'monthly' | 'annual';
+  billing_period: string;
   price: number;
   display_price: string;
   note: string;
+  period_length: number | null;
+  period_unit: 'days' | 'months' | null;
+  period_start_date: string | null;
+  period_end_date: string | null;
   monthly_equivalent: string | null;
   savings: number;
   updated_at: string;
@@ -28,6 +33,8 @@ export interface PromotionalCode {
   end_date: string;
   is_active: boolean;
   max_uses: number | null;
+  period_length: number | null;
+  period_unit: 'days' | 'months' | null;
   current_uses: number;
   created_at: string;
   updated_at: string;
@@ -48,23 +55,53 @@ export interface MembershipTier {
   name: string;
   monthly: PricingOption;
   annual: PricingOption;
+  period?: PricingOption;
   benefits: string[];
   limitations: string[];
   highlight: boolean;
 }
 
+function isMissingColumnError(error: unknown, column: string) {
+  const message =
+    typeof error === "object" && error !== null && "message" in error
+      ? String((error as { message?: unknown }).message ?? "")
+      : "";
+  return (
+    message.includes(`'${column}'`) &&
+    (message.includes("column") || message.includes("schema cache"))
+  );
+}
+
+function shouldRetryWithoutPeriodDates(error: unknown) {
+  return (
+    isMissingColumnError(error, "period_start_date") ||
+    isMissingColumnError(error, "period_end_date")
+  );
+}
+
 // Static benefits/limitations keys for translation
 const tierBenefitKeys = {
   unverified: {
-    benefits: ['tiers.free.benefits.createListing', 'tiers.free.benefits.basicAnalytics', 'tiers.free.benefits.standardVisibility'],
+    benefits: ['tiers.free.benefits.createListing', 'tiers.free.benefits.standardVisibility'],
     limitations: ['tiers.free.limitations.limitedVisibility', 'tiers.free.limitations.noPrioritySupport', 'tiers.free.limitations.notEligibleCurated'],
   },
   verified: {
-    benefits: ['tiers.verified.benefits.badge', 'tiers.verified.benefits.searchRanking', 'tiers.verified.benefits.prioritySupport'],
-    limitations: ['tiers.verified.limitations.notEligibleCurated'],
+    benefits: ['tiers.verified.benefits.badge', 'tiers.verified.benefits.searchRanking', 'tiers.verified.benefits.prioritySupport', 'CTA or WhatsApp button'],
+    limitations: [],
   },
   signature: {
-    benefits: ['tiers.signature.benefits.badge', 'tiers.signature.benefits.topRanking', 'tiers.signature.benefits.eligibleCurated', 'tiers.signature.benefits.accountManager'],
+    benefits: [
+      'tiers.signature.benefits.badge',
+      'tiers.signature.benefits.topRanking',
+      'tiers.signature.benefits.eligibleCurated',
+      'tiers.signature.benefits.accountManager',
+      'Listed on homepage',
+      'Photo Gallery enhanced',
+      'Video interview (up to 3 min)',
+      'Video commercial (up to 1 min)',
+      'Social media mentions',
+      'CTA or WhatsApp button',
+    ],
     limitations: [],
   },
 };
@@ -104,7 +141,10 @@ export function useSubscriptionPricing(t?: TFunction) {
   // Get active promotion (if any, based on dates and is_active)
   const getActivePromotion = (tier: string, billingPeriod: string): PromotionalCode | null => {
     if (!promotionsQuery.data) return null;
-    
+
+    const normalizedBilling = billingPeriod.toLowerCase();
+    const isStandardBilling = normalizedBilling === "monthly" || normalizedBilling === "annual";
+
     const now = new Date();
     return promotionsQuery.data.find(promo => {
       if (!promo.is_active) return false;
@@ -113,7 +153,9 @@ export function useSubscriptionPricing(t?: TFunction) {
       if (now < start || now > end) return false;
       if (promo.max_uses !== null && promo.current_uses >= promo.max_uses) return false;
       if (!promo.applicable_tiers.includes(tier) && !promo.applicable_tiers.includes('all')) return false;
-      if (!promo.applicable_billing.includes(billingPeriod) && !promo.applicable_billing.includes('all')) return false;
+      const matchesExactBilling = promo.applicable_billing.includes(normalizedBilling);
+      const matchesCustomPeriod = !isStandardBilling && promo.applicable_billing.includes("period");
+      if (!matchesExactBilling && !matchesCustomPeriod && !promo.applicable_billing.includes('all')) return false;
       return true;
     }) || null;
   };
@@ -140,13 +182,15 @@ export function useSubscriptionPricing(t?: TFunction) {
     };
 
     // Build verified and signature tiers from database
-    const buildTierPricing = (tierId: 'verified' | 'signature'): { monthly: PricingOption; annual: PricingOption } => {
+    const buildTierPricing = (tierId: 'verified' | 'signature'): { monthly: PricingOption; annual: PricingOption; period?: PricingOption } => {
       const monthlyData = pricing.find(p => p.tier === tierId && p.billing_period === 'monthly');
       const annualData = pricing.find(p => p.tier === tierId && p.billing_period === 'annual');
+      const periodData = pricing.find(p => p.tier === tierId && p.billing_period === 'period');
 
       // Apply promotions if applicable
       const monthlyPromo = getActivePromotion(tierId, 'monthly');
       const annualPromo = getActivePromotion(tierId, 'annual');
+      const periodPromo = periodData ? getActivePromotion(tierId, 'period') : null;
 
       const applyDiscount = (price: number, promo: PromotionalCode | null): { finalPrice: number; originalPrice?: number } => {
         if (!promo) return { finalPrice: price };
@@ -159,8 +203,27 @@ export function useSubscriptionPricing(t?: TFunction) {
 
       const monthlyDiscount = monthlyData ? applyDiscount(monthlyData.price, monthlyPromo) : { finalPrice: 0 };
       const annualDiscount = annualData ? applyDiscount(annualData.price, annualPromo) : { finalPrice: 0 };
+      const periodDiscount = periodData ? applyDiscount(periodData.price, periodPromo) : { finalPrice: 0 };
 
       const formatCents = (cents: number) => `€${(cents / 100).toLocaleString('en-IE', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+      const getPeriodNote = (
+        length: number | null | undefined,
+        unit: 'days' | 'months' | null | undefined,
+        startDate: string | null | undefined,
+        endDate: string | null | undefined
+      ) => {
+        if (startDate && endDate) {
+          const start = new Date(startDate);
+          const end = new Date(endDate);
+          if (!Number.isNaN(start.getTime()) && !Number.isNaN(end.getTime())) {
+            return `${formatDate(start, "MMM d, yyyy")} - ${formatDate(end, "MMM d, yyyy")}`;
+          }
+        }
+        if (!length || !unit) return t ? t('admin.subscriptions.periodAdminDefined', 'Admin-defined period') : 'Admin-defined period';
+        const singularUnit = unit === 'days' ? 'day' : 'month';
+        const pluralUnit = unit === 'days' ? 'days' : 'months';
+        return `per ${length} ${length === 1 ? singularUnit : pluralUnit}`;
+      };
 
       return {
         monthly: {
@@ -183,6 +246,22 @@ export function useSubscriptionPricing(t?: TFunction) {
           originalPrice: annualDiscount.originalPrice,
           originalDisplay: annualDiscount.originalPrice != null ? annualData?.display_price : undefined,
         },
+        period: periodData
+          ? {
+              price: periodDiscount.finalPrice,
+              display: periodDiscount.originalPrice != null
+                ? formatCents(periodDiscount.finalPrice)
+                : periodData.display_price || '€0',
+              note: periodData.note || getPeriodNote(
+                periodData.period_length,
+                periodData.period_unit,
+                periodData.period_start_date,
+                periodData.period_end_date
+              ),
+              originalPrice: periodDiscount.originalPrice,
+              originalDisplay: periodDiscount.originalPrice != null ? periodData.display_price : undefined,
+            }
+          : undefined,
       };
     };
 
@@ -210,18 +289,35 @@ export function useSubscriptionPricing(t?: TFunction) {
   // Update pricing mutation
   const updatePricing = useMutation({
     mutationFn: async (pricing: Partial<SubscriptionPricing> & { id: string }) => {
-      const { error } = await supabase
-        .from('subscription_pricing')
-        .update({
-          price: pricing.price,
-          display_price: pricing.display_price,
-          note: pricing.note,
-          monthly_equivalent: pricing.monthly_equivalent,
-          savings: pricing.savings,
-        })
-        .eq('id', pricing.id);
+      const payload = {
+        price: pricing.price,
+        display_price: pricing.display_price,
+        note: pricing.note,
+        period_length: pricing.period_length,
+        period_unit: pricing.period_unit,
+        period_start_date: pricing.period_start_date,
+        period_end_date: pricing.period_end_date,
+        monthly_equivalent: pricing.monthly_equivalent,
+        savings: pricing.savings,
+      };
 
-      if (error) throw error;
+      const firstAttempt = await supabase
+        .from("subscription_pricing")
+        .update(payload)
+        .eq("id", pricing.id);
+
+      if (!firstAttempt.error) return;
+      if (!shouldRetryWithoutPeriodDates(firstAttempt.error)) {
+        throw firstAttempt.error;
+      }
+
+      const { period_start_date: _startDate, period_end_date: _endDate, ...fallbackPayload } = payload;
+      const retryAttempt = await supabase
+        .from("subscription_pricing")
+        .update(fallbackPayload)
+        .eq("id", pricing.id);
+
+      if (retryAttempt.error) throw retryAttempt.error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subscription-pricing'] });
@@ -229,6 +325,57 @@ export function useSubscriptionPricing(t?: TFunction) {
     },
     onError: (error: Error) => {
       toast.error(`Failed to update pricing: ${error.message}`);
+    },
+  });
+
+  // Create pricing mutation (used to provision missing billing periods)
+  const createPricing = useMutation({
+    mutationFn: async (pricing: Omit<SubscriptionPricing, 'id' | 'updated_at'>) => {
+      const { data: existing, error: existingError } = await supabase
+        .from('subscription_pricing')
+        .select('id')
+        .eq('tier', pricing.tier)
+        .eq('billing_period', pricing.billing_period)
+        .limit(1);
+
+      if (existingError) throw existingError;
+      if (existing && existing.length > 0) return;
+
+      const payload = {
+        tier: pricing.tier,
+        billing_period: pricing.billing_period,
+        price: pricing.price,
+        display_price: pricing.display_price,
+        note: pricing.note,
+        period_length: pricing.period_length,
+        period_unit: pricing.period_unit,
+        period_start_date: pricing.period_start_date,
+        period_end_date: pricing.period_end_date,
+        monthly_equivalent: pricing.monthly_equivalent,
+        savings: pricing.savings,
+      };
+
+      const firstAttempt = await supabase
+        .from("subscription_pricing")
+        .insert(payload);
+
+      if (!firstAttempt.error) return;
+      if (!shouldRetryWithoutPeriodDates(firstAttempt.error)) {
+        throw firstAttempt.error;
+      }
+
+      const { period_start_date: _startDate, period_end_date: _endDate, ...fallbackPayload } = payload;
+      const retryAttempt = await supabase
+        .from("subscription_pricing")
+        .insert(fallbackPayload);
+
+      if (retryAttempt.error) throw retryAttempt.error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscription-pricing'] });
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to create pricing: ${error.message}`);
     },
   });
 
@@ -248,6 +395,8 @@ export function useSubscriptionPricing(t?: TFunction) {
           end_date: promo.end_date,
           is_active: promo.is_active,
           max_uses: promo.max_uses,
+          period_length: promo.period_length,
+          period_unit: promo.period_unit,
         });
 
       if (error) throw error;
@@ -277,6 +426,8 @@ export function useSubscriptionPricing(t?: TFunction) {
           end_date: promo.end_date,
           is_active: promo.is_active,
           max_uses: promo.max_uses,
+          period_length: promo.period_length,
+          period_unit: promo.period_unit,
         })
         .eq('id', promo.id);
 
@@ -336,6 +487,7 @@ export function useSubscriptionPricing(t?: TFunction) {
     isLoading: pricingQuery.isLoading,
     isLoadingPromotions: promotionsQuery.isLoading,
     updatePricing,
+    createPricing,
     createPromotion,
     updatePromotion,
     deletePromotion,

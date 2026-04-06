@@ -11,6 +11,8 @@ interface ErrorPayload {
 }
 
 const AUTH_ERROR_PATTERN = /(invalid\s+jwt|jwt\s+expired|invalid\s+token|unauthorized|forbidden)/i;
+const TRANSPORT_ERROR_PATTERN =
+  /(failed to send a request to the edge function|failed to fetch|fetch failed|network error|network request failed|load failed)/i;
 
 function extractPayloadMessage(payload: unknown): string {
   if (!payload || typeof payload !== "object") return "";
@@ -89,4 +91,14 @@ export async function isSupabaseFunctionAuthError(error: unknown): Promise<boole
 
   const message = await getSupabaseFunctionErrorMessage(error, "");
   return AUTH_ERROR_PATTERN.test(message);
+}
+
+export async function isSupabaseFunctionTransportError(error: unknown): Promise<boolean> {
+  const status = getContextStatus(error);
+  if (status === 0) {
+    return true;
+  }
+
+  const message = await getSupabaseFunctionErrorMessage(error, "");
+  return TRANSPORT_ERROR_PATTERN.test(message);
 }

@@ -51,6 +51,10 @@ import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
 import { CityHubsSection } from "@/components/shared/CityHubsSection";
+import {
+  buildMergedCategoryOptions,
+  getMergedCategoryBySlug,
+} from "@/lib/categoryMerges";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -86,10 +90,17 @@ const Experiences = () => {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const thingsToDoCategory = useMemo(
-    () => categories.find((c) => c.slug === "things-to-do"),
-    [categories],
-  );
+  const experiencesCategoryIds = useMemo(() => {
+    const mergedCategories = buildMergedCategoryOptions(categories);
+    return getMergedCategoryBySlug("experiences", mergedCategories)?.memberIds ?? [];
+  }, [categories]);
+  const experiencesCategoryLabel = useMemo(() => {
+    const thingsToDo = categories.find((category) => category.slug === "things-to-do");
+    if (thingsToDo?.name) return thingsToDo.name;
+
+    const mergedCategories = buildMergedCategoryOptions(categories);
+    return getMergedCategoryBySlug("experiences", mergedCategories)?.name;
+  }, [categories]);
 
   const hasActiveFilters =
     selectedRegion !== "all" ||
@@ -105,15 +116,15 @@ const Experiences = () => {
     setSelectedTier("all");
   }, []);
 
-  // City listing counts for "things-to-do" category
+  // City listing counts scoped to experiences categories
   const { data: cityListingCounts = {} } = useQuery<Record<string, number>>({
-    queryKey: ["experiences-city-counts", thingsToDoCategory?.id],
+    queryKey: ["experiences-city-counts", [...experiencesCategoryIds].sort().join(",")],
     queryFn: async () => {
-      if (!thingsToDoCategory?.id) return {};
+      if (experiencesCategoryIds.length === 0) return {};
       const { data, error } = await supabase
         .from("listings")
         .select("city_id")
-        .eq("category_id", thingsToDoCategory.id)
+        .in("category_id", experiencesCategoryIds)
         .eq("status", "published");
       if (error) throw error;
       const counts: Record<string, number> = {};
@@ -124,7 +135,7 @@ const Experiences = () => {
       }
       return counts;
     },
-    enabled: !!thingsToDoCategory?.id,
+    enabled: experiencesCategoryIds.length > 0,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -159,14 +170,14 @@ const Experiences = () => {
       selectedRegion,
       selectedCity,
       selectedTier,
-      thingsToDoCategory?.id,
+      [...experiencesCategoryIds].sort().join(","),
     ],
     queryFn: async () => {
-      if (!thingsToDoCategory?.id) return [];
+      if (experiencesCategoryIds.length === 0) return [];
       let query = supabase
         .from("listings")
         .select("*, cities ( name, slug ), categories ( name, slug )")
-        .eq("category_id", thingsToDoCategory.id)
+        .in("category_id", experiencesCategoryIds)
         .eq("status", "published");
       if (debouncedSearch) {
         query = query.or(
@@ -189,7 +200,7 @@ const Experiences = () => {
       if (error) throw error;
       return (data ?? []) as ListingRow[];
     },
-    enabled: !!thingsToDoCategory?.id,
+    enabled: experiencesCategoryIds.length > 0,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -348,8 +359,9 @@ const Experiences = () => {
               highlightedCity={highlightedCity}
               topCities={topCities}
               cityListingCounts={cityListingCounts}
+              preferCityListingCounts
               imageTimestamp={imageTimestamp}
-              basePath="city"
+              basePath="visit"
               translationPrefix="experiences"
             />
           ) : null}
@@ -493,7 +505,7 @@ const Experiences = () => {
                             {t("directory.category", "Category")}
                           </label>
                           <div className="h-12 flex items-center px-4 bg-primary/10 border border-primary/30 rounded-md text-foreground font-medium">
-                            {thingsToDoCategory?.name ??
+                            {experiencesCategoryLabel ??
                               t(
                                 "categoryNames.things-to-do",
                                 "Things to Do",
