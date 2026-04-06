@@ -85,7 +85,7 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ settings }),
+        body: JSON.stringify({ settings, locale }),
       });
 
       const payload = (await response.json().catch(() => null)) as

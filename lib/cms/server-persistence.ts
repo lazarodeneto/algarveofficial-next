@@ -6,6 +6,7 @@ import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 interface GlobalSettingWriteItem {
   key: string;
   value: string;
+  locale?: string | null;
 }
 
 type CmsDocType = "page_config" | "text_overrides" | "design_tokens" | "custom_css";
@@ -30,6 +31,7 @@ function parseJsonObject(raw: string): Record<string, unknown> | null {
 
 export function buildCmsWritesFromGlobalSettings(settings: GlobalSettingWriteItem[]): CmsDocumentWrite[] {
   const writes: CmsDocumentWrite[] = [];
+  const locale = settings.find((s) => typeof s.locale === "string" && s.locale.trim())?.locale?.trim() || "default";
 
   const pageConfigs = settings.find((s) => s.key === CMS_GLOBAL_SETTING_KEYS.pageConfigs)?.value;
   if (pageConfigs) {
@@ -39,7 +41,7 @@ export function buildCmsWritesFromGlobalSettings(settings: GlobalSettingWriteIte
         writes.push({
           pageId,
           blockId: null,
-          locale: "default",
+          locale,
           docType: "page_config",
           content:
             content && typeof content === "object" && !Array.isArray(content)
@@ -55,7 +57,7 @@ export function buildCmsWritesFromGlobalSettings(settings: GlobalSettingWriteIte
     writes.push({
       pageId: "__global__",
       blockId: null,
-      locale: "default",
+      locale,
       docType: "text_overrides",
       content: parseJsonObject(textOverrides) ?? {},
     });
@@ -66,7 +68,7 @@ export function buildCmsWritesFromGlobalSettings(settings: GlobalSettingWriteIte
     writes.push({
       pageId: "__global__",
       blockId: null,
-      locale: "default",
+      locale,
       docType: "design_tokens",
       content: parseJsonObject(designTokens) ?? {},
     });
@@ -77,7 +79,7 @@ export function buildCmsWritesFromGlobalSettings(settings: GlobalSettingWriteIte
     writes.push({
       pageId: "__global__",
       blockId: null,
-      locale: "default",
+      locale,
       docType: "custom_css",
       content: { css: customCss },
     });
