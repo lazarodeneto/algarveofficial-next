@@ -13,6 +13,26 @@ export type CityRow = Tables<'cities'>;
 export type RegionRow = Tables<'regions'>;
 export type CategoryRow = Tables<'categories'>;
 
+const CITY_FIELDS = `
+  id, name, slug, short_description, description, image_url, hero_image_url,
+  latitude, longitude, is_active, is_featured, display_order,
+  meta_title, meta_description, created_at, updated_at
+`;
+
+const REGION_FIELDS = `
+  id, name, slug, short_description, description, image_url, hero_image_url,
+  is_active, is_featured, is_visible_destinations, display_order,
+  meta_title, meta_description, created_at, updated_at
+`;
+
+const CATEGORY_FIELDS = `
+  id, name, slug, short_description, description, icon, image_url,
+  is_active, is_featured, display_order, template_fields,
+  meta_title, meta_description, created_at, updated_at
+`;
+
+const CITY_REGION_MAPPING_FIELDS = "id, city_id, region_id, is_primary, created_at";
+
 function mergeCityTranslations(cities: CityRow[], translations: Awaited<ReturnType<typeof fetchCityTranslations>>) {
   const translationMap = new Map(translations.map((translation) => [translation.city_id, translation]));
 
@@ -77,7 +97,7 @@ export function useCities() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('cities')
-        .select('*')
+        .select(CITY_FIELDS)
         .eq('is_active', true)
         .order('display_order', { ascending: true })
         .order('name', { ascending: true });
@@ -111,7 +131,7 @@ export function useRegions() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('regions')
-        .select('*')
+        .select(REGION_FIELDS)
         .eq('is_active', true)
         .order('display_order', { ascending: true })
         .order('name', { ascending: true });
@@ -179,7 +199,7 @@ export function useCategories() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('categories')
-        .select('*')
+        .select(CATEGORY_FIELDS)
         .eq('is_active', true)
         .order('display_order', { ascending: true })
         .order('name', { ascending: true });
@@ -213,7 +233,7 @@ export function useFeaturedRegions() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('regions')
-        .select('*')
+        .select(REGION_FIELDS)
         .eq('is_active', true)
         .eq('is_featured', true)
         .order('display_order', { ascending: true });
@@ -247,7 +267,7 @@ export function useFeaturedCities() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('cities')
-        .select('*')
+        .select(CITY_FIELDS)
         .eq('is_active', true)
         .eq('is_featured', true)
         .order('display_order', { ascending: true });
@@ -281,7 +301,7 @@ export function useFeaturedCategories() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('categories')
-        .select('*')
+        .select(CATEGORY_FIELDS)
         .eq('is_active', true)
         .eq('is_featured', true)
         .order('display_order', { ascending: true });
@@ -313,7 +333,7 @@ export function useCityRegionMappings() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('city_region_mapping')
-        .select('*');
+        .select(CITY_REGION_MAPPING_FIELDS);
 
       if (error) {
         console.warn('Error fetching city-region mappings:', error);
@@ -342,7 +362,7 @@ export function useAllCities() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('cities')
-        .select('*')
+        .select(CITY_FIELDS)
         .order('display_order', { ascending: true })
         .order('name', { ascending: true });
 
@@ -369,7 +389,7 @@ export function useAllRegions() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('regions')
-        .select('*')
+        .select(REGION_FIELDS)
         .order('display_order', { ascending: true })
         .order('name', { ascending: true });
 
@@ -396,7 +416,7 @@ export function useAllCategories() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('categories')
-        .select('*')
+        .select(CATEGORY_FIELDS)
         .order('display_order', { ascending: true })
         .order('name', { ascending: true });
 

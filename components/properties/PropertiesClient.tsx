@@ -17,6 +17,7 @@ import { Database } from "@/integrations/supabase/types";
 import { matchesPropertyCategoryFilters } from "@/lib/properties/filters";
 
 type Lang = "en" | "pt-pt" | "fr" | "de" | "es" | "it" | "nl" | "sv" | "no" | "da";
+const REAL_ESTATE_CATEGORY_SLUG = "real-estate";
 
 const normalizeLang = (raw?: string | null): Lang => {
     if (!raw) return "en";
@@ -76,13 +77,30 @@ export default function PropertiesClient() {
         location: ""
     });
 
-    const { data: listings, isLoading } = useQuery({
-        queryKey: ["properties-listings", filters, targetLang],
+    const { data: realEstateCategoryId, isLoading: isCategoryLoading } = useQuery({
+        queryKey: ["properties-category-id", REAL_ESTATE_CATEGORY_SLUG],
         queryFn: async () => {
+            const { data, error } = await supabase
+                .from("categories")
+                .select("id")
+                .eq("slug", REAL_ESTATE_CATEGORY_SLUG)
+                .eq("is_active", true)
+                .maybeSingle();
+            if (error) throw error;
+            return data?.id ?? null;
+        },
+        staleTime: 1000 * 60 * 30,
+    });
+
+    const { data: listings, isLoading: isListingsLoading } = useQuery({
+        queryKey: ["properties-listings", realEstateCategoryId, filters, targetLang],
+        enabled: Boolean(realEstateCategoryId),
+        queryFn: async () => {
+            if (!realEstateCategoryId) return [];
             let query = supabase
                 .from("listings")
                 .select(`${REAL_ESTATE_LISTING_FIELDS}, cities ( name, slug )`)
-                .eq("category_id", "11df48fe-34e4-4743-8837-e5a1fb399a37")
+                .eq("category_id", realEstateCategoryId)
                 .eq("status", "published");
 
             if (filters.priceMin) {
@@ -114,6 +132,8 @@ export default function PropertiesClient() {
         },
         staleTime: 1000 * 60 * 5,
     });
+
+    const isLoading = isCategoryLoading || isListingsLoading;
 
     const filteredListings = useMemo(() => {
         const rows = listings ?? [];
@@ -163,12 +183,14 @@ export default function PropertiesClient() {
                             </div>
                         </div>
                         <div className="xl:col-span-8 2xl:col-span-9 min-w-0">
-                            <CuratedExcellence
-                                context={{ type: 'category', categoryId: '11df48fe-34e4-4743-8837-e5a1fb399a37' }}
-                                limit={1}
-                                showSectionHeader={false}
-                                fullWidth
-                            />
+                            {realEstateCategoryId ? (
+                                <CuratedExcellence
+                                    context={{ type: "category", categoryId: realEstateCategoryId }}
+                                    limit={1}
+                                    showSectionHeader={false}
+                                    fullWidth
+                                />
+                            ) : null}
                             <div className="mb-8 sm:mb-10 flex flex-col md:flex-row justify-between items-baseline gap-3 sm:gap-4 border-b border-primary/20 pb-5 sm:pb-6">
                                 <h2 className="text-2xl sm:text-3xl font-serif italic text-foreground">
                                     {filteredListings?.length || 0} <span className="not-italic font-sans text-sm sm:text-lg text-muted-foreground sm:ml-2 tracking-[0.16em] uppercase">{t("realEstate.propertiesAvailable", "Properties Available")}</span>

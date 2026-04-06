@@ -52,9 +52,18 @@ export async function POST(
   }
 
   const insertPayload = sanitizePayload(payload);
-  if (resolved.entity === "templates" || resolved.entity === "segments" || resolved.entity === "campaigns") {
+  if (
+    resolved.entity === "templates" ||
+    resolved.entity === "segments" ||
+    resolved.entity === "campaigns"
+  ) {
     if (!("created_by" in insertPayload) || insertPayload.created_by === null) {
       insertPayload.created_by = auth.userId;
+    }
+  }
+  if (resolved.entity === "automations") {
+    if (!("steps" in insertPayload) || !Array.isArray(insertPayload.steps)) {
+      insertPayload.steps = [];
     }
   }
 
