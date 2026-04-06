@@ -304,7 +304,7 @@ export default function OwnerMembership() {
               : "bg-card border-border";
           const blockedToneClass = isSignatureMonthlyBlocked ? "border-border bg-muted/40 text-muted-foreground" : "";
           const currentRingClass = isCurrentTier && !isSignatureMonthlyBlocked
-            ? (isSignatureTier ? "ring-2 ring-amber-500/70" : "ring-2 ring-green-500")
+            ? (isSignatureTier ? "ring-2 ring-amber-500/70" : isVerifiedTier ? "ring-2 ring-green-500" : "")
             : "";
           const currentBadgeClass = isSignatureTier
             ? "inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full bg-amber-500 text-amber-950"
