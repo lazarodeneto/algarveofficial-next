@@ -864,7 +864,8 @@
         "introduction": "Questa Politica sui Cookie spiega come AlgarveOfficial utilizza i cookie e tecnologie simili per riconoscerti quando visiti il nostro sito web.",
         "sections": {
           "whatAreCookies": {
-            "title": "Cosa Sono i Cookie"
+            "title": "Cosa Sono i Cookie",
+            "content": "Cookies are small data files that are placed on your computer or mobile device when you visit a website. Cookies are widely used by website owners to make their websites work, or to work more efficiently, as well as to provide reporting information. Cookies set by the website owner (in this case, AlgarveOfficial) are called 'first-party cookies.' Cookies set by parties other than the website owner are called 'third-party cookies.'"
           },
           "types": {
             "title": "Tipi di Cookie Che Utilizziamo",
@@ -886,17 +887,34 @@
           "essential": {
             "title": "Cookie Essenziali",
             "description": "Questi cookie sono strettamente necessari per il funzionamento del sito web e non possono essere disattivati nei nostri sistemi.",
-            "note": "Puoi impostare il tuo browser per bloccare o avvisarti di questi cookie, ma alcune parti del sito non funzioneranno correttamente senza di essi."
+            "note": "Puoi impostare il tuo browser per bloccare o avvisarti di questi cookie, ma alcune parti del sito non funzioneranno correttamente senza di essi.",
+            "items": [
+              "Setting your privacy preferences",
+              "Logging in to your account",
+              "Filling in forms",
+              "Maintaining security"
+            ]
           },
           "analytics": {
             "title": "Cookie Analitici",
             "description": "Questi cookie ci permettono di contare le visite e le fonti di traffico per misurare e migliorare le prestazioni del nostro sito.",
-            "dataCollected": "Dati che raccogliamo con il tuo consenso:"
+            "dataCollected": "Dati che raccogliamo con il tuo consenso:",
+            "dataItems": [
+              "Pages visited and time spent",
+              "Anonymized IP address (last two octets masked)",
+              "Browser and device type",
+              "Referral source"
+            ]
           },
           "managing": {
             "title": "Gestire le Tue Preferenze sui Cookie",
             "description": "Hai il diritto di decidere se accettare o rifiutare i cookie.",
-            "note": "Tieni presente che se scegli di rifiutare i cookie, potresti comunque utilizzare il nostro sito web, sebbene l'accesso ad alcune funzionalità potrebbe essere limitato."
+            "note": "Tieni presente che se scegli di rifiutare i cookie, potresti comunque utilizzare il nostro sito web, sebbene l'accesso ad alcune funzionalità potrebbe essere limitato.",
+            "items": [
+              "Cookie Consent Banner: When you first visit our site, you can accept or reject non-essential cookies",
+              "Browser Settings: You can set your browser to refuse all or some cookies",
+              "Local Storage: Clear your browser's local storage to reset your preferences"
+            ]
           },
           "contact": {
             "title": "Contattaci",

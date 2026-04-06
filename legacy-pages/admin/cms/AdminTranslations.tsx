@@ -3,12 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { invokeFunctionWithAuthRetry } from "@/lib/supabaseFunctionInvoke";
 import { getValidAccessToken } from "@/lib/authToken";
 import {
   getSupabaseFunctionErrorMessage,
   isSupabaseFunctionAuthError,
+  isSupabaseFunctionTransportError,
 } from "@/lib/supabaseFunctionError";
 import {
   enforcePremiumInLocaleData,
@@ -17,12 +20,18 @@ import {
   protectPremiumInSourceText,
   unflattenI18nData,
 } from "@/lib/i18n/premiumGuard";
+import {
+  LISTING_TRANSLATION_TARGET_LANGS,
+  normalizeListingTranslationLanguageCode,
+  queueListingTranslationJobs,
+} from "@/lib/listingTranslationQueue";
 import { toast } from "sonner";
 import {
   Languages,
   Loader2,
   CheckCircle2,
   AlertCircle,
+  Info,
   RefreshCw,
   Zap,
 } from "lucide-react";
@@ -51,6 +60,10 @@ const LOCALES: { code: string; name: string; flag: string; data: Record<string, 
   { code: "no",    name: "Norwegian",   flag: "🇳🇴", data: no as Record<string, unknown> },
   { code: "da",    name: "Danish",      flag: "🇩🇰", data: da as Record<string, unknown> },
 ];
+const TARGET_LANGS = [...LISTING_TRANSLATION_TARGET_LANGS];
+const TARGET_LANGS_SET = new Set<string>(TARGET_LANGS);
+const LISTINGS_PAGE_SIZE = 100;
+const MAX_INCOMPLETE_LISTINGS = 200;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function computeMissingKeys(
@@ -80,6 +93,26 @@ interface LocaleState {
   lastError?: string;
 }
 
+function isCompletedTranslationStatus(status: unknown): boolean {
+  if (typeof status !== "string") return false;
+  const normalized = status.toLowerCase();
+  // Keep "translated" as a legacy-safe fallback in case older rows still exist.
+  return (
+    normalized === "auto" ||
+    normalized === "reviewed" ||
+    normalized === "edited" ||
+    normalized === "translated"
+  );
+}
+
+function chunkArray<T>(items: readonly T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size));
+  }
+  return chunks;
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function AdminTranslations() {
   const enFlat = useMemo(() => flattenI18nData(en as Record<string, unknown>), []);
@@ -106,6 +139,119 @@ export default function AdminTranslations() {
   const [isSyncingAll, setIsSyncingAll] = useState(false);
   const [syncProgress, setSyncProgress] = useState(0);
   const [currentLocale, setCurrentLocale] = useState<string | null>(null);
+  const [translateBatch, setTranslateBatch] = useState(10);
+  const [translateLoading, setTranslateLoading] = useState(false);
+  const [translateResult, setTranslateResult] = useState<any>(null);
+  const [translateError, setTranslateError] = useState<string | null>(null);
+  const [missingTranslations, setMissingTranslations] = useState<
+    { id: string; name: string; slug: string; city: string; status: string; missingLangs: string[] }[]
+  >([]);
+  const [missingLoading, setMissingLoading] = useState(false);
+  const [translatingId, setTranslatingId] = useState<string | null>(null);
+
+  const buildListingCoverageMaps = useCallback(async (listingIds: readonly string[]) => {
+    const translatedMap = new Map<string, Set<string>>();
+    const queuedMap = new Map<string, Set<string>>();
+    const ids = Array.from(new Set(listingIds.filter(Boolean)));
+
+    if (ids.length === 0) {
+      return { translatedMap, queuedMap };
+    }
+
+    // Keep each chunk comfortably below Supabase's default 1000-row response cap.
+    const idChunks = chunkArray(ids, 50);
+
+    for (const chunk of idChunks) {
+      const [{ data: translated, error: translatedError }, { data: jobs, error: jobsError }] =
+        await Promise.all([
+          supabase
+            .from("listing_translations")
+            .select("listing_id, language_code, translation_status")
+            .in("listing_id", chunk),
+          supabase
+            .from("translation_jobs")
+            .select("listing_id, target_lang, status")
+            .in("listing_id", chunk)
+            .in("status", ["queued"]),
+        ]);
+
+      if (translatedError) throw translatedError;
+      if (jobsError) throw jobsError;
+
+      for (const translation of (translated || []) as any[]) {
+        if (!translation?.listing_id || !translation?.language_code) continue;
+        if (!isCompletedTranslationStatus(translation.translation_status)) continue;
+
+        const normalizedLang = normalizeListingTranslationLanguageCode(translation.language_code);
+        if (!TARGET_LANGS_SET.has(normalizedLang)) continue;
+
+        if (!translatedMap.has(translation.listing_id)) {
+          translatedMap.set(translation.listing_id, new Set());
+        }
+        translatedMap.get(translation.listing_id)!.add(normalizedLang);
+      }
+
+      for (const job of (jobs || []) as any[]) {
+        if (!job?.listing_id || !job?.target_lang) continue;
+
+        const normalizedLang = normalizeListingTranslationLanguageCode(job.target_lang);
+        if (!TARGET_LANGS_SET.has(normalizedLang)) continue;
+
+        if (!queuedMap.has(job.listing_id)) {
+          queuedMap.set(job.listing_id, new Set());
+        }
+        queuedMap.get(job.listing_id)!.add(normalizedLang);
+      }
+    }
+
+    return { translatedMap, queuedMap };
+  }, []);
+
+  const collectMissingPublishedListings = useCallback(async (limit: number) => {
+    const missing: { id: string; name: string; slug: string; city: string; status: string; missingLangs: string[] }[] = [];
+    let offset = 0;
+
+    while (missing.length < limit) {
+      const { data, error } = await supabase
+        .from("listings")
+        .select("id, name, slug, status, cities(name)")
+        .eq("status", "published")
+        .order("name", { ascending: true })
+        .range(offset, offset + LISTINGS_PAGE_SIZE - 1);
+
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+
+      const listingIds = data.map((listing: any) => String(listing.id));
+      const { translatedMap, queuedMap } = await buildListingCoverageMaps(listingIds);
+
+      for (const listing of data as any[]) {
+        const translatedLangs = translatedMap.get(listing.id) ?? new Set<string>();
+        const queuedLangs = queuedMap.get(listing.id) ?? new Set<string>();
+        const missingLangs = TARGET_LANGS.filter(
+          (lang) => !translatedLangs.has(lang) && !queuedLangs.has(lang),
+        );
+
+        if (missingLangs.length > 0) {
+          missing.push({
+            id: listing.id,
+            name: listing.name,
+            slug: listing.slug,
+            city: listing.cities?.name || "—",
+            status: listing.status,
+            missingLangs,
+          });
+        }
+
+        if (missing.length >= limit) break;
+      }
+
+      if (data.length < LISTINGS_PAGE_SIZE) break;
+      offset += LISTINGS_PAGE_SIZE;
+    }
+
+    return missing.slice(0, limit);
+  }, [buildListingCoverageMaps]);
 
   useEffect(() => {
     let active = true;
@@ -366,6 +512,154 @@ export default function AdminTranslations() {
     }
   }, [localeStates, syncLocale]);
 
+  const fetchMissingTranslations = useCallback(async () => {
+    setMissingLoading(true);
+    try {
+      const computedMissing = await collectMissingPublishedListings(MAX_INCOMPLETE_LISTINGS);
+      setMissingTranslations(computedMissing);
+    } catch (e: any) {
+      toast.error("Failed to load missing translations: " + e.message);
+    } finally {
+      setMissingLoading(false);
+    }
+  }, [collectMissingPublishedListings]);
+
+  const translateSingle = useCallback(
+    async (listingId: string) => {
+      setTranslatingId(listingId);
+      try {
+        const { data, error } = await invokeFunctionWithAuthRetry<{ ok?: boolean; error?: string }>(
+          "translate-listing",
+          { body: { listing_id: listingId } },
+        );
+
+        if (error) {
+          const isAuthError = await isSupabaseFunctionAuthError(error);
+          const isTransportError = await isSupabaseFunctionTransportError(error);
+
+          if (isAuthError || isTransportError) {
+            const queueResult = await queueListingTranslationJobs(listingId, TARGET_LANGS);
+            if (queueResult.queued > 0) {
+              toast.warning(
+                `Direct translation endpoint unavailable. Queued ${queueResult.queued} language job${queueResult.queued !== 1 ? "s" : ""} for background processing.`,
+              );
+            } else if (queueResult.alreadyQueued > 0) {
+              toast.info("Translation is already queued and processing in the background.");
+            } else if (queueResult.alreadyTranslated >= TARGET_LANGS.length) {
+              toast.success("This listing is already translated for all target languages.");
+            } else {
+              toast.info("No additional translation work is required for this listing.");
+            }
+            await fetchMissingTranslations();
+            return;
+          }
+          throw new Error(await getSupabaseFunctionErrorMessage(error, "Translation request failed"));
+        }
+
+        if (data?.ok === false) throw new Error(data.error || "Translation request failed");
+        toast.success("Translation queued successfully.");
+        await fetchMissingTranslations();
+      } catch (e: any) {
+        toast.error("Translation failed: " + e.message);
+      } finally {
+        setTranslatingId(null);
+      }
+    },
+    [fetchMissingTranslations],
+  );
+
+  const runTranslationsNow = useCallback(async () => {
+    setTranslateLoading(true);
+    setTranslateError(null);
+    setTranslateResult(null);
+
+    try {
+      const listings = await collectMissingPublishedListings(translateBatch);
+
+      if (!listings.length) {
+        setTranslateResult({ message: "No listings require translation", processed: 0 });
+        toast.success("All listings are already translated.");
+        await fetchMissingTranslations();
+        return;
+      }
+
+      const results: { id: string; name: string; status: string; error?: string }[] = [];
+      for (const listing of listings) {
+        try {
+          const { data, error } = await invokeFunctionWithAuthRetry<{ ok?: boolean; error?: string }>(
+            "translate-listing",
+            { body: { listing_id: listing.id } },
+          );
+          if (error) {
+            const isAuthError = await isSupabaseFunctionAuthError(error);
+            const isTransportError = await isSupabaseFunctionTransportError(error);
+
+            if (isAuthError || isTransportError) {
+              const queueResult = await queueListingTranslationJobs(listing.id, TARGET_LANGS);
+              if (queueResult.queued > 0) {
+                results.push({
+                  id: listing.id,
+                  name: listing.name,
+                  status: "queued",
+                  error: `Queued ${queueResult.queued} language jobs.`,
+                });
+              } else {
+                results.push({ id: listing.id, name: listing.name, status: "ok" });
+              }
+              continue;
+            }
+
+            results.push({
+              id: listing.id,
+              name: listing.name,
+              status: "failed",
+              error: await getSupabaseFunctionErrorMessage(error, "Translation request failed"),
+            });
+            continue;
+          }
+
+          if (data?.ok === false) {
+            results.push({
+              id: listing.id,
+              name: listing.name,
+              status: "failed",
+              error: data.error || "Translation request failed",
+            });
+            continue;
+          }
+
+          results.push({ id: listing.id, name: listing.name, status: "ok" });
+        } catch (err: any) {
+          results.push({ id: listing.id, name: listing.name, status: "failed", error: err?.message });
+        }
+      }
+
+      const succeeded = results.filter((r) => r.status === "ok").length;
+      const queued = results.filter((r) => r.status === "queued").length;
+      const failed = results.filter((r) => r.status === "failed").length;
+      setTranslateResult({ processed: results.length, succeeded, queued, failed, results });
+
+      if (failed === 0 && queued === 0) {
+        toast.success(`Translation batch complete: ${succeeded} listing(s) translated.`);
+      } else if (failed === 0) {
+        toast.warning(`Batch done: ${succeeded} translated, ${queued} queued for background processing.`);
+      } else {
+        toast.warning(`Batch done: ${succeeded} translated, ${queued} queued, ${failed} failed.`);
+      }
+      await fetchMissingTranslations();
+    } catch (e: any) {
+      const msg = e?.message || String(e);
+      setTranslateError(msg);
+      toast.error(`Translation failed: ${msg}`);
+    } finally {
+      setTranslateLoading(false);
+    }
+  }, [collectMissingPublishedListings, fetchMissingTranslations, translateBatch]);
+
+  useEffect(() => {
+    void fetchMissingTranslations();
+  }, [fetchMissingTranslations]);
+
   // ── Derived stats ───────────────────────────────────────────────────────────
   const totalMissing = localeStates.reduce((s, l) => s + l.missingCount, 0);
   const syncedCount = localeStates.filter((l) => l.status === "synced").length;
@@ -532,8 +826,174 @@ export default function AdminTranslations() {
         <Card className="bg-muted/40 border-dashed">
           <CardContent className="pt-4 pb-4">
             <p className="text-xs text-muted-foreground leading-relaxed">
-              <strong className="text-foreground">How it works:</strong> This panel compares each locale against the English source (`en.json`), identifies missing UI keys, translates them via AI, and saves the results to Supabase in <code>i18n_locale_data</code>. It does not manage listing/content records such as <code>listing_translations</code> or <code>translation_jobs</code>. Add a new English UI key, then hit Sync.
+              <strong className="text-foreground">How it works:</strong> The top section syncs bundled UI locale keys (`i18n_locale_data`) against English source keys. The section below manages listing content translation jobs stored in <code>listing_translations</code> and <code>translation_jobs</code>.
             </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border bg-card/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <RefreshCw className="h-5 w-5 text-primary" />
+              Content Translation Jobs
+            </CardTitle>
+            <CardDescription>
+              Process listing content translations stored in Supabase.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-[220px,1fr] gap-4 items-end">
+              <div className="space-y-2">
+                <Label htmlFor="translate_batch">Batch size (n)</Label>
+                <Input
+                  id="translate_batch"
+                  type="number"
+                  min={1}
+                  max={200}
+                  value={translateBatch}
+                  onChange={(e) => setTranslateBatch(Number(e.target.value))}
+                  className="bg-background"
+                />
+                <p className="text-xs text-muted-foreground">Recommended: 10-50 per run (cost-controlled).</p>
+              </div>
+
+              <div className="flex gap-2">
+                <Button onClick={runTranslationsNow} disabled={translateLoading}>
+                  {translateLoading ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                  )}
+                  {translateLoading ? "Translating..." : "Translate now"}
+                </Button>
+
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => {
+                    setTranslateResult(null);
+                    setTranslateError(null);
+                  }}
+                  disabled={translateLoading}
+                >
+                  Clear
+                </Button>
+              </div>
+            </div>
+
+            {translateError && (
+              <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30">
+                <p className="text-sm text-destructive font-medium flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4" />
+                  {translateError}
+                </p>
+              </div>
+            )}
+
+            {translateResult && (
+              <div className="space-y-2">
+                <Label>Last run result</Label>
+                <pre className="text-xs bg-muted p-4 rounded-md overflow-x-auto border border-border">
+                  {JSON.stringify(translateResult, null, 2)}
+                </pre>
+              </div>
+            )}
+
+            <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
+              <p className="text-sm text-muted-foreground">
+                <Info className="h-4 w-4 inline-block mr-2 text-primary" />
+                After running, validate results in <code>listing_translations</code> and check remaining jobs in{" "}
+                <code>translation_jobs</code> where status = <code>queued</code>.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border bg-card/50">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <AlertCircle className="h-5 w-5 text-amber-500" />
+                  Listings Missing Content Translations
+                </CardTitle>
+                <CardDescription>
+                  Published listings missing one or more of: pt-pt · fr · de · es · it · nl · sv · no · da
+                </CardDescription>
+              </div>
+              <Button variant="outline" size="sm" onClick={fetchMissingTranslations} disabled={missingLoading}>
+                {missingLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                <span className="ml-2">{missingLoading ? "Loading..." : "Refresh"}</span>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {missingTranslations.length === 0 && !missingLoading ? (
+              <div className="text-center py-8 text-muted-foreground text-sm">
+                All published listings are currently translated for the supported content locales.
+              </div>
+            ) : missingLoading ? (
+              <div className="flex items-center justify-center py-8 gap-2 text-muted-foreground text-sm">
+                <Loader2 className="h-4 w-4 animate-spin" /> Loading...
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 mb-3">
+                  <Badge variant="destructive">
+                    {missingTranslations.length} listing{missingTranslations.length !== 1 ? "s" : ""} incomplete
+                  </Badge>
+                </div>
+                <div className="rounded-md border border-border overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="text-left px-4 py-2 font-medium text-muted-foreground">Name</th>
+                        <th className="text-left px-4 py-2 font-medium text-muted-foreground hidden sm:table-cell">City</th>
+                        <th className="text-left px-4 py-2 font-medium text-muted-foreground hidden md:table-cell">Missing</th>
+                        <th className="text-right px-4 py-2 font-medium text-muted-foreground">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {missingTranslations.map((listing, i) => (
+                        <tr key={listing.id} className={i % 2 === 0 ? "bg-background" : "bg-muted/20"}>
+                          <td className="px-4 py-2 font-medium truncate max-w-[200px]">{listing.name}</td>
+                          <td className="px-4 py-2 text-muted-foreground hidden sm:table-cell">{listing.city}</td>
+                          <td className="px-4 py-2 hidden md:table-cell">
+                            <div className="flex flex-wrap gap-1">
+                              {listing.missingLangs.map((lang) => (
+                                <Badge
+                                  key={lang}
+                                  variant="outline"
+                                  className="text-[10px] px-1.5 py-0 border-amber-400 text-amber-600"
+                                >
+                                  {lang}
+                                </Badge>
+                              ))}
+                            </div>
+                          </td>
+                          <td className="px-4 py-2 text-right">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled={translatingId === listing.id}
+                              onClick={() => translateSingle(listing.id)}
+                            >
+                              {translatingId === listing.id ? (
+                                <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                              ) : (
+                                <RefreshCw className="h-3 w-3 mr-1" />
+                              )}
+                              Translate
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>

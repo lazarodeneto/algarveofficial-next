@@ -654,7 +654,7 @@ export default function UserFavorites() {
                       </Button>
                     </div>
                     <CardContent className="p-4">
-                      <Link href={`/city/${city.slug}`}>
+                      <Link href={`/visit/${city.slug}`}>
                         <h3 className="font-medium">
                           {city.name}
                         </h3>
@@ -663,7 +663,7 @@ export default function UserFavorites() {
                         {city.short_description}
                       </p>
                       <Button size="sm" variant="outline" className="mt-3 w-full" asChild>
-                        <Link href={`/city/${city.slug}`}>
+                        <Link href={`/visit/${city.slug}`}>
                           {t("dashboard.favorites.exploreCity")}
                           <ArrowRight className="h-4 w-4 ml-2" />
                         </Link>

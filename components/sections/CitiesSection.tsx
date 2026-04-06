@@ -55,7 +55,7 @@ export function CitiesSection() {
             {featuredCities.map((city) => (
               <div key={city.id}>
                 <Link
-                  href={l(`/city/${city.slug}`)}
+                  href={l(`/visit/${city.slug}`)}
                   className="glass-box flex items-center gap-3 p-4 rounded-xl hover:border-primary/30 cursor-pointer"
                 >
                   {/* Favorite Heart Icon - Clickable (stops propagation) */}

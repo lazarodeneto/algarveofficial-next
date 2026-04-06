@@ -241,8 +241,8 @@ export default function MapExplorer() {
           ) : null}
 
           <div className="grid gap-6 lg:grid-cols-[340px,1fr]">
-            <aside className="space-y-4">
-              <Card className="border-border lg:sticky lg:top-24">
+            <aside className="relative flex flex-col space-y-4">
+              <Card className="relative z-20 order-1 border-border bg-background lg:sticky lg:top-24">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Filter className="h-4 w-4 text-primary" />
@@ -343,7 +343,7 @@ export default function MapExplorer() {
                 </CardContent>
               </Card>
 
-              <Card className="border-border">
+              <Card className="relative z-10 order-2 border-border bg-background">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base flex items-center gap-2">
                     <MapPinned className="h-4 w-4 text-primary" />

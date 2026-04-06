@@ -40,15 +40,38 @@ export function flattenI18nData(
 
 export function unflattenI18nData(flat: Record<string, string>): Record<string, unknown> {
   const result: Record<string, unknown> = {};
-  for (const [dottedKey, value] of Object.entries(flat)) {
+  // Prefer deeper (nested) keys over stale scalar collisions by processing
+  // parent keys first, then children. This lets children safely promote a
+  // scalar parent into an object when needed.
+  const sortedEntries = Object.entries(flat).sort(([a], [b]) => {
+    const depthDiff = a.split(".").length - b.split(".").length;
+    return depthDiff !== 0 ? depthDiff : a.localeCompare(b);
+  });
+
+  for (const [dottedKey, value] of sortedEntries) {
     const parts = dottedKey.split(".");
     let current = result;
 
     for (let i = 0; i < parts.length - 1; i += 1) {
-      if (!(parts[i] in current)) {
-        current[parts[i]] = {};
+      const segment = parts[i];
+      const existing = current[segment];
+
+      if (
+        existing === null ||
+        existing === undefined ||
+        typeof existing !== "object" ||
+        Array.isArray(existing)
+      ) {
+        // Collision case: a scalar existed at this path (e.g. "cookiePolicy")
+        // but we also need to assign nested keys (e.g. "cookiePolicy.sections").
+        // Promote to object so nested writes do not throw.
+        current[segment] = {};
       }
-      current = current[parts[i]] as Record<string, unknown>;
+
+      if (!(segment in current)) {
+        current[segment] = {};
+      }
+      current = current[segment] as Record<string, unknown>;
     }
 
     current[parts[parts.length - 1]] = value;

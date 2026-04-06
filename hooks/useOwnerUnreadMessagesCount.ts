@@ -12,7 +12,8 @@ export function useOwnerUnreadMessagesCount() {
   const { user } = useAuth();
   const pathname = usePathname() ?? "";
   const isBrowser = typeof window !== "undefined";
-  const isOwnerMessagesRoute = pathname.startsWith("/owner/messages");
+  // Supports localized paths like /en/owner/messages
+  const isOwnerMessagesRoute = /\/owner\/messages(?:\/|$)/.test(pathname);
 
   return useQuery({
     queryKey: ["owner-messages", "unread-count", user?.id, isOwnerMessagesRoute],
