@@ -37,4 +37,26 @@ describe("cms server persistence mapper", () => {
       ]),
     );
   });
+
+  it("maps locale-aware writes to locale-specific cms documents", () => {
+    const writes = buildCmsWritesFromGlobalSettings([
+      {
+        key: CMS_GLOBAL_SETTING_KEYS.pageConfigs,
+        value: JSON.stringify({ home: { text: { "hero.title": "Olá" } } }),
+        locale: "pt-pt",
+      },
+      {
+        key: CMS_GLOBAL_SETTING_KEYS.customCss,
+        value: ".hero { color: green; }",
+        locale: "pt-pt",
+      },
+    ]);
+
+    expect(writes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ pageId: "home", docType: "page_config", locale: "pt-pt" }),
+        expect.objectContaining({ pageId: "__global__", docType: "custom_css", locale: "pt-pt" }),
+      ]),
+    );
+  });
 });

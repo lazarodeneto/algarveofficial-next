@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { DashboardBreadcrumb } from "@/components/ui/dashboard-breadcrumb";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -96,6 +97,7 @@ function fromRows(rows: KeyValueRow[]): Record<string, string> {
 }
 
 function AdminPageBuilderContent() {
+  const { i18n } = useTranslation();
   const router = useRouter();
   const pathname = usePathname() || "/admin/cms/page-builder";
   const searchParams = useSearchParams();
@@ -106,6 +108,7 @@ function AdminPageBuilderContent() {
     : fallbackPageId;
 
   const { settings, isLoading, saveSettingsAsync, isSaving } = useGlobalSettings({
+    locale: i18n.resolvedLanguage ?? i18n.language,
     keys: [
       CMS_GLOBAL_SETTING_KEYS.pageConfigs,
       CMS_GLOBAL_SETTING_KEYS.textOverrides,
