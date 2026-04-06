@@ -1,6 +1,7 @@
 "use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { callAdminEmailApi } from "@/lib/admin/email-client";
 import { toast } from "@/hooks/use-toast";
 
 export interface EmailTemplate {
@@ -75,23 +76,14 @@ export function useCreateEmailTemplate() {
 
   return useMutation({
     mutationFn: async (template: EmailTemplateInsert) => {
-      const { data: userData } = await supabase.auth.getUser();
-
-      const { data, error } = await supabase
-        .from("email_templates")
-        .insert({
-          name: template.name,
-          subject: template.subject,
-          html_content: template.html_content,
-          text_content: template.text_content || null,
-          category: template.category || "general",
-          variables: template.variables || [],
-          created_by: userData.user?.id || null,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      const data = await callAdminEmailApi("templates", "POST", {
+        name: template.name,
+        subject: template.subject,
+        html_content: template.html_content,
+        text_content: template.text_content || null,
+        category: template.category || "general",
+        variables: template.variables || [],
+      });
       return data;
     },
     onSuccess: () => {
@@ -109,14 +101,7 @@ export function useUpdateEmailTemplate() {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<EmailTemplate> & { id: string }) => {
-      const { data, error } = await supabase
-        .from("email_templates")
-        .update(updates)
-        .eq("id", id)
-        .select()
-        .single();
-
-      if (error) throw error;
+      const data = await callAdminEmailApi("templates", "PATCH", { id, ...updates });
       return data;
     },
     onSuccess: () => {
@@ -134,12 +119,7 @@ export function useDeleteEmailTemplate() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("email_templates")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
+      await callAdminEmailApi("templates", "DELETE", { id });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["email-templates"] });

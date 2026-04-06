@@ -47,6 +47,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Tables } from "@/integrations/supabase/types";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { callAdminTaxonomyApi } from "@/lib/admin/taxonomy-client";
 
 type Region = Tables<"regions">;
 
@@ -192,11 +193,7 @@ export default function AdminCmsDestinations() {
   const updateMutation = useMutation({
     mutationFn: async (region: Partial<Region> & { id: string }) => {
       const { id, ...updatePayload } = region;
-      const { error } = await supabase
-        .from('regions')
-        .update(updatePayload)
-        .eq('id', id);
-      if (error) throw error;
+      await callAdminTaxonomyApi("regions", "PATCH", { id, ...updatePayload });
     },
     onSuccess: () => {
       invalidateRegionCaches();
@@ -229,15 +226,9 @@ export default function AdminCmsDestinations() {
       
       const newItems = arrayMove(sortedRegions, oldIndex, newIndex);
       
-      // Update display_order for all affected items
-      for (let i = 0; i < newItems.length; i++) {
-        if (newItems[i].display_order !== i + 1) {
-          await supabase
-            .from('regions')
-            .update({ display_order: i + 1 })
-            .eq('id', newItems[i].id);
-        }
-      }
+      await callAdminTaxonomyApi("regions", "PUT", {
+        orderedIds: newItems.map((item) => item.id),
+      });
       
       invalidateRegionCaches();
       toast.success("Region order updated");

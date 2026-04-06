@@ -58,6 +58,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { SeoFieldsPanel } from "@/components/admin/seo/SeoFieldsPanel";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { callAdminTaxonomyApi } from "@/lib/admin/taxonomy-client";
 import { Tables } from "@/integrations/supabase/types";
 import { convertToWebP } from "@/lib/imageUtils";
 
@@ -212,11 +213,7 @@ export default function AdminCmsRegions() {
   const updateMutation = useMutation({
     mutationFn: async (region: Partial<Region> & { id: string }) => {
       const { id, ...updatePayload } = region;
-      const { error } = await supabase
-        .from('regions')
-        .update(updatePayload)
-        .eq('id', id);
-      if (error) throw error;
+      await callAdminTaxonomyApi("regions", "PATCH", { id, ...updatePayload });
     },
     onSuccess: () => {
       invalidateRegionCaches();
@@ -226,10 +223,7 @@ export default function AdminCmsRegions() {
   // Create region mutation
   const createMutation = useMutation({
     mutationFn: async (region: Omit<Region, 'id' | 'created_at' | 'updated_at'>) => {
-      const { error } = await supabase
-        .from('regions')
-        .insert(region);
-      if (error) throw error;
+      await callAdminTaxonomyApi("regions", "POST", region as unknown as Record<string, unknown>);
     },
     onSuccess: () => {
       invalidateRegionCaches();
@@ -243,11 +237,7 @@ export default function AdminCmsRegions() {
   // Delete region mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('regions')
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
+      await callAdminTaxonomyApi("regions", "DELETE", { id });
     },
     onSuccess: () => {
       invalidateRegionCaches();
@@ -337,14 +327,9 @@ export default function AdminCmsRegions() {
       const newItems = arrayMove(sortedRegions, oldIndex, newIndex);
 
       // Update display_order for all affected items
-      for (let i = 0; i < newItems.length; i++) {
-        if (newItems[i].display_order !== i + 1) {
-          await supabase
-            .from('regions')
-            .update({ display_order: i + 1 })
-            .eq('id', newItems[i].id);
-        }
-      }
+      await callAdminTaxonomyApi("regions", "PUT", {
+        orderedIds: newItems.map((item) => item.id),
+      });
 
       invalidateRegionCaches();
       toast.success("Region order updated");

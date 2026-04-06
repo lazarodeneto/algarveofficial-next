@@ -1,6 +1,7 @@
 "use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { callAdminEmailApi } from "@/lib/admin/email-client";
 import { toast } from "@/hooks/use-toast";
 
 export interface EmailCampaign {
@@ -132,27 +133,17 @@ export function useCreateEmailCampaign() {
   return useMutation({
     mutationFn: async (campaign: EmailCampaignInsert) => {
       if (!isBrowser) return null;
-
-      const { data: userData } = await supabase.auth.getUser();
-
-      const { data, error } = await supabase
-        .from("email_campaigns")
-        .insert({
-          name: campaign.name,
-          subject: campaign.subject,
-          from_name: campaign.from_name || "AlgarveOfficial",
-          from_email: campaign.from_email,
-          reply_to: campaign.reply_to || null,
-          template_id: campaign.template_id || null,
-          segment_id: campaign.segment_id || null,
-          scheduled_at: campaign.scheduled_at || null,
-          status: campaign.scheduled_at ? "scheduled" : "draft",
-          created_by: userData.user?.id || null,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      const data = await callAdminEmailApi("campaigns", "POST", {
+        name: campaign.name,
+        subject: campaign.subject,
+        from_name: campaign.from_name || "AlgarveOfficial",
+        from_email: campaign.from_email,
+        reply_to: campaign.reply_to || null,
+        template_id: campaign.template_id || null,
+        segment_id: campaign.segment_id || null,
+        scheduled_at: campaign.scheduled_at || null,
+        status: campaign.scheduled_at ? "scheduled" : "draft",
+      });
       return data;
     },
     onSuccess: () => {
@@ -172,15 +163,7 @@ export function useUpdateEmailCampaign() {
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<EmailCampaign> & { id: string }) => {
       if (!isBrowser) return null;
-
-      const { data, error } = await supabase
-        .from("email_campaigns")
-        .update(updates)
-        .eq("id", id)
-        .select()
-        .single();
-
-      if (error) throw error;
+      const data = await callAdminEmailApi("campaigns", "PATCH", { id, ...updates });
       return data;
     },
     onSuccess: () => {
@@ -200,13 +183,7 @@ export function useDeleteEmailCampaign() {
   return useMutation({
     mutationFn: async (id: string) => {
       if (!isBrowser) return;
-
-      const { error } = await supabase
-        .from("email_campaigns")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
+      await callAdminEmailApi("campaigns", "DELETE", { id });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["email-campaigns"] });

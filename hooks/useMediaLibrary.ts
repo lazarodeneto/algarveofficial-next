@@ -1,6 +1,7 @@
 "use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { getValidAccessToken } from "@/lib/authToken";
 import { toast } from "sonner";
 import { convertToWebP, getFileSizeReduction } from "@/lib/imageUtils";
 
@@ -19,6 +20,31 @@ export interface MediaItem {
 export function useMediaLibrary() {
   const queryClient = useQueryClient();
   const isBrowser = typeof window !== "undefined";
+
+  const callAdminMediaApi = async (
+    method: "POST" | "DELETE",
+    payload: Record<string, unknown>,
+  ) => {
+    const accessToken = await getValidAccessToken();
+    const response = await fetch("/api/admin/media-library", {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = (await response.json().catch(() => null)) as
+      | { ok?: boolean; data?: MediaItem; error?: { message?: string } }
+      | null;
+
+    if (!response.ok || !data?.ok) {
+      throw new Error(data?.error?.message || "Failed to update media library.");
+    }
+
+    return data.data;
+  };
 
   const query = useQuery({
     queryKey: ["media-library"],
@@ -73,20 +99,13 @@ export function useMediaLibrary() {
         .from("media")
         .getPublicUrl(filePath);
 
-      // Create record in media_library
-      const { data, error } = await supabase
-        .from("media_library")
-        .insert({
-          file_name: processedFile.name,
-          file_url: urlData.publicUrl,
-          file_type: isImage ? "image" : "video",
-          file_size: processedFile.size,
-          folder: folder || "general",
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      const data = await callAdminMediaApi("POST", {
+        file_name: processedFile.name,
+        file_url: urlData.publicUrl,
+        file_type: isImage ? "image" : "video",
+        file_size: processedFile.size,
+        folder: folder || "general",
+      });
       return { ...data, originalSize, optimizedSize: processedFile.size };
     },
     onSuccess: (data) => {
@@ -106,13 +125,7 @@ export function useMediaLibrary() {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       if (!isBrowser) return;
-
-      const { error } = await supabase
-        .from("media_library")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
+      await callAdminMediaApi("DELETE", { id });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["media-library"] });

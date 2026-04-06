@@ -1,6 +1,7 @@
 "use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { callAdminEmailApi } from "@/lib/admin/email-client";
 import { toast } from "@/hooks/use-toast";
 import type { Json } from "@/integrations/supabase/types";
 
@@ -90,21 +91,12 @@ export function useCreateEmailSegment() {
 
   return useMutation({
     mutationFn: async (segment: EmailSegmentInsert) => {
-      const { data: userData } = await supabase.auth.getUser();
-
-      const { data, error } = await supabase
-        .from("email_segments")
-        .insert({
-          name: segment.name,
-          description: segment.description || null,
-          rules: segment.rules as unknown as Json,
-          is_dynamic: segment.is_dynamic ?? true,
-          created_by: userData.user?.id || null,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      const data = await callAdminEmailApi("segments", "POST", {
+        name: segment.name,
+        description: segment.description || null,
+        rules: segment.rules as unknown as Json,
+        is_dynamic: segment.is_dynamic ?? true,
+      });
       return data;
     },
     onSuccess: () => {
@@ -126,15 +118,7 @@ export function useUpdateEmailSegment() {
       if (rules !== undefined) {
         updateData.rules = rules as unknown as Json;
       }
-
-      const { data, error } = await supabase
-        .from("email_segments")
-        .update(updateData)
-        .eq("id", id)
-        .select()
-        .single();
-
-      if (error) throw error;
+      const data = await callAdminEmailApi("segments", "PATCH", { id, ...updateData });
       return data;
     },
     onSuccess: () => {
@@ -152,12 +136,7 @@ export function useDeleteEmailSegment() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("email_segments")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
+      await callAdminEmailApi("segments", "DELETE", { id });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["email-segments"] });
@@ -236,12 +215,7 @@ export function useRefreshSegmentCount() {
       if (countError) throw countError;
 
       // Update segment with new count
-      const { error: updateError } = await supabase
-        .from("email_segments")
-        .update({ contact_count: count || 0 })
-        .eq("id", segmentId);
-
-      if (updateError) throw updateError;
+      await callAdminEmailApi("segments", "PATCH", { id: segmentId, contact_count: count || 0 });
 
       return count || 0;
     },
