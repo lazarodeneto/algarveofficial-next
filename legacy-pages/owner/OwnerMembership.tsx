@@ -25,8 +25,6 @@ import type { SubscriptionTier, BillingPeriod } from "@/lib/stripePricing";
 import Link from "next/link";
 import { useLocalePath } from "@/hooks/useLocalePath";
 
-type OwnerBillingPeriod = BillingPeriod | 'period';
-
 export default function OwnerMembership() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -43,7 +41,7 @@ export default function OwnerMembership() {
     checkSubscription 
   } = useStripeSubscription();
   
-  const [billingPeriod, setBillingPeriod] = useState<OwnerBillingPeriod>('monthly');
+  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly');
   const [checkoutInProgress, setCheckoutInProgress] = useState<string | null>(null);
   
   // Handle success/cancel redirects from Stripe
@@ -86,10 +84,6 @@ export default function OwnerMembership() {
   
   const handleCheckout = async (tierId: string) => {
     if (tierId === 'unverified') return;
-    if (billingPeriod === 'period') {
-      toast.info(t('owner.membership.customPeriodContactSupport', 'Custom period subscriptions are managed by support.'));
-      return;
-    }
     if (tierId === currentTier && billingPeriod === currentBillingPeriod) return;
 
     setCheckoutInProgress(tierId);
@@ -120,8 +114,6 @@ export default function OwnerMembership() {
   };
 
   const isLoading = isListingsLoading || isPricingLoading || isSubscriptionLoading;
-  const hasPeriodPricing = membershipTiers.some((tier) => tier.id !== "unverified" && !!tier.period);
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -193,26 +185,6 @@ export default function OwnerMembership() {
               {t('owner.membership.save17')}
             </span>
           </button>
-          {hasPeriodPricing && (
-            <button
-              onClick={() => setBillingPeriod('period')}
-              className={cn(
-                "relative px-5 py-2 text-sm font-medium rounded-full transition-all duration-200",
-                billingPeriod === 'period'
-                  ? "text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {billingPeriod === 'period' && (
-                <motion.div
-                  layoutId="billingToggle"
-                  className="absolute inset-0 bg-background rounded-full shadow-sm border border-border"
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                />
-              )}
-              <span className="relative z-10">{t('owner.membership.period', 'Period')}</span>
-            </button>
-          )}
         </div>
       </motion.div>
 
@@ -289,12 +261,9 @@ export default function OwnerMembership() {
             ? tier.annual
             : billingPeriod === 'annual'
             ? tier.annual
-            : billingPeriod === 'period'
-              ? (tier.period ?? tier.monthly)
-              : tier.monthly;
+            : tier.monthly;
           const showSavings = billingPeriod === 'annual' && tier.annual.savings && tier.annual.savings > 0;
           const isCheckingOut = checkoutInProgress === tier.id;
-          const isPeriodUnavailableForTier = billingPeriod === 'period' && !tier.period;
           const isVerifiedTier = tier.id === 'verified';
           const isSignatureTier = tier.id === 'signature';
           const cardToneClass = isSignatureTier
@@ -452,16 +421,6 @@ export default function OwnerMembership() {
                         <Link href={l("/owner/support")}>
                           {t('owner.membership.invitationOnlyCta', 'Invitation-only')}
                           <ExternalLink className="h-3 w-3 ml-2" />
-                        </Link>
-                      </Button>
-                    ) : isPeriodUnavailableForTier ? (
-                      <Button disabled className="w-full" variant="ghost">
-                        {t('owner.membership.notAvailable')}
-                      </Button>
-                    ) : billingPeriod === 'period' ? (
-                      <Button className="w-full" variant="outline" asChild>
-                        <Link href={l("/owner/support")}>
-                          {t('owner.membership.contactSupportForPeriod', 'Contact support for custom period')}
                         </Link>
                       </Button>
                     ) : isSameTierDifferentBilling ? (

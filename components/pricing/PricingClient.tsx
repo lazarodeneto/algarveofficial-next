@@ -17,8 +17,6 @@ interface PricingTier {
   badge: string;
   badgeVariant: "secondary" | "default" | "gold";
   badgeClass?: string;
-  price: string;
-  priceNote: string;
   description: string;
   cta: string;
   ctaHref: string;
@@ -46,8 +44,6 @@ export function PricingClient() {
       badge: t("pricing.tiers.verified.badge", "Recommended"),
       badgeVariant: "default",
       badgeClass: "bg-primary/15 text-primary border-primary/30",
-      price: t("pricing.tiers.verified.price", "From €99"),
-      priceNote: t("pricing.tiers.verified.priceNote", "/month"),
       description: t(
         "pricing.tiers.verified.description",
         "Enhanced visibility and trust for established businesses.",
@@ -72,8 +68,6 @@ export function PricingClient() {
       badge: t("pricing.tiers.signature.badge", "Most Exclusive"),
       badgeVariant: "gold",
       badgeClass: "bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border-amber-500/40 text-amber-400",
-      price: t("pricing.tiers.signature.price", "From €299"),
-      priceNote: t("pricing.tiers.signature.priceNote", "/month"),
       description: t(
         "pricing.tiers.signature.description",
         "Maximum visibility, homepage placement, and exclusive partner benefits.",
@@ -276,13 +270,13 @@ export function PricingClient() {
             {tiers.map((tier, index) => (
               (() => {
                 const dynamicTier = membershipTiers.find((candidate) => candidate.id === tier.id);
-                const monthlyPrice = dynamicTier?.monthly.display || tier.price;
-                const monthlyNote = dynamicTier?.monthly.note || tier.priceNote;
+                const monthlyPrice = dynamicTier?.monthly.display || t("pricing.unavailable", "Contact us");
+                const monthlyNote = dynamicTier?.monthly.note || t("pricing.unavailableNote", "Pricing available on request");
                 const annualLine = dynamicTier?.annual
                   ? `${t("admin.subscriptions.billing.annual", "Annual")}: ${dynamicTier.annual.display} (${dynamicTier.annual.note})`
                   : null;
-                const periodLine = dynamicTier?.period
-                  ? `${t("admin.subscriptions.billing.period", "Period")}: ${dynamicTier.period.display} (${dynamicTier.period.note})`
+                const promoLine = dynamicTier?.promo
+                  ? `${t("admin.subscriptions.billing.period", "Promo")}: ${dynamicTier.promo.display} (${dynamicTier.promo.note})`
                   : null;
                 return (
               <motion.div
@@ -315,8 +309,8 @@ export function PricingClient() {
                       {annualLine && (
                         <p className="text-xs text-muted-foreground mt-2">{annualLine}</p>
                       )}
-                      {periodLine && (
-                        <p className="text-xs text-primary mt-1">{periodLine}</p>
+                      {promoLine && (
+                        <p className="text-xs text-primary mt-1">{promoLine}</p>
                       )}
                     </div>
                     <p className="mt-3 text-sm text-muted-foreground">{tier.description}</p>

@@ -2320,9 +2320,14 @@ export type Database = {
         Row: {
           billing_period: string
           created_at: string
+          currency: string | null
           current_period_end: string | null
+          end_date: string | null
           id: string
           owner_id: string
+          price_cents: number | null
+          start_date: string | null
+          stripe_price_id: string | null
           status: string
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
@@ -2332,9 +2337,14 @@ export type Database = {
         Insert: {
           billing_period: string
           created_at?: string
+          currency?: string | null
           current_period_end?: string | null
+          end_date?: string | null
           id?: string
           owner_id: string
+          price_cents?: number | null
+          start_date?: string | null
+          stripe_price_id?: string | null
           status?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -2344,9 +2354,14 @@ export type Database = {
         Update: {
           billing_period?: string
           created_at?: string
+          currency?: string | null
           current_period_end?: string | null
+          end_date?: string | null
           id?: string
           owner_id?: string
+          price_cents?: number | null
+          start_date?: string | null
+          stripe_price_id?: string | null
           status?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -2787,48 +2802,69 @@ export type Database = {
       subscription_pricing: {
         Row: {
           billing_period: string
+          created_at: string
+          currency: string
           display_price: string
           id: string
+          is_active: boolean
           monthly_equivalent: string | null
           note: string
+          price_cents: number
           period_length: number | null
           period_start_date: string | null
           period_end_date: string | null
           period_unit: string | null
           price: number
           savings: number | null
+          stripe_price_id: string | null
           tier: string
           updated_at: string
+          valid_from: string | null
+          valid_to: string | null
         }
         Insert: {
           billing_period: string
+          created_at?: string
+          currency?: string
           display_price: string
           id: string
+          is_active?: boolean
           monthly_equivalent?: string | null
           note: string
+          price_cents?: number
           period_length?: number | null
           period_start_date?: string | null
           period_end_date?: string | null
           period_unit?: string | null
           price?: number
           savings?: number | null
+          stripe_price_id?: string | null
           tier: string
           updated_at?: string
+          valid_from?: string | null
+          valid_to?: string | null
         }
         Update: {
           billing_period?: string
+          created_at?: string
+          currency?: string
           display_price?: string
           id?: string
+          is_active?: boolean
           monthly_equivalent?: string | null
           note?: string
+          price_cents?: number
           period_length?: number | null
           period_start_date?: string | null
           period_end_date?: string | null
           period_unit?: string | null
           price?: number
           savings?: number | null
+          stripe_price_id?: string | null
           tier?: string
           updated_at?: string
+          valid_from?: string | null
+          valid_to?: string | null
         }
         Relationships: []
       }
