@@ -20,6 +20,12 @@ function parseBoolean(value: string | null) {
   return normalized === "1" || normalized === "true" || normalized === "yes";
 }
 
+function parseBoundedInt(value: string | null, fallback: number, min: number, max: number) {
+  const raw = Number.parseInt(value ?? "", 10);
+  if (!Number.isFinite(raw)) return fallback;
+  return Math.min(Math.max(raw, min), max);
+}
+
 export async function GET(request: NextRequest) {
   const auth = await requireAdminReadClient(
     request,
@@ -31,8 +37,14 @@ export async function GET(request: NextRequest) {
   const locale = request.nextUrl.searchParams.get("locale")?.trim() ?? "";
   const docTypeRaw = request.nextUrl.searchParams.get("doc_type")?.trim() ?? "";
   const includeVersions = parseBoolean(request.nextUrl.searchParams.get("include_versions"));
-  const limitRaw = Number.parseInt(request.nextUrl.searchParams.get("limit") ?? "50", 10);
-  const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(limitRaw, 1), 200) : 50;
+  const limit = parseBoundedInt(request.nextUrl.searchParams.get("limit"), 50, 1, 200);
+  const offset = parseBoundedInt(request.nextUrl.searchParams.get("offset"), 0, 0, 10_000);
+  const versionLimit = parseBoundedInt(
+    request.nextUrl.searchParams.get("version_limit"),
+    10,
+    1,
+    50,
+  );
 
   if (docTypeRaw && !VALID_DOC_TYPES.has(docTypeRaw as CmsDocType)) {
     return errorResponse(400, "INVALID_DOC_TYPE", "Unsupported cms doc_type.");
@@ -42,7 +54,7 @@ export async function GET(request: NextRequest) {
     .from("cms_documents" as never)
     .select("id, page_id, block_id, locale, doc_type, status, current_version_id, created_at, updated_at")
     .order("updated_at", { ascending: false })
-    .limit(limit);
+    .range(offset, offset + limit - 1);
 
   if (pageId) query = query.eq("page_id", pageId);
   if (locale) query = query.eq("locale", locale);
@@ -70,7 +82,16 @@ export async function GET(request: NextRequest) {
   }>;
 
   if (!includeVersions || docs.length === 0) {
-    return NextResponse.json({ ok: true, data: docs });
+    return NextResponse.json({
+      ok: true,
+      data: docs,
+      meta: {
+        offset,
+        limit,
+        version_limit: includeVersions ? versionLimit : 0,
+        returned: docs.length,
+      },
+    });
   }
 
   const docIds = docs.map((doc) => doc.id);
@@ -78,6 +99,7 @@ export async function GET(request: NextRequest) {
     .from("cms_document_versions" as never)
     .select("id, document_id, version, content, created_at, created_by")
     .in("document_id", docIds as never)
+    .order("document_id", { ascending: true })
     .order("version", { ascending: false });
 
   if (versionsError) {
@@ -91,8 +113,10 @@ export async function GET(request: NextRequest) {
   const versionsByDoc = new Map<number, unknown[]>();
   ((versionRows as Array<{ document_id: number }> | null) ?? []).forEach((row) => {
     const bucket = versionsByDoc.get(row.document_id) ?? [];
-    bucket.push(row as unknown);
-    versionsByDoc.set(row.document_id, bucket);
+    if (bucket.length < versionLimit) {
+      bucket.push(row as unknown);
+      versionsByDoc.set(row.document_id, bucket);
+    }
   });
 
   const withVersions = docs.map((doc) => ({
@@ -100,5 +124,14 @@ export async function GET(request: NextRequest) {
     versions: versionsByDoc.get(doc.id) ?? [],
   }));
 
-  return NextResponse.json({ ok: true, data: withVersions });
+  return NextResponse.json({
+    ok: true,
+    data: withVersions,
+    meta: {
+      offset,
+      limit,
+      version_limit: versionLimit,
+      returned: withVersions.length,
+    },
+  });
 }
