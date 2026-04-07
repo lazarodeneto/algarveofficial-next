@@ -102,6 +102,38 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
       <Header />
       <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />
 
+      <CmsBlock pageId="destinations" blockId="featured-city-hub" as="section" className="pb-8">
+        {highlightedCity && highlightedCity.hero_image_url && (
+          <div className="app-container content-max">
+            <LocaleLink
+              href={`/destinations/${highlightedCity.slug}`}
+              className="group relative block overflow-hidden rounded-[32px] aspect-[16/9] lg:aspect-[2.4/1]"
+            >
+              <Image
+                src={`${highlightedCity.hero_image_url || highlightedCity.image_url}?_t=${imageTimestamp}`}
+                alt={highlightedCity.name}
+                fill
+                unoptimized
+                sizes="100vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-6 lg:p-10 text-white">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
+                  {t("sections.cities.featuredCityHub", "Featured City Hub")}
+                </p>
+                <h2 className="font-serif text-3xl lg:text-5xl leading-tight">
+                  {highlightedCity.name}
+                </h2>
+                <p className="mt-3 max-w-2xl text-sm lg:text-base text-white/85">
+                  {highlightedCity.short_description || highlightedCity.description}
+                </p>
+              </div>
+            </LocaleLink>
+          </div>
+        )}
+      </CmsBlock>
+
       <CmsBlock pageId="destinations" blockId="city-index" as="section" className="py-16 lg:py-24 bg-card">
         <div className="app-container content-max">
           <motion.div
