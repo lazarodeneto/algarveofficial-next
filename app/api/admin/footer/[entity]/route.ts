@@ -28,6 +28,11 @@ export async function POST(
   const auth = await requireAdminWriteClient(
     request,
     "Only admins can create footer items.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin footer writes.",
+    },
   );
   if ("error" in auth) return auth.error;
 
@@ -114,6 +119,11 @@ export async function PATCH(
   const auth = await requireAdminWriteClient(
     request,
     "Only admins can update footer items.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin footer writes.",
+    },
   );
   if ("error" in auth) return auth.error;
 
@@ -162,6 +172,11 @@ export async function DELETE(
   const auth = await requireAdminWriteClient(
     request,
     "Only admins can delete footer items.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin footer writes.",
+    },
   );
   if ("error" in auth) return auth.error;
 
@@ -205,6 +220,11 @@ export async function PUT(
   const auth = await requireAdminWriteClient(
     request,
     "Only admins can reorder footer items.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin footer writes.",
+    },
   );
   if ("error" in auth) return auth.error;
 

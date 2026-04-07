@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
+import { logAdminMutation } from "@/lib/server/admin-audit-log";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 
@@ -29,6 +30,7 @@ interface AdminBaseAuth {
 interface AdminWriteClientOptions {
   requireServiceRole?: boolean;
   missingServiceRoleMessage?: string;
+  auditAction?: string;
 }
 
 export function adminErrorResponse(status: number, code: string, message: string) {
@@ -133,6 +135,25 @@ export async function requireAdminWriteClient(
       ),
     };
   }
+
+  let action = options?.auditAction;
+  if (!action) {
+    try {
+      const parsed = new URL(request.url);
+      action = `${request.method.toUpperCase()} ${parsed.pathname}`;
+    } catch {
+      action = request.method.toUpperCase();
+    }
+  }
+
+  logAdminMutation({
+    userId: base.userId,
+    action,
+    payload: {
+      requiresServiceRole: options?.requireServiceRole === true,
+      usingServiceRoleClient: Boolean(serviceClient),
+    },
+  });
 
   return {
     userId: base.userId,

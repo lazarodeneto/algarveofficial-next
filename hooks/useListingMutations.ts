@@ -28,6 +28,35 @@ interface UpdateListingParams {
   images?: ImageInput[];
 }
 
+type AdminApiPayload = {
+  ok?: boolean;
+  data?: Record<string, unknown> | null;
+  error?: { message?: string };
+};
+
+async function callAdminListingsApi(
+  path: string,
+  method: "POST" | "PATCH" | "DELETE",
+  payload?: Record<string, unknown>,
+) {
+  const accessToken = await getValidAccessToken();
+  const response = await fetch(path, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    ...(payload ? { body: JSON.stringify(payload) } : {}),
+  });
+
+  const data = (await response.json().catch(() => null)) as AdminApiPayload | null;
+  if (!response.ok || !data?.ok) {
+    throw new Error(data?.error?.message || "Admin listings request failed.");
+  }
+
+  return data?.data ?? null;
+}
+
 /**
  * Upload a file to Supabase Storage and return the public URL
  */
@@ -88,51 +117,17 @@ export function useCreateListing() {
     mutationFn: async ({ listing, images }: CreateListingParams) => {
       if (!isBrowser) return null;
 
-      // Insert the listing
-      const { data: newListing, error: listingError } = await supabase
-        .from('listings')
-        .insert(listing)
-        .select()
-        .single();
+      const listingId = (listing.id as string | null | undefined) ?? crypto.randomUUID();
+      const processedImages = images && images.length > 0
+        ? await processImages(images, listingId)
+        : [];
 
-      if (listingError) {
-        console.error('Error creating listing:', listingError);
-        throw listingError;
-      }
+      const data = await callAdminListingsApi("/api/admin/listings", "POST", {
+        listing,
+        images: processedImages,
+      });
 
-      // Insert images if provided
-      if (images && images.length > 0 && newListing) {
-        // Upload new images to storage first
-        const processedImages = await processImages(images, newListing.id);
-
-        const imageRows = processedImages.map((img) => ({
-          listing_id: newListing.id,
-          image_url: img.url,
-          alt_text: img.alt_text || null,
-          is_featured: img.is_featured,
-          display_order: img.display_order,
-        }));
-
-        const { error: imagesError } = await supabase
-          .from('listing_images')
-          .insert(imageRows);
-
-        if (imagesError) {
-          console.error('Error creating listing images:', imagesError);
-          // Don't throw - listing was created successfully
-        }
-
-        // Update featured_image_url with the first processed image
-        const featuredImage = processedImages.find(img => img.is_featured) || processedImages[0];
-        if (featuredImage) {
-          await supabase
-            .from('listings')
-            .update({ featured_image_url: featuredImage.url })
-            .eq('id', newListing.id);
-        }
-      }
-
-      return newListing;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['listings'] });
@@ -156,79 +151,16 @@ export function useUpdateListing() {
     mutationFn: async ({ id, listing, images }: UpdateListingParams) => {
       if (!isBrowser) return null;
 
-      // Update the listing
-      const { data: updatedListing, error: listingError } = await supabase
-        .from('listings')
-        .update(listing)
-        .eq('id', id)
-        .select()
-        .single();
+      const processedImages = images !== undefined
+        ? (images.length > 0 ? await processImages(images, id) : [])
+        : undefined;
 
-      if (listingError) {
-        console.error('Error updating listing:', listingError);
-        throw listingError;
-      }
+      const data = await callAdminListingsApi(`/api/admin/listings/${id}`, "PATCH", {
+        listing,
+        ...(processedImages !== undefined ? { images: processedImages } : {}),
+      });
 
-      // Update images if provided
-      if (images !== undefined && updatedListing) {
-        // Upload new images to storage first
-        const processedImages = images.length > 0
-          ? await processImages(images, id)
-          : [];
-
-        // Delete existing images from database
-        const { error: deleteError } = await supabase
-          .from('listing_images')
-          .delete()
-          .eq('listing_id', id);
-
-        if (deleteError) {
-          console.error('Error deleting old images:', deleteError);
-          throw new Error(`Failed to replace listing images: ${deleteError.message}`);
-        }
-
-        // Insert new images
-        if (processedImages.length > 0) {
-          const imageRows = processedImages.map((img) => ({
-            listing_id: id,
-            image_url: img.url,
-            alt_text: img.alt_text || null,
-            is_featured: img.is_featured,
-            display_order: img.display_order,
-          }));
-
-          const { error: imagesError } = await supabase
-            .from('listing_images')
-            .insert(imageRows);
-
-          if (imagesError) {
-            console.error('Error updating listing images:', imagesError);
-            throw new Error(`Failed to save listing images: ${imagesError.message}`);
-          }
-
-          // Update featured_image_url with the first processed image
-          const featuredImage = processedImages.find(img => img.is_featured) || processedImages[0];
-          if (featuredImage) {
-            const { error: featuredError } = await supabase
-              .from('listings')
-              .update({ featured_image_url: featuredImage.url })
-              .eq('id', id);
-            if (featuredError) {
-              throw new Error(`Failed to update featured image: ${featuredError.message}`);
-            }
-          }
-        } else {
-          const { error: clearFeaturedError } = await supabase
-            .from('listings')
-            .update({ featured_image_url: null })
-            .eq('id', id);
-          if (clearFeaturedError) {
-            throw new Error(`Failed to clear featured image: ${clearFeaturedError.message}`);
-          }
-        }
-      }
-
-      return updatedListing;
+      return data;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['listings'] });
@@ -252,15 +184,7 @@ export function useDeleteListing() {
   return useMutation({
     mutationFn: async (id: string) => {
       if (!isBrowser) return id;
-
-      const { error } = await supabase.rpc('admin_delete_listings', {
-        listing_ids: [id],
-      });
-
-      if (error) {
-        console.error('Error deleting listing:', error);
-        throw error;
-      }
+      await callAdminListingsApi(`/api/admin/listings/${id}`, "DELETE");
 
       return id;
     },
@@ -288,26 +212,8 @@ export function useUpdateListingStatus() {
         return { id, status } as ListingUpdate & { id: string };
       }
 
-      const updateData: ListingUpdate = { status };
-
-      // Set published_at when publishing
-      if (status === 'published') {
-        updateData.published_at = new Date().toISOString();
-      }
-
-      const { data, error } = await supabase
-        .from('listings')
-        .update(updateData)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error updating listing status:', error);
-        throw error;
-      }
-
-      return data;
+      const data = await callAdminListingsApi(`/api/admin/listings/${id}`, "PATCH", { status });
+      return data as ListingUpdate & { id: string };
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['listings'] });
@@ -334,14 +240,10 @@ export function useBulkDeleteListings() {
     mutationFn: async (ids: string[]) => {
       if (!isBrowser) return ids;
 
-      const { error } = await supabase.rpc('admin_delete_listings', {
-        listing_ids: ids,
+      await callAdminListingsApi("/api/admin/listings", "PATCH", {
+        action: "bulk-delete",
+        ids,
       });
-
-      if (error) {
-        console.error('Error bulk deleting listings:', error);
-        throw error;
-      }
 
       return ids;
     },
@@ -374,26 +276,12 @@ export function useBulkPublishListings() {
     mutationFn: async (ids: string[]) => {
       if (!isBrowser) return ids;
 
-      const publishedAt = new Date().toISOString();
-
       for (let i = 0; i < ids.length; i += BATCH_SIZE) {
         const batchIds = ids.slice(i, i + BATCH_SIZE);
-        const { error } = await supabase
-          .from('listings')
-          .update({
-            status: 'published' as const,
-            published_at: publishedAt
-          })
-          .in('id', batchIds);
-
-        if (error) {
-          console.error('Error bulk publishing listings batch:', {
-            batchStart: i,
-            batchSize: batchIds.length,
-            error,
-          });
-          throw error;
-        }
+        await callAdminListingsApi("/api/admin/listings", "PATCH", {
+          action: "bulk-publish",
+          ids: batchIds,
+        });
       }
 
       return ids;
@@ -451,6 +339,29 @@ export function useBulkUpdateTier() {
     onError: (error: Error & { code?: string; details?: string; hint?: string }) => {
       const detail = [error.code, error.message, error.details, error.hint].filter(Boolean).join(' | ');
       toast.error(`Failed to update tier: ${detail}`, { duration: 10000 });
+    },
+  });
+}
+
+export function useToggleListingCurated() {
+  const queryClient = useQueryClient();
+  const isBrowser = typeof window !== "undefined";
+
+  return useMutation({
+    mutationFn: async ({ id, isCurated }: { id: string; isCurated: boolean }) => {
+      if (!isBrowser) return { id, is_curated: isCurated };
+      const data = await callAdminListingsApi(`/api/admin/listings/${id}`, "PATCH", {
+        is_curated: isCurated,
+      });
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-all-listings'] });
+      toast.success(variables.isCurated ? "Added to curated list" : "Removed from curated list");
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to update curated status: ${error.message}`);
     },
   });
 }
