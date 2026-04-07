@@ -51,6 +51,18 @@ const ADMIN_MUTATION_ROUTE_CONTRACTS: AdminRouteContract[] = [
     requiredSnippets: ['get_user_role', 'Only admins can update listing tiers.'],
   },
   {
+    path: "app/api/admin/listings/route.ts",
+    requiredSnippets: ['requireAdminWriteClient', 'Only admins can manage listings.'],
+  },
+  {
+    path: "app/api/admin/listings/[listingId]/route.ts",
+    requiredSnippets: ['requireAdminWriteClient', 'Only admins can manage listings.'],
+  },
+  {
+    path: "app/api/admin/curated-assignments/route.ts",
+    requiredSnippets: ['requireAdminWriteClient', 'Only admins can manage curated assignments.'],
+  },
+  {
     path: "app/api/admin/users/[userId]/route.ts",
     requiredSnippets: ['get_user_role', 'Only admins can manage users.'],
   },

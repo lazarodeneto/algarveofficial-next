@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
 import { requireAdminWriteClient } from "@/lib/server/admin-auth";
+import { logAdminMutation } from "@/lib/server/admin-audit-log";
 import {
   buildPricingApiErrorResponse,
   type PricingApiSuccessResponse,
@@ -306,6 +307,16 @@ export async function PATCH(request: NextRequest) {
     if (id) {
       const updatedId = await updatePricingById(auth.writeClient, id, payload);
       if (updatedId) {
+        logAdminMutation({
+          userId: auth.userId,
+          action: "admin.subscription-pricing.update",
+          payload: {
+            pricingId: updatedId,
+            tier: tier ?? null,
+            billingPeriod: billingPeriod ?? null,
+            mode: "by-id",
+          },
+        });
         return successResponse(updatedId, "updated");
       }
     }
@@ -315,6 +326,16 @@ export async function PATCH(request: NextRequest) {
       if (existingId) {
         const updatedId = await updatePricingById(auth.writeClient, existingId, payload);
         if (updatedId) {
+          logAdminMutation({
+            userId: auth.userId,
+            action: "admin.subscription-pricing.update",
+            payload: {
+              pricingId: updatedId,
+              tier,
+              billingPeriod,
+              mode: "by-tier-billing",
+            },
+          });
           return successResponse(updatedId, "updated");
         }
       }
@@ -329,6 +350,15 @@ export async function PATCH(request: NextRequest) {
       }
 
       const createdId = await insertPricing(auth.writeClient, insertPayload);
+      logAdminMutation({
+        userId: auth.userId,
+        action: "admin.subscription-pricing.create",
+        payload: {
+          pricingId: createdId,
+          tier,
+          billingPeriod,
+        },
+      });
       return successResponse(createdId, "created");
     }
 
@@ -381,11 +411,30 @@ export async function POST(request: NextRequest) {
       const updatedPayload = buildPricingPayload(body);
       const updatedId = await updatePricingById(auth.writeClient, existingId, updatedPayload);
       if (updatedId) {
+        logAdminMutation({
+          userId: auth.userId,
+          action: "admin.subscription-pricing.update",
+          payload: {
+            pricingId: updatedId,
+            tier,
+            billingPeriod,
+            mode: "upsert-existing",
+          },
+        });
         return successResponse(updatedId, "updated");
       }
     }
 
     const createdId = await insertPricing(auth.writeClient, insertPayload);
+    logAdminMutation({
+      userId: auth.userId,
+      action: "admin.subscription-pricing.create",
+      payload: {
+        pricingId: createdId,
+        tier,
+        billingPeriod,
+      },
+    });
     return successResponse(createdId, "created");
   } catch (error) {
     const details = getPricingApiErrorMessage(error, "Failed to save pricing.");

@@ -18,6 +18,11 @@ export async function POST(request: NextRequest) {
   const auth = await requireAdminWriteClient(
     request,
     "Only admins can create media library records.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin media writes.",
+    },
   );
   if ("error" in auth) return auth.error;
 
@@ -71,6 +76,11 @@ export async function DELETE(request: NextRequest) {
   const auth = await requireAdminWriteClient(
     request,
     "Only admins can delete media library records.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin media writes.",
+    },
   );
   if ("error" in auth) return auth.error;
 

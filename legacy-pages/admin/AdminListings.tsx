@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Plus,
@@ -48,6 +48,7 @@ import {
   useBulkDeleteListings, 
   useBulkPublishListings, 
   useBulkUpdateTier,
+  useToggleListingCurated,
   useUpdateListingStatus,
 } from "@/hooks/useListingMutations";
 import { toast } from "sonner";
@@ -55,7 +56,6 @@ import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function AdminListings() {
   const searchParams = useSearchParams();
-  const queryClient = useQueryClient();
   const l = useLocalePath();
   
   const [search, setSearch] = useState("");
@@ -77,26 +77,8 @@ export default function AdminListings() {
   const bulkDelete = useBulkDeleteListings();
   const bulkPublish = useBulkPublishListings();
   const bulkUpdateTier = useBulkUpdateTier();
+  const toggleCurated = useToggleListingCurated();
   const updateListingStatus = useUpdateListingStatus();
-
-  const toggleCurated = useMutation({
-    mutationFn: async ({ id, nextCurated }: { id: string; nextCurated: boolean }) => {
-      const { error } = await supabase
-        .from("listings")
-        .update({ is_curated: nextCurated })
-        .eq("id", id);
-      if (error) throw error;
-      return { id, nextCurated };
-    },
-    onSuccess: ({ nextCurated }) => {
-      queryClient.invalidateQueries({ queryKey: ["listings"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-all-listings"] });
-      toast.success(nextCurated ? "Added to curated list" : "Removed from curated list");
-    },
-    onError: (error: Error) => {
-      toast.error(`Failed to update curated status: ${error.message}`);
-    },
-  });
 
   // Fetch listings
   const { data: listings = [], isLoading: listingsLoading, refetch: refetchListings } = useQuery({
@@ -209,7 +191,7 @@ export default function AdminListings() {
       toast.error("Only signature listings can be curated");
       return;
     }
-    toggleCurated.mutate({ id: listing.id, nextCurated: !listing.is_curated });
+    toggleCurated.mutate({ id: listing.id, isCurated: !listing.is_curated });
   };
 
   const columns: Column<any>[] = [

@@ -57,7 +57,15 @@ function normalizePayload(rawBody: unknown): { settings: GlobalSettingsWriteItem
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requireAdminWriteClient(request);
+  const auth = await requireAdminWriteClient(
+    request,
+    "Only admins can update global settings.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin global settings writes.",
+    },
+  );
   if ("error" in auth) return auth.error;
 
   let body: unknown = null;
