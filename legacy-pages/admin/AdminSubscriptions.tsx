@@ -45,9 +45,18 @@ import { toast } from "sonner";
 
 const BILLING_ORDER: Record<string, number> = {
   monthly: 1,
-  annual: 2,
-  period: 3,
+  yearly: 2,
+  promo: 3,
 };
+
+const REQUIRED_PRICING_KEYS = [
+  { tier: "verified", billing_period: "monthly" },
+  { tier: "verified", billing_period: "yearly" },
+  { tier: "verified", billing_period: "promo" },
+  { tier: "signature", billing_period: "monthly" },
+  { tier: "signature", billing_period: "yearly" },
+  { tier: "signature", billing_period: "promo" },
+] as const;
 
 export default function AdminSubscriptions() {
   const { t } = useTranslation();
@@ -73,12 +82,12 @@ export default function AdminSubscriptions() {
     price: 0,
     display_price: '',
     note: '',
-    period_length: null as number | null,
-    period_unit: 'months' as 'days' | 'months',
+    stripe_price_id: '',
     period_start_date: null as Date | null,
     period_end_date: null as Date | null,
     monthly_equivalent: '',
     savings: 0,
+    is_active: true,
   });
 
   // Promo form state
@@ -115,12 +124,12 @@ export default function AdminSubscriptions() {
       price: p.price,
       display_price: p.display_price,
       note: p.note,
-      period_length: p.period_length,
-      period_unit: p.period_unit || 'months',
-      period_start_date: p.period_start_date ? new Date(p.period_start_date) : null,
-      period_end_date: p.period_end_date ? new Date(p.period_end_date) : null,
+      stripe_price_id: p.stripe_price_id || '',
+      period_start_date: p.valid_from ? new Date(p.valid_from) : (p.period_start_date ? new Date(p.period_start_date) : null),
+      period_end_date: p.valid_to ? new Date(p.valid_to) : (p.period_end_date ? new Date(p.period_end_date) : null),
       monthly_equivalent: p.monthly_equivalent || '',
-      savings: p.savings,
+      savings: p.savings || 0,
+      is_active: p.is_active,
     });
   };
 
@@ -135,7 +144,7 @@ export default function AdminSubscriptions() {
     };
 
     // For annual plans, also calculate monthly equivalent and savings
-    if (editingPricing?.billing_period === 'annual') {
+    if (editingPricing?.billing_period === 'yearly') {
       const monthlyEquivalent = euroAmount / 12;
       updates.monthly_equivalent = euroAmount > 0 ? `€${monthlyEquivalent.toFixed(2)}/mo` : '';
 
@@ -152,7 +161,7 @@ export default function AdminSubscriptions() {
       }
     }
 
-    if (editingPricing?.billing_period === 'period') {
+    if (editingPricing?.billing_period === 'promo') {
       updates.monthly_equivalent = '';
       updates.savings = 0;
     }
@@ -162,14 +171,20 @@ export default function AdminSubscriptions() {
 
   const handleSavePricing = async () => {
     if (!editingPricing) return;
+    const stripePriceId = pricingForm.stripe_price_id.trim();
 
-    if (editingPricing.billing_period === 'period' && (!pricingForm.period_start_date || !pricingForm.period_end_date)) {
+    if (pricingForm.is_active && !stripePriceId) {
+      toast.error("Active pricing requires a Stripe Price ID.");
+      return;
+    }
+
+    if (editingPricing.billing_period === 'promo' && (!pricingForm.period_start_date || !pricingForm.period_end_date)) {
       toast.error(t("admin.subscriptions.periodDateRangeRequired", "Please define start and end dates for period pricing."));
       return;
     }
 
     if (
-      editingPricing.billing_period === 'period' &&
+      editingPricing.billing_period === 'promo' &&
       pricingForm.period_start_date &&
       pricingForm.period_end_date &&
       pricingForm.period_end_date < pricingForm.period_start_date
@@ -178,31 +193,38 @@ export default function AdminSubscriptions() {
       return;
     }
 
-    const isVirtualPeriod = editingPricing.id.startsWith("__virtual-period-");
-    const isPeriodPricing = editingPricing.billing_period === 'period';
+    const isVirtualPromo = editingPricing.id.startsWith("__virtual-promo-");
+    const isPromoPricing = editingPricing.billing_period === 'promo';
 
     const payload = {
-      ...pricingForm,
-      note: isPeriodPricing
-        ? buildPeriodNote(pricingForm.period_start_date, pricingForm.period_end_date)
-        : pricingForm.note,
-      period_length: null,
-      period_unit: null,
-      period_start_date: isPeriodPricing && pricingForm.period_start_date
+      price: pricingForm.price,
+      price_cents: pricingForm.price,
+      display_price: pricingForm.display_price,
+      note: pricingForm.note,
+      stripe_price_id: stripePriceId || null,
+      valid_from: isPromoPricing && pricingForm.period_start_date
         ? format(pricingForm.period_start_date, "yyyy-MM-dd")
         : null,
-      period_end_date: isPeriodPricing && pricingForm.period_end_date
+      valid_to: isPromoPricing && pricingForm.period_end_date
         ? format(pricingForm.period_end_date, "yyyy-MM-dd")
         : null,
-      monthly_equivalent: editingPricing.billing_period === 'annual'
+      period_start_date: isPromoPricing && pricingForm.period_start_date
+        ? format(pricingForm.period_start_date, "yyyy-MM-dd")
+        : null,
+      period_end_date: isPromoPricing && pricingForm.period_end_date
+        ? format(pricingForm.period_end_date, "yyyy-MM-dd")
+        : null,
+      is_active: pricingForm.is_active,
+      currency: "EUR",
+      monthly_equivalent: editingPricing.billing_period === 'yearly'
         ? (pricingForm.monthly_equivalent || null)
         : null,
-      savings: editingPricing.billing_period === 'annual' ? pricingForm.savings : 0,
+      savings: editingPricing.billing_period === 'yearly' ? pricingForm.savings : 0,
     };
 
     try {
       await updatePricing.mutateAsync({
-        ...(isVirtualPeriod ? {} : { id: editingPricing.id }),
+        ...(isVirtualPromo ? {} : { id: editingPricing.id }),
         tier: editingPricing.tier,
         billing_period: editingPricing.billing_period,
         ...payload,
@@ -310,34 +332,41 @@ export default function AdminSubscriptions() {
 
   const billingLabels: Record<string, string> = {
     monthly: t("admin.subscriptions.billing.monthly", "Monthly"),
-    annual: t("admin.subscriptions.billing.annual", "Annual"),
-    period: t("admin.subscriptions.billing.period", "Period"),
+    yearly: t("admin.subscriptions.billing.annual", "Annual"),
+    promo: t("admin.subscriptions.billing.period", "Promo"),
   };
 
   const sortedPricingByTier = useMemo(() => {
-    const ensurePeriodOption = (
+    const ensurePromoOption = (
       tierPricing: SubscriptionPricing[],
       tier: "verified" | "signature"
     ): SubscriptionPricing[] => {
-      if (tierPricing.some((p) => p.billing_period === "period")) {
+      if (tierPricing.some((p) => p.billing_period === "promo")) {
         return tierPricing;
       }
 
       return [
         ...tierPricing,
         {
-          id: `__virtual-period-${tier}`,
+          id: `__virtual-promo-${tier}`,
           tier,
-          billing_period: "period",
+          billing_period: "promo",
           price: 0,
+          price_cents: 0,
+          stripe_price_id: null,
+          currency: "EUR",
           display_price: "€0",
-          note: t("admin.subscriptions.periodAdminDefined", "Admin-defined period"),
+          note: t("admin.subscriptions.periodAdminDefined", "Promotional period"),
+          valid_from: null,
+          valid_to: null,
+          is_active: true,
           period_length: null,
           period_unit: null,
           period_start_date: null,
           period_end_date: null,
           monthly_equivalent: null,
           savings: 0,
+          created_at: new Date(0).toISOString(),
           updated_at: new Date(0).toISOString(),
         },
       ];
@@ -347,11 +376,11 @@ export default function AdminSubscriptions() {
       (BILLING_ORDER[a.billing_period] ?? 99) - (BILLING_ORDER[b.billing_period] ?? 99);
 
     return {
-      verified: ensurePeriodOption(
+      verified: ensurePromoOption(
         pricing.filter((p) => p.tier === "verified").sort(sortByBilling),
         "verified"
       ),
-      signature: ensurePeriodOption(
+      signature: ensurePromoOption(
         pricing.filter((p) => p.tier === "signature").sort(sortByBilling),
         "signature"
       ),
@@ -362,6 +391,32 @@ export default function AdminSubscriptions() {
     days: t("admin.subscriptions.periodUnit.days", "Days"),
     months: t("admin.subscriptions.periodUnit.months", "Months"),
   };
+
+  const stripeMappingHealth = useMemo(() => {
+    const rows = REQUIRED_PRICING_KEYS.map((required) => {
+      const found = pricing.find(
+        (entry) =>
+          entry.tier === required.tier && entry.billing_period === required.billing_period,
+      );
+
+      return {
+        key: `${required.tier}:${required.billing_period}`,
+        tier: required.tier,
+        billing_period: required.billing_period,
+        hasRow: Boolean(found),
+        stripe_price_id: found?.stripe_price_id ?? null,
+        isMapped: Boolean(found?.stripe_price_id),
+      };
+    });
+
+    const mappedCount = rows.filter((row) => row.isMapped).length;
+    return {
+      rows,
+      mappedCount,
+      missingCount: rows.length - mappedCount,
+      fullyMapped: mappedCount === rows.length,
+    };
+  }, [pricing]);
 
   if (isLoading) {
     return (
@@ -383,7 +438,40 @@ export default function AdminSubscriptions() {
             {t("admin.subscriptions.subtitle")}
           </p>
         </div>
+        <Badge variant={stripeMappingHealth.fullyMapped ? "default" : "destructive"}>
+          {stripeMappingHealth.fullyMapped
+            ? "Stripe mapping complete"
+            : `${stripeMappingHealth.missingCount} mapping${stripeMappingHealth.missingCount === 1 ? "" : "s"} missing`}
+        </Badge>
       </div>
+
+      <Card className={stripeMappingHealth.fullyMapped ? "border-green-500/30 bg-green-500/5" : "border-amber-500/30 bg-amber-500/5"}>
+        <CardHeader>
+          <CardTitle className="text-lg">Stripe Price Mapping Health</CardTitle>
+          <CardDescription>
+            Checkout uses `subscription_pricing.stripe_price_id`. Keep all 6 paid tier billing rows mapped before opening upgrades.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3 md:grid-cols-2">
+            {stripeMappingHealth.rows.map((row) => (
+              <div key={row.key} className="rounded-md border border-border bg-background/70 p-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium capitalize">
+                    {tierLabels[row.tier]} - {billingLabels[row.billing_period] || row.billing_period}
+                  </p>
+                  <Badge variant={row.isMapped ? "default" : "destructive"}>
+                    {row.isMapped ? "Mapped" : "Missing"}
+                  </Badge>
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground font-mono break-all">
+                  {row.stripe_price_id || "No stripe_price_id set"}
+                </p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Tabs */}
       <Tabs defaultValue="pricing" className="space-y-6">
@@ -427,10 +515,21 @@ export default function AdminSubscriptions() {
                         <div className="space-y-1">
                           <p className="text-2xl font-bold">{p.display_price}</p>
                           <p className="text-sm text-muted-foreground">{p.note}</p>
+                          <p className="text-xs text-muted-foreground font-mono break-all">
+                            {p.stripe_price_id || "No Stripe price ID"}
+                          </p>
+                          {p.billing_period === "promo" && p.valid_from && p.valid_to && (
+                            <p className="text-xs text-primary">
+                              {format(new Date(p.valid_from), "MMM d, yyyy")} - {format(new Date(p.valid_to), "MMM d, yyyy")}
+                            </p>
+                          )}
+                          {!p.is_active && (
+                            <Badge variant="secondary" className="mt-2">Inactive</Badge>
+                          )}
                           {p.monthly_equivalent && (
                             <p className="text-sm text-primary">{p.monthly_equivalent}</p>
                           )}
-                          {p.savings > 0 && (
+                          {(p.savings ?? 0) > 0 && (
                             <p className="text-sm text-green-500">{t("admin.subscriptions.saveAmount", { amount: p.savings })}</p>
                           )}
                         </div>
@@ -468,10 +567,21 @@ export default function AdminSubscriptions() {
                         <div className="space-y-1">
                           <p className="text-2xl font-bold">{p.display_price}</p>
                           <p className="text-sm text-muted-foreground">{p.note}</p>
+                          <p className="text-xs text-muted-foreground font-mono break-all">
+                            {p.stripe_price_id || "No Stripe price ID"}
+                          </p>
+                          {p.billing_period === "promo" && p.valid_from && p.valid_to && (
+                            <p className="text-xs text-primary">
+                              {format(new Date(p.valid_from), "MMM d, yyyy")} - {format(new Date(p.valid_to), "MMM d, yyyy")}
+                            </p>
+                          )}
+                          {!p.is_active && (
+                            <Badge variant="secondary" className="mt-2">Inactive</Badge>
+                          )}
                           {p.monthly_equivalent && (
                             <p className="text-sm text-primary">{p.monthly_equivalent}</p>
                           )}
-                          {p.savings > 0 && (
+                          {(p.savings ?? 0) > 0 && (
                             <p className="text-sm text-green-500">{t("admin.subscriptions.saveAmount", { amount: p.savings })}</p>
                           )}
                         </div>
@@ -605,6 +715,13 @@ export default function AdminSubscriptions() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
+            {editingPricing && (
+              <div className="rounded-md border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                {pricingForm.stripe_price_id.trim()
+                  ? "Stripe mapping is set. This row can be active."
+                  : "Set Stripe Price ID before enabling active status."}
+              </div>
+            )}
             {/* Display Price - Primary input that drives calculations */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -636,11 +753,38 @@ export default function AdminSubscriptions() {
                 value={pricingForm.note}
                 onChange={(e) => setPricingForm({ ...pricingForm, note: e.target.value })}
                 placeholder={t("admin.subscriptions.notePlaceholder")}
-                readOnly={editingPricing?.billing_period === 'period'}
-                className={editingPricing?.billing_period === 'period' ? "bg-muted/50 cursor-not-allowed" : undefined}
               />
             </div>
-            {editingPricing?.billing_period === 'period' && (
+            <div className="space-y-2">
+              <Label>Stripe Price ID</Label>
+              <Input
+                value={pricingForm.stripe_price_id}
+                onChange={(e) => setPricingForm({ ...pricingForm, stripe_price_id: e.target.value })}
+                placeholder="price_..."
+              />
+              <p className="text-xs text-muted-foreground">
+                Required for checkout. Uses the exact Stripe Price ID for this tier and billing period.
+              </p>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-4 py-3">
+              <div>
+                <Label>{t("admin.subscriptions.status.active", "Active")}</Label>
+                <p className="text-xs text-muted-foreground">
+                  {t("admin.subscriptions.enableImmediately", "Enable this price immediately")}
+                </p>
+              </div>
+              <Switch
+                checked={pricingForm.is_active}
+                onCheckedChange={(checked) => {
+                  if (checked && !pricingForm.stripe_price_id.trim()) {
+                    toast.error("Set Stripe Price ID before enabling active status.");
+                    return;
+                  }
+                  setPricingForm((prev) => ({ ...prev, is_active: checked }));
+                }}
+              />
+            </div>
+            {editingPricing?.billing_period === 'promo' && (
               <div className="grid grid-cols-2 gap-4 border-t pt-4 mt-4">
                 <div className="space-y-2">
                   <Label>{t("admin.subscriptions.startDate", "Start Date")}</Label>
@@ -698,7 +842,7 @@ export default function AdminSubscriptions() {
                 </div>
               </div>
             )}
-            {editingPricing?.billing_period === 'annual' && (
+            {editingPricing?.billing_period === 'yearly' && (
               <>
                 <div className="border-t pt-4 mt-4">
                   <p className="text-sm font-medium text-muted-foreground mb-3">{t("admin.subscriptions.annualAutoCalculations")}</p>
