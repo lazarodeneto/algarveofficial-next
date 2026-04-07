@@ -1,22 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
 import { normalizePricingBillingPeriod, normalizePricingTier } from "@/lib/pricing/pricing-resolver";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
+import { getStripeServerClient } from "@/lib/stripe/server";
+import { INVOICE_DESCRIPTION, STATEMENT_DESCRIPTOR } from "@/lib/stripe/branding";
+import { findOverlappingActive } from "@/lib/subscriptions/db";
+import { planTypeFromBillingPeriod } from "@/lib/subscriptions/types";
 
 export const runtime = "nodejs";
 
 type PaidTier = "verified" | "signature";
 type BillingPeriod = "monthly" | "yearly" | "promo";
-
-function getStripeClient() {
-  const stripeKey = process.env.STRIPE_SECRET_KEY?.trim();
-  if (!stripeKey) return null;
-  return new Stripe(stripeKey);
-}
 
 function getBearerToken(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
@@ -93,7 +90,7 @@ function resolveSiteUrl(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const stripe = getStripeClient();
+  const stripe = getStripeServerClient();
   if (!stripe) {
     return NextResponse.json({ error: "Missing STRIPE_SECRET_KEY." }, { status: 500 });
   }
@@ -118,6 +115,21 @@ export async function POST(request: NextRequest) {
 
   if (!tier || !billingPeriod) {
     return NextResponse.json({ error: "Invalid pricing selection." }, { status: 400 });
+  }
+
+  const planType = planTypeFromBillingPeriod(billingPeriod);
+
+  // Overlap guard: prevent buying a recurring plan while a fixed_2026 is in force,
+  // and vice versa. Resolves the most common double-charge / state-confusion path.
+  const overlap = await findOverlappingActive(supabase, auth.userId, planType);
+  if (overlap) {
+    return NextResponse.json(
+      {
+        error: overlap.reason,
+        code: "PLAN_OVERLAP",
+      },
+      { status: 409 },
+    );
   }
 
   const { data: pricingRows, error: pricingError } = await supabase
@@ -158,31 +170,37 @@ export async function POST(request: NextRequest) {
   const cancelUrl = `${siteUrl}/owner/membership?canceled=true`;
   const mode = billingPeriod === "promo" ? "payment" : "subscription";
 
+  const baseMetadata = {
+    userId: auth.userId,
+    tier,
+    billing_period: billingPeriod,
+    plan_type: planType,
+    pricing_id: pricing.id,
+    price_cents: String(pricing.price_cents),
+    currency: pricing.currency ?? "EUR",
+  };
+
   const session = await stripe.checkout.sessions.create({
     mode,
     line_items: [{ price: pricing.stripe_price_id, quantity: 1 }],
     success_url: successUrl,
     cancel_url: cancelUrl,
+    client_reference_id: auth.userId,
+    metadata: baseMetadata,
     ...(mode === "subscription"
       ? {
           subscription_data: {
-            metadata: {
-              userId: auth.userId,
-              tier,
-              billing_period: billingPeriod,
-              pricing_id: pricing.id,
-            },
+            description: INVOICE_DESCRIPTION,
+            metadata: baseMetadata,
           },
         }
-      : {}),
-    metadata: {
-      userId: auth.userId,
-      tier,
-      billing_period: billingPeriod,
-      pricing_id: pricing.id,
-      price_cents: String(pricing.price_cents),
-      currency: pricing.currency ?? "EUR",
-    },
+      : {
+          payment_intent_data: {
+            description: INVOICE_DESCRIPTION,
+            statement_descriptor: STATEMENT_DESCRIPTOR,
+            metadata: baseMetadata,
+          },
+        }),
   });
 
   return NextResponse.json({
