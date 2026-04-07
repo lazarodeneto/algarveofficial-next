@@ -63,6 +63,7 @@ import ListingImage from "@/components/ListingImage";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
 import { CityHubsSection } from "@/components/shared/CityHubsSection";
+import type { CityHubItem } from "@/components/shared/CityHubsSection";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
@@ -845,7 +846,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     }
     return props.featuredVisitCity ?? undefined;
   }, [isStayPage, props.featuredVisitCity, stayCityIndex]);
-  const stayCityPathBuilder = useCallback((city: VisitCityIndexItem) => {
+  const stayCityPathBuilder = useCallback((city: CityHubItem) => {
     const params = new URLSearchParams({
       category: "places-to-stay",
     });

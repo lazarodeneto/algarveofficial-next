@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { useLocalePath } from "@/hooks/useLocalePath";
 
-interface City {
+export interface CityHubItem {
   id: string;
   name: string;
   slug: string;
@@ -12,14 +12,16 @@ interface City {
   image_url: string | null;
   short_description: string | null;
   totalCount?: number;
+  municipalityRegionId?: string | null;
+  municipalityCityIds?: string[];
 }
 
 interface CityHubsSectionProps {
-  highlightedCity: City | undefined;
-  topCities: City[];
+  highlightedCity: CityHubItem | undefined;
+  topCities: CityHubItem[];
   cityListingCounts: Record<string, number>;
   preferCityListingCounts?: boolean;
-  cityPathBuilder?: (city: City) => string;
+  cityPathBuilder?: (city: CityHubItem) => string;
   imageTimestamp: number;
   basePath: string;
   translationPrefix: string;
@@ -43,13 +45,13 @@ export function CityHubsSection({
       ? "visit"
       : normalizedBasePath || "visit";
 
-  const getCityCount = (city: City) => {
+  const getCityCount = (city: CityHubItem) => {
     if (preferCityListingCounts) {
       return cityListingCounts[city.id] ?? city.totalCount ?? 0;
     }
     return city.totalCount ?? cityListingCounts[city.id] ?? 0;
   };
-  const getCityHref = (city: City) =>
+  const getCityHref = (city: CityHubItem) =>
     l(cityPathBuilder?.(city) ?? `/${cityHubBasePath}/${city.slug}`);
 
   const featured = highlightedCity ?? topCities[0];

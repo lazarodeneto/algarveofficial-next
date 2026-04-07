@@ -167,7 +167,7 @@ export function buildMunicipalityCityIndex({
     }
   }
 
-  return TARGET_MUNICIPALITIES.map((municipalityName) => {
+  const items: Array<MunicipalityCityIndexItem | null> = TARGET_MUNICIPALITIES.map((municipalityName) => {
     const municipalityKey = normalizeKey(municipalityName);
     const group = aggregate.get(municipalityKey);
     if (!group || group.totalCount <= 0) return null;
@@ -187,5 +187,7 @@ export function buildMunicipalityCityIndex({
       municipalityRegionId: group.regionId ?? null,
       municipalityCityIds: Array.from(group.cityIds),
     } satisfies MunicipalityCityIndexItem;
-  }).filter((item): item is MunicipalityCityIndexItem => item !== null);
+  });
+
+  return items.filter((item): item is MunicipalityCityIndexItem => item !== null);
 }

@@ -508,10 +508,11 @@
   }
 
   .bottom-nav__label {
-    @apply pointer-events-none text-[0.55rem] font-medium uppercase opacity-100;
-    line-height: 1.05;
-    letter-spacing: 0.09em;
-    font-family: "Arial Narrow", "Roboto Condensed", "DIN Condensed", "Helvetica Neue", sans-serif;
+    @apply pointer-events-none text-[0.64rem] font-semibold opacity-100;
+    line-height: 1.2;
+    letter-spacing: 0.035em;
+    font-family: var(--font-sans);
+    text-transform: none;
     white-space: nowrap;
     color: hsl(var(--foreground));
     max-width: 100%;
