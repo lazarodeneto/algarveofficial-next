@@ -3,6 +3,7 @@ import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 export interface CmsRuntimeDocumentRow {
   page_id: string;
   locale: string;
+  block_id?: string | null;
   doc_type: "page_config" | "text_overrides" | "design_tokens" | "custom_css";
   current_version_id: number | null;
 }
@@ -37,7 +38,11 @@ export function buildCmsSettingsFromDocuments(
   const versionMap = new Map<number, unknown>();
   versions.forEach((row) => versionMap.set(row.id, row.content));
 
-  const pageConfigDocs = docs.filter((doc) => doc.doc_type === "page_config");
+  // Only page-level page_config docs should feed cms_page_configs_v1.
+  // Legacy block-level docs (block_id != null) can coexist in cms_documents and must be ignored here.
+  const pageConfigDocs = docs.filter(
+    (doc) => doc.doc_type === "page_config" && (doc.block_id ?? null) === null,
+  );
   const groupedByPage = new Map<string, CmsRuntimeDocumentRow[]>();
   pageConfigDocs.forEach((doc) => {
     const bucket = groupedByPage.get(doc.page_id) ?? [];

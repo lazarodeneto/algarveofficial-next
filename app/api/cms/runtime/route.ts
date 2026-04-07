@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
+import { resolveLocaleFromAcceptLanguage } from "@/lib/i18n/config";
 import { buildCmsSettingsFromDocuments } from "@/lib/cms/runtime-resolver";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
 import { createServiceRoleClient } from "@/lib/supabase/service";
@@ -27,9 +28,9 @@ function parseRequestedKeys(request: NextRequest) {
 }
 
 function parseRequestedLocale(request: NextRequest) {
-  const locale = request.nextUrl.searchParams.get("locale")?.trim();
-  if (!locale) return "default";
-  return locale;
+  const localeRaw = request.nextUrl.searchParams.get("locale")?.trim().toLowerCase().replaceAll("_", "-");
+  if (!localeRaw || localeRaw === "default") return "default";
+  return resolveLocaleFromAcceptLanguage(localeRaw);
 }
 
 function mergeSettings(
@@ -101,7 +102,7 @@ export async function GET(request: NextRequest) {
 
   const { data: docs, error: docsError } = await readClient
     .from("cms_documents" as never)
-    .select("page_id, locale, doc_type, current_version_id")
+    .select("page_id, locale, block_id, doc_type, current_version_id")
     .in("doc_type", cmsDocTypes as never)
     .in("locale", localeCandidates as never)
     .eq("status", "published");
@@ -142,6 +143,7 @@ export async function GET(request: NextRequest) {
     (docs as Array<{
       page_id: string;
       locale: string;
+      block_id: string | null;
       doc_type: "page_config" | "text_overrides" | "design_tokens" | "custom_css";
       current_version_id: number | null;
     }>) ?? [],

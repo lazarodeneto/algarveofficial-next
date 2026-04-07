@@ -81,4 +81,51 @@ describe("cms runtime resolver", () => {
     expect(textOverrides).toEqual({});
     expect(settings[CMS_GLOBAL_SETTING_KEYS.customCss]).toBe("");
   });
+
+  it("ignores block-level page_config docs and only uses page-level configs", () => {
+    const settings = buildCmsSettingsFromDocuments(
+      [
+        {
+          page_id: "experiences",
+          locale: "en",
+          block_id: "featured-city-hub",
+          doc_type: "page_config",
+          current_version_id: 100,
+        },
+        {
+          page_id: "experiences",
+          locale: "en",
+          block_id: null,
+          doc_type: "page_config",
+          current_version_id: 101,
+        },
+      ],
+      [
+        {
+          id: 100,
+          content: {
+            blocks: {
+              "featured-city-hub": {
+                data: { cityId: "wrong-city-id" },
+              },
+            },
+          },
+        },
+        {
+          id: 101,
+          content: {
+            blocks: {
+              "featured-city-hub": {
+                data: { cityId: "correct-city-id" },
+              },
+            },
+          },
+        },
+      ],
+      "en",
+    );
+
+    const pageConfigs = JSON.parse(settings[CMS_GLOBAL_SETTING_KEYS.pageConfigs]);
+    expect(pageConfigs.experiences.blocks["featured-city-hub"].data.cityId).toBe("correct-city-id");
+  });
 });

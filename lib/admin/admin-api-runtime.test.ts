@@ -210,6 +210,42 @@ describe("admin global settings route runtime", () => {
     );
     expect(mockedSyncCmsDocuments).toHaveBeenCalledTimes(1);
   });
+
+  it("returns 500 when cms sync fails for cms payloads", async () => {
+    mockedRequireAdminWriteClient.mockResolvedValueOnce({
+      userId: "admin-1",
+      writeClient: { from: vi.fn() } as never,
+    });
+    mockedSyncCmsDocuments.mockRejectedValueOnce(new Error("cms write failed"));
+
+    const response = await postGlobalSettingsRoute(
+      jsonRequest({
+        locale: "en-US",
+        settings: [
+          {
+            key: CMS_GLOBAL_SETTING_KEYS.pageConfigs,
+            value: JSON.stringify({ experiences: { blocks: { "featured-city-hub": { data: { cityId: "abc" } } } } }),
+            category: "cms",
+          },
+        ],
+      }),
+    );
+    const payload = (await response.json()) as { ok?: boolean; error?: { code?: string } };
+
+    expect(response.status).toBe(500);
+    expect(payload.ok).toBe(false);
+    expect(payload.error?.code).toBe("CMS_SYNC_FAILED");
+    expect(mockedSyncCmsDocuments).toHaveBeenCalledTimes(1);
+    expect(mockedSyncCmsDocuments).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: CMS_GLOBAL_SETTING_KEYS.pageConfigs,
+          locale: "en",
+        }),
+      ]),
+    );
+  });
 });
 
 describe("admin navigation route runtime", () => {

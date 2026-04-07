@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { resolveLocaleFromAcceptLanguage } from "@/lib/i18n/config";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 
 export interface GlobalSetting {
@@ -19,7 +20,11 @@ const EMPTY_GLOBAL_SETTINGS: GlobalSetting[] = [];
 export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
   const queryClient = useQueryClient();
   const isBrowser = typeof window !== "undefined";
-  const locale = options.locale?.trim() || "default";
+  const rawLocale = options.locale?.trim().toLowerCase().replaceAll("_", "-") ?? "";
+  const locale =
+    !rawLocale || rawLocale === "default"
+      ? "default"
+      : resolveLocaleFromAcceptLanguage(rawLocale);
   const normalizedKeys = options.keys?.length
     ? [...new Set(options.keys)].sort()
     : undefined;

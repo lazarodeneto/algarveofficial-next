@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import type { Database } from "@/integrations/supabase/types";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
+import { resolveLocaleFromAcceptLanguage } from "@/lib/i18n/config";
 import { syncCmsDocumentsFromGlobalSettings } from "@/lib/cms/server-persistence";
 import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
 
@@ -26,10 +27,12 @@ function normalizePayload(rawBody: unknown): { settings: GlobalSettingsWriteItem
   if (!("settings" in rawBody)) return null;
 
   const bodyLocaleRaw = "locale" in rawBody ? (rawBody as { locale?: unknown }).locale : null;
+  const bodyLocaleString =
+    typeof bodyLocaleRaw === "string" ? bodyLocaleRaw.trim().toLowerCase().replaceAll("_", "-") : "";
   const bodyLocale =
-    typeof bodyLocaleRaw === "string" && bodyLocaleRaw.trim()
-      ? bodyLocaleRaw.trim().toLowerCase()
-      : "default";
+    !bodyLocaleString || bodyLocaleString === "default"
+      ? "default"
+      : resolveLocaleFromAcceptLanguage(bodyLocaleString);
 
   const settings = (rawBody as { settings?: unknown }).settings;
   if (!Array.isArray(settings)) return null;
@@ -81,6 +84,7 @@ export async function POST(request: NextRequest) {
   }
 
   const { settings, locale } = normalized;
+  const hasCmsSettings = settings.some((setting) => CMS_SETTING_KEYS.has(setting.key));
 
   const shouldPersistGlobalSettings = locale === "default";
   const dbSettings = shouldPersistGlobalSettings
@@ -124,6 +128,13 @@ export async function POST(request: NextRequest) {
     );
   } catch (syncError) {
     console.error("[cms-sync] Failed to mirror global settings into cms_documents:", syncError);
+    if (hasCmsSettings) {
+      return adminErrorResponse(
+        500,
+        "CMS_SYNC_FAILED",
+        "Failed to persist CMS settings to runtime documents.",
+      );
+    }
   }
 
   return NextResponse.json({

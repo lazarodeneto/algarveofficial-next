@@ -141,17 +141,19 @@ const Experiences = () => {
     staleTime: 1000 * 60 * 5,
   });
 
-  // Top municipalities by listing count (aggregated from city-level listings).
-  const topCities = useMemo(
+  // Municipalities by listing count (aggregated from city-level listings).
+  const municipalityCities = useMemo(
     () =>
       buildMunicipalityCityIndex({
         cities,
         cityListingCounts,
         cityRegionMappings,
         regions,
-      }).slice(0, 6),
+      }),
     [cities, cityListingCounts, cityRegionMappings, regions],
   );
+
+  const topCities = useMemo(() => municipalityCities.slice(0, 6), [municipalityCities]);
 
   // Featured city from CMS data or first top city
   const featuredCityHubData = getBlockData("featured-city-hub");
@@ -160,12 +162,12 @@ const Experiences = () => {
       ? featuredCityHubData.cityId
       : null;
   const highlightedCity = highlightedCityId
-    ? topCities.find(
+    ? municipalityCities.find(
         (city) =>
           city.id === highlightedCityId ||
           city.municipalityCityIds?.includes(highlightedCityId),
-      ) ?? topCities[0]
-    : topCities[0];
+      ) ?? topCities[0] ?? municipalityCities[0]
+    : topCities[0] ?? municipalityCities[0];
 
   // Fetch listings
   const { data: listings = [], isLoading: listingsLoading } = useQuery({
