@@ -38,6 +38,8 @@ This repository uses ordered SQL migrations under `/supabase/migrations`.
   - Extends `owner_subscriptions` with full lifecycle fields: `plan_type` (monthly/yearly/fixed_2026), `stripe_checkout_session_id`, `stripe_payment_intent_id`, `current_period_start` (timestamptz), `cancel_at_period_end`, `canceled_at`, `trial_end`, `last_event_at`. Converts `current_period_end` from text to timestamptz. Adds CHECK constraint covering all 9 subscription statuses. Adds UNIQUE index on `owner_id`. Adds composite indexes for reconciliation and Stripe ID lookups.
 - `014_stripe_events_audit.sql`
   - Creates `stripe_webhook_events` table (webhook idempotency — PK on `event_id`) and `subscription_audit_log` table (sanitized before/after state for every lifecycle mutation). Both tables have RLS enabled with no policies (service-role only).
+- `015_set_stripe_price_ids.sql`
+  - Maps recurring paid pricing rows to live Stripe Price IDs for verified/signature monthly and yearly plans.
 
 ## Index coverage map
 
