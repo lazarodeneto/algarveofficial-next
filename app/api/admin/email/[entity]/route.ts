@@ -36,6 +36,11 @@ export async function POST(
   const auth = await requireAdminWriteClient(
     request,
     "Only admins can create email admin records.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin email writes.",
+    },
   );
   if ("error" in auth) return auth.error;
 
@@ -90,6 +95,11 @@ export async function PATCH(
   const auth = await requireAdminWriteClient(
     request,
     "Only admins can update email admin records.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin email writes.",
+    },
   );
   if ("error" in auth) return auth.error;
 
@@ -131,6 +141,11 @@ export async function DELETE(
   const auth = await requireAdminWriteClient(
     request,
     "Only admins can delete email admin records.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin email writes.",
+    },
   );
   if ("error" in auth) return auth.error;
 

@@ -32,6 +32,11 @@ export async function POST(
   const auth = await requireAdminWriteClient(
     request,
     "Only admins can update admin settings.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin settings writes.",
+    },
   );
   if ("error" in auth) return auth.error;
 

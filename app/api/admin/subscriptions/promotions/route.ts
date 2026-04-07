@@ -69,6 +69,11 @@ export async function POST(request: NextRequest) {
   const auth = await requireAdminWriteClient(
     request,
     "Only admins can create promotional codes.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin promotion writes.",
+    },
   );
   if ("error" in auth) return auth.error;
 
@@ -127,6 +132,11 @@ export async function PATCH(request: NextRequest) {
   const auth = await requireAdminWriteClient(
     request,
     "Only admins can update promotional codes.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin promotion writes.",
+    },
   );
   if ("error" in auth) return auth.error;
 
@@ -163,6 +173,11 @@ export async function DELETE(request: NextRequest) {
   const auth = await requireAdminWriteClient(
     request,
     "Only admins can delete promotional codes.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin promotion writes.",
+    },
   );
   if ("error" in auth) return auth.error;
 

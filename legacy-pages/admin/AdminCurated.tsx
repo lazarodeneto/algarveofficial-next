@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { TierBadge } from "@/components/admin/TierBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { getValidAccessToken } from "@/lib/authToken";
 
 type PageContext = "homepage" | "region" | "category" | "city";
 
@@ -31,6 +32,28 @@ interface SignatureListing {
   city_id: string;
   category_id: string;
   region_id: string | null;
+}
+
+async function callAdminCuratedAssignmentsApi(
+  method: "POST" | "DELETE",
+  payload: Record<string, unknown>,
+) {
+  const accessToken = await getValidAccessToken();
+  const response = await fetch("/api/admin/curated-assignments", {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = (await response.json().catch(() => null)) as
+    | { ok?: boolean; error?: { message?: string } }
+    | null;
+  if (!response.ok || !data?.ok) {
+    throw new Error(data?.error?.message || "Failed to update curated assignments.");
+  }
 }
 
 export default function AdminCurated() {
@@ -115,15 +138,12 @@ export default function AdminCurated() {
   // Add assignment mutation
   const addAssignment = useMutation({
     mutationFn: async ({ listingId, context, contextId }: { listingId: string; context: PageContext; contextId?: string }) => {
-      const { error } = await supabase
-        .from('curated_assignments')
-        .insert({
-          listing_id: listingId,
-          context_type: context,
-          context_id: contextId || null,
-          display_order: curatedAssignments.length,
-        });
-      if (error) throw error;
+      await callAdminCuratedAssignmentsApi("POST", {
+        listingId,
+        contextType: context,
+        contextId: contextId || null,
+        displayOrder: curatedAssignments.length,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-curated-assignments'] });
@@ -149,39 +169,12 @@ export default function AdminCurated() {
       context: PageContext;
       contextId?: string;
     }) => {
-      // Prefer deleting by assignment id (most reliable)
-      if (assignmentId) {
-        const { data, error } = await supabase
-          .from('curated_assignments')
-          .delete()
-          .eq('id', assignmentId)
-          .select('id');
-
-        if (error) throw error;
-        if (!data || data.length === 0) {
-          throw new Error('Nothing was removed (assignment not found or not permitted).');
-        }
-        return;
-      }
-
-      // Fallback: delete by composite keys
-      let query = supabase
-        .from('curated_assignments')
-        .delete()
-        .eq('listing_id', listingId)
-        .eq('context_type', context);
-
-      if (contextId) {
-        query = query.eq('context_id', contextId);
-      } else {
-        query = query.is('context_id', null);
-      }
-
-      const { data, error } = await query.select('id');
-      if (error) throw error;
-      if (!data || data.length === 0) {
-        throw new Error('Nothing was removed (no matching assignment, or not permitted).');
-      }
+      await callAdminCuratedAssignmentsApi("DELETE", {
+        assignmentId,
+        listingId,
+        contextType: context,
+        contextId: contextId || null,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-curated-assignments'] });

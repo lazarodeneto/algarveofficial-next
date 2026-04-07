@@ -18,6 +18,29 @@ import {
 import { TierBadge } from "@/components/admin/TierBadge";
 import { toast } from "sonner";
 import { resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
+import { getValidAccessToken } from "@/lib/authToken";
+
+async function patchAdminListing(
+  listingId: string,
+  payload: Record<string, unknown>,
+) {
+  const accessToken = await getValidAccessToken();
+  const response = await fetch(`/api/admin/listings/${listingId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = (await response.json().catch(() => null)) as
+    | { ok?: boolean; error?: { message?: string } }
+    | null;
+  if (!response.ok || !data?.ok) {
+    throw new Error(data?.error?.message || "Failed to update listing moderation state.");
+  }
+}
 
 export default function AdminModeration() {
   const queryClient = useQueryClient();
@@ -54,40 +77,10 @@ export default function AdminModeration() {
   // Approve mutation
   const approveMutation = useMutation({
     mutationFn: async (listingId: string) => {
-      // Sync featured_image_url from gallery before publishing
-      const { data: featuredImg } = await supabase
-        .from('listing_images')
-        .select('image_url')
-        .eq('listing_id', listingId)
-        .eq('is_featured', true)
-        .limit(1)
-        .maybeSingle();
-
-      const updatePayload: Record<string, any> = { 
-        status: 'published', 
-        published_at: new Date().toISOString() 
-      };
-      
-      if (featuredImg) {
-        updatePayload.featured_image_url = featuredImg.image_url;
-      }
-
-      const { error } = await supabase
-        .from('listings')
-        .update(updatePayload)
-        .eq('id', listingId);
-      if (error) throw error;
-      
-      // Verify the update actually took effect
-      const { data: check } = await supabase
-        .from('listings')
-        .select('status')
-        .eq('id', listingId)
-        .single();
-      
-      if (check?.status !== 'published') {
-        throw new Error('Listing status was not updated. The update may have been blocked by a database policy.');
-      }
+      await patchAdminListing(listingId, {
+        status: "published",
+        sync_featured_image: true,
+      });
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['admin-pending-listings'] });
@@ -106,11 +99,10 @@ export default function AdminModeration() {
   // Reject mutation
   const rejectMutation = useMutation({
     mutationFn: async ({ listingId, reason }: { listingId: string; reason: string }) => {
-      const { error } = await supabase
-        .from('listings')
-        .update({ status: 'rejected', rejection_reason: reason })
-        .eq('id', listingId);
-      if (error) throw error;
+      await patchAdminListing(listingId, {
+        status: "rejected",
+        rejection_reason: reason,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-pending-listings'] });
@@ -152,11 +144,9 @@ export default function AdminModeration() {
   const confirmAddNote = async () => {
     if (selectedListingId && note.trim()) {
       try {
-        const { error } = await supabase
-          .from('listings')
-          .update({ admin_notes: note.trim() })
-          .eq('id', selectedListingId);
-        if (error) throw error;
+        await patchAdminListing(selectedListingId, {
+          admin_notes: note.trim(),
+        });
         toast.success("Note saved successfully");
         queryClient.invalidateQueries({ queryKey: ['pending-listings'] });
       } catch (err: any) {

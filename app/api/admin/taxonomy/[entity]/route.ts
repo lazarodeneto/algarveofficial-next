@@ -36,6 +36,11 @@ export async function POST(
   const auth = await requireAdminWriteClient(
     request,
     "Only admins can create taxonomy items.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin taxonomy writes.",
+    },
   );
   if ("error" in auth) return auth.error;
 
@@ -108,6 +113,11 @@ export async function PATCH(
   const auth = await requireAdminWriteClient(
     request,
     "Only admins can update taxonomy items.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin taxonomy writes.",
+    },
   );
   if ("error" in auth) return auth.error;
 
@@ -153,6 +163,11 @@ export async function DELETE(
   const auth = await requireAdminWriteClient(
     request,
     "Only admins can delete taxonomy items.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin taxonomy writes.",
+    },
   );
   if ("error" in auth) return auth.error;
 
@@ -196,6 +211,11 @@ export async function PUT(
   const auth = await requireAdminWriteClient(
     request,
     "Only admins can reorder taxonomy items.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin taxonomy writes.",
+    },
   );
   if ("error" in auth) return auth.error;
 
