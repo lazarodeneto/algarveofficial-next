@@ -508,14 +508,29 @@
   }
 
   .bottom-nav__label {
-    @apply pointer-events-none text-[0.64rem] font-semibold opacity-100;
+    @apply pointer-events-none text-[0.5rem] font-semibold opacity-100;
     line-height: 1.2;
-    letter-spacing: 0.035em;
+    letter-spacing: 0.015em;
     font-family: var(--font-sans);
     text-transform: uppercase;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
     color: hsl(var(--foreground));
     max-width: 100%;
+  }
+
+  @media (min-width: 380px) {
+    .bottom-nav__label {
+      font-size: 0.56rem;
+    }
+  }
+
+  @media (min-width: 430px) {
+    .bottom-nav__label {
+      font-size: 0.6rem;
+    }
   }
 
   /* CSS failsafe: hide bottom nav when mobile menu is open (production caching workaround) */
