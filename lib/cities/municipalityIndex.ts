@@ -102,6 +102,21 @@ function findMunicipalityByFallback(city: CityRow) {
   return LOCALITY_TO_MUNICIPALITY[toSlug(city.name)] ?? null;
 }
 
+function resolveMunicipalityForCity(
+  city: CityRow,
+  cityRegionMappings: CityRegionMappingRow[],
+  regionById: Map<string, RegionRow>,
+  municipalityByKey: Map<string, string>,
+) {
+  const directMunicipality = findMunicipalityByCityName(city, municipalityByKey);
+  const mapped = findMunicipalityByMapping(city.id, cityRegionMappings, regionById, municipalityByKey);
+  const fallbackMunicipality = findMunicipalityByFallback(city);
+  return {
+    municipalityName: directMunicipality ?? mapped.municipality ?? fallbackMunicipality,
+    regionId: mapped.regionId ?? null,
+  };
+}
+
 export function buildMunicipalityCityIndex({
   cities,
   cityListingCounts,
@@ -135,10 +150,12 @@ export function buildMunicipalityCityIndex({
     const count = cityListingCounts[city.id] ?? 0;
     if (count <= 0) continue;
 
-    const directMunicipality = findMunicipalityByCityName(city, municipalityByKey);
-    const mapped = findMunicipalityByMapping(city.id, cityRegionMappings, regionById, municipalityByKey);
-    const fallbackMunicipality = findMunicipalityByFallback(city);
-    const municipalityName = directMunicipality ?? mapped.municipality ?? fallbackMunicipality;
+    const { municipalityName, regionId } = resolveMunicipalityForCity(
+      city,
+      cityRegionMappings,
+      regionById,
+      municipalityByKey,
+    );
     if (!municipalityName) continue;
 
     const municipalityKey = normalizeKey(municipalityName);
@@ -149,7 +166,7 @@ export function buildMunicipalityCityIndex({
         municipalityName,
         totalCount: count,
         cityIds: new Set([city.id]),
-        regionId: mapped.regionId ?? null,
+        regionId,
         representativeCity: city,
         representativeCount: count,
       });
@@ -158,13 +175,30 @@ export function buildMunicipalityCityIndex({
 
     existing.totalCount += count;
     existing.cityIds.add(city.id);
-    if (!existing.regionId && mapped.regionId) {
-      existing.regionId = mapped.regionId;
+    if (!existing.regionId && regionId) {
+      existing.regionId = regionId;
     }
     if (count > existing.representativeCount) {
       existing.representativeCity = city;
       existing.representativeCount = count;
     }
+  }
+
+  // Preserve full municipality membership for CMS-selected cities even when
+  // a specific city has zero direct listing count in the current dataset.
+  for (const city of cities) {
+    const { municipalityName } = resolveMunicipalityForCity(
+      city,
+      cityRegionMappings,
+      regionById,
+      municipalityByKey,
+    );
+    if (!municipalityName) continue;
+
+    const municipalityKey = normalizeKey(municipalityName);
+    const existing = aggregate.get(municipalityKey);
+    if (!existing) continue;
+    existing.cityIds.add(city.id);
   }
 
   const items: Array<MunicipalityCityIndexItem | null> = TARGET_MUNICIPALITIES.map((municipalityName) => {

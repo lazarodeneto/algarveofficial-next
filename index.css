@@ -512,7 +512,7 @@
     line-height: 1.2;
     letter-spacing: 0.035em;
     font-family: var(--font-sans);
-    text-transform: none;
+    text-transform: uppercase;
     white-space: nowrap;
     color: hsl(var(--foreground));
     max-width: 100%;

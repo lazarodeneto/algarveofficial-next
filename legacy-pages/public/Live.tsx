@@ -35,7 +35,7 @@ import { PageHeroImage } from "@/components/sections/PageHeroImage";
 
 const Live = () => {
   const { t } = useTranslation();
-  const { getMetaDescription, getMetaTitle, getText, isBlockEnabled } = useCmsPageBuilder("live");
+  const { getMetaDescription, getMetaTitle, getText, isBlockEnabled, getBlockData } = useCmsPageBuilder("live");
   const { data: cities = [], isLoading } = useCities();
   const l = useLocalePath();
   const [timeline, setTimeline] = useState("3-6");
@@ -50,6 +50,14 @@ const Live = () => {
     () => cities.filter((city) => city.is_featured).slice(0, 6),
     [cities],
   );
+  const featuredCityHubData = getBlockData("featured-city-hub");
+  const highlightedCityId =
+    typeof featuredCityHubData.cityId === "string" ? featuredCityHubData.cityId.trim() : "";
+  const featuredCity =
+    (highlightedCityId ? cities.find((city) => city.id === highlightedCityId) : null) ??
+    featuredCities[0] ??
+    cities[0] ??
+    null;
 
   const relocationRoadmap = [
     {
@@ -240,16 +248,16 @@ const Live = () => {
         {cities.length > 0 && isBlockEnabled("city-hubs", true) ? (
           <div className="app-container content-max pb-16 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
             <section className="mb-10 space-y-8">
-              {featuredCities.length > 0 && isBlockEnabled("featured-city-hub", true) ? (
+              {featuredCity && isBlockEnabled("featured-city-hub", true) ? (
                 <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
                   <Link
-                    href={l(`/visit/${featuredCities[0].slug}`)}
+                    href={l(`/visit/${featuredCity.slug}`)}
                     className="group block h-full overflow-hidden rounded-[32px] border border-border bg-card shadow-sm"
                   >
                     <div className="relative h-full min-h-[20rem]">
                       <img
-                        src={featuredCities[0].image_url ? `${featuredCities[0].image_url}?_t=${imageTimestamp}` : "/placeholder.svg"}
-                        alt={featuredCities[0].name}
+                        src={featuredCity.image_url ? `${featuredCity.image_url}?_t=${imageTimestamp}` : "/placeholder.svg"}
+                        alt={featuredCity.name}
                         className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
@@ -258,11 +266,11 @@ const Live = () => {
                           {t("live.featuredCityHub", "Featured City Hub")}
                         </p>
                         <h2 className="font-serif text-3xl md:text-4xl leading-tight">
-                          {featuredCities[0].name}
+                          {featuredCity.name}
                         </h2>
                         <p className="mt-3 max-w-2xl text-sm text-white/85">
-                          {featuredCities[0].short_description ||
-                            t("live.featuredCityHubDescription", "Explore curated listings and city guides in {{name}}, Algarve.", { name: featuredCities[0].name })}
+                          {featuredCity.short_description ||
+                            t("live.featuredCityHubDescription", "Explore curated listings and city guides in {{name}}, Algarve.", { name: featuredCity.name })}
                         </p>
                       </div>
                     </div>
