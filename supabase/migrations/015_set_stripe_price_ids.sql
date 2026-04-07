@@ -17,6 +17,14 @@ UPDATE public.subscription_pricing
 SET stripe_price_id = 'price_1T2wA7JRvCCSGiDzvmazc16C'
 WHERE tier = 'signature' AND billing_period = 'yearly';
 
+UPDATE public.subscription_pricing
+SET stripe_price_id = 'price_1TJaB5JRvCCSGiDzZVy6vOpf'
+WHERE tier = 'verified' AND billing_period = 'promo';
+
+UPDATE public.subscription_pricing
+SET stripe_price_id = 'price_1TJaFFJRvCCSGiDzKyAiLNeC'
+WHERE tier = 'signature' AND billing_period = 'promo';
+
 DO $$
 DECLARE
   mapped_count integer;
@@ -26,14 +34,16 @@ BEGIN
   WHERE (tier, billing_period) IN (
     ('verified', 'monthly'),
     ('verified', 'yearly'),
+    ('verified', 'promo'),
     ('signature', 'monthly'),
-    ('signature', 'yearly')
+    ('signature', 'yearly'),
+    ('signature', 'promo')
   )
     AND stripe_price_id IS NOT NULL;
 
-  IF mapped_count <> 4 THEN
+  IF mapped_count <> 6 THEN
     RAISE EXCEPTION
-      'Expected 4 mapped paid recurring rows, found %.',
+      'Expected 6 mapped paid pricing rows, found %.',
       mapped_count;
   END IF;
 END $$;

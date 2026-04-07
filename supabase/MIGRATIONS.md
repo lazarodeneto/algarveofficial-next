@@ -39,7 +39,7 @@ This repository uses ordered SQL migrations under `/supabase/migrations`.
 - `014_stripe_events_audit.sql`
   - Creates `stripe_webhook_events` table (webhook idempotency — PK on `event_id`) and `subscription_audit_log` table (sanitized before/after state for every lifecycle mutation). Both tables have RLS enabled with no policies (service-role only).
 - `015_set_stripe_price_ids.sql`
-  - Maps recurring paid pricing rows to live Stripe Price IDs for verified/signature monthly and yearly plans.
+  - Maps all paid pricing rows to live Stripe Price IDs for verified/signature monthly, yearly, and promo plans.
 
 ## Index coverage map
 
