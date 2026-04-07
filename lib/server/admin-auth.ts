@@ -26,6 +26,11 @@ interface AdminBaseAuth {
   userClient: SupabaseClient<Database>;
 }
 
+interface AdminWriteClientOptions {
+  requireServiceRole?: boolean;
+  missingServiceRoleMessage?: string;
+}
+
 export function adminErrorResponse(status: number, code: string, message: string) {
   return NextResponse.json({ ok: false, error: { code, message } }, { status });
 }
@@ -112,11 +117,23 @@ export async function requireAdminReadClient(
 export async function requireAdminWriteClient(
   request: NextRequest,
   forbiddenMessage = "Only admins can perform this action.",
+  options?: AdminWriteClientOptions,
 ): Promise<AdminWriteAuth | AdminAuthError> {
   const base = await requireAdminBase(request, forbiddenMessage);
   if ("error" in base) return { error: base.error };
 
   const serviceClient = createServiceRoleClient();
+  if (options?.requireServiceRole && !serviceClient) {
+    return {
+      error: adminErrorResponse(
+        500,
+        "SERVER_MISCONFIGURED",
+        options.missingServiceRoleMessage ??
+          "Server is missing SUPABASE_SERVICE_ROLE_KEY for privileged admin writes.",
+      ),
+    };
+  }
+
   return {
     userId: base.userId,
     writeClient: (serviceClient ?? base.userClient) as SupabaseClient<Database>,
