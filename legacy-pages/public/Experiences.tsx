@@ -42,6 +42,7 @@ import {
   useCities,
   useCategories,
   useRegions,
+  useCityRegionMappings,
 } from "@/hooks/useReferenceData";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { CmsBlock } from "@/components/cms/CmsBlock";
@@ -56,6 +57,7 @@ import {
 } from "@/lib/categoryMerges";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { buildMunicipalityCityIndex } from "@/lib/cities/municipalityIndex";
 
 type ListingRow = Database["public"]["Tables"]["listings"]["Row"] & {
   cities: { name: string; slug: string } | null;
@@ -75,6 +77,7 @@ const Experiences = () => {
   const { data: cities = [] } = useCities();
   const { data: categories = [] } = useCategories();
   const { data: regions = [] } = useRegions();
+  const { data: cityRegionMappings = [] } = useCityRegionMappings();
   const imageTimestamp = Date.now();
 
   const [filtersOpen, setFiltersOpen] = useState(true);
@@ -138,17 +141,16 @@ const Experiences = () => {
     staleTime: 1000 * 60 * 5,
   });
 
-  // Top 6 cities by listing count
+  // Top municipalities by listing count (aggregated from city-level listings).
   const topCities = useMemo(
     () =>
-      [...cities]
-        .filter((c) => (cityListingCounts[c.id] ?? 0) > 0)
-        .sort(
-          (a, b) =>
-            (cityListingCounts[b.id] ?? 0) - (cityListingCounts[a.id] ?? 0),
-        )
-        .slice(0, 6),
-    [cities, cityListingCounts],
+      buildMunicipalityCityIndex({
+        cities,
+        cityListingCounts,
+        cityRegionMappings,
+        regions,
+      }).slice(0, 6),
+    [cities, cityListingCounts, cityRegionMappings, regions],
   );
 
   // Featured city from CMS data or first top city
@@ -158,7 +160,11 @@ const Experiences = () => {
       ? featuredCityHubData.cityId
       : null;
   const highlightedCity = highlightedCityId
-    ? cities.find((c) => c.id === highlightedCityId) ?? topCities[0]
+    ? topCities.find(
+        (city) =>
+          city.id === highlightedCityId ||
+          city.municipalityCityIds?.includes(highlightedCityId),
+      ) ?? topCities[0]
     : topCities[0];
 
   // Fetch listings
@@ -340,6 +346,15 @@ const Experiences = () => {
               topCities={topCities}
               cityListingCounts={cityListingCounts}
               preferCityListingCounts
+              cityPathBuilder={(city) => {
+                const params = new URLSearchParams();
+                if (city.municipalityRegionId) {
+                  params.set("region", city.municipalityRegionId);
+                } else {
+                  params.set("city", city.id);
+                }
+                return `/experiences?${params.toString()}`;
+              }}
               imageTimestamp={imageTimestamp}
               basePath="visit"
               translationPrefix="experiences"
