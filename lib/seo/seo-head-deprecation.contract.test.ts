@@ -36,6 +36,7 @@ describe("seo-head deprecation contract", () => {
 
     const offenders: string[] = [];
     for (const filePath of sourceFiles) {
+      if (filePath.endsWith("seo-head-deprecation.contract.test.ts")) continue;
       const source = readFileSync(filePath, "utf8");
       if (
         source.includes("/seo/SeoHead") ||
