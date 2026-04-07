@@ -568,6 +568,12 @@ function useDirectoryCmsHelpers(globalSettings: GlobalSetting[], cmsPageId: stri
     const getMetaDescription = (fallback: string) =>
       pageConfig.meta?.description ?? getText("meta.description", fallback);
 
+    const getBlockData = (blockId: string): Record<string, unknown> => {
+      const data = blocks[blockId]?.data;
+      if (!data || typeof data !== "object") return {};
+      return data as Record<string, unknown>;
+    };
+
     return {
       getText,
       getMetaTitle,
@@ -575,6 +581,7 @@ function useDirectoryCmsHelpers(globalSettings: GlobalSetting[], cmsPageId: stri
       isBlockEnabled,
       getBlockClassName,
       getBlockStyle,
+      getBlockData,
     };
   }, [cmsPageId, globalSettings]);
 }
@@ -830,6 +837,34 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   }, [isStayPage, props.visitCityIndex, stayCityIndex]);
 
   const cityHubsHighlightedCity = useMemo(() => {
+    const cmsBlockData = activeCms.getBlockData("featured-city-hub");
+    const cmsCityId = cmsBlockData && typeof cmsBlockData.cityId === "string" ? cmsBlockData.cityId : null;
+    
+    // First try to find in stayCityIndex (municipality index)
+    if (cmsCityId && isStayPage) {
+      let found = stayCityIndex.find(
+        (city) =>
+          city.id === cmsCityId ||
+          city.municipalityCityIds?.includes(cmsCityId),
+      );
+      
+      // If not found, try in the full visitCityIndex from props
+      if (!found && props.visitCityIndex) {
+        found = props.visitCityIndex.find(
+          (city) =>
+            city.id === cmsCityId ||
+            city.municipalityCityIds?.includes(cmsCityId),
+        );
+      }
+
+      // If still not found, try matching in the cities data
+      if (!found && cities.length > 0) {
+        found = cities.find(city => city.id === cmsCityId) as VisitCityIndexItem | undefined;
+      }
+      
+      if (found) return found;
+    }
+    
     if (isStayPage) {
       const configured = props.featuredVisitCity;
       if (!configured) return stayCityIndex[0] ?? undefined;
@@ -845,7 +880,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
       );
     }
     return props.featuredVisitCity ?? undefined;
-  }, [isStayPage, props.featuredVisitCity, stayCityIndex]);
+  }, [isStayPage, props.featuredVisitCity, stayCityIndex, activeCms, props.visitCityIndex, cities]);
   const stayCityPathBuilder = useCallback((city: CityHubItem) => {
     const params = new URLSearchParams({
       category: "places-to-stay",

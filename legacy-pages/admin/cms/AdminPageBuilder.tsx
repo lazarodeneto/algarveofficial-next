@@ -533,6 +533,9 @@ function AdminPageBuilderContent() {
 
   const handleSaveAll = async () => {
     try {
+      console.log("[admin-page-builder] Full pageConfigs state:", JSON.stringify(pageConfigs, null, 2).slice(0, 3000));
+      console.log("[admin-page-builder] Selected pageId:", selectedPageId);
+      console.log("[admin-page-builder] Selected page config:", JSON.stringify(pageConfigs[selectedPageId], null, 2));
       const payload = [
         {
           key: CMS_GLOBAL_SETTING_KEYS.pageConfigs,

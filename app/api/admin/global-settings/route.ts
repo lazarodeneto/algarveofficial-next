@@ -86,10 +86,12 @@ export async function POST(request: NextRequest) {
   const { settings, locale } = normalized;
   const hasCmsSettings = settings.some((setting) => CMS_SETTING_KEYS.has(setting.key));
 
-  const shouldPersistGlobalSettings = locale === "default";
-  const dbSettings = shouldPersistGlobalSettings
-    ? settings
-    : settings.filter((setting) => !CMS_SETTING_KEYS.has(setting.key));
+  // Always persist CMS settings to global_settings regardless of locale
+  // The locale check only applies to non-CMS custom settings
+  const cmsSettings = settings.filter((setting) => CMS_SETTING_KEYS.has(setting.key));
+  const nonCmsSettings = settings.filter((setting) => !CMS_SETTING_KEYS.has(setting.key));
+  const shouldPersistNonCms = locale === "default";
+  const dbSettings = [...cmsSettings, ...(shouldPersistNonCms ? nonCmsSettings : [])];
 
   let data: GlobalSettingsWriteItem[] = [];
 

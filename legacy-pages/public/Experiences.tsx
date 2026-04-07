@@ -161,13 +161,27 @@ const Experiences = () => {
     typeof featuredCityHubData.cityId === "string"
       ? featuredCityHubData.cityId
       : null;
-  const highlightedCity = highlightedCityId
+  let highlightedCity = highlightedCityId
     ? municipalityCities.find(
         (city) =>
           city.id === highlightedCityId ||
           city.municipalityCityIds?.includes(highlightedCityId),
       ) ?? topCities[0] ?? municipalityCities[0]
     : topCities[0] ?? municipalityCities[0];
+  
+  // Fallback: if not found in municipalityCities, try in the full cities list
+  if (!highlightedCity && highlightedCityId && cities.length > 0) {
+    const fallbackCity = cities.find(city => city.id === highlightedCityId);
+    if (fallbackCity) {
+      highlightedCity = {
+        ...fallbackCity,
+        totalCount: 0,
+        municipalityCityIds: [],
+      };
+    } else {
+      highlightedCity = topCities[0] ?? municipalityCities[0];
+    }
+  }
 
   // Fetch listings
   const { data: listings = [], isLoading: listingsLoading } = useQuery({
