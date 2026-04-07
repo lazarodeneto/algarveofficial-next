@@ -174,7 +174,12 @@ const Experiences = () => {
     const fallbackCity = cities.find(city => city.id === highlightedCityId);
     if (fallbackCity) {
       highlightedCity = {
-        ...fallbackCity,
+        id: fallbackCity.id,
+        slug: fallbackCity.slug,
+        name: fallbackCity.name,
+        short_description: fallbackCity.short_description,
+        image_url: fallbackCity.image_url,
+        hero_image_url: fallbackCity.hero_image_url,
         totalCount: 0,
         municipalityCityIds: [],
       };

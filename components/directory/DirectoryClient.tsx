@@ -859,7 +859,20 @@ function DirectoryClientInner(props: DirectoryClientProps) {
 
       // If still not found, try matching in the cities data
       if (!found && cities.length > 0) {
-        found = cities.find(city => city.id === cmsCityId) as VisitCityIndexItem | undefined;
+        const directMatch = cities.find(city => city.id === cmsCityId);
+        if (directMatch) {
+          found = {
+            id: directMatch.id,
+            slug: directMatch.slug,
+            name: directMatch.name,
+            short_description: directMatch.short_description,
+            image_url: directMatch.image_url,
+            hero_image_url: directMatch.hero_image_url,
+            totalCount: 0,
+            municipalityRegionId: undefined,
+            municipalityCityIds: [],
+          };
+        }
       }
       
       if (found) return found;
