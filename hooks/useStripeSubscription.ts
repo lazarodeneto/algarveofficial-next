@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { getValidAccessToken } from '@/lib/authToken';
 import type { SubscriptionTier, BillingPeriod } from '@/lib/stripePricing';
 
 export interface SubscriptionState {
@@ -30,6 +31,14 @@ const DEFAULT_SUBSCRIPTION: SubscriptionState = {
   currentPeriodEnd: null,
   hasStripeCustomer: false,
 };
+
+function normalizeBillingPeriodForUi(
+  value: unknown,
+): BillingPeriod | null {
+  if (value === "monthly") return "monthly";
+  if (value === "annual" || value === "yearly") return "annual";
+  return null;
+}
 
 async function extractFunctionErrorMessage(fnError: unknown, fallback: string): Promise<string> {
   const err = fnError as { message?: string; context?: Response } | null;
@@ -89,7 +98,7 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
       setSubscription({
         subscribed: data.subscribed ?? false,
         tier: data.tier ?? 'unverified',
-        billingPeriod: data.billingPeriod ?? null,
+        billingPeriod: normalizeBillingPeriodForUi(data.billingPeriod),
         status: data.status ?? null,
         currentPeriodEnd: data.currentPeriodEnd ?? null,
         hasStripeCustomer: data.hasStripeCustomer ?? false,
@@ -116,16 +125,24 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
     setError(null);
 
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('create-checkout', {
-        body: { tier, billingPeriod },
+      const accessToken = await getValidAccessToken();
+      const response = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          tier,
+          billing_period: billingPeriod,
+        }),
       });
 
-      if (fnError) {
-        throw new Error(await extractFunctionErrorMessage(fnError, 'Failed to create checkout session'));
-      }
-
-      if (data?.error) {
-        throw new Error(data.error);
+      const data = (await response.json().catch(() => null)) as
+        | { url?: string; error?: string }
+        | null;
+      if (!response.ok) {
+        throw new Error(data?.error || 'Failed to create checkout session');
       }
 
       if (!data?.url) {
