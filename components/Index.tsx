@@ -9,6 +9,7 @@ import { AlgarveGuideSection } from "@/components/sections/AlgarveGuideSection";
 import { RegionsSection } from "@/components/sections/RegionsSection";
 import { CategoriesSection } from "@/components/sections/CategoriesSection";
 import { CitiesSection } from "@/components/sections/CitiesSection";
+import { FeaturedCitySection } from "@/components/sections/FeaturedCitySection";
 import { CuratedExcellence } from "@/components/sections/CuratedExcellence";
 import { SignatureMapSection } from "@/components/sections/SignatureMapSection";
 import { AllListingsSection } from "@/components/sections/AllListingsSection";
@@ -22,13 +23,22 @@ import { CmsBlock } from "@/components/cms/CmsBlock";
 const SECTION_COMPONENTS: Record<string, ComponentType<unknown>> = {
   regions: RegionsSection,
   categories: CategoriesSection,
+  "featured-city": FeaturedCitySection,
   cities: CitiesSection,
   vip: SignatureMapSection,
   'all-listings': AllListingsSection,
 };
 
 // Default section order if none in database
-const DEFAULT_SECTION_ORDER = ['regions', 'categories', 'curated', 'vip', 'cities', 'all-listings'];
+const DEFAULT_SECTION_ORDER = [
+  "regions",
+  "categories",
+  "featured-city",
+  "curated",
+  "vip",
+  "cities",
+  "all-listings",
+];
 
 const Index = () => {
   const { settings, isLoading } = useHomepageSettings();
@@ -98,7 +108,8 @@ const Index = () => {
         )}
         <div className="mx-auto w-full content-max density">
           {sectionsToRender.filter(({ id }) => id !== "vip" && id !== "all-listings").map(({ id, enabled }) => {
-            if (!enabled || !isBlockEnabled(id, true)) return null;
+            const defaultEnabled = id === "featured-city" ? false : true;
+            if (!enabled || !isBlockEnabled(id, defaultEnabled)) return null;
 
             const SectionComponent = SECTION_COMPONENTS[id];
             if (!SectionComponent) return null;
@@ -115,7 +126,13 @@ const Index = () => {
             }
 
             return (
-              <CmsBlock pageId="home" blockId={id} key={id} as="section">
+              <CmsBlock
+                pageId="home"
+                blockId={id}
+                key={id}
+                as="section"
+                defaultEnabled={defaultEnabled}
+              >
                 <SectionComponent />
               </CmsBlock>
             );

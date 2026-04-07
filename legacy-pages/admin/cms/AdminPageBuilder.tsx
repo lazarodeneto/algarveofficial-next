@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Plus, Save, Trash2, ExternalLink, Paintbrush, Video, ImageIcon, RotateCcw } from "lucide-react";
+import { Loader2, Plus, Save, Trash2, ExternalLink, Paintbrush, Video, ImageIcon, RotateCcw, ArrowDown, ArrowUp } from "lucide-react";
 import { toast } from "sonner";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,6 +31,12 @@ import {
   type CmsPageConfigMap,
   type CmsTextOverrideMap,
 } from "@/lib/cms/pageBuilderRegistry";
+import {
+  normalizeCityBlockMode,
+  normalizeSelectedCityIds,
+  validateSelectedCityIds,
+} from "@/lib/cms/city-block-config";
+import { normalizePlacementSelection } from "@/lib/cms/placement-engine";
 import { convertToWebP } from "@/lib/imageUtils";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 
@@ -125,6 +131,8 @@ function AdminPageBuilderContent() {
   const [customCss, setCustomCss] = useState<string>("");
   const [initialized, setInitialized] = useState(false);
   const [heroUploadTarget, setHeroUploadTarget] = useState<"image" | "video" | "poster" | null>(null);
+  const [citySearchQuery, setCitySearchQuery] = useState("");
+  const [featuredCitySearchQuery, setFeaturedCitySearchQuery] = useState("");
   const heroImageInputRef = useRef<HTMLInputElement | null>(null);
   const heroVideoInputRef = useRef<HTMLInputElement | null>(null);
   const heroPosterInputRef = useRef<HTMLInputElement | null>(null);
@@ -167,6 +175,11 @@ function AdminPageBuilderContent() {
       setSelectedPageId(requestedPageId);
     }
   }, [requestedPageId]);
+
+  useEffect(() => {
+    setCitySearchQuery("");
+    setFeaturedCitySearchQuery("");
+  }, [selectedPageId]);
 
   useEffect(() => {
     if (!selectedPageId || !initialized) return;
@@ -240,6 +253,48 @@ function AdminPageBuilderContent() {
         },
       };
     });
+  };
+
+  const getCitiesBlockMode = (config: CmsBlockConfig) =>
+    normalizeCityBlockMode(config.data?.mode);
+
+  const getCitiesBlockSelectedIds = (config: CmsBlockConfig) =>
+    normalizeSelectedCityIds(config.data?.selectedCityIds);
+
+  const setCitiesBlockMode = (blockId: string, mode: "all" | "curated") => {
+    updateBlockConfig(blockId, (current) => ({
+      ...current,
+      data: {
+        ...(current.data ?? {}),
+        mode,
+      },
+    }));
+  };
+
+  const setCitiesBlockSelectedIds = (blockId: string, ids: string[]) => {
+    updateBlockConfig(blockId, (current) => ({
+      ...current,
+      data: {
+        ...(current.data ?? {}),
+        selectedCityIds: ids,
+      },
+    }));
+  };
+
+  const getBlockSelection = (config: CmsBlockConfig) =>
+    normalizePlacementSelection(config.data?.selection);
+
+  const setBlockSelection = (
+    blockId: string,
+    selection: "manual" | "tier-driven" | "hybrid",
+  ) => {
+    updateBlockConfig(blockId, (current) => ({
+      ...current,
+      data: {
+        ...(current.data ?? {}),
+        selection,
+      },
+    }));
   };
 
   const setPageMeta = (field: "title" | "description", value: string) => {
@@ -675,6 +730,25 @@ function AdminPageBuilderContent() {
           <CardContent className="space-y-4">
             {selectedPageDefinition?.blocks.map((block) => {
               const config = selectedPageConfig.blocks?.[block.id] ?? {};
+              const citiesBlockMode = getCitiesBlockMode(config);
+              const blockSelection = getBlockSelection(config);
+              const selectedCityIds = getCitiesBlockSelectedIds(config);
+              const normalizedSelectedCityIds = (() => {
+                const { validCityIds } = validateSelectedCityIds("cities", selectedCityIds, cities);
+                return validCityIds;
+              })();
+              const availableCities = cities.filter((city) => !normalizedSelectedCityIds.includes(city.id));
+              const visibleAvailableCities = citySearchQuery.trim()
+                ? availableCities.filter((city) =>
+                    city.name.toLowerCase().includes(citySearchQuery.trim().toLowerCase()),
+                  )
+                : availableCities;
+              const featuredCityOptions = featuredCitySearchQuery.trim()
+                ? cities.filter((city) =>
+                    city.name.toLowerCase().includes(featuredCitySearchQuery.trim().toLowerCase()),
+                  )
+                : cities;
+              const defaultEnabled = block.id === "featured-city" ? false : true;
 
               return (
                 <div key={block.id} className="space-y-3 rounded-lg border border-border p-4">
@@ -686,7 +760,7 @@ function AdminPageBuilderContent() {
                     <div className="flex items-center gap-2">
                       <Badge variant="outline">{block.id}</Badge>
                       <Switch
-                        checked={typeof config.enabled === "boolean" ? config.enabled : true}
+                        checked={typeof config.enabled === "boolean" ? config.enabled : defaultEnabled}
                         onCheckedChange={(checked) =>
                           updateBlockConfig(block.id, (current) => ({ ...current, enabled: checked }))
                         }
@@ -749,6 +823,219 @@ function AdminPageBuilderContent() {
                         </SelectContent>
                       </Select>
                       <p className="text-xs text-muted-foreground">Choose which city to feature prominently on the Destinations page.</p>
+                    </div>
+                  )}
+
+                  {block.id === "featured-city" && cities.length > 0 && (
+                    <div className="space-y-3 border-t border-border pt-3 mt-3">
+                      <Label>Featured City</Label>
+                      <Input
+                        value={featuredCitySearchQuery}
+                        onChange={(e) => setFeaturedCitySearchQuery(e.target.value)}
+                        className="bg-background"
+                        placeholder="Search cities..."
+                      />
+                      <Select
+                        value={typeof config.data?.cityId === "string" ? config.data.cityId : ""}
+                        onValueChange={(value) =>
+                          updateBlockConfig(block.id, (current) => ({
+                            ...current,
+                            data: { ...(current.data ?? {}), cityId: value },
+                          }))
+                        }
+                      >
+                        <SelectTrigger className="bg-background">
+                          <SelectValue placeholder="Select a city to feature" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {featuredCityOptions.map((city) => (
+                            <SelectItem key={city.id} value={city.id}>
+                              {city.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground">
+                        Select one city for the dedicated Featured City block.
+                      </p>
+
+                      <div className="space-y-2">
+                        <Label>Selection Strategy</Label>
+                        <Select
+                          value={blockSelection}
+                          onValueChange={(value) =>
+                            setBlockSelection(
+                              block.id,
+                              value === "tier-driven" || value === "hybrid"
+                                ? value
+                                : "manual",
+                            )
+                          }
+                        >
+                          <SelectTrigger className="bg-background">
+                            <SelectValue placeholder="Select strategy" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="manual">Manual</SelectItem>
+                            <SelectItem value="tier-driven">Tier-driven</SelectItem>
+                            <SelectItem value="hybrid">Hybrid</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground">
+                          Hybrid ranks by tier score, using the selected city as an optional candidate hint.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {block.id === "cities" && cities.length > 0 && (
+                    <div className="space-y-3 border-t border-border pt-3 mt-3">
+                      <div className="space-y-2">
+                        <Label>City Index Mode</Label>
+                        <Select
+                          value={citiesBlockMode}
+                          onValueChange={(value) => setCitiesBlockMode(block.id, value === "curated" ? "curated" : "all")}
+                        >
+                          <SelectTrigger className="bg-background">
+                            <SelectValue placeholder="Select mode" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All cities</SelectItem>
+                            <SelectItem value="curated">Curated list</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {citiesBlockMode === "curated" ? (
+                        <div className="space-y-3">
+                          <div className="space-y-2">
+                            <Label>Add cities</Label>
+                            <Input
+                              value={citySearchQuery}
+                              onChange={(e) => setCitySearchQuery(e.target.value)}
+                              className="bg-background"
+                              placeholder="Search cities..."
+                            />
+                            <div className="max-h-40 overflow-y-auto rounded-md border border-border bg-background p-2 space-y-1">
+                              {visibleAvailableCities.map((city) => (
+                                <Button
+                                  key={city.id}
+                                  variant="ghost"
+                                  className="w-full justify-start"
+                                  onClick={() =>
+                                    setCitiesBlockSelectedIds(block.id, [...normalizedSelectedCityIds, city.id])
+                                  }
+                                >
+                                  {city.name}
+                                </Button>
+                              ))}
+                              {visibleAvailableCities.length === 0 ? (
+                                <p className="px-2 py-1 text-xs text-muted-foreground">No matching cities.</p>
+                              ) : null}
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Selected cities (display order)</Label>
+                            <div className="space-y-2">
+                              {normalizedSelectedCityIds.map((cityId, index) => {
+                                const city = cities.find((row) => row.id === cityId);
+                                if (!city) return null;
+
+                                return (
+                                  <div
+                                    key={city.id}
+                                    className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2"
+                                  >
+                                    <span className="text-sm">{city.name}</span>
+                                    <div className="flex items-center gap-1">
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        disabled={index === 0}
+                                        onClick={() => {
+                                          const next = [...normalizedSelectedCityIds];
+                                          const swap = next[index - 1];
+                                          next[index - 1] = next[index];
+                                          next[index] = swap;
+                                          setCitiesBlockSelectedIds(block.id, next);
+                                        }}
+                                      >
+                                        <ArrowUp className="h-4 w-4" />
+                                      </Button>
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        disabled={index === normalizedSelectedCityIds.length - 1}
+                                        onClick={() => {
+                                          const next = [...normalizedSelectedCityIds];
+                                          const swap = next[index + 1];
+                                          next[index + 1] = next[index];
+                                          next[index] = swap;
+                                          setCitiesBlockSelectedIds(block.id, next);
+                                        }}
+                                      >
+                                        <ArrowDown className="h-4 w-4" />
+                                      </Button>
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() =>
+                                          setCitiesBlockSelectedIds(
+                                            block.id,
+                                            normalizedSelectedCityIds.filter((id) => id !== city.id),
+                                          )
+                                        }
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                              {normalizedSelectedCityIds.length === 0 ? (
+                                <p className="text-xs text-muted-foreground">
+                                  No cities selected. Frontend falls back to all cities.
+                                </p>
+                              ) : null}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">
+                          All active cities are shown when mode is set to all.
+                        </p>
+                      )}
+
+                      <div className="space-y-2">
+                        <Label>Selection Strategy</Label>
+                        <Select
+                          value={blockSelection}
+                          onValueChange={(value) =>
+                            setBlockSelection(
+                              block.id,
+                              value === "tier-driven" || value === "hybrid"
+                                ? value
+                                : "manual",
+                            )
+                          }
+                        >
+                          <SelectTrigger className="bg-background">
+                            <SelectValue placeholder="Select strategy" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="manual">Manual</SelectItem>
+                            <SelectItem value="tier-driven">Tier-driven</SelectItem>
+                            <SelectItem value="hybrid">Hybrid</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground">
+                          Hybrid uses curated cities as the candidate pool, then ranks them by tier score.
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
