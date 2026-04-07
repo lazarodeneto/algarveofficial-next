@@ -13,8 +13,8 @@ function Link(props: ComponentProps<typeof NextLink>) {
 
 const navItems = [
   { name: "nav.home", href: "/", icon: Home },
-  { name: "nav.stay", href: "/stay?category=places-to-stay", icon: BedDouble },
   { name: "nav.experiences", href: "/experiences", icon: Binoculars },
+  { name: "nav.stay", href: "/stay?category=places-to-stay", icon: BedDouble },
   { name: "nav.properties", href: "/properties", icon: HouseHeart },
   { name: "nav.golf", href: "/golf", icon: FlagTriangleRight },
 ];
