@@ -6,7 +6,6 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { useRegions } from "@/hooks/useRegions";
-import { SeoHead } from "@/components/seo/SeoHead";
 import { getRegionImageSet } from "@/lib/regionImages";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
@@ -29,12 +28,6 @@ export default function Destinations() {
 
   return (
     <div className="min-h-screen bg-background" data-cms-page="destinations">
-      <SeoHead
-        title={getMetaTitle(getText("seo.title", "Premium Destinations in the Algarve"))}
-        description={getMetaDescription(getText("seo.description", "Discover the Algarve's most prestigious destinations, from the Golden Triangle to Sagres, with curated insights for premium travel and lifestyle."))}
-        canonicalUrl="https://algarveofficial.com/destinations"
-        keywords={getText("seo.keywords", "Algarve destinations, Golden Triangle Algarve, Vilamoura, Lagos, Tavira, premium travel Portugal")}
-      />
       <Header />
       {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
 

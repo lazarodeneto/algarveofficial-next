@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { SeoHead } from "@/components/seo/SeoHead";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -193,12 +192,6 @@ const Live = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground" data-cms-page="live">
-      <SeoHead
-        title={getMetaTitle(getText("seo.title", "Live in the Algarve"))}
-        description={getMetaDescription(getText("seo.description", "Practical guidance to relocate and build your life in the Algarve: residency pathways, neighborhoods, healthcare, education, and vetted local services."))}
-        canonicalUrl="https://algarveofficial.com/live"
-        keywords={getText("seo.keywords", "live in Algarve, relocate to Portugal, Algarve residency, Algarve neighborhoods, expat Algarve")}
-      />
 
       <Header />
       {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}

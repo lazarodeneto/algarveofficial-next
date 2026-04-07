@@ -468,7 +468,7 @@ describe("admin cms documents route runtime", () => {
         order: docsOrder,
       })),
     };
-    const versionsSecondOrder = vi.fn().mockResolvedValue({
+    const versionsLimit = vi.fn().mockResolvedValue({
       data: [
         {
           id: 11,
@@ -478,23 +478,14 @@ describe("admin cms documents route runtime", () => {
           created_at: "2026-01-02T00:00:00.000Z",
           created_by: null,
         },
-        {
-          id: 10,
-          document_id: 1,
-          version: 2,
-          content: { text: { "hero.title": "Olá-older" } },
-          created_at: "2026-01-01T00:00:00.000Z",
-          created_by: null,
-        },
       ],
       error: null,
     });
-    const versionsFirstOrder = vi.fn(() => ({ order: versionsSecondOrder }));
+    const versionsOrder = vi.fn(() => ({ limit: versionsLimit }));
+    const versionsEq = vi.fn(() => ({ order: versionsOrder }));
     const versionsQuery = {
       select: vi.fn(() => ({
-        in: vi.fn(() => ({
-          order: versionsFirstOrder,
-        })),
+        eq: versionsEq,
       })),
     };
 
@@ -515,17 +506,105 @@ describe("admin cms documents route runtime", () => {
     const payload = (await response.json()) as {
       ok?: boolean;
       data?: Array<{ versions?: unknown[] }>;
-      meta?: { version_limit?: number };
+      meta?: { version_limit?: number; request_id?: string };
     };
 
     expect(response.status).toBe(200);
     expect(payload.ok).toBe(true);
     expect(payload.data?.[0]?.versions).toHaveLength(1);
     expect(payload.meta?.version_limit).toBe(1);
+    expect(typeof payload.meta?.request_id).toBe("string");
     expect(from).toHaveBeenCalledWith("cms_documents");
     expect(from).toHaveBeenCalledWith("cms_document_versions");
     expect(docsRange).toHaveBeenCalledWith(0, 49);
-    expect(versionsFirstOrder).toHaveBeenCalledWith("document_id", { ascending: true });
-    expect(versionsSecondOrder).toHaveBeenCalledWith("version", { ascending: false });
+    expect(versionsEq).toHaveBeenCalledWith("document_id", 1);
+    expect(versionsOrder).toHaveBeenCalledWith("version", { ascending: false });
+    expect(versionsLimit).toHaveBeenCalledWith(1);
+  });
+
+  it("returns request_id in error payload when cms document read fails", async () => {
+    const docsEq = vi.fn().mockResolvedValue({
+      data: null,
+      error: { message: "boom" },
+    });
+    const docsRange = vi.fn(() => ({ eq: docsEq }));
+    const docsOrder = vi.fn(() => ({ range: docsRange }));
+    const from = vi.fn(() => ({
+      select: vi.fn(() => ({ order: docsOrder })),
+    }));
+
+    mockedRequireAdminReadClient.mockResolvedValueOnce({
+      userId: "admin-1",
+      readClient: { from } as never,
+    });
+
+    const response = await getCmsDocumentsRoute(
+      getRequest("/api/admin/cms/documents?page_id=home"),
+    );
+    const payload = (await response.json()) as {
+      ok?: boolean;
+      error?: { code?: string; request_id?: string };
+    };
+
+    expect(response.status).toBe(500);
+    expect(payload.ok).toBe(false);
+    expect(payload.error?.code).toBe("CMS_DOCUMENTS_READ_FAILED");
+    expect(typeof payload.error?.request_id).toBe("string");
+  });
+
+  it("returns request_id in error payload when cms version read fails", async () => {
+    const docsEq = vi.fn().mockResolvedValue({
+      data: [
+        {
+          id: 1,
+          page_id: "home",
+          block_id: null,
+          locale: "pt-pt",
+          doc_type: "page_config",
+          status: "published",
+          current_version_id: 11,
+          created_at: "2026-01-01T00:00:00.000Z",
+          updated_at: "2026-01-02T00:00:00.000Z",
+        },
+      ],
+      error: null,
+    });
+    const docsRange = vi.fn(() => ({ eq: docsEq }));
+    const docsOrder = vi.fn(() => ({ range: docsRange }));
+    const versionsLimit = vi.fn().mockResolvedValue({
+      data: null,
+      error: { message: "version boom" },
+    });
+    const versionsOrder = vi.fn(() => ({ limit: versionsLimit }));
+    const versionsEq = vi.fn(() => ({ order: versionsOrder }));
+
+    const from = vi.fn((table: string) => {
+      if (table === "cms_documents") {
+        return { select: vi.fn(() => ({ order: docsOrder })) };
+      }
+      if (table === "cms_document_versions") {
+        return { select: vi.fn(() => ({ eq: versionsEq })) };
+      }
+      throw new Error(`Unexpected table ${table}`);
+    });
+
+    mockedRequireAdminReadClient.mockResolvedValueOnce({
+      userId: "admin-1",
+      readClient: { from } as never,
+    });
+
+    const response = await getCmsDocumentsRoute(
+      getRequest("/api/admin/cms/documents?page_id=home&include_versions=true"),
+    );
+    const payload = (await response.json()) as {
+      ok?: boolean;
+      error?: { code?: string; request_id?: string };
+    };
+
+    expect(response.status).toBe(500);
+    expect(payload.ok).toBe(false);
+    expect(payload.error?.code).toBe("CMS_DOCUMENT_VERSIONS_READ_FAILED");
+    expect(typeof payload.error?.request_id).toBe("string");
+    expect(versionsEq).toHaveBeenCalledWith("document_id", 1);
   });
 });

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "node:crypto";
 
 import { requireAdminReadClient } from "@/lib/server/admin-auth";
 
@@ -10,8 +11,16 @@ const VALID_DOC_TYPES = new Set<CmsDocType>([
   "custom_css",
 ]);
 
-function errorResponse(status: number, code: string, message: string) {
-  return NextResponse.json({ ok: false, error: { code, message } }, { status });
+function errorResponse(
+  status: number,
+  code: string,
+  message: string,
+  requestId: string,
+) {
+  return NextResponse.json(
+    { ok: false, error: { code, message, request_id: requestId } },
+    { status },
+  );
 }
 
 function parseBoolean(value: string | null) {
@@ -27,6 +36,7 @@ function parseBoundedInt(value: string | null, fallback: number, min: number, ma
 }
 
 export async function GET(request: NextRequest) {
+  const requestId = randomUUID();
   const auth = await requireAdminReadClient(
     request,
     "Only admins can query CMS documents.",
@@ -47,7 +57,7 @@ export async function GET(request: NextRequest) {
   );
 
   if (docTypeRaw && !VALID_DOC_TYPES.has(docTypeRaw as CmsDocType)) {
-    return errorResponse(400, "INVALID_DOC_TYPE", "Unsupported cms doc_type.");
+    return errorResponse(400, "INVALID_DOC_TYPE", "Unsupported cms doc_type.", requestId);
   }
 
   let query = auth.readClient
@@ -62,10 +72,22 @@ export async function GET(request: NextRequest) {
 
   const { data, error } = await query;
   if (error) {
+    console.error("[admin-cms-documents] document read failed", {
+      request_id: requestId,
+      page_id: pageId || null,
+      locale: locale || null,
+      doc_type: docTypeRaw || null,
+      include_versions: includeVersions,
+      offset,
+      limit,
+      version_limit: versionLimit,
+      error: error.message,
+    });
     return errorResponse(
       500,
       "CMS_DOCUMENTS_READ_FAILED",
       error.message || "Failed to read CMS documents.",
+      requestId,
     );
   }
 
@@ -86,6 +108,7 @@ export async function GET(request: NextRequest) {
       ok: true,
       data: docs,
       meta: {
+        request_id: requestId,
         offset,
         limit,
         version_limit: includeVersions ? versionLimit : 0,
@@ -94,30 +117,38 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const docIds = docs.map((doc) => doc.id);
-  const { data: versionRows, error: versionsError } = await auth.readClient
-    .from("cms_document_versions" as never)
-    .select("id, document_id, version, content, created_at, created_by")
-    .in("document_id", docIds as never)
-    .order("document_id", { ascending: true })
-    .order("version", { ascending: false });
-
-  if (versionsError) {
-    return errorResponse(
-      500,
-      "CMS_DOCUMENT_VERSIONS_READ_FAILED",
-      versionsError.message || "Failed to read CMS document versions.",
-    );
-  }
-
   const versionsByDoc = new Map<number, unknown[]>();
-  ((versionRows as Array<{ document_id: number }> | null) ?? []).forEach((row) => {
-    const bucket = versionsByDoc.get(row.document_id) ?? [];
-    if (bucket.length < versionLimit) {
-      bucket.push(row as unknown);
-      versionsByDoc.set(row.document_id, bucket);
+  for (const doc of docs) {
+    const { data: versionRows, error: versionsError } = await auth.readClient
+      .from("cms_document_versions" as never)
+      .select("id, document_id, version, content, created_at, created_by")
+      .eq("document_id", doc.id as never)
+      .order("version", { ascending: false })
+      .limit(versionLimit);
+
+    if (versionsError) {
+      console.error("[admin-cms-documents] version read failed", {
+        request_id: requestId,
+        page_id: pageId || null,
+        locale: locale || null,
+        doc_type: docTypeRaw || null,
+        include_versions: includeVersions,
+        offset,
+        limit,
+        version_limit: versionLimit,
+        document_id: doc.id,
+        error: versionsError.message,
+      });
+      return errorResponse(
+        500,
+        "CMS_DOCUMENT_VERSIONS_READ_FAILED",
+        versionsError.message || "Failed to read CMS document versions.",
+        requestId,
+      );
     }
-  });
+
+    versionsByDoc.set(doc.id, (versionRows as unknown[]) ?? []);
+  }
 
   const withVersions = docs.map((doc) => ({
     ...doc,
@@ -128,6 +159,7 @@ export async function GET(request: NextRequest) {
     ok: true,
     data: withVersions,
     meta: {
+      request_id: requestId,
       offset,
       limit,
       version_limit: versionLimit,

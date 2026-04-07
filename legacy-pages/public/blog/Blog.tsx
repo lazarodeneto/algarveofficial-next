@@ -9,7 +9,6 @@ import { Footer } from '@/components/layout/Footer';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { SeoHead } from '@/components/seo/SeoHead';
 import { Card, CardContent } from '@/components/ui/card';
 import { CmsBlock } from '@/components/cms/CmsBlock';
 import { useCmsPageBuilder } from '@/hooks/useCmsPageBuilder';
@@ -62,12 +61,6 @@ export default function Blog() {
 
   return (
     <div className="min-h-screen bg-background" data-cms-page="blog">
-      <SeoHead
-        title={getMetaTitle(getText("seo.title", "Blog & Insights — Algarve Lifestyle, Travel & Premium"))}
-        description={getMetaDescription(getText("seo.description", "Discover the Algarve lifestyle through travel guides, insider tips, fine dining, golf, and premium experiences across Portugal's most prestigious coastal region."))}
-        canonicalUrl="https://algarveofficial.pt/blog"
-        keywords={getText("seo.keywords", "Algarve blog, Portugal travel guides, Algarve lifestyle, premium travel tips")}
-      />
       <Header />
       {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
 

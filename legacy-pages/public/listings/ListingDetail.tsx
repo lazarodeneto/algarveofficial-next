@@ -42,7 +42,6 @@ import { LoginModal } from "@/components/ui/login-modal";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import { toast } from "sonner";
 import DOMPurify from "dompurify";
-import { SeoHead } from "@/components/seo/SeoHead";
 import { LocalBusinessJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
@@ -511,20 +510,6 @@ export default function ListingDetail() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* SEO */}
-      <SeoHead
-        title={effectiveSeoTitle || listing.name}
-        description={listingMetaDescription}
-        canonicalUrl={listingCanonicalUrl}
-        openGraphTitle={listingOgTitle}
-        openGraphDescription={listingOgDescription}
-        openGraphImage={listingOgImage}
-        openGraphUrl={listingCanonicalUrl}
-        twitterTitle={listingOgTitle}
-        twitterDescription={listingOgDescription}
-        twitterImage={listingOgImage}
-        ogType="place"
-        keywords={listing.tags?.join(", ")}
-      />
 
       <LocalBusinessJsonLd
         name={effectiveTitle || listing.name}

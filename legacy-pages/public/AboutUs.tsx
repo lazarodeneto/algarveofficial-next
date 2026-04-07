@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { Compass, Handshake, Newspaper, Sparkles, Users, LineChart } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { SeoHead } from "@/components/seo/SeoHead";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -54,14 +53,6 @@ export default function AboutUs() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SeoHead
-        title={t("about.metaTitle")}
-        description={t("about.metaDescription")}
-        canonicalUrl="/about-us"
-        openGraphTitle={t("about.metaTitle")}
-        openGraphDescription={t("about.metaDescription")}
-        openGraphUrl="/about-us"
-      />
       <Header />
 
       <section className="relative pt-24 pb-16 lg:pt-32 lg:pb-24 overflow-hidden">

@@ -24,7 +24,6 @@ import {
 } from '@/components/ui/select';
 import { eventCategoryLabels, eventCategoryColors, type EventCategory } from '@/types/events';
 import { usePublishedEvents } from '@/hooks/useEvents';
-import { SeoHead } from '@/components/seo/SeoHead';
 import { useLocalePath } from '@/hooks/useLocalePath';
 import { useCmsPageBuilder } from '@/hooks/useCmsPageBuilder';
 import { CmsBlock } from '@/components/cms/CmsBlock';
@@ -77,12 +76,6 @@ export default function Events() {
 
   return (
     <div className="min-h-screen bg-background" data-cms-page="events">
-      <SeoHead
-        title="Algarve Events Calendar"
-        description="Browse festivals, golf tournaments, gastronomy events, and seasonal highlights across the Algarve with regularly updated event listings."
-        canonicalUrl="https://algarveofficial.com/events"
-        keywords="Algarve events, Algarve festivals, Portugal events calendar, golf tournaments Algarve, gastronomy Algarve"
-      />
       <Header />
       {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
 

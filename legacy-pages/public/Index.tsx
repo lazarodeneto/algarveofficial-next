@@ -4,7 +4,6 @@ import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { HomeQuickLinksSection } from "@/components/sections/HomeQuickLinksSection";
 import { useHomepageSettings } from "@/hooks/useHomepageSettings";
-import { SeoHead } from "@/components/seo/SeoHead";
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/seo/JsonLd";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { CmsBlock } from "@/components/cms/CmsBlock";
@@ -76,12 +75,6 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* SEO: Dynamic meta tags and JSON-LD structured data */}
-      <SeoHead
-        title={getMetaTitle(getText("seo.title", "Premium Experiences in the Algarve"))}
-        description={getMetaDescription(getText("seo.description", "Your curated gateway to premium accommodation, fine dining, golf, and bespoke VIP experiences across Portugal's most prestigious coastal region."))}
-        canonicalUrl="https://algarveofficial.com"
-        keywords={getText("seo.keywords", "Algarve premium, Portugal villas, Quinta do Lago, Vale do Lobo, Vilamoura golf, fine dining Portugal, VIP concierge Algarve")}
-      />
       <OrganizationJsonLd />
       <WebsiteJsonLd />
       

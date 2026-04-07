@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { CuratedExcellence } from "@/components/sections/CuratedExcellence";
 import { ConciergeContactDialog } from "@/components/real-estate/ConciergeContactDialog";
 import { useTranslation } from "react-i18next";
-import { SeoHead } from "@/components/seo/SeoHead";
 import { Database } from "@/integrations/supabase/types";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
@@ -174,12 +173,6 @@ export default function RealEstateDirectory() {
 
     return (
         <div className="min-h-screen bg-background flex flex-col" data-cms-page="real-estate">
-            <SeoHead
-                title="Prime Real Estate in the Algarve"
-                description="Browse premium villas, modern residences, and high-value real estate opportunities in the Algarve's most prestigious coastal locations."
-                canonicalUrl="https://algarveofficial.com/real-estate"
-                keywords="Algarve real estate, premium villas Algarve, Portugal prime property, invest Algarve property"
-            />
             <Header />
             {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
 

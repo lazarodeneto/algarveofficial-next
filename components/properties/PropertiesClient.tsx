@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { CuratedExcellence } from "@/components/sections/CuratedExcellence";
 import { ConciergeContactDialog } from "@/components/real-estate/ConciergeContactDialog";
 import { useTranslation } from "react-i18next";
-import { SeoHead } from "@/components/seo/SeoHead";
 import { Database } from "@/integrations/supabase/types";
 import { matchesPropertyCategoryFilters } from "@/lib/properties/filters";
 
@@ -150,12 +149,6 @@ export default function PropertiesClient() {
 
     return (
         <div className="min-h-screen bg-background flex flex-col">
-            <SeoHead
-                title="Properties — AlgarveOfficial"
-                description="Explore premium property investment opportunities in the Algarve."
-                canonicalUrl="https://algarveofficial.com/properties"
-                keywords="Algarve properties, Portugal real estate, premium property Algarve"
-            />
             <Header />
             <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />
             <main className="flex-grow">

@@ -1,4 +1,3 @@
-export { SeoHead } from "./SeoHead";
 export {
   OrganizationJsonLd,
   WebsiteJsonLd,
