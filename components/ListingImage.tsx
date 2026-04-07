@@ -23,6 +23,7 @@ export interface ListingImageProps {
   priority?: boolean;
   fill?: boolean;
   style?: React.CSSProperties;
+  isRepresentative?: boolean;
 }
 
 function normalizeUrl(value: string | null | undefined): string | null {
@@ -67,6 +68,7 @@ export default function ListingImage({
   priority = false,
   fill = false,
   style,
+  isRepresentative = false,
 }: ListingImageProps) {
   const [hasError, setHasError] = useState(false);
 
@@ -84,36 +86,44 @@ export default function ListingImage({
   };
 
   const resolvedAlt = typeof alt === "string" && alt.trim().length > 0 ? alt : "Algarve listing";
+  
+  const isUsingFallback = !src || hasError;
+  const showRepresentativeBadge = isRepresentative && isUsingFallback;
 
   if (fill) {
-    if (useNativeImg) {
-      return (
-        <img
-          src={currentUrl}
-          alt={resolvedAlt}
-          className={cn("absolute inset-0 h-full w-full object-cover", className)}
-          loading={loading}
-          fetchPriority={fetchPriority}
-          onError={handleError}
-          style={style}
-        />
-      );
-    }
-
     return (
-      <Image
-        src={currentUrl}
-        alt={resolvedAlt}
-        fill
-        quality={80}
-        className={cn("object-cover", className)}
-        sizes={sizes ?? SIZES.card}
-        priority={priority}
-        loading={loading}
-        fetchPriority={fetchPriority}
-        onError={handleError}
-        style={style}
-      />
+      <div className={cn("relative w-full h-full", className)} style={style}>
+        {useNativeImg ? (
+          <img
+            src={currentUrl}
+            alt={showRepresentativeBadge ? `Representative image of ${alt}` : resolvedAlt}
+            className="absolute inset-0 h-full w-full object-cover"
+            loading={loading}
+            fetchPriority={fetchPriority}
+            onError={handleError}
+          />
+        ) : (
+          <Image
+            src={currentUrl}
+            alt={showRepresentativeBadge ? `Representative image of ${alt}` : resolvedAlt}
+            fill
+            quality={80}
+            className="object-cover"
+            sizes={sizes ?? SIZES.card}
+            priority={priority}
+            loading={loading}
+            fetchPriority={fetchPriority}
+            onError={handleError}
+          />
+        )}
+        {showRepresentativeBadge && (
+          <div className="absolute top-2 left-2">
+            <span className="bg-[#0B1F3A]/70 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-md border border-[#C7A35A]/50">
+              Representative
+            </span>
+          </div>
+        )}
+      </div>
     );
   }
 
@@ -123,34 +133,50 @@ export default function ListingImage({
 
   if (useNativeImg) {
     return (
-      <img
-        src={currentUrl}
-        alt={resolvedAlt}
-        width={displayWidth}
-        height={displayHeight}
-        className={cn("bg-muted", className)}
-        loading={loading}
-        fetchPriority={fetchPriority}
-        onError={handleError}
-        style={style}
-      />
+      <div className={cn("relative bg-muted", className)} style={style}>
+        <img
+          src={currentUrl}
+          alt={showRepresentativeBadge ? `Representative image of ${alt}` : resolvedAlt}
+          width={displayWidth}
+          height={displayHeight}
+          className="w-full h-auto"
+          loading={loading}
+          fetchPriority={fetchPriority}
+          onError={handleError}
+        />
+        {showRepresentativeBadge && (
+          <div className="absolute top-2 left-2">
+            <span className="bg-[#0B1F3A]/70 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-md border border-[#C7A35A]/50">
+              Representative
+            </span>
+          </div>
+        )}
+      </div>
     );
   }
 
   return (
-    <Image
-      src={currentUrl}
-      alt={resolvedAlt}
-      width={displayWidth}
-      height={displayHeight}
-      quality={80}
-      className={cn("bg-muted", className)}
-      sizes={sizes ?? SIZES.card}
-      priority={priority}
-      loading={loading}
-      fetchPriority={fetchPriority}
-      onError={handleError}
-      style={style}
-    />
+    <div className={cn("relative bg-muted", className)} style={style}>
+      <Image
+        src={currentUrl}
+        alt={showRepresentativeBadge ? `Representative image of ${alt}` : resolvedAlt}
+        width={displayWidth}
+        height={displayHeight}
+        quality={80}
+        className="w-full h-auto"
+        sizes={sizes ?? SIZES.card}
+        priority={priority}
+        loading={loading}
+        fetchPriority={fetchPriority}
+        onError={handleError}
+      />
+      {showRepresentativeBadge && (
+        <div className="absolute top-2 left-2">
+          <span className="bg-[#0B1F3A]/70 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-md border border-[#C7A35A]/50">
+            Representative
+          </span>
+        </div>
+      )}
+    </div>
   );
 }

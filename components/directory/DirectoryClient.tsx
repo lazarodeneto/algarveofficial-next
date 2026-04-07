@@ -1352,6 +1352,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                               categoryImageUrl={listing.category?.image_url}
                               listingId={listing.id}
                               alt={listing.name}
+                              isRepresentative={!listing.featured_image_url}
                               className="absolute inset-0 w-full h-full object-cover scale-[1.08] transition-transform duration-500 group-hover:scale-110"
                             />
 
