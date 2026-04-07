@@ -18,7 +18,7 @@ import {
 } from "@/lib/cms/city-block-config";
 import {
   normalizePlacementSelection,
-  resolveCityOrder,
+  resolveCityOrderDetailed,
   type PlacementListing,
 } from "@/lib/cms/placement-engine";
 
@@ -57,12 +57,13 @@ export function CitiesSection() {
         : cities
       : cities;
 
-  const citiesToRender = resolveCityOrder({
+  const placementResults = resolveCityOrderDetailed({
     selection,
     cities: eligibleCities,
     listings: cityListings,
     manualCityIds: validCityIds,
   });
+  const citiesToRender = placementResults.map((result) => result.item);
 
   return (
     <section
