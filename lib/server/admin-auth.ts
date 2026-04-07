@@ -12,6 +12,20 @@ export interface AdminWriteAuth {
   writeClient: SupabaseClient<Database>;
 }
 
+export interface AdminReadAuth {
+  userId: string;
+  readClient: SupabaseClient<Database>;
+}
+
+interface AdminAuthError {
+  error: NextResponse;
+}
+
+interface AdminBaseAuth {
+  userId: string;
+  userClient: SupabaseClient<Database>;
+}
+
 export function adminErrorResponse(status: number, code: string, message: string) {
   return NextResponse.json({ ok: false, error: { code, message } }, { status });
 }
@@ -25,10 +39,10 @@ export function getBearerToken(request: NextRequest) {
   return token.trim();
 }
 
-export async function requireAdminWriteClient(
+async function requireAdminBase(
   request: NextRequest,
-  forbiddenMessage = "Only admins can perform this action.",
-) {
+  forbiddenMessage: string,
+): Promise<AdminBaseAuth | AdminAuthError> {
   const token = getBearerToken(request);
   if (!token) {
     return {
@@ -76,9 +90,35 @@ export async function requireAdminWriteClient(
     };
   }
 
-  const serviceClient = createServiceRoleClient();
   return {
     userId: userData.user.id,
-    writeClient: (serviceClient ?? userClient) as SupabaseClient<Database>,
+    userClient,
+  } satisfies AdminBaseAuth;
+}
+
+export async function requireAdminReadClient(
+  request: NextRequest,
+  forbiddenMessage = "Only admins can perform this action.",
+): Promise<AdminReadAuth | AdminAuthError> {
+  const base = await requireAdminBase(request, forbiddenMessage);
+  if ("error" in base) return { error: base.error };
+
+  return {
+    userId: base.userId,
+    readClient: base.userClient,
+  } satisfies AdminReadAuth;
+}
+
+export async function requireAdminWriteClient(
+  request: NextRequest,
+  forbiddenMessage = "Only admins can perform this action.",
+): Promise<AdminWriteAuth | AdminAuthError> {
+  const base = await requireAdminBase(request, forbiddenMessage);
+  if ("error" in base) return { error: base.error };
+
+  const serviceClient = createServiceRoleClient();
+  return {
+    userId: base.userId,
+    writeClient: (serviceClient ?? base.userClient) as SupabaseClient<Database>,
   } satisfies AdminWriteAuth;
 }
