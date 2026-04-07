@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { SeoHead } from "@/components/seo/SeoHead";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -135,12 +134,6 @@ const Invest = () => {
 
     return (
         <div className="min-h-screen bg-background text-foreground" data-cms-page="invest">
-            <SeoHead
-                title={getMetaTitle(getText("seo.title", "Invest in the Algarve"))}
-                description={getMetaDescription(getText("seo.description", "Explore premium investment opportunities in the Algarve, including prime real estate, relocation strategy, rental demand, and long-term wealth positioning in Southern Portugal."))}
-                canonicalUrl="https://algarveofficial.com/invest"
-                keywords={getText("seo.keywords", "Algarve investment, Portugal real estate investment, Algarve property market, residency Portugal, premium portfolio Algarve")}
-            />
 
             <Header />
             {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}

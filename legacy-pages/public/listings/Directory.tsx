@@ -26,7 +26,6 @@ import {
   getMergedCategoryIds,
   resolveCategoryFilterSlug,
 } from "@/lib/categoryMerges";
-import { SeoHead } from "@/components/seo/SeoHead";
 import ListingImage from "@/components/ListingImage";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
@@ -257,12 +256,6 @@ export default function Directory() {
   }, [l, search, selectedRegion, selectedCity, selectedCategory, selectedTier]);
 
   return <div className="min-h-screen bg-background" data-cms-page="directory">
-    <SeoHead
-      title={getMetaTitle(seoTitle)}
-      description={getMetaDescription(seoDescription)}
-      canonicalUrl="https://algarveofficial.com/directory"
-      keywords={getText("seo.keywords", "Algarve directory, premium experiences Algarve, Algarve accommodation, golf Algarve, fine dining Algarve")}
-    />
     <Header />
     {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
 
