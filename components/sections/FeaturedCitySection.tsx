@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
@@ -15,6 +16,7 @@ import {
   resolveFeaturedCityDetailed,
   type PlacementListing,
 } from "@/lib/cms/placement-engine";
+import { trackBlockImpression, trackEvent } from "@/lib/analytics/platformTracking";
 
 export function FeaturedCitySection() {
   const { t } = useTranslation();
@@ -37,10 +39,6 @@ export function FeaturedCitySection() {
     staleTime: 1000 * 60 * 5,
   });
 
-  if (isLoading || cities.length === 0) {
-    return null;
-  }
-
   const { validCityIds } = validateSelectedCityIds(
     "featured-city",
     featuredCityId ? [featuredCityId] : [],
@@ -54,7 +52,16 @@ export function FeaturedCitySection() {
   });
   const selectedCity = placementResult?.item ?? null;
 
-  if (!selectedCity) {
+  useEffect(() => {
+    if (!selectedCity) return;
+    void trackBlockImpression({
+      blockId: "featured-city",
+      pageId: "home",
+      selection,
+    });
+  }, [selection, selectedCity]);
+
+  if (isLoading || cities.length === 0 || !selectedCity) {
     return null;
   }
 
@@ -92,6 +99,14 @@ export function FeaturedCitySection() {
               <Link
                 href={l(`/visit/${selectedCity.slug}`)}
                 className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-white hover:text-primary"
+                onClick={() =>
+                  void trackEvent("block_click", {
+                    blockId: "featured-city",
+                    pageId: "home",
+                    cityId: selectedCity.id,
+                    selection,
+                  })
+                }
               >
                 <MapPin className="h-4 w-4" />
                 {t("sections.cities.exploreCity", "Explore City")}
