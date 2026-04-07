@@ -48,4 +48,37 @@ describe("cms runtime resolver", () => {
     expect(textOverrides["home.hero.title"]).toBe("Hello override");
     expect(settings[CMS_GLOBAL_SETTING_KEYS.customCss]).toBe(".hero{color:green;}");
   });
+
+  it("falls back to default locale docs and empty css when locale-specific docs are absent", () => {
+    const settings = buildCmsSettingsFromDocuments(
+      [
+        {
+          page_id: "directory",
+          locale: "default",
+          doc_type: "page_config",
+          current_version_id: 10,
+        },
+        {
+          page_id: "__global__",
+          locale: "default",
+          doc_type: "design_tokens",
+          current_version_id: 11,
+        },
+      ],
+      [
+        { id: 10, content: { text: { "hero.title": "Directory" } } },
+        { id: 11, content: { "--cms-card-radius": "10px" } },
+      ],
+      "fr",
+    );
+
+    const pageConfigs = JSON.parse(settings[CMS_GLOBAL_SETTING_KEYS.pageConfigs]);
+    const designTokens = JSON.parse(settings[CMS_GLOBAL_SETTING_KEYS.designTokens]);
+    const textOverrides = JSON.parse(settings[CMS_GLOBAL_SETTING_KEYS.textOverrides]);
+
+    expect(pageConfigs.directory.text["hero.title"]).toBe("Directory");
+    expect(designTokens["--cms-card-radius"]).toBe("10px");
+    expect(textOverrides).toEqual({});
+    expect(settings[CMS_GLOBAL_SETTING_KEYS.customCss]).toBe("");
+  });
 });
