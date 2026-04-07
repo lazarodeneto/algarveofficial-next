@@ -45,7 +45,7 @@ import {
 } from "@/lib/publicContentLocale";
 import { renderCategoryIcon } from "@/lib/categoryIcons";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
-import type { CityRow, RegionRow, CategoryRow } from "@/hooks/useReferenceData";
+import { useCityRegionMappings, type CityRow, type RegionRow, type CategoryRow } from "@/hooks/useReferenceData";
 import type { ListingFilters, ListingWithRelations, ListingTier } from "@/hooks/useListings";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { useLocalePath } from "@/hooks/useLocalePath";
@@ -67,6 +67,7 @@ import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
 import type { VisitCityIndexItem } from "@/lib/directory-data";
+import { buildMunicipalityCityIndex } from "@/lib/cities/municipalityIndex";
 
 const EMPTY_CATEGORY_IDS: string[] = [];
 const DIRECTORY_CMS_KEYS = [
@@ -726,6 +727,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   });
 
   const mergedCategories = useMemo(() => buildMergedCategoryOptions(categories), [categories]);
+  const { data: cityRegionMappings = [] } = useCityRegionMappings();
   const selectedCategoryItem = useMemo(
     () => getMergedCategoryBySlug(selectedCategory, mergedCategories),
     [mergedCategories, selectedCategory],
@@ -812,33 +814,48 @@ function DirectoryClientInner(props: DirectoryClientProps) {
 
   const stayCityIndex = useMemo(
     () =>
-      (props.visitCityIndex ?? [])
-        .map((city) => ({
-          ...city,
-          totalCount: stayCityListingCounts[city.id] ?? 0,
-        }))
-        .filter((city) => city.totalCount > 0)
-        .sort((a, b) => b.totalCount - a.totalCount)
-        .slice(0, 6),
-    [props.visitCityIndex, stayCityListingCounts],
+      buildMunicipalityCityIndex({
+        cities,
+        cityListingCounts: stayCityListingCounts,
+        cityRegionMappings,
+        regions,
+      }).slice(0, 6),
+    [cities, cityRegionMappings, regions, stayCityListingCounts],
   );
 
   const cityHubsTopCities = useMemo(() => {
-    if (isStayPage) return stayCityIndex;
+    if (isStayPage) return stayCityIndex as VisitCityIndexItem[];
     return props.visitCityIndex?.slice(0, 6) ?? [];
   }, [isStayPage, props.visitCityIndex, stayCityIndex]);
 
   const cityHubsHighlightedCity = useMemo(() => {
     if (isStayPage) {
-      return stayCityIndex[0] ?? props.featuredVisitCity ?? undefined;
+      const configured = props.featuredVisitCity;
+      if (!configured) return stayCityIndex[0] ?? undefined;
+
+      return (
+        stayCityIndex.find(
+          (city) =>
+            city.id === configured.id ||
+            city.municipalityCityIds?.includes(configured.id),
+        ) ??
+        stayCityIndex[0] ??
+        undefined
+      );
     }
     return props.featuredVisitCity ?? undefined;
   }, [isStayPage, props.featuredVisitCity, stayCityIndex]);
-  const stayCityPathBuilder = useCallback((city: { id: string; slug: string }) => {
+  const stayCityPathBuilder = useCallback((city: VisitCityIndexItem) => {
     const params = new URLSearchParams({
       category: "places-to-stay",
-      city: city.id || city.slug,
     });
+
+    if (city.municipalityRegionId) {
+      params.set("region", city.municipalityRegionId);
+    } else {
+      params.set("city", city.id || city.slug);
+    }
+
     return `/stay?${params.toString()}#${resultsAnchorId}`;
   }, [resultsAnchorId]);
 

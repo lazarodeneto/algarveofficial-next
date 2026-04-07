@@ -14,6 +14,7 @@ import type { ListingWithRelations, ListingFilters } from "@/hooks/useListings";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
 import { buildMergedCategoryOptions, getMergedCategoryBySlug, resolveCategoryFilterSlug } from "@/lib/categoryMerges";
 import { getProgrammaticCityIndexEntries } from "@/lib/seo/programmatic/category-city-data";
+import { buildMunicipalityCityIndex, type MunicipalityCityIndexItem } from "@/lib/cities/municipalityIndex";
 
 type ListingRow = Tables<"listings">;
 
@@ -71,14 +72,18 @@ export interface DirectoryPageData {
 }
 
 export interface VisitCityIndexItem {
-  id: string;
-  slug: string;
-  name: string;
-  short_description: string | null;
-  image_url: string | null;
-  hero_image_url: string | null;
-  totalCount: number;
+  id: MunicipalityCityIndexItem["id"];
+  slug: MunicipalityCityIndexItem["slug"];
+  name: MunicipalityCityIndexItem["name"];
+  short_description: MunicipalityCityIndexItem["short_description"];
+  image_url: MunicipalityCityIndexItem["image_url"];
+  hero_image_url: MunicipalityCityIndexItem["hero_image_url"];
+  totalCount: MunicipalityCityIndexItem["totalCount"];
+  municipalityRegionId?: MunicipalityCityIndexItem["municipalityRegionId"];
+  municipalityCityIds?: MunicipalityCityIndexItem["municipalityCityIds"];
 }
+
+type CityRegionMappingRow = Tables<"city_region_mapping">;
 
 function resolveFilterEntityId<T extends { id: string; slug: string }>(
   value: string | undefined,
@@ -256,29 +261,30 @@ async function fetchDirectoryCategoryCounts(
   return counts;
 }
 
-async function buildVisitCityIndex(cities: CityRow[]): Promise<{
+async function buildVisitCityIndex(
+  cities: CityRow[],
+  cityRegionMappings: CityRegionMappingRow[],
+  regions: RegionRow[],
+): Promise<{
   visitCityIndex: VisitCityIndexItem[];
   featuredVisitCity: VisitCityIndexItem | null;
 }> {
   const indexEntries = await getProgrammaticCityIndexEntries();
-  const cityBySlug = new Map(cities.map((city) => [city.slug, city]));
+  const cityBySlug = new Map(cities.map((city) => [city.slug, city.id]));
+  const cityListingCounts: Record<string, number> = {};
 
-  const visitCityIndex = indexEntries
-    .map((entry) => {
-      const city = cityBySlug.get(entry.citySlug);
-      if (!city) return null;
+  for (const entry of indexEntries) {
+    const cityId = cityBySlug.get(entry.citySlug);
+    if (!cityId) continue;
+    cityListingCounts[cityId] = entry.totalCount;
+  }
 
-      return {
-        id: city.id,
-        slug: city.slug,
-        name: city.name,
-        short_description: city.short_description ?? null,
-        image_url: "image_url" in city && typeof city.image_url === "string" ? city.image_url : null,
-        hero_image_url: "hero_image_url" in city && typeof city.hero_image_url === "string" ? city.hero_image_url : null,
-        totalCount: entry.totalCount,
-      } satisfies VisitCityIndexItem;
-    })
-    .filter((city): city is VisitCityIndexItem => city !== null);
+  const visitCityIndex = buildMunicipalityCityIndex({
+    cities,
+    cityListingCounts,
+    cityRegionMappings,
+    regions,
+  }) as VisitCityIndexItem[];
 
   const featuredVisitCity =
     visitCityIndex.find((city) => city.hero_image_url || city.image_url) ??
@@ -286,6 +292,17 @@ async function buildVisitCityIndex(cities: CityRow[]): Promise<{
     null;
 
   return { visitCityIndex, featuredVisitCity };
+}
+
+async function fetchCityRegionMappings(
+  supabase: ReturnType<typeof createPublicServerClient>,
+): Promise<CityRegionMappingRow[]> {
+  const { data, error } = await supabase
+    .from("city_region_mapping")
+    .select("city_id, region_id, is_primary, id, created_at");
+
+  if (error || !data) return [];
+  return data as CityRegionMappingRow[];
 }
 
 async function fetchDirectoryListings(
@@ -397,15 +414,20 @@ export async function getDirectoryPageData(
     tier: filters.tier && filters.tier !== "all" ? (filters.tier as "signature" | "verified") : undefined,
   };
 
-  const [cities, regions, categories, categoryCounts, globalSettings] = await Promise.all([
+  const [cities, regions, categories, categoryCounts, globalSettings, cityRegionMappings] = await Promise.all([
     fetchDirectoryCities(supabase, contentLocale),
     fetchDirectoryRegions(supabase, contentLocale),
     fetchDirectoryCategories(supabase, contentLocale),
     fetchDirectoryCategoryCounts(supabase),
     fetchDirectoryGlobalSettings(supabase),
+    fetchCityRegionMappings(supabase),
   ]);
 
-  const { visitCityIndex, featuredVisitCity } = await buildVisitCityIndex(cities);
+  const { visitCityIndex, featuredVisitCity } = await buildVisitCityIndex(
+    cities,
+    cityRegionMappings,
+    regions,
+  );
 
   const listings = await fetchDirectoryListings(
     supabase,
