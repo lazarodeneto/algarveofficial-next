@@ -3,6 +3,7 @@ import Script from "next/script";
 import type { ReactNode } from "react";
 import { Inter, Playfair_Display, Archivo_Narrow } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next";
 
 import "../index.css";
 import { RootProviders } from "@/components/providers/RootProviders";
@@ -92,6 +93,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         </Script>
         <RootProviders>{children}</RootProviders>
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
