@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { getValidAccessToken } from '@/lib/authToken';
 import type { SubscriptionTier, BillingPeriod } from '@/lib/stripePricing';
@@ -8,9 +7,24 @@ import type { SubscriptionTier, BillingPeriod } from '@/lib/stripePricing';
 export interface SubscriptionState {
   subscribed: boolean;
   tier: 'unverified' | SubscriptionTier;
+  planType: 'monthly' | 'yearly' | 'fixed_2026' | null;
   billingPeriod: BillingPeriod | null;
-  status: 'active' | 'canceled' | 'past_due' | 'incomplete' | 'trialing' | null;
+  status:
+    | 'pending'
+    | 'active'
+    | 'trialing'
+    | 'past_due'
+    | 'unpaid'
+    | 'canceled'
+    | 'expired'
+    | 'incomplete'
+    | 'incomplete_expired'
+    | null;
   currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  canceledAt: string | null;
+  trialEnd: string | null;
+  endDate: string | null;
   hasStripeCustomer: boolean;
 }
 
@@ -26,57 +40,55 @@ interface UseStripeSubscriptionReturn {
 const DEFAULT_SUBSCRIPTION: SubscriptionState = {
   subscribed: false,
   tier: 'unverified',
+  planType: null,
   billingPeriod: null,
   status: null,
   currentPeriodEnd: null,
+  cancelAtPeriodEnd: false,
+  canceledAt: null,
+  trialEnd: null,
+  endDate: null,
   hasStripeCustomer: false,
 };
 
-function normalizeBillingPeriodForUi(
-  value: unknown,
-): BillingPeriod | null {
-  if (value === "monthly") return "monthly";
-  if (value === "annual" || value === "yearly") return "annual";
+function normalizeBillingPeriodForUi(value: unknown): BillingPeriod | null {
+  if (value === 'monthly') return 'monthly';
+  if (value === 'annual' || value === 'yearly') return 'annual';
   return null;
 }
 
-async function extractFunctionErrorMessage(fnError: unknown, fallback: string): Promise<string> {
-  const err = fnError as { message?: string; context?: Response } | null;
-  const message = err?.message || fallback;
-
-  const context = err?.context;
-  if (!context) return message;
-
-  try {
-    const body = await context.clone().json() as { error?: string; message?: string };
-    if (body?.error) return body.error;
-    if (body?.message) return body.message;
-  } catch {
-    try {
-      const text = await context.clone().text();
-      if (text?.trim()) return text.trim();
-    } catch {
-      // no-op
-    }
+async function callWithBearerToken<T>(
+  path: string,
+  method: 'GET' | 'POST',
+  body?: unknown,
+): Promise<T> {
+  const accessToken = await getValidAccessToken();
+  const response = await fetch(path, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+  });
+  const data = await response.json().catch(() => null) as T & { error?: string };
+  if (!response.ok) {
+    throw new Error(
+      (data as { error?: string } | null)?.error || `Request failed (${response.status})`,
+    );
   }
-
-  return message;
+  return data;
 }
 
 export function useStripeSubscription(): UseStripeSubscriptionReturn {
   const { user, isAuthenticated } = useAuth();
-  const isBrowser = typeof window !== "undefined";
+  const isBrowser = typeof window !== 'undefined';
   const [subscription, setSubscription] = useState<SubscriptionState>(DEFAULT_SUBSCRIPTION);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const checkSubscription = useCallback(async () => {
-    if (!isBrowser) {
-      setSubscription(DEFAULT_SUBSCRIPTION);
-      return;
-    }
-
-    if (!isAuthenticated) {
+    if (!isBrowser || !isAuthenticated) {
       setSubscription(DEFAULT_SUBSCRIPTION);
       return;
     }
@@ -85,22 +97,31 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
     setError(null);
 
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('check-subscription');
-
-      if (fnError) {
-        throw new Error(await extractFunctionErrorMessage(fnError, 'Failed to check subscription'));
-      }
-
-      if (data?.error) {
-        throw new Error(data.error);
-      }
+      const data = await callWithBearerToken<{
+        subscribed: boolean;
+        tier: string;
+        planType: string | null;
+        billingPeriod: string | null;
+        status: string | null;
+        currentPeriodEnd: string | null;
+        cancelAtPeriodEnd: boolean;
+        canceledAt: string | null;
+        trialEnd: string | null;
+        endDate: string | null;
+        hasStripeCustomer: boolean;
+      }>('/api/subscriptions/current', 'GET');
 
       setSubscription({
         subscribed: data.subscribed ?? false,
-        tier: data.tier ?? 'unverified',
+        tier: (data.tier as SubscriptionState['tier']) ?? 'unverified',
+        planType: (data.planType as SubscriptionState['planType']) ?? null,
         billingPeriod: normalizeBillingPeriodForUi(data.billingPeriod),
-        status: data.status ?? null,
+        status: (data.status as SubscriptionState['status']) ?? null,
         currentPeriodEnd: data.currentPeriodEnd ?? null,
+        cancelAtPeriodEnd: data.cancelAtPeriodEnd ?? false,
+        canceledAt: data.canceledAt ?? null,
+        trialEnd: data.trialEnd ?? null,
+        endDate: data.endDate ?? null,
         hasStripeCustomer: data.hasStripeCustomer ?? false,
       });
     } catch (err) {
@@ -112,82 +133,48 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
     }
   }, [isAuthenticated, isBrowser]);
 
-  const createCheckout = useCallback(async (tier: SubscriptionTier, billingPeriod: BillingPeriod) => {
-    if (!isBrowser) {
-      throw new Error('Checkout is unavailable during server rendering');
-    }
+  const createCheckout = useCallback(
+    async (tier: SubscriptionTier, billingPeriod: BillingPeriod) => {
+      if (!isBrowser) throw new Error('Checkout is unavailable during server rendering');
+      if (!isAuthenticated) throw new Error('You must be logged in to subscribe');
 
-    if (!isAuthenticated) {
-      throw new Error('You must be logged in to subscribe');
-    }
+      setIsLoading(true);
+      setError(null);
 
-    setIsLoading(true);
-    setError(null);
+      try {
+        const data = await callWithBearerToken<{ url?: string }>(
+          '/api/stripe/checkout',
+          'POST',
+          { tier, billing_period: billingPeriod },
+        );
 
-    try {
-      const accessToken = await getValidAccessToken();
-      const response = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          tier,
-          billing_period: billingPeriod,
-        }),
-      });
-
-      const data = (await response.json().catch(() => null)) as
-        | { url?: string; error?: string }
-        | null;
-      if (!response.ok) {
-        throw new Error(data?.error || 'Failed to create checkout session');
+        if (!data?.url) throw new Error('No checkout URL returned');
+        window.open(data.url, '_blank');
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to create checkout session';
+        setError(message);
+        throw err;
+      } finally {
+        setIsLoading(false);
       }
-
-      if (!data?.url) {
-        throw new Error('No checkout URL returned');
-      }
-
-      // Open Stripe Checkout in a new tab
-      window.open(data.url, '_blank');
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to create checkout session';
-      setError(message);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isAuthenticated, isBrowser]);
+    },
+    [isAuthenticated, isBrowser],
+  );
 
   const openCustomerPortal = useCallback(async () => {
-    if (!isBrowser) {
-      throw new Error('Customer portal is unavailable during server rendering');
-    }
-
-    if (!isAuthenticated) {
-      throw new Error('You must be logged in to manage your subscription');
-    }
+    if (!isBrowser) throw new Error('Customer portal is unavailable during server rendering');
+    if (!isAuthenticated) throw new Error('You must be logged in to manage your subscription');
 
     setIsLoading(true);
     setError(null);
 
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('customer-portal');
+      const data = await callWithBearerToken<{ url?: string }>(
+        '/api/stripe/billing-portal',
+        'POST',
+      );
 
-      if (fnError) {
-        throw new Error(await extractFunctionErrorMessage(fnError, 'Failed to open customer portal'));
-      }
-
-      if (data?.error) {
-        throw new Error(data.error);
-      }
-
-      if (!data?.url) {
-        throw new Error('No portal URL returned');
-      }
-
-      // Open Stripe Customer Portal in a new tab
+      if (!data?.url) throw new Error('No portal URL returned');
       window.open(data.url, '_blank');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to open customer portal';
@@ -201,7 +188,6 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
   // Check subscription on mount and when auth changes
   useEffect(() => {
     if (!isBrowser) return;
-
     if (isAuthenticated && user?.role === 'owner') {
       checkSubscription();
     } else {
@@ -212,10 +198,8 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
   // Check subscription on URL params (after Stripe redirect)
   useEffect(() => {
     if (!isBrowser) return;
-
     const params = new URLSearchParams(window.location.search);
     if (params.get('success') === 'true') {
-      // Delay to allow Stripe webhook to process
       const timer = setTimeout(() => {
         checkSubscription();
       }, 2000);
@@ -225,22 +209,12 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
 
   // Periodic refresh every 60 seconds when subscribed
   useEffect(() => {
-    if (!isBrowser) return;
-    if (!subscription.subscribed) return;
-
+    if (!isBrowser || !subscription.subscribed) return;
     const interval = setInterval(() => {
       checkSubscription();
     }, 60000);
-
     return () => clearInterval(interval);
   }, [subscription.subscribed, checkSubscription, isBrowser]);
 
-  return {
-    subscription,
-    isLoading,
-    error,
-    checkSubscription,
-    createCheckout,
-    openCustomerPortal,
-  };
+  return { subscription, isLoading, error, checkSubscription, createCheckout, openCustomerPortal };
 }
