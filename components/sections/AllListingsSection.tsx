@@ -38,6 +38,7 @@ import {
   normalizePlacementSelection,
   resolveListingOrder,
 } from "@/lib/cms/placement-engine";
+import { trackBlockImpression, trackListingClick } from "@/lib/analytics/platformTracking";
 import {
   getTierCardClasses,
   getTierImageZoom,
@@ -164,6 +165,14 @@ export function AllListingsSection() {
   );
 
   const cappedListings = filteredListings;
+
+  useEffect(() => {
+    void trackBlockImpression({
+      blockId: "all-listings",
+      pageId: "home",
+      selection: placementSelection,
+    });
+  }, [placementSelection]);
 
   // Get visible listings
   const visibleListings = cappedListings.slice(0, visibleCount);
@@ -352,6 +361,18 @@ export function AllListingsSection() {
               <Link
                 href={l(`/listing/${listing.slug}`)}
                 className="block h-full"
+                onClick={() =>
+                  void trackListingClick({
+                    listingId: listing.id,
+                    cityId: listing.city_id,
+                    categoryId: listing.category_id,
+                    tier: listing.tier,
+                    position: index + 1,
+                    blockId: "all-listings",
+                    pageId: "home",
+                    selection: placementSelection,
+                  })
+                }
               >
                 <article className={cn(
                   "relative overflow-hidden flex flex-col h-full",
