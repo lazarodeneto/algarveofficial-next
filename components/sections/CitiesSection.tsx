@@ -8,6 +8,7 @@ import { useSavedDestinations } from "@/hooks/useSavedDestinations";
 import { useCities } from "@/hooks/useReferenceData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +22,7 @@ import {
   resolveCityOrderDetailed,
   type PlacementListing,
 } from "@/lib/cms/placement-engine";
+import { trackBlockImpression, trackEvent } from "@/lib/analytics/platformTracking";
 
 export function CitiesSection() {
   const { isDestinationSaved, toggleCity } = useSavedDestinations();
@@ -64,6 +66,14 @@ export function CitiesSection() {
     manualCityIds: validCityIds,
   });
   const citiesToRender = placementResults.map((result) => result.item);
+
+  useEffect(() => {
+    void trackBlockImpression({
+      blockId: "cities",
+      pageId: "home",
+      selection,
+    });
+  }, [selection]);
 
   return (
     <section
@@ -111,6 +121,14 @@ export function CitiesSection() {
                 <Link
                   href={l(`/visit/${city.slug}`)}
                   className="glass-box flex items-center gap-3 p-4 rounded-xl hover:border-primary/30 cursor-pointer"
+                  onClick={() =>
+                    void trackEvent("block_click", {
+                      blockId: "cities",
+                      pageId: "home",
+                      cityId: city.id,
+                      selection,
+                    })
+                  }
                 >
                   {/* Favorite Heart Icon - Clickable (stops propagation) */}
                   <div onClick={(e) => e.preventDefault()}>

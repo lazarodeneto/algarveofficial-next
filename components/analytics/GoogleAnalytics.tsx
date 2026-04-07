@@ -5,8 +5,8 @@ import { useSiteColors } from "@/hooks/useSiteSettings"; // Using lightweight ho
 
 declare global {
   interface Window {
-    dataLayer: unknown[];
-    gtag: (...args: unknown[]) => void;
+    dataLayer?: unknown[];
+    gtag?: (...args: unknown[]) => void;
     [key: `ga-disable-${string}`]: boolean | undefined;
   }
 }
@@ -89,7 +89,7 @@ export function GoogleAnalytics() {
     // Initialize dataLayer and gtag function
     window.dataLayer = window.dataLayer || [];
     window.gtag = function gtag(...args: unknown[]) {
-      window.dataLayer.push(args);
+      (window.dataLayer ||= []).push(args);
     };
     window[`ga-disable-${GA_MEASUREMENT_ID}`] = false;
     window.gtag("js", new Date());
