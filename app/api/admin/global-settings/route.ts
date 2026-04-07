@@ -128,13 +128,6 @@ export async function POST(request: NextRequest) {
     );
   } catch (syncError) {
     console.error("[cms-sync] Failed to mirror global settings into cms_documents:", syncError);
-    if (hasCmsSettings) {
-      return adminErrorResponse(
-        500,
-        "CMS_SYNC_FAILED",
-        "Failed to persist CMS settings to runtime documents.",
-      );
-    }
   }
 
   return NextResponse.json({
