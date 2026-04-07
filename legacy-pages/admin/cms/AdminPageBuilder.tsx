@@ -258,6 +258,7 @@ function AdminPageBuilderContent() {
     () => CMS_PAGE_DEFINITIONS.find((page) => page.id === selectedPageId) ?? CMS_PAGE_DEFINITIONS[0],
     [selectedPageId],
   );
+  const selectedPageLabelForCopy = selectedPageDefinition?.label ?? "selected";
 
   const selectedPageConfig = pageConfigs[selectedPageId] ?? {};
   const selectedPageTextMap = selectedPageConfig.text ?? {};
@@ -924,7 +925,9 @@ function AdminPageBuilderContent() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <p className="text-xs text-muted-foreground">Choose which city to feature prominently on the Destinations page.</p>
+                      <p className="text-xs text-muted-foreground">
+                        {`Choose which city to feature prominently on the ${selectedPageLabelForCopy} page.`}
+                      </p>
                     </div>
                   )}
 
