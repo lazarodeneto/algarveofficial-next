@@ -37,6 +37,12 @@ import {
   validateSelectedCityIds,
 } from "@/lib/cms/city-block-config";
 import { normalizePlacementSelection } from "@/lib/cms/placement-engine";
+import {
+  normalizeListingFilterId,
+  normalizeListingMaxItems,
+  normalizeSelectedListingIds,
+  validateSelectedListingIds,
+} from "@/lib/cms/listing-block-config";
 import { convertToWebP } from "@/lib/imageUtils";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 
@@ -133,6 +139,7 @@ function AdminPageBuilderContent() {
   const [heroUploadTarget, setHeroUploadTarget] = useState<"image" | "video" | "poster" | null>(null);
   const [citySearchQuery, setCitySearchQuery] = useState("");
   const [featuredCitySearchQuery, setFeaturedCitySearchQuery] = useState("");
+  const [listingSearchQuery, setListingSearchQuery] = useState("");
   const heroImageInputRef = useRef<HTMLInputElement | null>(null);
   const heroVideoInputRef = useRef<HTMLInputElement | null>(null);
   const heroPosterInputRef = useRef<HTMLInputElement | null>(null);
@@ -149,6 +156,34 @@ function AdminPageBuilderContent() {
       return data ?? [];
     },
     staleTime: 1000 * 60 * 10,
+  });
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ["admin-categories-for-cms"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("id, name, slug, is_active")
+        .eq("is_active", true)
+        .order("display_order", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+    staleTime: 1000 * 60 * 10,
+  });
+
+  const { data: listingOptions = [] } = useQuery({
+    queryKey: ["admin-listings-for-cms-placement"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("listings")
+        .select("id, name, slug, city_id, category_id, tier, status")
+        .eq("status", "published")
+        .order("name", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+    staleTime: 1000 * 60 * 5,
   });
 
   const setSearchParams = (nextParams: URLSearchParams, options?: { replace?: boolean }) => {
@@ -179,6 +214,7 @@ function AdminPageBuilderContent() {
   useEffect(() => {
     setCitySearchQuery("");
     setFeaturedCitySearchQuery("");
+    setListingSearchQuery("");
   }, [selectedPageId]);
 
   useEffect(() => {
@@ -295,6 +331,48 @@ function AdminPageBuilderContent() {
         selection,
       },
     }));
+  };
+
+  const getListingBlockSelectedIds = (config: CmsBlockConfig) =>
+    normalizeSelectedListingIds(config.data?.selectedListingIds);
+
+  const setListingBlockSelectedIds = (blockId: string, ids: string[]) => {
+    updateBlockConfig(blockId, (current) => ({
+      ...current,
+      data: {
+        ...(current.data ?? {}),
+        selectedListingIds: ids,
+      },
+    }));
+  };
+
+  const setListingBlockFilter = (
+    blockId: string,
+    key: "cityId" | "categoryId" | "listingId",
+    value: string | null,
+  ) => {
+    updateBlockConfig(blockId, (current) => ({
+      ...current,
+      data: {
+        ...(current.data ?? {}),
+        [key]: value ?? "",
+      },
+    }));
+  };
+
+  const setListingBlockMaxItems = (blockId: string, value: number | undefined) => {
+    updateBlockConfig(blockId, (current) => {
+      const nextData = { ...(current.data ?? {}) };
+      if (typeof value === "number") {
+        nextData.maxItems = value;
+      } else {
+        delete nextData.maxItems;
+      }
+      return {
+        ...current,
+        data: nextData,
+      };
+    });
   };
 
   const setPageMeta = (field: "title" | "description", value: string) => {
@@ -748,6 +826,30 @@ function AdminPageBuilderContent() {
                     city.name.toLowerCase().includes(featuredCitySearchQuery.trim().toLowerCase()),
                   )
                 : cities;
+              const isListingPlacementBlock =
+                block.id === "all-listings" ||
+                block.id === "listings" ||
+                block.id === "curated";
+              const listingSelection = getBlockSelection(config);
+              const selectedListingIds = getListingBlockSelectedIds(config);
+              const selectedListingCityId = normalizeListingFilterId(config.data?.cityId);
+              const selectedListingCategoryId = normalizeListingFilterId(config.data?.categoryId);
+              const selectedFeaturedListingId = normalizeListingFilterId(config.data?.listingId);
+              const maxItems = normalizeListingMaxItems(config.data?.maxItems, 24);
+              const placementListingPool = listingOptions.filter((listing) => {
+                if (selectedListingCityId && listing.city_id !== selectedListingCityId) return false;
+                if (selectedListingCategoryId && listing.category_id !== selectedListingCategoryId) return false;
+                return true;
+              });
+              const { validListingIds } = validateSelectedListingIds(selectedListingIds, placementListingPool);
+              const availablePlacementListings = placementListingPool.filter(
+                (listing) => !validListingIds.includes(listing.id),
+              );
+              const visibleAvailablePlacementListings = listingSearchQuery.trim()
+                ? availablePlacementListings.filter((listing) =>
+                    listing.name.toLowerCase().includes(listingSearchQuery.trim().toLowerCase()),
+                  )
+                : availablePlacementListings;
               const defaultEnabled = block.id === "featured-city" ? false : true;
 
               return (
@@ -1035,6 +1137,216 @@ function AdminPageBuilderContent() {
                         <p className="text-xs text-muted-foreground">
                           Hybrid uses curated cities as the candidate pool, then ranks them by tier score.
                         </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {isListingPlacementBlock && (
+                    <div className="space-y-3 border-t border-border pt-3 mt-3">
+                      <div className="space-y-2">
+                        <Label>Selection Strategy</Label>
+                        <Select
+                          value={listingSelection}
+                          onValueChange={(value) =>
+                            setBlockSelection(
+                              block.id,
+                              value === "tier-driven" || value === "hybrid" ? value : "manual",
+                            )
+                          }
+                        >
+                          <SelectTrigger className="bg-background">
+                            <SelectValue placeholder="Select strategy" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="manual">Manual</SelectItem>
+                            <SelectItem value="tier-driven">Tier-driven</SelectItem>
+                            <SelectItem value="hybrid">Hybrid</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground">
+                          Hybrid uses the manual pool when present, then ranks that pool by tier score.
+                        </p>
+                      </div>
+
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label>City Filter (optional)</Label>
+                          <Select
+                            value={selectedListingCityId ?? "__all__"}
+                            onValueChange={(value) =>
+                              setListingBlockFilter(block.id, "cityId", value === "__all__" ? null : value)
+                            }
+                          >
+                            <SelectTrigger className="bg-background">
+                              <SelectValue placeholder="All cities" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="__all__">All cities</SelectItem>
+                              {cities.map((city) => (
+                                <SelectItem key={city.id} value={city.id}>
+                                  {city.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Category Filter (optional)</Label>
+                          <Select
+                            value={selectedListingCategoryId ?? "__all__"}
+                            onValueChange={(value) =>
+                              setListingBlockFilter(block.id, "categoryId", value === "__all__" ? null : value)
+                            }
+                          >
+                            <SelectTrigger className="bg-background">
+                              <SelectValue placeholder="All categories" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="__all__">All categories</SelectItem>
+                              {categories.map((category) => (
+                                <SelectItem key={category.id} value={category.id}>
+                                  {category.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Max Items</Label>
+                        <Input
+                          type="number"
+                          min={1}
+                          value={String(maxItems)}
+                          onChange={(e) => {
+                            const parsed = Number.parseInt(e.target.value, 10);
+                            setListingBlockMaxItems(
+                              block.id,
+                              Number.isFinite(parsed) && parsed > 0 ? parsed : undefined,
+                            );
+                          }}
+                          className="bg-background"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Manual Featured Listing (optional)</Label>
+                        <Select
+                          value={selectedFeaturedListingId ?? "__none__"}
+                          onValueChange={(value) =>
+                            setListingBlockFilter(block.id, "listingId", value === "__none__" ? null : value)
+                          }
+                        >
+                          <SelectTrigger className="bg-background">
+                            <SelectValue placeholder="No manual featured listing" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="__none__">None</SelectItem>
+                            {placementListingPool.map((listing) => (
+                              <SelectItem key={listing.id} value={listing.id}>
+                                {listing.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Add Manual Listings</Label>
+                        <Input
+                          value={listingSearchQuery}
+                          onChange={(e) => setListingSearchQuery(e.target.value)}
+                          className="bg-background"
+                          placeholder="Search listings..."
+                        />
+                        <div className="max-h-40 overflow-y-auto rounded-md border border-border bg-background p-2 space-y-1">
+                          {visibleAvailablePlacementListings.map((listing) => (
+                            <Button
+                              key={listing.id}
+                              variant="ghost"
+                              className="w-full justify-start"
+                              onClick={() =>
+                                setListingBlockSelectedIds(block.id, [...validListingIds, listing.id])
+                              }
+                            >
+                              {listing.name}
+                            </Button>
+                          ))}
+                          {visibleAvailablePlacementListings.length === 0 ? (
+                            <p className="px-2 py-1 text-xs text-muted-foreground">No matching listings.</p>
+                          ) : null}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Selected Listings (manual order)</Label>
+                        <div className="space-y-2">
+                          {validListingIds.map((listingId, index) => {
+                            const listing = placementListingPool.find((row) => row.id === listingId);
+                            if (!listing) return null;
+
+                            return (
+                              <div
+                                key={listing.id}
+                                className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2"
+                              >
+                                <span className="text-sm">{listing.name}</span>
+                                <div className="flex items-center gap-1">
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    disabled={index === 0}
+                                    onClick={() => {
+                                      const next = [...validListingIds];
+                                      const swap = next[index - 1];
+                                      next[index - 1] = next[index];
+                                      next[index] = swap;
+                                      setListingBlockSelectedIds(block.id, next);
+                                    }}
+                                  >
+                                    <ArrowUp className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    disabled={index === validListingIds.length - 1}
+                                    onClick={() => {
+                                      const next = [...validListingIds];
+                                      const swap = next[index + 1];
+                                      next[index + 1] = next[index];
+                                      next[index] = swap;
+                                      setListingBlockSelectedIds(block.id, next);
+                                    }}
+                                  >
+                                    <ArrowDown className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() =>
+                                      setListingBlockSelectedIds(
+                                        block.id,
+                                        validListingIds.filter((id) => id !== listing.id),
+                                      )
+                                    }
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                          {validListingIds.length === 0 ? (
+                            <p className="text-xs text-muted-foreground">
+                              No listings selected. Manual/hybrid mode will fallback deterministically.
+                            </p>
+                          ) : null}
+                        </div>
                       </div>
                     </div>
                   )}
