@@ -22,7 +22,8 @@
     "test": "vitest run",
     "test:contracts": "vitest run proxy.test.ts lib/i18n/seo.test.ts lib/i18n/localized-metadata-coverage.contract.test.ts lib/cms/pageBuilderRegistry.contract.test.ts lib/cms/pageBuilderRegistry.normalize.test.ts lib/cms/page-builder-locale.contract.test.ts lib/cms/server-persistence.test.ts lib/cms/runtime-resolver.test.ts lib/admin/settings-contract.test.ts lib/admin/navigation-contract.test.ts lib/admin/footer-contract.test.ts lib/admin/taxonomy-contract.test.ts lib/admin/email-contract.test.ts lib/admin/admin-route-contract.test.ts lib/admin/admin-mutation-auth.contract.test.ts lib/admin/admin-read-route.contract.test.ts lib/admin/email-write-path.contract.test.ts lib/admin/admin-api-runtime.test.ts lib/subscriptions/pricing-api.test.ts lib/legal/settings.test.ts",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "verify:remediation": "npm run typecheck && npm run test:contracts"
   },
   "dependencies": {
     "@dnd-kit/sortable": "^10.0.0",

@@ -27,7 +27,6 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { SeoHead } from '@/components/seo/SeoHead';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { 
   usePublishedBlogPost, 
@@ -104,16 +103,6 @@ export default function BlogPost() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SeoHead
-        title={post.title}
-        description={post.excerpt || 'Discover premium travel, lifestyle, and insider insights from the Algarve.'}
-        canonicalUrl={`https://algarveofficial.com/blog/${post.slug}`}
-        ogImage={post.featured_image || undefined}
-        ogType="article"
-        publishedTime={post.published_at || post.created_at}
-        modifiedTime={post.updated_at || post.published_at || post.created_at}
-        keywords={post.tags?.length ? post.tags.join(", ") : "Algarve blog, premium travel, Portugal lifestyle"}
-      />
       <BreadcrumbJsonLd
         items={[
           { name: "Home", url: "https://algarveofficial.com/" },

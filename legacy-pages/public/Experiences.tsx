@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { SeoHead } from "@/components/seo/SeoHead";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -268,25 +267,6 @@ const Experiences = () => {
       className="min-h-screen bg-background text-foreground"
       data-cms-page="experiences"
     >
-      <SeoHead
-        title={getMetaTitle(
-          getText(
-            "seo.title",
-            "Experiences in the Algarve",
-          ),
-        )}
-        description={getMetaDescription(
-          getText(
-            "seo.description",
-            "Discover curated experiences across the Algarve — from wine tastings and boat tours to golf, wellness, and cultural adventures.",
-          ),
-        )}
-        canonicalUrl="https://algarveofficial.com/experiences"
-        keywords={getText(
-          "seo.keywords",
-          "Algarve experiences, things to do Algarve, Algarve tours, Algarve activities, Algarve adventures",
-        )}
-      />
 
       <Header />
       {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}

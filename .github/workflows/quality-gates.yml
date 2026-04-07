@@ -27,11 +27,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint + Typecheck
-        run: npm run check
+      - name: Lint
+        run: npm run lint
 
-      - name: Contract regression suite
-        run: npm run test:contracts
+      - name: Remediation verification (typecheck + contracts)
+        run: npm run verify:remediation
 
       # ─── i18n parity check ──────────────────────────────────────────────────
       # Blocks the build if any locale is missing keys from the EN baseline.
