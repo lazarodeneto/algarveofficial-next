@@ -12,7 +12,7 @@ import {
 } from "@/lib/cms/city-block-config";
 import {
   normalizePlacementSelection,
-  resolveFeaturedCity,
+  resolveFeaturedCityDetailed,
   type PlacementListing,
 } from "@/lib/cms/placement-engine";
 
@@ -46,12 +46,13 @@ export function FeaturedCitySection() {
     featuredCityId ? [featuredCityId] : [],
     cities,
   );
-  const selectedCity = resolveFeaturedCity({
+  const placementResult = resolveFeaturedCityDetailed({
     selection,
     cities,
     listings: cityListings,
     manualCityId: validCityIds[0] ?? null,
   });
+  const selectedCity = placementResult?.item ?? null;
 
   if (!selectedCity) {
     return null;

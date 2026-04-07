@@ -27,6 +27,17 @@ import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import { Skeleton } from "@/components/ui/skeleton";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
 import { useHydrated } from "@/hooks/useHydrated";
+import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
+import {
+  normalizeListingFilterId,
+  normalizeListingMaxItems,
+  normalizeSelectedListingIds,
+  validateSelectedListingIds,
+} from "@/lib/cms/listing-block-config";
+import {
+  normalizePlacementSelection,
+  resolveListingOrder,
+} from "@/lib/cms/placement-engine";
 import {
   getTierCardClasses,
   getTierImageZoom,
@@ -69,6 +80,8 @@ export function AllListingsSection() {
   const { isFavorite, toggleFavorite } = useFavoriteListings();
   const { t } = useTranslation();
   const l = useLocalePath();
+  const { getBlockData } = useCmsPageBuilder("home");
+  const listingBlockData = getBlockData("all-listings");
 
   // Fetch data from Supabase once and filter locally to avoid extra roundtrips
   const { data: allListings = [], isLoading: listingsLoading, error: listingsError } = usePublishedListings();
@@ -78,6 +91,13 @@ export function AllListingsSection() {
 
   const isLoading = !mounted || listingsLoading || categoriesLoading || citiesLoading || regionsLoading;
   const hasError = Boolean(listingsError || categoriesError || citiesError || regionsError);
+
+  const placementSelection = normalizePlacementSelection(listingBlockData.selection);
+  const configuredCityId = normalizeListingFilterId(listingBlockData.cityId);
+  const configuredCategoryId = normalizeListingFilterId(listingBlockData.categoryId);
+  const configuredMaxItems = normalizeListingMaxItems(listingBlockData.maxItems, MAX_HOME_LISTINGS);
+  const configuredListingIds = normalizeSelectedListingIds(listingBlockData.selectedListingIds);
+  const { validListingIds } = validateSelectedListingIds(configuredListingIds, allListings);
 
   const mergedCategories = useMemo(
     () => buildMergedCategoryOptions(categories || []),
@@ -107,9 +127,29 @@ export function AllListingsSection() {
   const citySelectValue = selectedCity === "all" ? "all" : resolvedCityId;
   const regionSelectValue = selectedRegion === "all" ? "all" : resolvedRegionId;
 
+  const placedListings = useMemo(
+    () =>
+      resolveListingOrder({
+        selection: placementSelection,
+        listings: allListings,
+        manualListingIds: validListingIds,
+        cityId: configuredCityId ?? undefined,
+        categoryId: configuredCategoryId ?? undefined,
+        maxItems: configuredMaxItems,
+      }),
+    [
+      allListings,
+      placementSelection,
+      validListingIds,
+      configuredCityId,
+      configuredCategoryId,
+      configuredMaxItems,
+    ],
+  );
+
   const filteredListings = useMemo(
     () =>
-      allListings.filter((listing) => {
+      placedListings.filter((listing) => {
         if (
           selectedCategory !== "all" &&
           (!selectedMergedCategory || !selectedMergedCategory.memberIds.includes(listing.category_id))
@@ -120,23 +160,10 @@ export function AllListingsSection() {
         if (resolvedRegionId !== "all" && listing.region_id !== resolvedRegionId) return false;
         return true;
       }),
-    [allListings, selectedCategory, selectedMergedCategory, resolvedCityId, resolvedRegionId]
+    [placedListings, selectedCategory, selectedMergedCategory, resolvedCityId, resolvedRegionId]
   );
 
-  // Sort: curated first, then by tier, then alphabetically
-  const sortedListings = useMemo(() => {
-    return [...filteredListings].sort((a, b) => {
-      if (a.is_curated !== b.is_curated) return a.is_curated ? -1 : 1;
-      const tierOrder: Record<string, number> = { signature: 0, verified: 1, unverified: 2 };
-      if (tierOrder[a.tier] !== tierOrder[b.tier]) return tierOrder[a.tier] - tierOrder[b.tier];
-      return a.name.localeCompare(b.name);
-    });
-  }, [filteredListings]);
-
-  const cappedListings = useMemo(
-    () => sortedListings.slice(0, MAX_HOME_LISTINGS),
-    [sortedListings]
-  );
+  const cappedListings = filteredListings;
 
   // Get visible listings
   const visibleListings = cappedListings.slice(0, visibleCount);
