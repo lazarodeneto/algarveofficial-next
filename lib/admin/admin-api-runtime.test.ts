@@ -445,46 +445,55 @@ describe("admin cms documents route runtime", () => {
   });
 
   it("returns documents with versions when include_versions=true", async () => {
+    const docsEq = vi.fn().mockResolvedValue({
+      data: [
+        {
+          id: 1,
+          page_id: "home",
+          block_id: null,
+          locale: "pt-pt",
+          doc_type: "page_config",
+          status: "published",
+          current_version_id: 11,
+          created_at: "2026-01-01T00:00:00.000Z",
+          updated_at: "2026-01-02T00:00:00.000Z",
+        },
+      ],
+      error: null,
+    });
+    const docsRange = vi.fn(() => ({ eq: docsEq }));
+    const docsOrder = vi.fn(() => ({ range: docsRange }));
     const documentQuery = {
       select: vi.fn(() => ({
-        order: vi.fn(() => ({
-          limit: vi.fn(() => ({
-            eq: vi.fn().mockResolvedValue({
-              data: [
-                {
-                  id: 1,
-                  page_id: "home",
-                  block_id: null,
-                  locale: "pt-pt",
-                  doc_type: "page_config",
-                  status: "published",
-                  current_version_id: 11,
-                  created_at: "2026-01-01T00:00:00.000Z",
-                  updated_at: "2026-01-02T00:00:00.000Z",
-                },
-              ],
-              error: null,
-            }),
-          })),
-        })),
+        order: docsOrder,
       })),
     };
+    const versionsSecondOrder = vi.fn().mockResolvedValue({
+      data: [
+        {
+          id: 11,
+          document_id: 1,
+          version: 3,
+          content: { text: { "hero.title": "Olá" } },
+          created_at: "2026-01-02T00:00:00.000Z",
+          created_by: null,
+        },
+        {
+          id: 10,
+          document_id: 1,
+          version: 2,
+          content: { text: { "hero.title": "Olá-older" } },
+          created_at: "2026-01-01T00:00:00.000Z",
+          created_by: null,
+        },
+      ],
+      error: null,
+    });
+    const versionsFirstOrder = vi.fn(() => ({ order: versionsSecondOrder }));
     const versionsQuery = {
       select: vi.fn(() => ({
         in: vi.fn(() => ({
-          order: vi.fn().mockResolvedValue({
-            data: [
-              {
-                id: 11,
-                document_id: 1,
-                version: 3,
-                content: { text: { "hero.title": "Olá" } },
-                created_at: "2026-01-02T00:00:00.000Z",
-                created_by: null,
-              },
-            ],
-            error: null,
-          }),
+          order: versionsFirstOrder,
         })),
       })),
     };
@@ -501,14 +510,22 @@ describe("admin cms documents route runtime", () => {
     });
 
     const response = await getCmsDocumentsRoute(
-      getRequest("/api/admin/cms/documents?page_id=home&include_versions=true"),
+      getRequest("/api/admin/cms/documents?page_id=home&include_versions=true&version_limit=1"),
     );
-    const payload = (await response.json()) as { ok?: boolean; data?: Array<{ versions?: unknown[] }> };
+    const payload = (await response.json()) as {
+      ok?: boolean;
+      data?: Array<{ versions?: unknown[] }>;
+      meta?: { version_limit?: number };
+    };
 
     expect(response.status).toBe(200);
     expect(payload.ok).toBe(true);
     expect(payload.data?.[0]?.versions).toHaveLength(1);
+    expect(payload.meta?.version_limit).toBe(1);
     expect(from).toHaveBeenCalledWith("cms_documents");
     expect(from).toHaveBeenCalledWith("cms_document_versions");
+    expect(docsRange).toHaveBeenCalledWith(0, 49);
+    expect(versionsFirstOrder).toHaveBeenCalledWith("document_id", { ascending: true });
+    expect(versionsSecondOrder).toHaveBeenCalledWith("version", { ascending: false });
   });
 });
