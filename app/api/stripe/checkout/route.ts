@@ -1,0 +1,191 @@
+import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
+import { createClient } from "@supabase/supabase-js";
+
+import type { Database } from "@/integrations/supabase/types";
+import { normalizePricingBillingPeriod, normalizePricingTier } from "@/lib/pricing/pricing-resolver";
+import { createServiceRoleClient } from "@/lib/supabase/service";
+import { getSupabasePublicEnv } from "@/lib/supabase/env";
+
+export const runtime = "nodejs";
+
+type PaidTier = "verified" | "signature";
+type BillingPeriod = "monthly" | "yearly" | "promo";
+
+function getStripeClient() {
+  const stripeKey = process.env.STRIPE_SECRET_KEY?.trim();
+  if (!stripeKey) return null;
+  return new Stripe(stripeKey);
+}
+
+function getBearerToken(request: NextRequest) {
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader) return null;
+  const [scheme, token] = authHeader.split(" ");
+  if (!scheme || !token || scheme.toLowerCase() !== "bearer") return null;
+  return token.trim();
+}
+
+async function requireAuthenticatedOwner(request: NextRequest) {
+  const token = getBearerToken(request);
+  if (!token) {
+    return { error: NextResponse.json({ error: "Missing authorization token." }, { status: 401 }) };
+  }
+
+  const { url, anonKey } = getSupabasePublicEnv();
+  const userClient = createClient<Database>(url, anonKey, {
+    global: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+
+  const { data: userData, error: userError } = await userClient.auth.getUser();
+  if (userError || !userData.user) {
+    return { error: NextResponse.json({ error: "Unauthorized." }, { status: 401 }) };
+  }
+
+  const { data: userRole, error: roleError } = await userClient.rpc("get_user_role", {
+    _user_id: userData.user.id,
+  });
+
+  if (roleError) {
+    return {
+      error: NextResponse.json(
+        { error: roleError.message || "Failed to verify user role." },
+        { status: 403 },
+      ),
+    };
+  }
+
+  if (userRole !== "owner" && userRole !== "admin") {
+    return { error: NextResponse.json({ error: "Only owners can start checkout." }, { status: 403 }) };
+  }
+
+  return {
+    userId: userData.user.id,
+  };
+}
+
+function normalizePaidTier(value: unknown): PaidTier | null {
+  if (typeof value !== "string") return null;
+  const tier = normalizePricingTier(value);
+  if (tier === "verified" || tier === "signature") return tier;
+  return null;
+}
+
+function normalizeCheckoutBillingPeriod(value: unknown): BillingPeriod | null {
+  if (typeof value !== "string") return null;
+  const period = normalizePricingBillingPeriod(value);
+  if (period === "monthly" || period === "yearly" || period === "promo") return period;
+  return null;
+}
+
+function resolveSiteUrl(request: NextRequest) {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (configured) return configured.replace(/\/$/, "");
+  return request.nextUrl.origin;
+}
+
+export async function POST(request: NextRequest) {
+  const stripe = getStripeClient();
+  if (!stripe) {
+    return NextResponse.json({ error: "Missing STRIPE_SECRET_KEY." }, { status: 500 });
+  }
+
+  const auth = await requireAuthenticatedOwner(request);
+  if ("error" in auth) return auth.error;
+
+  const supabase = createServiceRoleClient();
+  if (!supabase) {
+    return NextResponse.json({ error: "Server is missing service role configuration." }, { status: 500 });
+  }
+
+  let body: { tier?: string; billing_period?: string } | null = null;
+  try {
+    body = (await request.json()) as { tier?: string; billing_period?: string };
+  } catch {
+    body = null;
+  }
+
+  const tier = normalizePaidTier(body?.tier);
+  const billingPeriod = normalizeCheckoutBillingPeriod(body?.billing_period);
+
+  if (!tier || !billingPeriod) {
+    return NextResponse.json({ error: "Invalid pricing selection." }, { status: 400 });
+  }
+
+  const { data: pricingRows, error: pricingError } = await supabase
+    .from("subscription_pricing")
+    .select("id, tier, billing_period, stripe_price_id, is_active, valid_from, valid_to, price_cents, currency")
+    .eq("tier", tier)
+    .eq("billing_period", billingPeriod)
+    .eq("is_active", true)
+    .order("created_at", { ascending: false })
+    .order("updated_at", { ascending: false })
+    .limit(1);
+
+  if (pricingError) {
+    return NextResponse.json({ error: "Failed to resolve pricing." }, { status: 500 });
+  }
+
+  const pricing = pricingRows?.[0];
+  if (!pricing?.stripe_price_id) {
+    return NextResponse.json(
+      { error: "No Stripe price mapping found for the selected pricing row." },
+      { status: 400 },
+    );
+  }
+
+  if (billingPeriod === "promo") {
+    if (!pricing.valid_from || !pricing.valid_to) {
+      return NextResponse.json({ error: "Promo pricing is missing validity dates." }, { status: 400 });
+    }
+
+    const today = new Date().toISOString().slice(0, 10);
+    if (today < pricing.valid_from || today > pricing.valid_to) {
+      return NextResponse.json({ error: "Promo pricing is not active." }, { status: 400 });
+    }
+  }
+
+  const siteUrl = resolveSiteUrl(request);
+  const successUrl = `${siteUrl}/owner/membership?success=true`;
+  const cancelUrl = `${siteUrl}/owner/membership?canceled=true`;
+  const mode = billingPeriod === "promo" ? "payment" : "subscription";
+
+  const session = await stripe.checkout.sessions.create({
+    mode,
+    line_items: [{ price: pricing.stripe_price_id, quantity: 1 }],
+    success_url: successUrl,
+    cancel_url: cancelUrl,
+    ...(mode === "subscription"
+      ? {
+          subscription_data: {
+            metadata: {
+              userId: auth.userId,
+              tier,
+              billing_period: billingPeriod,
+              pricing_id: pricing.id,
+            },
+          },
+        }
+      : {}),
+    metadata: {
+      userId: auth.userId,
+      tier,
+      billing_period: billingPeriod,
+      pricing_id: pricing.id,
+      price_cents: String(pricing.price_cents),
+      currency: pricing.currency ?? "EUR",
+    },
+  });
+
+  return NextResponse.json({
+    url: session.url,
+  });
+}

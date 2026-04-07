@@ -30,6 +30,10 @@ This repository uses ordered SQL migrations under `/supabase/migrations`.
   - Introduces versioned CMS document model (`cms_documents`, `cms_document_versions`) used by runtime resolver.
 - `010_hot_path_indexes.sql`
   - Adds indexes for high-traffic read/write paths used by listings directory, taxonomy lists, pricing reads, and reviews.
+- `011_tier_pricing_model.sql`
+  - Normalizes `subscription_pricing` to canonical `monthly` / `yearly` / `promo` periods, adds explicit `price_cents` / `currency` / validity metadata, and seeds the platform pricing rows for verified and signature tiers.
+- `012_stripe_price_mapping.sql`
+  - Adds `subscription_pricing.stripe_price_id` and owner subscription pricing snapshot columns used by Stripe checkout/webhook synchronization.
 
 ## Index coverage map
 
@@ -47,6 +51,10 @@ This repository uses ordered SQL migrations under `/supabase/migrations`.
   - Category filters and browse pages.
 - `subscription_pricing(tier, period, is_active, start_date, end_date)`
   - Pricing retrieval in admin/public subscription flows.
+- `subscription_pricing(tier, billing_period, created_at desc)`
+  - Canonical tier pricing resolution and promo fallback lookups.
+- `subscription_pricing(stripe_price_id) WHERE stripe_price_id IS NOT NULL`
+  - Fast Stripe webhook/checkout mapping from Stripe price to DB pricing row.
 - `reviews(listing_id, is_approved, created_at desc)`
   - Listing review aggregations.
 

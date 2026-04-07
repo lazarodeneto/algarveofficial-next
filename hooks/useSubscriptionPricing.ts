@@ -1,25 +1,36 @@
 "use client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { format as formatDate } from "date-fns";
+
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { getValidAccessToken } from "@/lib/authToken";
+import type {
+  PricingCatalogSnapshot,
+  ResolvedPrice,
+} from "@/lib/pricing/pricing-resolver";
 import { extractPricingApiErrorMessage } from "@/lib/subscriptions/pricing-api";
 import { toast } from "sonner";
-import { TFunction } from "i18next";
+import type { TFunction } from "i18next";
 
 export interface SubscriptionPricing {
   id: string;
-  tier: 'verified' | 'signature';
+  tier: "verified" | "signature";
   billing_period: string;
   price: number;
+  price_cents: number;
+  stripe_price_id: string | null;
+  currency: string;
   display_price: string;
   note: string;
+  valid_from: string | null;
+  valid_to: string | null;
+  is_active: boolean;
   period_length: number | null;
-  period_unit: 'days' | 'months' | null;
+  period_unit: "days" | "months" | null;
   period_start_date: string | null;
   period_end_date: string | null;
   monthly_equivalent: string | null;
-  savings: number;
+  savings: number | null;
+  created_at: string;
   updated_at: string;
 }
 
@@ -27,7 +38,7 @@ export interface PromotionalCode {
   id: string;
   name: string;
   code: string;
-  discount_type: 'percentage' | 'fixed';
+  discount_type: "percentage" | "fixed";
   discount_value: number;
   applicable_tiers: string[];
   applicable_billing: string[];
@@ -36,7 +47,7 @@ export interface PromotionalCode {
   is_active: boolean;
   max_uses: number | null;
   period_length: number | null;
-  period_unit: 'days' | 'months' | null;
+  period_unit: "days" | "months" | null;
   current_uses: number;
   created_at: string;
   updated_at: string;
@@ -48,8 +59,9 @@ export interface PricingOption {
   note: string;
   monthlyEquivalent?: string;
   savings?: number;
-  originalPrice?: number;
-  originalDisplay?: string;
+  validFrom?: string | null;
+  validTo?: string | null;
+  isPromo?: boolean;
 }
 
 export interface MembershipTier {
@@ -57,10 +69,16 @@ export interface MembershipTier {
   name: string;
   monthly: PricingOption;
   annual: PricingOption;
-  period?: PricingOption;
+  promo?: PricingOption;
   benefits: string[];
   limitations: string[];
   highlight: boolean;
+}
+
+interface PricingCatalogApiResponse {
+  ok: true;
+  generatedAt: string;
+  tiers: PricingCatalogSnapshot["tiers"];
 }
 
 async function callAdminPricingApi(
@@ -77,13 +95,7 @@ async function callAdminPricingApi(
     body: JSON.stringify(payload),
   });
 
-  let data: unknown = null;
-  try {
-    data = await response.json();
-  } catch {
-    data = null;
-  }
-
+  const data = (await response.json().catch(() => null)) as unknown;
   if (!response.ok) {
     const fallbackMessage =
       method === "POST"
@@ -116,205 +128,155 @@ async function callAdminPromotionsApi(
   }
 }
 
-// Static benefits/limitations keys for translation
 const tierBenefitKeys = {
   unverified: {
-    benefits: ['tiers.free.benefits.createListing', 'tiers.free.benefits.standardVisibility'],
-    limitations: ['tiers.free.limitations.limitedVisibility', 'tiers.free.limitations.noPrioritySupport', 'tiers.free.limitations.notEligibleCurated'],
+    benefits: ["tiers.free.benefits.createListing", "tiers.free.benefits.standardVisibility"],
+    limitations: [
+      "tiers.free.limitations.limitedVisibility",
+      "tiers.free.limitations.noPrioritySupport",
+      "tiers.free.limitations.notEligibleCurated",
+    ],
   },
   verified: {
-    benefits: ['tiers.verified.benefits.badge', 'tiers.verified.benefits.searchRanking', 'tiers.verified.benefits.prioritySupport', 'CTA or WhatsApp button'],
+    benefits: [
+      "tiers.verified.benefits.badge",
+      "tiers.verified.benefits.searchRanking",
+      "tiers.verified.benefits.prioritySupport",
+      "CTA or WhatsApp button",
+    ],
     limitations: [],
   },
   signature: {
     benefits: [
-      'tiers.signature.benefits.badge',
-      'tiers.signature.benefits.topRanking',
-      'tiers.signature.benefits.eligibleCurated',
-      'tiers.signature.benefits.accountManager',
-      'Listed on homepage',
-      'Photo Gallery enhanced',
-      'Video interview (up to 3 min)',
-      'Video commercial (up to 1 min)',
-      'Social media mentions',
-      'CTA or WhatsApp button',
+      "tiers.signature.benefits.badge",
+      "tiers.signature.benefits.topRanking",
+      "tiers.signature.benefits.eligibleCurated",
+      "tiers.signature.benefits.accountManager",
+      "Listed on homepage",
+      "Photo Gallery enhanced",
+      "Video interview (up to 3 min)",
+      "Video commercial (up to 1 min)",
+      "Social media mentions",
+      "CTA or WhatsApp button",
     ],
     limitations: [],
   },
 };
 
+function buildPricingOption(
+  price: ResolvedPrice | null | undefined,
+  fallbackNote: string,
+): PricingOption {
+  if (!price) {
+    return {
+      price: 0,
+      display: "€0",
+      note: fallbackNote,
+    };
+  }
+
+  return {
+    price: price.priceCents,
+    display: price.displayPrice,
+    note: price.note || fallbackNote,
+    monthlyEquivalent: price.monthlyEquivalent ?? undefined,
+    savings: price.savings ?? undefined,
+    validFrom: price.validFrom,
+    validTo: price.validTo,
+    isPromo: price.billingPeriod === "promo",
+  };
+}
+
 export function useSubscriptionPricing(t?: TFunction) {
   const queryClient = useQueryClient();
+  const isAdminMode = !t;
 
-  // Fetch subscription pricing
   const pricingQuery = useQuery({
-    queryKey: ['subscription-pricing'],
+    queryKey: ["subscription-pricing", "admin"],
+    enabled: isAdminMode,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('subscription_pricing')
-        .select('*')
-        .order('tier', { ascending: true })
-        .order('billing_period', { ascending: true });
+        .from("subscription_pricing")
+        .select("*")
+        .order("tier", { ascending: true })
+        .order("billing_period", { ascending: true })
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       return data as SubscriptionPricing[];
     },
   });
 
-  // Fetch promotional codes (admin only)
+  const pricingCatalogQuery = useQuery({
+    queryKey: ["subscription-pricing", "catalog"],
+    queryFn: async () => {
+      const response = await fetch("/api/pricing", { cache: "no-store" });
+      const data = (await response.json().catch(() => null)) as
+        | PricingCatalogApiResponse
+        | { error?: { message?: string } }
+        | null;
+
+      if (!response.ok || !data || !("ok" in data) || !data.ok) {
+        const errorMessage =
+          data && "error" in data && data.error?.message
+            ? data.error.message
+            : "Failed to load pricing catalog.";
+        throw new Error(errorMessage);
+      }
+
+      return data;
+    },
+  });
+
   const promotionsQuery = useQuery({
-    queryKey: ['promotional-codes'],
+    queryKey: ["promotional-codes"],
+    enabled: isAdminMode,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('promotional_codes')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .from("promotional_codes")
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       return data as PromotionalCode[];
     },
   });
 
-  // Get active promotion (if any, based on dates and is_active)
-  const getActivePromotion = (tier: string, billingPeriod: string): PromotionalCode | null => {
-    if (!promotionsQuery.data) return null;
-
-    const normalizedBilling = billingPeriod.toLowerCase();
-    const isStandardBilling = normalizedBilling === "monthly" || normalizedBilling === "annual";
-
-    const now = new Date();
-    return promotionsQuery.data.find(promo => {
-      if (!promo.is_active) return false;
-      const start = new Date(promo.start_date);
-      const end = new Date(promo.end_date);
-      if (now < start || now > end) return false;
-      if (promo.max_uses !== null && promo.current_uses >= promo.max_uses) return false;
-      if (!promo.applicable_tiers.includes(tier) && !promo.applicable_tiers.includes('all')) return false;
-      const matchesExactBilling = promo.applicable_billing.includes(normalizedBilling);
-      const matchesCustomPeriod = !isStandardBilling && promo.applicable_billing.includes("period");
-      if (!matchesExactBilling && !matchesCustomPeriod && !promo.applicable_billing.includes('all')) return false;
-      return true;
-    }) || null;
-  };
-
-  // Helper to translate benefit/limitation keys
   const translateKeys = (keys: string[]): string[] => {
     if (!t) return keys;
-    return keys.map(key => t(key));
+    return keys.map((key) => t(key));
   };
 
-  // Transform pricing data into MembershipTier format
   const getMembershipTiers = (): MembershipTier[] => {
-    const pricing = pricingQuery.data || [];
-    
-    // Free tier (always static)
+    const catalog = pricingCatalogQuery.data?.tiers;
+
     const freeTier: MembershipTier = {
-      id: 'unverified',
-      name: t ? t('tiers.free.name') : 'Free',
-      monthly: { price: 0, display: '€0', note: t ? t('tiers.free.alwaysFree') : 'Always free' },
-      annual: { price: 0, display: '€0', note: t ? t('tiers.free.alwaysFree') : 'Always free' },
+      id: "unverified",
+      name: t ? t("tiers.free.name") : "Free",
+      monthly: { price: 0, display: "€0", note: t ? t("tiers.free.alwaysFree") : "Always free" },
+      annual: { price: 0, display: "€0", note: t ? t("tiers.free.alwaysFree") : "Always free" },
       benefits: translateKeys(tierBenefitKeys.unverified.benefits),
       limitations: translateKeys(tierBenefitKeys.unverified.limitations),
       highlight: false,
     };
 
-    // Build verified and signature tiers from database
-    const buildTierPricing = (tierId: 'verified' | 'signature'): { monthly: PricingOption; annual: PricingOption; period?: PricingOption } => {
-      const monthlyData = pricing.find(p => p.tier === tierId && p.billing_period === 'monthly');
-      const annualData = pricing.find(p => p.tier === tierId && p.billing_period === 'annual');
-      const periodData = pricing.find(p => p.tier === tierId && p.billing_period === 'period');
-
-      // Apply promotions if applicable
-      const monthlyPromo = getActivePromotion(tierId, 'monthly');
-      const annualPromo = getActivePromotion(tierId, 'annual');
-      const periodPromo = periodData ? getActivePromotion(tierId, 'period') : null;
-
-      const applyDiscount = (price: number, promo: PromotionalCode | null): { finalPrice: number; originalPrice?: number } => {
-        if (!promo) return { finalPrice: price };
-        const originalPrice = price;
-        const discount = promo.discount_type === 'percentage' 
-          ? Math.round(price * (promo.discount_value / 100))
-          : promo.discount_value * 100; // fixed discount is in euros, price is in cents
-        return { finalPrice: Math.max(0, price - discount), originalPrice };
-      };
-
-      const monthlyDiscount = monthlyData ? applyDiscount(monthlyData.price, monthlyPromo) : { finalPrice: 0 };
-      const annualDiscount = annualData ? applyDiscount(annualData.price, annualPromo) : { finalPrice: 0 };
-      const periodDiscount = periodData ? applyDiscount(periodData.price, periodPromo) : { finalPrice: 0 };
-
-      const formatCents = (cents: number) => `€${(cents / 100).toLocaleString('en-IE', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
-      const getPeriodNote = (
-        length: number | null | undefined,
-        unit: 'days' | 'months' | null | undefined,
-        startDate: string | null | undefined,
-        endDate: string | null | undefined
-      ) => {
-        if (startDate && endDate) {
-          const start = new Date(startDate);
-          const end = new Date(endDate);
-          if (!Number.isNaN(start.getTime()) && !Number.isNaN(end.getTime())) {
-            return `${formatDate(start, "MMM d, yyyy")} - ${formatDate(end, "MMM d, yyyy")}`;
-          }
-        }
-        if (!length || !unit) return t ? t('admin.subscriptions.periodAdminDefined', 'Admin-defined period') : 'Admin-defined period';
-        const singularUnit = unit === 'days' ? 'day' : 'month';
-        const pluralUnit = unit === 'days' ? 'days' : 'months';
-        return `per ${length} ${length === 1 ? singularUnit : pluralUnit}`;
-      };
-
-      return {
-        monthly: {
-          price: monthlyDiscount.finalPrice,
-          display: monthlyDiscount.originalPrice != null
-            ? formatCents(monthlyDiscount.finalPrice)
-            : monthlyData?.display_price || '€0',
-          note: monthlyData?.note || 'per month',
-          originalPrice: monthlyDiscount.originalPrice,
-          originalDisplay: monthlyDiscount.originalPrice != null ? monthlyData?.display_price : undefined,
-        },
-        annual: {
-          price: annualDiscount.finalPrice,
-          display: annualDiscount.originalPrice != null
-            ? formatCents(annualDiscount.finalPrice)
-            : annualData?.display_price || '€0',
-          note: annualData?.note || 'per year',
-          monthlyEquivalent: annualData?.monthly_equivalent || undefined,
-          savings: annualData?.savings || 0,
-          originalPrice: annualDiscount.originalPrice,
-          originalDisplay: annualDiscount.originalPrice != null ? annualData?.display_price : undefined,
-        },
-        period: periodData
-          ? {
-              price: periodDiscount.finalPrice,
-              display: periodDiscount.originalPrice != null
-                ? formatCents(periodDiscount.finalPrice)
-                : periodData.display_price || '€0',
-              note: periodData.note || getPeriodNote(
-                periodData.period_length,
-                periodData.period_unit,
-                periodData.period_start_date,
-                periodData.period_end_date
-              ),
-              originalPrice: periodDiscount.originalPrice,
-              originalDisplay: periodDiscount.originalPrice != null ? periodData.display_price : undefined,
-            }
-          : undefined,
-      };
-    };
-
     const verifiedTier: MembershipTier = {
-      id: 'verified',
-      name: t ? t('tiers.verified.name') : 'Verified',
-      ...buildTierPricing('verified'),
+      id: "verified",
+      name: t ? t("tiers.verified.name") : "Verified",
+      monthly: buildPricingOption(catalog?.verified.monthly, "per month"),
+      annual: buildPricingOption(catalog?.verified.yearly, "per year"),
+      promo: buildPricingOption(catalog?.verified.promo, "Promotional rate"),
       benefits: translateKeys(tierBenefitKeys.verified.benefits),
       limitations: translateKeys(tierBenefitKeys.verified.limitations),
       highlight: false,
     };
 
     const signatureTier: MembershipTier = {
-      id: 'signature',
-      name: t ? t('tiers.signature.name') : 'Signature',
-      ...buildTierPricing('signature'),
+      id: "signature",
+      name: t ? t("tiers.signature.name") : "Signature",
+      monthly: buildPricingOption(catalog?.signature.monthly, "per month"),
+      annual: buildPricingOption(catalog?.signature.yearly, "per year"),
+      promo: buildPricingOption(catalog?.signature.promo, "Promotional rate"),
       benefits: translateKeys(tierBenefitKeys.signature.benefits),
       limitations: translateKeys(tierBenefitKeys.signature.limitations),
       highlight: true,
@@ -323,7 +285,6 @@ export function useSubscriptionPricing(t?: TFunction) {
     return [freeTier, verifiedTier, signatureTier];
   };
 
-  // Update pricing mutation
   const updatePricing = useMutation({
     mutationFn: async (
       pricing: Partial<SubscriptionPricing> & {
@@ -335,13 +296,14 @@ export function useSubscriptionPricing(t?: TFunction) {
       const payload = {
         tier: pricing.tier,
         billing_period: pricing.billing_period,
-        price: pricing.price,
+        price_cents: pricing.price_cents ?? pricing.price,
         display_price: pricing.display_price,
         note: pricing.note,
-        period_length: pricing.period_length,
-        period_unit: pricing.period_unit,
-        period_start_date: pricing.period_start_date,
-        period_end_date: pricing.period_end_date,
+        stripe_price_id: pricing.stripe_price_id,
+        currency: pricing.currency ?? "EUR",
+        valid_from: pricing.valid_from ?? pricing.period_start_date,
+        valid_to: pricing.valid_to ?? pricing.period_end_date,
+        is_active: pricing.is_active,
         monthly_equivalent: pricing.monthly_equivalent,
         savings: pricing.savings,
       };
@@ -353,7 +315,7 @@ export function useSubscriptionPricing(t?: TFunction) {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscription-pricing'] });
+      queryClient.invalidateQueries({ queryKey: ["subscription-pricing"] });
       toast.success("Pricing updated successfully");
     },
     onError: (error: Error) => {
@@ -361,34 +323,37 @@ export function useSubscriptionPricing(t?: TFunction) {
     },
   });
 
-  // Create pricing mutation (used to provision missing billing periods)
   const createPricing = useMutation({
-    mutationFn: async (pricing: Omit<SubscriptionPricing, 'id' | 'updated_at'>) => {
+    mutationFn: async (
+      pricing: Omit<SubscriptionPricing, "id" | "created_at" | "updated_at">,
+    ) => {
       await callAdminPricingApi("POST", {
         tier: pricing.tier,
         billing_period: pricing.billing_period,
-        price: pricing.price,
+        price_cents: pricing.price_cents ?? pricing.price,
         display_price: pricing.display_price,
         note: pricing.note,
-        period_length: pricing.period_length,
-        period_unit: pricing.period_unit,
-        period_start_date: pricing.period_start_date,
-        period_end_date: pricing.period_end_date,
+        stripe_price_id: pricing.stripe_price_id,
+        currency: pricing.currency ?? "EUR",
+        valid_from: pricing.valid_from ?? pricing.period_start_date,
+        valid_to: pricing.valid_to ?? pricing.period_end_date,
+        is_active: pricing.is_active,
         monthly_equivalent: pricing.monthly_equivalent,
         savings: pricing.savings,
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscription-pricing'] });
+      queryClient.invalidateQueries({ queryKey: ["subscription-pricing"] });
     },
     onError: (error: Error) => {
       toast.error(`Failed to create pricing: ${error.message}`);
     },
   });
 
-  // Create promotion mutation
   const createPromotion = useMutation({
-    mutationFn: async (promo: Omit<PromotionalCode, 'id' | 'created_at' | 'updated_at' | 'current_uses'>) => {
+    mutationFn: async (
+      promo: Omit<PromotionalCode, "id" | "created_at" | "updated_at" | "current_uses">,
+    ) => {
       await callAdminPromotionsApi("POST", {
         name: promo.name,
         code: promo.code.toUpperCase(),
@@ -405,7 +370,7 @@ export function useSubscriptionPricing(t?: TFunction) {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['promotional-codes'] });
+      queryClient.invalidateQueries({ queryKey: ["promotional-codes"] });
       toast.success("Promotion created successfully");
     },
     onError: (error: Error) => {
@@ -413,7 +378,6 @@ export function useSubscriptionPricing(t?: TFunction) {
     },
   });
 
-  // Update promotion mutation
   const updatePromotion = useMutation({
     mutationFn: async (promo: Partial<PromotionalCode> & { id: string }) => {
       await callAdminPromotionsApi("PATCH", {
@@ -433,7 +397,7 @@ export function useSubscriptionPricing(t?: TFunction) {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['promotional-codes'] });
+      queryClient.invalidateQueries({ queryKey: ["promotional-codes"] });
       toast.success("Promotion updated successfully");
     },
     onError: (error: Error) => {
@@ -441,13 +405,12 @@ export function useSubscriptionPricing(t?: TFunction) {
     },
   });
 
-  // Delete promotion mutation
   const deletePromotion = useMutation({
     mutationFn: async (id: string) => {
       await callAdminPromotionsApi("DELETE", { id });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['promotional-codes'] });
+      queryClient.invalidateQueries({ queryKey: ["promotional-codes"] });
       toast.success("Promotion deleted successfully");
     },
     onError: (error: Error) => {
@@ -455,13 +418,12 @@ export function useSubscriptionPricing(t?: TFunction) {
     },
   });
 
-  // Toggle promotion active status
   const togglePromotion = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
       await callAdminPromotionsApi("PATCH", { id, is_active });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['promotional-codes'] });
+      queryClient.invalidateQueries({ queryKey: ["promotional-codes"] });
       toast.success("Promotion status updated");
     },
     onError: (error: Error) => {
@@ -471,9 +433,10 @@ export function useSubscriptionPricing(t?: TFunction) {
 
   return {
     pricing: pricingQuery.data || [],
+    pricingCatalog: pricingCatalogQuery.data?.tiers || null,
     promotions: promotionsQuery.data || [],
     membershipTiers: getMembershipTiers(),
-    isLoading: pricingQuery.isLoading,
+    isLoading: pricingCatalogQuery.isLoading || (isAdminMode ? pricingQuery.isLoading : false),
     isLoadingPromotions: promotionsQuery.isLoading,
     updatePricing,
     createPricing,
@@ -481,6 +444,5 @@ export function useSubscriptionPricing(t?: TFunction) {
     updatePromotion,
     deletePromotion,
     togglePromotion,
-    getActivePromotion,
   };
 }
