@@ -267,7 +267,15 @@ async function insertPricing(
 }
 
 export async function PATCH(request: NextRequest) {
-  const auth = await requireAdminWriteClient(request);
+  const auth = await requireAdminWriteClient(
+    request,
+    "Only admins can update subscription pricing.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for subscription pricing admin writes.",
+    },
+  );
   if ("error" in auth) return auth.error;
 
   let body: Record<string, unknown>;
@@ -326,8 +334,8 @@ export async function PATCH(request: NextRequest) {
 
     return errorResponse(404, "PRICING_NOT_FOUND", "Invalid pricing id.");
   } catch (error) {
-    const message = getPricingApiErrorMessage(error, "Failed to update pricing.");
-    return errorResponse(400, "PRICING_UPDATE_FAILED", message);
+    const details = getPricingApiErrorMessage(error, "Failed to save pricing.");
+    return errorResponse(400, "PRICING_SAVE_FAILED", `Failed to save pricing: ${details}`);
   }
 }
 
@@ -335,6 +343,11 @@ export async function POST(request: NextRequest) {
   const auth = await requireAdminWriteClient(
     request,
     "Only admins can update subscription pricing.",
+    {
+      requireServiceRole: true,
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for subscription pricing admin writes.",
+    },
   );
   if ("error" in auth) return auth.error;
 
@@ -375,7 +388,7 @@ export async function POST(request: NextRequest) {
     const createdId = await insertPricing(auth.writeClient, insertPayload);
     return successResponse(createdId, "created");
   } catch (error) {
-    const message = getPricingApiErrorMessage(error, "Failed to create pricing.");
-    return errorResponse(400, "PRICING_CREATE_FAILED", message);
+    const details = getPricingApiErrorMessage(error, "Failed to save pricing.");
+    return errorResponse(400, "PRICING_SAVE_FAILED", `Failed to save pricing: ${details}`);
   }
 }
