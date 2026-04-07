@@ -12,7 +12,14 @@ export interface CmsBlockConfig {
   order?: number;
   className?: string;
   style?: Record<string, string | number>;
-  data?: Record<string, string | number | boolean | string[]>;
+  data?: Record<
+    string,
+    | string
+    | number
+    | boolean
+    | string[]
+    | Record<string, string | number | boolean>
+  >;
 }
 
 export interface CmsPageConfig {
@@ -31,6 +38,7 @@ export interface CmsBlockDefinition {
   id: string;
   label: string;
   description?: string;
+  category?: "hero" | "discovery" | "content" | "utility";
 }
 
 export interface CmsPageDefinition {
@@ -48,17 +56,18 @@ export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
     path: "/",
     description: "Landing page and section stack.",
     blocks: [
-      { id: "hero", label: "Hero" },
-      { id: "quick-links", label: "Home Quick Links" },
-      { id: "regions", label: "Regions" },
-      { id: "categories", label: "Categories" },
-      { id: "cities", label: "Cities" },
-      { id: "curated", label: "Signature Selection" },
-      { id: "vip", label: "Map / VIP" },
-      { id: "all-listings", label: "All Listings" },
-      { id: "algarve-guide", label: "SEO Guide" },
-      { id: "newsletter", label: "Newsletter" },
-      { id: "cta", label: "Call to Action" },
+      { id: "hero", label: "Hero", category: "hero" },
+      { id: "quick-links", label: "Home Quick Links", category: "discovery" },
+      { id: "regions", label: "Regions", category: "discovery" },
+      { id: "categories", label: "Categories", category: "discovery" },
+      { id: "featured-city", label: "Featured City", category: "discovery" },
+      { id: "cities", label: "Cities", category: "discovery" },
+      { id: "curated", label: "Signature Selection", category: "content" },
+      { id: "vip", label: "Map / VIP", category: "discovery" },
+      { id: "all-listings", label: "All Listings", category: "content" },
+      { id: "algarve-guide", label: "SEO Guide", category: "content" },
+      { id: "newsletter", label: "Newsletter", category: "utility" },
+      { id: "cta", label: "Call to Action", category: "utility" },
     ],
   },
   {
@@ -488,6 +497,19 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function isPrimitiveCmsDataValue(value: unknown): value is string | number | boolean {
+  return (
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean"
+  );
+}
+
+function isFlatCmsDataObject(value: unknown): value is Record<string, string | number | boolean> {
+  if (!isPlainRecord(value)) return false;
+  return Object.values(value).every((item) => isPrimitiveCmsDataValue(item));
+}
+
 export function isKnownCmsPageId(pageId: string): boolean {
   return Boolean(CMS_PAGE_DEFINITION_MAP[pageId]);
 }
@@ -526,15 +548,28 @@ function normalizeCmsBlockConfig(input: unknown): CmsBlockConfig {
   }
 
   if (isPlainRecord(input.data)) {
-    const data: Record<string, string | number | boolean | string[]> = {};
+    const data: Record<
+      string,
+      | string
+      | number
+      | boolean
+      | string[]
+      | Record<string, string | number | boolean>
+    > = {};
     Object.entries(input.data).forEach(([dataKey, dataValue]) => {
       if (
         typeof dataValue === "string" ||
         typeof dataValue === "number" ||
         typeof dataValue === "boolean" ||
-        Array.isArray(dataValue)
+        Array.isArray(dataValue) ||
+        isFlatCmsDataObject(dataValue)
       ) {
-        data[dataKey] = dataValue as string | number | boolean | string[];
+        data[dataKey] = dataValue as
+          | string
+          | number
+          | boolean
+          | string[]
+          | Record<string, string | number | boolean>;
       }
     });
     block.data = data;

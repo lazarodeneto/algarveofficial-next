@@ -14,6 +14,7 @@ import { CategoriesSection } from "@/components/sections/CategoriesSection";
 import { CTASection } from "@/components/sections/CTASection";
 import { CitiesSection } from "@/components/sections/CitiesSection";
 import { CuratedExcellence } from "@/components/sections/CuratedExcellence";
+import { FeaturedCitySection } from "@/components/sections/FeaturedCitySection";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { HomeQuickLinksSection } from "@/components/sections/HomeQuickLinksSection";
 import { NewsletterSection } from "@/components/sections/NewsletterSection";
@@ -86,6 +87,9 @@ export function HomePageClient(props: HomePageClientProps) {
                 <CitiesSection />
               </CmsBlock>
             ) : null}
+            <CmsBlock pageId="home" blockId="featured-city" as="section" defaultEnabled={false}>
+              <FeaturedCitySection />
+            </CmsBlock>
             {showVip ? (
               <CmsBlock pageId="home" blockId="vip" as="section">
                 <SignatureMapSection />
