@@ -64,7 +64,7 @@ export function CityHubsSection({
           href={getCityHref(featured)}
           className="group block h-full overflow-hidden rounded-[32px] border border-border bg-card shadow-sm"
         >
-          <div className="relative h-full min-h-[20rem]">
+          <div className="relative h-full min-h-[28rem]">
             {featured.hero_image_url || featured.image_url ? (
               <img
                 src={`${

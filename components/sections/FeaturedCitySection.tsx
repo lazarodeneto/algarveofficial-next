@@ -73,7 +73,7 @@ export function FeaturedCitySection() {
     >
       <div className="app-container">
         <div className="overflow-hidden rounded-[28px] border border-border bg-card shadow-sm">
-          <div className="relative min-h-[18rem]">
+          <div className="relative min-h-[28rem]">
             {selectedCity.hero_image_url || selectedCity.image_url ? (
               <img
                 src={selectedCity.hero_image_url || selectedCity.image_url || ""}
