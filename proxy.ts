@@ -48,6 +48,7 @@ const PUBLIC_SEO_PAGES = new Set([
   "invest",
   "map",
   "partner",
+  "pricing",
   "privacy-policy",
   "properties",
   "real-estate",
