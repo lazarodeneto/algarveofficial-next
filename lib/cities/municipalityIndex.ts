@@ -31,6 +31,7 @@ const TARGET_MUNICIPALITIES = [
   "Tavira",
   "Olhão",
   "Lagoa",
+  "Faro",
 ] as const;
 
 const LOCALITY_TO_MUNICIPALITY: Record<string, string> = {
