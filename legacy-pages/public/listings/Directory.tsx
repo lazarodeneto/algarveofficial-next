@@ -42,6 +42,7 @@ export default function Directory() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [selectedCity, setSelectedCity] = useState<string>("all");
+  const [selectedCities, setSelectedCities] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedTier, setSelectedTier] = useState<string>("all");
   const [filtersOpen, setFiltersOpen] = useState(true);
@@ -115,11 +116,12 @@ export default function Directory() {
     return {
       search: debouncedSearch || undefined,
       categoryIds: selectedCategory !== "all" ? selectedCategoryIds : undefined,
-      cityId: selectedCity !== "all" ? selectedCity : undefined,
+      cityIds: selectedCities.length > 0 ? selectedCities : undefined,
+      cityId: selectedCity !== "all" && selectedCities.length === 0 ? selectedCity : undefined,
       regionId: selectedRegion !== "all" ? selectedRegion : undefined,
       tier: selectedTier !== "all" ? selectedTier as ListingTier : undefined,
     };
-  }, [debouncedSearch, selectedCategory, selectedCategoryIds, selectedCity, selectedRegion, selectedTier]);
+  }, [debouncedSearch, selectedCategory, selectedCategoryIds, selectedCity, selectedCities, selectedRegion, selectedTier]);
 
   // Fetch listings with filters
   const {
@@ -182,9 +184,25 @@ export default function Directory() {
       setSelectedRegion("all");
     }
 
-    if (cityParam) {
+    // Handle multiple city parameters
+    const cityParams = searchParams.getAll("city");
+    if (cityParams.length > 0) {
+      const cityIdMap = new Map(cities.map(c => [c.slug, c.id]));
+      const cityIds = cityParams
+        .map(slug => cityIdMap.get(slug) ?? slug)
+        .filter((id): id is string => id !== undefined && id !== "all");
+
+      if (cityIds.length > 0) {
+        setSelectedCities(cityIds);
+        setSelectedCity("all");
+      } else {
+        setSelectedCities([]);
+        setSelectedCity("all");
+      }
+    } else if (cityParam) {
       const normalizedCity = resolveFilterEntityId(cityParam, cities);
       setSelectedCity(normalizedCity);
+      setSelectedCities([]);
       if (normalizedCity === "all") {
         nextParams.delete("city");
         shouldReplaceParams = true;
@@ -194,6 +212,7 @@ export default function Directory() {
       }
     } else {
       setSelectedCity("all");
+      setSelectedCities([]);
     }
 
     if (qParam) setSearch(qParam);
@@ -206,10 +225,11 @@ export default function Directory() {
     setSearch("");
     setSelectedRegion("all");
     setSelectedCity("all");
+    setSelectedCities([]);
     setSelectedCategory("all");
     setSelectedTier("all");
   };
-  const hasActiveFilters = search || selectedRegion !== "all" || selectedCity !== "all" || selectedCategory !== "all" || selectedTier !== "all";
+  const hasActiveFilters = search || selectedRegion !== "all" || selectedCity !== "all" || selectedCities.length > 0 || selectedCategory !== "all" || selectedTier !== "all";
   const isLoading = listingsLoading || citiesLoading || regionsLoading || categoriesLoading;
   const showGridSkeleton = isLoading && !error && listings.length === 0;
 
@@ -257,11 +277,10 @@ export default function Directory() {
 
   return <div className="min-h-screen bg-background" data-cms-page="directory">
     <Header />
-    {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
 
     <main>
       {/* Hero Section */}
-      {isBlockEnabled("hero", true) && <CmsBlock pageId="directory" blockId="hero" as="section" className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
+      {isBlockEnabled("hero", true) && <CmsBlock pageId="directory" blockId="hero" as="section" className="relative pb-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-card via-background to-background" />
         <div className="relative app-container text-center">
           <motion.span
@@ -291,7 +310,7 @@ export default function Directory() {
         </div>
       </CmsBlock>}
 
-      <div className="app-container content-max pb-16">
+      <div className="app-container content-max pb-16 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
 
         {/* Advanced Filters */}
         {isBlockEnabled("filters", true) && <CmsBlock pageId="directory" blockId="filters" className="relative z-30 isolate mb-8">

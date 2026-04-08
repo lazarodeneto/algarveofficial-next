@@ -114,9 +114,17 @@ export default async function StayPage({ params, searchParams }: PageProps) {
     return defaultValue;
   };
 
+  const getCityValues = (): string[] => {
+    const value = sp["city"];
+    if (Array.isArray(value)) return value.filter(v => v && v !== "all");
+    if (typeof value === "string" && value && value !== "all") return [value];
+    return [];
+  };
+
   const initialFilters = {
     q: getFilterValue("q", ""),
-    city: getFilterValue("city", "all"),
+    city: getCityValues().length > 0 ? getCityValues()[0] : "all",
+    cities: getCityValues(),
     region: getFilterValue("region", "all"),
     category: getFilterValue("category", "all"),
     tier: getFilterValue("tier", "all"),

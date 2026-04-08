@@ -144,7 +144,6 @@ const Invest = () => {
         <div className="min-h-screen bg-background text-foreground" data-cms-page="invest">
 
             <Header />
-            {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
 
             <main className="flex-grow">
                 {isBlockEnabled("hero", true) && (
@@ -173,7 +172,7 @@ const Invest = () => {
                 )}
 
                 {cities.length > 0 && isBlockEnabled("city-hubs", true) ? (
-                    <div className="app-container content-max pb-16 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
+                    <div className="app-container content-max pb-16">
                         <section className="mb-10 space-y-8">
                             {featuredCity && isBlockEnabled("featured-city-hub", true) ? (
                                 <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">

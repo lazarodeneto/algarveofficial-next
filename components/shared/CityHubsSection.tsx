@@ -63,7 +63,7 @@ export function CityHubsSection({
   if (!featured) return null;
 
   return (
-    <section className="mb-10 space-y-8">
+    <section className="mb-[calc(4rem+10px)] sm:mb-[calc(5rem+10px)] space-y-8">
       <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <Link
           href={getCityHref(featured)}

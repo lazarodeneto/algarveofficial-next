@@ -349,9 +349,7 @@ const Experiences = () => {
     >
 
       <Header />
-      {!isBlockEnabled("hero", true) && (
-        <div className="px-4 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4" aria-hidden="true" />
-      )}
+      {!isBlockEnabled("hero", true) && <div className="h-[calc(4rem+10px)] sm:h-[calc(5rem+10px)]" aria-hidden="true" />}
 
       <main className="flex-grow">
         {isBlockEnabled("hero", true) && (
@@ -415,7 +413,7 @@ const Experiences = () => {
           </CmsBlock>
         )}
 
-        <div className="app-container content-max pb-[calc(4rem+10px)] sm:pb-[calc(5rem+10px)] pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
+        <div className="app-container content-max pb-[calc(4rem+10px)] sm:pb-[calc(5rem+10px)]">
           {topCities.length > 0 && isBlockEnabled("city-hubs", true) ? (
             <CityHubsSection
               highlightedCity={highlightedCity}
