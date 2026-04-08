@@ -237,7 +237,7 @@ const Experiences = () => {
       if (experiencesCategoryIds.length === 0) return [];
       let query = supabase
         .from("listings")
-        .select("*, cities ( name, slug ), categories ( name, slug )")
+        .select("*, cities ( id, name, slug ), regions ( id, name, slug ), categories ( id, name, slug, icon )")
         .in("category_id", experiencesCategoryIds)
         .eq("status", "published");
       if (debouncedSearch) {
@@ -264,7 +264,7 @@ const Experiences = () => {
         .order("created_at", { ascending: false });
       const { data, error } = await query;
       if (error) throw error;
-      return (data ?? []) as ListingRow[];
+      return (data ?? []) as any[];
     },
     enabled: experiencesCategoryIds.length > 0,
     staleTime: 1000 * 60 * 5,
