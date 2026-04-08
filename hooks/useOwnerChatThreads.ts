@@ -44,9 +44,11 @@ export function useOwnerChatThreads() {
       const enriched = await Promise.all(
         threads.map(async (thread) => {
           // 1) Viewer profile with cache
-          let viewerProfile = profileCacheRef.current.get(thread.viewer_id) ?? null;
+          let viewerProfile = thread.viewer_id
+            ? (profileCacheRef.current.get(thread.viewer_id) ?? null)
+            : null;
 
-          if (!viewerProfile) {
+          if (!viewerProfile && thread.viewer_id) {
             const { data } = await supabase.rpc("get_public_profile", { _profile_id: thread.viewer_id });
             viewerProfile = (data as PublicProfile) ?? null;
             profileCacheRef.current.set(thread.viewer_id, viewerProfile);

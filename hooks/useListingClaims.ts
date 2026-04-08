@@ -174,11 +174,14 @@ export function useApproveAndAssignClaim() {
       if (!isBrowser) {
         return { success: false, error: "Unavailable in server context" };
       }
+      if (!user?.id) {
+        throw new Error("Reviewer authentication required");
+      }
 
       const { data, error } = await supabase.rpc('approve_claim_and_assign_listing', {
         _claim_id: claimId,
         _listing_id: listingId,
-        _reviewer_id: user?.id,
+        _reviewer_id: user.id,
       });
 
       if (error) throw error;

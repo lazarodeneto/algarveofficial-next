@@ -17,6 +17,11 @@ type ChatThread = Tables<"chat_threads"> & {
 
 type ChatMessage = Tables<"chat_messages">;
 
+type UntypedRpcResult<T = unknown> = Promise<{ data: T | null; error: unknown }>;
+
+const callUntypedRpc = <T = unknown>(fn: string, args?: Record<string, unknown>) =>
+  (supabase.rpc as unknown as (fn: string, args?: Record<string, unknown>) => UntypedRpcResult<T>)(fn, args);
+
 // Fetch all threads for the current user (as viewer or owner)
 export function useChatThreads() {
   const { user } = useAuth();
@@ -80,7 +85,7 @@ export function useCreateOrFindThread() {
 
   return useMutation({
     mutationFn: async ({ listingId, ownerId }: { listingId: string; ownerId: string }) => {
-      if (!isBrowser) return null;
+      if (!isBrowser) throw new Error("Chat unavailable in server context");
       if (!user) throw new Error("Must be logged in");
 
       // First, try to find existing thread
@@ -254,7 +259,7 @@ export function useMarkThreadMessagesAsRead() {
       if (!isBrowser) return;
       if (!user?.id || !threadId) return;
 
-      const { error } = await supabase.rpc("mark_thread_messages_read", { p_thread_id: threadId });
+      const { error } = await callUntypedRpc("mark_thread_messages_read", { p_thread_id: threadId });
       if (!error) return;
 
       // Fallback path when RPC is unavailable: update unread message statuses directly.

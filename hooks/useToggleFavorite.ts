@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { UserFavoriteRow } from "@/hooks/useUserFavorites";
+import type { TablesInsert } from "@/integrations/supabase/types";
 
 type FavoriteType = "listing" | "category" | "city" | "region";
 
@@ -41,10 +42,12 @@ export function useToggleFavorite() {
             }
 
             // ✅ ADD
-            const payload: Record<string, string> = {
-                user_id: user.id,
-                [`${type}_id`]: id,
-            };
+            const payload: TablesInsert<"favorites"> = { user_id: user.id };
+
+            if (type === "listing") payload.listing_id = id;
+            if (type === "category") payload.category_id = id;
+            if (type === "city") payload.city_id = id;
+            if (type === "region") payload.region_id = id;
 
             const { error } = await supabase.from("favorites").insert(payload);
 

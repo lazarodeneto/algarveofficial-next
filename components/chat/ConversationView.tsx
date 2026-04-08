@@ -74,6 +74,7 @@ export const ConversationView = forwardRef<HTMLDivElement, ConversationViewProps
             listingId: initialListingId,
             ownerId: initialOwnerId,
           });
+          if (!newThread) return;
           targetThreadId = newThread.id;
           setLocalThreadId(newThread.id);
           onThreadCreated?.(newThread.id);

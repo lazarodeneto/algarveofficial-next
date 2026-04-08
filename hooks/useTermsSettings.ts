@@ -24,7 +24,7 @@ export interface TermsSettings {
   sections: Section[] | null;
   meta_title: string | null;
   meta_description: string | null;
-  updated_at: string;
+  updated_at: string | null;
 }
 
 export function useTermsSettings(locale?: string | null) {

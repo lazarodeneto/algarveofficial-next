@@ -53,7 +53,7 @@ export function NewsletterSection() {
       
       const { data, error } = await supabase.rpc("subscribe_newsletter", {
         _email: email.toLowerCase().trim(),
-        _full_name: null,
+        _full_name: undefined,
         _source: "newsletter",
         _ip_hash: ipHash,
       });

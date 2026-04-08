@@ -139,7 +139,7 @@ export function useAdminOwnerCrmSummaries(params: OwnerCrmSummariesParams) {
       const { data, error } = await supabase.rpc("admin_owner_crm_summaries", {
         p_page: normalizedPage,
         p_page_size: normalizedPageSize,
-        p_search: normalizedSearch.length > 0 ? normalizedSearch : null,
+        p_search: normalizedSearch.length > 0 ? normalizedSearch : undefined,
         p_sort: params.sort,
         p_status_filter: params.statusFilter,
       });

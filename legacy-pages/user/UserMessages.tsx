@@ -109,7 +109,7 @@ export default function UserMessages() {
               {t("dashboard.messages.startConversation")}
             </p>
             <Button asChild className="mt-4">
-              <Link href={l("/directory")}>{t("dashboard.messages.browseListings")}</Link>
+              <Link href={l("/stay")}>{t("dashboard.messages.browseListings")}</Link>
             </Button>
           </CardContent>
         </Card>

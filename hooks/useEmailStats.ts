@@ -119,14 +119,19 @@ export function useCampaignReport(campaignId: string | undefined) {
       if (eventsError) throw eventsError;
 
       // Calculate rates
-      const openRate = campaign.total_sent > 0 
-        ? (campaign.total_opened / campaign.total_sent) * 100 
+      const totalSent = campaign.total_sent ?? 0;
+      const totalOpened = campaign.total_opened ?? 0;
+      const totalClicked = campaign.total_clicked ?? 0;
+      const totalBounced = campaign.total_bounced ?? 0;
+
+      const openRate = totalSent > 0 
+        ? (totalOpened / totalSent) * 100 
         : 0;
-      const clickRate = campaign.total_sent > 0 
-        ? (campaign.total_clicked / campaign.total_sent) * 100 
+      const clickRate = totalSent > 0 
+        ? (totalClicked / totalSent) * 100 
         : 0;
-      const bounceRate = campaign.total_sent > 0 
-        ? (campaign.total_bounced / campaign.total_sent) * 100 
+      const bounceRate = totalSent > 0 
+        ? (totalBounced / totalSent) * 100 
         : 0;
 
       return {

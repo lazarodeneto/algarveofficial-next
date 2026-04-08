@@ -92,6 +92,10 @@ export default function OwnerListingEdit() {
   // Save draft mutation
   const saveDraft = useMutation({
     mutationFn: async () => {
+      if (!id || !user?.id) {
+        throw new Error("Owner authentication required");
+      }
+
       const { error } = await supabase
         .from('listings')
         .update({
@@ -108,7 +112,7 @@ export default function OwnerListingEdit() {
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
-        .eq('owner_id', user?.id); // Ensure owner can only update their own
+        .eq('owner_id', user.id); // Ensure owner can only update their own
       if (error) throw error;
     },
     onSuccess: () => {
@@ -124,6 +128,10 @@ export default function OwnerListingEdit() {
   // Submit for review mutation
   const submitForReview = useMutation({
     mutationFn: async () => {
+      if (!id || !user?.id) {
+        throw new Error("Owner authentication required");
+      }
+
       const { error } = await supabase
         .from('listings')
         .update({
@@ -141,7 +149,7 @@ export default function OwnerListingEdit() {
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
-        .eq('owner_id', user?.id);
+        .eq('owner_id', user.id);
       if (error) throw error;
     },
     onSuccess: () => {

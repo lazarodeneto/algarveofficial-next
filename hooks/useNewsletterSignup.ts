@@ -50,7 +50,7 @@ export function useNewsletterSignup(defaultSource = "newsletter") {
 
         const { data, error } = await supabase.rpc("subscribe_newsletter", {
           _email: normalizedEmail,
-          _full_name: payload.fullName ?? null,
+          _full_name: payload.fullName ?? undefined,
           _source: payload.source ?? defaultSource,
           _ip_hash: ipHash,
         });

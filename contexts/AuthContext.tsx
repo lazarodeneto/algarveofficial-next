@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/integrations/supabase/client';
-import type { User as SupabaseUser } from '@supabase/supabase-js';
+import type { Session, User as SupabaseUser, AuthChangeEvent } from '@supabase/supabase-js';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { buildLocalizedPath } from '@/lib/i18n/routing';
 import {
@@ -135,7 +135,7 @@ async function fetchUserRole(userId: string): Promise<UserRole> {
 }
 
 // Helper to fetch user profile
-async function fetchUserProfile(userId: string): Promise<{ full_name: string; avatar_url: string | null } | null> {
+async function fetchUserProfile(userId: string): Promise<{ full_name: string | null; avatar_url: string | null } | null> {
   const { data, error } = await supabase
     .from('profiles')
     .select('full_name, avatar_url')
@@ -219,7 +219,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Set up auth state listener BEFORE checking session
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (event: AuthChangeEvent, session: Session | null) => {
         if (!mounted) return;
 
         if (event === 'SIGNED_IN' && session?.user) {

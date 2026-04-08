@@ -44,6 +44,7 @@ import { useLocalePath } from "@/hooks/useLocalePath";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { formatRichTextDescription } from "@/lib/formatRichText";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
+import { getListingCategoryLanding } from "@/lib/listingCategoryLanding";
 import { hasRealEstateSignals, isRealEstateCategorySlug } from "@/lib/realEstateDetection";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { normalizePublicContentLocale, type PublicContentLocale } from "@/lib/publicContentLocale";
@@ -643,11 +644,13 @@ function ListingDetailClientInner({
   const directoryLabel = t("nav.directory");
   const categoryLabel = translateCategoryName(t, listing.category?.slug, listing.category?.name) || directoryLabel;
   const canonicalCategorySlug = getCanonicalCategorySlug(listing.category?.slug);
+  const landingPage = getListingCategoryLanding(canonicalCategorySlug);
+  const landingLabel = t(landingPage.labelKey, landingPage.fallbackLabel);
   const categoryDirectoryPath = canonicalCategorySlug ? `/directory?category=${canonicalCategorySlug}` : "/directory";
 
   const visualBreadcrumbs = [
     { name: t("nav.home"), to: l("/"), current: false },
-    { name: directoryLabel, to: l("/directory"), current: false },
+    { name: landingLabel, to: l(landingPage.path), current: false },
     ...(canonicalCategorySlug
       ? [{ name: categoryLabel, to: l(categoryDirectoryPath), current: false }]
       : []),

@@ -55,6 +55,7 @@ import { cn } from "@/lib/utils";
 import { getRegionImageSet } from "@/lib/regionImages";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import type { TablesInsert } from "@/integrations/supabase/types";
 
 export default function UserFavorites() {
   const { t } = useTranslation();
@@ -181,10 +182,14 @@ export default function UserFavorites() {
   // Remove favorite mutation
   const removeFavoriteMutation = useMutation({
     mutationFn: async (listingId: string) => {
+      if (!user?.id) {
+        throw new Error("User authentication required");
+      }
+
       const { error } = await supabase
         .from('favorites')
         .delete()
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .eq('listing_id', listingId);
       if (error) throw error;
     },
@@ -197,9 +202,13 @@ export default function UserFavorites() {
   // Add destination mutation
   const addDestinationMutation = useMutation({
     mutationFn: async ({ type, id }: { type: 'region' | 'city'; id: string }) => {
-      const insert = type === 'region' 
-        ? { user_id: user?.id, region_id: id }
-        : { user_id: user?.id, city_id: id };
+      if (!user?.id) {
+        throw new Error("User authentication required");
+      }
+
+      const insert: TablesInsert<'favorites'> = type === 'region'
+        ? { user_id: user.id, region_id: id }
+        : { user_id: user.id, city_id: id };
       const { error } = await supabase.from('favorites').insert(insert);
       if (error) throw error;
     },
@@ -213,7 +222,11 @@ export default function UserFavorites() {
   // Remove destination mutation
   const removeDestinationMutation = useMutation({
     mutationFn: async ({ type, id }: { type: 'region' | 'city'; id: string }) => {
-      const query = supabase.from('favorites').delete().eq('user_id', user?.id);
+      if (!user?.id) {
+        throw new Error("User authentication required");
+      }
+
+      const query = supabase.from('favorites').delete().eq('user_id', user.id);
       if (type === 'region') {
         await query.eq('region_id', id);
       } else {

@@ -51,6 +51,7 @@ import { translateCategoryValue } from "@/lib/translateCategoryValue";
 import { isUuid } from "@/lib/slugify";
 import { formatRichTextDescription } from "@/lib/formatRichText";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
+import { getListingCategoryLanding } from "@/lib/listingCategoryLanding";
 import ListingImage from "@/components/ListingImage";
 
 // Category-specific detail renderers
@@ -487,11 +488,13 @@ export default function ListingDetail() {
   const directoryLabel = t("nav.directory");
   const categoryLabel = translateCategoryName(t, listing.category?.slug, listing.category?.name) || directoryLabel;
   const canonicalCategorySlug = getCanonicalCategorySlug(listing.category?.slug);
+  const landingPage = getListingCategoryLanding(canonicalCategorySlug);
+  const landingLabel = t(landingPage.labelKey, landingPage.fallbackLabel);
   const categoryDirectoryPath = canonicalCategorySlug ? `/directory?category=${canonicalCategorySlug}` : "/directory";
 
   const breadcrumbItems = [
     { name: t("nav.home"), url: "https://algarveofficial.com" },
-    { name: directoryLabel, url: "https://algarveofficial.com/directory" },
+    { name: landingLabel, url: `https://algarveofficial.com${landingPage.path}` },
     ...(canonicalCategorySlug
       ? [{ name: categoryLabel, url: `https://algarveofficial.com/directory?category=${canonicalCategorySlug}` }]
       : []),
@@ -500,7 +503,7 @@ export default function ListingDetail() {
 
   const visualBreadcrumbs = [
     { name: t("nav.home"), to: l("/"), current: false },
-    { name: directoryLabel, to: l("/directory"), current: false },
+    { name: landingLabel, to: l(landingPage.path), current: false },
     ...(canonicalCategorySlug
       ? [{ name: categoryLabel, to: l(categoryDirectoryPath), current: false }]
       : []),

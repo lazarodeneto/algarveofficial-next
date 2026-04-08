@@ -42,6 +42,18 @@ interface HomepageSettingsTranslation {
 const HOMEPAGE_TRANSLATION_FIELDS =
   "locale, status, hero_title, hero_subtitle, hero_cta_primary_text, hero_cta_secondary_text";
 
+const homepageTranslationClient = supabase as typeof supabase & {
+  from: (relation: "homepage_settings_translations") => {
+    select: (...args: unknown[]) => {
+      eq: (column: string, value: string) => {
+        eq: (column: string, value: string) => {
+          maybeSingle: () => Promise<{ data: HomepageSettingsTranslation | null; error: unknown }>;
+        };
+      };
+    };
+  };
+};
+
 const normalizeHomepageLocale = (language: string | undefined): string => {
   const normalized = language?.trim().toLowerCase();
   if (!normalized) return "en";
@@ -172,7 +184,7 @@ export function useHeroSettings() {
     queryFn: async () => {
       if (typeof window === "undefined" || !settings?.id || locale === "en") return null;
 
-      const { data, error } = await supabase
+      const { data, error } = await homepageTranslationClient
         .from("homepage_settings_translations")
         .select(HOMEPAGE_TRANSLATION_FIELDS)
         .eq("settings_id", settings.id)

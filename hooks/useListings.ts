@@ -211,35 +211,39 @@ async function resolveSearchCategoryIds(search?: string): Promise<string[]> {
   return Array.from(ids);
 }
 
-function applyListingFilters<T extends {
-  in: (column: string, values: readonly string[]) => T;
-  eq: (column: string, value: unknown) => T;
-  or: (filters: string) => T;
-  neq: (column: string, value: string) => T;
-}>(
+type ListingFilterQuery = {
+  in: (column: string, values: readonly string[]) => unknown;
+  eq: (column: string, value: unknown) => unknown;
+  or: (filters: string) => unknown;
+  neq: (column: string, value: string) => unknown;
+};
+
+function applyListingFilters<T>(
   query: T,
   filters: ListingFilters,
   excludedCategoryId: string | null,
   matchingCategoryIds: string[] = []
 ) {
+  let builder = query as T & ListingFilterQuery;
+
   if (Array.isArray(filters.categoryIds) && filters.categoryIds.length > 0) {
-    query = query.in('category_id', filters.categoryIds);
+    builder = builder.in('category_id', filters.categoryIds) as T & ListingFilterQuery;
   } else if (filters.categoryId && filters.categoryId !== 'all') {
-    query = query.eq('category_id', filters.categoryId);
+    builder = builder.eq('category_id', filters.categoryId) as T & ListingFilterQuery;
   }
 
   if (Array.isArray(filters.cityIds) && filters.cityIds.length > 0) {
-    query = query.in('city_id', filters.cityIds);
+    builder = builder.in('city_id', filters.cityIds) as T & ListingFilterQuery;
   } else if (filters.cityId && filters.cityId !== 'all') {
-    query = query.eq('city_id', filters.cityId);
+    builder = builder.eq('city_id', filters.cityId) as T & ListingFilterQuery;
   }
 
   if (filters.regionId && filters.regionId !== 'all') {
-    query = query.eq('region_id', filters.regionId);
+    builder = builder.eq('region_id', filters.regionId) as T & ListingFilterQuery;
   }
 
   if (filters.tier) {
-    query = query.eq('tier', filters.tier);
+    builder = builder.eq('tier', filters.tier) as T & ListingFilterQuery;
   }
 
   if (filters.search?.trim()) {
@@ -269,15 +273,15 @@ function applyListingFilters<T extends {
         searchClauses.push(`category_id.in.(${matchingCategoryIds.join(",")})`);
       }
 
-      query = query.or(searchClauses.join(","));
+      builder = builder.or(searchClauses.join(",")) as T & ListingFilterQuery;
     }
   }
 
   if (excludedCategoryId) {
-    query = query.neq('category_id', excludedCategoryId);
+    builder = builder.neq('category_id', excludedCategoryId) as T & ListingFilterQuery;
   }
 
-  return query;
+  return builder as T;
 }
 
 // Public-safe fields for listings (excludes PII like contact_email, contact_phone, whatsapp_number)

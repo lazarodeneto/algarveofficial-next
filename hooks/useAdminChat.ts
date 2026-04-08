@@ -42,6 +42,11 @@ interface ThreadFilters {
   search?: string;
 }
 
+type UntypedRpcResult<T = unknown> = Promise<{ data: T | null; error: unknown }>;
+
+const callUntypedRpc = <T = unknown>(fn: string, args?: Record<string, unknown>) =>
+  (supabase.rpc as unknown as (fn: string, args?: Record<string, unknown>) => UntypedRpcResult<T>)(fn, args);
+
 /**
  * Hook to fetch admin chat threads
  * Realtime invalidation for thread list is handled by InboxRealtimeProvider
@@ -77,9 +82,9 @@ export function useAdminChatThreads(filters: ThreadFilters = {}) {
       if (error) throw error;
       if (!threads || threads.length === 0) return [] as ChatThread[];
 
-      const viewerIds = [...new Set(threads.map((t) => t.viewer_id))];
-      const ownerIds = [...new Set(threads.map((t) => t.owner_id))];
-      const listingIds = [...new Set(threads.map((t) => t.listing_id))];
+      const viewerIds = [...new Set(threads.map((t) => t.viewer_id).filter((id): id is string => Boolean(id)))];
+      const ownerIds = [...new Set(threads.map((t) => t.owner_id).filter((id): id is string => Boolean(id)))];
+      const listingIds = [...new Set(threads.map((t) => t.listing_id).filter((id): id is string => Boolean(id)))];
       const threadIds = threads.map((t) => t.id);
 
       // Fetch related data in parallel (safe fields only)
@@ -102,9 +107,9 @@ export function useAdminChatThreads(filters: ThreadFilters = {}) {
       return threads.map((thread) => ({
         ...thread,
         status: normalizeThreadStatus(thread.status),
-        viewer: viewerMap.get(thread.viewer_id),
+        viewer: thread.viewer_id ? viewerMap.get(thread.viewer_id) : undefined,
         owner: ownerMap.get(thread.owner_id),
-        listing: listingMap.get(thread.listing_id),
+        listing: thread.listing_id ? listingMap.get(thread.listing_id) : undefined,
         message_count: messageCountMap.get(thread.id) || 0,
       })) as ChatThread[];
     },
@@ -303,7 +308,7 @@ export function useDeleteThread() {
 
   return useMutation({
     mutationFn: async (threadId: string) => {
-      const { error } = await supabase.rpc("admin_delete_chat_thread", { p_thread_id: threadId });
+      const { error } = await callUntypedRpc("admin_delete_chat_thread", { p_thread_id: threadId });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -328,7 +333,7 @@ export function useDeleteChatMessage() {
 
   return useMutation({
     mutationFn: async ({ messageId, threadId }: { messageId: string; threadId: string }) => {
-      const { error } = await supabase.rpc("admin_delete_chat_message", { p_message_id: messageId });
+      const { error } = await callUntypedRpc("admin_delete_chat_message", { p_message_id: messageId });
       if (error) throw error;
       return threadId;
     },

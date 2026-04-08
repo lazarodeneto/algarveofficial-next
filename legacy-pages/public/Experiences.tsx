@@ -95,7 +95,7 @@ const Experiences = () => {
   const [selectedRegion, setSelectedRegion] = useState("all");
   const [selectedCity, setSelectedCity] = useState("all");
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
-  const [selectedTier, setSelectedTier] = useState("all");
+  const [selectedTier, setSelectedTier] = useState<Database["public"]["Tables"]["listings"]["Row"]["tier"] | "all">("all");
   const [shouldScrollToResults, setShouldScrollToResults] = useState(false);
 
   useEffect(() => {
@@ -635,7 +635,11 @@ const Experiences = () => {
                           </label>
                           <Select
                             value={selectedTier}
-                            onValueChange={setSelectedTier}
+                            onValueChange={(value) =>
+                              setSelectedTier(
+                                value as Database["public"]["Tables"]["listings"]["Row"]["tier"] | "all",
+                              )
+                            }
                           >
                             <SelectTrigger className="h-12 bg-muted/30 border-border hover:bg-muted/50 focus:bg-background">
                               <SelectValue
