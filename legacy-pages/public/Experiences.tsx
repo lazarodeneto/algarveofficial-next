@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { LazyMotion, domAnimation, motion } from "framer-motion";
 import {
   ArrowRight,
   Building2,
@@ -54,6 +54,7 @@ import { PageHeroImage } from "@/components/sections/PageHeroImage";
 import { CityHubsSection } from "@/components/shared/CityHubsSection";
 import {
   buildMergedCategoryOptions,
+  getMergedMemberSlugs,
   getMergedCategoryBySlug,
 } from "@/lib/categoryMerges";
 import { supabase } from "@/integrations/supabase/client";
@@ -64,6 +65,8 @@ type ListingRow = Database["public"]["Tables"]["listings"]["Row"] & {
   cities: { name: string; slug: string } | null;
   categories: { name: string; slug: string } | null;
 };
+
+const EXPERIENCE_MEMBER_SLUGS = getMergedMemberSlugs("experiences");
 
 const Experiences = () => {
   const { t } = useTranslation();
@@ -156,11 +159,25 @@ const Experiences = () => {
   const { data: cityListingCounts = {} } = useQuery<Record<string, number>>({
     queryKey: ["experiences-city-counts", [...experiencesCategoryIds].sort().join(",")],
     queryFn: async () => {
-      if (experiencesCategoryIds.length === 0) return {};
+      let effectiveCategoryIds = experiencesCategoryIds;
+
+      if (effectiveCategoryIds.length === 0) {
+        const { data: fallbackCategories, error: fallbackError } = await supabase
+          .from("categories")
+          .select("id")
+          .eq("is_active", true)
+          .in("slug", EXPERIENCE_MEMBER_SLUGS);
+
+        if (fallbackError) throw fallbackError;
+        effectiveCategoryIds = (fallbackCategories ?? []).map((category) => category.id);
+      }
+
+      if (effectiveCategoryIds.length === 0) return {};
+
       const { data, error } = await supabase
         .from("listings")
         .select("city_id")
-        .in("category_id", experiencesCategoryIds)
+        .in("category_id", effectiveCategoryIds)
         .eq("status", "published");
       if (error) throw error;
       const counts: Record<string, number> = {};
@@ -171,7 +188,7 @@ const Experiences = () => {
       }
       return counts;
     },
-    enabled: experiencesCategoryIds.length > 0,
+    enabled: true,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -223,7 +240,7 @@ const Experiences = () => {
   }
 
   // Fetch listings
-  const { data: listings = [], isLoading: listingsLoading } = useQuery({
+  const { data: listings = [], isLoading: listingsLoading, error: listingsError } = useQuery({
     queryKey: [
       "experiences-listings",
       debouncedSearch,
@@ -234,11 +251,25 @@ const Experiences = () => {
       [...experiencesCategoryIds].sort().join(","),
     ],
     queryFn: async () => {
-      if (experiencesCategoryIds.length === 0) return [];
+      let effectiveCategoryIds = experiencesCategoryIds;
+
+      if (effectiveCategoryIds.length === 0) {
+        const { data: fallbackCategories, error: fallbackError } = await supabase
+          .from("categories")
+          .select("id")
+          .eq("is_active", true)
+          .in("slug", EXPERIENCE_MEMBER_SLUGS);
+
+        if (fallbackError) throw fallbackError;
+        effectiveCategoryIds = (fallbackCategories ?? []).map((category) => category.id);
+      }
+
+      if (effectiveCategoryIds.length === 0) return [];
+
       let query = supabase
         .from("listings")
         .select("*, cities ( id, name, slug ), regions ( id, name, slug ), categories ( id, name, slug, icon )")
-        .in("category_id", experiencesCategoryIds)
+        .in("category_id", effectiveCategoryIds)
         .eq("status", "published");
       if (debouncedSearch) {
         query = query.or(
@@ -266,7 +297,7 @@ const Experiences = () => {
       if (error) throw error;
       return (data ?? []) as any[];
     },
-    enabled: experiencesCategoryIds.length > 0,
+    enabled: true,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -353,11 +384,12 @@ const Experiences = () => {
       {!isBlockEnabled("hero", true) && <div className="h-[calc(4rem+10px)] sm:h-[calc(5rem+10px)]" aria-hidden="true" />}
 
       <main className="flex-grow">
+        <LazyMotion features={domAnimation}>
         {isBlockEnabled("hero", true) && (
           <CmsBlock
             pageId="experiences"
             blockId="hero"
-            className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]"
+            className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4"
           >
             <LiveStyleHero
               className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
@@ -414,7 +446,7 @@ const Experiences = () => {
           </CmsBlock>
         )}
 
-        <div className="app-container content-max pb-[calc(4rem+10px)] sm:pb-[calc(5rem+10px)]">
+        <div className="app-container content-max pb-16 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
           {topCities.length > 0 && isBlockEnabled("city-hubs", true) ? (
             <CityHubsSection
               highlightedCity={highlightedCity}
@@ -656,9 +688,8 @@ const Experiences = () => {
             <CmsBlock
               pageId="experiences"
               blockId="results"
-              className="relative z-0 isolate"
+              className="relative z-0 isolate scroll-mt-28 sm:scroll-mt-32"
             >
-              <div className="app-container content-max">
                 <div id="showing-listings" className="flex items-center justify-between mb-6">
                 <p className="text-body-sm text-muted-foreground">
                   {listingsLoading ? (
@@ -673,6 +704,15 @@ const Experiences = () => {
                   )}
                 </p>
               </div>
+
+              {listingsError ? (
+                <div className="mb-6 rounded-md border border-destructive/35 bg-destructive/10 px-4 py-3 text-body-sm text-destructive">
+                  {t(
+                    "directory.loadError",
+                    "We couldn't load experiences right now. Please refresh and try again.",
+                  )}
+                </div>
+              ) : null}
 
               {listingsLoading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -725,7 +765,6 @@ const Experiences = () => {
                   ))}
                 </div>
               ) : null}
-              </div>
             </CmsBlock>
           ) : null}
 
@@ -839,6 +878,7 @@ const Experiences = () => {
           </CmsBlock>
         )}
         </div>
+        </LazyMotion>
       </main>
 
       <Footer />

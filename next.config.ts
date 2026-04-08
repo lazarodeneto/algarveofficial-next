@@ -73,6 +73,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   trailingSlash: false,
+  allowedDevOrigins: ["127.0.0.1"],
   turbopack: {
     // Avoid Next.js auto-selecting a parent directory when multiple lockfiles exist.
     root: process.cwd(),

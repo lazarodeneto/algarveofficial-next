@@ -16,6 +16,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import {
   SUPPORTED_LOCALES,
   DEFAULT_LOCALE,
+  LOCALE_LANGUAGE_MAP,
   getLocaleFromPathname,
   resolveLocaleFromAcceptLanguage,
 } from "@/lib/i18n/config";
@@ -55,6 +56,85 @@ function isSupportedLocale(value?: string | null): value is string {
     !!value &&
     SUPPORTED_LOCALES.includes(value as (typeof SUPPORTED_LOCALES)[number])
   );
+}
+
+function resolveLocaleAliasSegment(value?: string | null): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.toLowerCase();
+  if (isSupportedLocale(normalized)) {
+    return null;
+  }
+
+  const mapped = LOCALE_LANGUAGE_MAP[normalized];
+  return isSupportedLocale(mapped) ? mapped : null;
+}
+
+function resolveLocaleLikeSegment(value?: string | null): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.toLowerCase();
+  if (isSupportedLocale(normalized)) {
+    return normalized;
+  }
+
+  return resolveLocaleAliasSegment(normalized);
+}
+
+export function getLocalizedPathFromLocaleAlias(pathname: string): string | null {
+  const normalizedPathname = normalizePathname(pathname);
+  const segments = normalizedPathname.split("/").filter(Boolean);
+  const firstSegment = segments[0]?.toLowerCase() ?? null;
+  const mappedLocale = resolveLocaleAliasSegment(firstSegment);
+
+  if (!mappedLocale) {
+    return null;
+  }
+
+  return buildPathnameFromSegments([mappedLocale, ...segments.slice(1)]);
+}
+
+export function getLocalizedPathFromNestedLocaleAlias(pathname: string): string | null {
+  const normalizedPathname = normalizePathname(pathname);
+  const segments = normalizedPathname.split("/").filter(Boolean);
+  const firstSegment = segments[0]?.toLowerCase() ?? null;
+
+  if (!isSupportedLocale(firstSegment)) {
+    return null;
+  }
+
+  const secondSegment = segments[1]?.toLowerCase() ?? null;
+  const mappedLocale = resolveLocaleAliasSegment(secondSegment);
+
+  if (!mappedLocale) {
+    return null;
+  }
+
+  return buildPathnameFromSegments([mappedLocale, ...segments.slice(2)]);
+}
+
+export function getLocalizedPathFromLegacyVisitLocaleAlias(pathname: string): string | null {
+  const normalizedPathname = normalizePathname(pathname);
+  const segments = normalizedPathname.split("/").filter(Boolean);
+  const firstSegment = segments[0]?.toLowerCase() ?? null;
+  const secondSegment = segments[1]?.toLowerCase() ?? null;
+
+  if (!isSupportedLocale(firstSegment) || secondSegment !== "visit") {
+    return null;
+  }
+
+  const localeLikeSegment = segments[2]?.toLowerCase() ?? null;
+  const resolvedLocale = resolveLocaleLikeSegment(localeLikeSegment);
+
+  if (!resolvedLocale) {
+    return null;
+  }
+
+  return buildPathnameFromSegments([resolvedLocale, ...segments.slice(3)]);
 }
 
 function isFileRequest(pathname: string): boolean {
@@ -160,9 +240,24 @@ export function proxy(request: NextRequest) {
   const segments = pathname.split("/").filter(Boolean);
   const firstSegment = segments[0]?.toLowerCase() ?? null;
   const secondSegment = segments[1]?.toLowerCase() ?? null;
+  const aliasedLocalizedPath = getLocalizedPathFromLocaleAlias(pathname);
+  const nestedAliasedLocalizedPath = getLocalizedPathFromNestedLocaleAlias(pathname);
+  const legacyVisitAliasedLocalizedPath = getLocalizedPathFromLegacyVisitLocaleAlias(pathname);
   const hasValidLocalePrefix = isSupportedLocale(firstSegment);
   const currentLocale = getLocaleFromPathname(pathname);
   const unlocalizedPath = getUnlocalizedCanonicalPathFromRequestPath(pathname);
+
+  if (aliasedLocalizedPath) {
+    return redirectTo(request, aliasedLocalizedPath, 308);
+  }
+
+  if (nestedAliasedLocalizedPath) {
+    return redirectTo(request, nestedAliasedLocalizedPath, 308);
+  }
+
+  if (legacyVisitAliasedLocalizedPath) {
+    return redirectTo(request, legacyVisitAliasedLocalizedPath, 308);
+  }
 
   if (hasValidLocalePrefix && isSupportedLocale(secondSegment)) {
     return new NextResponse(null, { status: 404 });
