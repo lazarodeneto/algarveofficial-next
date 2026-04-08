@@ -1192,50 +1192,51 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   return (
     <div className="min-h-screen bg-background" data-cms-page="directory">
       <Header />
-      {!activeCms.isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
-
       <main>
         <LazyMotion features={domAnimation}>
-        {activeCms.isBlockEnabled("hero", true) ? (
-          <DirectoryCmsBlock
-            blockId="hero"
-            as="section"
-            cms={activeCms}
-            className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4"
-          >
-            <LiveStyleHero
-              className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
-              badge={t("directory.heroLabel")}
-              title={t("directory.title")}
-              subtitle={t("directory.subtitle")}
-              media={
-                <HeroBackgroundMedia
-                  mediaType={activeCms.getText("hero.mediaType", "image")}
-                  imageUrl={activeCms.getText("hero.imageUrl", "")}
-                  videoUrl={activeCms.getText("hero.videoUrl", "")}
-                  youtubeUrl={activeCms.getText("hero.youtubeUrl", "")}
-                  posterUrl={activeCms.getText("hero.posterUrl", "")}
-                  alt={t("directory.hero.alt", "Premium Algarve directory coastline view")}
-                  fallback={<PageHeroImage page="directory" alt={t("directory.hero.alt", "Premium Algarve directory coastline view")} />}
-                />
-              }
-              ctas={
-                <>
-                  <Link href={l("/contact")}>
-                    <Button variant="gold" size="lg">
-                      {t("directory.hero.ctaPrimary", "Plan with Concierge")}
-                    </Button>
-                  </Link>
-                  <Link href={l("/live")}>
-                    <Button variant="heroOutline" size="lg">
-                      {t("directory.hero.ctaSecondary", "Explore Live in Algarve")}
-                    </Button>
-                  </Link>
-                </>
-              }
-            />
-          </DirectoryCmsBlock>
-        ) : null}
+        {/* Hero: enabled with matching top padding, disabled with placeholder that matches padding */}
+        {!activeCms.isBlockEnabled("hero", true) ? (
+        <div className="px-4 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4" aria-hidden="true" />
+      ) : (
+        <DirectoryCmsBlock
+          blockId="hero"
+          as="section"
+          cms={activeCms}
+          className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4"
+        >
+          <LiveStyleHero
+            className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
+            badge={t("directory.heroLabel")}
+            title={t("directory.title")}
+            subtitle={t("directory.subtitle")}
+            media={
+              <HeroBackgroundMedia
+                mediaType={activeCms.getText("hero.mediaType", "image")}
+                imageUrl={activeCms.getText("hero.imageUrl", "")}
+                videoUrl={activeCms.getText("hero.videoUrl", "")}
+                youtubeUrl={activeCms.getText("hero.youtubeUrl", "")}
+                posterUrl={activeCms.getText("hero.posterUrl", "")}
+                alt={t("directory.hero.alt", "Premium Algarve directory coastline view")}
+                fallback={<PageHeroImage page="directory" alt={t("directory.hero.alt", "Premium Algarve directory coastline view")} />}
+              />
+            }
+            ctas={
+              <>
+                <Link href={l("/contact")}>
+                  <Button variant="gold" size="lg">
+                    {t("directory.hero.ctaPrimary", "Plan with Concierge")}
+                  </Button>
+                </Link>
+                <Link href={l("/live")}>
+                  <Button variant="heroOutline" size="lg">
+                    {t("directory.hero.ctaSecondary", "Explore Live in Algarve")}
+                  </Button>
+                </Link>
+              </>
+            }
+          />
+        </DirectoryCmsBlock>
+      )}
 
         <div className="app-container content-max pb-16 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
           {showCityHubs ? (
