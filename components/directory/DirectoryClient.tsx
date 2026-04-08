@@ -1233,7 +1233,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                     {t("directory.hero.ctaPrimary", "Plan with Concierge")}
                   </Button>
                 </Link>
-                <Link href={l("/live")}>
+                <Link href={l("/residence")}>
                   <Button variant="heroOutline" size="lg">
                     {t("directory.hero.ctaSecondary", "Explore Residence in Algarve")}
                   </Button>

@@ -233,7 +233,7 @@ export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
   {
     id: "live",
     label: "Residence",
-    path: "/live",
+    path: "/residence",
     blocks: [
       { id: "hero", label: "Hero" },
       { id: "city-hubs", label: "City Hubs" },

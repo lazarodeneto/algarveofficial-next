@@ -28,6 +28,7 @@ const PUBLIC_LOCALIZED_PAGES = [
   "pricing/page.tsx",
   "privacy-policy/page.tsx",
   "properties/page.tsx",
+  "residence/page.tsx",
   "real-estate/page.tsx",
   "stay/page.tsx",
   "terms/page.tsx",

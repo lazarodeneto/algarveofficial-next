@@ -27,6 +27,7 @@ const RESERVED_TOP_LEVEL_SEGMENTS = new Set([
   "pricing",
   "privacy-policy",
   "real-estate",
+  "residence",
   "terms",
   "trips",
   "visit",

@@ -4,7 +4,7 @@ const LOCALES = ["en", "pt-pt", "fr", "de", "es", "it", "nl", "sv", "no", "da"] 
 const TEST_LOCALES = ["en", "it", "fr", "de"] as const;
 
 const NAV_ITEMS = [
-  { name: "Residence", path: "/live" },
+  { name: "Residence", path: "/residence" },
   { name: "Directory", path: "/directory" },
   { name: "Blog", path: "/blog" },
   { name: "Events", path: "/events" },
@@ -165,10 +165,19 @@ test.describe("External links", () => {
 
 test.describe("Edge cases", () => {
   test("invalid locale is stripped and page loads", async ({ page }) => {
-    const response = await page.goto("/xx/live");
+    const response = await page.goto("/xx/residence");
     await page.waitForLoadState("networkidle");
 
     expect(response?.ok()).toBeTruthy();
+    expect(page.url()).toContain("/en/residence");
+  });
+
+  test("legacy /live path redirects to /residence", async ({ page }) => {
+    const response = await page.goto("/en/live");
+    await page.waitForLoadState("networkidle");
+
+    expect(response?.ok()).toBeTruthy();
+    expect(page.url()).toContain("/en/residence");
   });
 
   test("root path shows default locale content", async ({ page }) => {

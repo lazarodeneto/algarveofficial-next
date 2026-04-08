@@ -22,7 +22,7 @@ const HEADER_NAV_ITEMS = PRIMARY_NAV_ITEMS.filter(
     item.href !== "/map" &&
     item.href !== "/blog" &&
     item.href !== "/events" &&
-    item.href !== "/live" &&
+    item.href !== "/residence" &&
     item.href !== "/invest",
 );
 

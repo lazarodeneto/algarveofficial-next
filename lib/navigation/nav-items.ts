@@ -13,7 +13,7 @@ export const PRIMARY_NAV_ITEMS: NavItem[] = [
   { labelKey: "nav.map", fallbackLabel: "Map", href: "/map" },
   { labelKey: "nav.blog", fallbackLabel: "Blog", href: "/blog" },
   { labelKey: "nav.events", fallbackLabel: "Events", href: "/events" },
-  { labelKey: "nav.live", fallbackLabel: "Residence", href: "/live" },
+  { labelKey: "nav.live", fallbackLabel: "Residence", href: "/residence" },
   { labelKey: "nav.contact", fallbackLabel: "Contact", href: "/contact" },
 ];
 
