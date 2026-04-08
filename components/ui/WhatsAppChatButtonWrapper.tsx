@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 import { PRIMARY_WHATSAPP_NUMBER, toWhatsAppDigits } from "@/lib/contactPhone";
 import { useHydrated } from "@/hooks/useHydrated";
-import { stripLocaleFromPathname } from "@/lib/i18n/config";
+import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 import { WhatsAppChatButton } from "./whatsapp-chat-button";
 
 const HIDDEN_ROUTE_PREFIXES = ["/admin", "/owner", "/dashboard"];

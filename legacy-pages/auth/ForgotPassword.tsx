@@ -9,9 +9,12 @@ import { Loader2, ArrowLeft, Mail, CheckCircle } from 'lucide-react';
 import { m } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
+import { useLocalePath } from '@/hooks/useLocalePath';
+import { buildAbsoluteAppUrl } from '@/lib/authRedirect';
 
 export default function ForgotPassword() {
   const { t } = useTranslation();
+  const l = useLocalePath();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -30,7 +33,7 @@ export default function ForgotPassword() {
     
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
+        redirectTo: buildAbsoluteAppUrl(l("/auth/reset-password")),
       });
 
       if (error) {
@@ -52,7 +55,7 @@ export default function ForgotPassword() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-background" />
         <div className="absolute inset-0 bg-[url('/placeholder.svg')] bg-cover bg-center opacity-10" />
         <div className="relative z-10 flex flex-col justify-between p-12 w-full">
-          <Link href="/" className="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
+          <Link href={l("/")} className="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
             <ArrowLeft className="h-5 w-5" />
             <span className="font-sans">{t('auth.backToHome')}</span>
           </Link>
@@ -97,7 +100,7 @@ export default function ForgotPassword() {
         >
           {/* Mobile back link */}
           <Link 
-            href="/login" 
+            href={l("/login")} 
             className="lg:hidden flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -127,7 +130,7 @@ export default function ForgotPassword() {
                   {t('auth.checkEmailInstructions')}
                 </p>
                 <Button asChild variant="outline" className="w-full mt-4">
-                  <Link href="/login">{t('auth.backToLogin')}</Link>
+                  <Link href={l("/login")}>{t('auth.backToLogin')}</Link>
                 </Button>
               </CardContent>
             ) : (
@@ -174,7 +177,7 @@ export default function ForgotPassword() {
                   
                   <p className="text-sm text-center text-muted-foreground">
                     {t('auth.rememberPassword')}{' '}
-                    <Link href="/login" className="text-primary hover:underline font-medium">
+                    <Link href={l("/login")} className="text-primary hover:underline font-medium">
                       {t('auth.signIn')}
                     </Link>
                   </p>

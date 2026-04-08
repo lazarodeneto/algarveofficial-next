@@ -29,7 +29,11 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale: localeParam } = await params;
-  const locale = isValidLocale(localeParam) ? localeParam : ("en" as Locale);
+  if (!isValidLocale(localeParam)) {
+    return {};
+  }
+
+  const locale = localeParam as Locale;
   const localeConfig = LOCALE_CONFIGS[locale] ?? LOCALE_CONFIGS.en;
 
   return buildMetadata({
@@ -55,15 +59,12 @@ export default async function LocaleLayout({
 }: LocaleLayoutProps) {
   const { locale: localeParam } = await params;
 
-  // ✅ CRITICAL: Get locale from route params (source of truth)
-  const locale = isValidLocale(localeParam)
-    ? (localeParam as Locale)
-    : ("en" as Locale);
-
-  // ✅ CRITICAL: Block invalid locales from being accessed
-  if (!SUPPORTED_LOCALES.includes(locale)) {
+  if (!isValidLocale(localeParam)) {
     notFound();
   }
+
+  // ✅ CRITICAL: Get locale from route params (source of truth)
+  const locale = localeParam as Locale;
 
   // ✅ Get locale config
   const localeConfig = LOCALE_CONFIGS[locale] ?? LOCALE_CONFIGS.en;

@@ -22,9 +22,11 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useUserChatThreads, type UserChatThread } from "@/hooks/useUserChatThreads";
 import { useChatMessages, useSendMessage, useMarkThreadMessagesAsRead } from "@/hooks/useChat";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function UserMessages() {
   const { t } = useTranslation();
+  const l = useLocalePath();
   const { data: threads = [], isLoading } = useUserChatThreads();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
@@ -107,7 +109,7 @@ export default function UserMessages() {
               {t("dashboard.messages.startConversation")}
             </p>
             <Button asChild className="mt-4">
-              <Link href="/directory">{t("dashboard.messages.browseListings")}</Link>
+              <Link href={l("/directory")}>{t("dashboard.messages.browseListings")}</Link>
             </Button>
           </CardContent>
         </Card>

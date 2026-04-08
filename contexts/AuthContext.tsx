@@ -6,6 +6,11 @@ import { supabase } from '@/integrations/supabase/client';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { useLocale } from '@/lib/i18n/locale-context';
 import { buildLocalizedPath } from '@/lib/i18n/routing';
+import {
+  buildAbsoluteAppUrl,
+  getRequestedPostAuthPath,
+  resolvePostAuthRedirectPath,
+} from '@/lib/authRedirect';
 
 export type UserRole = 'admin' | 'editor' | 'owner' | 'viewer_logged' | 'viewer';
 
@@ -75,7 +80,7 @@ function clearCachedUser() {
   }
 }
 
-function resolveGoogleOAuthRedirectUrl(locale: string): string {
+function resolveGoogleOAuthRedirectUrl(locale: string, requestedPath?: string | null): string {
   if (typeof window === "undefined") {
     return "https://algarveofficial.com/auth/callback";
   }
@@ -98,7 +103,13 @@ function resolveGoogleOAuthRedirectUrl(locale: string): string {
         ? "https://algarveofficial.com"
         : window.location.origin));
 
-  return `${origin}/auth/callback?locale=${encodeURIComponent(locale)}`;
+  const callbackPath = buildLocalizedPath(locale, "/auth/callback");
+  const redirectTarget = resolvePostAuthRedirectPath(requestedPath, locale, "/dashboard");
+  const url = new URL(callbackPath, origin);
+  url.searchParams.set("locale", locale);
+  url.searchParams.set("next", redirectTarget);
+
+  return url.toString();
 }
 
 // Helper to fetch user role using the database function with proper hierarchy
@@ -306,14 +317,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const appUser = await buildUser(data.user);
         setUser(appUser);
         setIsLoading(false);
-        
-        // Redirect to appropriate dashboard
-        const from =
-          (typeof window !== "undefined"
-            ? new URLSearchParams(window.location.search).get("from")
-            : null) || (pathname !== "/login" ? pathname : undefined);
         const dashboardPath = getDashboardPath(appUser.role);
-        router.replace(from || dashboardPath);
+        const requestedPath =
+          typeof window !== "undefined"
+            ? getRequestedPostAuthPath(window.location.search)
+            : pathname !== "/login"
+              ? pathname
+              : null;
+        const redirectTarget = resolvePostAuthRedirectPath(
+          requestedPath,
+          locale,
+          dashboardPath,
+        );
+
+        router.replace(redirectTarget);
         
         return { success: true };
       }
@@ -339,7 +356,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email,
         password,
         options: {
-          emailRedirectTo: window.location.origin,
+          emailRedirectTo: buildAbsoluteAppUrl(buildLocalizedPath(locale, "/")),
           data: {
             full_name: `${firstName} ${lastName}`.trim(),
           },
@@ -381,10 +398,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
     try {
+      const requestedPath =
+        typeof window !== "undefined"
+          ? getRequestedPostAuthPath(window.location.search)
+          : null;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: resolveGoogleOAuthRedirectUrl(locale),
+          redirectTo: resolveGoogleOAuthRedirectUrl(locale, requestedPath),
           queryParams: {
             prompt: "select_account",
           },

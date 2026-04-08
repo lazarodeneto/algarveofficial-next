@@ -4,7 +4,7 @@ import { Suspense, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
 import { PublicSiteSidebar } from "@/components/layout/PublicSiteSidebar";
-import { stripLocaleFromPathname } from "@/lib/i18n/config";
+import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 import { useHydrated } from "@/hooks/useHydrated";
 
 interface PublicSiteFrameProps {

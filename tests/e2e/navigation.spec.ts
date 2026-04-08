@@ -164,12 +164,9 @@ test.describe("External links", () => {
 });
 
 test.describe("Edge cases", () => {
-  test("invalid locale is stripped and page loads", async ({ page }) => {
+  test("invalid locale returns 404 without a redirect loop", async ({ page }) => {
     const response = await page.goto("/xx/residence");
-    await page.waitForLoadState("networkidle");
-
-    expect(response?.ok()).toBeTruthy();
-    expect(page.url()).toContain("/en/residence");
+    expect(response?.status()).toBe(404);
   });
 
   test("legacy /live path redirects to /residence", async ({ page }) => {

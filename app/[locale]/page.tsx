@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { notFound } from "next/navigation";
 import Index from "@/components/Index";
 import { isValidLocale, type Locale } from "@/lib/i18n/config";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
@@ -29,7 +30,7 @@ export default async function HomePage({ params }: PageProps) {
   const { locale: rawLocale } = await params;
 
   if (!isValidLocale(rawLocale)) {
-    return <div>Invalid locale</div>;
+    notFound();
   }
 
   return (

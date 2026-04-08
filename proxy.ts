@@ -43,19 +43,30 @@ const PUBLIC_SEO_PAGES = new Set([
   "contact",
   "cookie-policy",
   "events",
+  "experiences",
+  "golf",
   "invest",
   "map",
   "partner",
   "privacy-policy",
+  "properties",
   "real-estate",
+  "residence",
+  "stay",
   "terms",
 ]);
+
+const LOCALE_SEGMENT_PATTERN = /^[a-z]{2}(?:-[a-z]{2})?$/i;
 
 function isSupportedLocale(value?: string | null): value is string {
   return (
     !!value &&
     SUPPORTED_LOCALES.includes(value as (typeof SUPPORTED_LOCALES)[number])
   );
+}
+
+function looksLikeLocaleSegment(value?: string | null): boolean {
+  return !!value && LOCALE_SEGMENT_PATTERN.test(value);
 }
 
 function resolveLocaleAliasSegment(value?: string | null): string | null {
@@ -257,6 +268,10 @@ export function proxy(request: NextRequest) {
 
   if (legacyVisitAliasedLocalizedPath) {
     return redirectTo(request, legacyVisitAliasedLocalizedPath, 308);
+  }
+
+  if (!hasValidLocalePrefix && looksLikeLocaleSegment(firstSegment)) {
+    return new NextResponse(null, { status: 404 });
   }
 
   if (hasValidLocalePrefix && isSupportedLocale(secondSegment)) {

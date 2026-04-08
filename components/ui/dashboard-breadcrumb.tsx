@@ -5,7 +5,7 @@ import { ChevronRight, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useLocalePath } from "@/hooks/useLocalePath";
-import { stripLocaleFromPathname } from "@/lib/i18n/config";
+import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 
 interface BreadcrumbConfig {
   basePath: string;

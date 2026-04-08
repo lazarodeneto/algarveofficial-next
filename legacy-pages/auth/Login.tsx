@@ -173,7 +173,7 @@ export default function Login() {
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password" className="text-foreground">{t('auth.password')}</Label>
                     <Link 
-                      href="/forgot-password" 
+                      href={l("/forgot-password")} 
                       className="text-xs text-primary hover:underline"
                     >
                       {t('auth.forgotPassword')}
@@ -243,7 +243,7 @@ export default function Login() {
                 
                 <p className="text-sm text-center text-muted-foreground">
                   {t('auth.noAccount')}{' '}
-                  <Link href="/signup" className="text-primary hover:underline font-medium">
+                  <Link href={l("/signup")} className="text-primary hover:underline font-medium">
                     {t('auth.createOne')}
                   </Link>
                 </p>

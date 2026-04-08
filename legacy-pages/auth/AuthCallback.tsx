@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react';
 import { buildLocalizedPath } from '@/lib/i18n/routing';
 import { isValidLocale } from '@/lib/i18n/config';
 import { useLocale } from '@/lib/i18n/locale-context';
+import { resolvePostAuthRedirectPath } from '@/lib/authRedirect';
 
 export default function AuthCallback() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function AuthCallback() {
   useEffect(() => {
     const requestedLocale = searchParams.get('locale');
     const resolvedLocale = requestedLocale && isValidLocale(requestedLocale) ? requestedLocale : locale;
+    const requestedPath = searchParams.get('next') || searchParams.get('from');
 
     const handleCallback = async () => {
       try {
@@ -38,19 +40,19 @@ export default function AuthCallback() {
             .maybeSingle();
 
           const role = roleData?.role || 'viewer_logged';
+          const defaultRedirect =
+            role === 'admin' || role === 'editor'
+              ? '/admin'
+              : role === 'owner'
+                ? '/owner'
+                : '/dashboard';
+          const redirectTarget = resolvePostAuthRedirectPath(
+            requestedPath,
+            resolvedLocale,
+            defaultRedirect,
+          );
 
-          // Redirect based on role
-          switch (role) {
-            case 'admin':
-            case 'editor':
-              router.replace(buildLocalizedPath(resolvedLocale, '/admin'));
-              break;
-            case 'owner':
-              router.replace(buildLocalizedPath(resolvedLocale, '/owner'));
-              break;
-            default:
-              router.replace(buildLocalizedPath(resolvedLocale, '/dashboard'));
-          }
+          router.replace(redirectTarget);
         } else {
           // No session, redirect to login
           router.replace(buildLocalizedPath(resolvedLocale, '/login'));

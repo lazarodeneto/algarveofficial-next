@@ -5,9 +5,8 @@ import { Cookie } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
 
-import { Button } from "@/components/ui/button";
 import { useHydrated } from "@/hooks/useHydrated";
-import { stripLocaleFromPathname } from "@/lib/i18n/config";
+import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 import {
   COOKIE_CONSENT_CHANGE_EVENT,
   getStoredCookieConsent,

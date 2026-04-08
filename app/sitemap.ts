@@ -78,7 +78,10 @@ function makeEntry(
 
 const STATIC_PATHS = [
   { path: "/", priority: 1.0, changefreq: "daily" as const },
-  { path: "/visit", priority: 0.9, changefreq: "daily" as const },
+  { path: "/stay", priority: 0.9, changefreq: "daily" as const },
+  { path: "/experiences", priority: 0.88, changefreq: "daily" as const },
+  { path: "/properties", priority: 0.87, changefreq: "weekly" as const },
+  { path: "/golf", priority: 0.82, changefreq: "weekly" as const },
   { path: "/destinations", priority: 0.9, changefreq: "weekly" as const },
   { path: "/events", priority: 0.85, changefreq: "daily" as const },
   { path: "/blog", priority: 0.85, changefreq: "weekly" as const },
@@ -86,7 +89,6 @@ const STATIC_PATHS = [
   { path: "/about-us", priority: 0.7, changefreq: "monthly" as const },
   { path: "/contact", priority: 0.7, changefreq: "monthly" as const },
   { path: "/partner", priority: 0.7, changefreq: "monthly" as const },
-  { path: "/pricing", priority: 0.7, changefreq: "monthly" as const },
   { path: "/invest", priority: 0.7, changefreq: "monthly" as const },
   { path: "/map", priority: 0.6, changefreq: "weekly" as const },
   { path: "/residence", priority: 0.6, changefreq: "weekly" as const },

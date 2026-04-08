@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 import MapClient from "@/components/map/MapClient";
 import { getDirectoryPageData } from "@/lib/directory-data";
@@ -41,7 +42,7 @@ export default async function MapPage({ params }: PageProps) {
   const { locale: rawLocale } = await params;
 
   if (!isValidLocale(rawLocale)) {
-    return <div>Invalid locale</div>;
+    notFound();
   }
 
   const data = await getDirectoryPageData(rawLocale, {
