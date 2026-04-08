@@ -744,11 +744,16 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     () => getMergedCategoryBySlug("accommodation", mergedCategories)?.memberIds ?? EMPTY_CATEGORY_IDS,
     [mergedCategories],
   );
+  const experiencesCategoryIds = useMemo(
+    () => getMergedCategoryBySlug("experiences", mergedCategories)?.memberIds ?? EMPTY_CATEGORY_IDS,
+    [mergedCategories],
+  );
   const selectedCategoryIds = useMemo(
     () => selectedCategoryItem?.memberIds ?? EMPTY_CATEGORY_IDS,
     [selectedCategoryItem],
   );
   const isStayPage = cmsPageId === "stay" || pathname.includes("/stay");
+  const isExperiencesPage = cmsPageId === "experiences" || pathname.includes("/experiences");
   const isVisitPage = cmsPageId === "visit" || pathname.includes("/visit");
   const resolveFilterEntityId = useCallback(
     <T extends { id: string; slug: string }>(value: string, entities: T[]) => {
@@ -820,6 +825,31 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     staleTime: 1000 * 60 * 5,
   });
 
+  const { data: experiencesCityListingCounts = {} } = useQuery<Record<string, number>>({
+    queryKey: ["experiences-city-counts", [...experiencesCategoryIds].sort().join(",")],
+    queryFn: async () => {
+      if (experiencesCategoryIds.length === 0) return {};
+
+      const { data, error: cityCountError } = await supabase
+        .from("listings")
+        .select("city_id")
+        .in("category_id", experiencesCategoryIds)
+        .eq("status", "published");
+
+      if (cityCountError) throw cityCountError;
+
+      const counts: Record<string, number> = {};
+      for (const row of data ?? []) {
+        if (!row.city_id) continue;
+        counts[row.city_id] = (counts[row.city_id] ?? 0) + 1;
+      }
+
+      return counts;
+    },
+    enabled: isExperiencesPage && experiencesCategoryIds.length > 0,
+    staleTime: 1000 * 60 * 5,
+  });
+
   const stayCityIndex = useMemo(
     () =>
       buildMunicipalityCityIndex({
@@ -831,23 +861,36 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     [cities, cityRegionMappings, regions, stayCityListingCounts],
   );
 
+  const experiencesCityIndex = useMemo(
+    () =>
+      buildMunicipalityCityIndex({
+        cities,
+        cityListingCounts: experiencesCityListingCounts,
+        cityRegionMappings,
+        regions,
+      }).slice(0, 6),
+    [cities, cityRegionMappings, regions, experiencesCityListingCounts],
+  );
+
   const cityHubsTopCities = useMemo(() => {
     if (isStayPage) return stayCityIndex as VisitCityIndexItem[];
+    if (isExperiencesPage) return experiencesCityIndex as VisitCityIndexItem[];
     return props.visitCityIndex?.slice(0, 6) ?? [];
-  }, [isStayPage, props.visitCityIndex, stayCityIndex]);
+  }, [isStayPage, isExperiencesPage, props.visitCityIndex, stayCityIndex, experiencesCityIndex]);
 
   const cityHubsHighlightedCity = useMemo(() => {
     const cmsBlockData = activeCms.getBlockData("featured-city-hub");
     const cmsCityId = cmsBlockData && typeof cmsBlockData.cityId === "string" ? cmsBlockData.cityId : null;
-    
-    // First try to find in stayCityIndex (municipality index)
-    if (cmsCityId && isStayPage) {
-      let found = stayCityIndex.find(
+    const targetIndex = isStayPage ? stayCityIndex : isExperiencesPage ? experiencesCityIndex : null;
+
+    // First try to find in category-specific city index (municipality index)
+    if (cmsCityId && targetIndex) {
+      let found = targetIndex.find(
         (city) =>
           city.id === cmsCityId ||
           city.municipalityCityIds?.includes(cmsCityId),
       );
-      
+
       // If not found, try in the full visitCityIndex from props
       if (!found && props.visitCityIndex) {
         found = props.visitCityIndex.find(
@@ -874,26 +917,27 @@ function DirectoryClientInner(props: DirectoryClientProps) {
           };
         }
       }
-      
+
       if (found) return found;
     }
-    
-    if (isStayPage) {
+
+    if (isStayPage || isExperiencesPage) {
       const configured = props.featuredVisitCity;
-      if (!configured) return stayCityIndex[0] ?? undefined;
+      const defaultIndex = isStayPage ? stayCityIndex : experiencesCityIndex;
+      if (!configured) return defaultIndex[0] ?? undefined;
 
       return (
-        stayCityIndex.find(
+        defaultIndex.find(
           (city) =>
             city.id === configured.id ||
             city.municipalityCityIds?.includes(configured.id),
         ) ??
-        stayCityIndex[0] ??
+        defaultIndex[0] ??
         undefined
       );
     }
     return props.featuredVisitCity ?? undefined;
-  }, [isStayPage, props.featuredVisitCity, stayCityIndex, activeCms, props.visitCityIndex, cities]);
+  }, [isStayPage, isExperiencesPage, props.featuredVisitCity, stayCityIndex, experiencesCityIndex, activeCms, props.visitCityIndex, cities]);
   const stayCityPathBuilder = useCallback((city: CityHubItem) => {
     const params = new URLSearchParams({
       category: "places-to-stay",
@@ -908,9 +952,24 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     return `/stay?${params.toString()}#${resultsAnchorId}`;
   }, [resultsAnchorId]);
 
+  const experiencesCityPathBuilder = useCallback((city: CityHubItem) => {
+    const params = new URLSearchParams({
+      category: "experiences",
+    });
+
+    if (city.municipalityRegionId) {
+      params.set("region", city.municipalityRegionId);
+    } else {
+      params.set("city", city.id || city.slug);
+    }
+
+    return `/experiences?${params.toString()}#${resultsAnchorId}`;
+  }, [resultsAnchorId]);
+
   const showCityHubs =
     activeCms.isBlockEnabled("city-hubs", true) &&
     ((isStayPage && cityHubsTopCities.length > 0) ||
+      (isExperiencesPage && cityHubsTopCities.length > 0) ||
       (isVisitPage && (props.visitCityIndex?.length ?? 0) > 0));
 
   const showInitialData = isPlaceholderData && props.initialListings.length > 0;
@@ -1107,9 +1166,9 @@ function DirectoryClientInner(props: DirectoryClientProps) {
             <CityHubsSection
               highlightedCity={cityHubsHighlightedCity}
               topCities={cityHubsTopCities}
-              cityListingCounts={isStayPage ? stayCityListingCounts : {}}
-              preferCityListingCounts={isStayPage}
-              cityPathBuilder={isStayPage ? stayCityPathBuilder : undefined}
+              cityListingCounts={isStayPage ? stayCityListingCounts : isExperiencesPage ? experiencesCityListingCounts : {}}
+              preferCityListingCounts={isStayPage || isExperiencesPage}
+              cityPathBuilder={isStayPage ? stayCityPathBuilder : isExperiencesPage ? experiencesCityPathBuilder : undefined}
               imageTimestamp={imageTimestamp}
               basePath="visit"
               translationPrefix="directory"
