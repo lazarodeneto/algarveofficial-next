@@ -857,7 +857,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
         cityListingCounts: stayCityListingCounts,
         cityRegionMappings,
         regions,
-      }).slice(0, 6),
+      }).slice(0, 8),
     [cities, cityRegionMappings, regions, stayCityListingCounts],
   );
 
@@ -868,14 +868,14 @@ function DirectoryClientInner(props: DirectoryClientProps) {
         cityListingCounts: experiencesCityListingCounts,
         cityRegionMappings,
         regions,
-      }).slice(0, 6),
+      }).slice(0, 8),
     [cities, cityRegionMappings, regions, experiencesCityListingCounts],
   );
 
   const cityHubsTopCities = useMemo(() => {
     if (isStayPage) return stayCityIndex as VisitCityIndexItem[];
     if (isExperiencesPage) return experiencesCityIndex as VisitCityIndexItem[];
-    return props.visitCityIndex?.slice(0, 6) ?? [];
+    return props.visitCityIndex?.slice(0, 8) ?? [];
   }, [isStayPage, isExperiencesPage, props.visitCityIndex, stayCityIndex, experiencesCityIndex]);
 
   const cityHubsHighlightedCity = useMemo(() => {
