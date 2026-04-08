@@ -124,7 +124,6 @@ export default async function StayPage({ params, searchParams }: PageProps) {
   const initialFilters = {
     q: getFilterValue("q", ""),
     city: getCityValues().length > 0 ? getCityValues()[0] : "all",
-    cities: getCityValues(),
     region: getFilterValue("region", "all"),
     category: getFilterValue("category", "all"),
     tier: getFilterValue("tier", "all"),
