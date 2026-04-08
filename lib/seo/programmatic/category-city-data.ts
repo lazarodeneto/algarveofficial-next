@@ -69,7 +69,8 @@ const LISTING_FIELDS = `
 
 const LISTING_RELATION_FIELDS = `
   ${LISTING_FIELDS},
-  categories(id, slug, name)
+  categories(id, slug, name),
+  listing_images(id, image_url, is_featured, display_order)
 `;
 
 // ─── Slug validation ─────────────────────────────────────────────────────────
@@ -243,14 +244,29 @@ function mapProgrammaticListing(
 
   const category = nestedCategory ?? fallbackCategory ?? { slug: "", name: "" };
 
+  const images = Array.isArray(listing.listing_images)
+    ? (listing.listing_images as { image_url?: string; is_featured?: boolean; display_order?: number }[])
+    : [];
+
+  const fallbackImg = images
+    .filter((img) => img.image_url)
+    .sort((a, b) => {
+      if (a.is_featured !== b.is_featured) return a.is_featured ? -1 : 1;
+      return (a.display_order ?? 0) - (b.display_order ?? 0);
+    })[0]?.image_url ?? null;
+
+  const featuredUrl =
+    typeof listing.featured_image_url === "string" && listing.featured_image_url
+      ? listing.featured_image_url
+      : fallbackImg;
+
   return {
     id: String(listing.id ?? ""),
     slug: String(listing.slug ?? ""),
     name: String(listing.name ?? ""),
     short_description:
       typeof listing.short_description === "string" ? listing.short_description : null,
-    featured_image_url:
-      typeof listing.featured_image_url === "string" ? listing.featured_image_url : null,
+    featured_image_url: featuredUrl,
     tier: typeof listing.tier === "string" ? listing.tier : "unverified",
     is_curated: Boolean(listing.is_curated),
     google_rating:
@@ -411,7 +427,7 @@ export async function getCategoryCityPageDataAllowEmpty(
       .eq("city_id", cityId),
     supabase
       .from("listings")
-      .select(LISTING_FIELDS)
+      .select(LISTING_RELATION_FIELDS)
       .eq("status", "published")
       .eq("category_id", categoryId)
       .eq("city_id", cityId)
