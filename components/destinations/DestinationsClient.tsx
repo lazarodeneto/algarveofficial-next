@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { ArrowRight, MapPin, Loader2, Building2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -20,7 +20,7 @@ import { getRegionImageSet } from "@/lib/regionImages";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
-import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
+import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS, STANDARD_PUBLIC_NO_HERO_SPACER_CLASS } from "@/components/sections/hero-layout";
 
 export type RegionRow = Tables<"regions">;
 export type CityRow = Tables<"cities">;
@@ -86,6 +86,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
   const featuredCityHubData = cms.getBlockData("featured-city-hub");
   const highlightedCityId = typeof featuredCityHubData.cityId === "string" ? featuredCityHubData.cityId : null;
   const highlightedCity = highlightedCityId ? cities.find((c) => c.id === highlightedCityId) ?? featuredCities[0] : featuredCities[0];
+  const showFeaturedCityHub = Boolean(highlightedCity && highlightedCity.hero_image_url);
 
   const isLoading = regionsLoading || citiesLoading;
 
@@ -100,9 +101,9 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
   return (
     <div className="min-h-screen bg-background" data-cms-page="destinations">
       <Header />
-      <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />
+      <div className={STANDARD_PUBLIC_NO_HERO_SPACER_CLASS} aria-hidden="true" />
 
-       <CmsBlock pageId="destinations" blockId="featured-city-hub" as="section" className="pt-[4.5rem] sm:pt-[5rem] pb-8">
+       <CmsBlock pageId="destinations" blockId="featured-city-hub" as="section" className="pb-8">
         {highlightedCity && highlightedCity.hero_image_url && (
           <div className="app-container content-max">
             <LocaleLink
@@ -136,9 +137,14 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
         )}
       </CmsBlock>
 
-       <CmsBlock pageId="destinations" blockId="city-index" as="section" className="pt-8 lg:pt-16 pb-16 lg:pb-24 bg-card">
+       <CmsBlock
+        pageId="destinations"
+        blockId="city-index"
+        as="section"
+        className={`${showFeaturedCityHub ? "pt-8 lg:pt-16" : ""} pb-16 lg:pb-24 bg-card`}
+      >
         <div className="app-container content-max">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -151,10 +157,10 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
             <p className="mt-2 text-body text-muted-foreground">
               {cms.getText("city-index.subtitle", t("sections.cities.allCitiesSubtitle", "Explore every city across the Algarve"))}
             </p>
-          </motion.div>
+          </m.div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {cities.map((city, index) => (
-              <motion.div
+              <m.div
                 key={city.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -177,7 +183,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
                     <p className="text-xs text-muted-foreground line-clamp-2">{city.short_description}</p>
                   )}
                 </LocaleLink>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>
@@ -185,7 +191,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
 
       <CmsBlock pageId="destinations" blockId="all-city-hubs" as="section" className="py-16 lg:py-24">
         <div className="app-container content-max">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -198,11 +204,11 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
             <p className="mt-2 text-body text-muted-foreground">
               {cms.getText("all-city-hubs.subtitle", t("sections.cities.activeHubsSubtitle", "Dive into each vibrant city hub"))}
             </p>
-          </motion.div>
+          </m.div>
           <div className="flex-grid-centered">
             {cities.filter((c) => c.is_featured).map((city, index) => {
               return (
-                <motion.div
+                <m.div
                   key={city.id}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -246,7 +252,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
                       </div>
                     </div>
                   </LocaleLink>
-                </motion.div>
+                </m.div>
               );
             })}
           </div>
@@ -255,7 +261,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
 
       <CmsBlock pageId="destinations" blockId="featured-regions" as="section" className="py-16 lg:py-24">
         <div className="app-container content-max">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -264,12 +270,12 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
           >
             <h2 className="text-title font-serif font-medium text-foreground">{t("sections.regions.featured")}</h2>
             <p className="mt-2 text-body text-muted-foreground">{t("sections.regions.featuredSubtitle")}</p>
-          </motion.div>
+          </m.div>
           <div className="flex-grid-centered">
             {featuredRegions.map((region, index) => {
               const image = getRegionImageSet(region.slug, { includeAliases: true });
               return (
-                <motion.div
+                <m.div
                   key={region.id}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -321,7 +327,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
                       </div>
                     </div>
                   </LocaleLink>
-                </motion.div>
+                </m.div>
               );
             })}
           </div>
@@ -331,7 +337,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
       {otherRegions.length > 0 && (
         <CmsBlock pageId="destinations" blockId="other-regions" as="section" className="py-16 lg:py-24 bg-card">
           <div className="app-container content-max">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -340,10 +346,10 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
             >
               <h2 className="text-title font-serif font-medium text-foreground">{t("sections.regions.more")}</h2>
               <p className="mt-2 text-body text-muted-foreground">{t("sections.regions.moreSubtitle")}</p>
-            </motion.div>
+            </m.div>
             <div className="flex-grid-centered">
               {otherRegions.map((region, index) => (
-                <motion.div
+                <m.div
                   key={region.id}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -366,7 +372,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
                       {region.short_description || region.description}
                     </p>
                   </LocaleLink>
-                </motion.div>
+                </m.div>
               ))}
             </div>
           </div>
@@ -375,7 +381,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
 
       <CmsBlock pageId="destinations" blockId="cta" as="section" className="py-20 lg:py-28 bg-background">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -392,7 +398,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
                 {t("sections.regions.browseByCategory")} <ArrowRight className="w-4 h-4" />
               </LocaleLink>
             </Button>
-          </motion.div>
+          </m.div>
         </div>
       </CmsBlock>
 

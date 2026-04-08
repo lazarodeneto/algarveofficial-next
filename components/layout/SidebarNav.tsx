@@ -6,6 +6,7 @@ import clsx from "clsx";
 import {
   BedDouble,
   Binoculars,
+  BookOpen,
   CalendarDays,
   FlagTriangleRight,
   Home,
@@ -13,6 +14,7 @@ import {
   Mail,
   Map,
   MapPinHouse,
+  TrendingUp,
   type LucideIcon,
 } from "lucide-react";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
@@ -22,10 +24,11 @@ import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 const NAV_ICONS: Record<string, LucideIcon> = {
   "nav.visit": Binoculars,
   "nav.stay": BedDouble,
-  "nav.invest": HouseHeart,
+  "nav.invest": TrendingUp,
   "nav.properties": HouseHeart,
   "nav.experiences": Binoculars,
   "nav.map": Map,
+  "nav.blog": BookOpen,
   "nav.golf": FlagTriangleRight,
   "nav.events": CalendarDays,
   "nav.live": MapPinHouse,

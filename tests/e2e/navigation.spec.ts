@@ -4,7 +4,7 @@ const LOCALES = ["en", "pt-pt", "fr", "de", "es", "it", "nl", "sv", "no", "da"] 
 const TEST_LOCALES = ["en", "it", "fr", "de"] as const;
 
 const NAV_ITEMS = [
-  { name: "Live", path: "/live" },
+  { name: "Residence", path: "/live" },
   { name: "Directory", path: "/directory" },
   { name: "Blog", path: "/blog" },
   { name: "Events", path: "/events" },

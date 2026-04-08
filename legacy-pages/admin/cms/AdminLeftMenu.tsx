@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   DndContext,
   closestCenter,
@@ -234,7 +234,7 @@ export default function AdminLeftMenu() {
 
   return (
     <div className="space-y-6">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+      <m.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <div className="flex items-center gap-3">
           <PanelLeft className="h-8 w-8 text-primary" />
           <div>
@@ -242,7 +242,7 @@ export default function AdminLeftMenu() {
             <p className="text-muted-foreground">Manage left sidebar navigation menu items</p>
           </div>
         </div>
-      </motion.div>
+      </m.div>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">

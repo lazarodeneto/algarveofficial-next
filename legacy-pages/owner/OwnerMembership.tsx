@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
   Crown,
@@ -125,7 +125,7 @@ export default function OwnerMembership() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="space-y-1"
@@ -136,10 +136,10 @@ export default function OwnerMembership() {
         <p className="text-muted-foreground">
           {t('owner.membership.subtitle')}
         </p>
-      </motion.div>
+      </m.div>
 
       {/* Billing Period Toggle */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -156,7 +156,7 @@ export default function OwnerMembership() {
             )}
           >
             {billingPeriod === 'monthly' && (
-              <motion.div
+              <m.div
                 layoutId="billingToggle"
                 className="absolute inset-0 bg-background rounded-full shadow-sm border border-border"
                 transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
@@ -174,7 +174,7 @@ export default function OwnerMembership() {
             )}
           >
             {billingPeriod === 'annual' && (
-              <motion.div
+              <m.div
                 layoutId="billingToggle"
                 className="absolute inset-0 bg-background rounded-full shadow-sm border border-border"
                 transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
@@ -186,7 +186,7 @@ export default function OwnerMembership() {
             </span>
           </button>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Current Status */}
       <Card className={cn(
@@ -280,7 +280,7 @@ export default function OwnerMembership() {
             : "inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full bg-green-500 text-white";
           
           return (
-              <motion.div
+              <m.div
                 key={tier.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -336,7 +336,7 @@ export default function OwnerMembership() {
                   </div>
                   <div className="mt-4">
                     <AnimatePresence mode="wait">
-                      <motion.div
+                      <m.div
                         key={`${tier.id}-${billingPeriod}`}
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -360,7 +360,7 @@ export default function OwnerMembership() {
                             {pricing.monthlyEquivalent}
                           </p>
                         )}
-                      </motion.div>
+                      </m.div>
                     </AnimatePresence>
                   </div>
                 </CardHeader>
@@ -485,7 +485,7 @@ export default function OwnerMembership() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </m.div>
           );
         })}
       </div>

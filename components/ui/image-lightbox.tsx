@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -62,7 +62,7 @@ export function ImageLightbox({
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -89,7 +89,7 @@ export function ImageLightbox({
             className="relative w-full h-full flex items-center justify-center p-4 md:p-12"
             onClick={(e) => e.stopPropagation()}
           >
-            <motion.img
+            <m.img
               key={currentImage.id}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -158,7 +158,7 @@ export function ImageLightbox({
               ))}
             </div>
           )}
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

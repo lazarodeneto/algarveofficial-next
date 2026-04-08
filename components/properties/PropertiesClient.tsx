@@ -10,6 +10,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Loader2, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CuratedExcellence } from "@/components/sections/CuratedExcellence";
+import { STANDARD_PUBLIC_NO_HERO_SPACER_CLASS } from "@/components/sections/hero-layout";
 import { ConciergeContactDialog } from "@/components/real-estate/ConciergeContactDialog";
 import { useTranslation } from "react-i18next";
 import { Database } from "@/integrations/supabase/types";
@@ -150,9 +151,9 @@ export default function PropertiesClient() {
     return (
         <div className="min-h-screen bg-background flex flex-col">
             <Header />
-            <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />
+            <div className={STANDARD_PUBLIC_NO_HERO_SPACER_CLASS} aria-hidden="true" />
             <main className="flex-grow">
-                <div className="app-container py-14 sm:py-20 relative z-20">
+                <div className="app-container pb-14 sm:pb-20 relative z-20">
                     <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8">
                         <div className="xl:col-span-4 2xl:col-span-3">
                             <div className="sticky top-24">

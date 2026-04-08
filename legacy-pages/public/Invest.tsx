@@ -27,12 +27,18 @@ import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
 import { useCities } from "@/hooks/useReferenceData";
+import {
+    STANDARD_PUBLIC_HERO_WRAPPER_CLASS,
+    STANDARD_PUBLIC_NO_HERO_SPACER_CLASS,
+} from "@/components/sections/hero-layout";
 
 const Invest = () => {
     const { t } = useTranslation();
     const { getMetaDescription, getMetaTitle, getText, isBlockEnabled, getBlockData } = useCmsPageBuilder("invest");
     const l = useLocalePath();
     const { data: cities = [] } = useCities();
+    const heroEnabled = isBlockEnabled("hero", true);
+    const showCityHubs = cities.length > 0 && isBlockEnabled("city-hubs", true);
     const [purchasePrice, setPurchasePrice] = useState(1250000);
     const [occupancyRate, setOccupancyRate] = useState(62);
     const [averageNightlyRate, setAverageNightlyRate] = useState(580);
@@ -144,10 +150,11 @@ const Invest = () => {
         <div className="min-h-screen bg-background text-foreground" data-cms-page="invest">
 
             <Header />
+            {!heroEnabled && <div className={STANDARD_PUBLIC_NO_HERO_SPACER_CLASS} aria-hidden="true" />}
 
             <main className="flex-grow">
-                {isBlockEnabled("hero", true) && (
-                    <CmsBlock pageId="invest" blockId="hero" className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
+                {heroEnabled && (
+                    <CmsBlock pageId="invest" blockId="hero" className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
                         <LiveStyleHero
                             className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
                             badge={t("nav.invest")}
@@ -171,7 +178,7 @@ const Invest = () => {
                     </CmsBlock>
                 )}
 
-                {cities.length > 0 && isBlockEnabled("city-hubs", true) ? (
+                {showCityHubs ? (
                     <div className="app-container content-max pb-16">
                         <section className="mb-10 space-y-8">
                             {featuredCity && isBlockEnabled("featured-city-hub", true) ? (
@@ -272,7 +279,7 @@ const Invest = () => {
                     </div>
                 ) : null}
 
-                {isBlockEnabled("market-overview", true) && <CmsBlock pageId="invest" blockId="market-overview" as="section" className="pt-8 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
+                {isBlockEnabled("market-overview", true) && <CmsBlock pageId="invest" blockId="market-overview" as="section" className={`px-4 md:px-8 max-w-7xl mx-auto pb-20 ${heroEnabled || showCityHubs ? "pt-8" : ""}`}>
                     <div className="grid gap-10 lg:gap-14">
                         <div className="text-center max-w-4xl mx-auto">
                             <Badge variant="gold" className="uppercase tracking-[0.2em] text-[11px] px-4 py-1.5">

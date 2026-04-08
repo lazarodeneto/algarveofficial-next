@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { format, parseISO } from 'date-fns';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { 
   Calendar, 
   MapPin, 
@@ -120,7 +120,7 @@ export default function EventDetail() {
       <main className="pt-24 pb-16">
         <div className="app-container content-max">
           {/* Back Link */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             className="mb-6"
@@ -132,11 +132,11 @@ export default function EventDetail() {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Events
             </Link>
-          </motion.div>
+          </m.div>
 
           {/* Hero Image */}
           {event.image && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="relative aspect-[21/9] rounded-xl overflow-hidden mb-8"
@@ -169,11 +169,11 @@ export default function EventDetail() {
                   <Badge className="bg-primary text-primary-foreground">Featured</Badge>
                 )}
               </div>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Title & Actions */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -204,11 +204,11 @@ export default function EventDetail() {
                 </Button>
               )}
             </div>
-          </motion.div>
+          </m.div>
 
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Main Content */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
@@ -301,10 +301,10 @@ export default function EventDetail() {
                   </CardContent>
                 </Card>
               )}
-            </motion.div>
+            </m.div>
 
             {/* Sidebar */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -382,12 +382,12 @@ export default function EventDetail() {
                   </CardContent>
                 </Card>
               )}
-            </motion.div>
+            </m.div>
           </div>
 
           {/* Related Events Section */}
           {relatedEvents && relatedEvents.length > 0 && (
-            <motion.section
+            <m.section
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
@@ -472,7 +472,7 @@ export default function EventDetail() {
                   );
                 })}
               </div>
-            </motion.section>
+            </m.section>
           )}
         </div>
       </main>

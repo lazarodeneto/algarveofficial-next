@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback, type ComponentProps } from "r
 import NextLink from "next/link";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import type { Locale } from "@/lib/i18n/config";
-import { AnimatePresence, LazyMotion, domAnimation, m } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import {
   AlignJustify,
   X,
@@ -70,7 +70,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const directoryPath = l("/stay?category=places-to-stay");
   const experiencesPath = l("/experiences");
   const golfPath = l("/golf");
-  const investPath = l("/properties");
+  const investPath = l("/invest");
   const realEstatePath = l("/real-estate");
   const partnerPath = l("/partner");
   const homePath = l("/");
@@ -84,6 +84,10 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const messagesPath = isAuthenticated ? l("/dashboard/messages") : loginPath;
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim();
   const userInitial = (fullName.charAt(0) || user?.email?.trim().charAt(0) || "U").toUpperCase();
+  const accountAccentButtonClass =
+    "rounded-full border border-primary/25 bg-primary/12 text-primary hover:bg-primary/18 dark:border-primary/30 dark:bg-primary/18";
+  const accountInitialButtonClass =
+    "rounded-full border border-primary bg-primary text-primary-foreground shadow-[0_10px_24px_-18px_hsla(43,74%,49%,0.8)] hover:bg-primary/90 dark:border-primary dark:bg-primary dark:text-primary-foreground";
   const buildDirectoryCategoryPath = (category: string) =>
     l(`/directory?category=${category}`);
 
@@ -233,7 +237,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
+                    className={`h-8 w-8 transition-colors ${accountInitialButtonClass}`}
                   >
                     <span className="text-xs font-semibold leading-none">{userInitial}</span>
                     <span className="sr-only">{t("nav.account")}</span>
@@ -244,7 +248,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
+                    className={`h-8 w-8 transition-colors ${accountAccentButtonClass}`}
                   >
                     <User className="h-4 w-4" />
                     <span className="sr-only">{t("nav.account")}</span>
@@ -302,7 +306,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-9 w-9 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
+                        className={`h-9 w-9 transition-colors ${accountInitialButtonClass}`}
                       >
                         <span className="text-sm font-semibold leading-none">{userInitial}</span>
                         <span className="sr-only">{t("nav.account")}</span>
@@ -314,7 +318,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-9 w-9 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
+                      className={`h-9 w-9 transition-colors ${accountAccentButtonClass}`}
                     >
                       <User className="h-4.5 w-4.5" />
                       <span className="sr-only">{t("nav.account")}</span>
@@ -360,7 +364,6 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
         </nav>
 
         {/* Mobile menu */}
-        <LazyMotion features={domAnimation}>
           <AnimatePresence>
             {mobileMenuOpen && (
               <>
@@ -470,7 +473,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                         <Link href={investPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
                           <div className="flex items-center gap-3">
                             <HouseHeart className="h-6 w-6 text-primary" />
-                            {t("nav.properties")}
+                            {t("nav.invest")}
                           </div>
                         </Link>
                         <AccordionTrigger className="w-12 h-12 flex items-center justify-center p-0" />
@@ -500,6 +503,17 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                         </div>
                       </AccordionContent>
                     </AccordionItem>
+
+                    <div className="mx-3 border-t border-primary/15">
+                      <Link
+                        href={blogPath}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
+                      >
+                        <BookOpen className="h-6 w-6 text-primary" />
+                        {t("nav.blog", "Blog")}
+                      </Link>
+                    </div>
                   </Accordion>
 
                     <div className="mt-4 rounded-2xl border border-black/10 bg-white/66 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
@@ -518,10 +532,6 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                         <Link href={mapPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
                           <MapPin className="h-4 w-4 text-primary" />
                           {t("nav.map", "Map")}
-                        </Link>
-                        <Link href={blogPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
-                          <BookOpen className="h-4 w-4 text-primary" />
-                          {t("nav.blog", "Blog")}
                         </Link>
                       </div>
                     </div>
@@ -576,7 +586,6 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
               </>
             )}
           </AnimatePresence>
-        </LazyMotion>
       </header>
       <MobileBottomNav />
     </>

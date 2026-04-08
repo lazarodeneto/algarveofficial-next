@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -84,7 +84,7 @@ export function CitiesSection() {
     >
       <div className="app-container">
         {/* Section Header */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -100,7 +100,7 @@ export function CitiesSection() {
           <p className="mt-4 text-body text-muted-foreground max-w-2xl mx-auto">
             {t("sections.cities.subtitle")}
           </p>
-        </motion.div>
+        </m.div>
 
         {/* Cities Grid */}
         {isLoading ? (
@@ -153,7 +153,7 @@ export function CitiesSection() {
         )}
 
         {/* View All Button */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -166,7 +166,7 @@ export function CitiesSection() {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
-        </motion.div>
+        </m.div>
       </div>
     </section>
   );

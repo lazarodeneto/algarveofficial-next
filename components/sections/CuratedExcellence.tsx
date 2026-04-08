@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Crown, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
@@ -148,7 +148,7 @@ export function CuratedExcellence({
       <div className={fullWidth ? "relative" : "relative app-container"}>
         {/* Section Header */}
         {showSectionHeader && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
@@ -163,12 +163,12 @@ export function CuratedExcellence({
             <p className="mt-6 text-body lg:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed readable">
               {t('sections.curated.subtitle')}
             </p>
-          </motion.div>
+          </m.div>
         )}
 
         {/* Featured Listing Card */}
           <Link href={l(`/listing/${featuredListing.slug}`)} className="block">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 40, scale: 0.98 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true, margin: "-50px" }}
@@ -246,7 +246,7 @@ export function CuratedExcellence({
                 </span>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         </Link>
       </div>
     </section>

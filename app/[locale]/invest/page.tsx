@@ -1,37 +1,42 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
-import { permanentRedirect } from "next/navigation";
-import { DEFAULT_LOCALE, isValidLocale } from "@/lib/i18n/config";
-import { buildLocalizedAliasMetadata } from "@/lib/seo/metadata-builders";
+
+import InvestClient from "@/components/invest/InvestClient";
+import { isValidLocale, type Locale } from "@/lib/i18n/config";
+import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale: rawLocale } = await params;
-  const locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
 
-  return buildLocalizedAliasMetadata({
+  if (!isValidLocale(rawLocale)) {
+    return {};
+  }
+
+  const locale = rawLocale as Locale;
+
+  return buildLocalizedMetadata({
     locale,
-    canonicalPath: "/properties",
-    title: "Redirecting to Properties",
-    description: "Redirecting to the Properties page.",
-    noIndex: true,
+    path: "/invest",
+    title: "Invest in the Algarve",
+    description:
+      "Explore Algarve investment opportunities, city market context, and a practical acquisition planning flow for long-term value.",
+    keywords: [
+      "invest in Algarve",
+      "Algarve property investment",
+      "Algarve market insights",
+      "Portugal real estate investment",
+    ],
   });
 }
 
-export default async function InvestPage({ params, searchParams }: PageProps) {
-  const { locale: rawLocale } = await params;
-  const locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
-
-  const sp = await searchParams;
-  const qs = new URLSearchParams();
-  for (const [k, v] of Object.entries(sp)) {
-    if (typeof v === "string") qs.set(k, v);
-    else if (Array.isArray(v)) v.forEach((val) => qs.append(k, val));
-  }
-  const query = qs.toString();
-
-  permanentRedirect(`/${locale}/properties${query ? `?${query}` : ""}`);
+export default function InvestPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <InvestClient initialGlobalSettings={[]} />
+    </Suspense>
+  );
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X, MessageCircle, ArrowLeft } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChatThreads } from "@/hooks/useChat";
@@ -56,7 +56,7 @@ function ChatModalPanel({
   };
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, scale: 0.95, y: 20 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -127,7 +127,7 @@ function ChatModalPanel({
           />
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -152,7 +152,7 @@ export function ChatModal({
       {isOpen && (
         <>
           {/* Backdrop */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

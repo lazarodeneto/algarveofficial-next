@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from "next/navigation";
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import DOMPurify from 'dompurify';
@@ -125,7 +125,7 @@ export default function BlogPost() {
 
         {/* Article Content */}
         <article className="container max-w-4xl mx-auto px-4 -mt-32 relative z-10">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
@@ -250,7 +250,7 @@ export default function BlogPost() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </m.div>
         </article>
       </main>
 

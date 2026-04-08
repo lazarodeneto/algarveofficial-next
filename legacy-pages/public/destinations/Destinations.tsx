@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, MapPin, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -35,9 +35,9 @@ export default function Destinations() {
         <CmsBlock pageId="destinations" blockId="hero" as="section" className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-card via-background to-background" />
           <div className="relative app-container text-center">
-            <motion.span initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="inline-block text-sm font-medium text-primary tracking-[0.3em] uppercase mb-6">{t('sections.regions.label')}</motion.span>
-            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="text-hero font-serif font-medium text-foreground">{t('sections.regions.title')}</motion.h1>
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="mt-6 text-body text-muted-foreground max-w-3xl mx-auto readable">{t('sections.regions.subtitleLong')}</motion.p>
+            <m.span initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="inline-block text-sm font-medium text-primary tracking-[0.3em] uppercase mb-6">{t('sections.regions.label')}</m.span>
+            <m.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="text-hero font-serif font-medium text-foreground">{t('sections.regions.title')}</m.h1>
+            <m.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="mt-6 text-body text-muted-foreground max-w-3xl mx-auto readable">{t('sections.regions.subtitleLong')}</m.p>
           </div>
         </CmsBlock>
       )}
@@ -45,16 +45,16 @@ export default function Destinations() {
       {isBlockEnabled("featured-regions", true) && (
         <CmsBlock pageId="destinations" blockId="featured-regions" as="section" className="py-16 lg:py-24">
           <div className="app-container content-max">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="mb-12 text-center">
+            <m.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="mb-12 text-center">
               <h2 className="text-title font-serif font-medium text-foreground">{t('sections.regions.featured')}</h2>
               <p className="mt-2 text-body text-muted-foreground">{t('sections.regions.featuredSubtitle')}</p>
-            </motion.div>
+            </m.div>
             <div className="flex-grid-centered">
               {featuredRegions.map((region, index) => {
                 const image = getRegionImageSet(region.slug);
                 const heroSrc = region.hero_image_url || region.image_url;
                 return (
-                  <motion.div key={region.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: index * 0.1 }}>
+                  <m.div key={region.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: index * 0.1 }}>
                     <Link href={`/destinations/${region.slug}`} className="glass-box group relative overflow-hidden rounded-xl aspect-[4/5] luxury-card cursor-pointer block">
                       <div className="absolute inset-0">
                         {heroSrc ? (
@@ -75,7 +75,7 @@ export default function Destinations() {
                         </div>
                       </div>
                     </Link>
-                  </motion.div>
+                  </m.div>
                 );
               })}
             </div>
@@ -86,13 +86,13 @@ export default function Destinations() {
       {otherRegions.length > 0 && isBlockEnabled("other-regions", true) && (
         <CmsBlock pageId="destinations" blockId="other-regions" as="section" className="py-16 lg:py-24 bg-card">
           <div className="app-container content-max">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="mb-12 text-center">
+            <m.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="mb-12 text-center">
               <h2 className="text-title font-serif font-medium text-foreground">{t('sections.regions.more')}</h2>
               <p className="mt-2 text-body text-muted-foreground">{t('sections.regions.moreSubtitle')}</p>
-            </motion.div>
+            </m.div>
             <div className="flex-grid-centered">
               {otherRegions.map((region, index) => (
-                <motion.div key={region.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: index * 0.1 }}>
+                <m.div key={region.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: index * 0.1 }}>
                   <Link href={`/destinations/${region.slug}`} className="group block p-6 rounded-xl bg-background border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-elevated">
                     <div className="flex items-start justify-between mb-4">
                       <div className="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors"><MapPin className="w-6 h-6 text-primary" /></div>
@@ -100,7 +100,7 @@ export default function Destinations() {
                     <h3 className="text-lg font-serif font-medium text-foreground mb-2 group-hover:text-primary transition-colors">{region.name}</h3>
                     <p className="text-sm text-muted-foreground mb-3">{region.short_description || region.description}</p>
                   </Link>
-                </motion.div>
+                </m.div>
               ))}
             </div>
           </div>
@@ -110,13 +110,13 @@ export default function Destinations() {
       {isBlockEnabled("cta", true) && (
         <CmsBlock pageId="destinations" blockId="cta" as="section" className="py-20 lg:py-28 bg-background">
           <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+            <m.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
               <h2 className="text-3xl lg:text-4xl font-serif font-medium text-foreground mb-6">{t('sections.regions.cantDecide')}</h2>
               <p className="text-lg text-muted-foreground mb-8">{t('sections.regions.cantDecideSubtitle')}</p>
               <Button asChild variant="gold" size="lg">
                 <Link href="/#categories">{t('sections.regions.browseByCategory')} <ArrowRight className="w-4 h-4" /></Link>
               </Button>
-            </motion.div>
+            </m.div>
           </div>
         </CmsBlock>
       )}

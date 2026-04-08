@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   ArrowLeft,
   Save,
@@ -188,7 +188,7 @@ export default function OwnerListingEdit() {
   return (
     <div className="space-y-6 pb-24">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col gap-4"
@@ -228,7 +228,7 @@ export default function OwnerListingEdit() {
             </Button>
           </div>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Read-only Info */}
       <Card className="bg-muted/30 border-border">

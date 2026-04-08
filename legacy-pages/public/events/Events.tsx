@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { format, parseISO, isAfter, startOfDay, addMonths } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { 
@@ -30,13 +30,17 @@ import { CmsBlock } from '@/components/cms/CmsBlock';
 import { LiveStyleHero } from '@/components/sections/LiveStyleHero';
 import { HeroBackgroundMedia } from '@/components/sections/HeroBackgroundMedia';
 import { PageHeroImage } from '@/components/sections/PageHeroImage';
-import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
+import {
+  STANDARD_PUBLIC_HERO_WRAPPER_CLASS,
+  STANDARD_PUBLIC_NO_HERO_SPACER_CLASS,
+} from "@/components/sections/hero-layout";
 
 export default function Events() {
   const { t } = useTranslation();
   const l = useLocalePath();
   const { getText, isBlockEnabled } = useCmsPageBuilder("events");
   const today = startOfDay(new Date());
+  const heroEnabled = isBlockEnabled("hero", true);
   
   const [selectedCategory, setSelectedCategory] = useState<EventCategory | 'all'>('all');
 
@@ -77,10 +81,10 @@ export default function Events() {
   return (
     <div className="min-h-screen bg-background" data-cms-page="events">
       <Header />
-      {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
+      {!heroEnabled && <div className={STANDARD_PUBLIC_NO_HERO_SPACER_CLASS} aria-hidden="true" />}
 
       <main>
-        {isBlockEnabled("hero", true) ? (
+        {heroEnabled ? (
           <CmsBlock pageId="events" blockId="hero" as="section" className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
             <LiveStyleHero
               badge={t('sections.events.label', 'Algarve Calendar')}
@@ -138,14 +142,14 @@ export default function Events() {
 
         {/* Featured Events */}
         {featuredEvents.length > 0 && (
-          <section className="py-12 app-container content-max">
+          <section className={`${heroEnabled ? "py-12" : "pb-12"} app-container content-max`}>
             <h2 className="text-title font-serif font-semibold mb-8 flex items-center gap-2">
               <Star className="h-6 w-6 text-primary" />
               {t('sections.events.featured')}
             </h2>
             <div className="grid-adaptive">
               {featuredEvents.map((event: any, index: number) => (
-                <motion.div
+                <m.div
                   key={event.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -212,14 +216,16 @@ export default function Events() {
                       </CardContent>
                     </Card>
                   </Link>
-                </motion.div>
+                </m.div>
               ))}
             </div>
           </section>
         )}
 
         {/* All Events by Month */}
-        <section className="py-12 app-container content-max">
+        <section
+          className={`${featuredEvents.length > 0 || heroEnabled ? "py-12" : "pb-12"} app-container content-max`}
+        >
           <h2 className="text-title font-serif font-semibold mb-8">
             {t('common.upcomingEvents', 'Upcoming Events')}
           </h2>
@@ -243,7 +249,7 @@ export default function Events() {
                   </h3>
                   <div className="grid-adaptive">
                     {events.map((event: any, index: number) => (
-                      <motion.div
+                      <m.div
                         key={event.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -275,7 +281,7 @@ export default function Events() {
                             </div>
                           </Card>
                         </Link>
-                      </motion.div>
+                      </m.div>
                     ))}
                   </div>
                 </div>

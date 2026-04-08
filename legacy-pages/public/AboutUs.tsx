@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { Compass, Handshake, Newspaper, Sparkles, Users, LineChart } from "lucide-react";
@@ -58,30 +58,30 @@ export default function AboutUs() {
       <section className="relative pt-24 pb-16 lg:pt-32 lg:pb-24 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-primary/5 to-transparent" />
         <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
-          <motion.span
+          <m.span
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45 }}
             className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs uppercase tracking-[0.2em] text-primary"
           >
             {t("about.badge")}
-          </motion.span>
-          <motion.h1
+          </m.span>
+          <m.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.05 }}
             className="mt-6 text-4xl sm:text-5xl lg:text-6xl font-serif font-medium text-foreground leading-tight"
           >
             {t("about.heroTitle")}
-          </motion.h1>
-          <motion.p
+          </m.h1>
+          <m.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.15 }}
             className="mt-6 text-lg text-muted-foreground max-w-3xl mx-auto"
           >
             {t("about.heroSubtitle")}
-          </motion.p>
+          </m.p>
         </div>
       </section>
 
@@ -107,7 +107,7 @@ export default function AboutUs() {
           </div>
           <div className="grid gap-6 md:grid-cols-3">
             {valueCards.map((item, index) => (
-              <motion.div
+              <m.div
                 key={item.titleKey}
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -127,7 +127,7 @@ export default function AboutUs() {
                     </CardDescription>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>
@@ -141,7 +141,7 @@ export default function AboutUs() {
           </div>
           <div className="grid gap-6 md:grid-cols-2">
             {teamCards.map((card, index) => (
-              <motion.div
+              <m.div
                 key={card.roleKey}
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -159,7 +159,7 @@ export default function AboutUs() {
                     <CardDescription className="text-base leading-relaxed">{t(card.bioKey)}</CardDescription>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>

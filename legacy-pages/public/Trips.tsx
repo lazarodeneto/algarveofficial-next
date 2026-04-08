@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { format, differenceInDays } from 'date-fns';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
   CalendarDays,
@@ -150,7 +150,7 @@ export default function Trips() {
       <main className="flex-1 pt-24 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         <div className="space-y-6">
           {/* Header */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
@@ -170,11 +170,11 @@ export default function Trips() {
                 {t("dashboard.tripPlanner.newTrip")}
               </Button>
             )}
-          </motion.div>
+          </m.div>
 
           {/* Main Content */}
           {trips.length === 0 ? (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
@@ -192,9 +192,9 @@ export default function Trips() {
                   </Button>
                 </CardContent>
               </Card>
-            </motion.div>
+            </m.div>
           ) : !currentSelectedTrip ? (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
@@ -203,7 +203,7 @@ export default function Trips() {
               {trips.map((trip, index) => {
                 const duration = differenceInDays(new Date(trip.end_date), new Date(trip.start_date)) + 1;
                 return (
-                  <motion.div
+                  <m.div
                     key={trip.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -254,12 +254,12 @@ export default function Trips() {
                         </div>
                       </CardContent>
                     </Card>
-                  </motion.div>
+                  </m.div>
                 );
               })}
-            </motion.div>
+            </m.div>
           ) : (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
@@ -298,7 +298,7 @@ export default function Trips() {
                   />
                 </CardContent>
               </Card>
-            </motion.div>
+            </m.div>
           )}
         </div>
 

@@ -20,6 +20,10 @@ import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { useCities } from "@/hooks/useReferenceData";
 import Link from "next/link";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import {
+    STANDARD_PUBLIC_HERO_WRAPPER_CLASS,
+    STANDARD_PUBLIC_NO_HERO_SPACER_CLASS,
+} from "@/components/sections/hero-layout";
 
 type Lang = "en" | "pt-pt" | "fr" | "de" | "es" | "it" | "nl" | "sv" | "no" | "da";
 
@@ -48,6 +52,8 @@ export default function RealEstateDirectory() {
     const l = useLocalePath();
     const { data: cities = [] } = useCities();
     const targetLang = normalizeLang(i18n.language);
+    const heroEnabled = isBlockEnabled("hero", true);
+    const showCityHubs = cities.length > 0 && isBlockEnabled("city-hubs", true);
     const [filters, setFilters] = useState({
         priceMin: "",
         priceMax: "",
@@ -182,10 +188,11 @@ export default function RealEstateDirectory() {
     return (
         <div className="min-h-screen bg-background flex flex-col" data-cms-page="real-estate">
             <Header />
+            {!heroEnabled && <div className={STANDARD_PUBLIC_NO_HERO_SPACER_CLASS} aria-hidden="true" />}
 
             <main className="flex-grow">
-                {isBlockEnabled("hero", true) ? (
-                    <CmsBlock pageId="real-estate" blockId="hero" as="section" className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
+                {heroEnabled ? (
+                    <CmsBlock pageId="real-estate" blockId="hero" as="section" className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
                         <LiveStyleHero
                             className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
                             badge={t("realEstate.hero.badge", "Exclusive Portfolio")}
@@ -209,7 +216,7 @@ export default function RealEstateDirectory() {
                     </CmsBlock>
                 ) : null}
 
-                {cities.length > 0 && isBlockEnabled("city-hubs", true) ? (
+                {showCityHubs ? (
                     <div className="app-container content-max pb-[calc(4rem+10px)] sm:pb-[calc(5rem+10px)]">
                         <section className="mb-[calc(4rem+10px)] sm:mb-[calc(5rem+10px)] space-y-8">
                             {featuredCity && isBlockEnabled("featured-city-hub", true) ? (
@@ -316,7 +323,7 @@ export default function RealEstateDirectory() {
                     </div>
                 ) : null}
 
-                <div className="app-container py-14 sm:py-20 relative z-20">
+                <div className={`app-container relative z-20 ${heroEnabled || showCityHubs ? "py-14 sm:py-20" : "pb-14 sm:pb-20"}`}>
                     <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8">
                         {/* Sidebar Filters */}
                         <div className="xl:col-span-4 2xl:col-span-3">

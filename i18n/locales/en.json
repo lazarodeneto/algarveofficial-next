@@ -18,7 +18,7 @@
     "events": "Events",
     "visit": "Visit",
     "stay": "Stay",
-    "live": "Live",
+    "live": "Residence",
     "invest": "Invest",
     "properties": "Properties",
     "experiences": "Experiences",
@@ -38,7 +38,7 @@
   "menu": {
     "visit": "Visit",
     "stay": "Stay",
-    "live": "Live",
+    "live": "Residence",
     "invest": "Invest",
     "properties": "Properties",
     "experiences": "Experiences",
@@ -55,8 +55,8 @@
         "label": "Explore stays"
       },
       "live": {
-        "title": "Live in Algarve",
-        "desc": "Everything you need to make the Algarve your permanent home.",
+        "title": "Residence in Algarve",
+        "desc": "Everything you need to make the Algarve your permanent residence.",
         "label": "Learn more"
       },
       "experiences": {
@@ -686,7 +686,7 @@
   "live": {
     "hero": {
       "badge": "Relocation Guidance",
-      "title": "Live in the Algarve, with clarity from day one",
+      "title": "Residence in the Algarve, with clarity from day one",
       "subtitle": "Structured guidance for residency, housing, and daily life so your move is smooth, compliant, and future-ready.",
       "ctaPrimary": "Plan My Move",
       "ctaSecondary": "Browse Local Experts",
@@ -766,7 +766,8 @@
       "budget": {
         "lean": "Lean Setup",
         "balanced": "Balanced Premium",
-        "luxury": "Premium Comfort"
+        "premium": "Premium Comfort",
+        "luxury": "LUXURY"
       },
       "schoolingLabel": "Need School Support?",
       "schooling": {

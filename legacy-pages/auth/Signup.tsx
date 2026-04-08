@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Eye, EyeOff, ArrowLeft, Mail, Lock, User, CheckCircle, Globe } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 export default function Signup() {
   const { signup, loginWithGoogle, isLoading, isAuthenticated, user, getDashboardPath } = useAuth();
@@ -127,7 +127,7 @@ export default function Signup() {
 
       {/* Right Panel - Signup Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-        <motion.div 
+        <m.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -305,7 +305,7 @@ export default function Signup() {
               </CardFooter>
             </form>
           </Card>
-        </motion.div>
+        </m.div>
       </div>
     </div>
   );

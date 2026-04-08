@@ -1,6 +1,6 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -159,7 +159,7 @@ const Partner = () => {
         <div className="absolute top-1/3 right-1/3 w-px h-24 bg-gradient-to-b from-transparent via-primary/20 to-transparent" />
         
         <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -170,7 +170,7 @@ const Partner = () => {
             <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
               {content.heroSubtitle}
             </p>
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
@@ -178,7 +178,7 @@ const Partner = () => {
       <section className="py-16 lg:py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-8">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -205,9 +205,9 @@ const Partner = () => {
                   </Button>
                 </CardContent>
               </Card>
-            </motion.div>
+            </m.div>
 
-            <motion.div
+            <m.div
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -234,7 +234,7 @@ const Partner = () => {
                   </Button>
                 </CardContent>
               </Card>
-            </motion.div>
+            </m.div>
           </div>
         </div>
       </section>
@@ -242,7 +242,7 @@ const Partner = () => {
       {/* Contact Form Section */}
       <section id="partner-form" className="py-16 lg:py-20 bg-muted/30">
         <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -361,7 +361,7 @@ const Partner = () => {
                 </form>
               </CardContent>
             </Card>
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
@@ -373,7 +373,7 @@ const Partner = () => {
           </h2>
           
           <div className="grid md:grid-cols-3 gap-8">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -392,9 +392,9 @@ const Partner = () => {
                   </p>
                 </CardContent>
               </Card>
-            </motion.div>
+            </m.div>
 
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -413,9 +413,9 @@ const Partner = () => {
                   </p>
                 </CardContent>
               </Card>
-            </motion.div>
+            </m.div>
 
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -434,7 +434,7 @@ const Partner = () => {
                   </p>
                 </CardContent>
               </Card>
-            </motion.div>
+            </m.div>
           </div>
         </div>
       </section>

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   ArrowRight,
   CheckCircle2,
@@ -32,12 +32,21 @@ import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
+import {
+  STANDARD_PUBLIC_HERO_WRAPPER_CLASS,
+  STANDARD_PUBLIC_NO_HERO_SPACER_CLASS,
+} from "@/components/sections/hero-layout";
 
 const Live = () => {
   const { t } = useTranslation();
   const { getMetaDescription, getMetaTitle, getText, isBlockEnabled, getBlockData } = useCmsPageBuilder("live");
   const { data: cities = [], isLoading } = useCities();
   const l = useLocalePath();
+  const heroEnabled = isBlockEnabled("hero", true);
+  const showCityHubs = cities.length > 0 && isBlockEnabled("city-hubs", true);
+  const showSegments = isBlockEnabled("segments", true);
+  const plannerEnabled = isBlockEnabled("planner", true);
+  const ctaEnabled = isBlockEnabled("cta", true);
   const [timeline, setTimeline] = useState("3-6");
   const [household, setHousehold] = useState("couple");
   const [housingPlan, setHousingPlan] = useState("rent-first");
@@ -130,7 +139,8 @@ const Live = () => {
   const budgetTier = useMemo(() => {
     if (monthlyBudget < 3000) return t("live.planner.budget.lean", "Lean Setup");
     if (monthlyBudget < 5500) return t("live.planner.budget.balanced", "Balanced Premium");
-    return t("live.planner.budget.luxury", "Premium Comfort");
+    if (monthlyBudget < 20000) return t("live.planner.budget.premium", "Premium Comfort");
+    return t("live.planner.budget.luxury", "LUXURY");
   }, [monthlyBudget, t]);
 
   const timelineLabelMap: Record<string, string> = {
@@ -202,14 +212,15 @@ const Live = () => {
     <div className="min-h-screen bg-background text-foreground" data-cms-page="live">
 
       <Header />
+      {!heroEnabled && <div className={STANDARD_PUBLIC_NO_HERO_SPACER_CLASS} aria-hidden="true" />}
 
       <main className="flex-grow">
-        {isBlockEnabled("hero", true) && (
-          <CmsBlock pageId="live" blockId="hero" className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
+        {heroEnabled && (
+          <CmsBlock pageId="live" blockId="hero" className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
             <LiveStyleHero
               className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
               badge={t("live.hero.badge", "Relocation Guidance")}
-              title={t("live.hero.title", "Live in the Algarve, with clarity from day one")}
+              title={t("live.hero.title", "Residence in the Algarve, with clarity from day one")}
               subtitle={t(
                 "live.hero.subtitle",
                 "Structured guidance for residency, housing, and daily life so your move is smooth, compliant, and future-ready.",
@@ -244,7 +255,7 @@ const Live = () => {
           </CmsBlock>
         )}
 
-        {cities.length > 0 && isBlockEnabled("city-hubs", true) ? (
+        {showCityHubs ? (
           <div className="app-container content-max pb-16">
             <section className="mb-10 space-y-8">
               {featuredCity && isBlockEnabled("featured-city-hub", true) ? (
@@ -345,7 +356,7 @@ const Live = () => {
           </div>
         ) : null}
 
-        {isBlockEnabled("segments", true) && <CmsBlock pageId="live" blockId="segments" as="section" className="max-w-7xl mx-auto px-4 md:px-8 py-8 lg:py-12">
+        {showSegments && <CmsBlock pageId="live" blockId="segments" as="section" className={`max-w-7xl mx-auto px-4 md:px-8 ${heroEnabled || showCityHubs ? "py-8 lg:py-12" : "pb-8 lg:pb-12"}`}>
           <div className="grid gap-3 md:grid-cols-3">
             {liveStats.map((stat) => (
               <article key={stat.label} className="glass-box p-5 flex items-center gap-4">
@@ -361,7 +372,7 @@ const Live = () => {
           </div>
         </CmsBlock>}
 
-        {isBlockEnabled("planner", true) && <CmsBlock pageId="live" blockId="planner" as="section" className="max-w-7xl mx-auto px-4 md:px-8 py-10 lg:py-14">
+        {plannerEnabled && <CmsBlock pageId="live" blockId="planner" as="section" className="max-w-7xl mx-auto px-4 md:px-8 py-10 lg:py-14">
           <div className="mb-8 text-center">
             <span className="text-sm font-medium text-primary tracking-[0.2em] uppercase">
               {t("live.planner.label", "Relocation Planner")}
@@ -439,7 +450,7 @@ const Live = () => {
                 <Slider
                   value={[monthlyBudget]}
                   min={1800}
-                  max={12000}
+                  max={25000}
                   step={100}
                   onValueChange={(values) => setMonthlyBudget(values[0] ?? 1800)}
                 />
@@ -525,7 +536,7 @@ const Live = () => {
           </div>
         </CmsBlock>}
 
-        {isBlockEnabled("segments", true) && <CmsBlock pageId="live" blockId="segments" as="section" className="max-w-7xl mx-auto px-4 md:px-8 py-10 lg:py-14">
+        {showSegments && <CmsBlock pageId="live" blockId="segments" as="section" className="max-w-7xl mx-auto px-4 md:px-8 py-10 lg:py-14">
           <div className="mb-8 text-center">
             <span className="text-sm font-medium text-primary tracking-[0.2em] uppercase">
               {t("live.roadmap.label", "Relocation Roadmap")}
@@ -545,7 +556,7 @@ const Live = () => {
           </div>
         </CmsBlock>}
 
-        {isBlockEnabled("segments", true) && <CmsBlock pageId="live" blockId="segments" as="section" className="max-w-7xl mx-auto px-4 md:px-8 py-10 lg:py-14">
+        {showSegments && <CmsBlock pageId="live" blockId="segments" as="section" className="max-w-7xl mx-auto px-4 md:px-8 py-10 lg:py-14">
           <div className="mb-8 text-center">
             <span className="text-sm font-medium text-primary tracking-[0.2em] uppercase">
               {t("live.pillars.label", "Life Essentials")}
@@ -598,7 +609,7 @@ const Live = () => {
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {featuredCities.map((city, index) => (
-                <motion.article
+                <m.article
                   key={city.id}
                   initial={{ opacity: 0, y: 10 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -628,13 +639,13 @@ const Live = () => {
                       <ArrowRight className="h-4 w-4 ml-1" />
                     </Link>
                   </div>
-                </motion.article>
+                </m.article>
               ))}
             </div>
           )}
         </CmsBlock>}
 
-        {isBlockEnabled("cta", true) && <CmsBlock pageId="live" blockId="cta" as="section" className="max-w-7xl mx-auto px-4 md:px-8 pt-4 pb-20">
+        {ctaEnabled && <CmsBlock pageId="live" blockId="cta" as="section" className="max-w-7xl mx-auto px-4 md:px-8 pt-4 pb-20">
           <div className="glass-box p-8 md:p-10 text-center">
             <h2 className="text-3xl font-serif font-medium mb-3">
               {t("live.final.title", "Ready to establish your base in the Algarve?")}

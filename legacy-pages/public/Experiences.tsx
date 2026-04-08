@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { LazyMotion, domAnimation, motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   ArrowRight,
   Building2,
@@ -51,6 +51,11 @@ import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
+import {
+  STANDARD_PUBLIC_CONTENT_TOP_CLASS,
+  STANDARD_PUBLIC_HERO_WRAPPER_CLASS,
+  STANDARD_PUBLIC_NO_HERO_SPACER_CLASS,
+} from "@/components/sections/hero-layout";
 import { CityHubsSection } from "@/components/shared/CityHubsSection";
 import {
   buildMergedCategoryOptions,
@@ -205,6 +210,7 @@ const Experiences = () => {
   );
 
   const topCities = useMemo(() => municipalityCities.slice(0, 8), [municipalityCities]);
+  const heroEnabled = isBlockEnabled("hero", true);
 
   // Featured city from CMS data or first top city
   const featuredCityHubData = getBlockData("featured-city-hub");
@@ -381,15 +387,14 @@ const Experiences = () => {
     >
 
       <Header />
-      {!isBlockEnabled("hero", true) && <div className="h-[calc(4rem+10px)] sm:h-[calc(5rem+10px)]" aria-hidden="true" />}
+      {!heroEnabled && <div className={STANDARD_PUBLIC_NO_HERO_SPACER_CLASS} aria-hidden="true" />}
 
       <main className="flex-grow">
-        <LazyMotion features={domAnimation}>
-        {isBlockEnabled("hero", true) && (
+        {heroEnabled && (
           <CmsBlock
             pageId="experiences"
             blockId="hero"
-            className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4"
+            className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}
           >
             <LiveStyleHero
               className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
@@ -446,7 +451,7 @@ const Experiences = () => {
           </CmsBlock>
         )}
 
-        <div className="app-container content-max pb-16 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
+        <div className={`app-container content-max pb-16 ${heroEnabled ? STANDARD_PUBLIC_CONTENT_TOP_CLASS : ""}`}>
           {topCities.length > 0 && isBlockEnabled("city-hubs", true) ? (
             <CityHubsSection
               highlightedCity={highlightedCity}
@@ -726,7 +731,7 @@ const Experiences = () => {
               ) : null}
 
               {!listingsLoading && listings.length === 0 ? (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="text-center py-16"
@@ -750,7 +755,7 @@ const Experiences = () => {
                       "Clear All Filters",
                     )}
                   </Button>
-                </motion.div>
+                </m.div>
               ) : null}
 
               {!listingsLoading && listings.length > 0 ? (
@@ -878,7 +883,6 @@ const Experiences = () => {
           </CmsBlock>
         )}
         </div>
-        </LazyMotion>
       </main>
 
       <Footer />

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
   HelpCircle,
@@ -141,7 +141,7 @@ export default function OwnerSupport() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="space-y-1"
@@ -152,7 +152,7 @@ export default function OwnerSupport() {
         <p className="text-muted-foreground">
           {t('owner.support.subtitle')}
         </p>
-      </motion.div>
+      </m.div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Contact Options */}

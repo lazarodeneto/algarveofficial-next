@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
   Image as ImageIcon,
@@ -224,7 +224,7 @@ export default function OwnerMedia() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="space-y-1"
@@ -235,7 +235,7 @@ export default function OwnerMedia() {
         <p className="text-muted-foreground">
           {t('owner.media.subtitle')}
         </p>
-      </motion.div>
+      </m.div>
 
       {/* Listing Selector */}
       <Card className="bg-card border-border">

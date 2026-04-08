@@ -6,6 +6,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 
 import "../index.css";
+import { AppLazyMotion } from "@/components/providers/AppLazyMotion";
 import { RootProviders } from "@/components/providers/RootProviders";
 import { DEFAULT_LOCALE, LOCALE_CONFIGS, SUPPORTED_LOCALES } from "@/lib/i18n/config";
 import { buildMetadata } from "@/lib/metadata";
@@ -91,7 +92,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <Script id="locale-init" strategy="beforeInteractive">
           {localeInitScript}
         </Script>
-        <RootProviders>{children}</RootProviders>
+        <AppLazyMotion>
+          <RootProviders>{children}</RootProviders>
+        </AppLazyMotion>
         <Analytics />
         <SpeedInsights />
       </body>

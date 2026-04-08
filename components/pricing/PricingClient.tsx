@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Check, X, Sparkles, Crown, ArrowRight, Calculator } from "lucide-react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
@@ -126,7 +126,7 @@ export function PricingClient() {
       {/* Hero */}
       <section className="pt-32 pb-16 lg:pt-40 lg:pb-20">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -146,14 +146,14 @@ export function PricingClient() {
                 "Transparent pricing for every stage of growth. From verified visibility to exclusive Signature placement.",
               )}
             </p>
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
       {/* ROI Calculator */}
       <section className="pb-16 lg:pb-24">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -259,7 +259,7 @@ export function PricingClient() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
@@ -279,7 +279,7 @@ export function PricingClient() {
                   ? `${t("admin.subscriptions.billing.period", "Promo")}: ${dynamicTier.promo.display} (${dynamicTier.promo.note})`
                   : null;
                 return (
-              <motion.div
+              <m.div
                 key={tier.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -343,7 +343,7 @@ export function PricingClient() {
                     </Button>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </m.div>
                 );
               })()
             ))}
@@ -365,7 +365,7 @@ export function PricingClient() {
       {/* FAQ */}
       <section className="py-16 lg:py-24 bg-muted/30">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -382,14 +382,14 @@ export function PricingClient() {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
       {/* Final CTA */}
       <section className="py-16 lg:py-24">
         <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -418,7 +418,7 @@ export function PricingClient() {
                 </Link>
               </Button>
             </div>
-          </motion.div>
+          </m.div>
         </div>
       </section>
     </div>

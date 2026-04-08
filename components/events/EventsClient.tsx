@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { format, parseISO } from "date-fns";
@@ -224,7 +224,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
             </h2>
             <div className="grid-adaptive">
               {featuredEvents.map((event, index) => (
-                <motion.div
+                <m.div
                   key={event.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -293,7 +293,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                       </CardContent>
                     </Card>
                   </Link>
-                </motion.div>
+                </m.div>
               ))}
             </div>
           </section>
@@ -321,7 +321,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                   </h3>
                   <div className="grid-adaptive">
                     {monthEvents.map((event, index) => (
-                      <motion.div
+                      <m.div
                         key={event.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -353,7 +353,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                             </div>
                           </Card>
                         </Link>
-                      </motion.div>
+                      </m.div>
                     ))}
                   </div>
                 </div>

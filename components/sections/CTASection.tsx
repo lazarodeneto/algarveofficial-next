@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { ArrowRight, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
@@ -22,7 +22,7 @@ export function CTASection() {
       </div>
 
       <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -65,7 +65,7 @@ export function CTASection() {
           <p className="mt-8 text-sm text-muted-foreground">
             {t('sections.cta.stats', { count: listingCount })}
           </p>
-        </motion.div>
+        </m.div>
       </div>
     </section>
   );

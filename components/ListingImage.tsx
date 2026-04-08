@@ -71,6 +71,7 @@ export default function ListingImage({
   isRepresentative = false,
 }: ListingImageProps) {
   const [hasError, setHasError] = useState(false);
+  const classNameValue = typeof className === "string" ? className : "";
 
   const sourceCandidates = [
     hasError ? null : resolveListingImageUrl(src),
@@ -89,10 +90,20 @@ export default function ListingImage({
   
   const isUsingFallback = !src || hasError;
   const showRepresentativeBadge = isRepresentative && isUsingFallback;
+  const shouldAutoFill =
+    !fill &&
+    /\bobject-cover\b/.test(classNameValue) &&
+    (
+      /\b(h-full|absolute|inset-0)\b/.test(classNameValue) ||
+      /\bh-\d+\b/.test(classNameValue) ||
+      /\bh-\[[^\]]+\]/.test(classNameValue) ||
+      /\baspect-(square|\[[^\]]+\])\b/.test(classNameValue)
+    );
+  const useFillLayout = fill || shouldAutoFill;
 
-  if (fill) {
+  if (useFillLayout) {
     return (
-      <div className={cn("relative w-full h-full", className)} style={style}>
+      <div className={cn("relative h-full w-full overflow-hidden bg-muted", className)} style={style}>
         {useNativeImg ? (
           <img
             src={currentUrl}
@@ -133,7 +144,7 @@ export default function ListingImage({
 
   if (useNativeImg) {
     return (
-      <div className={cn("relative bg-muted", className)} style={style}>
+      <div className={cn("relative overflow-hidden bg-muted", className)} style={style}>
         <img
           src={currentUrl}
           alt={showRepresentativeBadge ? `Representative image of ${alt}` : resolvedAlt}
@@ -156,7 +167,7 @@ export default function ListingImage({
   }
 
   return (
-    <div className={cn("relative bg-muted", className)} style={style}>
+    <div className={cn("relative overflow-hidden bg-muted", className)} style={style}>
       <Image
         src={currentUrl}
         alt={showRepresentativeBadge ? `Representative image of ${alt}` : resolvedAlt}

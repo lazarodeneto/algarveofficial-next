@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { format, addDays, startOfWeek, isSameDay, parseISO, isWithinInterval, isBefore, startOfDay } from 'date-fns';
 import { ChevronLeft, ChevronRight, Plus, Clock, Euro, Trash2, Edit2, CirclePlus, CircleX } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -124,7 +124,7 @@ export function TripCalendar({ trip, view, onAddEvent, onEditEvent, onDeleteEven
           };
 
           return (
-            <motion.div
+            <m.div
               key={day.toISOString()}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -195,7 +195,7 @@ export function TripCalendar({ trip, view, onAddEvent, onEditEvent, onDeleteEven
                   {events.map((event) => {
                     const listing = getListingInfo(event.listing_id);
                     return (
-                      <motion.div
+                      <m.div
                         key={event.id}
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -249,12 +249,12 @@ export function TripCalendar({ trip, view, onAddEvent, onEditEvent, onDeleteEven
                             </div>
                           </CardContent>
                         </Card>
-                      </motion.div>
+                      </m.div>
                     );
                   })}
                 </AnimatePresence>
               </div>
-            </motion.div>
+            </m.div>
           );
         })}
       </div>

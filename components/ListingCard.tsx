@@ -9,7 +9,7 @@ import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
 import { FavoriteButton } from "@/components/ui/favorite-button";
 import { renderCategoryIcon } from "@/lib/categoryIcons";
 import { translateCategoryName } from "@/lib/translateCategory";
-import { LazyMotion, domAnimation, m } from "framer-motion";
+import { m } from "framer-motion";
 import type { ListingWithRelations } from "@/hooks/useListings";
 import { useTranslation } from "react-i18next";
 

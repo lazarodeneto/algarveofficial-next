@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
   Edit,
@@ -94,7 +94,7 @@ export default function OwnerListings() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row gap-4 justify-between"
@@ -105,7 +105,7 @@ export default function OwnerListings() {
             {t('owner.listings.subtitle')}
           </p>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
@@ -149,7 +149,7 @@ export default function OwnerListings() {
           </Card>
         ) : (
           filteredListings.map((listing, index) => (
-            <motion.div
+            <m.div
               key={listing.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -238,7 +238,7 @@ export default function OwnerListings() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </m.div>
           ))
         )}
       </div>

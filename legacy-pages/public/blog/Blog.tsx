@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { Search, Clock, User, Loader2 } from 'lucide-react';
@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CmsBlock } from '@/components/cms/CmsBlock';
 import { useCmsPageBuilder } from '@/hooks/useCmsPageBuilder';
+import { STANDARD_PUBLIC_NO_HERO_SPACER_CLASS } from "@/components/sections/hero-layout";
 import { 
   usePublishedBlogPosts, 
   blogCategoryLabels, 
@@ -21,6 +22,7 @@ import {
 export default function Blog() {
   const { t } = useTranslation();
   const { getMetaDescription, getMetaTitle, getText, isBlockEnabled } = useCmsPageBuilder("blog");
+  const heroEnabled = isBlockEnabled("hero", true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<BlogCategory | 'all'>('all');
 
@@ -58,45 +60,46 @@ export default function Blog() {
 
   const featuredPost = filteredPosts[0];
   const remainingPosts = filteredPosts.slice(1);
+  const showFeaturedPost = Boolean(!isLoading && featuredPost && isBlockEnabled("featured-post", true));
 
   return (
     <div className="min-h-screen bg-background" data-cms-page="blog">
       <Header />
-      {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
+      {!heroEnabled && <div className={STANDARD_PUBLIC_NO_HERO_SPACER_CLASS} aria-hidden="true" />}
 
       <main>
         {/* Hero Section */}
-        {isBlockEnabled("hero", true) && (
+        {heroEnabled && (
           <CmsBlock pageId="blog" blockId="hero" as="section" className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-card via-background to-background" />
           <div className="relative app-container text-center">
-            <motion.span
+            <m.span
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className="inline-block text-sm font-medium text-primary tracking-[0.3em] uppercase mb-6"
             >
               {t('blog.label', 'Stories & Guides')}
-            </motion.span>
-            <motion.h1
+            </m.span>
+            <m.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-hero font-serif font-medium text-foreground"
             >
               {t('blog.title', 'Blog & Insights')}
-            </motion.h1>
-            <motion.p
+            </m.h1>
+            <m.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
               className="mt-6 text-body text-muted-foreground max-w-3xl mx-auto readable"
             >
               {t('blog.subtitle', 'Discover the Algarve lifestyle, travel guides, and insider tips')}
-            </motion.p>
+            </m.p>
               
             {/* Search */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
@@ -110,11 +113,11 @@ export default function Blog() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-12 h-12 text-lg bg-card border-border"
               />
-            </motion.div>
+            </m.div>
           </div>
 
           {/* Category Filter */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
@@ -137,21 +140,26 @@ export default function Blog() {
                 {getCategoryLabel(key)}
               </Button>
             ))}
-          </motion.div>
+          </m.div>
           </CmsBlock>
         )}
 
         {/* Loading State */}
         {isLoading && (
-          <div className="flex justify-center py-20">
+          <div className={`flex justify-center ${heroEnabled ? 'py-20' : 'pb-20'}`}>
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         )}
 
         {/* Featured Post */}
-        {!isLoading && featuredPost && isBlockEnabled("featured-post", true) && (
-          <CmsBlock pageId="blog" blockId="featured-post" as="section" className="py-8 app-container content-max">
-            <motion.div
+        {showFeaturedPost && (
+          <CmsBlock
+            pageId="blog"
+            blockId="featured-post"
+            as="section"
+            className={`${heroEnabled ? 'py-8' : 'pb-8'} app-container content-max`}
+          >
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
@@ -202,13 +210,18 @@ export default function Blog() {
                   </div>
                 </Card>
               </Link>
-            </motion.div>
+            </m.div>
           </CmsBlock>
         )}
 
         {/* Posts Grid */}
         {!isLoading && isBlockEnabled("posts-grid", true) && (
-          <CmsBlock pageId="blog" blockId="posts-grid" as="section" className="py-12 app-container content-max">
+          <CmsBlock
+            pageId="blog"
+            blockId="posts-grid"
+            as="section"
+            className={`${heroEnabled || showFeaturedPost ? 'py-12' : 'pb-12'} app-container content-max`}
+          >
             {remainingPosts.length === 0 && !featuredPost ? (
               <div className="text-center py-16">
                 <h2 className="text-2xl font-serif font-medium text-foreground mb-4">{t('blog.noPostsTitle', 'No Articles Yet')}</h2>
@@ -218,7 +231,7 @@ export default function Blog() {
             ) : (
               <div className="grid-adaptive">
                 {remainingPosts.map((post, index) => (
-                  <motion.div
+                  <m.div
                     key={post.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -254,7 +267,7 @@ export default function Blog() {
                         </CardContent>
                       </Card>
                     </Link>
-                  </motion.div>
+                  </m.div>
                 ))}
               </div>
             )}

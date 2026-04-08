@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
   User,
@@ -194,7 +194,7 @@ export default function UserProfile() {
   return (
     <div className="space-y-6 max-w-3xl">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="space-y-1"
@@ -205,7 +205,7 @@ export default function UserProfile() {
         <p className="text-muted-foreground">
           {t("dashboard.profile.subtitle")}
         </p>
-      </motion.div>
+      </m.div>
 
       {/* Profile Card */}
       <Card className="bg-card border-border">

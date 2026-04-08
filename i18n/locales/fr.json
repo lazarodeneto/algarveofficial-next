@@ -766,7 +766,8 @@
       "budget": {
         "lean": "Configuration Minimaliste",
         "balanced": "Premium Équilibré",
-        "luxury": "Confort Premium"
+        "premium": "Confort Premium",
+        "luxury": "LUXURY"
       },
       "schoolingLabel": "Besoin de Soutien Scolaire?",
       "schooling": {

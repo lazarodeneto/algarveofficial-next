@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
 import {
@@ -83,7 +83,7 @@ export default function UserMessages() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex items-center justify-between"
@@ -96,7 +96,7 @@ export default function UserMessages() {
             {unreadCount > 0 ? t("dashboard.messages.unreadCount", { count: unreadCount }) : t("dashboard.messages.yourConversations")}
           </p>
         </div>
-      </motion.div>
+      </m.div>
 
       {threads.length === 0 && !isLoading ? (
         <Card className="bg-card border-border">

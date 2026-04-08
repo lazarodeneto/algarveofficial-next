@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   Heart,
   MapPin,
@@ -54,7 +54,7 @@ export default function UserOverview() {
   return (
     <div className="space-y-8">
       {/* Welcome Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="space-y-2"
@@ -65,11 +65,11 @@ export default function UserOverview() {
         <p className="text-lg text-muted-foreground">
           {t("dashboard.overview.discoverFinest")}
         </p>
-      </motion.div>
+      </m.div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -85,9 +85,9 @@ export default function UserOverview() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
         
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
@@ -103,9 +103,9 @@ export default function UserOverview() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
         
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -121,9 +121,9 @@ export default function UserOverview() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
         
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
@@ -141,12 +141,12 @@ export default function UserOverview() {
               </CardContent>
             </Card>
           </Link>
-        </motion.div>
+        </m.div>
       </div>
 
       {/* CTA Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
@@ -173,9 +173,9 @@ export default function UserOverview() {
               </Button>
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
         
-        <motion.div
+        <m.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.35 }}
@@ -202,11 +202,11 @@ export default function UserOverview() {
               </Button>
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Featured Regions */}
-      <motion.section
+      <m.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
@@ -241,7 +241,7 @@ export default function UserOverview() {
                 resolveRegionImageSrc(mappedRegionImage?.image) ||
                 "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80";
               return (
-              <motion.div
+              <m.div
                 key={region.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -263,16 +263,16 @@ export default function UserOverview() {
                     </div>
                   </Card>
                 </Link>
-              </motion.div>
+              </m.div>
               );
             })}
           </div>
         )}
-      </motion.section>
+      </m.section>
 
       {/* My Favorites Preview */}
       {userFavoriteListings.length > 0 && (
-        <motion.section
+        <m.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
@@ -336,12 +336,12 @@ export default function UserOverview() {
               </div>
             ))}
           </div>
-        </motion.section>
+        </m.section>
       )}
       
       {/* Empty favorites state */}
       {!isLoading && userFavoriteListings.length === 0 && (
-        <motion.section
+        <m.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
@@ -364,7 +364,7 @@ export default function UserOverview() {
               </Button>
             </CardContent>
           </Card>
-        </motion.section>
+        </m.section>
       )}
     </div>
   );

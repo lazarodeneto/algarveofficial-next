@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { format, differenceInDays } from 'date-fns';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
   CalendarDays,
@@ -143,7 +143,7 @@ export default function UserTripPlanner() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
@@ -161,11 +161,11 @@ export default function UserTripPlanner() {
           <Plus className="h-4 w-4 mr-2" />
           {t("dashboard.tripPlanner.newTrip")}
         </Button>
-      </motion.div>
+      </m.div>
 
       {/* Main Content */}
       {trips.length === 0 ? (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -183,10 +183,10 @@ export default function UserTripPlanner() {
               </Button>
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
       ) : !currentSelectedTrip ? (
         /* Trip List */
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -195,7 +195,7 @@ export default function UserTripPlanner() {
           {trips.map((trip, index) => {
             const duration = differenceInDays(new Date(trip.end_date), new Date(trip.start_date)) + 1;
             return (
-              <motion.div
+              <m.div
                 key={trip.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -269,13 +269,13 @@ export default function UserTripPlanner() {
                     </div>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </m.div>
             );
           })}
-        </motion.div>
+        </m.div>
       ) : (
         /* Calendar View */
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -320,7 +320,7 @@ export default function UserTripPlanner() {
               />
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
       )}
 
       {/* Dialogs */}

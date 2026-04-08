@@ -3,7 +3,7 @@
 import type { CSSProperties, ElementType, ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { Search, Clock, Loader2 } from "lucide-react";
@@ -437,7 +437,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
 
         {!isLoading && featuredPost && cms.isBlockEnabled("featured-post", true) ? (
           <BlogCmsBlock blockId="featured-post" as="section" cms={cms} className="py-8 app-container content-max">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
@@ -487,7 +487,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
                   </div>
                 </Card>
               </Link>
-            </motion.div>
+            </m.div>
           </BlogCmsBlock>
         ) : null}
 
@@ -511,7 +511,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                 {remainingPosts.map((post, index) => (
-                  <motion.div
+                  <m.div
                     key={post.id}
                     initial={{ opacity: 0, y: 24 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -550,7 +550,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
                         </div>
                       </article>
                     </Link>
-                  </motion.div>
+                  </m.div>
                 ))}
               </div>
             )}

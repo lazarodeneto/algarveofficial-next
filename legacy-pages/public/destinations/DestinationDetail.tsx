@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight, MapPin, Loader2 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
@@ -141,7 +141,7 @@ export default function DestinationDetail() {
 
         <div className="relative app-container content-max">
           {/* Breadcrumb */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -154,38 +154,38 @@ export default function DestinationDetail() {
               <ArrowLeft className="w-4 h-4" />
               Back to Destinations
             </Link>
-          </motion.div>
+          </m.div>
 
-          <motion.span
+          <m.span
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
             className="inline-block text-sm font-medium text-primary tracking-[0.3em] uppercase mb-4"
           >
             Premium Region
-          </motion.span>
+          </m.span>
 
-          <motion.h1
+          <m.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-hero font-serif font-medium text-foreground mb-6"
           >
             {region.name}
-          </motion.h1>
+          </m.h1>
 
-          <motion.p
+          <m.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className="text-body text-foreground/80 readable mb-8"
           >
             {region.description || region.short_description}
-          </motion.p>
+          </m.p>
 
           {/* Cities in Region */}
           {regionCities.length > 0 && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
@@ -201,7 +201,7 @@ export default function DestinationDetail() {
                   {city.name}
                 </Link>
               ))}
-            </motion.div>
+            </m.div>
           )}
         </div>
       </CmsBlock>}
@@ -214,7 +214,7 @@ export default function DestinationDetail() {
       {/* Listings Section */}
       {isBlockEnabled("listings", true) && <CmsBlock pageId="destination-detail" blockId="listings" as="section" className="py-16 lg:py-24">
         <div className="app-container content-max density">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -229,7 +229,7 @@ export default function DestinationDetail() {
                 {listings.length} premium listings in this region
               </p>
             </div>
-          </motion.div>
+          </m.div>
 
           {listingsLoading ? (
             <div className="flex items-center justify-center py-16">
@@ -238,7 +238,7 @@ export default function DestinationDetail() {
           ) : listings.length > 0 ? (
             <div className="grid-adaptive grid-ultrawide">
               {listings.map((listing, index) => (
-                <motion.div
+                <m.div
                   key={listing.id}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -306,7 +306,7 @@ export default function DestinationDetail() {
                       </div>
                     </article>
                   </Link>
-                </motion.div>
+                </m.div>
               ))}
             </div>
           ) : (
@@ -333,7 +333,7 @@ export default function DestinationDetail() {
       {/* Other Regions CTA */}
       {isBlockEnabled("faq", true) && <CmsBlock pageId="destination-detail" blockId="faq" as="section" className="py-16 lg:py-24 bg-card">
         <div className="app-container text-center" style={{ maxWidth: '56rem' }}>
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -352,7 +352,7 @@ export default function DestinationDetail() {
               View All Destinations
               <ArrowRight className="w-4 h-4" />
             </Link>
-          </motion.div>
+          </m.div>
         </div>
       </CmsBlock>}
 

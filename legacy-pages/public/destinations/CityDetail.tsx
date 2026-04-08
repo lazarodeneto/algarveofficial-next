@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight, MapPin, Building2, Loader2, Crown } from "lucide-react";
 import { Header } from "@/components/layout/Header";
@@ -146,7 +146,7 @@ export default function CityDetail() {
 
         <div className="relative app-container content-max">
           {/* Breadcrumb */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -167,9 +167,9 @@ export default function CityDetail() {
               size="lg"
               variant="glassmorphism"
             />
-          </motion.div>
+          </m.div>
 
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
@@ -179,29 +179,29 @@ export default function CityDetail() {
             <span className="text-sm font-medium text-primary tracking-[0.3em] uppercase">
               Algarve, Portugal
             </span>
-          </motion.div>
+          </m.div>
 
-          <motion.h1
+          <m.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-hero font-serif font-medium text-foreground mb-6"
           >
             {city.name}
-          </motion.h1>
+          </m.h1>
 
-          <motion.p
+          <m.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className="text-body text-foreground/80 readable mb-8"
           >
             {city.description || `Discover premium listings in ${city.name}, one of the Algarve's most sought-after destinations.`}
-          </motion.p>
+          </m.p>
 
           {/* Region Tag */}
           {cityRegion && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
@@ -214,7 +214,7 @@ export default function CityDetail() {
                 Part of {cityRegion.name}
                 <ArrowRight className="w-3 h-3" />
               </Link>
-            </motion.div>
+            </m.div>
           )}
         </div>
       </CmsBlock>}
@@ -227,7 +227,7 @@ export default function CityDetail() {
       {/* Listings Section */}
       {isBlockEnabled("listings", true) && <CmsBlock pageId="city-detail" blockId="listings" as="section" className="py-16 lg:py-24">
         <div className="app-container content-max density">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -242,7 +242,7 @@ export default function CityDetail() {
                 {listings.length} premium listings in this city
               </p>
             </div>
-          </motion.div>
+          </m.div>
 
           {listingsLoading ? (
             <div className="flex items-center justify-center py-16">
@@ -251,7 +251,7 @@ export default function CityDetail() {
           ) : listings.length > 0 ? (
             <div className="grid-adaptive grid-ultrawide">
               {listings.map((listing, index) => (
-                <motion.div
+                <m.div
                   key={listing.id}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -319,7 +319,7 @@ export default function CityDetail() {
                       </div>
                     </article>
                   </Link>
-                </motion.div>
+                </m.div>
               ))}
             </div>
           ) : (
@@ -346,7 +346,7 @@ export default function CityDetail() {
       {/* Other Cities CTA */}
       {isBlockEnabled("faq", true) && <CmsBlock pageId="city-detail" blockId="faq" as="section" className="py-16 lg:py-24 bg-card">
         <div className="app-container text-center" style={{ maxWidth: '56rem' }}>
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -365,7 +365,7 @@ export default function CityDetail() {
               View All Cities
               <ArrowRight className="w-4 h-4" />
             </Link>
-          </motion.div>
+          </m.div>
         </div>
       </CmsBlock>}
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
@@ -298,7 +298,7 @@ export default function UserFavorites() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row justify-between gap-4"
@@ -312,7 +312,7 @@ export default function UserFavorites() {
             {t("dashboard.favorites.subtitle")}
           </p>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'listings' | 'regions' | 'cities')}>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { MapPin, Loader2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
@@ -350,7 +350,7 @@ export function AllListingsSection() {
             const isPremium = isPremiumTier(listing.tier);
             
             return (
-            <motion.div
+            <m.div
               key={listing.id}
               variants={cardVariants}
               initial="hidden"
@@ -460,7 +460,8 @@ export function AllListingsSection() {
                   <div className={cn("flex-1 flex flex-col bg-card", tierSpacing.padding)}>
                     <h3 className={cn(
                       tierTitleClass,
-                      "text-foreground mb-2",
+                      "text-base lg:text-[1.32rem] text-foreground mb-2",
+                      !isPremium && "font-medium",
                       isPremium && "text-xl lg:text-2xl"
                     )}>
                       {listing.name}
@@ -490,7 +491,7 @@ export function AllListingsSection() {
                   </div>
                 </article>
               </Link>
-            </motion.div>
+            </m.div>
           );
           })}
         </div>

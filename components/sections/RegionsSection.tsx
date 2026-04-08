@@ -1,4 +1,4 @@
-import { LazyMotion, domAnimation, m } from "framer-motion";
+import { m } from "framer-motion";
 import Image from "next/image";
 import NextLink from "next/link";
 import { ArrowRight, Compass } from "lucide-react";
@@ -52,8 +52,7 @@ export function RegionsSection() {
   }
 
   return (
-    <LazyMotion features={domAnimation} strict>
-      <section id="regions" className="pt-8 pb-24 lg:pt-10 lg:pb-32 bg-background">
+    <section id="regions" className="pt-8 pb-24 lg:pt-10 lg:pb-32 bg-background">
         <div className="app-container">
           {/* Section Header */}
           <m.div
@@ -168,6 +167,5 @@ export function RegionsSection() {
           </m.div>
         </div>
       </section>
-    </LazyMotion>
   );
 }

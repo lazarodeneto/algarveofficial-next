@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "next/navigation";
 import { Mail, Phone, MessageSquare, Send, Loader2, MapPin, Globe } from "lucide-react";
@@ -148,13 +148,13 @@ export default function Contact() {
             <Header />
 
             {/* Hero Section */}
-            <section className="relative pt-24 pb-16 lg:pt-32 lg:pb-24 overflow-hidden">
+            <section className="relative overflow-hidden pt-24 pb-8 lg:pt-32 lg:pb-12">
                 <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
                 <div className="absolute top-1/4 left-1/4 w-px h-32 bg-gradient-to-b from-transparent via-primary/30 to-transparent" />
                 <div className="absolute top-1/3 right-1/3 w-px h-24 bg-gradient-to-b from-transparent via-primary/20 to-transparent" />
 
                 <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-                    <motion.div
+                    <m.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
@@ -165,17 +165,17 @@ export default function Contact() {
                         <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
                             {heroSubtitle}
                         </p>
-                    </motion.div>
+                    </m.div>
                 </div>
             </section>
 
-            <section className="py-12 lg:py-20">
+            <section className="pt-6 pb-12 lg:pt-10 lg:pb-20">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="grid lg:grid-cols-5 gap-12 lg:gap-16 items-start">
 
                         {/* Contact Info Sidebar */}
                         <div className="lg:col-span-2 space-y-6">
-                            <motion.div
+                            <m.div
                                 initial={{ opacity: 0, x: -20 }}
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
@@ -233,12 +233,12 @@ export default function Contact() {
 
                                     </CardContent>
                                 </Card>
-                            </motion.div>
+                            </m.div>
                         </div>
 
                         {/* Contact Form */}
                         <div className="lg:col-span-3">
-                            <motion.div
+                            <m.div
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
@@ -324,7 +324,7 @@ export default function Contact() {
                                         </form>
                                     </CardContent>
                                 </Card>
-                            </motion.div>
+                            </m.div>
                         </div>
 
                     </div>

@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Facebook, Linkedin, Link as LinkIcon, Share2, Twitter } from "lucide-react";
@@ -145,7 +145,7 @@ function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClient
   };
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
@@ -199,7 +199,7 @@ function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClient
           </Button>
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 

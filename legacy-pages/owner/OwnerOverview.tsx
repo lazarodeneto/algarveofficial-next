@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
@@ -70,7 +70,7 @@ export default function OwnerOverview() {
   return (
     <div className="space-y-6">
       {/* Welcome Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="space-y-1"
@@ -81,12 +81,12 @@ export default function OwnerOverview() {
         <p className="text-muted-foreground">
           {t('owner.overview.subtitle')}
         </p>
-      </motion.div>
+      </m.div>
 
       {/* Alerts */}
       <div className="space-y-3">
         {pendingCount > 0 && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center gap-3 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20"
@@ -95,11 +95,11 @@ export default function OwnerOverview() {
             <p className="text-sm text-yellow-200">
               {t('owner.overview.pendingReviewAlert', { count: pendingCount })}
             </p>
-          </motion.div>
+          </m.div>
         )}
         
         {hasSignature && !hasCurated && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
@@ -114,11 +114,11 @@ export default function OwnerOverview() {
                 {t('owner.overview.signatureEligibleNote')}
               </p>
             </div>
-          </motion.div>
+          </m.div>
         )}
         
         {hasCurated && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
@@ -128,7 +128,7 @@ export default function OwnerOverview() {
             <p className="text-sm text-primary">
               {t('owner.overview.curatedCongrats')}
             </p>
-          </motion.div>
+          </m.div>
         )}
       </div>
 

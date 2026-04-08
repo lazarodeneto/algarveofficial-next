@@ -3,7 +3,7 @@
 import type { CSSProperties, ElementType, ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LazyMotion, domAnimation, m } from "framer-motion";
+import { m } from "framer-motion";
 import {
   Search,
   Filter,
@@ -67,6 +67,11 @@ import type { CityHubItem } from "@/components/shared/CityHubsSection";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
+import {
+  STANDARD_PUBLIC_CONTENT_TOP_CLASS,
+  STANDARD_PUBLIC_HERO_WRAPPER_CLASS,
+  STANDARD_PUBLIC_NO_HERO_SPACER_CLASS,
+} from "@/components/sections/hero-layout";
 import type { VisitCityIndexItem } from "@/lib/directory-data";
 import { buildMunicipalityCityIndex } from "@/lib/cities/municipalityIndex";
 
@@ -1189,20 +1194,21 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     return l(query ? `/map?${query}` : "/map");
   }, [l, search, selectedRegion, selectedCity, selectedCategory, selectedTier]);
 
+  const heroEnabled = activeCms.isBlockEnabled("hero", true);
+
   return (
     <div className="min-h-screen bg-background" data-cms-page="directory">
       <Header />
       <main>
-        <LazyMotion features={domAnimation}>
         {/* Hero: enabled with matching top padding, disabled with minimal placeholder */}
-        {!activeCms.isBlockEnabled("hero", true) ? (
-        <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />
+        {!heroEnabled ? (
+        <div className={STANDARD_PUBLIC_NO_HERO_SPACER_CLASS} aria-hidden="true" />
       ) : (
         <DirectoryCmsBlock
           blockId="hero"
           as="section"
           cms={activeCms}
-          className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4"
+          className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}
         >
           <LiveStyleHero
             className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
@@ -1229,7 +1235,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                 </Link>
                 <Link href={l("/live")}>
                   <Button variant="heroOutline" size="lg">
-                    {t("directory.hero.ctaSecondary", "Explore Live in Algarve")}
+                    {t("directory.hero.ctaSecondary", "Explore Residence in Algarve")}
                   </Button>
                 </Link>
               </>
@@ -1238,7 +1244,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
         </DirectoryCmsBlock>
       )}
 
-        <div className="app-container content-max pb-16 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
+        <div className={`app-container content-max pb-16 ${heroEnabled ? STANDARD_PUBLIC_CONTENT_TOP_CLASS : ""}`}>
           {showCityHubs ? (
             <CityHubsSection
               highlightedCity={cityHubsHighlightedCity}
@@ -1557,7 +1563,6 @@ function DirectoryClientInner(props: DirectoryClientProps) {
             </DirectoryCmsBlock>
           ) : null}
         </div>
-        </LazyMotion>
       </main>
 
       <Footer />

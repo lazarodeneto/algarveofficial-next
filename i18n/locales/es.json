@@ -766,7 +766,8 @@
       "budget": {
         "lean": "Configuración Austera",
         "balanced": "Premium Equilibrado",
-        "luxury": "Comodidad Premium"
+        "premium": "Comodidad Premium",
+        "luxury": "LUXURY"
       },
       "schoolingLabel": "Necesitas Apoyo Escolar?",
       "schooling": {

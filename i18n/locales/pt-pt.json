@@ -766,7 +766,8 @@
       "budget": {
         "lean": "Configuração Lean",
         "balanced": "Premium Equilibrado",
-        "luxury": "Conforto Premium"
+        "premium": "Conforto Premium",
+        "luxury": "LUXURY"
       },
       "schoolingLabel": "Precisa de Apoio Escolar?",
       "schooling": {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Mail, Loader2, CheckCircle2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -83,7 +83,7 @@ export function NewsletterSection() {
     return (
       <section className="py-16 bg-gradient-to-b from-background to-card/50">
         <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4 }}
@@ -98,7 +98,7 @@ export function NewsletterSection() {
             <p className="text-muted-foreground">
               {t('newsletter.successMessage')}
             </p>
-          </motion.div>
+          </m.div>
         </div>
       </section>
     );
@@ -111,7 +111,7 @@ export function NewsletterSection() {
       <div className="absolute bottom-0 right-1/3 w-px h-20 bg-gradient-to-t from-transparent via-primary/20 to-transparent" />
 
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 text-center">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -168,7 +168,7 @@ export function NewsletterSection() {
           <p className="mt-4 text-xs text-muted-foreground">
             {t('newsletter.privacy')}
           </p>
-        </motion.div>
+        </m.div>
       </div>
     </section>
   );

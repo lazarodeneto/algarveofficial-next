@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Image from "next/image";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import {
@@ -291,7 +291,7 @@ function EventDetailClientInner({
 
       <main className="pt-[calc(6rem+10px)] pb-16">
         <div className="app-container content-max">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             className="mb-6"
@@ -303,10 +303,10 @@ function EventDetailClientInner({
               <ArrowLeft className="mr-2 h-4 w-4" />
               {cms.getText("hero.backToEvents", "Back to Events")}
             </LocaleLink>
-          </motion.div>
+          </m.div>
 
           {eventHeroImage ? (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="relative mb-8 aspect-[21/9] overflow-hidden rounded-xl"
@@ -344,10 +344,10 @@ function EventDetailClientInner({
                   </Badge>
                 ) : null}
               </div>
-            </motion.div>
+            </m.div>
           ) : null}
 
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -376,10 +376,10 @@ function EventDetailClientInner({
                 </Button>
               ) : null}
             </div>
-          </motion.div>
+          </m.div>
 
           <div className="grid gap-8 lg:grid-cols-3">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
@@ -478,9 +478,9 @@ function EventDetailClientInner({
                   </CardContent>
                 </Card>
               ) : null}
-            </motion.div>
+            </m.div>
 
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -554,11 +554,11 @@ function EventDetailClientInner({
                   </CardContent>
                 </Card>
               ) : null}
-            </motion.div>
+            </m.div>
           </div>
 
           {cms.isBlockEnabled("related-events", true) && relatedEvents.length > 0 ? (
-            <motion.section
+            <m.section
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
@@ -639,7 +639,7 @@ function EventDetailClientInner({
                   );
                 })}
               </div>
-            </motion.section>
+            </m.section>
           ) : null}
         </div>
       </main>

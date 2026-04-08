@@ -1,5 +1,5 @@
 import { useCallback, useState, useMemo, useEffect } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Search, Filter, X, MapPin, Tag, Building2, Crown, ShieldCheck, ChevronDown, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLocalePath } from "@/hooks/useLocalePath";
@@ -283,30 +283,30 @@ export default function Directory() {
       {isBlockEnabled("hero", true) && <CmsBlock pageId="directory" blockId="hero" as="section" className="relative pb-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-card via-background to-background" />
         <div className="relative app-container text-center">
-          <motion.span
+          <m.span
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="inline-block text-sm font-medium text-primary tracking-[0.3em] uppercase mb-6"
           >
             {t('directory.heroLabel')}
-          </motion.span>
-          <motion.h1
+          </m.span>
+          <m.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-hero font-serif font-medium text-foreground"
           >
             {t('directory.title')}
-          </motion.h1>
-          <motion.p
+          </m.h1>
+          <m.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mt-6 text-body text-muted-foreground max-w-3xl mx-auto readable"
           >
             {t('directory.subtitle')}
-          </motion.p>
+          </m.p>
         </div>
       </CmsBlock>}
 
@@ -459,7 +459,7 @@ export default function Directory() {
           </div>
 
           {/* Error State */}
-          {error && <motion.div initial={{
+          {error && <m.div initial={{
             opacity: 0
           }} animate={{
             opacity: 1
@@ -468,7 +468,7 @@ export default function Directory() {
             <Button variant="outline" onClick={() => window.location.reload()}>
               {t('directory.retry')}
             </Button>
-          </motion.div>}
+          </m.div>}
 
           {/* Loading State */}
           {showGridSkeleton && <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" aria-live="polite" aria-label={t('directory.loading')}>
@@ -476,7 +476,7 @@ export default function Directory() {
           </div>}
 
           {/* Empty State */}
-          {!showGridSkeleton && !isLoading && !error && listings.length === 0 && <motion.div initial={{
+          {!showGridSkeleton && !isLoading && !error && listings.length === 0 && <m.div initial={{
             opacity: 0
           }} animate={{
             opacity: 1
@@ -487,11 +487,11 @@ export default function Directory() {
             <Button variant="outline" onClick={clearFilters}>
               {t('directory.clearAllFilters')}
             </Button>
-          </motion.div>}
+          </m.div>}
 
           {/* Listings Grid */}
           {!showGridSkeleton && !isLoading && !error && listings.length > 0 && <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {listings.map((listing, index) => <motion.div key={listing.id} initial={{
+            {listings.map((listing, index) => <m.div key={listing.id} initial={{
               opacity: 0,
               y: 20
             }} animate={{
@@ -561,7 +561,7 @@ export default function Directory() {
                 </div>
               </article>
             </Link>
-          </motion.div>)}
+          </m.div>)}
         </div>}
         </CmsBlock>}
       </div>

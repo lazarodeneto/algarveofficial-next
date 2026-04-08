@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   DndContext,
   closestCenter,
@@ -246,7 +246,7 @@ export default function AdminHeaderMenu() {
 
   return (
     <div className="space-y-6">
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -260,7 +260,7 @@ export default function AdminHeaderMenu() {
             </p>
           </div>
         </div>
-      </motion.div>
+      </m.div>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">

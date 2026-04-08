@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   DndContext,
   closestCenter,
@@ -376,7 +376,7 @@ export default function AdminFooterMenu() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
@@ -390,12 +390,12 @@ export default function AdminFooterMenu() {
             Manage footer sections and navigation links
           </p>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sections Panel */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
@@ -451,10 +451,10 @@ export default function AdminFooterMenu() {
               )}
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
 
         {/* Links Panel */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
@@ -522,7 +522,7 @@ export default function AdminFooterMenu() {
               )}
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Section Dialog */}

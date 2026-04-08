@@ -4,7 +4,7 @@ import type { CSSProperties, ElementType, ReactNode } from "react";
 import { useEffect, useMemo } from "react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, ArrowRight, MapPin, Loader2, Crown } from "lucide-react";
@@ -566,7 +566,7 @@ function CityDetailClientInner({
           </div>
 
           <div className="relative app-container content-max">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
@@ -590,9 +590,9 @@ function CityDetailClientInner({
                 size="lg"
                 variant="glassmorphism"
               />
-            </motion.div>
+            </m.div>
 
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
@@ -602,18 +602,18 @@ function CityDetailClientInner({
               <span className="text-sm font-medium text-primary tracking-[0.3em] uppercase">
                 {cms.getText("hero.badge", "Algarve, Portugal")}
               </span>
-            </motion.div>
+            </m.div>
 
-            <motion.h1
+            <m.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-hero font-serif font-medium text-white mb-6"
             >
               {city.name}
-            </motion.h1>
+            </m.h1>
 
-            <motion.p
+            <m.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
@@ -626,10 +626,10 @@ function CityDetailClientInner({
                     "Discover premium listings in {{city}}, one of the Algarve's most sought-after destinations.",
                   )
                   .replace("{{city}}", city.name)}
-            </motion.p>
+            </m.p>
 
             {cityRegion ? (
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
@@ -644,7 +644,7 @@ function CityDetailClientInner({
                     .replace("{{region}}", cityRegion.name)}
                   <ArrowRight className="w-3 h-3" />
                 </LocaleLink>
-              </motion.div>
+              </m.div>
             ) : null}
           </div>
         </CityDetailCmsBlock>
@@ -664,7 +664,7 @@ function CityDetailClientInner({
           className="py-16 lg:py-24"
         >
           <div className="app-container content-max density">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -681,7 +681,7 @@ function CityDetailClientInner({
                     .replace("{{count}}", String(listings.length))}
                 </p>
               </div>
-            </motion.div>
+            </m.div>
 
             {listingsLoading ? (
               <div className="flex items-center justify-center py-16">
@@ -690,7 +690,7 @@ function CityDetailClientInner({
             ) : listings.length > 0 ? (
               <div className="grid-adaptive grid-ultrawide">
                 {listings.map((listing, index) => (
-                  <motion.div
+                  <m.div
                     key={listing.id}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -761,7 +761,7 @@ function CityDetailClientInner({
                         </div>
                       </article>
                     </LocaleLink>
-                  </motion.div>
+                  </m.div>
                 ))}
               </div>
             ) : (
@@ -797,7 +797,7 @@ function CityDetailClientInner({
           className="py-16 lg:py-24 bg-card"
         >
           <div className="app-container text-center" style={{ maxWidth: "56rem" }}>
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -816,7 +816,7 @@ function CityDetailClientInner({
                 {cms.getText("faq.cta", "View All Cities")}
                 <ArrowRight className="w-4 h-4" />
               </LocaleLink>
-            </motion.div>
+            </m.div>
           </div>
         </CityDetailCmsBlock>
       ) : null}

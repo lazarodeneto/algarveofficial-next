@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Filter, LayoutDashboard, MapPin, Tag } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
@@ -97,7 +97,7 @@ export default function AdminAnalytics() {
 
   return (
     <div className="space-y-5">
-      <motion.section
+      <m.section
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         className="rounded-2xl border border-border/70 bg-gradient-to-br from-card via-card to-muted/20 p-5 shadow-sm"
@@ -198,7 +198,7 @@ export default function AdminAnalytics() {
             </div>
           </CardContent>
         </Card>
-      </motion.section>
+      </m.section>
 
       <Card className="border-border/70">
         <CardHeader>

@@ -20,9 +20,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return buildLocalizedMetadata({
     locale,
     path: "/live",
-    title: "Live in the Algarve",
+    title: "Residence in the Algarve",
     description: "Practical guidance to relocate and build your life in the Algarve: residency pathways, neighborhoods, healthcare, education, and vetted local services.",
-    keywords: ["live in Algarve", "relocate to Portugal", "Algarve residency", "Algarve neighborhoods"],
+    keywords: ["residence in Algarve", "relocate to Portugal", "Algarve residency", "Algarve neighborhoods"],
   });
 }
 

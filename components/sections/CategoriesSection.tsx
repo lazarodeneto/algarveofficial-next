@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Link from "next/link";
 import { FavoriteButton } from "@/components/ui/favorite-button";
 import { useFavoriteCategories } from "@/hooks/useFavoriteCategories";
@@ -64,7 +64,7 @@ export function CategoriesSection() {
     <section id="categories" className="py-24 bg-background lg:py-[40px]">
       <div className="app-container">
         {/* Section Header */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -80,7 +80,7 @@ export function CategoriesSection() {
           <p className="mt-4 text-body text-muted-foreground dark:text-white/80 max-w-2xl mx-auto">
             {t("sections.categories.subtitle")}
           </p>
-        </motion.div>
+        </m.div>
 
         {/* Categories Grid */}
         <div className="grid gap-4 md:gap-5 lg:gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr))]">
@@ -89,7 +89,7 @@ export function CategoriesSection() {
             const displayName = translateCategoryName(t, category.slug, category.name);
             
             return (
-              <motion.div
+              <m.div
                 key={category.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -121,7 +121,7 @@ export function CategoriesSection() {
                     {getCategoryCount(category.memberIds)} {t("sections.categories.listings")}
                   </span>
                 </Link>
-              </motion.div>
+              </m.div>
             );
           })}
         </div>

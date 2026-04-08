@@ -65,7 +65,7 @@ const liveItems = [
 
 const investItems = [
     { href: "/real-estate", label: "Real Estate Directory", translationKey: "blog.blogCategories.realEstate", desc: "Independent listings focused on property investment", icon: Building2 },
-    { href: "/properties", label: "Why Invest", translationKey: "nav.properties", desc: "Algarve market insights & data", icon: TrendingUp },
+    { href: "/invest", label: "Invest", translationKey: "nav.invest", desc: "Algarve market insights & data", icon: TrendingUp },
     { href: "/partner", label: "Add Real Estate Listing", translationKey: "footer.becomePartner", desc: "Submit your property as an agency or owner", icon: PlusCircle },
     { href: "/map", label: "Map Explorer", translationKey: "nav.map", desc: "Clustered view across all listings", icon: MapPin },
 ];

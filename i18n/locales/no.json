@@ -766,7 +766,8 @@
       "budget": {
         "lean": "Minimalt Oppsett",
         "balanced": "Balansert Premium",
-        "luxury": "Premium Komfort"
+        "premium": "Premium Komfort",
+        "luxury": "LUXURY"
       },
       "schoolingLabel": "Trenger Skolestøtte?",
       "schooling": {

@@ -766,7 +766,8 @@
       "budget": {
         "lean": "Slanke Opzet",
         "balanced": "Gebalanceerd Premium",
-        "luxury": "Premium Comfort"
+        "premium": "Premium Comfort",
+        "luxury": "LUXURY"
       },
       "schoolingLabel": "Ondersteuning Nodig?",
       "schooling": {
