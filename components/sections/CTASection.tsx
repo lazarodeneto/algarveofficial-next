@@ -45,7 +45,7 @@ export function CTASection() {
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button variant="hero" size="xl" asChild>
-              <Link href={l("/directory")}>
+              <Link href={l("/stay")}>
                 {t('sections.cta.primaryButton')}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>

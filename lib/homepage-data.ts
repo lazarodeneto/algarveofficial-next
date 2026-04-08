@@ -1,13 +1,10 @@
-import { createClient } from "@supabase/supabase-js";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import type { CityRow, RegionRow, CategoryRow } from "@/hooks/useReferenceData";
 import type { ListingWithRelations } from "@/hooks/useListings";
 import type { Tables } from "@/integrations/supabase/types";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
 import type { CuratedListingWithRelations } from "@/hooks/useCuratedAssignments";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+import { createPublicServerClient } from "@/lib/supabase/public-server";
 
 const PUBLIC_LISTING_FIELDS =
   "id, slug, name, short_description, description, tier, status, latitude, longitude, featured_image_url, google_rating, google_review_count, created_at";
@@ -29,7 +26,7 @@ const HOMEPAGE_CITY_FIELDS =
   "id, name, slug, short_description, description, image_url, hero_image_url, latitude, longitude, is_active, is_featured, display_order, created_at";
 
 function getServerSupabase() {
-  return createClient(supabaseUrl, supabaseAnonKey);
+  return createPublicServerClient();
 }
 
 function normalizePublicContentLocale(language: string): string {

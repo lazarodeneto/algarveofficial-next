@@ -357,7 +357,7 @@ export default function UserOverview() {
               <Heart className="h-12 w-12 mx-auto mb-3 opacity-50" />
               <p className="mb-4">{t("dashboard.overview.noFavoritesYet")}</p>
               <Button asChild>
-                <Link href={l("/directory")}>
+                <Link href={l("/stay")}>
                   {t("dashboard.overview.exploreListings")}
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>

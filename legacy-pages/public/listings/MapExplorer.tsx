@@ -229,7 +229,7 @@ export default function MapExplorer() {
                   />
                 }
                 ctas={
-                  <Link href={l("/directory")}>
+                  <Link href={l("/stay")}>
                     <Button variant="gold" size="lg">
                       <ArrowLeft className="h-4 w-4 mr-2" />
                       {t("nav.directory")}

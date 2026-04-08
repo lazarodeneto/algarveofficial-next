@@ -160,7 +160,7 @@ export function CitiesSection() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-12 text-center"
         >
-          <Link href={l("/directory")}>
+          <Link href={l("/stay")}>
             <Button variant="luxury" size="lg">
               {t("sections.cities.viewAll")}
               <ArrowRight className="ml-2 h-4 w-4" />

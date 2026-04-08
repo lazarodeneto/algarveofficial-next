@@ -215,7 +215,7 @@ export default async function VisitCityPage({ params }: PageProps) {
                 </li>
                 <li aria-hidden="true" className="select-none">/</li>
                 <li>
-                  <LocaleLink href="/visit" className="hover:text-foreground transition-colors">
+                  <LocaleLink href="/stay" className="hover:text-foreground transition-colors">
                     {tx["nav.visit"] ?? "Visit"}
                   </LocaleLink>
                 </li>
@@ -277,7 +277,7 @@ export default async function VisitCityPage({ params }: PageProps) {
                 This page is available so visitors can discover {data.city.name} while new listings are published. In the meantime, you can explore the main Visit directory or jump into active category pages below.
               </p>
               <div className="mt-5 flex flex-wrap justify-center gap-3">
-                <LocaleLink href="/visit" className="rounded-full border border-border px-5 py-2 text-sm font-medium text-foreground hover:border-primary/50 hover:text-primary transition-colors">
+                <LocaleLink href="/stay" className="rounded-full border border-border px-5 py-2 text-sm font-medium text-foreground hover:border-primary/50 hover:text-primary transition-colors">
                   Browse all of Visit
                 </LocaleLink>
                 {programmaticCategories.slice(0, 3).map((category) => (

@@ -270,7 +270,7 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
                 </li>
                 <li aria-hidden="true" className="select-none">/</li>
                 <li>
-                  <LocaleLink href="/visit" className="hover:text-foreground transition-colors">
+                  <LocaleLink href="/stay" className="hover:text-foreground transition-colors">
                     {tx["nav.visit"] ?? "Visit"}
                   </LocaleLink>
                 </li>

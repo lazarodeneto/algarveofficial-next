@@ -382,7 +382,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
               }
               ctas={
                 <>
-                  <Link href={l("/directory")}>
+                  <Link href={l("/stay")}>
                     <Button variant="gold" size="lg">
                       {t("blog.hero.ctaPrimary", "Explore Directory")}
                     </Button>

@@ -148,7 +148,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
                   value="directory browse all listings"
                   onSelect={() => {
                     onOpenChange(false);
-                    router.push(l("/directory"));
+                    router.push(l("/stay"));
                   }}
                   className="flex items-center gap-3 py-3 px-4 cursor-pointer"
                 >

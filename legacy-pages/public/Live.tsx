@@ -244,7 +244,7 @@ const Live = () => {
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   </Link>
-                  <Link href={l("/directory")}>
+                  <Link href={l("/stay")}>
                     <Button variant="heroOutline" size="lg">
                       {t("live.hero.ctaSecondary", "Browse Local Experts")}
                     </Button>
@@ -526,7 +526,7 @@ const Live = () => {
                     <ArrowRight className="h-4 w-4 ml-1" />
                   </Button>
                 </Link>
-                <Link href={l("/directory")}>
+                <Link href={l("/stay")}>
                   <Button variant="outline" size="lg">
                     {t("live.planner.handoff.secondary", "View Trusted Local Partners")}
                   </Button>

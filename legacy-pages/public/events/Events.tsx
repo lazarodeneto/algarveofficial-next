@@ -103,7 +103,7 @@ export default function Events() {
               }
               ctas={
                 <>
-                  <Link href={l("/directory")}>
+                  <Link href={l("/experiences")}>
                     <Button variant="gold" size="lg">
                       {t("events.hero.ctaPrimary", "Explore Experiences")}
                     </Button>
