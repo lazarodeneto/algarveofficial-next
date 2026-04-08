@@ -24,11 +24,12 @@ export interface BuildMunicipalityCityIndexArgs {
 }
 
 const TARGET_MUNICIPALITIES = [
-  "Loulé",
-  "Faro",
-  "Portimão",
   "Albufeira",
+  "Loulé",
+  "Portimão",
   "Lagos",
+  "Tavira",
+  "Olhão",
   "Lagoa",
 ] as const;
 
@@ -53,6 +54,11 @@ const LOCALITY_TO_MUNICIPALITY: Record<string, string> = {
   "olhos-de-agua": "Albufeira",
   "praia-da-luz": "Lagos",
   luz: "Lagos",
+  "castro-marim": "Tavira",
+  "santa-luzia": "Tavira",
+  alcoutim: "Tavira",
+  olhao: "Olhão",
+  "olhao-doce-vida": "Olhão",
 };
 
 function normalizeKey(value: string | null | undefined): string {
