@@ -148,7 +148,7 @@ const Invest = () => {
 
             <main className="flex-grow">
                 {isBlockEnabled("hero", true) && (
-                    <CmsBlock pageId="invest" blockId="hero" className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4">
+                    <CmsBlock pageId="invest" blockId="hero" className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
                         <LiveStyleHero
                             className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
                             badge={t("nav.invest")}

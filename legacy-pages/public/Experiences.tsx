@@ -85,12 +85,43 @@ const Experiences = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("all");
   const [selectedCity, setSelectedCity] = useState("all");
+  const [selectedCities, setSelectedCities] = useState<string[]>([]);
   const [selectedTier, setSelectedTier] = useState("all");
+  const [shouldScrollToResults, setShouldScrollToResults] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 300);
     return () => clearTimeout(timer);
   }, [search]);
+
+  // Extract city parameters from URL and convert slugs to IDs
+  useEffect(() => {
+    if (typeof window !== "undefined" && cities.length > 0) {
+      const params = new URLSearchParams(window.location.search);
+      const cityParams = params.getAll("city");
+
+      if (cityParams.length > 0) {
+        // Convert city slugs to city IDs
+        const cityIdMap = new Map(cities.map(c => [c.slug, c.id]));
+        const cityIds = cityParams
+          .map(slug => cityIdMap.get(slug))
+          .filter((id): id is string => id !== undefined);
+
+        if (cityIds.length > 0) {
+          setSelectedCities(cityIds);
+          setSelectedCity("all");
+          setShouldScrollToResults(true);
+        }
+      } else {
+        const regionParam = params.get("region");
+        if (regionParam) {
+          setSelectedRegion(regionParam);
+        }
+        setSelectedCities([]);
+      }
+    }
+  }, [cities]);
+
 
   const experiencesCategoryIds = useMemo(() => {
     const mergedCategories = buildMergedCategoryOptions(categories);
@@ -107,6 +138,7 @@ const Experiences = () => {
   const hasActiveFilters =
     selectedRegion !== "all" ||
     selectedCity !== "all" ||
+    selectedCities.length > 0 ||
     selectedTier !== "all" ||
     debouncedSearch !== "";
 
@@ -115,6 +147,7 @@ const Experiences = () => {
     setDebouncedSearch("");
     setSelectedRegion("all");
     setSelectedCity("all");
+    setSelectedCities([]);
     setSelectedTier("all");
   }, []);
 
@@ -153,7 +186,7 @@ const Experiences = () => {
     [cities, cityListingCounts, cityRegionMappings, regions],
   );
 
-  const topCities = useMemo(() => municipalityCities.slice(0, 6), [municipalityCities]);
+  const topCities = useMemo(() => municipalityCities.slice(0, 8), [municipalityCities]);
 
   // Featured city from CMS data or first top city
   const featuredCityHubData = getBlockData("featured-city-hub");
@@ -195,6 +228,7 @@ const Experiences = () => {
       debouncedSearch,
       selectedRegion,
       selectedCity,
+      [...selectedCities].sort().join(","),
       selectedTier,
       [...experiencesCategoryIds].sort().join(","),
     ],
@@ -210,7 +244,12 @@ const Experiences = () => {
           `name.ilike.%${debouncedSearch}%,description.ilike.%${debouncedSearch}%`,
         );
       }
-      if (selectedCity !== "all") {
+      // Handle multi-city filtering for municipalities
+      if (selectedCities.length > 0) {
+        query = query.in("city_id", selectedCities);
+      }
+      // Fallback to single city selection
+      else if (selectedCity !== "all") {
         query = query.eq("city_id", selectedCity);
       }
       if (selectedRegion !== "all") {
@@ -229,6 +268,20 @@ const Experiences = () => {
     enabled: experiencesCategoryIds.length > 0,
     staleTime: 1000 * 60 * 5,
   });
+
+  // Scroll to results when listings have loaded
+  useEffect(() => {
+    if (shouldScrollToResults && !listingsLoading && typeof window !== "undefined") {
+      const target = document.getElementById("showing-listings");
+      if (target) {
+        // Account for header height to position text right below it
+        const headerHeight = 80; // Approximate header height
+        const targetPosition = target.getBoundingClientRect().top + window.scrollY - headerHeight;
+        window.scrollTo({ top: targetPosition, behavior: "smooth" });
+        setShouldScrollToResults(false);
+      }
+    }
+  }, [shouldScrollToResults, listingsLoading]);
 
   const experienceStats = [
     {
@@ -303,7 +356,7 @@ const Experiences = () => {
           <CmsBlock
             pageId="experiences"
             blockId="hero"
-            className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4"
+            className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]"
           >
             <LiveStyleHero
               className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
@@ -360,7 +413,7 @@ const Experiences = () => {
           </CmsBlock>
         )}
 
-        <div className="app-container content-max pb-16 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
+        <div className="app-container content-max pb-[calc(4rem+10px)] sm:pb-[calc(5rem+10px)] pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
           {topCities.length > 0 && isBlockEnabled("city-hubs", true) ? (
             <CityHubsSection
               highlightedCity={highlightedCity}
@@ -369,12 +422,20 @@ const Experiences = () => {
               preferCityListingCounts
               cityPathBuilder={(city) => {
                 const params = new URLSearchParams();
-                if (city.municipalityRegionId) {
-                  params.set("region", city.municipalityRegionId);
+                // Create a map from city IDs to slugs
+                const citySlugMap = new Map(cities.map(c => [c.id, c.slug]));
+
+                // For municipalities with multiple cities, append all city slugs
+                if (city.municipalityCityIds && city.municipalityCityIds.length > 0) {
+                  city.municipalityCityIds.forEach((cityId) => {
+                    const slug = citySlugMap.get(cityId);
+                    if (slug) params.append("city", slug);
+                  });
                 } else {
-                  params.set("city", city.id);
+                  // Single city fallback - use the city's own slug
+                  params.append("city", city.slug);
                 }
-                return `/experiences?${params.toString()}`;
+                return `/experiences?${params.toString()}#showing-listings`;
               }}
               imageTimestamp={imageTimestamp}
               basePath="visit"
@@ -596,7 +657,7 @@ const Experiences = () => {
               blockId="results"
               className="relative z-0 isolate"
             >
-              <div className="flex items-center justify-between mb-6">
+              <div id="showing-listings" className="flex items-center justify-between mb-6">
                 <p className="text-body-sm text-muted-foreground">
                   {listingsLoading ? (
                     <span className="flex items-center gap-2">

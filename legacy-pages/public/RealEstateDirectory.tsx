@@ -186,7 +186,7 @@ export default function RealEstateDirectory() {
 
             <main className="flex-grow">
                 {isBlockEnabled("hero", true) ? (
-                    <CmsBlock pageId="real-estate" blockId="hero" as="section" className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4">
+                    <CmsBlock pageId="real-estate" blockId="hero" as="section" className="px-0 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
                         <LiveStyleHero
                             className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
                             badge={t("realEstate.hero.badge", "Exclusive Portfolio")}

@@ -191,22 +191,31 @@ function applyListingFilters(
   regions: RegionRow[],
 ): ListingsFilterQuery {
   const mergedCategories = buildMergedCategoryOptions(categories);
-  const normalizedCategory =
-    filters.categoryId && filters.categoryId !== "all"
-      ? resolveCategoryFilterSlug(filters.categoryId, categories, mergedCategories)
+
+  // Handle multiple category filtering or single category
+  let selectedCategoryIds: string[] = [];
+  if (Array.isArray(filters.categoryIds) && filters.categoryIds.length > 0) {
+    selectedCategoryIds = filters.categoryIds;
+  } else if (filters.categoryId && filters.categoryId !== "all") {
+    const normalizedCategory = resolveCategoryFilterSlug(filters.categoryId, categories, mergedCategories);
+    const selectedCategoryItem = normalizedCategory
+      ? getMergedCategoryBySlug(normalizedCategory, mergedCategories)
       : null;
-  const selectedCategoryItem = normalizedCategory
-    ? getMergedCategoryBySlug(normalizedCategory, mergedCategories)
-    : null;
-  const selectedCategoryIds = selectedCategoryItem?.memberIds ?? [];
+    selectedCategoryIds = selectedCategoryItem?.memberIds ?? [];
+  }
 
   if (selectedCategoryIds.length > 0) {
     query = query.in("category_id", selectedCategoryIds);
   }
 
-  const selectedCityId = resolveSelectedEntityId(cities, filters.cityId);
-  if (selectedCityId) {
-    query = query.eq("city_id", selectedCityId);
+  // Handle multiple city filtering (from municipalities) or single city
+  if (Array.isArray(filters.cityIds) && filters.cityIds.length > 0) {
+    query = query.in("city_id", filters.cityIds);
+  } else {
+    const selectedCityId = resolveSelectedEntityId(cities, filters.cityId);
+    if (selectedCityId) {
+      query = query.eq("city_id", selectedCityId);
+    }
   }
 
   const selectedRegionId = resolveSelectedEntityId(regions, filters.regionId);
@@ -423,7 +432,9 @@ async function fetchListings(
   const normalizedFilters: ListingFilters = {
     search: filters.search?.trim() || undefined,
     categoryId: filters.categoryId && filters.categoryId !== "all" ? filters.categoryId : undefined,
+    categoryIds: Array.isArray(filters.categoryIds) && filters.categoryIds.length > 0 ? filters.categoryIds : undefined,
     cityId: filters.cityId && filters.cityId !== "all" ? filters.cityId : undefined,
+    cityIds: Array.isArray(filters.cityIds) && filters.cityIds.length > 0 ? filters.cityIds : undefined,
     regionId: filters.regionId && filters.regionId !== "all" ? filters.regionId : undefined,
     tier: filters.tier && filters.tier !== ("all" as ListingTier) ? filters.tier : undefined,
   };
@@ -752,6 +763,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     () => selectedCategoryItem?.memberIds ?? EMPTY_CATEGORY_IDS,
     [selectedCategoryItem],
   );
+
   const isStayPage = cmsPageId === "stay" || pathname.includes("/stay");
   const isExperiencesPage = cmsPageId === "experiences" || pathname.includes("/experiences");
   const isVisitPage = cmsPageId === "visit" || pathname.includes("/visit");
@@ -763,6 +775,19 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     },
     [],
   );
+
+  // Extract and resolve all city parameters for multi-city filtering (e.g., municipalities)
+  const selectedCityIds = useMemo(() => {
+    const cityParams = searchParams.getAll("city");
+    if (cityParams.length === 0) return EMPTY_CATEGORY_IDS;
+
+    const resolvedIds = cityParams
+      .map((param) => resolveFilterEntityId(param, cities))
+      .filter((id): id is string => id !== "all" && id !== "")
+      .filter((id, index, arr) => arr.indexOf(id) === index); // Deduplicate
+
+    return resolvedIds;
+  }, [searchParams, cities, resolveFilterEntityId]);
 
   const categoriesWithListings = useMemo(
     () =>
@@ -778,10 +803,11 @@ function DirectoryClientInner(props: DirectoryClientProps) {
       categoryId: selectedCategory !== "all" ? selectedCategory : undefined,
       categoryIds: selectedCategory !== "all" ? selectedCategoryIds : undefined,
       cityId: selectedCity !== "all" ? selectedCity : undefined,
+      cityIds: selectedCityIds.length > 0 ? selectedCityIds : undefined,
       regionId: selectedRegion !== "all" ? selectedRegion : undefined,
       tier: selectedTier !== "all" ? (selectedTier as ListingTier) : undefined,
     }),
-    [debouncedSearch, selectedCategory, selectedCategoryIds, selectedCity, selectedRegion, selectedTier],
+    [debouncedSearch, selectedCategory, selectedCategoryIds, selectedCity, selectedCityIds, selectedRegion, selectedTier],
   );
 
   const initialFilterMatch =
@@ -943,28 +969,42 @@ function DirectoryClientInner(props: DirectoryClientProps) {
       category: "accommodation",
     });
 
-    if (city.municipalityRegionId) {
-      params.set("region", city.municipalityRegionId);
+    // For municipalities with multiple cities, append all constituent city slugs
+    if (city.municipalityCityIds && city.municipalityCityIds.length > 0) {
+      city.municipalityCityIds.forEach((cityId) => {
+        const cityObj = cities.find((c) => c.id === cityId);
+        if (cityObj) {
+          params.append("city", cityObj.slug);
+        }
+      });
     } else {
-      params.set("city", city.id || city.slug);
+      // Single city fallback
+      params.set("city", city.slug);
     }
 
     return `/stay?${params.toString()}#${resultsAnchorId}`;
-  }, [resultsAnchorId]);
+  }, [resultsAnchorId, cities]);
 
   const experiencesCityPathBuilder = useCallback((city: CityHubItem) => {
     const params = new URLSearchParams({
       category: "experiences",
     });
 
-    if (city.municipalityRegionId) {
-      params.set("region", city.municipalityRegionId);
+    // For municipalities with multiple cities, append all constituent city slugs
+    if (city.municipalityCityIds && city.municipalityCityIds.length > 0) {
+      city.municipalityCityIds.forEach((cityId) => {
+        const cityObj = cities.find((c) => c.id === cityId);
+        if (cityObj) {
+          params.append("city", cityObj.slug);
+        }
+      });
     } else {
-      params.set("city", city.id || city.slug);
+      // Single city fallback
+      params.set("city", city.slug);
     }
 
     return `/experiences?${params.toString()}#${resultsAnchorId}`;
-  }, [resultsAnchorId]);
+  }, [resultsAnchorId, cities]);
 
   const showCityHubs =
     activeCms.isBlockEnabled("city-hubs", true) &&
@@ -1017,7 +1057,14 @@ function DirectoryClientInner(props: DirectoryClientProps) {
       setSelectedRegion("all");
     }
 
-    if (cityParam) {
+    // Check for multiple city parameters (from municipality filtering) first
+    const cityParams = searchParams.getAll("city");
+    if (cityParams.length > 1) {
+      // Multiple cities selected - set selectedCity to "all" to indicate multiple filter
+      // Leave URL as-is (don't normalize) since it has intentional multi-city parameters
+      setSelectedCity("all");
+    } else if (cityParam) {
+      // Single city parameter
       const normalizedCity = resolveFilterEntityId(cityParam, cities);
       setSelectedCity(normalizedCity);
       if (normalizedCity === "all") {
@@ -1025,6 +1072,19 @@ function DirectoryClientInner(props: DirectoryClientProps) {
         shouldReplaceParams = true;
       } else if (cityParam !== normalizedCity) {
         nextParams.set("city", normalizedCity);
+        shouldReplaceParams = true;
+      }
+    } else if (cityParams.length === 1) {
+      // Single city in array form
+      const normalizedCity = resolveFilterEntityId(cityParams[0], cities);
+      setSelectedCity(normalizedCity);
+      if (normalizedCity !== "all") {
+        // Normalize to single-value parameter for consistency
+        nextParams.delete("city");
+        nextParams.set("city", normalizedCity);
+        shouldReplaceParams = true;
+      } else {
+        nextParams.delete("city");
         shouldReplaceParams = true;
       }
     } else {
@@ -1059,7 +1119,21 @@ function DirectoryClientInner(props: DirectoryClientProps) {
 
     if (trimmedSearch) nextParams.set("q", trimmedSearch);
     if (selectedRegion !== "all") nextParams.set("region", selectedRegion);
-    if (selectedCity !== "all") nextParams.set("city", selectedCity);
+
+    // Handle multiple city filtering (from municipalities) or single city
+    if (selectedCityIds.length > 1) {
+      // Multiple cities: append each one
+      selectedCityIds.forEach(cityId => {
+        const city = cities.find(c => c.id === cityId);
+        if (city) {
+          nextParams.append("city", city.slug);
+        }
+      });
+    } else if (selectedCity !== "all") {
+      // Single city
+      nextParams.set("city", selectedCity);
+    }
+
     if (selectedCategory !== "all") nextParams.set("category", selectedCategory);
     if (selectedTier !== "all") nextParams.set("tier", selectedTier);
 
@@ -1071,10 +1145,12 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     debouncedSearch,
     selectedRegion,
     selectedCity,
+    selectedCityIds,
     selectedCategory,
     selectedTier,
     searchParamsString,
     setSearchParams,
+    cities,
   ]);
 
   const clearFilters = () => {

@@ -35,6 +35,8 @@ const TARGET_MUNICIPALITIES = [
 ] as const;
 
 const LOCALITY_TO_MUNICIPALITY: Record<string, string> = {
+  // Loulé municipalities and localities
+  loule: "Loulé",
   almancil: "Loulé",
   quarteira: "Loulé",
   vilamoura: "Loulé",
@@ -43,23 +45,36 @@ const LOCALITY_TO_MUNICIPALITY: Record<string, string> = {
   boliqueime: "Loulé",
   "sao-clemente": "Loulé",
   "loule-sao-clemente": "Loulé",
+  // Portimão municipalities
+  portimao: "Portimão",
   alvor: "Portimão",
   "mexilhoeira-grande": "Portimão",
   "praia-da-rocha": "Portimão",
+  // Lagoa municipalities
+  lagoa: "Lagoa",
   carvoeiro: "Lagoa",
   ferragudo: "Lagoa",
   porches: "Lagoa",
   estombar: "Lagoa",
+  // Albufeira municipalities
+  albufeira: "Albufeira",
   guia: "Albufeira",
   ferreiras: "Albufeira",
   "olhos-de-agua": "Albufeira",
+  // Lagos municipalities
+  lagos: "Lagos",
   "praia-da-luz": "Lagos",
   luz: "Lagos",
+  // Tavira municipalities
+  tavira: "Tavira",
   "castro-marim": "Tavira",
   "santa-luzia": "Tavira",
   alcoutim: "Tavira",
+  // Olhão municipalities
   olhao: "Olhão",
   "olhao-doce-vida": "Olhão",
+  // Faro municipalities
+  faro: "Faro",
 };
 
 function normalizeKey(value: string | null | undefined): string {
@@ -191,8 +206,9 @@ export function buildMunicipalityCityIndex({
     }
   }
 
-  // Preserve full municipality membership for CMS-selected cities even when
-  // a specific city has zero direct listing count in the current dataset.
+  // Preserve full municipality membership for ALL cities, even those with
+  // zero direct listing count in the current dataset. This ensures complete
+  // municipality filtering and accurate counts.
   for (const city of cities) {
     const { municipalityName } = resolveMunicipalityForCity(
       city,
@@ -204,8 +220,22 @@ export function buildMunicipalityCityIndex({
 
     const municipalityKey = normalizeKey(municipalityName);
     const existing = aggregate.get(municipalityKey);
-    if (!existing) continue;
-    existing.cityIds.add(city.id);
+
+    // Add city to existing municipality aggregate
+    if (existing) {
+      existing.cityIds.add(city.id);
+    } else {
+      // If no group exists yet (municipality has no listings), create one
+      // to ensure we capture all cities in the municipality
+      aggregate.set(municipalityKey, {
+        municipalityName,
+        totalCount: 0,
+        cityIds: new Set([city.id]),
+        regionId: null,
+        representativeCity: city,
+        representativeCount: 0,
+      });
+    }
   }
 
   const items: Array<MunicipalityCityIndexItem | null> = TARGET_MUNICIPALITIES.map((municipalityName) => {

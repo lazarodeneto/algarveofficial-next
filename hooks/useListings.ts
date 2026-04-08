@@ -19,6 +19,7 @@ export interface ListingFilters {
   categoryId?: string;
   categoryIds?: string[];
   cityId?: string;
+  cityIds?: string[];
   regionId?: string;
   tier?: ListingTier;
   excludeCategoryId?: string;
@@ -119,6 +120,19 @@ function normalizeListingFilters(filters: ListingFilters): ListingFilters {
     normalized.cityId = filters.cityId;
   }
 
+  if (Array.isArray(filters.cityIds)) {
+    const cleaned = Array.from(
+      new Set(
+        filters.cityIds
+          .map((value) => value?.trim())
+          .filter((value): value is string => Boolean(value) && value !== "all")
+      )
+    );
+    if (cleaned.length > 0) {
+      normalized.cityIds = cleaned;
+    }
+  }
+
   if (filters.regionId && filters.regionId !== "all") {
     normalized.regionId = filters.regionId;
   }
@@ -214,7 +228,9 @@ function applyListingFilters<T extends {
     query = query.eq('category_id', filters.categoryId);
   }
 
-  if (filters.cityId && filters.cityId !== 'all') {
+  if (Array.isArray(filters.cityIds) && filters.cityIds.length > 0) {
+    query = query.in('city_id', filters.cityIds);
+  } else if (filters.cityId && filters.cityId !== 'all') {
     query = query.eq('city_id', filters.cityId);
   }
 

@@ -117,9 +117,14 @@ function applyListingFiltersServer(
     result = result.in("category_id", selectedCategoryIds);
   }
 
-  const selectedCityId = resolveFilterEntityId(filters.cityId, cities);
-  if (selectedCityId) {
-    result = result.eq("city_id", selectedCityId);
+  // Handle multiple city filtering (from municipalities) or single city
+  if (Array.isArray(filters.cityIds) && filters.cityIds.length > 0) {
+    result = result.in("city_id", filters.cityIds);
+  } else {
+    const selectedCityId = resolveFilterEntityId(filters.cityId, cities);
+    if (selectedCityId) {
+      result = result.eq("city_id", selectedCityId);
+    }
   }
 
   const selectedRegionId = resolveFilterEntityId(filters.regionId, regions);

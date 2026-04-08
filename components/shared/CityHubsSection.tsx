@@ -46,6 +46,11 @@ export function CityHubsSection({
       : normalizedBasePath || "visit";
 
   const getCityCount = (city: CityHubItem) => {
+    // For municipalities, always use the aggregated totalCount
+    if (city.municipalityCityIds && city.municipalityCityIds.length > 0) {
+      return city.totalCount ?? 0;
+    }
+
     if (preferCityListingCounts) {
       return cityListingCounts[city.id] ?? city.totalCount ?? 0;
     }
