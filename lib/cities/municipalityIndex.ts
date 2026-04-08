@@ -211,10 +211,20 @@ export function buildMunicipalityCityIndex({
   const items: Array<MunicipalityCityIndexItem | null> = TARGET_MUNICIPALITIES.map((municipalityName) => {
     const municipalityKey = normalizeKey(municipalityName);
     const group = aggregate.get(municipalityKey);
-    if (!group || group.totalCount <= 0) return null;
-
     const municipalityCity = municipalityCityByKey.get(municipalityKey);
-    const representative = municipalityCity ?? group.representativeCity;
+
+    // If no group and no direct municipality city, check if we have any city from this municipality
+    let representative = municipalityCity ?? group?.representativeCity ?? null;
+
+    // If still no representative, look through all cities to find one that matches this municipality
+    if (!representative && cities.length > 0) {
+      const candidateCity = cities.find(city => normalizeKey(city.name) === municipalityKey);
+      if (candidateCity) {
+        representative = candidateCity;
+      }
+    }
+
+    // Include municipality even without a representative (zero listings case)
     if (!representative) return null;
 
     return {
@@ -224,9 +234,9 @@ export function buildMunicipalityCityIndex({
       short_description: representative.short_description ?? null,
       image_url: representative.image_url ?? null,
       hero_image_url: representative.hero_image_url ?? null,
-      totalCount: group.totalCount,
-      municipalityRegionId: group.regionId ?? null,
-      municipalityCityIds: Array.from(group.cityIds),
+      totalCount: group?.totalCount ?? 0,
+      municipalityRegionId: group?.regionId ?? null,
+      municipalityCityIds: group ? Array.from(group.cityIds) : [],
     } satisfies MunicipalityCityIndexItem;
   });
 
