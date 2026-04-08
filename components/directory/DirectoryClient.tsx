@@ -1489,7 +1489,8 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                               listingId={listing.id}
                               alt={listing.name}
                               isRepresentative={!listing.featured_image_url}
-                              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              fill={true}
+                              className="transition-transform duration-500 group-hover:scale-105"
                             />
 
                             <div className="absolute top-3 left-3 flex flex-wrap gap-2">
