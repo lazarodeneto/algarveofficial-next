@@ -102,7 +102,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
       <Header />
       <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />
 
-      <CmsBlock pageId="destinations" blockId="featured-city-hub" as="section" className="pb-8">
+       <CmsBlock pageId="destinations" blockId="featured-city-hub" as="section" className="pt-[4.5rem] sm:pt-[5rem] pb-8">
         {highlightedCity && highlightedCity.hero_image_url && (
           <div className="app-container content-max">
             <LocaleLink
@@ -134,7 +134,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
         )}
       </CmsBlock>
 
-      <CmsBlock pageId="destinations" blockId="city-index" as="section" className="py-16 lg:py-24 bg-card">
+       <CmsBlock pageId="destinations" blockId="city-index" as="section" className="pt-8 lg:pt-16 pb-16 lg:pb-24 bg-card">
         <div className="app-container content-max">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
