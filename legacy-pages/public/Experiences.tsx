@@ -728,7 +728,6 @@ const Experiences = () => {
               </div>
             </CmsBlock>
           ) : null}
-        </div>
 
         {isBlockEnabled("stats", true) && (
           <CmsBlock
@@ -839,6 +838,7 @@ const Experiences = () => {
             </div>
           </CmsBlock>
         )}
+        </div>
       </main>
 
       <Footer />
