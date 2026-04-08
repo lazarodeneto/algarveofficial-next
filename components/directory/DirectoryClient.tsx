@@ -940,7 +940,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   }, [isStayPage, isExperiencesPage, props.featuredVisitCity, stayCityIndex, experiencesCityIndex, activeCms, props.visitCityIndex, cities]);
   const stayCityPathBuilder = useCallback((city: CityHubItem) => {
     const params = new URLSearchParams({
-      category: "places-to-stay",
+      category: "accommodation",
     });
 
     if (city.municipalityRegionId) {
