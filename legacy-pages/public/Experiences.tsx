@@ -20,6 +20,7 @@ import {
   Tag,
   X,
 } from "lucide-react";
+import { ListingCard } from "@/components/ListingCard";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -714,64 +715,12 @@ const Experiences = () => {
               {!listingsLoading && listings.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {listings.map((listing, index) => (
-                    <motion.div
+                    <ListingCard
                       key={listing.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        duration: 0.4,
-                        delay: Math.min(index * 0.05, 0.3),
-                      }}
-                    >
-                      <Link
-                        href={l(`/listing/${listing.id}`)}
-                        className="group block"
-                      >
-                        <article className="glass-box overflow-hidden">
-                          <div className="h-48 w-full overflow-hidden">
-                            {listing.featured_image_url ? (
-                              <img
-                                src={`${listing.featured_image_url}?_t=${imageTimestamp}`}
-                                alt={listing.name}
-                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                loading="lazy"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-charcoal-light to-charcoal flex items-center justify-center">
-                                <Compass className="w-12 h-12 text-muted-foreground/30" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="p-4 space-y-2">
-                            <div className="flex items-center gap-2">
-                              {listing.tier === "signature" && (
-                                <Badge className="bg-primary/20 text-primary text-[10px]">
-                                  Signature
-                                </Badge>
-                              )}
-                              {listing.tier === "verified" && (
-                                <Badge className="bg-green-500/20 text-green-600 text-[10px]">
-                                  Verified
-                                </Badge>
-                              )}
-                            </div>
-                            <h3 className="font-serif font-medium text-lg text-foreground group-hover:text-primary transition-colors">
-                              {listing.name}
-                            </h3>
-                            {listing.cities && (
-                              <p className="text-sm text-muted-foreground">
-                                {listing.cities.name}
-                              </p>
-                            )}
-                            {listing.description && (
-                              <p className="text-sm text-muted-foreground line-clamp-2">
-                                {listing.description}
-                              </p>
-                            )}
-                          </div>
-                        </article>
-                      </Link>
-                    </motion.div>
+                      listing={listing}
+                      href={l(`/listing/${listing.slug}`)}
+                      index={index}
+                    />
                   ))}
                 </div>
               ) : null}
