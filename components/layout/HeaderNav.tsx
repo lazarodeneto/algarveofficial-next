@@ -44,9 +44,10 @@ export function HeaderNav() {
       className="font-['Archivo_Narrow'] flex items-center gap-2.5 text-[0.82rem] font-medium uppercase tracking-[0.04em] text-foreground/86 lg:text-[0.88rem] lg:tracking-[0.05em] xl:gap-4 xl:text-[0.95rem] xl:tracking-[0.065em] 2xl:gap-5 2xl:text-[1.22rem] 2xl:tracking-[0.08em]"
     >
       {HEADER_NAV_ITEMS.map((item) => {
+        const itemPath = item.href.split("?")[0];
         const isActive =
-          currentPath === item.href ||
-          (item.href !== "/" && currentPath.startsWith(`${item.href}/`));
+          currentPath === itemPath ||
+          (itemPath !== "/" && currentPath.startsWith(`${itemPath}/`));
         const Icon = HEADER_NAV_ICONS[item.labelKey];
         const label = t(item.labelKey, item.fallbackLabel);
 
