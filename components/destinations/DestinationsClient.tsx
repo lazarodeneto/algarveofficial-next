@@ -107,7 +107,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
           <div className="app-container content-max">
             <LocaleLink
               href={`/destinations/${highlightedCity.slug}`}
-              className="group relative block overflow-hidden rounded-[32px] aspect-[16/9] lg:aspect-[2.4/1]"
+              className="group relative block overflow-hidden rounded-[32px] aspect-[16/9] lg:aspect-[16/4]"
             >
               <Image
                 src={`${highlightedCity.hero_image_url || highlightedCity.image_url}?_t=${imageTimestamp}`}
