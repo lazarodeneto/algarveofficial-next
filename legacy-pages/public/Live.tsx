@@ -444,7 +444,7 @@ const Live = () => {
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label>{t("live.planner.budgetLabel", "Monthly Living Budget")}</Label>
+                  <Label>{t("live.planner.budgetLabel", "Monthly Living Budget (after-tax)")}</Label>
                   <span className="text-sm font-medium text-foreground">EUR {monthlyBudget.toLocaleString()}</span>
                 </div>
                 <Slider

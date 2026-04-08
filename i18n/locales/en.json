@@ -762,7 +762,7 @@
         "marina": "Marina + premium services",
         "family": "Family-first routines"
       },
-      "budgetLabel": "Monthly Living Budget",
+      "budgetLabel": "Monthly Living Budget (after-tax)",
       "budget": {
         "lean": "Lean Setup",
         "balanced": "Balanced Premium",

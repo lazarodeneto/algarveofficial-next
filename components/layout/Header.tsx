@@ -69,6 +69,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
 
   const directoryPath = l("/stay?category=places-to-stay");
   const experiencesPath = l("/experiences");
+  const propertiesPath = l("/properties");
   const golfPath = l("/golf");
   const investPath = l("/invest");
   const realEstatePath = l("/real-estate");
@@ -463,6 +464,25 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                           <Link href={buildDirectoryCategoryPath("algarve-services")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Users className="h-4 w-4" /> {t("categoryNames.algarve-services")}</Link>
                           <Link href={buildDirectoryCategoryPath("whats-on")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Calendar className="h-4 w-4" /> {t("categoryNames.whats-on")}</Link>
                           <Link href={buildDirectoryCategoryPath("shopping-boutiques")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><ShoppingBag className="h-4 w-4" /> {t("categoryNames.shopping-boutiques")}</Link>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+
+                    {/* PROPERTIES */}
+                    <AccordionItem value="properties">
+                      <div className="flex items-center">
+                        <Link href={propertiesPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
+                          <div className="flex items-center gap-3">
+                            <HouseHeart className="h-6 w-6 text-primary" />
+                            {t("nav.properties")}
+                          </div>
+                        </Link>
+                        <AccordionTrigger className="w-12 h-12 flex items-center justify-center p-0" />
+                      </div>
+                      <AccordionContent>
+                        <div className="mb-1 flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
+                          <Link href={realEstatePath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Building2 className="h-4 w-4" /> {t("realEstate.title", "Real Estate Directory")}</Link>
+                          <Link href={mapPath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><MapPin className="h-4 w-4" /> {t("nav.map", "Map")}</Link>
                         </div>
                       </AccordionContent>
                     </AccordionItem>

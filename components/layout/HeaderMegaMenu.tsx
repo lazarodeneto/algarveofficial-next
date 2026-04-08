@@ -180,7 +180,7 @@ function useHeaderRuntimeSections(): HeaderRuntimeSection[] {
             live: normalizedItems.find((item) => {
                 const key = normalize(item.translation_key);
                 const name = normalize(item.name);
-                return key === "nav.live" || name === "live";
+                return key === "nav.live" || name === "live" || name === "residence";
             }),
             experiences: normalizedItems.find((item) => {
                 const key = normalize(item.translation_key);
