@@ -1194,9 +1194,9 @@ function DirectoryClientInner(props: DirectoryClientProps) {
       <Header />
       <main>
         <LazyMotion features={domAnimation}>
-        {/* Hero: enabled with matching top padding, disabled with placeholder that matches padding */}
+        {/* Hero: enabled with matching top padding, disabled with minimal placeholder */}
         {!activeCms.isBlockEnabled("hero", true) ? (
-        <div className="px-4 lg:px-6 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-4" aria-hidden="true" />
+        <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />
       ) : (
         <DirectoryCmsBlock
           blockId="hero"
