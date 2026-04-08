@@ -658,7 +658,8 @@ const Experiences = () => {
               blockId="results"
               className="relative z-0 isolate"
             >
-              <div id="showing-listings" className="flex items-center justify-between mb-6">
+              <div className="app-container content-max">
+                <div id="showing-listings" className="flex items-center justify-between mb-6">
                 <p className="text-body-sm text-muted-foreground">
                   {listingsLoading ? (
                     <span className="flex items-center gap-2">
@@ -724,6 +725,7 @@ const Experiences = () => {
                   ))}
                 </div>
               ) : null}
+              </div>
             </CmsBlock>
           ) : null}
         </div>
