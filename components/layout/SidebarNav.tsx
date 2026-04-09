@@ -9,12 +9,10 @@ import {
   BookOpen,
   CalendarDays,
   FlagTriangleRight,
-  Home,
   HouseHeart,
   Mail,
   Map,
   MapPinHouse,
-  TrendingUp,
   type LucideIcon,
 } from "lucide-react";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
@@ -24,7 +22,6 @@ import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 const NAV_ICONS: Record<string, LucideIcon> = {
   "nav.visit": Binoculars,
   "nav.stay": BedDouble,
-  "nav.invest": TrendingUp,
   "nav.properties": HouseHeart,
   "nav.experiences": Binoculars,
   "nav.map": Map,
@@ -44,10 +41,11 @@ export function SidebarNav({ expanded = false }: SidebarNavProps) {
   const { t } = useTranslation();
 
   const currentPath = stripLocaleFromPathname(pathname || "/");
+  const sidebarItems = PRIMARY_NAV_ITEMS.filter((item) => item.labelKey !== "nav.invest");
 
   return (
     <nav className={clsx("flex flex-col gap-2", expanded ? "items-stretch" : "items-center")}>
-      {PRIMARY_NAV_ITEMS.map((item) => {
+      {sidebarItems.map((item) => {
         const isActive =
           currentPath === item.href ||
           (item.href !== "/" && currentPath.startsWith(`${item.href}/`));

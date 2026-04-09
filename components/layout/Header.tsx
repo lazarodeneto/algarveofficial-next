@@ -30,7 +30,6 @@ import {
   Users,
   ShoppingBag,
   Building2,
-  Plus,
   Calendar,
   ChefHat,
   ListChecks,
@@ -71,9 +70,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const experiencesPath = l("/experiences");
   const propertiesPath = l("/properties");
   const golfPath = l("/golf");
-  const investPath = l("/invest");
   const realEstatePath = l("/real-estate");
-  const partnerPath = l("/partner");
   const homePath = l("/");
   const destinationsPath = l("/destinations");
   const mapPath = l("/map");
@@ -421,6 +418,17 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                     </div>
 
                     <Accordion type="single" collapsible className="w-full rounded-2xl border border-black/10 bg-white/66 px-2 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
+                    <div className="mx-3">
+                      <Link
+                        href={homePath}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
+                      >
+                        <Home className="h-6 w-6 text-primary" />
+                        {t("nav.home", "Home")}
+                      </Link>
+                    </div>
+
                     {/* VISIT */}
                     <AccordionItem value="visit">
                       <div className="flex items-center">
@@ -487,25 +495,6 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                       </AccordionContent>
                     </AccordionItem>
 
-                    {/* INVEST */}
-                    <AccordionItem value="invest">
-                      <div className="flex items-center">
-                        <Link href={investPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
-                          <div className="flex items-center gap-3">
-                            <HouseHeart className="h-6 w-6 text-primary" />
-                            {t("nav.invest")}
-                          </div>
-                        </Link>
-                        <AccordionTrigger className="w-12 h-12 flex items-center justify-center p-0" />
-                      </div>
-                      <AccordionContent>
-                        <div className="mb-1 flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
-                          <Link href={realEstatePath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Building2 className="h-4 w-4" /> {t("realEstate.title", "Real Estate Directory")}</Link>
-                          <Link href={partnerPath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Plus className="h-4 w-4" /> {t("realEstate.addListing", "Add Real Estate Listing")}</Link>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-
                     {/* GOLF */}
                     <AccordionItem value="golf">
                       <div className="flex items-center">
@@ -526,6 +515,28 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
 
                     <div className="mx-3 border-t border-primary/15">
                       <Link
+                        href={destinationsPath}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
+                      >
+                        <Compass className="h-6 w-6 text-primary" />
+                        {t("nav.destinations", "Destinations")}
+                      </Link>
+                    </div>
+
+                    <div className="mx-3 border-t border-primary/15">
+                      <Link
+                        href={mapPath}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
+                      >
+                        <MapPin className="h-6 w-6 text-primary" />
+                        {t("nav.map", "Map")}
+                      </Link>
+                    </div>
+
+                    <div className="mx-3 border-t border-primary/15">
+                      <Link
                         href={blogPath}
                         onClick={() => setMobileMenuOpen(false)}
                         className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
@@ -535,26 +546,6 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                       </Link>
                     </div>
                   </Accordion>
-
-                    <div className="mt-4 rounded-2xl border border-black/10 bg-white/66 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
-                      <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                        {t("nav.discover", "Discover")}
-                      </p>
-                      <div className="grid grid-cols-2 gap-2">
-                        <Link href={homePath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
-                          <Home className="h-4 w-4 text-primary" />
-                          {t("nav.home", "Home")}
-                        </Link>
-                        <Link href={destinationsPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
-                          <Compass className="h-4 w-4 text-primary" />
-                          {t("nav.destinations", "Destinations")}
-                        </Link>
-                        <Link href={mapPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
-                          <MapPin className="h-4 w-4 text-primary" />
-                          {t("nav.map", "Map")}
-                        </Link>
-                      </div>
-                    </div>
 
                     <div className="mt-4 rounded-2xl border border-black/10 bg-white/66 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
                       <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
