@@ -202,6 +202,7 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
     "nav.home",
     "nav.visit",
     "common.avgRating",
+    "common.fromPrice",
     "common.inOtherCities",
     "common.moreToExploreIn",
     "common.curated",

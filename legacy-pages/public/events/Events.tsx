@@ -90,9 +90,9 @@ export default function Events() {
         {heroEnabled ? (
           <CmsBlock pageId="events" blockId="hero" as="section" className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
             <LiveStyleHero
-              badge={t('sections.events.label', 'Algarve Calendar')}
-              title={t('sections.events.title', 'Events & Season')}
-              subtitle={t('sections.events.subtitle', 'Festivals, markets, and seasonal highlights across Portugal\'s stunning southern coast.')}
+              badge={t('sections.events.label')}
+              title={t('sections.events.title')}
+              subtitle={t('sections.events.subtitle')}
               media={
                 <HeroBackgroundMedia
                   mediaType={getText("hero.mediaType", "image")}
@@ -100,20 +100,20 @@ export default function Events() {
                   videoUrl={getText("hero.videoUrl", "")}
                   youtubeUrl={getText("hero.youtubeUrl", "")}
                   posterUrl={getText("hero.posterUrl", "")}
-                  alt={t("events.hero.alt", "Premium Algarve event destination")}
-                  fallback={<PageHeroImage page="events" alt={t("events.hero.alt", "Premium Algarve event destination")} />}
+                  alt={t("events.hero.alt")}
+                  fallback={<PageHeroImage page="events" alt={t("events.hero.alt")} />}
                 />
               }
               ctas={
                 <>
                   <Link href={l("/experiences")}>
                     <Button variant="gold" size="lg">
-                      {t("events.hero.ctaPrimary", "Explore Experiences")}
+                      {t("events.hero.ctaPrimary")}
                     </Button>
                   </Link>
                   <Link href={l("/contact")}>
                     <Button variant="heroOutline" size="lg">
-                      {t("events.hero.ctaSecondary", "Plan My Calendar")}
+                      {t("events.hero.ctaSecondary")}
                     </Button>
                   </Link>
                 </>
@@ -230,12 +230,12 @@ export default function Events() {
           className={`${featuredEvents.length > 0 || heroEnabled ? "py-12" : "pb-12"} app-container content-max`}
         >
           <h2 className="text-title font-serif font-semibold mb-8">
-            {t('common.upcomingEvents', 'Upcoming Events')}
+            {t('common.upcomingEvents')}
           </h2>
           
           {Object.entries(eventsByMonth).length === 0 ? (
             <RouteMessageState
-              eyebrow={t('sections.events.label', 'Algarve Calendar')}
+              eyebrow={t('sections.events.label')}
               title={t('sections.events.noUpcoming')}
               description={t('sections.events.noUpcomingHint')}
               icon={<Calendar className="h-16 w-16" />}

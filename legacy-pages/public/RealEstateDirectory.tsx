@@ -197,11 +197,10 @@ export default function RealEstateDirectory() {
                     <CmsBlock pageId="real-estate" blockId="hero" as="section" className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
                         <LiveStyleHero
                             className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
-                            badge={t("realEstate.hero.badge", "Exclusive Portfolio")}
-                            title={t("realEstate.hero.title", "Prime Real Estate")}
+                            badge={t("realEstate.hero.badge")}
+                            title={t("realEstate.hero.title")}
                             subtitle={t(
                                 "realEstate.hero.subtitle",
-                                "Discover the finest collection of premium properties in Portugal's most prestigious coastal region.",
                             )}
                             media={
                                 <HeroBackgroundMedia
@@ -210,8 +209,8 @@ export default function RealEstateDirectory() {
                                     videoUrl={getText("hero.videoUrl", "")}
                                     youtubeUrl={getText("hero.youtubeUrl", "")}
                                     posterUrl={getText("hero.posterUrl", "")}
-                                    alt={t("realEstate.hero.alt", "Luxury Algarve real estate exterior")}
-                                    fallback={<PageHeroImage page="real-estate" alt={t("realEstate.hero.alt", "Luxury Algarve real estate exterior")} />}
+                                    alt={t("realEstate.hero.alt")}
+                                    fallback={<PageHeroImage page="real-estate" alt={t("realEstate.hero.alt")} />}
                                 />
                             }
                         />
@@ -236,14 +235,14 @@ export default function RealEstateDirectory() {
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
                                             <div className="absolute inset-x-0 bottom-0 p-6 text-white">
                                                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
-                                                    {t("realEstate.featuredCityHub", "Featured City Hub")}
+                                                    {t("realEstate.featuredCityHub")}
                                                 </p>
                                                 <h2 className="font-serif text-3xl md:text-4xl leading-tight">
                                                     {featuredCity.name}
                                                 </h2>
                                                 <p className="mt-3 max-w-2xl text-sm text-white/85">
                                                     {featuredCity.short_description ||
-                                                        t("realEstate.featuredCityHubDescription", "Explore premium real estate in {{name}}, Algarve.", { name: featuredCity.name })}
+                                                        t("realEstate.featuredCityHubDescription", { name: featuredCity.name })}
                                                 </p>
                                             </div>
                                         </div>
@@ -251,13 +250,13 @@ export default function RealEstateDirectory() {
 
                                     <div className="rounded-[32px] border border-border bg-card p-6 shadow-sm">
                                         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                                            {t("realEstate.cityIndex", "City Index")}
+                                            {t("realEstate.cityIndex")}
                                         </p>
                                         <h2 className="mt-3 font-serif text-2xl text-foreground">
-                                            {t("realEstate.exploreAlgarveCities", "Explore Algarve Cities")}
+                                            {t("realEstate.exploreAlgarveCities")}
                                         </h2>
                                         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                                            {t("realEstate.cityIndexDescription", "Browse premium properties and investment zones by city.")}
+                                            {t("realEstate.cityIndexDescription")}
                                         </p>
                                         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
                                             {cities
@@ -272,7 +271,7 @@ export default function RealEstateDirectory() {
                                                 >
                                                     <div className="font-medium text-foreground">{city.name}</div>
                                                     <div className="text-sm text-muted-foreground">
-                                                        {t("realEstate.listingsCount", "{{count}} listings", { count: cityListingCounts[city.id] ?? 0 })}
+                                                        {t("realEstate.listingsCount", { count: cityListingCounts[city.id] ?? 0 })}
                                                     </div>
                                                 </Link>
                                             ))}
@@ -285,9 +284,9 @@ export default function RealEstateDirectory() {
                             <div>
                                 <div className="mb-4 flex items-center justify-between gap-4">
                                     <div>
-                                        <h2 className="font-serif text-2xl text-foreground">{t("realEstate.allActiveCityHubs", "All Active City Hubs")}</h2>
+                                        <h2 className="font-serif text-2xl text-foreground">{t("realEstate.allActiveCityHubs")}</h2>
                                         <p className="mt-1 text-sm text-muted-foreground">
-                                            {t("realEstate.allActiveCityHubsDescription", "Discover premium property opportunities across the Algarve.")}
+                                            {t("realEstate.allActiveCityHubsDescription")}
                                         </p>
                                     </div>
                                 </div>
@@ -312,7 +311,7 @@ export default function RealEstateDirectory() {
                                                         {city.name}
                                                     </h3>
                                                     <div className="mt-1 text-sm text-muted-foreground">
-                                                        {t("realEstate.listingsCount", "{{count}} listings", { count: cityListingCounts[city.id] ?? 0 })}
+                                                        {t("realEstate.listingsCount", { count: cityListingCounts[city.id] ?? 0 })}
                                                     </div>
                                                 </div>
                                             </article>
@@ -338,13 +337,13 @@ export default function RealEstateDirectory() {
                                 />
 
                                 <div className="mt-6 sm:mt-8 p-5 sm:p-8 bg-black text-white rounded-2xl space-y-4">
-                                    <h4 className="font-serif text-xl italic">{t("realEstate.searchAssistance.title", "Search Assistance")}</h4>
+                                    <h4 className="font-serif text-xl italic">{t("realEstate.searchAssistance.title")}</h4>
                                     <p className="text-sm text-white/70 font-light leading-relaxed">
-                                        {t("realEstate.searchAssistance.description", "Cannot find what you are looking for? Our concierge team has access to off-market properties.")}
+                                        {t("realEstate.searchAssistance.description")}
                                     </p>
                                     <ConciergeContactDialog>
                                         <Button className="w-full bg-primary hover:bg-primary/90 text-black rounded-full text-[11px] sm:text-xs tracking-[0.18em] uppercase py-4 sm:py-6 whitespace-normal">
-                                            {t("realEstate.searchAssistance.cta", "Contact Concierge")}
+                                            {t("realEstate.searchAssistance.cta")}
                                         </Button>
                                     </ConciergeContactDialog>
                                 </div>
@@ -363,9 +362,9 @@ export default function RealEstateDirectory() {
 
                             <div className="mb-8 sm:mb-10 flex flex-col md:flex-row justify-between items-baseline gap-3 sm:gap-4 border-b border-primary/20 pb-5 sm:pb-6">
                                 <h2 className="text-2xl sm:text-3xl font-serif italic text-foreground">
-                                    {filteredListings?.length || 0} <span className="not-italic font-sans text-sm sm:text-lg text-muted-foreground sm:ml-2 tracking-[0.16em] uppercase">{t("realEstate.propertiesAvailable", "Properties Available")}</span>
+                                    {filteredListings?.length || 0} <span className="not-italic font-sans text-sm sm:text-lg text-muted-foreground sm:ml-2 tracking-[0.16em] uppercase">{t("realEstate.propertiesAvailable")}</span>
                                 </h2>
-                                <div className="text-xs sm:text-sm text-muted-foreground uppercase tracking-[0.16em] font-medium">{t("realEstate.sortedByFeatured", "Sorted by: Featured")}</div>
+                                <div className="text-xs sm:text-sm text-muted-foreground uppercase tracking-[0.16em] font-medium">{t("realEstate.sortedByFeatured")}</div>
                             </div>
 
                             {isLoading ? (

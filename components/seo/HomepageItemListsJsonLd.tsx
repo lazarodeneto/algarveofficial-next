@@ -35,22 +35,22 @@ export function HomepageItemListsJsonLd() {
 
     return [
       {
-        name: t("categoryNames.places-to-stay", "Places to Stay"),
+        name: t("categoryNames.places-to-stay"),
         url: absoluteUrl(l("/stay?category=places-to-stay")),
         description: "Hotels, villas, and premium stays in the Algarve.",
       },
       {
-        name: t("categoryNames.restaurants", "Restaurants"),
+        name: t("categoryNames.restaurants"),
         url: absoluteUrl(l("/stay?category=restaurants")),
         description: "Fine dining and standout restaurants across the Algarve.",
       },
       {
-        name: t("categoryNames.things-to-do", "Things to Do"),
+        name: t("categoryNames.things-to-do"),
         url: absoluteUrl(l("/stay?category=things-to-do")),
         description: "Curated experiences and activities in the Algarve.",
       },
       {
-        name: t("categoryNames.whats-on", "What's On"),
+        name: t("categoryNames.whats-on"),
         url: absoluteUrl(l("/stay?category=whats-on")),
         description: "Events and happenings across the Algarve.",
       },

@@ -46,7 +46,7 @@ export function useContactForm() {
             if (user) {
                 queryClient.invalidateQueries({ queryKey: ["chat-threads", user.id] });
             }
-            toast.success(t("contact.success", "Your message has been sent successfully!"));
+            toast.success(t("contact.success"));
             if (responseData?.warnings?.includes("email_delivery_failed") || responseData?.warnings?.includes("email_delivery_primary_sender_failed")) {
                 toast.message("Your message was saved, but email notification failed. The admin can still view it in the inbox.");
             }
@@ -61,7 +61,7 @@ export function useContactForm() {
             toast.error(
                 isNetworkError
                     ? "Unable to reach our server right now. Please try again in a moment."
-                    : (message || t("contact.error", "Failed to send message. Please try again later."))
+                    : (message || t("contact.error"))
             );
         }
     });

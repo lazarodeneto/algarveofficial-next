@@ -453,7 +453,7 @@ export default function Directory() {
             <Link href={mapHref}>
               <Button variant="outline" size="sm">
                 <MapPin className="h-4 w-4 mr-2" />
-                {t("directory.mapView", "Map View")}
+                {t("directory.mapView")}
               </Button>
             </Link>
           </div>

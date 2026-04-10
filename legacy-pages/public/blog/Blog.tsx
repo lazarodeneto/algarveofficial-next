@@ -82,7 +82,7 @@ export default function Blog() {
               transition={{ duration: 0.6 }}
               className="inline-block text-sm font-medium text-primary tracking-[0.3em] uppercase mb-6"
             >
-              {t('blog.label', 'Stories & Guides')}
+              {t('blog.label')}
             </m.span>
             <m.h1
               initial={{ opacity: 0, y: 20 }}
@@ -90,7 +90,7 @@ export default function Blog() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-hero font-serif font-medium text-foreground"
             >
-              {t('blog.title', 'Blog & Insights')}
+              {t('blog.title')}
             </m.h1>
             <m.p
               initial={{ opacity: 0, y: 20 }}
@@ -98,7 +98,7 @@ export default function Blog() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="mt-6 text-body text-muted-foreground max-w-3xl mx-auto readable"
             >
-              {t('blog.subtitle', 'Discover the Algarve lifestyle, travel guides, and insider tips')}
+              {t('blog.subtitle')}
             </m.p>
               
             {/* Search */}
@@ -111,7 +111,7 @@ export default function Blog() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder={t('blog.searchPlaceholder', 'Search articles...')}
+                placeholder={t('blog.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-12 h-12 text-lg bg-card border-border"
@@ -131,7 +131,7 @@ export default function Blog() {
               size="sm"
               onClick={() => setSelectedCategory('all')}
             >
-              {t('blog.allPosts', 'All Posts')}
+              {t('blog.allPosts')}
             </Button>
             {categories.map(([key, label]) => (
               <Button
@@ -206,7 +206,7 @@ export default function Blog() {
                         <span>•</span>
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
-                          <span>{featuredPost.reading_time} {t('blog.readTime', 'min read')}</span>
+                          <span>{featuredPost.reading_time} {t('blog.readTime')}</span>
                         </div>
                       </div>
                     </CardContent>
@@ -227,14 +227,13 @@ export default function Blog() {
           >
             {remainingPosts.length === 0 && !featuredPost ? (
               <RouteMessageState
-                eyebrow={t('blog.label', 'Stories & Guides')}
-                title={t('blog.noPostsTitle', 'No Articles Yet')}
+                eyebrow={t('blog.label')}
+                title={t('blog.noPostsTitle')}
                 description={
                   searchQuery
-                    ? t('blog.noPostsFound', 'No posts found matching your criteria.')
+                    ? t('blog.noPostsFound')
                     : t(
                         'blog.noPostsSubtext',
-                        'Check back soon for travel guides, lifestyle tips, and insider stories from across the Algarve.',
                       )
                 }
                 minHeightClassName="min-h-[22rem]"

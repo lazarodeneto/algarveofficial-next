@@ -65,10 +65,7 @@ export function LanguageSuggestionBanner() {
     <div className="fixed top-20 left-0 right-0 z-40 flex justify-center px-4 pointer-events-none">
       <div className="pointer-events-auto max-w-lg w-full bg-background/95 backdrop-blur-xl border border-border rounded-xl shadow-lg px-5 py-3.5 flex items-center gap-4 animate-in slide-in-from-top-4 duration-500">
         <p className="text-sm text-foreground flex-1">
-          {t("languageSuggestion.viewIn", {
-            language: suggestion.name,
-            defaultValue: "View this page in {{language}}?",
-          })}
+          {t("languageSuggestion.viewIn", { language: suggestion.name })}
         </p>
         <div className="flex items-center gap-2 flex-shrink-0">
           <Button size="sm" variant="gold" onClick={accept}>
@@ -77,7 +74,7 @@ export function LanguageSuggestionBanner() {
           <button
             onClick={dismiss}
             className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            aria-label={t("languageSuggestion.dismiss", "Stay in English")}
+            aria-label={t("languageSuggestion.dismiss")}
           >
             <X className="h-4 w-4" />
           </button>

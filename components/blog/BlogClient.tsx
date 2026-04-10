@@ -367,9 +367,9 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
             className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}
           >
             <LiveStyleHero
-              badge={t("blog.label", "Stories & Guides")}
-              title={t("blog.title", "Blog & Insights")}
-              subtitle={t("blog.subtitle", "Discover the Algarve lifestyle, travel guides, and insider tips")}
+              badge={t("blog.label")}
+              title={t("blog.title")}
+              subtitle={t("blog.subtitle")}
               media={
                 <HeroBackgroundMedia
                   mediaType={cms.getText("hero.mediaType", "image")}
@@ -377,20 +377,20 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
                   videoUrl={cms.getText("hero.videoUrl", "")}
                   youtubeUrl={cms.getText("hero.youtubeUrl", "")}
                   posterUrl={cms.getText("hero.posterUrl", "")}
-                  alt={t("blog.hero.alt", "Editorial Algarve townscape")}
-                  fallback={<PageHeroImage page="blog" alt={t("blog.hero.alt", "Editorial Algarve townscape")} />}
+                  alt={t("blog.hero.alt")}
+                  fallback={<PageHeroImage page="blog" alt={t("blog.hero.alt")} />}
                 />
               }
               ctas={
                 <>
                   <Link href={l("/stay")}>
                     <Button variant="gold" size="lg">
-                      {t("blog.hero.ctaPrimary", "Explore Directory")}
+                      {t("blog.hero.ctaPrimary")}
                     </Button>
                   </Link>
                   <Link href={l("/contact")}>
                     <Button variant="heroOutline" size="lg">
-                      {t("blog.hero.ctaSecondary", "Get Local Advice")}
+                      {t("blog.hero.ctaSecondary")}
                     </Button>
                   </Link>
                 </>
@@ -400,7 +400,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   type="text"
-                  placeholder={t("blog.searchPlaceholder", "Search articles...")}
+                  placeholder={t("blog.searchPlaceholder")}
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
                   className="pl-12 h-12 text-lg bg-card border-border text-foreground"
@@ -413,7 +413,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
                   size="sm"
                   onClick={() => setSelectedCategory("all")}
                 >
-                  {t("blog.allPosts", "All Posts")}
+                  {t("blog.allPosts")}
                 </Button>
                 {categories.map(([key]) => (
                   <Button
@@ -476,12 +476,12 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
                               iconClassName="h-4 w-4"
                             />
                           </div>
-                          <span>{t("blog.by", "By")} {BLOG_AUTHOR_NAME}</span>
+                          <span>{t("blog.by")} {BLOG_AUTHOR_NAME}</span>
                         </div>
                         <span>•</span>
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
-                          <span>{featuredPost.reading_time} {t("blog.readTime", "min read")}</span>
+                          <span>{featuredPost.reading_time} {t("blog.readTime")}</span>
                         </div>
                       </div>
                     </CardContent>
@@ -497,15 +497,14 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
             {remainingPosts.length === 0 && !featuredPost ? (
               <div className="text-center py-16">
                 <h2 className="text-2xl font-serif font-medium text-foreground mb-4">
-                  {t("blog.noPostsTitle", "No Articles Yet")}
+                  {t("blog.noPostsTitle")}
                 </h2>
                 <p className="text-muted-foreground text-lg mb-2">
-                  {t("blog.noPostsFound", "No posts found matching your criteria.")}
+                  {t("blog.noPostsFound")}
                 </p>
                 <p className="text-muted-foreground">
                   {t(
                     "blog.noPostsSubtext",
-                    "Check back soon for travel guides, lifestyle tips, and insider stories from across the Algarve.",
                   )}
                 </p>
               </div>

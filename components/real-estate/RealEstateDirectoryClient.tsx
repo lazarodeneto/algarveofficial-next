@@ -261,17 +261,15 @@ function RealEstateDirectoryClientInner({
 
   const addListingNote = useMemo(() => {
     if (user?.role === "admin" || user?.role === "editor") {
-      return t("realEstate.addListingNoteAdmin", "You will open the admin listing form directly.");
+      return t("realEstate.addListingNoteAdmin");
     }
     if (user?.role === "owner") {
       return t(
         "realEstate.addListingNoteOwner",
-        "Owners can submit new listing requests through owner support.",
       );
     }
     return t(
       "realEstate.addListingNoteGuest",
-      "Property owners and agencies can request access through our partner onboarding.",
     );
   }, [t, user?.role]);
 
@@ -296,20 +294,19 @@ function RealEstateDirectoryClientInner({
       <main className="flex-grow">
         <section className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
           <LiveStyleHero
-            badge={t("realEstate.hero.badge", "Exclusive Portfolio")}
-            title={t("realEstate.hero.title", "Prime Real Estate")}
+            badge={t("realEstate.hero.badge")}
+            title={t("realEstate.hero.title")}
             subtitle={t(
               "realEstate.hero.subtitle",
-              "Discover the finest collection of premium properties in Portugal's most prestigious coastal region.",
             )}
             media={
               <HeroBackgroundMedia
                 mediaType="image"
-                alt={t("realEstate.hero.alt", "Luxury Algarve real estate exterior")}
+                alt={t("realEstate.hero.alt")}
                 fallback={
                   <PageHeroImage
                     page="real-estate"
-                    alt={t("realEstate.hero.alt", "Luxury Algarve real estate exterior")}
+                    alt={t("realEstate.hero.alt")}
                   />
                 }
               />
@@ -319,12 +316,12 @@ function RealEstateDirectoryClientInner({
                 <Link href={addListingHref}>
                   <Button variant="gold" size="lg" className="w-full sm:w-auto">
                     <Plus className="h-4 w-4" />
-                    {t("realEstate.addListing", "Add Real Estate Listing")}
+                    {t("realEstate.addListing")}
                   </Button>
                 </Link>
                 <Link href={l("/invest")}>
                   <Button variant="heroOutline" size="lg" className="w-full sm:w-auto">
-                    {t("realEstate.backToInvest", "Back to Invest")}
+                    {t("realEstate.backToInvest")}
                     <ArrowRight className="h-4 w-4 ml-1" />
                   </Button>
                 </Link>
@@ -348,17 +345,16 @@ function RealEstateDirectoryClientInner({
 
                 <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
                   <h3 className="font-serif text-xl">
-                    {t("realEstate.conciergeTitle", "Need Off-Market Properties?")}
+                    {t("realEstate.conciergeTitle")}
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {t(
                       "realEstate.conciergeDescription",
-                      "Our concierge team can source private opportunities not shown in the public directory.",
                     )}
                   </p>
                   <ConciergeContactDialog>
                     <Button className="w-full">
-                      {t("realEstate.conciergeButton", "Contact Concierge")}
+                      {t("realEstate.conciergeButton")}
                     </Button>
                   </ConciergeContactDialog>
                 </div>
@@ -368,35 +364,34 @@ function RealEstateDirectoryClientInner({
             <div className="xl:col-span-8 2xl:col-span-9 min-w-0">
               <div className="mb-7 sm:mb-8 flex items-center justify-between border-b border-border pb-4">
                 <h2 className="text-2xl md:text-3xl font-serif">
-                  {filteredListings.length} {t("realEstate.propertiesAvailable", "Properties Available")}
+                  {filteredListings.length} {t("realEstate.propertiesAvailable")}
                 </h2>
                 <Badge variant="outline" className="uppercase tracking-[0.12em] text-[10px]">
-                  {t("realEstate.categoryOnly", "Real Estate Only")}
+                  {t("realEstate.categoryOnly")}
                 </Badge>
               </div>
 
               {isLoading ? (
                 <div className="py-20 flex items-center justify-center text-muted-foreground">
                   <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                  {t("common.loading", "Loading")}
+                  {t("common.loading")}
                 </div>
               ) : !realEstateCategoryId ? (
                 <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-8 text-center">
                   <Building2 className="h-8 w-8 mx-auto mb-3 text-destructive" />
                   <p className="font-medium">
-                    {t("realEstate.categoryMissing", "Real estate category is not configured.")}
+                    {t("realEstate.categoryMissing")}
                   </p>
                   <p className="text-sm text-muted-foreground mt-2">
                     {t(
                       "realEstate.categoryMissingHelp",
-                      "Create or activate the category slug `real-estate` to enable this directory.",
                     )}
                   </p>
                 </div>
               ) : error ? (
                 <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-8 text-center">
                   <p className="font-medium">
-                    {t("realEstate.loadError", "Failed to load real estate listings.")}
+                    {t("realEstate.loadError")}
                   </p>
                   <p className="text-sm text-muted-foreground mt-2">{(error as Error).message}</p>
                 </div>
@@ -404,10 +399,10 @@ function RealEstateDirectoryClientInner({
                 <div className="rounded-2xl border border-border bg-card p-10 text-center">
                   <Building2 className="h-8 w-8 mx-auto mb-3 text-muted-foreground" />
                   <p className="font-medium">
-                    {t("realEstate.emptyState", "No properties match your filters.")}
+                    {t("realEstate.emptyState")}
                   </p>
                   <Button variant="link" onClick={clearFilters} className="mt-2">
-                    {t("realEstate.clearFilters", "Clear all filters")}
+                    {t("realEstate.clearFilters")}
                   </Button>
                 </div>
               ) : (

@@ -1223,20 +1223,20 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                 videoUrl={activeCms.getText("hero.videoUrl", "")}
                 youtubeUrl={activeCms.getText("hero.youtubeUrl", "")}
                 posterUrl={activeCms.getText("hero.posterUrl", "")}
-                alt={t("directory.hero.alt", "Premium Algarve directory coastline view")}
-                fallback={<PageHeroImage page="directory" alt={t("directory.hero.alt", "Premium Algarve directory coastline view")} />}
+                alt={t("directory.hero.alt")}
+                fallback={<PageHeroImage page="directory" alt={t("directory.hero.alt")} />}
               />
             }
             ctas={
               <>
                 <Link href={l("/contact")}>
                   <Button variant="gold" size="lg">
-                    {t("directory.hero.ctaPrimary", "Plan with Concierge")}
+                    {t("directory.hero.ctaPrimary")}
                   </Button>
                 </Link>
                 <Link href={l("/residence")}>
                   <Button variant="heroOutline" size="lg">
-                    {t("directory.hero.ctaSecondary", "Explore Residence in Algarve")}
+                    {t("directory.hero.ctaSecondary")}
                   </Button>
                 </Link>
               </>
@@ -1432,7 +1432,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                 <Link href={mapHref}>
                   <Button variant="outline" size="sm">
                     <MapPin className="h-4 w-4 mr-2" />
-                    {t("directory.mapView", "Map View")}
+                    {t("directory.mapView")}
                   </Button>
                 </Link>
               </div>

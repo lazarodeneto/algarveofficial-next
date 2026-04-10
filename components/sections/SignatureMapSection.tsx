@@ -105,12 +105,12 @@ export function SignatureMapSection() {
 
   const mapEmptyMessage = useMemo(() => {
     if (areAllFiltersDisabled) {
-      return t("sections.vip.discovery.selectAtLeastOne", "Select at least one category to explore the map.");
+      return t("sections.vip.discovery.selectAtLeastOne");
     }
     if (filteredDiscoveryListings.length === 0) {
-      return t("sections.vip.discovery.noMatches", "No places match the selected filters yet.");
+      return t("sections.vip.discovery.noMatches");
     }
-    return t("sections.vip.discovery.noCoordinates", "Matching places with map coordinates will appear here.");
+    return t("sections.vip.discovery.noCoordinates");
   }, [areAllFiltersDisabled, filteredDiscoveryListings.length, t]);
 
   const toggleDiscoveryFilter = (category: DiscoveryCategory) => {
@@ -137,17 +137,17 @@ export function SignatureMapSection() {
               </h2>
             </div>
             <p className="text-body text-muted-foreground mt-2 max-w-2xl readable">
-              {t("sections.vip.subtitleCustom", "Handpicked signature experiences in the Algarve.")}
+              {t("sections.vip.subtitleCustom")}
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <Badge variant="outline" className="text-body-xs">
               <MapPinned className="h-3.5 w-3.5 mr-1.5" />
-              {t("sections.vip.discovery.mapped", "{{count}} mapped", { count: mapPoints.length })} · {t("sections.vip.discovery.matching", "{{count}} matching", { count: filteredDiscoveryListings.length })}
+              {t("sections.vip.discovery.mapped", { count: mapPoints.length })} · {t("sections.vip.discovery.matching", { count: filteredDiscoveryListings.length })}
             </Badge>
             <Link href={l("/map")}>
-              <Button variant="outline">{t("common.openFullMap", "Open Full Map")}</Button>
+              <Button variant="outline">{t("common.openFullMap")}</Button>
             </Link>
           </div>
         </div>
@@ -155,7 +155,7 @@ export function SignatureMapSection() {
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-lg md:text-xl font-serif font-medium text-foreground">
-              {t("sections.vip.discovery.previewTitle", "Discovery Highlights")}
+              {t("sections.vip.discovery.previewTitle")}
             </h3>
             <Badge variant="outline" className="text-xs md:text-sm">
               {Math.min(previewListings.length, PREVIEW_LIMIT)} / {filteredDiscoveryListings.length}
@@ -177,11 +177,11 @@ export function SignatureMapSection() {
             </div>
           ) : areAllFiltersDisabled ? (
             <div className="rounded-xl border border-border bg-muted/30 px-4 py-5 text-body-sm text-muted-foreground">
-              {t("sections.vip.discovery.selectAtLeastOne", "Select at least one category to explore the map.")}
+              {t("sections.vip.discovery.selectAtLeastOne")}
             </div>
           ) : filteredDiscoveryListings.length === 0 ? (
             <div className="rounded-xl border border-border bg-muted/30 px-4 py-5 text-body-sm text-muted-foreground">
-              {t("sections.vip.discovery.noMatches", "No places match the selected filters yet.")}
+              {t("sections.vip.discovery.noMatches")}
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -270,13 +270,13 @@ export function SignatureMapSection() {
 
         <div className="rounded-2xl border border-border/70 bg-card/40 p-3 sm:p-4 backdrop-blur-sm">
           <p className="text-body-xs font-semibold tracking-[0.14em] uppercase text-muted-foreground">
-            {t("sections.vip.discovery.filterLabel", "Explore by category")}
+            {t("sections.vip.discovery.filterLabel")}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             {DISCOVERY_FILTERS.map((filter) => {
               const isActive = activeFilterSet.has(filter.key);
               const Icon = FILTER_ICONS[filter.key];
-              const filterLabel = t(`sections.vip.discovery.filters.${filter.key}`, filter.label);
+              const filterLabel = t(filter.translationKey);
 
               return (
                 <button
@@ -305,7 +305,7 @@ export function SignatureMapSection() {
             <div className="h-[460px] flex items-center justify-center">
               <span className="inline-flex items-center gap-2 text-muted-foreground text-sm">
                 <Loader2 className="h-5 w-5 animate-spin" />
-                {t("sections.vip.discovery.loadingMap", "Loading map...")}
+                {t("sections.vip.discovery.loadingMap")}
               </span>
             </div>
           </div>

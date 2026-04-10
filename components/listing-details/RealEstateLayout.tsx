@@ -44,7 +44,7 @@ export function RealEstateLayout({ details, onInquire }: RealEstateLayoutProps) 
     {
       key: "property-type",
       label: t("categoryLayouts.common.type"),
-      value: translateCategoryValue(t, propertyType) || t("categoryLayouts.realEstate.propertyFallback", "Property"),
+      value: translateCategoryValue(t, propertyType) || t("categoryLayouts.realEstate.propertyFallback"),
       icon: Home,
     },
     ...(bedrooms !== undefined

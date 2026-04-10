@@ -123,7 +123,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-6 lg:p-10 text-white">
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
-                  {t("sections.cities.featuredCityHub", "Featured City Hub")}
+                  {t("sections.cities.featuredCityHub")}
                 </p>
                 <h2 className="font-serif text-3xl lg:text-5xl leading-tight">
                   {highlightedCity.name}
@@ -152,10 +152,10 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
             className="mb-12 text-center"
           >
             <h2 className="text-title font-serif font-medium text-foreground">
-              {cms.getText("city-index.title", t("sections.cities.allCities", "All Cities"))}
+              {cms.getText("city-index.title", t("sections.cities.allCities"))}
             </h2>
             <p className="mt-2 text-body text-muted-foreground">
-              {cms.getText("city-index.subtitle", t("sections.cities.allCitiesSubtitle", "Explore every city across the Algarve"))}
+              {cms.getText("city-index.subtitle", t("sections.cities.allCitiesSubtitle"))}
             </p>
           </m.div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -199,10 +199,10 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
             className="mb-12 text-center"
           >
             <h2 className="text-title font-serif font-medium text-foreground">
-              {cms.getText("all-city-hubs.title", t("sections.cities.activeHubs", "Active City Hubs"))}
+              {cms.getText("all-city-hubs.title", t("sections.cities.activeHubs"))}
             </h2>
             <p className="mt-2 text-body text-muted-foreground">
-              {cms.getText("all-city-hubs.subtitle", t("sections.cities.activeHubsSubtitle", "Dive into each vibrant city hub"))}
+              {cms.getText("all-city-hubs.subtitle", t("sections.cities.activeHubsSubtitle"))}
             </p>
           </m.div>
           <div className="flex-grid-centered">
@@ -238,7 +238,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
                     </div>
                     <div className="absolute inset-0 p-6 flex flex-col justify-end">
                       <span className="text-xs font-medium text-primary tracking-wider uppercase mb-2">
-                        {t("sections.cities.cityHub", "City Hub")}
+                        {t("sections.cities.cityHub")}
                       </span>
                       <h3 className="text-2xl lg:text-3xl font-serif font-medium text-white mb-2">{city.name}</h3>
                       <p className="text-sm lg:text-base text-white/80 mb-4">
@@ -246,7 +246,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
                       </p>
                       <div className="flex items-center justify-end">
                         <span className="flex items-center gap-2 text-sm font-medium text-primary opacity-0 translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
-                          {t("sections.cities.exploreCity", "Explore City")}
+                          {t("sections.cities.exploreCity")}
                           <ArrowRight className="h-4 w-4" />
                         </span>
                       </div>

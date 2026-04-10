@@ -39,7 +39,7 @@ export default function ListingTierBadge({ tier, size = "md", className }: Listi
     return (
       <span className={cn(badgeClass, className)}>
         <Star className={size === "sm" ? "h-3.5 w-3.5 fill-current" : "h-4 w-4 fill-current"} />
-        {t("common.curated", "Curated").toUpperCase()}
+        {t("common.curated").toUpperCase()}
       </span>
     );
   }

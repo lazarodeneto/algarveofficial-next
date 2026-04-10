@@ -80,6 +80,25 @@ const EmailCampaigns = () => {
     });
   };
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "draft":
+        return t("admin.emailCampaigns.status.draft");
+      case "scheduled":
+        return t("admin.emailCampaigns.status.scheduled");
+      case "sending":
+        return t("admin.emailCampaigns.status.sending");
+      case "sent":
+        return t("admin.emailCampaigns.status.sent");
+      case "paused":
+        return t("admin.emailCampaigns.status.paused");
+      case "cancelled":
+        return t("admin.emailCampaigns.status.cancelled");
+      default:
+        return status;
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
       draft: "bg-gray-500/20 text-gray-400",
@@ -89,7 +108,7 @@ const EmailCampaigns = () => {
       paused: "bg-orange-500/20 text-orange-400",
       cancelled: "bg-red-500/20 text-red-400",
     };
-    return <Badge className={styles[status] || styles.draft}>{t(`admin.emailCampaigns.status.${status}`, status)}</Badge>;
+    return <Badge className={styles[status] || styles.draft}>{getStatusLabel(status)}</Badge>;
   };
 
   return (
@@ -176,7 +195,7 @@ const EmailCampaigns = () => {
               </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  {t("common.cancel", "Cancel")}
+                  {t("common.cancel")}
                 </Button>
                 <Button type="submit" disabled={createCampaign.isPending}>
                   {createCampaign.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
@@ -284,7 +303,7 @@ const EmailCampaigns = () => {
                             <>
                               <DropdownMenuItem>
                                 <Edit className="h-4 w-4 mr-2" />
-                                {t("common.edit", "Edit")}
+                                {t("common.edit")}
                               </DropdownMenuItem>
                               <DropdownMenuItem 
                                 onClick={() => sendCampaign.mutate(campaign.id)}
@@ -300,7 +319,7 @@ const EmailCampaigns = () => {
                             onClick={() => deleteCampaign.mutate(campaign.id)}
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
-                            {t("common.delete", "Delete")}
+                            {t("common.delete")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

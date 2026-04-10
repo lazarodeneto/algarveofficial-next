@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import { m } from "framer-motion";
 import Image from "next/image";
+import { useTranslation } from "react-i18next";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import {
   Calendar,
@@ -181,6 +182,7 @@ function EventDetailClientInner({
   initialRelatedEvents,
   initialGlobalSettings,
 }: EventDetailClientProps) {
+  const { t } = useTranslation();
   const {
     data: event = initialEvent,
     isLoading,
@@ -243,15 +245,15 @@ function EventDetailClientInner({
         <main className="pt-[calc(8rem+10px)] pb-16">
           <div className="app-container text-center">
             <h1 className="mb-4 text-4xl font-serif font-medium text-foreground">
-              {cms.getText("notFound.title", "Event Not Found")}
+              {cms.getText("notFound.title", t("notFound.title"))}
             </h1>
             <p className="mb-8 text-muted-foreground">
-              {cms.getText("notFound.description", "The event you're looking for doesn't exist or has been removed.")}
+              {cms.getText("notFound.description", t("notFound.description"))}
             </p>
             <Button variant="gold" asChild>
               <LocaleLink href="/events">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                {cms.getText("notFound.back", "Back to Events")}
+                {cms.getText("notFound.back", t("events.backToEvents"))}
               </LocaleLink>
             </Button>
           </div>
@@ -301,7 +303,7 @@ function EventDetailClientInner({
               className="inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-primary"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              {cms.getText("hero.backToEvents", "Back to Events")}
+              {cms.getText("hero.backToEvents", t("events.backToEvents"))}
             </LocaleLink>
           </m.div>
 

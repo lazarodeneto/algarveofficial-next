@@ -110,7 +110,7 @@ export default function BlogPost({
         <main className="pt-32 pb-16">
           <div className="container max-w-4xl mx-auto px-4">
             <RouteMessageState
-              eyebrow={t('blog.label', 'Stories & Guides')}
+              eyebrow={t('blog.label')}
               title="Article Not Found"
               description="This article may have been removed or is not available."
               actions={(
@@ -200,7 +200,7 @@ export default function BlogPost({
                     )}
                     <div>
                       <p className="font-medium text-foreground">{post.author?.full_name || 'AlgarveOfficial'}</p>
-                      <p className="text-xs">{t('blog.by', 'By')} AlgarveOfficial</p>
+                      <p className="text-xs">{t('blog.by')} AlgarveOfficial</p>
                     </div>
                   </div>
                   <span className="hidden sm:block">•</span>
@@ -211,7 +211,7 @@ export default function BlogPost({
                   <span className="hidden sm:block">•</span>
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
-                    <span>{post.reading_time} {t('blog.readTime', 'min read')}</span>
+                    <span>{post.reading_time} {t('blog.readTime')}</span>
                   </div>
                   <span className="hidden sm:block">•</span>
                   <div className="flex items-center gap-1">
@@ -263,7 +263,7 @@ export default function BlogPost({
                 <div className="flex items-center gap-4">
                   <span className="text-sm text-muted-foreground flex items-center gap-2">
                     <Share2 className="h-4 w-4" />
-                    {t('blog.shareArticle', 'Share this article')}:
+                    {t('blog.shareArticle')}:
                   </span>
                   <div className="flex gap-2">
                     <Button variant="outline" size="icon" onClick={() => handleShare('facebook')}>

@@ -98,7 +98,7 @@ const Partner = () => {
       setErrors(fieldErrors);
 
       // Prevent “silent failure”: make it obvious nothing was submitted.
-      toast.error(t('partner.form.validationError', 'Please check the highlighted fields and try again.'));
+      toast.error(t('partner.form.validationError'));
       // Bring the user back to the first section of the form where errors are shown.
       requestAnimationFrame(() => {
         document.getElementById('partner-form')?.scrollIntoView({ behavior: 'smooth' });
@@ -129,7 +129,7 @@ const Partner = () => {
       });
     } catch (error) {
       console.error('Error submitting claim:', error);
-      toast.error(t('partner.form.error', 'Failed to submit request. Please try again.'));
+      toast.error(t('partner.form.error'));
     }
   };
 

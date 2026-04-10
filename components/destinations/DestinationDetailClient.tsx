@@ -549,17 +549,17 @@ function DestinationDetailClientInner({
         <Header />
         <div className="pt-[calc(8rem+10px)] pb-20 text-center app-container">
           <h1 className="text-title font-serif text-foreground mb-4">
-            {cms.getText("notFound.title", "Destination Not Found")}
+            {cms.getText("notFound.title", t("notFound.title"))}
           </h1>
           <p className="text-body text-muted-foreground mb-8">
-            {cms.getText("notFound.description", "The destination you're looking for doesn't exist.")}
+            {cms.getText("notFound.description", t("notFound.description"))}
           </p>
           <LocaleLink
             href="/destinations"
             className="inline-flex items-center gap-2 text-primary hover:underline"
           >
             <ArrowLeft className="w-4 h-4" />
-            {cms.getText("notFound.back", "Back to Destinations")}
+            {cms.getText("notFound.back", t("destinationDetail.backToDestinations"))}
           </LocaleLink>
         </div>
         <Footer />
@@ -610,7 +610,7 @@ function DestinationDetailClientInner({
                 className="inline-flex items-center gap-2 text-sm text-white/75 hover:text-white transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
-                {cms.getText("hero.backToDestinations", "Back to Destinations")}
+                {cms.getText("hero.backToDestinations", t("destinationDetail.backToDestinations"))}
               </LocaleLink>
             </m.div>
 
@@ -620,7 +620,7 @@ function DestinationDetailClientInner({
               transition={{ duration: 0.6, delay: 0.1 }}
               className="inline-block text-sm font-medium text-primary tracking-[0.3em] uppercase mb-4"
             >
-              {cms.getText("hero.badge", "Premium Region")}
+              {cms.getText("hero.badge", t("destinationDetail.badge"))}
             </m.span>
 
             <m.h1
@@ -690,11 +690,13 @@ function DestinationDetailClientInner({
             >
               <div>
                 <h2 className="text-title font-serif font-medium text-foreground">
-                  {cms.getText("listings.title", "Explore {{region}}").replace("{{region}}", region.name)}
+                  {cms
+                    .getText("listings.title", t("destinationDetail.exploreRegion"))
+                    .replace("{{region}}", region.name)}
                 </h2>
                 <p className="mt-2 text-body text-muted-foreground">
                   {cms
-                    .getText("listings.count", "{{count}} premium listings in this region")
+                    .getText("listings.count", t("destinationDetail.listingsCount"))
                     .replace("{{count}}", String(listings.length))}
                 </p>
               </div>
@@ -806,7 +808,7 @@ function DestinationDetailClientInner({
                   href="/destinations"
                   className="inline-flex items-center gap-2 text-primary hover:underline"
                 >
-                  {cms.getText("listings.emptyCta", "Explore Other Destinations")}
+                  {cms.getText("listings.emptyCta", t("sections.regions.viewAll"))}
                   <ArrowRight className="w-4 h-4" />
                 </LocaleLink>
               </div>

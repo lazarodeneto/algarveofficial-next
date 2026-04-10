@@ -513,9 +513,9 @@ export default function RealEstateDetail() {
                                         <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                                             <MapPin className="w-8 h-8 text-primary" />
                                         </div>
-                                        <h3 className="font-serif text-xl text-foreground mb-2">{t('listing.locationHidden', 'Exact Location Private')}</h3>
+                                        <h3 className="font-serif text-xl text-foreground mb-2">{t('listing.locationHidden')}</h3>
                                         <p className="text-muted-foreground max-w-xs mx-auto">
-                                            {t('listing.contactForLocation', 'Please contact the agent for the exact location of this property.')}
+                                            {t('listing.contactForLocation')}
                                         </p>
                                     </div>
                                 </div>
@@ -577,7 +577,7 @@ export default function RealEstateDetail() {
                                     }
 
                                     const responseData = data as { warnings?: string[] } | null;
-                                    toast.success(t('listing.form.successToast', 'Your enquiry has been sent!'));
+                                    toast.success(t('listing.form.successToast'));
                                     if (responseData?.warnings?.includes("email_delivery_disabled")) {
                                         toast.message("Your message was saved successfully. Email notifications are temporarily unavailable.");
                                     }
@@ -600,7 +600,7 @@ export default function RealEstateDetail() {
                                     toast.error(
                                         isNetworkError
                                             ? "Unable to reach our server right now. Please try again in a moment."
-                                            : (errorMessage || t('listing.form.errorToast', 'Failed to send enquiry. Please try again.'))
+                                            : (errorMessage || t('listing.form.errorToast'))
                                     );
                                 } finally {
                                     setIsSubmittingEnquiry(false);
@@ -677,12 +677,12 @@ export default function RealEstateDetail() {
                                 <div className="flex items-start gap-3 mt-4">
                                     <Checkbox id="consent" className="mt-1 data-[state=checked]:bg-primary data-[state=checked]:border-primary" required />
                                     <label htmlFor="consent" className="text-xs text-muted-foreground leading-tight cursor-pointer">
-                                        {t('listing.form.consent', 'I authorise KW Portugal to store my data to inform me of opportunities, marketing campaigns and financing proposals.')}
+                                        {t('listing.form.consent')}
                                     </label>
                                 </div>
 
                                 <Button type="submit" disabled={isSubmittingEnquiry} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl py-6 text-lg font-serif mt-2">
-                                    {isSubmittingEnquiry ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{t('listing.form.sending', 'Sending...')}</> : t('listing.form.send')}
+                                    {isSubmittingEnquiry ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{t('listing.form.sending')}</> : t('listing.form.send')}
                                 </Button>
                             </form>
                         </div>

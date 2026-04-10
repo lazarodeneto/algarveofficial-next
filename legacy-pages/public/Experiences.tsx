@@ -411,57 +411,51 @@ const Experiences = () => {
     {
       icon: Sparkles,
       value: "200+",
-      label: t("experiences.stats.curated", "Curated Experiences"),
+      label: t("experiences.stats.curated"),
     },
     {
       icon: Compass,
       value: "15+",
-      label: t("experiences.stats.categories", "Activity Categories"),
+      label: t("experiences.stats.categories"),
     },
     {
       icon: Sun,
       value: "300+",
-      label: t("experiences.stats.sunDays", "Sun Days per Year"),
+      label: t("experiences.stats.sunDays"),
     },
   ];
 
   const experiencePillars = [
     {
       icon: Sun,
-      title: t("experiences.pillars.outdoor.title", "Outdoor Adventures"),
+      title: t("experiences.pillars.outdoor.title"),
       description: t(
         "experiences.pillars.outdoor.description",
-        "Surfing, kayaking, hiking along coastal cliffs, and exploring hidden caves along the Algarve coastline.",
       ),
     },
     {
       icon: Sparkles,
       title: t(
         "experiences.pillars.gastronomy.title",
-        "Gastronomy & Wine",
       ),
       description: t(
         "experiences.pillars.gastronomy.description",
-        "Wine tastings, seafood experiences, farm-to-table dining, and traditional Algarvian cooking classes.",
       ),
     },
     {
       icon: Compass,
-      title: t("experiences.pillars.culture.title", "Culture & Heritage"),
+      title: t("experiences.pillars.culture.title"),
       description: t(
         "experiences.pillars.culture.description",
-        "Historic villages, local markets, artisan workshops, and living traditions across the region.",
       ),
     },
     {
       icon: Star,
       title: t(
         "experiences.pillars.wellness.title",
-        "Wellness & Relaxation",
       ),
       description: t(
         "experiences.pillars.wellness.description",
-        "Spa retreats, yoga sessions, thermal baths, and holistic wellness programs in stunning settings.",
       ),
     },
   ];
@@ -484,14 +478,12 @@ const Experiences = () => {
           >
             <LiveStyleHero
               className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
-              badge={t("experiences.hero.badge", "Curated Adventures")}
+              badge={t("experiences.hero.badge")}
               title={t(
                 "experiences.hero.title",
-                "Experience the Algarve",
               )}
               subtitle={t(
                 "experiences.hero.subtitle",
-                "From coastal adventures to culinary discoveries — find unforgettable experiences handpicked for every taste and season.",
               )}
               media={
                 <HeroBackgroundMedia
@@ -500,13 +492,12 @@ const Experiences = () => {
                   videoUrl={getText("hero.videoUrl", "")}
                   youtubeUrl={getText("hero.youtubeUrl", "")}
                   posterUrl={getText("hero.posterUrl", "")}
-                  alt={t("experiences.hero.alt", "Algarve experiences")}
+                  alt={t("experiences.hero.alt")}
                   fallback={
                     <PageHeroImage
                       page="directory"
                       alt={t(
                         "experiences.hero.alt",
-                        "Algarve experiences",
                       )}
                     />
                   }
@@ -518,7 +509,6 @@ const Experiences = () => {
                     <Button variant="gold" size="lg">
                       {t(
                         "experiences.hero.ctaPrimary",
-                        "Browse Experiences",
                       )}
                       <ArrowRight className="h-4 w-4" />
                     </Button>
@@ -527,7 +517,6 @@ const Experiences = () => {
                     <Button variant="heroOutline" size="lg">
                       {t(
                         "experiences.hero.ctaSecondary",
-                        "Plan with Concierge",
                       )}
                     </Button>
                   </Link>
@@ -585,7 +574,6 @@ const Experiences = () => {
                         <span className="font-medium text-foreground">
                           {t(
                             "directory.advancedFilters",
-                            "Advanced Filters",
                           )}
                         </span>
                         {hasActiveFilters ? (
@@ -593,7 +581,7 @@ const Experiences = () => {
                             variant="secondary"
                             className="bg-primary/20 text-primary"
                           >
-                            {t("directory.active", "Active")}
+                            {t("directory.active")}
                           </Badge>
                         ) : null}
                       </div>
@@ -612,7 +600,6 @@ const Experiences = () => {
                         <Input
                           placeholder={t(
                             "directory.searchPlaceholder",
-                            "Search experiences...",
                           )}
                           value={search}
                           onChange={(event) =>
@@ -626,7 +613,7 @@ const Experiences = () => {
                         <div className="space-y-2">
                           <label className="text-body-xs font-medium text-muted-foreground flex items-center gap-2">
                             <MapPin className="h-4 w-4 text-primary" />
-                            {t("directory.region", "Region")}
+                            {t("directory.region")}
                           </label>
                           <Select
                             value={selectedRegion}
@@ -636,7 +623,6 @@ const Experiences = () => {
                               <SelectValue
                                 placeholder={t(
                                   "directory.allRegions",
-                                  "All Regions",
                                 )}
                               />
                             </SelectTrigger>
@@ -644,7 +630,6 @@ const Experiences = () => {
                               <SelectItem value="all">
                                 {t(
                                   "directory.allRegions",
-                                  "All Regions",
                                 )}
                               </SelectItem>
                               {[...regions]
@@ -666,7 +651,7 @@ const Experiences = () => {
                         <div className="space-y-2">
                           <label className="text-body-xs font-medium text-muted-foreground flex items-center gap-2">
                             <Building2 className="h-4 w-4 text-primary" />
-                            {t("directory.city", "City")}
+                            {t("directory.city")}
                           </label>
                           <Select
                             value={selectedCity}
@@ -676,13 +661,12 @@ const Experiences = () => {
                               <SelectValue
                                 placeholder={t(
                                   "directory.allCities",
-                                  "All Cities",
                                 )}
                               />
                             </SelectTrigger>
                             <SelectContent className="bg-popover border-border shadow-lg max-h-[280px]">
                               <SelectItem value="all">
-                                {t("directory.allCities", "All Cities")}
+                                {t("directory.allCities")}
                               </SelectItem>
                               {[...cities]
                                 .sort((a, b) =>
@@ -703,13 +687,12 @@ const Experiences = () => {
                         <div className="space-y-2">
                           <label className="text-body-xs font-medium text-muted-foreground flex items-center gap-2">
                             <Tag className="h-4 w-4 text-primary" />
-                            {t("directory.category", "Category")}
+                            {t("directory.category")}
                           </label>
                           <div className="h-12 flex items-center px-4 bg-primary/10 border border-primary/30 rounded-md text-foreground font-medium">
                             {experiencesCategoryLabel ??
                               t(
                                 "categoryNames.things-to-do",
-                                "Things to Do",
                               )}
                           </div>
                         </div>
@@ -717,7 +700,7 @@ const Experiences = () => {
                         <div className="space-y-2">
                           <label className="text-body-xs font-medium text-muted-foreground flex items-center gap-2">
                             <Crown className="h-4 w-4 text-primary" />
-                            {t("directory.tier", "Tier")}
+                            {t("directory.tier")}
                           </label>
                           <Select
                             value={selectedTier}
@@ -731,24 +714,23 @@ const Experiences = () => {
                               <SelectValue
                                 placeholder={t(
                                   "directory.allTiers",
-                                  "All Tiers",
                                 )}
                               />
                             </SelectTrigger>
                             <SelectContent className="bg-popover border-border shadow-lg">
                               <SelectItem value="all">
-                                {t("directory.allTiers", "All Tiers")}
+                                {t("directory.allTiers")}
                               </SelectItem>
                               <SelectItem value="signature">
                                 <div className="flex items-center gap-2">
                                   <Crown className="h-4 w-4 text-primary" />
-                                  {t("directory.tierSignature", "Signature")}
+                                  {t("directory.tierSignature")}
                                 </div>
                               </SelectItem>
                               <SelectItem value="verified">
                                 <div className="flex items-center gap-2">
                                   <ShieldCheck className="h-4 w-4 text-green-500" />
-                                  {t("directory.tierVerified", "Verified")}
+                                  {t("directory.tierVerified")}
                                 </div>
                               </SelectItem>
                             </SelectContent>
@@ -767,7 +749,6 @@ const Experiences = () => {
                             <X className="h-4 w-4 mr-2" />
                             {t(
                               "directory.clearAllFilters",
-                              "Clear All Filters",
                             )}
                           </Button>
                         </div>
@@ -790,7 +771,7 @@ const Experiences = () => {
                   {listingsLoading ? (
                     <span className="flex items-center gap-2">
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      {t("directory.loading", "Loading...")}
+                      {t("directory.loading")}
                     </span>
                   ) : (
                     t("directory.showingResults", {
@@ -804,7 +785,6 @@ const Experiences = () => {
                 <div className="mb-6 rounded-md border border-destructive/35 bg-destructive/10 px-4 py-3 text-body-sm text-destructive">
                   {t(
                     "directory.loadError",
-                    "We couldn't load experiences right now. Please refresh and try again.",
                   )}
                 </div>
               ) : null}
@@ -830,19 +810,16 @@ const Experiences = () => {
                   <h3 className="text-xl font-medium text-foreground mb-2">
                     {t(
                       "directory.noListingsTitle",
-                      "No experiences found",
                     )}
                   </h3>
                   <p className="text-muted-foreground mb-6">
                     {t(
                       "directory.noListingsSubtitle",
-                      "Try adjusting your filters.",
                     )}
                   </p>
                   <Button variant="outline" onClick={clearFilters}>
                     {t(
                       "directory.clearAllFilters",
-                      "Clear All Filters",
                     )}
                   </Button>
                 </m.div>
@@ -902,12 +879,11 @@ const Experiences = () => {
           >
             <div className="mb-8 text-center">
               <span className="text-sm font-medium text-primary tracking-[0.2em] uppercase">
-                {t("experiences.pillars.label", "What We Offer")}
+                {t("experiences.pillars.label")}
               </span>
               <h2 className="mt-3 text-3xl md:text-4xl font-serif font-medium">
                 {t(
                   "experiences.pillars.title",
-                  "Experiences for Every Passion",
                 )}
               </h2>
             </div>
@@ -941,13 +917,11 @@ const Experiences = () => {
               <h2 className="text-3xl font-serif font-medium mb-3">
                 {t(
                   "experiences.cta.title",
-                  "Ready for your next adventure?",
                 )}
               </h2>
               <p className="text-muted-foreground max-w-3xl mx-auto">
                 {t(
                   "experiences.cta.description",
-                  "Tell us what excites you and we will craft a bespoke itinerary of curated experiences across the Algarve.",
                 )}
               </p>
               <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
@@ -955,7 +929,6 @@ const Experiences = () => {
                   <Button variant="gold" size="lg">
                     {t(
                       "experiences.cta.primary",
-                      "Plan My Experience",
                     )}
                     <ArrowRight className="h-4 w-4 ml-1" />
                   </Button>
@@ -964,7 +937,6 @@ const Experiences = () => {
                   <Button variant="outline" size="lg">
                     {t(
                       "experiences.cta.secondary",
-                      "Browse All Listings",
                     )}
                   </Button>
                 </Link>

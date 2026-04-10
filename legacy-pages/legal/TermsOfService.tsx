@@ -476,7 +476,7 @@ const TermsOfService = () => {
           {/* Related Links */}
           <div className="bg-card border border-border rounded-lg p-6 mb-12">
             <h3 className="font-semibold text-foreground mb-4">
-              {t("legal.relatedPolicies", "Related Policies")}
+              {t("legal.relatedPolicies")}
             </h3>
             <div className="flex flex-wrap gap-4">
               <LocaleLink 
@@ -484,7 +484,7 @@ const TermsOfService = () => {
                 className="text-primary hover:underline inline-flex items-center gap-2"
               >
                 <ShieldCheck className="w-4 h-4" />
-                {t("footer.privacyPolicy", "Privacy Policy")}
+                {t("footer.privacyPolicy")}
               </LocaleLink>
             </div>
           </div>
@@ -495,7 +495,7 @@ const TermsOfService = () => {
               href="/" 
               className="text-primary hover:underline inline-flex items-center gap-2"
             >
-              ← {t("cookiePolicy.footer.backToHome", "Back to Home")}
+              ← {t("cookiePolicy.footer.backToHome")}
             </LocaleLink>
           </div>
         </div>

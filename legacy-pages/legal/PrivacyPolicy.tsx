@@ -402,7 +402,7 @@ const PrivacyPolicy = () => {
               href="/" 
               className="text-primary hover:underline inline-flex items-center gap-2"
             >
-              ← {t("cookiePolicy.footer.backToHome", "Back to Home")}
+              ← {t("cookiePolicy.footer.backToHome")}
             </LocaleLink>
           </div>
         </div>

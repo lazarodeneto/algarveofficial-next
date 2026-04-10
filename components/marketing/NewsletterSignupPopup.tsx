@@ -147,7 +147,7 @@ export function NewsletterSignupPopup() {
           type="button"
           onClick={handleClose}
           className="absolute right-4 top-4 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-          aria-label={t("newsletter.popupDismiss", "Close popup")}
+          aria-label={t("newsletter.popupDismiss")}
         >
           <X className="h-4 w-4" />
         </button>
@@ -158,33 +158,31 @@ export function NewsletterSignupPopup() {
               <CheckCircle2 className="h-6 w-6 text-primary" />
             </div>
             <h3 id="newsletter-popup-title" className="text-2xl font-serif text-foreground">
-              {t("newsletter.popupSuccessTitle", "You are in. Check your inbox.")}
+              {t("newsletter.popupSuccessTitle")}
             </h3>
             <p className="text-muted-foreground">
               {t(
                 "newsletter.popupSuccessBody",
-                "Your Algarve Insider Guide and monthly curated updates are on the way.",
               )}
             </p>
             <Button variant="gold" className="min-w-36" onClick={handleClose}>
-              {t("newsletter.popupClose", "Continue Browsing")}
+              {t("newsletter.popupClose")}
             </Button>
           </div>
         ) : (
           <div className="space-y-5">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-primary">
               <Gift className="h-3.5 w-3.5" />
-              {t("newsletter.leadMagnetTag", "Free Lead Magnet")}
+              {t("newsletter.leadMagnetTag")}
             </div>
 
             <div className="space-y-2">
               <h3 id="newsletter-popup-title" className="text-2xl sm:text-3xl font-serif text-foreground leading-tight">
-                {t("newsletter.popupTitle", "Get the Algarve Insider Guide")}
+                {t("newsletter.popupTitle")}
               </h3>
               <p className="text-muted-foreground">
                 {t(
                   "newsletter.popupSubtitle",
-                  "Subscribe and get our curated luxury guide plus monthly premium picks, events, and local opportunities.",
                 )}
               </p>
             </div>
@@ -192,12 +190,11 @@ export function NewsletterSignupPopup() {
             <div className="rounded-xl border border-border/70 bg-card/60 p-4">
               <div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
                 <Sparkles className="h-4 w-4 text-primary" />
-                {t("newsletter.leadMagnetTitle", "What you get")}
+                {t("newsletter.leadMagnetTitle")}
               </div>
               <p className="text-sm text-muted-foreground">
                 {t(
                   "newsletter.leadMagnetDescription",
-                  "A free Algarve Insider PDF + members-only highlights for stays, dining, events, and investment insights.",
                 )}
               </p>
             </div>
@@ -218,7 +215,7 @@ export function NewsletterSignupPopup() {
               <Button type="submit" variant="gold" size="lg" className="h-12 w-full" disabled={isSubmitting}>
                 {isSubmitting
                   ? t("newsletter.subscribing")
-                  : t("newsletter.popupCta", "Get Free Guide + Subscribe")}
+                  : t("newsletter.popupCta")}
               </Button>
             </form>
 

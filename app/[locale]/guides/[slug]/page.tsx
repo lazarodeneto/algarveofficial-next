@@ -13,6 +13,12 @@ import {
 } from "@/lib/i18n/localized-routing";
 import { getCategoryDisplayName, getCategoryUrlSlug, ALL_CANONICAL_SLUGS, type CanonicalCategorySlug } from "@/lib/seo/programmatic/category-slugs";
 import { getServerTranslations } from "@/lib/i18n/server";
+import {
+  fetchCityTranslations,
+  fetchListingTranslations,
+  normalizePublicContentLocale,
+  type PublicContentLocale,
+} from "@/lib/publicContentLocale";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { ListingCard } from "@/components/seo/programmatic/ListingCard";
 import Header from "@/components/layout/Header";
@@ -27,66 +33,83 @@ export const revalidate = 60;
 
 const GUIDES_CONFIG = {
   "best-restaurants-in-lagos": {
-    title: "Best Restaurants in Lagos",
-    description: "Discover the finest dining in Lagos, Algarve — from traditional petiscos to world-class fine dining experiences.",
     targetCity: "lagos",
     targetCategory: "restaurants",
   },
   "golf-in-vilamoura": {
-    title: "Golf in Vilamoura",
-    description: "Explore championship golf courses in Vilamoura, one of the Algarve's premier golf destinations.",
     targetCity: "vilamoura",
     targetCategory: "golf",
   },
   "beaches-in-tavira": {
-    title: "Beaches in Tavira",
-    description: "Discover beautiful beaches near Tavira, from natural islands to golden sands along the Ria Formosa.",
     targetCity: "tavira",
     targetCategory: "beaches",
   },
   "things-to-do-in-albufeira": {
-    title: "Things to Do in Albufeira",
-    description: "Find the best activities and experiences in Albufeira — from beach days to boat tours and cultural visits.",
     targetCity: "albufeira",
     targetCategory: "experiences",
   },
   "family-attractions-in-albufeira": {
-    title: "Family Attractions in Albufeira",
-    description: "Discover family-friendly activities in Albufeira — theme parks, water sports, and fun for all ages.",
     targetCity: "albufeira",
     targetCategory: "family-attractions",
   },
   "wellness-spas-in-lagos": {
-    title: "Wellness & Spas in Lagos",
-    description: "Relax and rejuvenate at the best spas and wellness centers in Lagos, Algarve.",
     targetCity: "lagos",
     targetCategory: "wellness-spas",
   },
   "shopping-in-lagos": {
-    title: "Shopping in Lagos",
-    description: "Discover the best shopping in Lagos — from luxury boutiques to local artisan markets.",
     targetCity: "lagos",
     targetCategory: "shopping",
   },
   "real-estate-in-quinta-do-lago": {
-    title: "Real Estate in Quinta do Lago",
-    description: "Explore luxury properties and investment opportunities in prestigious Quinta do Lago.",
     targetCity: "quinta-do-lago",
     targetCategory: "real-estate",
   },
   "beach-clubs-in-albufeira": {
-    title: "Beach Clubs in Albufeira",
-    description: "Experience the best beach clubs in Albufeira — premium sunbeds, cocktails, and oceanfront luxury.",
     targetCity: "albufeira",
     targetCategory: "beach-clubs",
   },
   "experiences-in-faro": {
-    title: "Experiences in Faro",
-    description: "Discover unique experiences in Faro — from cultural tours to outdoor adventures in the Ria Formosa.",
     targetCity: "faro",
     targetCategory: "experiences",
   },
 };
+
+function interpolateTemplate(
+  template: string,
+  values: Record<string, string>,
+): string {
+  return Object.entries(values).reduce(
+    (result, [key, value]) => result.replaceAll(`{{${key}}}`, value),
+    template,
+  );
+}
+
+function getTranslationOrThrow(
+  tx: Record<string, string>,
+  key: string,
+): string {
+  const value = tx[key];
+  if (!value) {
+    throw new Error(`Missing translation for "${key}"`);
+  }
+
+  return value;
+}
+
+function getGuideTitle(tx: Record<string, string>, slug: string): string {
+  return getTranslationOrThrow(tx, `guides.pages.${slug}.title`);
+}
+
+function getGuideDescription(tx: Record<string, string>, slug: string): string {
+  return getTranslationOrThrow(tx, `guides.pages.${slug}.description`);
+}
+
+function getLocalizedText(
+  localizedValue: string | null | undefined,
+  fallbackValue: string | null | undefined,
+): string | null | undefined {
+  return localizedValue?.trim() || fallbackValue;
+}
 
 function buildGuideRouteData(slug: string): GuideRouteData {
   return {
@@ -120,11 +143,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { locale: rawLocale, slug } = await params;
   const locale: Locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
   const guide = GUIDES_CONFIG[slug as keyof typeof GUIDES_CONFIG];
+  const tx = await getServerTranslations(locale);
   
   if (!guide) {
     return buildPageMetadata({
-      title: "Guide Not Found",
-      description: "The requested guide could not be found.",
+      title: getTranslationOrThrow(tx, "guides.notFoundTitle"),
+      description: getTranslationOrThrow(tx, "guides.notFoundDescription"),
       localizedPath: `/guides/${slug}`,
       locale,
       noIndex: true,
@@ -133,8 +157,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
   
   return buildPageMetadata({
-    title: guide.title,
-    description: guide.description,
+    title: getGuideTitle(tx, slug),
+    description: getGuideDescription(tx, slug),
     localizedRoute: buildGuideRouteData(slug),
     locale,
   });
@@ -143,6 +167,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function GuidePage({ params }: PageProps) {
   const { locale: rawLocale, slug } = await params;
   const locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+  const contentLocale: PublicContentLocale = normalizePublicContentLocale(locale);
   const guide = GUIDES_CONFIG[slug as keyof typeof GUIDES_CONFIG];
   
   if (!guide) notFound();
@@ -163,7 +188,7 @@ export default async function GuidePage({ params }: PageProps) {
   
   if (!cityData || !catData) notFound();
   
-  const { data: listings } = await supabase
+  const { data: listingsData } = await supabase
     .from("listings")
     .select("id, slug, name, short_description, featured_image_url, tier, is_curated, google_rating, google_review_count, price_from, price_currency, website_url, cities(slug, name)")
     .eq("status", "published")
@@ -172,6 +197,38 @@ export default async function GuidePage({ params }: PageProps) {
     .order("is_curated", { ascending: false })
     .order("google_rating", { ascending: false, nullsFirst: false })
     .limit(20) as { data: any[] };
+
+  let cityName = cityData.name;
+  let listings = (listingsData ?? []) as any[];
+
+  if (contentLocale !== "en") {
+    const [cityTranslations, listingTranslations] = await Promise.all([
+      fetchCityTranslations(contentLocale, [cityData.id]),
+      fetchListingTranslations(
+        contentLocale,
+        listings.map((listing) => listing.id),
+      ),
+    ]);
+
+    const cityTranslation = cityTranslations[0];
+    const listingTranslationMap = new Map(
+      listingTranslations.map((translation) => [translation.listing_id, translation]),
+    );
+
+    cityName = getLocalizedText(cityTranslation?.name, cityData.name) ?? cityData.name;
+    listings = listings.map((listing) => {
+      const listingTranslation = listingTranslationMap.get(listing.id);
+
+      return {
+        ...listing,
+        name: getLocalizedText(listingTranslation?.title, listing.name) ?? listing.name,
+        short_description: getLocalizedText(
+          listingTranslation?.short_description,
+          listing.short_description,
+        ),
+      };
+    });
+  }
   
   const guideRouteData = buildGuideRouteData(slug);
   const localeSwitchPaths = buildLocaleSwitchPathsForEntity(guideRouteData, SUPPORTED_LOCALES);
@@ -185,7 +242,13 @@ export default async function GuidePage({ params }: PageProps) {
     citySlugs: cityRouteData.citySlugs,
     categorySlugs: categoryRouteData.slugs,
   };
-  const tx = await getServerTranslations(locale, ["common"]);
+  const tx = await getServerTranslations(locale);
+  const categoryName = getCategoryDisplayName(
+    guide.targetCategory as CanonicalCategorySlug,
+    locale,
+  );
+  const guideTitle = getGuideTitle(tx, slug);
+  const guideDescription = getGuideDescription(tx, slug);
   
   return (
     <>
@@ -193,28 +256,41 @@ export default async function GuidePage({ params }: PageProps) {
       <main className="min-h-screen pt-20">
         <section className="bg-gradient-to-b from-background/60 to-background py-12">
           <div className="app-container">
-            <nav aria-label="Breadcrumb" className="mb-4 text-sm text-muted-foreground">
+            <nav
+              aria-label={getTranslationOrThrow(tx, "guides.breadcrumbLabel")}
+              className="mb-4 text-sm text-muted-foreground"
+            >
               <ol className="flex gap-2">
-                <li><LocaleLink href={buildStaticRouteData("home")}>Home</LocaleLink></li>
+                <li>
+                  <LocaleLink href={buildStaticRouteData("home")}>
+                    {getTranslationOrThrow(tx, "nav.home")}
+                  </LocaleLink>
+                </li>
                 <li>/</li>
-                <li><LocaleLink href={cityRouteData}>{cityData.name}</LocaleLink></li>
+                <li><LocaleLink href={cityRouteData}>{cityName}</LocaleLink></li>
                 <li>/</li>
                 <li>
                   <LocaleLink href={cityCategoryRouteData}>
-                    {getCategoryDisplayName(guide.targetCategory as CanonicalCategorySlug, locale)}
+                    {categoryName}
                   </LocaleLink>
                 </li>
               </ol>
             </nav>
             
-            <h1 className="font-serif text-4xl md:text-5xl mb-4">{guide.title}</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl">{guide.description}</p>
+            <h1 className="font-serif text-4xl md:text-5xl mb-4">{guideTitle}</h1>
+            <p className="text-lg text-muted-foreground max-w-2xl">{guideDescription}</p>
           </div>
         </section>
         
         <section className="app-container py-8">
           <h2 className="text-xl font-semibold mb-4">
-            Top {getCategoryDisplayName(guide.targetCategory as CanonicalCategorySlug, locale)} in {cityData.name}
+            {interpolateTemplate(
+              getTranslationOrThrow(tx, "guides.topCategoryInCity"),
+              {
+                category: categoryName,
+                city: cityName,
+              },
+            )}
           </h2>
           
           {listings && listings.length > 0 ? (
@@ -224,30 +300,50 @@ export default async function GuidePage({ params }: PageProps) {
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground">More listings coming soon.</p>
+            <p className="text-muted-foreground">
+              {getTranslationOrThrow(tx, "guides.moreListingsComingSoon")}
+            </p>
           )}
         </section>
 
         <section className="app-container py-8 border-t bg-muted/30">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-2xl font-serif font-semibold mb-4">
-              Find the best {getCategoryDisplayName(guide.targetCategory as CanonicalCategorySlug, locale)} in {cityData.name}
+              {interpolateTemplate(
+                getTranslationOrThrow(tx, "guides.findBestInCity"),
+                {
+                  category: categoryName,
+                  city: cityName,
+                },
+              )}
             </h2>
             <p className="text-muted-foreground mb-6">
-              Browse all {getCategoryDisplayName(guide.targetCategory as CanonicalCategorySlug, locale).toLowerCase()} in {cityData.name}.
+              {interpolateTemplate(
+                getTranslationOrThrow(tx, "guides.browseAllInCity"),
+                {
+                  category: categoryName.toLowerCase(),
+                  city: cityName,
+                },
+              )}
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <LocaleLink 
                 href={cityCategoryRouteData}
                 className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
               >
-                View All {getCategoryDisplayName(guide.targetCategory as CanonicalCategorySlug, locale)} in {cityData.name}
+                {interpolateTemplate(
+                  getTranslationOrThrow(tx, "guides.viewAllInCity"),
+                  {
+                    category: categoryName,
+                    city: cityName,
+                  },
+                )}
               </LocaleLink>
               <LocaleLink 
                 href={buildStaticRouteData("partner")}
                 className="inline-flex items-center justify-center rounded-full border border-primary px-6 py-3 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
               >
-                List Your Business
+                {getTranslationOrThrow(tx, "guides.listYourBusiness")}
               </LocaleLink>
             </div>
           </div>
@@ -257,23 +353,34 @@ export default async function GuidePage({ params }: PageProps) {
           <section className="app-container py-8 border-t">
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-2xl font-serif font-semibold mb-4">
-                Get Featured in {cityData.name}
-              </h2>
+                {interpolateTemplate(
+                  getTranslationOrThrow(tx, "guides.getFeaturedInCity"),
+                {
+                  city: cityName,
+                },
+              )}
+            </h2>
               <p className="text-muted-foreground mb-6">
-                Stand out to visitors researching {getCategoryDisplayName(guide.targetCategory as CanonicalCategorySlug, locale).toLowerCase()} in {cityData.name}.
-              </p>
+                {interpolateTemplate(
+                  getTranslationOrThrow(tx, "guides.standOutInCity"),
+                {
+                  category: categoryName.toLowerCase(),
+                  city: cityName,
+                },
+              )}
+            </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <LocaleLink 
                   href={`/partner?category=${guide.targetCategory}`}
                   className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
                 >
-                  Upgrade Your Listing
+                  {getTranslationOrThrow(tx, "guides.upgradeYourListing")}
                 </LocaleLink>
                 <LocaleLink 
                   href={buildStaticRouteData("partner")}
                   className="inline-flex items-center justify-center rounded-full border border-primary px-6 py-3 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
                 >
-                  Get Featured
+                  {getTranslationOrThrow(tx, "guides.getFeatured")}
                 </LocaleLink>
               </div>
             </div>
@@ -281,7 +388,14 @@ export default async function GuidePage({ params }: PageProps) {
         )}
         
         <section className="app-container py-8 border-t">
-          <h2 className="text-xl font-semibold mb-4">Explore More in {cityData.name}</h2>
+          <h2 className="text-xl font-semibold mb-4">
+            {interpolateTemplate(
+              getTranslationOrThrow(tx, "guides.exploreMoreInCity"),
+              {
+                city: cityName,
+              },
+            )}
+          </h2>
           <div className="flex flex-wrap gap-2">
             {ALL_CANONICAL_SLUGS.slice(0, 8).map((cat) => {
               const relatedCategoryRouteData: CityCategoryRouteData = {
@@ -295,7 +409,13 @@ export default async function GuidePage({ params }: PageProps) {
                   href={relatedCategoryRouteData}
                   className="px-3 py-1.5 text-sm rounded-full bg-muted hover:bg-muted/80"
                 >
-                  {getCategoryDisplayName(cat, locale)} in {cityData.name}
+                  {interpolateTemplate(
+                    getTranslationOrThrow(tx, "guides.categoryInCity"),
+                    {
+                      category: getCategoryDisplayName(cat, locale),
+                      city: cityName,
+                    },
+                  )}
                 </LocaleLink>
               );
             })}
@@ -303,18 +423,20 @@ export default async function GuidePage({ params }: PageProps) {
         </section>
         
         <section className="app-container py-8 border-t">
-          <h2 className="text-xl font-semibold mb-4">Related Guides</h2>
+          <h2 className="text-xl font-semibold mb-4">
+            {getTranslationOrThrow(tx, "guides.relatedGuides")}
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {Object.entries(GUIDES_CONFIG)
               .filter(([s]) => s !== slug)
               .slice(0, 4)
-              .map(([guideSlug, g]) => (
+              .map(([guideSlug]) => (
                 <LocaleLink
                   key={guideSlug}
                   href={buildGuideRouteData(guideSlug)}
                   className="block p-4 rounded-xl border border-border hover:border-primary/50"
                 >
-                  <span className="font-medium">{g.title}</span>
+                  <span className="font-medium">{getGuideTitle(tx, guideSlug)}</span>
                 </LocaleLink>
               ))}
           </div>

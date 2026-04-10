@@ -209,7 +209,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                   className="h-8 w-8 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
                 >
                   <Heart className="h-4 w-4" />
-                  <span className="sr-only">{t("nav.saved", "Saved")}</span>
+                  <span className="sr-only">{t("nav.saved")}</span>
                 </Button>
               </Link>
 
@@ -220,7 +220,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                 onClick={() => setSearchOpen(true)}
               >
                 <Search className="h-4 w-4" />
-                <span className="sr-only">{t("nav.search", "Search")}</span>
+                <span className="sr-only">{t("nav.search")}</span>
               </Button>
 
               <LanguageSwitcher
@@ -266,7 +266,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                     className="h-9 w-9 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
                   >
                     <Heart className="h-4.5 w-4.5" />
-                    <span className="sr-only">{t("nav.saved", "Saved")}</span>
+                    <span className="sr-only">{t("nav.saved")}</span>
                   </Button>
                 </Link>
 
@@ -277,7 +277,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                   onClick={() => setSearchOpen(true)}
                 >
                   <Search className="h-4.5 w-4.5" />
-                  <span className="sr-only">{t("nav.search", "Search")}</span>
+                  <span className="sr-only">{t("nav.search")}</span>
                 </Button>
 
                 <LanguageSwitcher
@@ -334,7 +334,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                 variant="ghost"
                 size="icon"
                 className="h-10 w-10 rounded-full border border-black/10 bg-white/80 text-foreground shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10 dark:text-white/85"
-                aria-label={mobileMenuOpen ? t("nav.closeMenu", "Close menu") : t("nav.openMenu", "Open menu")}
+                aria-label={mobileMenuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X className="h-6 w-6" /> : <AlignJustify className="h-6 w-6" />}
@@ -352,7 +352,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                 variant="ghost"
                 size="icon"
                 className="h-10 w-10 rounded-full border border-black/10 bg-white/80 text-foreground shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10 dark:text-white/85"
-                aria-label={mobileMenuOpen ? t("nav.closeMenu", "Close menu") : t("nav.openMenu", "Open menu")}
+                aria-label={mobileMenuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X className="h-7 w-7 sm:h-8 sm:w-8" /> : <AlignJustify className="h-7 w-7 sm:h-8 sm:w-8" />}
@@ -392,7 +392,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                     <button
                       onClick={() => setMobileMenuOpen(false)}
                       className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white/75 dark:border-white/20 dark:bg-white/10"
-                      aria-label={t("nav.closeMenu", "Close menu")}
+                      aria-label={t("nav.closeMenu")}
                     >
                       <X className="h-5 w-5" />
                     </button>
@@ -401,13 +401,13 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                     <div className="mb-4 rounded-2xl border border-black/10 bg-white/70 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
                       <div className="flex items-center justify-between gap-3">
                         <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                          {t("common.theme", "Theme")}
+                          {t("common.theme")}
                         </div>
                         <ThemeToggle />
                       </div>
                       <div className="mt-3 flex items-center justify-between gap-3">
                         <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                          {t("common.language", "Language")}
+                          {t("common.language")}
                         </div>
                         <LanguageSwitcher
                           localeSwitchPaths={localeSwitchPaths}
@@ -425,7 +425,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                         className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
                       >
                         <Home className="h-6 w-6 text-primary" />
-                        {t("nav.home", "Home")}
+                        {t("nav.home")}
                       </Link>
                     </div>
 
@@ -489,8 +489,8 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                       </div>
                       <AccordionContent>
                         <div className="mb-1 flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
-                          <Link href={realEstatePath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Building2 className="h-4 w-4" /> {t("realEstate.title", "Real Estate Directory")}</Link>
-                          <Link href={mapPath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><MapPin className="h-4 w-4" /> {t("nav.map", "Map")}</Link>
+                          <Link href={realEstatePath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Building2 className="h-4 w-4" /> {t("realEstate.title")}</Link>
+                          <Link href={mapPath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><MapPin className="h-4 w-4" /> {t("nav.map")}</Link>
                         </div>
                       </AccordionContent>
                     </AccordionItem>
@@ -520,7 +520,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                         className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
                       >
                         <Compass className="h-6 w-6 text-primary" />
-                        {t("nav.destinations", "Destinations")}
+                        {t("nav.destinations")}
                       </Link>
                     </div>
 
@@ -531,7 +531,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                         className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
                       >
                         <MapPin className="h-6 w-6 text-primary" />
-                        {t("nav.map", "Map")}
+                        {t("nav.map")}
                       </Link>
                     </div>
 
@@ -542,31 +542,31 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                         className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
                       >
                         <BookOpen className="h-6 w-6 text-primary" />
-                        {t("nav.blog", "Blog")}
+                        {t("nav.blog")}
                       </Link>
                     </div>
                   </Accordion>
 
                     <div className="mt-4 rounded-2xl border border-black/10 bg-white/66 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
                       <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                        {t("nav.yourSpace", "Your Space")}
+                        {t("nav.yourSpace")}
                       </p>
                       <div className="grid grid-cols-1 gap-2">
                         <Link href={accountPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
                           <User className="h-4 w-4 text-primary" />
-                          {t("nav.account", "Account")}
+                          {t("nav.account")}
                         </Link>
                         <Link href={tripsPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
                           <Plane className="h-4 w-4 text-primary" />
-                          {t("nav.myTrip", "My Trip")}
+                          {t("nav.myTrip")}
                         </Link>
                         <Link href={favoritesPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
                           <Heart className="h-4 w-4 text-primary" />
-                          {t("dashboard.favorites.title", "Favorites")}
+                          {t("dashboard.favorites.title")}
                         </Link>
                         <Link href={messagesPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
                           <MessageSquare className="h-4 w-4 text-primary" />
-                          {t("nav.messages", "Messages")}
+                          {t("nav.messages")}
                         </Link>
                       </div>
                     </div>
@@ -581,12 +581,12 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                             setMobileMenuOpen(false);
                           }}
                         >
-                          {t("nav.signOut", "Sign Out")}
+                          {t("nav.signOut")}
                         </Button>
                       ) : (
                         <Link href={loginPath} onClick={() => setMobileMenuOpen(false)}>
                           <Button variant="outline" className="w-full">
-                            {t("nav.login", "Login")}
+                            {t("nav.login")}
                           </Button>
                         </Link>
                       )}

@@ -91,7 +91,7 @@ export default function EventDetail({
         <main className="pt-32 pb-16">
           <div className="app-container">
             <RouteMessageState
-              eyebrow={t('sections.events.label', 'Algarve Calendar')}
+              eyebrow={t('sections.events.label')}
               title="Event Not Found"
               description="The event you're looking for doesn't exist or has been removed."
               actions={(

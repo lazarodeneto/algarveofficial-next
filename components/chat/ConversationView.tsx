@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 import {
   useChatMessages,
   useSendMessage,
@@ -32,6 +33,7 @@ export const ConversationView = forwardRef<HTMLDivElement, ConversationViewProps
     },
     ref
   ) {
+    const { t } = useTranslation();
     const { user } = useAuth();
     const [message, setMessage] = useState("");
     const [localThreadId, setLocalThreadId] = useState(threadId);
@@ -58,9 +60,11 @@ export const ConversationView = forwardRef<HTMLDivElement, ConversationViewProps
     // Set default message for new conversations
     useEffect(() => {
       if (initialListingName && !threadId && !localThreadId) {
-        setMessage(`Hello, I'm interested in "${initialListingName}". Is it available?`);
+        setMessage(
+          t("chat.defaultInquiryMessage", { listingName: initialListingName })
+        );
       }
-    }, [initialListingName, threadId, localThreadId]);
+    }, [initialListingName, localThreadId, t, threadId]);
 
     const handleSend = async () => {
       if (!message.trim()) return;
@@ -106,7 +110,13 @@ export const ConversationView = forwardRef<HTMLDivElement, ConversationViewProps
 
     const handleOpenWhatsApp = () => {
       if (waStatus?.phone) {
-        const encodedMessage = encodeURIComponent(message || `Hi! I'm interested in ${initialListingName || "your listing"}.`);
+        const encodedMessage = encodeURIComponent(
+          message ||
+            t("chat.defaultWhatsAppMessage", {
+              listingName:
+                initialListingName || t("chat.listingFallbackName"),
+            })
+        );
         window.open(`https://wa.me/${waStatus.phone.replace(/\D/g, "")}?text=${encodedMessage}`, "_blank");
       }
     };
@@ -118,9 +128,9 @@ export const ConversationView = forwardRef<HTMLDivElement, ConversationViewProps
           <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
             <Send className="h-10 w-10 text-muted-foreground" />
           </div>
-          <h3 className="font-serif font-medium text-xl mb-2">Select a conversation</h3>
+          <h3 className="font-serif font-medium text-xl mb-2">{t("chat.selectConversation")}</h3>
           <p className="text-sm text-muted-foreground max-w-[280px]">
-            Choose a conversation from the list or start a new one from a listing page.
+            {t("chat.selectConversationDescription")}
           </p>
         </div>
       );
@@ -157,13 +167,15 @@ export const ConversationView = forwardRef<HTMLDivElement, ConversationViewProps
             <div className="flex flex-col items-center justify-center h-full text-center py-12">
               <p className="text-sm text-muted-foreground mb-2">
                 {initialListingName ? (
-                  <>Start the conversation about <strong>{initialListingName}</strong></>
+                  <>
+                    {t("chat.startConversationAbout")} <strong>{initialListingName}</strong>
+                  </>
                 ) : (
-                  "No messages yet"
+                  t("chat.noMessagesYet")
                 )}
               </p>
               <p className="text-xs text-muted-foreground">
-                Send a message below to get started.
+                {t("chat.sendMessageToStart")}
               </p>
             </div>
           )}
@@ -175,13 +187,13 @@ export const ConversationView = forwardRef<HTMLDivElement, ConversationViewProps
           <div className="px-4 py-2 bg-green-500/10 border-t border-green-500/20">
             <button
               onClick={handleOpenWhatsApp}
-              className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 hover:underline"
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-              <span>Open in WhatsApp for faster response</span>
-            </button>
-          </div>
-        )}
+            className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 hover:underline"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            <span>{t("chat.openWhatsApp")}</span>
+          </button>
+        </div>
+      )}
 
         {/* Composer */}
         <div className="p-4 border-t border-border bg-card">
@@ -190,7 +202,7 @@ export const ConversationView = forwardRef<HTMLDivElement, ConversationViewProps
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type your message..."
+              placeholder={t("chat.messagePlaceholder")}
               disabled={sendMessage.isPending || createOrFindThread.isPending}
               className="flex-1"
             />
@@ -202,7 +214,7 @@ export const ConversationView = forwardRef<HTMLDivElement, ConversationViewProps
                 createOrFindThread.isPending
               }
               size="icon"
-              aria-label="Send message"
+              aria-label={t("chat.sendMessage")}
             >
               {sendMessage.isPending || createOrFindThread.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

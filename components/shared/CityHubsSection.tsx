@@ -16,6 +16,37 @@ export interface CityHubItem {
   municipalityCityIds?: string[];
 }
 
+type CityHubTranslationPrefix = "directory" | "experiences";
+
+const CITY_HUB_TRANSLATION_KEYS: Record<
+  CityHubTranslationPrefix,
+  {
+    featuredCityHub: string;
+    featuredCityHubDescription: string;
+    cityIndex: string;
+    exploreAlgarveCities: string;
+    cityIndexDescription: string;
+    listingsCount: string;
+  }
+> = {
+  directory: {
+    featuredCityHub: "directory.featuredCityHub",
+    featuredCityHubDescription: "directory.featuredCityHubDescription",
+    cityIndex: "directory.cityIndex",
+    exploreAlgarveCities: "directory.exploreAlgarveCities",
+    cityIndexDescription: "directory.cityIndexDescription",
+    listingsCount: "directory.listingsCount",
+  },
+  experiences: {
+    featuredCityHub: "experiences.featuredCityHub",
+    featuredCityHubDescription: "experiences.featuredCityHubDescription",
+    cityIndex: "experiences.cityIndex",
+    exploreAlgarveCities: "experiences.exploreAlgarveCities",
+    cityIndexDescription: "experiences.cityIndexDescription",
+    listingsCount: "experiences.listingsCount",
+  },
+};
+
 interface CityHubsSectionProps {
   highlightedCity: CityHubItem | undefined;
   topCities: CityHubItem[];
@@ -24,7 +55,7 @@ interface CityHubsSectionProps {
   cityPathBuilder?: (city: CityHubItem) => string;
   imageTimestamp: number;
   basePath: string;
-  translationPrefix: string;
+  translationPrefix: CityHubTranslationPrefix;
 }
 
 export function CityHubsSection({
@@ -44,6 +75,7 @@ export function CityHubsSection({
     normalizedBasePath === "city" || normalizedBasePath === "stay"
       ? "visit"
       : normalizedBasePath || "visit";
+  const translationKeys = CITY_HUB_TRANSLATION_KEYS[translationPrefix];
 
   const getCityCount = (city: CityHubItem) => {
     // For municipalities, always use the aggregated totalCount
@@ -84,21 +116,17 @@ export function CityHubsSection({
             <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-6 text-white">
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
-                {t(
-                  `${translationPrefix}.featuredCityHub`,
-                  "Featured City Hub",
-                )}
+                {t(translationKeys.featuredCityHub)}
               </p>
               <h2 className="font-serif text-3xl md:text-4xl leading-tight">
                 {featured.name}
               </h2>
               <p className="mt-3 max-w-2xl text-sm text-white/85">
                 {featured.short_description ||
-                  t(
-                    `${translationPrefix}.featuredCityHubDescription`,
-                    "Explore {{count}} curated listings in {{name}}, Algarve.",
-                    { count: getCityCount(featured), name: featured.name },
-                  )}
+                  t(translationKeys.featuredCityHubDescription, {
+                    count: getCityCount(featured),
+                    name: featured.name,
+                  })}
               </p>
             </div>
           </div>
@@ -106,19 +134,13 @@ export function CityHubsSection({
 
         <div className="rounded-[32px] border border-border bg-card p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-            {t(`${translationPrefix}.cityIndex`, "City Index")}
+            {t(translationKeys.cityIndex)}
           </p>
           <h2 className="mt-3 font-serif text-2xl text-foreground">
-            {t(
-              `${translationPrefix}.exploreAlgarveCities`,
-              "Explore Algarve Cities",
-            )}
+            {t(translationKeys.exploreAlgarveCities)}
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            {t(
-              `${translationPrefix}.cityIndexDescription`,
-              "Browse listings by city.",
-            )}
+            {t(translationKeys.cityIndexDescription)}
           </p>
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {topCities.map((city) => (
@@ -131,11 +153,7 @@ export function CityHubsSection({
                   {city.name}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {t(
-                    `${translationPrefix}.listingsCount`,
-                    "{{count}} listings",
-                    { count: getCityCount(city) },
-                  )}
+                  {t(translationKeys.listingsCount, { count: getCityCount(city) })}
                 </div>
               </Link>
             ))}

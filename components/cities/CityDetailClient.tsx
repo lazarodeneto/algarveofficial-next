@@ -439,7 +439,7 @@ function CityDetailClientInner({
   initialCuratedListings,
   initialGlobalSettings,
 }: CityDetailClientProps) {
-  useTranslation();
+  const { t } = useTranslation();
   const locale = normalizePublicContentLocale(useCurrentLocale());
   const { isDestinationSaved, toggleCity } = useSavedDestinations();
   const { isFavorite, toggleFavorite } = useFavoriteListings();
@@ -518,17 +518,17 @@ function CityDetailClientInner({
         <Header />
         <div className="pt-[calc(8rem+10px)] pb-20 text-center app-container">
           <h1 className="text-title font-serif text-foreground mb-4">
-            {cms.getText("notFound.title", "City Not Found")}
+            {cms.getText("notFound.title", t("notFound.title"))}
           </h1>
           <p className="text-body text-muted-foreground mb-8">
-            {cms.getText("notFound.description", "The city you're looking for doesn't exist.")}
+            {cms.getText("notFound.description", t("notFound.description"))}
           </p>
           <LocaleLink
             href="/"
             className="inline-flex items-center gap-2 text-primary hover:underline"
           >
             <ArrowLeft className="w-4 h-4" />
-            {cms.getText("notFound.back", "Back to Home")}
+            {cms.getText("notFound.back", t("notFound.backHome"))}
           </LocaleLink>
         </div>
         <Footer />

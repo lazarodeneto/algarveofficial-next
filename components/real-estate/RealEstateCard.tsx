@@ -100,7 +100,7 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                 key: "living-area",
                 value: formatMetricValue(area),
                 unit: "m²",
-                label: t("listing.livingArea", "Living Area"),
+                label: t("listing.livingArea"),
                 icon: Maximize,
             }]
             : []),

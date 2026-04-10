@@ -136,10 +136,7 @@ export function RouteAccessibility() {
       const title = document.title?.trim();
       if (!title) return;
 
-      const nextAnnouncement = t("accessibility.routeChanged", {
-          title,
-          defaultValue: `Navigated to ${title}`,
-        });
+      const nextAnnouncement = t("accessibility.routeChanged", { title });
 
       setAnnouncement((previous) => (
         previous === nextAnnouncement ? `${nextAnnouncement}\u00A0` : nextAnnouncement
@@ -161,7 +158,7 @@ export function RouteAccessibility() {
         }}
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[250] focus:rounded-full focus:border focus:border-primary/30 focus:bg-background focus:px-4 focus:py-3 focus:text-sm focus:font-semibold focus:text-foreground focus:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
-        {t("accessibility.skipToContent", "Skip to main content")}
+        {t("accessibility.skipToContent")}
       </a>
 
       <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">

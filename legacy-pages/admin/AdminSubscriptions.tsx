@@ -114,7 +114,7 @@ export default function AdminSubscriptions() {
   };
 
   const buildPeriodNote = (startDate: Date | null, endDate: Date | null) => {
-    if (!startDate || !endDate) return t("admin.subscriptions.periodAdminDefined", "Admin-defined period");
+    if (!startDate || !endDate) return t("admin.subscriptions.periodAdminDefined");
     return `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}`;
   };
 
@@ -179,7 +179,7 @@ export default function AdminSubscriptions() {
     }
 
     if (editingPricing.billing_period === 'promo' && (!pricingForm.period_start_date || !pricingForm.period_end_date)) {
-      toast.error(t("admin.subscriptions.periodDateRangeRequired", "Please define start and end dates for period pricing."));
+      toast.error(t("admin.subscriptions.periodDateRangeRequired"));
       return;
     }
 
@@ -189,7 +189,7 @@ export default function AdminSubscriptions() {
       pricingForm.period_end_date &&
       pricingForm.period_end_date < pricingForm.period_start_date
     ) {
-      toast.error(t("admin.subscriptions.periodDateRangeInvalid", "End date must be after start date."));
+      toast.error(t("admin.subscriptions.periodDateRangeInvalid"));
       return;
     }
 
@@ -276,7 +276,7 @@ export default function AdminSubscriptions() {
   const handleSavePromo = async () => {
     const hasPeriodBilling = promoForm.applicable_billing.includes('period');
     if (hasPeriodBilling && (!promoForm.period_length || promoForm.period_length <= 0)) {
-      toast.error(t("admin.subscriptions.periodLengthRequired", "Please define a valid period length."));
+      toast.error(t("admin.subscriptions.periodLengthRequired"));
       return;
     }
 
@@ -331,9 +331,9 @@ export default function AdminSubscriptions() {
   };
 
   const billingLabels: Record<string, string> = {
-    monthly: t("admin.subscriptions.billing.monthly", "Monthly"),
-    yearly: t("admin.subscriptions.billing.annual", "Annual"),
-    promo: t("admin.subscriptions.billing.period", "Promo"),
+    monthly: t("admin.subscriptions.billing.monthly"),
+    yearly: t("admin.subscriptions.billing.annual"),
+    promo: t("admin.subscriptions.billing.period"),
   };
 
   const sortedPricingByTier = useMemo(() => {
@@ -356,7 +356,7 @@ export default function AdminSubscriptions() {
           stripe_price_id: null,
           currency: "EUR",
           display_price: "€0",
-          note: t("admin.subscriptions.periodAdminDefined", "Promotional period"),
+          note: t("admin.subscriptions.periodAdminDefined"),
           valid_from: null,
           valid_to: null,
           is_active: true,
@@ -388,8 +388,8 @@ export default function AdminSubscriptions() {
   }, [pricing, t]);
 
   const periodUnitLabels: Record<'days' | 'months', string> = {
-    days: t("admin.subscriptions.periodUnit.days", "Days"),
-    months: t("admin.subscriptions.periodUnit.months", "Months"),
+    days: t("admin.subscriptions.periodUnit.days"),
+    months: t("admin.subscriptions.periodUnit.months"),
   };
 
   const stripeMappingHealth = useMemo(() => {
@@ -655,10 +655,10 @@ export default function AdminSubscriptions() {
                             </p>
                             {promo.applicable_billing.includes('period') && (
                               <p>
-                                <span className="font-medium">{t("admin.subscriptions.periodLength", "Period Length")}:</span>{' '}
+                                <span className="font-medium">{t("admin.subscriptions.periodLength")}:</span>{' '}
                                 {promo.period_length && promo.period_unit
                                   ? `${promo.period_length} ${periodUnitLabels[promo.period_unit]}`
-                                  : t("admin.subscriptions.periodAdminDefined", "Admin-defined period")}
+                                  : t("admin.subscriptions.periodAdminDefined")}
                               </p>
                             )}
                             <p>
@@ -768,9 +768,9 @@ export default function AdminSubscriptions() {
             </div>
             <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-4 py-3">
               <div>
-                <Label>{t("admin.subscriptions.status.active", "Active")}</Label>
+                <Label>{t("admin.subscriptions.status.active")}</Label>
                 <p className="text-xs text-muted-foreground">
-                  {t("admin.subscriptions.enableImmediately", "Enable this price immediately")}
+                  {t("admin.subscriptions.enableImmediately")}
                 </p>
               </div>
               <Switch
@@ -787,14 +787,14 @@ export default function AdminSubscriptions() {
             {editingPricing?.billing_period === 'promo' && (
               <div className="grid grid-cols-2 gap-4 border-t pt-4 mt-4">
                 <div className="space-y-2">
-                  <Label>{t("admin.subscriptions.startDate", "Start Date")}</Label>
+                  <Label>{t("admin.subscriptions.startDate")}</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button variant="outline" className="w-full justify-start text-left">
                         <Calendar className="h-4 w-4 mr-2" />
                         {pricingForm.period_start_date
                           ? format(pricingForm.period_start_date, "MMM d, yyyy")
-                          : t("admin.subscriptions.selectDate", "Select date")}
+                          : t("admin.subscriptions.selectDate")}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -814,14 +814,14 @@ export default function AdminSubscriptions() {
                   </Popover>
                 </div>
                 <div className="space-y-2">
-                  <Label>{t("admin.subscriptions.endDate", "End Date")}</Label>
+                  <Label>{t("admin.subscriptions.endDate")}</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button variant="outline" className="w-full justify-start text-left">
                         <Calendar className="h-4 w-4 mr-2" />
                         {pricingForm.period_end_date
                           ? format(pricingForm.period_end_date, "MMM d, yyyy")
-                          : t("admin.subscriptions.selectDate", "Select date")}
+                          : t("admin.subscriptions.selectDate")}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -1013,7 +1013,7 @@ export default function AdminSubscriptions() {
             {promoForm.applicable_billing.includes('period') && (
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>{t("admin.subscriptions.periodLength", "Period Length")}</Label>
+                  <Label>{t("admin.subscriptions.periodLength")}</Label>
                   <Input
                     type="number"
                     min={1}
@@ -1024,11 +1024,11 @@ export default function AdminSubscriptions() {
                         period_length: e.target.value ? Math.max(1, parseInt(e.target.value, 10)) : null,
                       })
                     }
-                    placeholder={t("admin.subscriptions.periodLengthPlaceholder", "e.g. 30")}
+                    placeholder={t("admin.subscriptions.periodLengthPlaceholder")}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>{t("admin.subscriptions.periodUnit", "Period Unit")}</Label>
+                  <Label>{t("admin.subscriptions.periodUnitLabel")}</Label>
                   <Select
                     value={promoForm.period_unit}
                     onValueChange={(value) =>

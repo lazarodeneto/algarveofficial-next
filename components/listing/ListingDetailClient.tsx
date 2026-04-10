@@ -858,7 +858,7 @@ function ListingDetailClientInner({
                         showPopups
                         className="h-full"
                         mapClassName="h-full min-h-0"
-                        emptyMessage={t("listing.locationUnavailable", "Location unavailable for this listing.")}
+                        emptyMessage={t("listing.locationUnavailable")}
                       />
                     ) : (
                       <div className="h-full min-h-[300px] w-full bg-muted animate-pulse rounded-xl" />
@@ -880,7 +880,7 @@ function ListingDetailClientInner({
                       scrollWheelZoom={false}
                       showPopups
                       mapClassName="aspect-video"
-                      emptyMessage={t("listing.locationUnavailable", "Location unavailable for this listing.")}
+                      emptyMessage={t("listing.locationUnavailable")}
                     />
                   ) : (
                     <div className="aspect-video w-full bg-muted animate-pulse rounded-xl" />
@@ -1001,7 +1001,7 @@ function ListingDetailClientInner({
                       variant="outline"
                       size="icon"
                       onClick={handleSaveClick}
-                      aria-label={t("listing.saveToFavorites", "Save to favorites")}
+                      aria-label={t("listing.saveToFavorites")}
                     >
                       <Heart className={`h-4 w-4 ${isFavorite(listing.id) ? "fill-red-500 text-red-500" : ""}`} />
                     </Button>
@@ -1064,13 +1064,13 @@ function ListingDetailClientInner({
                   {listing.status === "published" && listing.tier !== "verified" && listing.tier !== "signature" ? (
                     <div className="mt-6 pt-6 border-t border-border">
                       <p className="text-body-xs text-muted-foreground mb-2">
-                        {t("listing.isYourBusiness", "Is this your business?")}
+                        {t("listing.isYourBusiness")}
                       </p>
                       <Link
                         href={l("/partner?type=claim-business")}
                         className="text-body-xs text-primary hover:underline font-medium"
                       >
-                        {t("listing.claimThisListing", "Claim this listing")} →
+                        {t("listing.claimThisListing")} →
                       </Link>
                     </div>
                   ) : null}
@@ -1096,7 +1096,7 @@ function ListingDetailClientInner({
           <section className="py-8 px-4 border-t border-border">
             <div className="container mx-auto max-w-7xl">
               <h2 className="text-2xl font-serif font-medium mb-6">
-                {t("listing.relatedListings", "More in {{category}}", { category: categoryLabel })}
+                {t("listing.relatedListings", { category: categoryLabel })}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {relatedListings.map((related) => {
@@ -1137,7 +1137,7 @@ function ListingDetailClientInner({
           <section className="py-8 px-4 border-t border-border bg-muted/30">
             <div className="container mx-auto max-w-7xl">
               <h2 className="text-2xl font-serif font-medium mb-6">
-                {t("listing.relatedDestinations", "Explore More Destinations")}
+                {t("listing.relatedDestinations")}
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                 {[
@@ -1241,7 +1241,7 @@ function ListingDetailClientInner({
             size="icon"
             onClick={handleSaveClick}
             className="shrink-0"
-            aria-label={t("listing.saveToFavorites", "Save to favorites")}
+            aria-label={t("listing.saveToFavorites")}
           >
             <Heart className={`h-5 w-5 ${isFavorite(listing.id) ? "fill-red-500 text-red-500" : ""}`} />
           </Button>
@@ -1250,7 +1250,7 @@ function ListingDetailClientInner({
             size="icon"
             onClick={handleShareClick}
             className="shrink-0"
-            aria-label={t("listing.share", "Share listing")}
+            aria-label={t("listing.share")}
           >
             <Share2 className="h-5 w-5" />
           </Button>

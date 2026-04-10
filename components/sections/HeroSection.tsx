@@ -369,13 +369,13 @@ export function HeroSection() {
 
   const handleCreateTrip = (data: { title: string; description?: string; start_date: string; end_date: string }) => {
     if (!isAuthenticated) {
-      toast.info(t("hero.loginRequired", "Log in or create an account to create and save your trip."));
+      toast.info(t("hero.loginRequired"));
       setShowLoginModal(true);
       return;
     }
 
     const newTrip = createTrip(data);
-    toast.success(t("hero.tripCreated", "Trip created successfully."));
+    toast.success(t("hero.tripCreated"));
     router.push(`${l("/dashboard/trips")}?trip=${encodeURIComponent(newTrip.id)}`);
   };
 
@@ -412,7 +412,7 @@ export function HeroSection() {
     return [heroHeadline];
   }, [heroHeadline]);
   const heroSubtitle = settings?.hero_subtitle?.trim() || t("hero.subtitle");
-  const tripPlannerButtonLabel = t("hero.planTripCta", "Plan your Trip");
+  const tripPlannerButtonLabel = t("hero.planTripCta");
   // ... inside the component function ...
 
   const mediaMode = useMemo<"youtube" | "video" | "poster" | "none">(() => {

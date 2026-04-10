@@ -58,19 +58,19 @@ export function AdminHeader() {
 
   const quickJumpOptions = useMemo(
     () => [
-      { label: t("admin.sidebar.overview", "Overview"), value: l("/admin") },
-      { label: t("admin.sidebar.listings", "Listings"), value: l("/admin/listings") },
-      { label: t("admin.overview.createListing", "Create Listing"), value: l("/admin/listings/new") },
-      { label: t("admin.sidebar.moderationQueue", "Moderation Queue"), value: l("/admin/moderation") },
-      { label: t("admin.sidebar.reviewModeration", "Review Moderation"), value: l("/admin/reviews") },
-      { label: t("admin.sidebar.messages", "Messages"), value: l("/admin/messages") },
-      { label: t("admin.sidebar.translations", "Translations"), value: l("/admin/content/translations") },
-      { label: t("admin.sidebar.pageBuilder", "Full Page Builder"), value: l("/admin/content/page-builder") },
-      { label: t("admin.sidebar.homePage", "Home Page"), value: l("/admin/content/home") },
-      { label: t("admin.sidebar.events", "Events"), value: l("/admin/content/events") },
-      { label: t("admin.sidebar.mediaLibrary", "Media Library"), value: l("/admin/content/media") },
-      { label: t("admin.sidebar.settings", "Settings"), value: l("/admin/settings") },
-      { label: t("admin.sidebar.usersRoles", "Users"), value: l("/admin/users") },
+      { label: t("admin.sidebar.overview"), value: l("/admin") },
+      { label: t("admin.sidebar.listings"), value: l("/admin/listings") },
+      { label: t("admin.overview.createListing"), value: l("/admin/listings/new") },
+      { label: t("admin.sidebar.moderationQueue"), value: l("/admin/moderation") },
+      { label: t("admin.sidebar.reviewModeration"), value: l("/admin/reviews") },
+      { label: t("admin.sidebar.messages"), value: l("/admin/messages") },
+      { label: t("admin.sidebar.translations"), value: l("/admin/content/translations") },
+      { label: t("admin.sidebar.pageBuilder"), value: l("/admin/content/page-builder") },
+      { label: t("admin.sidebar.homePage"), value: l("/admin/content/home") },
+      { label: t("admin.sidebar.events"), value: l("/admin/content/events") },
+      { label: t("admin.sidebar.mediaLibrary"), value: l("/admin/content/media") },
+      { label: t("admin.sidebar.settings"), value: l("/admin/settings") },
+      { label: t("admin.sidebar.usersRoles"), value: l("/admin/users") },
     ],
     [l, t],
   );
@@ -78,21 +78,21 @@ export function AdminHeader() {
   const quickActionLinks = useMemo(
     () => [
       {
-        label: t("admin.overview.createListing", "Create Listing"),
+        label: t("admin.overview.createListing"),
         href: l("/admin/listings/new"),
       },
       {
-        label: t("admin.sidebar.moderationQueue", "Moderation Queue"),
+        label: t("admin.sidebar.moderationQueue"),
         href: l("/admin/moderation"),
         badge: pendingCount || undefined,
       },
       {
-        label: t("admin.sidebar.reviewModeration", "Review Moderation"),
+        label: t("admin.sidebar.reviewModeration"),
         href: l("/admin/reviews"),
         badge: pendingListingReviewsCount || undefined,
       },
       {
-        label: t("admin.sidebar.translations", "Translations"),
+        label: t("admin.sidebar.translations"),
         href: l("/admin/content/translations"),
       },
     ],
@@ -137,7 +137,7 @@ export function AdminHeader() {
               list="admin-quick-jump"
               value={quickJump}
               onChange={(event) => setQuickJump(event.target.value)}
-              placeholder={t("admin.header.quickJump", "Quick jump: listings, translations, users...")}
+              placeholder={t("admin.header.quickJump")}
               className="h-9 rounded-full border-border/80 bg-background/80 pl-10 pr-10 text-sm"
             />
             <datalist id="admin-quick-jump">
@@ -150,7 +150,7 @@ export function AdminHeader() {
               variant="ghost"
               size="icon"
               className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full"
-              aria-label={t("admin.header.go", "Go")}
+              aria-label={t("admin.header.go")}
             >
               <ArrowRight className="h-4 w-4" />
             </Button>
@@ -292,7 +292,7 @@ export function AdminHeader() {
               list="admin-quick-jump-mobile"
               value={quickJump}
               onChange={(event) => setQuickJump(event.target.value)}
-              placeholder={t("admin.header.quickJump", "Quick jump: listings, translations, users...")}
+              placeholder={t("admin.header.quickJump")}
               className="h-8 rounded-full border-border/80 bg-background/80 pl-9 pr-9 text-xs sm:text-sm"
             />
             <datalist id="admin-quick-jump-mobile">
@@ -305,7 +305,7 @@ export function AdminHeader() {
               variant="ghost"
               size="icon"
               className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full"
-              aria-label={t("admin.header.go", "Go")}
+              aria-label={t("admin.header.go")}
             >
               <ArrowRight className="h-3.5 w-3.5" />
             </Button>

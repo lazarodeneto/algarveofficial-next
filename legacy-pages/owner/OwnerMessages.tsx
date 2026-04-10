@@ -40,6 +40,19 @@ export default function OwnerMessages() {
     openedThreadIds.has(thread.id) ? 0 : thread.unread_count;
 
   const unreadCount = threads.reduce((acc, thread) => acc + getDisplayUnreadCount(thread), 0);
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "active":
+        return t("owner.messages.status.active");
+      case "closed":
+        return t("owner.messages.status.closed");
+      case "blocked":
+        return t("owner.messages.status.blocked");
+      default:
+        return status;
+    }
+  };
   
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const filteredThreads = normalizedQuery.length === 0
@@ -209,7 +222,7 @@ export default function OwnerMessages() {
                         selectedThread.status === "closed" && "border-muted text-muted-foreground",
                         selectedThread.status === "blocked" && "border-destructive/30 text-destructive"
                       )}>
-                        {t(`owner.messages.status.${selectedThread.status}`)}
+                        {getStatusLabel(selectedThread.status)}
                       </Badge>
                     </div>
                     {selectedThread.listing && (
@@ -310,7 +323,7 @@ export default function OwnerMessages() {
               
               {selectedThread.status !== "active" && (
                 <div className="p-4 border-t border-border text-center text-muted-foreground text-sm">
-                  {t('owner.messages.conversationStatus', { status: t(`owner.messages.status.${selectedThread.status}`) })}
+                  {t('owner.messages.conversationStatus', { status: getStatusLabel(selectedThread.status) })}
                 </div>
               )}
             </div>

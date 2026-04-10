@@ -199,13 +199,13 @@ export default function PropertiesClient() {
                                     onClear={handleClear}
                                 />
                                 <div className="hidden xl:block mt-6 sm:mt-8 p-5 sm:p-8 bg-black text-white rounded-2xl space-y-4">
-                                    <h4 className="font-serif text-xl italic">{t("realEstate.searchAssistance.title", "Search Assistance")}</h4>
+                                    <h4 className="font-serif text-xl italic">{t("realEstate.searchAssistance.title")}</h4>
                                     <p className="text-sm text-white/70 font-light leading-relaxed">
-                                        {t("realEstate.searchAssistance.description", "Cannot find what you are looking for? Our concierge team has access to off-market properties.")}
+                                        {t("realEstate.searchAssistance.description")}
                                     </p>
                                     <ConciergeContactDialog>
                                         <Button className="w-full bg-primary hover:bg-primary/90 text-black rounded-full text-[11px] sm:text-xs tracking-[0.18em] uppercase py-4 sm:py-6 whitespace-normal">
-                                            {t("realEstate.searchAssistance.cta", "Contact Concierge")}
+                                            {t("realEstate.searchAssistance.cta")}
                                         </Button>
                                     </ConciergeContactDialog>
                                 </div>
@@ -222,9 +222,9 @@ export default function PropertiesClient() {
                             ) : null}
                             <div className="mb-8 sm:mb-10 flex flex-col md:flex-row justify-between items-baseline gap-3 sm:gap-4 border-b border-primary/20 pb-5 sm:pb-6">
                                 <h2 className="text-2xl sm:text-3xl font-serif italic text-foreground">
-                                    {filteredListings?.length || 0} <span className="not-italic font-sans text-sm sm:text-lg text-muted-foreground sm:ml-2 tracking-[0.16em] uppercase">{t("realEstate.propertiesAvailable", "Properties Available")}</span>
+                                    {filteredListings?.length || 0} <span className="not-italic font-sans text-sm sm:text-lg text-muted-foreground sm:ml-2 tracking-[0.16em] uppercase">{t("realEstate.propertiesAvailable")}</span>
                                 </h2>
-                                <div className="text-xs sm:text-sm text-muted-foreground uppercase tracking-[0.16em] font-medium">{t("realEstate.sortedByFeatured", "Sorted by: Featured")}</div>
+                                <div className="text-xs sm:text-sm text-muted-foreground uppercase tracking-[0.16em] font-medium">{t("realEstate.sortedByFeatured")}</div>
                             </div>
                             {isLoading ? (
                                 <div className="flex justify-center py-40">
@@ -250,13 +250,13 @@ export default function PropertiesClient() {
 
                         <div className="xl:hidden xl:col-span-4 2xl:col-span-3">
                             <div className="p-5 sm:p-8 bg-black text-white rounded-2xl space-y-4">
-                                <h4 className="font-serif text-xl italic">{t("realEstate.searchAssistance.title", "Search Assistance")}</h4>
+                                <h4 className="font-serif text-xl italic">{t("realEstate.searchAssistance.title")}</h4>
                                 <p className="text-sm text-white/70 font-light leading-relaxed">
-                                    {t("realEstate.searchAssistance.description", "Cannot find what you are looking for? Our concierge team has access to off-market properties.")}
+                                    {t("realEstate.searchAssistance.description")}
                                 </p>
                                 <ConciergeContactDialog>
                                     <Button className="w-full bg-primary hover:bg-primary/90 text-black rounded-full text-[11px] sm:text-xs tracking-[0.18em] uppercase py-4 sm:py-6 whitespace-normal">
-                                        {t("realEstate.searchAssistance.cta", "Contact Concierge")}
+                                        {t("realEstate.searchAssistance.cta")}
                                     </Button>
                                 </ConciergeContactDialog>
                             </div>

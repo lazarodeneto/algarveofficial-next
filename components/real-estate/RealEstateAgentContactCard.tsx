@@ -85,7 +85,7 @@ export function RealEstateAgentContactCard({
   }, [initialScheduleVisit]);
 
   const resolvedAgentName = useMemo(
-    () => agentName?.trim() || t("listing.contact", "Contact"),
+    () => agentName?.trim() || t("listing.contact"),
     [agentName, t],
   );
 
@@ -93,7 +93,7 @@ export function RealEstateAgentContactCard({
     () => {
       const trimmedRole = agentRole?.trim();
       if (!trimmedRole) {
-        return t("listing.verifiedPartner", "Verified Partner");
+        return t("listing.verifiedPartner");
       }
 
       const translationKey = `listing.agentRoles.${normalizeAgentRoleKey(trimmedRole)}`;
@@ -106,12 +106,12 @@ export function RealEstateAgentContactCard({
     event.preventDefault();
 
     if (!name.trim() || !email.trim() || !message.trim()) {
-      toast.error(t("common.fillRequiredFields", "Please fill in all required fields."));
+      toast.error(t("common.fillRequiredFields"));
       return;
     }
 
     if (!consent) {
-      toast.error(t("listing.form.consent", "Please accept the consent to continue."));
+      toast.error(t("listing.form.consent"));
       return;
     }
 
@@ -120,8 +120,8 @@ export function RealEstateAgentContactCard({
     try {
       const selectedVisitType = scheduleVisit
         ? (visitType === "video-call"
-          ? t("listing.form.videoCall", "Video Call")
-          : t("listing.form.inPerson", "In Person"))
+          ? t("listing.form.videoCall")
+          : t("listing.form.inPerson"))
         : undefined;
 
       const { data, error } = await supabase.functions.invoke("send-enquiry", {
@@ -142,7 +142,7 @@ export function RealEstateAgentContactCard({
 
       const responseData = data as { warnings?: string[] } | null;
 
-      toast.success(t("listing.inquiry.success", "Your enquiry has been sent successfully."));
+      toast.success(t("listing.inquiry.success"));
 
       if (
         responseData?.warnings?.includes("email_delivery_failed") ||
@@ -151,7 +151,6 @@ export function RealEstateAgentContactCard({
         toast.message(
           t(
             "listing.form.emailWarning",
-            "Your message was saved, but email notification failed. The admin can still view it in the inbox.",
           ),
         );
       }
@@ -163,7 +162,6 @@ export function RealEstateAgentContactCard({
         toast.message(
           t(
             "listing.form.inboxWarning",
-            "Your message was received, but admin inbox delivery needs configuration.",
           ),
         );
       }
@@ -179,7 +177,7 @@ export function RealEstateAgentContactCard({
       const isNetworkError = /failed to fetch|failed to send a request/i.test(errorMessage);
       toast.error(
         isNetworkError
-          ? t("listing.inquiry.error", "Failed to send enquiry. Please try again.")
+          ? t("listing.inquiry.error")
           : errorMessage,
       );
     } finally {
@@ -219,25 +217,25 @@ export function RealEstateAgentContactCard({
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor={`agent-name-${listingId}`}>{t("listing.form.name", "Name")}</Label>
+          <Label htmlFor={`agent-name-${listingId}`}>{t("listing.form.name")}</Label>
           <Input
             id={`agent-name-${listingId}`}
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder={t("listing.form.fullName", "Full Name")}
+            placeholder={t("listing.form.fullName")}
             required
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor={`agent-phone-${listingId}`}>{t("listing.form.phone", "Phone")}</Label>
+          <Label htmlFor={`agent-phone-${listingId}`}>{t("listing.form.phone")}</Label>
           <div id={`agent-phone-${listingId}`}>
             <CountryPhoneInput
               countryCode={countryCode}
               onCountryCodeChange={setCountryCode}
               phone={phone}
               onPhoneChange={setPhone}
-              phonePlaceholder={t("listing.form.telephone", "Telephone")}
+              phonePlaceholder={t("listing.form.telephone")}
               className="flex flex-col gap-3 sm:flex-row"
               inputClassName="pl-9"
             />
@@ -245,7 +243,7 @@ export function RealEstateAgentContactCard({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor={`agent-email-${listingId}`}>{t("listing.form.email", "Email")}</Label>
+          <Label htmlFor={`agent-email-${listingId}`}>{t("listing.form.email")}</Label>
           <div className="relative">
             <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -261,12 +259,12 @@ export function RealEstateAgentContactCard({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor={`agent-message-${listingId}`}>{t("listing.form.message", "Message")}</Label>
+          <Label htmlFor={`agent-message-${listingId}`}>{t("listing.form.message")}</Label>
           <Textarea
             id={`agent-message-${listingId}`}
             value={message}
             onChange={(event) => setMessage(event.target.value)}
-            placeholder={t("listing.inquiry.messagePlaceholder", "Tell us about your requirements...")}
+            placeholder={t("listing.inquiry.messagePlaceholder")}
             className="min-h-[110px] resize-none"
             required
           />
@@ -279,7 +277,7 @@ export function RealEstateAgentContactCard({
               className="text-sm font-medium cursor-pointer inline-flex items-center gap-2"
             >
               <CalendarDays className="h-4 w-4 text-primary" />
-              {t("listing.bookVisit", "Book a Visit")}
+              {t("listing.bookVisit")}
             </label>
             <Switch
               id={`schedule-visit-${listingId}`}
@@ -291,11 +289,11 @@ export function RealEstateAgentContactCard({
           {scheduleVisit ? (
             <Select value={visitType} onValueChange={setVisitType}>
               <SelectTrigger>
-                <SelectValue placeholder={t("listing.form.selectVisitType", "Select visit type")} />
+                <SelectValue placeholder={t("listing.form.selectVisitType")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="in-person">{t("listing.form.inPerson", "In Person")}</SelectItem>
-                <SelectItem value="video-call">{t("listing.form.videoCall", "Video Call")}</SelectItem>
+                <SelectItem value="in-person">{t("listing.form.inPerson")}</SelectItem>
+                <SelectItem value="video-call">{t("listing.form.videoCall")}</SelectItem>
               </SelectContent>
             </Select>
           ) : null}
@@ -311,7 +309,6 @@ export function RealEstateAgentContactCard({
           <label htmlFor={`agent-consent-${listingId}`} className="text-xs text-muted-foreground leading-tight cursor-pointer">
             {t(
               "listing.form.consent",
-              "I authorise AlgarveOfficial to store my data to reply to this enquiry.",
             )}
           </label>
         </div>
@@ -320,12 +317,12 @@ export function RealEstateAgentContactCard({
           {isSubmitting ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              {t("listing.inquiry.sending", "Sending...")}
+              {t("listing.inquiry.sending")}
             </>
           ) : (
             <>
               <Send className="h-4 w-4 mr-2" />
-              {t("listing.form.send", "Send")}
+              {t("listing.form.send")}
             </>
           )}
         </Button>

@@ -97,37 +97,37 @@ export default function Contact() {
     const heroTitle = resolveLocalizedContactCopy(
         locale,
         settings?.hero_title,
-        t('contact.title', 'Contact Us'),
+        t('contact.title'),
         ENGLISH_CONTACT_FALLBACKS.heroTitle,
     );
     const heroSubtitle = resolveLocalizedContactCopy(
         locale,
         settings?.hero_subtitle,
-        t('contact.subtitle', 'Have a question or need assistance? Our team is here to help you make the most of your Algarve experience.'),
+        t('contact.subtitle'),
         ENGLISH_CONTACT_FALLBACKS.heroSubtitle,
     );
     const getInTouchTitle = resolveLocalizedContactCopy(
         locale,
         settings?.get_in_touch_title,
-        t('contact.getInTouch', 'Get in Touch'),
+        t('contact.getInTouch'),
         ENGLISH_CONTACT_FALLBACKS.getInTouchTitle,
     );
     const getInTouchDescription = resolveLocalizedContactCopy(
         locale,
         settings?.get_in_touch_description,
-        t('contact.touchDesc', 'Choose your preferred way to reach us. We usually respond within 24 hours.'),
+        t('contact.touchDesc'),
         ENGLISH_CONTACT_FALLBACKS.getInTouchDescription,
     );
     const formTitle = resolveLocalizedContactCopy(
         locale,
         settings?.form_title,
-        t('contact.formTitle', 'Send Us a Message'),
+        t('contact.formTitle'),
         ENGLISH_CONTACT_FALLBACKS.formTitle,
     );
     const formDescription = resolveLocalizedContactCopy(
         locale,
         settings?.form_description,
-        t('contact.formDesc', 'Fill in the form below and we\'ll get back to you as soon as possible.'),
+        t('contact.formDesc'),
         ENGLISH_CONTACT_FALLBACKS.formDescription,
     );
     const displayEmail = normalizePublicContactEmail(settings?.display_email) || PRIMARY_CONTACT_EMAIL;
@@ -199,13 +199,13 @@ export default function Contact() {
                                                 <Mail className="h-5 w-5 sm:w-5 sm:h-5 text-primary" />
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <h4 className="font-semibold text-foreground text-base">{t('contact.email', 'Email')}</h4>
+                                                <h4 className="font-semibold text-foreground text-base">{t('contact.email')}</h4>
                                                 <p className="break-all text-muted-foreground leading-relaxed">{displayEmail}</p>
                                                 <a
                                                     href={`mailto:${displayEmail}`}
                                                     className="mt-1 inline-block break-words text-sm font-medium text-primary hover:underline"
                                                 >
-                                                    {t('contact.sendEmail', 'Send an email')}
+                                                    {t('contact.sendEmail')}
                                                 </a>
                                             </div>
                                         </div>
@@ -216,9 +216,9 @@ export default function Contact() {
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <h4 className="font-semibold text-foreground text-base">WhatsApp</h4>
-                                                <p className="text-muted-foreground leading-relaxed">{t('contact.waDesc', 'Chat with us directly for quick support.')}</p>
+                                                <p className="text-muted-foreground leading-relaxed">{t('contact.waDesc')}</p>
                                                 <a href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block break-words text-sm font-medium text-primary hover:underline">
-                                                    {t('contact.startChat', 'Start a chat')}
+                                                    {t('contact.startChat')}
                                                 </a>
                                             </div>
                                         </div>
@@ -228,7 +228,7 @@ export default function Contact() {
                                                 <MapPin className="h-5 w-5 sm:w-5 sm:h-5 text-primary" />
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <h4 className="font-semibold text-foreground text-base">{t('contact.location', 'Office')}</h4>
+                                                <h4 className="font-semibold text-foreground text-base">{t('contact.location')}</h4>
                                                 <p className="break-words text-muted-foreground leading-relaxed">{settings?.office_location || 'Vilamoura, Algarve, Portugal'}</p>
                                             </div>
                                         </div>
@@ -257,50 +257,50 @@ export default function Contact() {
                                         <form onSubmit={handleSubmit} className="space-y-6 mt-2">
                                             <div className="grid sm:grid-cols-2 gap-6">
                                                 <div className="space-y-2">
-                                                    <Label htmlFor="name">{t('contact.nameLabel', 'Full Name')}</Label>
+                                                    <Label htmlFor="name">{t('contact.nameLabel')}</Label>
                                                     <Input
                                                         id="name"
                                                         name="name"
                                                         value={formData.name}
                                                         onChange={handleChange}
-                                                        placeholder={t('contact.namePlaceholder', 'Your name')}
+                                                        placeholder={t('contact.namePlaceholder')}
                                                         required
                                                     />
                                                 </div>
                                                 <div className="space-y-2">
-                                                    <Label htmlFor="email">{t('contact.emailLabel', 'Email Address')}</Label>
+                                                    <Label htmlFor="email">{t('contact.emailLabel')}</Label>
                                                     <Input
                                                         id="email"
                                                         name="email"
                                                         type="email"
                                                         value={formData.email}
                                                         onChange={handleChange}
-                                                        placeholder={t('contact.emailPlaceholder', 'your@email.com')}
+                                                        placeholder={t('contact.emailPlaceholder')}
                                                         required
                                                     />
                                                 </div>
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="subject">{t('contact.subjectLabel', 'Subject')}</Label>
+                                                <Label htmlFor="subject">{t('contact.subjectLabel')}</Label>
                                                 <Input
                                                     id="subject"
                                                     name="subject"
                                                     value={formData.subject}
                                                     onChange={handleChange}
-                                                    placeholder={t('contact.subjectPlaceholder', 'How can we help?')}
+                                                    placeholder={t('contact.subjectPlaceholder')}
                                                     required
                                                 />
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="message">{t('contact.messageLabel', 'Message')}</Label>
+                                                <Label htmlFor="message">{t('contact.messageLabel')}</Label>
                                                 <Textarea
                                                     id="message"
                                                     name="message"
                                                     value={formData.message}
                                                     onChange={handleChange}
-                                                    placeholder={t('contact.messagePlaceholder', 'Write your message here...')}
+                                                    placeholder={t('contact.messagePlaceholder')}
                                                     rows={6}
                                                     required
                                                 />
@@ -314,12 +314,12 @@ export default function Contact() {
                                                 {contactMutation.isPending ? (
                                                     <>
                                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                        {t('contact.sending', 'Sending...')}
+                                                        {t('contact.sending')}
                                                     </>
                                                 ) : (
                                                     <>
                                                         <Send className="mr-2 h-4 w-4" />
-                                                        {t('contact.send', 'Send Message')}
+                                                        {t('contact.send')}
                                                     </>
                                                 )}
                                             </Button>

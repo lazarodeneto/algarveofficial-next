@@ -42,7 +42,7 @@ export function HeaderNav() {
   const { t } = useTranslation();
 
   const currentPath = stripLocaleFromPathname(pathname || "/");
-  const ariaLabel = t("nav.primaryNavigation", "Primary navigation");
+  const ariaLabel = t("nav.primaryNavigation");
 
   return (
     <nav

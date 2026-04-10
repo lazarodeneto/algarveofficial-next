@@ -118,7 +118,7 @@ export default function OwnerSupport() {
       toast.error(
         isNetworkError
           ? "Unable to reach our server right now. Please try again in a moment."
-          : (errorMessage || t('owner.support.errorMessage', 'Failed to send support message. Please try again.'))
+          : (errorMessage || t('owner.support.errorMessage'))
       );
     } finally {
       setIsSubmitting(false);

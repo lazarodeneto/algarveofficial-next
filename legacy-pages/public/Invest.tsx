@@ -87,26 +87,23 @@ const Invest = () => {
     const strategyTracks = [
         {
             icon: Building2,
-            title: t("invest.strategy.core.title", "Core Capital Preservation"),
+            title: t("invest.strategy.core.title"),
             description: t(
                 "invest.strategy.core.description",
-                "Prime areas with proven demand, low vacancy risk, and durable long-term value retention.",
             ),
         },
         {
             icon: Sparkles,
-            title: t("invest.strategy.hybrid.title", "Hybrid Lifestyle + Yield"),
+            title: t("invest.strategy.hybrid.title"),
             description: t(
                 "invest.strategy.hybrid.description",
-                "Blend owner usage with premium short-stay positioning to maximize flexibility and return potential.",
             ),
         },
         {
             icon: Compass,
-            title: t("invest.strategy.opportunistic.title", "Opportunistic Repositioning"),
+            title: t("invest.strategy.opportunistic.title"),
             description: t(
                 "invest.strategy.opportunistic.description",
-                "Acquire under-optimized assets and unlock performance through design, branding, and operational upgrades.",
             ),
         },
     ];
@@ -114,34 +111,30 @@ const Invest = () => {
     const executionSteps = [
         {
             icon: BarChart3,
-            title: t("invest.steps.underwrite.title", "1. Underwrite"),
+            title: t("invest.steps.underwrite.title"),
             description: t(
                 "invest.steps.underwrite.description",
-                "Define budget, target return band, and risk tolerance before asset screening starts.",
             ),
         },
         {
             icon: ShieldCheck,
-            title: t("invest.steps.validate.title", "2. Validate"),
+            title: t("invest.steps.validate.title"),
             description: t(
                 "invest.steps.validate.description",
-                "Run legal, tax, and structural checks with vetted local advisors before commitment.",
             ),
         },
         {
             icon: Handshake,
-            title: t("invest.steps.acquire.title", "3. Acquire"),
+            title: t("invest.steps.acquire.title"),
             description: t(
                 "invest.steps.acquire.description",
-                "Coordinate negotiation, financing, and completion sequencing to reduce transaction friction.",
             ),
         },
         {
             icon: CalendarClock,
-            title: t("invest.steps.operationalize.title", "4. Operationalize"),
+            title: t("invest.steps.operationalize.title"),
             description: t(
                 "invest.steps.operationalize.description",
-                "Set pricing, guest/service standards, and reporting cadence for post-acquisition performance.",
             ),
         },
     ];
@@ -170,8 +163,8 @@ const Invest = () => {
                                     videoUrl={getText("hero.videoUrl", "")}
                                     youtubeUrl={getText("hero.youtubeUrl", "")}
                                     posterUrl={getText("hero.posterUrl", "")}
-                                    alt={t("invest.hero.alt", "Invest in Algarve real estate")}
-                                    fallback={<PageHeroImage page="invest" alt={t("invest.hero.alt", "Invest in Algarve real estate")} />}
+                                    alt={t("invest.hero.alt")}
+                                    fallback={<PageHeroImage page="invest" alt={t("invest.hero.alt")} />}
                                 />
                             }
                         />
@@ -196,14 +189,14 @@ const Invest = () => {
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
                                             <div className="absolute inset-x-0 bottom-0 p-6 text-white">
                                                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
-                                                    {t("invest.featuredCityHub", "Featured City Hub")}
+                                                    {t("invest.featuredCityHub")}
                                                 </p>
                                                 <h2 className="font-serif text-3xl md:text-4xl leading-tight">
                                                     {featuredCity.name}
                                                 </h2>
                                                 <p className="mt-3 max-w-2xl text-sm text-white/85">
                                                     {featuredCity.short_description ||
-                                                        t("invest.featuredCityHubDescription", "Explore curated investment opportunities in {{name}}, Algarve.", { name: featuredCity.name })}
+                                                        t("invest.featuredCityHubDescription", { name: featuredCity.name })}
                                                 </p>
                                             </div>
                                         </div>
@@ -211,13 +204,13 @@ const Invest = () => {
 
                                     <div className="rounded-[32px] border border-border bg-card p-6 shadow-sm">
                                         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                                            {t("invest.cityIndex", "City Index")}
+                                            {t("invest.cityIndex")}
                                         </p>
                                         <h2 className="mt-3 font-serif text-2xl text-foreground">
-                                            {t("invest.exploreAlgarveCities", "Explore Algarve Cities")}
+                                            {t("invest.exploreAlgarveCities")}
                                         </h2>
                                         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                                            {t("invest.cityIndexDescription", "Browse investment zones, market data, and property guides by city.")}
+                                            {t("invest.cityIndexDescription")}
                                         </p>
                                         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
                                             {cities.slice(0, 6).map((city) => (
@@ -238,9 +231,9 @@ const Invest = () => {
                             <div>
                                 <div className="mb-4 flex items-center justify-between gap-4">
                                     <div>
-                                        <h2 className="font-serif text-2xl text-foreground">{t("invest.allActiveCityHubs", "All Active City Hubs")}</h2>
+                                        <h2 className="font-serif text-2xl text-foreground">{t("invest.allActiveCityHubs")}</h2>
                                         <p className="mt-1 text-sm text-muted-foreground">
-                                            {t("invest.allActiveCityHubsDescription", "Discover every investment zone across the Algarve.")}
+                                            {t("invest.allActiveCityHubsDescription")}
                                         </p>
                                     </div>
                                 </div>
@@ -266,7 +259,7 @@ const Invest = () => {
                                                     </h3>
                                                     <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
                                                         {city.short_description ||
-                                                            t("invest.cityFallbackDescription", "Premium investment opportunities and lifestyle infrastructure.")}
+                                                            t("invest.cityFallbackDescription")}
                                                     </p>
                                                 </div>
                                             </article>
@@ -283,39 +276,38 @@ const Invest = () => {
                     <div className="grid gap-10 lg:gap-14">
                         <div className="text-center max-w-4xl mx-auto">
                             <Badge variant="gold" className="uppercase tracking-[0.2em] text-[11px] px-4 py-1.5">
-                                {t("invest.intelligence.label", "Investment Intelligence")}
+                                {t("invest.intelligence.label")}
                             </Badge>
                             <h2 className="text-3xl font-serif font-semibold mt-4 mb-6">
-                                {t("invest.intelligence.title", "Strategic Investment in Southern Portugal")}
+                                {t("invest.intelligence.title")}
                             </h2>
                             <p className="text-muted-foreground text-lg leading-relaxed">
                                 {t(
                                     "invest.intelligence.description",
-                                    "The Algarve combines stable international demand, premium lifestyle infrastructure, and constrained top-tier supply. This creates a strong base for both wealth preservation and yield-focused strategies.",
                                 )}
                             </p>
                         </div>
 
                         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <article className="rounded-2xl border border-border bg-card p-5 space-y-2">
-                                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("invest.kpi.supply.label", "Premium Supply")}</p>
+                                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("invest.kpi.supply.label")}</p>
                                 <p className="text-2xl font-semibold text-foreground">Limited</p>
-                                <p className="text-sm text-muted-foreground">{t("invest.kpi.supply.description", "Constrained coastal inventory in prime zones.")}</p>
+                                <p className="text-sm text-muted-foreground">{t("invest.kpi.supply.description")}</p>
                             </article>
                             <article className="rounded-2xl border border-border bg-card p-5 space-y-2">
-                                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("invest.kpi.demand.label", "International Demand")}</p>
+                                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("invest.kpi.demand.label")}</p>
                                 <p className="text-2xl font-semibold text-foreground">Year-Round</p>
-                                <p className="text-sm text-muted-foreground">{t("invest.kpi.demand.description", "Leisure, relocation, and second-home buyer depth.")}</p>
+                                <p className="text-sm text-muted-foreground">{t("invest.kpi.demand.description")}</p>
                             </article>
                             <article className="rounded-2xl border border-border bg-card p-5 space-y-2">
-                                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("invest.kpi.access.label", "Air Connectivity")}</p>
+                                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("invest.kpi.access.label")}</p>
                                 <p className="text-2xl font-semibold text-foreground">Strong</p>
-                                <p className="text-sm text-muted-foreground">{t("invest.kpi.access.description", "Direct routes supporting occupancy continuity.")}</p>
+                                <p className="text-sm text-muted-foreground">{t("invest.kpi.access.description")}</p>
                             </article>
                             <article className="rounded-2xl border border-border bg-card p-5 space-y-2">
-                                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("invest.kpi.execution.label", "Execution Model")}</p>
+                                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("invest.kpi.execution.label")}</p>
                                 <p className="text-2xl font-semibold text-foreground">Guided</p>
-                                <p className="text-sm text-muted-foreground">{t("invest.kpi.execution.description", "Advisory-led process from screening to operation.")}</p>
+                                <p className="text-sm text-muted-foreground">{t("invest.kpi.execution.description")}</p>
                             </article>
                         </div>
 
@@ -332,12 +324,11 @@ const Invest = () => {
                         <div className="rounded-2xl border border-border bg-card p-5 sm:p-7 lg:p-8">
                             <div className="mb-6">
                                 <h3 className="text-2xl font-serif font-semibold">
-                                    {t("invest.planner.title", "Return Planning Snapshot")}
+                                    {t("invest.planner.title")}
                                 </h3>
                                 <p className="text-muted-foreground mt-2">
                                     {t(
                                         "invest.planner.subtitle",
-                                        "Quick scenario model for planning discussions. Final outcomes depend on asset, financing, taxes, and operations.",
                                     )}
                                 </p>
                             </div>
@@ -345,7 +336,7 @@ const Invest = () => {
                             <div className="grid gap-5 lg:grid-cols-2">
                                 <div className="space-y-5">
                                     <div className="space-y-2">
-                                        <Label htmlFor="purchasePrice">{t("invest.planner.purchasePrice", "Purchase Price")}</Label>
+                                        <Label htmlFor="purchasePrice">{t("invest.planner.purchasePrice")}</Label>
                                         <Input
                                             id="purchasePrice"
                                             type="number"
@@ -358,14 +349,14 @@ const Invest = () => {
 
                                     <div className="space-y-2">
                                         <div className="flex items-center justify-between">
-                                            <Label>{t("invest.planner.occupancy", "Occupancy Rate")}</Label>
+                                            <Label>{t("invest.planner.occupancy")}</Label>
                                             <span className="text-sm text-muted-foreground">{occupancyRate}%</span>
                                         </div>
                                         <Slider value={[occupancyRate]} min={30} max={90} step={1} onValueChange={(value) => setOccupancyRate(value[0] ?? 0)} />
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="nightlyRate">{t("invest.planner.nightlyRate", "Average Nightly Rate")}</Label>
+                                        <Label htmlFor="nightlyRate">{t("invest.planner.nightlyRate")}</Label>
                                         <Input
                                             id="nightlyRate"
                                             type="number"
@@ -378,8 +369,8 @@ const Invest = () => {
 
                                     <div className="space-y-2">
                                         <div className="flex items-center justify-between">
-                                            <Label>{t("invest.planner.holdPeriod", "Hold Period")}</Label>
-                                            <span className="text-sm text-muted-foreground">{holdYears} {t("invest.planner.years", "years")}</span>
+                                            <Label>{t("invest.planner.holdPeriod")}</Label>
+                                            <span className="text-sm text-muted-foreground">{holdYears} {t("invest.planner.years")}</span>
                                         </div>
                                         <Slider value={[holdYears]} min={3} max={15} step={1} onValueChange={(value) => setHoldYears(value[0] ?? 3)} />
                                     </div>
@@ -387,31 +378,31 @@ const Invest = () => {
 
                                 <div className="grid sm:grid-cols-2 gap-4 h-fit">
                                     <article className="rounded-xl border border-border bg-background p-4 space-y-1">
-                                        <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{t("invest.planner.grossIncome", "Gross Annual Income")}</p>
+                                        <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{t("invest.planner.grossIncome")}</p>
                                         <p className="text-lg font-semibold">{formatEuro(projection.grossAnnualIncome)}</p>
                                     </article>
                                     <article className="rounded-xl border border-border bg-background p-4 space-y-1">
-                                        <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{t("invest.planner.netIncome", "Net Annual Income")}</p>
+                                        <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{t("invest.planner.netIncome")}</p>
                                         <p className="text-lg font-semibold">{formatEuro(projection.netAnnualIncome)}</p>
                                     </article>
                                     <article className="rounded-xl border border-border bg-background p-4 space-y-1">
-                                        <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{t("invest.planner.grossYield", "Gross Yield")}</p>
+                                        <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{t("invest.planner.grossYield")}</p>
                                         <p className="text-lg font-semibold">{projection.grossYield.toFixed(1)}%</p>
                                     </article>
                                     <article className="rounded-xl border border-border bg-background p-4 space-y-1">
-                                        <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{t("invest.planner.netYield", "Net Yield")}</p>
+                                        <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{t("invest.planner.netYield")}</p>
                                         <p className="text-lg font-semibold">{projection.netYield.toFixed(1)}%</p>
                                     </article>
                                     <article className="rounded-xl border border-border bg-background p-4 space-y-1 sm:col-span-2">
-                                        <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{t("invest.planner.holdIncome", "Projected Net Income Over Hold Period")}</p>
+                                        <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{t("invest.planner.holdIncome")}</p>
                                         <p className="text-lg font-semibold">{formatEuro(projection.holdingIncome)}</p>
                                     </article>
                                     <article className="rounded-xl border border-border bg-background p-4 space-y-1">
-                                        <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{t("invest.planner.acquisitionCosts", "Est. Acquisition Costs")}</p>
+                                        <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{t("invest.planner.acquisitionCosts")}</p>
                                         <p className="text-lg font-semibold">{formatEuro(projection.acquisitionCosts)}</p>
                                     </article>
                                     <article className="rounded-xl border border-border bg-background p-4 space-y-1">
-                                        <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{t("invest.planner.managementCosts", "Est. Annual Management")}</p>
+                                        <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{t("invest.planner.managementCosts")}</p>
                                         <p className="text-lg font-semibold">{formatEuro(projection.managementCosts)}</p>
                                     </article>
                                 </div>
@@ -420,7 +411,7 @@ const Invest = () => {
 
                         <div>
                             <h2 className="text-3xl font-serif font-semibold mb-6 text-center">
-                                {t("invest.execution.title", "Execution Playbook")}
+                                {t("invest.execution.title")}
                             </h2>
                             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                                 {executionSteps.map((step) => (
@@ -435,25 +426,24 @@ const Invest = () => {
 
                         <div className="rounded-2xl border border-border bg-card p-6 md:p-8 text-center">
                             <h2 className="text-3xl font-serif font-semibold mb-3">
-                                {t("invest.cta.title", "Build Your Algarve Investment Brief")}
+                                {t("invest.cta.title")}
                             </h2>
                             <p className="text-muted-foreground max-w-3xl mx-auto">
                                 {t(
                                     "invest.cta.description",
-                                    "Share your budget band, target return, usage profile, and timeline. We will map a tailored acquisition strategy and a practical execution path.",
                                 )}
                             </p>
                             <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
                                 <Link href={l("/contact")}>
                                     <Button variant="gold" size="lg">
                                         <BadgeEuro className="h-4 w-4" />
-                                        {t("invest.cta.primary", "Request Investment Brief")}
+                                        {t("invest.cta.primary")}
                                     </Button>
                                 </Link>
                                 <Link href={l("/stay?category=algarve-services")}>
                                     <Button variant="outline" size="lg">
                                         <CheckCircle2 className="h-4 w-4" />
-                                        {t("invest.cta.secondary", "Browse Algarve Services")}
+                                        {t("invest.cta.secondary")}
                                         <ArrowRight className="h-4 w-4 ml-1" />
                                     </Button>
                                 </Link>

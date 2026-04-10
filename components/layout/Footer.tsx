@@ -274,7 +274,7 @@ export default function Footer() {
           onClick={openCookiePreferences}
           className="mt-3 text-body-sm text-left text-muted-foreground transition-colors hover:text-primary"
         >
-          {t("footer.cookieSettings", "Cookie Settings")}
+          {t("footer.cookieSettings")}
         </button>
       ) : null}
     </div>
@@ -315,14 +315,14 @@ export default function Footer() {
 
             <div className="mt-5 rounded-xl border border-border/70 bg-card/70 p-4">
               <p className="text-body-sm font-semibold text-foreground">
-                {t("newsletter.footerTitle", "Get Algarve news and updates")}
+                {t("newsletter.footerTitle")}
               </p>
               <p className="mt-1 text-body-xs text-muted-foreground">
-                {t("newsletter.footerSubtitle", "Curated local news, events, openings, and highlights from across the Algarve.")}
+                {t("newsletter.footerSubtitle")}
               </p>
               <form onSubmit={handleNewsletterSubmit} className="mt-3 flex gap-2">
                 <Label htmlFor="footer-newsletter-email" className="sr-only">
-                  {t("newsletter.placeholder", "Email address")}
+                  {t("newsletter.placeholder")}
                 </Label>
                 <Input
                   id="footer-newsletter-email"
@@ -341,7 +341,7 @@ export default function Footer() {
                   className="h-10 px-4 whitespace-nowrap"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? t("newsletter.subscribing") : t("newsletter.footerCta", "Subscribe")}
+                  {isSubmitting ? t("newsletter.subscribing") : t("newsletter.footerCta")}
                 </Button>
               </form>
             </div>

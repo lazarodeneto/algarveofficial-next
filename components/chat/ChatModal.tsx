@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X, MessageCircle, ArrowLeft } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChatThreads } from "@/hooks/useChat";
@@ -36,6 +37,7 @@ function ChatModalPanel({
   initialOwnerId,
   initialListingName,
 }: ChatModalPanelProps) {
+  const { t } = useTranslation();
   const [activeThreadId, setActiveThreadId] = useState<string | null>(initialThreadId);
   const [showConversation, setShowConversation] = useState(
     () => Boolean(initialThreadId || initialListingId),
@@ -81,15 +83,15 @@ function ChatModalPanel({
               size="icon"
               onClick={handleBack}
               className="lg:hidden"
-              aria-label="Back to conversations"
+              aria-label={t("chat.backToConversations")}
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
           )}
           <MessageCircle className="h-5 w-5 text-primary" />
-          <h2 id="chat-modal-title" className="font-serif font-medium text-lg">Messages</h2>
+          <h2 id="chat-modal-title" className="font-serif font-medium text-lg">{t("nav.messages")}</h2>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close messages dialog">
+        <Button variant="ghost" size="icon" onClick={onClose} aria-label={t("chat.closeMessagesDialog")}>
           <X className="h-5 w-5" />
         </Button>
       </div>

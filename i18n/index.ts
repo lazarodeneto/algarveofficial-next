@@ -97,7 +97,7 @@ i18n
       Object.entries(bundled).map(([code, data]) => [code, { translation: data }])
     ),
     lng: initialLang,
-    fallbackLng: "en",
+    fallbackLng: false,
     supportedLngs: SUPPORTED_LANGS,
     load: "currentOnly",
     lowerCaseLng: true,

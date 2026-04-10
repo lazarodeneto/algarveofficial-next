@@ -122,7 +122,7 @@ export function HeroTrustSignals({
         rating: preferred.rating,
         comment: preferred.comment.trim(),
         authorName: profileMap.get(preferred.user_id) ?? null,
-        listingName: listingIdToName.get(preferred.listing_id) || t("hero.trust.defaultVenue", "AlgarveOfficial selection"),
+        listingName: listingIdToName.get(preferred.listing_id) || t("hero.trust.defaultVenue"),
       };
     },
     staleTime: 1000 * 60 * 5,
@@ -180,19 +180,19 @@ export function HeroTrustSignals({
     : [
         {
           key: "fallback-stay",
-          clean: t("hero.trust.fallbackWordmarkStay", "Premium stays"),
+          clean: t("hero.trust.fallbackWordmarkStay"),
         },
         {
           key: "fallback-dining",
-          clean: t("hero.trust.fallbackWordmarkDining", "Fine dining"),
+          clean: t("hero.trust.fallbackWordmarkDining"),
         },
         {
           key: "fallback-golf",
-          clean: t("hero.trust.fallbackWordmarkGolf", "Golf"),
+          clean: t("hero.trust.fallbackWordmarkGolf"),
         },
         {
           key: "fallback-living",
-          clean: t("hero.trust.fallbackWordmarkLiving", "Lifestyle"),
+          clean: t("hero.trust.fallbackWordmarkLiving"),
         },
       ];
 
@@ -202,7 +202,7 @@ export function HeroTrustSignals({
         key: "coverage",
         icon: ShieldCheck,
         value: totalListings > 0 ? formatCompactCount(totalListings) : "1K+",
-        label: t("hero.trust.coverageLabel", "selected listings"),
+        label: t("hero.trust.coverageLabel"),
       },
       {
         key: "signature",
@@ -212,14 +212,14 @@ export function HeroTrustSignals({
             ? formatCompactCount(signatureListings)
             : curatedListings.length > 0
               ? formatCompactCount(curatedListings.length)
-              : t("hero.trust.signatureFallbackValue", "selected"),
-        label: t("hero.trust.signatureLabel", "signature venues"),
+              : t("hero.trust.signatureFallbackValue"),
+        label: t("hero.trust.signatureLabel"),
       },
       {
         key: "partners",
         icon: Building2,
         value: venueWordmarks.length > 0 ? String(venueWordmarks.length) : "4",
-        label: t("hero.trust.partnersLabel", "featured partners"),
+        label: t("hero.trust.partnersLabel"),
       },
     ],
     [curatedListings.length, signatureListings, t, totalListings, venueWordmarks.length],
@@ -250,7 +250,7 @@ export function HeroTrustSignals({
                 isSurface ? "text-primary" : "text-[var(--colour-card-outline-gold)]",
               )}
             >
-              {t("hero.trust.eyebrow", "Trust Proof")}
+              {t("hero.trust.eyebrow")}
             </p>
             <h2
               className={cn(
@@ -258,7 +258,7 @@ export function HeroTrustSignals({
                 isSurface ? "text-foreground" : "text-white",
               )}
             >
-              {t("hero.trust.title", "Proof that the shortlist is worth your time")}
+              {t("hero.trust.title")}
             </h2>
             <p
               className={cn(
@@ -268,7 +268,6 @@ export function HeroTrustSignals({
             >
               {t(
                 "hero.trust.subtitle",
-                "Visible social proof from real listings, real review volume, and curated venue names right at the point of first impression.",
               )}
             </p>
           </div>
@@ -360,7 +359,7 @@ export function HeroTrustSignals({
         >
           <Quote className="h-4 w-4" />
           <p className="text-[10px] font-semibold uppercase tracking-[0.24em] sm:text-[11px]">
-            {t("hero.trust.reviewEyebrow", "Visitor Review")}
+            {t("hero.trust.reviewEyebrow")}
           </p>
         </div>
         {featuredReview ? (
@@ -385,11 +384,11 @@ export function HeroTrustSignals({
                   isSurface ? "text-muted-foreground" : "text-white/60",
                 )}
               >
-                {t("hero.trust.approvedReview", "Approved review")}
+                {t("hero.trust.approvedReview")}
               </span>
             </div>
             <p className={cn("mt-4 text-sm font-semibold", isSurface ? "text-foreground" : "text-white")}>
-              {featuredReview.authorName || t("hero.trust.anonymousVisitor", "Verified visitor")}
+              {featuredReview.authorName || t("hero.trust.anonymousVisitor")}
             </p>
             <p className={cn("mt-1 text-sm", isSurface ? "text-muted-foreground" : "text-white/65")}>
               {featuredReview.listingName}
@@ -405,11 +404,10 @@ export function HeroTrustSignals({
             >
               {t(
                 "hero.trust.fallbackQuote",
-                "A sharper first impression comes from visible proof: real ratings, real venues, and a selection that already feels trusted before the first click.",
               )}
             </blockquote>
             <p className={cn("mt-4 text-sm", isSurface ? "text-muted-foreground" : "text-white/65")}>
-              {t("hero.trust.fallbackSource", "Curated across signature stays, dining, golf, and lifestyle partners")}
+              {t("hero.trust.fallbackSource")}
             </p>
           </>
         )}

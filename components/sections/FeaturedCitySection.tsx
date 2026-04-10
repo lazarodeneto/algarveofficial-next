@@ -87,8 +87,8 @@ export function FeaturedCitySection() {
             <div className="absolute inset-x-0 bottom-0 p-6 text-white">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
                 {selection === "tier-driven"
-                  ? t("sections.cities.tierDrivenCity", "Tier Driven City")
-                  : t("sections.cities.featuredCity", "Featured City")}
+                  ? t("sections.cities.tierDrivenCity")
+                  : t("sections.cities.featuredCity")}
               </p>
               <h2 className="mt-2 font-serif text-3xl leading-tight md:text-4xl">
                 {selectedCity.name}
@@ -109,7 +109,7 @@ export function FeaturedCitySection() {
                 }
               >
                 <MapPin className="h-4 w-4" />
-                {t("sections.cities.exploreCity", "Explore City")}
+                {t("sections.cities.exploreCity")}
               </Link>
             </div>
           </div>

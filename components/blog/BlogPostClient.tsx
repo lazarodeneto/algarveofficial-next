@@ -132,7 +132,7 @@ function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClient
 
     if (platform === "copy") {
       void navigator.clipboard.writeText(url);
-      toast.success(t("blog.linkCopied", "Link copied to clipboard"));
+      toast.success(t("blog.linkCopied"));
       return;
     }
 
@@ -155,7 +155,7 @@ function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClient
         <Button variant="ghost" size="sm" asChild className="rounded-full">
           <Link href={l("/blog")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            {t("blog.backToBlog", "Back to Blog")}
+            {t("blog.backToBlog")}
           </Link>
         </Button>
       </div>
@@ -163,14 +163,14 @@ function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClient
       <div className="flex flex-col gap-4 rounded-3xl border border-border bg-card p-6 sm:flex-row sm:items-center sm:justify-between">
         <span className="flex items-center gap-2 text-sm text-muted-foreground">
           <Share2 className="h-4 w-4" />
-          {t("blog.shareArticle", "Share this article")}
+          {t("blog.shareArticle")}
         </span>
         <div className="flex flex-wrap gap-2">
           <Button
             variant="outline"
             size="icon"
             onClick={() => handleShare("facebook")}
-            aria-label={t("blog.shareFacebook", "Share on Facebook")}
+            aria-label={t("blog.shareFacebook")}
           >
             <Facebook className="h-4 w-4" />
           </Button>
@@ -178,7 +178,7 @@ function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClient
             variant="outline"
             size="icon"
             onClick={() => handleShare("twitter")}
-            aria-label={t("blog.shareTwitter", "Share on X")}
+            aria-label={t("blog.shareTwitter")}
           >
             <Twitter className="h-4 w-4" />
           </Button>
@@ -186,7 +186,7 @@ function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClient
             variant="outline"
             size="icon"
             onClick={() => handleShare("linkedin")}
-            aria-label={t("blog.shareLinkedIn", "Share on LinkedIn")}
+            aria-label={t("blog.shareLinkedIn")}
           >
             <Linkedin className="h-4 w-4" />
           </Button>
@@ -194,7 +194,7 @@ function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClient
             variant="outline"
             size="icon"
             onClick={() => handleShare("copy")}
-            aria-label={t("blog.copyLink", "Copy article link")}
+            aria-label={t("blog.copyLink")}
           >
             <LinkIcon className="h-4 w-4" />
           </Button>

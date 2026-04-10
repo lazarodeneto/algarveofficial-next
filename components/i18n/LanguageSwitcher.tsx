@@ -24,7 +24,7 @@ export function LanguageSwitcher({
   const currentLocale = useCurrentLocale();
   const { switchLocale } = useLocaleRouter();
   const [isPending, startTransition] = useTransition();
-  const languageLabel = t("common.language", "Language");
+  const languageLabel = t("common.language");
   const switcherId = useId();
   const resolvedLocaleSwitchPaths = localeSwitchPaths ?? localePathByLocale;
   const switchPathsByLocale = resolvedLocaleSwitchPaths as

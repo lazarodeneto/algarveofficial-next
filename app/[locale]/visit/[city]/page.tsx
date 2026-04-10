@@ -156,6 +156,7 @@ export default async function VisitCityPage({ params }: PageProps) {
     "nav.visit",
     "common.avgRating",
     "common.curated",
+    "common.fromPrice",
     "common.signature",
     "common.verified",
   ]);

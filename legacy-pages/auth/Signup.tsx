@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -9,9 +11,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Eye, EyeOff, ArrowLeft, Mail, Lock, User, CheckCircle, Globe } from 'lucide-react';
 import { m } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useLocalePath } from '@/hooks/useLocalePath';
 
 export default function Signup() {
+  const { t } = useTranslation();
   const { signup, loginWithGoogle, isLoading, isAuthenticated, user, getDashboardPath } = useAuth();
   const router = useRouter();
   const l = useLocalePath();
@@ -54,17 +58,17 @@ export default function Signup() {
     setSuccessMessage('');
     
     if (!firstName || !lastName || !email || !password) {
-      setError('Please fill in all fields');
+      setError(t('common.fillRequiredFields'));
       return;
     }
     
     if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError(t('auth.passwordTooShort'));
       return;
     }
     
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('auth.passwordsDoNotMatch'));
       return;
     }
     
@@ -89,38 +93,37 @@ export default function Signup() {
         <div className="relative z-10 flex flex-col justify-between p-12 w-full">
           <Link href={l("/")} className="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
             <ArrowLeft className="h-5 w-5" />
-            <span className="font-sans">Back to home</span>
+            <span className="font-sans">{t('auth.backToHome')}</span>
           </Link>
           
           <div className="space-y-6">
             <h1 className="font-serif text-hero font-medium text-foreground leading-tight">
-              Join<br />
+              {t('auth.join')}<br />
               <span className="text-gradient-gold">AlgarveOfficial</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-md">
-              Create your account to unlock exclusive access to premium experiences, 
-              save your favorite destinations, and receive personalized recommendations.
+              {t('auth.signUpHeroSubtitle')}
             </p>
           </div>
           
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-foreground">Member Benefits</h3>
+            <h3 className="text-sm font-medium text-foreground">{t('auth.memberBenefits')}</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                Save and organize your favorite listings
+                {t('auth.benefit1')}
               </li>
               <li className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                Contact businesses directly
+                {t('auth.benefit2')}
               </li>
               <li className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                Personalized destination recommendations
+                {t('auth.benefit3')}
               </li>
               <li className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                Early access to signature experiences
+                {t('auth.benefit4')}
               </li>
             </ul>
           </div>
@@ -141,7 +144,7 @@ export default function Signup() {
             className="lg:hidden flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>Back to home</span>
+            <span>{t('auth.backToHome')}</span>
           </Link>
 
           <Card className="luxury-card border-border/50">
@@ -149,9 +152,9 @@ export default function Signup() {
               <div className="lg:hidden mb-4">
                 <h1 className="font-serif text-2xl text-gradient-gold">AlgarveOfficial</h1>
               </div>
-              <CardTitle className="font-serif text-2xl">Create account</CardTitle>
+              <CardTitle className="font-serif text-2xl">{t('auth.createAccount')}</CardTitle>
               <CardDescription className="text-muted-foreground">
-                Enter your details to get started
+                {t('auth.signUpSubtitle')}
               </CardDescription>
             </CardHeader>
             
@@ -172,13 +175,13 @@ export default function Signup() {
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="firstName" className="text-foreground">First name</Label>
+                    <Label htmlFor="firstName" className="text-foreground">{t('auth.firstName')}</Label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="firstName"
                         type="text"
-                        placeholder="John"
+                        placeholder={t('auth.firstNamePlaceholder')}
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         className="pl-10 bg-background border-border focus:border-primary"
@@ -188,11 +191,11 @@ export default function Signup() {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="lastName" className="text-foreground">Last name</Label>
+                    <Label htmlFor="lastName" className="text-foreground">{t('auth.lastName')}</Label>
                     <Input
                       id="lastName"
                       type="text"
-                      placeholder="Doe"
+                      placeholder={t('auth.lastNamePlaceholder')}
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       className="bg-background border-border focus:border-primary"
@@ -202,13 +205,13 @@ export default function Signup() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-foreground">Email</Label>
+                  <Label htmlFor="email" className="text-foreground">{t('auth.email')}</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="email"
                       type="email"
-                      placeholder="you@example.com"
+                      placeholder={t('auth.emailPlaceholder')}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="pl-10 bg-background border-border focus:border-primary"
@@ -218,7 +221,7 @@ export default function Signup() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-foreground">Password</Label>
+                  <Label htmlFor="password" className="text-foreground">{t('auth.password')}</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -238,11 +241,11 @@ export default function Signup() {
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                  <p className="text-xs text-muted-foreground">Minimum 6 characters</p>
+                  <p className="text-xs text-muted-foreground">{t('auth.passwordReq1')}</p>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-foreground">Confirm password</Label>
+                  <Label htmlFor="confirmPassword" className="text-foreground">{t('auth.confirmPassword')}</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -267,10 +270,10 @@ export default function Signup() {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating account...
+                      {t('auth.signingUp')}
                     </>
                   ) : (
-                    'Create account'
+                    t('auth.createAccount')
                   )}
                 </Button>
 
@@ -279,7 +282,7 @@ export default function Signup() {
                     <span className="w-full border-t border-border" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+                    <span className="bg-card px-2 text-muted-foreground">{t('auth.orContinueWith')}</span>
                   </div>
                 </div>
 
@@ -295,13 +298,13 @@ export default function Signup() {
                   ) : (
                     <Globe className="mr-2 h-4 w-4" />
                   )}
-                  Sign up with Google
+                  {t('auth.continueWithGoogle')}
                 </Button>
                 
                 <p className="text-sm text-center text-muted-foreground">
-                  Already have an account?{' '}
+                  {t('auth.haveAccount')}{' '}
                   <Link href={l("/login")} className="text-primary hover:underline font-medium">
-                    Sign in
+                    {t('auth.signIn')}
                   </Link>
                 </p>
               </CardFooter>

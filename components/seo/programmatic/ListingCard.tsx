@@ -18,9 +18,20 @@ interface ListingCardProps {
 export function ListingCard({ listing, tx }: ListingCardProps) {
   const tierBadge =
     listing.tier === "signature"
-      ? (tx["common.signature"] ?? "Signature")
+      ? tx["common.signature"]
       : listing.tier === "verified"
-        ? (tx["common.verified"] ?? "Verified")
+        ? tx["common.verified"]
+        : null;
+  const curatedLabel = tx["common.curated"];
+  const fromPriceLabel = tx["common.fromPrice"];
+  const formattedFromPrice =
+    listing.price_from && fromPriceLabel
+      ? fromPriceLabel.replace(
+          "{{price}}",
+          `${listing.price_currency ?? "€"}${listing.price_from}`,
+        )
+      : listing.price_from
+        ? `${listing.price_currency ?? "€"}${listing.price_from}`
         : null;
 
   return (
@@ -52,7 +63,7 @@ export function ListingCard({ listing, tx }: ListingCardProps) {
         )}
         {listing.is_curated && (
           <span className="absolute top-2 left-2 rounded-full bg-primary/90 px-2.5 py-0.5 text-[11px] font-semibold text-white">
-            {tx["common.curated"] ?? "Curated"}
+            {curatedLabel}
           </span>
         )}
       </div>
@@ -78,9 +89,9 @@ export function ListingCard({ listing, tx }: ListingCardProps) {
           ) : (
             <span />
           )}
-          {listing.price_from && (
+          {formattedFromPrice && (
             <span className="text-xs text-muted-foreground">
-              From {listing.price_currency ?? "€"}{listing.price_from}
+              {formattedFromPrice}
             </span>
           )}
         </div>

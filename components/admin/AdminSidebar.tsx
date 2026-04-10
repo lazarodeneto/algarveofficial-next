@@ -83,7 +83,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
       badgeTone: "destructive",
     },
     {
-      label: t("admin.sidebar.reviewModeration", "Review Moderation"),
+      label: t("admin.sidebar.reviewModeration"),
       href: "/admin/reviews",
       icon: Star,
       badge: pendingListingReviewsCount > 0 ? pendingListingReviewsCount : undefined,
@@ -106,7 +106,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
   ];
 
   const contentChildren: SidebarNavItem[] = [
-    { label: t("admin.sidebar.pageBuilder", "Full Page Builder"), href: "/admin/content/page-builder", icon: Layers },
+    { label: t("admin.sidebar.pageBuilder"), href: "/admin/content/page-builder", icon: Layers },
     { label: t("admin.sidebar.homePage"), href: "/admin/content/home", icon: Home },
     { label: t("admin.sidebar.partnerPage"), href: "/admin/content/partner", icon: Users },
     { label: t("admin.sidebar.supportPage"), href: "/admin/content/support", icon: HelpCircle },
@@ -126,14 +126,14 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
     { label: t("admin.sidebar.categories"), href: "/admin/content/categories", icon: Tags },
     { label: t("admin.sidebar.mediaLibrary"), href: "/admin/content/media", icon: Image },
     {
-      label: t("admin.sidebar.translations", "Translations"),
+      label: t("admin.sidebar.translations"),
       href: "/admin/content/translations",
       icon: Languages,
       badge: translationQueueCount > 0 ? translationQueueCount : undefined,
       badgeTone: "destructive" as const,
     },
     { label: t("admin.sidebar.headerMenu"), href: "/admin/content/header", icon: Menu },
-    { label: t("admin.sidebar.leftMenu", "Left Menu"), href: "/admin/content/left-menu", icon: PanelLeft },
+    { label: t("admin.sidebar.leftMenu"), href: "/admin/content/left-menu", icon: PanelLeft },
     { label: t("admin.sidebar.footerMenu"), href: "/admin/content/footer", icon: Footprints },
     { label: t("admin.sidebar.termsOfService"), href: "/admin/content/terms", icon: FileText },
     { label: t("admin.sidebar.privacyPolicy"), href: "/admin/content/privacy", icon: FileText },
@@ -162,7 +162,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
       badge: unreadMessagesCount > 0 ? unreadMessagesCount : undefined,
       badgeTone: "destructive",
     },
-    { label: t("admin.sidebar.ownerCrm", "Owner CRM"), href: "/admin/crm", icon: Users },
+    { label: t("admin.sidebar.ownerCrm"), href: "/admin/crm", icon: Users },
     { label: t("admin.sidebar.subscriptions"), href: "/admin/subscriptions", icon: CreditCard },
     {
       label: t("admin.sidebar.partnerRequests"),
@@ -182,7 +182,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
       badgeTone: "destructive",
     },
     {
-      label: t("admin.sidebar.reviewModeration", "Review Moderation"),
+      label: t("admin.sidebar.reviewModeration"),
       href: "/admin/reviews",
       icon: Star,
       badge: pendingListingReviewsCount > 0 ? pendingListingReviewsCount : undefined,
@@ -200,19 +200,19 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
   ];
 
   const sections: SidebarNavSection[] = [
-    { id: "admin-main", title: t("admin.sidebar.workspace", "Workspace"), items: mainItems },
+    { id: "admin-main", title: t("admin.sidebar.workspace"), items: mainItems },
     {
       id: "admin-action-center",
-      title: t("admin.sidebar.actionCenter", "Action Center"),
+      title: t("admin.sidebar.actionCenter"),
       items: actionCenterItems,
     },
     {
       id: "admin-hubs",
-      title: t("admin.sidebar.hubs", "Hubs"),
+      title: t("admin.sidebar.hubs"),
       items: [
         {
           id: "owner-ops",
-          label: t("admin.sidebar.ownerOps", "Owners"),
+          label: t("admin.sidebar.ownerOps"),
           href: "/admin/crm",
           icon: Users,
           badge: unreadMessagesCount + pendingClaimsCount > 0 ? unreadMessagesCount + pendingClaimsCount : undefined,
@@ -221,7 +221,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
         },
         {
           id: "listing-ops",
-          label: t("admin.sidebar.listingOps", "Listings"),
+          label: t("admin.sidebar.listingOps"),
           href: "/admin/listings",
           icon: List,
           badge: pendingCount + pendingListingReviewsCount > 0 ? pendingCount + pendingListingReviewsCount : undefined,
@@ -230,14 +230,14 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
         },
         {
           id: "growth",
-          label: t("admin.sidebar.growth", "Growth"),
+          label: t("admin.sidebar.growth"),
           href: "/admin/email",
           icon: Mail,
           children: growthChildren,
         },
         {
           id: "content",
-          label: t("admin.sidebar.contentStudio", "Content"),
+          label: t("admin.sidebar.contentStudio"),
           href: "/admin/content/page-builder",
           icon: Layers,
           badge: translationQueueCount + pendingEventsCount > 0 ? translationQueueCount + pendingEventsCount : undefined,
@@ -246,7 +246,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
         },
         {
           id: "platform",
-          label: t("admin.sidebar.platform", "System"),
+          label: t("admin.sidebar.platform"),
           href: "/admin/settings",
           icon: Settings,
           children: platformChildren,
@@ -278,7 +278,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
       childIndentStyle="soft"
       sections={localizedSections}
       footerText={
-        collapsed ? undefined : `${t("admin.footer")} · ${actionCenterCount} ${t("admin.sidebar.actionCenter", "Action Center").toLowerCase()}`
+        collapsed ? undefined : `${t("admin.footer")} · ${actionCenterCount} ${t("admin.sidebar.actionCenter").toLowerCase()}`
       }
       desktopExpandedWidthClass="w-[17.5rem]"
       desktopCollapsedWidthClass="w-[4.25rem]"
@@ -290,14 +290,14 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
                 items: [
                   {
                     id: "pending-summary",
-                    label: t("admin.sidebar.actionCenter", "Action Center"),
+                    label: t("admin.sidebar.actionCenter"),
                     icon: Zap,
                     badge: actionCenterCount || undefined,
                     badgeTone: actionCenterCount > 0 ? "destructive" : "primary",
                   },
                   {
                     id: "translation-summary",
-                    label: t("admin.sidebar.translations", "Translations"),
+                    label: t("admin.sidebar.translations"),
                     icon: Languages,
                     badge: translationQueueCount || undefined,
                     badgeTone: translationQueueCount > 0 ? "destructive" : "primary",
@@ -308,18 +308,18 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
           : [
               {
                 id: "admin-summary",
-                title: t("admin.sidebar.systemHealth", "Queue"),
+                title: t("admin.sidebar.systemHealth"),
                 items: [
                   {
                     id: "pending-summary",
-                    label: t("admin.sidebar.actionCenter", "Action Center"),
+                    label: t("admin.sidebar.actionCenter"),
                     icon: Zap,
                     badge: actionCenterCount || undefined,
                     badgeTone: actionCenterCount > 0 ? "destructive" : "primary",
                   },
                   {
                     id: "translation-summary",
-                    label: t("admin.sidebar.translations", "Translations"),
+                    label: t("admin.sidebar.translations"),
                     icon: Languages,
                     badge: translationQueueCount || undefined,
                     badgeTone: translationQueueCount > 0 ? "destructive" : "primary",

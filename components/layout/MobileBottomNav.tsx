@@ -65,7 +65,7 @@ export function MobileBottomNav() {
         isUserScrolling && "translate-y-[calc(100%+env(safe-area-inset-bottom))]"
       )}
       style={{ display: mobileMenuOpen ? 'none' : undefined }}
-      aria-label={t("nav.mobilePrimary", "Primary navigation")}
+      aria-label={t("nav.mobilePrimary")}
     >
       <div className="bottom-nav__inner">
         {navItems.map((item) => {

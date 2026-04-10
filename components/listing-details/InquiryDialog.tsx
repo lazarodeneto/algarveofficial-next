@@ -121,7 +121,7 @@ export function InquiryDialog({ listingId, listingName, ownerPhone, agentName, a
           name,
           email,
           phone: phone ? `${countryCode}${phone}` : undefined,
-          message: message || t('listing.inquiry.defaultMessage', 'I would like more information about this property.'),
+          message: message || t('listing.inquiry.defaultMessage'),
           listing_id: listingId,
           listing_title: listingName,
           agent_name: agentName || undefined,
@@ -154,8 +154,8 @@ export function InquiryDialog({ listingId, listingName, ownerPhone, agentName, a
       const isNetworkError = /failed to fetch|failed to send a request/i.test(errorMessage);
       toast.error(
         isNetworkError
-          ? t('listing.inquiry.error', 'Failed to send enquiry. Please try again.')
-          : (errorMessage || t('listing.inquiry.error', 'Failed to send enquiry. Please try again.'))
+          ? t('listing.inquiry.error')
+          : (errorMessage || t('listing.inquiry.error'))
       );
     } finally {
       setIsSubmitting(false);

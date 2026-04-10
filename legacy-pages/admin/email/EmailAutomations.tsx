@@ -413,7 +413,7 @@ const EmailAutomations = () => {
             </Button>
             <Button onClick={handleSave} disabled={isSaving}>
               {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-              {formMode === "create" ? t("common.create", "Create") : t("common.save", "Save")}
+              {formMode === "create" ? t("common.create") : t("common.save")}
             </Button>
           </DialogFooter>
         </DialogContent>

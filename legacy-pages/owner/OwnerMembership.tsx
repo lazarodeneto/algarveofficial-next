@@ -113,6 +113,17 @@ export default function OwnerMembership() {
     }
   };
 
+  const getBillingPeriodLabel = (period: string | null | undefined) => {
+    switch (period) {
+      case "annual":
+        return t("owner.membership.annual");
+      case "monthly":
+        return t("owner.membership.monthly");
+      default:
+        return period ?? "";
+    }
+  };
+
   const isLoading = isListingsLoading || isPricingLoading || isSubscriptionLoading;
   if (isLoading) {
     return (
@@ -306,7 +317,7 @@ export default function OwnerMembership() {
                       )}
                       {isSignatureMonthlyBlocked && (
                         <span className="px-3 py-1 text-xs font-medium rounded-full bg-muted text-muted-foreground border border-border">
-                          {t('owner.membership.annualOnly', 'Annual only')}
+                          {t('owner.membership.annualOnly')}
                         </span>
                       )}
                       {isCurrentTier && !isSignatureMonthlyBlocked && (
@@ -315,7 +326,7 @@ export default function OwnerMembership() {
                           {t('owner.membership.currentPlan')}
                           {currentBillingPeriod && (
                             <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide rounded bg-white/20">
-                              {t(`owner.membership.${currentBillingPeriod}`, currentBillingPeriod)}
+                              {getBillingPeriodLabel(currentBillingPeriod)}
                             </span>
                           )}
                         </span>
@@ -330,7 +341,7 @@ export default function OwnerMembership() {
                     <CardTitle>{tier.name}</CardTitle>
                     {tier.id === 'signature' && (
                       <span className="text-xs font-medium text-muted-foreground">
-                        {t('owner.membership.invitationOnly', 'Invitation only')}
+                        {t('owner.membership.invitationOnly')}
                       </span>
                     )}
                   </div>
@@ -409,7 +420,7 @@ export default function OwnerMembership() {
                       )
                     ) : isSignatureMonthlyBlocked ? (
                       <Button disabled className="w-full" variant="ghost">
-                        {t('owner.membership.annualOnly', 'Annual only')}
+                        {t('owner.membership.annualOnly')}
                       </Button>
                     ) : isCurrentTier ? (
                       <Button disabled className="w-full" variant="outline">
@@ -419,7 +430,7 @@ export default function OwnerMembership() {
                     ) : tier.id === 'signature' ? (
                       <Button className="w-full" variant="outline" asChild>
                         <Link href={l("/owner/support")}>
-                          {t('owner.membership.invitationOnlyCta', 'Invitation-only')}
+                          {t('owner.membership.invitationOnlyCta')}
                           <ExternalLink className="h-3 w-3 ml-2" />
                         </Link>
                       </Button>
@@ -436,7 +447,7 @@ export default function OwnerMembership() {
                             {t('owner.membership.openingCheckoutShort')}
                           </>
                         ) : (
-                          t('owner.membership.switchTo', { period: t(`owner.membership.${billingPeriod}`, billingPeriod) })
+                          t('owner.membership.switchTo', { period: getBillingPeriodLabel(billingPeriod) })
                         )}
                       </Button>
                     ) : isUpgrade ? (

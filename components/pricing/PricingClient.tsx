@@ -40,83 +40,77 @@ export function PricingClient() {
   const tiers: PricingTier[] = [
     {
       id: "verified",
-      name: t("pricing.tiers.verified.name", "Verified Partner"),
-      badge: t("pricing.tiers.verified.badge", "Recommended"),
+      name: t("pricing.tiers.verified.name"),
+      badge: t("pricing.tiers.verified.badge"),
       badgeVariant: "default",
       badgeClass: "bg-primary/15 text-primary border-primary/30",
       description: t(
         "pricing.tiers.verified.description",
-        "Enhanced visibility and trust for established businesses.",
       ),
-      cta: t("pricing.tiers.verified.cta", "Start Verified"),
+      cta: t("pricing.tiers.verified.cta"),
       ctaHref: l("/partner"),
       features: [
-        { text: t("pricing.feature.profile", "Enhanced business profile"), included: true },
-        { text: t("pricing.feature.badge", "Verified trust badge"), included: true },
-        { text: t("pricing.feature.map", "Map visibility priority"), included: true },
-        { text: t("pricing.feature.directory", "Directory listings"), included: true },
-        { text: t("pricing.feature.photos", "Up to 20 photos"), included: true },
-        { text: t("pricing.feature.social", "Social media links"), included: true },
-        { text: t("pricing.feature.whatsapp", "WhatsApp integration"), included: false },
-        { text: t("pricing.feature.signature", "Signature Selection"), included: false },
-        { text: t("pricing.feature.homepage", "Homepage featured"), included: false },
+        { text: t("pricing.feature.profile"), included: true },
+        { text: t("pricing.feature.badge"), included: true },
+        { text: t("pricing.feature.map"), included: true },
+        { text: t("pricing.feature.directory"), included: true },
+        { text: t("pricing.feature.photos"), included: true },
+        { text: t("pricing.feature.social"), included: true },
+        { text: t("pricing.feature.whatsapp"), included: false },
+        { text: t("pricing.feature.signature"), included: false },
+        { text: t("pricing.feature.homepage"), included: false },
       ],
     },
     {
       id: "signature",
-      name: t("pricing.tiers.signature.name", "Signature Partner"),
-      badge: t("pricing.tiers.signature.badge", "Most Exclusive"),
+      name: t("pricing.tiers.signature.name"),
+      badge: t("pricing.tiers.signature.badge"),
       badgeVariant: "gold",
       badgeClass: "bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border-amber-500/40 text-amber-400",
       description: t(
         "pricing.tiers.signature.description",
-        "Maximum visibility, homepage placement, and exclusive partner benefits.",
       ),
-      cta: t("pricing.tiers.signature.cta", "Apply for Signature"),
+      cta: t("pricing.tiers.signature.cta"),
       ctaHref: l("/partner"),
       features: [
-        { text: t("pricing.feature.profile", "Enhanced business profile"), included: true },
-        { text: t("pricing.feature.badge", "Verified trust badge"), included: true },
-        { text: t("pricing.feature.map", "Map visibility priority"), included: true },
-        { text: t("pricing.feature.directory", "Directory listings"), included: true },
-        { text: t("pricing.feature.photos", "Up to 50 photos"), included: true },
-        { text: t("pricing.feature.social", "Social media links"), included: true },
-        { text: t("pricing.feature.whatsapp", "WhatsApp integration"), included: true },
-        { text: t("pricing.feature.signature", "Signature Selection eligibility"), included: true },
-        { text: t("pricing.feature.homepage", "Homepage featured section"), included: true },
+        { text: t("pricing.feature.profile"), included: true },
+        { text: t("pricing.feature.badge"), included: true },
+        { text: t("pricing.feature.map"), included: true },
+        { text: t("pricing.feature.directory"), included: true },
+        { text: t("pricing.feature.photos"), included: true },
+        { text: t("pricing.feature.social"), included: true },
+        { text: t("pricing.feature.whatsapp"), included: true },
+        { text: t("pricing.feature.signature"), included: true },
+        { text: t("pricing.feature.homepage"), included: true },
       ],
       highlighted: true,
-      highlightLabel: t("pricing.tiers.signature.highlight", "Best ROI"),
+      highlightLabel: t("pricing.tiers.signature.highlight"),
     },
   ];
 
   const faqs = [
     {
-      q: t("pricing.faq.timing.q", "How quickly will I see results?"),
+      q: t("pricing.faq.timing.q"),
       a: t(
         "pricing.faq.timing.a",
-        "Most partners see increased inquiries within the first 30 days. Signature partners with homepage placement typically see results within the first week.",
       ),
     },
     {
-      q: t("pricing.faq.tierchange.q", "Can I change tiers later?"),
+      q: t("pricing.faq.tierchange.q"),
       a: t(
         "pricing.faq.tierchange.a",
-        "Yes. You can upgrade or downgrade your tier at any time. Changes take effect at the start of the next billing cycle.",
       ),
     },
     {
-      q: t("pricing.faq.audience.q", "What kind of audience will my listing reach?"),
+      q: t("pricing.faq.audience.q"),
       a: t(
         "pricing.faq.audience.a",
-        "Our audience is predominantly high-net-worth individuals, luxury travelers, and premium lifestyle buyers. 72% of visitors are from the UK, Germany, France, and Scandinavia.",
       ),
     },
     {
-      q: t("pricing.faq.contract.q", "Is there a minimum contract?"),
+      q: t("pricing.faq.contract.q"),
       a: t(
         "pricing.faq.contract.a",
-        "No long-term contracts required. All tiers are month-to-month. Annual billing is available at a 20% discount.",
       ),
     },
   ];
@@ -132,18 +126,16 @@ export function PricingClient() {
             transition={{ duration: 0.6 }}
           >
             <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-sm">
-              {t("pricing.badge", "Partnership Investment")}
+              {t("pricing.badge")}
             </Badge>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-medium text-foreground leading-tight">
               {t(
                 "pricing.title",
-                "Partner Investment",
               )}
             </h1>
             <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
               {t(
                 "pricing.subtitle",
-                "Transparent pricing for every stage of growth. From verified visibility to exclusive Signature placement.",
               )}
             </p>
           </m.div>
@@ -163,12 +155,11 @@ export function PricingClient() {
               <CardHeader className="text-center pb-2">
                 <Calculator className="mx-auto h-8 w-8 text-primary mb-3" />
                 <CardTitle className="text-2xl font-serif">
-                  {t("pricing.calculator.title", "Estimate Your Visibility")}
+                  {t("pricing.calculator.title")}
                 </CardTitle>
                 <p className="mt-2 text-sm text-muted-foreground">
                   {t(
                     "pricing.calculator.subtitle",
-                    "See how AlgarveOfficial drives qualified inquiries to your business.",
                   )}
                 </p>
               </CardHeader>
@@ -176,7 +167,7 @@ export function PricingClient() {
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-3">
                     <label className="text-sm font-medium">
-                      {t("pricing.calculator.visitors", "Monthly Platform Visitors")}:{" "}
+                      {t("pricing.calculator.visitors")}:{" "}
                       <span className="text-primary font-semibold">{monthlyVisitors.toLocaleString()}</span>
                     </label>
                     <input
@@ -195,7 +186,7 @@ export function PricingClient() {
                   </div>
                   <div className="space-y-3">
                     <label className="text-sm font-medium">
-                      {t("pricing.calculator.conversion", "Conversion Rate")}:{" "}
+                      {t("pricing.calculator.conversion")}:{" "}
                       <span className="text-primary font-semibold">{conversionRate}%</span>
                     </label>
                     <input
@@ -218,42 +209,41 @@ export function PricingClient() {
                   <div className="grid sm:grid-cols-3 gap-6 text-center">
                     <div>
                       <p className="text-sm text-muted-foreground mb-1">
-                        {t("pricing.calculator.verifiedInquiries", "Verified Inquiries")}
+                        {t("pricing.calculator.verifiedInquiries")}
                       </p>
                       <p className="text-3xl font-serif font-medium text-foreground">
                         ~{inquiryValue.toLocaleString()}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {t("pricing.calculator.perMonth", "/month")}
+                        {t("pricing.calculator.perMonth")}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground mb-1">
-                        {t("pricing.calculator.signatureInquiries", "Signature Inquiries")}
+                        {t("pricing.calculator.signatureInquiries")}
                       </p>
                       <p className="text-3xl font-serif font-medium text-primary">
                         ~{signatureInquiries.toLocaleString()}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {t("pricing.calculator.perMonth", "/month")}
+                        {t("pricing.calculator.perMonth")}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground mb-1">
-                        {t("pricing.calculator.inquiryValue", "Est. Inquiry Value")}
+                        {t("pricing.calculator.inquiryValue")}
                       </p>
                       <p className="text-3xl font-serif font-medium text-foreground">
                         €{Math.round(inquiryValue * 150).toLocaleString()}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {t("pricing.calculator.perMonth", "/month")}
+                        {t("pricing.calculator.perMonth")}
                       </p>
                     </div>
                   </div>
                   <p className="text-center text-xs text-muted-foreground mt-4">
                     {t(
                       "pricing.calculator.disclaimer",
-                      "Estimates based on average platform conversion rates. Actual results vary.",
                     )}
                   </p>
                 </div>
@@ -270,13 +260,13 @@ export function PricingClient() {
             {tiers.map((tier, index) => (
               (() => {
                 const dynamicTier = membershipTiers.find((candidate) => candidate.id === tier.id);
-                const monthlyPrice = dynamicTier?.monthly.display || t("pricing.unavailable", "Contact us");
-                const monthlyNote = dynamicTier?.monthly.note || t("pricing.unavailableNote", "Pricing available on request");
+                const monthlyPrice = dynamicTier?.monthly.display || t("pricing.unavailable");
+                const monthlyNote = dynamicTier?.monthly.note || t("pricing.unavailableNote");
                 const annualLine = dynamicTier?.annual
-                  ? `${t("admin.subscriptions.billing.annual", "Annual")}: ${dynamicTier.annual.display} (${dynamicTier.annual.note})`
+                  ? `${t("admin.subscriptions.billing.annual")}: ${dynamicTier.annual.display} (${dynamicTier.annual.note})`
                   : null;
                 const promoLine = dynamicTier?.promo
-                  ? `${t("admin.subscriptions.billing.period", "Promo")}: ${dynamicTier.promo.display} (${dynamicTier.promo.note})`
+                  ? `${t("admin.subscriptions.billing.period")}: ${dynamicTier.promo.display} (${dynamicTier.promo.note})`
                   : null;
                 return (
               <m.div
@@ -352,12 +342,11 @@ export function PricingClient() {
           <p className="text-center text-sm text-muted-foreground mt-8">
             {t(
               "pricing.tiers.note",
-              "All prices exclude VAT. Custom enterprise pricing available on request.",
             )}{" "}
             <Link href={l("/contact")} className="text-primary hover:underline">
-              {t("pricing.tiers.contact", "Contact us")}
+              {t("pricing.tiers.contact")}
             </Link>{" "}
-            {t("pricing.tiers.forEnterprise", "for enterprise partnerships.")}
+            {t("pricing.tiers.forEnterprise")}
           </p>
         </div>
       </section>
@@ -372,7 +361,7 @@ export function PricingClient() {
             transition={{ duration: 0.5 }}
           >
             <h2 className="text-3xl font-serif font-medium text-center mb-12">
-              {t("pricing.faq.title", "Frequently Asked Questions")}
+              {t("pricing.faq.title")}
             </h2>
             <div className="space-y-4">
               {faqs.map((faq, i) => (
@@ -397,24 +386,23 @@ export function PricingClient() {
           >
             <Crown className="mx-auto h-10 w-10 text-primary mb-4" />
             <h2 className="text-3xl font-serif font-medium">
-              {t("pricing.cta.title", "Ready to grow your presence in the Algarve?")}
+              {t("pricing.cta.title")}
             </h2>
             <p className="mt-4 text-muted-foreground">
               {t(
                 "pricing.cta.subtitle",
-                "Apply today and our team will review your application within 2-3 business days.",
               )}
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild variant="hero" size="xl">
                 <Link href={l("/partner")}>
-                  {t("pricing.cta.primary", "Apply Now")}
+                  {t("pricing.cta.primary")}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild variant="secondary" size="xl">
                 <Link href={l("/contact")}>
-                  {t("pricing.cta.secondary", "Contact Us")}
+                  {t("pricing.cta.secondary")}
                 </Link>
               </Button>
             </div>

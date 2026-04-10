@@ -13,7 +13,7 @@ export function CTAButton() {
       onClick={() => push("/contact")}
       className="rounded-lg border px-4 py-2"
     >
-      {t("nav.contact", "Contact")}
+      {t("nav.contact")}
     </button>
   );
 }

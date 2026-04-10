@@ -115,8 +115,8 @@ export function ListingReviews({ listingId, userId, onRequestLogin }: ListingRev
   } as const;
   const reviewCountLabel =
     reviews.length === 1
-      ? t("reviews.countOne", "review")
-      : t("reviews.countOther", "reviews");
+      ? t("reviews.countOne")
+      : t("reviews.countOther");
 
   const handleStartWriting = () => {
     if (!userId) {
@@ -133,7 +133,7 @@ export function ListingReviews({ listingId, userId, onRequestLogin }: ListingRev
   const handleSubmit = async () => {
     if (!userId) return;
     if (rating === 0) {
-      toast.error(t("reviews.selectRating", "Please select a rating"));
+      toast.error(t("reviews.selectRating"));
       return;
     }
 
@@ -141,28 +141,28 @@ export function ListingReviews({ listingId, userId, onRequestLogin }: ListingRev
       const savedReview = await upsert.mutateAsync({ listingId, userId, rating, comment });
       toast.success(
         savedReview.status === "pending"
-          ? t("reviews.pendingApproval", "Review submitted for approval.")
+          ? t("reviews.pendingApproval")
           : myReview
-              ? t("reviews.updated", "Review updated")
-              : t("reviews.submitted", "Review submitted — thank you!"),
+              ? t("reviews.updated")
+              : t("reviews.submitted"),
       );
       setIsWriting(false);
       setRating(0);
       setComment("");
     } catch {
-      toast.error(t("reviews.error", "Failed to submit review. Please try again."));
+      toast.error(t("reviews.error"));
     }
   };
 
   const handleDelete = async (reviewId: string) => {
     try {
       await remove.mutateAsync({ reviewId, listingId });
-      toast.success(t("reviews.deleted", "Review deleted"));
+      toast.success(t("reviews.deleted"));
       setIsWriting(false);
       setRating(0);
       setComment("");
     } catch {
-      toast.error(t("reviews.deleteError", "Failed to delete review."));
+      toast.error(t("reviews.deleteError"));
     }
   };
 
@@ -172,7 +172,7 @@ export function ListingReviews({ listingId, userId, onRequestLogin }: ListingRev
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-serif font-medium">
-            {t("reviews.title", "Reviews")}
+            {t("reviews.title")}
           </h2>
           {reviews.length > 0 && (
             <div className="flex items-center gap-2 mt-1">
@@ -187,8 +187,8 @@ export function ListingReviews({ listingId, userId, onRequestLogin }: ListingRev
         {!isWriting && (
           <Button variant="outline" size="sm" onClick={handleStartWriting}>
             {myReview
-              ? t("reviews.editReview", "Edit your review")
-              : t("reviews.writeReview", "Write a review")}
+              ? t("reviews.editReview")
+              : t("reviews.writeReview")}
           </Button>
         )}
       </div>
@@ -197,13 +197,13 @@ export function ListingReviews({ listingId, userId, onRequestLogin }: ListingRev
       {isWriting && (
         <div className="mb-6 p-4 rounded-xl border border-border bg-muted/30">
           <p className="text-sm font-medium mb-3">
-            {myReview ? t("reviews.editReview", "Edit your review") : t("reviews.writeReview", "Write a review")}
+            {myReview ? t("reviews.editReview") : t("reviews.writeReview")}
           </p>
           <StarRating value={rating} onChange={setRating} />
           <Textarea
             className="mt-3 resize-none"
             rows={3}
-            placeholder={t("reviews.commentPlaceholder", "Share your experience (optional)")}
+            placeholder={t("reviews.commentPlaceholder")}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             maxLength={500}
@@ -215,15 +215,15 @@ export function ListingReviews({ listingId, userId, onRequestLogin }: ListingRev
               disabled={upsert.isPending || rating === 0}
             >
               {upsert.isPending
-                ? t("common.saving", "Saving…")
-                : t("reviews.submit", "Submit")}
+                ? t("common.saving")
+                : t("reviews.submit")}
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => { setIsWriting(false); setRating(0); setComment(""); }}
             >
-              {t("common.cancel", "Cancel")}
+              {t("common.cancel")}
             </Button>
             {myReview && (
               <Button
@@ -234,7 +234,7 @@ export function ListingReviews({ listingId, userId, onRequestLogin }: ListingRev
                 disabled={remove.isPending}
               >
                 <Trash2 className="h-4 w-4 mr-1" />
-                {t("reviews.delete", "Delete")}
+                {t("reviews.delete")}
               </Button>
             )}
           </div>
@@ -245,31 +245,31 @@ export function ListingReviews({ listingId, userId, onRequestLogin }: ListingRev
         <div className="mb-6 rounded-xl border border-border bg-muted/30 p-4">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-sm font-medium">
-              {t("reviews.yourReviewStatus", "Your review")}
+              {t("reviews.yourReviewStatus")}
             </p>
             {isPending && (
               <Badge variant="outline" className="gap-1 bg-amber-500/10 text-amber-600 border-amber-500/30">
                 <Clock3 className="h-3 w-3" />
-                {t("reviews.statusPending", "Pending approval")}
+                {t("reviews.statusPending")}
               </Badge>
             )}
             {myReview.status === "approved" && (
               <Badge variant="outline" className="gap-1 bg-green-500/10 text-green-600 border-green-500/30">
                 <CheckCircle2 className="h-3 w-3" />
-                {t("reviews.statusApproved", "Published")}
+                {t("reviews.statusApproved")}
               </Badge>
             )}
             {isRejected && (
               <Badge variant="outline" className="gap-1 bg-destructive/10 text-destructive border-destructive/30">
                 <XCircle className="h-3 w-3" />
-                {t("reviews.statusRejected", "Needs changes")}
+                {t("reviews.statusRejected")}
               </Badge>
             )}
           </div>
 
           {isPending && (
             <p className="mt-2 text-sm text-muted-foreground">
-              {t("reviews.pendingDescription", "Your review is waiting for admin approval before it appears publicly.")}
+              {t("reviews.pendingDescription")}
             </p>
           )}
 
@@ -279,7 +279,7 @@ export function ListingReviews({ listingId, userId, onRequestLogin }: ListingRev
                 <AlertCircle className="mt-0.5 h-4 w-4 text-destructive" />
                 <div className="text-sm">
                   <p className="font-medium text-foreground">
-                    {t("reviews.rejectedDescription", "Your review needs changes before it can be published.")}
+                    {t("reviews.rejectedDescription")}
                   </p>
                   {myReview.rejection_reason && (
                     <p className="mt-1 text-muted-foreground">
@@ -296,7 +296,7 @@ export function ListingReviews({ listingId, userId, onRequestLogin }: ListingRev
       {/* Reviews list */}
       {isLoading ? null : reviews.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          {t("reviews.noReviews", "No reviews yet. Be the first to share your experience.")}
+          {t("reviews.noReviews")}
         </p>
       ) : (
         <div className="space-y-4">
@@ -311,7 +311,7 @@ export function ListingReviews({ listingId, userId, onRequestLogin }: ListingRev
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-sm font-medium truncate">
-                      {review.profile?.full_name || t("reviews.anonymousUser", "Visitor")}
+                      {review.profile?.full_name || t("reviews.anonymousUser")}
                     </span>
                     <span className="text-xs text-muted-foreground whitespace-nowrap">
                       {formatDistanceToNow(new Date(review.created_at), {

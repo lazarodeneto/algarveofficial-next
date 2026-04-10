@@ -73,7 +73,7 @@ export function ConciergeContactDialog({ children }: ConciergeContactDialogProps
 
     const handleSubmit = async () => {
         if (!name || !email || !message) {
-            toast.error(t('common.fillRequiredFields') || "Please fill in all required fields.");
+            toast.error(t('common.fillRequiredFields'));
             return;
         }
 

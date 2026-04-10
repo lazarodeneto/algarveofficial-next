@@ -6,7 +6,7 @@ import { FOOTER_NAV_ITEMS } from "@/lib/navigation/nav-items";
 
 export function FooterNav() {
   const { t } = useTranslation();
-  const ariaLabel = t("nav.footerNavigation", "Footer navigation");
+  const ariaLabel = t("nav.footerNavigation");
 
   return (
     <nav aria-label={ariaLabel} className="flex flex-wrap gap-4">

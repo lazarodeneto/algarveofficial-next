@@ -2,11 +2,15 @@ import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 
 export type DiscoveryCategory = "hotels" | "restaurants" | "experiences" | "real-estate";
 
-export const DISCOVERY_FILTERS: readonly { key: DiscoveryCategory; label: string }[] = [
-  { key: "hotels", label: "Hotels" },
-  { key: "restaurants", label: "Restaurants" },
-  { key: "experiences", label: "Experiences" },
-  { key: "real-estate", label: "Real estate" },
+export const DISCOVERY_FILTERS: readonly {
+  key: DiscoveryCategory;
+  label: string;
+  translationKey: string;
+}[] = [
+  { key: "hotels", label: "Hotels", translationKey: "sections.vip.discovery.filters.hotels" },
+  { key: "restaurants", label: "Restaurants", translationKey: "sections.vip.discovery.filters.restaurants" },
+  { key: "experiences", label: "Experiences", translationKey: "sections.vip.discovery.filters.experiences" },
+  { key: "real-estate", label: "Real estate", translationKey: "sections.vip.discovery.filters.real-estate" },
 ] as const;
 
 type DiscoveryListingLike = {
@@ -197,4 +201,3 @@ export function mapListingToDiscoveryCategory(listing: DiscoveryListingLike): Di
 
   return Array.from(categories);
 }
-

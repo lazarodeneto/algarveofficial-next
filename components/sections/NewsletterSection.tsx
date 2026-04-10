@@ -66,7 +66,7 @@ export function NewsletterSection() {
         setIsSubscribed(true);
         toast.success(t('newsletter.welcomeMessage'));
       } else if (result.error?.includes("Too many requests")) {
-        toast.error(t('newsletter.errorRateLimit') || "Too many requests. Please try again later.");
+        toast.error(t('newsletter.errorRateLimit'));
       } else {
         toast.info(t('newsletter.alreadySubscribed'));
         setIsSubscribed(true);

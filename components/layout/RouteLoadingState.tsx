@@ -1,3 +1,5 @@
+import { getServerTranslations } from "@/lib/i18n/server";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { cn } from "@/lib/utils";
 
 interface RouteLoadingStateProps {
@@ -6,11 +8,17 @@ interface RouteLoadingStateProps {
   label?: string;
 }
 
-export function RouteLoadingState({
+export async function RouteLoadingState({
   minHeightClassName = "min-h-screen",
   className,
-  label = "Loading",
+  label,
 }: RouteLoadingStateProps) {
+  const locale = await getRequestLocale();
+  const tx = label
+    ? null
+    : await getServerTranslations(locale, ["common.loading"]);
+  const resolvedLabel = label ?? tx?.["common.loading"] ?? "";
+
   return (
     <main
       className={cn(
@@ -23,7 +31,7 @@ export function RouteLoadingState({
     >
       <div className="flex flex-col items-center gap-4 text-center">
         <div className="h-10 w-10 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
-        <span className="text-sm text-muted-foreground">{label}</span>
+        <span className="text-sm text-muted-foreground">{resolvedLabel}</span>
       </div>
     </main>
   );

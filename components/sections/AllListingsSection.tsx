@@ -256,7 +256,7 @@ export function AllListingsSection() {
             We couldn&apos;t load listings right now. Please refresh and try again.
           </p>
           <Button variant="outline" onClick={() => window.location.reload()}>
-            {t("directory.retry", "Retry")}
+            {t("directory.retry")}
           </Button>
         </div>
       </section>

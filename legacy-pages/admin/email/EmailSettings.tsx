@@ -36,7 +36,7 @@ const EmailSettings = () => {
               </Badge>
             ) : (
               <Badge variant="outline">
-                {t("admin.emailSettings.notConfigured", "Not configured")}
+                {t("admin.emailSettings.notConfigured")}
               </Badge>
             )}
           </div>
@@ -53,7 +53,7 @@ const EmailSettings = () => {
             <div className="flex gap-2">
               <Input 
                 readOnly
-                value={webhookUrl || t("admin.emailSettings.missingSupabaseUrl", "Set NEXT_PUBLIC_SUPABASE_URL to generate webhook URL")}
+                value={webhookUrl || t("admin.emailSettings.missingSupabaseUrl")}
                 className="font-mono text-sm"
               />
               <Button 
