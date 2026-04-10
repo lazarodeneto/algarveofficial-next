@@ -14,12 +14,21 @@ import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
 import { CuratedExcellence } from "@/components/sections/CuratedExcellence";
 import { supabase } from "@/integrations/supabase/client";
 import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import { useLocalePath } from "@/hooks/useLocalePath";
+import {
+  buildAbsoluteRouteUrl,
+  buildStaticRouteData,
+  buildUniformLocalizedSlugMap,
+} from "@/lib/i18n/localized-routing";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 
 export default function CityDetail() {
   const { slug } = useParams<{ slug: string }>();
+  const locale = useCurrentLocale();
+  const l = useLocalePath();
   const { isBlockEnabled } = useCmsPageBuilder("city-detail");
   const { isDestinationSaved, toggleCity } = useSavedDestinations();
   const { isFavorite, toggleFavorite } = useFavoriteListings();
@@ -102,7 +111,7 @@ export default function CityDetail() {
             The city you're looking for doesn't exist.
           </p>
           <Link
-            href="/"
+            href={l("/")}
             className="inline-flex items-center gap-2 text-primary hover:underline"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -118,10 +127,20 @@ export default function CityDetail() {
     <div className="min-h-screen bg-background" data-cms-page="city-detail">
       <BreadcrumbJsonLd
         items={[
-          { name: "Home", url: "https://algarveofficial.com/" },
-          { name: "Destinations", url: "https://algarveofficial.com/destinations" },
-          { name: city.name, url: `https://algarveofficial.com/visit/${city.slug}` },
+          { name: "Home", url: buildAbsoluteRouteUrl(locale, buildStaticRouteData("home")) },
+          {
+            name: "Destinations",
+            url: buildAbsoluteRouteUrl(locale, buildStaticRouteData("destinations")),
+          },
+          {
+            name: city.name,
+            url: buildAbsoluteRouteUrl(locale, {
+              routeType: "city",
+              citySlugs: buildUniformLocalizedSlugMap(city.slug),
+            }),
+          },
         ]}
+        locale={locale}
       />
       <Header />
       {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
@@ -153,7 +172,7 @@ export default function CityDetail() {
             className="mb-8 flex items-center justify-between"
           >
             <Link
-              href="/#cities"
+              href={l(buildStaticRouteData("home"), { hash: "cities" })}
               className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -207,7 +226,10 @@ export default function CityDetail() {
               transition={{ duration: 0.6, delay: 0.4 }}
             >
               <Link
-                href={`/destinations/${cityRegion.slug}`}
+                href={l({
+                  routeType: "destination",
+                  slugs: buildUniformLocalizedSlugMap(cityRegion.slug),
+                })}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-sm text-primary hover:bg-primary/20 transition-colors"
               >
                 <Crown className="w-4 h-4" />
@@ -258,7 +280,13 @@ export default function CityDetail() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
                 >
-                  <Link href={`/listing/${listing.slug}`} className="group block">
+                  <Link
+                    href={l({
+                      routeType: "listing",
+                      slugs: buildUniformLocalizedSlugMap(listing.slug || listing.id),
+                    })}
+                    className="group block"
+                  >
                     <article className="luxury-card overflow-hidden flex flex-col h-full hoverable">
                       {/* Image */}
                       <div className="relative aspect-[4/3] overflow-hidden">
@@ -332,7 +360,7 @@ export default function CityDetail() {
                 We're selecting the finest experiences for this city.
               </p>
               <Link
-                href="/"
+                href={l(buildStaticRouteData("home"))}
                 className="inline-flex items-center gap-2 text-primary hover:underline"
               >
                 Explore All Listings
@@ -359,7 +387,7 @@ export default function CityDetail() {
               Discover other vibrant cities across the Algarve
             </p>
             <Link
-              href="/#cities"
+              href={l(buildStaticRouteData("home"), { hash: "cities" })}
               className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors tap-target"
             >
               View All Cities

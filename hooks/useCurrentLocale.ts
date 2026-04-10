@@ -1,22 +1,25 @@
 "use client";
 
-import { useParams, usePathname } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useLocale } from "@/lib/i18n/locale-context";
 import {
-  getLocaleFromPathnameSafe,
+  isValidLocale,
   normalizeLocale,
   type AppLocale,
 } from "@/lib/i18n/routing";
 
 export function useCurrentLocale(): AppLocale {
-  const params = useParams();
-  const pathname = usePathname();
+  const contextLocale = useLocale();
 
+  if (contextLocale) {
+    return contextLocale;
+  }
+
+  const params = useParams();
   const paramLocale =
     typeof params?.locale === "string" ? params.locale : undefined;
 
-  if (paramLocale) {
-    return normalizeLocale(paramLocale);
-  }
-
-  return getLocaleFromPathnameSafe(pathname || "/");
+  return isValidLocale(paramLocale)
+    ? paramLocale
+    : normalizeLocale(undefined);
 }

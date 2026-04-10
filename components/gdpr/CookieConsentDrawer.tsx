@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Crown } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import {
   COOKIE_PREFERENCES_OPEN_EVENT,
   DEFAULT_COOKIE_PREFERENCES,
@@ -75,7 +76,7 @@ export function CookieConsentDrawer({
   version,
   onConsentChange,
 }: CookieConsentDrawerProps) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [baselinePreferences, setBaselinePreferences] = useState<CookiePreferenceDraft>(
@@ -162,7 +163,7 @@ export function CookieConsentDrawer({
     commitConsent(draftPreferences);
   }, [commitConsent, draftPreferences, hasChanges]);
 
-  const locale = (i18n.resolvedLanguage ?? i18n.language ?? "").toLowerCase();
+  const locale = useCurrentLocale().toLowerCase();
   const isEnglish = locale.startsWith("en");
 
   return (

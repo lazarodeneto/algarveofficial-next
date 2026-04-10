@@ -3,11 +3,12 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import type { ElementType } from "react";
-import Link from "next/link";
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify";
 import { useTranslation } from "react-i18next";
 import { usePrivacySettings } from "@/hooks/usePrivacySettings";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { Shield, Database, Clock, UserCheck, Mail, FileText } from "lucide-react";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 
 const iconMap: Record<string, ElementType> = {
   Shield,
@@ -19,8 +20,8 @@ const iconMap: Record<string, ElementType> = {
 };
 
 const PrivacyPolicy = () => {
-  const { t, i18n } = useTranslation();
-  const locale = i18n.resolvedLanguage || i18n.language;
+  const { t } = useTranslation();
+  const locale = useCurrentLocale();
   const { settings } = usePrivacySettings(locale);
   const hasCustomSections = Boolean(settings?.sections && settings.sections.length > 0);
 
@@ -397,12 +398,12 @@ const PrivacyPolicy = () => {
 
           {/* Back Link */}
           <div className="text-center pt-8 border-t border-border">
-            <Link 
+            <LocaleLink 
               href="/" 
               className="text-primary hover:underline inline-flex items-center gap-2"
             >
               ← {t("cookiePolicy.footer.backToHome", "Back to Home")}
-            </Link>
+            </LocaleLink>
           </div>
         </div>
       </main>

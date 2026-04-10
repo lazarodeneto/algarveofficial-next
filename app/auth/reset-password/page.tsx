@@ -1,12 +1,11 @@
-"use client";
+import { redirectUnlocalizedAliasPath } from "@/lib/i18n/serverRedirect";
 
-import { Suspense } from "react";
-import ResetPassword from "@/legacy-pages/auth/ResetPassword";
+interface AuthResetPasswordAliasPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-export default function ResetPasswordPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <ResetPassword />
-    </Suspense>
-  );
+export default async function AuthResetPasswordAliasPage({
+  searchParams,
+}: AuthResetPasswordAliasPageProps) {
+  await redirectUnlocalizedAliasPath("/auth/reset-password", await searchParams);
 }

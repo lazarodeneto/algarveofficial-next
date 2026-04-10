@@ -33,6 +33,7 @@ import {
   normalizePublicContentLocale,
   type PublicContentLocale,
 } from "@/lib/publicContentLocale";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 
 export type CityDetailCity = Tables<"cities">;
 export type CityDetailRegion = Pick<
@@ -438,8 +439,8 @@ function CityDetailClientInner({
   initialCuratedListings,
   initialGlobalSettings,
 }: CityDetailClientProps) {
-  const { i18n } = useTranslation();
-  const locale = normalizePublicContentLocale(i18n.language);
+  useTranslation();
+  const locale = normalizePublicContentLocale(useCurrentLocale());
   const { isDestinationSaved, toggleCity } = useSavedDestinations();
   const { isFavorite, toggleFavorite } = useFavoriteListings();
 

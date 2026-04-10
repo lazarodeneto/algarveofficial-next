@@ -2,6 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { SUPPORTED_LOCALES, isValidLocale, DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config";
+import {
+  buildLocaleSwitchPathsForEntity,
+  buildStaticRouteData,
+  buildUniformLocalizedSlugMap,
+  type CategoryRouteData,
+  type CityCategoryRouteData,
+} from "@/lib/i18n/localized-routing";
 import { getCategoryDisplayName, getCategoryUrlSlug, getCanonicalFromUrlSlug, ALL_CANONICAL_SLUGS, type CanonicalCategorySlug } from "@/lib/seo/programmatic/category-slugs";
 import { getServerTranslations } from "@/lib/i18n/server";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
@@ -10,8 +17,6 @@ import { generateSeoContentBlock } from "@/lib/seo/programmatic/content-blocks";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
-
-const DEFAULT_SITE_URL = "https://algarveofficial.com";
 
 interface PageParams {
   locale: string;
@@ -23,6 +28,20 @@ interface PageProps {
 }
 
 export const revalidate = 60;
+
+function buildCategoryRouteData(
+  canonical: CanonicalCategorySlug,
+): CategoryRouteData {
+  return {
+    routeType: "category",
+    slugs: Object.fromEntries(
+      SUPPORTED_LOCALES.map((supportedLocale) => [
+        supportedLocale,
+        getCategoryUrlSlug(canonical, supportedLocale),
+      ]),
+    ) as CategoryRouteData["slugs"],
+  };
+}
 
 export async function generateStaticParams(): Promise<PageParams[]> {
   const params: PageParams[] = [];
@@ -40,7 +59,7 @@ export async function generateStaticParams(): Promise<PageParams[]> {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale: rawLocale, category: rawCategory } = await params;
   const locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
-  
+
   const canonical = getCanonicalFromUrlSlug(rawCategory.toLowerCase(), locale);
   if (!canonical) {
     return buildPageMetadata({
@@ -80,11 +99,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     no: `Oppdag de beste ${categoryName.toLowerCase()} i Algarve. Lokale anbefalinger på AlgarveOfficial.`,
     da: `Opdag de bedste ${categoryName.toLowerCase()} i Algarve. Lokale anbefalinger på AlgarveOfficial.`,
   };
-  
+
+  const routeData = buildCategoryRouteData(canonical);
+
   return buildPageMetadata({
     title: metaTitles[locale] ?? metaTitles.en,
     description: metaDescriptions[locale] ?? metaDescriptions.en,
-    localizedPath: `/category/${rawCategory}`,
+    localizedRoute: routeData,
     locale,
   });
 }
@@ -92,12 +113,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CategoryHubPage({ params }: PageProps) {
   const { locale: rawLocale, category: rawCategory } = await params;
   const locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
-  
+
   const canonicalSlug = getCanonicalFromUrlSlug(rawCategory.toLowerCase(), locale);
   if (!canonicalSlug) notFound();
-  
+
   const supabase = createPublicServerClient();
-  
+
   const { data: catData } = await supabase
     .from("categories")
     .select("id, slug, name")
@@ -136,13 +157,14 @@ export default async function CategoryHubPage({ params }: PageProps) {
     .slice(0, 12);
   
   const categoryName = getCategoryDisplayName(canonicalSlug, locale);
-  const categorySlug = getCategoryUrlSlug(canonicalSlug, locale);
-  
+  const categoryRouteData = buildCategoryRouteData(canonicalSlug);
+  const localeSwitchPaths = buildLocaleSwitchPathsForEntity(categoryRouteData, SUPPORTED_LOCALES);
+
   const tx = await getServerTranslations(locale, ["common"]);
-  
+
   return (
     <>
-      <Header />
+      <Header localeSwitchPaths={localeSwitchPaths} />
       <main className="min-h-screen pt-20">
         <section className="bg-gradient-to-b from-background/60 to-background py-12">
           <div className="app-container">
@@ -164,7 +186,11 @@ export default async function CategoryHubPage({ params }: PageProps) {
             {topCities.map((city) => (
               <LocaleLink
                 key={city.slug}
-                href={`/visit/${city.slug}/${categorySlug}`}
+                href={{
+                  routeType: "city-category",
+                  citySlugs: buildUniformLocalizedSlugMap(city.slug),
+                  categorySlugs: categoryRouteData.slugs,
+                } satisfies CityCategoryRouteData}
                 className="block p-4 rounded-xl border border-border hover:border-primary/50 transition-colors text-center"
               >
                 <span className="font-medium">{city.name}</span>
@@ -206,7 +232,7 @@ export default async function CategoryHubPage({ params }: PageProps) {
                   Upgrade Your Listing
                 </LocaleLink>
                 <LocaleLink 
-                  href={`/partner`}
+                  href={buildStaticRouteData("partner")}
                   className="inline-flex items-center justify-center rounded-full border border-primary px-6 py-3 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
                 >
                   Get Featured
@@ -226,7 +252,7 @@ export default async function CategoryHubPage({ params }: PageProps) {
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <LocaleLink 
-                href={`/partner`}
+                href={buildStaticRouteData("partner")}
                 className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
               >
                 List Your Business

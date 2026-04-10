@@ -1,6 +1,6 @@
-import { redirect } from "next/navigation";
+import { redirectToPreferredLocalePath } from "@/lib/i18n/serverRedirect";
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  redirect(`/en/blog/${slug}`);
+  await redirectToPreferredLocalePath(`/blog/${slug}`);
 }

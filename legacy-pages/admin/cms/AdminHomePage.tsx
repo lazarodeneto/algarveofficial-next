@@ -1063,7 +1063,7 @@ export default function AdminHomePage() {
                     <div key={card.id} className="rounded-lg border border-border bg-background/40 p-3">
                       <p className="text-sm font-medium text-foreground">{card.title}</p>
                       <p className="text-xs text-muted-foreground mb-3">
-                        /directory?category={card.categorySlug}
+                        /stay?category={card.categorySlug}
                       </p>
 
                       <div className="relative aspect-[4/3] rounded-md border border-border bg-muted/40 overflow-hidden mb-3">

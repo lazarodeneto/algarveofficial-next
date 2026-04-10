@@ -1,7 +1,11 @@
 import { cache } from "react";
 import type { Metadata } from "next";
 import type { Locale } from "@/lib/i18n/config";
-import { DEFAULT_LOCALE, addLocaleToPathname } from "@/lib/i18n/config";
+import { DEFAULT_LOCALE } from "@/lib/i18n/config";
+import {
+  buildAbsoluteRouteUrl,
+  buildStaticRouteData,
+} from "@/lib/i18n/localized-routing";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 import { buildWebPageSchema, buildFaqSchema } from "@/lib/seo/schemaBuilders.js";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
@@ -88,7 +92,7 @@ export async function generateMetadata({
     description:
       settings?.meta_description ||
       "Apply to list or claim your Algarve business and connect with travelers seeking premium stays, dining, services, and experiences.",
-    localizedPath: "/partner",
+    localizedRoute: buildStaticRouteData("partner"),
     locale: resolvedLocale,
   });
 }
@@ -102,8 +106,10 @@ export default async function LocalePartnerPage({
   const resolvedLocale = (locale ?? DEFAULT_LOCALE) as Locale;
   const settings = await getPartnerSettings();
 
-  const localizedPath = `/partner`;
-  const canonicalUrl = `${SITE_URL}${addLocaleToPathname(localizedPath, resolvedLocale)}`;
+  const canonicalUrl = buildAbsoluteRouteUrl(
+    resolvedLocale,
+    buildStaticRouteData("partner"),
+  );
 
   const pageSchema = buildWebPageSchema({
     type: "WebPage",

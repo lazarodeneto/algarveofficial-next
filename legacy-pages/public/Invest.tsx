@@ -450,7 +450,7 @@ const Invest = () => {
                                         {t("invest.cta.primary", "Request Investment Brief")}
                                     </Button>
                                 </Link>
-                                <Link href={l("/directory?category=algarve-services")}>
+                                <Link href={l("/stay?category=algarve-services")}>
                                     <Button variant="outline" size="lg">
                                         <CheckCircle2 className="h-4 w-4" />
                                         {t("invest.cta.secondary", "Browse Algarve Services")}

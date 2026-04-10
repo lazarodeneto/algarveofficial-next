@@ -7,11 +7,10 @@ import {
 } from "react";
 
 import {
-  DEFAULT_LOCALE,
   type Locale,
 } from "./config";
 
-const LocaleContext = createContext<Locale>(DEFAULT_LOCALE);
+const LocaleContext = createContext<Locale | null>(null);
 
 interface LocaleProviderProps {
   children: ReactNode;

@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { HydrationBoundary } from "@tanstack/react-query";
 import Index from "@/components/Index";
+import { RouteLoadingState } from "@/components/layout/RouteLoadingState";
 import { isValidLocale, type Locale } from "@/lib/i18n/config";
+import { getDehydratedHomePageState } from "@/lib/homepage-data";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
 
 interface PageProps {
@@ -33,11 +36,14 @@ export default async function HomePage({ params }: PageProps) {
     notFound();
   }
 
+  const locale = rawLocale as Locale;
+  const { dehydratedState } = await getDehydratedHomePageState(locale);
+
   return (
-    <>
-      <Suspense fallback={<div className="min-h-screen bg-background" />}>
+    <HydrationBoundary state={dehydratedState}>
+      <Suspense fallback={<RouteLoadingState />}>
         <Index />
       </Suspense>
-    </>
+    </HydrationBoundary>
   );
 }

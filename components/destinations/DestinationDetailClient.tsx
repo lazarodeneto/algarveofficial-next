@@ -31,6 +31,8 @@ import {
   normalizePublicContentLocale,
   type PublicContentLocale,
 } from "@/lib/publicContentLocale";
+import { buildUniformLocalizedSlugMap } from "@/lib/i18n/localized-routing";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 
 export type DestinationRegion = Tables<"regions">;
 export type DestinationCity = Tables<"cities">;
@@ -473,8 +475,8 @@ function DestinationDetailClientInner({
   initialCuratedListings,
   initialGlobalSettings,
 }: DestinationDetailClientProps) {
-  const { t, i18n } = useTranslation();
-  const locale = normalizePublicContentLocale(i18n.language);
+  const { t } = useTranslation();
+  const locale = normalizePublicContentLocale(useCurrentLocale());
 
   const { data: region, isLoading: regionLoading } = useQuery({
     queryKey: ["region", initialRegion.slug, locale],
@@ -649,7 +651,10 @@ function DestinationDetailClientInner({
                 {regionCities.map((city) => (
                   <LocaleLink
                     key={city.id}
-                    href={`/visit/${city.slug}`}
+                    href={{
+                      routeType: "city",
+                      citySlugs: buildUniformLocalizedSlugMap(city.slug),
+                    }}
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/25 backdrop-blur-sm border border-white/20 text-sm text-white hover:bg-black/35 hover:border-white/30 transition-colors tap-target"
                   >
                     <MapPin className="w-3 h-3 text-primary" />
@@ -710,7 +715,13 @@ function DestinationDetailClientInner({
                     transition={{ duration: 0.4, delay: index * 0.05 }}
                     className="h-full"
                   >
-                    <LocaleLink href={`/listing/${listing.slug}`} className="group block h-full">
+                    <LocaleLink
+                      href={{
+                        routeType: "listing",
+                        slugs: buildUniformLocalizedSlugMap(listing.slug || listing.id),
+                      }}
+                      className="group block h-full"
+                    >
                       <article className="luxury-card overflow-hidden flex flex-col h-full hoverable">
                         {listing.tier === "signature" && (
                           <span

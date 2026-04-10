@@ -24,11 +24,15 @@ function formatCompactCount(value: number): string {
   }).format(value);
 }
 
-function trimVenueName(name: string): string {
+function trimVenueName(name?: string | null): string {
+  if (!name || typeof name !== "string") return "";
+
   const simplified = name
     .replace(/\s*[-|/].*$/, "")
     .replace(/\s{2,}/g, " ")
     .trim();
+
+  if (!simplified) return "";
 
   return simplified.length > 26 ? `${simplified.slice(0, 23).trimEnd()}...` : simplified;
 }
@@ -153,21 +157,43 @@ export function HeroTrustSignals({
   }, [curatedListings]);
 
   const venueWordmarks = useMemo(() => {
-    const names = [
-      ...curatedListings.map((listing) => trimVenueName(listing.name)),
-      ...broaderCuratedListings.map((listing) => trimVenueName(listing.name)),
-    ];
+    const seen = new Set<string>();
 
-    return Array.from(new Set(names.filter(Boolean))).slice(0, 4);
+    return [...curatedListings, ...broaderCuratedListings]
+      .map((listing) => ({
+        key: listing.id,
+        clean: trimVenueName(listing?.name),
+      }))
+      .filter((listing) => {
+        if (!listing.clean || seen.has(listing.clean)) {
+          return false;
+        }
+
+        seen.add(listing.clean);
+        return true;
+      })
+      .slice(0, 4);
   }, [broaderCuratedListings, curatedListings]);
 
   const displayedVenueWordmarks = venueWordmarks.length > 0
     ? venueWordmarks
     : [
-        t("hero.trust.fallbackWordmarkStay", "Premium stays"),
-        t("hero.trust.fallbackWordmarkDining", "Fine dining"),
-        t("hero.trust.fallbackWordmarkGolf", "Golf"),
-        t("hero.trust.fallbackWordmarkLiving", "Lifestyle"),
+        {
+          key: "fallback-stay",
+          clean: t("hero.trust.fallbackWordmarkStay", "Premium stays"),
+        },
+        {
+          key: "fallback-dining",
+          clean: t("hero.trust.fallbackWordmarkDining", "Fine dining"),
+        },
+        {
+          key: "fallback-golf",
+          clean: t("hero.trust.fallbackWordmarkGolf", "Golf"),
+        },
+        {
+          key: "fallback-living",
+          clean: t("hero.trust.fallbackWordmarkLiving", "Lifestyle"),
+        },
       ];
 
   const trustMetrics = useMemo(
@@ -302,9 +328,9 @@ export function HeroTrustSignals({
         </div>
 
         <div className="mt-5 flex flex-wrap gap-2">
-          {displayedVenueWordmarks.map((name) => (
+          {displayedVenueWordmarks.map((wordmark) => (
             <span
-              key={name}
+              key={wordmark.key}
               className={cn(
                 "rounded-full px-3 py-2 text-[0.76rem] font-medium tracking-[0.06em]",
                 isSurface
@@ -312,7 +338,7 @@ export function HeroTrustSignals({
                   : "border border-white/12 bg-white/8 text-white/90",
               )}
             >
-              {name}
+              {wordmark.clean}
             </span>
           ))}
         </div>

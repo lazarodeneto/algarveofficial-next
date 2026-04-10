@@ -2,10 +2,12 @@ import { cache } from "react";
 import type { Tables } from "@/integrations/supabase/types";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import type { Locale } from "@/lib/i18n/config";
+import { buildUniformLocalizedSlugMap } from "@/lib/i18n/localized-routing";
 
 export type BlogPostSeoRecord = Pick<
   Tables<"blog_posts">,
   | "slug"
+  | "id"
   | "title"
   | "excerpt"
   | "featured_image"
@@ -14,7 +16,9 @@ export type BlogPostSeoRecord = Pick<
   | "published_at"
   | "created_at"
   | "updated_at"
->;
+> & {
+  localizedSlugs: Record<Locale, string>;
+};
 
 export type LocalizedBlogPost = BlogPostSeoRecord & {
   locale_title: string;
@@ -61,5 +65,6 @@ export const getPublishedBlogPostBySlug = cache(async (slug: string, locale: Loc
     seo_title: finalTitle,
     excerpt: finalDescription,
     seo_description: finalDescription,
+    localizedSlugs: buildUniformLocalizedSlugMap(data.slug),
   } as BlogPostSeoRecord;
 });

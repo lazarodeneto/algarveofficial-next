@@ -7,15 +7,17 @@ import { useLocaleRouter } from "@/hooks/useLocaleRouter";
 import { LOCALE_CONFIGS, SUPPORTED_LOCALES, type Locale } from "@/lib/i18n/config";
 import { cn } from "@/lib/utils";
 
-interface LanguageSwitcherProps {
+export type LanguageSwitcherProps = {
   containerClassName?: string;
   selectClassName?: string;
+  localeSwitchPaths?: Record<string, string>;
   localePathByLocale?: Partial<Record<Locale, string>>;
-}
+};
 
 export function LanguageSwitcher({
   containerClassName,
   selectClassName,
+  localeSwitchPaths,
   localePathByLocale,
 }: LanguageSwitcherProps = {}) {
   const { t } = useTranslation();
@@ -24,6 +26,10 @@ export function LanguageSwitcher({
   const [isPending, startTransition] = useTransition();
   const languageLabel = t("common.language", "Language");
   const switcherId = useId();
+  const resolvedLocaleSwitchPaths = localeSwitchPaths ?? localePathByLocale;
+  const switchPathsByLocale = resolvedLocaleSwitchPaths as
+    | Record<string, string>
+    | undefined;
 
   return (
     <div className={cn("flex items-center gap-2", containerClassName)}>
@@ -40,7 +46,7 @@ export function LanguageSwitcher({
           if (nextLocale === currentLocale) return;
 
           startTransition(() => {
-            switchLocale(nextLocale, localePathByLocale?.[nextLocale as Locale]);
+            switchLocale(nextLocale, switchPathsByLocale?.[nextLocale]);
           });
         }}
         className={cn("rounded-md border pl-3 pr-8 py-2", selectClassName)}

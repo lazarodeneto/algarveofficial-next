@@ -1,10 +1,12 @@
+"use client";
+
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import Link from "next/link";
 import { Cookie, Shield, Database, Settings, Info, CheckCircle, Clock, Globe } from "lucide-react";
 import { useCookieSettings } from "@/hooks/useCookieSettings";
 import { useTranslation } from "react-i18next";
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 
 const iconMap: Record<string, React.ElementType> = {
   Cookie,
@@ -18,9 +20,8 @@ const iconMap: Record<string, React.ElementType> = {
 };
 
 const CookiePolicy = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { settings, isLoading } = useCookieSettings();
-  const locale = i18n.language;
 
   // Use database content or fallback to defaults
   const pageTitle = settings?.page_title || t("cookiePolicy.title");
@@ -227,17 +228,17 @@ const CookiePolicy = () => {
           {/* Footer Links */}
           <div className="border-t border-border pt-8 mt-12">
             <div className="flex flex-wrap gap-4 justify-center text-sm text-muted-foreground">
-              <Link href="/privacy-policy" className="hover:text-primary transition-colors">
+              <LocaleLink href="/privacy-policy" className="hover:text-primary transition-colors">
                 Privacy Policy
-              </Link>
+              </LocaleLink>
               <span>•</span>
-              <Link href="/terms" className="hover:text-primary transition-colors">
+              <LocaleLink href="/terms" className="hover:text-primary transition-colors">
                 Terms of Service
-              </Link>
+              </LocaleLink>
               <span>•</span>
-              <Link href="/" className="hover:text-primary transition-colors">
+              <LocaleLink href="/" className="hover:text-primary transition-colors">
                 Back to Home
-              </Link>
+              </LocaleLink>
             </div>
           </div>
         </div>

@@ -64,11 +64,11 @@ export function AlgarveGuideSection() {
                   "sections.algarveGuide.stayLinksPrefix",
                   "Browse premium",
                 )}{" "}
-                <Link href={path("/directory?category=places-to-stay")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={path("/stay?category=places-to-stay")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.algarveHotels", "Algarve hotels")}
                 </Link>{" "}
                 {andWord}{" "}
-                <Link href={path("/directory?category=places-to-stay")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={path("/stay?category=places-to-stay")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.placesToStay", "places to stay")}
                 </Link>
                 .
@@ -92,7 +92,7 @@ export function AlgarveGuideSection() {
                   {text("sections.algarveGuide.links.destinations", "destinations")}
                 </Link>
                 ,{" "}
-                <Link href={path("/directory?category=beaches-clubs")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={path("/stay?category=beaches-clubs")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.beaches", "beaches")}
                 </Link>
                 , {andWord}{" "}
@@ -116,15 +116,15 @@ export function AlgarveGuideSection() {
                   "sections.algarveGuide.doLinksPrefix",
                   "Jump into",
                 )}{" "}
-                <Link href={path("/directory?category=golf")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={path("/stay?category=golf")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.golf", "golf")}
                 </Link>
                 ,{" "}
-                <Link href={path("/directory?category=restaurants")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={path("/stay?category=restaurants")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.restaurants", "restaurants")}
                 </Link>
                 ,{" "}
-                <Link href={path("/directory?category=things-to-do")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={path("/stay?category=things-to-do")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.thingsToDo", "things to do")}
                 </Link>
                 , {andWord}{" "}

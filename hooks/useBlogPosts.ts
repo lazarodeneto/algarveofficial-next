@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
-import { useTranslation } from 'react-i18next';
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 
 export type BlogPost = Database['public']['Tables']['blog_posts']['Row'];
 export type BlogPostInsert = Database['public']['Tables']['blog_posts']['Insert'];
@@ -55,8 +55,7 @@ function applyBlogTranslation<T extends BlogPost>(
 
 // Fetch all published blog posts for public view
 export function usePublishedBlogPosts(category?: BlogCategory) {
-  const { i18n } = useTranslation();
-  const locale = normalizeBlogLocale(i18n.language);
+  const locale = normalizeBlogLocale(useCurrentLocale());
   const isBrowser = typeof window !== "undefined";
 
   return useQuery({
@@ -116,8 +115,7 @@ export function usePublishedBlogPosts(category?: BlogCategory) {
 
 // Fetch a single blog post by slug for public view
 export function usePublishedBlogPost(slug: string | undefined) {
-  const { i18n } = useTranslation();
-  const locale = normalizeBlogLocale(i18n.language);
+  const locale = normalizeBlogLocale(useCurrentLocale());
   const isBrowser = typeof window !== "undefined";
 
   return useQuery({

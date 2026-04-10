@@ -48,6 +48,7 @@ import type { GlobalSetting } from "@/hooks/useGlobalSettings";
 import { useCityRegionMappings, type CityRow, type RegionRow, type CategoryRow } from "@/hooks/useReferenceData";
 import type { ListingFilters, ListingWithRelations, ListingTier } from "@/hooks/useListings";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -636,7 +637,7 @@ function DirectoryCmsBlock({
 }
 
 function DirectoryClientInner(props: DirectoryClientProps) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const cmsPageId = props.cmsPageId ?? "directory";
   const router = useRouter();
   const pathname = usePathname() ?? "/directory";
@@ -699,7 +700,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const locale = normalizePublicContentLocale(props.locale || i18n.language);
+  const locale = normalizePublicContentLocale(useCurrentLocale());
   const initialCmsSettings = useMemo(
     () => props.globalSettings.filter((setting) => DIRECTORY_CMS_KEYS.includes(setting.key as (typeof DIRECTORY_CMS_KEYS)[number])),
     [props.globalSettings],

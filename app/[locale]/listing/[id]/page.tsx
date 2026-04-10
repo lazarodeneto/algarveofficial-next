@@ -6,9 +6,15 @@ import type { Locale } from "@/lib/i18n/config";
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/lib/i18n/config";
 import { withTimeout } from "@/lib/supabase/db-utils";
 import { buildBreadcrumbSchema, buildLocalBusinessSchema } from "@/lib/seo/advanced/schema-builders";
-import { buildLocalizedPathAlternates } from "@/lib/i18n/seo";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
+import {
+  buildAbsoluteRouteUrl,
+  buildCanonicalPath,
+  buildLocaleSwitchPathsForEntity,
+  buildLocalizedSlugMapWithFallback,
+  type ListingRouteData,
+} from "@/lib/i18n/localized-routing";
 import {
   ALL_CANONICAL_SLUGS,
   getCategoryUrlSlug,
@@ -101,6 +107,14 @@ function buildListingDescription({
     truncateMeta(listing.short_description) ||
     "Discover this curated Algarve listing on AlgarveOfficial."
   );
+}
+
+function buildListingRouteData(data: ListingPageData): ListingRouteData {
+  return {
+    routeType: "listing",
+    id: data.listing.id,
+    slugs: buildLocalizedSlugMapWithFallback(data.localizedSlugs, data.canonicalSlug),
+  };
 }
 
 async function fetchApprovedReviews(listingId: string) {
@@ -314,20 +328,12 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
     normalizePublicImageUrl(listing.images?.[0]?.image_url) ||
     normalizePublicImageUrl(listing.featured_image_url) ||
     "/og-image.png";
-
-  const localizedPath = `/listing/${data.localizedSlugs[resolvedLocale] ?? data.canonicalSlug}`;
-  const listingPathByLocale = Object.fromEntries(
-    SUPPORTED_LOCALES.map((supportedLocale) => [
-      supportedLocale,
-      `/listing/${data.localizedSlugs[supportedLocale] ?? data.canonicalSlug}`,
-    ]),
-  ) as Record<Locale, string>;
+  const routeData = buildListingRouteData(data);
 
   return buildPageMetadata({
     title,
     description,
-    localizedPath,
-    alternatesOverride: buildLocalizedPathAlternates(resolvedLocale, listingPathByLocale),
+    localizedRoute: routeData,
     image: ogImage,
     type: "place",
     locale: resolvedLocale,
@@ -353,11 +359,14 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
   const localeCategorySlug = programmaticCategorySlug
     ? getCategoryUrlSlug(programmaticCategorySlug, resolvedLocale)
     : null;
-  const categoryPath = categorySlug ? `/directory?category=${categorySlug}` : "/directory";
+  const categoryPath = categorySlug ? `/stay?category=${categorySlug}` : "/stay";
   const cityPath = citySlug ? `/visit/${citySlug}` : null;
   const cityCategoryPath =
     citySlug && localeCategorySlug ? `/visit/${citySlug}/${localeCategorySlug}` : null;
-  const canonicalPath = `/listing/${data.localizedSlugs[resolvedLocale] ?? data.canonicalSlug}`;
+  const routeData = buildListingRouteData(data);
+  const canonicalPath = buildCanonicalPath(resolvedLocale, routeData);
+  const canonicalUrl = buildAbsoluteRouteUrl(resolvedLocale, routeData);
+  const listingPathByLocale = buildLocaleSwitchPathsForEntity(routeData, SUPPORTED_LOCALES);
   const ogImage =
     normalizePublicImageUrl(data.listing.images?.find((image) => image.is_featured)?.image_url) ||
     normalizePublicImageUrl(data.listing.images?.[0]?.image_url) ||
@@ -367,8 +376,8 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
    
   const businessSchema = buildLocalBusinessSchema({
     id: data.listing.id,
-    slug: data.localizedSlugs[resolvedLocale] ?? data.canonicalSlug,
-    url: absoluteUrl(canonicalPath),
+    slug: routeData.slugs[resolvedLocale],
+    url: canonicalUrl,
     name: title,
     description: truncateMeta(currentTranslation?.description) || truncateMeta(data.listing.description) || undefined,
     image_url: absoluteUrl(String(ogImage)),
@@ -399,7 +408,7 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
       name: categoryName,
       url: absoluteUrl(cityCategoryPath || categoryPath),
     },
-    { name: title, url: absoluteUrl(canonicalPath) },
+    { name: title, url: canonicalUrl },
   ]);
 
   return (
@@ -415,6 +424,7 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
 
       <ListingDetailClient
         locale={resolvedLocale}
+        localeSwitchPaths={listingPathByLocale}
         listing={data.listing}
         initialTranslation={currentTranslation}
         initialReviews={data.reviews}

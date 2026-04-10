@@ -16,7 +16,7 @@ const DEFAULT_IMAGE = "/og-image.png";
 export interface LocalizedMetadataParams {
   /** Current locale */
   locale: Locale;
-  /** Page path without locale prefix (e.g., "/directory") */
+  /** Page path without locale prefix (e.g., "/stay") */
   path: string;
   /** Page title (will be branded with site name) */
   title: string;
@@ -72,7 +72,7 @@ function normalizeDescription(description?: string): string {
  *   const { locale } = await params;
  *   return buildLocalizedMetadata({
  *     locale,
- *     path: "/directory",
+ *     path: "/stay",
  *     title: "Directory",
  *     description: "Browse all listings",
  *   });
@@ -162,7 +162,7 @@ export function buildLocalizedAliasMetadata(
  * Useful for debugging or custom implementations
  *
  * @example
- * const links = generateHreflangLinks("/directory");
+ * const links = generateHreflangLinks("/stay");
  * // Returns:
  * // '<link rel="alternate" hreflang="en" href="..." />'
  * // '<link rel="alternate" hreflang="pt-PT" href="..." />'

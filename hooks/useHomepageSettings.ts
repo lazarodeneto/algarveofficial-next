@@ -1,7 +1,11 @@
 import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import {
+  homepageSettingsQueryKey,
+  homepageSettingsTranslationQueryKey,
+} from "@/lib/query-keys";
 
 export interface HomepageSettings {
   id: string;
@@ -71,9 +75,11 @@ const preferTranslatedValue = (translated: string | null | undefined, fallback: 
 export function useHomepageSettings() {
   const queryClient = useQueryClient();
   const isBrowser = typeof window !== "undefined";
+  const routeLocale = useCurrentLocale();
+  const locale = normalizeHomepageLocale(routeLocale);
 
   const { data: settings, isLoading, error } = useQuery({
-    queryKey: ['homepage-settings'],
+    queryKey: homepageSettingsQueryKey(locale),
     queryFn: async () => {
       const { data, error, status } = await supabase
         .from('homepage_settings')
@@ -152,9 +158,9 @@ export function useHomepageSettings() {
       return data as HomepageSettings;
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(['homepage-settings'], data);
+      queryClient.setQueryData(homepageSettingsQueryKey(locale), data);
       // Force cache refresh so the public homepage gets fresh data immediately
-      queryClient.invalidateQueries({ queryKey: ['homepage-settings'] });
+      queryClient.invalidateQueries({ queryKey: homepageSettingsQueryKey(locale) });
     },
   });
 
@@ -174,11 +180,10 @@ export function useHomepageSettings() {
 // Lightweight hook for public pages - just fetches hero data
 export function useHeroSettings() {
   const { settings, isLoading } = useHomepageSettings();
-  const { i18n } = useTranslation();
-  const locale = normalizeHomepageLocale(i18n.language);
+  const locale = normalizeHomepageLocale(useCurrentLocale());
 
   const { data: translation, isLoading: isTranslationLoading } = useQuery({
-    queryKey: ["homepage-settings-translation", settings?.id ?? null, locale],
+    queryKey: homepageSettingsTranslationQueryKey(settings?.id ?? null, locale),
     enabled: Boolean(settings?.id) && locale !== "en",
     staleTime: 1000 * 60 * 5,
     queryFn: async () => {

@@ -1,12 +1,11 @@
-"use client";
+import { redirectUnlocalizedAliasPath } from "@/lib/i18n/serverRedirect";
 
-import { Suspense } from "react";
-import AuthCallback from "@/legacy-pages/auth/AuthCallback";
+interface AuthCallbackAliasPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-export default function AuthCallbackPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <AuthCallback />
-    </Suspense>
-  );
+export default async function AuthCallbackAliasPage({
+  searchParams,
+}: AuthCallbackAliasPageProps) {
+  await redirectUnlocalizedAliasPath("/auth/callback", await searchParams);
 }

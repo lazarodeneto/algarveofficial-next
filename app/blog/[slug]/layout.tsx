@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
+import { DEFAULT_LOCALE } from "@/lib/i18n/config";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { buildMetadata } from "@/lib/metadata";
 import { getPublishedBlogPostBySlug } from "./postData";
@@ -21,18 +22,15 @@ export async function generateMetadata({ params }: BlogPostLayoutProps): Promise
     notFound();
   }
 
-  const title = post.seo_title?.trim() || post.title;
-  const description =
-    post.seo_description?.trim() ||
-    post.excerpt ||
-    "Explore the latest AlgarveOfficial editorial guides and destination insights from across the Algarve.";
-
   return buildMetadata({
-    title,
-    description,
-    path: `/blog/${slug}`,
+    title: "Redirecting to Blog Post",
+    description: "Redirecting to the canonical localized blog post.",
+    path: `/blog/${post.slug}`,
     image: normalizePublicImageUrl(post.featured_image) || "/og-image.png",
     type: "article",
+    noIndex: true,
+    noFollow: true,
+    localeCode: DEFAULT_LOCALE,
     publishedTime: post.published_at ?? post.created_at,
     modifiedTime: post.updated_at ?? post.published_at ?? post.created_at,
     section: "Blog",

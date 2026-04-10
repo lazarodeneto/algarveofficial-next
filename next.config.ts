@@ -5,7 +5,6 @@ const cspDirectives = [
   "default-src 'self'",
   "base-uri 'self'",
   "form-action 'self'",
-  "frame-ancestors 'self'",
   "object-src 'none'",
   "worker-src 'self' blob:",
   "child-src 'self' blob:",
@@ -18,16 +17,20 @@ const cspDirectives = [
   `frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com https://algarveofficialgolf.base44.app`,
   `frame-ancestors 'self' https://algarveofficial.com https://*.algarveofficial.com`,
   `upgrade-insecure-requests`,
-].join("; ");
+];
 
-const cspReportOnly = cspDirectives.replace("default-src 'self'", "default-src 'none'").concat(
-  "; report-uri https://algarveofficial.com/api/csp-report"
-);
+const cspHeaderValue = cspDirectives.join("; ");
+
+const cspReportOnlyValue = cspDirectives
+  .filter((directive) => directive !== "upgrade-insecure-requests")
+  .map((directive) => (directive === "default-src 'self'" ? "default-src 'none'" : directive))
+  .concat("report-uri https://algarveofficial.com/api/csp-report")
+  .join("; ");
 
 const securityHeaders = [
   {
     key: "Content-Security-Policy",
-    value: cspDirectives,
+    value: cspHeaderValue,
   },
   {
     key: "X-Frame-Options",
@@ -62,7 +65,7 @@ const securityHeaders = [
 const reportOnlyHeaders = [
   {
     key: "Content-Security-Policy-Report-Only",
-    value: cspReportOnly,
+    value: cspReportOnlyValue,
   },
 ];
 
@@ -81,7 +84,7 @@ const nextConfig: NextConfig = {
 
   images: {
     formats: ["image/avif", "image/webp"],
-    qualities: [50, 60, 70, 75, 80],
+    qualities: [50, 52, 54, 56, 72, 80],
     deviceSizes: [360, 420, 640, 768, 960, 1200, 1600, 1920],
     imageSizes: [32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60 * 60 * 24 * 7,

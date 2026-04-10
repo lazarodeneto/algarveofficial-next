@@ -60,8 +60,8 @@ export function getLocaleUrlPrefix(locale: Locale): string {
  * Build a canonical URL with locale prefix.
  *
  * @param locale - The locale
- * @param path - The path (without locale prefix, e.g., "/directory")
- * @returns Full canonical URL (e.g., "https://algarveofficial.com/en/directory")
+ * @param path - The path (without locale prefix, e.g., "/stay")
+ * @returns Full canonical URL (e.g., "https://algarveofficial.com/en/stay")
  */
 export function buildCanonicalUrl(locale: Locale, path: string = ""): string {
   const cleanPath = normalizeSeoPath(path);
@@ -73,11 +73,11 @@ export function buildCanonicalUrl(locale: Locale, path: string = ""): string {
  * Build hreflang alternates for all locales.
  * Returns object suitable for Metadata.alternates.languages
  *
- * @param path - The path without locale (e.g., "/directory")
+ * @param path - The path without locale (e.g., "/stay")
  * @returns Record of hreflang → URL for all locales + x-default
  *
  * @example
- * buildHreflangs("/directory")
+ * buildHreflangs("/stay")
  * // Returns:
  * {
  *   "en": "https://algarveofficial.com/en/directory",
@@ -125,7 +125,7 @@ export function buildCanonicalUrlString(locale: Locale, path: string = ""): stri
  * export async function generateMetadata({ params }: Props): Promise<Metadata> {
  *   const { locale } = await params;
  *   return {
- *     alternates: buildMetadataAlternates(locale, "/directory"),
+ *     alternates: buildMetadataAlternates(locale, "/stay"),
  *     ...
  *   };
  * }

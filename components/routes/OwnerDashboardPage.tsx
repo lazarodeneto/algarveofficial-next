@@ -1,22 +1,31 @@
 "use client";
 
-import { useMemo, type ReactElement } from "react";
-import { useParams } from "next/navigation";
+import type { ComponentType, ReactElement } from "react";
+import dynamic from "next/dynamic";
 import { AlertTriangle } from "lucide-react";
 
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
+import { DashboardRouteLoading } from "@/components/routes/DashboardRouteLoading";
 import { Button } from "@/components/ui/button";
 import { OwnerLayout } from "@/components/owner/OwnerLayout";
-import OwnerEventSubmit from "@/legacy-pages/owner/OwnerEventSubmit";
-import OwnerEvents from "@/legacy-pages/owner/OwnerEvents";
-import OwnerListingEdit from "@/legacy-pages/owner/OwnerListingEdit";
-import OwnerListings from "@/legacy-pages/owner/OwnerListings";
-import OwnerMedia from "@/legacy-pages/owner/OwnerMedia";
-import OwnerMembership from "@/legacy-pages/owner/OwnerMembership";
-import OwnerMessages from "@/legacy-pages/owner/OwnerMessages";
-import OwnerOverview from "@/legacy-pages/owner/OwnerOverview";
-import OwnerSupport from "@/legacy-pages/owner/OwnerSupport";
+
+const withOwnerLoading = <T extends ComponentType<any>>(
+  loader: () => Promise<{ default: T }>,
+) =>
+  dynamic(loader, {
+    loading: () => <DashboardRouteLoading label="Loading owner workspace..." />,
+  });
+
+const OwnerEventSubmit = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerEventSubmit"));
+const OwnerEvents = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerEvents"));
+const OwnerListingEdit = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerListingEdit"));
+const OwnerListings = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerListings"));
+const OwnerMedia = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerMedia"));
+const OwnerMembership = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerMembership"));
+const OwnerMessages = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerMessages"));
+const OwnerOverview = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerOverview"));
+const OwnerSupport = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerSupport"));
 
 function OwnerRouteNotFound({ route }: { route: string }) {
   return (
@@ -38,15 +47,15 @@ function OwnerRouteNotFound({ route }: { route: string }) {
   );
 }
 
-const staticRouteMap: Record<string, ReactElement> = {
-  "": <OwnerOverview />,
-  listings: <OwnerListings />,
-  media: <OwnerMedia />,
-  membership: <OwnerMembership />,
-  messages: <OwnerMessages />,
-  support: <OwnerSupport />,
-  events: <OwnerEvents />,
-  "events/new": <OwnerEventSubmit />,
+const staticRouteMap: Record<string, ComponentType> = {
+  "": OwnerOverview,
+  listings: OwnerListings,
+  media: OwnerMedia,
+  membership: OwnerMembership,
+  messages: OwnerMessages,
+  support: OwnerSupport,
+  events: OwnerEvents,
+  "events/new": OwnerEventSubmit,
 };
 
 function resolveOwnerPage(route: string): ReactElement {
@@ -58,19 +67,16 @@ function resolveOwnerPage(route: string): ReactElement {
     return <OwnerEventSubmit />;
   }
 
-  return staticRouteMap[route] ?? <OwnerRouteNotFound route={route} />;
+  const PageComponent = staticRouteMap[route];
+  return PageComponent ? <PageComponent /> : <OwnerRouteNotFound route={route} />;
 }
 
-export function OwnerDashboardPage() {
-  const params = useParams<{ slug?: string[] }>();
+interface OwnerDashboardPageProps {
+  route?: string;
+}
 
-  const route = useMemo(() => {
-    const raw = params?.slug;
-    if (!raw) return "";
-    return Array.isArray(raw) ? raw.join("/") : raw;
-  }, [params]);
-
-  const activePage = useMemo(() => resolveOwnerPage(route), [route]);
+export function OwnerDashboardPage({ route = "" }: OwnerDashboardPageProps) {
+  const activePage = resolveOwnerPage(route);
 
   return (
     <ProtectedRoute allowedRoles={["owner", "admin"]}>

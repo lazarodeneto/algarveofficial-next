@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { ItemListJsonLd } from "@/components/seo/JsonLd";
 import { useFeaturedCategories, useFeaturedRegions } from "@/hooks/useReferenceData";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { buildMergedCategoryOptions } from "@/lib/categoryMerges";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { useLocalePath } from "@/hooks/useLocalePath";
@@ -14,6 +15,7 @@ function absoluteUrl(path: string) {
 
 export function HomepageItemListsJsonLd() {
   const { t } = useTranslation();
+  const locale = useCurrentLocale();
   const l = useLocalePath();
   const { data: featuredCategories = [] } = useFeaturedCategories();
   const { data: featuredRegions = [] } = useFeaturedRegions();
@@ -25,7 +27,7 @@ export function HomepageItemListsJsonLd() {
         const translatedName = translateCategoryName(t, category.slug, category.name);
         return {
           name: translatedName,
-          url: absoluteUrl(l(`/directory?category=${category.slug}`)),
+          url: absoluteUrl(l(`/stay?category=${category.slug}`)),
           description: category.short_description || `${translatedName} in the Algarve.`,
         };
       });
@@ -34,22 +36,22 @@ export function HomepageItemListsJsonLd() {
     return [
       {
         name: t("categoryNames.places-to-stay", "Places to Stay"),
-        url: absoluteUrl(l("/directory?category=places-to-stay")),
+        url: absoluteUrl(l("/stay?category=places-to-stay")),
         description: "Hotels, villas, and premium stays in the Algarve.",
       },
       {
         name: t("categoryNames.restaurants", "Restaurants"),
-        url: absoluteUrl(l("/directory?category=restaurants")),
+        url: absoluteUrl(l("/stay?category=restaurants")),
         description: "Fine dining and standout restaurants across the Algarve.",
       },
       {
         name: t("categoryNames.things-to-do", "Things to Do"),
-        url: absoluteUrl(l("/directory?category=things-to-do")),
+        url: absoluteUrl(l("/stay?category=things-to-do")),
         description: "Curated experiences and activities in the Algarve.",
       },
       {
         name: t("categoryNames.whats-on", "What's On"),
-        url: absoluteUrl(l("/directory?category=whats-on")),
+        url: absoluteUrl(l("/stay?category=whats-on")),
         description: "Events and happenings across the Algarve.",
       },
     ];
@@ -84,12 +86,14 @@ export function HomepageItemListsJsonLd() {
         url={absoluteUrl(l("/#featured-categories"))}
         description="Featured premium categories for Algarve travel discovery."
         items={categoryItems}
+        locale={locale}
       />
       <ItemListJsonLd
         name="Featured Destinations in the Algarve"
         url={absoluteUrl(l("/#featured-destinations"))}
         description="Top destinations in the Algarve for stays, experiences, and lifestyle."
         items={destinationItems}
+        locale={locale}
       />
     </>
   );

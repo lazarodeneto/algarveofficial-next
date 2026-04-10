@@ -12,7 +12,14 @@ import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
 import { translateCategoryName } from "@/lib/translateCategory";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
+import {
+  buildAbsoluteRouteUrl,
+  buildStaticRouteData,
+  buildUniformLocalizedSlugMap,
+} from "@/lib/i18n/localized-routing";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
@@ -20,6 +27,8 @@ import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 export default function DestinationDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { t } = useTranslation();
+  const locale = useCurrentLocale();
+  const l = useLocalePath();
   const { isBlockEnabled } = useCmsPageBuilder("destination-detail");
 
   // Fetch region by slug
@@ -99,7 +108,7 @@ export default function DestinationDetail() {
             The destination you're looking for doesn't exist.
           </p>
           <Link
-            href="/destinations"
+            href={l("/destinations")}
             className="inline-flex items-center gap-2 text-primary hover:underline"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -115,10 +124,20 @@ export default function DestinationDetail() {
     <div className="min-h-screen bg-background" data-cms-page="destination-detail">
       <BreadcrumbJsonLd
         items={[
-          { name: "Home", url: "https://algarveofficial.com/" },
-          { name: "Destinations", url: "https://algarveofficial.com/destinations" },
-          { name: region.name, url: `https://algarveofficial.com/destinations/${region.slug}` },
+          { name: "Home", url: buildAbsoluteRouteUrl(locale, buildStaticRouteData("home")) },
+          {
+            name: "Destinations",
+            url: buildAbsoluteRouteUrl(locale, buildStaticRouteData("destinations")),
+          },
+          {
+            name: region.name,
+            url: buildAbsoluteRouteUrl(locale, {
+              routeType: "destination",
+              slugs: buildUniformLocalizedSlugMap(region.slug),
+            }),
+          },
         ]}
+        locale={locale}
       />
       <Header />
       {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
@@ -148,7 +167,7 @@ export default function DestinationDetail() {
             className="mb-8"
           >
             <Link
-              href="/destinations"
+              href={l("/destinations")}
               className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -194,7 +213,10 @@ export default function DestinationDetail() {
               {regionCities.map((city: any) => (
                 <Link
                   key={city.id}
-                  href={`/visit/${city.slug}`}
+                  href={l({
+                    routeType: "city",
+                    citySlugs: buildUniformLocalizedSlugMap(city.slug),
+                  })}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background/50 backdrop-blur-sm border border-border text-sm text-foreground hover:bg-primary/10 hover:border-primary/30 transition-colors tap-target"
                 >
                   <MapPin className="w-3 h-3 text-primary" />
@@ -245,7 +267,13 @@ export default function DestinationDetail() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
                 >
-                  <Link href={`/listing/${listing.slug}`} className="group block">
+                  <Link
+                    href={l({
+                      routeType: "listing",
+                      slugs: buildUniformLocalizedSlugMap(listing.slug || listing.id),
+                    })}
+                    className="group block"
+                  >
                     <article className="luxury-card overflow-hidden flex flex-col h-full hoverable">
                       {/* Image */}
                       <div className="relative aspect-[4/3] overflow-hidden">
@@ -319,7 +347,7 @@ export default function DestinationDetail() {
                 We're selecting the finest experiences for this region.
               </p>
               <Link
-                href="/destinations"
+                href={l(buildStaticRouteData("destinations"))}
                 className="inline-flex items-center gap-2 text-primary hover:underline"
               >
                 Explore Other Destinations
@@ -346,7 +374,7 @@ export default function DestinationDetail() {
               Discover other prestigious regions across the Algarve
             </p>
             <Link
-              href="/destinations"
+              href={l(buildStaticRouteData("destinations"))}
               className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors tap-target"
             >
               View All Destinations

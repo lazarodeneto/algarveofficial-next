@@ -1,23 +1,74 @@
 "use client";
 
 import { useMemo, type ComponentType } from "react";
+import dynamic from "next/dynamic";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { HomeQuickLinksSection } from "@/components/sections/HomeQuickLinksSection";
-import { AlgarveGuideSection } from "@/components/sections/AlgarveGuideSection";
-import { RegionsSection } from "@/components/sections/RegionsSection";
-import { CategoriesSection } from "@/components/sections/CategoriesSection";
-import { CitiesSection } from "@/components/sections/CitiesSection";
-import { FeaturedCitySection } from "@/components/sections/FeaturedCitySection";
-import { CuratedExcellence } from "@/components/sections/CuratedExcellence";
-import { SignatureMapSection } from "@/components/sections/SignatureMapSection";
-import { AllListingsSection } from "@/components/sections/AllListingsSection";
-import { NewsletterSection } from "@/components/sections/NewsletterSection";
-import { CTASection } from "@/components/sections/CTASection";
 import { useHomepageSettings } from "@/hooks/useHomepageSettings";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { CmsBlock } from "@/components/cms/CmsBlock";
+
+function HomeSectionFallback() {
+  return (
+    <div className="py-8">
+      <div className="h-48 rounded-[1.75rem] border border-border/50 bg-muted/35 animate-pulse" />
+    </div>
+  );
+}
+
+const withHomeSectionLoading = <T extends ComponentType<any>>(
+  loader: () => Promise<{ [key: string]: T } | { default: T }>,
+  select?: (module: any) => T,
+) =>
+  dynamic(async () => {
+    const mod = await loader();
+    return select ? select(mod) : (mod as { default: T }).default;
+  }, {
+    loading: () => <HomeSectionFallback />,
+  });
+
+const AlgarveGuideSection = withHomeSectionLoading(
+  () => import("@/components/sections/AlgarveGuideSection"),
+  (mod) => mod.AlgarveGuideSection,
+);
+const RegionsSection = withHomeSectionLoading(
+  () => import("@/components/sections/RegionsSection"),
+  (mod) => mod.RegionsSection,
+);
+const CategoriesSection = withHomeSectionLoading(
+  () => import("@/components/sections/CategoriesSection"),
+  (mod) => mod.CategoriesSection,
+);
+const CitiesSection = withHomeSectionLoading(
+  () => import("@/components/sections/CitiesSection"),
+  (mod) => mod.CitiesSection,
+);
+const FeaturedCitySection = withHomeSectionLoading(
+  () => import("@/components/sections/FeaturedCitySection"),
+  (mod) => mod.FeaturedCitySection,
+);
+const CuratedExcellence = withHomeSectionLoading(
+  () => import("@/components/sections/CuratedExcellence"),
+  (mod) => mod.CuratedExcellence,
+);
+const SignatureMapSection = withHomeSectionLoading(
+  () => import("@/components/sections/SignatureMapSection"),
+  (mod) => mod.SignatureMapSection,
+);
+const AllListingsSection = withHomeSectionLoading(
+  () => import("@/components/sections/AllListingsSection"),
+  (mod) => mod.AllListingsSection,
+);
+const NewsletterSection = withHomeSectionLoading(
+  () => import("@/components/sections/NewsletterSection"),
+  (mod) => mod.NewsletterSection,
+);
+const CTASection = withHomeSectionLoading(
+  () => import("@/components/sections/CTASection"),
+  (mod) => mod.CTASection,
+);
 
 // Section ID to component mapping
 const SECTION_COMPONENTS: Record<string, ComponentType<unknown>> = {

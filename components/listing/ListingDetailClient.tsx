@@ -20,13 +20,15 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify";
 import { toast } from "sonner";
 
 import type { Tables } from "@/integrations/supabase/types";
+import { SUPPORTED_LOCALES, type Locale } from "@/lib/i18n/config";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { RouteMessageState } from "@/components/layout/RouteMessageState";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -35,6 +37,8 @@ import { GoogleIcon } from "@/components/ui/google-icon";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChatModal } from "@/components/chat/ChatProvider";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import { useHydrated } from "@/hooks/useHydrated";
 import { LoginModal } from "@/components/ui/login-modal";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -44,9 +48,11 @@ import { useLocalePath } from "@/hooks/useLocalePath";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { formatRichTextDescription } from "@/lib/formatRichText";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
+import { getCategoryUrlSlug } from "@/lib/seo/programmatic/category-slugs";
 import { getListingCategoryLanding } from "@/lib/listingCategoryLanding";
 import { hasRealEstateSignals, isRealEstateCategorySlug } from "@/lib/realEstateDetection";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
+import { buildUniformLocalizedSlugMap } from "@/lib/i18n/localized-routing";
 import { normalizePublicContentLocale, type PublicContentLocale } from "@/lib/publicContentLocale";
 import ListingImage from "@/components/ListingImage";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
@@ -107,6 +113,7 @@ export interface WhatsAppStatus {
 
 export interface ListingDetailClientProps {
   locale?: string;
+  localeSwitchPaths?: Partial<Record<Locale, string>>;
   listing: ListingWithRelations;
   initialTranslation: ListingTranslationRow | null;
   initialReviews: ListingReview[];
@@ -334,6 +341,7 @@ async function fetchOwnerWhatsAppStatus(ownerId: string | null) {
 
 function ListingDetailClientInner({
   locale: initialLocaleProp,
+  localeSwitchPaths,
   listing: initialListing,
   initialTranslation,
   initialReviews,
@@ -341,8 +349,11 @@ function ListingDetailClientInner({
   initialWhatsAppStatus,
   initialLookupValue,
 }: ListingDetailClientProps) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const l = useLocalePath();
+  const hydrated = useHydrated();
+  const currentLocale = useCurrentLocale();
+  const routeLocale = normalizePublicContentLocale(currentLocale);
   const { user } = useAuth();
   const { openChat } = useChatModal();
   const { isFavorite, toggleFavorite } = useFavoriteListings();
@@ -352,15 +363,12 @@ function ListingDetailClientInner({
   const [agentContactModalOpen, setAgentContactModalOpen] = useState(false);
   const [prefillScheduleVisit, setPrefillScheduleVisit] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [lang, setLang] = useState<PublicContentLocale>(() =>
-    normalizePublicContentLocale(initialLocaleProp || i18n.language),
-  );
   const [tr, setTr] = useState<ListingTranslationRow | null>(initialTranslation);
   const [trLoading, setTrLoading] = useState(false);
   const [trError, setTrError] = useState<string | null>(null);
 
   const { data: listing, isLoading, error } = useQuery({
-    queryKey: ["listing", initialLookupValue, normalizePublicContentLocale(initialLocaleProp || i18n.language)],
+    queryKey: ["listing", initialLookupValue, routeLocale],
     queryFn: async () => {
       const data = await fetchListingByIdOrSlug(initialLookupValue);
       if (!data) {
@@ -394,13 +402,9 @@ function ListingDetailClientInner({
   });
 
   useEffect(() => {
-    setLang(normalizePublicContentLocale(initialLocaleProp || i18n.language));
-  }, [i18n.language, initialLocaleProp]);
-
-  useEffect(() => {
     if (!listing?.id) return;
 
-    const targetLang = lang;
+    const targetLang = routeLocale;
 
     if (!targetLang || targetLang === "en") {
       setTr(initialTranslation);
@@ -452,7 +456,7 @@ function ListingDetailClientInner({
     return () => {
       cancelled = true;
     };
-  }, [initialTranslation, lang, listing?.id]);
+  }, [initialTranslation, listing?.id, routeLocale]);
 
   const isAdminOrEditor = user?.role === "admin" || user?.role === "editor";
 
@@ -564,7 +568,10 @@ function ListingDetailClientInner({
         cityName: listing.city?.name || "Algarve",
         tier: listing.tier,
         featuredImageUrl: normalizedFeaturedImageUrl || normalizedCategoryImageUrl || undefined,
-        href: l(`/listing/${listing.slug || listing.id}`),
+        href: l({
+          routeType: "listing",
+          slugs: buildUniformLocalizedSlugMap(listing.slug || listing.id),
+        }),
         isPrimary: true,
       },
     ];
@@ -582,7 +589,7 @@ function ListingDetailClientInner({
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
-        <Header />
+        <Header localeSwitchPaths={localeSwitchPaths} />
         <main className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
@@ -594,18 +601,20 @@ function ListingDetailClientInner({
   if (error || !listing || (listing.status !== "published" && !isAdminOrEditor)) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
-        <Header />
+        <Header localeSwitchPaths={localeSwitchPaths} />
         <main className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-serif mb-4">{t("listing.notFound")}</h1>
-            <p className="text-muted-foreground mb-6">{t("listing.notFoundMessage")}</p>
-            <Link href={l("/")}>
-              <Button>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                {t("listing.backToHome")}
-              </Button>
-            </Link>
-          </div>
+          <RouteMessageState
+            title={t("listing.notFound")}
+            description={t("listing.notFoundMessage")}
+            actions={(
+              <Link href={l("/")}>
+                <Button>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  {t("listing.backToHome")}
+                </Button>
+              </Link>
+            )}
+          />
         </main>
         <Footer />
       </div>
@@ -646,7 +655,29 @@ function ListingDetailClientInner({
   const canonicalCategorySlug = getCanonicalCategorySlug(listing.category?.slug);
   const landingPage = getListingCategoryLanding(canonicalCategorySlug);
   const landingLabel = t(landingPage.labelKey, landingPage.fallbackLabel);
-  const categoryDirectoryPath = canonicalCategorySlug ? `/directory?category=${canonicalCategorySlug}` : "/directory";
+  const categoryDirectoryPath = canonicalCategorySlug ? `/stay?category=${canonicalCategorySlug}` : "/stay";
+  const cityRouteData = listing.city?.slug
+    ? {
+        routeType: "city" as const,
+        citySlugs: buildUniformLocalizedSlugMap(listing.city.slug),
+      }
+    : null;
+  const categorySlugMap = canonicalCategorySlug
+    ? (Object.fromEntries(
+        SUPPORTED_LOCALES.map((locale) => [
+          locale,
+          getCategoryUrlSlug(canonicalCategorySlug, locale),
+        ]),
+      ) as Partial<Record<Locale, string>>)
+    : null;
+  const cityCategoryRouteData =
+    cityRouteData && categorySlugMap
+      ? ({
+          routeType: "city-category" as const,
+          citySlugs: cityRouteData.citySlugs,
+          categorySlugs: categorySlugMap,
+        })
+      : null;
 
   const visualBreadcrumbs = [
     { name: t("nav.home"), to: l("/"), current: false },
@@ -654,12 +685,19 @@ function ListingDetailClientInner({
     ...(canonicalCategorySlug
       ? [{ name: categoryLabel, to: l(categoryDirectoryPath), current: false }]
       : []),
-    { name: listingTitle, to: l(`/listing/${listing.slug || listing.id}`), current: true },
+    {
+      name: listingTitle,
+      to: l({
+        routeType: "listing",
+        slugs: buildUniformLocalizedSlugMap(listing.slug || listing.id),
+      }),
+      current: true,
+    },
   ];
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header />
+      <Header localeSwitchPaths={localeSwitchPaths} />
 
       <main className="flex-1 pt-[10px] pb-24 lg:pb-0">
         <nav className="bg-card border-b border-border" aria-label="Breadcrumb">
@@ -810,17 +848,21 @@ function ListingDetailClientInner({
                   </div>
                 ) : (
                   <div className="h-full rounded-xl overflow-hidden">
-                    <ListingsLeafletMap
-                      points={listingMapPoints}
-                      activeListingId={listing.id}
-                      focusListingId={listing.id}
-                      enableClustering={false}
-                      scrollWheelZoom={false}
-                      showPopups
-                      className="h-full"
-                      mapClassName="h-full min-h-0"
-                      emptyMessage={t("listing.locationUnavailable", "Location unavailable for this listing.")}
-                    />
+                    {hydrated ? (
+                      <ListingsLeafletMap
+                        points={listingMapPoints}
+                        activeListingId={listing.id}
+                        focusListingId={listing.id}
+                        enableClustering={false}
+                        scrollWheelZoom={false}
+                        showPopups
+                        className="h-full"
+                        mapClassName="h-full min-h-0"
+                        emptyMessage={t("listing.locationUnavailable", "Location unavailable for this listing.")}
+                      />
+                    ) : (
+                      <div className="h-full min-h-[300px] w-full bg-muted animate-pulse rounded-xl" />
+                    )}
                   </div>
                 )}
               </div>
@@ -829,16 +871,20 @@ function ListingDetailClientInner({
             <div className="lg:hidden mt-4">
               {listingMapPoints.length > 0 ? (
                 <div className="rounded-xl overflow-hidden">
-                  <ListingsLeafletMap
-                    points={listingMapPoints}
-                    activeListingId={listing.id}
-                    focusListingId={listing.id}
-                    enableClustering={false}
-                    scrollWheelZoom={false}
-                    showPopups
-                    mapClassName="aspect-video"
-                    emptyMessage={t("listing.locationUnavailable", "Location unavailable for this listing.")}
-                  />
+                  {hydrated ? (
+                    <ListingsLeafletMap
+                      points={listingMapPoints}
+                      activeListingId={listing.id}
+                      focusListingId={listing.id}
+                      enableClustering={false}
+                      scrollWheelZoom={false}
+                      showPopups
+                      mapClassName="aspect-video"
+                      emptyMessage={t("listing.locationUnavailable", "Location unavailable for this listing.")}
+                    />
+                  ) : (
+                    <div className="aspect-video w-full bg-muted animate-pulse rounded-xl" />
+                  )}
                 </div>
               ) : null}
             </div>
@@ -853,9 +899,10 @@ function ListingDetailClientInner({
                   <div className="flex items-center gap-3 mb-3">
                     {listing.category?.slug ? (
                       <LocaleLink
-                        href={listing.city?.slug 
-                          ? `/visit/${listing.city.slug}/${listing.category.slug}` 
-                          : `/directory?category=${listing.category.slug}`}
+                        href={
+                          cityCategoryRouteData ??
+                          `/stay?category=${listing.category.slug}`
+                        }
                         className="hover:opacity-80"
                       >
                         <Badge variant="secondary" className="text-body-xs">
@@ -878,9 +925,9 @@ function ListingDetailClientInner({
 
                   <div className="flex items-center gap-2 text-body-sm text-muted-foreground">
                     <MapPin className="h-4 w-4" />
-                    {listing.city?.slug ? (
-                      <LocaleLink href={`/visit/${listing.city.slug}`} className="hover:text-primary transition-colors">
-                        {listing.city.name}, Algarve, Portugal
+                    {cityRouteData ? (
+                      <LocaleLink href={cityRouteData} className="hover:text-primary transition-colors">
+                        {listing.city?.name}, Algarve, Portugal
                       </LocaleLink>
                     ) : (
                       <span>{listing.city?.name}, Algarve, Portugal</span>
@@ -1058,7 +1105,10 @@ function ListingDetailClientInner({
                   return (
                     <Link
                       key={related.id}
-                      href={l(`/listing/${related.slug || related.id}`)}
+                      href={l({
+                        routeType: "listing",
+                        slugs: buildUniformLocalizedSlugMap(related.slug || related.id),
+                      })}
                       className="group block rounded-xl overflow-hidden border border-border hover:border-primary/40 transition-colors bg-card"
                     >
                       <div className="aspect-[16/10] overflow-hidden bg-muted">
@@ -1099,7 +1149,10 @@ function ListingDetailClientInner({
                 ].map((dest) => (
                   <Link
                     key={dest.slug}
-                    href={l(`/destinations/${dest.slug}`)}
+                    href={l({
+                      routeType: "destination",
+                      slugs: buildUniformLocalizedSlugMap(dest.slug),
+                    })}
                     className="group block rounded-xl overflow-hidden border border-border hover:border-primary/40 transition-colors bg-card"
                   >
                     <div className="aspect-[4/3] relative overflow-hidden bg-muted">

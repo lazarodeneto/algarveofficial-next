@@ -15,24 +15,14 @@ import { ConciergeContactDialog } from "@/components/real-estate/ConciergeContac
 import { useTranslation } from "react-i18next";
 import { Database } from "@/integrations/supabase/types";
 import { matchesPropertyCategoryFilters } from "@/lib/properties/filters";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import {
+    fetchCityTranslations,
+    fetchListingTranslations,
+    normalizePublicContentLocale,
+} from "@/lib/publicContentLocale";
 
-type Lang = "en" | "pt-pt" | "fr" | "de" | "es" | "it" | "nl" | "sv" | "no" | "da";
 const REAL_ESTATE_CATEGORY_SLUG = "real-estate";
-
-const normalizeLang = (raw?: string | null): Lang => {
-    if (!raw) return "en";
-    const v = raw.toLowerCase().replace("_", "-").trim();
-    if (v === "pt" || v === "pt-pt" || v === "pt_pt") return "pt-pt";
-    if (v.startsWith("fr")) return "fr";
-    if (v.startsWith("de")) return "de";
-    if (v.startsWith("es")) return "es";
-    if (v.startsWith("it")) return "it";
-    if (v.startsWith("nl")) return "nl";
-    if (v.startsWith("sv")) return "sv";
-    if (v === "no" || v.startsWith("nb") || v.startsWith("nn")) return "no";
-    if (v.startsWith("da")) return "da";
-    return "en";
-};
 
 type RealEstateListing = Pick<
     Database["public"]["Tables"]["listings"]["Row"],
@@ -67,8 +57,8 @@ interface FilterState {
 }
 
 export default function PropertiesClient() {
-    const { t, i18n } = useTranslation();
-    const targetLang = normalizeLang(i18n.language);
+    const { t } = useTranslation();
+    const targetLang = normalizePublicContentLocale(useCurrentLocale());
     const [filters, setFilters] = useState<FilterState>({
         priceMin: "",
         priceMax: "",
@@ -125,10 +115,55 @@ export default function PropertiesClient() {
             query = query.order("tier", { ascending: true }).order("created_at", { ascending: false });
             const { data, error } = await query;
             if (error) throw error;
-            return ((data ?? []) as Array<RealEstateListing & { cities: { name: string; slug: string }[] | { name: string; slug: string } | null }>).map((row) => ({
+
+            const rows = ((data ?? []) as Array<RealEstateListing & { cities: { name: string; slug: string }[] | { name: string; slug: string } | null }>).map((row) => ({
                 ...row,
                 cities: Array.isArray(row.cities) ? (row.cities[0] ?? null) : (row.cities ?? null),
             })) as RealEstateListing[];
+
+            if (targetLang === "en" || rows.length === 0) {
+                return rows;
+            }
+
+            try {
+                const [listingTranslations, cityTranslations] = await Promise.all([
+                    fetchListingTranslations(targetLang, rows.map((listing) => listing.id)),
+                    fetchCityTranslations(
+                        targetLang,
+                        rows.map((listing) => listing.city_id).filter(Boolean) as string[],
+                    ),
+                ]);
+
+                const listingTranslationMap = new Map(
+                    listingTranslations.map((translation) => [translation.listing_id, translation]),
+                );
+                const cityTranslationMap = new Map(
+                    cityTranslations.map((translation) => [translation.city_id, translation]),
+                );
+
+                return rows.map((listing) => {
+                    const listingTranslation = listingTranslationMap.get(listing.id);
+                    const cityTranslation = listing.city_id
+                        ? cityTranslationMap.get(listing.city_id)
+                        : undefined;
+
+                    return {
+                        ...listing,
+                        name: listingTranslation?.title?.trim() || listing.name,
+                        short_description:
+                            listingTranslation?.short_description?.trim() || listing.short_description,
+                        cities: listing.cities
+                            ? {
+                                ...listing.cities,
+                                name: cityTranslation?.name?.trim() || listing.cities.name,
+                            }
+                            : listing.cities,
+                    };
+                });
+            } catch (translationError) {
+                console.warn("Failed to localize property listings; falling back to English.", translationError);
+                return rows;
+            }
         },
         staleTime: 1000 * 60 * 5,
     });

@@ -1,3 +1,4 @@
+"use client";
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -19,6 +20,7 @@ import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { useCities } from "@/hooks/useReferenceData";
 import Link from "next/link";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import {
     STANDARD_PUBLIC_HERO_WRAPPER_CLASS,
@@ -47,11 +49,11 @@ type RealEstateListing = Database["public"]["Tables"]["listings"]["Row"] & {
 };
 
 export default function RealEstateDirectory() {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const { getText, isBlockEnabled, getBlockData } = useCmsPageBuilder("real-estate");
     const l = useLocalePath();
     const { data: cities = [] } = useCities();
-    const targetLang = normalizeLang(i18n.language);
+    const targetLang = normalizeLang(useCurrentLocale());
     const heroEnabled = isBlockEnabled("hero", true);
     const showCityHubs = cities.length > 0 && isBlockEnabled("city-hubs", true);
     const [filters, setFilters] = useState({

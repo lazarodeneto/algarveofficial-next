@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -57,6 +57,8 @@ import { Database } from "@/integrations/supabase/types";
 import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { CountryPhoneInput } from "@/components/ui/country-phone-input";
 import { formatRichTextDescription } from "@/lib/formatRichText";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { translateCategoryValue } from "@/lib/translateCategoryValue";
 import ListingImage from "@/components/ListingImage";
 
@@ -97,7 +99,9 @@ const DEFAULT_AGENT = {
 };
 
 export default function RealEstateDetail() {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
+    const locale = useCurrentLocale();
+    const l = useLocalePath();
     const { slug } = useParams();
 
     const [isVisitScheduling, setIsVisitScheduling] = useState(false);
@@ -172,7 +176,7 @@ export default function RealEstateDetail() {
         enabled: !!listing
     });
 
-    const targetLang = normalizeLang(i18n.language);
+    const targetLang = normalizeLang(locale);
 
     const { data: listingTranslation } = useQuery({
         queryKey: ["real-estate-translation", listing?.id, targetLang],
@@ -205,7 +209,7 @@ export default function RealEstateDetail() {
                 <Header />
                 <h1 className="text-3xl font-serif text-foreground mb-4">Listing Not Found</h1>
                 <p className="text-muted-foreground mb-8">The property you are looking for might have been removed or renamed.</p>
-                <Link href="/invest">
+                <Link href={l("/invest")}>
                     <Button variant="outline">Browse All Listings</Button>
                 </Link>
             </div>
@@ -289,15 +293,16 @@ export default function RealEstateDetail() {
                 items={[
                     { name: "Home", url: "https://algarveofficial.com/" },
                     { name: "Invest", url: "https://algarveofficial.com/invest" },
-                    { name: effectiveTitle, url: `https://algarveofficial.com/real-estate/${listing.slug}` },
+                    { name: effectiveTitle, url: `https://algarveofficial.com/listing/${listing.slug}` },
                 ]}
+                locale={locale}
             />
             <Header />
 
             {/* Breadcrumbs - simplified */}
                 <div className="container mx-auto px-4 py-4 text-xs text-muted-foreground uppercase tracking-widest flex items-center gap-2 font-medium">
-                    <Link href="/">{t('nav.home')}</Link> <ChevronRight className="w-3 h-3" />
-                    <Link href="/invest">{t('nav.invest')}</Link> <ChevronRight className="w-3 h-3" />
+                    <Link href={l("/")}>{t('nav.home')}</Link> <ChevronRight className="w-3 h-3" />
+                    <Link href={l("/invest")}>{t('nav.invest')}</Link> <ChevronRight className="w-3 h-3" />
                     <span className="text-gold">{effectiveTitle}</span>
                 </div>
 
@@ -718,7 +723,7 @@ export default function RealEstateDetail() {
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                                 {similarListings.map(item => (
-                                    <Link href={`/real-estate/${item.slug}`} key={item.id} className="group block">
+                                    <Link href={l(`/listing/${item.slug}`)} key={item.id} className="group block">
                                         <div className="aspect-[4/3] rounded-2xl overflow-hidden mb-4 relative">
                                             <ListingImage
                                                 src={item.featured_image_url}

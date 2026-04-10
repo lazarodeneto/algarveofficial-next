@@ -1,12 +1,9 @@
-"use client";
+import { redirectUnlocalizedAliasPath } from "@/lib/i18n/serverRedirect";
 
-import { Suspense } from "react";
-import Login from "@/legacy-pages/auth/Login";
+interface LoginAliasPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-export default function LoginPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <Login />
-    </Suspense>
-  );
+export default async function LoginAliasPage({ searchParams }: LoginAliasPageProps) {
+  await redirectUnlocalizedAliasPath("/login", await searchParams);
 }

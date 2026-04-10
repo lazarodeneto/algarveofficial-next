@@ -1,9 +1,29 @@
-import { dehydrate, QueryClient } from "@tanstack/react-query";
+import { dehydrate, type QueryClient } from "@tanstack/react-query";
 import type { CityRow, RegionRow, CategoryRow } from "@/hooks/useReferenceData";
 import type { ListingWithRelations } from "@/hooks/useListings";
 import type { Tables } from "@/integrations/supabase/types";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
 import type { CuratedListingWithRelations } from "@/hooks/useCuratedAssignments";
+import { HERO_OVERLAY_INTENSITY_SETTING_KEY } from "@/lib/heroOverlay";
+import { HOME_QUICK_LINK_SETTING_KEYS } from "@/lib/homeQuickLinks";
+import type { Locale } from "@/lib/i18n/config";
+import {
+  categoriesQueryKey,
+  citiesQueryKey,
+  curatedAssignmentsQueryKey,
+  globalSettingsQueryKey,
+  homepageSettingsQueryKey,
+  publishedListingsQueryKey,
+  regionListingCountsQueryKey,
+  regionsQueryKey,
+} from "@/lib/query-keys";
+import {
+  fetchCategoryTranslations,
+  fetchCityTranslations,
+  fetchListingTranslations,
+  fetchRegionTranslations,
+} from "@/lib/publicContentLocale";
+import { createAppQueryClient } from "@/lib/react-query";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 
 const PUBLIC_LISTING_FIELDS =
@@ -24,21 +44,22 @@ const HOMEPAGE_CATEGORY_FIELDS =
   "id, name, slug, short_description, description, icon, image_url, is_active, is_featured, display_order, created_at";
 const HOMEPAGE_CITY_FIELDS =
   "id, name, slug, short_description, description, image_url, hero_image_url, latitude, longitude, is_active, is_featured, display_order, created_at";
+const TRANSLATED_LOCALES: Locale[] = ["de", "fr", "es", "it", "nl", "sv", "no", "da"];
 
 function getServerSupabase() {
   return createPublicServerClient();
 }
 
-function normalizePublicContentLocale(language: string): string {
+function normalizePublicContentLocale(language: string): Locale {
   const normalized = language.trim().toLowerCase();
   if (!normalized) return "en";
   if (normalized === "pt") return "pt-pt";
   if (normalized.startsWith("pt-pt")) return "pt-pt";
-  if (["de", "fr", "es", "it", "nl", "sv", "no", "da"].includes(normalized)) return normalized;
+  if (TRANSLATED_LOCALES.includes(normalized as Locale)) return normalized as Locale;
   return "en";
 }
 
-function normalizeHomepageLocale(language: string | undefined): string {
+function normalizeHomepageLocale(language: string | undefined): Locale {
   return normalizePublicContentLocale(language ?? "en");
 }
 
@@ -48,6 +69,69 @@ function preferTranslatedValue(
 ): string | null {
   const trimmed = translated?.trim();
   return trimmed && trimmed.length > 0 ? trimmed : fallback;
+}
+
+function mergeListingLocalizations(
+  listings: ListingWithRelations[],
+  listingTranslations: Awaited<ReturnType<typeof fetchListingTranslations>>,
+  cityTranslations: Awaited<ReturnType<typeof fetchCityTranslations>>,
+  regionTranslations: Awaited<ReturnType<typeof fetchRegionTranslations>>,
+  categoryTranslations: Awaited<ReturnType<typeof fetchCategoryTranslations>>,
+) {
+  const listingTranslationMap = new Map(
+    listingTranslations.map((translation) => [translation.listing_id, translation]),
+  );
+  const cityTranslationMap = new Map(
+    cityTranslations.map((translation) => [translation.city_id, translation]),
+  );
+  const regionTranslationMap = new Map(
+    regionTranslations.map((translation) => [translation.region_id, translation]),
+  );
+  const categoryTranslationMap = new Map(
+    categoryTranslations.map((translation) => [translation.category_id, translation]),
+  );
+
+  return listings.map((listing) => {
+    const listingTranslation = listingTranslationMap.get(listing.id);
+    const cityTranslation = listing.city?.id ? cityTranslationMap.get(listing.city.id) : undefined;
+    const regionTranslation = listing.region?.id ? regionTranslationMap.get(listing.region.id) : undefined;
+    const categoryTranslation = listing.category?.id
+      ? categoryTranslationMap.get(listing.category.id)
+      : undefined;
+
+    return {
+      ...listing,
+      name: listingTranslation?.title?.trim() || listing.name,
+      short_description: listingTranslation?.short_description?.trim() || listing.short_description,
+      description: listingTranslation?.description?.trim() || listing.description,
+      city: listing.city
+        ? {
+            ...listing.city,
+            name: cityTranslation?.name?.trim() || listing.city.name,
+            short_description:
+              cityTranslation?.short_description?.trim() || listing.city.short_description,
+            description: cityTranslation?.description?.trim() || listing.city.description,
+          }
+        : listing.city,
+      region: listing.region
+        ? {
+            ...listing.region,
+            name: regionTranslation?.name?.trim() || listing.region.name,
+            short_description:
+              regionTranslation?.short_description?.trim() || listing.region.short_description,
+            description: regionTranslation?.description?.trim() || listing.region.description,
+          }
+        : listing.region,
+      category: listing.category
+        ? {
+            ...listing.category,
+            name: categoryTranslation?.name?.trim() || listing.category.name,
+            short_description:
+              categoryTranslation?.short_description?.trim() || listing.category.short_description,
+          }
+        : listing.category,
+    };
+  });
 }
 
 type HomepageSettingsLike = Pick<
@@ -93,10 +177,11 @@ export interface HomePageData {
   categories: CategoryRow[];
   allCategories: CategoryRow[];
   cities: CityRow[];
+  regionListingCounts: Record<string, number>;
   listings: ListingWithRelations[];
   curatedAssignments: CuratedListingWithRelations[];
   globalSettings: GlobalSetting[];
-  locale: string;
+  locale: Locale;
 }
 
 async function fetchHomepageSettingsWithTranslation(
@@ -147,7 +232,8 @@ async function fetchRegions(supabase: ReturnType<typeof getServerSupabase>): Pro
   const { data, error } = await supabase
     .from("regions")
     .select(HOMEPAGE_REGION_FIELDS)
-    .eq("active", true)
+    .eq("is_active", true)
+    .order("display_order", { ascending: true })
     .order("name", { ascending: true });
 
   if (error) return [];
@@ -160,7 +246,8 @@ async function fetchCategories(
   const { data, error } = await supabase
     .from("categories")
     .select(HOMEPAGE_CATEGORY_FIELDS)
-    .eq("active", true)
+    .eq("is_active", true)
+    .order("display_order", { ascending: true })
     .order("name", { ascending: true });
 
   if (error) return [];
@@ -171,15 +258,17 @@ async function fetchCities(supabase: ReturnType<typeof getServerSupabase>): Prom
   const { data, error } = await supabase
     .from("cities")
     .select(HOMEPAGE_CITY_FIELDS)
-    .eq("active", true)
+    .eq("is_active", true)
+    .order("display_order", { ascending: true })
     .order("name", { ascending: true });
 
   if (error) return [];
   return (data ?? []) as CityRow[];
 }
 
-async function fetchSignatureListings(
+async function fetchPublishedListings(
   supabase: ReturnType<typeof getServerSupabase>,
+  locale: Locale,
 ): Promise<ListingWithRelations[]> {
   const { data, error } = await supabase
     .from("listings")
@@ -192,11 +281,40 @@ async function fetchSignatureListings(
     `,
     )
     .eq("status", "published")
-    .eq("tier", "signature")
     .order("created_at", { ascending: false });
 
   if (error) return [];
-  return data as unknown as ListingWithRelations[];
+
+  const listings = (data ?? []) as unknown as ListingWithRelations[];
+  const tierOrder: Record<string, number> = { signature: 0, verified: 1, unverified: 2 };
+  const sortedListings = listings.sort(
+    (a, b) => (tierOrder[a.tier] ?? 2) - (tierOrder[b.tier] ?? 2),
+  );
+
+  if (locale === "en" || sortedListings.length === 0) {
+    return sortedListings;
+  }
+
+  const listingIds = sortedListings.map((listing) => listing.id);
+  const cityIds = sortedListings.map((listing) => listing.city?.id).filter(Boolean) as string[];
+  const regionIds = sortedListings.map((listing) => listing.region?.id).filter(Boolean) as string[];
+  const categoryIds = sortedListings.map((listing) => listing.category?.id).filter(Boolean) as string[];
+
+  const [listingTranslations, cityTranslations, regionTranslations, categoryTranslations] =
+    await Promise.all([
+      fetchListingTranslations(locale, listingIds),
+      fetchCityTranslations(locale, cityIds),
+      fetchRegionTranslations(locale, regionIds),
+      fetchCategoryTranslations(locale, categoryIds),
+    ]);
+
+  return mergeListingLocalizations(
+    sortedListings,
+    listingTranslations,
+    cityTranslations,
+    regionTranslations,
+    categoryTranslations,
+  );
 }
 
 async function fetchCuratedAssignments(
@@ -215,8 +333,8 @@ async function fetchCuratedAssignments(
       )
     `,
     )
-    .eq("context_type", "home")
-    .order("position", { ascending: true })
+    .eq("context_type", "homepage")
+    .order("display_order", { ascending: true })
     .limit(4);
 
   if (error) return [];
@@ -235,17 +353,46 @@ async function fetchGlobalSettings(
   return (data ?? []) as GlobalSetting[];
 }
 
+async function fetchRegionListingCounts(
+  supabase: ReturnType<typeof getServerSupabase>,
+): Promise<Record<string, number>> {
+  const { data, error } = await supabase
+    .from("listings")
+    .select("region_id")
+    .eq("status", "published")
+    .not("region_id", "is", null);
+
+  if (error) return {};
+
+  return (data ?? []).reduce<Record<string, number>>((counts, row) => {
+    if (row.region_id) {
+      counts[row.region_id] = (counts[row.region_id] ?? 0) + 1;
+    }
+    return counts;
+  }, {});
+}
+
 export async function getHomePageData(locale?: string): Promise<HomePageData> {
   const resolvedLocale = normalizeHomepageLocale(locale ?? "en");
   const supabase = getServerSupabase();
 
-  const [homepageSettings, regions, categories, cities, signatureListings, curatedAssignments, globalSettings] =
+  const [
+    homepageSettings,
+    regions,
+    categories,
+    cities,
+    regionListingCounts,
+    publishedListings,
+    curatedAssignments,
+    globalSettings,
+  ] =
     await Promise.all([
       fetchHomepageSettingsWithTranslation(supabase, resolvedLocale),
       fetchRegions(supabase),
       fetchCategories(supabase),
       fetchCities(supabase),
-      fetchSignatureListings(supabase),
+      fetchRegionListingCounts(supabase),
+      fetchPublishedListings(supabase, resolvedLocale),
       fetchCuratedAssignments(supabase),
       fetchGlobalSettings(supabase),
     ]);
@@ -256,45 +403,42 @@ export async function getHomePageData(locale?: string): Promise<HomePageData> {
     categories,
     allCategories: categories,
     cities,
-    listings: signatureListings,
+    regionListingCounts,
+    listings: publishedListings,
     curatedAssignments,
     globalSettings,
     locale: resolvedLocale,
   };
 }
 
-export async function getDehydratedHomePageState(): Promise<{
+export async function getDehydratedHomePageState(locale?: string): Promise<{
   dehydratedState: ReturnType<typeof dehydrate>;
   queryClient: QueryClient;
 }> {
-  const data = await getHomePageData();
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 1000 * 60 * 5,
-        gcTime: 1000 * 60 * 30,
-      },
-    },
-  });
+  const data = await getHomePageData(locale);
+  const queryClient = createAppQueryClient();
 
-  if (data.homepageSettings) {
-    queryClient.setQueryData(["homepage-settings"], data.homepageSettings);
-  }
-  if (data.listings.length > 0) {
-    queryClient.setQueryData(["listings", "signature", data.locale], data.listings);
-  }
-  if (data.globalSettings.length > 0) {
-    queryClient.setQueryData(["global-settings", "homepage"], data.globalSettings);
-  }
-  if (data.regions.length > 0) {
-    queryClient.setQueryData(["reference-data", "regions"], data.regions);
-  }
-  if (data.categories.length > 0) {
-    queryClient.setQueryData(["reference-data", "categories"], data.categories);
-  }
-  if (data.cities.length > 0) {
-    queryClient.setQueryData(["reference-data", "cities"], data.cities);
-  }
+  queryClient.setQueryData(homepageSettingsQueryKey(data.locale), data.homepageSettings);
+  queryClient.setQueryData(regionsQueryKey(data.locale), data.regions);
+  queryClient.setQueryData(categoriesQueryKey(data.locale), data.categories);
+  queryClient.setQueryData(citiesQueryKey(data.locale), data.cities);
+  queryClient.setQueryData(regionListingCountsQueryKey(), data.regionListingCounts);
+  queryClient.setQueryData(
+    publishedListingsQueryKey({}, data.locale),
+    data.listings,
+  );
+  queryClient.setQueryData(
+    curatedAssignmentsQueryKey("homepage", null, 4),
+    data.curatedAssignments,
+  );
+  queryClient.setQueryData(
+    globalSettingsQueryKey(HOME_QUICK_LINK_SETTING_KEYS, "default"),
+    data.globalSettings.filter((setting) => HOME_QUICK_LINK_SETTING_KEYS.includes(setting.key)),
+  );
+  queryClient.setQueryData(
+    globalSettingsQueryKey([HERO_OVERLAY_INTENSITY_SETTING_KEY], "default"),
+    data.globalSettings.filter((setting) => setting.key === HERO_OVERLAY_INTENSITY_SETTING_KEY),
+  );
 
   const dehydratedState = dehydrate(queryClient);
   return { dehydratedState, queryClient };

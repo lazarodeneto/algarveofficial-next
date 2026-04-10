@@ -21,6 +21,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -433,7 +434,7 @@ export default function UserFavorites() {
                   {t("dashboard.favorites.startExploring")}
                 </p>
                 <Button asChild>
-                  <Link href="/">{t("dashboard.favorites.exploreListings")}</Link>
+                  <LocaleLink href="/">{t("dashboard.favorites.exploreListings")}</LocaleLink>
                 </Button>
               </CardContent>
             </Card>

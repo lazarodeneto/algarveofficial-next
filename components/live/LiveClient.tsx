@@ -2,11 +2,15 @@
 
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
 
-import LivePage from "@/legacy-pages/public/Live";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
 import { useHydrated } from "@/hooks/useHydrated";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
+
+const LivePage = dynamic(() => import("@/legacy-pages/public/Live"), {
+  loading: () => <div className="min-h-screen bg-background" aria-hidden="true" />,
+});
 
 export interface LiveClientProps {
   initialGlobalSettings: GlobalSetting[];

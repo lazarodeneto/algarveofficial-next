@@ -28,6 +28,7 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -113,7 +114,7 @@ export function useTSafe(ns?: string): {
   i18n: ReturnType<typeof useTranslation>["i18n"];
 } {
   const { t, i18n } = useTranslation(ns);
-  const locale = i18n.language ?? "en";
+  const locale = useCurrentLocale();
   const tSafe = makeTSafe(t as (key: string, options?: Record<string, unknown>) => string, locale);
   return { tSafe, locale, i18n };
 }

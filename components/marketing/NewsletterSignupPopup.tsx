@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNewsletterSignup } from "@/hooks/useNewsletterSignup";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
+import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 
 const POPUP_VERSION = "newsletter-popup-v1";
 const DISMISS_KEY = "algarve-newsletter-popup-dismissed-at";
@@ -14,10 +15,8 @@ const SESSION_KEY = "algarve-newsletter-popup-seen";
 const SUBSCRIBED_KEY = "algarve-newsletter-popup-subscribed";
 const SHOW_DELAY_MS = 12000;
 const DISMISS_COOLDOWN_MS = 1000 * 60 * 60 * 24 * 3;
-const LANG_PREFIX_RE = /^\/(pt-pt|fr|de|es|it|nl|sv|no|da)(?=\/|$)/;
-
 function normalizePath(pathname: string): string {
-  const withoutLang = pathname.replace(LANG_PREFIX_RE, "");
+  const withoutLang = stripLocaleFromPathname(pathname);
   return withoutLang.length > 0 ? withoutLang : "/";
 }
 

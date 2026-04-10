@@ -1,12 +1,11 @@
-"use client";
+import { redirectUnlocalizedAliasPath } from "@/lib/i18n/serverRedirect";
 
-import { Suspense } from "react";
-import ForgotPassword from "@/legacy-pages/auth/ForgotPassword";
+interface ForgotPasswordAliasPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-export default function ForgotPasswordPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <ForgotPassword />
-    </Suspense>
-  );
+export default async function ForgotPasswordAliasPage({
+  searchParams,
+}: ForgotPasswordAliasPageProps) {
+  await redirectUnlocalizedAliasPath("/forgot-password", await searchParams);
 }

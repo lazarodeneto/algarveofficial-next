@@ -2,6 +2,15 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { SUPPORTED_LOCALES, isValidLocale, DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config";
+import {
+  buildLocaleSwitchPathsForEntity,
+  buildStaticRouteData,
+  buildUniformLocalizedSlugMap,
+  type CategoryRouteData,
+  type CityCategoryRouteData,
+  type CityRouteData,
+  type GuideRouteData,
+} from "@/lib/i18n/localized-routing";
 import { getCategoryDisplayName, getCategoryUrlSlug, ALL_CANONICAL_SLUGS, type CanonicalCategorySlug } from "@/lib/seo/programmatic/category-slugs";
 import { getServerTranslations } from "@/lib/i18n/server";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
@@ -79,6 +88,24 @@ const GUIDES_CONFIG = {
   },
 };
 
+function buildGuideRouteData(slug: string): GuideRouteData {
+  return {
+    routeType: "guide",
+    slugs: buildUniformLocalizedSlugMap(slug),
+  };
+}
+
+function buildGuideCategoryRouteData(
+  category: CanonicalCategorySlug,
+): CategoryRouteData {
+  return {
+    routeType: "category",
+    slugs: Object.fromEntries(
+      SUPPORTED_LOCALES.map((locale) => [locale, getCategoryUrlSlug(category, locale)])
+    ) as CategoryRouteData["slugs"],
+  };
+}
+
 export async function generateStaticParams() {
   const params = [];
   for (const locale of SUPPORTED_LOCALES) {
@@ -108,7 +135,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return buildPageMetadata({
     title: guide.title,
     description: guide.description,
-    localizedPath: `/guides/${slug}`,
+    localizedRoute: buildGuideRouteData(slug),
     locale,
   });
 }
@@ -146,22 +173,37 @@ export default async function GuidePage({ params }: PageProps) {
     .order("google_rating", { ascending: false, nullsFirst: false })
     .limit(20) as { data: any[] };
   
-  const categorySlug = getCategoryUrlSlug(guide.targetCategory as CanonicalCategorySlug, locale);
+  const guideRouteData = buildGuideRouteData(slug);
+  const localeSwitchPaths = buildLocaleSwitchPathsForEntity(guideRouteData, SUPPORTED_LOCALES);
+  const categoryRouteData = buildGuideCategoryRouteData(guide.targetCategory as CanonicalCategorySlug);
+  const cityRouteData: CityRouteData = {
+    routeType: "city",
+    citySlugs: buildUniformLocalizedSlugMap(guide.targetCity),
+  };
+  const cityCategoryRouteData: CityCategoryRouteData = {
+    routeType: "city-category",
+    citySlugs: cityRouteData.citySlugs,
+    categorySlugs: categoryRouteData.slugs,
+  };
   const tx = await getServerTranslations(locale, ["common"]);
   
   return (
     <>
-      <Header />
+      <Header localeSwitchPaths={localeSwitchPaths} />
       <main className="min-h-screen pt-20">
         <section className="bg-gradient-to-b from-background/60 to-background py-12">
           <div className="app-container">
             <nav aria-label="Breadcrumb" className="mb-4 text-sm text-muted-foreground">
               <ol className="flex gap-2">
-                <li><LocaleLink href="/">Home</LocaleLink></li>
+                <li><LocaleLink href={buildStaticRouteData("home")}>Home</LocaleLink></li>
                 <li>/</li>
-                <li><LocaleLink href={`/visit/${guide.targetCity}`}>{cityData.name}</LocaleLink></li>
+                <li><LocaleLink href={cityRouteData}>{cityData.name}</LocaleLink></li>
                 <li>/</li>
-                <li><LocaleLink href={`/visit/${guide.targetCity}/${categorySlug}`}>{getCategoryDisplayName(guide.targetCategory as CanonicalCategorySlug, locale)}</LocaleLink></li>
+                <li>
+                  <LocaleLink href={cityCategoryRouteData}>
+                    {getCategoryDisplayName(guide.targetCategory as CanonicalCategorySlug, locale)}
+                  </LocaleLink>
+                </li>
               </ol>
             </nav>
             
@@ -196,13 +238,13 @@ export default async function GuidePage({ params }: PageProps) {
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <LocaleLink 
-                href={`/visit/${guide.targetCity}/${categorySlug}`}
+                href={cityCategoryRouteData}
                 className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
               >
                 View All {getCategoryDisplayName(guide.targetCategory as CanonicalCategorySlug, locale)} in {cityData.name}
               </LocaleLink>
               <LocaleLink 
-                href={`/partner`}
+                href={buildStaticRouteData("partner")}
                 className="inline-flex items-center justify-center rounded-full border border-primary px-6 py-3 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
               >
                 List Your Business
@@ -228,7 +270,7 @@ export default async function GuidePage({ params }: PageProps) {
                   Upgrade Your Listing
                 </LocaleLink>
                 <LocaleLink 
-                  href={`/partner`}
+                  href={buildStaticRouteData("partner")}
                   className="inline-flex items-center justify-center rounded-full border border-primary px-6 py-3 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
                 >
                   Get Featured
@@ -242,11 +284,15 @@ export default async function GuidePage({ params }: PageProps) {
           <h2 className="text-xl font-semibold mb-4">Explore More in {cityData.name}</h2>
           <div className="flex flex-wrap gap-2">
             {ALL_CANONICAL_SLUGS.slice(0, 8).map((cat) => {
-              const catSlug = getCategoryUrlSlug(cat, locale);
+              const relatedCategoryRouteData: CityCategoryRouteData = {
+                routeType: "city-category",
+                citySlugs: cityRouteData.citySlugs,
+                categorySlugs: buildGuideCategoryRouteData(cat).slugs,
+              };
               return (
                 <LocaleLink
                   key={cat}
-                  href={`/visit/${guide.targetCity}/${catSlug}`}
+                  href={relatedCategoryRouteData}
                   className="px-3 py-1.5 text-sm rounded-full bg-muted hover:bg-muted/80"
                 >
                   {getCategoryDisplayName(cat, locale)} in {cityData.name}
@@ -265,7 +311,7 @@ export default async function GuidePage({ params }: PageProps) {
               .map(([guideSlug, g]) => (
                 <LocaleLink
                   key={guideSlug}
-                  href={`/guides/${guideSlug}`}
+                  href={buildGuideRouteData(guideSlug)}
                   className="block p-4 rounded-xl border border-border hover:border-primary/50"
                 >
                   <span className="font-medium">{g.title}</span>

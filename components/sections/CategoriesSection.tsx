@@ -108,7 +108,7 @@ export function CategoriesSection() {
                 </div>
 
                 <Link
-                  href={l(`/directory?category=${category.slug}`)}
+                  href={l(`/stay?category=${category.slug}`)}
                   className="block w-full h-full min-w-0 min-h-[11.5rem] sm:min-h-[12rem] lg:min-h-[7rem] p-5 lg:px-5 lg:py-3 glass-box glass-box-silver-liquid text-center flex flex-col items-center"
                 >
                   <div className="relative z-10 w-12 h-12 rounded-lg bg-muted dark:bg-muted flex items-center justify-center mb-3 lg:mb-2">

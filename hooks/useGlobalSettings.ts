@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { resolveLocaleFromAcceptLanguage } from "@/lib/i18n/config";
+import { normalizeLocale } from "@/lib/i18n/config";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import { globalSettingsQueryKey } from "@/lib/query-keys";
 
 export interface GlobalSetting {
   key: string;
@@ -20,11 +22,9 @@ const EMPTY_GLOBAL_SETTINGS: GlobalSetting[] = [];
 export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
   const queryClient = useQueryClient();
   const isBrowser = typeof window !== "undefined";
+  const routeLocale = useCurrentLocale();
   const rawLocale = options.locale?.trim().toLowerCase().replaceAll("_", "-") ?? "";
-  const locale =
-    !rawLocale || rawLocale === "default"
-      ? "default"
-      : resolveLocaleFromAcceptLanguage(rawLocale);
+  const locale = rawLocale === "default" ? "default" : normalizeLocale(rawLocale || routeLocale);
   const normalizedKeys = options.keys?.length
     ? [...new Set(options.keys)].sort()
     : undefined;
@@ -33,7 +33,7 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
     !normalizedKeys || normalizedKeys.some((key) => cmsKeys.has(key));
 
   const query = useQuery({
-    queryKey: ["global-settings", normalizedKeys ?? "all", locale],
+    queryKey: globalSettingsQueryKey(normalizedKeys, locale),
     queryFn: async (): Promise<GlobalSetting[]> => {
       if (shouldUseCmsRuntime) {
         const params = new URLSearchParams();

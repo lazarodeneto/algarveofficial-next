@@ -1,10 +1,15 @@
 "use client";
 
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
-import { buildLocalizedPath } from "@/lib/i18n/routing";
+import type {
+  LocalizedPathInput,
+  LocalizedRouteOptions,
+} from "@/lib/i18n/localized-routing";
+import { buildLocalizedPath } from "@/lib/i18n/localized-routing";
 
 export function useLocalePath() {
   const locale = useCurrentLocale();
 
-  return (href: string) => buildLocalizedPath(locale, href);
+  return (href: LocalizedPathInput, options?: LocalizedRouteOptions) =>
+    buildLocalizedPath(locale, href, options);
 }

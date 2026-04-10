@@ -6,8 +6,14 @@ import { notFound } from "next/navigation";
 
 import Header from "@/components/layout/Header";
 import type { Locale } from "@/lib/i18n/config";
-import { DEFAULT_LOCALE, addLocaleToPathname } from "@/lib/i18n/config";
-import { SITE_URL } from "@/lib/seoUrls";
+import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/lib/i18n/config";
+import {
+  buildAbsoluteRouteUrl,
+  buildLocalizedPath,
+  buildLocaleSwitchPathsForEntity,
+  buildUniformLocalizedSlugMap,
+  type DestinationRouteData,
+} from "@/lib/i18n/localized-routing";
 import { getServerTranslations } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
@@ -72,10 +78,6 @@ type DestinationListingRow = Omit<DestinationListing, "city"> & {
   city?: DestinationCity | DestinationCity[] | null;
 };
 
-function lp(locale: Locale, path: string): string {
-  return addLocaleToPathname(path, locale);
-}
-
 function resolveRegionImage(region: RegionRow): string | null {
   const fallbackRegionImage = getRegionImageSet(region.slug, { includeAliases: true });
   const fallbackImageSrc = typeof fallbackRegionImage?.image === "string"
@@ -103,6 +105,14 @@ function normalizeDestinationListing(row: DestinationListingRow): DestinationLis
     description: row.description,
     featured_image_url: row.featured_image_url,
     city,
+  };
+}
+
+function buildDestinationRouteData(region: RegionRow): DestinationRouteData {
+  return {
+    routeType: "destination",
+    id: region.id,
+    slugs: buildUniformLocalizedSlugMap(region.slug),
   };
 }
 
@@ -242,7 +252,7 @@ export async function generateMetadata({ params }: LocaleDestinationPageProps): 
   return buildPageMetadata({
     title: `${region.name} | ${tx["destinationDetail.metaTitleSuffix"] ?? "Algarve Destination Guide"}`,
     description: description || undefined,
-    localizedPath: `/destinations/${region.slug}`,
+    localizedRoute: buildDestinationRouteData(region),
     image: resolvedImage ?? undefined,
     type: "place",
     locale: resolvedLocale,
@@ -269,8 +279,10 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
   if (!data) notFound();
 
   const { region, cities, listings } = data;
+  const routeData = buildDestinationRouteData(region);
   const resolvedImage = resolveRegionImage(region);
-  const canonicalUrl = `${SITE_URL}${lp(resolvedLocale, `/destinations/${region.slug}`)}`;
+  const canonicalUrl = buildAbsoluteRouteUrl(resolvedLocale, routeData);
+  const localeSwitchPaths = buildLocaleSwitchPathsForEntity(routeData, SUPPORTED_LOCALES);
 
   const destinationFaqs = [
     {
@@ -319,7 +331,7 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
       <div id="destination-detail-server-shell" className="min-h-screen bg-background text-foreground">
-        <Header />
+        <Header localeSwitchPaths={localeSwitchPaths} />
 
       <main>
         <section className="relative overflow-hidden pt-[calc(6rem+10px)] pb-16 lg:pt-[calc(8rem+10px)] lg:pb-24">
@@ -343,7 +355,7 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
 
           <div className="relative app-container content-max">
             <Link
-              href={lp(resolvedLocale, "/destinations")}
+              href={buildLocalizedPath(resolvedLocale, "/destinations")}
               className="inline-flex items-center gap-2 text-sm text-white/75 hover:text-white transition-colors"
             >
               ← {tx["destinationDetail.backToDestinations"] ?? "Back to Destinations"}
@@ -364,7 +376,7 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
                 {cities.map((city) => (
                   <Link
                     key={city.id}
-                    href={lp(resolvedLocale, `/destinations/${city.slug}`)}
+                    href={buildLocalizedPath(resolvedLocale, `/destinations/${city.slug}`)}
                     className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/25 px-4 py-2 text-sm text-white backdrop-blur-sm"
                   >
                     <span className="text-primary">•</span>
@@ -397,7 +409,10 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
                   return (
                     <Link
                       key={listing.id}
-                      href={lp(resolvedLocale, `/listing/${listing.slug || listing.id}`)}
+                      href={buildLocalizedPath(
+                        resolvedLocale,
+                        `/listing/${listing.slug || listing.id}`
+                      )}
                       className="group block"
                     >
                       <article className="overflow-hidden rounded-2xl border border-border bg-card hover:border-primary/30 transition-colors">

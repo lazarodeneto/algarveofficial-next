@@ -3,6 +3,11 @@ import { SITE_CONFIG, CATEGORY_META, LOCATION_META, DEFAULT_KEYWORDS } from "./s
 import type { Locale } from "@/lib/i18n/config";
 import { buildMetadata } from "@/lib/metadata";
 import { getSiteUrl } from "@/lib/i18n/seo";
+import type { LocalizedRouteInput } from "@/lib/i18n/localized-routing";
+import {
+  buildRelativeRoutePath,
+  buildRouteMetadataAlternates,
+} from "@/lib/i18n/localized-routing";
 
 type PageType = "website" | "article" | "product" | "place" | "localbusiness" | "event";
 
@@ -45,6 +50,7 @@ interface PageMetadata {
   section?: string;
   authors?: Array<{ name: string; url?: string }>;
   localizedPath?: string;
+  localizedRoute?: LocalizedRouteInput;
   alternatesOverride?: Metadata["alternates"];
 }
 
@@ -62,6 +68,7 @@ export function buildPageMetadata({
   section,
   authors,
   localizedPath,
+  localizedRoute,
   alternatesOverride,
 }: PageMetadata = {}): Metadata {
   const resolvedTitle = title ? `${title} | ${SITE_CONFIG.name}` : SITE_CONFIG.name;
@@ -75,15 +82,22 @@ export function buildPageMetadata({
       ? type
       : "website";
 
+  const resolvedLocalizedPath =
+    localizedPath ??
+    (localizedRoute ? buildRelativeRoutePath(locale, localizedRoute) : undefined);
+  const resolvedAlternatesOverride =
+    alternatesOverride ??
+    (localizedRoute ? buildRouteMetadataAlternates(localizedRoute, locale) : undefined);
+
   const metadata = buildMetadata({
     title: resolvedTitle,
     description: resolvedDescription,
-    path: localizedPath ?? "/",
+    path: resolvedLocalizedPath ?? "/",
     image: resolvedImage,
     type: normalizedType,
     noIndex,
     noFollow,
-    localeCode: localizedPath ? locale : undefined,
+    localeCode: resolvedLocalizedPath ? locale : undefined,
     keywords: keywords?.length ? keywords : DEFAULT_KEYWORDS,
     authors,
     publishedTime,
@@ -91,19 +105,19 @@ export function buildPageMetadata({
     section,
   });
 
-  if (!alternatesOverride) {
+  if (!resolvedAlternatesOverride) {
     return metadata;
   }
 
   const siteUrl = getSiteUrl();
   const canonical =
-    typeof alternatesOverride.canonical === "string"
-      ? alternatesOverride.canonical
-      : `${siteUrl}${localizedPath ?? "/"}`;
+    typeof resolvedAlternatesOverride.canonical === "string"
+      ? resolvedAlternatesOverride.canonical
+      : `${siteUrl}${resolvedLocalizedPath ?? "/"}`;
 
   return {
     ...metadata,
-    alternates: alternatesOverride,
+    alternates: resolvedAlternatesOverride,
     openGraph: {
       ...metadata.openGraph,
       url: canonical,

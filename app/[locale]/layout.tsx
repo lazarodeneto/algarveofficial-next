@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 
 import { AppProviders } from "@/components/providers/AppProviders";
-import { LocaleDocumentSync } from "@/components/layout/LocaleDocumentSync";
 import { PublicSiteFrame } from "@/components/layout/PublicSiteFrame";
 import { LocaleProvider } from "@/lib/i18n/locale-context";
 import { CookieConsentBannerWrapper } from "@/components/gdpr/CookieConsentBannerWrapper";
@@ -68,20 +67,16 @@ export default async function LocaleLayout({
 
   // ✅ Get locale config
   const localeConfig = LOCALE_CONFIGS[locale] ?? LOCALE_CONFIGS.en;
-  const htmlLang = localeConfig?.hreflang ?? "en-GB";
+  void localeConfig;
 
   return (
-    <>
-      <LocaleDocumentSync lang={htmlLang} locale={locale} />
-      {/* ✅ CRITICAL: LocaleProvider syncs i18n to match URL locale */}
-      <LocaleProvider locale={locale}>
-        <AppProviders locale={locale}>
-          <PublicSiteFrame>{children}</PublicSiteFrame>
-          <WhatsAppChatButtonWrapper />
-          <FloatingCookieSettingsButton />
-          <CookieConsentBannerWrapper />
-        </AppProviders>
-      </LocaleProvider>
-    </>
+    <LocaleProvider locale={locale}>
+      <AppProviders>
+        <PublicSiteFrame>{children}</PublicSiteFrame>
+        <WhatsAppChatButtonWrapper />
+        <FloatingCookieSettingsButton />
+        <CookieConsentBannerWrapper />
+      </AppProviders>
+    </LocaleProvider>
   );
 }

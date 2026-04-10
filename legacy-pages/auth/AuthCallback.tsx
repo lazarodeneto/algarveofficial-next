@@ -1,22 +1,27 @@
+"use client";
+
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
 import { buildLocalizedPath } from '@/lib/i18n/routing';
-import { isValidLocale } from '@/lib/i18n/config';
-import { useLocale } from '@/lib/i18n/locale-context';
+import { useCurrentLocale } from '@/hooks/useCurrentLocale';
 import { resolvePostAuthRedirectPath } from '@/lib/authRedirect';
+import { getLocaleFromPathname, hasLocalePrefix, isValidLocale } from '@/lib/i18n/locale-utils';
 
 export default function AuthCallback() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const locale = useLocale();
+  const locale = useCurrentLocale();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const requestedLocale = searchParams.get('locale');
-    const resolvedLocale = requestedLocale && isValidLocale(requestedLocale) ? requestedLocale : locale;
     const requestedPath = searchParams.get('next') || searchParams.get('from');
+    const requestedLocale = searchParams.get('locale');
+    const resolvedLocale =
+      (requestedPath && hasLocalePrefix(requestedPath) ? getLocaleFromPathname(requestedPath) : null) ||
+      (requestedLocale && isValidLocale(requestedLocale) ? requestedLocale : null) ||
+      locale;
 
     const handleCallback = async () => {
       try {
@@ -73,8 +78,12 @@ export default function AuthCallback() {
           <p className="text-destructive">{error}</p>
           <button
             onClick={() => {
+              const requestedPath = searchParams.get('next') || searchParams.get('from');
               const requestedLocale = searchParams.get('locale');
-              const resolvedLocale = requestedLocale && isValidLocale(requestedLocale) ? requestedLocale : locale;
+              const resolvedLocale =
+                (requestedPath && hasLocalePrefix(requestedPath) ? getLocaleFromPathname(requestedPath) : null) ||
+                (requestedLocale && isValidLocale(requestedLocale) ? requestedLocale : null) ||
+                locale;
               router.push(buildLocalizedPath(resolvedLocale, '/login'));
             }}
             className="text-primary hover:underline"

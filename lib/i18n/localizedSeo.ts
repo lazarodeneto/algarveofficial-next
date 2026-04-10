@@ -17,7 +17,7 @@
  *       fallbackTitle: "Directory | AlgarveOfficial",
  *       fallbackDescription: "Browse the best of the Algarve.",
  *     });
- *     return buildPageMetadata({ ...seo, localizedPath: "/directory", locale });
+ *     return buildPageMetadata({ ...seo, localizedPath: "/stay", locale });
  *   }
  *
  * ─── What it does ─────────────────────────────────────────────────────────────

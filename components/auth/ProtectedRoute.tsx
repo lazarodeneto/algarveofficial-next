@@ -11,7 +11,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, isLoading, isAuthenticated, getDashboardPath } = useAuth();
-  const { replace, locale } = useLocaleRouter();
+  const { replace } = useLocaleRouter();
   const pathname = usePathname() ?? "/";
 
   const shouldRedirectToLogin = !isAuthenticated;
@@ -21,8 +21,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     if (isLoading) return;
 
     if (shouldRedirectToLogin) {
-      // Preserve locale in the "next" param so user returns to the right page after login
-      replace(`/login?next=${encodeURIComponent(pathname)}&locale=${locale}`);
+      replace(`/login?next=${encodeURIComponent(pathname)}`);
       return;
     }
 
@@ -32,7 +31,6 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   }, [
     getDashboardPath,
     isLoading,
-    locale,
     pathname,
     replace,
     shouldRedirectByRole,

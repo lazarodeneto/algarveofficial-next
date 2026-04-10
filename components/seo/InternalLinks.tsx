@@ -1,6 +1,7 @@
-import Link from "next/link";
 import { getCategoryDisplayName, getCategoryUrlSlug, type CanonicalCategorySlug } from "@/lib/seo/programmatic/category-slugs";
-import type { Locale } from "@/lib/i18n/config";
+import { SUPPORTED_LOCALES, type Locale } from "@/lib/i18n/config";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
+import { buildUniformLocalizedSlugMap } from "@/lib/i18n/localized-routing";
 
 interface InternalLinksCategory {
   slug: string;
@@ -36,6 +37,12 @@ interface InternalLinksProps {
   className?: string;
 }
 
+function buildCategorySlugMap(category: CanonicalCategorySlug) {
+  return Object.fromEntries(
+    SUPPORTED_LOCALES.map((locale) => [locale, getCategoryUrlSlug(category, locale)])
+  ) as Partial<Record<Locale, string>>;
+}
+
 function ExploreOtherCategories({
   locale,
   currentCity,
@@ -43,7 +50,6 @@ function ExploreOtherCategories({
 }: ExploreOtherCategoriesProps) {
   if (categories.length === 0) return null;
 
-  const isDefaultLocale = locale === "en";
   const cityDisplayName = currentCity.charAt(0).toUpperCase() + currentCity.slice(1);
 
   return (
@@ -53,20 +59,19 @@ function ExploreOtherCategories({
       </h2>
       <div className="flex flex-wrap gap-2">
         {categories.map((cat) => {
-          const urlSlug = getCategoryUrlSlug(cat.slug as CanonicalCategorySlug, locale);
-          const path = isDefaultLocale 
-            ? `/visit/${currentCity}/${urlSlug}` 
-            : `/${locale}/visit/${currentCity}/${urlSlug}`;
-
           return (
-            <Link
+            <LocaleLink
               key={cat.slug}
-              href={path}
+              href={{
+                routeType: "city-category",
+                citySlugs: buildUniformLocalizedSlugMap(currentCity),
+                categorySlugs: buildCategorySlugMap(cat.slug as CanonicalCategorySlug),
+              }}
               className="inline-flex items-center px-3 py-1.5 text-sm rounded-full bg-muted hover:bg-muted/80 transition-colors"
             >
               {cat.name} in {cityDisplayName}
               <span className="ml-1.5 text-xs opacity-60">({cat.count})</span>
-            </Link>
+            </LocaleLink>
           );
         })}
       </div>
@@ -81,9 +86,7 @@ function ExploreOtherCities({
 }: ExploreOtherCitiesProps) {
   if (cities.length === 0) return null;
 
-  const isDefaultLocale = locale === "en";
   const categoryName = getCategoryDisplayName(currentCategory as CanonicalCategorySlug, locale);
-  const urlSlug = getCategoryUrlSlug(currentCategory as CanonicalCategorySlug, locale);
 
   return (
     <section aria-labelledby="other-cities-heading">
@@ -92,20 +95,23 @@ function ExploreOtherCities({
       </h2>
       <div className="flex flex-wrap gap-2">
         {cities.map((city) => {
-          const cityDisplayName = city.slug.charAt(0).toUpperCase() + city.slug.slice(1);
-          const path = isDefaultLocale 
-            ? `/visit/${city.slug}/${urlSlug}` 
-            : `/${locale}/visit/${city.slug}/${urlSlug}`;
+          const cityDisplayName = city.name;
 
           return (
-            <Link
+            <LocaleLink
               key={city.slug}
-              href={path}
+              href={{
+                routeType: "city-category",
+                citySlugs: buildUniformLocalizedSlugMap(city.slug),
+                categorySlugs: buildCategorySlugMap(
+                  currentCategory as CanonicalCategorySlug
+                ),
+              }}
               className="inline-flex items-center px-3 py-1.5 text-sm rounded-full bg-secondary/50 hover:bg-secondary transition-colors"
             >
               {categoryName} in {cityDisplayName}
               <span className="ml-1.5 text-xs opacity-60">({city.count})</span>
-            </Link>
+            </LocaleLink>
           );
         })}
       </div>

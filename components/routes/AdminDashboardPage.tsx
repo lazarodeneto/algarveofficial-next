@@ -1,62 +1,123 @@
 "use client";
 
-import { useMemo, type ReactElement } from "react";
-import { useParams } from "next/navigation";
+import type { ComponentType, ReactElement } from "react";
+import dynamic from "next/dynamic";
 import { AlertTriangle } from "lucide-react";
 
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
+import { DashboardRouteLoading } from "@/components/routes/DashboardRouteLoading";
 import { Button } from "@/components/ui/button";
-import AdminAnalytics from "@/legacy-pages/admin/AdminAnalytics";
-import AdminCategories from "@/legacy-pages/admin/AdminCategories";
-import AdminCities from "@/legacy-pages/admin/AdminCities";
-import AdminClaims from "@/legacy-pages/admin/AdminClaims";
-import AdminCurated from "@/legacy-pages/admin/AdminCurated";
-import AdminImageGeneration from "@/legacy-pages/admin/AdminImageGeneration";
-import AdminImport from "@/legacy-pages/admin/AdminImport";
-import AdminListings from "@/legacy-pages/admin/AdminListings";
-import AdminMessages from "@/legacy-pages/admin/AdminMessages";
-import AdminModeration from "@/legacy-pages/admin/AdminModeration";
-import AdminOverview from "@/legacy-pages/admin/AdminOverview";
-import AdminOwnerCRM from "@/legacy-pages/admin/AdminOwnerCRM";
-import AdminReviewModeration from "@/legacy-pages/admin/AdminReviewModeration";
-import AdminSubscriptions from "@/legacy-pages/admin/AdminSubscriptions";
-import AdminUsers from "@/legacy-pages/admin/AdminUsers";
-import ListingForm from "@/legacy-pages/admin/ListingForm";
-import AdminBlog from "@/legacy-pages/admin/blog/AdminBlog";
-import AdminBlogComments from "@/legacy-pages/admin/blog/AdminBlogComments";
-import AdminBlogForm from "@/legacy-pages/admin/blog/AdminBlogForm";
-import AdminCmsCategories from "@/legacy-pages/admin/cms/AdminCmsCategories";
-import AdminCmsCities from "@/legacy-pages/admin/cms/AdminCmsCities";
-import AdminCmsDestinations from "@/legacy-pages/admin/cms/AdminCmsDestinations";
-import AdminCmsRegions from "@/legacy-pages/admin/cms/AdminCmsRegions";
-import AdminContactPage from "@/legacy-pages/admin/cms/AdminContactPage";
-import AdminCookiePage from "@/legacy-pages/admin/cms/AdminCookiePage";
-import AdminFooterMenu from "@/legacy-pages/admin/cms/AdminFooterMenu";
-import AdminGlobalSettings from "@/legacy-pages/admin/cms/AdminGlobalSettings";
-import AdminHeaderMenu from "@/legacy-pages/admin/cms/AdminHeaderMenu";
-import AdminHomePage from "@/legacy-pages/admin/cms/AdminHomePage";
-import AdminLeftMenu from "@/legacy-pages/admin/cms/AdminLeftMenu";
-import AdminMediaLibrary from "@/legacy-pages/admin/cms/AdminMediaLibrary";
-import AdminPageBuilder from "@/legacy-pages/admin/cms/AdminPageBuilder";
-import AdminPagesDeprecated from "@/legacy-pages/admin/cms/AdminPagesDeprecated";
-import AdminPartnerPage from "@/legacy-pages/admin/cms/AdminPartnerPage";
-import AdminPrivacyPage from "@/legacy-pages/admin/cms/AdminPrivacyPage";
-import AdminSupportPage from "@/legacy-pages/admin/cms/AdminSupportPage";
-import AdminTermsPage from "@/legacy-pages/admin/cms/AdminTermsPage";
-import AdminTranslations from "@/legacy-pages/admin/cms/AdminTranslations";
-import EmailAutomations from "@/legacy-pages/admin/email/EmailAutomations";
-import EmailCampaigns from "@/legacy-pages/admin/email/EmailCampaigns";
-import EmailContacts from "@/legacy-pages/admin/email/EmailContacts";
-import EmailMarketingOverview from "@/legacy-pages/admin/email/EmailMarketingOverview";
-import EmailReports from "@/legacy-pages/admin/email/EmailReports";
-import EmailSegments from "@/legacy-pages/admin/email/EmailSegments";
-import EmailSettings from "@/legacy-pages/admin/email/EmailSettings";
-import EmailTemplates from "@/legacy-pages/admin/email/EmailTemplates";
-import AdminEventForm from "@/legacy-pages/admin/events/AdminEventForm";
-import AdminEventModeration from "@/legacy-pages/admin/events/AdminEventModeration";
-import AdminEvents from "@/legacy-pages/admin/events/AdminEvents";
+
+const withAdminLoading = <T extends ComponentType<any>>(
+  loader: () => Promise<{ default: T }>,
+) =>
+  dynamic(loader, {
+    loading: () => <DashboardRouteLoading label="Loading admin workspace..." />,
+  });
+
+const AdminAnalytics = withAdminLoading(() => import("@/legacy-pages/admin/AdminAnalytics"));
+const AdminCategories = withAdminLoading(() => import("@/legacy-pages/admin/AdminCategories"));
+const AdminCities = withAdminLoading(() => import("@/legacy-pages/admin/AdminCities"));
+const AdminClaims = withAdminLoading(() => import("@/legacy-pages/admin/AdminClaims"));
+const AdminCurated = withAdminLoading(() => import("@/legacy-pages/admin/AdminCurated"));
+const AdminImageGeneration = withAdminLoading(
+  () => import("@/legacy-pages/admin/AdminImageGeneration"),
+);
+const AdminImport = withAdminLoading(() => import("@/legacy-pages/admin/AdminImport"));
+const AdminListings = withAdminLoading(() => import("@/legacy-pages/admin/AdminListings"));
+const AdminMessages = withAdminLoading(() => import("@/legacy-pages/admin/AdminMessages"));
+const AdminModeration = withAdminLoading(() => import("@/legacy-pages/admin/AdminModeration"));
+const AdminOverview = withAdminLoading(() => import("@/legacy-pages/admin/AdminOverview"));
+const AdminOwnerCRM = withAdminLoading(() => import("@/legacy-pages/admin/AdminOwnerCRM"));
+const AdminReviewModeration = withAdminLoading(
+  () => import("@/legacy-pages/admin/AdminReviewModeration"),
+);
+const AdminSubscriptions = withAdminLoading(
+  () => import("@/legacy-pages/admin/AdminSubscriptions"),
+);
+const AdminUsers = withAdminLoading(() => import("@/legacy-pages/admin/AdminUsers"));
+const ListingForm = withAdminLoading(() => import("@/legacy-pages/admin/ListingForm"));
+const AdminBlog = withAdminLoading(() => import("@/legacy-pages/admin/blog/AdminBlog"));
+const AdminBlogComments = withAdminLoading(
+  () => import("@/legacy-pages/admin/blog/AdminBlogComments"),
+);
+const AdminBlogForm = withAdminLoading(() => import("@/legacy-pages/admin/blog/AdminBlogForm"));
+const AdminCmsCategories = withAdminLoading(
+  () => import("@/legacy-pages/admin/cms/AdminCmsCategories"),
+);
+const AdminCmsCities = withAdminLoading(
+  () => import("@/legacy-pages/admin/cms/AdminCmsCities"),
+);
+const AdminCmsDestinations = withAdminLoading(
+  () => import("@/legacy-pages/admin/cms/AdminCmsDestinations"),
+);
+const AdminCmsRegions = withAdminLoading(
+  () => import("@/legacy-pages/admin/cms/AdminCmsRegions"),
+);
+const AdminContactPage = withAdminLoading(
+  () => import("@/legacy-pages/admin/cms/AdminContactPage"),
+);
+const AdminCookiePage = withAdminLoading(
+  () => import("@/legacy-pages/admin/cms/AdminCookiePage"),
+);
+const AdminFooterMenu = withAdminLoading(
+  () => import("@/legacy-pages/admin/cms/AdminFooterMenu"),
+);
+const AdminGlobalSettings = withAdminLoading(
+  () => import("@/legacy-pages/admin/cms/AdminGlobalSettings"),
+);
+const AdminHeaderMenu = withAdminLoading(
+  () => import("@/legacy-pages/admin/cms/AdminHeaderMenu"),
+);
+const AdminHomePage = withAdminLoading(() => import("@/legacy-pages/admin/cms/AdminHomePage"));
+const AdminLeftMenu = withAdminLoading(() => import("@/legacy-pages/admin/cms/AdminLeftMenu"));
+const AdminMediaLibrary = withAdminLoading(
+  () => import("@/legacy-pages/admin/cms/AdminMediaLibrary"),
+);
+const AdminPageBuilder = withAdminLoading(
+  () => import("@/legacy-pages/admin/cms/AdminPageBuilder"),
+);
+const AdminPagesDeprecated = withAdminLoading(
+  () => import("@/legacy-pages/admin/cms/AdminPagesDeprecated"),
+);
+const AdminPartnerPage = withAdminLoading(
+  () => import("@/legacy-pages/admin/cms/AdminPartnerPage"),
+);
+const AdminPrivacyPage = withAdminLoading(
+  () => import("@/legacy-pages/admin/cms/AdminPrivacyPage"),
+);
+const AdminSupportPage = withAdminLoading(
+  () => import("@/legacy-pages/admin/cms/AdminSupportPage"),
+);
+const AdminTermsPage = withAdminLoading(
+  () => import("@/legacy-pages/admin/cms/AdminTermsPage"),
+);
+const AdminTranslations = withAdminLoading(
+  () => import("@/legacy-pages/admin/cms/AdminTranslations"),
+);
+const EmailAutomations = withAdminLoading(
+  () => import("@/legacy-pages/admin/email/EmailAutomations"),
+);
+const EmailCampaigns = withAdminLoading(
+  () => import("@/legacy-pages/admin/email/EmailCampaigns"),
+);
+const EmailContacts = withAdminLoading(() => import("@/legacy-pages/admin/email/EmailContacts"));
+const EmailMarketingOverview = withAdminLoading(
+  () => import("@/legacy-pages/admin/email/EmailMarketingOverview"),
+);
+const EmailReports = withAdminLoading(() => import("@/legacy-pages/admin/email/EmailReports"));
+const EmailSegments = withAdminLoading(() => import("@/legacy-pages/admin/email/EmailSegments"));
+const EmailSettings = withAdminLoading(() => import("@/legacy-pages/admin/email/EmailSettings"));
+const EmailTemplates = withAdminLoading(() => import("@/legacy-pages/admin/email/EmailTemplates"));
+const AdminEventForm = withAdminLoading(
+  () => import("@/legacy-pages/admin/events/AdminEventForm"),
+);
+const AdminEventModeration = withAdminLoading(
+  () => import("@/legacy-pages/admin/events/AdminEventModeration"),
+);
+const AdminEvents = withAdminLoading(() => import("@/legacy-pages/admin/events/AdminEvents"));
 
 function AdminRouteNotFound({ route }: { route: string }) {
   return (
@@ -78,55 +139,55 @@ function AdminRouteNotFound({ route }: { route: string }) {
   );
 }
 
-const staticRouteMap: Record<string, ReactElement> = {
-  "": <AdminOverview />,
-  analytics: <AdminAnalytics />,
-  listings: <AdminListings />,
-  curated: <AdminCurated />,
-  moderation: <AdminModeration />,
-  reviews: <AdminReviewModeration />,
-  cities: <AdminCities />,
-  categories: <AdminCategories />,
-  users: <AdminUsers />,
-  messages: <AdminMessages />,
-  crm: <AdminOwnerCRM />,
-  settings: <AdminGlobalSettings />,
-  subscriptions: <AdminSubscriptions />,
-  claims: <AdminClaims />,
-  import: <AdminImport />,
-  images: <AdminImageGeneration />,
-  "content/home": <AdminHomePage />,
-  "content/partner": <AdminPartnerPage />,
-  "content/support": <AdminSupportPage />,
-  "content/contact": <AdminContactPage />,
-  "content/events": <AdminEvents />,
-  "content/events/moderation": <AdminEventModeration />,
-  "content/terms": <AdminTermsPage />,
-  "content/privacy": <AdminPrivacyPage />,
-  "content/cookies": <AdminCookiePage />,
-  "content/pages": <AdminPagesDeprecated />,
-  "content/regions": <AdminCmsRegions />,
-  "content/destinations": <AdminCmsDestinations />,
-  "content/cities": <AdminCmsCities />,
-  "content/categories": <AdminCmsCategories />,
-  "content/header": <AdminHeaderMenu />,
-  "content/left-menu": <AdminLeftMenu />,
-  "content/footer": <AdminFooterMenu />,
-  "content/media": <AdminMediaLibrary />,
-  "content/page-builder": <AdminPageBuilder />,
-  "content/translations": <AdminTranslations />,
-  email: <EmailMarketingOverview />,
-  "email/contacts": <EmailContacts />,
-  "email/segments": <EmailSegments />,
-  "email/campaigns": <EmailCampaigns />,
-  "email/templates": <EmailTemplates />,
-  "email/automations": <EmailAutomations />,
-  "email/reports": <EmailReports />,
-  "email/settings": <EmailSettings />,
-  blog: <AdminBlog />,
-  "blog/comments": <AdminBlogComments />,
-  events: <AdminEvents />,
-  "events/moderation": <AdminEventModeration />,
+const staticRouteMap: Record<string, ComponentType> = {
+  "": AdminOverview,
+  analytics: AdminAnalytics,
+  listings: AdminListings,
+  curated: AdminCurated,
+  moderation: AdminModeration,
+  reviews: AdminReviewModeration,
+  cities: AdminCities,
+  categories: AdminCategories,
+  users: AdminUsers,
+  messages: AdminMessages,
+  crm: AdminOwnerCRM,
+  settings: AdminGlobalSettings,
+  subscriptions: AdminSubscriptions,
+  claims: AdminClaims,
+  import: AdminImport,
+  images: AdminImageGeneration,
+  "content/home": AdminHomePage,
+  "content/partner": AdminPartnerPage,
+  "content/support": AdminSupportPage,
+  "content/contact": AdminContactPage,
+  "content/events": AdminEvents,
+  "content/events/moderation": AdminEventModeration,
+  "content/terms": AdminTermsPage,
+  "content/privacy": AdminPrivacyPage,
+  "content/cookies": AdminCookiePage,
+  "content/pages": AdminPagesDeprecated,
+  "content/regions": AdminCmsRegions,
+  "content/destinations": AdminCmsDestinations,
+  "content/cities": AdminCmsCities,
+  "content/categories": AdminCmsCategories,
+  "content/header": AdminHeaderMenu,
+  "content/left-menu": AdminLeftMenu,
+  "content/footer": AdminFooterMenu,
+  "content/media": AdminMediaLibrary,
+  "content/page-builder": AdminPageBuilder,
+  "content/translations": AdminTranslations,
+  email: EmailMarketingOverview,
+  "email/contacts": EmailContacts,
+  "email/segments": EmailSegments,
+  "email/campaigns": EmailCampaigns,
+  "email/templates": EmailTemplates,
+  "email/automations": EmailAutomations,
+  "email/reports": EmailReports,
+  "email/settings": EmailSettings,
+  blog: AdminBlog,
+  "blog/comments": AdminBlogComments,
+  events: AdminEvents,
+  "events/moderation": AdminEventModeration,
 };
 
 function resolveAdminPage(route: string): ReactElement {
@@ -147,22 +208,19 @@ function resolveAdminPage(route: string): ReactElement {
   }
 
   if (route in staticRouteMap) {
-    return staticRouteMap[route];
+    const PageComponent = staticRouteMap[route];
+    return <PageComponent />;
   }
 
   return <AdminRouteNotFound route={route} />;
 }
 
-export function AdminDashboardPage() {
-  const params = useParams<{ slug?: string[] }>();
+interface AdminDashboardPageProps {
+  route?: string;
+}
 
-  const route = useMemo(() => {
-    const raw = params?.slug;
-    if (!raw) return "";
-    return Array.isArray(raw) ? raw.join("/") : raw;
-  }, [params]);
-
-  const activePage = useMemo(() => resolveAdminPage(route), [route]);
+export function AdminDashboardPage({ route = "" }: AdminDashboardPageProps) {
+  const activePage = resolveAdminPage(route);
 
   return (
     <ProtectedRoute allowedRoles={["admin", "editor"]}>

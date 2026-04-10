@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation";
-import { DEFAULT_LOCALE } from "@/lib/i18n/config";
+import { redirectToPreferredLocalePath } from "@/lib/i18n/serverRedirect";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -7,5 +6,5 @@ interface Props {
 
 export default async function LegacyListingPage({ params }: Props) {
   const { id } = await params;
-  redirect(`/${DEFAULT_LOCALE}/listing/${id}`);
+  await redirectToPreferredLocalePath(`/listing/${id}`);
 }

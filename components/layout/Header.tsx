@@ -57,7 +57,7 @@ function Link(props: ComponentProps<typeof NextLink>) {
 }
 
 interface HeaderProps {
-  localeSwitchPaths?: Partial<Record<Locale, string>>;
+  localeSwitchPaths?: Record<string, string>;
 }
 
 export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
@@ -87,7 +87,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const accountInitialButtonClass =
     "rounded-full border border-primary bg-primary text-primary-foreground shadow-[0_10px_24px_-18px_hsla(43,74%,49%,0.8)] hover:bg-primary/90 dark:border-primary dark:bg-primary dark:text-primary-foreground";
   const buildDirectoryCategoryPath = (category: string) =>
-    l(`/directory?category=${category}`);
+    l(`/stay?category=${category}`);
 
   // Search modal state (local to Header)
   const [searchOpen, setSearchOpen] = useState(false);
@@ -224,7 +224,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
               </Button>
 
               <LanguageSwitcher
-                localePathByLocale={localeSwitchPaths}
+                localeSwitchPaths={localeSwitchPaths}
                 containerClassName="min-w-0"
                 selectClassName="h-8 w-[7.5rem] rounded-full border-black/10 bg-white/70 px-2.5 py-1 text-sm text-black shadow-none dark:border-white/12 dark:bg-white dark:text-black"
               />
@@ -281,7 +281,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                 </Button>
 
                 <LanguageSwitcher
-                  localePathByLocale={localeSwitchPaths}
+                  localeSwitchPaths={localeSwitchPaths}
                   selectClassName="h-10 rounded-full border-black/10 bg-white px-4 py-2 text-black shadow-none dark:border-white/12 dark:bg-white dark:text-black"
                 />
 
@@ -410,7 +410,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                           {t("common.language", "Language")}
                         </div>
                         <LanguageSwitcher
-                          localePathByLocale={localeSwitchPaths}
+                          localeSwitchPaths={localeSwitchPaths}
                           containerClassName="min-w-0"
                           selectClassName="h-10 w-[10rem] rounded-full border-black/12 bg-white px-4 py-2 text-sm text-black shadow-none dark:border-white/12 dark:bg-white dark:text-black"
                         />

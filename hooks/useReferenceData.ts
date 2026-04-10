@@ -1,13 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
-import { useTranslation } from "react-i18next";
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import {
   fetchCategoryTranslations,
   fetchCityTranslations,
   fetchRegionTranslations,
   normalizePublicContentLocale,
 } from "@/lib/publicContentLocale";
+import {
+  categoriesQueryKey,
+  citiesQueryKey,
+  regionListingCountsQueryKey,
+  regionsQueryKey,
+} from "@/lib/query-keys";
 
 export type CityRow = Tables<'cities'>;
 export type RegionRow = Tables<'regions'>;
@@ -88,12 +94,11 @@ function mergeCategoryTranslations(
  * Fetch all active cities
  */
 export function useCities() {
-  const { i18n } = useTranslation();
-  const locale = normalizePublicContentLocale(i18n.language);
+  const locale = normalizePublicContentLocale(useCurrentLocale());
   const isBrowser = typeof window !== "undefined";
 
   return useQuery({
-    queryKey: ['cities', locale],
+    queryKey: citiesQueryKey(locale),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('cities')
@@ -122,12 +127,11 @@ export function useCities() {
  * Fetch all active regions
  */
 export function useRegions() {
-  const { i18n } = useTranslation();
-  const locale = normalizePublicContentLocale(i18n.language);
+  const locale = normalizePublicContentLocale(useCurrentLocale());
   const isBrowser = typeof window !== "undefined";
 
   return useQuery({
-    queryKey: ['regions', locale],
+    queryKey: regionsQueryKey(locale),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('regions')
@@ -160,7 +164,7 @@ export function useRegionListingCounts() {
   const isBrowser = typeof window !== "undefined";
 
   return useQuery({
-    queryKey: ['reference-data', 'region-listing-counts'],
+    queryKey: regionListingCountsQueryKey(),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('listings')
@@ -190,12 +194,11 @@ export function useRegionListingCounts() {
  * Fetch all active categories
  */
 export function useCategories() {
-  const { i18n } = useTranslation();
-  const locale = normalizePublicContentLocale(i18n.language);
+  const locale = normalizePublicContentLocale(useCurrentLocale());
   const isBrowser = typeof window !== "undefined";
 
   return useQuery({
-    queryKey: ['categories', locale],
+    queryKey: categoriesQueryKey(locale),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('categories')
@@ -224,8 +227,7 @@ export function useCategories() {
  * Fetch featured regions
  */
 export function useFeaturedRegions() {
-  const { i18n } = useTranslation();
-  const locale = normalizePublicContentLocale(i18n.language);
+  const locale = normalizePublicContentLocale(useCurrentLocale());
   const isBrowser = typeof window !== "undefined";
 
   return useQuery({
@@ -258,8 +260,7 @@ export function useFeaturedRegions() {
  * Fetch featured cities
  */
 export function useFeaturedCities() {
-  const { i18n } = useTranslation();
-  const locale = normalizePublicContentLocale(i18n.language);
+  const locale = normalizePublicContentLocale(useCurrentLocale());
   const isBrowser = typeof window !== "undefined";
 
   return useQuery({
@@ -292,8 +293,7 @@ export function useFeaturedCities() {
  * Fetch featured categories
  */
 export function useFeaturedCategories() {
-  const { i18n } = useTranslation();
-  const locale = normalizePublicContentLocale(i18n.language);
+  const locale = normalizePublicContentLocale(useCurrentLocale());
   const isBrowser = typeof window !== "undefined";
 
   return useQuery({

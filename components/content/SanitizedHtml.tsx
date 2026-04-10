@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify";
 
 interface SanitizedHtmlProps {
   html: string | null | undefined;
@@ -33,19 +33,11 @@ export function SanitizedHtml({
 
     const candidate = preserveLineBreaks ? rawValue.replace(/\n/g, "<br/>") : rawValue;
     
-    // SSR safe DOMPurify call
-    let sanitized = candidate;
-    if (typeof window !== "undefined") {
-      sanitized = DOMPurify.sanitize(candidate, {
-        ALLOWED_TAGS: allowedTags,
-        ALLOWED_ATTR: allowedAttributes,
-        ALLOW_DATA_ATTR: false,
-      });
-    } else {
-      // Return empty string on the server to avoid hydration mismatch with unsafe tags,
-      // or optionally return candidate. It's safer to not return unsanitized HTML on server.
-      sanitized = "";
-    }
+    const sanitized = DOMPurify.sanitize(candidate, {
+      ALLOWED_TAGS: allowedTags,
+      ALLOWED_ATTR: allowedAttributes,
+      ALLOW_DATA_ATTR: false,
+    });
 
     return normalizeLinks(String(sanitized));
   }, [allowedAttributes, allowedTags, html, preserveLineBreaks]);

@@ -86,7 +86,12 @@ function uniqueIds(ids: readonly string[]): string[] {
   return Array.from(new Set(ids.filter(Boolean)));
 }
 
-function chunkIds(ids: readonly string[], size = 500): string[][] {
+const PUBLIC_CONTENT_TRANSLATION_BATCH_SIZE = 100;
+
+function chunkIds(
+  ids: readonly string[],
+  size = PUBLIC_CONTENT_TRANSLATION_BATCH_SIZE,
+): string[][] {
   const unique = uniqueIds(ids);
   const chunks: string[][] = [];
 

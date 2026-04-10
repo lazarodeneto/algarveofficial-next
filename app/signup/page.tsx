@@ -1,12 +1,9 @@
-"use client";
+import { redirectUnlocalizedAliasPath } from "@/lib/i18n/serverRedirect";
 
-import { Suspense } from "react";
-import Signup from "@/legacy-pages/auth/Signup";
+interface SignupAliasPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-export default function SignupPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <Signup />
-    </Suspense>
-  );
+export default async function SignupAliasPage({ searchParams }: SignupAliasPageProps) {
+  await redirectUnlocalizedAliasPath("/signup", await searchParams);
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { headers } from "next/headers";
 import type { ReactNode } from "react";
 import { Inter, Playfair_Display, Archivo_Narrow } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -8,7 +9,8 @@ import { Analytics } from "@vercel/analytics/next";
 import "../index.css";
 import { AppLazyMotion } from "@/components/providers/AppLazyMotion";
 import { RootProviders } from "@/components/providers/RootProviders";
-import { DEFAULT_LOCALE, LOCALE_CONFIGS, SUPPORTED_LOCALES } from "@/lib/i18n/config";
+import { DEFAULT_LOCALE, isValidLocale, toHtmlLang } from "@/lib/i18n/config";
+import { REQUEST_LOCALE_HEADER_NAME } from "@/lib/i18n/route-rules";
 import { buildMetadata } from "@/lib/metadata";
 import { buildOrganizationSchema, buildWebsiteSchema } from "@/lib/seo/schemaBuilders.js";
 
@@ -39,7 +41,8 @@ const fontVariables = `${playfair.variable} ${inter.variable} ${archivoNarrow.va
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim()?.replace(/\/+$/, "") || "https://algarveofficial.com";
 const organizationSchema = buildOrganizationSchema(siteUrl);
 const websiteSchema = buildWebsiteSchema(siteUrl);
-const defaultHtmlLang = LOCALE_CONFIGS[DEFAULT_LOCALE].hreflang;
+const defaultHtmlLang = toHtmlLang(DEFAULT_LOCALE);
+const enableVercelTelemetry = process.env.NODE_ENV === "production";
 const themeInitScript = `
   (() => {
     try {
@@ -54,11 +57,6 @@ const themeInitScript = `
     } catch {}
   })();
 `;
-const localeInitScript = `(()=>{try{const s=location.pathname.split('/')[1]?.toLowerCase(),l=${JSON.stringify(
-  SUPPORTED_LOCALES,
-)}.includes(s)?s:${JSON.stringify(DEFAULT_LOCALE)},m={en:'en','pt-pt':'pt-PT',fr:'fr-FR',de:'de-DE',es:'es-ES',it:'it-IT',nl:'nl-NL',sv:'sv-SE',no:'nb-NO',da:'da-DK'};document.documentElement.lang=m[l]||${JSON.stringify(
-  defaultHtmlLang,
-)};document.documentElement.dataset.locale=l}catch{}})();`;
 
 export const metadata: Metadata = {
   ...buildMetadata({
@@ -74,9 +72,14 @@ interface RootLayoutProps {
   children: ReactNode;
 }
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default async function RootLayout({ children }: RootLayoutProps) {
+  const requestHeaders = await headers();
+  const requestLocale = requestHeaders.get(REQUEST_LOCALE_HEADER_NAME);
+  const locale = isValidLocale(requestLocale) ? requestLocale : DEFAULT_LOCALE;
+  const htmlLang = toHtmlLang(locale);
+
   return (
-    <html lang={defaultHtmlLang} suppressHydrationWarning className={fontVariables}>
+    <html lang={htmlLang} data-locale={locale} suppressHydrationWarning className={fontVariables}>
       <body className={fontVariables}>
         <script
           type="application/ld+json"
@@ -89,14 +92,15 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <Script id="theme-init" strategy="beforeInteractive">
           {themeInitScript}
         </Script>
-        <Script id="locale-init" strategy="beforeInteractive">
-          {localeInitScript}
-        </Script>
         <AppLazyMotion>
           <RootProviders>{children}</RootProviders>
         </AppLazyMotion>
-        <Analytics />
-        <SpeedInsights />
+        {enableVercelTelemetry ? (
+          <>
+            <Analytics />
+            <SpeedInsights />
+          </>
+        ) : null}
       </body>
     </html>
   );

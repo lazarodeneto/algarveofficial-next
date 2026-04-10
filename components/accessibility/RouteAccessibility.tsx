@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
@@ -96,7 +98,7 @@ export function RouteAccessibility() {
       return;
     }
 
-    const activeHash = hash || (typeof window !== "undefined" ? window.location.hash : "");
+    const activeHash = hash || window.location.hash;
     if (activeHash) return;
 
     let cancelled = false;

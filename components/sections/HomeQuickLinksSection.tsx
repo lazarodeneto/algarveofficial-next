@@ -70,7 +70,7 @@ export function HomeQuickLinksSection() {
     <section id="home-quick-links" className="relative z-20 -mt-2 pb-4 sm:-mt-14 sm:pb-5 lg:-mt-20 lg:pb-7">
       <div className="app-container">
         <div className="mx-auto flex w-full flex-col gap-4 px-1 pb-2 sm:grid sm:max-w-[780px] sm:grid-cols-2 sm:justify-items-center sm:gap-4 sm:px-0 md:grid-cols-3 min-[940px]:grid-cols-3">
-          {quickLinkCards.map((card) => {
+          {quickLinkCards.map((card, index) => {
             const Icon = CARD_ICONS[card.id];
             const displayTitle = t(card.translationKey, card.title);
             const customImageUrl = card.imageUrl;
@@ -102,7 +102,7 @@ export function HomeQuickLinksSection() {
             return (
               <Link
                 key={card.id}
-                href={card.customHref ? l(card.customHref) : l(`/visit?category=${card.categorySlug}`)}
+                href={card.customHref ? l(card.customHref) : l(`/stay?category=${card.categorySlug}`)}
                 className="glass-box glass-box-silver-liquid glass-box-contour group relative isolate flex h-full w-full flex-col rounded-[24px] font-sans transition-transform duration-300 hover:-translate-y-1 sm:max-w-[280px]"
               >
                 <span
@@ -143,7 +143,9 @@ export function HomeQuickLinksSection() {
                         height={360}
                         quality={56}
                         sizes="(max-width: 640px) 77vw, 236px"
-                        loading="lazy"
+                        priority={index === 0}
+                        loading={index === 0 ? "eager" : "lazy"}
+                        fetchPriority={index === 0 ? "high" : "auto"}
                         decoding="async"
                         onError={() => markImageAsFailed(card.id)}
                         style={{ objectPosition: card.imagePosition ?? "center" }}

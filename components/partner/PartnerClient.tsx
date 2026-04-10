@@ -2,10 +2,14 @@
 
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
 
-import PartnerPage from "@/legacy-pages/public/Partner";
 import type { PartnerSettings } from "@/hooks/usePartnerSettings";
 import { useHydrated } from "@/hooks/useHydrated";
+
+const PartnerPage = dynamic(() => import("@/legacy-pages/public/Partner"), {
+  loading: () => <div className="min-h-screen bg-background" aria-hidden="true" />,
+});
 
 export interface PartnerClientProps {
   initialPartnerSettings: PartnerSettings | null;

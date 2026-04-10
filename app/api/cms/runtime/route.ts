@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
@@ -15,6 +15,7 @@ interface RuntimeSettingRow {
 }
 
 const CMS_RUNTIME_KEYS = new Set<string>(Object.values(CMS_GLOBAL_SETTING_KEYS));
+const CMS_VERSION_BATCH_SIZE = 100;
 
 function parseRequestedKeys(request: NextRequest) {
   const direct = request.nextUrl.searchParams.getAll("key");
@@ -56,12 +57,35 @@ function mergeSettings(
   return rows.filter((row) => requestedKeys.includes(row.key));
 }
 
+async function fetchCmsDocumentVersionsInBatches(
+  readClient: SupabaseClient<Database>,
+  versionIds: number[],
+) {
+  const versions: Array<{ id: number; content: unknown }> = [];
+
+  for (let index = 0; index < versionIds.length; index += CMS_VERSION_BATCH_SIZE) {
+    const batch = versionIds.slice(index, index + CMS_VERSION_BATCH_SIZE);
+    const { data, error } = await readClient
+      .from("cms_document_versions" as never)
+      .select("id, content")
+      .in("id", batch as never);
+
+    if (error) {
+      return { data: null, error };
+    }
+
+    versions.push(...(((data as Array<{ id: number; content: unknown }> | null) ?? [])));
+  }
+
+  return { data: versions, error: null };
+}
+
 export async function GET(request: NextRequest) {
   const requestedKeys = parseRequestedKeys(request);
   const locale = parseRequestedLocale(request);
 
   const serviceClient = createServiceRoleClient();
-  const readClient =
+  const readClient: SupabaseClient<Database> =
     serviceClient ??
     createClient<Database>(getSupabasePublicEnv().url, getSupabasePublicEnv().anonKey);
 
@@ -127,10 +151,10 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const { data: versions, error: versionsError } = await readClient
-    .from("cms_document_versions" as never)
-    .select("id, content")
-    .in("id", currentVersionIds as never);
+  const { data: versions, error: versionsError } = await fetchCmsDocumentVersionsInBatches(
+    readClient,
+    currentVersionIds,
+  );
 
   if (versionsError) {
     return NextResponse.json({

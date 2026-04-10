@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { usePublishedListings } from "@/hooks/useListings";
 import { useCities, useCategories, useRegions } from "@/hooks/useReferenceData";
@@ -17,14 +17,16 @@ export interface SearchResult {
 export function useGlobalSearch() {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
-  const [recentSearches, setRecentSearches] = useState<SearchResult[]>(() => {
+  const [recentSearches, setRecentSearches] = useState<SearchResult[]>([]);
+
+  useEffect(() => {
     try {
       const stored = localStorage.getItem("algarve-recent-searches");
-      return stored ? JSON.parse(stored) : [];
+      setRecentSearches(stored ? JSON.parse(stored) : []);
     } catch {
-      return [];
+      setRecentSearches([]);
     }
-  });
+  }, []);
 
   // Fetch data from Supabase
   const { data: listings } = usePublishedListings();

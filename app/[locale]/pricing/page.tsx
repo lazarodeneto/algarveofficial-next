@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 import { DEFAULT_LOCALE, isValidLocale, type Locale } from "@/lib/i18n/config";
+import { buildStaticRouteData } from "@/lib/i18n/localized-routing";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PricingClient } from "@/components/pricing/PricingClient";
@@ -17,7 +18,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: "Partner Pricing | AlgarveOfficial",
     description:
       "Transparent pricing for every stage of growth. From Verified visibility to Signature placement. See ROI estimates for Algarve partners.",
-    localizedPath: "/pricing",
+    localizedRoute: buildStaticRouteData("pricing"),
     locale,
   });
 }

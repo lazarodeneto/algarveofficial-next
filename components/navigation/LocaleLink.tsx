@@ -7,11 +7,15 @@ import {
   type ReactNode,
 } from "react";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
-import { buildLocalizedPath, isPassthroughHref } from "@/lib/i18n/routing";
+import {
+  buildLocalizedPath,
+  isPassthroughHref,
+  type LocalizedPathInput,
+} from "@/lib/i18n/localized-routing";
 
 type LocaleLinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> &
   Omit<LinkProps, "href"> & {
-    href: string;
+    href: LocalizedPathInput;
     locale?: string;
     children: ReactNode;
   };
@@ -28,7 +32,7 @@ export const LocaleLink = forwardRef<HTMLAnchorElement, LocaleLinkProps>(
   ({ href, locale, children, prefetch = false, ...props }, ref) => {
     const currentLocale = useCurrentLocale();
 
-    if (isExternalHref(href)) {
+    if (typeof href === "string" && isExternalHref(href)) {
       return (
         <a ref={ref} href={href} {...props}>
           {children}
@@ -36,9 +40,10 @@ export const LocaleLink = forwardRef<HTMLAnchorElement, LocaleLinkProps>(
       );
     }
 
-    const finalHref = isPassthroughHref(href)
-      ? href
-      : buildLocalizedPath(locale || currentLocale, href);
+    const finalHref =
+      typeof href === "string" && isPassthroughHref(href)
+        ? href
+        : buildLocalizedPath(locale || currentLocale, href);
 
     return (
       <Link ref={ref} href={finalHref} prefetch={prefetch} {...props}>

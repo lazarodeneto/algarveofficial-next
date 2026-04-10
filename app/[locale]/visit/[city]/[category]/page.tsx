@@ -10,9 +10,10 @@ import {
   type Locale,
 } from "@/lib/i18n/config";
 import {
-  buildLocalizedPathAlternates,
-  toOpenGraphLocale,
-} from "@/lib/i18n/seo";
+  buildLocaleSwitchPathsForEntity,
+  buildUniformLocalizedSlugMap,
+  type CityCategoryRouteData,
+} from "@/lib/i18n/localized-routing";
 import {
   getCanonicalFromUrlSlug,
   getCategoryDisplayName,
@@ -36,6 +37,7 @@ import { getServerTranslations } from "@/lib/i18n/server";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { ListingCard } from "@/components/seo/programmatic/ListingCard";
 import InternalLinks from "@/components/seo/InternalLinks";
+import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 
 interface PageParams {
   locale: string;
@@ -49,18 +51,17 @@ interface PageProps {
 
 export const revalidate = 60;
 
-function buildLocalizedCategoryPaths(
+function buildCityCategoryRouteData(
   canonical: CanonicalCategorySlug,
   citySlug: string,
-): Partial<Record<Locale, string>> {
-  const localizedPaths: Partial<Record<Locale, string>> = {};
-
-  for (const locale of SUPPORTED_LOCALES) {
-    const localizedCategorySlug = getCategoryUrlSlug(canonical, locale);
-    localizedPaths[locale] = `/${locale}/visit/${citySlug}/${localizedCategorySlug}`;
-  }
-
-  return localizedPaths;
+): CityCategoryRouteData {
+  return {
+    routeType: "city-category",
+    citySlugs: buildUniformLocalizedSlugMap(citySlug),
+    categorySlugs: Object.fromEntries(
+      SUPPORTED_LOCALES.map((locale) => [locale, getCategoryUrlSlug(canonical, locale)])
+    ) as CityCategoryRouteData["categorySlugs"],
+  };
 }
 
 export async function generateStaticParams(): Promise<PageParams[]> {
@@ -112,52 +113,39 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const year = new Date().getFullYear();
   const categoryName = getCategoryDisplayName(canonical, locale);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ?? "https://algarveofficial.com";
-
-  const localizedPaths = buildLocalizedCategoryPaths(canonical, citySlug);
-
-  const alternates = buildLocalizedPathAlternates(locale, localizedPaths);
-  const canonicalUrl =
-    typeof alternates.canonical === "string" ? alternates.canonical : siteUrl;
+  const routeData = buildCityCategoryRouteData(canonical, citySlug);
+  const title =
+    locale === "en" && hasListings
+      ? `Best ${categoryName} in ${data.city.name}, Algarve (${year})`
+      : content.metaTitle;
+  const description =
+    locale === "en" && hasListings
+      ? `Explore top-rated ${categoryName.toLowerCase()} in ${data.city.name}, Algarve. Discover curated local recommendations.`
+      : content.metaDescription;
+  const baseMetadata = buildPageMetadata({
+    title,
+    description,
+    image: data.city.image_url ?? undefined,
+    locale,
+    noIndex: !hasListings,
+    localizedRoute: routeData,
+  });
 
   return {
-    title:
-      locale === "en" && hasListings
-        ? `Best ${categoryName} in ${data.city.name}, Algarve (${year})`
-        : content.metaTitle,
-    description:
-      locale === "en" && hasListings
-        ? `Explore top-rated ${categoryName.toLowerCase()} in ${data.city.name}, Algarve. Discover curated local recommendations.`
-        : content.metaDescription,
-    metadataBase: new URL(siteUrl),
-    alternates,
+    ...baseMetadata,
     openGraph: {
-      title:
-        locale === "en" && hasListings
-          ? `Best ${categoryName} in ${data.city.name}, Algarve (${year})`
-          : content.metaTitle,
-      description:
-        locale === "en" && hasListings
-          ? `Explore top-rated ${categoryName.toLowerCase()} in ${data.city.name}, Algarve. Discover curated local recommendations.`
-          : content.metaDescription,
-      url: canonicalUrl,
-      siteName: "AlgarveOfficial",
-      locale: toOpenGraphLocale(locale),
-      type: "website",
+      ...(baseMetadata.openGraph ?? {}),
+      title,
+      description,
       images: data.city.image_url
         ? [{ url: data.city.image_url, width: 1200, height: 630, alt: `${data.city.name} ${categoryName}` }]
         : [{ url: "/og-image.png", width: 1200, height: 630 }],
     },
     twitter: {
+      ...(baseMetadata.twitter ?? {}),
       card: "summary_large_image",
-      title:
-        locale === "en" && hasListings
-          ? `Best ${categoryName} in ${data.city.name}, Algarve (${year})`
-          : content.metaTitle,
-      description:
-        locale === "en" && hasListings
-          ? `Explore top-rated ${categoryName.toLowerCase()} in ${data.city.name}, Algarve. Discover curated local recommendations.`
-          : content.metaDescription,
+      title,
+      description,
     },
     robots: {
       index: hasListings,
@@ -185,7 +173,8 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
 
   const canonical = getCanonicalFromUrlSlug(categoryUrlSlug, locale);
   if (!canonical) notFound();
-  const localizedPaths = buildLocalizedCategoryPaths(canonical, citySlug);
+  const routeData = buildCityCategoryRouteData(canonical, citySlug);
+  const localeSwitchPaths = buildLocaleSwitchPathsForEntity(routeData, SUPPORTED_LOCALES);
 
   const [data, internalLinksData] = await Promise.all([
     getCategoryCityPageDataAllowEmpty(canonical, citySlug),
@@ -245,7 +234,7 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
       />
 
       <main className="min-h-screen bg-background">
-        <Header localeSwitchPaths={localizedPaths} />
+        <Header localeSwitchPaths={localeSwitchPaths} />
         <section className="relative overflow-hidden bg-gradient-to-b from-background to-muted/20">
           {data.city.image_url && (
             <div className="absolute inset-0 -z-10">
@@ -277,7 +266,10 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
                 <li aria-hidden="true" className="select-none">/</li>
                 <li>
                   <LocaleLink
-                    href={`/visit/${citySlug}`}
+                    href={{
+                      routeType: "city",
+                      citySlugs: routeData.citySlugs,
+                    }}
                     className="hover:text-foreground transition-colors capitalize"
                   >
                     {data.city.name}
@@ -341,13 +333,23 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
                 This page is available so visitors can discover this topic in {data.city.name} while new listings are published. Explore the main city page or nearby city/category combinations in the meantime.
               </p>
               <div className="mt-5 flex flex-wrap justify-center gap-3">
-                <LocaleLink href={`/visit/${citySlug}`} className="rounded-full border border-border px-5 py-2 text-sm font-medium text-foreground hover:border-primary/50 hover:text-primary transition-colors">
+                <LocaleLink
+                  href={{
+                    routeType: "city",
+                    citySlugs: routeData.citySlugs,
+                  }}
+                  className="rounded-full border border-border px-5 py-2 text-sm font-medium text-foreground hover:border-primary/50 hover:text-primary transition-colors"
+                >
                   View {data.city.name}
                 </LocaleLink>
                 {data.relatedCities.slice(0, 3).map((city) => (
                   <LocaleLink
                     key={city.slug}
-                    href={`/visit/${city.slug}/${categoryUrlSlug}`}
+                    href={{
+                      routeType: "city-category",
+                      citySlugs: buildUniformLocalizedSlugMap(city.slug),
+                      categorySlugs: routeData.categorySlugs,
+                    }}
                     className="rounded-full border border-border px-5 py-2 text-sm font-medium text-foreground hover:border-primary/50 hover:text-primary transition-colors"
                   >
                     {city.name}
@@ -377,7 +379,11 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
               {data.relatedCities.map((city) => (
                 <LocaleLink
                   key={city.slug}
-                  href={`/visit/${city.slug}/${categoryUrlSlug}`}
+                  href={{
+                    routeType: "city-category",
+                    citySlugs: buildUniformLocalizedSlugMap(city.slug),
+                    categorySlugs: routeData.categorySlugs,
+                  }}
                   className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-1.5 text-sm text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors"
                 >
                   {city.name}
@@ -401,7 +407,16 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
                 return (
                   <LocaleLink
                     key={category.slug}
-                    href={`/visit/${citySlug}/${localizedCategorySlug}`}
+                    href={{
+                      routeType: "city-category",
+                      citySlugs: routeData.citySlugs,
+                      categorySlugs: Object.fromEntries(
+                        SUPPORTED_LOCALES.map((supportedLocale) => [
+                          supportedLocale,
+                          getCategoryUrlSlug(categoryCanonical, supportedLocale),
+                        ]),
+                      ),
+                    }}
                     className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-1.5 text-sm text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors"
                   >
                     {getCategoryDisplayName(categoryCanonical, locale)}

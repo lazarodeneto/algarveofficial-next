@@ -2,6 +2,7 @@ import type { Locale } from "@/lib/i18n/config";
 import type { ProgrammaticListing } from "./category-city-data";
 import type { CanonicalCategorySlug } from "./category-slugs";
 import { getCategoryDisplayName, getCategoryUrlSlug } from "./category-slugs";
+import { buildLocalizedPath } from "@/lib/i18n/routing";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ?? "https://algarveofficial.com";
 
@@ -9,8 +10,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ?? "https
  * Builds a locale-aware path for the App Router locale-prefixed structure.
  */
 function localePath(locale: Locale, path: string): string {
-  const normalized = path.startsWith("/") ? path : `/${path}`;
-  return `/${locale}${normalized === "/" ? "" : normalized}`;
+  return buildLocalizedPath(locale, path);
 }
 
 // ─── ItemList schema ───────────────────────────────────────────────────────────
@@ -76,7 +76,7 @@ export function buildItemListSchema(
 
 // ─── BreadcrumbList schema ─────────────────────────────────────────────────────
 /**
- * Breadcrumb: Home > Visit > City > Category
+ * Breadcrumb: Home > City > Category
  */
 export function buildBreadcrumbSchema(
   locale: Locale,
@@ -100,18 +100,12 @@ export function buildBreadcrumbSchema(
       {
         "@type": "ListItem",
         position: 2,
-        name: "Visit",
-        item: `${SITE_URL}${localePath(locale, "/visit")}`,
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
         name: cityName,
         item: `${SITE_URL}${localePath(locale, `/visit/${citySlug}`)}`,
       },
       {
         "@type": "ListItem",
-        position: 4,
+        position: 3,
         name: categoryName,
         item: `${SITE_URL}${localePath(locale, `/visit/${citySlug}/${categoryUrlSlug}`)}`,
       },
@@ -228,12 +222,6 @@ export function buildVisitCityBreadcrumbSchema(
       {
         "@type": "ListItem",
         position: 2,
-        name: "Visit",
-        item: `${SITE_URL}${localePath(locale, "/visit")}`,
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
         name: cityName,
         item: `${SITE_URL}${localePath(locale, `/visit/${citySlug}`)}`,
       },
@@ -332,8 +320,8 @@ export function buildVisitIndexBreadcrumbSchema(locale: Locale) {
       {
         "@type": "ListItem",
         position: 2,
-        name: "Visit",
-        item: `${SITE_URL}${localePath(locale, "/visit")}`,
+        name: "Stay",
+        item: `${SITE_URL}${localePath(locale, "/stay")}`,
       },
     ],
   };
@@ -347,7 +335,7 @@ export function buildVisitIndexCityItemListSchema(
     return null;
   }
 
-  const pageUrl = `${SITE_URL}${localePath(locale, "/visit")}`;
+  const pageUrl = `${SITE_URL}${localePath(locale, "/stay")}`;
 
   return {
     "@context": "https://schema.org",

@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { useContactForm } from "@/hooks/useContactForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { useContactSettings } from "@/hooks/useContactSettings";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { PRIMARY_CONTACT_EMAIL, normalizePublicContactEmail } from "@/lib/contactEmail";
 import { PRIMARY_WHATSAPP_NUMBER, toWhatsAppDigits } from "@/lib/contactPhone";
 
@@ -57,7 +58,8 @@ function resolveLocalizedContactCopy(
 }
 
 export default function Contact() {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
+    const locale = useCurrentLocale();
     const { user } = useAuth();
     const searchParams = useSearchParams();
     const contactMutation = useContactForm();
@@ -93,37 +95,37 @@ export default function Contact() {
     };
 
     const heroTitle = resolveLocalizedContactCopy(
-        i18n.resolvedLanguage,
+        locale,
         settings?.hero_title,
         t('contact.title', 'Contact Us'),
         ENGLISH_CONTACT_FALLBACKS.heroTitle,
     );
     const heroSubtitle = resolveLocalizedContactCopy(
-        i18n.resolvedLanguage,
+        locale,
         settings?.hero_subtitle,
         t('contact.subtitle', 'Have a question or need assistance? Our team is here to help you make the most of your Algarve experience.'),
         ENGLISH_CONTACT_FALLBACKS.heroSubtitle,
     );
     const getInTouchTitle = resolveLocalizedContactCopy(
-        i18n.resolvedLanguage,
+        locale,
         settings?.get_in_touch_title,
         t('contact.getInTouch', 'Get in Touch'),
         ENGLISH_CONTACT_FALLBACKS.getInTouchTitle,
     );
     const getInTouchDescription = resolveLocalizedContactCopy(
-        i18n.resolvedLanguage,
+        locale,
         settings?.get_in_touch_description,
         t('contact.touchDesc', 'Choose your preferred way to reach us. We usually respond within 24 hours.'),
         ENGLISH_CONTACT_FALLBACKS.getInTouchDescription,
     );
     const formTitle = resolveLocalizedContactCopy(
-        i18n.resolvedLanguage,
+        locale,
         settings?.form_title,
         t('contact.formTitle', 'Send Us a Message'),
         ENGLISH_CONTACT_FALLBACKS.formTitle,
     );
     const formDescription = resolveLocalizedContactCopy(
-        i18n.resolvedLanguage,
+        locale,
         settings?.form_description,
         t('contact.formDesc', 'Fill in the form below and we\'ll get back to you as soon as possible.'),
         ENGLISH_CONTACT_FALLBACKS.formDescription,

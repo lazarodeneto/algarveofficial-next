@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 import { isMaintenanceIpWhitelisted } from "@/lib/maintenance";
 
 const Maintenance = lazy(() => import("@/legacy-pages/Maintenance"));
@@ -25,7 +26,7 @@ export function MaintenanceGuard({ children }: MaintenanceGuardProps) {
 
   // Whitelist routes that should always be accessible (with or without language prefix)
   const whitelistedRoutes = ['/login', '/signup', '/forgot-password', '/auth/callback', '/auth/reset-password'];
-  const normalizedPathname = pathname.replace(/^\/(?:pt-pt|fr|de|es|it|nl|sv|no|da|en)(?=\/|$)/, '') || '/';
+  const normalizedPathname = stripLocaleFromPathname(pathname);
   const isWhitelisted = whitelistedRoutes.some(
     (route) => pathname.startsWith(route) || normalizedPathname.startsWith(route),
   );

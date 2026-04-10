@@ -30,6 +30,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -78,6 +79,7 @@ export function reportMissingKey(key: string, locale: string): void {
 
 export default function I18nDebugPanel() {
   const { i18n } = useTranslation();
+  const locale = useCurrentLocale();
   const [open, setOpen] = useState(false);
   const [issues, setIssues] = useState<MissingKeyEntry[]>([]);
   const [keyCount, setKeyCount] = useState(0);
@@ -108,12 +110,12 @@ export default function I18nDebugPanel() {
 
   // Count loaded keys
   useEffect(() => {
-    const resources = i18n.getResourceBundle(i18n.language, "translation");
+    const resources = i18n.getResourceBundle(locale, "translation");
     if (resources && typeof resources === "object") {
       const count = Object.keys(resources).length;
       setKeyCount(count);
     }
-  }, [i18n, i18n.language]);
+  }, [i18n, locale]);
 
   // Keyboard shortcut: Alt+Shift+I
   useEffect(() => {
@@ -133,7 +135,6 @@ export default function I18nDebugPanel() {
 
   if (process.env.NODE_ENV !== "development") return null;
 
-  const locale = i18n.language ?? "unknown";
   const hasBadge = issues.length > 0;
 
   return (

@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { m } from 'framer-motion';
@@ -6,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { Search, Clock, User, Loader2 } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { RouteMessageState } from '@/components/layout/RouteMessageState';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -223,11 +226,19 @@ export default function Blog() {
             className={`${heroEnabled || showFeaturedPost ? 'py-12' : 'pb-12'} app-container content-max`}
           >
             {remainingPosts.length === 0 && !featuredPost ? (
-              <div className="text-center py-16">
-                <h2 className="text-2xl font-serif font-medium text-foreground mb-4">{t('blog.noPostsTitle', 'No Articles Yet')}</h2>
-                <p className="text-muted-foreground text-lg mb-2">{t('blog.noPostsFound', 'No posts found matching your criteria.')}</p>
-                <p className="text-muted-foreground">{t('blog.noPostsSubtext', 'Check back soon for travel guides, lifestyle tips, and insider stories from across the Algarve.')}</p>
-              </div>
+              <RouteMessageState
+                eyebrow={t('blog.label', 'Stories & Guides')}
+                title={t('blog.noPostsTitle', 'No Articles Yet')}
+                description={
+                  searchQuery
+                    ? t('blog.noPostsFound', 'No posts found matching your criteria.')
+                    : t(
+                        'blog.noPostsSubtext',
+                        'Check back soon for travel guides, lifestyle tips, and insider stories from across the Algarve.',
+                      )
+                }
+                minHeightClassName="min-h-[22rem]"
+              />
             ) : (
               <div className="grid-adaptive">
                 {remainingPosts.map((post, index) => (

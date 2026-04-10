@@ -10,6 +10,7 @@ import type { MapListingPoint } from "@/components/map/ListingsLeafletMap";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useSignatureListings } from "@/hooks/useListings";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
+import { useHydrated } from "@/hooks/useHydrated";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { renderCategoryIcon } from "@/lib/categoryIcons";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
@@ -26,7 +27,12 @@ const PREVIEW_LIMIT = 6;
 
 const ListingsLeafletMap = dynamic(
   () => import("@/components/map/ListingsLeafletMap"),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[460px] w-full rounded-[1.75rem] border border-border/60 bg-muted/35 animate-pulse" />
+    ),
+  }
 );
 
 const FILTER_ICONS: Record<DiscoveryCategory, ComponentType<{ className?: string }>> = {
@@ -39,6 +45,7 @@ const FILTER_ICONS: Record<DiscoveryCategory, ComponentType<{ className?: string
 export function SignatureMapSection() {
   const { t } = useTranslation();
   const l = useLocalePath();
+  const hydrated = useHydrated();
   const { isFavorite, toggleFavorite } = useFavoriteListings();
   const [activeDiscoveryFilters, setActiveDiscoveryFilters] = useState<DiscoveryCategory[]>(() =>
     DISCOVERY_FILTERS.map((filter) => filter.key)
@@ -178,7 +185,7 @@ export function SignatureMapSection() {
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {previewListings.map(({ listing }) => (
+              {previewListings.map(({ listing }, index) => (
                 <Link
                   key={listing.id}
                   href={l(`/listing/${listing.slug}`)}
@@ -199,6 +206,9 @@ export function SignatureMapSection() {
                         categoryImageUrl={listing.category?.image_url}
                         listingId={listing.id}
                         alt={listing.name}
+                        loading={index === 0 ? "eager" : "lazy"}
+                        fetchPriority={index === 0 ? "high" : "auto"}
+                        priority={index === 0}
                         className="absolute inset-0 h-full w-full object-cover scale-[1.08] transition-transform duration-500 group-hover:scale-110"
                       />
 
@@ -301,15 +311,19 @@ export function SignatureMapSection() {
           </div>
         ) : (
           <div className="rounded-2xl overflow-hidden border-2 border-border dark:border-white/25 dark:shadow-[0_0_20px_rgba(255,255,255,0.06)]">
-            <ListingsLeafletMap
-              points={mapPoints}
-              enableClustering
-              showPopups
-              autoFit
-              scrollWheelZoom={false}
-              mapClassName="h-[460px]"
-              emptyMessage={mapEmptyMessage}
-            />
+            {hydrated ? (
+              <ListingsLeafletMap
+                points={mapPoints}
+                enableClustering
+                showPopups
+                autoFit
+                scrollWheelZoom={false}
+                mapClassName="h-[460px]"
+                emptyMessage={mapEmptyMessage}
+              />
+            ) : (
+              <div className="h-[460px] w-full rounded-[1.75rem] border border-border/60 bg-muted/35 animate-pulse" />
+            )}
           </div>
         )}
       </div>

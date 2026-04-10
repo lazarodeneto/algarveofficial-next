@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
+import { DEFAULT_LOCALE } from "@/lib/i18n/config";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { buildMetadata } from "@/lib/metadata";
 import { getPublishedEventBySlug } from "./eventData";
@@ -21,18 +22,15 @@ export async function generateMetadata({ params }: EventDetailLayoutProps): Prom
     notFound();
   }
 
-  const title = event.meta_title?.trim() || event.title;
-  const description =
-    event.meta_description?.trim() ||
-    event.short_description ||
-    "View event details, schedule, location, and ticket information for AlgarveOfficial featured events.";
-
   return buildMetadata({
-    title,
-    description,
-    path: `/events/${slug}`,
+    title: "Redirecting to Event",
+    description: "Redirecting to the canonical localized event page.",
+    path: `/events/${event.slug}`,
     image: normalizePublicImageUrl(event.image) || "/og-image.png",
     type: "article",
+    noIndex: true,
+    noFollow: true,
+    localeCode: DEFAULT_LOCALE,
     publishedTime: event.created_at,
     modifiedTime: event.updated_at,
     section: "Events",

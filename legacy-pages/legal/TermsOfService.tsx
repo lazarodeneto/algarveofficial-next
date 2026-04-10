@@ -3,10 +3,11 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import type { ElementType } from "react";
-import Link from "next/link";
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify";
 import { useTranslation } from "react-i18next";
 import { useTermsSettings } from "@/hooks/useTermsSettings";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { FileText, Scale, Users, ShieldCheck, AlertTriangle, CreditCard, Ban, Globe } from "lucide-react";
 
 const iconMap: Record<string, ElementType> = {
@@ -21,8 +22,8 @@ const iconMap: Record<string, ElementType> = {
 };
 
 const TermsOfService = () => {
-  const { t, i18n } = useTranslation();
-  const locale = i18n.resolvedLanguage || i18n.language;
+  const { t } = useTranslation();
+  const locale = useCurrentLocale();
   const { settings } = useTermsSettings(locale);
   const hasCustomSections = Boolean(settings?.sections && settings.sections.length > 0);
 
@@ -478,24 +479,24 @@ const TermsOfService = () => {
               {t("legal.relatedPolicies", "Related Policies")}
             </h3>
             <div className="flex flex-wrap gap-4">
-              <Link 
+              <LocaleLink 
                 href="/privacy-policy" 
                 className="text-primary hover:underline inline-flex items-center gap-2"
               >
                 <ShieldCheck className="w-4 h-4" />
                 {t("footer.privacyPolicy", "Privacy Policy")}
-              </Link>
+              </LocaleLink>
             </div>
           </div>
 
           {/* Back Link */}
           <div className="text-center pt-8 border-t border-border">
-            <Link 
+            <LocaleLink 
               href="/" 
               className="text-primary hover:underline inline-flex items-center gap-2"
             >
               ← {t("cookiePolicy.footer.backToHome", "Back to Home")}
-            </Link>
+            </LocaleLink>
           </div>
         </div>
       </main>

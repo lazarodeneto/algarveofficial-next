@@ -1,7 +1,10 @@
+"use client";
+
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { format, parseISO } from 'date-fns';
 import { m } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { 
   Calendar, 
   MapPin, 
@@ -16,17 +19,37 @@ import {
 } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { RouteMessageState } from '@/components/layout/RouteMessageState';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { eventCategoryLabels, eventCategoryColors, type EventCategory } from '@/types/events';
 import { useEventBySlug, useRelatedEvents } from '@/hooks/useEvents';
+import { useCurrentLocale } from '@/hooks/useCurrentLocale';
 import { eventCategoryTemplates } from '@/lib/eventCategoryTemplates';
+import type { Locale } from '@/lib/i18n/config';
+import { useLocalePath } from '@/hooks/useLocalePath';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import {
+  buildAbsoluteRouteUrl,
+  buildStaticRouteData,
+  type EventRouteData,
+} from '@/lib/i18n/localized-routing';
 
-export default function EventDetail() {
+interface EventDetailProps {
+  localeSwitchPaths?: Partial<Record<Locale, string>>;
+  localizedRoute?: EventRouteData;
+}
+
+export default function EventDetail({
+  localeSwitchPaths,
+  localizedRoute,
+}: EventDetailProps = {}) {
   const { slug } = useParams<{ slug: string }>();
+  const locale = useCurrentLocale();
+  const l = useLocalePath();
+  const { t } = useTranslation();
   const { data: event, isLoading, error } = useEventBySlug(slug || '');
   
   // Fetch related events
@@ -40,7 +63,7 @@ export default function EventDetail() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <Header localeSwitchPaths={localeSwitchPaths} />
         <main className="pt-24 pb-16">
           <div className="app-container content-max">
             <Skeleton className="h-8 w-32 mb-6" />
@@ -64,17 +87,22 @@ export default function EventDetail() {
   if (error || !event) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <Header localeSwitchPaths={localeSwitchPaths} />
         <main className="pt-32 pb-16">
-          <div className="app-container text-center">
-            <h1 className="text-4xl font-serif font-medium text-foreground mb-4">Event Not Found</h1>
-            <p className="text-muted-foreground mb-8">The event you're looking for doesn't exist or has been removed.</p>
-            <Button variant="gold" asChild>
-              <Link href="/events">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Events
-              </Link>
-            </Button>
+          <div className="app-container">
+            <RouteMessageState
+              eyebrow={t('sections.events.label', 'Algarve Calendar')}
+              title="Event Not Found"
+              description="The event you're looking for doesn't exist or has been removed."
+              actions={(
+                <Button variant="gold" asChild>
+                  <Link href={l("/events")}>
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Events
+                  </Link>
+                </Button>
+              )}
+            />
           </div>
         </main>
         <Footer />
@@ -110,12 +138,18 @@ export default function EventDetail() {
     <div className="min-h-screen bg-background">
       <BreadcrumbJsonLd
         items={[
-          { name: "Home", url: "https://algarveofficial.com/" },
-          { name: "Events", url: "https://algarveofficial.com/events" },
-          { name: event.title, url: `https://algarveofficial.com/events/${event.slug}` },
+          { name: "Home", url: buildAbsoluteRouteUrl(locale, buildStaticRouteData("home")) },
+          { name: "Events", url: buildAbsoluteRouteUrl(locale, buildStaticRouteData("events")) },
+          {
+            name: event.title,
+            url: localizedRoute
+              ? buildAbsoluteRouteUrl(locale, localizedRoute)
+              : buildAbsoluteRouteUrl(locale, `/events/${event.slug}`),
+          },
         ]}
+        locale={locale}
       />
-      <Header />
+      <Header localeSwitchPaths={localeSwitchPaths} />
       
       <main className="pt-24 pb-16">
         <div className="app-container content-max">
@@ -126,7 +160,7 @@ export default function EventDetail() {
             className="mb-6"
           >
             <Link 
-              href="/events" 
+              href={l("/events")} 
               className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />

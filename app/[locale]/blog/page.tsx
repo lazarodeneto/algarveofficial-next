@@ -1,11 +1,10 @@
-"use client";
-
 import { Suspense } from "react";
 import Blog from "@/legacy-pages/public/blog/Blog";
+import { RouteLoadingState } from "@/components/layout/RouteLoadingState";
 
 export default function BlogPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+    <Suspense fallback={<RouteLoadingState />}>
       <Blog />
     </Suspense>
   );

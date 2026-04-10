@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { RouteMessageState } from "@/components/layout/RouteMessageState";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -38,13 +39,15 @@ import { useOwnerWhatsAppStatus } from "@/hooks/useChat";
 import { useListing, useIncrementListingViews, useResolveSlug } from "@/hooks/useListings";
 import { getSessionId } from "@/lib/sessionId";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
+import { useHydrated } from "@/hooks/useHydrated";
 import { LoginModal } from "@/components/ui/login-modal";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import { toast } from "sonner";
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify";
 import { LocalBusinessJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { translateCategoryValue } from "@/lib/translateCategoryValue";
@@ -88,31 +91,6 @@ const normalizeLang = (raw?: string | null): Lang => {
   if (v.startsWith("da")) return "da";
   if (v.startsWith("en")) return "en";
   return "en";
-};
-
-const detectPreferredLang = (): Lang => {
-  try {
-    const path = window.location.pathname.toLowerCase();
-    const m = path.match(/^\/(pt-pt|fr|de|es|it|nl|sv|no|da|en)(\/|$)/);
-    if (m?.[1]) return normalizeLang(m[1]);
-
-    const url = new URL(window.location.href);
-    const qp = url.searchParams.get("lang");
-    if (qp) return normalizeLang(qp);
-
-    const i18nextLng = localStorage.getItem("i18nextLng");
-    if (i18nextLng) return normalizeLang(i18nextLng);
-
-    const storedLang = localStorage.getItem("algarve-language");
-    if (storedLang) return normalizeLang(storedLang);
-
-    const htmlLang = document.documentElement.lang;
-    if (htmlLang) return normalizeLang(htmlLang);
-
-    return normalizeLang(navigator.language);
-  } catch {
-    return "en";
-  }
 };
 
 const getCategoryLayout = (
@@ -180,7 +158,9 @@ const normalizeImageUrl = (value?: string | null): string | null => {
 
 export default function ListingDetail() {
   const { id: paramSlugOrId } = useParams<{ id: string }>();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const hydrated = useHydrated();
+  const locale = useCurrentLocale();
   const l = useLocalePath();
   const router = useRouter();
 
@@ -224,15 +204,15 @@ export default function ListingDetail() {
   const { data: waStatus } = useOwnerWhatsAppStatus(listing?.owner_id);
 
   // Translations
-  const [lang, setLang] = useState<Lang>("en");
+  const [lang, setLang] = useState<Lang>(() => normalizeLang(locale));
   const [tr, setTr] = useState<ListingTranslationRow | null>(null);
   const [trLoading, setTrLoading] = useState(false);
   const [trError, setTrError] = useState<string | null>(null);
 
-  // Keep lang in sync with i18n language changes
+  // Mirror the validated route locale for translated listing content.
   useEffect(() => {
-    setLang(normalizeLang(i18n.language));
-  }, [i18n.language]);
+    setLang(normalizeLang(locale));
+  }, [locale]);
 
   // Fetch translation row (if lang != en)
   useEffect(() => {
@@ -430,16 +410,18 @@ export default function ListingDetail() {
       <div className="min-h-screen bg-background flex flex-col">
         <Header />
         <main className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-serif mb-4">{t("listing.notFound")}</h1>
-            <p className="text-muted-foreground mb-6">{t("listing.notFoundMessage")}</p>
-            <Link href={l("/")}>
-              <Button>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                {t("listing.backToHome")}
-              </Button>
-            </Link>
-          </div>
+          <RouteMessageState
+            title={t("listing.notFound")}
+            description={t("listing.notFoundMessage")}
+            actions={(
+              <Link href={l("/")}>
+                <Button>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  {t("listing.backToHome")}
+                </Button>
+              </Link>
+            )}
+          />
         </main>
         <Footer />
       </div>
@@ -484,21 +466,21 @@ export default function ListingDetail() {
   const listingOgTitle = listingTitle;
   const listingOgDescription = effectiveShort || listingMetaDescription;
   const listingOgImage = normalizedFeaturedImageUrl || normalizedCategoryImageUrl || undefined;
-  const listingCanonicalUrl = `https://algarveofficial.com/listing/${listing.slug}`;
+  const listingCanonicalUrl = `https://algarveofficial.com${l(`/listing/${listing.slug}`)}`;
   const directoryLabel = t("nav.directory");
   const categoryLabel = translateCategoryName(t, listing.category?.slug, listing.category?.name) || directoryLabel;
   const canonicalCategorySlug = getCanonicalCategorySlug(listing.category?.slug);
   const landingPage = getListingCategoryLanding(canonicalCategorySlug);
   const landingLabel = t(landingPage.labelKey, landingPage.fallbackLabel);
-  const categoryDirectoryPath = canonicalCategorySlug ? `/directory?category=${canonicalCategorySlug}` : "/directory";
+  const categoryDirectoryPath = canonicalCategorySlug ? `/stay?category=${canonicalCategorySlug}` : "/stay";
 
   const breadcrumbItems = [
-    { name: t("nav.home"), url: "https://algarveofficial.com" },
-    { name: landingLabel, url: `https://algarveofficial.com${landingPage.path}` },
+    { name: t("nav.home"), url: `https://algarveofficial.com${l("/")}` },
+    { name: landingLabel, url: `https://algarveofficial.com${l(landingPage.path)}` },
     ...(canonicalCategorySlug
-      ? [{ name: categoryLabel, url: `https://algarveofficial.com/directory?category=${canonicalCategorySlug}` }]
+      ? [{ name: categoryLabel, url: `https://algarveofficial.com${l(categoryDirectoryPath)}` }]
       : []),
-    { name: listingTitle, url: `https://algarveofficial.com/listing/${listing.slug}` },
+    { name: listingTitle, url: listingCanonicalUrl },
   ];
 
   const visualBreadcrumbs = [
@@ -535,7 +517,7 @@ export default function ListingDetail() {
         }
       />
 
-      <BreadcrumbJsonLd items={breadcrumbItems} />
+      <BreadcrumbJsonLd items={breadcrumbItems} locale={locale} />
 
       <Header />
 
@@ -690,16 +672,20 @@ export default function ListingDetail() {
 
                   return (
                     <div className="h-full rounded-xl overflow-hidden">
-                      <ListingsLeafletMap
-                        points={listingMapPoints}
-                        activeListingId={listing.id}
-                        focusListingId={listing.id}
-                        enableClustering={false}
-                        scrollWheelZoom={false}
-                        showPopups
-                        mapClassName="h-full min-h-[300px]"
-                        emptyMessage="Location unavailable for this listing."
-                      />
+                      {hydrated ? (
+                        <ListingsLeafletMap
+                          points={listingMapPoints}
+                          activeListingId={listing.id}
+                          focusListingId={listing.id}
+                          enableClustering={false}
+                          scrollWheelZoom={false}
+                          showPopups
+                          mapClassName="h-full min-h-[300px]"
+                          emptyMessage="Location unavailable for this listing."
+                        />
+                      ) : (
+                        <div className="h-full min-h-[300px] w-full bg-muted animate-pulse rounded-xl" />
+                      )}
                     </div>
                   );
                 })()}
@@ -713,16 +699,20 @@ export default function ListingDetail() {
 
                 return (
                   <div className="rounded-xl overflow-hidden">
-                    <ListingsLeafletMap
-                      points={listingMapPoints}
-                      activeListingId={listing.id}
-                      focusListingId={listing.id}
-                      enableClustering={false}
-                      scrollWheelZoom={false}
-                      showPopups
-                      mapClassName="aspect-video"
-                      emptyMessage="Location unavailable for this listing."
-                    />
+                    {hydrated ? (
+                      <ListingsLeafletMap
+                        points={listingMapPoints}
+                        activeListingId={listing.id}
+                        focusListingId={listing.id}
+                        enableClustering={false}
+                        scrollWheelZoom={false}
+                        showPopups
+                        mapClassName="aspect-video"
+                        emptyMessage="Location unavailable for this listing."
+                      />
+                    ) : (
+                      <div className="aspect-video w-full bg-muted animate-pulse rounded-xl" />
+                    )}
                   </div>
                 );
               })()}

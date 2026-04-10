@@ -8,6 +8,7 @@ import { FavoriteButton } from "@/components/ui/favorite-button";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { useCuratedAssignments } from "@/hooks/useCuratedAssignments";
 import { useTranslation } from "react-i18next";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { supabase } from "@/integrations/supabase/client";
@@ -67,10 +68,10 @@ export function CuratedExcellence({
   showSectionHeader = true,
   fullWidth = false
 }: CuratedExcellenceProps) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const l = useLocalePath();
   const { isFavorite, toggleFavorite } = useFavoriteListings();
-  const targetLang = normalizeLang(i18n.language);
+  const targetLang = normalizeLang(useCurrentLocale());
 
   // Determine context_type and context_id for the query
   const contextType = context.type === 'home' ? 'homepage' : context.type;

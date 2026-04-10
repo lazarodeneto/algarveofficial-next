@@ -5,12 +5,15 @@ import { useMemo } from "react";
 import {
   buildLocalizedPath,
   switchLocaleInPathname,
-} from "@/lib/i18n/routing";
+  type LocalizedPathInput,
+  type LocalizedRouteOptions,
+} from "@/lib/i18n/localized-routing";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { isValidLocale, type Locale } from "@/lib/i18n/config";
-
-const LOCALE_COOKIE_NAME = "NEXT_LOCALE";
-const LOCALE_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
+import {
+  LOCALE_COOKIE_MAX_AGE_SECONDS,
+  LOCALE_COOKIE_NAME,
+} from "@/lib/i18n/route-rules";
 
 function persistLocaleCookie(locale: Locale) {
   if (typeof document === "undefined") {
@@ -36,26 +39,41 @@ export function useLocaleRouter() {
     return qs ? `?${qs}` : "";
   }, [searchParams]);
 
+  const currentHash =
+    typeof window !== "undefined" ? window.location.hash || "" : "";
+
+  function preserveCurrentLocationState(target: string): string {
+    const withQuery = target.includes("?") ? target : `${target}${currentQueryString}`;
+    return withQuery.includes("#") ? withQuery : `${withQuery}${currentHash}`;
+  }
+
+  function buildTarget(
+    href: LocalizedPathInput,
+    options?: LocalizedRouteOptions,
+  ): string {
+    return buildLocalizedPath(locale, href, options);
+  }
+
   return {
     locale,
     pathname,
-    push: (href: string) => {
-      const target = buildLocalizedPath(locale, href);
+    push: (href: LocalizedPathInput, options?: LocalizedRouteOptions) => {
+      const target = buildTarget(href, options);
       router.push(target);
     },
-    replace: (href: string) => {
-      const target = buildLocalizedPath(locale, href);
+    replace: (href: LocalizedPathInput, options?: LocalizedRouteOptions) => {
+      const target = buildTarget(href, options);
       router.replace(target);
     },
-    pushWithQuery: (href: string) => {
-      const target = buildLocalizedPath(locale, href);
+    pushWithQuery: (href: LocalizedPathInput, options?: LocalizedRouteOptions) => {
+      const target = buildTarget(href, options);
       router.push(`${target}${currentQueryString}`);
     },
-    replaceWithQuery: (href: string) => {
-      const target = buildLocalizedPath(locale, href);
+    replaceWithQuery: (href: LocalizedPathInput, options?: LocalizedRouteOptions) => {
+      const target = buildTarget(href, options);
       router.replace(`${target}${currentQueryString}`);
     },
-    switchLocale: (nextLocale: string, targetPath?: string) => {
+    switchLocale: (nextLocale: string, targetPath?: LocalizedPathInput) => {
       if (!isValidLocale(nextLocale)) {
         return;
       }
@@ -64,7 +82,7 @@ export function useLocaleRouter() {
       const nextPath = targetPath
         ? buildLocalizedPath(nextLocale, targetPath)
         : switchLocaleInPathname(pathname || "/", nextLocale);
-      router.push(`${nextPath}${currentQueryString}`);
+      router.push(preserveCurrentLocationState(nextPath));
     },
   };
 }

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useRef, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import {
   CMS_DEFAULT_DESIGN_TOKENS,
   CMS_GLOBAL_SETTING_KEYS,
@@ -95,10 +96,11 @@ function toCssVarName(token: string): string {
 
 export function CmsPageBuilderProvider({ children }: { children: ReactNode }) {
   const { i18n } = useTranslation();
+  const locale = useCurrentLocale();
   const previousAppliedVarsRef = useRef<string[]>([]);
 
   const { settings, isLoading } = useGlobalSettings({
-    locale: i18n.resolvedLanguage ?? i18n.language,
+    locale,
     keys: [
       CMS_GLOBAL_SETTING_KEYS.textOverrides,
       CMS_GLOBAL_SETTING_KEYS.pageConfigs,
@@ -155,9 +157,8 @@ export function CmsPageBuilderProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const activeLocale = i18n.resolvedLanguage ?? i18n.language ?? "en";
-    i18n.addResourceBundle(activeLocale, "translation", nestedOverrides, true, true);
-  }, [i18n, textOverrides]);
+    i18n.addResourceBundle(locale, "translation", nestedOverrides, true, true);
+  }, [i18n, locale, textOverrides]);
 
   // Apply design tokens as CSS variables on :root.
   useEffect(() => {

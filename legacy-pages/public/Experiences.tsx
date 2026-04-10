@@ -65,11 +65,17 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { buildMunicipalityCityIndex } from "@/lib/cities/municipalityIndex";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import {
+  fetchCategoryTranslations,
+  fetchCityTranslations,
+  fetchListingTranslations,
+  fetchRegionTranslations,
+  normalizePublicContentLocale,
+} from "@/lib/publicContentLocale";
+import type { ListingWithRelations } from "@/hooks/useListings";
 
-type ListingRow = Database["public"]["Tables"]["listings"]["Row"] & {
-  cities: { name: string; slug: string } | null;
-  categories: { name: string; slug: string } | null;
-};
+type ListingRow = ListingWithRelations;
 
 const EXPERIENCE_MEMBER_SLUGS = getMergedMemberSlugs("experiences");
 
@@ -83,6 +89,7 @@ const Experiences = () => {
     getBlockData,
   } = useCmsPageBuilder("experiences");
   const l = useLocalePath();
+  const locale = normalizePublicContentLocale(useCurrentLocale());
   const { data: cities = [] } = useCities();
   const { data: categories = [] } = useCategories();
   const { data: regions = [] } = useRegions();
@@ -255,6 +262,7 @@ const Experiences = () => {
       [...selectedCities].sort().join(","),
       selectedTier,
       [...experiencesCategoryIds].sort().join(","),
+      locale,
     ],
     queryFn: async () => {
       let effectiveCategoryIds = experiencesCategoryIds;
@@ -274,7 +282,7 @@ const Experiences = () => {
 
       let query = supabase
         .from("listings")
-        .select("*, cities ( id, name, slug ), regions ( id, name, slug ), categories ( id, name, slug, icon )")
+        .select("*, city:cities ( id, name, slug ), region:regions ( id, name, slug ), category:categories ( id, name, slug, icon )")
         .in("category_id", effectiveCategoryIds)
         .eq("status", "published");
       if (debouncedSearch) {
@@ -301,7 +309,85 @@ const Experiences = () => {
         .order("created_at", { ascending: false });
       const { data, error } = await query;
       if (error) throw error;
-      return (data ?? []) as any[];
+
+      const rows = (data ?? []) as ListingRow[];
+      if (locale === "en" || rows.length === 0) {
+        return rows;
+      }
+
+      try {
+        const [listingTranslations, cityTranslations, regionTranslations, categoryTranslations] =
+          await Promise.all([
+            fetchListingTranslations(locale, rows.map((listing) => listing.id)),
+            fetchCityTranslations(
+              locale,
+              rows.map((listing) => listing.city?.id ?? listing.city_id).filter(Boolean) as string[],
+            ),
+            fetchRegionTranslations(
+              locale,
+              rows.map((listing) => listing.region?.id ?? listing.region_id).filter(Boolean) as string[],
+            ),
+            fetchCategoryTranslations(
+              locale,
+              rows.map((listing) => listing.category?.id ?? listing.category_id).filter(Boolean) as string[],
+            ),
+          ]);
+
+        const listingTranslationMap = new Map(
+          listingTranslations.map((translation) => [translation.listing_id, translation]),
+        );
+        const cityTranslationMap = new Map(
+          cityTranslations.map((translation) => [translation.city_id, translation]),
+        );
+        const regionTranslationMap = new Map(
+          regionTranslations.map((translation) => [translation.region_id, translation]),
+        );
+        const categoryTranslationMap = new Map(
+          categoryTranslations.map((translation) => [translation.category_id, translation]),
+        );
+
+        return rows.map((listing) => {
+          const listingTranslation = listingTranslationMap.get(listing.id);
+          const cityTranslation = (listing.city?.id ?? listing.city_id)
+            ? cityTranslationMap.get(listing.city?.id ?? listing.city_id ?? "")
+            : undefined;
+          const regionTranslation = (listing.region?.id ?? listing.region_id)
+            ? regionTranslationMap.get(listing.region?.id ?? listing.region_id ?? "")
+            : undefined;
+          const categoryTranslation = (listing.category?.id ?? listing.category_id)
+            ? categoryTranslationMap.get(listing.category?.id ?? listing.category_id ?? "")
+            : undefined;
+
+          return {
+            ...listing,
+            name: listingTranslation?.title?.trim() || listing.name,
+            short_description:
+              listingTranslation?.short_description?.trim() || listing.short_description,
+            description: listingTranslation?.description?.trim() || listing.description,
+            city: listing.city
+              ? {
+                  ...listing.city,
+                  name: cityTranslation?.name?.trim() || listing.city.name,
+                }
+              : listing.city,
+            region: listing.region
+              ? {
+                  ...listing.region,
+                  name: regionTranslation?.name?.trim() || listing.region.name,
+                }
+              : listing.region,
+            category: listing.category
+              ? {
+                  ...listing.category,
+                  name: categoryTranslation?.name?.trim() || listing.category.name,
+                }
+              : listing.category,
+          };
+        });
+      } catch (translationError) {
+        console.warn("Failed to localize experience listings; falling back to English.", translationError);
+        return rows;
+      }
     },
     enabled: true,
     staleTime: 1000 * 60 * 5,
@@ -428,7 +514,7 @@ const Experiences = () => {
               }
               ctas={
                 <>
-                  <Link href={l("/directory?category=things-to-do")}>
+                  <Link href={l("/stay?category=things-to-do")}>
                     <Button variant="gold" size="lg">
                       {t(
                         "experiences.hero.ctaPrimary",
@@ -874,7 +960,7 @@ const Experiences = () => {
                     <ArrowRight className="h-4 w-4 ml-1" />
                   </Button>
                 </Link>
-                <Link href={l("/directory?category=things-to-do")}>
+                <Link href={l("/stay?category=things-to-do")}>
                   <Button variant="outline" size="lg">
                     {t(
                       "experiences.cta.secondary",

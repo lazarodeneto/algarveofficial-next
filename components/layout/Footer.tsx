@@ -33,12 +33,12 @@ const fallbackLinks = {
     { name: "Tavira Heritage", href: "/destinations/tavira-heritage" },
   ],
   categories: [
-    { name: "Places to Stay", href: "/directory?category=places-to-stay", translationKey: "categories.luxuryAccommodation" },
-    { name: "Restaurants", href: "/directory?category=restaurants", translationKey: "categories.restaurants" },
-    { name: "Golf & Tournaments", href: "/directory?category=golf", translationKey: "categories.golf" },
-    { name: "Things to Do", href: "/directory?category=things-to-do", translationKey: "categories.luxuryExperiences" },
-    { name: "What's On", href: "/directory?category=whats-on", translationKey: "categories.premierEvents" },
-    { name: "Algarve Services", href: "/directory?category=algarve-services", translationKey: "categories.algarveServices" },
+    { name: "Places to Stay", href: "/stay?category=places-to-stay", translationKey: "categories.luxuryAccommodation" },
+    { name: "Restaurants", href: "/stay?category=restaurants", translationKey: "categories.restaurants" },
+    { name: "Golf & Tournaments", href: "/stay?category=golf", translationKey: "categories.golf" },
+    { name: "Things to Do", href: "/stay?category=things-to-do", translationKey: "categories.luxuryExperiences" },
+    { name: "What's On", href: "/stay?category=whats-on", translationKey: "categories.premierEvents" },
+    { name: "Algarve Services", href: "/stay?category=algarve-services", translationKey: "categories.algarveServices" },
   ],
   company: [
     { name: "About Us", href: "/about-us", translationKey: "footer.aboutUs" },
@@ -165,8 +165,8 @@ export function normalizeFooterLinkHref(
     ? stripLocaleFromPathname(rawPath)
     : rawPath;
 
-  if (sectionSlug === "categories" && normalizedPath.startsWith("/directory")) {
-    const [path, query = ""] = normalizedPath.split("?");
+  if (sectionSlug === "categories" && (normalizedPath.startsWith("/directory") || normalizedPath.startsWith("/stay"))) {
+    const [, query = ""] = normalizedPath.split("?");
     const params = new URLSearchParams(query);
     const rawCategoryParam = params.get("category");
     const normalizedName = name.trim().toLowerCase();
@@ -183,7 +183,7 @@ export function normalizeFooterLinkHref(
 
     if (canonicalCategorySlug) {
       params.set("category", canonicalCategorySlug);
-      return localizedHref(`${path}?${params.toString()}`);
+      return localizedHref(`/stay?${params.toString()}`);
     }
   }
 

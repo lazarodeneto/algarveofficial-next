@@ -41,11 +41,17 @@ interface BreadcrumbItem {
   url: string;
 }
 
-export function BreadcrumbJsonLd({ items }: { items: BreadcrumbItem[] }) {
+export function BreadcrumbJsonLd({
+  items,
+  locale,
+}: {
+  items: BreadcrumbItem[];
+  locale?: string | null;
+}) {
   const schema = buildBreadcrumbSchema(
     items.map((item) => ({
       name: item.name,
-      url: localizeSeoUrl(item.url),
+      url: localizeSeoUrl(item.url, locale),
     })),
   );
   return (
@@ -68,16 +74,17 @@ interface ItemListJsonLdProps {
   url: string;
   description?: string;
   items: ItemListEntry[];
+  locale?: string | null;
 }
 
-export function ItemListJsonLd({ name, url, description, items }: ItemListJsonLdProps) {
+export function ItemListJsonLd({ name, url, description, items, locale }: ItemListJsonLdProps) {
   const schema = buildItemListSchema({
     name,
-    url: localizeSeoUrl(url),
+    url: localizeSeoUrl(url, locale),
     description,
     items: items.map((item) => ({
       name: item.name,
-      url: localizeSeoUrl(item.url),
+      url: localizeSeoUrl(item.url, locale),
       description: item.description,
       image: item.image ? toAbsoluteSeoUrl(item.image) : undefined,
     })),
@@ -96,6 +103,7 @@ interface WebPageJsonLdProps {
   description?: string;
   image?: string;
   type?: string;
+  locale?: string | null;
 }
 
 export function WebPageJsonLd({
@@ -104,11 +112,12 @@ export function WebPageJsonLd({
   description,
   image,
   type = "WebPage",
+  locale,
 }: WebPageJsonLdProps) {
   const schema = buildWebPageSchema({
     name,
     description,
-    url: localizeSeoUrl(url),
+    url: localizeSeoUrl(url, locale),
     image: image ? toAbsoluteSeoUrl(image) : undefined,
     type,
     siteUrl: SITE_URL,
@@ -129,6 +138,7 @@ interface ContactPageJsonLdProps {
   email?: string | null;
   telephone?: string | null;
   areaServed?: string | null;
+  locale?: string | null;
 }
 
 export function ContactPageJsonLd({
@@ -139,11 +149,12 @@ export function ContactPageJsonLd({
   email,
   telephone,
   areaServed,
+  locale,
 }: ContactPageJsonLdProps) {
   const schema = buildContactPageSchema({
     name,
     description,
-    url: localizeSeoUrl(url),
+    url: localizeSeoUrl(url, locale),
     image: image ? toAbsoluteSeoUrl(image) : undefined,
     email,
     telephone,

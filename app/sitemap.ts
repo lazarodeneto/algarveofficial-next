@@ -13,8 +13,6 @@ import {
 
 const DEFAULT_SITE_URL = "https://algarveofficial.com";
 const LISTING_LIMIT = 10000;
-const BLOG_LIMIT = 2000;
-const EVENT_LIMIT = 2000;
 const CITY_LIMIT = 2000;
 const REGION_LIMIT = 500;
 const CATEGORY_LIMIT = 100;
@@ -76,6 +74,38 @@ function makeEntry(
   };
 }
 
+function makeLocalizedEntry(
+  localizedPaths: Partial<Record<(typeof SUPPORTED_LOCALES)[number], string>>,
+  lastModified: Date,
+  changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"],
+  priority: number,
+  imageUrl?: string | null,
+): MetadataRoute.Sitemap[number] | null {
+  const siteUrl = getSiteUrl();
+  const canonicalPath = localizedPaths[DEFAULT_LOCALE];
+
+  if (!canonicalPath) {
+    return null;
+  }
+
+  const languages: Record<string, string> = {};
+  for (const locale of SUPPORTED_LOCALES) {
+    const localizedPath = localizedPaths[locale];
+    if (!localizedPath) continue;
+    languages[LOCALE_CONFIGS[locale].hreflang] = `${siteUrl}${localizedPath}`;
+  }
+  languages["x-default"] = `${siteUrl}${canonicalPath}`;
+
+  return {
+    url: `${siteUrl}${canonicalPath}`,
+    lastModified,
+    changeFrequency,
+    priority,
+    alternates: { languages },
+    images: imageUrl ? [imageUrl] : undefined,
+  };
+}
+
 const STATIC_PATHS = [
   { path: "/", priority: 1.0, changefreq: "daily" as const },
   { path: "/stay", priority: 0.9, changefreq: "daily" as const },
@@ -114,7 +144,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const supabase = createPublicServerClient();
 
-    const [listingsResponse, regionsResponse, citiesResponse, categoriesResponse, blogPostsResponse, eventsResponse] =
+    const [listingsResponse, regionsResponse, citiesResponse, categoriesResponse] =
       await Promise.all([
         supabase
           .from("listings")
@@ -136,21 +166,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           .limit(CITY_LIMIT),
         supabase
           .from("categories")
-          .select("slug, image_url")
+          .select("slug, image_url, updated_at")
           .not("slug", "is", null)
           .limit(CATEGORY_LIMIT),
-        supabase
-          .from("blog_posts")
-          .select("slug, updated_at, published_at, featured_image")
-          .eq("status", "published")
-          .not("slug", "is", null)
-          .limit(BLOG_LIMIT),
-        supabase
-          .from("events")
-          .select("slug, updated_at, start_date, image")
-          .eq("status", "published")
-          .not("slug", "is", null)
-          .limit(EVENT_LIMIT),
       ]);
 
     if (listingsResponse.error) {
@@ -164,12 +182,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
     if (categoriesResponse.error) {
       console.error("[sitemap] Failed to fetch categories", categoriesResponse.error);
-    }
-    if (blogPostsResponse.error) {
-      console.error("[sitemap] Failed to fetch blog posts", blogPostsResponse.error);
-    }
-    if (eventsResponse.error) {
-      console.error("[sitemap] Failed to fetch events", eventsResponse.error);
     }
 
     // Listings — one entry per slug, English locale canonical
@@ -194,29 +206,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       entries.push(makeEntry(path, toValidDate(city.updated_at, now), "weekly", 0.75, city.image_url ?? undefined));
     }
 
-    // NOTE: Category entries intentionally omitted from the sitemap.
-    // The categories query above is fetched for potential future use, but
-    // /directory/[slug] pages do not exist — the directory page uses query
-    // params (?category=...) for filtering. The programmatic /[city]/[category]
-    // pages below already provide full coverage with correct hreflang alternates.
-    void categoriesResponse; // suppress unused variable warning
+    // Category hubs use locale-specific slugs and belong in the main sitemap.
+    for (const category of categoriesResponse.data ?? []) {
+      if (!category.slug) continue;
+      if (!ALL_CANONICAL_SLUGS.includes(category.slug as CanonicalCategorySlug)) continue;
 
-    // Blog posts
-    for (const post of blogPostsResponse.data ?? []) {
-      if (!post.slug) continue;
-      const path = `/blog/${post.slug}`;
-      const lastMod = toValidDate(post.updated_at, toValidDate(post.published_at, now));
-      entries.push(makeEntry(path, lastMod, "monthly", 0.76, post.featured_image ?? undefined));
-    }
+      const canonical = category.slug as CanonicalCategorySlug;
+      const localizedPaths = Object.fromEntries(
+        SUPPORTED_LOCALES.map((locale) => [
+          locale,
+          withLocalePrefix(`/category/${getCategoryUrlSlug(canonical, locale)}`, locale),
+        ]),
+      ) as Partial<Record<(typeof SUPPORTED_LOCALES)[number], string>>;
 
-    // Events
-    for (const event of eventsResponse.data ?? []) {
-      if (!event.slug) continue;
-      const path = `/events/${event.slug}`;
-      const lastMod = toValidDate(event.updated_at, toValidDate(event.start_date, now));
-      const changeFreq: MetadataRoute.Sitemap[number]["changeFrequency"] =
-        event.start_date && new Date(event.start_date) > now ? "weekly" : "monthly";
-      entries.push(makeEntry(path, lastMod, changeFreq, 0.74, event.image ?? undefined));
+      const entry = makeLocalizedEntry(
+        localizedPaths,
+        toValidDate(category.updated_at, now),
+        "weekly",
+        0.79,
+        category.image_url ?? undefined,
+      );
+
+      if (entry) {
+        entries.push(entry);
+      }
     }
 
     try {
@@ -277,7 +290,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const GUIDE_SLUGS = [
       "best-restaurants-in-lagos", "golf-in-vilamoura", "beaches-in-tavira",
       "things-to-do-in-albufeira", "family-attractions-in-albufeira",
-      "wellness-spas-in-lagos", "shopping-in-almancil",
+      "wellness-spas-in-lagos", "shopping-in-lagos",
       "real-estate-in-quinta-do-lago", "beach-clubs-in-albufeira",
       "experiences-in-faro",
     ];

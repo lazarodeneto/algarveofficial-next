@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { useTranslation } from "react-i18next";
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { inferCategorySlugsFromSearch } from '@/lib/categoryMerges';
 import {
   fetchCategoryTranslations,
@@ -10,6 +10,10 @@ import {
   fetchRegionTranslations,
   normalizePublicContentLocale,
 } from "@/lib/publicContentLocale";
+import {
+  publishedListingsQueryKey,
+  signatureListingsQueryKey,
+} from "@/lib/query-keys";
 
 export type ListingRow = Tables<'listings'>;
 export type ListingTier = 'unverified' | 'verified' | 'signature';
@@ -438,13 +442,12 @@ const ADMIN_LISTING_IMAGE_FIELDS = "id, listing_id, image_url, alt_text, display
  * Uses explicit field selection to prevent PII exposure
  */
 export function usePublishedListings(filters: ListingFilters = {}) {
-  const { i18n } = useTranslation();
-  const locale = normalizePublicContentLocale(i18n.language);
+  const locale = normalizePublicContentLocale(useCurrentLocale());
   const normalizedFilters = normalizeListingFilters(filters);
   const isBrowser = typeof window !== "undefined";
 
   return useQuery({
-    queryKey: ['listings', 'published', normalizedFilters, locale],
+    queryKey: publishedListingsQueryKey(normalizedFilters as Record<string, unknown>, locale),
     queryFn: async () => {
       const [excludedCategoryId, matchingCategoryIds] = await Promise.all([
         resolveExcludedCategoryId(normalizedFilters),
@@ -526,8 +529,7 @@ export function usePublishedListings(filters: ListingFilters = {}) {
  * Uses explicit field selection to prevent PII exposure
  */
 export function useListing(idOrSlug: string | undefined) {
-  const { i18n } = useTranslation();
-  const locale = normalizePublicContentLocale(i18n.language);
+  const locale = normalizePublicContentLocale(useCurrentLocale());
   const isBrowser = typeof window !== "undefined";
 
   return useQuery({
@@ -614,8 +616,7 @@ export function useResolveSlug(slug: string | undefined) {
  * Uses explicit field selection to prevent PII exposure
  */
 export function useCuratedListings() {
-  const { i18n } = useTranslation();
-  const locale = normalizePublicContentLocale(i18n.language);
+  const locale = normalizePublicContentLocale(useCurrentLocale());
   const isBrowser = typeof window !== "undefined";
 
   return useQuery({
@@ -667,12 +668,11 @@ export function useCuratedListings() {
  * Uses explicit field selection to prevent PII exposure
  */
 export function useSignatureListings() {
-  const { i18n } = useTranslation();
-  const locale = normalizePublicContentLocale(i18n.language);
+  const locale = normalizePublicContentLocale(useCurrentLocale());
   const isBrowser = typeof window !== "undefined";
 
   return useQuery({
-    queryKey: ['listings', 'signature', locale],
+    queryKey: signatureListingsQueryKey(locale),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('listings')

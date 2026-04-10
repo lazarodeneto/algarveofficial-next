@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 
 import ExperiencesClient from "@/components/experiences/ExperiencesClient";
+import { RouteLoadingState } from "@/components/layout/RouteLoadingState";
 import { isValidLocale, type Locale } from "@/lib/i18n/config";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
 
@@ -28,7 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default function ExperiencesPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+    <Suspense fallback={<RouteLoadingState />}>
       <ExperiencesClient initialGlobalSettings={[]} />
     </Suspense>
   );

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
+import { curatedAssignmentsQueryKey } from "@/lib/query-keys";
 
 export interface CuratedListingWithRelations extends Tables<'listings'> {
   city?: Tables<'cities'> | null;
@@ -68,7 +69,7 @@ export function useCuratedAssignments(
   const isBrowser = typeof window !== "undefined";
 
   return useQuery({
-    queryKey: ['curated-assignments', contextType, contextId, limit],
+    queryKey: curatedAssignmentsQueryKey(contextType, contextId, limit),
     queryFn: async () => {
       // First, try to fetch assignments for the specific context
       let query = supabase

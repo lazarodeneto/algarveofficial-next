@@ -1,10 +1,12 @@
+"use client";
+
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from "next/navigation";
 import { m } from 'framer-motion';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
-import DOMPurify from 'dompurify';
+import DOMPurify from "isomorphic-dompurify";
 import { getSessionId } from '@/lib/sessionId';
 import { 
   ArrowLeft, 
@@ -22,23 +24,42 @@ import {
 } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { RouteMessageState } from '@/components/layout/RouteMessageState';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import { type Locale } from '@/lib/i18n/config';
+import { useCurrentLocale } from '@/hooks/useCurrentLocale';
+import { useLocalePath } from '@/hooks/useLocalePath';
+import {
+  buildAbsoluteRouteUrl,
+  buildStaticRouteData,
+  type BlogPostRouteData,
+} from '@/lib/i18n/localized-routing';
 import { 
   usePublishedBlogPost, 
   useIncrementBlogViews,
   blogCategoryLabels 
 } from '@/hooks/useBlogPosts';
 
-export default function BlogPost() {
+interface BlogPostProps {
+  localeSwitchPaths?: Partial<Record<Locale, string>>;
+  localizedRoute?: BlogPostRouteData;
+}
+
+export default function BlogPost({
+  localeSwitchPaths,
+  localizedRoute,
+}: BlogPostProps = {}) {
   const { slug: rawSlug } = useParams<{ slug?: string | string[] }>();
   const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
   const router = useRouter();
   const { t } = useTranslation();
+  const locale = useCurrentLocale();
+  const l = useLocalePath();
 
   const { data: post, isLoading, error } = usePublishedBlogPost(slug);
   const { mutate: incrementViews } = useIncrementBlogViews();
@@ -73,7 +94,7 @@ export default function BlogPost() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <Header localeSwitchPaths={localeSwitchPaths} />
         <main className="pt-32 pb-16 flex justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
@@ -85,15 +106,20 @@ export default function BlogPost() {
   if (error || !post) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <Header localeSwitchPaths={localeSwitchPaths} />
         <main className="pt-32 pb-16">
-          <div className="container max-w-4xl mx-auto px-4 text-center">
-            <h1 className="text-3xl font-serif font-bold mb-4">Article Not Found</h1>
-            <p className="text-muted-foreground mb-8">This article may have been removed or is not available.</p>
-            <Button onClick={() => router.push('/blog')}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Blog
-            </Button>
+          <div className="container max-w-4xl mx-auto px-4">
+            <RouteMessageState
+              eyebrow={t('blog.label', 'Stories & Guides')}
+              title="Article Not Found"
+              description="This article may have been removed or is not available."
+              actions={(
+                <Button onClick={() => router.push(l('/blog'))}>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Blog
+                </Button>
+              )}
+            />
           </div>
         </main>
         <Footer />
@@ -105,12 +131,18 @@ export default function BlogPost() {
     <div className="min-h-screen bg-background">
       <BreadcrumbJsonLd
         items={[
-          { name: "Home", url: "https://algarveofficial.com/" },
-          { name: "Blog", url: "https://algarveofficial.com/blog" },
-          { name: post.title, url: `https://algarveofficial.com/blog/${post.slug}` },
+          { name: "Home", url: buildAbsoluteRouteUrl(locale, buildStaticRouteData("home")) },
+          { name: "Blog", url: buildAbsoluteRouteUrl(locale, buildStaticRouteData("blog")) },
+          {
+            name: post.title,
+            url: localizedRoute
+              ? buildAbsoluteRouteUrl(locale, localizedRoute)
+              : buildAbsoluteRouteUrl(locale, `/blog/${post.slug}`),
+          },
         ]}
+        locale={locale}
       />
-      <Header />
+      <Header localeSwitchPaths={localeSwitchPaths} />
       
       <main className="pt-20">
         {/* Hero Image */}
@@ -131,7 +163,7 @@ export default function BlogPost() {
           >
             {/* Back Link */}
             <Button variant="ghost" size="sm" asChild className="mb-6">
-              <Link href="/blog">
+              <Link href={l("/blog")}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Blog
               </Link>

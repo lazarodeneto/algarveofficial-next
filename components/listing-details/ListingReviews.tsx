@@ -5,6 +5,7 @@ import { formatDistanceToNow } from "date-fns";
 import { da, de, enUS, es, fr, it, nb, nl, pt, sv } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
@@ -83,7 +84,7 @@ function ReviewAvatar({ name, avatarUrl }: { name: string | null; avatarUrl: str
 }
 
 export function ListingReviews({ listingId, userId, onRequestLogin }: ListingReviewsProps) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [isWriting, setIsWriting] = useState(false);
@@ -99,7 +100,7 @@ export function ListingReviews({ listingId, userId, onRequestLogin }: ListingRev
   const avgRating = reviews.length
     ? reviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) / reviews.length
     : 0;
-  const locale = normalizePublicContentLocale(i18n.language);
+  const locale = normalizePublicContentLocale(useCurrentLocale());
   const dateLocaleMap = {
     en: enUS,
     "pt-pt": pt,

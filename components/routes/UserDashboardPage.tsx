@@ -1,18 +1,27 @@
 "use client";
 
-import { useMemo, type ReactElement } from "react";
-import { useParams } from "next/navigation";
+import type { ComponentType, ReactElement } from "react";
+import dynamic from "next/dynamic";
 import { AlertTriangle } from "lucide-react";
 
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
+import { DashboardRouteLoading } from "@/components/routes/DashboardRouteLoading";
 import { Button } from "@/components/ui/button";
 import { UserLayout } from "@/components/user/UserLayout";
-import UserFavorites from "@/legacy-pages/user/UserFavorites";
-import UserMessages from "@/legacy-pages/user/UserMessages";
-import UserOverview from "@/legacy-pages/user/UserOverview";
-import UserProfile from "@/legacy-pages/user/UserProfile";
-import UserTripPlanner from "@/legacy-pages/user/UserTripPlanner";
+
+const withDashboardLoading = <T extends ComponentType<any>>(
+  loader: () => Promise<{ default: T }>,
+) =>
+  dynamic(loader, {
+    loading: () => <DashboardRouteLoading label="Loading your dashboard..." />,
+  });
+
+const UserFavorites = withDashboardLoading(() => import("@/legacy-pages/user/UserFavorites"));
+const UserMessages = withDashboardLoading(() => import("@/legacy-pages/user/UserMessages"));
+const UserOverview = withDashboardLoading(() => import("@/legacy-pages/user/UserOverview"));
+const UserProfile = withDashboardLoading(() => import("@/legacy-pages/user/UserProfile"));
+const UserTripPlanner = withDashboardLoading(() => import("@/legacy-pages/user/UserTripPlanner"));
 
 function DashboardRouteNotFound({ route }: { route: string }) {
   return (
@@ -34,28 +43,25 @@ function DashboardRouteNotFound({ route }: { route: string }) {
   );
 }
 
-const staticRouteMap: Record<string, ReactElement> = {
-  "": <UserOverview />,
-  trips: <UserTripPlanner />,
-  favorites: <UserFavorites />,
-  messages: <UserMessages />,
-  profile: <UserProfile />,
+const staticRouteMap: Record<string, ComponentType> = {
+  "": UserOverview,
+  trips: UserTripPlanner,
+  favorites: UserFavorites,
+  messages: UserMessages,
+  profile: UserProfile,
 };
 
 function resolveDashboardPage(route: string): ReactElement {
-  return staticRouteMap[route] ?? <DashboardRouteNotFound route={route} />;
+  const PageComponent = staticRouteMap[route];
+  return PageComponent ? <PageComponent /> : <DashboardRouteNotFound route={route} />;
 }
 
-export function UserDashboardPage() {
-  const params = useParams<{ slug?: string[] }>();
+interface UserDashboardPageProps {
+  route?: string;
+}
 
-  const route = useMemo(() => {
-    const raw = params?.slug;
-    if (!raw) return "";
-    return Array.isArray(raw) ? raw.join("/") : raw;
-  }, [params]);
-
-  const activePage = useMemo(() => resolveDashboardPage(route), [route]);
+export function UserDashboardPage({ route = "" }: UserDashboardPageProps) {
+  const activePage = resolveDashboardPage(route);
 
   return (
     <ProtectedRoute allowedRoles={["viewer_logged", "admin"]}>

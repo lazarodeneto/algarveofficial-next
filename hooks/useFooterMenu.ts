@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { getValidAccessToken } from "@/lib/authToken";
 import { toast } from "sonner";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import {
   fetchFooterLinkTranslations,
   fetchFooterSectionTranslations,
@@ -38,8 +38,7 @@ export interface FooterSectionWithLinks extends FooterSection {
 
 // Fetch all footer sections with their links
 export function useFooterMenu() {
-  const { i18n } = useTranslation();
-  const locale = normalizePublicContentLocale(i18n.language);
+  const locale = normalizePublicContentLocale(useCurrentLocale());
   const isBrowser = typeof window !== "undefined";
 
   return useQuery({

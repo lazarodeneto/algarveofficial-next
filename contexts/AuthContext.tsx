@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/integrations/supabase/client';
 import type { Session, User as SupabaseUser, AuthChangeEvent } from '@supabase/supabase-js';
-import { useLocale } from '@/lib/i18n/locale-context';
+import { useCurrentLocale } from '@/hooks/useCurrentLocale';
 import { buildLocalizedPath } from '@/lib/i18n/routing';
 import {
   buildAbsoluteAppUrl,
@@ -81,8 +81,10 @@ function clearCachedUser() {
 }
 
 function resolveGoogleOAuthRedirectUrl(locale: string, requestedPath?: string | null): string {
+  const callbackPath = buildLocalizedPath(locale, "/auth/callback");
+
   if (typeof window === "undefined") {
-    return "https://algarveofficial.com/auth/callback";
+    return `https://algarveofficial.com${callbackPath}`;
   }
 
   const envSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
@@ -103,10 +105,8 @@ function resolveGoogleOAuthRedirectUrl(locale: string, requestedPath?: string | 
         ? "https://algarveofficial.com"
         : window.location.origin));
 
-  const callbackPath = buildLocalizedPath(locale, "/auth/callback");
   const redirectTarget = resolvePostAuthRedirectPath(requestedPath, locale, "/dashboard");
   const url = new URL(callbackPath, origin);
-  url.searchParams.set("locale", locale);
   url.searchParams.set("next", redirectTarget);
 
   return url.toString();
@@ -211,7 +211,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const locale = useLocale();
+  const locale = useCurrentLocale();
 
   // Initialize auth state with onAuthStateChange FIRST, then getSession
   useEffect(() => {

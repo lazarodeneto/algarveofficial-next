@@ -1,5 +1,5 @@
 import { SITE_CONFIG } from "./seo-config";
-import { LOCALE_CONFIGS, SUPPORTED_LOCALES } from "@/lib/i18n/config";
+import { DEFAULT_LOCALE, LOCALE_CONFIGS, SUPPORTED_LOCALES } from "@/lib/i18n/config";
 import type { Locale } from "@/lib/i18n/config";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || SITE_CONFIG.url;
@@ -131,7 +131,7 @@ export function buildWebSiteSchema() {
       "@type": "SearchAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: `${SITE_URL}/directory?q={search_term_string}`,
+        urlTemplate: `${SITE_URL}/${DEFAULT_LOCALE}/stay?q={search_term_string}`,
       },
       "query-input": "required name=search_term_string",
     },

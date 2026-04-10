@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { m } from 'framer-motion';
@@ -15,6 +17,7 @@ import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { RouteMessageState } from '@/components/layout/RouteMessageState';
 import {
   Select,
   SelectContent,
@@ -231,15 +234,13 @@ export default function Events() {
           </h2>
           
           {Object.entries(eventsByMonth).length === 0 ? (
-            <Card className="bg-card border-border">
-              <CardContent className="py-16 text-center">
-                <Calendar className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-xl font-serif font-semibold mb-2">{t('sections.events.noUpcoming')}</h3>
-                <p className="text-muted-foreground">
-                  {t('sections.events.noUpcomingHint')}
-                </p>
-              </CardContent>
-            </Card>
+            <RouteMessageState
+              eyebrow={t('sections.events.label', 'Algarve Calendar')}
+              title={t('sections.events.noUpcoming')}
+              description={t('sections.events.noUpcomingHint')}
+              icon={<Calendar className="h-16 w-16" />}
+              minHeightClassName="min-h-[22rem]"
+            />
           ) : (
             <div className="space-y-12">
               {Object.entries(eventsByMonth).map(([monthKey, events]) => (

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -43,24 +44,24 @@ import imgSagres from "@/assets/region-sagres-800w.webp";
 // ─── Item definitions ─────────────────────────────────────────────────────────
 
 const visitItems = [
-    { href: "/directory?category=places-to-stay", label: "Places to Stay", translationKey: "categoryNames.places-to-stay", desc: "Hotels, villas & resorts", icon: Hotel },
-    { href: "/directory?category=restaurants", label: "Restaurants", translationKey: "categoryNames.restaurants", desc: "Michelin stars & gourmet", icon: Utensils },
-    { href: "/directory?category=golf", label: "Golf & Tournaments", translationKey: "categoryNames.golf", desc: "World-class courses", icon: Trophy },
-    { href: "/directory?category=beaches-clubs", label: "Beaches & Clubs", translationKey: "categoryNames.beaches-clubs", desc: "Pristine beaches & exclusives", icon: Palmtree },
-    { href: "/directory?category=wellness-spas", label: "Wellness & Spas", translationKey: "categoryNames.wellness-spas", desc: "Relaxation & rejuvenation", icon: Dumbbell },
-    { href: "/directory?category=algarve-services", label: "Algarve Services", translationKey: "categoryNames.algarve-services", desc: "Concierge, transport, security & real estate", icon: Users },
-    { href: "/directory?category=things-to-do", label: "Things to Do", translationKey: "categoryNames.things-to-do", desc: "Unforgettable activities", icon: Compass },
-    { href: "/directory?category=whats-on", label: "What's On", translationKey: "categoryNames.whats-on", desc: "Exclusive galas & conferences", icon: Calendar },
-    { href: "/directory?category=shopping-boutiques", label: "Shopping & Boutiques", translationKey: "categoryNames.shopping-boutiques", desc: "Designer brands & premium shops", icon: ShoppingBag },
+    { href: "/stay?category=places-to-stay", label: "Places to Stay", translationKey: "categoryNames.places-to-stay", desc: "Hotels, villas & resorts", icon: Hotel },
+    { href: "/stay?category=restaurants", label: "Restaurants", translationKey: "categoryNames.restaurants", desc: "Michelin stars & gourmet", icon: Utensils },
+    { href: "/stay?category=golf", label: "Golf & Tournaments", translationKey: "categoryNames.golf", desc: "World-class courses", icon: Trophy },
+    { href: "/stay?category=beaches-clubs", label: "Beaches & Clubs", translationKey: "categoryNames.beaches-clubs", desc: "Pristine beaches & exclusives", icon: Palmtree },
+    { href: "/stay?category=wellness-spas", label: "Wellness & Spas", translationKey: "categoryNames.wellness-spas", desc: "Relaxation & rejuvenation", icon: Dumbbell },
+    { href: "/stay?category=algarve-services", label: "Algarve Services", translationKey: "categoryNames.algarve-services", desc: "Concierge, transport, security & real estate", icon: Users },
+    { href: "/stay?category=things-to-do", label: "Things to Do", translationKey: "categoryNames.things-to-do", desc: "Unforgettable activities", icon: Compass },
+    { href: "/stay?category=whats-on", label: "What's On", translationKey: "categoryNames.whats-on", desc: "Exclusive galas & conferences", icon: Calendar },
+    { href: "/stay?category=shopping-boutiques", label: "Shopping & Boutiques", translationKey: "categoryNames.shopping-boutiques", desc: "Designer brands & premium shops", icon: ShoppingBag },
 ];
 
 const liveItems = [
-    { href: "/directory?category=wellness-spas", label: "Wellness & Spas", translationKey: "categoryNames.wellness-spas", desc: "Health & relaxation", icon: Dumbbell },
-    { href: "/directory?category=restaurants", label: "Restaurants", translationKey: "categoryNames.restaurants", desc: "Restaurants and private dining", icon: Utensils },
-    { href: "/directory?category=algarve-services", label: "Algarve Services", translationKey: "categoryNames.algarve-services", desc: "Lifestyle, mobility, property and security", icon: Users },
-    { href: "/directory?category=things-to-do", label: "Things to Do", translationKey: "categoryNames.things-to-do", desc: "Family and premium activities", icon: Compass },
-    { href: "/directory?category=whats-on", label: "What's On", translationKey: "categoryNames.whats-on", desc: "Social gatherings & entry", icon: Calendar },
-    { href: "/directory?category=shopping-boutiques", label: "Shopping & Boutiques", translationKey: "categoryNames.shopping-boutiques", desc: "Exclusive stores & brands", icon: ShoppingBag },
+    { href: "/stay?category=wellness-spas", label: "Wellness & Spas", translationKey: "categoryNames.wellness-spas", desc: "Health & relaxation", icon: Dumbbell },
+    { href: "/stay?category=restaurants", label: "Restaurants", translationKey: "categoryNames.restaurants", desc: "Restaurants and private dining", icon: Utensils },
+    { href: "/stay?category=algarve-services", label: "Algarve Services", translationKey: "categoryNames.algarve-services", desc: "Lifestyle, mobility, property and security", icon: Users },
+    { href: "/stay?category=things-to-do", label: "Things to Do", translationKey: "categoryNames.things-to-do", desc: "Family and premium activities", icon: Compass },
+    { href: "/stay?category=whats-on", label: "What's On", translationKey: "categoryNames.whats-on", desc: "Social gatherings & entry", icon: Calendar },
+    { href: "/stay?category=shopping-boutiques", label: "Shopping & Boutiques", translationKey: "categoryNames.shopping-boutiques", desc: "Exclusive stores & brands", icon: ShoppingBag },
 ];
 
 const investItems = [
@@ -77,7 +78,7 @@ const sections = {
         value: "stay",
         label: "nav.stay",
         icon: Binoculars,
-        navPath: "/directory?category=places-to-stay",
+        navPath: "/stay?category=places-to-stay",
         image: imgVilamoura,
         imageAlt: "Vilamoura marina at sunset",
         accent: "#B8860B",
@@ -426,10 +427,10 @@ function PanelItem({
     item: { href: string; label: string; translationKey?: string; desc: string; icon: React.ElementType };
     accent: string;
 }) {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const Icon = item.icon;
     const label = item.translationKey ? t(item.translationKey, item.label) : item.label;
-    const locale = (i18n.resolvedLanguage ?? i18n.language ?? "").toLowerCase();
+    const locale = useCurrentLocale().toLowerCase();
     const desc = locale.startsWith("en") ? item.desc : "";
     return (
         <NavigationMenuLink asChild>

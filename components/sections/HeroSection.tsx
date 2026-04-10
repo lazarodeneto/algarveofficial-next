@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
+import { useHydrated } from "@/hooks/useHydrated";
 import { buildSupabaseImageUrl } from "@/lib/imageUrls";
 import { cn } from "@/lib/utils";
 import { STANDARD_PUBLIC_HERO_SURFACE_CLASS, STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
@@ -322,8 +323,9 @@ export function HeroSection() {
     { ssr: false },
   );
 
+  const hydrated = useHydrated();
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    false,
   );
   const { settings, isLoading: isHeroSettingsLoading } = useHeroSettings();
   const { settings: runtimeSettings } = useGlobalSettings({
@@ -343,9 +345,8 @@ export function HeroSection() {
   const shouldSkipVideo = prefersReducedMotion || isSlow;
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mediaQuery.matches);
     const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
     mediaQuery.addEventListener("change", handler);
     return () => mediaQuery.removeEventListener("change", handler);
@@ -503,12 +504,16 @@ export function HeroSection() {
         </div>
 
         {/* Trip Planner Dialog */}
-        <CreateTripDialog
-          open={tripPlannerOpen}
-          onClose={() => setTripPlannerOpen(false)}
-          onSave={handleCreateTrip}
-        />
-        <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
+        {hydrated ? (
+          <>
+            <CreateTripDialog
+              open={tripPlannerOpen}
+              onClose={() => setTripPlannerOpen(false)}
+              onSave={handleCreateTrip}
+            />
+            <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
+          </>
+        ) : null}
 
         {/* Scroll Indicator - keep above overlapping quick-links cards */}
         <div className="pointer-events-none absolute bottom-8 right-8 hidden z-30 lg:flex">

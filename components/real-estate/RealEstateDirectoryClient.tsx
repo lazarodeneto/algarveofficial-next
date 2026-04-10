@@ -18,6 +18,7 @@ import { ConciergeContactDialog } from "@/components/real-estate/ConciergeContac
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useHydrated } from "@/hooks/useHydrated";
 import { supabase } from "@/integrations/supabase/client";
@@ -172,10 +173,10 @@ function RealEstateDirectoryClientInner({
   initialCategory,
   initialListings,
 }: RealEstateDirectoryClientProps) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const l = useLocalePath();
-  const locale = normalizePublicContentLocale(i18n.language);
+  const locale = normalizePublicContentLocale(useCurrentLocale());
 
   const [filters, setFilters] = useState<FilterState>({
     priceMin: "",
