@@ -20,14 +20,12 @@ export interface BlogPostWithAuthor extends BlogPost {
 }
 
 interface BlogPostTranslationRow {
-  post_id: string;
-  locale: string;
+  blog_post_id: string;
+  language_code: string;
   title: string;
-  excerpt: string | null;
-  content: string | null;
+  description: string | null;
   seo_title: string | null;
   seo_description: string | null;
-  status: string;
 }
 
 function normalizeBlogLocale(language: string | undefined): string {
@@ -46,8 +44,7 @@ function applyBlogTranslation<T extends BlogPost>(
   return {
     ...post,
     title: translation.title || post.title,
-    excerpt: translation.excerpt ?? post.excerpt,
-    content: translation.content ?? post.content,
+    excerpt: translation.description ?? post.excerpt,
     seo_title: translation.seo_title ?? post.seo_title,
     seo_description: translation.seo_description ?? post.seo_description,
   };
@@ -94,15 +91,15 @@ export function usePublishedBlogPosts(category?: BlogCategory) {
         const postIds = publishedPosts.map((post) => post.id);
         const { data: translations, error: translationsError } = await supabase
           .from('blog_post_translations' as never)
-          .select('post_id, locale, title, excerpt, content, seo_title, seo_description, status')
-          .eq('locale', locale)
-          .in('post_id', postIds);
+          .select('blog_post_id, language_code, title, description, seo_title, seo_description')
+          .eq('language_code', locale)
+          .in('blog_post_id', postIds);
 
         if (translationsError) {
           console.warn(`Falling back to English blog posts for locale ${locale}:`, translationsError.message);
         } else {
           const translationMap = new Map(
-            ((translations ?? []) as BlogPostTranslationRow[]).map((translation) => [translation.post_id, translation])
+            ((translations ?? []) as BlogPostTranslationRow[]).map((translation) => [translation.blog_post_id, translation])
           );
           localizedPosts = publishedPosts.map((post) => applyBlogTranslation(post, translationMap.get(post.id)));
         }
@@ -156,15 +153,15 @@ export function usePublishedBlogPost(slug: string | undefined) {
       if (locale !== 'en') {
         const { data: translation, error: translationError } = await supabase
           .from('blog_post_translations' as never)
-          .select('post_id, locale, title, excerpt, content, seo_title, seo_description, status')
-          .eq('post_id', post.id)
-          .eq('locale', locale)
+          .select('blog_post_id, language_code, title, description, seo_title, seo_description')
+          .eq('blog_post_id', post.id)
+          .eq('language_code', locale)
           .maybeSingle();
 
         if (translationError) {
           console.warn(`Falling back to English blog post for locale ${locale}:`, translationError.message);
         } else {
-          localizedPost = applyBlogTranslation(post, (translation as BlogPostTranslationRow | null));
+          localizedPost = applyBlogTranslation(post, translation as BlogPostTranslationRow | null);
         }
       }
 
