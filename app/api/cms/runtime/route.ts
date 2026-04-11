@@ -126,7 +126,7 @@ export async function GET(request: NextRequest) {
 
   const { data: docs, error: docsError } = await readClient
     .from("cms_documents" as never)
-    .select("page_id, locale, block_id, doc_type, current_version_id")
+    .select("page_id, locale, doc_type, current_version_id")
     .in("doc_type", cmsDocTypes as never)
     .in("locale", localeCandidates as never)
     .eq("status", "published");
@@ -167,7 +167,6 @@ export async function GET(request: NextRequest) {
     (docs as Array<{
       page_id: string;
       locale: string;
-      block_id: string | null;
       doc_type: "page_config" | "text_overrides" | "design_tokens" | "custom_css";
       current_version_id: number | null;
     }>) ?? [],

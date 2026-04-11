@@ -9,6 +9,7 @@ import {
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 import { buildWebPageSchema, buildFaqSchema } from "@/lib/seo/schemaBuilders.js";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
+import { getServerTranslations } from "@/lib/i18n/server";
 import PartnerClient from "@/components/partner/PartnerClient";
 import type { PartnerSettings } from "@/hooks/usePartnerSettings";
 
@@ -18,6 +19,11 @@ export const revalidate = 3600;
 export interface FAQ {
   question: string;
   answer: string;
+}
+
+function getTrimmedValue(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed && trimmed.length > 0 ? trimmed : null;
 }
 
 function normalizeFaqs(value: unknown): FAQ[] {
@@ -85,13 +91,22 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const resolvedLocale = (locale ?? DEFAULT_LOCALE) as Locale;
+  const shouldUseCmsCopy = resolvedLocale === DEFAULT_LOCALE;
   const settings = await getPartnerSettings();
+  const translations = await getServerTranslations(resolvedLocale, [
+    "partner.title",
+    "partner.subtitle",
+  ]);
+  const fallbackTitle = getTrimmedValue(translations["partner.title"]) ?? "AlgarveOfficial";
+  const fallbackDescription = getTrimmedValue(translations["partner.subtitle"]) ?? fallbackTitle;
 
   return buildPageMetadata({
-    title: settings?.meta_title || "Partner with AlgarveOfficial | List Your Business",
-    description:
-      settings?.meta_description ||
-      "Apply to list or claim your Algarve business and connect with travelers seeking premium stays, dining, services, and experiences.",
+    title: shouldUseCmsCopy
+      ? getTrimmedValue(settings?.meta_title) ?? fallbackTitle
+      : fallbackTitle,
+    description: shouldUseCmsCopy
+      ? getTrimmedValue(settings?.meta_description) ?? fallbackDescription
+      : fallbackDescription,
     localizedRoute: buildStaticRouteData("partner"),
     locale: resolvedLocale,
   });
@@ -104,7 +119,27 @@ export default async function LocalePartnerPage({
 }) {
   const { locale } = await params;
   const resolvedLocale = (locale ?? DEFAULT_LOCALE) as Locale;
+  const shouldUseCmsCopy = resolvedLocale === DEFAULT_LOCALE;
   const settings = await getPartnerSettings();
+  const translations = await getServerTranslations(resolvedLocale, [
+    "nav.partner",
+    "partner.title",
+    "partner.subtitle",
+  ]);
+  const partnerLabel =
+    getTrimmedValue(translations["nav.partner"]) ?? "AlgarveOfficial";
+  const fallbackTitle = getTrimmedValue(translations["partner.title"]) ?? "AlgarveOfficial";
+  const fallbackDescription = getTrimmedValue(translations["partner.subtitle"]) ?? fallbackTitle;
+  const heroTitle = shouldUseCmsCopy
+    ? getTrimmedValue(settings?.hero_title) ?? fallbackTitle
+    : fallbackTitle;
+  const heroSubtitle = shouldUseCmsCopy
+    ? getTrimmedValue(settings?.hero_subtitle) ?? fallbackDescription
+    : fallbackDescription;
+  const schemaDescription = shouldUseCmsCopy
+    ? getTrimmedValue(settings?.meta_description) ??
+      heroSubtitle
+    : heroSubtitle;
 
   const canonicalUrl = buildAbsoluteRouteUrl(
     resolvedLocale,
@@ -113,17 +148,15 @@ export default async function LocalePartnerPage({
 
   const pageSchema = buildWebPageSchema({
     type: "WebPage",
-    name: settings?.hero_title || "Partner with AlgarveOfficial",
-    description:
-      settings?.meta_description ||
-      settings?.hero_subtitle ||
-      "Apply to list or claim your Algarve business and connect with travelers, buyers, and residents seeking premium services.",
+    name: heroTitle,
+    description: schemaDescription,
     url: canonicalUrl,
     image: `${SITE_URL}/og-image.png`,
     siteUrl: SITE_URL,
   });
 
-  const faqSchema = settings?.faqs?.length ? buildFaqSchema(settings.faqs) : null;
+  const faqSchema =
+    shouldUseCmsCopy && settings?.faqs?.length ? buildFaqSchema(settings.faqs) : null;
 
   return (
     <>
@@ -142,20 +175,21 @@ export default async function LocalePartnerPage({
         <main className="app-container pt-32 pb-20">
           <section className="rounded-[2rem] border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur md:p-12">
             <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
-              Partner
+              {partnerLabel}
             </p>
             <h1 className="mt-4 font-serif text-4xl text-foreground md:text-5xl">
-              {settings?.hero_title || "Partner with AlgarveOfficial"}
+              {heroTitle}
             </h1>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground">
-              {settings?.hero_subtitle ||
-                "Apply to list or claim your Algarve business and connect with travelers, buyers, and residents seeking premium services."}
-            </p>
+            {heroSubtitle ? (
+              <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground">
+                {heroSubtitle}
+              </p>
+            ) : null}
           </section>
         </main>
       </div>
 
-      <PartnerClient initialPartnerSettings={settings} />
+      <PartnerClient initialPartnerSettings={shouldUseCmsCopy ? settings : null} />
     </>
   );
 }

@@ -14,8 +14,8 @@ import {
   enforcePremiumInLocaleData,
   preserveBundledLocaleValues,
 } from "@/lib/i18n/premiumGuard";
-
-const SUPPORTED_LANGS = ["en", "pt-pt", "de", "fr", "es", "it", "nl", "sv", "no", "da"];
+import { DEFAULT_LOCALE } from "@/lib/i18n/config";
+import { SUPPORTED_LOCALES } from "@/lib/i18n/locales";
 
 // Map our locale codes to the codes stored in i18n_locale_data
 const LOCALE_DB_MAP: Record<string, string> = {
@@ -85,10 +85,35 @@ const BUNDLED_PRIORITY_I18N_KEYS = [
   "footer.tagline",
 ];
 
-// ── Initialise i18n with bundled data first (instant) ────────────────────────
-// Next.js server rendering must start from a deterministic locale.
-// Route-level locale handling can change the language after hydration.
-const initialLang = "en";
+function normalizeLocale(locale: string | null | undefined): string {
+  const normalized = String(locale ?? "").trim().toLowerCase();
+  if (!normalized) return DEFAULT_LOCALE;
+  if (normalized === "pt" || normalized.startsWith("pt-pt")) return "pt-pt";
+  if (normalized.startsWith("de")) return "de";
+  if (normalized.startsWith("fr")) return "fr";
+  if (normalized.startsWith("es")) return "es";
+  if (normalized.startsWith("it")) return "it";
+  if (normalized.startsWith("nl")) return "nl";
+  if (normalized.startsWith("sv")) return "sv";
+  if (normalized === "no" || normalized.startsWith("nb") || normalized.startsWith("nn")) return "no";
+  if (normalized.startsWith("da")) return "da";
+  if (SUPPORTED_LOCALES.includes(normalized as (typeof SUPPORTED_LOCALES)[number])) {
+    return normalized;
+  }
+  return DEFAULT_LOCALE;
+}
+
+function getInitialLang(): string {
+  if (typeof document === "undefined") {
+    return DEFAULT_LOCALE;
+  }
+
+  const documentLocale =
+    document.documentElement.getAttribute("data-locale") ??
+    document.documentElement.lang;
+
+  return normalizeLocale(documentLocale);
+}
 
 i18n
   .use(initReactI18next)
@@ -96,9 +121,9 @@ i18n
     resources: Object.fromEntries(
       Object.entries(bundled).map(([code, data]) => [code, { translation: data }])
     ),
-    lng: initialLang,
+    lng: getInitialLang(),
     fallbackLng: false,
-    supportedLngs: SUPPORTED_LANGS,
+    supportedLngs: [...SUPPORTED_LOCALES],
     load: "currentOnly",
     lowerCaseLng: true,
     interpolation: { escapeValue: false },
@@ -106,12 +131,6 @@ i18n
 
 const loadedLocales = new Set<string>(["en"]);
 const localeLoadPromises = new Map<string, Promise<void>>();
-
-function normalizeLocale(locale: string) {
-  const normalized = locale.toLowerCase();
-  if (normalized === "pt") return "pt-pt";
-  return normalized;
-}
 
 async function patchLocaleFromSupabase(locale: string) {
   const dbLocale = LOCALE_DB_MAP[locale];

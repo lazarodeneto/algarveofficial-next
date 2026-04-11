@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import { usePartnerSettings } from "@/hooks/usePartnerSettings";
 import { useSubmitListingClaim } from "@/hooks/useListingClaims";
 import { CountryPhoneInput } from "@/components/ui/country-phone-input";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 
 const partnerSchema = z.object({
   requestType: z.enum(['new-listing', 'claim-business']),
@@ -32,6 +33,8 @@ type PartnerFormData = z.infer<typeof partnerSchema>;
 const Partner = () => {
   const { t } = useTranslation();
   const { settings, isLoading: settingsLoading } = usePartnerSettings();
+  const locale = useCurrentLocale();
+  const localizedSettings = locale === "en" ? settings : null;
   const submitClaimMutation = useSubmitListingClaim();
   const [formData, setFormData] = useState<Partial<PartnerFormData>>({
     requestType: undefined,
@@ -57,25 +60,25 @@ const Partner = () => {
 
   // Use CMS content with fallback to translations
   const content = {
-    heroTitle: settings?.hero_title || t('partner.title'),
-    heroSubtitle: settings?.hero_subtitle || t('partner.subtitle'),
-    newListingTitle: settings?.new_listing_title || t('partner.newListing.title'),
-    newListingDescription: settings?.new_listing_description || t('partner.newListing.description'),
-    newListingCta: settings?.new_listing_cta || t('partner.newListing.cta'),
-    claimBusinessTitle: settings?.claim_business_title || t('partner.claimBusiness.title'),
-    claimBusinessDescription: settings?.claim_business_description || t('partner.claimBusiness.description'),
-    claimBusinessCta: settings?.claim_business_cta || t('partner.claimBusiness.cta'),
-    formTitle: settings?.form_title || t('partner.form.title'),
-    successMessage: settings?.success_message || t('partner.success'),
-    benefitsTitle: settings?.benefits_title || t('partner.benefits.title'),
-    benefit1Title: settings?.benefit_1_title || t('partner.benefits.visibility.title'),
-    benefit1Description: settings?.benefit_1_description || t('partner.benefits.visibility.description'),
-    benefit2Title: settings?.benefit_2_title || t('partner.benefits.positioning.title'),
-    benefit2Description: settings?.benefit_2_description || t('partner.benefits.positioning.description'),
-    benefit3Title: settings?.benefit_3_title || t('partner.benefits.contact.title'),
-    benefit3Description: settings?.benefit_3_description || t('partner.benefits.contact.description'),
-    faqTitle: settings?.faq_title || t('partner.faq.title'),
-    faqs: settings?.faqs && settings.faqs.length > 0 ? settings.faqs : [
+    heroTitle: localizedSettings?.hero_title || t('partner.title'),
+    heroSubtitle: localizedSettings?.hero_subtitle || t('partner.subtitle'),
+    newListingTitle: localizedSettings?.new_listing_title || t('partner.newListing.title'),
+    newListingDescription: localizedSettings?.new_listing_description || t('partner.newListing.description'),
+    newListingCta: localizedSettings?.new_listing_cta || t('partner.newListing.cta'),
+    claimBusinessTitle: localizedSettings?.claim_business_title || t('partner.claimBusiness.title'),
+    claimBusinessDescription: localizedSettings?.claim_business_description || t('partner.claimBusiness.description'),
+    claimBusinessCta: localizedSettings?.claim_business_cta || t('partner.claimBusiness.cta'),
+    formTitle: localizedSettings?.form_title || t('partner.form.title'),
+    successMessage: localizedSettings?.success_message || t('partner.success'),
+    benefitsTitle: localizedSettings?.benefits_title || t('partner.benefits.title'),
+    benefit1Title: localizedSettings?.benefit_1_title || t('partner.benefits.visibility.title'),
+    benefit1Description: localizedSettings?.benefit_1_description || t('partner.benefits.visibility.description'),
+    benefit2Title: localizedSettings?.benefit_2_title || t('partner.benefits.positioning.title'),
+    benefit2Description: localizedSettings?.benefit_2_description || t('partner.benefits.positioning.description'),
+    benefit3Title: localizedSettings?.benefit_3_title || t('partner.benefits.contact.title'),
+    benefit3Description: localizedSettings?.benefit_3_description || t('partner.benefits.contact.description'),
+    faqTitle: localizedSettings?.faq_title || t('partner.faq.title'),
+    faqs: localizedSettings?.faqs && localizedSettings.faqs.length > 0 ? localizedSettings.faqs : [
       { question: t('partner.faq.q1'), answer: t('partner.faq.a1') },
       { question: t('partner.faq.q2'), answer: t('partner.faq.a2') },
       { question: t('partner.faq.q3'), answer: t('partner.faq.a3') },
@@ -140,7 +143,7 @@ const Partner = () => {
     }
   };
 
-  if (settingsLoading) {
+  if (locale === "en" && settingsLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

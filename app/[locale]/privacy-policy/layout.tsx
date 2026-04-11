@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import { DEFAULT_LOCALE, isValidLocale, type Locale } from "@/lib/i18n/config";
+import { buildStaticRouteData } from "@/lib/i18n/localized-routing";
+import { getServerTranslations } from "@/lib/i18n/server";
 import { fetchLegalSettings } from "@/lib/legal/server";
-import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
+import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 
 interface LayoutProps {
   children: ReactNode;
@@ -14,14 +16,25 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
   const { locale: rawLocale } = await params;
   const locale: Locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
   const settings = await fetchLegalSettings("privacy_settings", locale);
+  const localizedSettings =
+    locale === DEFAULT_LOCALE || (settings && settings.id !== "default") ? settings : null;
+  const translations = await getServerTranslations(locale, [
+    "nav.privacy",
+    "footer.privacyPolicy",
+  ]);
+  const translatedTitle =
+    translations["nav.privacy"] ??
+    translations["footer.privacyPolicy"] ??
+    "AlgarveOfficial";
 
-  return buildLocalizedMetadata({
+  return buildPageMetadata({
     locale,
-    path: "/privacy-policy",
-    title: settings?.meta_title || settings?.page_title || "Privacy Policy",
+    localizedRoute: buildStaticRouteData("privacy-policy"),
+    title: localizedSettings?.meta_title || localizedSettings?.page_title || translatedTitle,
     description:
-      settings?.meta_description ||
-      "Review how AlgarveOfficial collects, uses, and protects personal data in line with GDPR and applicable law.",
+      localizedSettings?.meta_description ||
+      localizedSettings?.introduction ||
+      translatedTitle,
   });
 }
 

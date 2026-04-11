@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-import type { Database } from "@/integrations/supabase/types";
 import { normalizePricingBillingPeriod, normalizePricingTier } from "@/lib/pricing/pricing-resolver";
+import { requireAuthenticatedOwner } from "@/lib/server/owner-auth";
 import { createServiceRoleClient } from "@/lib/supabase/service";
-import { getSupabasePublicEnv } from "@/lib/supabase/env";
 import { getStripeServerClient } from "@/lib/stripe/server";
 import { INVOICE_DESCRIPTION, STATEMENT_DESCRIPTOR } from "@/lib/stripe/branding";
 import { findOverlappingActive } from "@/lib/subscriptions/db";
@@ -14,60 +11,6 @@ export const runtime = "nodejs";
 
 type PaidTier = "verified" | "signature";
 type BillingPeriod = "monthly" | "yearly" | "promo";
-
-function getBearerToken(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
-  if (!authHeader) return null;
-  const [scheme, token] = authHeader.split(" ");
-  if (!scheme || !token || scheme.toLowerCase() !== "bearer") return null;
-  return token.trim();
-}
-
-async function requireAuthenticatedOwner(request: NextRequest) {
-  const token = getBearerToken(request);
-  if (!token) {
-    return { error: NextResponse.json({ error: "Missing authorization token." }, { status: 401 }) };
-  }
-
-  const { url, anonKey } = getSupabasePublicEnv();
-  const userClient = createClient<Database>(url, anonKey, {
-    global: {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
-
-  const { data: userData, error: userError } = await userClient.auth.getUser();
-  if (userError || !userData.user) {
-    return { error: NextResponse.json({ error: "Unauthorized." }, { status: 401 }) };
-  }
-
-  const { data: userRole, error: roleError } = await userClient.rpc("get_user_role", {
-    _user_id: userData.user.id,
-  });
-
-  if (roleError) {
-    return {
-      error: NextResponse.json(
-        { error: roleError.message || "Failed to verify user role." },
-        { status: 403 },
-      ),
-    };
-  }
-
-  if (userRole !== "owner" && userRole !== "admin") {
-    return { error: NextResponse.json({ error: "Only owners can start checkout." }, { status: 403 }) };
-  }
-
-  return {
-    userId: userData.user.id,
-  };
-}
 
 function normalizePaidTier(value: unknown): PaidTier | null {
   if (typeof value !== "string") return null;

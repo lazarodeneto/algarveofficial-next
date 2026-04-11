@@ -84,14 +84,9 @@ export async function POST(request: NextRequest) {
   }
 
   const { settings, locale } = normalized;
-  const hasCmsSettings = settings.some((setting) => CMS_SETTING_KEYS.has(setting.key));
-
-  // Always persist CMS settings to global_settings regardless of locale
-  // The locale check only applies to non-CMS custom settings
   const cmsSettings = settings.filter((setting) => CMS_SETTING_KEYS.has(setting.key));
   const nonCmsSettings = settings.filter((setting) => !CMS_SETTING_KEYS.has(setting.key));
-  const shouldPersistNonCms = locale === "default";
-  const dbSettings = [...cmsSettings, ...(shouldPersistNonCms ? nonCmsSettings : [])];
+  const dbSettings = locale === "default" ? settings : nonCmsSettings;
 
   let data: GlobalSettingsWriteItem[] = [];
 
@@ -130,6 +125,13 @@ export async function POST(request: NextRequest) {
     );
   } catch (syncError) {
     console.error("[cms-sync] Failed to mirror global settings into cms_documents:", syncError);
+    return adminErrorResponse(
+      500,
+      "CMS_SYNC_FAILED",
+      syncError instanceof Error
+        ? syncError.message
+        : "Failed to mirror global settings into cms_documents.",
+    );
   }
 
   return NextResponse.json({

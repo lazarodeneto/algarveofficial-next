@@ -22,6 +22,7 @@ import {
   fetchCityTranslations,
   fetchListingTranslations,
   fetchRegionTranslations,
+  normalizePublicContentLocale,
 } from "@/lib/publicContentLocale";
 import { createAppQueryClient } from "@/lib/react-query";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
@@ -44,31 +45,39 @@ const HOMEPAGE_CATEGORY_FIELDS =
   "id, name, slug, short_description, description, icon, image_url, is_active, is_featured, display_order, created_at";
 const HOMEPAGE_CITY_FIELDS =
   "id, name, slug, short_description, description, image_url, hero_image_url, latitude, longitude, is_active, is_featured, display_order, created_at";
-const TRANSLATED_LOCALES: Locale[] = ["de", "fr", "es", "it", "nl", "sv", "no", "da"];
-
 function getServerSupabase() {
   return createPublicServerClient();
 }
 
-function normalizePublicContentLocale(language: string): Locale {
-  const normalized = language.trim().toLowerCase();
-  if (!normalized) return "en";
-  if (normalized === "pt") return "pt-pt";
-  if (normalized.startsWith("pt-pt")) return "pt-pt";
-  if (TRANSLATED_LOCALES.includes(normalized as Locale)) return normalized as Locale;
-  return "en";
-}
-
 function normalizeHomepageLocale(language: string | undefined): Locale {
-  return normalizePublicContentLocale(language ?? "en");
+  return normalizePublicContentLocale(language ?? "en") as Locale;
 }
 
-function preferTranslatedValue(
+function getLocalizedValue(
   translated: string | null | undefined,
-  fallback: string | null,
 ): string | null {
   const trimmed = translated?.trim();
-  return trimmed && trimmed.length > 0 ? trimmed : fallback;
+  return trimmed && trimmed.length > 0 ? trimmed : null;
+}
+
+function getLocalizedRequiredValue(
+  translated: string | null | undefined,
+  fallback: string,
+  hasTranslation: boolean,
+): string {
+  const localized = getLocalizedValue(translated);
+  if (localized) return localized;
+  return hasTranslation ? "" : fallback;
+}
+
+function getLocalizedOptionalValue(
+  translated: string | null | undefined,
+  fallback: string | null,
+  hasTranslation: boolean,
+): string | null {
+  const localized = getLocalizedValue(translated);
+  if (localized) return localized;
+  return hasTranslation ? null : fallback;
 }
 
 function mergeListingLocalizations(
@@ -98,36 +107,73 @@ function mergeListingLocalizations(
     const categoryTranslation = listing.category?.id
       ? categoryTranslationMap.get(listing.category.id)
       : undefined;
+    const hasListingTranslation = Boolean(listingTranslation);
+    const hasCityTranslation = Boolean(cityTranslation);
+    const hasRegionTranslation = Boolean(regionTranslation);
+    const hasCategoryTranslation = Boolean(categoryTranslation);
 
     return {
       ...listing,
-      name: listingTranslation?.title?.trim() || listing.name,
-      short_description: listingTranslation?.short_description?.trim() || listing.short_description,
-      description: listingTranslation?.description?.trim() || listing.description,
+      name: getLocalizedRequiredValue(listingTranslation?.title, listing.name, hasListingTranslation),
+      short_description: getLocalizedOptionalValue(
+        listingTranslation?.short_description,
+        listing.short_description,
+        hasListingTranslation,
+      ),
+      description: getLocalizedOptionalValue(
+        listingTranslation?.description,
+        listing.description,
+        hasListingTranslation,
+      ),
       city: listing.city
         ? {
             ...listing.city,
-            name: cityTranslation?.name?.trim() || listing.city.name,
-            short_description:
-              cityTranslation?.short_description?.trim() || listing.city.short_description,
-            description: cityTranslation?.description?.trim() || listing.city.description,
+            name: getLocalizedRequiredValue(cityTranslation?.name, listing.city.name, hasCityTranslation),
+            short_description: getLocalizedOptionalValue(
+              cityTranslation?.short_description,
+              listing.city.short_description,
+              hasCityTranslation,
+            ),
+            description: getLocalizedOptionalValue(
+              cityTranslation?.description,
+              listing.city.description,
+              hasCityTranslation,
+            ),
           }
         : listing.city,
       region: listing.region
         ? {
             ...listing.region,
-            name: regionTranslation?.name?.trim() || listing.region.name,
-            short_description:
-              regionTranslation?.short_description?.trim() || listing.region.short_description,
-            description: regionTranslation?.description?.trim() || listing.region.description,
+            name: getLocalizedRequiredValue(
+              regionTranslation?.name,
+              listing.region.name,
+              hasRegionTranslation,
+            ),
+            short_description: getLocalizedOptionalValue(
+              regionTranslation?.short_description,
+              listing.region.short_description,
+              hasRegionTranslation,
+            ),
+            description: getLocalizedOptionalValue(
+              regionTranslation?.description,
+              listing.region.description,
+              hasRegionTranslation,
+            ),
           }
         : listing.region,
       category: listing.category
         ? {
             ...listing.category,
-            name: categoryTranslation?.name?.trim() || listing.category.name,
-            short_description:
-              categoryTranslation?.short_description?.trim() || listing.category.short_description,
+            name: getLocalizedRequiredValue(
+              categoryTranslation?.name,
+              listing.category.name,
+              hasCategoryTranslation,
+            ),
+            short_description: getLocalizedOptionalValue(
+              categoryTranslation?.short_description,
+              listing.category.short_description,
+              hasCategoryTranslation,
+            ),
           }
         : listing.category,
     };
@@ -211,16 +257,10 @@ async function fetchHomepageSettingsWithTranslation(
       const t = translation as HomePageTranslations;
       return {
         ...data,
-        hero_title: preferTranslatedValue(t.hero_title, data.hero_title),
-        hero_subtitle: preferTranslatedValue(t.hero_subtitle, data.hero_subtitle),
-        hero_cta_primary_text: preferTranslatedValue(
-          t.hero_cta_primary_text,
-          data.hero_cta_primary_text,
-        ),
-        hero_cta_secondary_text: preferTranslatedValue(
-          t.hero_cta_secondary_text,
-          data.hero_cta_secondary_text,
-        ),
+        hero_title: getLocalizedValue(t.hero_title),
+        hero_subtitle: getLocalizedValue(t.hero_subtitle),
+        hero_cta_primary_text: getLocalizedValue(t.hero_cta_primary_text),
+        hero_cta_secondary_text: getLocalizedValue(t.hero_cta_secondary_text),
       } satisfies HomepageSettingsLike;
     }
   }

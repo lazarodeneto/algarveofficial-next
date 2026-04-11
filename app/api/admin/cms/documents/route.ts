@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
 
   let query = auth.readClient
     .from("cms_documents" as never)
-    .select("id, page_id, block_id, locale, doc_type, status, current_version_id, created_at, updated_at")
+    .select("id, page_id, locale, doc_type, status, current_version_id, created_at, updated_at")
     .order("updated_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
@@ -94,7 +94,6 @@ export async function GET(request: NextRequest) {
   const docs = (data ?? []) as Array<{
     id: number;
     page_id: string;
-    block_id: string | null;
     locale: string;
     doc_type: CmsDocType;
     status: string;

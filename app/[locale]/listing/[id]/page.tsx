@@ -94,6 +94,31 @@ function truncateMeta(value?: string | null, max = 155) {
   return `${normalized.slice(0, max - 1).trimEnd()}…`;
 }
 
+function getLocalizedValue(value?: string | null): string | null {
+  const normalized = value?.trim();
+  return normalized && normalized.length > 0 ? normalized : null;
+}
+
+function getLocalizedRequiredValue(
+  value: string | null | undefined,
+  fallback: string,
+  hasTranslation: boolean,
+): string {
+  const localized = getLocalizedValue(value);
+  if (localized) return localized;
+  return hasTranslation ? "" : fallback;
+}
+
+function getLocalizedOptionalValue(
+  value: string | null | undefined,
+  fallback?: string | null,
+  hasTranslation = false,
+): string | null {
+  const localized = getLocalizedValue(value);
+  if (localized) return localized;
+  return hasTranslation ? null : (fallback ?? null);
+}
+
 function buildListingDescription({
   translation,
   listing,
@@ -101,11 +126,12 @@ function buildListingDescription({
   translation: ListingTranslationRow | null;
   listing: ListingWithRelations;
 }) {
+  const hasTranslation = Boolean(translation);
   return (
-    truncateMeta(translation?.seo_description) ||
-    truncateMeta(translation?.description) ||
-    truncateMeta(listing.description) ||
-    truncateMeta(listing.short_description) ||
+    truncateMeta(getLocalizedOptionalValue(translation?.seo_description, null, hasTranslation)) ||
+    truncateMeta(getLocalizedOptionalValue(translation?.description, null, hasTranslation)) ||
+    truncateMeta(hasTranslation ? null : listing.description) ||
+    truncateMeta(hasTranslation ? null : listing.short_description) ||
     "Discover this curated Algarve listing on AlgarveOfficial."
   );
 }
@@ -322,7 +348,11 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
 
   const { listing, translations } = data;
   const currentTranslation = translations[resolvedLocale];
-  const title = currentTranslation?.seo_title?.trim() || currentTranslation?.title?.trim() || listing.name;
+  const title = getLocalizedRequiredValue(
+    currentTranslation?.seo_title ?? currentTranslation?.title,
+    listing.name,
+    Boolean(currentTranslation),
+  );
   const description = buildListingDescription({ listing, translation: currentTranslation });
   const ogImage =
     normalizePublicImageUrl(listing.images?.find((image) => image.is_featured)?.image_url) ||
@@ -349,7 +379,11 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
   if (!data) notFound();
 
   const currentTranslation = data.translations[resolvedLocale];
-  const title = currentTranslation?.title?.trim() || data.listing.name;
+  const title = getLocalizedRequiredValue(
+    currentTranslation?.title,
+    data.listing.name,
+    Boolean(currentTranslation),
+  );
   const description = buildListingDescription({ listing: data.listing, translation: currentTranslation });
   const categoryName = data.listing.category?.name || "Directory";
   const categorySlug = getCanonicalCategorySlug(data.listing.category?.slug);
@@ -406,7 +440,14 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
     slug: routeData.slugs[resolvedLocale],
     url: canonicalUrl,
     name: title,
-    description: truncateMeta(currentTranslation?.description) || truncateMeta(data.listing.description) || undefined,
+    description:
+      truncateMeta(
+        getLocalizedOptionalValue(
+          currentTranslation?.description,
+          data.listing.description,
+          Boolean(currentTranslation),
+        ),
+      ) || undefined,
     image_url: absoluteUrl(String(ogImage)),
     category_slug: data.listing.category?.slug || "",
     category_name: data.listing.category?.name || undefined,

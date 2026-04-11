@@ -1,7 +1,4 @@
-import { useEffect } from "react";
-import { usePathname } from "next/navigation";
 import { useAuth, UserRole } from '@/contexts/AuthContext';
-import { useLocaleRouter } from "@/hooks/useLocaleRouter";
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
@@ -10,33 +7,9 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
-  const { user, isLoading, isAuthenticated, getDashboardPath } = useAuth();
-  const { replace } = useLocaleRouter();
-  const pathname = usePathname() ?? "/";
+  const { user, isLoading, isAuthenticated } = useAuth();
 
-  const shouldRedirectToLogin = !isAuthenticated;
   const shouldRedirectByRole = Boolean(allowedRoles && user && !allowedRoles.includes(user.role));
-
-  useEffect(() => {
-    if (isLoading) return;
-
-    if (shouldRedirectToLogin) {
-      replace(`/login?next=${encodeURIComponent(pathname)}`);
-      return;
-    }
-
-    if (shouldRedirectByRole && user) {
-      replace(getDashboardPath(user.role));
-    }
-  }, [
-    getDashboardPath,
-    isLoading,
-    pathname,
-    replace,
-    shouldRedirectByRole,
-    shouldRedirectToLogin,
-    user,
-  ]);
 
   if (isLoading) {
     return (
@@ -49,7 +22,10 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     );
   }
 
-  if (shouldRedirectToLogin || shouldRedirectByRole) {
+  // Dashboard routes are server-guarded in App Router layouts. Keep the client
+  // layer non-authoritative so it doesn't issue contradictory redirects during
+  // hydration or auth refresh.
+  if (!isAuthenticated || shouldRedirectByRole) {
     return null;
   }
 

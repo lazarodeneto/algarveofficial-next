@@ -147,6 +147,31 @@ function sanitizeSearchTerm(raw: string) {
   return raw.replace(/[,%(){}'"]/g, " ").replace(/\s+/g, " ").trim();
 }
 
+function getLocalizedValue(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed && trimmed.length > 0 ? trimmed : null;
+}
+
+function getLocalizedRequiredValue(
+  translated: string | null | undefined,
+  fallback: string,
+  hasTranslation: boolean,
+): string {
+  const localized = getLocalizedValue(translated);
+  if (localized) return localized;
+  return hasTranslation ? "" : fallback;
+}
+
+function getLocalizedOptionalValue(
+  translated: string | null | undefined,
+  fallback: string | null,
+  hasTranslation: boolean,
+): string | null {
+  const localized = getLocalizedValue(translated);
+  if (localized) return localized;
+  return hasTranslation ? null : fallback;
+}
+
 function resolveSelectedEntityId<T extends { id: string; slug: string }>(rows: T[], value?: string) {
   if (!value || value === "all") return undefined;
   const match = rows.find((row) => row.id === value || row.slug === value);
@@ -291,9 +316,13 @@ async function fetchCities(locale: string) {
 
     return {
       ...city,
-      name: translation.name?.trim() || city.name,
-      short_description: translation.short_description?.trim() || city.short_description,
-      description: translation.description?.trim() || city.description,
+      name: getLocalizedRequiredValue(translation.name, city.name, true),
+      short_description: getLocalizedOptionalValue(
+        translation.short_description,
+        city.short_description,
+        true,
+      ),
+      description: getLocalizedOptionalValue(translation.description, city.description, true),
     };
   });
 }
@@ -321,9 +350,13 @@ async function fetchRegions(locale: string) {
 
     return {
       ...region,
-      name: translation.name?.trim() || region.name,
-      short_description: translation.short_description?.trim() || region.short_description,
-      description: translation.description?.trim() || region.description,
+      name: getLocalizedRequiredValue(translation.name, region.name, true),
+      short_description: getLocalizedOptionalValue(
+        translation.short_description,
+        region.short_description,
+        true,
+      ),
+      description: getLocalizedOptionalValue(translation.description, region.description, true),
     };
   });
 }
@@ -351,9 +384,17 @@ async function fetchCategories(locale: string) {
 
     return {
       ...category,
-      name: translation.name?.trim() || category.name,
-      short_description: translation.short_description?.trim() || category.short_description,
-      description: translation.description?.trim() || category.description,
+      name: getLocalizedRequiredValue(translation.name, category.name, true),
+      short_description: getLocalizedOptionalValue(
+        translation.short_description,
+        category.short_description,
+        true,
+      ),
+      description: getLocalizedOptionalValue(
+        translation.description,
+        category.description,
+        true,
+      ),
     };
   });
 }
@@ -522,34 +563,73 @@ async function fetchListings(
     const cityTranslation = listing.city?.id ? cityTranslationMap.get(listing.city.id) : undefined;
     const regionTranslation = listing.region?.id ? regionTranslationMap.get(listing.region.id) : undefined;
     const categoryTranslation = listing.category?.id ? categoryTranslationMap.get(listing.category.id) : undefined;
+    const hasListingTranslation = Boolean(listingTranslation);
+    const hasCityTranslation = Boolean(cityTranslation);
+    const hasRegionTranslation = Boolean(regionTranslation);
+    const hasCategoryTranslation = Boolean(categoryTranslation);
 
     return {
       ...listing,
-      name: listingTranslation?.title?.trim() || listing.name,
-      short_description: listingTranslation?.short_description?.trim() || listing.short_description,
-      description: listingTranslation?.description?.trim() || listing.description,
+      name: getLocalizedRequiredValue(listingTranslation?.title, listing.name, hasListingTranslation),
+      short_description: getLocalizedOptionalValue(
+        listingTranslation?.short_description,
+        listing.short_description,
+        hasListingTranslation,
+      ),
+      description: getLocalizedOptionalValue(
+        listingTranslation?.description,
+        listing.description,
+        hasListingTranslation,
+      ),
       city: listing.city
         ? {
             ...listing.city,
-            name: cityTranslation?.name?.trim() || listing.city.name,
-            short_description: cityTranslation?.short_description?.trim() || listing.city.short_description,
-            description: cityTranslation?.description?.trim() || listing.city.description,
+            name: getLocalizedRequiredValue(cityTranslation?.name, listing.city.name, hasCityTranslation),
+            short_description: getLocalizedOptionalValue(
+              cityTranslation?.short_description,
+              listing.city.short_description,
+              hasCityTranslation,
+            ),
+            description: getLocalizedOptionalValue(
+              cityTranslation?.description,
+              listing.city.description,
+              hasCityTranslation,
+            ),
           }
         : listing.city,
       region: listing.region
         ? {
             ...listing.region,
-            name: regionTranslation?.name?.trim() || listing.region.name,
-            short_description: regionTranslation?.short_description?.trim() || listing.region.short_description,
-            description: regionTranslation?.description?.trim() || listing.region.description,
+            name: getLocalizedRequiredValue(
+              regionTranslation?.name,
+              listing.region.name,
+              hasRegionTranslation,
+            ),
+            short_description: getLocalizedOptionalValue(
+              regionTranslation?.short_description,
+              listing.region.short_description,
+              hasRegionTranslation,
+            ),
+            description: getLocalizedOptionalValue(
+              regionTranslation?.description,
+              listing.region.description,
+              hasRegionTranslation,
+            ),
           }
         : listing.region,
       category: listing.category
         ? {
             ...listing.category,
-            name: categoryTranslation?.name?.trim() || listing.category.name,
-            short_description:
-              categoryTranslation?.short_description?.trim() || listing.category.short_description,
+            name: getLocalizedRequiredValue(
+              categoryTranslation?.name,
+              listing.category.name,
+              hasCategoryTranslation,
+            ),
+            short_description: getLocalizedOptionalValue(
+              categoryTranslation?.short_description,
+              listing.category.short_description,
+              hasCategoryTranslation,
+            ),
           }
         : listing.category,
     };

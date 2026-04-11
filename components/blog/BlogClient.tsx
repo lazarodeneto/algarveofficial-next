@@ -103,6 +103,31 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function getLocalizedValue(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed && trimmed.length > 0 ? trimmed : null;
+}
+
+function getLocalizedRequiredValue(
+  translated: string | null | undefined,
+  fallback: string,
+  hasTranslation: boolean,
+): string {
+  const localized = getLocalizedValue(translated);
+  if (localized) return localized;
+  return hasTranslation ? "" : fallback;
+}
+
+function getLocalizedOptionalValue(
+  translated: string | null | undefined,
+  fallback: string | null,
+  hasTranslation: boolean,
+): string | null {
+  const localized = getLocalizedValue(translated);
+  if (localized) return localized;
+  return hasTranslation ? null : fallback;
+}
+
 function normalizeTextOverrides(input: unknown): CmsTextOverrideMap {
   if (!isPlainRecord(input)) return {};
 
@@ -262,12 +287,17 @@ async function fetchBlogPosts(locale: string, category?: BlogCategory): Promise<
 
       localizedPosts = localizedPosts.map((post) => {
         const translation = translationMap.get(post.id);
+        const hasTranslation = Boolean(translation);
         return {
           ...post,
-          title: translation?.title?.trim() || post.title,
-          excerpt: translation?.excerpt ?? post.excerpt,
-          seo_title: translation?.seo_title ?? post.seo_title,
-          seo_description: translation?.seo_description ?? post.seo_description,
+          title: getLocalizedRequiredValue(translation?.title, post.title, hasTranslation),
+          excerpt: getLocalizedOptionalValue(translation?.excerpt, post.excerpt, hasTranslation),
+          seo_title: getLocalizedOptionalValue(translation?.seo_title, post.seo_title, hasTranslation),
+          seo_description: getLocalizedOptionalValue(
+            translation?.seo_description,
+            post.seo_description,
+            hasTranslation,
+          ),
         };
       });
     }

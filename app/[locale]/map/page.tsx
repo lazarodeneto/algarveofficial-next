@@ -5,7 +5,8 @@ import MapClient from "@/components/map/MapClient";
 import { getDirectoryPageData } from "@/lib/directory-data";
 import { isValidLocale, type Locale } from "@/lib/i18n/config";
 import { getServerTranslations } from "@/lib/i18n/server";
-import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
+import { buildStaticRouteData } from "@/lib/i18n/localized-routing";
+import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -25,13 +26,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     "map.title",
     "map.description",
   ]);
-  const metadata = buildLocalizedMetadata({
+  const metadata = buildPageMetadata({
     locale,
-    path: "/map",
-    title: translations["map.title"] || "Map Explorer",
+    localizedRoute: buildStaticRouteData("map"),
+    title: translations["map.title"] ?? "AlgarveOfficial",
     description:
-      translations["map.description"] ||
-      "Explore Algarve listings on an interactive map with clustered markers and instant filtering.",
+      translations["map.description"] ??
+      translations["map.title"] ??
+      "AlgarveOfficial",
     keywords: ["Algarve map", "interactive map", "luxury listings", "restaurants", "golf"],
   });
 

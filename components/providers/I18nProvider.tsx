@@ -13,11 +13,17 @@ interface I18nProviderProps {
 export function I18nProvider({ children }: I18nProviderProps) {
   const locale = useLocale() as string;
   const i18n = useMemo(
-    () =>
-      baseI18n.cloneInstance({
+    () => {
+      const instance = baseI18n.cloneInstance({
         lng: locale,
         fallbackLng: false,
-      }),
+      });
+      const bundle = baseI18n.getResourceBundle(locale, "translation");
+      if (bundle) {
+        instance.addResourceBundle(locale, "translation", bundle, true, true);
+      }
+      return instance;
+    },
     [locale],
   );
 

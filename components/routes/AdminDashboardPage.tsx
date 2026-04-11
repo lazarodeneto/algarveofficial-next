@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { DashboardRouteLoading } from "@/components/routes/DashboardRouteLoading";
 import { Button } from "@/components/ui/button";
+import AdminPagesDeprecated from "@/legacy-pages/admin/cms/AdminPagesDeprecated";
 
 const withAdminLoading = <T extends ComponentType<any>>(
   loader: () => Promise<{ default: T }>,
@@ -78,9 +79,6 @@ const AdminMediaLibrary = withAdminLoading(
 );
 const AdminPageBuilder = withAdminLoading(
   () => import("@/legacy-pages/admin/cms/AdminPageBuilder"),
-);
-const AdminPagesDeprecated = withAdminLoading(
-  () => import("@/legacy-pages/admin/cms/AdminPagesDeprecated"),
 );
 const AdminPartnerPage = withAdminLoading(
   () => import("@/legacy-pages/admin/cms/AdminPartnerPage"),
@@ -165,7 +163,6 @@ const staticRouteMap: Record<string, ComponentType> = {
   "content/terms": AdminTermsPage,
   "content/privacy": AdminPrivacyPage,
   "content/cookies": AdminCookiePage,
-  "content/pages": AdminPagesDeprecated,
   "content/regions": AdminCmsRegions,
   "content/destinations": AdminCmsDestinations,
   "content/cities": AdminCmsCities,
@@ -190,6 +187,10 @@ const staticRouteMap: Record<string, ComponentType> = {
   "events/moderation": AdminEventModeration,
 };
 
+const staticRouteElements: Record<string, ReactElement> = {
+  "content/pages": <AdminPagesDeprecated />,
+};
+
 function resolveAdminPage(route: string): ReactElement {
   if (route === "listings/new" || /^listings\/[^/]+\/edit$/.test(route)) {
     return <ListingForm />;
@@ -205,6 +206,10 @@ function resolveAdminPage(route: string): ReactElement {
 
   if (route === "blog/new" || /^blog\/[^/]+\/edit$/.test(route)) {
     return <AdminBlogForm />;
+  }
+
+  if (route in staticRouteElements) {
+    return staticRouteElements[route];
   }
 
   if (route in staticRouteMap) {
