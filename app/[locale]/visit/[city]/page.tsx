@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import Script from "next/script";
 
 import Header from "@/components/layout/Header";
 import {
@@ -178,25 +177,25 @@ export default async function VisitCityPage({ params }: PageProps) {
   return (
     <>
       {itemListSchema && (
-        <Script
+        <script
           id="schema-visit-city-itemlist"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
         />
       )}
       {categoryItemListSchema && (
-        <Script
+        <script
           id="schema-visit-city-category-itemlist"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(categoryItemListSchema) }}
         />
       )}
-      <Script
+      <script
         id="schema-visit-city-breadcrumb"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
-      <Script
+      <script
         id="schema-visit-city-collection"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}

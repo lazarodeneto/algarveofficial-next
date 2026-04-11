@@ -31,7 +31,7 @@ import {
   fetchStatus,
   extractLocaleFromUrl,
   assertNoDoubleLocalePrefix,
-  openLanguageSwitcher,
+  switchLocaleFromUi,
   expectUrlHasLocale,
 } from "../helpers/page-utils";
 
@@ -77,16 +77,16 @@ test.describe("static pages return HTTP 200", () => {
   }
 });
 
-// ─── 2. Programmatic pages return 200 or 404 ──────────────────────────────────
+// ─── 2. Programmatic compatibility URLs resolve safely ────────────────────────
 
-test.describe("programmatic pages respond gracefully", () => {
+test.describe("programmatic compatibility URLs respond gracefully", () => {
   for (const { locale, category, city } of PROGRAMMATIC_TEST_PAGES) {
     const url = `/${locale}/${category}/${city}`;
-    test(`GET ${url} → 200 or 404`, async ({ request }) => {
+    test(`GET ${url} → redirect, 200, or 404`, async ({ request }) => {
       const status = await fetchStatus(request, url);
       expect(
-        [200, 404],
-        `${url} should return 200 or 404, got ${status}`,
+        [200, 404, 307, 308],
+        `${url} should return a safe compatibility response, got ${status}`,
       ).toContain(status);
     });
   }
@@ -165,8 +165,8 @@ test.describe("internal link integrity — home page", () => {
 // ─── 7. Internal links on programmatic pages ─────────────────────────────────
 
 test.describe("internal link integrity — programmatic pages", () => {
-  test("/en/restaurants/lagos: internal links are valid", async ({ page, request }) => {
-    const url = "/en/restaurants/lagos";
+  test("/en/visit/lagos/restaurants: internal links are valid", async ({ page, request }) => {
+    const url = "/en/visit/lagos/restaurants";
     const response = await page.goto(url, { waitUntil: "domcontentloaded" });
     if (!response || response.status() === 404) {
       test.skip(true, `${url} returned 404`);
@@ -242,8 +242,8 @@ test.describe("robots.txt", () => {
 // ─── 10 & 11. Related links on programmatic pages use correct locale ───────────
 
 test.describe("related links on programmatic pages", () => {
-  test("/en/restaurants/lagos related links use /en/ prefix", async ({ page }) => {
-    const url = "/en/restaurants/lagos";
+  test("/en/visit/lagos/restaurants related links use /en/ prefix", async ({ page }) => {
+    const url = "/en/visit/lagos/restaurants";
     const response = await page.goto(url, { waitUntil: "domcontentloaded" });
     if (!response || response.status() === 404) {
       test.skip(true, `${url} returned 404`);
@@ -258,13 +258,13 @@ test.describe("related links on programmatic pages", () => {
     for (const href of relatedHrefs) {
       expect(
         href,
-        `Related link "${href}" on /en/restaurants/lagos should start with /en/`,
+        `Related link "${href}" on /en/visit/lagos/restaurants should start with /en/`,
       ).toMatch(/^\/en\//);
     }
   });
 
-  test("/pt-pt/restaurantes/lagos related links use /pt-pt/ prefix", async ({ page }) => {
-    const url = "/pt-pt/restaurantes/lagos";
+  test("/pt-pt/visit/lagos/restaurantes related links use /pt-pt/ prefix", async ({ page }) => {
+    const url = "/pt-pt/visit/lagos/restaurantes";
     const response = await page.goto(url, { waitUntil: "domcontentloaded" });
     if (!response || response.status() === 404) {
       test.skip(true, `${url} returned 404`);
@@ -290,17 +290,11 @@ test.describe("no double prefix after language switch", () => {
   test("switching EN→FR doesn't produce /fr/fr/ URLs", async ({ page }) => {
     await page.goto("/en/directory", { waitUntil: "networkidle" });
 
-    const switched = await openLanguageSwitcher(page);
+    const switched = await switchLocaleFromUi(page, "fr", "Français");
     if (!switched) {
       test.skip(true, "Language switcher not found — skipping");
       return;
     }
-
-    // Open switcher and find FR
-    const frOption = page
-      .locator('[role="option"], [role="menuitem"], [role="button"], a, li')
-      .filter({ hasText: "Français" });
-    await frOption.first().click();
     await page.waitForURL(/\/fr(\/|$)/, { timeout: 10_000 });
 
     const finalUrl = page.url();
@@ -337,17 +331,29 @@ test.describe("key pages are directly accessible", () => {
   }
 });
 
-test.describe("unlocalized-only route parity", () => {
-  const unlocalizedPaths = ["/signup", "/forgot-password", "/maintenance"];
+test.describe("auth alias localization and unlocalized route parity", () => {
+  test("GET /maintenance stays on the unlocalized canonical path", async ({ request, page }) => {
+    const status = await fetchStatus(request, "/maintenance");
+    expect([200, 301, 302, 307, 308]).toContain(status);
 
-  for (const path of unlocalizedPaths) {
-    test(`GET ${path} does not get forced into locale-prefixed 404`, async ({ request, page }) => {
+    await page.goto("/maintenance", { waitUntil: "domcontentloaded" });
+    const finalUrl = page.url();
+    expect(finalUrl).toMatch(/\/maintenance(?:\/|$)/);
+    expect(finalUrl).not.toMatch(/\/(?:en|pt-pt|fr|de|es|it|nl|sv|no|da)\/maintenance(?:\/|$)/);
+  });
+
+  for (const path of ["/signup", "/forgot-password"]) {
+    test(`GET ${path} redirects to the localized canonical auth route`, async ({ request, page }) => {
       const status = await fetchStatus(request, path);
       expect([200, 301, 302, 307, 308]).toContain(status);
 
       await page.goto(path, { waitUntil: "domcontentloaded" });
       const finalUrl = page.url();
-      expect(finalUrl).not.toMatch(/\/(?:en|pt-pt|fr|de|es|it|nl|sv|no|da)\/(?:signup|forgot-password|maintenance)(?:\/|$)/);
+      expect(finalUrl).toMatch(
+        new RegExp(
+          `/((?:en|pt-pt|fr|de|es|it|nl|sv|no|da))${path.replace("/", "\\/")}(?:\\/|$)`,
+        ),
+      );
     });
   }
 
@@ -357,11 +363,13 @@ test.describe("unlocalized-only route parity", () => {
     expect(finalUrl).not.toMatch(/\/(?:en|pt-pt|fr|de|es|it|nl|sv|no|da)\/real-estate\/test-slug(?:\/|$)/);
   });
 
-  test("locale-prefixed unlocalized-only routes fallback to canonical unlocalized paths", async ({ page }) => {
+  test("locale-prefixed auth routes remain localized canonicals", async ({ page }) => {
     await page.goto("/fr/signup", { waitUntil: "domcontentloaded" });
     const finalUrl = page.url();
-    expect(finalUrl).toMatch(/\/signup(?:\/|$)/);
-    expect(finalUrl).not.toContain("/fr/signup");
+    expect(finalUrl).toMatch(/\/fr\/signup(?:\/|$)/);
+
+    await page.goto("/fr/forgot-password", { waitUntil: "domcontentloaded" });
+    expect(page.url()).toMatch(/\/fr\/forgot-password(?:\/|$)/);
   });
 });
 
@@ -396,8 +404,8 @@ test.describe("all locales have accessible home pages", () => {
 // ─── Programmatic page URL structure ─────────────────────────────────────────
 
 test.describe("programmatic page URL structure correctness", () => {
-  test("/en/restaurants/lagos URL has correct structure", async ({ page }) => {
-    const url = "/en/restaurants/lagos";
+  test("/en/visit/lagos/restaurants URL has correct structure", async ({ page }) => {
+    const url = "/en/visit/lagos/restaurants";
     const response = await page.goto(url, { waitUntil: "domcontentloaded" });
     if (!response || response.status() === 404) {
       test.skip(true, `${url} returned 404`);
@@ -414,7 +422,19 @@ test.describe("programmatic page URL structure correctness", () => {
       .locator('link[rel="canonical"]')
       .getAttribute("href");
     if (canonical) {
-      expect(canonical).toContain("/en/restaurants/lagos");
+      expect(canonical).toContain("/en/visit/lagos/restaurants");
+    }
+  });
+
+  test("legacy category/city compatibility URLs redirect to the canonical visit route", async ({ page }) => {
+    await page.goto("/en/restaurants/lagos", { waitUntil: "domcontentloaded" });
+    await expect(page).toHaveURL(/\/en\/visit\/lagos\/restaurants(?:\/)?$/);
+
+    const canonical = await page
+      .locator('link[rel="canonical"]')
+      .getAttribute("href");
+    if (canonical) {
+      expect(canonical).toContain("/en/visit/lagos/restaurants");
     }
   });
 

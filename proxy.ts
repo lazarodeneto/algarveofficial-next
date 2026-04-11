@@ -32,6 +32,7 @@ import {
   isValidLocale,
   resolveLocaleFromAcceptLanguage,
 } from "@/lib/i18n/locale-utils";
+import { resolveLegacyCategoryCityRoute } from "@/lib/seo/programmatic/legacy-category-city-route";
 
 const LOCALE_SEGMENT_PATTERN = /^[a-z]{2}(?:-[a-z]{2})?$/i;
 
@@ -195,6 +196,7 @@ export function proxy(request: NextRequest) {
   const segments = pathname.split("/").filter(Boolean);
   const firstSegment = segments[0]?.toLowerCase() ?? null;
   const secondSegment = segments[1]?.toLowerCase() ?? null;
+  const thirdSegment = segments[2]?.toLowerCase() ?? null;
   const aliasedLocalizedPath = getLocalizedPathFromLocaleAlias(pathname);
   const nestedAliasedLocalizedPath = getLocalizedPathFromNestedLocaleAlias(pathname);
   const legacyVisitAliasedLocalizedPath = getLocalizedPathFromLegacyVisitLocaleAlias(pathname);
@@ -221,6 +223,18 @@ export function proxy(request: NextRequest) {
 
   if (hasValidLocalePrefix && isValidLocale(secondSegment)) {
     return new NextResponse(null, { status: 404 });
+  }
+
+  if (hasValidLocalePrefix && currentLocale && secondSegment && thirdSegment) {
+    const legacyCategoryCityRoute = resolveLegacyCategoryCityRoute(
+      currentLocale,
+      secondSegment,
+      thirdSegment,
+    );
+
+    if (legacyCategoryCityRoute) {
+      return redirectTo(request, `/${currentLocale}${legacyCategoryCityRoute.canonicalPath}`, 308);
+    }
   }
 
   if (hasValidLocalePrefix && unlocalizedPath) {

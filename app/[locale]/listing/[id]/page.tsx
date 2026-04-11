@@ -10,8 +10,9 @@ import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 import {
   buildAbsoluteRouteUrl,
-  buildCanonicalPath,
+  buildStaticRouteData,
   buildLocaleSwitchPathsForEntity,
+  buildUniformLocalizedSlugMap,
   buildLocalizedSlugMapWithFallback,
   type ListingRouteData,
 } from "@/lib/i18n/localized-routing";
@@ -359,14 +360,40 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
   const localeCategorySlug = programmaticCategorySlug
     ? getCategoryUrlSlug(programmaticCategorySlug, resolvedLocale)
     : null;
-  const categoryPath = categorySlug ? `/stay?category=${categorySlug}` : "/stay";
-  const cityPath = citySlug ? `/visit/${citySlug}` : null;
-  const cityCategoryPath =
-    citySlug && localeCategorySlug ? `/visit/${citySlug}/${localeCategorySlug}` : null;
   const routeData = buildListingRouteData(data);
-  const canonicalPath = buildCanonicalPath(resolvedLocale, routeData);
   const canonicalUrl = buildAbsoluteRouteUrl(resolvedLocale, routeData);
   const listingPathByLocale = buildLocaleSwitchPathsForEntity(routeData, SUPPORTED_LOCALES);
+  const homeUrl = buildAbsoluteRouteUrl(resolvedLocale, buildStaticRouteData("home"));
+  const categoryUrl = buildAbsoluteRouteUrl(
+    resolvedLocale,
+    buildStaticRouteData("stay"),
+    categorySlug ? { query: { category: categorySlug } } : undefined,
+  );
+  const cityRouteData = citySlug
+    ? {
+        routeType: "city" as const,
+        citySlugs: buildUniformLocalizedSlugMap(citySlug),
+      }
+    : null;
+  const cityCategoryRouteData =
+    citySlug && programmaticCategorySlug
+      ? {
+          routeType: "city-category" as const,
+          citySlugs: buildUniformLocalizedSlugMap(citySlug),
+          categorySlugs: Object.fromEntries(
+            SUPPORTED_LOCALES.map((locale) => [
+              locale,
+              getCategoryUrlSlug(programmaticCategorySlug, locale),
+            ]),
+          ) as Record<Locale, string>,
+        }
+      : null;
+  const cityUrl = cityRouteData
+    ? buildAbsoluteRouteUrl(resolvedLocale, cityRouteData)
+    : null;
+  const cityCategoryUrl = cityCategoryRouteData
+    ? buildAbsoluteRouteUrl(resolvedLocale, cityCategoryRouteData)
+    : null;
   const ogImage =
     normalizePublicImageUrl(data.listing.images?.find((image) => image.is_featured)?.image_url) ||
     normalizePublicImageUrl(data.listing.images?.[0]?.image_url) ||
@@ -400,13 +427,13 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
   } as Parameters<typeof buildLocalBusinessSchema>[0]);
 
   const breadcrumbSchema = buildBreadcrumbSchema([
-    { name: "Home", url: absoluteUrl("/") },
-    ...(cityPath && data.listing.city?.name
-      ? [{ name: data.listing.city.name, url: absoluteUrl(cityPath) }]
+    { name: "Home", url: homeUrl },
+    ...(cityUrl && data.listing.city?.name
+      ? [{ name: data.listing.city.name, url: cityUrl }]
       : []),
     {
       name: categoryName,
-      url: absoluteUrl(cityCategoryPath || categoryPath),
+      url: cityCategoryUrl || categoryUrl,
     },
     { name: title, url: canonicalUrl },
   ]);

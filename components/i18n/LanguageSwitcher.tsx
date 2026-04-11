@@ -39,6 +39,8 @@ export function LanguageSwitcher({
 
       <select
         id={switcherId}
+        data-testid="language-switcher"
+        data-test="lang-switcher"
         value={currentLocale}
         disabled={isPending}
         onChange={(e) => {

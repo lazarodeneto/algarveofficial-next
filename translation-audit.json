@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-10T14:10:28.056Z",
+  "generatedAt": "2026-04-11T08:28:04.636Z",
   "localeFiles": [
     "da",
     "de",
@@ -1161,7 +1161,7 @@
     },
     {
       "file": "components/layout/Header.tsx",
-      "line": 296,
+      "line": 277,
       "string": "Admin Dashboard",
       "suggestedKey": "layout.admin-dashboard",
       "type": "attribute"

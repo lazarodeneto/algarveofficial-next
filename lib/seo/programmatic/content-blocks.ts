@@ -531,7 +531,11 @@ const CITY_TEMPLATES: Record<Locale, CityTemplates> = {
       return `Use this page as your starting point for ${cityName}: compare the top options, save favourites, and continue into the dedicated category pages when you want a more focused shortlist around ${highlights}.`;
     },
     metaTitle: ({ cityName, year }) => `Best Things to Do in ${cityName}, Algarve (${year} Guide)`,
-    metaDescription: ({ cityName }) => `Discover the best restaurants, hotels, and experiences in ${cityName}, Algarve. Curated local recommendations.`,
+    metaDescription: ({ cityName, count, topCategoryNames, avgRating }) => {
+      const categories = formatLocalizedList("en", topCategoryNames, "restaurants, places to stay, and experiences");
+      const rating = avgRating !== null ? ` Avg. ${avgRating.toFixed(1)}★.` : "";
+      return `Discover ${count} curated listings in ${cityName}, Algarve across ${categories}.${rating} Plan with AlgarveOfficial.`;
+    },
   },
   "pt-pt": {
     h1: ({ cityName }) => `Melhores coisas para fazer em ${cityName}, Algarve`,

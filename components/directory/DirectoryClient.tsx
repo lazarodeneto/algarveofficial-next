@@ -358,7 +358,7 @@ async function fetchCategories(locale: string) {
   });
 }
 
-async function fetchCategoryCounts() {
+async function fetchCategoryCounts(_locale: PublicContentLocale) {
   const pageSize = 1000;
   let from = 0;
   const counts: Record<string, number> = {};
@@ -383,6 +383,17 @@ async function fetchCategoryCounts() {
   }
 
   return counts;
+}
+
+async function fetchDirectoryGlobalSettings(_locale: PublicContentLocale) {
+  const { data, error } = await supabase
+    .from("global_settings")
+    .select("key, value, category")
+    .in("key", [...DIRECTORY_CMS_KEYS])
+    .order("key", { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []) as GlobalSetting[];
 }
 
 async function fetchListings(
@@ -707,17 +718,8 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   );
 
   const { data: globalSettings = initialCmsSettings } = useQuery({
-    queryKey: ["global-settings", [...DIRECTORY_CMS_KEYS].sort()],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("global_settings")
-        .select("key, value, category")
-        .in("key", [...DIRECTORY_CMS_KEYS])
-        .order("key", { ascending: true });
-
-      if (error) throw error;
-      return (data ?? []) as GlobalSetting[];
-    },
+    queryKey: ["global-settings", [...DIRECTORY_CMS_KEYS].sort(), locale],
+    queryFn: () => fetchDirectoryGlobalSettings(locale),
     initialData: initialCmsSettings,
     staleTime: 1000 * 60 * 5,
   });
@@ -745,8 +747,8 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   });
 
   const { data: categoryCounts = props.initialCategoryCounts } = useQuery({
-    queryKey: ["directory", "category-counts"],
-    queryFn: fetchCategoryCounts,
+    queryKey: ["directory", "category-counts", locale],
+    queryFn: () => fetchCategoryCounts(locale),
     initialData: props.initialCategoryCounts,
     staleTime: 1000 * 60 * 10,
   });
@@ -1197,53 +1199,75 @@ function DirectoryClientInner(props: DirectoryClientProps) {
 
   const heroEnabled = activeCms.isBlockEnabled("hero", true);
 
+  useEffect(() => {
+    const serverShell = document.getElementById("directory-server-shell");
+    if (serverShell) {
+      serverShell.remove();
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-background" data-cms-page="directory">
       <Header />
       <main>
         {/* Hero: enabled with matching top padding, disabled with minimal placeholder */}
         {!heroEnabled ? (
-        <div className={STANDARD_PUBLIC_NO_HERO_SPACER_CLASS} aria-hidden="true" />
-      ) : (
-        <DirectoryCmsBlock
-          blockId="hero"
-          as="section"
-          cms={activeCms}
-          className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}
-        >
-          <LiveStyleHero
-            className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
-            badge={t("directory.heroLabel")}
-            title={t("directory.title")}
-            subtitle={t("directory.subtitle")}
-            media={
-              <HeroBackgroundMedia
-                mediaType={activeCms.getText("hero.mediaType", "image")}
-                imageUrl={activeCms.getText("hero.imageUrl", "")}
-                videoUrl={activeCms.getText("hero.videoUrl", "")}
-                youtubeUrl={activeCms.getText("hero.youtubeUrl", "")}
-                posterUrl={activeCms.getText("hero.posterUrl", "")}
-                alt={t("directory.hero.alt")}
-                fallback={<PageHeroImage page="directory" alt={t("directory.hero.alt")} />}
-              />
-            }
-            ctas={
-              <>
-                <Link href={l("/contact")}>
-                  <Button variant="gold" size="lg">
-                    {t("directory.hero.ctaPrimary")}
-                  </Button>
-                </Link>
-                <Link href={l("/residence")}>
-                  <Button variant="heroOutline" size="lg">
-                    {t("directory.hero.ctaSecondary")}
-                  </Button>
-                </Link>
-              </>
-            }
-          />
-        </DirectoryCmsBlock>
-      )}
+          <>
+            <div className={STANDARD_PUBLIC_NO_HERO_SPACER_CLASS} aria-hidden="true" />
+            <section className="app-container content-max pt-6 pb-8">
+              <div className="rounded-[2rem] border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur md:p-10">
+                <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
+                  {t("directory.heroLabel")}
+                </p>
+                <h1 className="mt-4 font-serif text-4xl text-foreground md:text-5xl">
+                  {t("directory.title")}
+                </h1>
+                <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground">
+                  {t("directory.subtitle")}
+                </p>
+              </div>
+            </section>
+          </>
+        ) : (
+          <DirectoryCmsBlock
+            blockId="hero"
+            as="section"
+            cms={activeCms}
+            className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}
+          >
+            <LiveStyleHero
+              className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
+              badge={t("directory.heroLabel")}
+              title={t("directory.title")}
+              subtitle={t("directory.subtitle")}
+              media={
+                <HeroBackgroundMedia
+                  mediaType={activeCms.getText("hero.mediaType", "image")}
+                  imageUrl={activeCms.getText("hero.imageUrl", "")}
+                  videoUrl={activeCms.getText("hero.videoUrl", "")}
+                  youtubeUrl={activeCms.getText("hero.youtubeUrl", "")}
+                  posterUrl={activeCms.getText("hero.posterUrl", "")}
+                  alt={t("directory.hero.alt")}
+                  fallback={<PageHeroImage page="directory" alt={t("directory.hero.alt")} />}
+                />
+              }
+              ctas={
+                <>
+                  <Link href={l("/contact")}>
+                    <Button variant="gold" size="lg">
+                      {t("directory.hero.ctaPrimary")}
+                    </Button>
+                  </Link>
+                  <Link href={l("/residence")}>
+                    <Button variant="heroOutline" size="lg">
+                      {t("directory.hero.ctaSecondary")}
+                    </Button>
+                  </Link>
+                </>
+              }
+            />
+          </DirectoryCmsBlock>
+        )}
 
         <div className={`app-container content-max pb-16 ${heroEnabled ? STANDARD_PUBLIC_CONTENT_TOP_CLASS : ""}`}>
           {showCityHubs ? (

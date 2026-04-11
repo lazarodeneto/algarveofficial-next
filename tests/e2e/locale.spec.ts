@@ -24,7 +24,8 @@ import {
   CATEGORY_URL_SLUGS,
 } from "../helpers/constants";
 import {
-  openLanguageSwitcher,
+  switchLocaleFromUi,
+  expectLanguageSwitcherLocale,
   extractLocaleFromUrl,
   expectUrlHasLocale,
   assertNoDoubleLocalePrefix,
@@ -81,17 +82,11 @@ test.describe("language switcher", () => {
   test("switching EN → PT-PT updates URL locale to pt-pt", async ({ page }) => {
     await page.goto("/en", { waitUntil: "networkidle" });
 
-    const switched = await openLanguageSwitcher(page);
+    const switched = await switchLocaleFromUi(page, "pt-pt", LOCALE_DISPLAY_NAMES["pt-pt"]);
     if (!switched) {
       test.skip(true, "Language switcher not found — skipping");
       return;
     }
-
-    // Click the Portuguese option
-    const ptOption = page
-      .locator('[role="option"], [role="menuitem"], [role="button"], a, li')
-      .filter({ hasText: LOCALE_DISPLAY_NAMES["pt-pt"] });
-    await ptOption.first().click();
     await page.waitForURL(/\/pt-pt(\/|$)/, { timeout: 10_000 });
 
     expectUrlHasLocale(page.url(), "pt-pt");
@@ -101,16 +96,11 @@ test.describe("language switcher", () => {
     // Navigate to an English directory page
     await page.goto("/en/directory", { waitUntil: "networkidle" });
 
-    const switched = await openLanguageSwitcher(page);
+    const switched = await switchLocaleFromUi(page, "fr", LOCALE_DISPLAY_NAMES["fr"]);
     if (!switched) {
       test.skip(true, "Language switcher not found — skipping");
       return;
     }
-
-    const frOption = page
-      .locator('[role="option"], [role="menuitem"], [role="button"], a, li')
-      .filter({ hasText: LOCALE_DISPLAY_NAMES["fr"] });
-    await frOption.first().click();
 
     await page.waitForURL(/\/fr(\/|$)/, { timeout: 10_000 });
 
@@ -123,16 +113,11 @@ test.describe("language switcher", () => {
   test("switching locale updates <html lang>", async ({ page }) => {
     await page.goto("/en", { waitUntil: "networkidle" });
 
-    const switched = await openLanguageSwitcher(page);
+    const switched = await switchLocaleFromUi(page, "de", LOCALE_DISPLAY_NAMES["de"]);
     if (!switched) {
       test.skip(true, "Language switcher not found — skipping");
       return;
     }
-
-    const deOption = page
-      .locator('[role="option"], [role="menuitem"], [role="button"], a, li')
-      .filter({ hasText: LOCALE_DISPLAY_NAMES["de"] });
-    await deOption.first().click();
     await page.waitForURL(/\/de(\/|$)/, { timeout: 10_000 });
 
     const lang = await page.locator("html").getAttribute("lang");
@@ -157,16 +142,11 @@ test.describe("NEXT_LOCALE cookie", () => {
   test("NEXT_LOCALE cookie updates after language switch", async ({ page }) => {
     await page.goto("/en", { waitUntil: "networkidle" });
 
-    const switched = await openLanguageSwitcher(page);
+    const switched = await switchLocaleFromUi(page, "fr", LOCALE_DISPLAY_NAMES["fr"]);
     if (!switched) {
       test.skip(true, "Language switcher not found — skipping");
       return;
     }
-
-    const frOption = page
-      .locator('[role="option"], [role="menuitem"], [role="button"], a, li')
-      .filter({ hasText: LOCALE_DISPLAY_NAMES["fr"] });
-    await frOption.first().click();
     await page.waitForURL(/\/fr(\/|$)/, { timeout: 10_000 });
 
     const cookie = await getCookieValue(page, "NEXT_LOCALE");
@@ -327,16 +307,11 @@ test.describe("locale switch on programmatic pages", () => {
       return;
     }
 
-    const switched = await openLanguageSwitcher(page);
+    const switched = await switchLocaleFromUi(page, "pt-pt", LOCALE_DISPLAY_NAMES["pt-pt"]);
     if (!switched) {
       test.skip(true, "Language switcher not found — skipping");
       return;
     }
-
-    const ptOption = page
-      .locator('[role="option"], [role="menuitem"], [role="button"], a, li')
-      .filter({ hasText: LOCALE_DISPLAY_NAMES["pt-pt"] });
-    await ptOption.first().click();
     await page.waitForURL(/\/pt-pt\//, { timeout: 10_000 });
 
     const finalUrl = page.url();
@@ -389,44 +364,30 @@ test.describe("UI ↔ URL synchronization (critical fix)", () => {
     await page.goto("/en", { waitUntil: "networkidle" });
 
     // Verify UI shows English
-    const switched = await openLanguageSwitcher(page);
+    await expectLanguageSwitcherLocale(page, "en", /English|EN/i);
+
+    // Switch to Portuguese
+    const switched = await switchLocaleFromUi(page, "pt-pt", LOCALE_DISPLAY_NAMES["pt-pt"] || "Português");
     if (!switched) {
       test.skip(true, "Language switcher not found");
       return;
     }
-
-    // Get switcher button/select element to check displayed value
-    const switcherElement = page.locator('[data-test="lang-switcher"]');
-    await expect(switcherElement).toContainText(/English|EN/i);
-
-    // Switch to Portuguese
-    const ptOption = page
-      .locator('[role="option"], [role="menuitem"], [role="button"], a, li')
-      .filter({ hasText: LOCALE_DISPLAY_NAMES["pt-pt"] || "Português" });
-    await ptOption.first().click();
     await page.waitForURL(/\/pt-pt(\/|$)/, { timeout: 10_000 });
 
     // CRITICAL: Verify UI now shows Portuguese (not stale English)
     // After navigation, UI must update to reflect new URL
-    const reloadedSwitcher = page.locator('[data-test="lang-switcher"]');
-    await expect(reloadedSwitcher).toContainText(/Português|PT/i);
+    await expectLanguageSwitcherLocale(page, "pt-pt", /Português|PT/i);
 
     // Switch back to English
-    const switched2 = await openLanguageSwitcher(page);
+    const switched2 = await switchLocaleFromUi(page, "en", LOCALE_DISPLAY_NAMES["en"] || "English");
     if (!switched2) {
       test.skip(true, "Language switcher not found on second click");
       return;
     }
-
-    const enOption = page
-      .locator('[role="option"], [role="menuitem"], [role="button"], a, li')
-      .filter({ hasText: LOCALE_DISPLAY_NAMES["en"] || "English" });
-    await enOption.first().click();
     await page.waitForURL(/\/en(\/|$)/, { timeout: 10_000 });
 
     // Verify UI shows English again
-    const finalSwitcher = page.locator('[data-test="lang-switcher"]');
-    await expect(finalSwitcher).toContainText(/English|EN/i);
+    await expectLanguageSwitcherLocale(page, "en", /English|EN/i);
   });
 
   test("page reload preserves UI ↔ URL sync", async ({ page }) => {
@@ -443,8 +404,7 @@ test.describe("UI ↔ URL synchronization (critical fix)", () => {
     expectUrlHasLocale(page.url(), "pt-pt");
 
     // And UI should show Portuguese
-    const switcher = page.locator('[data-test="lang-switcher"]');
-    await expect(switcher).toContainText(/Português|PT/i);
+    await expectLanguageSwitcherLocale(page, "pt-pt", /Português|PT/i);
   });
 
   test("all 10 locales maintain UI ↔ URL sync", async ({ page }) => {
@@ -470,17 +430,11 @@ test.describe("UI ↔ URL synchronization (critical fix)", () => {
     // Navigate to /en/directory with query params
     await page.goto("/en/directory?category=places-to-stay", { waitUntil: "networkidle" });
 
-    const switched = await openLanguageSwitcher(page);
+    const switched = await switchLocaleFromUi(page, "fr", LOCALE_DISPLAY_NAMES["fr"] || "Français");
     if (!switched) {
       test.skip(true, "Language switcher not found");
       return;
     }
-
-    // Switch to French
-    const frOption = page
-      .locator('[role="option"], [role="menuitem"], [role="button"], a, li')
-      .filter({ hasText: LOCALE_DISPLAY_NAMES["fr"] || "Français" });
-    await frOption.first().click();
     await page.waitForURL(/\/fr(\/|$)/, { timeout: 10_000 });
 
     // Verify URL has /fr, directory path, and query params

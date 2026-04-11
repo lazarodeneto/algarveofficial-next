@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { updateAdminSettingsRow } from "@/lib/admin/settings-client";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { toast } from "sonner";
 
 export interface FAQ {
@@ -35,39 +36,40 @@ export interface PartnerSettings {
   updated_at: string;
 }
 
+async function fetchPartnerSettings(_locale: string): Promise<PartnerSettings> {
+  const { data, error } = await supabase
+    .from('partner_settings')
+    .select('*')
+    .eq('id', 'default')
+    .single();
+
+  if (error) throw error;
+
+  let parsedFaqs: FAQ[] = [];
+  if (Array.isArray(data.faqs)) {
+    parsedFaqs = (data.faqs as unknown[]).map((item) => {
+      const obj = item as Record<string, unknown>;
+      return {
+        question: String(obj.question || ''),
+        answer: String(obj.answer || ''),
+      };
+    });
+  }
+
+  return {
+    ...data,
+    faqs: parsedFaqs,
+  } as PartnerSettings;
+}
+
 export function usePartnerSettings() {
   const queryClient = useQueryClient();
   const isBrowser = typeof window !== "undefined";
+  const locale = useCurrentLocale();
 
   const { data: settings, isLoading, error } = useQuery({
-    queryKey: ['partner-settings'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('partner_settings')
-        .select('*')
-        .eq('id', 'default')
-        .single();
-      
-      if (error) throw error;
-      
-      // Parse faqs from Json to FAQ[]
-      let parsedFaqs: FAQ[] = [];
-      if (Array.isArray(data.faqs)) {
-        parsedFaqs = (data.faqs as unknown[]).map((item) => {
-          const obj = item as Record<string, unknown>;
-          return {
-            question: String(obj.question || ''),
-            answer: String(obj.answer || ''),
-          };
-        });
-      }
-      
-      const parsed: PartnerSettings = {
-        ...data,
-        faqs: parsedFaqs,
-      };
-      return parsed;
-    },
+    queryKey: ['partner-settings', locale],
+    queryFn: () => fetchPartnerSettings(locale),
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
     enabled: isBrowser,
   });

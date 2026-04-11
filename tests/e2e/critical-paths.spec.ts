@@ -75,7 +75,7 @@ test.describe("Critical i18n smoke paths", () => {
 
     const currentUrl = new URL(page.url());
     expect(currentUrl.pathname).toBe("/de/login");
-    expect(currentUrl.searchParams.get("locale")).toBe("de");
+    expect(currentUrl.searchParams.get("locale")).toBeNull();
     expect(currentUrl.searchParams.get("next")).toBe("/de/dashboard");
   });
 });

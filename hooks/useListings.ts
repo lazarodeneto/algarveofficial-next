@@ -594,8 +594,10 @@ export function useListing(idOrSlug: string | undefined) {
  * Returns the row with listing_id and is_current flag.
  */
 export function useResolveSlug(slug: string | undefined) {
+  const locale = normalizePublicContentLocale(useCurrentLocale());
+
   return useQuery({
-    queryKey: ['listing-slug', slug],
+    queryKey: ['listing-slug', slug, locale],
     queryFn: async () => {
       if (typeof window === "undefined") return null;
       if (!slug) return null;

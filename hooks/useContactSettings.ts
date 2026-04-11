@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { updateAdminSettingsRow } from "@/lib/admin/settings-client";
 import { normalizePublicContactEmail } from "@/lib/contactEmail";
 import { normalizePublicWhatsAppNumber } from "@/lib/contactPhone";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { toast } from "sonner";
 
 export interface ContactSettings {
@@ -22,29 +23,32 @@ export interface ContactSettings {
     updated_at: string;
 }
 
+async function fetchContactSettings(_locale: string): Promise<ContactSettings | null> {
+  const { data, error } = await supabase
+    .from("contact_settings")
+    .select("*")
+    .eq("id", "default")
+    .maybeSingle();
+
+  if (error) throw error;
+  const settings = data as ContactSettings;
+
+  return {
+    ...settings,
+    display_email: normalizePublicContactEmail(settings.display_email),
+    whatsapp_number: normalizePublicWhatsAppNumber(settings.whatsapp_number),
+    forwarding_email: normalizePublicContactEmail(settings.forwarding_email),
+  };
+}
+
 export function useContactSettings() {
   const queryClient = useQueryClient();
   const isBrowser = typeof window !== "undefined";
+  const locale = useCurrentLocale();
 
   const { data: settings, isLoading, error } = useQuery({
-    queryKey: ["contact-settings"],
-    queryFn: async (): Promise<ContactSettings | null> => {
-      const { data, error } = await supabase
-        .from("contact_settings")
-        .select("*")
-        .eq("id", "default")
-        .maybeSingle();
-
-      if (error) throw error;
-      const settings = data as ContactSettings;
-
-      return {
-        ...settings,
-        display_email: normalizePublicContactEmail(settings.display_email),
-        whatsapp_number: normalizePublicWhatsAppNumber(settings.whatsapp_number),
-        forwarding_email: normalizePublicContactEmail(settings.forwarding_email),
-      };
-    },
+    queryKey: ["contact-settings", locale],
+    queryFn: () => fetchContactSettings(locale),
     enabled: isBrowser,
   });
 

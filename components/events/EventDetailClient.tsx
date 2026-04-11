@@ -36,6 +36,7 @@ import {
 } from "@/lib/cms/pageBuilderRegistry";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { useHydrated } from "@/hooks/useHydrated";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 
 export type EventCitySummary = Pick<Tables<"cities">, "id" | "name" | "slug">;
 export type EventGlobalSetting = Pick<Tables<"global_settings">, "key" | "value" | "category">;
@@ -120,7 +121,7 @@ function useEventDetailCmsHelpers(globalSettings: EventGlobalSetting[]) {
   }, [globalSettings]);
 }
 
-async function fetchEventBySlug(slug: string) {
+async function fetchEventBySlug(slug: string, _locale: string) {
   const { data, error } = await supabase
     .from("events")
     .select(`
@@ -136,6 +137,7 @@ async function fetchEventBySlug(slug: string) {
 }
 
 async function fetchRelatedEvents(
+  _locale: string,
   eventId: string,
   category?: string | null,
   cityId?: string | null,
@@ -166,7 +168,7 @@ async function fetchRelatedEvents(
   return (data ?? []) as EventRecord[];
 }
 
-async function fetchEventDetailGlobalSettings() {
+async function fetchEventDetailGlobalSettings(_locale: string) {
   const { data, error } = await supabase
     .from("global_settings")
     .select("key, value, category")
@@ -183,20 +185,21 @@ function EventDetailClientInner({
   initialGlobalSettings,
 }: EventDetailClientProps) {
   const { t } = useTranslation();
+  const locale = useCurrentLocale();
   const {
     data: event = initialEvent,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["event", "slug", initialEvent.slug],
-    queryFn: () => fetchEventBySlug(initialEvent.slug),
+    queryKey: ["event", "slug", initialEvent.slug, locale],
+    queryFn: () => fetchEventBySlug(initialEvent.slug, locale),
     initialData: initialEvent,
     staleTime: 1000 * 60 * 10,
   });
 
   const { data: globalSettings = initialGlobalSettings } = useQuery({
-    queryKey: ["event-detail", "global-settings"],
-    queryFn: fetchEventDetailGlobalSettings,
+    queryKey: ["event-detail", "global-settings", locale],
+    queryFn: () => fetchEventDetailGlobalSettings(locale),
     initialData: initialGlobalSettings,
     staleTime: 1000 * 60 * 10,
   });
@@ -204,10 +207,10 @@ function EventDetailClientInner({
   const cms = useEventDetailCmsHelpers(globalSettings);
 
   const { data: relatedEvents = initialRelatedEvents } = useQuery({
-    queryKey: ["events", "related", event?.id, event?.category, event?.city_id],
+    queryKey: ["events", "related", event?.id, event?.category, event?.city_id, locale],
     queryFn: async () => {
       if (!event?.id) return [];
-      return fetchRelatedEvents(event.id, event.category, event.city_id, 3);
+      return fetchRelatedEvents(locale, event.id, event.category, event.city_id, 3);
     },
     enabled: Boolean(event?.id),
     initialData: initialRelatedEvents,

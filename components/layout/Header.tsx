@@ -20,18 +20,8 @@ import {
   MessageSquare,
   Plane,
   HouseHeart,
-  Hotel,
-  Utensils,
   Compass,
-  Palmtree,
-  Trophy,
   FlagTriangleRight,
-  Dumbbell,
-  Users,
-  ShoppingBag,
-  Building2,
-  Calendar,
-  ChefHat,
   ListChecks,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -45,12 +35,6 @@ import { useTranslation } from "react-i18next";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { HeaderNav } from "./HeaderNav";
 import { MobileBottomNav } from "./MobileBottomNav";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 
 function Link(props: ComponentProps<typeof NextLink>) {
   return <NextLink prefetch={false} {...props} />;
@@ -70,7 +54,6 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const experiencesPath = l("/experiences");
   const propertiesPath = l("/properties");
   const golfPath = l("/golf");
-  const realEstatePath = l("/real-estate");
   const homePath = l("/");
   const destinationsPath = l("/destinations");
   const mapPath = l("/map");
@@ -86,8 +69,6 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
     "rounded-full border border-primary/25 bg-primary/12 text-primary hover:bg-primary/18 dark:border-primary/30 dark:bg-primary/18";
   const accountInitialButtonClass =
     "rounded-full border border-primary bg-primary text-primary-foreground shadow-[0_10px_24px_-18px_hsla(43,74%,49%,0.8)] hover:bg-primary/90 dark:border-primary dark:bg-primary dark:text-primary-foreground";
-  const buildDirectoryCategoryPath = (category: string) =>
-    l(`/stay?category=${category}`);
 
   // Search modal state (local to Header)
   const [searchOpen, setSearchOpen] = useState(false);
@@ -417,7 +398,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                       </div>
                     </div>
 
-                    <Accordion type="single" collapsible className="w-full rounded-2xl border border-black/10 bg-white/66 px-2 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
+                    <div className="w-full rounded-2xl border border-black/10 bg-white/66 px-2 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
                     <div className="mx-3">
                       <Link
                         href={homePath}
@@ -429,89 +410,49 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                       </Link>
                     </div>
 
-                    {/* VISIT */}
-                    <AccordionItem value="visit">
-                      <div className="flex items-center">
-                        <Link href={directoryPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
-                          <div className="flex items-center gap-3">
-                            <BedDouble className="h-6 w-6 text-primary" />
-                            {t("nav.stay")}
-                          </div>
-                        </Link>
-                        <AccordionTrigger className="w-12 h-12 flex items-center justify-center p-0" />
-                      </div>
-                      <AccordionContent>
-                        <div className="mb-1 flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
-                          <Link href={buildDirectoryCategoryPath("places-to-stay")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Hotel className="h-4 w-4" /> {t("categoryNames.places-to-stay")}</Link>
-                          <Link href={buildDirectoryCategoryPath("restaurants")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Utensils className="h-4 w-4" /> {t("categoryNames.restaurants")}</Link>
-                          <Link href={buildDirectoryCategoryPath("beaches-clubs")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Palmtree className="h-4 w-4" /> {t("categoryNames.beaches-clubs")}</Link>
-                          <Link href={buildDirectoryCategoryPath("wellness-spas")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Dumbbell className="h-4 w-4" /> {t("categoryNames.wellness-spas")}</Link>
-                          <Link href={buildDirectoryCategoryPath("algarve-services")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Users className="h-4 w-4" /> {t("categoryNames.algarve-services")}</Link>
-                          <Link href={buildDirectoryCategoryPath("things-to-do")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Compass className="h-4 w-4" /> {t("categoryNames.things-to-do")}</Link>
-                          <Link href={buildDirectoryCategoryPath("whats-on")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Calendar className="h-4 w-4" /> {t("categoryNames.whats-on")}</Link>
-                          <Link href={buildDirectoryCategoryPath("shopping-boutiques")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><ShoppingBag className="h-4 w-4" /> {t("categoryNames.shopping-boutiques")}</Link>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
+                    <div className="mx-3 border-t border-primary/15">
+                      <Link
+                        href={directoryPath}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
+                      >
+                        <BedDouble className="h-6 w-6 text-primary" />
+                        {t("nav.stay")}
+                      </Link>
+                    </div>
 
-                    {/* EXPERIENCES */}
-                    <AccordionItem value="experiences">
-                      <div className="flex items-center">
-                        <Link href={experiencesPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
-                          <div className="flex items-center gap-3">
-                            <Binoculars className="h-6 w-6 text-primary" />
-                            {t("nav.experiences")}
-                          </div>
-                        </Link>
-                        <AccordionTrigger className="w-12 h-12 flex items-center justify-center p-0" />
-                      </div>
-                      <AccordionContent>
-                        <div className="mb-1 flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
-                          <Link href={buildDirectoryCategoryPath("wellness-spas")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Dumbbell className="h-4 w-4" /> {t("categoryNames.wellness-spas")}</Link>
-                          <Link href={buildDirectoryCategoryPath("restaurants")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><ChefHat className="h-4 w-4" /> {t("categoryNames.restaurants")}</Link>
-                          <Link href={buildDirectoryCategoryPath("algarve-services")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Users className="h-4 w-4" /> {t("categoryNames.algarve-services")}</Link>
-                          <Link href={buildDirectoryCategoryPath("whats-on")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Calendar className="h-4 w-4" /> {t("categoryNames.whats-on")}</Link>
-                          <Link href={buildDirectoryCategoryPath("shopping-boutiques")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><ShoppingBag className="h-4 w-4" /> {t("categoryNames.shopping-boutiques")}</Link>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
+                    <div className="mx-3 border-t border-primary/15">
+                      <Link
+                        href={experiencesPath}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
+                      >
+                        <Binoculars className="h-6 w-6 text-primary" />
+                        {t("nav.experiences")}
+                      </Link>
+                    </div>
 
-                    {/* PROPERTIES */}
-                    <AccordionItem value="properties">
-                      <div className="flex items-center">
-                        <Link href={propertiesPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
-                          <div className="flex items-center gap-3">
-                            <HouseHeart className="h-6 w-6 text-primary" />
-                            {t("nav.properties")}
-                          </div>
-                        </Link>
-                        <AccordionTrigger className="w-12 h-12 flex items-center justify-center p-0" />
-                      </div>
-                      <AccordionContent>
-                        <div className="mb-1 flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
-                          <Link href={realEstatePath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Building2 className="h-4 w-4" /> {t("realEstate.title")}</Link>
-                          <Link href={mapPath} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><MapPin className="h-4 w-4" /> {t("nav.map")}</Link>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
+                    <div className="mx-3 border-t border-primary/15">
+                      <Link
+                        href={propertiesPath}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
+                      >
+                        <HouseHeart className="h-6 w-6 text-primary" />
+                        {t("nav.properties")}
+                      </Link>
+                    </div>
 
-                    {/* GOLF */}
-                    <AccordionItem value="golf">
-                      <div className="flex items-center">
-                        <Link href={golfPath} onClick={() => setMobileMenuOpen(false)} className="flex-grow text-xl font-bold uppercase tracking-widest py-4">
-                          <div className="flex items-center gap-3">
-                            <FlagTriangleRight className="h-6 w-6 text-primary" />
-                            {t("nav.golf")}
-                          </div>
-                        </Link>
-                        <AccordionTrigger className="w-12 h-12 flex items-center justify-center p-0" />
-                      </div>
-                      <AccordionContent>
-                        <div className="mb-1 flex flex-col space-y-2 pl-4 border-l-2 border-primary/20 ml-3 mt-2">
-                          <Link href={buildDirectoryCategoryPath("golf")} onClick={() => setMobileMenuOpen(false)} className="py-2 pl-4 text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"><Trophy className="h-4 w-4" /> {t("categoryNames.golf")}</Link>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
+                    <div className="mx-3 border-t border-primary/15">
+                      <Link
+                        href={golfPath}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
+                      >
+                        <FlagTriangleRight className="h-6 w-6 text-primary" />
+                        {t("nav.golf")}
+                      </Link>
+                    </div>
 
                     <div className="mx-3 border-t border-primary/15">
                       <Link
@@ -545,7 +486,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                         {t("nav.blog")}
                       </Link>
                     </div>
-                  </Accordion>
+                  </div>
 
                     <div className="mt-4 rounded-2xl border border-black/10 bg-white/66 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
                       <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">

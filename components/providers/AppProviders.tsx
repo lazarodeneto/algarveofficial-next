@@ -4,6 +4,7 @@ import { type ReactNode, useState } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 
 import { I18nProvider } from "./I18nProvider";
+import { HtmlLocaleSync } from "./HtmlLocaleSync";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 import { FaviconUpdater } from "@/components/FaviconUpdater";
 import { FavoritesSyncProvider } from "@/components/FavoritesSyncProvider";
@@ -30,6 +31,7 @@ export function AppProviders({ children }: AppProvidersProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
+        <HtmlLocaleSync />
         <GlobalErrorBoundary>
         <ThemeProvider>
           <TooltipProvider>

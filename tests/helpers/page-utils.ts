@@ -69,6 +69,13 @@ export async function collectHydrationErrors(page: Page): Promise<string[]> {
  * Tries multiple selector strategies to handle different render states.
  */
 export async function openLanguageSwitcher(page: Page): Promise<boolean> {
+  const select = page.locator(
+    'select[data-testid="language-switcher"], select[data-test="lang-switcher"], select[aria-label*="language" i], header select',
+  );
+  if (await select.count() > 0) {
+    return true;
+  }
+
   // Try the Globe-icon button
   const triggers = [
     page.locator('button').filter({ has: page.locator('[data-lucide="Globe"]') }),
@@ -87,6 +94,62 @@ export async function openLanguageSwitcher(page: Page): Promise<boolean> {
     }
   }
   return false;
+}
+
+export async function switchLocaleFromUi(
+  page: Page,
+  locale: string,
+  displayName: string,
+): Promise<boolean> {
+  const select = page.locator(
+    'select[data-testid="language-switcher"], select[data-test="lang-switcher"], select[aria-label*="language" i], header select',
+  );
+
+  if (await select.count() > 0) {
+    await select.first().selectOption(locale, { force: true });
+    return true;
+  }
+
+  const opened = await openLanguageSwitcher(page);
+  if (!opened) {
+    return false;
+  }
+
+  const option = page
+    .locator('[role="option"], [role="menuitem"], [role="button"], a, li')
+    .filter({ hasText: displayName });
+
+  if ((await option.count()) === 0) {
+    return false;
+  }
+
+  await option.first().click();
+  return true;
+}
+
+export async function expectLanguageSwitcherLocale(
+  page: Page,
+  locale: string,
+  labelPattern: RegExp,
+): Promise<void> {
+  const select = page.locator(
+    'select[data-testid="language-switcher"], select[data-test="lang-switcher"], select[aria-label*="language" i], header select',
+  );
+
+  if (await select.count() > 0) {
+    await expect(select.first()).toHaveValue(locale);
+
+    const selectedLabel = await select.first().evaluate((element) => {
+      const input = element as HTMLSelectElement;
+      return input.selectedOptions[0]?.textContent?.trim() ?? "";
+    });
+
+    expect(selectedLabel).toMatch(labelPattern);
+    return;
+  }
+
+  const switcher = page.locator('[data-test="lang-switcher"], [data-testid="language-switcher"]').first();
+  await expect(switcher).toContainText(labelPattern);
 }
 
 /**

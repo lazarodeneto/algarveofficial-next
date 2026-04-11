@@ -29,6 +29,10 @@ export default function ExperiencesClient({ initialGlobalSettings }: Experiences
 
   useEffect(() => {
     queryClient.setQueryData(["global-settings", EXPERIENCES_CMS_KEYS], initialGlobalSettings);
+    const serverShell = document.getElementById("experiences-server-shell");
+    if (serverShell) {
+      serverShell.remove();
+    }
   }, [initialGlobalSettings, queryClient]);
 
   if (!mounted) {

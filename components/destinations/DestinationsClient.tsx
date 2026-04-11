@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { m } from "framer-motion";
@@ -21,6 +21,7 @@ import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
 import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS, STANDARD_PUBLIC_NO_HERO_SPACER_CLASS } from "@/components/sections/hero-layout";
+import { useHydrated } from "@/hooks/useHydrated";
 
 export type RegionRow = Tables<"regions">;
 export type CityRow = Tables<"cities">;
@@ -102,6 +103,20 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
     <div className="min-h-screen bg-background" data-cms-page="destinations">
       <Header />
       <div className={STANDARD_PUBLIC_NO_HERO_SPACER_CLASS} aria-hidden="true" />
+
+      <section className="app-container content-max py-8 lg:py-12">
+        <div className="rounded-[2rem] border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur md:p-10">
+          <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
+            {t("sections.regions.featured")}
+          </p>
+          <h1 className="mt-4 font-serif text-4xl text-foreground md:text-5xl">
+            {t("nav.destinations")}
+          </h1>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground">
+            {t("sections.regions.featuredSubtitle")} {t("sections.regions.moreSubtitle")}
+          </p>
+        </div>
+      </section>
 
        <CmsBlock pageId="destinations" blockId="featured-city-hub" as="section" className="pb-8">
         {highlightedCity && highlightedCity.hero_image_url && (
@@ -408,6 +423,19 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
 }
 
 export function DestinationsClient(props: DestinationsClientProps) {
+  const mounted = useHydrated();
+
+  useEffect(() => {
+    const serverShell = document.getElementById("destinations-server-shell");
+    if (serverShell) {
+      serverShell.remove();
+    }
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
   return <DestinationsClientInner {...props} />;
 }
 

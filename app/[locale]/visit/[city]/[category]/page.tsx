@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import Script from "next/script";
 
 import Header from "@/components/layout/Header";
 import {
@@ -118,10 +117,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     locale === "en" && hasListings
       ? `Best ${categoryName} in ${data.city.name}, Algarve (${year})`
       : content.metaTitle;
-  const description =
-    locale === "en" && hasListings
-      ? `Explore top-rated ${categoryName.toLowerCase()} in ${data.city.name}, Algarve. Discover curated local recommendations.`
-      : content.metaDescription;
+  const description = content.metaDescription;
   const baseMetadata = buildPageMetadata({
     title,
     description,
@@ -217,18 +213,18 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
   return (
     <>
       {itemListSchema && (
-        <Script
+        <script
           id="schema-visit-category-itemlist"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
         />
       )}
-      <Script
+      <script
         id="schema-visit-category-breadcrumb"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
-      <Script
+      <script
         id="schema-visit-category-collection"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}

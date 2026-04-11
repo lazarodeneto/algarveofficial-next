@@ -291,7 +291,7 @@ async function fetchBlogPosts(locale: string, category?: BlogCategory): Promise<
   return mergePostsWithAuthors(localizedPosts, (authors ?? []) as BlogAuthor[]);
 }
 
-async function fetchGlobalSettings() {
+async function fetchGlobalSettings(_locale: string) {
   const { data, error } = await supabase
     .from("global_settings")
     .select("key, value, category")
@@ -315,8 +315,8 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
   );
 
   const { data: globalSettings = initialGlobalSettings } = useQuery({
-    queryKey: ["global-settings", [...BLOG_CMS_KEYS].sort()],
-    queryFn: fetchGlobalSettings,
+    queryKey: ["global-settings", [...BLOG_CMS_KEYS].sort(), locale],
+    queryFn: () => fetchGlobalSettings(locale),
     initialData: initialGlobalSettings,
     staleTime: 1000 * 60 * 5,
   });

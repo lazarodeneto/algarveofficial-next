@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Script from "next/script";
+import Link from "next/link";
 
 import { DirectoryClient } from "@/components/directory/DirectoryClient";
 import { isValidLocale, type Locale } from "@/lib/i18n/config";
+import { getServerTranslations } from "@/lib/i18n/server";
+import { buildLocalizedPath } from "@/lib/i18n/localized-routing";
 import { getDirectoryPageData } from "@/lib/directory-data";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
 import {
@@ -130,6 +132,11 @@ export default async function StayPage({ params, searchParams }: PageProps) {
   };
 
   const data = await getDirectoryPageData(rawLocale, initialFilters);
+  const tx = await getServerTranslations(data.locale as Locale, [
+    "directory.heroLabel",
+    "directory.title",
+    "directory.subtitle",
+  ]);
 
   const visitCityItemListSchema = buildVisitIndexCityItemListSchema(
     data.locale as Locale,
@@ -143,14 +150,64 @@ export default async function StayPage({ params, searchParams }: PageProps) {
 
   return (
     <>
+      <div id="directory-server-shell" className="min-h-screen bg-background text-foreground">
+        <main className="app-container pt-32 pb-16">
+          <section className="rounded-[2rem] border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur md:p-12">
+            <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
+              {tx["directory.heroLabel"] ?? "Discover Our World"}
+            </p>
+            <h1 className="mt-4 font-serif text-4xl text-foreground md:text-5xl">
+              {tx["directory.title"] ?? STAY_META[data.locale as Locale].title}
+            </h1>
+            <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground">
+              {tx["directory.subtitle"] ?? STAY_META[data.locale as Locale].description}
+            </p>
+
+            {data.visitCityIndex.length > 0 ? (
+              <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                {data.visitCityIndex.slice(0, 4).map((city) => (
+                  <Link
+                    key={city.id}
+                    href={buildLocalizedPath(data.locale, `/visit/${city.slug}`)}
+                    className="rounded-2xl border border-border/60 bg-background/70 p-4 transition-colors hover:border-primary/40"
+                  >
+                    <p className="text-sm font-semibold text-foreground">{city.name}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {city.totalCount} curated listings
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            ) : null}
+
+            {data.listings.length > 0 ? (
+              <div className="mt-8 grid gap-4 lg:grid-cols-2">
+                {data.listings.slice(0, 4).map((listing) => (
+                  <Link
+                    key={listing.id}
+                    href={buildLocalizedPath(data.locale, `/listing/${listing.slug}`)}
+                    className="rounded-2xl border border-border/60 bg-background/70 p-4 transition-colors hover:border-primary/40"
+                  >
+                    <p className="text-sm font-semibold text-foreground">{listing.name}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {listing.city?.name ?? "Algarve"}{listing.category?.name ? ` · ${listing.category.name}` : ""}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            ) : null}
+          </section>
+        </main>
+      </div>
+
       {visitCityItemListSchema ? (
-        <Script
+        <script
           id="schema-stay-index-city-itemlist"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(visitCityItemListSchema) }}
         />
       ) : null}
-      <Script
+      <script
         id="schema-stay-index-breadcrumb"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
