@@ -57,6 +57,7 @@ function applyBlogTranslation<T extends BlogPost>(
 export function usePublishedBlogPosts(category?: BlogCategory) {
   const locale = normalizeBlogLocale(useCurrentLocale());
   const isBrowser = typeof window !== "undefined";
+  const now = new Date().toISOString();
 
   return useQuery({
     queryKey: ['blog-posts', 'published', category, locale],
@@ -64,9 +65,7 @@ export function usePublishedBlogPosts(category?: BlogCategory) {
       let query = supabase
         .from('blog_posts')
         .select('*')
-        .eq('status', 'published')
-        .lte('published_at', new Date().toISOString())
-        .order('published_at', { ascending: false });
+        .eq('status', 'published');
 
       if (category) {
         query = query.eq('category', category);
@@ -75,9 +74,24 @@ export function usePublishedBlogPosts(category?: BlogCategory) {
       const { data: posts, error } = await query;
       if (error) throw error;
 
-      let localizedPosts = posts;
-      if (locale !== 'en' && posts.length > 0) {
-        const postIds = posts.map((post) => post.id);
+      // Filter posts to include only those that are published and either:
+      // 1. Have published_at set and it's in the past
+      // 2. Have published_at as null (just published without timestamp)
+      let publishedPosts = posts.filter(post => {
+        if (!post.published_at) return true; // Show posts without published_at
+        return post.published_at <= now;
+      });
+
+      // Sort by published_at (most recent first), treating null as current time
+      publishedPosts.sort((a, b) => {
+        const aTime = new Date(a.published_at || new Date()).getTime();
+        const bTime = new Date(b.published_at || new Date()).getTime();
+        return bTime - aTime;
+      });
+
+      let localizedPosts = publishedPosts;
+      if (locale !== 'en' && publishedPosts.length > 0) {
+        const postIds = publishedPosts.map((post) => post.id);
         const { data: translations, error: translationsError } = await supabase
           .from('blog_post_translations' as never)
           .select('post_id, locale, title, excerpt, content, seo_title, seo_description, status')
@@ -90,7 +104,7 @@ export function usePublishedBlogPosts(category?: BlogCategory) {
           const translationMap = new Map(
             ((translations ?? []) as BlogPostTranslationRow[]).map((translation) => [translation.post_id, translation])
           );
-          localizedPosts = posts.map((post) => applyBlogTranslation(post, translationMap.get(post.id)));
+          localizedPosts = publishedPosts.map((post) => applyBlogTranslation(post, translationMap.get(post.id)));
         }
       }
 
@@ -117,6 +131,7 @@ export function usePublishedBlogPosts(category?: BlogCategory) {
 export function usePublishedBlogPost(slug: string | undefined) {
   const locale = normalizeBlogLocale(useCurrentLocale());
   const isBrowser = typeof window !== "undefined";
+  const now = new Date().toISOString();
 
   return useQuery({
     queryKey: ['blog-post', 'slug', slug, locale],
@@ -131,6 +146,11 @@ export function usePublishedBlogPost(slug: string | undefined) {
         .single();
 
       if (error) throw error;
+
+      // Check if post is actually publishable (either has published_at in past or null)
+      if (post.published_at && post.published_at > now) {
+        throw new Error('This post is scheduled for the future');
+      }
 
       let localizedPost = post;
       if (locale !== 'en') {

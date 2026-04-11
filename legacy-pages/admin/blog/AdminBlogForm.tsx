@@ -143,8 +143,14 @@ export default function AdminBlogForm() {
     }
 
     setIsSaving(true);
-    
+
     try {
+      // When publishing, always set published_at to now if not already set
+      let published_at = null;
+      if (status === 'published') {
+        published_at = new Date().toISOString();
+      }
+
       const postData = {
         title: formData.title,
         slug: formData.slug,
@@ -157,7 +163,7 @@ export default function AdminBlogForm() {
         seo_title: formData.seo_title || null,
         seo_description: formData.seo_description || null,
         status,
-        published_at: status === 'published' ? new Date().toISOString() : null,
+        published_at,
       };
 
       if (isEditing && id) {
