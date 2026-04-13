@@ -45,7 +45,9 @@ export function parseBoolean(
   value: string | null | undefined,
 ): boolean | null {
   if (value === "" || value === null || value === undefined) return null;
-  return value === "true";
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return null;
 }
 
 // ─── Input display helpers ────────────────────────────────────────────────────

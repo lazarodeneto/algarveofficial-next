@@ -26,7 +26,9 @@ const eslintConfig = defineConfig([
       "@next/next/no-img-element": "warn",
       "react-hooks/exhaustive-deps": "warn",
       "import/no-anonymous-default-export": "off",
-      "local/no-unsafe-default": "warn",
+      "local/no-unsafe-default": "error",
+      "local/no-raw-form-elements": "error",
+      "local/no-unsafe-coalescing": "off",
     },
   },
   // ─── i18n enforcement ────────────────────────────────────────────────────

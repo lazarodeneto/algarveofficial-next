@@ -26,6 +26,7 @@ module.exports = {
     "no-hardcoded-strings": require("./no-hardcoded-strings"),
     "no-missing-translation-keys": require("./no-missing-translation-keys"),
     "no-unsafe-default": require("./no-unsafe-default"),
+    "no-raw-form-elements": require("./no-raw-form-elements"),
   },
   // Convenience config presets
   configs: {
