@@ -4,6 +4,8 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
 import { createServiceRoleClient } from "@/lib/supabase/service";
+import { validatePayload } from "@/lib/api/api-validation";
+import { userUpdateSchema } from "@/lib/forms/admin-schemas";
 
 type UserRole = Database["public"]["Enums"]["app_role"];
 
@@ -165,22 +167,20 @@ export async function PATCH(
     return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
   }
 
-  const fullName = normalizeOptionalString(body.fullName);
-  const email = normalizeEmail(body.email);
-  const phone = normalizeOptionalString(body.phone);
-  const role = normalizeRole(body.role);
-
-  if (body.email !== undefined && !email) {
-    return NextResponse.json({ error: "Email is required." }, { status: 400 });
+  // Validate payload with Zod
+  const validation = validatePayload(userUpdateSchema, body, "USER");
+  if (!validation.success) {
+    return NextResponse.json({ error: validation.error }, { status: 400 });
   }
 
-  if (body.role !== undefined && !role) {
-    return NextResponse.json({ error: "Invalid role." }, { status: 400 });
-  }
+  const fullName = validation.data.fullName ?? null;
+  const email = validation.data.email ?? null;
+  const phone = validation.data.phone ?? null;
+  const role = validation.data.role;
 
   const { serviceClient } = clients;
   const currentRoleState = await getCurrentRole(serviceClient, userId);
-  const nextEmail = email ?? undefined;
+  const nextEmail = email;
 
   if (role && currentRoleState.role === "admin" && role !== "admin") {
     const adminCount = await countAdmins(serviceClient);
@@ -198,14 +198,14 @@ export async function PATCH(
   }
 
   const authPayload: Parameters<typeof serviceClient.auth.admin.updateUserById>[1] = {};
-  if (nextEmail !== undefined) {
+  if (nextEmail !== null) {
     authPayload.email = nextEmail;
     authPayload.email_confirm = true;
   }
-  if (fullName !== undefined) {
+  if (fullName !== null) {
     authPayload.user_metadata = {
       ...(authUserResult.user.user_metadata ?? {}),
-      full_name: fullName ?? "",
+      full_name: fullName,
     };
   }
 
@@ -219,9 +219,9 @@ export async function PATCH(
   const profilePayload: Database["public"]["Tables"]["profiles"]["Update"] = {
     updated_at: new Date().toISOString(),
   };
-  if (fullName !== undefined) profilePayload.full_name = fullName;
-  if (nextEmail !== undefined) profilePayload.email = nextEmail;
-  if (phone !== undefined) profilePayload.phone = phone;
+  if (fullName !== null) profilePayload.full_name = fullName;
+  if (nextEmail !== null) profilePayload.email = nextEmail;
+  if (phone !== null) profilePayload.phone = phone;
 
   if (Object.keys(profilePayload).length > 1) {
     const { error: profileUpdateError } = await serviceClient

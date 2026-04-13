@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { requireAdminWriteClient } from "@/lib/server/admin-auth";
+import { validatePayload, jsonErrorResponse } from "@/lib/api/api-validation";
+import { mediaItemSchema } from "@/lib/forms/admin-schemas";
 
 function errorResponse(status: number, code: string, message: string) {
   return NextResponse.json({ ok: false, error: { code, message } }, { status });
@@ -33,26 +35,20 @@ export async function POST(request: NextRequest) {
     return errorResponse(400, "INVALID_JSON", "Request body must be valid JSON.");
   }
 
-  const payload = (body as Record<string, unknown> | null) ?? null;
-  if (!payload) {
-    return errorResponse(400, "INVALID_PAYLOAD", "Missing media payload.");
+  const validation = validatePayload(mediaItemSchema, body, "MEDIA");
+  if (!validation.success) {
+    return jsonErrorResponse(400, validation.error.code, validation.error.message);
   }
 
-  const file_name = typeof payload.file_name === "string" ? payload.file_name.trim() : "";
-  const file_url = typeof payload.file_url === "string" ? payload.file_url.trim() : "";
-  const file_type = payload.file_type === "image" || payload.file_type === "video" ? payload.file_type : null;
-
-  if (!file_name || !file_url || !file_type) {
-    return errorResponse(400, "INVALID_MEDIA", "file_name, file_url, and file_type are required.");
-  }
+  const { file_name, file_url, file_type, file_size, alt_text } = validation.data;
 
   const insertPayload = {
     file_name,
     file_url,
     file_type,
-    file_size: typeof payload.file_size === "number" ? payload.file_size : null,
-    folder: typeof payload.folder === "string" && payload.folder.trim() ? payload.folder.trim() : "general",
-    alt_text: typeof payload.alt_text === "string" ? payload.alt_text : null,
+    file_size: file_size ?? null,
+    folder: "general",
+    alt_text,
   };
 
   const { data, error } = await auth.writeClient

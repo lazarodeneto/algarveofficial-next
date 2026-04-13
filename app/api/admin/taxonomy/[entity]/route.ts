@@ -5,6 +5,8 @@ import {
   resolveAdminTaxonomyTable,
 } from "@/lib/admin/taxonomy-contract";
 import { requireAdminWriteClient } from "@/lib/server/admin-auth";
+import { validatePayload, jsonErrorResponse } from "@/lib/api/api-validation";
+import { taxonomyItemSchema, taxonomyUpdateSchema } from "@/lib/forms/admin-schemas";
 
 function errorResponse(status: number, code: string, message: string) {
   return NextResponse.json({ ok: false, error: { code, message } }, { status });
@@ -51,16 +53,12 @@ export async function POST(
     return errorResponse(400, "INVALID_JSON", "Request body must be valid JSON.");
   }
 
-  const payload = (body as Record<string, unknown> | null) ?? null;
-  if (!payload || typeof payload !== "object") {
-    return errorResponse(400, "INVALID_PAYLOAD", "Missing taxonomy payload.");
+  const validation = validatePayload(taxonomyItemSchema, body, "TAXONOMY");
+  if (!validation.success) {
+    return jsonErrorResponse(400, validation.error.code, validation.error.message);
   }
 
-  const name = typeof payload.name === "string" ? payload.name.trim() : "";
-  const slug = typeof payload.slug === "string" ? payload.slug.trim() : "";
-  if (!name || !slug) {
-    return errorResponse(400, "INVALID_TAXONOMY_ITEM", "name and slug are required.");
-  }
+  const { name, slug, description, image_url, display_order, is_visible_destinations, is_visible_directory, is_active } = validation.data;
 
   const { data: existing, error: existingError } = await auth.writeClient
     .from(resolved.table)
@@ -80,10 +78,14 @@ export async function POST(
     ((existing as Array<{ display_order?: number | null }> | null)?.[0]?.display_order ?? 0);
 
   const insertPayload = {
-    ...payload,
     name,
     slug,
-    display_order: typeof payload.display_order === "number" ? payload.display_order : maxOrder + 1,
+    description,
+    image_url: image_url ?? null,
+    display_order: display_order ?? maxOrder + 1,
+    is_visible_destinations: is_visible_destinations ?? true,
+    is_visible_directory: is_visible_directory ?? true,
+    is_active: is_active ?? true,
   };
 
   const { data, error } = await auth.writeClient
@@ -128,13 +130,18 @@ export async function PATCH(
     return errorResponse(400, "INVALID_JSON", "Request body must be valid JSON.");
   }
 
-  const payload = (body as Record<string, unknown> | null) ?? null;
+  const payload = body as Record<string, unknown>;
   const id = typeof payload?.id === "string" ? payload.id.trim() : "";
   if (!id) {
     return errorResponse(400, "INVALID_ITEM_ID", "Taxonomy item id is required.");
   }
 
-  const updates = sanitizeUpdates(payload ?? {});
+  const validation = validatePayload(taxonomyUpdateSchema, body, "TAXONOMY");
+  if (!validation.success) {
+    return jsonErrorResponse(400, validation.error.code, validation.error.message);
+  }
+
+  const updates = sanitizeUpdates({ ...validation.data, id });
   const { data, error } = await auth.writeClient
     .from(resolved.table)
     .update(updates)

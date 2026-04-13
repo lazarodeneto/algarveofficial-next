@@ -4,6 +4,8 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database, TablesUpdate } from "@/integrations/supabase/types";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
 import { createServiceRoleClient } from "@/lib/supabase/service";
+import { validatePayload, jsonErrorResponse } from "@/lib/api/api-validation";
+import { bulkTierUpdateSchema } from "@/lib/forms/admin-schemas";
 
 type UserRole = Database["public"]["Enums"]["app_role"];
 
@@ -87,6 +89,11 @@ export async function POST(request: NextRequest) {
     body = (await request.json()) as BulkTierBody;
   } catch {
     return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
+  }
+
+  const validation = validatePayload(bulkTierUpdateSchema, body, "BULK_TIER");
+  if (!validation.success) {
+    return jsonErrorResponse(400, validation.error.code, validation.error.message);
   }
 
   const ids = Array.isArray(body.ids)

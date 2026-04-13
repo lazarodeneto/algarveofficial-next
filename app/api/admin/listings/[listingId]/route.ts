@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import type { Database } from "@/integrations/supabase/types";
 import { logAdminMutation } from "@/lib/server/admin-audit-log";
 import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
+import { validatePayload, jsonErrorResponse } from "@/lib/api/api-validation";
+import { listingUpdateSchema } from "@/lib/forms/admin-schemas";
 
 type ListingUpdate = Database["public"]["Tables"]["listings"]["Update"];
 
@@ -77,6 +79,13 @@ export async function PATCH(
     body = (await request.json()) as UpdateListingBody;
   } catch {
     return adminErrorResponse(400, "INVALID_JSON", "Request body must be valid JSON.");
+  }
+
+  if (body.listing) {
+    const validation = validatePayload(listingUpdateSchema, body.listing, "LISTING");
+    if (!validation.success) {
+      return jsonErrorResponse(400, validation.error.code, validation.error.message);
+    }
   }
 
   const updates = parseListingUpdate(body.listing);

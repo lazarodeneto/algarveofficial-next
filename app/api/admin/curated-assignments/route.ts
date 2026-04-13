@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { logAdminMutation } from "@/lib/server/admin-audit-log";
 import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
+import { validatePayload, jsonErrorResponse } from "@/lib/api/api-validation";
+import { curatedSectionSchema } from "@/lib/forms/admin-schemas";
 
 function parseString(value: unknown): string | null {
   if (typeof value !== "string") return null;
@@ -26,6 +28,11 @@ export async function POST(request: NextRequest) {
     body = (await request.json()) as Record<string, unknown>;
   } catch {
     return adminErrorResponse(400, "INVALID_JSON", "Request body must be valid JSON.");
+  }
+
+  const validation = validatePayload(curatedSectionSchema, body, "CURATED");
+  if (!validation.success) {
+    return jsonErrorResponse(400, validation.error.code, validation.error.message);
   }
 
   const listingId = parseString(body.listingId);

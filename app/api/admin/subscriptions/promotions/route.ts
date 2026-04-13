@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { requireAdminWriteClient } from "@/lib/server/admin-auth";
+import { validatePayload, jsonErrorResponse } from "@/lib/api/api-validation";
+import { promotionSchema } from "@/lib/forms/admin-schemas";
 
 interface PromotionPayload {
   id?: string;
@@ -82,6 +84,11 @@ export async function POST(request: NextRequest) {
     body = await request.json();
   } catch {
     return errorResponse(400, "INVALID_JSON", "Request body must be valid JSON.");
+  }
+
+  const validation = validatePayload(promotionSchema, body, "PROMOTION");
+  if (!validation.success) {
+    return jsonErrorResponse(400, validation.error.code, validation.error.message);
   }
 
   const payload = normalizePayload(body);
