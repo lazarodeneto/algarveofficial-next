@@ -7,6 +7,7 @@ import {
   ChevronRight,
   Loader2,
   Pencil,
+  RefreshCcw,
   RefreshCw,
   ShieldAlert,
   ShieldCheck,
@@ -24,8 +25,8 @@ import {
   SEO_COVERAGE_TEXT,
   STATUS_COLORS,
   STATUS_LABELS,
-  TranslationStatus,
 } from "@/lib/admin/translations/types";
+import type { TranslationStatus } from "@/lib/admin/translations/types";
 
 interface Props {
   group: ListingJobGroup;
@@ -34,6 +35,7 @@ interface Props {
   onMarkReviewed:   (job: TranslationJob) => Promise<void>;
   onEdit:           (job: TranslationJob) => void;
   onGroupAction:    (jobIds: string[], status: "queued" | "reviewed") => Promise<void>;
+  onGroupRequeue:   (listingId: string) => Promise<void>;
   loadingJobId:     string | null;
   groupActionLoading: boolean;
   defaultExpanded?: boolean;
@@ -66,6 +68,7 @@ export function TranslationListingGroup({
   onMarkReviewed,
   onEdit,
   onGroupAction,
+  onGroupRequeue,
   loadingJobId,
   groupActionLoading,
   defaultExpanded = false,
@@ -87,6 +90,15 @@ export function TranslationListingGroup({
   const queuedJobs  = jobs.filter((j) => j.status === "queued");
   const autoJobs    = jobs.filter((j) => j.status === "auto");
   const pendingJobs = [...missingJobs, ...queuedJobs];
+
+  // Outdated: done jobs whose source version is behind the listing's current content
+  const outdatedJobs = jobs.filter(
+    (j) =>
+      DONE_STATUSES.includes(j.status) &&
+      !!j.source_updated_at &&
+      !!listing.content_updated_at &&
+      new Date(j.source_updated_at) < new Date(listing.content_updated_at),
+  );
 
   const isSignature = listing.tier === "signature";
 
@@ -242,6 +254,12 @@ export function TranslationListingGroup({
             <span className="font-semibold">{autoJobs.length}</span> AI Ready
           </span>
         )}
+        {outdatedJobs.length > 0 && (
+          <span className="text-[11px] text-violet-400 font-medium flex items-center gap-0.5">
+            <RefreshCcw className="h-2.5 w-2.5" />
+            <span className="font-semibold">{outdatedJobs.length}</span> Outdated
+          </span>
+        )}
         {doneCount > 0 && (
           <span className="text-[11px] text-emerald-400">
             <span className="font-semibold">{doneCount}</span> Done
@@ -322,6 +340,15 @@ export function TranslationListingGroup({
             variant="review"
           />
         )}
+        {outdatedJobs.length > 0 && (
+          <GroupActionButton
+            icon={<RefreshCcw className="h-3 w-3" />}
+            label={`Re-translate ${outdatedJobs.length}`}
+            onClick={() => onGroupRequeue(listing.id)}
+            loading={groupActionLoading}
+            variant="outdated"
+          />
+        )}
 
         {/* Expand/collapse toggle text */}
         <button
@@ -363,6 +390,7 @@ const GROUP_ACTION_STYLES: Record<string, string> = {
   translate: "border-blue-500/25 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500/40",
   retry:     "border-orange-500/25 text-orange-400 hover:bg-orange-500/10 hover:border-orange-500/40",
   review:    "border-violet-500/25 text-violet-400 hover:bg-violet-500/10 hover:border-violet-500/40",
+  outdated:  "border-violet-500/35 text-violet-300 hover:bg-violet-500/15 hover:border-violet-500/50 font-semibold",
 };
 
 function GroupActionButton({
@@ -419,7 +447,9 @@ function LocaleRow({
   isSelected,
   onSelect,
 }: LocaleRowProps) {
-  const slaInfo = job.sla_deadline ? computeSla(job.sla_deadline) : null;
+  const slaInfo  = job.sla_deadline ? computeSla(job.sla_deadline) : null;
+  // Outdated is passed through the job; we check via parent group context
+  // (source_updated_at is available on the job itself — no extra prop needed)
 
   return (
     <div

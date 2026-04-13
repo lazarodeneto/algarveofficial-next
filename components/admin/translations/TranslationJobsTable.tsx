@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import {
   bulkUpdateTranslationStatus,
   enqueueTranslationJob,
+  requeueOutdatedJobs,
   updateTranslationStatus,
 } from "@/lib/admin/translations/queries";
 import { TranslationListingGroup } from "./TranslationListingGroup";
@@ -93,6 +94,27 @@ export function TranslationJobsTable({ groups, onRefresh }: Props) {
   const handleEditorSaved = useCallback(
     (_jobId: string) => { onRefresh(); },
     [onRefresh],
+  );
+
+  // ── Group-level requeue (outdated jobs) ───────────────────────────────────
+  const handleGroupRequeue = useCallback(
+    async (listingId: string, tier: "signature" | "verified") => {
+      setGroupActionLoading(true);
+      try {
+        const count = await requeueOutdatedJobs(supabase, listingId, tier);
+        toast.success(
+          count > 0
+            ? `${count} outdated job${count !== 1 ? "s" : ""} re-queued.`
+            : "No outdated jobs found.",
+        );
+        onRefresh();
+      } catch {
+        toast.error("Re-queue failed. Please try again.");
+      } finally {
+        setGroupActionLoading(false);
+      }
+    },
+    [supabase, onRefresh],
   );
 
   // ── Group-level bulk action ────────────────────────────────────────────────
@@ -199,6 +221,9 @@ export function TranslationJobsTable({ groups, onRefresh }: Props) {
             onMarkReviewed={handleMarkReviewed}
             onEdit={(job) => handleEdit(job, group.listing)}
             onGroupAction={handleGroupAction}
+            onGroupRequeue={(listingId) =>
+              handleGroupRequeue(listingId, group.listing.tier)
+            }
             groupActionLoading={groupActionLoading}
             loadingJobId={loadingJobId}
             defaultExpanded={idx < 3}

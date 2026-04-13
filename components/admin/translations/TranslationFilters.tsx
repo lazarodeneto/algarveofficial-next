@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { AlertCircle, ShieldAlert, Star, X } from "lucide-react";
+import { AlertCircle, RefreshCcw, ShieldAlert, Star, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -71,6 +71,7 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
     filters.target_lang,
     filters.needs_attention ? true : undefined,
     filters.sla_breach ? true : undefined,
+    filters.outdated ? true : undefined,
   ].filter(Boolean).length;
 
   return (
@@ -104,6 +105,14 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
           active={filters.tier === "signature"}
           onClick={toggleSignatureOnly}
           color="amber"
+        />
+
+        <PresetButton
+          label="Outdated"
+          icon={<RefreshCcw className="h-3 w-3" />}
+          active={!!filters.outdated}
+          onClick={() => toggleFlag("outdated", filters.outdated)}
+          color="violet"
         />
       </div>
 
@@ -231,6 +240,13 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
               color="red"
             />
           )}
+          {filters.outdated && (
+            <FilterPill
+              label="Outdated"
+              onRemove={() => updateFilter("outdated", undefined)}
+              color="violet"
+            />
+          )}
           {filters.status && (
             <FilterPill
               label={`Status: ${STATUS_LABELS[filters.status as TranslationStatus]}`}
@@ -274,6 +290,7 @@ const PRESET_ACTIVE: Record<string, string> = {
   orange: "border-orange-500/40 bg-orange-500/15 text-orange-300",
   red:    "border-red-500/40 bg-red-500/15 text-red-300",
   amber:  "border-amber-500/40 bg-amber-500/15 text-amber-300",
+  violet: "border-violet-500/40 bg-violet-500/15 text-violet-300",
 };
 
 const PRESET_IDLE = "border-border/60 bg-card/80 text-muted-foreground hover:border-border hover:text-foreground";
@@ -311,6 +328,7 @@ const PILL_COLORS: Record<string, string> = {
   orange: "border-orange-500/30 bg-orange-500/10 text-orange-300",
   red:    "border-red-500/30 bg-red-500/10 text-red-300",
   amber:  "border-amber-500/30 bg-amber-500/10 text-amber-300",
+  violet: "border-violet-500/30 bg-violet-500/10 text-violet-300",
 };
 
 function FilterPill({

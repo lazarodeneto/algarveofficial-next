@@ -90,6 +90,7 @@ export function TranslationsDashboard({
       target_lang:     searchParams.get("target_lang") || undefined,
       needs_attention: searchParams.get("needs_attention") === "true",
       sla_breach:      searchParams.get("sla_breach")  === "true",
+      outdated:        searchParams.get("outdated")     === "true",
       page:            Math.max(1, Number(searchParams.get("page") ?? 1)),
     };
     fetchData(newFilters);
@@ -150,13 +151,14 @@ export function TranslationsDashboard({
   );
 
   // ── Derived metrics ────────────────────────────────────────────────────────
-  const totalJobs       = Object.values(counts).reduce((a, b) => a + b, 0);
-  const doneJobs        = (counts.auto ?? 0) + (counts.reviewed ?? 0) + (counts.edited ?? 0);
-  const completionPct   = totalJobs > 0 ? Math.round((doneJobs / totalJobs) * 100) : 0;
-  const pendingCount    = counts.queued ?? 0;
-  const slaRiskCount    = attentionCounts.slaRiskCount ?? 0;
-  const isAttentionMode = !!filters.needs_attention;
-  const isSlaMode       = !!filters.sla_breach;
+  const totalJobs        = Object.values(counts).reduce((a, b) => a + b, 0);
+  const doneJobs         = (counts.auto ?? 0) + (counts.reviewed ?? 0) + (counts.edited ?? 0);
+  const completionPct    = totalJobs > 0 ? Math.round((doneJobs / totalJobs) * 100) : 0;
+  const pendingCount     = counts.queued ?? 0;
+  const slaRiskCount     = attentionCounts.slaRiskCount ?? 0;
+  const isAttentionMode  = !!filters.needs_attention;
+  const isSlaMode        = !!filters.sla_breach;
+  const isOutdatedMode   = !!filters.outdated;
 
   return (
     <div className="space-y-5">
@@ -194,6 +196,7 @@ export function TranslationsDashboard({
         counts={attentionCounts}
         isActive={isAttentionMode}
         isSlaMode={isSlaMode}
+        isOutdatedMode={isOutdatedMode}
       />
 
       {/* ── System Health Strip ───────────────────────────────────────────── */}
@@ -201,6 +204,7 @@ export function TranslationsDashboard({
         queued={pendingCount}
         completionPct={completionPct}
         slaBreached={slaRiskCount}
+        outdated={attentionCounts.outdatedCount ?? 0}
       />
 
       {/* ── Status cards ──────────────────────────────────────────────────── */}
@@ -264,10 +268,12 @@ function SystemHealthStrip({
   queued,
   completionPct,
   slaBreached,
+  outdated,
 }: {
   queued:        number;
   completionPct: number;
   slaBreached:   number;
+  outdated:      number;
 }) {
   const coverageColor =
     completionPct >= 75
@@ -294,6 +300,12 @@ function SystemHealthStrip({
         label="SLA Breached"
         value={slaBreached.toLocaleString()}
         valueClass={slaBreached > 0 ? "text-red-400" : "text-emerald-400"}
+      />
+      <div className="hidden h-4 w-px bg-border/50 sm:block" />
+      <HealthMetric
+        label="Outdated"
+        value={outdated.toLocaleString()}
+        valueClass={outdated > 0 ? "text-violet-400" : "text-muted-foreground"}
       />
     </div>
   );

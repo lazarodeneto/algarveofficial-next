@@ -35,6 +35,8 @@ function parseFilters(sp: Record<string, string | string[] | undefined>): Transl
     tier: (str("tier") as "signature" | "verified") || undefined,
     target_lang: str("target_lang"),
     needs_attention: str("needs_attention") === "true",
+    sla_breach:      str("sla_breach")      === "true",
+    outdated:        str("outdated")        === "true",
     page: sp["page"] ? Math.max(1, Number(sp["page"])) : 1,
   };
 }

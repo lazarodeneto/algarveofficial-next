@@ -44,12 +44,23 @@ function slaDeadlineFor(tier: "signature" | "verified"): string | null {
   return new Date(Date.now() + hours * 3_600_000).toISOString();
 }
 
+/** A job is outdated when it is done but the listing content has since changed. */
+function isOutdated(job: TranslationJob, listing: ListingRow): boolean {
+  return (
+    DONE_STATUSES.includes(job.status) &&
+    !!job.source_updated_at &&
+    !!listing.content_updated_at &&
+    new Date(job.source_updated_at) < new Date(listing.content_updated_at)
+  );
+}
+
 // ─── Priority Score ────────────────────────────────────────────────────────────
 
 function calcPriorityScore(listing: ListingRow, jobs: TranslationJob[]): number {
   const hasFailed  = jobs.some((j) => j.status === "failed");
   const hasMissing = jobs.some((j) => j.status === "missing");
   const hasQueued  = jobs.some((j) => j.status === "queued");
+  const hasOutdated = jobs.some((j) => isOutdated(j, listing));
   const maxSlaPriority = Math.max(0, ...jobs.map((j) => j.sla_priority ?? 0));
   const hasHighTrafficGap = jobs.some(
     (j) =>
@@ -59,15 +70,16 @@ function calcPriorityScore(listing: ListingRow, jobs: TranslationJob[]): number 
   const hasStale = jobs.some((j) => isStale(j.updated_at));
 
   let score = listing.tier === "signature" ? 100 : 10;
-  score += maxSlaPriority;                       // SLA weight (signature = +100)
-  if (hasFailed)            score += 80;
-  if (hasMissing)           score += 50;
-  if (hasQueued)            score += 20;
+  score += maxSlaPriority;
+  if (hasFailed)                              score += 80;
+  if (hasMissing)                             score += 50;
+  if (hasQueued)                              score += 20;
+  if (hasOutdated)                            score += 35;  // stale content penalises score
   if (HIGH_PRIORITY_CITIES.includes(listing.city)) score += 25;
-  if (listing.is_homepage_visible)  score += 40;
-  if (listing.is_top_category)      score += 30;
-  if (hasHighTrafficGap)    score += 20;
-  if (hasStale)             score += 15;
+  if (listing.is_homepage_visible)            score += 40;
+  if (listing.is_top_category)               score += 30;
+  if (hasHighTrafficGap)                      score += 20;
+  if (hasStale)                               score += 15;
 
   return score;
 }
@@ -83,7 +95,8 @@ function calcSeoCoverage(jobs: TranslationJob[]): {
   ).length;
 
   const pct   = Math.round((completedCount / SEO_REQUIRED_LOCALES.length) * 100);
-  const label: SeoCoverageLabel = pct === 100 ? "complete" : pct < 50 ? "critical" : "partial";
+  const label: SeoCoverageLabel =
+    pct === 100 ? "complete" : pct < 50 ? "critical" : "partial";
 
   return { seoCoverage: pct, seoCoverageLabel: label };
 }
@@ -93,17 +106,19 @@ function calcSeoCoverage(jobs: TranslationJob[]): {
 function enrichGroup(listing: ListingRow, jobs: TranslationJob[]): ListingJobGroup {
   const now = new Date();
 
-  const doneCount     = jobs.filter((j) => DONE_STATUSES.includes(j.status)).length;
-  const problemCount  = jobs.filter((j) => j.status === "missing" || j.status === "failed").length;
-  const pendingCount  = jobs.filter((j) => j.status === "queued").length;
+  const doneCount      = jobs.filter((j) => DONE_STATUSES.includes(j.status)).length;
+  const problemCount   = jobs.filter((j) => j.status === "missing" || j.status === "failed").length;
+  const pendingCount   = jobs.filter((j) => j.status === "queued").length;
   const attentionCount = jobs.filter((j) =>
     (ATTENTION_STATUSES as TranslationStatus[]).includes(j.status),
   ).length;
-  const slaBreachCount = jobs.filter((j) =>
-    j.sla_deadline &&
-    (ATTENTION_STATUSES as TranslationStatus[]).includes(j.status) &&
-    new Date(j.sla_deadline) < now,
+  const slaBreachCount = jobs.filter(
+    (j) =>
+      j.sla_deadline &&
+      (ATTENTION_STATUSES as TranslationStatus[]).includes(j.status) &&
+      new Date(j.sla_deadline) < now,
   ).length;
+  const outdatedCount = jobs.filter((j) => isOutdated(j, listing)).length;
 
   const { seoCoverage, seoCoverageLabel } = calcSeoCoverage(jobs);
   const priorityScore = calcPriorityScore(listing, jobs);
@@ -119,25 +134,18 @@ function enrichGroup(listing: ListingRow, jobs: TranslationJob[]): ListingJobGro
     pendingCount,
     attentionCount,
     slaBreachCount,
+    outdatedCount,
   };
 }
 
-// ─── Status Counts — single query + JS aggregate ──────────────────────────────
-// Fetches only the status column. Fast at current scale (<50k rows).
-// Upgrade path: replace with supabase.rpc("get_translation_status_counts")
-// backed by: SELECT status, COUNT(*) FROM translation_jobs GROUP BY status;
+// ─── Status Counts ────────────────────────────────────────────────────────────
 
 export async function getStatusCounts(supabase: Supabase): Promise<StatusCounts> {
   const { data, error } = await supabase.from("translation_jobs").select("status");
   if (error) throw error;
 
   const counts: StatusCounts = {
-    missing: 0,
-    queued:  0,
-    auto:    0,
-    reviewed: 0,
-    edited:  0,
-    failed:  0,
+    missing: 0, queued: 0, auto: 0, reviewed: 0, edited: 0, failed: 0,
   };
 
   for (const row of data ?? []) {
@@ -145,35 +153,30 @@ export async function getStatusCounts(supabase: Supabase): Promise<StatusCounts>
     if (s in counts) counts[s]++;
   }
 
-  // Real SLA risk = queued jobs; full breach count lives in getAttentionCounts
-  const slaRiskCount = counts.queued;
-  console.log("[TranslationStatusCounts]", counts, { slaRiskCount });
-
   return counts;
 }
 
 // ─── Attention Counts (CommandModeBar) ────────────────────────────────────────
 
 export async function getAttentionCounts(supabase: Supabase): Promise<AttentionCounts> {
-  const { data, error } = await supabase
+  // ── Attention jobs (missing / queued / failed) ─────────────────────────────
+  const { data: attentionRows, error: attentionError } = await supabase
     .from("translation_jobs")
-    .select(
-      "listing_id, status, sla_deadline, listing:listings!inner(tier)",
-    )
+    .select("listing_id, status, sla_deadline, listing:listings!inner(tier)")
     .in("status", ATTENTION_STATUSES);
 
-  if (error) throw error;
+  if (attentionError) throw attentionError;
 
-  const rows = data ?? [];
+  const rows = attentionRows ?? [];
   const now  = new Date();
 
-  // Unique listings needing attention
   const uniqueListingIds = new Set(rows.map((r) => r.listing_id as string));
 
-  // Signature listings count
   const seenSignature = new Set<string>();
   for (const r of rows) {
-    const listing = (Array.isArray(r.listing) ? r.listing[0] : r.listing) as { tier?: string } | null;
+    const listing = (Array.isArray(r.listing) ? r.listing[0] : r.listing) as
+      | { tier?: string }
+      | null;
     if (listing?.tier === "signature") seenSignature.add(r.listing_id as string);
   }
 
@@ -181,13 +184,35 @@ export async function getAttentionCounts(supabase: Supabase): Promise<AttentionC
     (r) => r.sla_deadline && new Date(r.sla_deadline as string) < now,
   ).length;
 
+  // ── Outdated jobs (done but source version stale) ─────────────────────────
+  const { data: doneRows, error: doneError } = await supabase
+    .from("translation_jobs")
+    .select(
+      "listing_id, source_updated_at, listing:listings!inner(content_updated_at)",
+    )
+    .in("status", DONE_STATUSES)
+    .not("source_updated_at", "is", null);
+
+  if (doneError) throw doneError;
+
+  const outdatedCount = (doneRows ?? []).filter((r) => {
+    const lst = (Array.isArray(r.listing) ? r.listing[0] : r.listing) as
+      | { content_updated_at?: string }
+      | null;
+    return (
+      lst?.content_updated_at &&
+      new Date(r.source_updated_at as string) < new Date(lst.content_updated_at)
+    );
+  }).length;
+
   return {
-    total:           uniqueListingIds.size,
-    missing:         rows.filter((r) => r.status === "missing").length,
-    queued:          rows.filter((r) => r.status === "queued").length,
-    failed:          rows.filter((r) => r.status === "failed").length,
+    total:          uniqueListingIds.size,
+    missing:        rows.filter((r) => r.status === "missing").length,
+    queued:         rows.filter((r) => r.status === "queued").length,
+    failed:         rows.filter((r) => r.status === "failed").length,
     slaRiskCount,
-    signatureCount:  seenSignature.size,
+    signatureCount: seenSignature.size,
+    outdatedCount,
   };
 }
 
@@ -200,7 +225,7 @@ export async function getTranslationJobsGrouped(
   const page   = filters.page ?? 1;
   const offset = (page - 1) * PAGE_SIZE;
 
-  // ── Step 1: Pre-resolve listing IDs for needs_attention filter ─────────────
+  // ── Step 1a: Pre-resolve listing IDs for needs_attention filter ────────────
   let attentionListingIds: string[] | null = null;
   if (filters.needs_attention) {
     const { data: rows, error } = await supabase
@@ -209,8 +234,41 @@ export async function getTranslationJobsGrouped(
       .in("status", ATTENTION_STATUSES);
     if (error) throw error;
 
-    attentionListingIds = [...new Set((rows ?? []).map((r) => r.listing_id as string))];
+    attentionListingIds = [
+      ...new Set((rows ?? []).map((r) => r.listing_id as string)),
+    ];
     if (attentionListingIds.length === 0) return { groups: [], total: 0 };
+  }
+
+  // ── Step 1b: Pre-resolve listing IDs for outdated filter ──────────────────
+  let outdatedListingIds: string[] | null = null;
+  if (filters.outdated) {
+    const { data: rows, error } = await supabase
+      .from("translation_jobs")
+      .select(
+        "listing_id, source_updated_at, listing:listings!inner(content_updated_at)",
+      )
+      .in("status", DONE_STATUSES)
+      .not("source_updated_at", "is", null);
+    if (error) throw error;
+
+    outdatedListingIds = [
+      ...new Set(
+        (rows ?? [])
+          .filter((r) => {
+            const lst = (Array.isArray(r.listing)
+              ? r.listing[0]
+              : r.listing) as { content_updated_at?: string } | null;
+            return (
+              lst?.content_updated_at &&
+              new Date(r.source_updated_at as string) <
+                new Date(lst.content_updated_at)
+            );
+          })
+          .map((r) => r.listing_id as string),
+      ),
+    ];
+    if (outdatedListingIds.length === 0) return { groups: [], total: 0 };
   }
 
   // ── Step 2: Main query ────────────────────────────────────────────────────
@@ -219,20 +277,23 @@ export async function getTranslationJobsGrouped(
     .select(
       `
       id, listing_id, source_lang, target_lang, status, attempts, last_error,
-      created_at, updated_at, sla_deadline, sla_priority,
-      listing:listings!inner(id, name, city, category, tier, status, is_homepage_visible, is_top_category)
+      created_at, updated_at, sla_deadline, sla_priority, source_updated_at,
+      listing:listings!inner(
+        id, name, city, category, tier, status,
+        is_homepage_visible, is_top_category, content_updated_at
+      )
       `,
       { count: "exact" },
     );
 
-  if (filters.status)       query = query.eq("status", filters.status);
-  if (filters.target_lang)  query = query.eq("target_lang", filters.target_lang);
-  if (filters.tier)         query = query.eq("listings.tier", filters.tier);
-  if (filters.city)         query = query.eq("listings.city", filters.city);
-  if (filters.category)     query = query.eq("listings.category", filters.category);
-  if (attentionListingIds)  query = query.in("listing_id", attentionListingIds);
+  if (filters.status)          query = query.eq("status", filters.status);
+  if (filters.target_lang)     query = query.eq("target_lang", filters.target_lang);
+  if (filters.tier)            query = query.eq("listings.tier", filters.tier);
+  if (filters.city)            query = query.eq("listings.city", filters.city);
+  if (filters.category)        query = query.eq("listings.category", filters.category);
+  if (attentionListingIds)     query = query.in("listing_id", attentionListingIds);
+  if (outdatedListingIds)      query = query.in("listing_id", outdatedListingIds);
 
-  // SLA breach filter: only jobs past their deadline in attention states
   if (filters.sla_breach) {
     query = query
       .not("sla_deadline", "is", null)
@@ -240,7 +301,6 @@ export async function getTranslationJobsGrouped(
       .in("status", ATTENTION_STATUSES);
   }
 
-  // Sort: SLA breach mode → ASC deadline (most urgent first); default → latest updated
   const { data, error, count } = await (
     filters.sla_breach
       ? query.order("sla_deadline", { ascending: true })
@@ -253,21 +313,24 @@ export async function getTranslationJobsGrouped(
   const map = new Map<string, { listing: ListingRow; jobs: TranslationJob[] }>();
 
   for (const row of data ?? []) {
-    const listing = (Array.isArray(row.listing) ? row.listing[0] : row.listing) as ListingRow | null;
+    const listing = (
+      Array.isArray(row.listing) ? row.listing[0] : row.listing
+    ) as ListingRow | null;
     if (!listing) continue;
 
     const job: TranslationJob = {
-      id:           row.id,
-      listing_id:   row.listing_id,
-      source_lang:  row.source_lang,
-      target_lang:  row.target_lang,
-      status:       row.status as TranslationStatus,
-      attempts:     row.attempts ?? 0,
-      last_error:   row.last_error ?? null,
-      created_at:   row.created_at,
-      updated_at:   row.updated_at,
-      sla_deadline: row.sla_deadline ?? null,
-      sla_priority: row.sla_priority ?? 0,
+      id:               row.id,
+      listing_id:       row.listing_id,
+      source_lang:      row.source_lang,
+      target_lang:      row.target_lang,
+      status:           row.status as TranslationStatus,
+      attempts:         row.attempts ?? 0,
+      last_error:       row.last_error ?? null,
+      created_at:       row.created_at,
+      updated_at:       row.updated_at,
+      sla_deadline:     row.sla_deadline ?? null,
+      sla_priority:     row.sla_priority ?? 0,
+      source_updated_at: row.source_updated_at ?? null,
     };
 
     if (!map.has(listing.id)) map.set(listing.id, { listing, jobs: [] });
@@ -311,8 +374,8 @@ export async function bulkUpdateTranslationStatus(
 
 /**
  * Enqueue or re-queue a translation job.
- * Pass `tier` so SLA fields are set correctly at write time.
- * Defaults to "verified" (no deadline) when tier is unknown.
+ * Fetches the listing's current content_updated_at and stores it as
+ * source_updated_at so staleness can be detected after future listing edits.
  */
 export async function enqueueTranslationJob(
   supabase: Supabase,
@@ -320,21 +383,91 @@ export async function enqueueTranslationJob(
   target_lang: string,
   tier: "signature" | "verified" = "verified",
 ): Promise<void> {
+  // Snapshot listing's current content version
+  const { data: listing } = await supabase
+    .from("listings")
+    .select("content_updated_at")
+    .eq("id", listing_id)
+    .single();
+
+  const source_updated_at =
+    (listing as { content_updated_at?: string } | null)?.content_updated_at ??
+    new Date().toISOString();
+
   const { error } = await supabase.from("translation_jobs").upsert(
     {
       listing_id,
       target_lang,
-      source_lang:  "en",
-      status:       "queued" as TranslationStatus,
-      attempts:     0,
-      last_error:   null,
-      sla_deadline: slaDeadlineFor(tier),
-      sla_priority: SLA_PRIORITY[tier],
-      updated_at:   new Date().toISOString(),
+      source_lang:       "en",
+      status:            "queued" as TranslationStatus,
+      attempts:          0,
+      last_error:        null,
+      sla_deadline:      slaDeadlineFor(tier),
+      sla_priority:      SLA_PRIORITY[tier],
+      source_updated_at,
+      updated_at:        new Date().toISOString(),
     },
     { onConflict: "listing_id,target_lang" },
   );
   if (error) throw error;
+}
+
+/**
+ * Re-queue all outdated done jobs for a listing.
+ * Outdated = status in (auto, reviewed, edited) AND
+ *            source_updated_at < listings.content_updated_at.
+ *
+ * For Signature: called automatically by the DB trigger; exposed here for
+ *                manual override or admin-triggered re-runs.
+ * For Verified:  must be called explicitly from the dashboard.
+ *
+ * Returns the number of jobs re-queued.
+ */
+export async function requeueOutdatedJobs(
+  supabase: Supabase,
+  listing_id: string,
+  tier: "signature" | "verified",
+): Promise<number> {
+  // Fetch current content version
+  const { data: listing, error: lstError } = await supabase
+    .from("listings")
+    .select("content_updated_at")
+    .eq("id", listing_id)
+    .single();
+
+  if (lstError) throw lstError;
+
+  const content_updated_at =
+    (listing as { content_updated_at?: string } | null)?.content_updated_at;
+  if (!content_updated_at) return 0;
+
+  // Find done jobs that are behind the current content version
+  const { data: staleJobs, error: findError } = await supabase
+    .from("translation_jobs")
+    .select("id")
+    .eq("listing_id", listing_id)
+    .in("status", DONE_STATUSES)
+    .not("source_updated_at", "is", null)
+    .lt("source_updated_at", content_updated_at);
+
+  if (findError) throw findError;
+  if (!staleJobs?.length) return 0;
+
+  const ids = staleJobs.map((j) => j.id as string);
+
+  const { error: updateError } = await supabase
+    .from("translation_jobs")
+    .update({
+      status:            "queued" as TranslationStatus,
+      source_updated_at: content_updated_at,
+      sla_deadline:      slaDeadlineFor(tier),
+      sla_priority:      SLA_PRIORITY[tier],
+      updated_at:        new Date().toISOString(),
+    })
+    .in("id", ids);
+
+  if (updateError) throw updateError;
+  return ids.length;
 }
 
 export async function saveTranslationEdit(
