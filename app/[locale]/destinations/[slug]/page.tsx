@@ -34,7 +34,7 @@ const PUBLIC_LISTING_FIELDS = `
   status, city_id, region_id, category_id, latitude, longitude
 `;
 const DESTINATION_REGION_FIELDS = `
-  id, slug, name, description, short_description, image_url, hero_image_url, latitude, longitude,
+  id, slug, name, description, short_description, image_url, hero_image_url,
   is_active, is_visible_destinations
 `;
 const PUBLIC_CITY_FIELDS = "id, name, slug, short_description, image_url";
@@ -48,8 +48,6 @@ type RegionRow = {
   short_description: string | null;
   image_url: string | null;
   hero_image_url: string | null;
-  latitude: number | null;
-  longitude: number | null;
 };
 
 interface LocaleDestinationPageProps {
@@ -312,8 +310,8 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
     description: region.description || region.short_description || undefined,
     image: resolvedImage || undefined,
     url: canonicalUrl,
-    latitude: region.latitude ?? undefined,
-    longitude: region.longitude ?? undefined,
+    latitude: undefined,
+    longitude: undefined,
     containedInPlace: "Algarve",
     touristType: ["Luxury Traveler", "Cultural Tourist", "Golf Enthusiast", "Beach Lover", "Family Traveler"],
   });
