@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { AlertCircle, X } from "lucide-react";
+import { AlertCircle, ShieldAlert, Star, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -23,47 +23,45 @@ interface Props {
 }
 
 const ALL_STATUSES: TranslationStatus[] = [
-  "missing",
-  "queued",
-  "auto",
-  "reviewed",
-  "edited",
-  "failed",
+  "missing", "queued", "auto", "reviewed", "edited", "failed",
 ];
 
 export function TranslationFilters({ filters, options, totalJobs }: Props) {
-  const router = useRouter();
-  const pathname = usePathname();
+  const router       = useRouter();
+  const pathname     = usePathname();
   const searchParams = useSearchParams();
 
   const updateFilter = useCallback(
     (key: string, value: string | undefined) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (value && value !== "all") {
-        params.set(key, value);
-      } else {
-        params.delete(key);
-      }
+      if (value && value !== "all") params.set(key, value);
+      else params.delete(key);
       params.delete("page");
       router.push(`${pathname}?${params.toString()}`);
     },
     [router, pathname, searchParams],
   );
 
-  const toggleNeedsAttention = useCallback(() => {
+  const toggleFlag = useCallback(
+    (key: string, currentValue: boolean | undefined) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (currentValue) params.delete(key);
+      else params.set(key, "true");
+      params.delete("page");
+      router.push(`${pathname}?${params.toString()}`);
+    },
+    [router, pathname, searchParams],
+  );
+
+  const toggleSignatureOnly = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
-    if (filters.needs_attention) {
-      params.delete("needs_attention");
-    } else {
-      params.set("needs_attention", "true");
-    }
+    if (filters.tier === "signature") params.delete("tier");
+    else params.set("tier", "signature");
     params.delete("page");
     router.push(`${pathname}?${params.toString()}`);
-  }, [router, pathname, searchParams, filters.needs_attention]);
+  }, [router, pathname, searchParams, filters.tier]);
 
-  const clearAll = useCallback(() => {
-    router.push(pathname);
-  }, [router, pathname]);
+  const clearAll = useCallback(() => router.push(pathname), [router, pathname]);
 
   const activeCount = [
     filters.status,
@@ -72,24 +70,45 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
     filters.tier,
     filters.target_lang,
     filters.needs_attention || undefined,
+    filters.sla_breach || undefined,
   ].filter(Boolean).length;
 
   return (
     <div className="space-y-3">
+
+      {/* ── Quick presets ────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-2">
-        {/* Needs Attention toggle */}
-        <button
-          onClick={toggleNeedsAttention}
-          className={cn(
-            "flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60",
-            filters.needs_attention
-              ? "border-orange-500/40 bg-orange-500/15 text-orange-300"
-              : "border-border/60 bg-card/80 text-muted-foreground hover:text-foreground hover:border-border",
-          )}
-        >
-          <AlertCircle className="h-3.5 w-3.5" />
-          Needs Attention
-        </button>
+        <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+          Quick
+        </span>
+
+        <PresetButton
+          label="Needs Attention"
+          icon={<AlertCircle className="h-3 w-3" />}
+          active={!!filters.needs_attention}
+          onClick={() => toggleFlag("needs_attention", filters.needs_attention)}
+          color="orange"
+        />
+
+        <PresetButton
+          label="SLA Risk"
+          icon={<ShieldAlert className="h-3 w-3" />}
+          active={!!filters.sla_breach}
+          onClick={() => toggleFlag("sla_breach", filters.sla_breach)}
+          color="red"
+        />
+
+        <PresetButton
+          label="Signature Only"
+          icon={<Star className="h-3 w-3" />}
+          active={filters.tier === "signature"}
+          onClick={toggleSignatureOnly}
+          color="amber"
+        />
+      </div>
+
+      {/* ── Dropdowns row ───────────────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-center gap-2">
 
         {/* Status */}
         <Select
@@ -102,9 +121,7 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
           <SelectContent>
             <SelectItem value="all">All statuses</SelectItem>
             {ALL_STATUSES.map((s) => (
-              <SelectItem key={s} value={s}>
-                {STATUS_LABELS[s]}
-              </SelectItem>
+              <SelectItem key={s} value={s}>{STATUS_LABELS[s]}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -136,9 +153,7 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
             <SelectContent>
               <SelectItem value="all">All languages</SelectItem>
               {options.languages.map((l) => (
-                <SelectItem key={l} value={l}>
-                  {l.toUpperCase()}
-                </SelectItem>
+                <SelectItem key={l} value={l}>{l.toUpperCase()}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -156,9 +171,7 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
             <SelectContent>
               <SelectItem value="all">All cities</SelectItem>
               {options.cities.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {c}
-                </SelectItem>
+                <SelectItem key={c} value={c}>{c}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -176,15 +189,13 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
             <SelectContent>
               <SelectItem value="all">All categories</SelectItem>
               {options.categories.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {c}
-                </SelectItem>
+                <SelectItem key={c} value={c}>{c}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         )}
 
-        {/* Clear */}
+        {/* Clear all */}
         {activeCount > 0 && (
           <Button
             variant="ghost"
@@ -197,20 +208,27 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
           </Button>
         )}
 
-        {/* Result count */}
+        {/* Job count */}
         <span className="ml-auto text-xs text-muted-foreground">
           <span className="font-semibold text-foreground">{totalJobs.toLocaleString()}</span> jobs
         </span>
       </div>
 
-      {/* Active filter pills */}
+      {/* ── Active filter pills ──────────────────────────────────────────────── */}
       {activeCount > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {filters.needs_attention && (
             <FilterPill
               label="Needs Attention"
               onRemove={() => updateFilter("needs_attention", undefined)}
-              highlight
+              color="orange"
+            />
+          )}
+          {filters.sla_breach && (
+            <FilterPill
+              label="SLA Risk"
+              onRemove={() => updateFilter("sla_breach", undefined)}
+              color="red"
             />
           )}
           {filters.status && (
@@ -221,8 +239,9 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
           )}
           {filters.tier && (
             <FilterPill
-              label={`Tier: ${filters.tier}`}
+              label={`Tier: ${filters.tier.charAt(0).toUpperCase() + filters.tier.slice(1)}`}
               onRemove={() => updateFilter("tier", undefined)}
+              color={filters.tier === "signature" ? "amber" : undefined}
             />
           )}
           {filters.target_lang && (
@@ -249,23 +268,66 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
   );
 }
 
+// ─── Preset Button ────────────────────────────────────────────────────────────
+
+const PRESET_ACTIVE: Record<string, string> = {
+  orange: "border-orange-500/40 bg-orange-500/15 text-orange-300",
+  red:    "border-red-500/40 bg-red-500/15 text-red-300",
+  amber:  "border-amber-500/40 bg-amber-500/15 text-amber-300",
+};
+
+const PRESET_IDLE = "border-border/60 bg-card/80 text-muted-foreground hover:border-border hover:text-foreground";
+
+function PresetButton({
+  label,
+  icon,
+  active,
+  onClick,
+  color = "orange",
+}: {
+  label: string;
+  icon: React.ReactNode;
+  active: boolean;
+  onClick: () => void;
+  color?: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex h-7 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60",
+        active ? PRESET_ACTIVE[color] : PRESET_IDLE,
+      )}
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
+
+// ─── Filter Pill ──────────────────────────────────────────────────────────────
+
+const PILL_COLORS: Record<string, string> = {
+  orange: "border-orange-500/30 bg-orange-500/10 text-orange-300",
+  red:    "border-red-500/30 bg-red-500/10 text-red-300",
+  amber:  "border-amber-500/30 bg-amber-500/10 text-amber-300",
+};
+
 function FilterPill({
   label,
   onRemove,
-  highlight = false,
+  color,
 }: {
   label: string;
   onRemove: () => void;
-  highlight?: boolean;
+  color?: string;
 }) {
   return (
     <Badge
       variant="secondary"
       className={cn(
-        "gap-1 pr-1 text-xs font-normal border",
-        highlight
-          ? "border-orange-500/30 bg-orange-500/10 text-orange-300"
-          : "border-border/60",
+        "gap-1 border pr-1 text-xs font-normal",
+        color ? PILL_COLORS[color] : "border-border/60",
       )}
     >
       {label}

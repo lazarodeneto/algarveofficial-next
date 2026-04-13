@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import {
+  ArrowUpRight,
   ChevronDown,
   ChevronRight,
   Loader2,
   Pencil,
   RefreshCw,
+  ShieldAlert,
   ShieldCheck,
+  Sparkles,
   Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -15,25 +18,46 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { ListingJobGroup, TranslationJob } from "@/lib/admin/translations/types";
 import {
+  ATTENTION_STATUSES,
   DONE_STATUSES,
   SEO_COVERAGE_COLORS,
   SEO_COVERAGE_TEXT,
   STATUS_COLORS,
   STATUS_LABELS,
+  TranslationStatus,
 } from "@/lib/admin/translations/types";
 
 interface Props {
   group: ListingJobGroup;
-  onTranslate: (job: TranslationJob) => Promise<void>;
-  onRetry: (job: TranslationJob) => Promise<void>;
-  onMarkReviewed: (job: TranslationJob) => Promise<void>;
-  onEdit: (job: TranslationJob) => void;
-  loadingJobId: string | null;
+  onTranslate:      (job: TranslationJob) => Promise<void>;
+  onRetry:          (job: TranslationJob) => Promise<void>;
+  onMarkReviewed:   (job: TranslationJob) => Promise<void>;
+  onEdit:           (job: TranslationJob) => void;
+  onGroupAction:    (jobIds: string[], status: "queued" | "reviewed") => Promise<void>;
+  loadingJobId:     string | null;
+  groupActionLoading: boolean;
   defaultExpanded?: boolean;
   // Bulk selection
-  selectedJobIds: string[];
-  onSelectJob: (jobId: string, checked: boolean) => void;
+  selectedJobIds:   string[];
+  onSelectJob:      (jobId: string, checked: boolean) => void;
 }
+
+// ─── SLA display helper ───────────────────────────────────────────────────────
+
+function computeSla(deadline: string | null) {
+  if (!deadline) return null;
+  const diff = new Date(deadline).getTime() - Date.now();
+  if (diff < 0) return { label: "SLA Breached", urgent: true, breached: true };
+  const h = Math.floor(diff / 3_600_000);
+  const m = Math.floor((diff % 3_600_000) / 60_000);
+  return {
+    label:   h > 0 ? `${h}h ${m}m remaining` : `${m}m remaining`,
+    urgent:  diff < 3_600_000,
+    breached: false,
+  };
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
 
 export function TranslationListingGroup({
   group,
@@ -41,41 +65,76 @@ export function TranslationListingGroup({
   onRetry,
   onMarkReviewed,
   onEdit,
+  onGroupAction,
   loadingJobId,
+  groupActionLoading,
   defaultExpanded = false,
   selectedJobIds,
   onSelectJob,
 }: Props) {
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const { listing, jobs, doneCount, problemCount, pendingCount, seoCoverage, seoCoverageLabel } = group;
+  const {
+    listing,
+    jobs,
+    doneCount,
+    seoCoverage,
+    seoCoverageLabel,
+    slaBreachCount,
+  } = group;
 
-  const failedCount = jobs.filter((j) => j.status === "failed").length;
-  const missingCount = jobs.filter((j) => j.status === "missing").length;
+  const failedJobs  = jobs.filter((j) => j.status === "failed");
+  const missingJobs = jobs.filter((j) => j.status === "missing");
+  const queuedJobs  = jobs.filter((j) => j.status === "queued");
+  const autoJobs    = jobs.filter((j) => j.status === "auto");
+  const pendingJobs = [...missingJobs, ...queuedJobs];
+
   const isSignature = listing.tier === "signature";
 
-  // Group-level selection state
-  const jobIds = jobs.map((j) => j.id);
-  const groupSelectedCount = jobIds.filter((id) => selectedJobIds.includes(id)).length;
-  const allGroupSelected = groupSelectedCount === jobs.length && jobs.length > 0;
-  const someGroupSelected = groupSelectedCount > 0 && !allGroupSelected;
+  // Nearest active SLA deadline for signature listings
+  const nearestDeadline = isSignature
+    ? jobs
+        .filter(
+          (j) =>
+            j.sla_deadline &&
+            (ATTENTION_STATUSES as TranslationStatus[]).includes(j.status),
+        )
+        .sort(
+          (a, b) =>
+            new Date(a.sla_deadline!).getTime() -
+            new Date(b.sla_deadline!).getTime(),
+        )[0]?.sla_deadline ?? null
+    : null;
 
-  const handleGroupCheckbox = (checked: boolean) => {
+  const sla = computeSla(nearestDeadline);
+
+  // Group-level selection
+  const jobIds              = jobs.map((j) => j.id);
+  const groupSelectedCount  = jobIds.filter((id) => selectedJobIds.includes(id)).length;
+  const allGroupSelected    = groupSelectedCount === jobs.length && jobs.length > 0;
+  const someGroupSelected   = groupSelectedCount > 0 && !allGroupSelected;
+
+  const handleGroupCheckbox = (checked: boolean) =>
     jobIds.forEach((id) => onSelectJob(id, checked));
-  };
 
   return (
     <div
       className={cn(
-        "rounded-2xl border transition-colors",
+        "rounded-2xl border transition-all duration-150",
         isSignature
-          ? "border-amber-500/35 bg-gradient-to-r from-amber-500/8 to-amber-500/4 shadow-sm shadow-amber-500/5"
+          ? "border-amber-500/35 bg-gradient-to-br from-amber-500/8 via-amber-500/4 to-transparent shadow-sm shadow-amber-500/5"
           : "border-border/60 bg-card/60",
+        (sla?.breached) && "border-red-500/40",
       )}
     >
-      {/* Group header */}
-      <div className="flex w-full items-center gap-2 px-4 py-3">
-        {/* Group-level checkbox */}
-        <div onClick={(e) => e.stopPropagation()} className="shrink-0">
+
+      {/* ── Card header ──────────────────────────────────────────────────────── */}
+      <div className="flex items-start gap-3 px-4 pt-4 pb-3">
+
+        {/* Checkbox */}
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="mt-0.5 shrink-0"
+        >
           <Checkbox
             checked={allGroupSelected}
             data-state={someGroupSelected ? "indeterminate" : undefined}
@@ -84,107 +143,196 @@ export function TranslationListingGroup({
           />
         </div>
 
-        {/* Expand/collapse */}
-        <button
-          className="flex flex-1 min-w-0 items-center gap-3 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-lg"
-          onClick={() => setExpanded((v) => !v)}
-        >
-          <span className="shrink-0 text-muted-foreground/60">
-            {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-          </span>
-
-          {/* Title + tier + badges */}
-          <div className="flex min-w-0 flex-1 items-center gap-2.5">
+        {/* Name + meta */}
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <div className="flex flex-wrap items-center gap-2">
             <span
               className={cn(
-                "truncate font-medium text-sm",
+                "truncate text-sm font-semibold",
                 isSignature ? "text-amber-100" : "text-foreground",
               )}
             >
-              {isSignature && <span className="mr-1.5 text-amber-400">★</span>}
+              {isSignature && (
+                <span className="mr-1.5 text-amber-400">★</span>
+              )}
               {listing.name}
             </span>
-
             <TierBadge tier={listing.tier} />
-
             {isSignature && (
               <Badge
                 variant="outline"
-                className="shrink-0 text-[10px] font-bold border-amber-500/40 bg-amber-500/15 text-amber-300"
+                className="shrink-0 border-amber-500/40 bg-amber-500/15 text-[10px] font-bold text-amber-300"
               >
-                Priority
+                Priority Translation
               </Badge>
             )}
             {listing.status === "draft" && (
               <Badge
                 variant="outline"
-                className="shrink-0 text-[10px] text-muted-foreground border-border/50"
+                className="shrink-0 border-border/50 text-[10px] text-muted-foreground"
               >
                 Draft
               </Badge>
             )}
           </div>
-
-          {/* City · category */}
-          <span className="hidden shrink-0 text-xs text-muted-foreground sm:block">
+          <span className="text-xs text-muted-foreground">
             {listing.city}
             {listing.category ? ` · ${listing.category}` : ""}
           </span>
+        </div>
 
-          {/* Right stats block */}
-          <div className="flex shrink-0 items-center gap-3">
-            {/* Status summary */}
-            <div className="hidden items-center gap-2 text-[11px] text-muted-foreground lg:flex">
-              {missingCount > 0 && (
-                <span className="text-zinc-400">
-                  <span className="font-semibold">{missingCount}</span> missing
-                </span>
-              )}
-              {failedCount > 0 && (
-                <span className="text-red-400">
-                  <span className="font-semibold">{failedCount}</span> failed
-                </span>
-              )}
-              {doneCount > 0 && (
-                <span className="text-emerald-400">
-                  <span className="font-semibold">{doneCount}</span> done
-                </span>
-              )}
-            </div>
-
-            {/* SEO coverage bar */}
-            <div className="flex items-center gap-1.5">
-              <div className="h-1.5 w-14 overflow-hidden rounded-full bg-border/60">
-                <div
-                  className={cn(
-                    "h-full rounded-full transition-all",
-                    SEO_COVERAGE_COLORS[seoCoverageLabel],
-                  )}
-                  style={{ width: `${seoCoverage}%` }}
-                />
-              </div>
-              <span
-                className={cn(
-                  "text-[11px] font-medium tabular-nums",
-                  SEO_COVERAGE_TEXT[seoCoverageLabel],
-                )}
-              >
-                {seoCoverage}%
-              </span>
-              <span className="hidden text-[10px] text-muted-foreground/50 sm:inline">
-                SEO
-              </span>
-            </div>
-
-            {/* Done / total */}
-            <span className="text-[11px] font-medium text-muted-foreground">
-              {doneCount}/{jobs.length}
-            </span>
-          </div>
+        {/* Expand toggle */}
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="mt-0.5 shrink-0 rounded-lg p-1 text-muted-foreground/60 transition-colors hover:bg-muted/40 hover:text-muted-foreground focus:outline-none"
+        >
+          {expanded ? (
+            <ChevronDown className="h-4 w-4" />
+          ) : (
+            <ChevronRight className="h-4 w-4" />
+          )}
         </button>
       </div>
 
-      {/* Locale rows */}
+      {/* ── SEO coverage ─────────────────────────────────────────────────────── */}
+      <div className="px-4 pb-3">
+        <div className="mb-1.5 flex items-center justify-between">
+          <span className="text-[11px] text-muted-foreground">
+            🌐 SEO Coverage
+          </span>
+          <span
+            className={cn(
+              "text-[11px] font-semibold tabular-nums",
+              SEO_COVERAGE_TEXT[seoCoverageLabel],
+            )}
+          >
+            {seoCoverage}%
+          </span>
+        </div>
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-border/60">
+          <div
+            className={cn(
+              "h-full rounded-full transition-all duration-500",
+              SEO_COVERAGE_COLORS[seoCoverageLabel],
+            )}
+            style={{ width: `${seoCoverage}%` }}
+          />
+        </div>
+      </div>
+
+      {/* ── Status summary ───────────────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 pb-3">
+        {missingJobs.length > 0 && (
+          <span className="text-[11px] text-zinc-400">
+            <span className="font-semibold">{missingJobs.length}</span> Missing
+          </span>
+        )}
+        {failedJobs.length > 0 && (
+          <span className="text-[11px] text-red-400">
+            <span className="font-semibold">{failedJobs.length}</span> Failed
+          </span>
+        )}
+        {queuedJobs.length > 0 && (
+          <span className="text-[11px] text-blue-400">
+            <span className="font-semibold">{queuedJobs.length}</span> Queued
+          </span>
+        )}
+        {autoJobs.length > 0 && (
+          <span className="text-[11px] text-violet-400">
+            <span className="font-semibold">{autoJobs.length}</span> AI Ready
+          </span>
+        )}
+        {doneCount > 0 && (
+          <span className="text-[11px] text-emerald-400">
+            <span className="font-semibold">{doneCount}</span> Done
+          </span>
+        )}
+        <span className="ml-auto text-[11px] tabular-nums text-muted-foreground/50">
+          {doneCount}/{jobs.length}
+        </span>
+      </div>
+
+      {/* ── SLA indicator (signature only) ───────────────────────────────────── */}
+      {isSignature && sla && (
+        <div
+          className={cn(
+            "mx-4 mb-3 flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-medium",
+            sla.breached
+              ? "border-red-500/30 bg-red-500/10 text-red-400"
+              : sla.urgent
+              ? "border-amber-500/30 bg-amber-500/10 text-amber-400"
+              : "border-border/40 bg-muted/20 text-muted-foreground",
+          )}
+        >
+          <ShieldAlert className="h-3 w-3 shrink-0" />
+          {sla.breached ? "SLA Breached" : `SLA: ${sla.label}`}
+          {slaBreachCount > 1 && (
+            <span className="ml-auto text-[10px] opacity-70">
+              {slaBreachCount} jobs
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* ── Upsell (verified only, incomplete SEO) ────────────────────────────── */}
+      {!isSignature && seoCoverage < 100 && (
+        <div className="mx-4 mb-3 flex items-center gap-1.5 rounded-xl border border-border/30 bg-muted/10 px-3 py-1.5">
+          <span className="text-[11px] text-muted-foreground/60">
+            Upgrade to Signature
+          </span>
+          <ArrowUpRight className="h-3 w-3 text-muted-foreground/40" />
+          <span className="text-[11px] text-muted-foreground/60">
+            Priority processing
+          </span>
+        </div>
+      )}
+
+      {/* ── Inline action row ────────────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-center gap-2 border-t border-border/30 px-4 py-2.5">
+        {pendingJobs.length > 0 && (
+          <GroupActionButton
+            icon={<Zap className="h-3 w-3" />}
+            label={`Queue ${pendingJobs.length} Missing`}
+            onClick={() =>
+              onGroupAction(pendingJobs.map((j) => j.id), "queued")
+            }
+            loading={groupActionLoading}
+            variant="translate"
+          />
+        )}
+        {failedJobs.length > 0 && (
+          <GroupActionButton
+            icon={<RefreshCw className="h-3 w-3" />}
+            label={`Retry ${failedJobs.length} Failed`}
+            onClick={() =>
+              onGroupAction(failedJobs.map((j) => j.id), "queued")
+            }
+            loading={groupActionLoading}
+            variant="retry"
+          />
+        )}
+        {autoJobs.length > 0 && (
+          <GroupActionButton
+            icon={<Sparkles className="h-3 w-3" />}
+            label={`Review ${autoJobs.length} AI`}
+            onClick={() =>
+              onGroupAction(autoJobs.map((j) => j.id), "reviewed")
+            }
+            loading={groupActionLoading}
+            variant="review"
+          />
+        )}
+
+        {/* Expand/collapse toggle text */}
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="ml-auto text-[11px] text-muted-foreground/60 hover:text-muted-foreground focus:outline-none"
+        >
+          {expanded ? "Hide languages" : `View ${jobs.length} languages`}
+        </button>
+      </div>
+
+      {/* ── Locale rows (expanded) ───────────────────────────────────────────── */}
       {expanded && (
         <div className="border-t border-border/40 px-4 py-2 space-y-0.5">
           {jobs
@@ -209,17 +357,56 @@ export function TranslationListingGroup({
   );
 }
 
+// ─── Group Action Button ──────────────────────────────────────────────────────
+
+const GROUP_ACTION_STYLES: Record<string, string> = {
+  translate: "border-blue-500/25 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500/40",
+  retry:     "border-orange-500/25 text-orange-400 hover:bg-orange-500/10 hover:border-orange-500/40",
+  review:    "border-violet-500/25 text-violet-400 hover:bg-violet-500/10 hover:border-violet-500/40",
+};
+
+function GroupActionButton({
+  icon,
+  label,
+  onClick,
+  loading,
+  variant,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  loading: boolean;
+  variant: string;
+}) {
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      disabled={loading}
+      className={cn(
+        "flex h-7 items-center gap-1.5 rounded-lg border px-2.5 text-[11px] font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:opacity-50",
+        GROUP_ACTION_STYLES[variant],
+      )}
+    >
+      {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : icon}
+      {label}
+    </button>
+  );
+}
+
 // ─── Locale Row ───────────────────────────────────────────────────────────────
 
 interface LocaleRowProps {
-  job: TranslationJob;
-  onTranslate: (job: TranslationJob) => Promise<void>;
-  onRetry: (job: TranslationJob) => Promise<void>;
-  onMarkReviewed: (job: TranslationJob) => Promise<void>;
-  onEdit: (job: TranslationJob) => void;
-  isLoading: boolean;
-  isSelected: boolean;
-  onSelect: (checked: boolean) => void;
+  job:           TranslationJob;
+  onTranslate:   (job: TranslationJob) => Promise<void>;
+  onRetry:       (job: TranslationJob) => Promise<void>;
+  onMarkReviewed:(job: TranslationJob) => Promise<void>;
+  onEdit:        (job: TranslationJob) => void;
+  isLoading:     boolean;
+  isSelected:    boolean;
+  onSelect:      (checked: boolean) => void;
 }
 
 function LocaleRow({
@@ -232,14 +419,16 @@ function LocaleRow({
   isSelected,
   onSelect,
 }: LocaleRowProps) {
+  const slaInfo = job.sla_deadline ? computeSla(job.sla_deadline) : null;
+
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-xl px-2 py-2 transition-colors",
+        "flex items-center gap-3 rounded-xl px-2 py-1.5 transition-colors",
         isSelected ? "bg-primary/8" : "hover:bg-muted/30",
       )}
     >
-      {/* Row checkbox */}
+      {/* Checkbox */}
       <div onClick={(e) => e.stopPropagation()} className="shrink-0">
         <Checkbox
           checked={isSelected}
@@ -249,14 +438,14 @@ function LocaleRow({
       </div>
 
       {/* Language pill */}
-      <span className="w-12 shrink-0 rounded-md bg-muted/50 px-1.5 py-0.5 text-center text-[11px] font-mono font-semibold uppercase text-muted-foreground">
+      <span className="w-12 shrink-0 rounded-md bg-muted/50 px-1.5 py-0.5 text-center font-mono text-[11px] font-semibold uppercase text-muted-foreground">
         {job.target_lang}
       </span>
 
       {/* Status badge */}
       <Badge
         variant="outline"
-        className={cn("text-[10px] font-medium shrink-0", STATUS_COLORS[job.status])}
+        className={cn("shrink-0 text-[10px] font-medium", STATUS_COLORS[job.status])}
       >
         {STATUS_LABELS[job.status]}
       </Badge>
@@ -268,20 +457,29 @@ function LocaleRow({
         </span>
       )}
 
+      {/* SLA inline (breach only) */}
+      {slaInfo?.breached && (
+        <span className="shrink-0 text-[10px] font-medium text-red-400">
+          SLA ⚠
+        </span>
+      )}
+
       {/* Attempts */}
       {job.attempts > 0 && (
-        <span className="shrink-0 text-[11px] text-muted-foreground/60">{job.attempts}×</span>
+        <span className="shrink-0 text-[11px] text-muted-foreground/50">
+          {job.attempts}×
+        </span>
       )}
 
       {/* Updated at */}
-      <span className="ml-auto hidden shrink-0 text-[11px] text-muted-foreground/50 sm:block">
+      <span className="ml-auto hidden shrink-0 text-[11px] text-muted-foreground/40 sm:block">
         {new Date(job.updated_at).toLocaleDateString("en-GB", {
           day: "numeric",
           month: "short",
         })}
       </span>
 
-      {/* Actions */}
+      {/* Per-row actions */}
       <div className="flex shrink-0 items-center gap-1">
         {isLoading ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
@@ -327,10 +525,10 @@ function LocaleRow({
 // ─── Action Button ────────────────────────────────────────────────────────────
 
 const ACTION_STYLES: Record<string, string> = {
-  translate: "text-blue-400 hover:bg-blue-500/10 hover:text-blue-300 border-blue-500/20",
-  retry: "text-orange-400 hover:bg-orange-500/10 hover:text-orange-300 border-orange-500/20",
-  review: "text-violet-400 hover:bg-violet-500/10 hover:text-violet-300 border-violet-500/20",
-  edit: "text-muted-foreground hover:bg-muted/50 hover:text-foreground border-border/50",
+  translate: "border-blue-500/20 text-blue-400 hover:bg-blue-500/10 hover:text-blue-300",
+  retry:     "border-orange-500/20 text-orange-400 hover:bg-orange-500/10 hover:text-orange-300",
+  review:    "border-violet-500/20 text-violet-400 hover:bg-violet-500/10 hover:text-violet-300",
+  edit:      "border-border/50 text-muted-foreground hover:bg-muted/50 hover:text-foreground",
 };
 
 function ActionButton({
@@ -339,8 +537,8 @@ function ActionButton({
   onClick,
   variant,
 }: {
-  icon: React.ReactNode;
-  label: string;
+  icon:    React.ReactNode;
+  label:   string;
   onClick: () => void;
   variant: string;
 }) {
@@ -369,7 +567,7 @@ function TierBadge({ tier }: { tier: "signature" | "verified" }) {
     <Badge
       variant="outline"
       className={cn(
-        "text-[10px] font-semibold shrink-0",
+        "shrink-0 text-[10px] font-semibold",
         tier === "signature"
           ? "border-amber-500/30 bg-amber-500/10 text-amber-400"
           : "border-blue-500/30 bg-blue-500/10 text-blue-400",

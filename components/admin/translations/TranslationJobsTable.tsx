@@ -13,22 +13,24 @@ import {
 } from "@/lib/admin/translations/queries";
 import { TranslationListingGroup } from "./TranslationListingGroup";
 import { TranslationEditorDrawer } from "./TranslationEditorDrawer";
-import type { ListingJobGroup, TranslationJob, ListingRow } from "@/lib/admin/translations/types";
+import type { ListingJobGroup, ListingRow, TranslationJob } from "@/lib/admin/translations/types";
 
 interface Props {
-  groups: ListingJobGroup[];
+  groups:    ListingJobGroup[];
   onRefresh: () => void;
 }
 
 export function TranslationJobsTable({ groups, onRefresh }: Props) {
   const supabase = createClient();
-  const [loadingJobId, setLoadingJobId] = useState<string | null>(null);
-  const [bulkLoading, setBulkLoading] = useState(false);
-  const [selectedJobIds, setSelectedJobIds] = useState<string[]>([]);
-  const [editorState, setEditorState] = useState<{
-    job: TranslationJob | null;
+
+  const [loadingJobId,      setLoadingJobId]      = useState<string | null>(null);
+  const [bulkLoading,       setBulkLoading]        = useState(false);
+  const [groupActionLoading, setGroupActionLoading] = useState(false);
+  const [selectedJobIds,    setSelectedJobIds]     = useState<string[]>([]);
+  const [editorState,       setEditorState]        = useState<{
+    job:     TranslationJob | null;
     listing: ListingRow | null;
-    open: boolean;
+    open:    boolean;
   }>({ job: null, listing: null, open: false });
 
   // ── Selection helpers ──────────────────────────────────────────────────────
@@ -89,13 +91,33 @@ export function TranslationJobsTable({ groups, onRefresh }: Props) {
   }, []);
 
   const handleEditorSaved = useCallback(
-    (_jobId: string) => {
-      onRefresh();
-    },
+    (_jobId: string) => { onRefresh(); },
     [onRefresh],
   );
 
-  // ── Bulk actions ──────────────────────────────────────────────────────────
+  // ── Group-level bulk action ────────────────────────────────────────────────
+  const handleGroupAction = useCallback(
+    async (jobIds: string[], status: "queued" | "reviewed") => {
+      if (jobIds.length === 0) return;
+      setGroupActionLoading(true);
+      try {
+        await bulkUpdateTranslationStatus(supabase, jobIds, status);
+        toast.success(
+          `${jobIds.length} job${jobIds.length !== 1 ? "s" : ""} ${
+            status === "queued" ? "queued" : "marked reviewed"
+          }.`,
+        );
+        onRefresh();
+      } catch {
+        toast.error("Action failed. Please try again.");
+      } finally {
+        setGroupActionLoading(false);
+      }
+    },
+    [supabase, onRefresh],
+  );
+
+  // ── Toolbar bulk actions ───────────────────────────────────────────────────
   const handleBulkAction = useCallback(
     async (action: "queue" | "reviewed" | "retry") => {
       if (selectedJobIds.length === 0) return;
@@ -128,7 +150,7 @@ export function TranslationJobsTable({ groups, onRefresh }: Props) {
 
   return (
     <>
-      {/* Bulk actions bar */}
+      {/* ── Sticky bulk actions bar ─────────────────────────────────────────── */}
       {selectedJobIds.length > 0 && (
         <div className="sticky top-4 z-20 flex items-center gap-3 rounded-2xl border border-primary/30 bg-card/95 px-4 py-3 shadow-lg backdrop-blur-sm">
           <span className="text-sm font-medium text-foreground">
@@ -166,7 +188,7 @@ export function TranslationJobsTable({ groups, onRefresh }: Props) {
         </div>
       )}
 
-      {/* Listing groups */}
+      {/* ── Listing groups ───────────────────────────────────────────────────── */}
       <div className="space-y-2">
         {groups.map((group, idx) => (
           <TranslationListingGroup
@@ -176,6 +198,8 @@ export function TranslationJobsTable({ groups, onRefresh }: Props) {
             onRetry={handleRetry}
             onMarkReviewed={handleMarkReviewed}
             onEdit={(job) => handleEdit(job, group.listing)}
+            onGroupAction={handleGroupAction}
+            groupActionLoading={groupActionLoading}
             loadingJobId={loadingJobId}
             defaultExpanded={idx < 3}
             selectedJobIds={selectedJobIds}
@@ -199,8 +223,8 @@ export function TranslationJobsTable({ groups, onRefresh }: Props) {
 
 const BULK_STYLES: Record<string, string> = {
   translate: "border-blue-500/30 text-blue-400 hover:bg-blue-500/10",
-  retry: "border-orange-500/30 text-orange-400 hover:bg-orange-500/10",
-  review: "border-violet-500/30 text-violet-400 hover:bg-violet-500/10",
+  retry:     "border-orange-500/30 text-orange-400 hover:bg-orange-500/10",
+  review:    "border-violet-500/30 text-violet-400 hover:bg-violet-500/10",
 };
 
 function BulkButton({
@@ -210,8 +234,8 @@ function BulkButton({
   loading,
   variant,
 }: {
-  icon: React.ReactNode;
-  label: string;
+  icon:    React.ReactNode;
+  label:   string;
   onClick: () => void;
   loading: boolean;
   variant: string;

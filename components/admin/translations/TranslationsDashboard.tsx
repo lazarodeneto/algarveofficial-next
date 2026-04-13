@@ -2,10 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { RefreshCw, Clock, ShieldAlert } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -28,12 +27,12 @@ import type {
 import { PAGE_SIZE } from "@/lib/admin/translations/types";
 
 interface Props {
-  initialCounts:         StatusCounts;
-  initialGroups:         ListingJobGroup[];
-  initialTotal:          number;
+  initialCounts:          StatusCounts;
+  initialGroups:          ListingJobGroup[];
+  initialTotal:           number;
   initialAttentionCounts: AttentionCounts;
-  filters:               TFilters;
-  filterOptions:         FilterOptions;
+  filters:                TFilters;
+  filterOptions:          FilterOptions;
 }
 
 export function TranslationsDashboard({
@@ -81,7 +80,7 @@ export function TranslationsDashboard({
     [supabase],
   );
 
-  // Re-fetch when URL searchParams change (filter navigation)
+  // Re-fetch when URL searchParams change
   useEffect(() => {
     const newFilters: TFilters = {
       status:          (searchParams.get("status") as TranslationStatus) || undefined,
@@ -96,7 +95,7 @@ export function TranslationsDashboard({
     fetchData(newFilters);
   }, [searchParams, fetchData]);
 
-  // ── Realtime — only refresh on actual status change ───────────────────────
+  // ── Realtime — debounced, only on status change ────────────────────────────
   useEffect(() => {
     const channel = supabase
       .channel("translation-jobs-rt")
@@ -106,8 +105,7 @@ export function TranslationsDashboard({
         (payload) => {
           const oldStatus = (payload.old as { status?: string })?.status;
           const newStatus = (payload.new as { status?: string })?.status;
-          if (oldStatus === newStatus) return; // no status change — skip
-
+          if (oldStatus === newStatus) return;
           if (refreshRef.current) clearTimeout(refreshRef.current);
           refreshRef.current = setTimeout(() => fetchData(filters), 1000);
         },
@@ -129,8 +127,8 @@ export function TranslationsDashboard({
   }, [supabase, filters, fetchData]);
 
   // ── Pagination ─────────────────────────────────────────────────────────────
-  const currentPage  = filters.page ?? 1;
-  const totalPages   = Math.ceil(total / PAGE_SIZE);
+  const currentPage = filters.page ?? 1;
+  const totalPages  = Math.ceil(total / PAGE_SIZE);
 
   const goToPage = useCallback(
     (page: number) => {
@@ -151,16 +149,17 @@ export function TranslationsDashboard({
     [router, pathname, searchParams],
   );
 
-  // ── Derived metrics (all computed here, never in children) ────────────────
-  const pendingCount   = counts.queued ?? 0;
-  const needsAttention = (counts.missing ?? 0) + (counts.queued ?? 0) + (counts.failed ?? 0);
-  const slaRiskCount   = attentionCounts.slaRiskCount ?? 0;
-
+  // ── Derived metrics ────────────────────────────────────────────────────────
+  const totalJobs       = Object.values(counts).reduce((a, b) => a + b, 0);
+  const doneJobs        = (counts.auto ?? 0) + (counts.reviewed ?? 0) + (counts.edited ?? 0);
+  const completionPct   = totalJobs > 0 ? Math.round((doneJobs / totalJobs) * 100) : 0;
+  const pendingCount    = counts.queued ?? 0;
+  const slaRiskCount    = attentionCounts.slaRiskCount ?? 0;
   const isAttentionMode = !!filters.needs_attention;
   const isSlaMode       = !!filters.sla_breach;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
 
       {/* ── Page header ───────────────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-4">
@@ -168,40 +167,15 @@ export function TranslationsDashboard({
           <h1 className="font-serif text-2xl font-semibold text-foreground">
             Translation Management
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-0.5 text-sm text-muted-foreground">
             Monitor and manage listing translations across all locales
           </p>
-          <div className="mt-1.5 flex flex-wrap items-center gap-3">
-            {needsAttention > 0 && (
-              <span className="text-xs text-orange-400/80">
-                <span className="font-semibold">{needsAttention.toLocaleString()}</span>{" "}
-                need attention
-              </span>
-            )}
-            {slaRiskCount > 0 && (
-              <span className="flex items-center gap-1 text-xs text-red-400/80">
-                <ShieldAlert className="h-3 w-3" />
-                <span className="font-semibold">{slaRiskCount}</span> SLA at risk
-              </span>
-            )}
-          </div>
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          {pendingCount > 0 && (
-            <Badge
-              variant="outline"
-              className="gap-1.5 border-blue-500/20 bg-blue-500/10 text-blue-400 text-xs"
-            >
-              <Clock className="h-3 w-3" />
-              {pendingCount} queued
-            </Badge>
-          )}
-
-          <span className="hidden text-[11px] text-muted-foreground/60 sm:block">
-            Updated {lastRefreshed.toLocaleTimeString()}
+          <span className="hidden text-[11px] text-muted-foreground/50 sm:block">
+            {lastRefreshed.toLocaleTimeString()}
           </span>
-
           <Button
             variant="outline"
             size="sm"
@@ -220,6 +194,13 @@ export function TranslationsDashboard({
         counts={attentionCounts}
         isActive={isAttentionMode}
         isSlaMode={isSlaMode}
+      />
+
+      {/* ── System Health Strip ───────────────────────────────────────────── */}
+      <SystemHealthStrip
+        queued={pendingCount}
+        completionPct={completionPct}
+        slaBreached={slaRiskCount}
       />
 
       {/* ── Status cards ──────────────────────────────────────────────────── */}
@@ -249,7 +230,8 @@ export function TranslationsDashboard({
         <div className="flex items-center justify-between border-t border-border/40 pt-4">
           <span className="text-xs text-muted-foreground">
             Page{" "}
-            <span className="font-medium text-foreground">{currentPage}</span> of{" "}
+            <span className="font-medium text-foreground">{currentPage}</span>{" "}
+            of{" "}
             <span className="font-medium text-foreground">{totalPages}</span>
           </span>
           <div className="flex gap-2">
@@ -272,6 +254,66 @@ export function TranslationsDashboard({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── System Health Strip ──────────────────────────────────────────────────────
+
+function SystemHealthStrip({
+  queued,
+  completionPct,
+  slaBreached,
+}: {
+  queued:        number;
+  completionPct: number;
+  slaBreached:   number;
+}) {
+  const coverageColor =
+    completionPct >= 75
+      ? "text-emerald-400"
+      : completionPct >= 40
+      ? "text-amber-400"
+      : "text-red-400";
+
+  return (
+    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-border/40 bg-card/40 px-4 py-2.5">
+      <HealthMetric
+        label="Queued"
+        value={queued.toLocaleString()}
+        valueClass={queued > 0 ? "text-blue-400" : "text-muted-foreground"}
+      />
+      <div className="hidden h-4 w-px bg-border/50 sm:block" />
+      <HealthMetric
+        label="Coverage"
+        value={`${completionPct}%`}
+        valueClass={coverageColor}
+      />
+      <div className="hidden h-4 w-px bg-border/50 sm:block" />
+      <HealthMetric
+        label="SLA Breached"
+        value={slaBreached.toLocaleString()}
+        valueClass={slaBreached > 0 ? "text-red-400" : "text-emerald-400"}
+      />
+    </div>
+  );
+}
+
+function HealthMetric({
+  label,
+  value,
+  valueClass,
+}: {
+  label:      string;
+  value:      string;
+  valueClass: string;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-[11px] text-muted-foreground/60">{label}</span>
+      <span className={cn("text-sm font-semibold tabular-nums", valueClass)}>
+        {value}
+      </span>
     </div>
   );
 }
