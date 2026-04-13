@@ -362,60 +362,33 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
               <h2 className="text-title font-serif font-medium text-foreground">{t("sections.regions.more")}</h2>
               <p className="mt-2 text-body text-muted-foreground">{t("sections.regions.moreSubtitle")}</p>
             </m.div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {otherRegions.map((region, index) => {
-                const image = getRegionImageSet(region.slug, { includeAliases: true });
-                return (
-                  <m.div
-                    key={region.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: index * 0.05 }}
+            <div className="flex-grid-centered">
+              {otherRegions.map((region, index) => (
+                <m.div
+                  key={region.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                >
+                  <LocaleLink
+                    href={`/destinations/${region.slug}`}
+                    className="group block p-6 rounded-xl bg-background border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-elevated"
                   >
-                    <LocaleLink
-                      href={`/destinations/${region.slug}`}
-                      className="group block p-4 rounded-xl bg-background border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-elevated"
-                    >
-                      {/* Image with fallback */}
-                      {image || region.image_url || region.hero_image_url ? (
-                        <div className="relative w-full h-32 rounded-lg overflow-hidden mb-3">
-                          {image ? (
-                            <Image
-                              src={typeof image.image800 === "string" ? image.image800 : image.image800.src}
-                              alt={region.name}
-                              fill
-                              sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 200px"
-                              className="object-cover transition-transform duration-300 group-hover:scale-105"
-                            />
-                          ) : (
-                            <Image
-                              src={region.hero_image_url || region.image_url || ""}
-                              alt={region.name}
-                              fill
-                              unoptimized
-                              sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 200px"
-                              className="object-cover transition-transform duration-300 group-hover:scale-105"
-                            />
-                          )}
-                        </div>
-                      ) : (
-                        <div className="w-full h-32 rounded-lg bg-gradient-to-br from-charcoal-light to-charcoal flex items-center justify-center mb-3">
-                          <MapPin className="w-8 h-8 text-muted-foreground/30" />
-                        </div>
-                      )}
-
-                      {/* Content */}
-                      <h3 className="text-base font-serif font-medium text-foreground mb-2 group-hover:text-primary transition-colors">
-                        {region.name}
-                      </h3>
-                      <p className="text-xs text-muted-foreground line-clamp-2">
-                        {region.short_description || region.description}
-                      </p>
-                    </LocaleLink>
-                  </m.div>
-                );
-              })}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                        <MapPin className="w-6 h-6 text-primary" />
+                      </div>
+                    </div>
+                    <h3 className="text-lg font-serif font-medium text-foreground mb-2 group-hover:text-primary transition-colors">
+                      {region.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {region.short_description || region.description}
+                    </p>
+                  </LocaleLink>
+                </m.div>
+              ))}
             </div>
           </div>
         </CmsBlock>
