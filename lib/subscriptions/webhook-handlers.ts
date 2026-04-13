@@ -35,6 +35,12 @@ interface PricingLookup {
 
 // ---------- helpers ----------
 
+function getMetadataOwnerId(
+  metadata: { owner_id?: string | null; userId?: string | null } | null | undefined,
+): string | null {
+  return metadata?.owner_id ?? metadata?.userId ?? null;
+}
+
 function unixToIso(value: number | null | undefined): string | null {
   if (!value) return null;
   return new Date(value * 1000).toISOString();
@@ -139,7 +145,7 @@ export async function handleCheckoutCompleted(
   event: Stripe.Event,
 ): Promise<HandlerResult> {
   const session = event.data.object as Stripe.Checkout.Session;
-  const ownerId = session.metadata?.userId ?? null;
+  const ownerId = getMetadataOwnerId(session.metadata);
   if (!ownerId) return { ownerId: null };
 
   const pricingId = session.metadata?.pricing_id ?? null;
@@ -213,7 +219,7 @@ export async function handleSubscriptionCreatedOrUpdated(
   const customerId = typeof sub.customer === "string" ? sub.customer : null;
   const ownerId = await resolveOwnerId(
     supabase,
-    sub.metadata?.userId ?? null,
+    getMetadataOwnerId(sub.metadata),
     sub.id,
     customerId,
   );
@@ -266,7 +272,7 @@ export async function handleSubscriptionDeleted(
   const customerId = typeof sub.customer === "string" ? sub.customer : null;
   const ownerId = await resolveOwnerId(
     supabase,
-    sub.metadata?.userId ?? null,
+    getMetadataOwnerId(sub.metadata),
     sub.id,
     customerId,
   );
@@ -307,7 +313,7 @@ export async function handleInvoicePaid(
   const sub = (await stripe.subscriptions.retrieve(stripeSubscriptionId)) as Stripe.Subscription;
   const ownerId = await resolveOwnerId(
     supabase,
-    sub.metadata?.userId ?? null,
+    getMetadataOwnerId(sub.metadata),
     sub.id,
     customerId,
   );
@@ -366,7 +372,7 @@ export async function handleInvoicePaymentFailed(
   const sub = (await stripe.subscriptions.retrieve(stripeSubscriptionId)) as Stripe.Subscription;
   const ownerId = await resolveOwnerId(
     supabase,
-    sub.metadata?.userId ?? null,
+    getMetadataOwnerId(sub.metadata),
     sub.id,
     customerId,
   );
@@ -422,7 +428,7 @@ export async function handleTrialWillEnd(
   const customerId = typeof sub.customer === "string" ? sub.customer : null;
   const ownerId = await resolveOwnerId(
     supabase,
-    sub.metadata?.userId ?? null,
+    getMetadataOwnerId(sub.metadata),
     sub.id,
     customerId,
   );

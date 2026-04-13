@@ -121,6 +121,7 @@ export async function POST(request: NextRequest) {
 
   const baseMetadata = {
     userId: auth.userId,
+    owner_id: auth.userId,
     tier,
     billing_period: billingPeriod,
     plan_type: planType,

@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import type { CanonicalCategorySlug } from "./category-slugs";
 
@@ -388,12 +390,10 @@ export async function getCityPageData(citySlug: string): Promise<CityPageData | 
  * Fetches all data needed to render a localized /visit/{city}/{category} page.
  * Returns null only when the city/category slugs do not exist.
  */
-export async function getCategoryCityPageDataAllowEmpty(
+export const getCategoryCityPageDataAllowEmpty = cache(async (
   canonicalCategorySlug: string,
   citySlug: string,
-): Promise<CategoryCityPageData | null> {
-  console.log("category param (direct):", canonicalCategorySlug);
-  
+): Promise<CategoryCityPageData | null> => {
   const supabase = createPublicServerClient();
 
   // 1. Resolve IDs for the slugs - USE EXACT SLUG from URL
@@ -410,9 +410,6 @@ export async function getCategoryCityPageDataAllowEmpty(
       .single(),
   ]);
 
-  console.log("db category match:", catRes.data);
-  console.log("db city match:", cityRes.data);
-  
   if (!catRes.data || !cityRes.data) return null;
 
   const categoryId = catRes.data.id;
@@ -499,7 +496,7 @@ export async function getCategoryCityPageDataAllowEmpty(
     relatedCategories,
     totalCount: countRes.count ?? 0,
   };
-}
+});
 
 export async function getCategoryCityPageData(
   canonicalCategorySlug: string,

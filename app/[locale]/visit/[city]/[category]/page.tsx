@@ -23,7 +23,6 @@ import {
 import {
   getAllCategoryCityCombinations,
   getCategoryCityPageDataAllowEmpty,
-  getInternalLinksData,
   isValidCitySlug,
 } from "@/lib/seo/programmatic/category-city-data";
 import { generateSeoContentBlock } from "@/lib/seo/programmatic/content-blocks";
@@ -172,13 +171,8 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
   const routeData = buildCityCategoryRouteData(canonical, citySlug);
   const localeSwitchPaths = buildLocaleSwitchPathsForEntity(routeData, SUPPORTED_LOCALES);
 
-  const [data, internalLinksData] = await Promise.all([
-    getCategoryCityPageDataAllowEmpty(canonical, citySlug),
-    getInternalLinksData(canonical, citySlug, 8),
-  ]);
+  const data = await getCategoryCityPageDataAllowEmpty(canonical, citySlug);
   if (!data) notFound();
-
-  const { categoriesInCity, citiesWithCategory } = internalLinksData;
 
   const content = generateSeoContentBlock(
     locale,
@@ -361,8 +355,8 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
           locale={locale}
           currentCity={citySlug}
           currentCategory={canonical}
-          categoriesInCity={categoriesInCity}
-          citiesWithCategory={citiesWithCategory}
+          categoriesInCity={data.relatedCategories}
+          citiesWithCategory={data.relatedCities}
           maxItems={8}
           className="app-container py-8 border-t border-border"
         />

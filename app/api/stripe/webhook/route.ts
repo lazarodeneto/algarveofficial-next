@@ -67,12 +67,34 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const previousByOwner = new Map<string, Awaited<ReturnType<typeof findByOwner>>>();
+    const getPrevious = async (ownerId: string) => {
+      if (previousByOwner.has(ownerId)) {
+        return previousByOwner.get(ownerId) ?? null;
+      }
+      const previous = await findByOwner(supabase, ownerId);
+      previousByOwner.set(ownerId, previous);
+      return previous;
+    };
+
+    // Capture the current row before the handler mutates it so audit logging
+    // and tier application can compare the true before/after state.
+    const previousOwnerId = (() => {
+      const object = event.data.object as {
+        metadata?: { userId?: string | null; owner_id?: string | null } | null;
+      };
+      return object?.metadata?.owner_id ?? object?.metadata?.userId ?? null;
+    })();
+    if (previousOwnerId) {
+      await getPrevious(previousOwnerId);
+    }
+
     const result = await handler(stripe, supabase, event);
     const ownerId = result.ownerId;
 
     if (ownerId) {
       // Re-read the row after the handler wrote, then apply tier and audit.
-      const previous = result.skipped ? null : await findByOwner(supabase, ownerId);
+      const previous = await getPrevious(ownerId);
       const next = await findByOwner(supabase, ownerId);
 
       if (next && !result.skipped) {
