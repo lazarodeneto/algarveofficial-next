@@ -349,8 +349,8 @@ export default function AdminCmsRegions() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <DashboardBreadcrumb />
-          <h1 className="text-2xl font-serif font-medium text-foreground mt-2">Premium Regions</h1>
-          <p className="text-muted-foreground">Drag to reorder, manage editorial regions</p>
+          <h1 className="text-2xl font-serif font-medium text-foreground mt-2">Destinations & Regions</h1>
+          <p className="text-muted-foreground">Manage all destination regions. Drag to reorder, toggle visibility on destinations page</p>
         </div>
         <Button onClick={handleCreateRegion}>
           <Plus className="h-4 w-4 mr-2" />
@@ -463,28 +463,36 @@ export default function AdminCmsRegions() {
                 />
               </div>
 
-              {/* Featured toggle */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Featured on Homepage</Label>
-                  <p className="text-xs text-muted-foreground">Show this region in the homepage carousel</p>
+              {/* Visibility Settings */}
+              <div className="border-t border-border pt-6">
+                <div className="mb-4">
+                  <Label className="text-base font-semibold">Visibility Settings</Label>
+                  <p className="text-xs text-muted-foreground mt-1">Control where this region appears</p>
                 </div>
-                <Switch
-                  checked={editingRegion.is_featured}
-                  onCheckedChange={(checked) => setEditingRegion({ ...editingRegion, is_featured: checked })}
-                />
-              </div>
 
-              {/* Visible on destinations toggle */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Visible on Destinations</Label>
-                  <p className="text-xs text-muted-foreground">Show this region on the destinations page</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex items-start justify-between p-4 border border-border rounded-lg bg-muted/30">
+                    <div>
+                      <Label className="font-medium">Featured on Homepage</Label>
+                      <p className="text-xs text-muted-foreground mt-1">Show in homepage carousel</p>
+                    </div>
+                    <Switch
+                      checked={editingRegion.is_featured}
+                      onCheckedChange={(checked) => setEditingRegion({ ...editingRegion, is_featured: checked })}
+                    />
+                  </div>
+
+                  <div className="flex items-start justify-between p-4 border border-primary/30 rounded-lg bg-primary/5">
+                    <div>
+                      <Label className="font-medium">Show on Destinations Page</Label>
+                      <p className="text-xs text-muted-foreground mt-1">Include in destinations page</p>
+                    </div>
+                    <Switch
+                      checked={editingRegion.is_visible_destinations}
+                      onCheckedChange={(checked) => setEditingRegion({ ...editingRegion, is_visible_destinations: checked })}
+                    />
+                  </div>
                 </div>
-                <Switch
-                  checked={editingRegion.is_visible_destinations}
-                  onCheckedChange={(checked) => setEditingRegion({ ...editingRegion, is_visible_destinations: checked })}
-                />
               </div>
 
               {/* Image URL */}

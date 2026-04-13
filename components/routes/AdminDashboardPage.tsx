@@ -51,9 +51,6 @@ const AdminCmsCategories = withAdminLoading(
 const AdminCmsCities = withAdminLoading(
   () => import("@/legacy-pages/admin/cms/AdminCmsCities"),
 );
-const AdminCmsDestinations = withAdminLoading(
-  () => import("@/legacy-pages/admin/cms/AdminCmsDestinations"),
-);
 const AdminCmsRegions = withAdminLoading(
   () => import("@/legacy-pages/admin/cms/AdminCmsRegions"),
 );
@@ -164,7 +161,6 @@ const staticRouteMap: Record<string, ComponentType> = {
   "content/privacy": AdminPrivacyPage,
   "content/cookies": AdminCookiePage,
   "content/regions": AdminCmsRegions,
-  "content/destinations": AdminCmsDestinations,
   "content/cities": AdminCmsCities,
   "content/categories": AdminCmsCategories,
   "content/header": AdminHeaderMenu,

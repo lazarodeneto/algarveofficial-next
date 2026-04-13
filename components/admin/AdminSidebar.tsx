@@ -121,7 +121,6 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
     },
     { label: t("admin.sidebar.newEvent"), href: "/admin/content/events/new", icon: PenSquare },
     { label: t("admin.sidebar.regions"), href: "/admin/content/regions", icon: Mountain },
-    { label: t("admin.sidebar.destinations"), href: "/admin/content/destinations", icon: Compass },
     { label: t("admin.sidebar.cities"), href: "/admin/content/cities", icon: MapPin },
     { label: t("admin.sidebar.categories"), href: "/admin/content/categories", icon: Tags },
     { label: t("admin.sidebar.mediaLibrary"), href: "/admin/content/media", icon: Image },
