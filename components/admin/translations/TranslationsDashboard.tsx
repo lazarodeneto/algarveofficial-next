@@ -161,7 +161,14 @@ export function TranslationsDashboard({
     [router, pathname, searchParams],
   );
 
+  // ── Derived metrics (computed here, never in child components) ───────────────
+  // Pending = queued only — real pipeline pressure
   const pendingCount = counts.queued ?? 0;
+  // Needs attention = missing + queued + failed — actionable problems
+  const needsAttention = (counts.missing ?? 0) + (counts.queued ?? 0) + (counts.failed ?? 0);
+  // SLA risk placeholder — queued jobs at risk; expand when SLA thresholds are defined
+  const slaRiskCount = counts.queued ?? 0;
+
   const isAttentionMode = filters.needs_attention === true;
 
   return (
@@ -175,6 +182,11 @@ export function TranslationsDashboard({
           <p className="mt-1 text-sm text-muted-foreground">
             Monitor and manage listing translations across all locales
           </p>
+          {needsAttention > 0 && (
+            <p className="mt-1 text-xs text-orange-400/80">
+              <span className="font-semibold">{needsAttention.toLocaleString()}</span> need attention
+            </p>
+          )}
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
@@ -184,7 +196,7 @@ export function TranslationsDashboard({
               className="gap-1.5 border-blue-500/20 bg-blue-500/10 text-blue-400 text-xs"
             >
               <Clock className="h-3 w-3" />
-              {pendingCount} pending
+              {pendingCount} queued
             </Badge>
           )}
 

@@ -92,10 +92,27 @@ function enrichGroup(listing: ListingRow, jobs: TranslationJob[]): ListingJobGro
 }
 
 // ─── Status Counts ────────────────────────────────────────────────────────────
+// Uses parallel head-only count queries — never fetches row data.
+// Safe with 9 000+ rows; each query is O(index scan) on the status column.
 
 export async function getStatusCounts(supabase: Supabase): Promise<StatusCounts> {
-  const { data, error } = await supabase.from("translation_jobs").select("status");
-  if (error) throw error;
+  const statuses: TranslationStatus[] = [
+    "missing",
+    "queued",
+    "auto",
+    "reviewed",
+    "edited",
+    "failed",
+  ];
+
+  const results = await Promise.all(
+    statuses.map((s) =>
+      supabase
+        .from("translation_jobs")
+        .select("*", { count: "exact", head: true })
+        .eq("status", s),
+    ),
+  );
 
   const counts: StatusCounts = {
     missing: 0,
@@ -106,10 +123,14 @@ export async function getStatusCounts(supabase: Supabase): Promise<StatusCounts>
     failed: 0,
   };
 
-  for (const row of data ?? []) {
-    const s = row.status as TranslationStatus;
-    if (s in counts) counts[s]++;
-  }
+  statuses.forEach((s, i) => {
+    const r = results[i];
+    if (!r.error) counts[s] = r.count ?? 0;
+  });
+
+  // SLA placeholder — queued jobs at risk of breaching processing SLA
+  const slaRiskCount = counts.queued;
+  console.log("[TranslationStatusCounts]", counts, { slaRiskCount });
 
   return counts;
 }
