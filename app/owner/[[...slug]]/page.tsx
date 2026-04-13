@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 import { DEFAULT_LOCALE } from "@/lib/i18n/config";
 
 export default async function OwnerPage({
@@ -8,5 +8,5 @@ export default async function OwnerPage({
 }) {
   const { slug } = await params;
   const path = slug?.length ? `/${slug.join("/")}` : "";
-  redirect(`/${DEFAULT_LOCALE}/owner${path}`);
+  permanentRedirect(`/${DEFAULT_LOCALE}/owner${path}`);
 }

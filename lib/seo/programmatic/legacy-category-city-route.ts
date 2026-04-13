@@ -41,6 +41,10 @@ export interface LegacyCategoryCityRouteMatch {
   canonicalPath: string;
 }
 
+const LEGACY_CATEGORY_ALIASES: Record<string, string> = {
+  activities: "experiences",
+};
+
 export function resolveLegacyCategoryCityRoute(
   locale: Locale,
   legacyCategorySegment: string,
@@ -58,7 +62,10 @@ export function resolveLegacyCategoryCityRoute(
     return null;
   }
 
-  const canonicalCategory = getCanonicalFromUrlSlug(categorySegment, locale);
+  const canonicalCategory = getCanonicalFromUrlSlug(
+    LEGACY_CATEGORY_ALIASES[categorySegment] ?? categorySegment,
+    locale,
+  );
   if (!canonicalCategory) {
     return null;
   }

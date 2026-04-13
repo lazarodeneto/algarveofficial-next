@@ -29,6 +29,20 @@ interface PageProps {
 
 export const revalidate = 60;
 
+function formatTemplate(
+  template: string | undefined,
+  replacements: Record<string, string>,
+): string {
+  if (!template) {
+    return "";
+  }
+
+  return Object.entries(replacements).reduce(
+    (result, [key, value]) => result.replaceAll(`{{${key}}}`, value),
+    template,
+  );
+}
+
 function buildCategoryRouteData(
   canonical: CanonicalCategorySlug,
 ): CategoryRouteData {
@@ -160,7 +174,38 @@ export default async function CategoryHubPage({ params }: PageProps) {
   const categoryRouteData = buildCategoryRouteData(canonicalSlug);
   const localeSwitchPaths = buildLocaleSwitchPathsForEntity(categoryRouteData, SUPPORTED_LOCALES);
 
-  const tx = await getServerTranslations(locale, ["common"]);
+  const tx = await getServerTranslations(locale, [
+    "common.signature",
+    "common.verified",
+    "common.curated",
+    "common.fromPrice",
+    "guides.getFeatured",
+    "guides.listYourBusiness",
+    "guides.upgradeYourListing",
+    "categoryHub.heroTitle",
+    "categoryHub.heroDescription",
+    "categoryHub.topCities",
+    "categoryHub.featured",
+    "categoryHub.visibilityTitle",
+    "categoryHub.visibilityDescription",
+    "categoryHub.bottomTitle",
+    "categoryHub.bottomDescription",
+  ]);
+  const templateValues = { category: categoryName };
+  const heroTitle = formatTemplate(tx["categoryHub.heroTitle"], templateValues);
+  const heroDescription = formatTemplate(tx["categoryHub.heroDescription"], templateValues);
+  const topCitiesTitle = formatTemplate(tx["categoryHub.topCities"], templateValues);
+  const featuredTitle = formatTemplate(tx["categoryHub.featured"], templateValues);
+  const visibilityTitle = tx["categoryHub.visibilityTitle"] ?? "";
+  const visibilityDescription = formatTemplate(
+    tx["categoryHub.visibilityDescription"],
+    templateValues,
+  );
+  const bottomTitle = formatTemplate(tx["categoryHub.bottomTitle"], templateValues);
+  const bottomDescription = formatTemplate(
+    tx["categoryHub.bottomDescription"],
+    templateValues,
+  );
 
   return (
     <>
@@ -169,18 +214,17 @@ export default async function CategoryHubPage({ params }: PageProps) {
         <section className="bg-gradient-to-b from-background/60 to-background py-12">
           <div className="app-container">
             <h1 className="font-serif text-4xl md:text-5xl mb-4">
-              {categoryName} in the Algarve
+              {heroTitle}
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl">
-              Discover the best {categoryName.toLowerCase()} across the Algarve. 
-              Browse by city to find curated local recommendations.
+              {heroDescription}
             </p>
           </div>
         </section>
         
         <section className="app-container py-8">
           <h2 className="text-xl font-semibold mb-4">
-            Top cities for {categoryName}
+            {topCitiesTitle}
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {topCities.map((city) => (
@@ -205,7 +249,7 @@ export default async function CategoryHubPage({ params }: PageProps) {
         {listingData && listingData.length > 0 && (
           <section className="app-container py-8">
             <h2 className="text-xl font-semibold mb-4">
-              Featured {categoryName}
+              {featuredTitle}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {listingData.slice(0, 12).map((listing) => (
@@ -219,23 +263,23 @@ export default async function CategoryHubPage({ params }: PageProps) {
           <section className="app-container py-8 border-t border-border bg-gradient-to-b from-primary/5 to-transparent">
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-2xl font-serif font-semibold mb-3">
-                Get More Visibility in the Algarve
+                {visibilityTitle}
               </h2>
               <p className="text-muted-foreground mb-6">
-                Stand out from the competition. Upgrade your {categoryName.toLowerCase()} listing to reach more customers.
+                {visibilityDescription}
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <LocaleLink 
                   href={`/partner?category=${canonicalSlug}`}
                   className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
                 >
-                  Upgrade Your Listing
+                  {tx["guides.upgradeYourListing"]}
                 </LocaleLink>
                 <LocaleLink 
                   href={buildStaticRouteData("partner")}
                   className="inline-flex items-center justify-center rounded-full border border-primary px-6 py-3 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
                 >
-                  Get Featured
+                  {tx["guides.getFeatured"]}
                 </LocaleLink>
               </div>
             </div>
@@ -245,17 +289,17 @@ export default async function CategoryHubPage({ params }: PageProps) {
         <section className="app-container py-8 border-t border-border bg-muted/30">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-2xl font-serif font-semibold mb-4">
-              Find the best {categoryName} in the Algarve
+              {bottomTitle}
             </h2>
             <p className="text-muted-foreground mb-6">
-              Discover curated {categoryName.toLowerCase()} across the Algarve. From local favorites to premium experiences.
+              {bottomDescription}
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <LocaleLink 
                 href={buildStaticRouteData("partner")}
                 className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
               >
-                List Your Business
+                {tx["guides.listYourBusiness"]}
               </LocaleLink>
             </div>
           </div>

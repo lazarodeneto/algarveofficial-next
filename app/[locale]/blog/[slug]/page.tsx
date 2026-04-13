@@ -87,7 +87,11 @@ export default async function LocaleBlogPostPage({ params }: LocaleBlogPostPageP
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
       <Suspense fallback={<RouteLoadingState />}>
-        <BlogPost localeSwitchPaths={localeSwitchPaths} localizedRoute={routeData} />
+        <BlogPost
+          localeSwitchPaths={localeSwitchPaths}
+          localizedRoute={routeData}
+          initialPost={post}
+        />
       </Suspense>
     </>
   );

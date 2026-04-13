@@ -1602,6 +1602,16 @@
     "viewAllInCity": "Ver todos los {{category}} en {{city}}",
     "categoryInCity": "{{category}} en {{city}}"
   },
+  "categoryHub": {
+    "heroTitle": "{{category}} en el Algarve",
+    "heroDescription": "Descubre los mejores {{category}} en todo el Algarve. Explora por ciudad para encontrar recomendaciones locales seleccionadas.",
+    "topCities": "Ciudades principales para {{category}}",
+    "featured": "{{category}} destacados",
+    "visibilityTitle": "Consigue Más Visibilidad en el Algarve",
+    "visibilityDescription": "Destaca frente a la competencia. Mejora tu anuncio de {{category}} para llegar a más clientes.",
+    "bottomTitle": "Encuentra los mejores {{category}} en el Algarve",
+    "bottomDescription": "Descubre {{category}} seleccionados en todo el Algarve. Desde favoritos locales hasta experiencias premium."
+  },
   "hero": {
     "aiPlannerButton": "PLANIFICADOR IA",
     "aiPlannerPlaceholder": "Planificador IA del Algarve... (p.ej. 'Planear 3 días en el Algarve')",

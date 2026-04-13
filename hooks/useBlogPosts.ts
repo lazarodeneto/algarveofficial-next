@@ -125,7 +125,10 @@ export function usePublishedBlogPosts(category?: BlogCategory) {
 }
 
 // Fetch a single blog post by slug for public view
-export function usePublishedBlogPost(slug: string | undefined) {
+export function usePublishedBlogPost(
+  slug: string | undefined,
+  initialPost?: BlogPostWithAuthor | null,
+) {
   const locale = normalizeBlogLocale(useCurrentLocale());
   const isBrowser = typeof window !== "undefined";
   const now = new Date().toISOString();
@@ -170,16 +173,16 @@ export function usePublishedBlogPost(slug: string | undefined) {
         .from('public_profiles')
         .select('id, full_name, avatar_url')
         .eq('id', localizedPost.author_id)
-        .single();
+        .maybeSingle();
 
       return {
         ...localizedPost,
-        author,
+        author: author ?? undefined,
       } as BlogPostWithAuthor;
     },
     staleTime: 1000 * 60 * 10, // Cache for 10 minutes
     enabled: isBrowser && !!slug,
-    initialData: null as BlogPostWithAuthor | null,
+    initialData: initialPost ?? null,
   });
 }
 

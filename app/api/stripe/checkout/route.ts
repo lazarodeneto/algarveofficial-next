@@ -35,7 +35,13 @@ function resolveSiteUrl(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const stripe = getStripeServerClient();
   if (!stripe) {
-    return NextResponse.json({ error: "Missing STRIPE_SECRET_KEY." }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: "Stripe checkout is unavailable because STRIPE_SECRET_KEY is not configured on the server.",
+        code: "STRIPE_SECRET_KEY_MISSING",
+      },
+      { status: 503 },
+    );
   }
 
   const auth = await requireAuthenticatedOwner(request);

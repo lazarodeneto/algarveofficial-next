@@ -1,5 +1,5 @@
 import { cookies, headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 import {
   DEFAULT_LOCALE,
   type Locale,
@@ -97,7 +97,7 @@ export async function redirectToPreferredLocalePath(
   const normalizedPath =
     pathname === "/" ? "" : pathname.startsWith("/") ? pathname : `/${pathname}`;
 
-  redirect(`/${locale}${normalizedPath}`);
+  permanentRedirect(`/${locale}${normalizedPath}`);
 }
 
 export async function redirectUnlocalizedAliasPath(
@@ -114,5 +114,5 @@ export async function redirectUnlocalizedAliasPath(
   const targetPath = buildLocalizedPath(locale, pathname);
   const query = params.toString();
 
-  redirect(query ? `${targetPath}?${query}` : targetPath);
+  permanentRedirect(query ? `${targetPath}?${query}` : targetPath);
 }

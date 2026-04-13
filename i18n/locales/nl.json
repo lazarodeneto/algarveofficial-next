@@ -1602,6 +1602,16 @@
     "viewAllInCity": "Bekijk alle {{category}} in {{city}}",
     "categoryInCity": "{{category}} in {{city}}"
   },
+  "categoryHub": {
+    "heroTitle": "{{category}} in de Algarve",
+    "heroDescription": "Ontdek de beste {{category}} in de Algarve. Blader per stad om zorgvuldig geselecteerde lokale aanbevelingen te vinden.",
+    "topCities": "Topsteden voor {{category}}",
+    "featured": "Uitgelichte {{category}}",
+    "visibilityTitle": "Krijg Meer Zichtbaarheid in de Algarve",
+    "visibilityDescription": "Val op tussen de concurrentie. Upgrade je {{category}}-vermelding om meer klanten te bereiken.",
+    "bottomTitle": "Vind de beste {{category}} in de Algarve",
+    "bottomDescription": "Ontdek zorgvuldig geselecteerde {{category}} in de Algarve. Van lokale favorieten tot premium ervaringen."
+  },
   "hero": {
     "aiPlannerButton": "AI PLANNER",
     "aiPlannerPlaceholder": "AI Algarve Planner... (bijv. 'Plan 3 dagen in de Algarve')",

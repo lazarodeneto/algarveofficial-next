@@ -158,7 +158,7 @@ function getPreferredLocale(request: NextRequest): string {
 function redirectTo(
   request: NextRequest,
   pathname: string,
-  status: 301 | 302 | 307 | 308,
+  status: 301 | 302 | 308,
   options?: {
     varyByLocaleSignals?: boolean;
   },
@@ -238,7 +238,7 @@ export function proxy(request: NextRequest) {
   }
 
   if (hasValidLocalePrefix && unlocalizedPath) {
-    return redirectTo(request, unlocalizedPath, 307);
+    return redirectTo(request, unlocalizedPath, 308);
   }
 
   if (hasValidLocalePrefix && canonicalLocalizedPath) {
@@ -262,7 +262,7 @@ export function proxy(request: NextRequest) {
   }
 
   if (canonicalLocalizedPath) {
-    return redirectTo(request, `/${locale}${canonicalLocalizedPath}`, 307, {
+    return redirectTo(request, `/${locale}${canonicalLocalizedPath}`, 308, {
       varyByLocaleSignals: true,
     });
   }
@@ -274,7 +274,7 @@ export function proxy(request: NextRequest) {
   const localizedPath = `/${locale}${pathname}`;
   const pageSlug = segments[0]?.toLowerCase() ?? "";
   const isPublicSeoPage = PUBLIC_SEO_PAGES.has(pageSlug);
-  const status = isPublicSeoPage ? 301 : 307;
+  const status = isPublicSeoPage ? 301 : 308;
 
   return redirectTo(request, localizedPath, status);
 }

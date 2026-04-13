@@ -42,17 +42,20 @@ import {
 import { 
   usePublishedBlogPost, 
   useIncrementBlogViews,
-  blogCategoryLabels 
+  blogCategoryLabels,
+  type BlogPostWithAuthor,
 } from '@/hooks/useBlogPosts';
 
 interface BlogPostProps {
   localeSwitchPaths?: Partial<Record<Locale, string>>;
   localizedRoute?: BlogPostRouteData;
+  initialPost?: BlogPostWithAuthor | null;
 }
 
 export default function BlogPost({
   localeSwitchPaths,
   localizedRoute,
+  initialPost,
 }: BlogPostProps = {}) {
   const { slug: rawSlug } = useParams<{ slug?: string | string[] }>();
   const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
@@ -60,8 +63,9 @@ export default function BlogPost({
   const { t } = useTranslation();
   const locale = useCurrentLocale();
   const l = useLocalePath();
+  const isBrowser = typeof window !== "undefined";
 
-  const { data: post, isLoading, error } = usePublishedBlogPost(slug);
+  const { data: post, isLoading, error } = usePublishedBlogPost(slug, initialPost);
   const { mutate: incrementViews } = useIncrementBlogViews();
 
   // Increment views on mount with session deduplication
@@ -91,7 +95,7 @@ export default function BlogPost({
     window.open(urls[platform], '_blank', 'width=600,height=400');
   };
 
-  if (isLoading) {
+  if (isLoading || (!isBrowser && !post && !error)) {
     return (
       <div className="min-h-screen bg-background">
         <Header localeSwitchPaths={localeSwitchPaths} />
