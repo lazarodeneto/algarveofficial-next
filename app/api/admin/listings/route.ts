@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 import type { Database } from "@/integrations/supabase/types";
 import { logAdminMutation } from "@/lib/server/admin-audit-log";
 import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
-
-type ListingInsert = Database["public"]["Tables"]["listings"]["Insert"];
-type ListingUpdate = Database["public"]["Tables"]["listings"]["Update"];
+import { listingFormSchema } from "@/lib/forms/schema";
 
 type ListingImageInput = {
   url: string;
@@ -37,15 +36,6 @@ function parseListingImages(raw: unknown): ListingImageInput[] {
   return rows;
 }
 
-function parseListingInsert(raw: unknown): ListingInsert | null {
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
-  const listing = { ...(raw as Record<string, unknown>) } as ListingInsert;
-  delete (listing as Record<string, unknown>).id;
-  delete (listing as Record<string, unknown>).created_at;
-  delete (listing as Record<string, unknown>).updated_at;
-  return listing;
-}
-
 export async function POST(request: NextRequest) {
   const auth = await requireAdminWriteClient(
     request,
@@ -65,16 +55,30 @@ export async function POST(request: NextRequest) {
     return adminErrorResponse(400, "INVALID_JSON", "Request body must be valid JSON.");
   }
 
-  const listing = parseListingInsert(body.listing);
-  if (!listing) {
-    return adminErrorResponse(400, "INVALID_LISTING", "Invalid listing payload.");
+  const images = parseListingImages(body.images);
+
+  // Validate listing payload with Zod first
+  const parsed = listingFormSchema.safeParse(body.listing);
+  if (!parsed.success) {
+    return adminErrorResponse(
+      400,
+      "VALIDATION_ERROR",
+      JSON.stringify(parsed.error.flatten().fieldErrors),
+    );
   }
 
-  const images = parseListingImages(body.images);
+  const validated = parsed.data;
+
+  // Insert listing with validated data
+  const insertData = {
+    ...validated,
+    status: validated.published_status,
+    owner_id: auth.userId,
+  } as Database["public"]["Tables"]["listings"]["Insert"];
 
   const { data: created, error: createError } = await auth.writeClient
     .from("listings")
-    .insert(listing)
+    .insert(insertData)
     .select("*")
     .single();
 
@@ -86,6 +90,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Handle images
   if (images.length > 0) {
     const imageRows = images.map((img) => ({
       listing_id: created.id,
@@ -160,7 +165,7 @@ export async function PATCH(request: NextRequest) {
   if (action === "bulk-publish") {
     const { error } = await auth.writeClient
       .from("listings")
-      .update({ status: "published", published_at: new Date().toISOString() } satisfies ListingUpdate)
+      .update({ status: "published", published_at: new Date().toISOString() } as Database["public"]["Tables"]["listings"]["Update"])
       .in("id", ids);
 
     if (error) {
