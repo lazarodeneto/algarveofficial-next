@@ -65,7 +65,7 @@ interface HeroContent {
   subtitle: string;
   primaryCta: { label: string; link: string };
   secondaryCta: { label: string; link: string };
-  overlayIntensity: number;
+  overlayIntensity: number | null;
   autoplay: boolean;
   loop: boolean;
   muted: boolean;
@@ -80,6 +80,8 @@ interface HomeSection {
   order: number;
 }
 
+const DEFAULT_OVERLAY_INTENSITY = 50;
+
 const DEFAULT_HERO_CONTENT: HeroContent = {
   videoUrl: '',
   posterUrl: '',
@@ -89,7 +91,7 @@ const DEFAULT_HERO_CONTENT: HeroContent = {
   subtitle: '',
   primaryCta: { label: 'AI PLANNER', link: '#regions' },
   secondaryCta: { label: 'Signature Selection', link: '#curated-excellence' },
-  overlayIntensity: 50,
+  overlayIntensity: DEFAULT_OVERLAY_INTENSITY,
   autoplay: true,
   loop: true,
   muted: true,
@@ -234,6 +236,7 @@ export default function AdminHomePage() {
   const posterInputRef = useRef<HTMLInputElement>(null);
   const quickLinkImageInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const quickLinkVideoInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const overlayIntensity = heroContent.overlayIntensity ?? DEFAULT_OVERLAY_INTENSITY;
 
   // Sync with database settings
   useEffect(() => {
@@ -245,7 +248,10 @@ export default function AdminHomePage() {
         posterUrl: settings.hero_poster_url || '',
         youtubeUrl: settings.hero_youtube_url || '',
         mediaType: (settings as any).hero_media_type || 'video',
-        overlayIntensity: (settings as any).hero_overlay_intensity ?? DEFAULT_HERO_CONTENT.overlayIntensity,
+        overlayIntensity:
+          (settings as any).hero_overlay_intensity ??
+          prev.overlayIntensity ??
+          DEFAULT_OVERLAY_INTENSITY,
         autoplay: (settings as any).hero_autoplay ?? DEFAULT_HERO_CONTENT.autoplay,
         loop: (settings as any).hero_loop ?? DEFAULT_HERO_CONTENT.loop,
         muted: (settings as any).hero_muted ?? DEFAULT_HERO_CONTENT.muted,
@@ -547,7 +553,7 @@ export default function AdminHomePage() {
         hero_youtube_url: heroContent.mediaType === 'youtube' ? heroContent.youtubeUrl : null,
         hero_poster_url: heroContent.posterUrl,
         hero_media_type: heroContent.mediaType,
-        hero_overlay_intensity: heroContent.overlayIntensity,
+        hero_overlay_intensity: overlayIntensity,
         hero_autoplay: heroContent.autoplay,
         hero_loop: heroContent.loop,
         hero_muted: heroContent.muted,
@@ -580,7 +586,7 @@ export default function AdminHomePage() {
         hero_poster_url: null,
         hero_youtube_url: null,
         hero_media_type: DEFAULT_HERO_CONTENT.mediaType,
-        hero_overlay_intensity: DEFAULT_HERO_CONTENT.overlayIntensity,
+        hero_overlay_intensity: DEFAULT_OVERLAY_INTENSITY,
         hero_autoplay: DEFAULT_HERO_CONTENT.autoplay,
         hero_loop: DEFAULT_HERO_CONTENT.loop,
         hero_muted: DEFAULT_HERO_CONTENT.muted,
@@ -592,7 +598,7 @@ export default function AdminHomePage() {
         posterUrl: DEFAULT_HERO_CONTENT.posterUrl,
         youtubeUrl: DEFAULT_HERO_CONTENT.youtubeUrl,
         mediaType: DEFAULT_HERO_CONTENT.mediaType,
-        overlayIntensity: DEFAULT_HERO_CONTENT.overlayIntensity,
+        overlayIntensity: DEFAULT_OVERLAY_INTENSITY,
         autoplay: DEFAULT_HERO_CONTENT.autoplay,
         loop: DEFAULT_HERO_CONTENT.loop,
         muted: DEFAULT_HERO_CONTENT.muted,
@@ -794,7 +800,7 @@ export default function AdminHomePage() {
                   )}
                   <div
                     className="absolute inset-0 bg-gradient-to-b from-background/60 to-background pointer-events-none"
-                    style={{ opacity: heroContent.overlayIntensity / 100 }}
+                    style={{ opacity: overlayIntensity / 100 }}
                   />
                 </div>
 
@@ -894,10 +900,15 @@ export default function AdminHomePage() {
                 )}
 
                 <div className="space-y-3">
-                  <Label>Overlay Intensity: {heroContent.overlayIntensity}%</Label>
+                  <Label>Overlay Intensity: {overlayIntensity}%</Label>
                   <Slider
-                    value={[heroContent.overlayIntensity]}
-                    onValueChange={([v]) => setHeroContent(prev => ({ ...prev, overlayIntensity: v }))}
+                    value={[overlayIntensity]}
+                    onValueChange={([v]) =>
+                      setHeroContent((prev) => ({
+                        ...prev,
+                        overlayIntensity: v ?? prev.overlayIntensity ?? DEFAULT_OVERLAY_INTENSITY,
+                      }))
+                    }
                     max={100}
                     step={5}
                     className="py-2"
