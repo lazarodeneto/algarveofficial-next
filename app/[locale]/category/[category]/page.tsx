@@ -154,11 +154,21 @@ export default async function CategoryHubPage({ params }: PageProps) {
     .order("is_curated", { ascending: false })
     .order("google_rating", { ascending: false, nullsFirst: false })
     .limit(50) as { data: any[] };
+
+  const safeListingsForLocale =
+    locale === "en"
+      ? listingData ?? []
+      : (listingData ?? []).map((listing) => ({
+          ...listing,
+          // These category cards currently read from base listing fields only.
+          // Hide body copy on localized routes rather than leaking English text.
+          short_description: null,
+        }));
   
   const cityMap = new Map(cityData?.map(c => [c.id, c]) || []);
   
   const cityAggs = new Map<string, { slug: string; name: string; count: number }>();
-  for (const listing of listingData || []) {
+  for (const listing of safeListingsForLocale) {
     const city = Array.isArray(listing.cities) ? listing.cities[0] : (listing.cities as { slug: string; name: string } | null);
     if (!city) continue;
     const existing = cityAggs.get(city.slug);
@@ -246,20 +256,20 @@ export default async function CategoryHubPage({ params }: PageProps) {
           </div>
         </section>
         
-        {listingData && listingData.length > 0 && (
+        {safeListingsForLocale.length > 0 && (
           <section className="app-container py-8">
             <h2 className="text-xl font-semibold mb-4">
               {featuredTitle}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {listingData.slice(0, 12).map((listing) => (
+              {safeListingsForLocale.slice(0, 12).map((listing) => (
                 <ListingCard key={listing.id} listing={listing} tx={tx} />
               ))}
             </div>
           </section>
         )}
 
-        {listingData && listingData.length > 0 && (
+        {safeListingsForLocale.length > 0 && (
           <section className="app-container py-8 border-t border-border bg-gradient-to-b from-primary/5 to-transparent">
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-2xl font-serif font-semibold mb-3">
