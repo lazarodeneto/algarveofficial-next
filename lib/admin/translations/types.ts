@@ -18,6 +18,9 @@ export interface TranslationJob {
   last_error: string | null;
   created_at: string;
   updated_at: string;
+  // SLA fields (added in migration 018 — gracefully absent on older rows)
+  sla_deadline: string | null;
+  sla_priority: number;
 }
 
 export interface ListingRow {
@@ -27,7 +30,6 @@ export interface ListingRow {
   category: string;
   tier: "signature" | "verified";
   status: "published" | "draft";
-  // Optional enrichment fields — may not exist in all schema versions
   is_homepage_visible?: boolean;
   is_top_category?: boolean;
 }
@@ -35,14 +37,15 @@ export interface ListingRow {
 export interface ListingJobGroup {
   listing: ListingRow;
   jobs: TranslationJob[];
-  // ── Backend-computed fields (never derived in UI) ──────────────────────────
+  // ── Backend-computed — never derived in UI ─────────────────────────────────
   priorityScore: number;
-  seoCoverage: number;           // 0–100
+  seoCoverage: number;        // 0–100
   seoCoverageLabel: SeoCoverageLabel;
   doneCount: number;
-  problemCount: number;          // missing + failed
-  pendingCount: number;          // queued only
-  attentionCount: number;        // missing + queued + failed
+  problemCount: number;       // missing + failed
+  pendingCount: number;       // queued only
+  attentionCount: number;     // missing + queued + failed
+  slaBreachCount: number;     // jobs past their sla_deadline
 }
 
 export interface StatusCounts {
@@ -54,12 +57,13 @@ export interface StatusCounts {
   failed: number;
 }
 
-// Derived attention counts passed to CommandModeBar
 export interface AttentionCounts {
-  total: number;       // listings with at least one attention job
-  missing: number;     // total missing jobs
-  queued: number;      // total queued jobs
-  failed: number;      // total failed jobs
+  total: number;           // unique listings with ≥1 attention job
+  missing: number;         // total missing jobs
+  queued: number;          // total queued jobs
+  failed: number;          // total failed jobs
+  slaRiskCount: number;    // jobs past sla_deadline in attention states
+  signatureCount: number;  // unique signature listings needing attention
 }
 
 export interface TranslationFilters {
@@ -69,6 +73,7 @@ export interface TranslationFilters {
   tier?: "signature" | "verified" | "";
   target_lang?: string;
   needs_attention?: boolean;
+  sla_breach?: boolean;      // show only jobs past their sla_deadline
   page?: number;
 }
 
@@ -84,26 +89,26 @@ export const DONE_STATUSES: TranslationStatus[] = ["auto", "reviewed", "edited"]
 export const PROBLEM_STATUSES: TranslationStatus[] = ["missing", "failed"];
 export const ATTENTION_STATUSES: TranslationStatus[] = ["missing", "queued", "failed"];
 
-// Locales that directly affect SEO reach
 export const SEO_REQUIRED_LOCALES = ["pt-pt", "fr", "de", "es"] as const;
-
-// Locales where a gap has the highest traffic cost
 export const HIGH_TRAFFIC_LOCALES = ["pt-pt", "fr", "de"] as const;
 
 export const HIGH_PRIORITY_CITIES = [
-  "Lisbon",
-  "Porto",
-  "Faro",
-  "Albufeira",
-  "Tavira",
-  "Lagos",
-  "Portimão",
-  "Vilamoura",
-  "Cascais",
-  "Sintra",
+  "Lisbon", "Porto", "Faro", "Albufeira", "Tavira",
+  "Lagos", "Portimão", "Vilamoura", "Cascais", "Sintra",
 ];
 
 export const STALE_DAYS = 30;
+
+// SLA deadlines applied at enqueue time (offset from now in hours)
+export const SLA_HOURS: Record<"signature" | "verified", number | null> = {
+  signature: 2,
+  verified: null, // no SLA commitment for verified tier
+};
+
+export const SLA_PRIORITY: Record<"signature" | "verified", number> = {
+  signature: 100,
+  verified: 10,
+};
 
 export const STATUS_LABELS: Record<TranslationStatus, string> = {
   missing: "Missing",
