@@ -112,6 +112,8 @@
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5",
     "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.0",
+    "sharp": "^0.33.5",
+    "node-fetch": "^3.3.2"
   }
 }

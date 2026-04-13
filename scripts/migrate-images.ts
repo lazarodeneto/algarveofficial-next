@@ -16,8 +16,9 @@
 
 import { createClient } from "@supabase/supabase-js";
 import sharp from "sharp";
-import fetch from "node-fetch";
 import { basename } from "path";
+
+const fetch = globalThis.fetch;
 
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://your-project.supabase.co";
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
