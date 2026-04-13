@@ -15,6 +15,7 @@ import { SingleImageUploadField } from "./SingleImageUploadField";
 import { X } from "lucide-react";
 import type { CategoryFieldConfig } from "@/lib/categoryTemplates";
 import { cn } from "@/lib/utils";
+import { formatNumberInput, safeParseFloat } from "@/lib/forms/parse";
 
 interface DynamicFormFieldProps {
   field: CategoryFieldConfig;
@@ -49,8 +50,8 @@ export function DynamicFormField({
         return (
           <Input
             type="number"
-            value={(value as number) ?? ""}
-            onChange={(e) => onChange(e.target.value ? Number(e.target.value) : undefined)}
+            value={formatNumberInput(value as number | null | undefined)}
+            onChange={(e) => onChange(safeParseFloat(e.target.value) ?? undefined)}
             min={field.min}
             max={field.max}
             placeholder={field.placeholder}

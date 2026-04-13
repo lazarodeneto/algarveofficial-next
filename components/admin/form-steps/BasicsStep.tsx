@@ -11,6 +11,7 @@ import {
 import { TagInput } from "../listings/TagInput";
 import type { ListingFormData } from "@/types/listing";
 import type { City, PremiumRegion, Category } from "@/types/admin";
+import { normalizeSelect, denormalizeSelect } from "@/lib/forms/normalize";
 
 interface BasicsStepProps {
   data: ListingFormData;
@@ -215,10 +216,8 @@ export function BasicsStep({
         <div className="space-y-2">
           <Label htmlFor="region">Premium Region</Label>
           <Select
-            value={data.luxury_region_id === undefined ? "none" : data.luxury_region_id}
-            onValueChange={(value) =>
-              onChange("luxury_region_id", value === "none" ? undefined : value)
-            }
+            value={denormalizeSelect(data.luxury_region_id)}
+            onValueChange={(value) => onChange("luxury_region_id", normalizeSelect(value))}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select region (optional)..." />

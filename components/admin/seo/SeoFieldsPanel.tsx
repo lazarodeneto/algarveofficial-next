@@ -63,8 +63,8 @@ export function SeoFieldsPanel({
   const [isOpenGraphOpen, setIsOpenGraphOpen] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
-  const titleLength = (data.meta_title || "").length;
-  const descLength = (data.meta_description || "").length;
+  const titleLength = (data.meta_title ?? "").length;
+  const descLength = (data.meta_description ?? "").length;
   
   const titleStatus = titleLength === 0 ? "empty" : titleLength <= 60 ? "good" : "warning";
   const descStatus = descLength === 0 ? "empty" : descLength <= 160 ? "good" : "warning";
@@ -98,7 +98,7 @@ export function SeoFieldsPanel({
           </div>
           <Input
             id="meta_title"
-            value={data.meta_title || ""}
+            value={data.meta_title ?? ""}
             onChange={(e) => onChange({ ...data, meta_title: e.target.value })}
             className="bg-background"
             placeholder={`${pageName} | AlgarveOfficial`}
@@ -123,7 +123,7 @@ export function SeoFieldsPanel({
           </div>
           <Textarea
             id="meta_description"
-            value={data.meta_description || ""}
+            value={data.meta_description ?? ""}
             onChange={(e) => onChange({ ...data, meta_description: e.target.value })}
             className="bg-background"
             rows={3}
@@ -138,7 +138,7 @@ export function SeoFieldsPanel({
           <Label htmlFor="focus_keywords">Focus Keywords</Label>
           <Input
             id="focus_keywords"
-            value={data.focus_keywords || ""}
+            value={data.focus_keywords ?? ""}
             onChange={(e) => onChange({ ...data, focus_keywords: e.target.value })}
             className="bg-background"
             placeholder="premium, algarve, travel, portugal..."
@@ -192,7 +192,7 @@ export function SeoFieldsPanel({
                 <Label htmlFor="og_title">OG Title</Label>
                 <Input
                   id="og_title"
-                  value={data.og_title || ""}
+                  value={data.og_title ?? ""}
                   onChange={(e) => onChange({ ...data, og_title: e.target.value })}
                   className="bg-background"
                   placeholder="Leave empty to use SEO title"
@@ -203,7 +203,7 @@ export function SeoFieldsPanel({
                 <Label htmlFor="og_description">OG Description</Label>
                 <Textarea
                   id="og_description"
-                  value={data.og_description || ""}
+                  value={data.og_description ?? ""}
                   onChange={(e) => onChange({ ...data, og_description: e.target.value })}
                   className="bg-background"
                   rows={2}
@@ -229,7 +229,7 @@ export function SeoFieldsPanel({
                   <div className="flex-1">
                     <Input
                       id="og_image"
-                      value={data.og_image || ""}
+                      value={data.og_image ?? ""}
                       onChange={(e) => onChange({ ...data, og_image: e.target.value })}
                       className="bg-background"
                       placeholder="https://..."
@@ -295,7 +295,7 @@ export function SeoFieldsPanel({
                 <Label htmlFor="canonical_url">Canonical URL</Label>
                 <Input
                   id="canonical_url"
-                  value={data.canonical_url || ""}
+                  value={data.canonical_url ?? ""}
                   onChange={(e) => onChange({ ...data, canonical_url: e.target.value })}
                   className="bg-background"
                   placeholder={previewUrl}

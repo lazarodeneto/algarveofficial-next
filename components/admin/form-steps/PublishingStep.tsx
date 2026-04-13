@@ -20,6 +20,7 @@ import { isSupabaseFunctionAuthError } from "@/lib/supabaseFunctionError";
 import { queueListingTranslationJobs, LISTING_TRANSLATION_TARGET_LANGS } from "@/lib/listingTranslationQueue";
 import type { ListingFormData } from "@/types/listing";
 import type { ListingTier, PublishStatus, User } from "@/types/admin";
+import { normalizeSelect, denormalizeSelect } from "@/lib/forms/normalize";
 
 const TARGET_LANGS = [...LISTING_TRANSLATION_TARGET_LANGS];
 const TARGET_LANG_LABELS: Record<string, string> = {
@@ -241,10 +242,8 @@ export function PublishingStep({
             <div className="space-y-2">
               <Label htmlFor="owner">Assigned Owner</Label>
               <Select
-                value={data.owner_id === undefined ? "none" : data.owner_id}
-                onValueChange={(value) =>
-                  onChange("owner_id", value === "none" ? undefined : value)
-                }
+                value={denormalizeSelect(data.owner_id)}
+                onValueChange={(value) => onChange("owner_id", normalizeSelect(value))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select owner..." />

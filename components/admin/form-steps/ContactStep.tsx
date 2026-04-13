@@ -7,6 +7,7 @@ import { Globe, Phone, Mail, Instagram, Facebook, Linkedin, Youtube, Star, Loade
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { ListingFormData, ListingContact, ListingSocialLinks, ListingLocation } from "@/types/listing";
+import { safeParseFloat } from "@/lib/forms/parse";
 
 // URL validation patterns for social media
 const URL_PATTERNS: Record<string, { pattern: RegExp; message: string }> = {
@@ -129,7 +130,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
     
     onChange("contact", {
       ...data.contact,
-      [field]: value || undefined,
+      [field]: value.trim() || undefined,
     });
   };
 
@@ -143,7 +144,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
     
     onChange("social_links", {
       ...data.social_links,
-      [field]: value || undefined,
+      [field]: value.trim() || undefined,
     });
 
     // Auto-extract coordinates from Google Business URL
@@ -278,11 +279,8 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
               step="any"
               value={data.location?.lat ?? ""}
               onChange={(e) => {
-                const nextLat = Number.parseFloat(e.target.value);
-                handleLocationChange(
-                  "lat",
-                  e.target.value === "" || Number.isNaN(nextLat) ? "" : nextLat,
-                );
+                const parsed = safeParseFloat(e.target.value);
+                handleLocationChange("lat", parsed === null ? "" : parsed);
               }}
               placeholder="37.0833"
             />
@@ -296,11 +294,8 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
               step="any"
               value={data.location?.lng ?? ""}
               onChange={(e) => {
-                const nextLng = Number.parseFloat(e.target.value);
-                handleLocationChange(
-                  "lng",
-                  e.target.value === "" || Number.isNaN(nextLng) ? "" : nextLng,
-                );
+                const parsed = safeParseFloat(e.target.value);
+                handleLocationChange("lng", parsed === null ? "" : parsed);
               }}
               placeholder="-8.2500"
             />
