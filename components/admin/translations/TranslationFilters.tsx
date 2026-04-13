@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { X } from "lucide-react";
+import { AlertCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import type { FilterOptions, TranslationFilters, TranslationStatus } from "@/lib/admin/translations/types";
 import { STATUS_LABELS } from "@/lib/admin/translations/types";
 
@@ -43,11 +44,22 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
       } else {
         params.delete(key);
       }
-      params.delete("page"); // reset pagination on filter change
+      params.delete("page");
       router.push(`${pathname}?${params.toString()}`);
     },
     [router, pathname, searchParams],
   );
+
+  const toggleNeedsAttention = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (filters.needs_attention) {
+      params.delete("needs_attention");
+    } else {
+      params.set("needs_attention", "true");
+    }
+    params.delete("page");
+    router.push(`${pathname}?${params.toString()}`);
+  }, [router, pathname, searchParams, filters.needs_attention]);
 
   const clearAll = useCallback(() => {
     router.push(pathname);
@@ -59,11 +71,26 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
     filters.category,
     filters.tier,
     filters.target_lang,
+    filters.needs_attention || undefined,
   ].filter(Boolean).length;
 
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
+        {/* Needs Attention toggle */}
+        <button
+          onClick={toggleNeedsAttention}
+          className={cn(
+            "flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60",
+            filters.needs_attention
+              ? "border-orange-500/40 bg-orange-500/15 text-orange-300"
+              : "border-border/60 bg-card/80 text-muted-foreground hover:text-foreground hover:border-border",
+          )}
+        >
+          <AlertCircle className="h-3.5 w-3.5" />
+          Needs Attention
+        </button>
+
         {/* Status */}
         <Select
           value={filters.status || "all"}
@@ -179,20 +206,42 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
       {/* Active filter pills */}
       {activeCount > 0 && (
         <div className="flex flex-wrap gap-1.5">
+          {filters.needs_attention && (
+            <FilterPill
+              label="Needs Attention"
+              onRemove={() => updateFilter("needs_attention", undefined)}
+              highlight
+            />
+          )}
           {filters.status && (
-            <FilterPill label={`Status: ${STATUS_LABELS[filters.status as TranslationStatus]}`} onRemove={() => updateFilter("status", undefined)} />
+            <FilterPill
+              label={`Status: ${STATUS_LABELS[filters.status as TranslationStatus]}`}
+              onRemove={() => updateFilter("status", undefined)}
+            />
           )}
           {filters.tier && (
-            <FilterPill label={`Tier: ${filters.tier}`} onRemove={() => updateFilter("tier", undefined)} />
+            <FilterPill
+              label={`Tier: ${filters.tier}`}
+              onRemove={() => updateFilter("tier", undefined)}
+            />
           )}
           {filters.target_lang && (
-            <FilterPill label={`Lang: ${filters.target_lang.toUpperCase()}`} onRemove={() => updateFilter("target_lang", undefined)} />
+            <FilterPill
+              label={`Lang: ${filters.target_lang.toUpperCase()}`}
+              onRemove={() => updateFilter("target_lang", undefined)}
+            />
           )}
           {filters.city && (
-            <FilterPill label={`City: ${filters.city}`} onRemove={() => updateFilter("city", undefined)} />
+            <FilterPill
+              label={`City: ${filters.city}`}
+              onRemove={() => updateFilter("city", undefined)}
+            />
           )}
           {filters.category && (
-            <FilterPill label={`Category: ${filters.category}`} onRemove={() => updateFilter("category", undefined)} />
+            <FilterPill
+              label={`Category: ${filters.category}`}
+              onRemove={() => updateFilter("category", undefined)}
+            />
           )}
         </div>
       )}
@@ -200,11 +249,24 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
   );
 }
 
-function FilterPill({ label, onRemove }: { label: string; onRemove: () => void }) {
+function FilterPill({
+  label,
+  onRemove,
+  highlight = false,
+}: {
+  label: string;
+  onRemove: () => void;
+  highlight?: boolean;
+}) {
   return (
     <Badge
       variant="secondary"
-      className="gap-1 pr-1 text-xs font-normal border border-border/60"
+      className={cn(
+        "gap-1 pr-1 text-xs font-normal border",
+        highlight
+          ? "border-orange-500/30 bg-orange-500/10 text-orange-300"
+          : "border-border/60",
+      )}
     >
       {label}
       <button

@@ -11,10 +11,16 @@ import {
   Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { ListingJobGroup, TranslationJob } from "@/lib/admin/translations/types";
-import { DONE_STATUSES, STATUS_COLORS, STATUS_LABELS } from "@/lib/admin/translations/types";
+import {
+  DONE_STATUSES,
+  SEO_COVERAGE_COLORS,
+  SEO_COVERAGE_TEXT,
+  STATUS_COLORS,
+  STATUS_LABELS,
+} from "@/lib/admin/translations/types";
 
 interface Props {
   group: ListingJobGroup;
@@ -24,6 +30,9 @@ interface Props {
   onEdit: (job: TranslationJob) => void;
   loadingJobId: string | null;
   defaultExpanded?: boolean;
+  // Bulk selection
+  selectedJobIds: string[];
+  onSelectJob: (jobId: string, checked: boolean) => void;
 }
 
 export function TranslationListingGroup({
@@ -34,93 +43,150 @@ export function TranslationListingGroup({
   onEdit,
   loadingJobId,
   defaultExpanded = false,
+  selectedJobIds,
+  onSelectJob,
 }: Props) {
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const { listing, jobs } = group;
+  const { listing, jobs, doneCount, problemCount, pendingCount, seoCoverage, seoCoverageLabel } = group;
 
-  const doneCount = jobs.filter((j) => DONE_STATUSES.includes(j.status)).length;
   const failedCount = jobs.filter((j) => j.status === "failed").length;
   const missingCount = jobs.filter((j) => j.status === "missing").length;
   const isSignature = listing.tier === "signature";
-  const completion = jobs.length > 0 ? Math.round((doneCount / jobs.length) * 100) : 0;
+
+  // Group-level selection state
+  const jobIds = jobs.map((j) => j.id);
+  const groupSelectedCount = jobIds.filter((id) => selectedJobIds.includes(id)).length;
+  const allGroupSelected = groupSelectedCount === jobs.length && jobs.length > 0;
+  const someGroupSelected = groupSelectedCount > 0 && !allGroupSelected;
+
+  const handleGroupCheckbox = (checked: boolean) => {
+    jobIds.forEach((id) => onSelectJob(id, checked));
+  };
 
   return (
     <div
       className={cn(
         "rounded-2xl border transition-colors",
         isSignature
-          ? "border-amber-500/25 bg-amber-500/5"
+          ? "border-amber-500/35 bg-gradient-to-r from-amber-500/8 to-amber-500/4 shadow-sm shadow-amber-500/5"
           : "border-border/60 bg-card/60",
       )}
     >
       {/* Group header */}
-      <button
-        className="flex w-full items-center gap-3 px-4 py-3 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-2xl"
-        onClick={() => setExpanded((v) => !v)}
-      >
-        <span className="text-muted-foreground/60">
-          {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-        </span>
-
-        {/* Title + tier */}
-        <div className="flex min-w-0 flex-1 items-center gap-2.5">
-          <span
-            className={cn(
-              "truncate font-medium text-sm",
-              isSignature ? "text-amber-100" : "text-foreground",
-            )}
-          >
-            {isSignature && <span className="mr-1.5 text-amber-400">★</span>}
-            {listing.name}
-          </span>
-          <TierBadge tier={listing.tier} />
-          {listing.status === "draft" && (
-            <Badge variant="outline" className="text-[10px] text-muted-foreground border-border/50">
-              Draft
-            </Badge>
-          )}
+      <div className="flex w-full items-center gap-2 px-4 py-3">
+        {/* Group-level checkbox */}
+        <div onClick={(e) => e.stopPropagation()} className="shrink-0">
+          <Checkbox
+            checked={allGroupSelected}
+            data-state={someGroupSelected ? "indeterminate" : undefined}
+            onCheckedChange={(v) => handleGroupCheckbox(v as boolean)}
+            className="h-3.5 w-3.5"
+          />
         </div>
 
-        {/* Right side: city · category */}
-        <span className="hidden shrink-0 text-xs text-muted-foreground sm:block">
-          {listing.city}
-          {listing.category ? ` · ${listing.category}` : ""}
-        </span>
+        {/* Expand/collapse */}
+        <button
+          className="flex flex-1 min-w-0 items-center gap-3 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-lg"
+          onClick={() => setExpanded((v) => !v)}
+        >
+          <span className="shrink-0 text-muted-foreground/60">
+            {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          </span>
 
-        {/* Progress */}
-        <div className="flex shrink-0 items-center gap-2">
-          {failedCount > 0 && (
-            <Badge variant="outline" className="text-[10px] border-red-500/20 bg-red-500/10 text-red-400">
-              {failedCount} failed
-            </Badge>
-          )}
-          {missingCount > 0 && (
-            <Badge variant="outline" className="text-[10px] border-zinc-500/20 bg-zinc-500/10 text-zinc-400">
-              {missingCount} missing
-            </Badge>
-          )}
+          {/* Title + tier + badges */}
+          <div className="flex min-w-0 flex-1 items-center gap-2.5">
+            <span
+              className={cn(
+                "truncate font-medium text-sm",
+                isSignature ? "text-amber-100" : "text-foreground",
+              )}
+            >
+              {isSignature && <span className="mr-1.5 text-amber-400">★</span>}
+              {listing.name}
+            </span>
 
-          {/* Progress bar */}
-          <div className="flex items-center gap-1.5">
-            <div className="h-1.5 w-16 overflow-hidden rounded-full bg-border/60">
-              <div
-                className={cn(
-                  "h-full rounded-full transition-all",
-                  completion === 100 ? "bg-emerald-400" : "bg-primary/60",
-                )}
-                style={{ width: `${completion}%` }}
-              />
+            <TierBadge tier={listing.tier} />
+
+            {isSignature && (
+              <Badge
+                variant="outline"
+                className="shrink-0 text-[10px] font-bold border-amber-500/40 bg-amber-500/15 text-amber-300"
+              >
+                Priority
+              </Badge>
+            )}
+            {listing.status === "draft" && (
+              <Badge
+                variant="outline"
+                className="shrink-0 text-[10px] text-muted-foreground border-border/50"
+              >
+                Draft
+              </Badge>
+            )}
+          </div>
+
+          {/* City · category */}
+          <span className="hidden shrink-0 text-xs text-muted-foreground sm:block">
+            {listing.city}
+            {listing.category ? ` · ${listing.category}` : ""}
+          </span>
+
+          {/* Right stats block */}
+          <div className="flex shrink-0 items-center gap-3">
+            {/* Status summary */}
+            <div className="hidden items-center gap-2 text-[11px] text-muted-foreground lg:flex">
+              {missingCount > 0 && (
+                <span className="text-zinc-400">
+                  <span className="font-semibold">{missingCount}</span> missing
+                </span>
+              )}
+              {failedCount > 0 && (
+                <span className="text-red-400">
+                  <span className="font-semibold">{failedCount}</span> failed
+                </span>
+              )}
+              {doneCount > 0 && (
+                <span className="text-emerald-400">
+                  <span className="font-semibold">{doneCount}</span> done
+                </span>
+              )}
             </div>
+
+            {/* SEO coverage bar */}
+            <div className="flex items-center gap-1.5">
+              <div className="h-1.5 w-14 overflow-hidden rounded-full bg-border/60">
+                <div
+                  className={cn(
+                    "h-full rounded-full transition-all",
+                    SEO_COVERAGE_COLORS[seoCoverageLabel],
+                  )}
+                  style={{ width: `${seoCoverage}%` }}
+                />
+              </div>
+              <span
+                className={cn(
+                  "text-[11px] font-medium tabular-nums",
+                  SEO_COVERAGE_TEXT[seoCoverageLabel],
+                )}
+              >
+                {seoCoverage}%
+              </span>
+              <span className="hidden text-[10px] text-muted-foreground/50 sm:inline">
+                SEO
+              </span>
+            </div>
+
+            {/* Done / total */}
             <span className="text-[11px] font-medium text-muted-foreground">
               {doneCount}/{jobs.length}
             </span>
           </div>
-        </div>
-      </button>
+        </button>
+      </div>
 
       {/* Locale rows */}
       {expanded && (
-        <div className="border-t border-border/40 px-4 py-2 space-y-1">
+        <div className="border-t border-border/40 px-4 py-2 space-y-0.5">
           {jobs
             .slice()
             .sort((a, b) => a.target_lang.localeCompare(b.target_lang))
@@ -133,6 +199,8 @@ export function TranslationListingGroup({
                 onMarkReviewed={onMarkReviewed}
                 onEdit={onEdit}
                 isLoading={loadingJobId === job.id}
+                isSelected={selectedJobIds.includes(job.id)}
+                onSelect={(checked) => onSelectJob(job.id, checked)}
               />
             ))}
         </div>
@@ -150,6 +218,8 @@ interface LocaleRowProps {
   onMarkReviewed: (job: TranslationJob) => Promise<void>;
   onEdit: (job: TranslationJob) => void;
   isLoading: boolean;
+  isSelected: boolean;
+  onSelect: (checked: boolean) => void;
 }
 
 function LocaleRow({
@@ -159,11 +229,25 @@ function LocaleRow({
   onMarkReviewed,
   onEdit,
   isLoading,
+  isSelected,
+  onSelect,
 }: LocaleRowProps) {
-  const isDone = DONE_STATUSES.includes(job.status);
-
   return (
-    <div className="flex items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-muted/30">
+    <div
+      className={cn(
+        "flex items-center gap-3 rounded-xl px-2 py-2 transition-colors",
+        isSelected ? "bg-primary/8" : "hover:bg-muted/30",
+      )}
+    >
+      {/* Row checkbox */}
+      <div onClick={(e) => e.stopPropagation()} className="shrink-0">
+        <Checkbox
+          checked={isSelected}
+          onCheckedChange={(v) => onSelect(v as boolean)}
+          className="h-3.5 w-3.5"
+        />
+      </div>
+
       {/* Language pill */}
       <span className="w-12 shrink-0 rounded-md bg-muted/50 px-1.5 py-0.5 text-center text-[11px] font-mono font-semibold uppercase text-muted-foreground">
         {job.target_lang}
@@ -186,9 +270,7 @@ function LocaleRow({
 
       {/* Attempts */}
       {job.attempts > 0 && (
-        <span className="shrink-0 text-[11px] text-muted-foreground/60">
-          {job.attempts}×
-        </span>
+        <span className="shrink-0 text-[11px] text-muted-foreground/60">{job.attempts}×</span>
       )}
 
       {/* Updated at */}
@@ -245,14 +327,10 @@ function LocaleRow({
 // ─── Action Button ────────────────────────────────────────────────────────────
 
 const ACTION_STYLES: Record<string, string> = {
-  translate:
-    "text-blue-400 hover:bg-blue-500/10 hover:text-blue-300 border-blue-500/20",
-  retry:
-    "text-orange-400 hover:bg-orange-500/10 hover:text-orange-300 border-orange-500/20",
-  review:
-    "text-violet-400 hover:bg-violet-500/10 hover:text-violet-300 border-violet-500/20",
-  edit:
-    "text-muted-foreground hover:bg-muted/50 hover:text-foreground border-border/50",
+  translate: "text-blue-400 hover:bg-blue-500/10 hover:text-blue-300 border-blue-500/20",
+  retry: "text-orange-400 hover:bg-orange-500/10 hover:text-orange-300 border-orange-500/20",
+  review: "text-violet-400 hover:bg-violet-500/10 hover:text-violet-300 border-violet-500/20",
+  edit: "text-muted-foreground hover:bg-muted/50 hover:text-foreground border-border/50",
 };
 
 function ActionButton({

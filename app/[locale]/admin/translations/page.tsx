@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { createServiceRoleClient } from "@/lib/supabase/service";
-import { getStatusCounts, getTranslationJobsGrouped, getFilterOptions } from "@/lib/admin/translations/queries";
+import {
+  getAttentionCounts,
+  getFilterOptions,
+  getStatusCounts,
+  getTranslationJobsGrouped,
+} from "@/lib/admin/translations/queries";
 import { TranslationsDashboard } from "@/components/admin/translations/TranslationsDashboard";
 import type { TranslationFilters, TranslationStatus } from "@/lib/admin/translations/types";
 
@@ -9,7 +14,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// Revalidate at most every 30s — real-time handles live updates
+// Real-time handles live state; revalidate for ISR safety
 export const revalidate = 30;
 
 interface PageProps {
@@ -29,7 +34,8 @@ function parseFilters(sp: Record<string, string | string[] | undefined>): Transl
     category: str("category"),
     tier: (str("tier") as "signature" | "verified") || undefined,
     target_lang: str("target_lang"),
-    page: sp["page"] ? Number(sp["page"]) : 1,
+    needs_attention: str("needs_attention") === "true",
+    page: sp["page"] ? Math.max(1, Number(sp["page"])) : 1,
   };
 }
 
@@ -47,10 +53,11 @@ export default async function TranslationsPage({ searchParams }: PageProps) {
     );
   }
 
-  const [counts, { groups, total }, filterOptions] = await Promise.all([
+  const [counts, { groups, total }, filterOptions, attentionCounts] = await Promise.all([
     getStatusCounts(supabase),
     getTranslationJobsGrouped(supabase, filters),
     getFilterOptions(supabase),
+    getAttentionCounts(supabase),
   ]);
 
   return (
@@ -59,6 +66,7 @@ export default async function TranslationsPage({ searchParams }: PageProps) {
         initialCounts={counts}
         initialGroups={groups}
         initialTotal={total}
+        initialAttentionCounts={attentionCounts}
         filters={filters}
         filterOptions={filterOptions}
       />
