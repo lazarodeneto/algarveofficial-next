@@ -467,7 +467,7 @@ export default function AdminCmsCategories() {
                 <Label htmlFor="icon">Icon (Lucide Icon Name)</Label>
                 <Input
                   id="icon"
-                  value={editingCategory.icon || ''}
+                  value={editingCategory.icon ?? ''}
                   onChange={(e) => setEditingCategory({ ...editingCategory, icon: e.target.value })}
                   className="bg-background"
                   placeholder="House, Hotel, UtensilsCrossed..."
@@ -478,7 +478,7 @@ export default function AdminCmsCategories() {
                 <Label htmlFor="short_description">Short Description</Label>
                 <Input
                   id="short_description"
-                  value={editingCategory.short_description || ''}
+                  value={editingCategory.short_description ?? ''}
                   onChange={(e) => setEditingCategory({ ...editingCategory, short_description: e.target.value })}
                   className="bg-background"
                   placeholder="Brief tagline for the category..."
@@ -489,7 +489,7 @@ export default function AdminCmsCategories() {
                 <Label htmlFor="description">Full Description</Label>
                 <Textarea
                   id="description"
-                  value={editingCategory.description || ''}
+                  value={editingCategory.description ?? ''}
                   onChange={(e) => setEditingCategory({ ...editingCategory, description: e.target.value })}
                   className="bg-background"
                   rows={4}
@@ -509,7 +509,7 @@ export default function AdminCmsCategories() {
                   />
                   <div className="flex-1">
                     <Input
-                      value={editingCategory.image_url || ''}
+                      value={editingCategory.image_url ?? ''}
                       onChange={(e) => setEditingCategory({ ...editingCategory, image_url: e.target.value })}
                       className="bg-background"
                       placeholder="https://..."

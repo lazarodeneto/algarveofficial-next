@@ -69,7 +69,10 @@ export function ThreadFilters({
       {/* Owner Filter */}
       <div className="flex flex-col gap-1">
         <span className="text-sm text-muted-foreground">Owner</span>
-        <Select value={ownerId || "all"} onValueChange={(v) => onOwnerChange(v === "all" ? "" : v)}>
+        <Select
+          value={ownerId === "" ? "all" : ownerId}
+          onValueChange={(v) => onOwnerChange(v === "all" ? "" : v)}
+        >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="All Owners" />
           </SelectTrigger>
@@ -77,7 +80,7 @@ export function ThreadFilters({
             <SelectItem value="all">All Owners</SelectItem>
             {owners.map((owner) => (
               <SelectItem key={owner.id} value={owner.id}>
-                {owner.full_name || "Unknown Owner"}
+                {owner.full_name ?? "Unknown Owner"}
               </SelectItem>
             ))}
           </SelectContent>

@@ -1506,7 +1506,7 @@ export default function AdminGlobalSettings() {
                 <div className="space-y-2">
                   <Label htmlFor="og_type">OG Type</Label>
                   <Select
-                    value={getSettingValue("og_type") || "website"}
+                    value={localGlobalSettings["og_type"] ?? "website"}
                     onValueChange={(value) => updateSetting("og_type", value, "seo")}
                   >
                     <SelectTrigger className="bg-background">
@@ -1565,7 +1565,7 @@ export default function AdminGlobalSettings() {
                 <div className="space-y-2">
                   <Label htmlFor="og_locale">Locale</Label>
                   <Select
-                    value={getSettingValue("og_locale") || "en_GB"}
+                    value={localGlobalSettings["og_locale"] ?? "en_GB"}
                     onValueChange={(value) => updateSetting("og_locale", value, "seo")}
                   >
                     <SelectTrigger className="bg-background">
@@ -1609,7 +1609,7 @@ export default function AdminGlobalSettings() {
                 <div className="space-y-2">
                   <Label htmlFor="twitter_card">Card Type</Label>
                   <Select
-                    value={getSettingValue("twitter_card") || "summary_large_image"}
+                    value={localGlobalSettings["twitter_card"] ?? "summary_large_image"}
                     onValueChange={(value) => updateSetting("twitter_card", value, "seo")}
                   >
                     <SelectTrigger className="bg-background">

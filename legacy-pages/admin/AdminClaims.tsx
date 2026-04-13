@@ -151,7 +151,10 @@ export default function AdminClaims() {
       </div>
 
       {/* Tabs Filter */}
-      <Tabs value={statusFilter || 'all'} onValueChange={(v) => setStatusFilter(v === 'all' ? undefined : v as any)}>
+      <Tabs
+        value={statusFilter === undefined ? 'all' : statusFilter}
+        onValueChange={(v) => setStatusFilter(v === 'all' ? undefined : v as any)}
+      >
         <TabsList>
           <TabsTrigger value="pending">Pending</TabsTrigger>
           <TabsTrigger value="approved">Approved</TabsTrigger>

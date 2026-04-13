@@ -415,7 +415,7 @@ export default function OwnerEventSubmit() {
               <div className="space-y-2">
                 <Label>Tags</Label>
                 <TagInput
-                  value={formData.tags || []}
+                  value={formData.tags ?? []}
                   onChange={(tags) => setFormData({ ...formData, tags })}
                   placeholder="Add tags to help people find your event..."
                 />

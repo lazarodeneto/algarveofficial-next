@@ -134,19 +134,19 @@ export default function AdminOverview() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatsCard
           title="Total Listings"
-          value={stats?.totalListings || 0}
+          value={stats?.totalListings ?? 0}
           icon={<List className="h-6 w-6" />}
           description="Across all categories"
         />
         <StatsCard
           title="Published"
-          value={stats?.publishedListings || 0}
+          value={stats?.publishedListings ?? 0}
           icon={<TrendingUp className="h-6 w-6" />}
           description="Live on the site"
         />
         <StatsCard
           title="Pending Review"
-          value={stats?.pendingReview || 0}
+          value={stats?.pendingReview ?? 0}
           icon={<ClipboardCheck className="h-6 w-6" />}
           description="Awaiting approval"
         />

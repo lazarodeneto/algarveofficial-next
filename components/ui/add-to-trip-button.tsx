@@ -123,9 +123,9 @@ export function AddToTripButton({
     addEventToTrip(selectedTripId, {
       listing_id: listingId,
       date: selectedDate,
-      time_slot: timeSlot || undefined,
-      notes: notes || undefined,
-      estimated_cost: parseFloat(cost) || 0,
+      time_slot: timeSlot === "" ? undefined : timeSlot,
+      notes: notes === "" ? undefined : notes,
+      estimated_cost: Number.isNaN(Number.parseFloat(cost)) ? 0 : Number.parseFloat(cost),
     });
 
     setIsAdding(false);

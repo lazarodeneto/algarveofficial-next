@@ -179,7 +179,7 @@ export function DirectoryMapView({ filteredListingIds }: DirectoryMapViewProps) 
                   category={listing.categorySlug}
                   categoryImageUrl={listing.categoryImageUrl}
                   listingId={listing.id}
-                  alt={listing.name || ''}
+                  alt={listing.name ?? ''}
                   className="w-full h-24 object-cover rounded-md mb-2"
                 />
                 <div className="space-y-1">

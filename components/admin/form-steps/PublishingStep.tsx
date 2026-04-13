@@ -241,7 +241,7 @@ export function PublishingStep({
             <div className="space-y-2">
               <Label htmlFor="owner">Assigned Owner</Label>
               <Select
-                value={data.owner_id || "none"}
+                value={data.owner_id === undefined ? "none" : data.owner_id}
                 onValueChange={(value) =>
                   onChange("owner_id", value === "none" ? undefined : value)
                 }

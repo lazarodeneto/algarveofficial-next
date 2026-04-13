@@ -233,7 +233,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                     <Card className="group h-full overflow-hidden border-border bg-card transition-all hover:border-primary/30">
                       <div className="relative aspect-video overflow-hidden">
                         <Image
-                          src={event.image || "/og-image.png"}
+                          src={event.image ?? "/og-image.png"}
                           alt={event.title}
                           fill
                           unoptimized

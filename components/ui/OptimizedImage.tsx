@@ -103,7 +103,7 @@ export function OptimizedImage({
     return (
       <Image
         src={resolvedUrl}
-        alt={alt || "Image"}
+        alt={alt ?? "Image"}
         fill
         quality={quality ?? resolvedOptions.quality}
         className={cn("object-cover", className)}
@@ -124,7 +124,7 @@ export function OptimizedImage({
   return (
     <Image
       src={resolvedUrl}
-      alt={alt || "Image"}
+      alt={alt ?? "Image"}
       width={displayWidth}
       height={displayHeight}
       quality={quality ?? resolvedOptions.quality}
@@ -242,7 +242,7 @@ export function CardOptimizedImage({
   return (
     <Image
       src={resolvedUrl}
-      alt={alt || "Card image"}
+      alt={alt ?? "Card image"}
       width={displayWidth}
       height={displayHeight}
       quality={quality ?? 80}

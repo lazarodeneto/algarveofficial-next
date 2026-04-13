@@ -63,7 +63,7 @@ export async function logSubscriptionMutation(
 
   if (error) {
     // Audit failures must not break the lifecycle. Log and continue.
-    // eslint-disable-next-line no-console
+     
     console.error("[subscription audit] failed to log mutation", error);
   }
 }

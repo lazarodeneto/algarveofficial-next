@@ -209,7 +209,7 @@ export function ImageUploader({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={resolveSupabaseBucketImageUrl(image.url, "listing-images") || image.url}
-                  alt={image.alt || "Listing image"}
+                  alt={image.alt ?? "Listing image"}
                   className="w-full h-full object-cover"
                 />
                 

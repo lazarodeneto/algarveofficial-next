@@ -53,7 +53,7 @@ const EmailSettings = () => {
             <div className="flex gap-2">
               <Input 
                 readOnly
-                value={webhookUrl || t("admin.emailSettings.missingSupabaseUrl")}
+                value={webhookUrl ?? t("admin.emailSettings.missingSupabaseUrl")}
                 className="font-mono text-sm"
               />
               <Button 

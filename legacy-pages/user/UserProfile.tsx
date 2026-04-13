@@ -258,7 +258,7 @@ export default function UserProfile() {
               <Input
                 id="email"
                 type="email"
-                value={user?.email || ''}
+                value={user?.email ?? ''}
                 disabled
                 className="bg-muted"
               />

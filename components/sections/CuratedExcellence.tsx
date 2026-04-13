@@ -228,7 +228,7 @@ export function CuratedExcellence({
                 <ListingTierBadge tier="signature" />
                 {/* Location & Category */}
                 <span className="text-sm text-primary font-medium uppercase tracking-wider group-hover:text-black dark:group-hover:text-white transition-colors">
-                  {featuredListing.city?.name || 'Algarve'} · {translateCategoryName(t, featuredListing.category?.slug, featuredListing.category?.name) || t('listing.experience')}
+                  {featuredListing.city?.name ?? 'Algarve'} · {translateCategoryName(t, featuredListing.category?.slug, featuredListing.category?.name) || t('listing.experience')}
                 </span>
               </div>
 

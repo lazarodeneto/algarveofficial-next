@@ -96,7 +96,7 @@ export function ImageLightbox({
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
               src={currentImage.image_url}
-              alt={currentImage.alt_text || "Gallery image"}
+              alt={currentImage.alt_text ?? "Gallery image"}
               className="max-w-full max-h-full object-contain rounded-lg"
               loading="lazy"
               decoding="async"

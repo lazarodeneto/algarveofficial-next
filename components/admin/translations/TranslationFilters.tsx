@@ -69,8 +69,8 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
     filters.category,
     filters.tier,
     filters.target_lang,
-    filters.needs_attention || undefined,
-    filters.sla_breach || undefined,
+    filters.needs_attention ? true : undefined,
+    filters.sla_breach ? true : undefined,
   ].filter(Boolean).length;
 
   return (
@@ -112,7 +112,7 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
 
         {/* Status */}
         <Select
-          value={filters.status || "all"}
+          value={filters.status === "" ? "all" : filters.status}
           onValueChange={(v) => updateFilter("status", v)}
         >
           <SelectTrigger className="h-8 w-[130px] border-border/60 bg-card/80 text-sm">
@@ -128,7 +128,7 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
 
         {/* Tier */}
         <Select
-          value={filters.tier || "all"}
+          value={filters.tier === "" ? "all" : filters.tier}
           onValueChange={(v) => updateFilter("tier", v)}
         >
           <SelectTrigger className="h-8 w-[120px] border-border/60 bg-card/80 text-sm">
@@ -144,7 +144,7 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
         {/* Language */}
         {options.languages.length > 0 && (
           <Select
-            value={filters.target_lang || "all"}
+            value={filters.target_lang === "" ? "all" : filters.target_lang}
             onValueChange={(v) => updateFilter("target_lang", v)}
           >
             <SelectTrigger className="h-8 w-[120px] border-border/60 bg-card/80 text-sm">
@@ -162,7 +162,7 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
         {/* City */}
         {options.cities.length > 0 && (
           <Select
-            value={filters.city || "all"}
+            value={filters.city === "" ? "all" : filters.city}
             onValueChange={(v) => updateFilter("city", v)}
           >
             <SelectTrigger className="h-8 w-[130px] border-border/60 bg-card/80 text-sm">
@@ -180,7 +180,7 @@ export function TranslationFilters({ filters, options, totalJobs }: Props) {
         {/* Category */}
         {options.categories.length > 0 && (
           <Select
-            value={filters.category || "all"}
+            value={filters.category === "" ? "all" : filters.category}
             onValueChange={(v) => updateFilter("category", v)}
           >
             <SelectTrigger className="h-8 w-[140px] border-border/60 bg-card/80 text-sm">

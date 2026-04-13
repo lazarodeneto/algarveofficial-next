@@ -96,7 +96,7 @@ export function BasicsStep({
             <p className="text-xs text-destructive">{errors.slug}</p>
           )}
           <p className="text-xs text-muted-foreground">
-            algarveofficial.com/listings/{data.slug || "your-slug"}
+            algarveofficial.com/listings/{data.slug ?? "your-slug"}
           </p>
         </div>
 
@@ -120,7 +120,7 @@ export function BasicsStep({
               <span />
             )}
             <span className="text-xs text-muted-foreground">
-              {data.short_description?.length || 0}/300
+              {data.short_description?.length ?? 0}/300
             </span>
           </div>
         </div>
@@ -130,7 +130,7 @@ export function BasicsStep({
           <Label htmlFor="full_description">Full Description</Label>
           <Textarea
             id="full_description"
-            value={data.full_description || ""}
+            value={data.full_description ?? ""}
             onChange={(e) => onChange("full_description", e.target.value)}
             placeholder={"Detailed description of the listing...\n\nUse a blank line or // to start a new paragraph.\nUse **double asterisks** for bold text."}
             className="min-h-[150px]"
@@ -215,7 +215,7 @@ export function BasicsStep({
         <div className="space-y-2">
           <Label htmlFor="region">Premium Region</Label>
           <Select
-            value={data.luxury_region_id || "none"}
+            value={data.luxury_region_id === undefined ? "none" : data.luxury_region_id}
             onValueChange={(value) =>
               onChange("luxury_region_id", value === "none" ? undefined : value)
             }
@@ -251,7 +251,7 @@ export function BasicsStep({
         <div className="space-y-2">
           <Label>Tags</Label>
           <TagInput
-            value={data.tags || []}
+            value={data.tags ?? []}
             onChange={(tags) => onChange("tags", tags)}
             placeholder="Add tags for better searchability..."
           />

@@ -444,7 +444,7 @@ export default function AdminCmsRegions() {
                 <Label htmlFor="short_description">Short Description</Label>
                 <Input
                   id="short_description"
-                  value={editingRegion.short_description || ''}
+                  value={editingRegion.short_description ?? ''}
                   onChange={(e) => setEditingRegion({ ...editingRegion, short_description: e.target.value })}
                   className="bg-background"
                   placeholder="Brief tagline for cards..."
@@ -455,7 +455,7 @@ export default function AdminCmsRegions() {
                 <Label htmlFor="description">Full Description</Label>
                 <Textarea
                   id="description"
-                  value={editingRegion.description || ''}
+                  value={editingRegion.description ?? ''}
                   onChange={(e) => setEditingRegion({ ...editingRegion, description: e.target.value })}
                   className="bg-background"
                   rows={4}
@@ -564,7 +564,7 @@ export default function AdminCmsRegions() {
                         />
                       </Button>
                       <Input
-                        value={editingRegion.image_url || ''}
+                        value={editingRegion.image_url ?? ''}
                         onChange={(e) => setEditingRegion({ ...editingRegion, image_url: e.target.value })}
                         className="bg-background flex-1"
                         placeholder="https://..."
@@ -653,7 +653,7 @@ export default function AdminCmsRegions() {
                         />
                       </Button>
                       <Input
-                        value={editingRegion.hero_image_url || ''}
+                        value={editingRegion.hero_image_url ?? ''}
                         onChange={(e) => setEditingRegion({ ...editingRegion, hero_image_url: e.target.value })}
                         className="bg-background flex-1"
                         placeholder="https://..."
@@ -675,8 +675,8 @@ export default function AdminCmsRegions() {
                   }}
                   onChange={(seoData) => setEditingRegion({
                     ...editingRegion,
-                    meta_title: seoData.meta_title || '',
-                    meta_description: seoData.meta_description || '',
+                    meta_title: seoData.meta_title ?? '',
+                    meta_description: seoData.meta_description ?? '',
                   })}
                   pageName={editingRegion.name}
                   pageSlug={`destinations/${editingRegion.slug}`}

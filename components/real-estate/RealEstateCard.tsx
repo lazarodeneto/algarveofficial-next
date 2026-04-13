@@ -200,7 +200,7 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                             isPremium ? "text-[#C7A35A]/90 text-body-xs" : "text-muted-foreground/70 text-body-xs"
                         )}>
                             <MapPin className="w-3.5 h-3.5 mr-2" />
-                            {listing.cities?.name || "Algarve"}
+                            {listing.cities?.name ?? "Algarve"}
                         </div>
                         <h3 className={cn(
                             "min-h-[4rem] sm:min-h-[4.5rem] font-serif leading-[1.16] sm:leading-[1.18] mb-4 line-clamp-2 break-words transition-colors duration-300 text-slate-950 dark:text-foreground",
@@ -216,7 +216,7 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                             tierSpacing.gap === "gap-5" ? "mb-5" : "mb-4",
                             isPremium && "text-sm"
                         )}>
-                            {listing.short_description || "An exceptional property offering unparalleled premium quality and sophistication in Portugal's finest location."}
+                            {listing.short_description ?? "An exceptional property offering unparalleled premium quality and sophistication in Portugal's finest location."}
                         </p>
                     </div>
 

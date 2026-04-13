@@ -168,7 +168,10 @@ const EmailTemplates = () => {
       {/* Filters */}
       <Card>
         <CardContent className="pt-6">
-          <Select value={categoryFilter || "all"} onValueChange={(v) => setCategoryFilter(v === "all" ? undefined : v)}>
+          <Select
+            value={categoryFilter === undefined ? "all" : categoryFilter}
+            onValueChange={(v) => setCategoryFilter(v === "all" ? undefined : v)}
+          >
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Filter by category" />
             </SelectTrigger>

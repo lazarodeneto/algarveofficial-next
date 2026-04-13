@@ -123,7 +123,7 @@ function AdminRouteNotFound({ route }: { route: string }) {
       <AlertTriangle className="mb-4 h-10 w-10 text-amber-500" />
       <h1 className="text-2xl font-serif font-semibold text-foreground">Page not found</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        The admin route <code className="rounded bg-muted px-1.5 py-0.5">/admin/{route || ""}</code> is not configured.
+        The admin route <code className="rounded bg-muted px-1.5 py-0.5">/admin/{route ?? ""}</code> is not configured.
       </p>
       <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
         <Button asChild>

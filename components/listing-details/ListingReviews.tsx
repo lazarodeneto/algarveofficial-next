@@ -67,7 +67,7 @@ function ReviewAvatar({ name, avatarUrl }: { name: string | null; avatarUrl: str
     return (
       <Image
         src={avatarUrl}
-        alt={name || "User"}
+        alt={name ?? "User"}
         width={36}
         height={36}
         unoptimized

@@ -127,7 +127,7 @@ export function RegionsSection() {
                         {region.name}
                       </h3>
                       <p className="mb-3 hidden text-body-sm text-white/70 sm:block lg:mb-4">
-                        {region.short_description || "Discover premium experiences"}
+                        {region.short_description ?? "Discover premium experiences"}
                       </p>
                       <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
                         <span className="text-body-xs text-white/60">

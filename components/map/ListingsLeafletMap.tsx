@@ -382,7 +382,7 @@ function ClusteredMarkers({
                       <p className="font-medium text-foreground line-clamp-1">{point.name}</p>
                       <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                         <MapPin className="h-3 w-3" />
-                        {point.cityName || "Algarve"}
+                        {point.cityName ?? "Algarve"}
                         {point.categoryName ? ` · ${point.categoryName}` : ""}
                       </p>
                     </div>

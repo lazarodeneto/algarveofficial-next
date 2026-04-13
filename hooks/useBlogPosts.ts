@@ -74,7 +74,7 @@ export function usePublishedBlogPosts(category?: BlogCategory) {
       // Filter posts to include only those that are published and either:
       // 1. Have published_at set and it's in the past
       // 2. Have published_at as null (just published without timestamp)
-      let publishedPosts = posts.filter(post => {
+      const publishedPosts = posts.filter(post => {
         if (!post.published_at) return true; // Show posts without published_at
         return post.published_at <= now;
       });

@@ -165,7 +165,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
   const handleLocationChange = (field: keyof ListingLocation, value: string | number) => {
     onChange("location", {
       ...data.location,
-      [field]: value || undefined,
+      [field]: value === "" ? undefined : value,
     });
   };
 
@@ -197,7 +197,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
             <Input
               id="phone"
               type="tel"
-              value={data.contact?.phone || ""}
+              value={data.contact?.phone ?? ""}
               onChange={(e) => handleContactChange("phone", e.target.value)}
               placeholder="+351 912 345 678"
               className={errors["contact.phone"] ? "border-destructive" : ""}
@@ -215,7 +215,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
             <Input
               id="email"
               type="email"
-              value={data.contact?.email || ""}
+              value={data.contact?.email ?? ""}
               onChange={(e) => handleContactChange("email", e.target.value)}
               placeholder="contact@example.com"
               className={errors["contact.email"] ? "border-destructive" : ""}
@@ -233,7 +233,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
             <Input
               id="website"
               type="url"
-              value={data.contact?.website || ""}
+              value={data.contact?.website ?? ""}
               onChange={(e) => handleContactChange("website", e.target.value)}
               placeholder="https://www.example.com"
               className={errors["contact.website"] || socialErrors["contact.website"] ? "border-destructive" : ""}
@@ -264,7 +264,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
             <Label htmlFor="address">Address</Label>
             <Input
               id="address"
-              value={data.location?.address || ""}
+              value={data.location?.address ?? ""}
               onChange={(e) => handleLocationChange("address", e.target.value)}
               placeholder="123 Avenida da Liberdade, Almancil"
             />
@@ -276,10 +276,14 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
               id="lat"
               type="number"
               step="any"
-              value={data.location?.lat || ""}
-              onChange={(e) =>
-                handleLocationChange("lat", e.target.value ? parseFloat(e.target.value) : "")
-              }
+              value={data.location?.lat ?? ""}
+              onChange={(e) => {
+                const nextLat = Number.parseFloat(e.target.value);
+                handleLocationChange(
+                  "lat",
+                  e.target.value === "" || Number.isNaN(nextLat) ? "" : nextLat,
+                );
+              }}
               placeholder="37.0833"
             />
           </div>
@@ -290,10 +294,14 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
               id="lng"
               type="number"
               step="any"
-              value={data.location?.lng || ""}
-              onChange={(e) =>
-                handleLocationChange("lng", e.target.value ? parseFloat(e.target.value) : "")
-              }
+              value={data.location?.lng ?? ""}
+              onChange={(e) => {
+                const nextLng = Number.parseFloat(e.target.value);
+                handleLocationChange(
+                  "lng",
+                  e.target.value === "" || Number.isNaN(nextLng) ? "" : nextLng,
+                );
+              }}
               placeholder="-8.2500"
             />
           </div>
@@ -321,7 +329,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
             </Label>
             <Input
               id="instagram"
-              value={data.social_links?.instagram || ""}
+              value={data.social_links?.instagram ?? ""}
               onChange={(e) => handleSocialChange("instagram", e.target.value)}
               placeholder="https://instagram.com/username"
               className={socialErrors.instagram ? "border-destructive" : ""}
@@ -338,7 +346,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
             </Label>
             <Input
               id="facebook"
-              value={data.social_links?.facebook || ""}
+              value={data.social_links?.facebook ?? ""}
               onChange={(e) => handleSocialChange("facebook", e.target.value)}
               placeholder="https://facebook.com/page"
               className={socialErrors.facebook ? "border-destructive" : ""}
@@ -355,7 +363,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
             </Label>
             <Input
               id="linkedin"
-              value={data.social_links?.linkedin || ""}
+              value={data.social_links?.linkedin ?? ""}
               onChange={(e) => handleSocialChange("linkedin", e.target.value)}
               placeholder="https://linkedin.com/company/name"
               className={socialErrors.linkedin ? "border-destructive" : ""}
@@ -372,7 +380,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
             </Label>
             <Input
               id="youtube"
-              value={data.social_links?.youtube || ""}
+              value={data.social_links?.youtube ?? ""}
               onChange={(e) => handleSocialChange("youtube", e.target.value)}
               placeholder="https://youtube.com/@channel"
               className={socialErrors.youtube ? "border-destructive" : ""}
@@ -389,7 +397,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
             </Label>
             <Input
               id="twitter"
-              value={data.social_links?.twitter || ""}
+              value={data.social_links?.twitter ?? ""}
               onChange={(e) => handleSocialChange("twitter", e.target.value)}
               placeholder="https://x.com/username"
               className={socialErrors.twitter ? "border-destructive" : ""}
@@ -406,7 +414,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
             </Label>
             <Input
               id="tiktok"
-              value={data.social_links?.tiktok || ""}
+              value={data.social_links?.tiktok ?? ""}
               onChange={(e) => handleSocialChange("tiktok", e.target.value)}
               placeholder="https://tiktok.com/@username"
               className={socialErrors.tiktok ? "border-destructive" : ""}
@@ -423,7 +431,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
             </Label>
             <Input
               id="whatsapp"
-              value={data.social_links?.whatsapp || ""}
+              value={data.social_links?.whatsapp ?? ""}
               onChange={(e) => handleSocialChange("whatsapp", e.target.value)}
               placeholder="https://wa.me/351912345678"
               className={socialErrors.whatsapp ? "border-destructive" : ""}
@@ -443,7 +451,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
             </Label>
             <Input
               id="telegram"
-              value={data.social_links?.telegram || ""}
+              value={data.social_links?.telegram ?? ""}
               onChange={(e) => handleSocialChange("telegram", e.target.value)}
               placeholder="https://t.me/username"
               className={socialErrors.telegram ? "border-destructive" : ""}
@@ -461,7 +469,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
             <div className="flex gap-2">
               <Input
                 id="google_business"
-                value={data.social_links?.google_business || ""}
+                value={data.social_links?.google_business ?? ""}
                 onChange={(e) => handleSocialChange("google_business", e.target.value)}
                 placeholder="https://maps.google.com/..."
                 className={`flex-1 ${socialErrors.google_business ? "border-destructive" : ""}`}
@@ -500,9 +508,9 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
                       return;
                     }
                     
-                    if (result.rating || result.review_count) {
+                    if (result.rating != null || result.review_count != null) {
                       toast.success(
-                        `Found rating: ${result.rating || "N/A"} ⭐ (${result.review_count || 0} reviews)`
+                        `Found rating: ${result.rating ?? "N/A"} ⭐ (${result.review_count ?? 0} reviews)`
                       );
                       onGoogleRatingsFetched?.(result.rating, result.review_count);
                     } else {

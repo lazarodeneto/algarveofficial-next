@@ -107,8 +107,8 @@ export function BrandLogo({
       ) : null}
       {showText && (
         <span className={cn(config.text, "font-serif font-normal tracking-tight")}>
-          <span className="brand-logo-algarve text-gradient-gold">{siteFirstWord || "Algarve"}</span>
-          <span className="brand-logo-official text-foreground">{siteRestWords.join(" ") || "Official"}</span>
+          <span className="brand-logo-algarve text-gradient-gold">{siteFirstWord ?? "Algarve"}</span>
+          <span className="brand-logo-official text-foreground">{siteRestWords.join(" ") ?? "Official"}</span>
         </span>
       )}
     </div>

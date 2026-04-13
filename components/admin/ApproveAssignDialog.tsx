@@ -136,7 +136,7 @@ export function ApproveAssignDialog({ open, onOpenChange, claim }: ApproveAssign
                         category={listing.category?.slug}
                         categoryImageUrl={listing.category?.image_url}
                         listingId={listing.id}
-                        alt={listing.name || "Listing"}
+                        alt={listing.name ?? "Listing"}
                         className="h-10 w-10 rounded object-cover flex-shrink-0"
                       />
                       <div className="flex-1 min-w-0">

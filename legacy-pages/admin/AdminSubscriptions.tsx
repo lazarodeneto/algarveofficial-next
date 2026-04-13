@@ -124,11 +124,11 @@ export default function AdminSubscriptions() {
       price: p.price,
       display_price: p.display_price,
       note: p.note,
-      stripe_price_id: p.stripe_price_id || '',
+      stripe_price_id: p.stripe_price_id ?? '',
       period_start_date: p.valid_from ? new Date(p.valid_from) : (p.period_start_date ? new Date(p.period_start_date) : null),
       period_end_date: p.valid_to ? new Date(p.valid_to) : (p.period_end_date ? new Date(p.period_end_date) : null),
-      monthly_equivalent: p.monthly_equivalent || '',
-      savings: p.savings || 0,
+      monthly_equivalent: p.monthly_equivalent ?? '',
+      savings: p.savings ?? 0,
       is_active: p.is_active,
     });
   };
@@ -247,7 +247,7 @@ export default function AdminSubscriptions() {
         applicable_tiers: promo.applicable_tiers,
         applicable_billing: promo.applicable_billing,
         period_length: promo.period_length,
-        period_unit: promo.period_unit || 'months',
+        period_unit: promo.period_unit ?? 'months',
         start_date: new Date(promo.start_date),
         end_date: new Date(promo.end_date),
         is_active: promo.is_active,
@@ -949,9 +949,13 @@ export default function AdminSubscriptions() {
                 <Input
                   type="number"
                   value={promoForm.discount_value}
-                  onChange={(e) =>
-                    setPromoForm({ ...promoForm, discount_value: parseInt(e.target.value) || 0 })
-                  }
+                  onChange={(e) => {
+                    const nextDiscountValue = Number.parseInt(e.target.value, 10);
+                    setPromoForm({
+                      ...promoForm,
+                      discount_value: Number.isNaN(nextDiscountValue) ? 0 : nextDiscountValue,
+                    });
+                  }}
                 />
               </div>
             </div>

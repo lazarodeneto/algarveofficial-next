@@ -37,7 +37,7 @@ export function DynamicFormField({
         return (
           <Input
             type="text"
-            value={(value as string) || ""}
+            value={(value as string) ?? ""}
             onChange={(e) => onChange(e.target.value)}
             placeholder={field.placeholder}
             disabled={disabled}
@@ -62,7 +62,7 @@ export function DynamicFormField({
       case "textarea":
         return (
           <Textarea
-            value={(value as string) || ""}
+            value={(value as string) ?? ""}
             onChange={(e) => onChange(e.target.value)}
             placeholder={field.placeholder}
             disabled={disabled}
@@ -73,7 +73,7 @@ export function DynamicFormField({
       case "select":
         return (
           <Select
-            value={(value as string) || ""}
+            value={(value as string) ?? ""}
             onValueChange={onChange}
             disabled={disabled}
           >
@@ -91,7 +91,7 @@ export function DynamicFormField({
         );
 
       case "multiselect": {
-        const selectedValues = (value as string[]) || [];
+        const selectedValues = (value as string[]) ?? [];
         return (
           <div className="space-y-2">
             <div className="flex flex-wrap gap-2 min-h-[40px] p-2 rounded-md border border-input bg-background">
@@ -144,7 +144,7 @@ export function DynamicFormField({
           <div className="flex items-center space-x-2">
             <Checkbox
               id={field.name}
-              checked={(value as boolean) || false}
+              checked={(value as boolean) ?? false}
               onCheckedChange={onChange}
               disabled={disabled}
             />
@@ -160,7 +160,7 @@ export function DynamicFormField({
       case "tags":
         return (
           <TagInput
-            value={(value as string[]) || []}
+            value={(value as string[]) ?? []}
             onChange={onChange}
             placeholder={field.placeholder}
             disabled={disabled}
@@ -170,7 +170,7 @@ export function DynamicFormField({
       case "image":
         return (
           <SingleImageUploadField
-            value={(value as string) || ""}
+            value={(value as string) ?? ""}
             onChange={(url) => onChange(url)}
             disabled={disabled}
           />

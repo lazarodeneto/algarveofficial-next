@@ -460,7 +460,7 @@ export default function AdminCmsCities() {
                 <Label htmlFor="short_description">Short Description</Label>
                 <Input
                   id="short_description"
-                  value={editingCity.short_description || ''}
+                  value={editingCity.short_description ?? ''}
                   onChange={(e) => setEditingCity({ ...editingCity, short_description: e.target.value })}
                   className="bg-background"
                   placeholder="Brief tagline for the city..."
@@ -471,7 +471,7 @@ export default function AdminCmsCities() {
                 <Label htmlFor="description">Full Description</Label>
                 <Textarea
                   id="description"
-                  value={editingCity.description || ''}
+                  value={editingCity.description ?? ''}
                   onChange={(e) => setEditingCity({ ...editingCity, description: e.target.value })}
                   className="bg-background"
                   rows={4}
@@ -483,7 +483,11 @@ export default function AdminCmsCities() {
               <div className="space-y-2">
                 <Label>Hero Image</Label>
                 <SingleImageUploadField
-                  value={editingCity.hero_image_url || undefined}
+                  value={
+                    editingCity.hero_image_url == null || editingCity.hero_image_url === ""
+                      ? undefined
+                      : editingCity.hero_image_url
+                  }
                   onChange={(value) => setEditingCity({ ...editingCity, hero_image_url: value || null })}
                   folder="cities"
                 />
@@ -492,7 +496,11 @@ export default function AdminCmsCities() {
               <div className="space-y-2">
                 <Label>Card Image</Label>
                 <SingleImageUploadField
-                  value={editingCity.image_url || undefined}
+                  value={
+                    editingCity.image_url == null || editingCity.image_url === ""
+                      ? undefined
+                      : editingCity.image_url
+                  }
                   onChange={(value) => setEditingCity({ ...editingCity, image_url: value || null })}
                   folder="cities"
                 />
@@ -506,8 +514,15 @@ export default function AdminCmsCities() {
                     id="lat"
                     type="number"
                     step="0.0001"
-                    value={editingCity.latitude || ''}
-                    onChange={(e) => setEditingCity({ ...editingCity, latitude: parseFloat(e.target.value) || null })}
+                    value={editingCity.latitude ?? ''}
+                    onChange={(e) => {
+                      const nextLatitude = Number.parseFloat(e.target.value);
+                      setEditingCity({
+                        ...editingCity,
+                        latitude:
+                          e.target.value === "" || Number.isNaN(nextLatitude) ? null : nextLatitude,
+                      });
+                    }}
                     className="bg-background"
                     placeholder="37.0000"
                   />
@@ -518,8 +533,15 @@ export default function AdminCmsCities() {
                     id="lng"
                     type="number"
                     step="0.0001"
-                    value={editingCity.longitude || ''}
-                    onChange={(e) => setEditingCity({ ...editingCity, longitude: parseFloat(e.target.value) || null })}
+                    value={editingCity.longitude ?? ''}
+                    onChange={(e) => {
+                      const nextLongitude = Number.parseFloat(e.target.value);
+                      setEditingCity({
+                        ...editingCity,
+                        longitude:
+                          e.target.value === "" || Number.isNaN(nextLongitude) ? null : nextLongitude,
+                      });
+                    }}
                     className="bg-background"
                     placeholder="-8.0000"
                   />

@@ -230,7 +230,7 @@ export function AdminHeader() {
                 <div className="flex flex-col">
                   <span className="font-medium">{t("common.adminUser")}</span>
                   <span className="text-xs font-normal text-muted-foreground">
-                    {user?.email || "admin@algarveofficial.com"}
+                    {user?.email ?? "admin@algarveofficial.com"}
                   </span>
                 </div>
               </DropdownMenuLabel>

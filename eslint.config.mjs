@@ -11,6 +11,7 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   {
+    plugins: { local: localI18nPlugin },
     rules: {
       "@typescript-eslint/no-unused-vars": [
         "warn",
@@ -25,6 +26,7 @@ const eslintConfig = defineConfig([
       "@next/next/no-img-element": "warn",
       "react-hooks/exhaustive-deps": "warn",
       "import/no-anonymous-default-export": "off",
+      "local/no-unsafe-default": "warn",
     },
   },
   // ─── i18n enforcement ────────────────────────────────────────────────────

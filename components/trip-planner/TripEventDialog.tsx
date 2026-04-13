@@ -149,7 +149,7 @@ function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEv
                   category={getCategorySlug(selectedListingInfo.category_id || '')}
                   categoryImageUrl={selectedListingInfo.category?.image_url}
                   listingId={selectedListingInfo.id}
-                  alt={selectedListingInfo.name || ''}
+                  alt={selectedListingInfo.name ?? ''}
                   className="w-16 h-12 object-cover rounded"
                 />
               )}
@@ -218,7 +218,7 @@ function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEv
                                 category={getCategorySlug(listing.category_id || '')}
                                 categoryImageUrl={listing.category?.image_url}
                                 listingId={listing.id}
-                                alt={listing.name || ''}
+                                alt={listing.name ?? ''}
                                 className="w-12 h-10 object-cover rounded"
                               />
                             )}

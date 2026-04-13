@@ -478,7 +478,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
                   <div className="grid md:grid-cols-2 gap-0">
                     <div className="aspect-video md:aspect-auto md:h-full overflow-hidden">
                       <BlogFeaturedImage
-                        src={featuredPost.featured_image || "/placeholder.svg"}
+                        src={featuredPost.featured_image ?? "/placeholder.svg"}
                         category={featuredPost.category}
                         alt={featuredPost.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -552,7 +552,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
                       <article className="relative overflow-hidden rounded-2xl bg-card border border-border/50 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-[1.01] transition-all duration-300 ease-out h-full flex flex-col">
                         <div className="relative aspect-[16/10] overflow-hidden">
                           <BlogFeaturedImage
-                            src={post.featured_image || "/placeholder.svg"}
+                            src={post.featured_image ?? "/placeholder.svg"}
                             category={post.category}
                             alt={post.title}
                             className="w-full h-full object-cover group-hover:scale-105 group-hover:brightness-95 transition-all duration-500"

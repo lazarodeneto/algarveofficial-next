@@ -55,7 +55,7 @@ export function LuxuryAccommodationLayout({ details }: LuxuryAccommodationLayout
           <div className="luxury-card p-4 text-center">
             <Building2 className="h-6 w-6 mx-auto mb-2 text-primary" />
             <p className="text-sm text-muted-foreground">{t("categoryLayouts.common.type")}</p>
-            <p className="font-medium capitalize">{translateCategoryValue(t, accommodationType) || 'N/A'}</p>
+            <p className="font-medium capitalize">{translateCategoryValue(t, accommodationType) ?? 'N/A'}</p>
           </div>
           {numberOfUnits && (
             <div className="luxury-card p-4 text-center">

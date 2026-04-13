@@ -1113,7 +1113,7 @@ function ListingDetailClientInner({
                     >
                       <div className="aspect-[16/10] overflow-hidden bg-muted">
                         <ListingImage
-                          src={relatedImage || null}
+                          src={relatedImage ?? null}
                           fallbackSrc="/placeholder.svg"
                           alt={related.name}
                           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"

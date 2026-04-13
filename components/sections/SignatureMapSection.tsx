@@ -252,7 +252,7 @@ export function SignatureMapSection() {
 
                       <div className="mt-auto flex items-center gap-2 text-body-xs text-muted-foreground">
                         <MapPin className="h-3 w-3" />
-                        <span>{listing.city?.name || "Algarve"}</span>
+                        <span>{listing.city?.name ?? "Algarve"}</span>
                         {listing.region && (
                           <>
                             <span>•</span>

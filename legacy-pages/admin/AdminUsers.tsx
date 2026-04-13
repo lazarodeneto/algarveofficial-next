@@ -424,7 +424,7 @@ export default function AdminUsers() {
             <div className="space-y-2">
               <Label>New Role</Label>
               <Select
-                value={newRole || undefined}
+                value={newRole ?? undefined}
                 onValueChange={(value) => setNewRole(value as UserRole)}
               >
                 <SelectTrigger>

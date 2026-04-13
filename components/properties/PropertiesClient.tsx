@@ -222,7 +222,7 @@ export default function PropertiesClient() {
                             ) : null}
                             <div className="mb-8 sm:mb-10 flex flex-col md:flex-row justify-between items-baseline gap-3 sm:gap-4 border-b border-primary/20 pb-5 sm:pb-6">
                                 <h2 className="text-2xl sm:text-3xl font-serif italic text-foreground">
-                                    {filteredListings?.length || 0} <span className="not-italic font-sans text-sm sm:text-lg text-muted-foreground sm:ml-2 tracking-[0.16em] uppercase">{t("realEstate.propertiesAvailable")}</span>
+                                    {filteredListings?.length ?? 0} <span className="not-italic font-sans text-sm sm:text-lg text-muted-foreground sm:ml-2 tracking-[0.16em] uppercase">{t("realEstate.propertiesAvailable")}</span>
                                 </h2>
                                 <div className="text-xs sm:text-sm text-muted-foreground uppercase tracking-[0.16em] font-medium">{t("realEstate.sortedByFeatured")}</div>
                             </div>
