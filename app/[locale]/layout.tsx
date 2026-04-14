@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
 import { AppProviders } from "@/components/providers/AppProviders";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { PublicSiteFrame } from "@/components/layout/PublicSiteFrame";
 import { LocaleProvider } from "@/lib/i18n/locale-context";
 import { CookieConsentBannerWrapper } from "@/components/gdpr/CookieConsentBannerWrapper";
@@ -76,6 +78,9 @@ export default async function LocaleLayout({
         <WhatsAppChatButtonWrapper />
         <FloatingCookieSettingsButton />
         <CookieConsentBannerWrapper />
+        <Suspense fallback={null}>
+          <GoogleAnalytics />
+        </Suspense>
       </AppProviders>
     </LocaleProvider>
   );

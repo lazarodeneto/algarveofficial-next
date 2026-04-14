@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
@@ -66,9 +68,11 @@ export function GoogleAnalytics() {
   const settings = useSiteColors(); // This returns the settings object
   const search = searchParams?.toString() ?? "";
 
-  // Use dynamic ID from settings or fallback to hardcoded (migration safety)
-  // const GA_MEASUREMENT_ID = "G-T989074CQL"; 
-  const GA_MEASUREMENT_ID = settings?.ga_measurement_id || "G-T989074CQL";
+  // Priority: DB setting → env var → hardcoded fallback
+  const GA_MEASUREMENT_ID =
+    settings?.ga_measurement_id ||
+    process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ||
+    "G-T989074CQL";
   const hasAnalyticsConsent = canUseCategory("analytics");
 
   // Load gtag.js when consent is given
