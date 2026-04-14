@@ -142,7 +142,7 @@ const getDestinationPageData = cache(async (slug: string, locale: Locale) => {
     }
   }
 
-  const [citiesResponse, listingsResponse] = await Promise.all([
+  const [citiesResponse, listingsResponse, regionsResponse] = await Promise.all([
     supabase
       .from("city_region_mapping")
       .select(`city:cities(${PUBLIC_CITY_FIELDS})`)
@@ -159,10 +159,19 @@ const getDestinationPageData = cache(async (slug: string, locale: Locale) => {
       .order("is_curated", { ascending: false })
       .order("tier", { ascending: false })
       .limit(24),
+    supabase
+      .from("regions")
+      .select("id, slug, name, short_description, image_url, hero_image_url")
+      .eq("is_active", true)
+      .eq("is_visible_destinations", true)
+      .neq("id", region.id)
+      .order("display_order", { ascending: true })
+      .limit(8),
   ]);
 
   if (citiesResponse.error) throw citiesResponse.error;
   if (listingsResponse.error) throw listingsResponse.error;
+  // regionsResponse errors are non-fatal — silently fall back to empty
 
   let cities = (citiesResponse.data ?? [])
     .map((row) => row.city as unknown as DestinationCity | null)
@@ -217,10 +226,13 @@ const getDestinationPageData = cache(async (slug: string, locale: Locale) => {
     });
   }
 
+  const otherRegions = (regionsResponse.data ?? []) as RegionRow[];
+
   return {
     region,
     cities,
     listings,
+    otherRegions,
   };
 });
 
@@ -276,7 +288,7 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
 
   if (!data) notFound();
 
-  const { region, cities, listings } = data;
+  const { region, cities, listings, otherRegions } = data;
   const routeData = buildDestinationRouteData(region);
   const resolvedImage = resolveRegionImage(region);
   const canonicalUrl = buildAbsoluteRouteUrl(resolvedLocale, routeData);
@@ -471,6 +483,57 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
             </Accordion>
           </div>
         </section>
+        {otherRegions.length > 0 && (
+          <section className="py-16 lg:py-24 bg-card">
+            <div className="app-container content-max">
+              <h2 className="text-title font-serif font-medium text-foreground text-center mb-2">
+                Explore More Destinations
+              </h2>
+              <p className="text-body text-muted-foreground text-center mb-10">
+                Discover other prestigious regions across the Algarve
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {otherRegions.map((r) => {
+                  const imgSrc = normalizePublicImageUrl(r.image_url ?? r.hero_image_url);
+                  return (
+                    <Link
+                      key={r.id}
+                      href={buildLocalizedPath(resolvedLocale, `/destinations/${r.slug}`)}
+                      className="group block rounded-xl overflow-hidden bg-background border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-md"
+                    >
+                      <div className="relative w-full h-36 bg-muted overflow-hidden">
+                        {imgSrc ? (
+                          <Image
+                            src={imgSrc}
+                            alt={r.name}
+                            fill
+                            unoptimized
+                            sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-muted to-muted-foreground/10 flex items-center justify-center">
+                            <span className="text-muted-foreground/30 text-xs">No image</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-3">
+                        <h3 className="text-sm font-serif font-medium text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                          {r.name}
+                        </h3>
+                        {r.short_description && (
+                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                            {r.short_description}
+                          </p>
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        )}
       </main>
     </div>
     </>

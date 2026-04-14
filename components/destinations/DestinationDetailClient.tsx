@@ -457,6 +457,21 @@ async function fetchCuratedRegionAssignments(regionId: string, limit: number) {
   return listings.slice(0, limit);
 }
 
+async function fetchAllRegions() {
+  const { data, error } = await supabase
+    .from("regions")
+    .select("id, name, slug, short_description, image_url, hero_image_url, display_order")
+    .eq("is_active", true)
+    .eq("is_visible_destinations", true)
+    .order("display_order", { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []) as Pick<
+    DestinationRegion,
+    "id" | "name" | "slug" | "short_description" | "image_url" | "hero_image_url" | "display_order"
+  >[];
+}
+
 async function fetchDestinationGlobalSettings() {
   const { data, error } = await supabase
     .from("global_settings")
@@ -528,6 +543,14 @@ function DestinationDetailClientInner({
     initialData: initialGlobalSettings,
     staleTime: 1000 * 60 * 5,
   });
+
+  const { data: allRegions = [] } = useQuery({
+    queryKey: ["all-regions-visible"],
+    queryFn: fetchAllRegions,
+    staleTime: 1000 * 60 * 10,
+  });
+
+  const otherRegions = allRegions.filter((r) => r.id !== initialRegion.id);
 
   const cms = useDestinationDetailCmsHelpers(globalSettings);
 
@@ -824,22 +847,72 @@ function DestinationDetailClientInner({
           cms={cms}
           className="py-16 lg:py-24 bg-card"
         >
-          <div className="app-container text-center" style={{ maxWidth: "56rem" }}>
+          <div className="app-container content-max">
             <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
+              className="text-center mb-10"
             >
               <h2 className="text-title font-serif font-medium text-foreground mb-4">
                 {cms.getText("faq.title", "Explore More Destinations")}
               </h2>
-              <p className="text-body text-muted-foreground mb-8 readable mx-auto">
+              <p className="text-body text-muted-foreground readable mx-auto">
                 {cms.getText(
                   "faq.description",
                   "Discover other prestigious regions across the Algarve",
                 )}
               </p>
+            </m.div>
+
+            {otherRegions.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-10">
+                {otherRegions.slice(0, 8).map((r, index) => (
+                  <m.div
+                    key={r.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: index * 0.05 }}
+                  >
+                    <LocaleLink
+                      href={`/destinations/${r.slug}`}
+                      className="group block rounded-xl overflow-hidden bg-background border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-elevated"
+                    >
+                      <div className="relative w-full h-36 overflow-hidden">
+                        {r.image_url || r.hero_image_url ? (
+                          <Image
+                            src={`${r.image_url ?? r.hero_image_url}?_t=${Date.now()}`}
+                            alt={r.name}
+                            fill
+                            unoptimized
+                            sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-charcoal-light to-charcoal flex items-center justify-center">
+                            <MapPin className="w-8 h-8 text-muted-foreground/30" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-3">
+                        <h3 className="text-sm font-serif font-medium text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                          {r.name}
+                        </h3>
+                        {r.short_description && (
+                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                            {r.short_description}
+                          </p>
+                        )}
+                      </div>
+                    </LocaleLink>
+                  </m.div>
+                ))}
+              </div>
+            )}
+
+            <div className="text-center">
               <LocaleLink
                 href="/destinations"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors tap-target"
@@ -847,7 +920,7 @@ function DestinationDetailClientInner({
                 {cms.getText("faq.cta", "View All Destinations")}
                 <ArrowRight className="w-4 h-4" />
               </LocaleLink>
-            </m.div>
+            </div>
           </div>
         </DestinationDetailCmsBlock>
       ) : null}

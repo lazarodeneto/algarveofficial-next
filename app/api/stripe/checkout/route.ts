@@ -70,7 +70,13 @@ export async function POST(request: NextRequest) {
 
   // Overlap guard: prevent buying a recurring plan while a fixed_2026 is in force,
   // and vice versa. Resolves the most common double-charge / state-confusion path.
-  const overlap = await findOverlappingActive(supabase, auth.userId, planType);
+  let overlap: Awaited<ReturnType<typeof findOverlappingActive>>;
+  try {
+    overlap = await findOverlappingActive(supabase, auth.userId, planType);
+  } catch (err) {
+    console.error("[checkout] findOverlappingActive error:", err);
+    return NextResponse.json({ error: "Failed to validate existing subscription." }, { status: 500 });
+  }
   if (overlap) {
     return NextResponse.json(
       {
@@ -130,28 +136,38 @@ export async function POST(request: NextRequest) {
     currency: pricing.currency ?? "EUR",
   };
 
-  const session = await stripe.checkout.sessions.create({
-    mode,
-    line_items: [{ price: pricing.stripe_price_id, quantity: 1 }],
-    success_url: successUrl,
-    cancel_url: cancelUrl,
-    client_reference_id: auth.userId,
-    metadata: baseMetadata,
-    ...(mode === "subscription"
-      ? {
-          subscription_data: {
-            description: INVOICE_DESCRIPTION,
-            metadata: baseMetadata,
-          },
-        }
-      : {
-          payment_intent_data: {
-            description: INVOICE_DESCRIPTION,
-            statement_descriptor: STATEMENT_DESCRIPTOR,
-            metadata: baseMetadata,
-          },
-        }),
-  });
+  let session: Awaited<ReturnType<typeof stripe.checkout.sessions.create>>;
+  try {
+    session = await stripe.checkout.sessions.create({
+      mode,
+      line_items: [{ price: pricing.stripe_price_id, quantity: 1 }],
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      client_reference_id: auth.userId,
+      metadata: baseMetadata,
+      ...(mode === "subscription"
+        ? {
+            subscription_data: {
+              description: INVOICE_DESCRIPTION,
+              metadata: baseMetadata,
+            },
+          }
+        : {
+            payment_intent_data: {
+              description: INVOICE_DESCRIPTION,
+              statement_descriptor: STATEMENT_DESCRIPTOR,
+              metadata: baseMetadata,
+            },
+          }),
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[checkout] stripe.checkout.sessions.create error:", message);
+    return NextResponse.json(
+      { error: "Failed to create Stripe checkout session.", detail: message },
+      { status: 502 },
+    );
+  }
 
   return NextResponse.json({
     url: session.url,

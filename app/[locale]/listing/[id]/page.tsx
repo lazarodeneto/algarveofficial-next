@@ -28,6 +28,7 @@ import {
   type ListingWithRelations,
   type RelatedListing,
   type WhatsAppStatus,
+  type OtherRegion,
 } from "@/components/listing/ListingDetailClient";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
@@ -73,6 +74,7 @@ interface ListingPageData {
   whatsappStatus: WhatsAppStatus;
   canonicalSlug: string;
   localizedSlugs: Partial<Record<Locale, string>>;
+  otherRegions: OtherRegion[];
 }
 
 interface ListingPageProps {
@@ -300,17 +302,25 @@ const getListingPageData = cache(async (locale: Locale, idOrSlug: string): Promi
               .eq("wa_enabled", true)
               .maybeSingle()
           : Promise.resolve({ data: null, error: null }),
+        supabase
+          .from("regions")
+          .select("id, slug, name, short_description, image_url, hero_image_url")
+          .eq("is_active", true)
+          .eq("is_visible_destinations", true)
+          .order("display_order", { ascending: true })
+          .limit(8),
       ]),
       20000,
       null,
-    )) ?? [null, {}, {}, { data: [], error: null }, { data: null, error: null }];
+    )) ?? [null, {}, {}, { data: [], error: null }, { data: null, error: null }, { data: [], error: null }];
 
-  const [reviews, translations, localizedSlugs, relatedResponse, whatsappResponse] = settledResults as [
+  const [reviews, translations, localizedSlugs, relatedResponse, whatsappResponse, regionsResponse] = settledResults as [
     ListingReviewRow[],
     Record<Locale, ListingTranslationRow | null>,
     Partial<Record<Locale, string>>,
     { data: RelatedListing[] | null; error: { message: string } | null },
     { data: { wa_enabled?: boolean | null; business_phone_e164?: string | null } | null; error: { message: string } | null },
+    { data: OtherRegion[] | null; error: { message: string } | null },
   ];
 
   if (relatedResponse.error) throw relatedResponse.error;
@@ -327,6 +337,7 @@ const getListingPageData = cache(async (locale: Locale, idOrSlug: string): Promi
     },
     canonicalSlug,
     localizedSlugs,
+    otherRegions: regionsResponse.data ?? [],
   };
 });
 
@@ -499,6 +510,7 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
         initialRelatedListings={data.relatedListings}
         initialWhatsAppStatus={data.whatsappStatus}
         initialLookupValue={id}
+        initialOtherRegions={data.otherRegions}
       />
     </>
   );

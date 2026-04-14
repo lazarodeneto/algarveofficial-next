@@ -111,6 +111,15 @@ export interface WhatsAppStatus {
   phone: string | null;
 }
 
+export type OtherRegion = {
+  id: string;
+  slug: string;
+  name: string;
+  short_description: string | null;
+  image_url: string | null;
+  hero_image_url: string | null;
+};
+
 export interface ListingDetailClientProps {
   locale?: string;
   localeSwitchPaths?: Partial<Record<Locale, string>>;
@@ -120,6 +129,7 @@ export interface ListingDetailClientProps {
   initialRelatedListings: RelatedListing[];
   initialWhatsAppStatus: WhatsAppStatus;
   initialLookupValue: string;
+  initialOtherRegions?: OtherRegion[];
 }
 
 const PUBLIC_LISTING_FIELDS = `
@@ -348,6 +358,7 @@ function ListingDetailClientInner({
   initialRelatedListings,
   initialWhatsAppStatus,
   initialLookupValue,
+  initialOtherRegions = [],
 }: ListingDetailClientProps) {
   const { t } = useTranslation();
   const l = useLocalePath();
@@ -1133,45 +1144,52 @@ function ListingDetailClientInner({
           </section>
         ) : null}
 
-        {listing.region && (
-          <section className="py-8 px-4 border-t border-border bg-muted/30">
-            <div className="container mx-auto max-w-7xl">
-              <h2 className="text-2xl font-serif font-medium mb-6">
-                {t("listing.relatedDestinations")}
+
+        {initialOtherRegions.length > 0 && (
+          <section className="py-16 lg:py-24 bg-card border-t border-border">
+            <div className="app-container content-max">
+              <h2 className="text-title font-serif font-medium text-foreground text-center mb-2">
+                Explore More Destinations
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                {[
-                  { name: "Golden Triangle", slug: "golden-triangle", image: "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=600&h=400&fit=crop" },
-                  { name: "Vilamoura", slug: "vilamoura-prestige", image: "https://images.unsplash.com/photo-1565099824688-ab2c0c4e5d88?w=600&h=400&fit=crop" },
-                  { name: "Carvoeiro", slug: "carvoeiro-cliffs", image: "https://images.unsplash.com/photo-1580522154071-c6ca47a859ad?w=600&h=400&fit=crop" },
-                  { name: "Lagos", slug: "lagos-signature", image: "https://images.unsplash.com/photo-1513725160889-e1f8564c3f54?w=600&h=400&fit=crop" },
-                  { name: "Tavira", slug: "tavira-heritage", image: "https://images.unsplash.com/photo-1563796248-1c6fb66f4a9e?w=600&h=400&fit=crop" },
-                ].map((dest) => (
-                  <Link
-                    key={dest.slug}
-                    href={l({
-                      routeType: "destination",
-                      slugs: buildUniformLocalizedSlugMap(dest.slug),
-                    })}
-                    className="group block rounded-xl overflow-hidden border border-border hover:border-primary/40 transition-colors bg-card"
-                  >
-                    <div className="aspect-[4/3] relative overflow-hidden bg-muted">
-                      <Image
-                        src={dest.image}
-                        alt={dest.name}
-                        fill
-                        unoptimized
-                        sizes="(max-width: 768px) 50vw, 20vw"
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                    </div>
-                    <div className="p-3">
-                      <h3 className="font-medium text-sm group-hover:text-primary transition-colors">
-                        {dest.name}
-                      </h3>
-                    </div>
-                  </Link>
-                ))}
+              <p className="text-body text-muted-foreground text-center mb-10">
+                Discover other prestigious regions across the Algarve
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {initialOtherRegions.map((r) => {
+                  const imgSrc = normalizeImageUrl(r.image_url ?? r.hero_image_url);
+                  return (
+                    <Link
+                      key={r.id}
+                      href={l(`/destinations/${r.slug}`)}
+                      className="group block rounded-xl overflow-hidden bg-background border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-md"
+                    >
+                      <div className="relative w-full h-36 bg-muted overflow-hidden">
+                        {imgSrc ? (
+                          <Image
+                            src={imgSrc}
+                            alt={r.name}
+                            fill
+                            unoptimized
+                            sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-muted to-muted-foreground/10" />
+                        )}
+                      </div>
+                      <div className="p-3">
+                        <h3 className="text-sm font-serif font-medium text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                          {r.name}
+                        </h3>
+                        {r.short_description && (
+                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                            {r.short_description}
+                          </p>
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           </section>
