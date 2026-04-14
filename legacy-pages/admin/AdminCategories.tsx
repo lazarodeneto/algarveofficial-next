@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { callAdminTaxonomyApi } from "@/lib/admin/taxonomy-client";
+import { SingleImageUploadField } from "@/components/admin/listings/SingleImageUploadField";
 import { toast } from "sonner";
 import { Tables } from "@/integrations/supabase/types";
 
@@ -44,6 +45,7 @@ export default function AdminCategories() {
     short_description: "",
     is_active: true,
     is_featured: false,
+    image_url: "",
   });
 
   // Fetch categories
@@ -114,6 +116,7 @@ export default function AdminCategories() {
       short_description: category.short_description || "",
       is_active: category.is_active,
       is_featured: category.is_featured,
+      image_url: (category as any).image_url || "",
     });
     setDialogOpen(true);
   };
@@ -135,7 +138,7 @@ export default function AdminCategories() {
 
   const resetForm = () => {
     setSelectedCategory(null);
-    setFormData({ name: "", slug: "", description: "", short_description: "", is_active: true, is_featured: false });
+    setFormData({ name: "", slug: "", description: "", short_description: "", is_active: true, is_featured: false, image_url: "" });
   };
 
   const generateSlug = (name: string) => {
@@ -228,6 +231,15 @@ export default function AdminCategories() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Detailed description..."
                   rows={3}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Image</Label>
+                <SingleImageUploadField
+                  value={formData.image_url}
+                  onChange={(value) => setFormData({ ...formData, image_url: value || "" })}
+                  folder="categories"
+                  disabled={saveMutation.isPending}
                 />
               </div>
               <div className="flex items-center justify-between">
