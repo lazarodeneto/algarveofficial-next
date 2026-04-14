@@ -7,64 +7,46 @@ on:
       - "feat/**"
       - "fix/**"
   workflow_dispatch:
-    inputs:
-      base_url:
-        description: "Base URL to test"
-        required: false
-        default: ""
 
 concurrency:
   group: tests-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: "22"
+  NODE_VERSION: "20"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
-  smoke-tests:
+  tests:
     name: Smoke Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 10
 
-    env:
-      PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.base_url || 'http://localhost:3000' }}
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-
+    steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
-      - name: Install dependencies
+      - name: Install deps
         run: npm ci
+
+      - name: Install Playwright
+        run: npx playwright install chromium
 
       - name: Build app
         run: npm run build
 
       - name: Start app
-        run: |
-          npm run start > server.log 2>&1 &
+        run: npm run start &
 
       - name: Wait for app
-        run: |
-          npx wait-on http://localhost:3000 --timeout 60000
+        run: npx wait-on http://localhost:3000
 
-      - name: Debug server
-        run: |
-          echo "=== SERVER LOG ==="
-          cat server.log || true
-          echo "=== CURL TEST ==="
-          curl -I http://localhost:3000 || true
-
-      - name: Install Playwright browsers
-        run: npx playwright install chromium
-
-      - name: Run smoke tests
-        run: npx playwright test tests/smoke.spec.ts
+      - name: Run tests
+        run: npx playwright test
         env:
           CI: "true"
