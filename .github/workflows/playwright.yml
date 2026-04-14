@@ -27,7 +27,6 @@ jobs:
     timeout-minutes: 10
     outputs:
       preview_url: ${{ steps.deploy.outputs.url }}
-      deployment_id: ${{ steps.deploy.outputs.deployment_id }}
 
     steps:
       - name: Checkout
@@ -39,22 +38,14 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
-      - name: Install Vercel CLI
-        run: npm install -g vercel@latest
-
-      - name: Pull Vercel Environment
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy to Preview
+      - name: Deploy to Vercel
         id: deploy
-        run: |
-          OUTPUT=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
-          echo "url=$OUTPUT" >> $GITHUB_OUTPUT
-          echo "deployment_id=$(echo $OUTPUT | grep -oP '[a-zA-Z0-9]{,20}' | head -1)" >> $GITHUB_OUTPUT
-        shell: bash
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-args: "--prebuilt"
+          vercel-project: ${{ secrets.VERCEL_PROJECT_NAME }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
 
   smoke-tests:
     name: Smoke Tests
