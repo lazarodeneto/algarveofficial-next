@@ -12,6 +12,10 @@ on:
         description: "Base URL to test"
         required: false
         default: ""
+      run_smoke:
+        description: "Run smoke tests"
+        required: false
+        default: "true"
 
 concurrency:
   group: deploy-smoke-${{ github.ref }}
@@ -53,6 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     needs: deploy
+    if: github.event.inputs.run_smoke != 'false'
 
     env:
       PLAYWRIGHT_BASE_URL: ${{ needs.deploy.outputs.preview_url || github.event.inputs.base_url || 'http://localhost:3000' }}
