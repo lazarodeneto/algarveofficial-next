@@ -18,44 +18,16 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: "20"
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  NODE_VERSION: "22"
 
 jobs:
-  deploy-preview:
-    name: Deploy Preview
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    outputs:
-      preview_url: ${{ steps.deploy.outputs.url }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-
-      - name: Deploy to Vercel
-        id: deploy
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-args: "--prebuilt"
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-
   smoke-tests:
     name: Smoke Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: deploy-preview
+    timeout-minutes: 10
 
     env:
-      PLAYWRIGHT_BASE_URL: ${{ needs.deploy-preview.outputs.preview_url || github.event.inputs.base_url }}
+      PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.base_url || 'http://localhost:3000' }}
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
