@@ -19,6 +19,7 @@ concurrency:
 
 env:
   NODE_VERSION: "20"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   deploy:
@@ -44,7 +45,7 @@ jobs:
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-args: "--prebuilt"
-          vercel-project: ${{ secrets.VERCEL_PROJECT_NAME }}
+          vercel-project-name: ${{ secrets.VERCEL_PROJECT_NAME }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
 
   smoke-tests:
