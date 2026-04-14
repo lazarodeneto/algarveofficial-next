@@ -299,7 +299,7 @@ function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEv
         <Button variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button onClick={handleSave} disabled={!selectedListing ?? !date}>
+        <Button onClick={handleSave} disabled={!selectedListing || !date}>
           {editEvent ? 'Save Changes' : 'Add Activity'}
         </Button>
       </DialogFooter>

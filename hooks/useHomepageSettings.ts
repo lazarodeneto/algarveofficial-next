@@ -227,6 +227,6 @@ export function useHeroSettings() {
 
   return {
     settings: localizedSettings,
-    isLoading: isLoading ?? locale !== "en" && Boolean(settings?.id) && isTranslationLoading,
+    isLoading: isLoading || (locale !== "en" && Boolean(settings?.id) && isTranslationLoading),
   };
 }

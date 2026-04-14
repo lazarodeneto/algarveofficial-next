@@ -251,7 +251,7 @@ function RealEstateDirectoryClientInner({
       });
   }, [filters, listings]);
 
-  const isLoading = categoryLoading ?? Boolean(realEstateCategoryId) && listingsLoading;
+  const isLoading = categoryLoading || (Boolean(realEstateCategoryId) && listingsLoading);
 
   const addListingHref = useMemo(() => {
     if (user?.role === "admin" || user?.role === "editor") return "/admin/listings/new";

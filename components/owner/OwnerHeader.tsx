@@ -42,7 +42,7 @@ export function OwnerHeader() {
   const tierBadge = getTierBadge();
 
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim();
-  const displayName = fullName || user?.email?.split('@')[0] ?? t('common.owner');
+  const displayName = (fullName || user?.email?.split('@')[0]) ?? t('common.owner');
   const displayEmail = user?.email ?? '';
   const userInitial = (displayName.trim().charAt(0) || displayEmail.trim().charAt(0) || "O").toUpperCase();
 

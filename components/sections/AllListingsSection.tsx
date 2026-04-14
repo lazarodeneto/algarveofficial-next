@@ -90,7 +90,7 @@ export function AllListingsSection() {
   const { data: cities, isLoading: citiesLoading, error: citiesError } = useCities();
   const { data: regions, isLoading: regionsLoading, error: regionsError } = useRegions();
 
-  const isLoading = !mounted || listingsLoading || categoriesLoading || citiesLoading ?? regionsLoading;
+  const isLoading = !mounted || listingsLoading || categoriesLoading || citiesLoading || regionsLoading;
   const hasError = Boolean(listingsError || categoriesError || citiesError || regionsError);
 
   const placementSelection = normalizePlacementSelection(listingBlockData.selection);

@@ -88,7 +88,7 @@ export default function ListingImage({
 
   const resolvedAlt = typeof alt === "string" && alt.trim().length > 0 ? alt : "Algarve listing";
   
-  const isUsingFallback = !src ?? hasError;
+  const isUsingFallback = !src || hasError;
   const showRepresentativeBadge = isRepresentative && isUsingFallback;
   const shouldAutoFill =
     !fill &&

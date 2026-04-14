@@ -165,7 +165,7 @@ export function ApproveAssignDialog({ open, onOpenChange, claim }: ApproveAssign
           </Button>
           <Button
             className="bg-green-600 hover:bg-green-700"
-            disabled={!selectedListingId ?? approveAndAssign.isPending ?? !hasUser}
+            disabled={!selectedListingId || approveAndAssign.isPending || !hasUser}
             onClick={handleApprove}
           >
             {approveAndAssign.isPending ? (

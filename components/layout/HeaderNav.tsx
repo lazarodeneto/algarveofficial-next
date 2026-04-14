@@ -52,7 +52,7 @@ export function HeaderNav() {
       {HEADER_NAV_ITEMS.map((item) => {
         const itemPath = item.href.split("?")[0];
         const isActive =
-          currentPath === itemPath ?? itemPath !== "/" && currentPath.startsWith(`${itemPath}/`);
+          currentPath === itemPath || (itemPath !== "/" && currentPath.startsWith(`${itemPath}/`));
         const Icon = HEADER_NAV_ICONS[item.labelKey];
         const label = t(item.labelKey, item.fallbackLabel);
 

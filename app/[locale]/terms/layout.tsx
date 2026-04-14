@@ -30,10 +30,10 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
   return buildPageMetadata({
     locale,
     localizedRoute: buildStaticRouteData("terms"),
-    title: localizedSettings?.meta_title || localizedSettings?.page_title ?? translatedTitle,
+    title: (localizedSettings?.meta_title || localizedSettings?.page_title) ?? translatedTitle,
     description:
-      localizedSettings?.meta_description ||
-      localizedSettings?.introduction ?? translatedTitle,
+      (localizedSettings?.meta_description ||
+      localizedSettings?.introduction) ?? translatedTitle,
   });
 }
 

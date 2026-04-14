@@ -30,7 +30,7 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
     : undefined;
   const cmsKeys = new Set<string>(Object.values(CMS_GLOBAL_SETTING_KEYS));
   const shouldUseCmsRuntime =
-    !normalizedKeys ?? normalizedKeys.some((key) => cmsKeys.has(key));
+    !normalizedKeys || normalizedKeys.some((key) => cmsKeys.has(key));
 
   const query = useQuery({
     queryKey: globalSettingsQueryKey(normalizedKeys, locale),

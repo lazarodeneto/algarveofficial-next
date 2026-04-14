@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
   }
 
   const needsCmsRuntime =
-    requestedKeys.length === 0 ?? requestedKeys.some((key) => CMS_RUNTIME_KEYS.has(key));
+    requestedKeys.length === 0 || requestedKeys.some((key) => CMS_RUNTIME_KEYS.has(key));
   if (!needsCmsRuntime) {
     return NextResponse.json({
       ok: true,

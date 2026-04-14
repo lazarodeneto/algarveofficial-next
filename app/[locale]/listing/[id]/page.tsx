@@ -366,9 +366,9 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
   );
   const description = buildListingDescription({ listing, translation: currentTranslation });
   const ogImage =
-    normalizePublicImageUrl(listing.images?.find((image) => image.is_featured)?.image_url) ||
+    (normalizePublicImageUrl(listing.images?.find((image) => image.is_featured)?.image_url) ||
     normalizePublicImageUrl(listing.images?.[0]?.image_url) ||
-    normalizePublicImageUrl(listing.featured_image_url) ?? "/og-image.png";
+    normalizePublicImageUrl(listing.featured_image_url)) ?? "/og-image.png";
   const routeData = buildListingRouteData(data);
 
   return buildPageMetadata({
@@ -439,9 +439,9 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
     ? buildAbsoluteRouteUrl(resolvedLocale, cityCategoryRouteData)
     : null;
   const ogImage =
-    normalizePublicImageUrl(data.listing.images?.find((image) => image.is_featured)?.image_url) ||
+    (normalizePublicImageUrl(data.listing.images?.find((image) => image.is_featured)?.image_url) ||
     normalizePublicImageUrl(data.listing.images?.[0]?.image_url) ||
-    normalizePublicImageUrl(data.listing.featured_image_url) ?? "/og-image.png";
+    normalizePublicImageUrl(data.listing.featured_image_url)) ?? "/og-image.png";
 
    
   const businessSchema = buildLocalBusinessSchema({
@@ -463,8 +463,8 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
     city: data.listing.city?.name ?? undefined,
     region: data.listing.region?.name ?? undefined,
     address: data.listing.address ?? undefined,
-    latitude: data.listing.latitude || data.listing.city?.latitude ?? undefined,
-    longitude: data.listing.longitude || data.listing.city?.longitude ?? undefined,
+    latitude: (data.listing.latitude || data.listing.city?.latitude) ?? undefined,
+    longitude: (data.listing.longitude || data.listing.city?.longitude) ?? undefined,
     telephone: data.listing.contact_phone ?? undefined,
     email: data.listing.contact_email ?? undefined,
     website: data.listing.website_url ?? undefined,

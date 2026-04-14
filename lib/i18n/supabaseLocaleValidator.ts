@@ -130,10 +130,10 @@ export function applyListingTranslation(
   return {
     id: base.id,
     title: txRow.title?.trim() ?? base.title,
-    short_description: txRow.short_description?.trim() || base.short_description ?? null,
-    description: txRow.description?.trim() || base.description ?? null,
-    seo_title: txRow.seo_title?.trim() || base.seo_title ?? null,
-    seo_description: txRow.seo_description?.trim() || base.seo_description ?? null,
+    short_description: (txRow.short_description?.trim() || base.short_description) ?? null,
+    description: (txRow.description?.trim() || base.description) ?? null,
+    seo_title: (txRow.seo_title?.trim() || base.seo_title) ?? null,
+    seo_description: (txRow.seo_description?.trim() || base.seo_description) ?? null,
     _locale: locale,
     _isEnglishFallback: missingFields.length > 0,
   };

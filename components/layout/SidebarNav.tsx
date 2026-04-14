@@ -47,7 +47,7 @@ export function SidebarNav({ expanded = false }: SidebarNavProps) {
     <nav className={clsx("flex flex-col gap-2", expanded ? "items-stretch" : "items-center")}>
       {sidebarItems.map((item) => {
         const isActive =
-          currentPath === item.href ?? item.href !== "/" && currentPath.startsWith(`${item.href}/`);
+          currentPath === item.href || (item.href !== "/" && currentPath.startsWith(`${item.href}/`));
         const Icon = NAV_ICONS[item.labelKey];
         const label = t(item.labelKey, item.fallbackLabel);
 

@@ -95,7 +95,8 @@ function resolveGoogleOAuthRedirectUrl(locale: string, requestedPath?: string | 
 
   const localLikeHost =
     window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1" ?? window.location.hostname.endsWith(".local");
+    window.location.hostname === "127.0.0.1" ||
+    window.location.hostname.endsWith(".local");
 
   const origin = configuredOrigin
     ?? (localLikeHost

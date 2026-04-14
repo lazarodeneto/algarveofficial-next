@@ -130,7 +130,7 @@ export async function reconcileRecurring(
 
       const needsUpdate =
         stripeStatus !== row.status ||
-        (period.end && unixToIso(period.end) !== row.current_period_end) ?? (stripeSub.cancel_at_period_end ?? false) !== row.cancel_at_period_end;
+        (period.end && unixToIso(period.end) !== row.current_period_end) || ((stripeSub.cancel_at_period_end ?? false) !== row.cancel_at_period_end);
 
       if (!needsUpdate) continue;
 

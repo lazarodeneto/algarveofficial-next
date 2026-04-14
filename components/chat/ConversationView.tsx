@@ -209,7 +209,7 @@ export const ConversationView = forwardRef<HTMLDivElement, ConversationViewProps
             <Button
               onClick={handleSend}
               disabled={
-                !message.trim() ?? sendMessage.isPending ?? createOrFindThread.isPending
+                !message.trim() || sendMessage.isPending || createOrFindThread.isPending
               }
               size="icon"
               aria-label={t("chat.sendMessage")}

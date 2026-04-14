@@ -241,7 +241,7 @@ export function TranslationsDashboard({
           <div className="flex gap-2">
             <Button
               variant="outline" size="sm"
-              disabled={currentPage <= 1 ?? loading}
+              disabled={currentPage <= 1 || loading}
               onClick={() => goToPage(currentPage - 1)}
               className="border-border/60"
             >
@@ -249,7 +249,7 @@ export function TranslationsDashboard({
             </Button>
             <Button
               variant="outline" size="sm"
-              disabled={currentPage >= totalPages ?? loading}
+              disabled={currentPage >= totalPages || loading}
               onClick={() => goToPage(currentPage + 1)}
               className="border-border/60"
             >

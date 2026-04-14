@@ -81,7 +81,7 @@ function resolveRegionImage(region: RegionRow): string | null {
   const fallbackImageSrc = typeof fallbackRegionImage?.image === "string"
     ? fallbackRegionImage.image
     : null;
-  const src = region.hero_image_url || region.image_url ?? fallbackImageSrc;
+  const src = (region.hero_image_url || region.image_url) ?? fallbackImageSrc;
   return src ? normalizePublicImageUrl(src) : null;
 }
 
@@ -319,7 +319,7 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
 
   const touristDestinationSchema = buildTouristDestinationSchema({
     name: region.name,
-    description: region.description || region.short_description ?? undefined,
+    description: (region.description || region.short_description) ?? undefined,
     image: resolvedImage ?? undefined,
     url: canonicalUrl,
     latitude: undefined,

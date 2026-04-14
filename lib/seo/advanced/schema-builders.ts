@@ -252,7 +252,7 @@ export function buildArticleSchema(post: BlogPostSchemaInput) {
     image: post.featured_image ?? undefined,
     url,
     datePublished: post.published_at ?? undefined,
-    dateModified: post.updated_at || post.published_at ?? undefined,
+    dateModified: (post.updated_at || post.published_at) ?? undefined,
     author: {
       "@type": "Organization",
       name: post.author_name ?? SITE_CONFIG.name,
@@ -283,12 +283,12 @@ export function buildEventSchema(event: EventSchemaInput) {
     image: event.image_url ?? undefined,
     url,
     startDate: event.start_date ?? undefined,
-    endDate: event.end_date || event.start_date ?? undefined,
+    endDate: (event.end_date || event.start_date) ?? undefined,
     eventStatus: "https://schema.org/EventScheduled",
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     location: {
       "@type": "Place",
-      name: event.venue_name || event.city ?? "Algarve",
+      name: (event.venue_name || event.city) ?? "Algarve",
       address: {
         "@type": "PostalAddress",
         addressLocality: event.city ?? "Algarve",

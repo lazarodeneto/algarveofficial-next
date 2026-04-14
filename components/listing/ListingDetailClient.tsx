@@ -469,7 +469,7 @@ function ListingDetailClientInner({
     };
   }, [initialTranslation, listing?.id, routeLocale]);
 
-  const isAdminOrEditor = user?.role === "admin" ?? user?.role === "editor";
+  const isAdminOrEditor = user?.role === "admin" || user?.role === "editor";
 
   const effectiveTitle = useMemo(() => tr?.title?.trim() || listing?.name || "", [listing?.name, tr?.title]);
   const effectiveShort = useMemo(
@@ -546,7 +546,7 @@ function ListingDetailClientInner({
   const details = listing.category_data as Record<string, unknown> ?? {};
   const hasPropertySignals = hasRealEstateSignals(details);
   const isRealEstateListing =
-    isRealEstateCategorySlug(listing.category?.slug) ?? listing.category?.slug === "algarve-services" && hasPropertySignals;
+    isRealEstateCategorySlug(listing.category?.slug) || (listing.category?.slug === "algarve-services" && hasPropertySignals);
 
   const handleScheduleViewingClick = () => {
     if (!isRealEstateListing) {
@@ -577,7 +577,7 @@ function ListingDetailClientInner({
         categoryImageUrl: normalizedCategoryImageUrl ?? undefined,
         cityName: listing.city?.name ?? "Algarve",
         tier: listing.tier,
-        featuredImageUrl: normalizedFeaturedImageUrl || normalizedCategoryImageUrl ?? undefined,
+        featuredImageUrl: (normalizedFeaturedImageUrl || normalizedCategoryImageUrl) ?? undefined,
         href: l({
           routeType: "listing",
           slugs: buildUniformLocalizedSlugMap(listing.slug || listing.id),

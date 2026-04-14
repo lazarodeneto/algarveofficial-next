@@ -70,7 +70,7 @@ export default async function LocaleEventDetailPage({ params }: LocaleEventDetai
     slug: event.slug,
     url: buildAbsoluteRouteUrl(resolvedLocale, routeData),
     name: event.meta_title ?? event.title,
-    description: event.meta_description || event.short_description ?? undefined,
+    description: (event.meta_description || event.short_description) ?? undefined,
     image_url: event.image ?? undefined,
     venue_name: event.venue ?? undefined,
     city: event.location ?? undefined,

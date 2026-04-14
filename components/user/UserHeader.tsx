@@ -27,7 +27,7 @@ export function UserHeader() {
   const { data: unreadCount = 0 } = useUserUnreadMessagesCount();
 
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim();
-  const displayName = fullName || user?.email?.split('@')[0] ?? t('common.user');
+  const displayName = (fullName || user?.email?.split('@')[0]) ?? t('common.user');
   const displayEmail = user?.email ?? '';
   const userInitial = (displayName.trim().charAt(0) || displayEmail.trim().charAt(0) || "U").toUpperCase();
 

@@ -70,8 +70,8 @@ export function GoogleAnalytics() {
 
   // Priority: DB setting → env var → hardcoded fallback
   const GA_MEASUREMENT_ID =
-    settings?.ga_measurement_id ||
-    process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-T989074CQL";
+    (settings?.ga_measurement_id ||
+    process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID) ?? "G-T989074CQL";
   const hasAnalyticsConsent = canUseCategory("analytics");
 
   // Load gtag.js when consent is given

@@ -51,8 +51,8 @@ export function useConnectionQuality(): {
 
     // Get network connection API
     const connection =
-      navigator.connection ||
-      navigator.mozConnection ?? navigator.webkitConnection;
+      (navigator.connection ||
+      navigator.mozConnection) ?? navigator.webkitConnection;
 
     const updateConnectionQuality = () => {
       if (!connection) {

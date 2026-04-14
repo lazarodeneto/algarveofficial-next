@@ -279,7 +279,7 @@ function EventDetailClientInner({
       try {
         await navigator.share({
           title: event.title,
-          text: event.short_description || event.description?.slice(0, 150) ?? undefined,
+          text: (event.short_description || event.description?.slice(0, 150)) ?? undefined,
           url: shareUrl,
         });
       } catch {

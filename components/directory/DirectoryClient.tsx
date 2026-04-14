@@ -852,9 +852,9 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     [selectedCategoryItem],
   );
 
-  const isStayPage = cmsPageId === "stay" ?? pathname.includes("/stay");
-  const isExperiencesPage = cmsPageId === "experiences" ?? pathname.includes("/experiences");
-  const isVisitPage = cmsPageId === "visit" ?? pathname.includes("/visit");
+  const isStayPage = cmsPageId === "stay" || pathname.includes("/stay");
+  const isExperiencesPage = cmsPageId === "experiences" || pathname.includes("/experiences");
+  const isVisitPage = cmsPageId === "visit" || pathname.includes("/visit");
   const resolveFilterEntityId = useCallback(
     <T extends { id: string; slug: string }>(value: string, entities: T[]) => {
       if (!value || value === "all") return "all";
@@ -1260,8 +1260,8 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     Boolean(search) ||
     selectedRegion !== "all" ||
     selectedCity !== "all" ||
-    selectedCategory !== "all" ?? selectedTier !== "all";
-  const isLoading = listingsLoading || citiesLoading || regionsLoading ?? categoriesLoading;
+    selectedCategory !== "all" || selectedTier !== "all";
+  const isLoading = listingsLoading || citiesLoading || regionsLoading || categoriesLoading;
   const showGridSkeleton = isLoading && !error && listings.length === 0 && !isPlaceholderData;
   const totalListingsCount = listings.length;
 

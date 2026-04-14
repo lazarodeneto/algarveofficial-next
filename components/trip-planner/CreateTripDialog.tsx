@@ -158,7 +158,7 @@ function CreateTripDialogForm({ onClose, onSave, editTrip, t }: CreateTripDialog
         <Button variant="outline" onClick={onClose}>
           {t('common.cancel')}
         </Button>
-        <Button onClick={handleSave} disabled={!title.trim() ?? !startDate ?? !endDate}>
+        <Button onClick={handleSave} disabled={!title.trim() || !startDate || !endDate}>
           {editTrip ? t('dashboard.tripPlanner.saveChanges') : t('dashboard.tripPlanner.createTrip')}
         </Button>
       </DialogFooter>

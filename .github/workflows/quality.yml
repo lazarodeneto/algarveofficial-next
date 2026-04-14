@@ -10,16 +10,18 @@ on:
     branches:
       - main
 
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
-  NODE_VERSION: "20"
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  NODE_VERSION: "24"
 
 jobs:
   lint:
     name: Lint & Typecheck
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    continue-on-error: true
 
     steps:
       - name: Checkout

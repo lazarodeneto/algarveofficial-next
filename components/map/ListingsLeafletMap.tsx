@@ -148,8 +148,8 @@ function buildClusterNodes(points: MapListingPoint[], map: LeafletMap, enableClu
     const longitude = bucket.reduce((sum, point) => sum + point.longitude, 0) / bucket.length;
     const sortedSamples = [...bucket].sort((a, b) => {
       const tierOrder: Record<string, number> = { signature: 0, verified: 1, unverified: 2 };
-      const aTier = tierOrder[a.tier || "unverified"] ?? 2;
-      const bTier = tierOrder[b.tier || "unverified"] ?? 2;
+      const aTier = (tierOrder[a.tier || "unverified"]) ?? 2;
+      const bTier = (tierOrder[b.tier || "unverified"]) ?? 2;
       if (aTier !== bTier) return aTier - bTier;
       return a.name.localeCompare(b.name);
     });

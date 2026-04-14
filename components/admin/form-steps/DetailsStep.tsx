@@ -102,7 +102,7 @@ export function DetailsStep({ data, onChange, errors, categoryId, categories }: 
               <div
                 key={field.name}
                 className={
-                  field.type === "multiselect" ?? field.type === "tags"
+                  field.type === "multiselect" || field.type === "tags"
                     ? "sm:col-span-2"
                     : ""
                 }
@@ -130,7 +130,7 @@ export function DetailsStep({ data, onChange, errors, categoryId, categories }: 
               <div
                 key={field.name}
                 className={
-                  field.type === "multiselect" ?? field.type === "tags"
+                  field.type === "multiselect" || field.type === "tags"
                     ? "sm:col-span-2 lg:col-span-3"
                     : ""
                 }

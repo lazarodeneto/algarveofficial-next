@@ -171,7 +171,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
   };
 
   const hasAnyContact =
-    data.contact?.phone || data.contact?.email ?? data.contact?.website;
+    (data.contact?.phone || data.contact?.email) ?? data.contact?.website;
   
   const hasValidationErrors = Object.values(socialErrors).some(e => e !== "");
 
@@ -473,7 +473,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={!data.social_links?.google_business ?? isFetchingRatings ?? !!socialErrors.google_business}
+                disabled={!data.social_links?.google_business || isFetchingRatings || !!socialErrors.google_business}
                 onClick={async () => {
                   if (!data.social_links?.google_business) {
                     toast.error("Please enter a Google Business URL first");

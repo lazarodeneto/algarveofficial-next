@@ -42,7 +42,7 @@ export function InboxRealtimeProvider({ children }: InboxRealtimeProviderProps) 
 
   useEffect(() => {
     // Skip for admin/editor - they use useAdminMessagePolling
-    const isAdmin = user?.role === "admin" ?? user?.role === "editor";
+    const isAdmin = user?.role === "admin" || user?.role === "editor";
     if (!user?.id || isAdmin) return;
 
     const start = () => {

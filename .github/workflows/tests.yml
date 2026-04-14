@@ -13,29 +13,29 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: "20"
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  NODE_VERSION: "24"
 
 jobs:
   tests:
     name: Smoke Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
-      - name: Install deps
+      - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright
-        run: npx playwright install chromium
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
 
       - name: Build app
         run: npm run build
@@ -43,10 +43,11 @@ jobs:
       - name: Start app
         run: npm run start &
 
-      - name: Wait for app
-        run: npx wait-on http://localhost:3000
+      - name: Wait for app to be ready
+        run: npx wait-on --timeout 60000 http://localhost:3000
 
-      - name: Run tests
-        run: npx playwright test
+      - name: Run smoke tests
+        run: npx playwright test tests/smoke.spec.ts
         env:
           CI: "true"
+          PLAYWRIGHT_BASE_URL: "http://localhost:3000"
