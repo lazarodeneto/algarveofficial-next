@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    ""start": "next start -p 3000",
     "lint": "eslint app",
     "lint:all": "eslint",
     "lint:i18n": "eslint app components lib --rule '{\"local/no-hardcoded-strings\": \"warn\"}'",
