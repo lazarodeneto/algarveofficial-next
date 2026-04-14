@@ -1,4 +1,4 @@
-name: Deploy & Smoke
+name: Tests
 
 on:
   push:
@@ -12,25 +12,22 @@ on:
         description: "Base URL to test"
         required: false
         default: ""
-      run_smoke:
-        description: "Run smoke tests"
-        required: false
-        default: "true"
 
 concurrency:
-  group: deploy-smoke-${{ github.ref }}
+  group: tests-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: "24"
+  NODE_VERSION: "20"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
-  deploy:
-    name: Deploy to Vercel
+  deploy-preview:
+    name: Deploy Preview
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     outputs:
-      preview_url: ${{ steps.deploy.outputs.preview-url }}
+      preview_url: ${{ steps.deploy.outputs.url }}
 
     steps:
       - name: Checkout
@@ -42,38 +39,23 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          NEXT_PUBLIC_SUPABASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SUPABASE_PROJECT_ID }}
-          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
-
       - name: Deploy to Vercel
         id: deploy
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-args: "--prebuilt"
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: ${{ github.ref == 'refs/heads/main' && '--prod --prebuilt' || '--prebuilt' }}
-          working-directory: ./
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
 
   smoke-tests:
     name: Smoke Tests
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: deploy
-    if: github.event.inputs.run_smoke != 'false'
+    needs: deploy-preview
 
     env:
-      PLAYWRIGHT_BASE_URL: ${{ needs.deploy.outputs.preview_url || github.event.inputs.base_url || 'http://localhost:3000' }}
+      PLAYWRIGHT_BASE_URL: ${{ needs.deploy-preview.outputs.preview_url || github.event.inputs.base_url }}
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
