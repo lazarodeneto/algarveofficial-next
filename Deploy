@@ -1,0 +1,9 @@
+- name: Build project locally
+  run: npm ci && npm run build
+
+- name: Deploy to Vercel
+  run: |
+    npx vercel deploy --prod \
+      --token=${{ secrets.VERCEL_TOKEN }} \
+      --scope=${{ secrets.VERCEL_ORG_ID }} \
+      --yes
