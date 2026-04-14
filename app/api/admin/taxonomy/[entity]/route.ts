@@ -58,7 +58,7 @@ export async function POST(
     return jsonErrorResponse(400, validation.error.code, validation.error.message);
   }
 
-  const { name, slug, description, image_url, display_order, is_visible_destinations, is_visible_directory, is_active } = validation.data;
+  const { name, slug, description, image_url, hero_image_url, display_order, is_visible_destinations, is_visible_directory, is_active } = validation.data;
 
   const { data: existing, error: existingError } = await auth.writeClient
     .from(resolved.table)
@@ -82,6 +82,7 @@ export async function POST(
     slug,
     description,
     image_url: image_url ?? null,
+    hero_image_url: hero_image_url ?? null,
     display_order: display_order ?? maxOrder + 1,
     is_visible_destinations: is_visible_destinations ?? true,
     is_visible_directory: is_visible_directory ?? true,

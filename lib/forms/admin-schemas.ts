@@ -9,6 +9,7 @@ export const taxonomyItemSchema = z.object({
   slug: z.string().min(1, "Slug is required"),
   description: z.string().nullable().optional(),
   image_url: z.string().nullable().optional(),
+  hero_image_url: z.string().nullable().optional(),
   display_order: z.number().int().optional(),
   is_visible_destinations: z.boolean().optional(),
   is_visible_directory: z.boolean().optional(),
