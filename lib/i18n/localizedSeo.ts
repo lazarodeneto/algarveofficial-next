@@ -72,8 +72,7 @@ export interface LocalizedSEOResult {
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
 const IS_DEV =
-  process.env.NODE_ENV === "development" ||
-  process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
+  process.env.NODE_ENV === "development" ?? process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
 
 /** Apply {{variable}} interpolation */
 function applyInterpolation(

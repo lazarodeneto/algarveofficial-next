@@ -20,8 +20,8 @@ export async function updateListingSeo(
   const { error } = await supabase
     .from("listings")
     .update({
-      meta_title: seoData.meta_title || null,
-      meta_description: seoData.meta_description || null,
+      meta_title: seoData.meta_title ?? null,
+      meta_description: seoData.meta_description ?? null,
       updated_at: new Date().toISOString(),
     })
     .eq("id", listingId);
@@ -48,8 +48,8 @@ export async function updateBlogPostSeo(
   const { error } = await supabase
     .from("blog_posts")
     .update({
-      seo_title: seoData.seo_title || null,
-      seo_description: seoData.seo_description || null,
+      seo_title: seoData.seo_title ?? null,
+      seo_description: seoData.seo_description ?? null,
       updated_at: new Date().toISOString(),
     })
     .eq("id", postId);
@@ -76,8 +76,8 @@ export async function updateEventSeo(
   const { error } = await supabase
     .from("events")
     .update({
-      meta_title: seoData.meta_title || null,
-      meta_description: seoData.meta_description || null,
+      meta_title: seoData.meta_title ?? null,
+      meta_description: seoData.meta_description ?? null,
       updated_at: new Date().toISOString(),
     })
     .eq("id", eventId);
@@ -104,8 +104,8 @@ export async function updateCategorySeo(
   const { error } = await supabase
     .from("categories")
     .update({
-      meta_title: seoData.meta_title || null,
-      meta_description: seoData.meta_description || null,
+      meta_title: seoData.meta_title ?? null,
+      meta_description: seoData.meta_description ?? null,
     })
     .eq("id", categoryId);
 
@@ -131,8 +131,8 @@ export async function updateRegionSeo(
   const { error } = await supabase
     .from("regions")
     .update({
-      meta_title: seoData.meta_title || null,
-      meta_description: seoData.meta_description || null,
+      meta_title: seoData.meta_title ?? null,
+      meta_description: seoData.meta_description ?? null,
     })
     .eq("id", regionId);
 
@@ -158,8 +158,8 @@ export async function updateCitySeo(
   const { error } = await supabase
     .from("cities")
     .update({
-      meta_title: seoData.meta_title || null,
-      meta_description: seoData.meta_description || null,
+      meta_title: seoData.meta_title ?? null,
+      meta_description: seoData.meta_description ?? null,
     })
     .eq("id", cityId);
 
@@ -186,10 +186,10 @@ export async function updateSiteSeo(
   const { error } = await supabase
     .from("site_settings")
     .update({
-      meta_title: seoData.meta_title || null,
-      meta_description: seoData.meta_description || null,
-      og_image: seoData.og_image || null,
-      canonical_url: seoData.canonical_url || null,
+      meta_title: seoData.meta_title ?? null,
+      meta_description: seoData.meta_description ?? null,
+      og_image: seoData.og_image ?? null,
+      canonical_url: seoData.canonical_url ?? null,
     })
     .eq("id", "default");
 

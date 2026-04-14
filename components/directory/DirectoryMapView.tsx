@@ -170,7 +170,7 @@ export function DirectoryMapView({ filteredListingIds }: DirectoryMapViewProps) 
           <Marker
             key={listing.id}
             position={[listing.lat, listing.lng]}
-            icon={getMarkerIcon(listing.tier || 'unverified')}
+            icon={getMarkerIcon(listing.tier ?? 'unverified')}
           >
             <Popup className="custom-popup">
               <div className="min-w-[200px] p-1">

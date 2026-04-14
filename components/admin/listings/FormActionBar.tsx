@@ -74,7 +74,7 @@ export function FormActionBar({
                 type="button"
                 variant="outline"
                 onClick={onSaveDraft}
-                disabled={isSaving || !hasChanges}
+                disabled={isSaving ?? !hasChanges}
                 size="sm"
                 className="rounded-full"
               >
@@ -91,7 +91,7 @@ export function FormActionBar({
               <Button
                 type="button"
                 onClick={onSubmitReview}
-                disabled={isSaving || !isValid}
+                disabled={isSaving ?? !isValid}
                 size="sm"
                 className="rounded-full"
               >
@@ -104,7 +104,7 @@ export function FormActionBar({
               <Button
                 type="button"
                 onClick={onPublish}
-                disabled={isSaving || !isValid}
+                disabled={isSaving ?? !isValid}
                 size="sm"
                 className="rounded-full bg-primary hover:bg-primary/90"
               >

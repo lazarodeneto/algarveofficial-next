@@ -32,7 +32,7 @@ export function MaintenanceGuard({ children }: MaintenanceGuardProps) {
   );
 
   // Check if current user is admin/editor
-  const isAdmin = user?.role === 'admin' || user?.role === 'editor';
+  const isAdmin = user?.role === 'admin' ?? user?.role === 'editor';
 
   const { settings, isLoading } = useSiteSettings();
 

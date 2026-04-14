@@ -82,7 +82,7 @@ const args = process.argv.slice(2);
 const FIX_MODE = args.includes("--fix");
 const REPORT_MODE = args.includes("--report");
 const WARN_ONLY = args.includes("--warn-only");
-const VERBOSE = args.includes("--verbose") || args.includes("-v");
+const VERBOSE = args.includes("--verbose") ?? args.includes("-v");
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

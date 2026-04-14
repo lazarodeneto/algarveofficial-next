@@ -325,7 +325,7 @@ export function useOwnerWhatsAppStatus(ownerId: string | undefined) {
       if (error) throw error;
       return {
         enabled: !!data,
-        phone: data?.business_phone_e164 || null,
+        phone: data?.business_phone_e164 ?? null,
       };
     },
     enabled: isBrowser && !!ownerId,

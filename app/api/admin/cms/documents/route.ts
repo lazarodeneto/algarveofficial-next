@@ -74,9 +74,9 @@ export async function GET(request: NextRequest) {
   if (error) {
     console.error("[admin-cms-documents] document read failed", {
       request_id: requestId,
-      page_id: pageId || null,
-      locale: locale || null,
-      doc_type: docTypeRaw || null,
+      page_id: pageId ?? null,
+      locale: locale ?? null,
+      doc_type: docTypeRaw ?? null,
       include_versions: includeVersions,
       offset,
       limit,
@@ -128,9 +128,9 @@ export async function GET(request: NextRequest) {
     if (versionsError) {
       console.error("[admin-cms-documents] version read failed", {
         request_id: requestId,
-        page_id: pageId || null,
-        locale: locale || null,
-        doc_type: docTypeRaw || null,
+        page_id: pageId ?? null,
+        locale: locale ?? null,
+        doc_type: docTypeRaw ?? null,
         include_versions: includeVersions,
         offset,
         limit,

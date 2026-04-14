@@ -132,8 +132,8 @@ export function RealEstateAgentContactCard({
           message: message.trim(),
           listing_id: listingId,
           listing_title: listingName,
-          agent_name: agentName?.trim() || undefined,
-          agent_email: agentEmail?.trim() || undefined,
+          agent_name: agentName?.trim() ?? undefined,
+          agent_email: agentEmail?.trim() ?? undefined,
           visit_type: selectedVisitType,
         },
       });

@@ -106,7 +106,7 @@ function ChatModalPanel({
           )}
         >
           <ThreadList
-            threads={threads || []}
+            threads={threads ?? []}
             isLoading={isLoading}
             activeThreadId={activeThreadId}
             onSelectThread={handleSelectThread}

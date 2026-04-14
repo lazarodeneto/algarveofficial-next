@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: EventDetailLayoutProps): Prom
     title: "Redirecting to Event",
     description: "Redirecting to the canonical localized event page.",
     path: `/events/${event.slug}`,
-    image: normalizePublicImageUrl(event.image) || "/og-image.png",
+    image: normalizePublicImageUrl(event.image) ?? "/og-image.png",
     type: "article",
     noIndex: true,
     noFollow: true,

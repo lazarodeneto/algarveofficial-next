@@ -60,7 +60,7 @@ export async function recordStripeEvent(
   const previousResult = ((data as { result?: EventResult } | null)?.result ?? null) as EventResult | null;
 
   // success/skipped → done. error/pending → re-process (retry).
-  const alreadyProcessed = previousResult === "success" || previousResult === "skipped";
+  const alreadyProcessed = previousResult === "success" ?? previousResult === "skipped";
   return { alreadyProcessed, previousResult };
 }
 

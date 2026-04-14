@@ -136,12 +136,12 @@ export function useCreateEmailCampaign() {
       const data = await callAdminEmailApi("campaigns", "POST", {
         name: campaign.name,
         subject: campaign.subject,
-        from_name: campaign.from_name || "AlgarveOfficial",
+        from_name: campaign.from_name ?? "AlgarveOfficial",
         from_email: campaign.from_email,
-        reply_to: campaign.reply_to || null,
-        template_id: campaign.template_id || null,
-        segment_id: campaign.segment_id || null,
-        scheduled_at: campaign.scheduled_at || null,
+        reply_to: campaign.reply_to ?? null,
+        template_id: campaign.template_id ?? null,
+        segment_id: campaign.segment_id ?? null,
+        scheduled_at: campaign.scheduled_at ?? null,
         status: campaign.scheduled_at ? "scheduled" : "draft",
       });
       return data;

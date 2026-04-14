@@ -89,7 +89,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
   const highlightedCity = highlightedCityId ? cities.find((c) => c.id === highlightedCityId) ?? featuredCities[0] : featuredCities[0];
   const showFeaturedCityHub = Boolean(highlightedCity && highlightedCity.hero_image_url);
 
-  const isLoading = regionsLoading || citiesLoading;
+  const isLoading = regionsLoading ?? citiesLoading;
 
   if (isLoading && !regions.length) {
     return (
@@ -127,7 +127,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
             >
               <div className="absolute inset-0 overflow-hidden rounded-[32px]">
                 <Image
-                  src={`${highlightedCity.hero_image_url || highlightedCity.image_url}?_t=${imageTimestamp}`}
+                  src={`${highlightedCity.hero_image_url ?? highlightedCity.image_url}?_t=${imageTimestamp}`}
                   alt={highlightedCity.name}
                   fill
                   unoptimized
@@ -237,7 +237,7 @@ function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
                     <div className="absolute inset-0">
                       {city.hero_image_url || city.image_url ? (
                         <Image
-                          src={`${(city.hero_image_url || city.image_url)}?_t=${imageTimestamp}`}
+                          src={`${(city.hero_image_url ?? city.image_url)}?_t=${imageTimestamp}`}
                           alt={city.name}
                           fill
                           unoptimized

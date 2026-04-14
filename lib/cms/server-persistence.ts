@@ -31,7 +31,7 @@ function parseJsonObject(raw: string): Record<string, unknown> | null {
 
 export function buildCmsWritesFromGlobalSettings(settings: GlobalSettingWriteItem[]): CmsDocumentWrite[] {
   const writes: CmsDocumentWrite[] = [];
-  const locale = settings.find((s) => typeof s.locale === "string" && s.locale.trim())?.locale?.trim() || "default";
+  const locale = settings.find((s) => typeof s.locale === "string" && s.locale.trim())?.locale?.trim() ?? "default";
 
   const pageConfigs = settings.find((s) => s.key === CMS_GLOBAL_SETTING_KEYS.pageConfigs)?.value;
   if (pageConfigs) {

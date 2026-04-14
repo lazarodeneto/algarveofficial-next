@@ -35,7 +35,7 @@ module.exports = {
       LogicalExpression(node) {
         if (node.operator !== "||") return;
 
-        const sourceCode = context.sourceCode || context.getSourceCode();
+        const sourceCode = context.sourceCode ?? context.getSourceCode();
         const isParseCall = isInsideParseCall(node, sourceCode);
 
         if (isParseCall) {

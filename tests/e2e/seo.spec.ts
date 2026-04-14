@@ -195,7 +195,7 @@ test.describe("SEO — Programmatic pages /{locale}/{category}/{city}", () => {
         expect(desc!.length).toBeLessThanOrEqual(165);
         // Must contain either city name or category (not a generic default)
         const cityName = city.replace(/-/g, " ");
-        const hasContext = desc!.toLowerCase().includes(cityName) || desc!.toLowerCase().includes(category);
+        const hasContext = desc!.toLowerCase().includes(cityName) ?? desc!.toLowerCase().includes(category);
         expect(hasContext, `Description should reference city or category, got: "${desc}"`).toBeTruthy();
       });
 
@@ -449,8 +449,7 @@ test.describe("SEO — noindex on private/admin routes", () => {
       if (response.status() === 200 && page.url().includes(route)) {
         const robotsMeta = await getMeta(page, 'meta[name="robots"]');
         const hasNoIndex =
-          robotsMeta?.includes("noindex") ||
-          (await getMeta(page, 'meta[name="googlebot"]'))?.includes("noindex");
+          robotsMeta?.includes("noindex") ?? (await getMeta(page, 'meta[name="googlebot"]'))?.includes("noindex");
         expect(
           hasNoIndex,
           `${route} must be noindex or redirect to login`,

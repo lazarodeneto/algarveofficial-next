@@ -64,7 +64,7 @@ export function useBlogCommentsAdmin() {
       return comments.map(comment => ({
         ...comment,
         post: posts?.find(p => p.id === comment.post_id),
-        user: profiles[comment.user_id] || { full_name: null, avatar_url: null },
+        user: profiles[comment.user_id] ?? { full_name: null, avatar_url: null },
       })) as BlogCommentWithPost[];
     },
   });
@@ -115,7 +115,7 @@ export function useBlogCommentsAdmin() {
   });
 
   return {
-    comments: query.data || [],
+    comments: query.data ?? [],
     isLoading: query.isLoading,
     error: query.error,
     approveComment: approveMutation.mutate,

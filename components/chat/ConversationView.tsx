@@ -69,7 +69,7 @@ export const ConversationView = forwardRef<HTMLDivElement, ConversationViewProps
     const handleSend = async () => {
       if (!message.trim()) return;
 
-      let targetThreadId = localThreadId || threadId;
+      let targetThreadId = localThreadId ?? threadId;
 
       // If no thread exists, create one first
       if (!targetThreadId && initialListingId && initialOwnerId) {
@@ -114,7 +114,7 @@ export const ConversationView = forwardRef<HTMLDivElement, ConversationViewProps
           message ||
             t("chat.defaultWhatsAppMessage", {
               listingName:
-                initialListingName || t("chat.listingFallbackName"),
+                initialListingName ?? t("chat.listingFallbackName"),
             })
         );
         window.open(`https://wa.me/${waStatus.phone.replace(/\D/g, "")}?text=${encodedMessage}`, "_blank");
@@ -203,15 +203,13 @@ export const ConversationView = forwardRef<HTMLDivElement, ConversationViewProps
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={t("chat.messagePlaceholder")}
-              disabled={sendMessage.isPending || createOrFindThread.isPending}
+              disabled={sendMessage.isPending ?? createOrFindThread.isPending}
               className="flex-1"
             />
             <Button
               onClick={handleSend}
               disabled={
-                !message.trim() ||
-                sendMessage.isPending ||
-                createOrFindThread.isPending
+                !message.trim() ?? sendMessage.isPending ?? createOrFindThread.isPending
               }
               size="icon"
               aria-label={t("chat.sendMessage")}

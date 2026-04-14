@@ -20,8 +20,8 @@ import { basename } from "path";
 
 const fetch = globalThis.fetch;
 
-const SUPABASE_URL = process.env.SUPABASE_URL || "https://your-project.supabase.co";
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL ?? "https://your-project.supabase.co";
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_ANON_KEY;
 
 if (!SERVICE_ROLE_KEY) {
   console.error("❌ Error: SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ANON_KEY is required");
@@ -108,7 +108,7 @@ async function downloadImage(url: string, retries = MAX_RETRIES): Promise<Buffer
         return null;
       }
       
-      const contentType = response.headers.get("content-type") || "";
+      const contentType = response.headers.get("content-type") ?? "";
       if (!contentType.startsWith("image/")) {
         console.log(`  ↳ Not an image (${contentType}), skipping`);
         return null;

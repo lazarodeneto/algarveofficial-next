@@ -321,7 +321,7 @@ export function buildBlogPostMetadata({
     type: "article",
     noIndex,
     publishedTime,
-    modifiedTime: modifiedTime || publishedTime,
+    modifiedTime: modifiedTime ?? publishedTime,
     authors: [{ name: author }],
     section: category,
     locale,

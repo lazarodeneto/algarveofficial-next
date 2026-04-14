@@ -76,7 +76,7 @@ export function FeaturedCitySection() {
           <div className="relative min-h-[28rem]">
             {selectedCity.hero_image_url || selectedCity.image_url ? (
               <img
-                src={selectedCity.hero_image_url || selectedCity.image_url || ""}
+                src={selectedCity.hero_image_url ?? selectedCity.image_url ?? ""}
                 alt={selectedCity.name}
                 className="absolute inset-0 h-full w-full object-cover"
               />

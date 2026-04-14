@@ -24,11 +24,11 @@ export function useSeoMeta({
   const pathname = usePathname();
 
   useEffect(() => {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || SITE_CONFIG.url;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? SITE_CONFIG.url;
     const resolvedTitle = title ? `${title} | ${SITE_CONFIG.name}` : SITE_CONFIG.name;
-    const resolvedDescription = description || SITE_CONFIG.description;
-    const resolvedImage = image || `${siteUrl}${SITE_CONFIG.ogImage}`;
-    const resolvedCanonical = canonicalUrl || `${siteUrl}${pathname}`;
+    const resolvedDescription = description ?? SITE_CONFIG.description;
+    const resolvedImage = image ?? `${siteUrl}${SITE_CONFIG.ogImage}`;
+    const resolvedCanonical = canonicalUrl ?? `${siteUrl}${pathname}`;
 
     document.title = resolvedTitle;
 

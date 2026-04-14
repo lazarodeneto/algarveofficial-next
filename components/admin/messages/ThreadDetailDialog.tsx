@@ -33,7 +33,7 @@ interface ThreadDetailDialogProps {
 
 export const ThreadDetailDialog = forwardRef<HTMLDivElement, ThreadDetailDialogProps>(
   function ThreadDetailDialog({ thread, open, onOpenChange }, ref) {
-    const threadId = thread?.id || null;
+    const threadId = thread?.id ?? null;
     const { data: messages = [], isLoading } = useAdminChatMessages(threadId);
     const updateStatus = useUpdateThreadStatus();
     const sendMessage = useAdminSendMessage();
@@ -215,7 +215,7 @@ export const ThreadDetailDialog = forwardRef<HTMLDivElement, ThreadDetailDialogP
                   />
                   <Button
                     onClick={handleSend}
-                    disabled={!replyContent.trim() || sendMessage.isPending}
+                    disabled={!replyContent.trim() ?? sendMessage.isPending}
                     size="icon"
                     className="h-10 w-full shrink-0 sm:h-auto sm:w-10"
                     aria-label="Send admin reply"

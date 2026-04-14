@@ -81,7 +81,7 @@ function resolveRegionImage(region: RegionRow): string | null {
   const fallbackImageSrc = typeof fallbackRegionImage?.image === "string"
     ? fallbackRegionImage.image
     : null;
-  const src = region.hero_image_url || region.image_url || fallbackImageSrc;
+  const src = region.hero_image_url || region.image_url ?? fallbackImageSrc;
   return src ? normalizePublicImageUrl(src) : null;
 }
 
@@ -135,9 +135,9 @@ const getDestinationPageData = cache(async (slug: string, locale: Locale) => {
     if (translation) {
       region = {
         ...region,
-        name: translation.name?.trim() || region.name,
-        short_description: translation.short_description?.trim() || region.short_description,
-        description: translation.description?.trim() || region.description,
+        name: translation.name?.trim() ?? region.name,
+        short_description: translation.short_description?.trim() ?? region.short_description,
+        description: translation.description?.trim() ?? region.description,
       };
     }
   }
@@ -198,9 +198,9 @@ const getDestinationPageData = cache(async (slug: string, locale: Locale) => {
       const translation = cityTranslationMap.get(city.id);
       return {
         ...city,
-        name: translation?.name?.trim() || city.name,
-        short_description: translation?.short_description?.trim() || city.short_description,
-        description: translation?.description?.trim() || city.description,
+        name: translation?.name?.trim() ?? city.name,
+        short_description: translation?.short_description?.trim() ?? city.short_description,
+        description: translation?.description?.trim() ?? city.description,
       };
     });
 
@@ -210,16 +210,16 @@ const getDestinationPageData = cache(async (slug: string, locale: Locale) => {
 
       return {
         ...listing,
-        name: listingTranslation?.title?.trim() || listing.name,
-        short_description: listingTranslation?.short_description?.trim() || listing.short_description,
-        description: listingTranslation?.description?.trim() || listing.description,
+        name: listingTranslation?.title?.trim() ?? listing.name,
+        short_description: listingTranslation?.short_description?.trim() ?? listing.short_description,
+        description: listingTranslation?.description?.trim() ?? listing.description,
         city: listing.city
           ? {
               ...listing.city,
-              name: cityTranslation?.name?.trim() || listing.city.name,
+              name: cityTranslation?.name?.trim() ?? listing.city.name,
               short_description:
-                cityTranslation?.short_description?.trim() || listing.city.short_description,
-              description: cityTranslation?.description?.trim() || listing.city.description,
+                cityTranslation?.short_description?.trim() ?? listing.city.short_description,
+              description: cityTranslation?.description?.trim() ?? listing.city.description,
             }
           : listing.city,
       };
@@ -256,12 +256,12 @@ export async function generateMetadata({ params }: LocaleDestinationPageProps): 
   }
 
   const { region } = data;
-  const description = truncateMeta(region.short_description) || truncateMeta(region.description);
+  const description = truncateMeta(region.short_description) ?? truncateMeta(region.description);
   const resolvedImage = resolveRegionImage(region);
 
   return buildPageMetadata({
     title: `${region.name} | ${tx["destinationDetail.metaTitleSuffix"] ?? "Algarve Destination Guide"}`,
-    description: description || undefined,
+    description: description ?? undefined,
     localizedRoute: buildDestinationRouteData(region),
     image: resolvedImage ?? undefined,
     type: "place",
@@ -319,8 +319,8 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
 
   const touristDestinationSchema = buildTouristDestinationSchema({
     name: region.name,
-    description: region.description || region.short_description || undefined,
-    image: resolvedImage || undefined,
+    description: region.description || region.short_description ?? undefined,
+    image: resolvedImage ?? undefined,
     url: canonicalUrl,
     latitude: undefined,
     longitude: undefined,

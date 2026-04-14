@@ -78,7 +78,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
               {results.map((result) => (
                 <CommandItem
                   key={`${result.type}-${result.id}`}
-                  value={`${result.title} ${result.subtitle || ""}`}
+                  value={`${result.title} ${result.subtitle ?? ""}`}
                   onSelect={() => handleSelect(result)}
                   className="flex items-center gap-3 py-3 px-4 cursor-pointer"
                 >
@@ -122,7 +122,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
                 {recentSearches.map((result) => (
                   <CommandItem
                     key={`recent-${result.type}-${result.id}`}
-                    value={`recent ${result.title} ${result.subtitle || ""}`}
+                    value={`recent ${result.title} ${result.subtitle ?? ""}`}
                     onSelect={() => handleSelect(result)}
                     className="flex items-center gap-3 py-3 px-4 cursor-pointer"
                   >

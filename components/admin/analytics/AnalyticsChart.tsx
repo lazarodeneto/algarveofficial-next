@@ -139,7 +139,7 @@ export function AnalyticsChart({
               />
               {dataKeys ? (
                 dataKeys.map((dk) => (
-                  <Bar key={dk.key} dataKey={dk.key} fill={dk.color} name={dk.name || dk.key} radius={[4, 4, 0, 0]} />
+                  <Bar key={dk.key} dataKey={dk.key} fill={dk.color} name={dk.name ?? dk.key} radius={[4, 4, 0, 0]} />
                 ))
               ) : (
                 <Bar dataKey={dataKey} fill={colors[0]} radius={[4, 4, 0, 0]} />
@@ -175,7 +175,7 @@ export function AnalyticsChart({
                   dataKey={dk.key}
                   stackId="a"
                   fill={dk.color}
-                  name={dk.name || dk.key}
+                  name={dk.name ?? dk.key}
                   radius={i === (dataKeys.length - 1) ? [4, 4, 0, 0] : [0, 0, 0, 0]}
                 />
               ))}

@@ -49,13 +49,13 @@ export function useSubmitListingClaim() {
         .insert({
           request_type: data.requestType,
           business_name: data.businessName,
-          business_website: data.businessWebsite || null,
+          business_website: data.businessWebsite ?? null,
           contact_name: data.contactName,
           email: data.email,
-          phone: data.phone || null,
+          phone: data.phone ?? null,
           message: data.message,
-          listing_id: data.listingId || null,
-          user_id: user?.id || null,
+          listing_id: data.listingId ?? null,
+          user_id: user?.id ?? null,
           status: 'pending',
         });
 
@@ -143,7 +143,7 @@ export function useUpdateClaimStatus() {
         .from('listing_claims')
         .update({
           status,
-          rejection_reason: rejectionReason || null,
+          rejection_reason: rejectionReason ?? null,
           reviewed_by: user?.id,
           reviewed_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),

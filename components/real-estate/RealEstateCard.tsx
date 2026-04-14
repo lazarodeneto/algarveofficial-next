@@ -65,11 +65,11 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
     const data = asRecord(category_data);
     const beds = asNumber(data.bedrooms);
     const baths = asNumber(data.bathrooms);
-    const area = asNumber(data.property_size_m2) || asNumber(data.area_sqm);
-    const plotSize = asNumber(data.plot_size_m2) || asNumber(data.plot_sqm);
-    const propertyType = asString(data.property_type) || "property";
-    const categorySlug = asString(data.slug) || "real-estate";
-    const categoryImageUrl = asString(data.image_url) || asString(data.category_image_url);
+    const area = asNumber(data.property_size_m2) ?? asNumber(data.area_sqm);
+    const plotSize = asNumber(data.plot_size_m2) ?? asNumber(data.plot_sqm);
+    const propertyType = asString(data.property_type) ?? "property";
+    const categorySlug = asString(data.slug) ?? "real-estate";
+    const categoryImageUrl = asString(data.image_url) ?? asString(data.category_image_url);
 
     const formatMetricValue = (value: number) =>
         new Intl.NumberFormat("en-GB", {

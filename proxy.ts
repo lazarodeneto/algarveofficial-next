@@ -133,8 +133,7 @@ export function getUnlocalizedCanonicalPathFromRequestPath(pathname: string): st
 
 function getPreferredLocale(request: NextRequest): string {
   const requestedPath =
-    request.nextUrl.searchParams.get("next") ||
-    request.nextUrl.searchParams.get("from");
+    request.nextUrl.searchParams.get("next") ?? request.nextUrl.searchParams.get("from");
   if (requestedPath?.startsWith("/") && hasLocalePrefix(requestedPath)) {
     return getLocaleFromPathname(requestedPath);
   }

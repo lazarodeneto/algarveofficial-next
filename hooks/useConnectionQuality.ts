@@ -42,7 +42,7 @@ export function useConnectionQuality(): {
     const checkMobile = () => {
       const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
         navigator.userAgent
-      ) || window.innerWidth < 768;
+      ) ?? window.innerWidth < 768;
       setIsMobile(mobile);
       return mobile;
     };
@@ -52,8 +52,7 @@ export function useConnectionQuality(): {
     // Get network connection API
     const connection =
       navigator.connection ||
-      navigator.mozConnection ||
-      navigator.webkitConnection;
+      navigator.mozConnection ?? navigator.webkitConnection;
 
     const updateConnectionQuality = () => {
       if (!connection) {

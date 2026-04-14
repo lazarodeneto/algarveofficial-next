@@ -186,7 +186,7 @@ async function fetchDirectoryCities(
   return cities.map((city) => {
     const t = map.get(city.id);
     return t
-      ? { ...city, name: t.name?.trim() || city.name, short_description: t.short_description?.trim() || city.short_description }
+      ? { ...city, name: t.name?.trim() ?? city.name, short_description: t.short_description?.trim() ?? city.short_description }
       : city;
   });
 }
@@ -213,7 +213,7 @@ async function fetchDirectoryRegions(
   return regions.map((region) => {
     const t = map.get(region.id);
     return t
-      ? { ...region, name: t.name?.trim() || region.name, short_description: t.short_description?.trim() || region.short_description }
+      ? { ...region, name: t.name?.trim() ?? region.name, short_description: t.short_description?.trim() ?? region.short_description }
       : region;
   });
 }
@@ -240,7 +240,7 @@ async function fetchDirectoryCategories(
   return categories.map((category) => {
     const t = map.get(category.id);
     return t
-      ? { ...category, name: t.name?.trim() || category.name, short_description: t.short_description?.trim() || category.short_description }
+      ? { ...category, name: t.name?.trim() ?? category.name, short_description: t.short_description?.trim() ?? category.short_description }
       : category;
   });
 }
@@ -371,17 +371,17 @@ async function fetchDirectoryListings(
 
     return {
       ...listing,
-      name: lt?.title?.trim() || listing.name,
-      short_description: lt?.short_description?.trim() || listing.short_description,
-      description: lt?.description?.trim() || listing.description,
+      name: lt?.title?.trim() ?? listing.name,
+      short_description: lt?.short_description?.trim() ?? listing.short_description,
+      description: lt?.description?.trim() ?? listing.description,
       city: listing.city
-        ? { ...listing.city, name: ct?.name?.trim() || listing.city.name, short_description: ct?.short_description?.trim() || listing.city.short_description }
+        ? { ...listing.city, name: ct?.name?.trim() ?? listing.city.name, short_description: ct?.short_description?.trim() ?? listing.city.short_description }
         : listing.city,
       region: listing.region
-        ? { ...listing.region, name: rt?.name?.trim() || listing.region.name, short_description: rt?.short_description?.trim() || listing.region.short_description }
+        ? { ...listing.region, name: rt?.name?.trim() ?? listing.region.name, short_description: rt?.short_description?.trim() ?? listing.region.short_description }
         : listing.region,
       category: listing.category
-        ? { ...listing.category, name: catT?.name?.trim() || listing.category.name, short_description: catT?.short_description?.trim() || listing.category.short_description }
+        ? { ...listing.category, name: catT?.name?.trim() ?? listing.category.name, short_description: catT?.short_description?.trim() ?? listing.category.short_description }
         : listing.category,
     };
   });
@@ -412,7 +412,7 @@ export async function getDirectoryPageData(
   const contentLocale = normalizePublicContentLocale(locale);
 
   const normalizedFilters: ListingFilters = {
-    search: filters.q?.trim() || undefined,
+    search: filters.q?.trim() ?? undefined,
     categoryId: filters.category && filters.category !== "all" ? filters.category : undefined,
     cityId: filters.city && filters.city !== "all" ? filters.city : undefined,
     regionId: filters.region && filters.region !== "all" ? filters.region : undefined,

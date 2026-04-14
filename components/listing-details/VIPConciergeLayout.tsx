@@ -25,9 +25,9 @@ interface VIPConciergeLayoutProps {
 
 export function VIPConciergeLayout({ details }: VIPConciergeLayoutProps) {
   const { t } = useTranslation();
-  const conciergeServices = (details.concierge_services as string[]) || [];
+  const conciergeServices = details.concierge_services as string[] ?? [];
   const availability = details.availability as string;
-  const languages = (details.languages as string[]) || [];
+  const languages = details.languages as string[] ?? [];
   const responseTime = details.response_time as string;
   const dedicatedManager = details.dedicated_manager as boolean;
 

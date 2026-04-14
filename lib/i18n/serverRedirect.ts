@@ -105,7 +105,7 @@ export async function redirectUnlocalizedAliasPath(
   searchParams: SearchParamsShape,
 ): Promise<never> {
   const params = toUrlSearchParams(searchParams);
-  const requestedPath = params.get("next") || params.get("from");
+  const requestedPath = params.get("next") ?? params.get("from");
   const localeHint = params.get("locale");
   const locale = await getPreferredLocaleForServerRedirect({
     requestedPath,

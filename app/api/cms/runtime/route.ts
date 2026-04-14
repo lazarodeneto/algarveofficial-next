@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
         ok: false,
         error: {
           code: "GLOBAL_SETTINGS_READ_FAILED",
-          message: globalError.message || "Failed to read global settings.",
+          message: globalError.message ?? "Failed to read global settings.",
         },
       },
       { status: 500 },
@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
   }
 
   const needsCmsRuntime =
-    requestedKeys.length === 0 || requestedKeys.some((key) => CMS_RUNTIME_KEYS.has(key));
+    requestedKeys.length === 0 ?? requestedKeys.some((key) => CMS_RUNTIME_KEYS.has(key));
   if (!needsCmsRuntime) {
     return NextResponse.json({
       ok: true,

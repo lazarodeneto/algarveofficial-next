@@ -276,7 +276,7 @@ const getListingPageData = cache(async (locale: Locale, idOrSlug: string): Promi
   const listing = listingResult.data ?? null;
   if (!listing || listing.status !== "published") return null;
 
-  const canonicalSlug = listing.slug || listing.id;
+  const canonicalSlug = listing.slug ?? listing.id;
 
   const settledResults =
     (await withTimeout(
@@ -333,7 +333,7 @@ const getListingPageData = cache(async (locale: Locale, idOrSlug: string): Promi
     relatedListings: relatedResponse.data ?? [],
     whatsappStatus: {
       enabled: !!whatsappResponse.data,
-      phone: whatsappResponse.data?.business_phone_e164 || null,
+      phone: whatsappResponse.data?.business_phone_e164 ?? null,
     },
     canonicalSlug,
     localizedSlugs,
@@ -368,8 +368,7 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
   const ogImage =
     normalizePublicImageUrl(listing.images?.find((image) => image.is_featured)?.image_url) ||
     normalizePublicImageUrl(listing.images?.[0]?.image_url) ||
-    normalizePublicImageUrl(listing.featured_image_url) ||
-    "/og-image.png";
+    normalizePublicImageUrl(listing.featured_image_url) ?? "/og-image.png";
   const routeData = buildListingRouteData(data);
 
   return buildPageMetadata({
@@ -396,12 +395,12 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
     Boolean(currentTranslation),
   );
   const description = buildListingDescription({ listing: data.listing, translation: currentTranslation });
-  const categoryName = data.listing.category?.name || "Directory";
+  const categoryName = data.listing.category?.name ?? "Directory";
   const categorySlug = getCanonicalCategorySlug(data.listing.category?.slug);
   const programmaticCategorySlug = ALL_CANONICAL_SLUGS.includes(categorySlug as ProgrammaticCategorySlug)
     ? (categorySlug as ProgrammaticCategorySlug)
     : null;
-  const citySlug = data.listing.city?.slug?.trim() || null;
+  const citySlug = data.listing.city?.slug?.trim() ?? null;
   const localeCategorySlug = programmaticCategorySlug
     ? getCategoryUrlSlug(programmaticCategorySlug, resolvedLocale)
     : null;
@@ -442,8 +441,7 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
   const ogImage =
     normalizePublicImageUrl(data.listing.images?.find((image) => image.is_featured)?.image_url) ||
     normalizePublicImageUrl(data.listing.images?.[0]?.image_url) ||
-    normalizePublicImageUrl(data.listing.featured_image_url) ||
-    "/og-image.png";
+    normalizePublicImageUrl(data.listing.featured_image_url) ?? "/og-image.png";
 
    
   const businessSchema = buildLocalBusinessSchema({
@@ -458,24 +456,24 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
           data.listing.description,
           Boolean(currentTranslation),
         ),
-      ) || undefined,
+      ) ?? undefined,
     image_url: absoluteUrl(String(ogImage)),
-    category_slug: data.listing.category?.slug || "",
-    category_name: data.listing.category?.name || undefined,
-    city: data.listing.city?.name || undefined,
-    region: data.listing.region?.name || undefined,
-    address: data.listing.address || undefined,
-    latitude: data.listing.latitude || data.listing.city?.latitude || undefined,
-    longitude: data.listing.longitude || data.listing.city?.longitude || undefined,
-    telephone: data.listing.contact_phone || undefined,
-    email: data.listing.contact_email || undefined,
-    website: data.listing.website_url || undefined,
+    category_slug: data.listing.category?.slug ?? "",
+    category_name: data.listing.category?.name ?? undefined,
+    city: data.listing.city?.name ?? undefined,
+    region: data.listing.region?.name ?? undefined,
+    address: data.listing.address ?? undefined,
+    latitude: data.listing.latitude || data.listing.city?.latitude ?? undefined,
+    longitude: data.listing.longitude || data.listing.city?.longitude ?? undefined,
+    telephone: data.listing.contact_phone ?? undefined,
+    email: data.listing.contact_email ?? undefined,
+    website: data.listing.website_url ?? undefined,
     price_range: data.listing.price_from
       ? `€${data.listing.price_from}${data.listing.price_to ? ` - €${data.listing.price_to}` : "+"}`
       : undefined,
-    google_rating: data.listing.google_rating || undefined,
-    google_review_count: data.listing.google_review_count || undefined,
-    tags: data.listing.tags || undefined,
+    google_rating: data.listing.google_rating ?? undefined,
+    google_review_count: data.listing.google_review_count ?? undefined,
+    tags: data.listing.tags ?? undefined,
   } as Parameters<typeof buildLocalBusinessSchema>[0]);
 
   const breadcrumbSchema = buildBreadcrumbSchema([
@@ -485,7 +483,7 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
       : []),
     {
       name: categoryName,
-      url: cityCategoryUrl || categoryUrl,
+      url: cityCategoryUrl ?? categoryUrl,
     },
     { name: title, url: canonicalUrl },
   ]);

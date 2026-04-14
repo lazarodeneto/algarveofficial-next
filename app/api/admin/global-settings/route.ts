@@ -53,7 +53,7 @@ function normalizePayload(rawBody: unknown): { settings: GlobalSettingsWriteItem
           : String(categoryRaw);
 
     if (!key) return null;
-    normalized.push({ key, value, category: category || null, locale: bodyLocale });
+    normalized.push({ key, value, category: category ?? null, locale: bodyLocale });
   }
 
   return { settings: normalized, locale: bodyLocale };

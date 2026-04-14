@@ -19,7 +19,7 @@ export function CategoriesSection() {
   const { t } = useTranslation();
   const l = useLocalePath();
 
-  const isLoading = categoriesLoading || listingsLoading;
+  const isLoading = categoriesLoading ?? listingsLoading;
 
   // Count listings per category
   const getCategoryCount = (categoryIds: string[]) => {

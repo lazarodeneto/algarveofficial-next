@@ -83,11 +83,11 @@ export function TranslationsDashboard({
   // Re-fetch when URL searchParams change
   useEffect(() => {
     const newFilters: TFilters = {
-      status:          (searchParams.get("status") as TranslationStatus) || undefined,
-      city:            searchParams.get("city")        || undefined,
-      category:        searchParams.get("category")    || undefined,
-      tier:            (searchParams.get("tier") as "signature" | "verified") || undefined,
-      target_lang:     searchParams.get("target_lang") || undefined,
+      status:          searchParams.get("status") as TranslationStatus ?? undefined,
+      city:            searchParams.get("city") ?? undefined,
+      category:        searchParams.get("category") ?? undefined,
+      tier:            searchParams.get("tier") as "signature" | "verified" ?? undefined,
+      target_lang:     searchParams.get("target_lang") ?? undefined,
       needs_attention: searchParams.get("needs_attention") === "true",
       sla_breach:      searchParams.get("sla_breach")  === "true",
       outdated:        searchParams.get("outdated")     === "true",
@@ -241,7 +241,7 @@ export function TranslationsDashboard({
           <div className="flex gap-2">
             <Button
               variant="outline" size="sm"
-              disabled={currentPage <= 1 || loading}
+              disabled={currentPage <= 1 ?? loading}
               onClick={() => goToPage(currentPage - 1)}
               className="border-border/60"
             >
@@ -249,7 +249,7 @@ export function TranslationsDashboard({
             </Button>
             <Button
               variant="outline" size="sm"
-              disabled={currentPage >= totalPages || loading}
+              disabled={currentPage >= totalPages ?? loading}
               onClick={() => goToPage(currentPage + 1)}
               className="border-border/60"
             >

@@ -125,10 +125,10 @@ export function useCreateEmailContact() {
     mutationFn: async (contact: EmailContactInsert) => {
       const data = await callAdminEmailApi<EmailContact>("contacts", "POST", {
         email: contact.email,
-        full_name: contact.full_name || null,
-        status: contact.status || "subscribed",
-        tags: contact.tags || [],
-        source: contact.source || "manual",
+        full_name: contact.full_name ?? null,
+        status: contact.status ?? "subscribed",
+        tags: contact.tags ?? [],
+        source: contact.source ?? "manual",
         consent_given_at: new Date().toISOString(),
       });
 
@@ -260,10 +260,10 @@ export function useImportEmailContacts() {
     mutationFn: async (contacts: EmailContactInsert[]) => {
       const contactsToInsert = contacts.map(c => ({
         email: c.email,
-        full_name: c.full_name || null,
-        status: c.status || "subscribed" as const,
-        tags: c.tags || [],
-        source: c.source || "import",
+        full_name: c.full_name ?? null,
+        status: c.status ?? "subscribed" as const,
+        tags: c.tags ?? [],
+        source: c.source ?? "import",
         consent_given_at: new Date().toISOString(),
       }));
 
@@ -303,7 +303,7 @@ export function useImportEmailContacts() {
       let syncFailures = 0;
       await Promise.all(
         upsertedContacts.map(async (contact) => {
-          const oldRecord = existingByEmail.get(contact.email.toLowerCase()) || null;
+          const oldRecord = existingByEmail.get(contact.email.toLowerCase()) ?? null;
           const type: ResendSyncType = oldRecord ? "UPDATE" : "INSERT";
 
           try {

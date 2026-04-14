@@ -73,8 +73,8 @@ export function BrandLogo({
       quality: 72,
       format: "webp",
       resize: "contain",
-    }) || logoUrl;
-  const siteName = hydratedSettings?.site_name || "Algarve Official";
+    }) ?? logoUrl;
+  const siteName = hydratedSettings?.site_name ?? "Algarve Official";
   const [siteFirstWord, ...siteRestWords] = siteName.split(" ");
   const effectiveIconTone =
     iconTone === "auto" ? (hydrated && resolvedTheme === "dark" ? "white" : "gold") : iconTone;

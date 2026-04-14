@@ -270,7 +270,7 @@ function EventDetailClientInner({
   const endDate = parseISO(event.end_date);
   const isSingleDay = event.start_date === event.end_date;
   const categoryTemplate = eventCategoryTemplates[event.category as EventCategory];
-  const eventData = event.event_data || {};
+  const eventData = event.event_data ?? {};
   const eventHeroImage = normalizePublicImageUrl(event.image);
 
   const handleShare = async () => {
@@ -279,7 +279,7 @@ function EventDetailClientInner({
       try {
         await navigator.share({
           title: event.title,
-          text: event.short_description || event.description?.slice(0, 150) || undefined,
+          text: event.short_description || event.description?.slice(0, 150) ?? undefined,
           url: shareUrl,
         });
       } catch {
@@ -447,7 +447,7 @@ function EventDetailClientInner({
                           );
                         } else if (field.type === "select" && field.options) {
                           const option = field.options.find((opt) => opt.value === value);
-                          displayValue = option?.label || String(value);
+                          displayValue = option?.label ?? String(value);
                         }
 
                         return (

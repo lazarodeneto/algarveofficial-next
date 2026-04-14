@@ -88,7 +88,7 @@ export default function ListingImage({
 
   const resolvedAlt = typeof alt === "string" && alt.trim().length > 0 ? alt : "Algarve listing";
   
-  const isUsingFallback = !src || hasError;
+  const isUsingFallback = !src ?? hasError;
   const showRepresentativeBadge = isRepresentative && isUsingFallback;
   const shouldAutoFill =
     !fill &&
@@ -99,7 +99,7 @@ export default function ListingImage({
       /\bh-\[[^\]]+\]/.test(classNameValue) ||
       /\baspect-(square|\[[^\]]+\])\b/.test(classNameValue)
     );
-  const useFillLayout = fill || shouldAutoFill;
+  const useFillLayout = fill ?? shouldAutoFill;
 
   if (useFillLayout) {
     return (

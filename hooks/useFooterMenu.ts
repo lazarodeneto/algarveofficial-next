@@ -131,10 +131,10 @@ export function useFooterMenu() {
 
       return sectionsWithLinks.map((section) => ({
         ...section,
-        title: sectionTranslationMap.get(section.id)?.title?.trim() || section.title,
+        title: sectionTranslationMap.get(section.id)?.title?.trim() ?? section.title,
         links: section.links.map((link) => ({
           ...link,
-          name: linkTranslationMap.get(link.id)?.name?.trim() || link.name,
+          name: linkTranslationMap.get(link.id)?.name?.trim() ?? link.name,
         })),
       }));
     },

@@ -21,9 +21,9 @@ async function verify() {
   // Check alt_text
   console.log('\n2. Alt text migration:');
   const { data: altStats } = await supabase.from('listing_images').select('alt_text');
-  const total = altStats?.length || 0;
-  const updated = altStats?.filter(a => a.alt_text?.includes(' — ')).length || 0;
-  const empty = altStats?.filter(a => !a.alt_text || a.alt_text === '').length || 0;
+  const total = altStats?.length ?? 0;
+  const updated = altStats?.filter(a => a.alt_text?.includes(' — ')).length ?? 0;
+  const empty = altStats?.filter(a => !a.alt_text || a.alt_text === '').length ?? 0;
   console.log('   Total images:', total);
   console.log('   ✅ Updated:', updated);
   console.log('   ⚠️  Still empty:', empty);

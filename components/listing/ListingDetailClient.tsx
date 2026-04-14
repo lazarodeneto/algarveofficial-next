@@ -345,7 +345,7 @@ async function fetchOwnerWhatsAppStatus(ownerId: string | null) {
 
   return {
     enabled: !!data,
-    phone: data?.business_phone_e164 || null,
+    phone: data?.business_phone_e164 ?? null,
   } satisfies WhatsAppStatus;
 }
 
@@ -469,7 +469,7 @@ function ListingDetailClientInner({
     };
   }, [initialTranslation, listing?.id, routeLocale]);
 
-  const isAdminOrEditor = user?.role === "admin" || user?.role === "editor";
+  const isAdminOrEditor = user?.role === "admin" ?? user?.role === "editor";
 
   const effectiveTitle = useMemo(() => tr?.title?.trim() || listing?.name || "", [listing?.name, tr?.title]);
   const effectiveShort = useMemo(
@@ -488,7 +488,7 @@ function ListingDetailClientInner({
       openChat({
         listingId: listing.id,
         ownerId: listing.owner_id,
-        listingName: effectiveTitle || listing.name,
+        listingName: effectiveTitle ?? listing.name,
       });
       return;
     }
@@ -523,8 +523,8 @@ function ListingDetailClientInner({
     if (!listing) return;
 
     const shareData = {
-      title: effectiveTitle || listing.name,
-      text: effectiveShort || `Check out ${effectiveTitle || listing.name} in ${listing.city?.name || "Algarve"}`,
+      title: effectiveTitle ?? listing.name,
+      text: effectiveShort ?? `Check out ${effectiveTitle || listing.name} in ${listing.city?.name || "Algarve"}`,
       url: window.location.href,
     };
 
@@ -543,11 +543,10 @@ function ListingDetailClientInner({
     }
   };
 
-  const details = (listing.category_data as Record<string, unknown>) || {};
+  const details = listing.category_data as Record<string, unknown> ?? {};
   const hasPropertySignals = hasRealEstateSignals(details);
   const isRealEstateListing =
-    isRealEstateCategorySlug(listing.category?.slug) ||
-    (listing.category?.slug === "algarve-services" && hasPropertySignals);
+    isRealEstateCategorySlug(listing.category?.slug) ?? listing.category?.slug === "algarve-services" && hasPropertySignals;
 
   const handleScheduleViewingClick = () => {
     if (!isRealEstateListing) {
@@ -569,16 +568,16 @@ function ListingDetailClientInner({
     return [
       {
         id: listing.id,
-        name: effectiveTitle || listing.name,
+        name: effectiveTitle ?? listing.name,
         slug: listing.slug,
         latitude: baseLatitude,
         longitude: baseLongitude,
         categorySlug: listing.category?.slug,
         categoryName: translateCategoryName(t, listing.category?.slug, listing.category?.name),
-        categoryImageUrl: normalizedCategoryImageUrl || undefined,
-        cityName: listing.city?.name || "Algarve",
+        categoryImageUrl: normalizedCategoryImageUrl ?? undefined,
+        cityName: listing.city?.name ?? "Algarve",
         tier: listing.tier,
-        featuredImageUrl: normalizedFeaturedImageUrl || normalizedCategoryImageUrl || undefined,
+        featuredImageUrl: normalizedFeaturedImageUrl || normalizedCategoryImageUrl ?? undefined,
         href: l({
           routeType: "listing",
           slugs: buildUniformLocalizedSlugMap(listing.slug || listing.id),
@@ -635,7 +634,7 @@ function ListingDetailClientInner({
   const galleryImages = ((listing.images || []) as ListingImageRow[])
     .map((image) => ({
       ...image,
-      image_url: normalizeImageUrl(image?.image_url) || "",
+      image_url: normalizeImageUrl(image?.image_url) ?? "",
     }))
     .filter((image) => !!image.image_url)
     .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
@@ -660,9 +659,9 @@ function ListingDetailClientInner({
     });
   }
 
-  const listingTitle = effectiveTitle || listing.name;
+  const listingTitle = effectiveTitle ?? listing.name;
   const directoryLabel = t("nav.directory");
-  const categoryLabel = translateCategoryName(t, listing.category?.slug, listing.category?.name) || directoryLabel;
+  const categoryLabel = translateCategoryName(t, listing.category?.slug, listing.category?.name) ?? directoryLabel;
   const canonicalCategorySlug = getCanonicalCategorySlug(listing.category?.slug);
   const landingPage = getListingCategoryLanding(canonicalCategorySlug);
   const landingLabel = t(landingPage.labelKey, landingPage.fallbackLabel);
@@ -758,10 +757,10 @@ function ListingDetailClientInner({
                 onClick={() => setLightboxOpen(true)}
               >
                 <ListingImage
-                  src={galleryImages[currentImageIndex]?.image_url || normalizedFeaturedImageUrl}
+                  src={galleryImages[currentImageIndex]?.image_url ?? normalizedFeaturedImageUrl}
                   categoryImageUrl={normalizedCategoryImageUrl}
                   fallbackSrc="/placeholder.svg"
-                  alt={galleryImages[currentImageIndex]?.alt_text || listing.name}
+                  alt={galleryImages[currentImageIndex]?.alt_text ?? listing.name}
                   width={1600}
                   height={1000}
                   sizes="(max-width: 1024px) 100vw, 66vw"

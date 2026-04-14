@@ -149,13 +149,13 @@ export default function PropertiesClient() {
 
                     return {
                         ...listing,
-                        name: listingTranslation?.title?.trim() || listing.name,
+                        name: listingTranslation?.title?.trim() ?? listing.name,
                         short_description:
-                            listingTranslation?.short_description?.trim() || listing.short_description,
+                            listingTranslation?.short_description?.trim() ?? listing.short_description,
                         cities: listing.cities
                             ? {
                                 ...listing.cities,
-                                name: cityTranslation?.name?.trim() || listing.cities.name,
+                                name: cityTranslation?.name?.trim() ?? listing.cities.name,
                             }
                             : listing.cities,
                     };
@@ -168,7 +168,7 @@ export default function PropertiesClient() {
         staleTime: 1000 * 60 * 5,
     });
 
-    const isLoading = isCategoryLoading || isListingsLoading;
+    const isLoading = isCategoryLoading ?? isListingsLoading;
 
     const filteredListings = useMemo(() => {
         const rows = listings ?? [];

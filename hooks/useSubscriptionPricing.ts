@@ -178,7 +178,7 @@ function buildPricingOption(
   return {
     price: price.priceCents,
     display: price.displayPrice,
-    note: price.note || fallbackNote,
+    note: price.note ?? fallbackNote,
     monthlyEquivalent: price.monthlyEquivalent ?? undefined,
     savings: price.savings ?? undefined,
     validFrom: price.validFrom,
@@ -432,11 +432,11 @@ export function useSubscriptionPricing(t?: TFunction) {
   });
 
   return {
-    pricing: pricingQuery.data || [],
-    pricingCatalog: pricingCatalogQuery.data?.tiers || null,
-    promotions: promotionsQuery.data || [],
+    pricing: pricingQuery.data ?? [],
+    pricingCatalog: pricingCatalogQuery.data?.tiers ?? null,
+    promotions: promotionsQuery.data ?? [],
     membershipTiers: getMembershipTiers(),
-    isLoading: pricingCatalogQuery.isLoading || (isAdminMode ? pricingQuery.isLoading : false),
+    isLoading: pricingCatalogQuery.isLoading ?? isAdminMode ? pricingQuery.isLoading : false,
     isLoadingPromotions: promotionsQuery.isLoading,
     updatePricing,
     createPricing,

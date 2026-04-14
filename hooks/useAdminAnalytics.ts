@@ -88,15 +88,15 @@ export function useOverviewKPIs() {
       );
 
       return {
-        totalListings: listingsResult.count || 0,
-        publishedListings: publishedResult.count || 0,
-        pendingReview: pendingResult.count || 0,
-        totalUsers: usersResult.count || 0,
-        vipMembers: vipResult.count || 0,
+        totalListings: listingsResult.count ?? 0,
+        publishedListings: publishedResult.count ?? 0,
+        pendingReview: pendingResult.count ?? 0,
+        totalUsers: usersResult.count ?? 0,
+        vipMembers: vipResult.count ?? 0,
         activeOwners: uniqueOwners.size,
-        totalFavorites: favoritesResult.count || 0,
-        totalMessages: messagesResult.count || 0,
-        curatedListings: curatedResult.count || 0,
+        totalFavorites: favoritesResult.count ?? 0,
+        totalMessages: messagesResult.count ?? 0,
+        curatedListings: curatedResult.count ?? 0,
       };
     },
     staleTime: 30 * 1000, // 30 seconds
@@ -128,9 +128,9 @@ export function useTierDistribution() {
         ]);
 
       return [
-        { name: "Signature", value: signatureResult.count || 0 },
-        { name: "Verified", value: verifiedResult.count || 0 },
-        { name: "Unverified", value: unverifiedResult.count || 0 },
+        { name: "Signature", value: signatureResult.count ?? 0 },
+        { name: "Verified", value: verifiedResult.count ?? 0 },
+        { name: "Unverified", value: unverifiedResult.count ?? 0 },
       ];
     },
     staleTime: 30 * 1000,
@@ -167,10 +167,10 @@ export function useStatusDistribution() {
         ]);
 
       return [
-        { name: "Published", value: publishedResult.count || 0 },
-        { name: "Pending Review", value: pendingResult.count || 0 },
-        { name: "Draft", value: draftResult.count || 0 },
-        { name: "Rejected", value: rejectedResult.count || 0 },
+        { name: "Published", value: publishedResult.count ?? 0 },
+        { name: "Pending Review", value: pendingResult.count ?? 0 },
+        { name: "Draft", value: draftResult.count ?? 0 },
+        { name: "Rejected", value: rejectedResult.count ?? 0 },
       ];
     },
     staleTime: 30 * 1000,
@@ -209,8 +209,8 @@ export function useTopListings(limit = 5) {
         id: listing.id,
         name: listing.name,
         tier: listing.tier,
-        viewCount: listing.view_count || 0,
-        favoriteCount: favoriteCounts[listing.id] || 0,
+        viewCount: listing.view_count ?? 0,
+        favoriteCount: favoriteCounts[listing.id] ?? 0,
       }));
     },
     staleTime: 30 * 1000,
@@ -240,10 +240,10 @@ export function useListingsAnalytics() {
         supabase.from("regions").select("id, name"),
       ]);
 
-      const listings = listingsData.data || [];
-      const categories = categoriesData.data || [];
-      const cities = citiesData.data || [];
-      const regions = regionsData.data || [];
+      const listings = listingsData.data ?? [];
+      const categories = categoriesData.data ?? [];
+      const cities = citiesData.data ?? [];
+      const regions = regionsData.data ?? [];
 
       // Create lookup maps
       const categoryMap = new Map(categories.map(c => [c.id, c.name]));
@@ -253,14 +253,14 @@ export function useListingsAnalytics() {
       // Count by category
       const categoryCount: Record<string, number> = {};
       listings.forEach(l => {
-        const name = categoryMap.get(l.category_id) || "Uncategorized";
+        const name = categoryMap.get(l.category_id) ?? "Uncategorized";
         categoryCount[name] = (categoryCount[name] || 0) + 1;
       });
 
       // Count by city
       const cityCount: Record<string, number> = {};
       listings.forEach(l => {
-        const name = cityMap.get(l.city_id) || "Unknown";
+        const name = cityMap.get(l.city_id) ?? "Unknown";
         cityCount[name] = (cityCount[name] || 0) + 1;
       });
 
@@ -311,8 +311,8 @@ export function useUsersAnalytics() {
           .limit(10),
       ]);
 
-      const roles = rolesData.data || [];
-      const profiles = profilesData.data || [];
+      const roles = rolesData.data ?? [];
+      const profiles = profilesData.data ?? [];
 
       // Count by role
       const roleCount: Record<string, number> = {
@@ -334,7 +334,7 @@ export function useUsersAnalytics() {
         ],
         recentUsers: profiles.slice(0, 5).map(p => ({
           id: p.id,
-          email: p.full_name || "Anonymous",
+          email: p.full_name ?? "Anonymous",
           displayName: p.full_name,
           createdAt: p.created_at,
         })),
@@ -364,7 +364,7 @@ export function useMonetizationAnalytics() {
         .from("owner_subscriptions")
         .select("tier, status, billing_period");
 
-      const subs = subscriptions || [];
+      const subs = subscriptions ?? [];
 
       // Count by tier
       const tierCount: Record<string, number> = {};
@@ -414,9 +414,9 @@ export function useGeographyAnalytics() {
         supabase.from("regions").select("id, name").eq("is_active", true),
       ]);
 
-      const listings = listingsData.data || [];
-      const cities = citiesData.data || [];
-      const regions = regionsData.data || [];
+      const listings = listingsData.data ?? [];
+      const cities = citiesData.data ?? [];
+      const regions = regionsData.data ?? [];
 
       const cityMap = new Map(cities.map(c => [c.id, c.name]));
       const regionMap = new Map(regions.map(r => [r.id, r.name]));
@@ -424,7 +424,7 @@ export function useGeographyAnalytics() {
       // Count by city
       const cityStats: Record<string, { count: number; views: number }> = {};
       listings.forEach(l => {
-        const name = cityMap.get(l.city_id) || "Unknown";
+        const name = cityMap.get(l.city_id) ?? "Unknown";
         if (!cityStats[name]) cityStats[name] = { count: 0, views: 0 };
         cityStats[name].count += 1;
         cityStats[name].views += l.view_count || 0;
@@ -479,9 +479,9 @@ export function useCuratedAnalytics() {
         supabase.from("regions").select("id, name"),
       ]);
 
-      const listings = listingsData.data || [];
-      const categories = categoriesData.data || [];
-      const regions = regionsData.data || [];
+      const listings = listingsData.data ?? [];
+      const categories = categoriesData.data ?? [];
+      const regions = regionsData.data ?? [];
 
       const categoryMap = new Map(categories.map(c => [c.id, c.name]));
       const regionMap = new Map(regions.map(r => [r.id, r.name]));
@@ -489,7 +489,7 @@ export function useCuratedAnalytics() {
       // Count by category
       const categoryCount: Record<string, number> = {};
       listings.forEach(l => {
-        const name = categoryMap.get(l.category_id) || "Uncategorized";
+        const name = categoryMap.get(l.category_id) ?? "Uncategorized";
         categoryCount[name] = (categoryCount[name] || 0) + 1;
       });
 
@@ -507,7 +507,7 @@ export function useCuratedAnalytics() {
           id: l.id,
           name: l.name,
           tier: l.tier,
-          viewCount: l.view_count || 0,
+          viewCount: l.view_count ?? 0,
         })),
         totalCurated: listings.length,
       };
@@ -538,9 +538,9 @@ export function useConversionsAnalytics() {
         supabase.from("listings").select("id, name, view_count"),
       ]);
 
-      const threads = threadsData.data || [];
-      const favorites = favoritesData.data || [];
-      const listings = listingsData.data || [];
+      const threads = threadsData.data ?? [];
+      const favorites = favoritesData.data ?? [];
+      const listings = listingsData.data ?? [];
 
       const listingMap = new Map(listings.map(l => [l.id, l.name]));
 
@@ -548,7 +548,7 @@ export function useConversionsAnalytics() {
       const inquiryCount: Record<string, number> = {};
       threads.forEach(t => {
         if (t.listing_id) {
-          const name = listingMap.get(t.listing_id) || "Unknown";
+          const name = listingMap.get(t.listing_id) ?? "Unknown";
           inquiryCount[name] = (inquiryCount[name] || 0) + 1;
         }
       });
@@ -557,7 +557,7 @@ export function useConversionsAnalytics() {
       const favoriteCount: Record<string, number> = {};
       favorites.forEach(f => {
         if (f.listing_id) {
-          const name = listingMap.get(f.listing_id) || "Unknown";
+          const name = listingMap.get(f.listing_id) ?? "Unknown";
           favoriteCount[name] = (favoriteCount[name] || 0) + 1;
         }
       });

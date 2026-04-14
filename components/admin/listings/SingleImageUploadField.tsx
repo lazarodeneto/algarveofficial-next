@@ -94,7 +94,7 @@ export function SingleImageUploadField({
                     <Button
                         type="button"
                         variant="outline"
-                        disabled={disabled || isUploading}
+                        disabled={disabled ?? isUploading}
                         className="relative overflow-hidden"
                         onClick={() => document.getElementById('single-upload-input')?.click()}
                     >
@@ -111,7 +111,7 @@ export function SingleImageUploadField({
                             className="hidden"
                             accept="image/*"
                             onChange={handleUpload}
-                            disabled={disabled || isUploading}
+                            disabled={disabled ?? isUploading}
                         />
                     </Button>
                     <span className="text-xs text-muted-foreground">

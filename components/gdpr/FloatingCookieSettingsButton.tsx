@@ -16,7 +16,7 @@ import {
 const HIDDEN_ROUTE_PREFIXES = ["/admin", "/owner", "/dashboard"];
 
 export function FloatingCookieSettingsButton() {
-  const pathname = usePathname() || "/";
+  const pathname = usePathname() ?? "/";
   const { t } = useTranslation();
   const mounted = useHydrated();
   const [hasConsent, setHasConsent] = useState(false);

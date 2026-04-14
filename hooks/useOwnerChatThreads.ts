@@ -80,7 +80,7 @@ export function useOwnerChatThreads() {
 
           return {
             ...thread,
-            viewer: profile ? { full_name: profile.full_name || null, avatar_url: profile.avatar_url || null } : null,
+            viewer: profile ? { full_name: profile.full_name ?? null, avatar_url: profile.avatar_url ?? null } : null,
             last_message: lastMessage,
             unread_count: unreadCount,
           } as OwnerChatThread;

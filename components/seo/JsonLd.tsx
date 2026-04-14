@@ -292,7 +292,7 @@ export function ProductJsonLd({
       "@type": "AggregateOffer",
       priceCurrency: currency,
       lowPrice: priceFrom,
-      highPrice: priceTo || priceFrom,
+      highPrice: priceTo ?? priceFrom,
       availability: `https://schema.org/${availability}`,
       url,
     };

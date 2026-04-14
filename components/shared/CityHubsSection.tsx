@@ -105,7 +105,7 @@ export function CityHubsSection({
             {featured.hero_image_url || featured.image_url ? (
               <img
                 src={`${
-                  featured.hero_image_url || featured.image_url
+                  featured.hero_image_url ?? featured.image_url
                 }?_t=${imageTimestamp}`}
                 alt={featured.name}
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"

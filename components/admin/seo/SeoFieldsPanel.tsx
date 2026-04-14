@@ -69,8 +69,8 @@ export function SeoFieldsPanel({
   const titleStatus = titleLength === 0 ? "empty" : titleLength <= 60 ? "good" : "warning";
   const descStatus = descLength === 0 ? "empty" : descLength <= 160 ? "good" : "warning";
 
-  const previewTitle = data.meta_title || pageName;
-  const previewDesc = data.meta_description || "No description set";
+  const previewTitle = data.meta_title ?? pageName;
+  const previewDesc = data.meta_description ?? "No description set";
   const previewUrl = `${siteUrl}/${pageSlug}`.replace(/\/+$/, '');
   const resolvedOgImage = normalizePublicImageUrl(data.og_image);
 

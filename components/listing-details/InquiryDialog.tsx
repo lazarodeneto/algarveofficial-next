@@ -121,12 +121,12 @@ export function InquiryDialog({ listingId, listingName, ownerPhone, agentName, a
           name,
           email,
           phone: phone ? `${countryCode}${phone}` : undefined,
-          message: message || t('listing.inquiry.defaultMessage'),
+          message: message ?? t('listing.inquiry.defaultMessage'),
           listing_id: listingId,
           listing_title: listingName,
-          agent_name: agentName || undefined,
-          agent_email: agentEmail || undefined,
-          visit_type: visitType || undefined,
+          agent_name: agentName ?? undefined,
+          agent_email: agentEmail ?? undefined,
+          visit_type: visitType ?? undefined,
         },
       });
 
@@ -260,7 +260,7 @@ export function InquiryDialog({ listingId, listingName, ownerPhone, agentName, a
                     type="date"
                     value={checkOut}
                     onChange={(e) => setCheckOut(e.target.value)}
-                    min={checkIn || format(addDays(new Date(), 1), "yyyy-MM-dd")}
+                    min={checkIn ?? format(addDays(new Date(), 1), "yyyy-MM-dd")}
                   />
                 </div>
               </div>

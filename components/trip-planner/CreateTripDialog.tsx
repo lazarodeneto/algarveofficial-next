@@ -53,7 +53,7 @@ function CreateTripDialogForm({ onClose, onSave, editTrip, t }: CreateTripDialog
 
     onSave({
       title: title.trim(),
-      description: description.trim() || undefined,
+      description: description.trim() ?? undefined,
       start_date: format(startDate, 'yyyy-MM-dd'),
       end_date: format(endDate, 'yyyy-MM-dd'),
     });
@@ -158,7 +158,7 @@ function CreateTripDialogForm({ onClose, onSave, editTrip, t }: CreateTripDialog
         <Button variant="outline" onClick={onClose}>
           {t('common.cancel')}
         </Button>
-        <Button onClick={handleSave} disabled={!title.trim() || !startDate || !endDate}>
+        <Button onClick={handleSave} disabled={!title.trim() ?? !startDate ?? !endDate}>
           {editTrip ? t('dashboard.tripPlanner.saveChanges') : t('dashboard.tripPlanner.createTrip')}
         </Button>
       </DialogFooter>

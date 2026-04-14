@@ -174,8 +174,8 @@ function getPointIcon(
   isPrimary: boolean,
   tier?: string | null
 ): DivIcon {
-  const tierKey = tier || "unverified";
-  const categoryKey = categorySlug?.toLowerCase().trim() || "default";
+  const tierKey = tier ?? "unverified";
+  const categoryKey = categorySlug?.toLowerCase().trim() ?? "default";
   const cacheKey = `${color}:${categoryKey}:${isPrimary ? "primary" : "default"}:${tierKey}`;
   const cached = markerIconCache.get(cacheKey);
   if (cached) return cached;
@@ -183,7 +183,7 @@ function getPointIcon(
   const size = isPrimary ? 40 : 32;
   const tierAccent =
     tier === "signature" ? "#f59e0b" : tier === "verified" ? "#10b981" : "rgba(255,255,255,0.85)";
-  const markerLabel = categoryKey.replace(/[^a-z0-9]/gi, "").slice(0, 1).toUpperCase() || "•";
+  const markerLabel = categoryKey.replace(/[^a-z0-9]/gi, "").slice(0, 1).toUpperCase() ?? "•";
 
   const icon = new DivIcon({
     className: "listing-marker-icon",

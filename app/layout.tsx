@@ -37,7 +37,7 @@ const archivoNarrow = Archivo_Narrow({
 });
 
 const fontVariables = `${playfair.variable} ${inter.variable} ${archivoNarrow.variable}`;
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim()?.replace(/\/+$/, "") || "https://algarveofficial.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim()?.replace(/\/+$/, "") ?? "https://algarveofficial.com";
 const organizationSchema = buildOrganizationSchema(siteUrl);
 const websiteSchema = buildWebsiteSchema(siteUrl);
 const enableVercelTelemetry = process.env.NODE_ENV === "production";

@@ -82,7 +82,7 @@ export function parseCookieConsentRecord(rawValue: string | null): CookieConsent
     if (isLegacyCookieConsentRecord(parsed)) {
       return {
         ...parsed,
-        analytics: parsed.functional || parsed.marketing,
+        analytics: parsed.functional ?? parsed.marketing,
       };
     }
 

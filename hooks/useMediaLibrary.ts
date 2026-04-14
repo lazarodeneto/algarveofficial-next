@@ -104,7 +104,7 @@ export function useMediaLibrary() {
         file_url: urlData.publicUrl,
         file_type: isImage ? "image" : "video",
         file_size: processedFile.size,
-        folder: folder || "general",
+        folder: folder ?? "general",
       });
       return { ...data, originalSize, optimizedSize: processedFile.size };
     },

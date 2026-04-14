@@ -124,13 +124,13 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
       const error = validateUrl("website", value);
       setSocialErrors(prev => ({
         ...prev,
-        [`contact.${field}`]: error || "",
+        [`contact.${field}`]: error ?? "",
       }));
     }
     
     onChange("contact", {
       ...data.contact,
-      [field]: value.trim() || undefined,
+      [field]: value.trim() ?? undefined,
     });
   };
 
@@ -139,12 +139,12 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
     const error = validateUrl(field, value);
     setSocialErrors(prev => ({
       ...prev,
-      [field]: error || "",
+      [field]: error ?? "",
     }));
     
     onChange("social_links", {
       ...data.social_links,
-      [field]: value.trim() || undefined,
+      [field]: value.trim() ?? undefined,
     });
 
     // Auto-extract coordinates from Google Business URL
@@ -171,7 +171,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
   };
 
   const hasAnyContact =
-    data.contact?.phone || data.contact?.email || data.contact?.website;
+    data.contact?.phone || data.contact?.email ?? data.contact?.website;
   
   const hasValidationErrors = Object.values(socialErrors).some(e => e !== "");
 
@@ -237,7 +237,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
               value={data.contact?.website ?? ""}
               onChange={(e) => handleContactChange("website", e.target.value)}
               placeholder="https://www.example.com"
-              className={errors["contact.website"] || socialErrors["contact.website"] ? "border-destructive" : ""}
+              className={errors["contact.website"] ?? socialErrors["contact.website"] ? "border-destructive" : ""}
             />
             {(errors["contact.website"] || socialErrors["contact.website"]) && (
               <p className="text-xs text-destructive">{errors["contact.website"] || socialErrors["contact.website"]}</p>
@@ -473,7 +473,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={!data.social_links?.google_business || isFetchingRatings || !!socialErrors.google_business}
+                disabled={!data.social_links?.google_business ?? isFetchingRatings ?? !!socialErrors.google_business}
                 onClick={async () => {
                   if (!data.social_links?.google_business) {
                     toast.error("Please enter a Google Business URL first");

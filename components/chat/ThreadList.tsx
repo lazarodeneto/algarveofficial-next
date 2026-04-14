@@ -83,7 +83,7 @@ export const ThreadList = forwardRef<HTMLDivElement, ThreadListProps>(
             <div className="w-12 h-12 rounded-lg bg-muted flex-shrink-0 overflow-hidden">
               <ListingImage
                 src={thread.listings?.featured_image_url}
-                alt={thread.listings?.name || t("chat.listingFallbackName")}
+                alt={thread.listings?.name ?? t("chat.listingFallbackName")}
                 className="w-full h-full object-cover"
               />
             </div>

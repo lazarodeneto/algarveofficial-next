@@ -122,7 +122,7 @@ export function HeroTrustSignals({
         rating: preferred.rating,
         comment: preferred.comment.trim(),
         authorName: profileMap.get(preferred.user_id) ?? null,
-        listingName: listingIdToName.get(preferred.listing_id) || t("hero.trust.defaultVenue"),
+        listingName: listingIdToName.get(preferred.listing_id) ?? t("hero.trust.defaultVenue"),
       };
     },
     staleTime: 1000 * 60 * 5,

@@ -411,7 +411,7 @@ async function handleSave(request: NextRequest, method: "POST" | "PATCH") {
         tier,
         validFrom: payload.valid_from,
         validTo: payload.valid_to,
-        pricingId: id || undefined,
+        pricingId: id ?? undefined,
       });
     } catch (validationFailure) {
       const message = getErrorMessage(validationFailure, "Promo period overlaps an existing promo.");

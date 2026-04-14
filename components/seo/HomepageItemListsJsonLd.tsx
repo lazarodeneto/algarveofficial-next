@@ -28,7 +28,7 @@ export function HomepageItemListsJsonLd() {
         return {
           name: translatedName,
           url: absoluteUrl(l(`/stay?category=${category.slug}`)),
-          description: category.short_description || `${translatedName} in the Algarve.`,
+          description: category.short_description ?? `${translatedName} in the Algarve.`,
         };
       });
     }
@@ -67,7 +67,7 @@ export function HomepageItemListsJsonLd() {
         name: region.name,
         url: absoluteUrl(l(`/destinations/${region.slug}`)),
         description:
-          region.description || `Discover ${region.name}, one of the top destinations in the Algarve.`,
+          region.description ?? `Discover ${region.name}, one of the top destinations in the Algarve.`,
       }));
     }
 

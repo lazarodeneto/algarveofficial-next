@@ -91,7 +91,7 @@ async function createAuthorizedClients(request: NextRequest) {
   if (roleError) {
     return {
       error: NextResponse.json(
-        { error: roleError.message || "Failed to verify user role." },
+        { error: roleError.message ?? "Failed to verify user role." },
         { status: 403 },
       ),
     };
@@ -192,7 +192,7 @@ export async function PATCH(
   const { data: authUserResult, error: authLookupError } = await serviceClient.auth.admin.getUserById(userId);
   if (authLookupError || !authUserResult.user) {
     return NextResponse.json(
-      { error: authLookupError?.message || "User not found in auth." },
+      { error: authLookupError?.message ?? "User not found in auth." },
       { status: 404 },
     );
   }

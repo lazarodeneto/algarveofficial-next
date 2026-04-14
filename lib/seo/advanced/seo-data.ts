@@ -24,12 +24,12 @@ export async function getListingWithSeo(listingSlug: string, locale = "en") {
   const translation = translations?.find((t) => t.locale === locale);
 
   const tagsData = listing.listing_tags as unknown as { tags: { name: string } }[] | null;
-  const tags = tagsData?.map((t) => t.tags.name) || [];
+  const tags = tagsData?.map((t) => t.tags.name) ?? [];
 
   return {
     ...listing,
-    seo_title: translation?.seo_title || listing.meta_title || listing.name,
-    seo_description: translation?.seo_description || listing.meta_description || listing.short_description || listing.description,
+    seo_title: translation?.seo_title || listing.meta_title ?? listing.name,
+    seo_description: translation?.seo_description || listing.meta_description || listing.short_description ?? listing.description,
     tags,
   };
 }
@@ -55,8 +55,8 @@ export async function getBlogPostWithSeo(postSlug: string, locale = "en") {
 
   return {
     ...post,
-    seo_title: translation?.seo_title || post.seo_title || post.title,
-    seo_description: translation?.seo_description || post.seo_description || post.excerpt,
+    seo_title: translation?.seo_title || post.seo_title ?? post.title,
+    seo_description: translation?.seo_description || post.seo_description ?? post.excerpt,
   };
 }
 
@@ -78,8 +78,8 @@ export async function getEventWithSeo(eventSlug: string, locale = "en") {
 
   return {
     ...event,
-    seo_title: event.meta_title || event.title || event.name,
-    seo_description: event.meta_description || event.short_description || event.description,
+    seo_title: event.meta_title || event.title ?? event.name,
+    seo_description: event.meta_description || event.short_description ?? event.description,
   };
 }
 
@@ -103,8 +103,8 @@ export async function getCategoryWithSeo(categorySlug: string, locale = "en") {
 
   return {
     ...category,
-    seo_title: translation?.meta_title || category.meta_title || category.name,
-    seo_description: translation?.meta_description || category.description,
+    seo_title: translation?.meta_title || category.meta_title ?? category.name,
+    seo_description: translation?.meta_description ?? category.description,
   };
 }
 
@@ -131,10 +131,10 @@ export async function getCityWithSeo(citySlug: string, locale = "en") {
 
   return {
     ...city,
-    region_name: region?.name || null,
-    region_slug: region?.slug || null,
-    seo_title: translation?.meta_title || city.meta_title || city.name,
-    seo_description: translation?.meta_description || city.description,
+    region_name: region?.name ?? null,
+    region_slug: region?.slug ?? null,
+    seo_title: translation?.meta_title || city.meta_title ?? city.name,
+    seo_description: translation?.meta_description ?? city.description,
   };
 }
 
@@ -158,8 +158,8 @@ export async function getRegionWithSeo(regionSlug: string, locale = "en") {
 
   return {
     ...region,
-    seo_title: translation?.meta_title || region.meta_title || region.name,
-    seo_description: translation?.meta_description || region.description,
+    seo_title: translation?.meta_title || region.meta_title ?? region.name,
+    seo_description: translation?.meta_description ?? region.description,
   };
 }
 
@@ -182,10 +182,10 @@ export async function getSiteSettingsSeo() {
   }
 
   return {
-    meta_title: data.meta_title || SITE_CONFIG.name,
-    meta_description: data.meta_description || SITE_CONFIG.description,
-    og_image: data.og_image || SITE_CONFIG.ogImage,
-    canonical_url: data.canonical_url || SITE_CONFIG.url,
+    meta_title: data.meta_title ?? SITE_CONFIG.name,
+    meta_description: data.meta_description ?? SITE_CONFIG.description,
+    og_image: data.og_image ?? SITE_CONFIG.ogImage,
+    canonical_url: data.canonical_url ?? SITE_CONFIG.url,
     logo_url: data.logo_url,
   };
 }
@@ -225,11 +225,11 @@ export async function getSitemapData() {
   ]);
 
   return {
-    listings: listingsRes.data || [],
-    regions: regionsRes.data || [],
-    cities: citiesRes.data || [],
-    blogPosts: blogRes.data || [],
-    events: eventsRes.data || [],
-    categories: categoriesRes.data || [],
+    listings: listingsRes.data ?? [],
+    regions: regionsRes.data ?? [],
+    cities: citiesRes.data ?? [],
+    blogPosts: blogRes.data ?? [],
+    events: eventsRes.data ?? [],
+    categories: categoriesRes.data ?? [],
   };
 }

@@ -66,8 +66,8 @@ export async function trackEvent(
     listing_id: listingId,
     session_id: sessionId,
     consent_given: true,
-    referrer: document.referrer || null,
-    user_agent: navigator.userAgent || null,
+    referrer: document.referrer ?? null,
+    user_agent: navigator.userAgent ?? null,
   });
 
   if (error && process.env.NODE_ENV !== "production") {

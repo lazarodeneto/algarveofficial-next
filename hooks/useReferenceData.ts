@@ -48,9 +48,9 @@ function mergeCityTranslations(cities: CityRow[], translations: Awaited<ReturnTy
 
     return {
       ...city,
-      name: translation.name?.trim() || city.name,
-      short_description: translation.short_description?.trim() || city.short_description,
-      description: translation.description?.trim() || city.description,
+      name: translation.name?.trim() ?? city.name,
+      short_description: translation.short_description?.trim() ?? city.short_description,
+      description: translation.description?.trim() ?? city.description,
     };
   });
 }
@@ -64,9 +64,9 @@ function mergeRegionTranslations(regions: RegionRow[], translations: Awaited<Ret
 
     return {
       ...region,
-      name: translation.name?.trim() || region.name,
-      short_description: translation.short_description?.trim() || region.short_description,
-      description: translation.description?.trim() || region.description,
+      name: translation.name?.trim() ?? region.name,
+      short_description: translation.short_description?.trim() ?? region.short_description,
+      description: translation.description?.trim() ?? region.description,
     };
   });
 }
@@ -83,9 +83,9 @@ function mergeCategoryTranslations(
 
     return {
       ...category,
-      name: translation.name?.trim() || category.name,
-      short_description: translation.short_description?.trim() || category.short_description,
-      description: translation.description?.trim() || category.description,
+      name: translation.name?.trim() ?? category.name,
+      short_description: translation.short_description?.trim() ?? category.short_description,
+      description: translation.description?.trim() ?? category.description,
     };
   });
 }

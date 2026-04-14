@@ -12,8 +12,8 @@ interface WellnessLayoutProps {
 export function WellnessLayout({ details }: WellnessLayoutProps) {
   const { t } = useTranslation();
   const wellnessType = details.wellness_type as string;
-  const treatmentsOffered = (details.treatments_offered as string[]) || [];
-  const therapistCertifications = (details.therapist_certifications as string[]) || [];
+  const treatmentsOffered = details.treatments_offered as string[] ?? [];
+  const therapistCertifications = details.therapist_certifications as string[] ?? [];
   const medicalSupervision = details.medical_supervision as boolean;
   const detoxPrograms = details.detox_programs as boolean;
   const yogaMeditation = details.yoga_meditation as boolean;

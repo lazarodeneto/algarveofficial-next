@@ -64,31 +64,31 @@ function mergeListingLocalizations(
 
     return {
       ...listing,
-      name: listingTranslation?.title?.trim() || listing.name,
-      short_description: listingTranslation?.short_description?.trim() || listing.short_description,
-      description: listingTranslation?.description?.trim() || listing.description,
+      name: listingTranslation?.title?.trim() ?? listing.name,
+      short_description: listingTranslation?.short_description?.trim() ?? listing.short_description,
+      description: listingTranslation?.description?.trim() ?? listing.description,
       city: listing.city
         ? {
             ...listing.city,
-            name: cityTranslation?.name?.trim() || listing.city.name,
-            short_description: cityTranslation?.short_description?.trim() || listing.city.short_description,
-            description: cityTranslation?.description?.trim() || listing.city.description,
+            name: cityTranslation?.name?.trim() ?? listing.city.name,
+            short_description: cityTranslation?.short_description?.trim() ?? listing.city.short_description,
+            description: cityTranslation?.description?.trim() ?? listing.city.description,
           }
         : listing.city,
       region: listing.region
         ? {
             ...listing.region,
-            name: regionTranslation?.name?.trim() || listing.region.name,
-            short_description: regionTranslation?.short_description?.trim() || listing.region.short_description,
-            description: regionTranslation?.description?.trim() || listing.region.description,
+            name: regionTranslation?.name?.trim() ?? listing.region.name,
+            short_description: regionTranslation?.short_description?.trim() ?? listing.region.short_description,
+            description: regionTranslation?.description?.trim() ?? listing.region.description,
           }
         : listing.region,
       category: listing.category
         ? {
             ...listing.category,
-            name: categoryTranslation?.name?.trim() || listing.category.name,
+            name: categoryTranslation?.name?.trim() ?? listing.category.name,
             short_description:
-              categoryTranslation?.short_description?.trim() || listing.category.short_description,
+              categoryTranslation?.short_description?.trim() ?? listing.category.short_description,
           }
         : listing.category,
     };

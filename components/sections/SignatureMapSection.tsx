@@ -92,7 +92,7 @@ export function SignatureMapSection() {
             categorySlug: listing.category?.slug,
             categoryName: translateCategoryName(t, listing.category?.slug, listing.category?.name),
             categoryImageUrl: listing.category?.image_url,
-            cityName: listing.city?.name || "Algarve",
+            cityName: listing.city?.name ?? "Algarve",
             tier: listing.tier,
             featuredImageUrl: listing.featured_image_url,
             href: l(`/listing/${listing.slug}`),

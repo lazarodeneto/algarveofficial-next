@@ -259,7 +259,7 @@ export function buildMunicipalityCityIndex({
 
     return {
       id: representative.id,
-      slug: representative.slug || toSlug(municipalityName),
+      slug: representative.slug ?? toSlug(municipalityName),
       name: municipalityName,
       short_description: representative.short_description ?? null,
       image_url: representative.image_url ?? null,

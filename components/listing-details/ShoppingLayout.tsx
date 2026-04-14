@@ -12,7 +12,7 @@ interface ShoppingLayoutProps {
 export function ShoppingLayout({ details }: ShoppingLayoutProps) {
   const { t } = useTranslation();
   const shopType = details.shop_type as string;
-  const brandsCarried = (details.brands_carried as string[]) || [];
+  const brandsCarried = details.brands_carried as string[] ?? [];
   const personalShopping = details.personal_shopping as boolean;
   const appointmentOnly = details.appointment_only as boolean;
   const taxFree = details.tax_free as boolean;

@@ -99,8 +99,8 @@ async function main() {
   const updates: string[] = [];
   
   for (const img of images || []) {
-    const listingName = img.listing?.name || "Venue";
-    const cityName = img.listing?.city?.[0]?.name || "";
+    const listingName = img.listing?.name ?? "Venue";
+    const cityName = img.listing?.city?.[0]?.name ?? "";
     
     const newAltText = generateAltText(listingName, cityName);
     

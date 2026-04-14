@@ -20,7 +20,7 @@ interface DetailsStepProps {
 export function DetailsStep({ data, onChange, errors, categoryId, categories }: DetailsStepProps) {
   // Resolve category slug from UUID
   const category = categories.find(c => c.id === categoryId);
-  const categorySlug = category?.slug || '';
+  const categorySlug = category?.slug ?? '';
   const template = getCategoryTemplate(categorySlug);
 
   const handleDetailChange = (fieldName: string, value: unknown) => {
@@ -102,7 +102,7 @@ export function DetailsStep({ data, onChange, errors, categoryId, categories }: 
               <div
                 key={field.name}
                 className={
-                  field.type === "multiselect" || field.type === "tags"
+                  field.type === "multiselect" ?? field.type === "tags"
                     ? "sm:col-span-2"
                     : ""
                 }
@@ -130,7 +130,7 @@ export function DetailsStep({ data, onChange, errors, categoryId, categories }: 
               <div
                 key={field.name}
                 className={
-                  field.type === "multiselect" || field.type === "tags"
+                  field.type === "multiselect" ?? field.type === "tags"
                     ? "sm:col-span-2 lg:col-span-3"
                     : ""
                 }

@@ -305,9 +305,9 @@ async function fetchRegionBySlug(slug: string, locale: PublicContentLocale) {
 
   return {
     ...data,
-    name: translation.name?.trim() || data.name,
-    short_description: translation.short_description?.trim() || data.short_description,
-    description: translation.description?.trim() || data.description,
+    name: translation.name?.trim() ?? data.name,
+    short_description: translation.short_description?.trim() ?? data.short_description,
+    description: translation.description?.trim() ?? data.description,
   } as DestinationRegion;
 }
 
@@ -339,9 +339,9 @@ async function fetchRegionCities(regionId: string, locale: PublicContentLocale) 
     const translation = translationMap.get(city.id);
     return {
       ...city,
-      name: translation?.name?.trim() || city.name,
-      short_description: translation?.short_description?.trim() || city.short_description,
-      description: translation?.description?.trim() || city.description,
+      name: translation?.name?.trim() ?? city.name,
+      short_description: translation?.short_description?.trim() ?? city.short_description,
+      description: translation?.description?.trim() ?? city.description,
     };
   });
 }
@@ -388,13 +388,13 @@ async function fetchRegionListings(regionId: string, locale: PublicContentLocale
 
     return {
       ...listing,
-      name: listingTranslation?.title?.trim() || listing.name,
-      short_description: listingTranslation?.short_description?.trim() || listing.short_description,
-      description: listingTranslation?.description?.trim() || listing.description,
+      name: listingTranslation?.title?.trim() ?? listing.name,
+      short_description: listingTranslation?.short_description?.trim() ?? listing.short_description,
+      description: listingTranslation?.description?.trim() ?? listing.description,
       city: listing.city
         ? {
             ...listing.city,
-            name: cityTranslation?.name?.trim() || listing.city.name,
+            name: cityTranslation?.name?.trim() ?? listing.city.name,
           }
         : listing.city,
     };

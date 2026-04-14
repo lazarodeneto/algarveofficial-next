@@ -260,8 +260,8 @@ export function PricingClient() {
             {tiers.map((tier, index) => (
               (() => {
                 const dynamicTier = membershipTiers.find((candidate) => candidate.id === tier.id);
-                const monthlyPrice = dynamicTier?.monthly.display || t("pricing.unavailable");
-                const monthlyNote = dynamicTier?.monthly.note || t("pricing.unavailableNote");
+                const monthlyPrice = dynamicTier?.monthly.display ?? t("pricing.unavailable");
+                const monthlyNote = dynamicTier?.monthly.note ?? t("pricing.unavailableNote");
                 const annualLine = dynamicTier?.annual
                   ? `${t("admin.subscriptions.billing.annual")}: ${dynamicTier.annual.display} (${dynamicTier.annual.note})`
                   : null;

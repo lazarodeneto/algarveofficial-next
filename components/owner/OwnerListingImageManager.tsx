@@ -63,8 +63,8 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
       ? currentImages.filter((i) => i.id !== deletedId) 
       : currentImages;
     
-    const featured = remaining.find((i) => i.is_featured) || remaining[0];
-    const newFeaturedUrl = featured?.image_url || null;
+    const featured = remaining.find((i) => i.is_featured) ?? remaining[0];
+    const newFeaturedUrl = featured?.image_url ?? null;
 
     await supabase
       .from("listings")
@@ -90,7 +90,7 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
           console.warn(`Failed to process ${file.name}, using original`);
         }
 
-        const fileExt = processedFile.name.split(".").pop() || "webp";
+        const fileExt = processedFile.name.split(".").pop() ?? "webp";
         const fileName = `${listingId}/${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
 
         const { error: uploadError } = await supabase.storage

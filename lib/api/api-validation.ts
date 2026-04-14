@@ -13,8 +13,8 @@ export function validatePayload<T>(
   }
 
   const firstError = result.error.issues[0];
-  const path = firstError?.path?.join(".") || "unknown";
-  const message = firstError?.message || "Invalid payload";
+  const path = firstError?.path?.join(".") ?? "unknown";
+  const message = firstError?.message ?? "Invalid payload";
 
   return {
     success: false,

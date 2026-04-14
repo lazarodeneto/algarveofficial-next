@@ -121,8 +121,8 @@ function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEv
     onSave({
       listing_id: selectedListing,
       date,
-      time_slot: timeSlot || undefined,
-      notes: notes || undefined,
+      time_slot: timeSlot ?? undefined,
+      notes: notes ?? undefined,
       estimated_cost: estimatedCost ? parseFloat(estimatedCost) : undefined,
     });
     onClose();
@@ -146,7 +146,7 @@ function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEv
               {selectedListingInfo.featured_image_url && (
                 <ListingImage
                   src={selectedListingInfo.featured_image_url} 
-                  category={getCategorySlug(selectedListingInfo.category_id || '')}
+                  category={getCategorySlug(selectedListingInfo.category_id ?? '')}
                   categoryImageUrl={selectedListingInfo.category?.image_url}
                   listingId={selectedListingInfo.id}
                   alt={selectedListingInfo.name ?? ''}
@@ -215,7 +215,7 @@ function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEv
                             {listing.featured_image_url && (
                               <ListingImage
                                 src={listing.featured_image_url} 
-                                category={getCategorySlug(listing.category_id || '')}
+                                category={getCategorySlug(listing.category_id ?? '')}
                                 categoryImageUrl={listing.category?.image_url}
                                 listingId={listing.id}
                                 alt={listing.name ?? ''}
@@ -299,7 +299,7 @@ function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEv
         <Button variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button onClick={handleSave} disabled={!selectedListing || !date}>
+        <Button onClick={handleSave} disabled={!selectedListing ?? !date}>
           {editEvent ? 'Save Changes' : 'Add Activity'}
         </Button>
       </DialogFooter>

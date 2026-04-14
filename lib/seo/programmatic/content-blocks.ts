@@ -523,7 +523,7 @@ const CITY_TEMPLATES: Record<Locale, CityTemplates> = {
     },
     body: ({ cityName, cityDescription, topCategoryNames }) => {
       const categories = formatLocalizedList("en", topCategoryNames, "dining, stays and experiences");
-      const context = cityDescription?.trim() || `${cityName} combines Atlantic scenery, walkable local character, and easy access to the best of the Algarve.`;
+      const context = cityDescription?.trim() ?? `${cityName} combines Atlantic scenery, walkable local character, and easy access to the best of the Algarve.`;
       return `${context} Rather than relying on thin filter pages, this city landing page is built to help travellers and residents discover high-quality ${categories} in one place, with real listing inventory, descriptive context, and clear onward paths into deeper category pages for more specific intent.`;
     },
     closing: ({ cityName, topListingNames }) => {
@@ -547,7 +547,7 @@ const CITY_TEMPLATES: Record<Locale, CityTemplates> = {
     },
     body: ({ cityName, cityDescription, topCategoryNames }) => {
       const categories = formatLocalizedList("pt-pt", topCategoryNames, "gastronomia, estadias e experiências");
-      const context = cityDescription?.trim() || `${cityName} combina paisagem atlântica, identidade local e acesso fácil ao melhor do Algarve.`;
+      const context = cityDescription?.trim() ?? `${cityName} combina paisagem atlântica, identidade local e acesso fácil ao melhor do Algarve.`;
       return `${context} Em vez de depender de páginas vazias ou filtros soltos, esta landing page da cidade foi pensada para apresentar ${categories} com inventário real, texto útil e ligações internas claras para páginas de categoria mais específicas.`;
     },
     closing: ({ cityName, topListingNames }) => {
@@ -567,7 +567,7 @@ const CITY_TEMPLATES: Record<Locale, CityTemplates> = {
     },
     body: ({ cityName, cityDescription, topCategoryNames }) => {
       const categories = formatLocalizedList("fr", topCategoryNames, "gastronomie, séjours et expériences");
-      const context = cityDescription?.trim() || `${cityName} combine paysages atlantiques, charme local et accès facile au meilleur de l'Algarve.`;
+      const context = cityDescription?.trim() ?? `${cityName} combine paysages atlantiques, charme local et accès facile au meilleur de l'Algarve.`;
       return `${context} Plutôt qu'une simple page de filtres, cette page ville est conçue pour aider les voyageurs à découvrir les meilleures options de ${categories} avec du contenu utile, un vrai inventaire et des liens internes vers des pages de catégorie plus ciblées.`;
     },
     closing: ({ cityName, topListingNames }) => {
@@ -587,7 +587,7 @@ const CITY_TEMPLATES: Record<Locale, CityTemplates> = {
     },
     body: ({ cityName, cityDescription, topCategoryNames }) => {
       const categories = formatLocalizedList("de", topCategoryNames, "Kulinarik, Aufenthalte und Erlebnisse");
-      const context = cityDescription?.trim() || `${cityName} verbindet Atlantikküste, authentischen Ortscharakter und schnellen Zugang zu den besten Seiten der Algarve.`;
+      const context = cityDescription?.trim() ?? `${cityName} verbindet Atlantikküste, authentischen Ortscharakter und schnellen Zugang zu den besten Seiten der Algarve.`;
       return `${context} Statt einer dünnen Filterseite bietet diese Städte-Seite echte Listings, nützlichen Kontext und klare interne Weiterleitungen, damit Besucher hochwertige Optionen für ${categories} direkt entdecken können.`;
     },
     closing: ({ cityName, topListingNames }) => {
@@ -607,7 +607,7 @@ const CITY_TEMPLATES: Record<Locale, CityTemplates> = {
     },
     body: ({ cityName, cityDescription, topCategoryNames }) => {
       const categories = formatLocalizedList("es", topCategoryNames, "gastronomía, estancias y experiencias");
-      const context = cityDescription?.trim() || `${cityName} combina paisaje atlántico, ambiente local y acceso fácil a lo mejor del Algarve.`;
+      const context = cityDescription?.trim() ?? `${cityName} combina paisaje atlántico, ambiente local y acceso fácil a lo mejor del Algarve.`;
       return `${context} En lugar de una página vacía basada solo en filtros, esta landing de ciudad reúne inventario real, contexto útil y enlaces internos claros para descubrir mejores opciones de ${categories}.`;
     },
     closing: ({ cityName, topListingNames }) => {
@@ -627,7 +627,7 @@ const CITY_TEMPLATES: Record<Locale, CityTemplates> = {
     },
     body: ({ cityName, cityDescription, topCategoryNames }) => {
       const categories = formatLocalizedList("it", topCategoryNames, "gastronomia, soggiorni ed esperienze");
-      const context = cityDescription?.trim() || `${cityName} unisce paesaggi atlantici, carattere locale e accesso rapido al meglio dell'Algarve.`;
+      const context = cityDescription?.trim() ?? `${cityName} unisce paesaggi atlantici, carattere locale e accesso rapido al meglio dell'Algarve.`;
       return `${context} Invece di una semplice pagina di filtri, questa landing cittadina mette insieme inventario reale, contenuti utili e link interni chiari per aiutare gli utenti a scoprire il meglio di ${categories}.`;
     },
     closing: ({ cityName, topListingNames }) => {
@@ -647,7 +647,7 @@ const CITY_TEMPLATES: Record<Locale, CityTemplates> = {
     },
     body: ({ cityName, cityDescription, topCategoryNames }) => {
       const categories = formatLocalizedList("nl", topCategoryNames, "eten, verblijf en ervaringen");
-      const context = cityDescription?.trim() || `${cityName} combineert Atlantische landschappen, lokale charme en snelle toegang tot het beste van de Algarve.`;
+      const context = cityDescription?.trim() ?? `${cityName} combineert Atlantische landschappen, lokale charme en snelle toegang tot het beste van de Algarve.`;
       return `${context} In plaats van een dunne filterpagina biedt deze stadspagina echte inventaris, nuttige context en duidelijke interne links om betere opties voor ${categories} te ontdekken.`;
     },
     closing: ({ cityName, topListingNames }) => {
@@ -667,7 +667,7 @@ const CITY_TEMPLATES: Record<Locale, CityTemplates> = {
     },
     body: ({ cityName, cityDescription, topCategoryNames }) => {
       const categories = formatLocalizedList("sv", topCategoryNames, "mat, boende och upplevelser");
-      const context = cityDescription?.trim() || `${cityName} kombinerar atlantkust, lokal karaktär och enkel tillgång till det bästa av Algarve.`;
+      const context = cityDescription?.trim() ?? `${cityName} kombinerar atlantkust, lokal karaktär och enkel tillgång till det bästa av Algarve.`;
       return `${context} I stället för en tunn filtersida samlar denna stadssida verkligt innehåll, användbar kontext och tydliga interna länkar för att hjälpa besökare att hitta bättre alternativ inom ${categories}.`;
     },
     closing: ({ cityName, topListingNames }) => {
@@ -687,7 +687,7 @@ const CITY_TEMPLATES: Record<Locale, CityTemplates> = {
     },
     body: ({ cityName, cityDescription, topCategoryNames }) => {
       const categories = formatLocalizedList("no", topCategoryNames, "mat, opphold og opplevelser");
-      const context = cityDescription?.trim() || `${cityName} kombinerer atlanterhavskyst, lokal karakter og enkel tilgang til det beste av Algarve.`;
+      const context = cityDescription?.trim() ?? `${cityName} kombinerer atlanterhavskyst, lokal karakter og enkel tilgang til det beste av Algarve.`;
       return `${context} I stedet for en tynn filterside gir denne bysiden ekte innhold, nyttig kontekst og tydelige interne lenker slik at besøkende kan finne bedre alternativer innen ${categories}.`;
     },
     closing: ({ cityName, topListingNames }) => {
@@ -707,7 +707,7 @@ const CITY_TEMPLATES: Record<Locale, CityTemplates> = {
     },
     body: ({ cityName, cityDescription, topCategoryNames }) => {
       const categories = formatLocalizedList("da", topCategoryNames, "mad, ophold og oplevelser");
-      const context = cityDescription?.trim() || `${cityName} kombinerer Atlanterhavskyst, lokal karakter og nem adgang til det bedste af Algarve.`;
+      const context = cityDescription?.trim() ?? `${cityName} kombinerer Atlanterhavskyst, lokal karakter og nem adgang til det bedste af Algarve.`;
       return `${context} I stedet for en tynd filterside giver denne byside rigtigt indhold, nyttig kontekst og klare interne links, så besøgende kan opdage stærkere muligheder inden for ${categories}.`;
     },
     closing: ({ cityName, topListingNames }) => {

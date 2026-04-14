@@ -92,7 +92,7 @@ async function fetchBlogPost(slug: string, locale: string): Promise<BlogPostWith
       const translated = translation as BlogPostTranslationRow;
       localizedPost = {
         ...localizedPost,
-        title: translated.title || localizedPost.title,
+        title: translated.title ?? localizedPost.title,
         excerpt: translated.excerpt ?? localizedPost.excerpt,
         content: translated.content ?? localizedPost.content,
         seo_title: translated.seo_title ?? localizedPost.seo_title,
@@ -128,7 +128,7 @@ function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClient
 
   const handleShare = (platform: "facebook" | "twitter" | "linkedin" | "copy") => {
     const url = window.location.href;
-    const title = post?.title || initialPost.title;
+    const title = post?.title ?? initialPost.title;
 
     if (platform === "copy") {
       void navigator.clipboard.writeText(url);

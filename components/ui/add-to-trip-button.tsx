@@ -314,7 +314,7 @@ export function AddToTripButton({
             </Button>
             <Button
               onClick={handleAddToTrip}
-              disabled={!selectedTripId || !selectedDate || isAdding}
+              disabled={!selectedTripId ?? !selectedDate ?? isAdding}
             >
               {isAdding ? (
                 <>

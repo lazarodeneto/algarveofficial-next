@@ -2,7 +2,7 @@ import { SITE_CONFIG } from "./seo-config";
 import { DEFAULT_LOCALE, LOCALE_CONFIGS, SUPPORTED_LOCALES } from "@/lib/i18n/config";
 import type { Locale } from "@/lib/i18n/config";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || SITE_CONFIG.url;
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? SITE_CONFIG.url;
 
 interface ListingSchemaInput {
   id: string;
@@ -140,7 +140,7 @@ export function buildWebSiteSchema() {
 }
 
 export function buildLocalBusinessSchema(listing: ListingSchemaInput) {
-  const url = listing.url || `${SITE_URL}/listing/${listing.slug}`;
+  const url = listing.url ?? `${SITE_URL}/listing/${listing.slug}`;
   
   const categoryTypes: Record<string, string[]> = {
     "places-to-stay": ["LodgingBusiness", "Hotel", "Resort"],
@@ -179,8 +179,8 @@ export function buildLocalBusinessSchema(listing: ListingSchemaInput) {
   const address = listing.address ? {
     "@type": "PostalAddress",
     streetAddress: listing.address,
-    addressLocality: listing.city || "Algarve",
-    addressRegion: listing.region || "Algarve",
+    addressLocality: listing.city ?? "Algarve",
+    addressRegion: listing.region ?? "Algarve",
     addressCountry: "PT",
   } : undefined;
 
@@ -204,14 +204,14 @@ export function buildLocalBusinessSchema(listing: ListingSchemaInput) {
     "@id": `${url}/#business`,
     name: listing.name,
     url,
-    description: listing.description || undefined,
-    image: listing.image_url || undefined,
-    logo: listing.logo_url || undefined,
-    priceRange: listing.price_range || "€€€€",
+    description: listing.description ?? undefined,
+    image: listing.image_url ?? undefined,
+    logo: listing.logo_url ?? undefined,
+    priceRange: listing.price_range ?? "€€€€",
     address,
     geo,
-    telephone: listing.telephone || undefined,
-    email: listing.email || undefined,
+    telephone: listing.telephone ?? undefined,
+    email: listing.email ?? undefined,
     aggregateRating,
     openingHoursSpecification: [
       { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "09:00", closes: "18:00" },
@@ -240,7 +240,7 @@ export function buildBreadcrumbSchema(items: Array<{ name: string; url: string }
 }
 
 export function buildArticleSchema(post: BlogPostSchemaInput) {
-  const url = post.url || `${SITE_URL}/blog/${post.slug}`;
+  const url = post.url ?? `${SITE_URL}/blog/${post.slug}`;
   const schemaLocale = post.locale ? LOCALE_CONFIGS[post.locale]?.hreflang ?? "en-GB" : "en-GB";
 
   return {
@@ -248,14 +248,14 @@ export function buildArticleSchema(post: BlogPostSchemaInput) {
     "@type": "Article",
     "@id": `${url}/#article`,
     headline: post.title,
-    description: post.excerpt || undefined,
-    image: post.featured_image || undefined,
+    description: post.excerpt ?? undefined,
+    image: post.featured_image ?? undefined,
     url,
-    datePublished: post.published_at || undefined,
-    dateModified: post.updated_at || post.published_at || undefined,
+    datePublished: post.published_at ?? undefined,
+    dateModified: post.updated_at || post.published_at ?? undefined,
     author: {
       "@type": "Organization",
-      name: post.author_name || SITE_CONFIG.name,
+      name: post.author_name ?? SITE_CONFIG.name,
       url: SITE_URL,
     },
     publisher: {
@@ -265,33 +265,33 @@ export function buildArticleSchema(post: BlogPostSchemaInput) {
       "@type": "WebPage",
       "@id": url,
     },
-    articleSection: post.category || undefined,
-    keywords: post.tags?.join(", ") || undefined,
+    articleSection: post.category ?? undefined,
+    keywords: post.tags?.join(", ") ?? undefined,
     inLanguage: schemaLocale,
   };
 }
 
 export function buildEventSchema(event: EventSchemaInput) {
-  const url = event.url || `${SITE_URL}/events/${event.slug}`;
+  const url = event.url ?? `${SITE_URL}/events/${event.slug}`;
   
   return {
     "@context": "https://schema.org",
     "@type": "Event",
     "@id": `${url}/#event`,
-    name: event.name || event.title,
-    description: event.description || undefined,
-    image: event.image_url || undefined,
+    name: event.name ?? event.title,
+    description: event.description ?? undefined,
+    image: event.image_url ?? undefined,
     url,
-    startDate: event.start_date || undefined,
-    endDate: event.end_date || event.start_date || undefined,
+    startDate: event.start_date ?? undefined,
+    endDate: event.end_date || event.start_date ?? undefined,
     eventStatus: "https://schema.org/EventScheduled",
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     location: {
       "@type": "Place",
-      name: event.venue_name || event.city || "Algarve",
+      name: event.venue_name || event.city ?? "Algarve",
       address: {
         "@type": "PostalAddress",
-        addressLocality: event.city || "Algarve",
+        addressLocality: event.city ?? "Algarve",
         addressRegion: "Algarve",
         addressCountry: "PT",
       },
@@ -321,8 +321,8 @@ export function buildPlaceSchema(region: RegionSchemaInput) {
     "@type": ["Place", "TouristDestination"],
     "@id": `${url}/#destination`,
     name: region.name,
-    description: region.description || undefined,
-    image: region.image_url || undefined,
+    description: region.description ?? undefined,
+    image: region.image_url ?? undefined,
     url,
     geo: region.latitude && region.longitude ? {
       "@type": "GeoCoordinates",
@@ -360,8 +360,8 @@ export function buildItemListSchema(
         "@type": "Thing",
         name: item.name,
         url: item.url.startsWith("http") ? item.url : `${SITE_URL}${item.url}`,
-        description: item.description || undefined,
-        image: item.image || undefined,
+        description: item.description ?? undefined,
+        image: item.image ?? undefined,
       },
     })),
   };

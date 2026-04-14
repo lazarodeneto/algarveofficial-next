@@ -50,8 +50,8 @@ export function AdminHeader() {
   const { data: pendingClaimsCount = 0 } = usePendingClaimsCount();
   const { data: pendingEventsCount = 0 } = usePendingEventsCount();
   const [quickJump, setQuickJump] = useState("");
-  const adminName = user?.firstName || t("common.admin");
-  const adminEmail = user?.email || "";
+  const adminName = user?.firstName ?? t("common.admin");
+  const adminEmail = user?.email ?? "";
   const adminInitial = (adminName.trim().charAt(0) || adminEmail.trim().charAt(0) || "A").toUpperCase();
 
   const totalNotifications = pendingCount + pendingListingReviewsCount + pendingClaimsCount + pendingEventsCount;
@@ -84,12 +84,12 @@ export function AdminHeader() {
       {
         label: t("admin.sidebar.moderationQueue"),
         href: l("/admin/moderation"),
-        badge: pendingCount || undefined,
+        badge: pendingCount ?? undefined,
       },
       {
         label: t("admin.sidebar.reviewModeration"),
         href: l("/admin/reviews"),
-        badge: pendingListingReviewsCount || undefined,
+        badge: pendingListingReviewsCount ?? undefined,
       },
       {
         label: t("admin.sidebar.translations"),

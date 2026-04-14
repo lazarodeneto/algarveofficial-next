@@ -24,7 +24,7 @@ export function FineDiningLayout({ details }: FineDiningLayoutProps) {
   const { t } = useTranslation();
   const diningType = details.dining_type as string;
   const cuisineType = details.cuisine_type as string;
-  const diningExperience = (details.dining_experience as string[]) || [];
+  const diningExperience = details.dining_experience as string[] ?? [];
   const chefName = details.chef_name as string;
   const tastingMenuAvailable = details.tasting_menu_available as boolean;
   const dressCode = details.dress_code as string;

@@ -165,7 +165,7 @@ export function ImageUploader({
           accept="image/*"
           multiple
           onChange={handleFileInput}
-          disabled={disabled || isConverting || images.length >= maxImages}
+          disabled={disabled ?? isConverting ?? images.length >= maxImages}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
         />
         <div className="flex flex-col items-center gap-3">
@@ -208,7 +208,7 @@ export function ImageUploader({
                 {/* Local blob previews are intentionally rendered with img for immediate feedback. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={resolveSupabaseBucketImageUrl(image.url, "listing-images") || image.url}
+                  src={resolveSupabaseBucketImageUrl(image.url, "listing-images") ?? image.url}
                   alt={image.alt ?? "Listing image"}
                   className="w-full h-full object-cover"
                 />

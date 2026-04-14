@@ -33,7 +33,7 @@ export function StarRating({
     }
   };
 
-  const displayRating = hoverRating || rating;
+  const displayRating = hoverRating ?? rating;
 
   return (
     <div className={cn("flex items-center gap-0.5", className)}>

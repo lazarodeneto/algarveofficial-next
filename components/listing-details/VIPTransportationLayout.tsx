@@ -14,8 +14,8 @@ export function VIPTransportationLayout({ details }: VIPTransportationLayoutProp
   const transportType = details.transport_type as string;
   const capacity = details.capacity as number;
   const withDriverOrPilot = details.with_driver_or_pilot as boolean;
-  const vehicleModels = (details.vehicle_models as string[]) || [];
-  const onboardServices = (details.onboard_services as string[]) || [];
+  const vehicleModels = details.vehicle_models as string[] ?? [];
+  const onboardServices = details.onboard_services as string[] ?? [];
   const hourlyOrDaily = details.hourly_or_daily as string;
   const transportIcons: Record<string, LucideIcon> = {
     car: Car,

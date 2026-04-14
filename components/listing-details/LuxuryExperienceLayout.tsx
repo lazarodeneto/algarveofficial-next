@@ -26,7 +26,7 @@ export function LuxuryExperienceLayout({ details }: LuxuryExperienceLayoutProps)
   const privateOrShared = details.private_or_shared as string;
   const capacity = details.capacity as number;
   const customizationLevel = details.customization_level as string;
-  const departureLocations = (details.departure_locations as string[]) || [];
+  const departureLocations = details.departure_locations as string[] ?? [];
   const experienceIcons: Record<string, LucideIcon> = {
     yacht: Ship,
     helicopter: Plane,

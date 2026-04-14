@@ -109,7 +109,7 @@ export function buildLocalizedMetadata(params: LocalizedMetadataParams): Metadat
     noFollow: !follow,
     localeCode: locale,
     keywords:
-      keywords || [
+      keywords ?? [
         "Algarve",
         "directory",
         "premium listings",

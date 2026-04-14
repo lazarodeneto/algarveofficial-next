@@ -144,7 +144,7 @@ function buildResolvedPriceFromRow(
     billingPeriod: normalizePricingBillingPeriod(row.billing_period) ?? requestedBillingPeriod,
     requestedBillingPeriod,
     priceCents: getPriceCents(row),
-    currency: row.currency || "EUR",
+    currency: row.currency ?? "EUR",
     displayPrice: row.display_price,
     note: row.note,
     validFrom: row.valid_from,

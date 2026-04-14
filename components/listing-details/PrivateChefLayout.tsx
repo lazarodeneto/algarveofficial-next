@@ -11,13 +11,13 @@ interface PrivateChefLayoutProps {
 
 export function PrivateChefLayout({ details }: PrivateChefLayoutProps) {
   const { t } = useTranslation();
-  const cuisineStyles = (details.cuisine_styles as string[]) || [];
-  const serviceTypes = (details.service_types as string[]) || [];
+  const cuisineStyles = details.cuisine_styles as string[] ?? [];
+  const serviceTypes = details.service_types as string[] ?? [];
   const minimumMenuPrice = details.minimum_menu_price as number;
-  const sampleMenus = (details.sample_menus as string[]) || [];
-  const dietaryOptions = (details.dietary_options as string[]) || [];
-  const languages = (details.languages as string[]) || [];
-  const serviceArea = (details.service_area as string[]) || [];
+  const sampleMenus = details.sample_menus as string[] ?? [];
+  const dietaryOptions = details.dietary_options as string[] ?? [];
+  const languages = details.languages as string[] ?? [];
+  const serviceArea = details.service_area as string[] ?? [];
 
   return (
     <div className="space-y-8">

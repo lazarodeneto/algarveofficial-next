@@ -10,7 +10,7 @@ import { WhatsAppChatButton } from "./whatsapp-chat-button";
 const HIDDEN_ROUTE_PREFIXES = ["/admin", "/owner", "/dashboard"];
 
 export function WhatsAppChatButtonWrapper() {
-  const pathname = usePathname() || "/";
+  const pathname = usePathname() ?? "/";
   const mounted = useHydrated();
   const { settings } = useGlobalSettings({
     enabled: mounted,
@@ -23,8 +23,7 @@ export function WhatsAppChatButtonWrapper() {
     settings.find((s) => s.key === "whatsapp_number")?.value || PRIMARY_WHATSAPP_NUMBER,
   );
   const defaultMessage =
-    settings.find((s) => s.key === "whatsapp_default_message")?.value ||
-    "Hello! I'm interested in learning more about your premium services in Algarve.";
+    settings.find((s) => s.key === "whatsapp_default_message")?.value ?? "Hello! I'm interested in learning more about your premium services in Algarve.";
 
   if (!mounted || shouldHide) {
     return null;

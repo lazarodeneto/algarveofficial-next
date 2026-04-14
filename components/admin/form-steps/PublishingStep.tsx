@@ -61,7 +61,7 @@ export function PublishingStep({
   listingId,
 }: PublishingStepProps) {
   const canEditTier = isAdmin;
-  const canEditStatus = isAdmin || isEditor;
+  const canEditStatus = isAdmin ?? isEditor;
   const canAssignOwner = isAdmin;
   const [translationLoading, setTranslationLoading] = useState(false);
   const [translationDone, setTranslationDone] = useState(false);
@@ -107,8 +107,8 @@ export function PublishingStep({
       }
 
       setTranslationDone(true);
-      const succeeded = result?.succeeded || 0;
-      const failed = result?.failed || 0;
+      const succeeded = result?.succeeded ?? 0;
+      const failed = result?.failed ?? 0;
       toast.success(`Translation complete: ${succeeded} languages translated${failed > 0 ? `, ${failed} failed` : ""}.`);
     } catch (err: unknown) {
       const message =

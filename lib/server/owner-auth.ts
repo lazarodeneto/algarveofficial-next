@@ -50,7 +50,7 @@ export async function requireAuthenticatedOwner(
   if (roleError) {
     return {
       error: NextResponse.json(
-        { error: roleError.message || "Failed to verify user role." },
+        { error: roleError.message ?? "Failed to verify user role." },
         { status: 403 },
       ),
     };

@@ -53,8 +53,8 @@ export function useMessageNotifications(options: UseMessageNotificationsOptions 
       try {
           const notification = new Notification(payload.title, {
             body: payload.body,
-            icon: payload.icon || "/icons/icon-192x192.png",
-            tag: payload.tag || "message-notification",
+            icon: payload.icon ?? "/icons/icon-192x192.png",
+            tag: payload.tag ?? "message-notification",
           });
 
           notification.onclick = () => {

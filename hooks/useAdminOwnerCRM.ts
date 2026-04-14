@@ -148,20 +148,20 @@ export function useAdminOwnerCrmSummaries(params: OwnerCrmSummariesParams) {
 
       const payload = (data || {}) as OwnerCrmRpcPayload;
       const rows = (payload.rows || []) as OwnerCrmSummary[];
-      const metrics = payload.metrics || {};
+      const metrics = payload.metrics ?? {};
 
       return {
         rows,
-        page: payload.page || normalizedPage,
-        pageSize: payload.page_size || normalizedPageSize,
-        totalCount: payload.total_count || 0,
-        totalPages: payload.total_pages || 1,
+        page: payload.page ?? normalizedPage,
+        pageSize: payload.page_size ?? normalizedPageSize,
+        totalCount: payload.total_count ?? 0,
+        totalPages: payload.total_pages ?? 1,
         metrics: {
-          totalOwners: metrics.total_owners || 0,
-          totalListings: metrics.total_listings || 0,
-          subscribedOwners: metrics.subscribed_owners || 0,
-          attentionOwners: metrics.attention_owners || 0,
-          ownersWithMessages: metrics.owners_with_messages || 0,
+          totalOwners: metrics.total_owners ?? 0,
+          totalListings: metrics.total_listings ?? 0,
+          subscribedOwners: metrics.subscribed_owners ?? 0,
+          attentionOwners: metrics.attention_owners ?? 0,
+          ownersWithMessages: metrics.owners_with_messages ?? 0,
         },
       } satisfies OwnerCrmSummariesPage;
     },
@@ -238,7 +238,7 @@ export function useAdminOwnerCrmDetail(ownerId: string | null) {
       if (notificationsResult.error) throw notificationsResult.error;
       if (contactsResult.error) throw contactsResult.error;
 
-      let emailContact = (contactsResult.data || [])[0] || null;
+      let emailContact = (contactsResult.data || [])[0] ?? null;
       if (!emailContact && profile.email) {
         const fallbackContactResult = await supabase
           .from("email_contacts")
@@ -248,7 +248,7 @@ export function useAdminOwnerCrmDetail(ownerId: string | null) {
           .limit(1);
 
         if (fallbackContactResult.error) throw fallbackContactResult.error;
-        emailContact = (fallbackContactResult.data || [])[0] || null;
+        emailContact = (fallbackContactResult.data || [])[0] ?? null;
       }
 
       return {
@@ -298,7 +298,7 @@ export function useEnsureOwnerEmailContact() {
         const { data: updated, error: updateError } = await supabase
           .from("email_contacts")
           .update({
-            user_id: existing.user_id || ownerId,
+            user_id: existing.user_id ?? ownerId,
             full_name: fullName,
             tags: ["owner"],
             source: "owner_crm",

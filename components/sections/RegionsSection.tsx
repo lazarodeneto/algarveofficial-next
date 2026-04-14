@@ -26,7 +26,7 @@ export function RegionsSection() {
   const isLoading = regionsLoading;
 
   // Filter to only regions that have images available (from DB or static)
-  const displayRegions = regions?.filter((region) => region.image_url || getRegionImageSet(region.slug)) || [];
+  const displayRegions = regions?.filter((region) => region.image_url || getRegionImageSet(region.slug)) ?? [];
 
   if (isLoading) {
     return (
@@ -79,7 +79,7 @@ export function RegionsSection() {
             {displayRegions.map((region) => {
               const images = getRegionImageSet(region.slug);
               const hasCustomImage = !!region.image_url;
-              const listingCount = regionCounts?.[region.id] || 0;
+              const listingCount = regionCounts?.[region.id] ?? 0;
               const imageTimestamp = Date.now();
 
               return (

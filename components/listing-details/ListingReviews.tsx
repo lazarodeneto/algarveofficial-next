@@ -212,7 +212,7 @@ export function ListingReviews({ listingId, userId, onRequestLogin }: ListingRev
             <Button
               size="sm"
               onClick={handleSubmit}
-              disabled={upsert.isPending || rating === 0}
+              disabled={upsert.isPending ?? rating === 0}
             >
               {upsert.isPending
                 ? t("common.saving")

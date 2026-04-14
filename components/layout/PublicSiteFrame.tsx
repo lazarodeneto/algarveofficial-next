@@ -14,7 +14,7 @@ interface PublicSiteFrameProps {
 const SIDEBAR_EXCLUDED_PREFIXES = ["/admin", "/owner", "/dashboard", "/golf"];
 
 export function PublicSiteFrame({ children }: PublicSiteFrameProps) {
-  const pathname = usePathname() || "/";
+  const pathname = usePathname() ?? "/";
   const mounted = useHydrated();
 
   // Strip locale prefix before checking route prefixes

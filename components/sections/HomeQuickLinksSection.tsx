@@ -56,8 +56,8 @@ export function HomeQuickLinksSection() {
     () =>
       HOME_QUICK_LINK_CARDS.map((card) => ({
         ...card,
-        imageUrl: settingMap[card.imageSettingKey]?.trim() || "",
-        videoUrl: settingMap[card.videoSettingKey]?.trim() || "",
+        imageUrl: settingMap[card.imageSettingKey]?.trim() ?? "",
+        videoUrl: settingMap[card.videoSettingKey]?.trim() ?? "",
       })),
     [settingMap],
   );
@@ -87,7 +87,7 @@ export function HomeQuickLinksSection() {
                   }) || customImageUrl
                 : null;
             const imageSrc =
-              resolvedImageSrc || card.fallbackImageUrl;
+              resolvedImageSrc ?? card.fallbackImageUrl;
             const videoPosterSrc =
               resolvedImageSrc
                 ? buildSupabaseImageUrl(customImageUrl, {
@@ -122,7 +122,7 @@ export function HomeQuickLinksSection() {
                     {showVideo ? (
                       <video
                         src={customVideoUrl}
-                        poster={videoPosterSrc || undefined}
+                        poster={videoPosterSrc ?? undefined}
                         autoPlay
                         loop
                         muted

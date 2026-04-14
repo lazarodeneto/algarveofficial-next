@@ -103,7 +103,7 @@ async function fetchRealEstateCategory(locale: string) {
 
   return {
     ...category,
-    name: translation?.name?.trim() || category.name,
+    name: translation?.name?.trim() ?? category.name,
   };
 }
 
@@ -157,12 +157,12 @@ async function fetchRealEstateListings(categoryId: string, locale: string) {
 
     return {
       ...listing,
-      name: translation?.title?.trim() || listing.name,
-      short_description: translation?.short_description?.trim() || listing.short_description,
+      name: translation?.title?.trim() ?? listing.name,
+      short_description: translation?.short_description?.trim() ?? listing.short_description,
       cities: listing.cities
         ? {
             ...listing.cities,
-            name: cityTranslation?.name?.trim() || listing.cities.name,
+            name: cityTranslation?.name?.trim() ?? listing.cities.name,
           }
         : listing.cities,
     };
@@ -251,7 +251,7 @@ function RealEstateDirectoryClientInner({
       });
   }, [filters, listings]);
 
-  const isLoading = categoryLoading || (Boolean(realEstateCategoryId) && listingsLoading);
+  const isLoading = categoryLoading ?? Boolean(realEstateCategoryId) && listingsLoading;
 
   const addListingHref = useMemo(() => {
     if (user?.role === "admin" || user?.role === "editor") return "/admin/listings/new";

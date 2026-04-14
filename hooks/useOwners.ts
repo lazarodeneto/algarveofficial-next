@@ -91,7 +91,7 @@ export function useListingOwnerCandidates() {
           id: profile.id,
           email: profile.email ?? "",
           full_name: profile.full_name,
-          role: userRole?.role || 'owner',
+          role: userRole?.role ?? 'owner',
           created_at: profile.created_at,
         };
       }) as Owner[];

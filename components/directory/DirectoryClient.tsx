@@ -488,7 +488,7 @@ async function fetchListings(
   const publicCategoryFields = "id, name, slug, icon, short_description, image_url";
 
   const normalizedFilters: ListingFilters = {
-    search: filters.search?.trim() || undefined,
+    search: filters.search?.trim() ?? undefined,
     categoryId: filters.categoryId && filters.categoryId !== "all" ? filters.categoryId : undefined,
     categoryIds: Array.isArray(filters.categoryIds) && filters.categoryIds.length > 0 ? filters.categoryIds : undefined,
     cityId: filters.cityId && filters.cityId !== "all" ? filters.cityId : undefined,
@@ -852,9 +852,9 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     [selectedCategoryItem],
   );
 
-  const isStayPage = cmsPageId === "stay" || pathname.includes("/stay");
-  const isExperiencesPage = cmsPageId === "experiences" || pathname.includes("/experiences");
-  const isVisitPage = cmsPageId === "visit" || pathname.includes("/visit");
+  const isStayPage = cmsPageId === "stay" ?? pathname.includes("/stay");
+  const isExperiencesPage = cmsPageId === "experiences" ?? pathname.includes("/experiences");
+  const isVisitPage = cmsPageId === "visit" ?? pathname.includes("/visit");
   const resolveFilterEntityId = useCallback(
     <T extends { id: string; slug: string }>(value: string, entities: T[]) => {
       if (!value || value === "all") return "all";
@@ -887,7 +887,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
 
   const listingFilters = useMemo<ListingFilters>(
     () => ({
-      search: debouncedSearch || undefined,
+      search: debouncedSearch ?? undefined,
       categoryId: selectedCategory !== "all" ? selectedCategory : undefined,
       categoryIds: selectedCategory !== "all" ? selectedCategoryIds : undefined,
       cityId: selectedCity !== "all" ? selectedCity : undefined,
@@ -1260,9 +1260,8 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     Boolean(search) ||
     selectedRegion !== "all" ||
     selectedCity !== "all" ||
-    selectedCategory !== "all" ||
-    selectedTier !== "all";
-  const isLoading = listingsLoading || citiesLoading || regionsLoading || categoriesLoading;
+    selectedCategory !== "all" ?? selectedTier !== "all";
+  const isLoading = listingsLoading || citiesLoading || regionsLoading ?? categoriesLoading;
   const showGridSkeleton = isLoading && !error && listings.length === 0 && !isPlaceholderData;
   const totalListingsCount = listings.length;
 
@@ -1355,7 +1354,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
               highlightedCity={cityHubsHighlightedCity}
               topCities={cityHubsTopCities}
               cityListingCounts={isStayPage ? stayCityListingCounts : isExperiencesPage ? experiencesCityListingCounts : {}}
-              preferCityListingCounts={isStayPage || isExperiencesPage}
+              preferCityListingCounts={isStayPage ?? isExperiencesPage}
               cityPathBuilder={isStayPage ? stayCityPathBuilder : isExperiencesPage ? experiencesCityPathBuilder : undefined}
               imageTimestamp={imageTimestamp}
               basePath="visit"

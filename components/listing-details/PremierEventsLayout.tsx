@@ -23,20 +23,20 @@ export function PremierEventsLayout({ details }: PremierEventsLayoutProps) {
   const bookingUrl = details.booking_url as string;
   const ticketPriceFrom = details.ticket_price_from as number;
   const ticketPriceTo = details.ticket_price_to as number;
-  const highlights = (details.highlights as string[]) || [];
-  const featuredGuests = (details.featured_guests as string[]) || [];
+  const highlights = details.highlights as string[] ?? [];
+  const featuredGuests = details.featured_guests as string[] ?? [];
   const organizerName = details.organizer_name as string;
   const recurring = details.recurring as boolean;
   const recurrencePattern = details.recurrence_pattern as string;
 
   const accessTypeIcons: Record<string, typeof Globe> = { public: Globe, private: Lock, invitation_only: Ticket };
-  const AccessIcon = accessTypeIcons[accessType] || Globe;
+  const AccessIcon = accessTypeIcons[accessType] ?? Globe;
 
   const formatPrice = () => {
     if (!ticketPriceFrom && !ticketPriceTo) return null;
     if (ticketPriceFrom === 0 && !ticketPriceTo) return t("categoryLayouts.events.freeEntry");
     if (ticketPriceFrom && ticketPriceTo && ticketPriceFrom !== ticketPriceTo) return `€${ticketPriceFrom} - €${ticketPriceTo}`;
-    return t("categoryLayouts.events.fromPrice", { price: ticketPriceFrom || ticketPriceTo });
+    return t("categoryLayouts.events.fromPrice", { price: ticketPriceFrom ?? ticketPriceTo });
   };
 
   return (

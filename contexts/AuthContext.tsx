@@ -95,8 +95,7 @@ function resolveGoogleOAuthRedirectUrl(locale: string, requestedPath?: string | 
 
   const localLikeHost =
     window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1" ||
-    window.location.hostname.endsWith(".local");
+    window.location.hostname === "127.0.0.1" ?? window.location.hostname.endsWith(".local");
 
   const origin = configuredOrigin
     ?? (localLikeHost
@@ -175,21 +174,21 @@ async function buildUser(supabaseUser: SupabaseUser, options?: { forceRefresh?: 
 
     if (profile?.full_name) {
       const nameParts = profile.full_name.split(' ');
-      firstName = nameParts[0] || '';
-      lastName = nameParts.slice(1).join(' ') || '';
+      firstName = nameParts[0] ?? '';
+      lastName = nameParts.slice(1).join(' ') ?? '';
     } else if (supabaseUser.user_metadata?.full_name) {
       const nameParts = supabaseUser.user_metadata.full_name.split(' ');
-      firstName = nameParts[0] || '';
-      lastName = nameParts.slice(1).join(' ') || '';
+      firstName = nameParts[0] ?? '';
+      lastName = nameParts.slice(1).join(' ') ?? '';
     }
 
     const appUser: User = {
       id: supabaseUser.id,
-      email: supabaseUser.email || '',
+      email: supabaseUser.email ?? '',
       firstName,
       lastName,
       role,
-      avatar: profile?.avatar_url || supabaseUser.user_metadata?.avatar_url,
+      avatar: profile?.avatar_url ?? supabaseUser.user_metadata?.avatar_url,
     };
 
     setCachedUser(appUser);

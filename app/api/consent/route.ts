@@ -25,10 +25,9 @@ export async function POST(request: NextRequest) {
 
     const ipAddress =
       request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      request.headers.get("x-real-ip") ||
-      "unknown";
+      request.headers.get("x-real-ip") ?? "unknown";
 
-    const userAgent = request.headers.get("user-agent") || "unknown";
+    const userAgent = request.headers.get("user-agent") ?? "unknown";
 
     const supabase = await createClient();
 

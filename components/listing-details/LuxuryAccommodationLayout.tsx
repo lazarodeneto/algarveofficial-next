@@ -40,8 +40,8 @@ export function LuxuryAccommodationLayout({ details }: LuxuryAccommodationLayout
   const { t } = useTranslation();
   const accommodationType = details.accommodation_type as string;
   const numberOfUnits = details.number_of_units as number;
-  const amenities = (details.amenities as string[]) || [];
-  const suitableFor = (details.suitable_for as string[]) || [];
+  const amenities = details.amenities as string[] ?? [];
+  const suitableFor = details.suitable_for as string[] ?? [];
   const starRating = details.star_rating as number;
   const conciergeAvailable = details.concierge_available as boolean;
   const privateStaff = details.private_staff as boolean;

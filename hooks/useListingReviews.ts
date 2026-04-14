@@ -195,7 +195,7 @@ export function useUpsertListingReview() {
             listing_id: listingId, 
             user_id: userId, 
             rating, 
-            comment: comment || null,
+            comment: comment ?? null,
             status: 'pending' 
           },
           { onConflict: "listing_id,user_id" }

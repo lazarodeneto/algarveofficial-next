@@ -93,7 +93,7 @@ export function useCreateEmailSegment() {
     mutationFn: async (segment: EmailSegmentInsert) => {
       const data = await callAdminEmailApi("segments", "POST", {
         name: segment.name,
-        description: segment.description || null,
+        description: segment.description ?? null,
         rules: segment.rules as unknown as Json,
         is_dynamic: segment.is_dynamic ?? true,
       });
@@ -215,7 +215,7 @@ export function useRefreshSegmentCount() {
       if (countError) throw countError;
 
       // Update segment with new count
-      await callAdminEmailApi("segments", "PATCH", { id: segmentId, contact_count: count || 0 });
+      await callAdminEmailApi("segments", "PATCH", { id: segmentId, contact_count: count ?? 0 });
 
       return count || 0;
     },

@@ -37,7 +37,7 @@ export function LanguageSuggestionBanner() {
     if (typeof window === "undefined") return null;
     if (localStorage.getItem(STORAGE_KEY) === "true") return null;
 
-    const browserLang = navigator.language?.toLowerCase() || "";
+    const browserLang = navigator.language?.toLowerCase() ?? "";
     const prefix = browserLang.split("-")[0];
     const match = SUPPORTED_LANGS[prefix];
     if (!match) return null;

@@ -143,7 +143,7 @@ function HeroPosterImage({
       quality: 54,
       format: "webp",
       resize: "cover",
-    }) || posterUrl;
+    }) ?? posterUrl;
 
   return (
     <Image
@@ -291,7 +291,7 @@ const HeroVideoPlayer = ({
           muted
           playsInline
           preload="metadata"
-          poster={posterUrl || undefined}
+          poster={posterUrl ?? undefined}
           crossOrigin="anonymous"
           onPlaying={() => {
             setIsPlaying(true);
@@ -342,7 +342,7 @@ export function HeroSection() {
 
   // Determine if video should be skipped for performance
   // Skip video on: reduced motion preference, slow connections, or mobile devices
-  const shouldSkipVideo = prefersReducedMotion || isSlow;
+  const shouldSkipVideo = prefersReducedMotion ?? isSlow;
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -380,10 +380,10 @@ export function HeroSection() {
   };
 
   // Use only admin-configured media (no local fallback assets).
-  const mediaType = settings?.hero_media_type || 'video';
-  const videoUrl = settings?.hero_video_url?.trim() || "";
-  const posterUrl = settings?.hero_poster_url?.trim() || "";
-  const youtubeUrl = settings?.hero_youtube_url?.trim() || "";
+  const mediaType = settings?.hero_media_type ?? 'video';
+  const videoUrl = settings?.hero_video_url?.trim() ?? "";
+  const posterUrl = settings?.hero_poster_url?.trim() ?? "";
+  const youtubeUrl = settings?.hero_youtube_url?.trim() ?? "";
   const hasVideoUrl = videoUrl.length > 0;
   const hasPosterUrl = posterUrl.length > 0;
   const hasYoutubeUrl = youtubeUrl.length > 0;
@@ -393,7 +393,7 @@ export function HeroSection() {
       quality: 50,
       format: "webp",
       resize: "cover",
-    }) || posterUrl;
+    }) ?? posterUrl;
   const overlayBackup = runtimeSettings.find(
     (setting) => setting.key === HERO_OVERLAY_INTENSITY_SETTING_KEY,
   )?.value;
@@ -403,7 +403,7 @@ export function HeroSection() {
   );
   const overlayOpacity = overlayIntensity / 100;
   // Use CMS hero copy when available.
-  const heroHeadline = settings?.hero_title?.trim() || `${t("hero.headline")} ${t("hero.headlineHighlight")}`;
+  const heroHeadline = settings?.hero_title?.trim() ?? `${t("hero.headline")} ${t("hero.headlineHighlight")}`;
   const heroHeadlineLines = useMemo(() => {
     const normalized = heroHeadline.replace(/\s+/g, " ").trim().toLowerCase();
     if (normalized === "discover the algarve through trusted local expertise") {
@@ -411,7 +411,7 @@ export function HeroSection() {
     }
     return [heroHeadline];
   }, [heroHeadline]);
-  const heroSubtitle = settings?.hero_subtitle?.trim() || t("hero.subtitle");
+  const heroSubtitle = settings?.hero_subtitle?.trim() ?? t("hero.subtitle");
   const tripPlannerButtonLabel = t("hero.planTripCta");
   // ... inside the component function ...
 

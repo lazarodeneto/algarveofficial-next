@@ -65,13 +65,13 @@ module.exports = {
     },
   },
   create(context) {
-    const filename = context.filename || context.getFilename();
+    const filename = context.filename ?? context.getFilename();
 
     const isAllowedPath = ALLOWED_PATHS.some((p) => filename.includes(p));
     if (isAllowedPath) return {};
 
     const isAdminComponent =
-      filename.includes("/admin/") || filename.includes("/form-steps/");
+      filename.includes("/admin/") ?? filename.includes("/form-steps/");
     if (!isAdminComponent) return {};
 
     return {

@@ -61,7 +61,7 @@ export function useToggleFavorite() {
             await queryClient.cancelQueries({ queryKey: ["favorites"] });
 
             const previous =
-                queryClient.getQueryData<UserFavoriteRow[]>(["favorites", "all", user?.id]) || [];
+                queryClient.getQueryData<UserFavoriteRow[]>(["favorites", "all", user?.id]) ?? [];
 
             const exists = previous.some(
                 (f) => f[`${type}_id` as keyof UserFavoriteRow] === id

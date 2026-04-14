@@ -110,7 +110,7 @@ export function useAdminChatThreads(filters: ThreadFilters = {}) {
         viewer: thread.viewer_id ? viewerMap.get(thread.viewer_id) : undefined,
         owner: ownerMap.get(thread.owner_id),
         listing: thread.listing_id ? listingMap.get(thread.listing_id) : undefined,
-        message_count: messageCountMap.get(thread.id) || 0,
+        message_count: messageCountMap.get(thread.id) ?? 0,
       })) as ChatThread[];
     },
   });

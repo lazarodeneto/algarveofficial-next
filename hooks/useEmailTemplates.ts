@@ -80,9 +80,9 @@ export function useCreateEmailTemplate() {
         name: template.name,
         subject: template.subject,
         html_content: template.html_content,
-        text_content: template.text_content || null,
-        category: template.category || "general",
-        variables: template.variables || [],
+        text_content: template.text_content ?? null,
+        category: template.category ?? "general",
+        variables: template.variables ?? [],
       });
       return data;
     },

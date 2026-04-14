@@ -29,10 +29,10 @@ function parseFilters(sp: Record<string, string | string[] | undefined>): Transl
   };
 
   return {
-    status: (str("status") as TranslationStatus) || undefined,
+    status: str("status") as TranslationStatus ?? undefined,
     city: str("city"),
     category: str("category"),
-    tier: (str("tier") as "signature" | "verified") || undefined,
+    tier: str("tier") as "signature" | "verified" ?? undefined,
     target_lang: str("target_lang"),
     needs_attention: str("needs_attention") === "true",
     sla_breach:      str("sla_breach")      === "true",

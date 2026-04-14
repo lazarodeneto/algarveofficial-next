@@ -43,7 +43,7 @@ function applyBlogTranslation<T extends BlogPost>(
 
   return {
     ...post,
-    title: translation.title || post.title,
+    title: translation.title ?? post.title,
     excerpt: translation.description ?? post.excerpt,
     seo_title: translation.seo_title ?? post.seo_title,
     seo_description: translation.seo_description ?? post.seo_description,

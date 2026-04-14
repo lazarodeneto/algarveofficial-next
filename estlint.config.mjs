@@ -1,3 +1,4 @@
+
 import { defineConfig } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
@@ -11,7 +12,7 @@ export default defineConfig([
   ...nextTs,
   {
     plugins: {
-      local: localI18nPlugin
+      local: localI18nPlugin,
     },
     rules: {
       "@typescript-eslint/no-unused-vars": [
@@ -20,14 +21,18 @@ export default defineConfig([
           argsIgnorePattern: "^_",
           caughtErrorsIgnorePattern: "^_",
           destructuredArrayIgnorePattern: "^_",
-          varsIgnorePattern: "^_"
-        }
+          varsIgnorePattern: "^_",
+        },
       ],
       "@typescript-eslint/no-explicit-any": "warn",
+
+      // 🔴 fix crítico
       "local/no-unsafe-default": "off",
+
+      // ⚠️ warnings úteis
       "local/no-hardcoded-strings": "warn",
       "no-console": "warn",
-      "prefer-const": "warn"
-    }
-  }
+      "prefer-const": "warn",
+    },
+  },
 ]);

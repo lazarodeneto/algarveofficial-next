@@ -102,7 +102,7 @@ export function DynamicFormField({
                 </span>
               )}
               {selectedValues.map((val) => {
-                const label = field.options?.find((o) => o.value === val)?.label || val;
+                const label = field.options?.find((o) => o.value === val)?.label ?? val;
                 return (
                   <Badge key={val} variant="secondary" className="gap-1 px-2 py-1">
                     {label}

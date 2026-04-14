@@ -98,7 +98,7 @@ export function RouteAccessibility() {
       return;
     }
 
-    const activeHash = hash || window.location.hash;
+    const activeHash = hash ?? window.location.hash;
     if (activeHash) return;
 
     let cancelled = false;

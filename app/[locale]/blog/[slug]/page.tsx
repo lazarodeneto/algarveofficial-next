@@ -46,8 +46,8 @@ export async function generateMetadata({ params }: LocaleBlogPostPageProps): Pro
   }
 
   return buildPageMetadata({
-    title: post.seo_title || post.title,
-    description: post.seo_description || post.excerpt || undefined,
+    title: post.seo_title ?? post.title,
+    description: post.seo_description || post.excerpt ?? undefined,
     localizedRoute: buildBlogPostRouteData(post),
     image: post.featured_image ?? "/og-image.png",
     type: "article",
@@ -71,11 +71,11 @@ export default async function LocaleBlogPostPage({ params }: LocaleBlogPostPageP
     id: post.id,
     slug: post.slug,
     url: buildAbsoluteRouteUrl(resolvedLocale, routeData),
-    title: post.seo_title || post.title,
-    excerpt: post.seo_description || post.excerpt || undefined,
-    featured_image: post.featured_image || undefined,
-    published_at: post.published_at || undefined,
-    updated_at: post.updated_at || undefined,
+    title: post.seo_title ?? post.title,
+    excerpt: post.seo_description || post.excerpt ?? undefined,
+    featured_image: post.featured_image ?? undefined,
+    published_at: post.published_at ?? undefined,
+    updated_at: post.updated_at ?? undefined,
     locale: resolvedLocale,
   });
 

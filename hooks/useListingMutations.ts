@@ -61,7 +61,7 @@ async function callAdminListingsApi(
  * Upload a file to Supabase Storage and return the public URL
  */
 async function uploadImageToStorage(file: File, listingId: string): Promise<string> {
-  const fileExt = file.name.split('.').pop() || 'webp';
+  const fileExt = file.name.split('.').pop() ?? 'webp';
   const fileName = `${listingId}/${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
 
   const { data, error } = await supabase.storage

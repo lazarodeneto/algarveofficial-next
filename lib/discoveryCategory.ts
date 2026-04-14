@@ -138,8 +138,8 @@ function matchesCategoryKeyword(tokens: readonly string[], category: DiscoveryCa
 
 function collectTokens(listing: DiscoveryListingLike): string[] {
   const tokens = new Set<string>();
-  const categorySlug = listing.category?.slug || "";
-  const categoryName = listing.category?.name || "";
+  const categorySlug = listing.category?.slug ?? "";
+  const categoryName = listing.category?.name ?? "";
   const canonicalSlug = getCanonicalCategorySlug(categorySlug);
   const normalizedCanonical = canonicalSlug ? normalizeValue(canonicalSlug) : "";
   const categoryData = coerceCategoryData(listing.category_data);

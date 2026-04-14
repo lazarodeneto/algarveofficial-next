@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: BlogPostLayoutProps): Promise
     title: "Redirecting to Blog Post",
     description: "Redirecting to the canonical localized blog post.",
     path: `/blog/${post.slug}`,
-    image: normalizePublicImageUrl(post.featured_image) || "/og-image.png",
+    image: normalizePublicImageUrl(post.featured_image) ?? "/og-image.png",
     type: "article",
     noIndex: true,
     noFollow: true,

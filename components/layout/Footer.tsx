@@ -170,7 +170,7 @@ export function normalizeFooterLinkHref(
     const params = new URLSearchParams(query);
     const rawCategoryParam = params.get("category");
     const normalizedName = name.trim().toLowerCase();
-    const normalizedCategoryParam = rawCategoryParam?.trim().toLowerCase() || "";
+    const normalizedCategoryParam = rawCategoryParam?.trim().toLowerCase() ?? "";
     const resolvedCategoryFromParam = normalizedCategoryParam
       ? NUMERIC_PARAM_RE.test(normalizedCategoryParam)
         ? LEGACY_FOOTER_CATEGORY_SLUG_BY_PARAM[normalizedCategoryParam]
@@ -178,8 +178,7 @@ export function normalizeFooterLinkHref(
       : undefined;
 
     const canonicalCategorySlug =
-      FOOTER_CATEGORY_SLUG_BY_NAME[normalizedName] ||
-      resolvedCategoryFromParam;
+      FOOTER_CATEGORY_SLUG_BY_NAME[normalizedName] ?? resolvedCategoryFromParam;
 
     if (canonicalCategorySlug) {
       params.set("category", canonicalCategorySlug);
@@ -286,12 +285,12 @@ export default function Footer() {
       .map((section) => ({
         title: section.title,
         slug: section.slug,
-        titleKey: sectionTitleKeys[section.slug] || null,
+        titleKey: sectionTitleKeys[section.slug] ?? null,
         links: section.links.map((link) => ({
           name: link.name,
           href: link.href,
           open_in_new_tab: link.open_in_new_tab,
-          translationKey: linkTranslationKeys[link.name] || undefined,
+          translationKey: linkTranslationKeys[link.name] ?? undefined,
         })),
       }))
     : [

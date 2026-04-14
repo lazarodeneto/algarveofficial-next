@@ -82,7 +82,7 @@ export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(
           onKeyDown={handleKeyDown}
           onBlur={addTag}
           placeholder={value.length === 0 ? placeholder : ""}
-          disabled={disabled || value.length >= maxTags}
+          disabled={disabled ?? value.length >= maxTags}
           className="flex-1 min-w-[120px] border-0 p-0 h-auto focus-visible:ring-0 bg-transparent"
         />
       </div>

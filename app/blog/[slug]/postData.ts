@@ -70,8 +70,8 @@ export const getPublishedBlogPostBySlug = cache(async (slug: string, locale: Loc
         .maybeSingle()
     : { data: null };
 
-  const finalTitle = translation?.seo_title?.trim() || translation?.title?.trim() || data.seo_title || data.title;
-  const finalDescription = translation?.seo_description?.trim() || translation?.description?.trim() || data.seo_description || data.excerpt;
+  const finalTitle = translation?.seo_title?.trim() || translation?.title?.trim() || data.seo_title ?? data.title;
+  const finalDescription = translation?.seo_description?.trim() || translation?.description?.trim() || data.seo_description ?? data.excerpt;
   const { data: author } = await supabase
     .from("public_profiles")
     .select("id, full_name, avatar_url")

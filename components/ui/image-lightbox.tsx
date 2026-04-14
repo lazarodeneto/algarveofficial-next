@@ -148,7 +148,7 @@ export function ImageLightbox({
                 >
                   <Image
                     src={img.image_url}
-                    alt={img.alt_text || `Thumbnail ${idx + 1}`}
+                    alt={img.alt_text ?? `Thumbnail ${idx + 1}`}
                     fill
                     unoptimized
                     sizes="64px"

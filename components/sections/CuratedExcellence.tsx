@@ -129,8 +129,8 @@ export function CuratedExcellence({
     if (!tr) return listing;
     return {
       ...listing,
-      name: tr.title || listing.name,
-      short_description: tr.short_description || listing.short_description,
+      name: tr.title ?? listing.name,
+      short_description: tr.short_description ?? listing.short_description,
     };
   });
 

@@ -293,9 +293,9 @@ async function fetchCityBySlug(slug: string, locale: PublicContentLocale) {
 
   return {
     ...data,
-    name: translation.name?.trim() || data.name,
-    short_description: translation.short_description?.trim() || data.short_description,
-    description: translation.description?.trim() || data.description,
+    name: translation.name?.trim() ?? data.name,
+    short_description: translation.short_description?.trim() ?? data.short_description,
+    description: translation.description?.trim() ?? data.description,
   } as CityDetailCity;
 }
 
@@ -320,9 +320,9 @@ async function fetchCityRegion(cityId: string, locale: PublicContentLocale) {
 
   return {
     ...region,
-    name: translation.name?.trim() || region.name,
-    short_description: translation.short_description?.trim() || region.short_description,
-    description: translation.description?.trim() || region.description,
+    name: translation.name?.trim() ?? region.name,
+    short_description: translation.short_description?.trim() ?? region.short_description,
+    description: translation.description?.trim() ?? region.description,
   } as CityDetailRegion;
 }
 
@@ -358,9 +358,9 @@ async function fetchCityListings(cityId: string, locale: PublicContentLocale) {
     const translation = translationMap.get(listing.id);
     return {
       ...listing,
-      name: translation?.title?.trim() || listing.name,
-      short_description: translation?.short_description?.trim() || listing.short_description,
-      description: translation?.description?.trim() || listing.description,
+      name: translation?.title?.trim() ?? listing.name,
+      short_description: translation?.short_description?.trim() ?? listing.short_description,
+      description: translation?.description?.trim() ?? listing.description,
     };
   });
 }
@@ -551,7 +551,7 @@ function CityDetailClientInner({
           {(city.hero_image_url || city.image_url) ? (
             <div className="absolute inset-0">
               <Image
-                src={city.hero_image_url || city.image_url || ""}
+                src={city.hero_image_url ?? city.image_url ?? ""}
                 alt={city.name}
                 fill
                 priority
