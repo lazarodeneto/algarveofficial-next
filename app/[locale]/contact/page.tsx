@@ -55,7 +55,7 @@ export default async function ContactPage({ params }: PageProps) {
 
   const displayEmail = normalizePublicContactEmail(settings?.display_email);
   const whatsappNumber = normalizePublicWhatsAppNumber(settings?.whatsapp_number);
-  const officeLocation = settings?.office_location?.trim() || "Vilamoura, Algarve, Portugal";
+  const officeLocation = settings?.office_location?.trim() ?? "Vilamoura, Algarve, Portugal";
   const pageUrl = buildAbsoluteRouteUrl(locale, buildStaticRouteData("contact"));
   const homeUrl = buildAbsoluteRouteUrl(locale, buildStaticRouteData("home"));
   const pageSchema = buildContactPageSchema({
