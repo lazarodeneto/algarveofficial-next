@@ -763,11 +763,12 @@ function ListingDetailClientInner({
                   alt={galleryImages[currentImageIndex]?.alt_text ?? listing.name}
                   width={1600}
                   height={1000}
+                  fill
                   sizes="(max-width: 1024px) 100vw, 66vw"
                   priority={true}
                   loading="eager"
                   fetchPriority="high"
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="transition-transform duration-300 group-hover:scale-105"
                 />
 
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
@@ -846,7 +847,7 @@ function ListingDetailClientInner({
                           categoryImageUrl={normalizedCategoryImageUrl}
                           fallbackSrc="/placeholder.svg"
                           alt={image.alt_text ?? listing.name}
-                          className="w-full h-full object-cover"
+                          fill
                         />
                         {index === 3 && galleryImages.length > 5 ? (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
@@ -1126,7 +1127,8 @@ function ListingDetailClientInner({
                           src={relatedImage ?? null}
                           fallbackSrc="/placeholder.svg"
                           alt={related.name}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          fill
+                          className="transition-transform duration-300 group-hover:scale-105"
                         />
                       </div>
                       <div className="p-4">

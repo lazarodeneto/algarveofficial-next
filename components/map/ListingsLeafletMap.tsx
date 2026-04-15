@@ -369,7 +369,8 @@ function ClusteredMarkers({
                       categoryImageUrl={point.categoryImageUrl}
                       listingId={point.id}
                       alt={point.name}
-                      className="w-full h-28 rounded-md object-cover"
+                      fill
+                      className="h-28 rounded-md"
                     />
 
                     <div className="flex items-center gap-2">

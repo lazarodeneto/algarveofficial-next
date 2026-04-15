@@ -71,7 +71,6 @@ export default function ListingImage({
   isRepresentative = false,
 }: ListingImageProps) {
   const [hasError, setHasError] = useState(false);
-  const classNameValue = typeof className === "string" ? className : "";
 
   const sourceCandidates = [
     hasError ? null : resolveListingImageUrl(src),
@@ -90,16 +89,7 @@ export default function ListingImage({
   
   const isUsingFallback = !src || hasError;
   const showRepresentativeBadge = isRepresentative && isUsingFallback;
-  const shouldAutoFill =
-    !fill &&
-    /\bobject-cover\b/.test(classNameValue) &&
-    (
-      /\b(h-full|absolute|inset-0)\b/.test(classNameValue) ||
-      /\bh-\d+\b/.test(classNameValue) ||
-      /\bh-\[[^\]]+\]/.test(classNameValue) ||
-      /\baspect-(square|\[[^\]]+\])\b/.test(classNameValue)
-    );
-  const useFillLayout = fill ?? shouldAutoFill;
+  const useFillLayout = fill;
 
   if (useFillLayout) {
     return (

@@ -150,7 +150,8 @@ function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEv
                   categoryImageUrl={selectedListingInfo.category?.image_url}
                   listingId={selectedListingInfo.id}
                   alt={selectedListingInfo.name ?? ''}
-                  className="w-16 h-12 object-cover rounded"
+                  fill
+                  className="h-12 w-16 rounded"
                 />
               )}
               <div className="flex-1 min-w-0">
@@ -219,7 +220,8 @@ function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEv
                                 categoryImageUrl={listing.category?.image_url}
                                 listingId={listing.id}
                                 alt={listing.name ?? ''}
-                                className="w-12 h-10 object-cover rounded"
+                                fill
+                                className="h-10 w-12 rounded"
                               />
                             )}
                             <div className="flex-1 min-w-0">

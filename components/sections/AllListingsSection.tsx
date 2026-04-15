@@ -390,8 +390,9 @@ export function AllListingsSection() {
                       categoryImageUrl={listing.category?.image_url}
                       listingId={listing.id}
                       alt={listing.name}
+                      fill
                       className={cn(
-                        "absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out",
+                        "transition-transform duration-700 ease-out",
                         tierImageZoom
                       )}
                     />

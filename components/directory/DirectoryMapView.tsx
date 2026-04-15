@@ -180,7 +180,8 @@ export function DirectoryMapView({ filteredListingIds }: DirectoryMapViewProps) 
                   categoryImageUrl={listing.categoryImageUrl}
                   listingId={listing.id}
                   alt={listing.name ?? ''}
-                  className="w-full h-24 object-cover rounded-md mb-2"
+                  fill
+                  className="h-24 rounded-md mb-2"
                 />
                 <div className="space-y-1">
                   {listing.tier !== "unverified" && (

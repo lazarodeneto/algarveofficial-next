@@ -148,8 +148,9 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                         categoryImageUrl={categoryImageUrl}
                         listingId={id}
                         alt={name}
+                        fill
                         className={cn(
-                            "object-cover w-full h-full transition-transform duration-700 ease-out",
+                            "transition-transform duration-700 ease-out",
                             tierImageZoom
                         )}
                     />

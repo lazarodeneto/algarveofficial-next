@@ -209,7 +209,8 @@ export function SignatureMapSection() {
                         loading={index === 0 ? "eager" : "lazy"}
                         fetchPriority={index === 0 ? "high" : "auto"}
                         priority={index === 0}
-                        className="absolute inset-0 h-full w-full object-cover scale-[1.08] transition-transform duration-500 group-hover:scale-110"
+                        fill
+                        className="scale-[1.08] transition-transform duration-500 group-hover:scale-110"
                       />
 
                       <div className="absolute top-3 left-3 flex flex-wrap gap-2">
