@@ -30,6 +30,7 @@ interface PageProps {
 }
 
 export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 const GUIDES_CONFIG = {
   "best-restaurants-in-lagos": {
