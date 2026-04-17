@@ -55,6 +55,13 @@ export function AdminHeader() {
   const adminInitial = (adminName.trim().charAt(0) || adminEmail.trim().charAt(0) || "A").toUpperCase();
 
   const totalNotifications = pendingCount + pendingListingReviewsCount + pendingClaimsCount + pendingEventsCount;
+  const notificationTarget = useMemo(() => {
+    if (pendingCount > 0) return l("/admin/moderation");
+    if (pendingListingReviewsCount > 0) return l("/admin/reviews");
+    if (pendingEventsCount > 0) return l("/admin/content/events/moderation");
+    if (pendingClaimsCount > 0) return l("/admin/claims");
+    return l("/admin/moderation");
+  }, [l, pendingClaimsCount, pendingCount, pendingEventsCount, pendingListingReviewsCount]);
 
   const quickJumpOptions = useMemo(
     () => [
@@ -92,11 +99,16 @@ export function AdminHeader() {
         badge: pendingListingReviewsCount ?? undefined,
       },
       {
+        label: t("admin.sidebar.eventModeration"),
+        href: l("/admin/content/events/moderation"),
+        badge: pendingEventsCount ?? undefined,
+      },
+      {
         label: t("admin.sidebar.translations"),
         href: l("/admin/content/translations"),
       },
     ],
-    [l, pendingCount, pendingListingReviewsCount, t],
+    [l, pendingCount, pendingEventsCount, pendingListingReviewsCount, t],
   );
 
   const handleQuickJumpSubmit = (event: FormEvent) => {
@@ -186,7 +198,7 @@ export function AdminHeader() {
           </Button>
 
           <Button variant="ghost" size="icon" asChild className="relative h-9 w-9 text-muted-foreground hover:text-foreground group">
-            <Link href={l("/admin/moderation")}>
+            <Link href={notificationTarget}>
               <Bell className="h-5 w-5 transition-colors group-hover:text-foreground" />
               {totalNotifications > 0 && (
                 <span className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-destructive-foreground">

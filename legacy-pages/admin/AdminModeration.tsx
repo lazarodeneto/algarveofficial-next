@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ClipboardCheck, Check, X, Eye, MessageSquare, Loader2, MapPin, Tag, Globe, Phone, Mail as MailIcon, Image as ImageIcon } from "lucide-react";
@@ -16,6 +17,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { TierBadge } from "@/components/admin/TierBadge";
+import { usePendingEventsCount } from "@/hooks/useEvents";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import { toast } from "sonner";
 import { resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
 import { getValidAccessToken } from "@/lib/authToken";
@@ -44,12 +47,14 @@ async function patchAdminListing(
 
 export default function AdminModeration() {
   const queryClient = useQueryClient();
+  const l = useLocalePath();
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
   const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [note, setNote] = useState("");
   const [previewListing, setPreviewListing] = useState<any | null>(null);
+  const { data: pendingEventsCount = 0 } = usePendingEventsCount();
 
   // Fetch pending listings
   const { data: pendingListings = [], isLoading } = useQuery({
@@ -148,7 +153,7 @@ export default function AdminModeration() {
           admin_notes: note.trim(),
         });
         toast.success("Note saved successfully");
-        queryClient.invalidateQueries({ queryKey: ['pending-listings'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-pending-listings'] });
       } catch (err: any) {
         toast.error("Failed to save note: " + err.message);
       }
@@ -197,6 +202,26 @@ export default function AdminModeration() {
           </div>
         </CardContent>
       </Card>
+
+      {pendingEventsCount > 0 && (
+        <Card className="bg-primary/5 border-primary/20">
+          <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-base font-medium text-foreground">
+                {pendingEventsCount} event{pendingEventsCount > 1 ? "s" : ""} awaiting moderation
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Listing moderation can be all caught up while events still need review.
+              </p>
+            </div>
+            <Button asChild size="sm">
+              <Link href={l("/admin/content/events/moderation")}>
+                Open Event Moderation
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Pending Listings */}
       {pendingListings.length === 0 ? (
