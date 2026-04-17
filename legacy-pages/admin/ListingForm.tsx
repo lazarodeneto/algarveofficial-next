@@ -22,6 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
+import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
 
 const getEmptyFormData = (): ListingFormData => ({
   name: "",
@@ -230,6 +231,18 @@ export default function ListingForm() {
     }
 
     const finalStatus = status || formData.published_status;
+    const maxTierImages = getListingTierMaxGalleryImages(formData.tier);
+    const normalizedImages = [...formData.images]
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .slice(0, maxTierImages)
+      .map((img, index) => ({
+        ...img,
+        order: index,
+      }));
+
+    if (normalizedImages.length > 0 && !normalizedImages.some((img) => img.is_featured)) {
+      normalizedImages[0].is_featured = true;
+    }
 
     // Prepare listing data for Supabase
     const listingData: Record<string, unknown> = {
@@ -257,7 +270,7 @@ export default function ListingForm() {
       tiktok_url: formData.social_links?.tiktok || null,
       telegram_url: formData.social_links?.telegram || null,
       whatsapp_number: formData.social_links?.whatsapp || null,
-      featured_image_url: formData.images.find(img => img.is_featured)?.url || formData.images[0]?.url || null,
+      featured_image_url: normalizedImages.find((img) => img.is_featured)?.url || normalizedImages[0]?.url || null,
       category_data: formData.details || {},
       tier: formData.tier,
       is_curated: formData.is_curated,
@@ -267,7 +280,7 @@ export default function ListingForm() {
     };
 
     // Prepare images data - include _file for new uploads
-    const imagesData = formData.images.map((img, index) => ({
+    const imagesData = normalizedImages.map((img, index) => ({
       url: img.url,
       alt_text: img.alt || undefined,
       is_featured: img.is_featured,
@@ -283,7 +296,7 @@ export default function ListingForm() {
           listing: listingData,
           images: imagesData,
         });
-        const updatedData = { ...formData, published_status: finalStatus };
+        const updatedData = { ...formData, images: normalizedImages, published_status: finalStatus };
         setFormData(updatedData);
         setInitialData(updatedData);
       } else {

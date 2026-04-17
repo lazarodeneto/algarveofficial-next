@@ -8,7 +8,8 @@ import {
   Check, 
   X,
   Eye,
-  User
+  User,
+  AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -31,10 +32,10 @@ export default function AdminEventModeration() {
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
 
-  const { data: events = [], isLoading } = useAdminEvents({
+  const { data: events = [], isLoading, isError, refetch } = useAdminEvents({
     status: 'pending_review',
     time: 'all',
-  }) as { data: CalendarEvent[]; isLoading: boolean };
+  }) as { data: CalendarEvent[]; isLoading: boolean; isError: boolean; refetch: () => Promise<unknown> };
   const approveEvent = useApproveEvent();
   const rejectEvent = useRejectEvent();
 
@@ -86,6 +87,19 @@ export default function AdminEventModeration() {
         <div className="flex items-center justify-center py-12">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
+      ) : isError ? (
+        <Card className="bg-card border-border">
+          <CardContent className="py-16 text-center">
+            <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-4" />
+            <h3 className="text-xl font-serif font-semibold mb-2">Could not load pending events</h3>
+            <p className="text-muted-foreground mb-4">
+              We hit an error while loading moderation items. Please retry.
+            </p>
+            <Button variant="outline" onClick={() => void refetch()}>
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
       ) : events.length === 0 ? (
         <Card className="bg-card border-border">
           <CardContent className="py-16 text-center">

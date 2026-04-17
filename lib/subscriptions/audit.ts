@@ -15,6 +15,7 @@ type Supabase = SupabaseClient<Database>;
 const SAFE_FIELDS: ReadonlyArray<keyof SubscriptionRow> = [
   "id",
   "tier",
+  "tier_source",
   "plan_type",
   "billing_period",
   "status",

@@ -5,6 +5,7 @@ import { logAdminMutation } from "@/lib/server/admin-audit-log";
 import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
 import { validatePayload, jsonErrorResponse } from "@/lib/api/api-validation";
 import { listingUpdateSchema } from "@/lib/forms/admin-schemas";
+import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
 
 type ListingUpdate = Database["public"]["Tables"]["listings"]["Update"];
 
@@ -117,7 +118,28 @@ export async function PATCH(
   }
 
   const parsedImages = parseListingImages(body.images);
+  let tierScopedImages: ListingImageInput[] | undefined = parsedImages;
   if (parsedImages !== undefined) {
+    let tierForRules: string | null =
+      typeof updates.tier === "string" ? updates.tier : null;
+
+    if (!tierForRules) {
+      const { data: tierRow, error: tierError } = await auth.writeClient
+        .from("listings")
+        .select("tier")
+        .eq("id", listingId)
+        .maybeSingle();
+
+      if (tierError) {
+        return adminErrorResponse(400, "LISTING_TIER_READ_FAILED", tierError.message);
+      }
+
+      tierForRules = tierRow?.tier ?? "unverified";
+    }
+
+    const maxTierImages = getListingTierMaxGalleryImages(tierForRules);
+    tierScopedImages = parsedImages.slice(0, maxTierImages);
+
     const { error: deleteError } = await auth.writeClient
       .from("listing_images")
       .delete()
@@ -126,8 +148,8 @@ export async function PATCH(
       return adminErrorResponse(400, "LISTING_IMAGES_DELETE_FAILED", deleteError.message);
     }
 
-    if (parsedImages.length > 0) {
-      const imageRows = parsedImages.map((img) => ({
+    if (tierScopedImages.length > 0) {
+      const imageRows = tierScopedImages.map((img) => ({
         listing_id: listingId,
         image_url: img.url,
         alt_text: img.alt_text ?? null,
@@ -139,7 +161,7 @@ export async function PATCH(
         return adminErrorResponse(400, "LISTING_IMAGES_INSERT_FAILED", insertError.message);
       }
 
-      const featuredImage = parsedImages.find((img) => img.is_featured) ?? parsedImages[0];
+      const featuredImage = tierScopedImages.find((img) => img.is_featured) ?? tierScopedImages[0];
       if (featuredImage?.url) {
         const { error: featuredError } = await auth.writeClient
           .from("listings")
@@ -202,7 +224,7 @@ export async function PATCH(
       listingId,
       fields: Object.keys(updates),
       syncedFeaturedImage: body.sync_featured_image === true,
-      replacedImages: parsedImages !== undefined ? parsedImages.length : undefined,
+      replacedImages: tierScopedImages !== undefined ? tierScopedImages.length : undefined,
     },
   });
 

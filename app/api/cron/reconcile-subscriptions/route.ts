@@ -7,6 +7,8 @@
 //
 // Set CRON_SECRET to a strong random string and add it to Vercel env vars.
 
+import { timingSafeEqual } from "node:crypto";
+
 import { NextRequest, NextResponse } from "next/server";
 
 import { getStripeServerClient } from "@/lib/stripe/server";
@@ -23,7 +25,13 @@ function verifyCronSecret(request: NextRequest): boolean {
   const cronSecret = process.env.CRON_SECRET?.trim();
   if (!cronSecret) return false;
   const incoming = request.headers.get("x-cron-secret");
-  return incoming === cronSecret;
+  if (!incoming) return false;
+  try {
+    return timingSafeEqual(Buffer.from(incoming), Buffer.from(cronSecret));
+  } catch {
+    // timingSafeEqual throws when buffer lengths differ — treat as mismatch.
+    return false;
+  }
 }
 
 export async function POST(request: NextRequest) {

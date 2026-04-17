@@ -54,8 +54,7 @@ export function useAdminEvents(filters?: { status?: EventStatus; category?: Even
         .from('events')
         .select(`
           *,
-          city:cities(id, name, slug),
-          submitter:profiles(id, full_name)
+          city:cities(id, name, slug)
         `);
 
       if (filters?.status) {
@@ -76,7 +75,42 @@ export function useAdminEvents(filters?: { status?: EventStatus; category?: Even
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as CalendarEvent[];
+
+      const events = (data ?? []) as CalendarEvent[];
+      if (events.length === 0) {
+        return events;
+      }
+
+      const submitterIds = Array.from(
+        new Set(events.map((event) => event.submitter_id).filter(Boolean)),
+      );
+
+      if (submitterIds.length === 0) {
+        return events;
+      }
+
+      const { data: submittersData, error: submittersError } = await supabase
+        .from('public_profiles')
+        .select('id, full_name')
+        .in('id', submitterIds);
+
+      if (submittersError || !submittersData) {
+        return events;
+      }
+
+      const submitterMap = new Map<string, { id: string; full_name: string | null }>();
+      for (const submitter of submittersData) {
+        if (!submitter.id) continue;
+        submitterMap.set(submitter.id, {
+          id: submitter.id,
+          full_name: submitter.full_name ?? null,
+        });
+      }
+
+      return events.map((event) => ({
+        ...event,
+        submitter: submitterMap.get(event.submitter_id),
+      }));
     },
     enabled: isBrowser,
     initialData: [] as CalendarEvent[],
@@ -123,14 +157,32 @@ export function useEvent(id: string | undefined) {
         .from('events')
         .select(`
           *,
-          city:cities(id, name, slug),
-          submitter:profiles(id, full_name)
+          city:cities(id, name, slug)
         `)
         .eq('id', id)
         .maybeSingle();
 
       if (error) throw error;
-      return data as CalendarEvent | null;
+      if (!data) return null;
+
+      const event = data as CalendarEvent;
+      const { data: submitterData } = await supabase
+        .from('public_profiles')
+        .select('id, full_name')
+        .eq('id', event.submitter_id)
+        .maybeSingle();
+
+      if (!submitterData?.id) {
+        return event;
+      }
+
+      return {
+        ...event,
+        submitter: {
+          id: submitterData.id,
+          full_name: submitterData.full_name ?? null,
+        },
+      } as CalendarEvent;
     },
     enabled: isBrowser && !!id,
     initialData: null as CalendarEvent | null,

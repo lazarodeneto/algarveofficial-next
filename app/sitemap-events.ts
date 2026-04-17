@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { DEFAULT_LOCALE } from "@/lib/i18n/config";
 import { buildCanonicalUrl, buildHreflangs } from "@/lib/i18n/seo";
+import { sanitizeSitemapImageUrl } from "@/lib/seo/sitemap-utils";
 
 const SITEMAP_FETCH_LIMIT = 5000;
 export const revalidate = 3600;
@@ -27,6 +28,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return events.map((event) => {
     const basePath = `/events/${event.slug}`;
+    const imageUrl = sanitizeSitemapImageUrl(event.image);
+
     return {
       url: buildCanonicalUrl(DEFAULT_LOCALE, basePath),
       lastModified: toValidDate(event.updated_at, toValidDate(event.start_date, now)),
@@ -35,7 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       alternates: {
         languages: buildHreflangs(basePath),
       },
-      images: event.image ? [event.image] : undefined,
+      images: imageUrl ? [imageUrl] : undefined,
     };
   });
 }

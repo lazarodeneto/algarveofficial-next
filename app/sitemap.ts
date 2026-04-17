@@ -10,6 +10,7 @@ import {
   ALL_CANONICAL_SLUGS,
   type CanonicalCategorySlug,
 } from "@/lib/seo/programmatic/category-slugs";
+import { sanitizeSitemapImageUrl } from "@/lib/seo/sitemap-utils";
 
 const DEFAULT_SITE_URL = "https://algarveofficial.com";
 const LISTING_LIMIT = 10000;
@@ -64,13 +65,15 @@ function makeEntry(
   priority: number,
   imageUrl?: string | null,
 ): MetadataRoute.Sitemap[number] {
+  const sanitizedImageUrl = sanitizeSitemapImageUrl(imageUrl);
+
   return {
     url: `${getSiteUrl()}${withLocalePrefix(path, DEFAULT_LOCALE)}`,
     lastModified,
     changeFrequency,
     priority,
     alternates: buildHreflangAlternates(path),
-    images: imageUrl ? [imageUrl] : undefined,
+    images: sanitizedImageUrl ? [sanitizedImageUrl] : undefined,
   };
 }
 
@@ -83,6 +86,7 @@ function makeLocalizedEntry(
 ): MetadataRoute.Sitemap[number] | null {
   const siteUrl = getSiteUrl();
   const canonicalPath = localizedPaths[DEFAULT_LOCALE];
+  const sanitizedImageUrl = sanitizeSitemapImageUrl(imageUrl);
 
   if (!canonicalPath) {
     return null;
@@ -102,7 +106,7 @@ function makeLocalizedEntry(
     changeFrequency,
     priority,
     alternates: { languages },
-    images: imageUrl ? [imageUrl] : undefined,
+    images: sanitizedImageUrl ? [sanitizedImageUrl] : undefined,
   };
 }
 

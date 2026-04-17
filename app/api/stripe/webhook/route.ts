@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+export const runtime = "nodejs";
 // Stripe webhook entry point. Idempotent dispatch with audit logging and
 // automatic tier application. Sequence:
 //   1. Verify signature

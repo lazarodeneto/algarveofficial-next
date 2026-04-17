@@ -79,7 +79,7 @@ type TierMetric = {
 
 export type PlatformAnalyticsData = {
   trafficOverview: {
-    source: "ga" | "mock";
+    source: "ga" | "none";
     isGaConnected: boolean;
     totalUsers: number;
     sessions: number;
@@ -166,7 +166,6 @@ export function usePlatformAnalytics(filters: AnalyticsFilters) {
         listingsResult,
         citiesResult,
         categoriesResult,
-        profilesResult,
         eventsResult,
         dailyResult,
       ] = await Promise.all([
@@ -176,7 +175,6 @@ export function usePlatformAnalytics(filters: AnalyticsFilters) {
           .eq("status", "published"),
         supabase.from("cities").select("id, name").eq("is_active", true),
         supabase.from("categories").select("id, name, slug").eq("is_active", true),
-        supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase
           .from("analytics_events")
           .select("event_type, listing_id, event_data, session_id, created_at")
@@ -191,7 +189,6 @@ export function usePlatformAnalytics(filters: AnalyticsFilters) {
       if (listingsResult.error) throw listingsResult.error;
       if (citiesResult.error) throw citiesResult.error;
       if (categoriesResult.error) throw categoriesResult.error;
-      if (profilesResult.error) throw profilesResult.error;
       if (eventsResult.error) throw eventsResult.error;
       if (dailyResult.error) throw dailyResult.error;
 
@@ -236,7 +233,6 @@ export function usePlatformAnalytics(filters: AnalyticsFilters) {
       const positionClicks = new Map<number, number>();
       const selectionClicks = new Map<SelectionMetric["selection"], number>();
       const selectionImpressions = new Map<SelectionMetric["selection"], number>();
-      const topPages = new Map<string, number>();
 
       for (const event of filteredEvents) {
         const eventData = toEventDataMap(event.event_data);
@@ -271,11 +267,6 @@ export function usePlatformAnalytics(filters: AnalyticsFilters) {
             blockImpressions.set(blockId, (blockImpressions.get(blockId) ?? 0) + 1);
           }
           selectionImpressions.set(selection, (selectionImpressions.get(selection) ?? 0) + 1);
-
-          const pageId = typeof eventData.pageId === "string" && eventData.pageId.trim()
-            ? eventData.pageId
-            : "unknown";
-          topPages.set(pageId, (topPages.get(pageId) ?? 0) + 1);
         }
       }
 
@@ -384,13 +375,7 @@ export function usePlatformAnalytics(filters: AnalyticsFilters) {
         clickShare: toPercent(tierClicks[tier], totalClicks),
       }));
 
-      const sessions = new Set(filteredEvents.map((event) => event.session_id).filter(Boolean)).size;
-      const topCities = toNamedMetrics(topCityStats).map((row) => ({ city: row.name, views: row.views }));
       const topCategories = toNamedMetrics(topCategoryStats).map((row) => ({ category: row.name, views: row.views }));
-      const topPageRows = Array.from(topPages.entries())
-        .map(([page, views]) => ({ page, views }))
-        .sort((a, b) => b.views - a.views)
-        .slice(0, 10);
 
       let gaTrafficOverview: GaTrafficOverviewApiData | null = null;
       try {
@@ -438,16 +423,45 @@ export function usePlatformAnalytics(filters: AnalyticsFilters) {
 
       const isGaConnected = Boolean(gaTrafficOverview?.connected);
 
+      if (!isGaConnected) {
+        return {
+          trafficOverview: {
+            source: "none",
+            isGaConnected: false,
+            totalUsers: 0,
+            sessions: 0,
+            pageViews: 0,
+            avgSessionDurationSec: 0,
+            topPages: [],
+            topCities: [],
+            topCategories: [],
+          },
+          contentPerformance: {
+            topCities: [],
+            topCategories: [],
+            topListings: [],
+          },
+          placementPerformance: {
+            blockPerformance: [],
+            positionPerformance: [],
+            selectionModePerformance: [],
+          },
+          monetizationInsights: {
+            byTier: [],
+          },
+        };
+      }
+
       return {
         trafficOverview: {
-          source: isGaConnected ? "ga" : "mock",
-          isGaConnected,
-          totalUsers: gaTrafficOverview?.totalUsers ?? profilesResult.count ?? 0,
-          sessions: gaTrafficOverview?.sessions ?? sessions,
-          pageViews: gaTrafficOverview?.pageViews ?? totalViews,
+          source: "ga",
+          isGaConnected: true,
+          totalUsers: gaTrafficOverview?.totalUsers ?? 0,
+          sessions: gaTrafficOverview?.sessions ?? 0,
+          pageViews: gaTrafficOverview?.pageViews ?? 0,
           avgSessionDurationSec: gaTrafficOverview?.avgSessionDurationSec ?? 0,
-          topPages: gaTrafficOverview?.topPages?.length ? gaTrafficOverview.topPages : topPageRows,
-          topCities: gaTrafficOverview?.topCities?.length ? gaTrafficOverview.topCities : topCities,
+          topPages: gaTrafficOverview?.topPages?.length ? gaTrafficOverview.topPages : [],
+          topCities: gaTrafficOverview?.topCities?.length ? gaTrafficOverview.topCities : [],
           topCategories,
         },
         contentPerformance: {

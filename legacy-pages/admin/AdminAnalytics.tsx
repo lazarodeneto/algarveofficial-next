@@ -68,7 +68,7 @@ export default function AdminAnalytics() {
 
   const fallbackData = {
     trafficOverview: {
-      source: "mock" as const,
+      source: "none" as const,
       isGaConnected: false,
       totalUsers: 0,
       sessions: 0,

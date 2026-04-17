@@ -1,5 +1,6 @@
 import { ImageUploader } from "../listings/ImageUploader";
 import type { ListingFormData } from "@/types/listing";
+import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
 
 interface MediaStepProps {
   data: ListingFormData;
@@ -8,19 +9,22 @@ interface MediaStepProps {
 }
 
 export function MediaStep({ data, onChange, errors }: MediaStepProps) {
+  const maxImages = getListingTierMaxGalleryImages(data.tier);
+
   return (
     <div className="space-y-6">
       <div className="space-y-1">
         <h3 className="text-lg font-medium font-serif">Media Gallery</h3>
         <p className="text-sm text-muted-foreground">
           Upload high-quality images. The first image will be the featured/cover image.
+          {" "}This listing tier supports up to {maxImages} image{maxImages === 1 ? "" : "s"}.
         </p>
       </div>
 
       <ImageUploader
         images={data.images}
         onChange={(images) => onChange("images", images)}
-        maxImages={20}
+        maxImages={maxImages}
       />
 
       {errors.images && (
@@ -31,7 +35,8 @@ export function MediaStep({ data, onChange, errors }: MediaStepProps) {
         <h4 className="text-sm font-medium mb-2">Image Guidelines</h4>
         <ul className="text-xs text-muted-foreground space-y-1">
           <li>• Minimum 1 image required for publishing</li>
-          <li>• Recommended: 5-10 high-quality images</li>
+          <li>• Recommended: 5-10 high-quality images (when tier allows)</li>
+          <li>• Tier limit: {maxImages} image{maxImages === 1 ? "" : "s"} maximum</li>
           <li>• Best resolution: 1920×1080 or higher</li>
           <li>• Supported formats: PNG, JPG, WebP</li>
           <li>• Maximum file size: 10MB per image</li>

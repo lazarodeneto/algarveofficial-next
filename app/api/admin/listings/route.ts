@@ -5,6 +5,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { logAdminMutation } from "@/lib/server/admin-audit-log";
 import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
 import { listingFormSchema } from "@/lib/forms/schema";
+import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
 
 type ListingImageInput = {
   url: string;
@@ -68,6 +69,8 @@ export async function POST(request: NextRequest) {
   }
 
   const validated = parsed.data;
+  const maxTierImages = getListingTierMaxGalleryImages(validated.tier);
+  const tierScopedImages = images.slice(0, maxTierImages);
 
   // Insert listing with validated data
   const insertData = {
@@ -91,8 +94,8 @@ export async function POST(request: NextRequest) {
   }
 
   // Handle images
-  if (images.length > 0) {
-    const imageRows = images.map((img) => ({
+  if (tierScopedImages.length > 0) {
+    const imageRows = tierScopedImages.map((img) => ({
       listing_id: created.id,
       image_url: img.url,
       alt_text: img.alt_text ?? null,
@@ -105,7 +108,7 @@ export async function POST(request: NextRequest) {
       return adminErrorResponse(400, "LISTING_IMAGE_CREATE_FAILED", imageError.message);
     }
 
-    const featuredImage = images.find((img) => img.is_featured) ?? images[0];
+    const featuredImage = tierScopedImages.find((img) => img.is_featured) ?? tierScopedImages[0];
     if (featuredImage?.url) {
       const { error: featuredError } = await auth.writeClient
         .from("listings")
@@ -125,7 +128,7 @@ export async function POST(request: NextRequest) {
       listingId: created.id,
       status: created.status ?? null,
       tier: created.tier ?? null,
-      images: images.length,
+      images: tierScopedImages.length,
     },
   });
 

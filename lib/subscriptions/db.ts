@@ -95,6 +95,15 @@ export async function upsertSubscription(
   options: { eventCreatedAt?: number | null; allowStale?: boolean } = {},
 ): Promise<{ id: string; skipped: boolean }> {
   const existing = await findByOwner(supabase, ownerId);
+  const guardedPayload: SubscriptionUpdate = { ...payload };
+
+  // Critical dual-authority guard:
+  // if admin override is active, Stripe/system writers may update bookkeeping
+  // fields (status/period IDs) but never the effective tier authority/value.
+  if (existing?.tier_source === "admin") {
+    delete guardedPayload.tier;
+    guardedPayload.tier_source = "admin";
+  }
 
   if (existing && options.eventCreatedAt && !options.allowStale) {
     const incomingMs = options.eventCreatedAt * 1000;
@@ -111,7 +120,7 @@ export async function upsertSubscription(
 
   if (existing) {
     const update = {
-      ...payload,
+      ...guardedPayload,
       last_event_at: lastEventIso,
       updated_at: nowIso,
     } as Record<string, unknown>;
@@ -126,30 +135,60 @@ export async function upsertSubscription(
   const insert = {
     id: randomUUID(),
     owner_id: ownerId,
-    tier: payload.tier ?? "unverified",
-    plan_type: payload.plan_type ?? "monthly",
-    billing_period: payload.billing_period ?? "monthly",
-    status: payload.status ?? "pending",
-    stripe_customer_id: payload.stripe_customer_id ?? null,
-    stripe_subscription_id: payload.stripe_subscription_id ?? null,
-    stripe_price_id: payload.stripe_price_id ?? null,
-    stripe_checkout_session_id: payload.stripe_checkout_session_id ?? null,
-    stripe_payment_intent_id: payload.stripe_payment_intent_id ?? null,
-    current_period_start: payload.current_period_start ?? null,
-    current_period_end: payload.current_period_end ?? null,
-    cancel_at_period_end: payload.cancel_at_period_end ?? false,
-    canceled_at: payload.canceled_at ?? null,
-    trial_end: payload.trial_end ?? null,
-    start_date: payload.start_date ?? new Date().toISOString().slice(0, 10),
-    end_date: payload.end_date ?? null,
-    price_cents: payload.price_cents ?? null,
-    currency: payload.currency ?? "EUR",
+    tier: guardedPayload.tier ?? "unverified",
+    tier_source: guardedPayload.tier_source ?? "stripe",
+    plan_type: guardedPayload.plan_type ?? "monthly",
+    billing_period: guardedPayload.billing_period ?? "monthly",
+    status: guardedPayload.status ?? "pending",
+    stripe_customer_id: guardedPayload.stripe_customer_id ?? null,
+    stripe_subscription_id: guardedPayload.stripe_subscription_id ?? null,
+    stripe_price_id: guardedPayload.stripe_price_id ?? null,
+    stripe_checkout_session_id: guardedPayload.stripe_checkout_session_id ?? null,
+    stripe_payment_intent_id: guardedPayload.stripe_payment_intent_id ?? null,
+    current_period_start: guardedPayload.current_period_start ?? null,
+    current_period_end: guardedPayload.current_period_end ?? null,
+    cancel_at_period_end: guardedPayload.cancel_at_period_end ?? false,
+    canceled_at: guardedPayload.canceled_at ?? null,
+    trial_end: guardedPayload.trial_end ?? null,
+    start_date: guardedPayload.start_date ?? new Date().toISOString().slice(0, 10),
+    end_date: guardedPayload.end_date ?? null,
+    price_cents: guardedPayload.price_cents ?? null,
+    currency: guardedPayload.currency ?? "EUR",
     last_event_at: lastEventIso,
   } as Record<string, unknown>;
 
   const { error } = await supabase.from("owner_subscriptions").insert(insert as never);
   if (error) throw error;
   return { id: insert.id as string, skipped: false };
+}
+
+export async function applyAdminTierOverride(
+  supabase: Supabase,
+  ownerId: string,
+  tier: EffectiveTier,
+): Promise<{ id: string; skipped: boolean }> {
+  const nowIso = new Date().toISOString();
+  const status = tier === "unverified" ? "canceled" : "active";
+  const existing = await findByOwner(supabase, ownerId);
+  const payload: SubscriptionUpdate = {
+    tier,
+    tier_source: "admin",
+    status,
+    last_event_at: nowIso,
+  };
+
+  if (!existing) {
+    payload.plan_type = "monthly";
+    payload.billing_period = "monthly";
+    payload.start_date = new Date().toISOString().slice(0, 10);
+  }
+
+  return upsertSubscription(
+    supabase,
+    ownerId,
+    payload,
+    { allowStale: true },
+  );
 }
 
 // Apply the effective tier (derived from access rules) to all of an owner's

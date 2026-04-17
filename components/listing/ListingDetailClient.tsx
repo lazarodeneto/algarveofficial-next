@@ -58,6 +58,7 @@ import ListingImage from "@/components/ListingImage";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import { ListingReviews } from "@/components/listing-details/ListingReviews";
 import type { ListingReview } from "@/hooks/useListingReviews";
+import { getListingTierRules } from "@/lib/listingTierRules";
 import { LuxuryAccommodationLayout } from "@/components/listing-details/LuxuryAccommodationLayout";
 import { FineDiningLayout } from "@/components/listing-details/FineDiningLayout";
 import { GolfLayout } from "@/components/listing-details/GolfLayout";
@@ -162,6 +163,7 @@ const PUBLIC_LISTING_FIELDS = `
   youtube_url,
   tiktok_url,
   telegram_url,
+  whatsapp_number,
   google_business_url,
   google_rating,
   google_review_count,
@@ -251,6 +253,37 @@ const getCategoryLayout = (
 };
 
 const normalizeImageUrl = (value?: string | null): string | null => normalizePublicImageUrl(value);
+
+function normalizeExternalUrl(value?: string | null): string | null {
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}
+
+function buildWhatsAppUrl(rawValue: string | null | undefined, message: string): string | null {
+  const trimmed = rawValue?.trim();
+  if (!trimmed) return null;
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    try {
+      const url = new URL(trimmed);
+      if (url.hostname.includes("wa.me") || url.hostname.includes("whatsapp.com")) {
+        if (!url.searchParams.get("text")) {
+          url.searchParams.set("text", message);
+        }
+        return url.toString();
+      }
+      return trimmed;
+    } catch {
+      return trimmed;
+    }
+  }
+
+  const digits = trimmed.replace(/\D/g, "");
+  if (!digits) return null;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+}
 
 async function fetchListingByIdOrSlug(idOrSlug: string) {
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
@@ -480,6 +513,28 @@ function ListingDetailClientInner({
     () => tr?.description?.trim() || listing?.description || listing?.short_description || null,
     [listing?.description, listing?.short_description, tr?.description],
   );
+  const listingTitle = effectiveTitle ?? listing.name;
+  const details = listing.category_data as Record<string, unknown> ?? {};
+  const tierRules = getListingTierRules(listing.tier);
+
+  const contactPrefillMessage = `Hi! I'm interested in "${listingTitle}" in ${listing.city?.name || "Algarve"}.`;
+  const directWhatsAppUrl = tierRules.allowDirectContactButton
+    ? (
+      buildWhatsAppUrl(listing.whatsapp_number, contactPrefillMessage)
+      ?? buildWhatsAppUrl(waStatus?.phone, contactPrefillMessage)
+    )
+    : null;
+  const directTelegramUrl = tierRules.allowDirectContactButton
+    ? normalizeExternalUrl(listing.telegram_url)
+    : null;
+  const directContactUrl = directWhatsAppUrl ?? directTelegramUrl;
+  const directContactLabel = directWhatsAppUrl ? t("listing.messageWhatsApp") : "Telegram";
+  const ctaUrl = tierRules.allowCtaButton
+    ? (
+      normalizeExternalUrl(listing.website_url)
+      ?? normalizeExternalUrl(details.booking_url as string | undefined)
+    )
+    : null;
 
   const handleMessageClick = () => {
     if (!listing) return;
@@ -500,6 +555,14 @@ function ListingDetailClientInner({
     }
 
     setShowLoginModal(true);
+  };
+
+  const handleDirectContactClick = () => {
+    if (directContactUrl) {
+      window.open(directContactUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+    handleMessageClick();
   };
 
   const openAgentContactModal = (scheduleVisit = false) => {
@@ -543,7 +606,6 @@ function ListingDetailClientInner({
     }
   };
 
-  const details = listing.category_data as Record<string, unknown> ?? {};
   const hasPropertySignals = hasRealEstateSignals(details);
   const isRealEstateListing =
     isRealEstateCategorySlug(listing.category?.slug) || (listing.category?.slug === "algarve-services" && hasPropertySignals);
@@ -637,7 +699,8 @@ function ListingDetailClientInner({
       image_url: normalizeImageUrl(image?.image_url) ?? "",
     }))
     .filter((image) => !!image.image_url)
-    .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+    .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
+    .slice(0, tierRules.maxGalleryImages);
 
   if (galleryImages.length === 0 && normalizedFeaturedImageUrl) {
     galleryImages.push({
@@ -659,7 +722,6 @@ function ListingDetailClientInner({
     });
   }
 
-  const listingTitle = effectiveTitle ?? listing.name;
   const directoryLabel = t("nav.directory");
   const categoryLabel = translateCategoryName(t, listing.category?.slug, listing.category?.name) ?? directoryLabel;
   const canonicalCategorySlug = getCanonicalCategorySlug(listing.category?.slug);
@@ -981,7 +1043,9 @@ function ListingDetailClientInner({
                       listing.category.slug,
                       details,
                       details.booking_url as string | undefined,
-                      isRealEstateListing ? handleScheduleViewingClick : handleMessageClick,
+                      (tierRules.allowDirectContactButton || tierRules.allowCtaButton)
+                        ? (isRealEstateListing ? handleScheduleViewingClick : handleMessageClick)
+                        : undefined,
                     )
                   : null}
 
@@ -1025,18 +1089,28 @@ function ListingDetailClientInner({
                   <Separator className="my-6" />
 
                   <h4 className="text-body-sm font-medium text-muted-foreground mb-4">{t("listing.contact")}</h4>
+                  {(tierRules.allowDirectContactButton || tierRules.allowCtaButton) ? (
+                    <div className="space-y-2 mb-4">
+                      {directContactUrl ? (
+                        <Button asChild className="w-full">
+                          <a href={directContactUrl} target="_blank" rel="noopener noreferrer">
+                            <MessageCircle className="h-4 w-4 mr-2" />
+                            {directContactLabel}
+                          </a>
+                        </Button>
+                      ) : null}
+                      {ctaUrl ? (
+                        <Button variant="outline" asChild className="w-full">
+                          <a href={ctaUrl} target="_blank" rel="noopener noreferrer">
+                            <Globe className="h-4 w-4 mr-2" />
+                            {t("listing.visitWebsite")}
+                          </a>
+                        </Button>
+                      ) : null}
+                    </div>
+                  ) : null}
+
                   <div className="flex flex-wrap items-center gap-3">
-                    {listing.website_url ? (
-                      <a
-                        href={listing.website_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2.5 rounded-lg bg-muted hover:bg-sky-500/20 transition-all duration-200 hover:scale-110"
-                        title={t("listing.visitWebsite")}
-                      >
-                        <Globe className="h-5 w-5 text-sky-500" />
-                      </a>
-                    ) : null}
                     {listing.instagram_url ? (
                       <a
                         href={listing.instagram_url}
@@ -1273,10 +1347,24 @@ function ListingDetailClientInner({
           >
             <Share2 className="h-5 w-5" />
           </Button>
-          <Button onClick={handleMessageClick} className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">
-            <MessageCircle className="h-5 w-5 mr-2" />
-            {t("listing.contact")}
-          </Button>
+          {(tierRules.allowDirectContactButton || tierRules.allowCtaButton) ? (
+            <div className="flex-1 flex flex-col gap-2">
+              {directContactUrl ? (
+                <Button onClick={handleDirectContactClick} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                  <MessageCircle className="h-5 w-5 mr-2" />
+                  {directContactLabel}
+                </Button>
+              ) : null}
+              {ctaUrl ? (
+                <Button variant="outline" asChild>
+                  <a href={ctaUrl} target="_blank" rel="noopener noreferrer">
+                    <Globe className="h-5 w-5 mr-2" />
+                    {t("listing.visitWebsite")}
+                  </a>
+                </Button>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

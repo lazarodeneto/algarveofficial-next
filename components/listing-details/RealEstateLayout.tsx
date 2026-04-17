@@ -142,9 +142,14 @@ export function RealEstateLayout({ details, onInquire }: RealEstateLayoutProps) 
               </p>
               <p className="text-3xl font-serif font-medium text-primary">{formatPrice(price, priceUnit)}</p>
             </div>
-            <div className="flex gap-3">
-              <Button size="lg" onClick={onInquire}><Calendar className="h-4 w-4 mr-2" />{t("categoryLayouts.realEstate.scheduleViewing")}</Button>
-            </div>
+            {onInquire ? (
+              <div className="flex gap-3">
+                <Button size="lg" onClick={onInquire}>
+                  <Calendar className="h-4 w-4 mr-2" />
+                  {t("categoryLayouts.realEstate.scheduleViewing")}
+                </Button>
+              </div>
+            ) : null}
           </div>
         </Card>
       )}

@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { trimWhiteBorders, convertToWebP } from "@/lib/imageUtils";
+import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
 
 interface OwnerListingImageManagerProps {
   listingId: string;
@@ -42,6 +43,20 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [imageToDelete, setImageToDelete] = useState<string | null>(null);
 
+  const { data: listingTier = "unverified" } = useQuery({
+    queryKey: ["owner-listing-tier", listingId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("listings")
+        .select("tier")
+        .eq("id", listingId)
+        .maybeSingle();
+      if (error) throw error;
+      return data?.tier ?? "unverified";
+    },
+    enabled: !!listingId,
+  });
+
   // Fetch images for this listing
   const { data: images = [], isLoading } = useQuery({
     queryKey: ["owner-listing-images", listingId],
@@ -56,6 +71,8 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
     },
     enabled: !!listingId,
   });
+
+  const maxImages = getListingTierMaxGalleryImages(listingTier);
 
   /** Sync the listings.featured_image_url with the current featured gallery image */
   const syncFeaturedImageUrl = async (currentImages: ImageRecord[], deletedId?: string) => {
@@ -74,13 +91,26 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
 
   const handleUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
+    const remainingSlots = maxImages - images.length;
+    if (remainingSlots <= 0) {
+      toast.error(`This listing tier supports up to ${maxImages} image${maxImages === 1 ? "" : "s"}.`);
+      return;
+    }
+
+    const filesToUpload = Array.from(files).slice(0, remainingSlots);
+    if (filesToUpload.length < files.length) {
+      toast.info(
+        `Only ${filesToUpload.length} image${filesToUpload.length === 1 ? "" : "s"} uploaded due to tier limit (${maxImages}).`,
+      );
+    }
+
     setIsUploading(true);
 
     try {
       const uploadedUrls: { url: string; isFeatured: boolean }[] = [];
 
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+      for (let i = 0; i < filesToUpload.length; i++) {
+        const file = filesToUpload[i];
 
         let processedFile = file;
         try {
@@ -129,7 +159,7 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
       queryClient.invalidateQueries({ queryKey: ["owner-listing-images", listingId] });
       queryClient.invalidateQueries({ queryKey: ["owner-listings"] });
       queryClient.invalidateQueries({ queryKey: ["listings"] });
-      toast.success(`${files.length} image(s) uploaded`);
+      toast.success(`${filesToUpload.length} image(s) uploaded`);
     } catch (error) {
       toast.error("Upload failed: " + (error as Error).message);
     }
@@ -213,7 +243,7 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
             Photos
           </CardTitle>
           <CardDescription>
-            Add, remove, or set a featured image for your listing
+            Add, remove, or set a featured image for your listing ({images.length}/{maxImages})
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -238,7 +268,7 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
                     <span className="font-medium text-primary">Click to upload</span> or drag and drop
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    JPG, PNG, WebP (auto-optimized)
+                    JPG, PNG, WebP (auto-optimized) - up to {maxImages} image{maxImages === 1 ? "" : "s"}
                   </p>
                 </>
               )}
@@ -249,7 +279,7 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
               accept="image/*"
               multiple
               onChange={(e) => handleUpload(e.target.files)}
-              disabled={isUploading}
+              disabled={isUploading || images.length >= maxImages}
             />
           </label>
 

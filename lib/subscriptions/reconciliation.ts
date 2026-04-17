@@ -12,8 +12,23 @@ import type Stripe from "stripe";
 import type { Database } from "@/integrations/supabase/types";
 import { applyTierToListings } from "./db";
 import { logSubscriptionMutation } from "./audit";
-import type { SubscriptionRow } from "./types";
+import type { EffectiveTier, SubscriptionRow } from "./types";
 import { mapStripeSubscriptionStatus } from "./types";
+
+async function findTierByStripePriceId(
+  supabase: Supabase,
+  stripePriceId: string,
+): Promise<EffectiveTier | null> {
+  const { data, error } = await supabase
+    .from("subscription_pricing")
+    .select("tier")
+    .eq("stripe_price_id" as never, stripePriceId as never)
+    .maybeSingle();
+  if (error) return null;
+  const tier = (data as { tier?: string } | null)?.tier;
+  if (tier === "verified" || tier === "signature") return tier;
+  return null;
+}
 
 type Supabase = SupabaseClient<Database>;
 
@@ -127,20 +142,38 @@ export async function reconcileRecurring(
       const stripeSub = await stripe.subscriptions.retrieve(row.stripe_subscription_id);
       const period = firstItemPeriod(stripeSub);
       const stripeStatus = mapStripeSubscriptionStatus(stripeSub.status);
+      const isAdminOverride = row.tier_source === "admin";
+
+      // Tier drift: if the price on Stripe maps to a different tier than the DB row,
+      // a lost plan-change webhook has left the DB stale.
+      let resolvedTier = row.tier;
+      let tierDrifted = false;
+      if (!isAdminOverride && period.priceId) {
+        const pricingTier = await findTierByStripePriceId(supabase, period.priceId);
+        if (pricingTier && pricingTier !== row.tier) {
+          resolvedTier = pricingTier;
+          tierDrifted = true;
+        }
+      }
 
       const needsUpdate =
+        tierDrifted ||
         stripeStatus !== row.status ||
-        (period.end && unixToIso(period.end) !== row.current_period_end) || ((stripeSub.cancel_at_period_end ?? false) !== row.cancel_at_period_end);
+        (period.end && unixToIso(period.end) !== row.current_period_end) ||
+        ((stripeSub.cancel_at_period_end ?? false) !== row.cancel_at_period_end);
 
       if (!needsUpdate) continue;
 
       const nowIso = new Date().toISOString();
       const patch = {
+        ...(tierDrifted ? { tier: resolvedTier } : {}),
+        ...(!isAdminOverride ? { tier_source: "stripe" as const } : {}),
         status: stripeStatus,
         current_period_start: unixToIso(period.start),
         current_period_end: unixToIso(period.end),
         end_date: unixToDateOnly(period.end),
         cancel_at_period_end: stripeSub.cancel_at_period_end ?? false,
+        ...(period.priceId ? { stripe_price_id: period.priceId } : {}),
         last_event_at: nowIso,
         updated_at: nowIso,
       };
@@ -154,7 +187,7 @@ export async function reconcileRecurring(
       await applyTierToListings(supabase, row.owner_id, next);
       await logSubscriptionMutation(supabase, {
         ownerId: row.owner_id,
-        action: "reconcile.recurring.drift",
+        action: tierDrifted ? "reconcile.recurring.tier-drift" : "reconcile.recurring.drift",
         previous: row,
         next,
       });
@@ -194,6 +227,9 @@ export async function expireStaleIncomplete(supabase: Supabase): Promise<Reconci
         .eq("id", row.id);
 
       const next = { ...row, status: "incomplete_expired" } as SubscriptionRow;
+      // Downgrade listings — resolveEffectiveTier returns "unverified" for incomplete_expired,
+      // so any listing the pending checkout had optimistically upgraded gets cleared here.
+      await applyTierToListings(supabase, row.owner_id, next);
       await logSubscriptionMutation(supabase, {
         ownerId: row.owner_id,
         action: "reconcile.stale.incomplete_expired",

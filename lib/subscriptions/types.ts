@@ -17,6 +17,8 @@ export type SubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
 
 export const PLAN_TYPES = ["monthly", "yearly", "fixed_2026"] as const;
 export type PlanType = (typeof PLAN_TYPES)[number];
+export const TIER_SOURCES = ["stripe", "admin"] as const;
+export type TierSource = (typeof TIER_SOURCES)[number];
 
 export type EffectiveTier = "unverified" | "verified" | "signature";
 export type PaidTier = "verified" | "signature";
@@ -27,6 +29,7 @@ export interface SubscriptionRow {
   id: string;
   owner_id: string;
   tier: EffectiveTier;
+  tier_source: TierSource;
   plan_type: PlanType;
   billing_period: "monthly" | "yearly" | "promo";
   status: SubscriptionStatus;

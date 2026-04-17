@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 type Props = {
   loading?: boolean;
   data: {
-    source: "ga" | "mock";
+    source: "ga" | "none";
     isGaConnected: boolean;
     totalUsers: number;
     sessions: number;
@@ -20,7 +20,7 @@ type Props = {
 };
 
 function formatDuration(seconds: number): string {
-  if (!seconds || seconds < 1) return "0s";
+  if (!seconds || seconds < 1) return "—";
   if (seconds < 60) return `${seconds}s`;
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
@@ -28,26 +28,28 @@ function formatDuration(seconds: number): string {
 }
 
 export function AnalyticsOverviewSection({ loading = false, data }: Props) {
+  const showBlankState = !data.isGaConnected;
+
   return (
     <section className="space-y-4">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <AnalyticsCard
           title="Total Users"
-          value={data.totalUsers}
+          value={showBlankState ? "—" : data.totalUsers}
           icon={<Users className="h-4 w-4" />}
           loading={loading}
           size="sm"
         />
         <AnalyticsCard
           title="Sessions"
-          value={data.sessions}
+          value={showBlankState ? "—" : data.sessions}
           icon={<Activity className="h-4 w-4" />}
           loading={loading}
           size="sm"
         />
         <AnalyticsCard
           title="Page Views"
-          value={data.pageViews}
+          value={showBlankState ? "—" : data.pageViews}
           icon={<Eye className="h-4 w-4" />}
           loading={loading}
           size="sm"
@@ -67,14 +69,16 @@ export function AnalyticsOverviewSection({ loading = false, data }: Props) {
           <CardDescription>
             {data.isGaConnected
               ? "Google Analytics API is connected and active."
-              : "Google Analytics API is not connected in-app. Showing internal fallback metrics structure."}
+              : "Google Analytics API is not connected in-app."}
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
-            Source: {data.source.toUpperCase()}
-          </div>
-        </CardContent>
+        {data.isGaConnected ? (
+          <CardContent>
+            <div className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
+              Source: GA
+            </div>
+          </CardContent>
+        ) : null}
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-3">

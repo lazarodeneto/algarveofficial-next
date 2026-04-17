@@ -43,7 +43,7 @@ const PUBLIC_LISTING_FIELDS = `
   city_id, region_id, category_id, owner_id, latitude, longitude,
   address, contact_phone, contact_email, website_url, facebook_url,
   instagram_url, twitter_url, linkedin_url, youtube_url, tiktok_url,
-  telegram_url, google_business_url, google_rating, google_review_count,
+  telegram_url, whatsapp_number, google_business_url, google_rating, google_review_count,
   tags, category_data, view_count, published_at, created_at, updated_at
 `;
 

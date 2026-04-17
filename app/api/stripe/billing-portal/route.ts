@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+export const runtime = "nodejs";
 // Stripe Billing Portal session creator. Resolves the customer ID from the
 // owner's subscription row (DB lookup, not frontend input) and returns a URL
 // the client can open in a new tab. Users can update payment method, cancel,

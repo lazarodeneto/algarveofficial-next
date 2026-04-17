@@ -1,11 +1,10 @@
-import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/lib/i18n/locales";
-import { getLocaleFromPathname, hasLocalePrefix, isValidLocale } from "@/lib/i18n/locale-utils";
-import { getSupabasePublicEnv } from "@/lib/supabase/env";
+import { DEFAULT_LOCALE, SUPPORTED_LOCALES, type AppLocale } from "@/lib/i18n/locales";
+import { isValidLocale, resolveLocaleFromAcceptLanguage } from "@/lib/i18n/locale-utils";
 
-const PUBLIC_LOCALES = ["en", "pt-pt"];
+const PUBLIC_LOCALES: readonly AppLocale[] = SUPPORTED_LOCALES;
+const PUBLIC_LOCALE_SET = new Set<string>(PUBLIC_LOCALES);
 
 function isStaticAsset(pathname: string): boolean {
   const normalized = pathname.startsWith("/") ? pathname : `/${pathname}`;
@@ -30,25 +29,22 @@ function normalizePathname(pathname: string): string {
   return withLeading;
 }
 
-function getPreferredLocale(request: NextRequest): string {
-  const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
-  if (isValidLocale(cookieLocale)) return cookieLocale;
+function isPublicLocale(locale: string | null | undefined): locale is AppLocale {
+  if (!locale) return false;
+  return PUBLIC_LOCALE_SET.has(locale.toLowerCase());
+}
 
-  const acceptLanguage = request.headers.get("accept-language");
-  if (acceptLanguage) {
-    const languages = acceptLanguage
-      .split(",")
-      .map((lang) => {
-        const [code, q] = lang.trim().split(";q=");
-        return { code: code.trim().toLowerCase(), q: q ? Number.parseFloat(q) : 1 };
-      })
-      .sort((a, b) => b.q - a.q);
+function getPreferredLocale(request: NextRequest): AppLocale {
+  const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value?.toLowerCase();
+  if (isPublicLocale(cookieLocale)) {
+    return cookieLocale;
+  }
 
-    for (const { code } of languages) {
-      if (SUPPORTED_LOCALES.includes(code as typeof SUPPORTED_LOCALES[number])) {
-        return code;
-      }
-    }
+  const preferredFromHeader = resolveLocaleFromAcceptLanguage(
+    request.headers.get("accept-language"),
+  );
+  if (isPublicLocale(preferredFromHeader)) {
+    return preferredFromHeader;
   }
 
   return DEFAULT_LOCALE;
@@ -62,13 +58,19 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const hasLocale = hasLocalePrefix(normalizedPathname);
   const segments = normalizedPathname.split("/").filter(Boolean);
   const firstSegment = segments[0]?.toLowerCase();
+  const localeFromPath = firstSegment && isValidLocale(firstSegment)
+    ? firstSegment
+    : null;
 
-  if (hasLocale) {
-    if (!PUBLIC_LOCALES.includes(firstSegment ?? "")) {
-      return NextResponse.redirect(new URL(`/${DEFAULT_LOCALE}${normalizedPathname}`, request.url), 308);
+  if (localeFromPath) {
+    if (!isPublicLocale(localeFromPath)) {
+      const remainingPath = segments.slice(1).join("/");
+      const destination = remainingPath
+        ? `/${DEFAULT_LOCALE}/${remainingPath}`
+        : `/${DEFAULT_LOCALE}`;
+      return NextResponse.redirect(new URL(destination, request.url), 308);
     }
     return NextResponse.next();
   }
@@ -86,42 +88,3 @@ export const config = {
     "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };
-
-export async function updateSession(
-  request: NextRequest,
-  requestHeaders?: Headers,
-) {
-  const { url, anonKey } = getSupabasePublicEnv();
-  let response = NextResponse.next({
-    request: {
-      headers: requestHeaders ?? request.headers,
-    },
-  });
-
-  const supabase = createServerClient(url, anonKey, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) => {
-          request.cookies.set(name, value);
-        });
-
-        response = NextResponse.next({
-          request: {
-            headers: requestHeaders ?? request.headers,
-          },
-        });
-
-        cookiesToSet.forEach(({ name, value, options }) => {
-          response.cookies.set(name, value, options);
-        });
-      },
-    },
-  });
-
-  await supabase.auth.getUser();
-
-  return response;
-}

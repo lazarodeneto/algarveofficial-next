@@ -49,6 +49,7 @@ describe("applyTierToListings", () => {
       id: "sub-1",
       owner_id: "owner-1",
       tier: "signature",
+      tier_source: "stripe",
       plan_type: "monthly",
       billing_period: "monthly",
       status: "active",

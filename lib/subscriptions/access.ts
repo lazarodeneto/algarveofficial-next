@@ -19,9 +19,11 @@ function todayDateOnly(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function subscriptionGrantsAccess(sub: SubscriptionRow | null | undefined): boolean {
-  if (!sub) return false;
+function isPaidTier(tier: SubscriptionRow["tier"] | null | undefined): tier is "verified" | "signature" {
+  return tier === "verified" || tier === "signature";
+}
 
+function stripeSubscriptionGrantsAccess(sub: SubscriptionRow): boolean {
   // fixed_2026 override: time-bounded one-shot purchase. Access regardless of
   // status as long as end_date is still in the future. Reconciler flips status
   // to "expired" once end_date passes.
@@ -34,8 +36,19 @@ export function subscriptionGrantsAccess(sub: SubscriptionRow | null | undefined
 }
 
 export function resolveEffectiveTier(sub: SubscriptionRow | null | undefined): EffectiveTier {
-  if (!subscriptionGrantsAccess(sub)) return "unverified";
   if (!sub) return "unverified";
-  if (sub.tier === "verified" || sub.tier === "signature") return sub.tier;
-  return "unverified";
+
+  // Admin courtesy/manual override is authoritative.
+  if (sub.tier_source === "admin") {
+    return isPaidTier(sub.tier) ? sub.tier : "unverified";
+  }
+
+  // Stripe-managed subscriptions derive effective tier from active billing state.
+  if (!stripeSubscriptionGrantsAccess(sub)) return "unverified";
+  return isPaidTier(sub.tier) ? sub.tier : "unverified";
+}
+
+export function subscriptionGrantsAccess(sub: SubscriptionRow | null | undefined): boolean {
+  if (!sub) return false;
+  return resolveEffectiveTier(sub) !== "unverified";
 }

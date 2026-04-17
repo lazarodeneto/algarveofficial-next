@@ -168,6 +168,7 @@ export async function handleCheckoutCompleted(
       ownerId,
       {
         tier,
+        tier_source: "stripe",
         plan_type: "fixed_2026",
         billing_period: "promo",
         status: "active",
@@ -193,6 +194,7 @@ export async function handleCheckoutCompleted(
     ownerId,
     {
       tier,
+      tier_source: "stripe",
       plan_type: planType as PlanType,
       billing_period: billingPeriod as "monthly" | "yearly",
       status: "pending",
@@ -242,6 +244,7 @@ export async function handleSubscriptionCreatedOrUpdated(
     ownerId,
     {
       tier,
+      tier_source: "stripe",
       plan_type: planType,
       billing_period: billingPeriod as "monthly" | "yearly" | "promo",
       status,
@@ -285,6 +288,7 @@ export async function handleSubscriptionDeleted(
     {
       status: "canceled" satisfies SubscriptionStatus,
       tier: "unverified",
+      tier_source: "stripe",
       cancel_at_period_end: false,
       canceled_at: canceledAtIso,
       end_date: canceledAtIso.slice(0, 10),
@@ -336,6 +340,7 @@ export async function handleInvoicePaid(
     ownerId,
     {
       tier,
+      tier_source: "stripe",
       plan_type: planType,
       billing_period: billingPeriod as "monthly" | "yearly",
       status,
@@ -386,6 +391,7 @@ export async function handleInvoicePaymentFailed(
     ownerId,
     {
       status,
+      tier_source: "stripe",
       stripe_customer_id: customerId,
       stripe_subscription_id: sub.id,
     },
@@ -412,7 +418,7 @@ export async function handleCheckoutExpired(
   await upsertSubscription(
     supabase,
     existing.owner_id,
-    { status: "incomplete_expired" },
+    { status: "incomplete_expired", tier_source: "stripe" },
     { eventCreatedAt: event.created },
   );
   return { ownerId: existing.owner_id };
