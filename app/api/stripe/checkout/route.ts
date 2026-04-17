@@ -2,7 +2,6 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { normalizePricingBillingPeriod, normalizePricingTier } from "@/lib/pricing/pricing-resolver";
-import { requireAuthenticatedOwner } from "@/lib/server/owner-auth";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { getStripeServerClient } from "@/lib/stripe/server";
 import { findOverlappingActive } from "@/lib/subscriptions/db";
@@ -31,22 +30,29 @@ function resolveSiteUrl(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const supabase = createServiceRoleClient();
+
+  if (!supabase) {
+    return NextResponse.json(
+      { error: "Missing service role config." },
+      { status: 500 }
+    );
+  }
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
   const stripe = getStripeServerClient();
   if (!stripe) {
     return NextResponse.json(
       { error: "Stripe not configured." },
       { status: 503 }
-    );
-  }
-
-  const auth = await requireAuthenticatedOwner(request);
-  if ("error" in auth) return auth.error;
-
-  const supabase = createServiceRoleClient();
-  if (!supabase) {
-    return NextResponse.json(
-      { error: "Missing service role config." },
-      { status: 500 }
     );
   }
 
@@ -72,7 +78,7 @@ export async function POST(request: NextRequest) {
 
   let overlap;
   try {
-    overlap = await findOverlappingActive(supabase, auth.userId, planType);
+    overlap = await findOverlappingActive(supabase, user.id, planType);
   } catch (err) {
     return NextResponse.json(
       { error: "Overlap validation failed." },
@@ -110,7 +116,7 @@ export async function POST(request: NextRequest) {
     success_url: `${resolveSiteUrl(request)}/dashboard?success=1`,
     cancel_url: `${resolveSiteUrl(request)}/dashboard?canceled=1`,
     metadata: {
-      owner_id: auth.userId,
+      owner_id: user.id,
       tier,
       billing_period: billingPeriod,
     },
