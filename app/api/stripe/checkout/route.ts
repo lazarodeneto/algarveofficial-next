@@ -39,10 +39,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const token = request.headers.get("authorization")?.replace("Bearer ", "");
+
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
   const {
     data: { user },
     error: authError,
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getUser(token);
 
   if (authError || !user) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
