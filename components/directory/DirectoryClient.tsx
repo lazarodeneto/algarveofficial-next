@@ -15,7 +15,6 @@ import {
   ShieldCheck,
   ChevronDown,
   Loader2,
-  ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
@@ -43,7 +42,6 @@ import {
   normalizePublicContentLocale,
   type PublicContentLocale,
 } from "@/lib/publicContentLocale";
-import { renderCategoryIcon } from "@/lib/categoryIcons";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
 import { useCityRegionMappings, type CityRow, type RegionRow, type CategoryRow } from "@/hooks/useReferenceData";
 import type { ListingFilters, ListingWithRelations, ListingTier } from "@/hooks/useListings";
@@ -52,16 +50,13 @@ import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { ListingCard } from "@/components/ListingCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { FavoriteButton } from "@/components/ui/favorite-button";
-import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
-import ListingImage from "@/components/ListingImage";
-import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
 import { CityHubsSection } from "@/components/shared/CityHubsSection";
 import type { CityHubItem } from "@/components/shared/CityHubsSection";
@@ -1100,8 +1095,6 @@ function DirectoryClientInner(props: DirectoryClientProps) {
       (isExperiencesPage && cityHubsTopCities.length > 0) ||
       (isVisitPage && (props.visitCityIndex?.length ?? 0) > 0));
 
-  const showInitialData = isPlaceholderData && props.initialListings.length > 0;
-
   useEffect(() => {
     const categoryParam = searchParams.get("category");
     const regionParam = searchParams.get("region");
@@ -1575,92 +1568,18 @@ function DirectoryClientInner(props: DirectoryClientProps) {
               {!showGridSkeleton && !error && listings.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
                   {listings.map((listing, index) => (
-                    <m.div
+                    <div
                       key={listing.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: Math.min(index * 0.05, 0.5) }}
                       className="h-full"
                     >
-                      <Link href={l(`/listing/${listing.slug}`)} className="group block h-full">
-                        <article className="relative z-0 isolate glass-box glass-box-listing-shimmer overflow-hidden flex flex-col h-full">
-                          {listing.tier === "signature" ? (
-                            <span
-                              aria-hidden
-                              className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] border-[2px] border-[hsl(43,86%,58%)] shadow-[0_0_10px_hsla(43,86%,58%,0.34)]"
-                            />
-                          ) : null}
-
-                          <div className="relative z-0 aspect-square bg-muted overflow-hidden">
-                            <ListingImage
-                              src={listing.featured_image_url}
-                              category={listing.category?.slug}
-                              categoryImageUrl={listing.category?.image_url}
-                              listingId={listing.id}
-                              alt={listing.name}
-                              isRepresentative={!listing.featured_image_url}
-                              fill={true}
-                              className="transition-transform duration-500 group-hover:scale-105"
-                            />
-
-                            <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                              <ListingTierBadge tier={listing.tier} />
-                            </div>
-
-                            {listing.google_rating ? (
-                              <GoogleRatingBadge
-                                rating={listing.google_rating}
-                                reviewCount={listing.google_review_count}
-                                variant="overlay"
-                                size="sm"
-                                className="absolute top-3 right-3"
-                              />
-                            ) : null}
-
-                            <div
-                              className="absolute bottom-3 left-3 right-3 flex items-center justify-between"
-                              onClick={(event) => event.preventDefault()}
-                            >
-                              <Badge
-                                variant="secondary"
-                                className="text-xs bg-black/60 backdrop-blur-sm text-white flex items-center gap-1"
-                              >
-                                  {renderCategoryIcon(listing.category?.icon ?? undefined, "h-3 w-3")}
-                                {translateCategoryName(t, listing.category?.slug, listing.category?.name)}
-                              </Badge>
-
-                              <FavoriteButton
-                                isFavorite={isFavorite(listing.id)}
-                                onToggle={() => toggleFavorite(listing.id)}
-                                size="sm"
-                                variant="glassmorphism"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="p-4 flex-1 flex flex-col">
-                            <h3 className="font-serif font-medium text-base lg:text-[1.32rem] mb-1 group-hover:text-primary transition-colors line-clamp-1">
-                              {listing.name}
-                            </h3>
-
-                            <p className="text-body-sm text-muted-foreground line-clamp-2 mb-3">
-                              {listing.short_description || listing.description}
-                            </p>
-
-                            <div className="mt-auto flex items-center gap-2 text-body-xs text-muted-foreground">
-                              <MapPin className="h-3 w-3" />
-                              <span>{listing.city?.name}</span>
-                              {listing.region ? (
-                                <>
-                                  <span>•</span>
-                                  <span>{listing.region.name}</span>
-                                </>
-                              ) : null}
-                            </div>
-                          </div>
-                        </article>
-                      </Link>
-                    </m.div>
+                      <ListingCard
+                        listing={listing}
+                        href={l(`/listing/${listing.slug}`)}
+                        index={index}
+                        isFavorite={isFavorite(listing.id)}
+                        onToggleFavorite={() => toggleFavorite(listing.id)}
+                      />
+                    </div>
                   ))}
                 </div>
               ) : null}

@@ -43,37 +43,64 @@ function SortableTable({
         <CardTitle className="text-base font-semibold">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="mb-3 flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setSortBy("views")} className="gap-2">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSortBy("views")}
+            className="min-w-[5.5rem] justify-center gap-2"
+          >
             <ArrowUpDown className="h-3.5 w-3.5" /> Views
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setSortBy("clicks")} className="gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSortBy("clicks")}
+            className="min-w-[5.5rem] justify-center gap-2"
+          >
             <ArrowUpDown className="h-3.5 w-3.5" /> Clicks
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setSortBy("ctr")} className="gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSortBy("ctr")}
+            className="min-w-[5.5rem] justify-center gap-2"
+          >
             <ArrowUpDown className="h-3.5 w-3.5" /> CTR
           </Button>
         </div>
 
-        <div className="overflow-x-auto rounded-md border border-border">
-          <Table>
+        <div className="rounded-md border border-border overflow-hidden">
+          <Table className="w-full table-fixed">
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead className="text-right">Views</TableHead>
-                <TableHead className="text-right">Clicks</TableHead>
-                <TableHead className="text-right">CTR</TableHead>
-                <TableHead className="text-right">Engagement</TableHead>
+                <TableHead className="w-auto">Name</TableHead>
+                <TableHead className="w-[5.75rem] text-right whitespace-nowrap">Views</TableHead>
+                <TableHead className="w-[5.75rem] text-right whitespace-nowrap">Clicks</TableHead>
+                <TableHead className="w-[5.75rem] text-right whitespace-nowrap">CTR</TableHead>
+                <TableHead className="hidden min-[1800px]:table-cell w-[6.5rem] text-right whitespace-nowrap">
+                  Engagement
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {sortedRows.slice(0, 10).map((row) => (
                 <TableRow key={row.id ?? row.name}>
-                  <TableCell className="font-medium">{row.name}</TableCell>
-                  <TableCell className="text-right">{row.views.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">{row.clicks.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">{row.ctr.toFixed(2)}%</TableCell>
-                  <TableCell className="text-right">{row.engagementRate.toFixed(2)}%</TableCell>
+                  <TableCell className="font-medium break-words [overflow-wrap:anywhere]">
+                    {row.name}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums whitespace-nowrap">
+                    {row.views.toLocaleString()}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums whitespace-nowrap">
+                    {row.clicks.toLocaleString()}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums whitespace-nowrap">
+                    {row.ctr.toFixed(2)}%
+                  </TableCell>
+                  <TableCell className="hidden min-[1800px]:table-cell text-right tabular-nums whitespace-nowrap">
+                    {row.engagementRate.toFixed(2)}%
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -125,7 +152,7 @@ export function ContentPerformanceSection({
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 xl:grid-cols-2 min-[1800px]:grid-cols-3">
         <SortableTable title="Top Cities Table" rows={topCities} />
         <SortableTable title="Top Categories Table" rows={topCategories} />
         <SortableTable title="Top Listings Table" rows={topListings} />

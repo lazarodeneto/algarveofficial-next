@@ -13,11 +13,8 @@ import type { Tables } from "@/integrations/supabase/types";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { ListingCard } from "@/components/ListingCard";
 import { CuratedExcellence } from "@/components/sections/CuratedExcellence";
-import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
-import ListingTierBadge from "@/components/ui/ListingTierBadge";
-import { translateCategoryName } from "@/lib/translateCategory";
 import {
   CMS_GLOBAL_SETTING_KEYS,
   normalizeCmsPageConfigs,
@@ -33,6 +30,7 @@ import {
 } from "@/lib/publicContentLocale";
 import { buildUniformLocalizedSlugMap } from "@/lib/i18n/localized-routing";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export type DestinationRegion = Tables<"regions">;
 export type DestinationCity = Tables<"cities">;
@@ -492,6 +490,7 @@ function DestinationDetailClientInner({
 }: DestinationDetailClientProps) {
   const { t } = useTranslation();
   const locale = normalizePublicContentLocale(useCurrentLocale());
+  const l = useLocalePath();
 
   const { data: region, isLoading: regionLoading } = useQuery({
     queryKey: ["region", initialRegion.slug, locale],
@@ -732,87 +731,16 @@ function DestinationDetailClientInner({
             ) : listings.length > 0 ? (
               <div className="grid-adaptive grid-ultrawide">
                 {listings.map((listing, index) => (
-                  <m.div
+                  <div
                     key={listing.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: index * 0.05 }}
                     className="h-full"
                   >
-                    <LocaleLink
-                      href={{
-                        routeType: "listing",
-                        slugs: buildUniformLocalizedSlugMap(listing.slug || listing.id),
-                      }}
-                      className="group block h-full"
-                    >
-                      <article className="luxury-card overflow-hidden flex flex-col h-full hoverable">
-                        {listing.tier === "signature" && (
-                          <span
-                            aria-hidden
-                            className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] border-[2px] border-[hsl(43,86%,58%)] shadow-[0_0_10px_hsla(43,86%,58%,0.34)]"
-                          />
-                        )}
-
-                        <div className="relative aspect-[4/3] overflow-hidden">
-                          <ImageWithFallback
-                            src={listing.featured_image_url ?? undefined}
-                            alt={listing.name}
-                            containerClassName="w-full h-full"
-                            fallbackIconSize={48}
-                            className="transition-transform duration-500 group-hover:scale-105"
-                          />
-
-                          <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                            <ListingTierBadge tier={listing.tier} />
-                          </div>
-
-                          {listing.google_rating && (
-                            <GoogleRatingBadge
-                              rating={listing.google_rating}
-                              reviewCount={listing.google_review_count}
-                              variant="overlay"
-                              size="sm"
-                              className="absolute top-3 right-3"
-                            />
-                          )}
-                        </div>
-
-                        <div className="p-4 flex-1 flex flex-col">
-                          <div className="flex items-center gap-2 text-caption text-muted-foreground mb-2">
-                            <span>
-                              {translateCategoryName(t, listing.category?.slug, listing.category?.name)}
-                            </span>
-                            {listing.city && (
-                              <>
-                                <span>•</span>
-                                <span className="flex items-center gap-1">
-                                  <MapPin className="w-3 h-3" />
-                                  {listing.city.name}
-                                </span>
-                              </>
-                            )}
-                          </div>
-
-                          <h3 className="min-h-[3.35rem] font-serif text-lg font-medium text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                            {listing.name}
-                          </h3>
-
-                          <p className="min-h-[3.2rem] text-caption text-muted-foreground line-clamp-2 mb-4 flex-1">
-                            {listing.short_description || listing.description}
-                          </p>
-
-                          <div className="flex items-center justify-between mt-auto pt-3 border-t border-border">
-                            <span className="text-sm font-medium text-primary">
-                              {cms.getText("listings.viewDetails", "View Details")}
-                            </span>
-                            <ArrowRight className="w-4 h-4 text-primary opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
-                          </div>
-                        </div>
-                      </article>
-                    </LocaleLink>
-                  </m.div>
+                    <ListingCard
+                      listing={listing}
+                      href={l(`/listing/${listing.slug || listing.id}`)}
+                      index={index}
+                    />
+                  </div>
                 ))}
               </div>
             ) : (

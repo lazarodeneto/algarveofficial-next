@@ -25,12 +25,15 @@ import {
   normalizePublicContentLocale,
   type PublicContentLocale,
 } from "@/lib/publicContentLocale";
+import type { ProgrammaticListing } from "@/lib/seo/programmatic/category-city-data";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { buildFaqSchema, buildTouristDestinationSchema } from "@/lib/seo/schemaBuilders.js";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { ListingCard as ProgrammaticListingCard } from "@/components/seo/programmatic/ListingCard";
 
 const PUBLIC_LISTING_FIELDS = `
-  id, slug, name, short_description, featured_image_url, tier,
+  id, slug, name, short_description, featured_image_url, tier, is_curated,
+  google_rating, google_review_count,
   status, city_id, region_id, category_id, latitude, longitude
 `;
 const DESTINATION_REGION_FIELDS = `
@@ -62,6 +65,14 @@ type DestinationCity = {
   description?: string | null;
 };
 
+type DestinationCategory = {
+  id: string;
+  name: string;
+  slug: string;
+  icon?: string | null;
+  image_url?: string | null;
+};
+
 type DestinationListing = {
   id: string;
   slug: string | null;
@@ -69,11 +80,17 @@ type DestinationListing = {
   short_description: string | null;
   description?: string | null;
   featured_image_url: string | null;
+  tier: string | null;
+  is_curated: boolean;
+  google_rating: number | null;
+  google_review_count: number | null;
   city?: DestinationCity | null;
+  category?: DestinationCategory | null;
 };
 
-type DestinationListingRow = Omit<DestinationListing, "city"> & {
+type DestinationListingRow = Omit<DestinationListing, "city" | "category"> & {
   city?: DestinationCity | DestinationCity[] | null;
+  category?: DestinationCategory | DestinationCategory[] | null;
 };
 
 function resolveRegionImage(region: RegionRow): string | null {
@@ -94,6 +111,7 @@ function truncateMeta(value?: string | null, max = 155) {
 
 function normalizeDestinationListing(row: DestinationListingRow): DestinationListing {
   const city = Array.isArray(row.city) ? (row.city[0] ?? null) : (row.city ?? null);
+  const category = Array.isArray(row.category) ? (row.category[0] ?? null) : (row.category ?? null);
 
   return {
     id: row.id,
@@ -102,7 +120,33 @@ function normalizeDestinationListing(row: DestinationListingRow): DestinationLis
     short_description: row.short_description,
     description: row.description,
     featured_image_url: row.featured_image_url,
+    tier: row.tier,
+    is_curated: row.is_curated,
+    google_rating: row.google_rating,
+    google_review_count: row.google_review_count,
     city,
+    category,
+  };
+}
+
+function toProgrammaticDestinationListing(listing: DestinationListing): ProgrammaticListing {
+  return {
+    id: listing.id,
+    slug: listing.slug ?? listing.id,
+    name: listing.name,
+    short_description: listing.short_description,
+    featured_image_url: listing.featured_image_url,
+    tier: listing.tier ?? "unverified",
+    is_curated: listing.is_curated,
+    google_rating: listing.google_rating,
+    google_review_count: listing.google_review_count,
+    price_from: null,
+    price_currency: null,
+    website_url: null,
+    city_slug: listing.city?.slug ?? "",
+    city_name: listing.city?.name ?? "Algarve",
+    category_slug: listing.category?.slug ?? "",
+    category_name: listing.category?.name ?? "",
   };
 }
 
@@ -414,44 +458,14 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
 
             {listings.length > 0 ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {listings.map((listing) => {
-                  const listingImage = normalizePublicImageUrl(listing.featured_image_url);
-                  return (
-                    <Link
-                      key={listing.id}
-                      href={buildLocalizedPath(
-                        resolvedLocale,
-                        `/listing/${listing.slug || listing.id}`
-                      )}
-                      className="group block"
-                    >
-                      <article className="overflow-hidden rounded-2xl border border-border bg-card hover:border-primary/30 transition-colors">
-                        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                          {listingImage ? (
-                            <Image
-                              src={listingImage}
-                              alt={listing.name}
-                              fill
-                              unoptimized
-                              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                              className="object-cover transition-transform duration-500 group-hover:scale-105"
-                            />
-                          ) : (
-                            <div className="h-full w-full bg-gradient-to-br from-card to-muted" />
-                          )}
-                        </div>
-                        <div className="p-4">
-                          <h3 className="font-serif text-lg font-medium text-foreground line-clamp-1">
-                            {listing.name}
-                          </h3>
-                          <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-                            {listing.short_description}
-                          </p>
-                        </div>
-                      </article>
-                    </Link>
-                  );
-                })}
+                {listings.map((listing) => (
+                  <ProgrammaticListingCard
+                    key={listing.id}
+                    listing={toProgrammaticDestinationListing(listing)}
+                    tx={tx}
+                    href={buildLocalizedPath(resolvedLocale, `/listing/${listing.slug || listing.id}`)}
+                  />
+                ))}
               </div>
             ) : (
               <div className="rounded-3xl border border-border bg-card px-8 py-14 text-center">

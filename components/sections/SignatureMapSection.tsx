@@ -1,22 +1,19 @@
 import { useMemo, useState, type ComponentType } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { BedDouble, Building2, Loader2, MapPin, MapPinned, Sparkles, UtensilsCrossed } from "lucide-react";
+import { BedDouble, Building2, Loader2, MapPinned, Sparkles, UtensilsCrossed } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { MapListingPoint } from "@/components/map/ListingsLeafletMap";
+import { ListingCard } from "@/components/ListingCard";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useSignatureListings } from "@/hooks/useListings";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { useHydrated } from "@/hooks/useHydrated";
 import { translateCategoryName } from "@/lib/translateCategory";
-import { renderCategoryIcon } from "@/lib/categoryIcons";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
-import ListingImage from "@/components/ListingImage";
-import { FavoriteButton } from "@/components/ui/favorite-button";
-import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
 import {
   DISCOVERY_FILTERS,
   mapListingToDiscoveryCategory,
@@ -100,7 +97,7 @@ export function SignatureMapSection() {
         })
         .filter((point): point is MapListingPoint => point !== null)
         .slice(0, 240),
-    [filteredDiscoveryListings, t]
+    [filteredDiscoveryListings, l, t]
   );
 
   const mapEmptyMessage = useMemo(() => {
@@ -186,84 +183,18 @@ export function SignatureMapSection() {
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {previewListings.map(({ listing }, index) => (
-                <Link
+                <div
                   key={listing.id}
-                  href={l(`/listing/${listing.slug}`)}
-                  className="group block h-full"
+                  className="h-full"
                 >
-                  <article className="glass-box glass-box-listing-shimmer overflow-hidden flex h-full flex-col">
-                    {listing.tier === "signature" && (
-                      <span
-                        aria-hidden
-                        className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] border-[2px] border-[hsl(43,86%,58%)] shadow-[0_0_10px_hsla(43,86%,58%,0.34)]"
-                      />
-                    )}
-
-                    <div className="relative aspect-square overflow-hidden bg-muted">
-                      <ListingImage
-                        src={listing.featured_image_url}
-                        category={listing.category?.slug}
-                        categoryImageUrl={listing.category?.image_url}
-                        listingId={listing.id}
-                        alt={listing.name}
-                        loading={index === 0 ? "eager" : "lazy"}
-                        fetchPriority={index === 0 ? "high" : "auto"}
-                        priority={index === 0}
-                        fill
-                        className="scale-[1.08] transition-transform duration-500 group-hover:scale-110"
-                      />
-
-                      <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                        <ListingTierBadge tier={listing.tier} />
-                      </div>
-
-                      {listing.google_rating && (
-                        <GoogleRatingBadge
-                          rating={listing.google_rating}
-                          reviewCount={listing.google_review_count}
-                          variant="overlay"
-                          size="sm"
-                          className="absolute top-3 right-3"
-                        />
-                      )}
-
-                      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                        <Badge variant="secondary" className="text-xs bg-black/60 backdrop-blur-sm text-white flex items-center gap-1">
-                          {renderCategoryIcon(listing.category?.icon ?? undefined, "h-3 w-3 text-white")}
-                          {translateCategoryName(t, listing.category?.slug, listing.category?.name)}
-                        </Badge>
-
-                        <FavoriteButton
-                          isFavorite={isFavorite(listing.id)}
-                          onToggle={() => toggleFavorite(listing.id)}
-                          size="sm"
-                          variant="glassmorphism"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="p-4 flex-1 flex flex-col">
-                      <p className="font-serif font-medium text-base lg:text-[1.32rem] mb-1 group-hover:text-primary transition-colors line-clamp-1">
-                        {listing.name}
-                      </p>
-
-                      <p className="text-body-sm text-muted-foreground line-clamp-2 mb-3">
-                        {listing.short_description || listing.description}
-                      </p>
-
-                      <div className="mt-auto flex items-center gap-2 text-body-xs text-muted-foreground">
-                        <MapPin className="h-3 w-3" />
-                        <span>{listing.city?.name ?? "Algarve"}</span>
-                        {listing.region && (
-                          <>
-                            <span>•</span>
-                            <span>{listing.region.name}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </article>
-                </Link>
+                  <ListingCard
+                    listing={listing}
+                    href={l(`/listing/${listing.slug}`)}
+                    index={index}
+                    isFavorite={isFavorite(listing.id)}
+                    onToggleFavorite={() => toggleFavorite(listing.id)}
+                  />
+                </div>
               ))}
             </div>
           )}

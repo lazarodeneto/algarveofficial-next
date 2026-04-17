@@ -61,7 +61,9 @@ import {
   buildMergedCategoryOptions,
   getMergedMemberSlugs,
   getMergedCategoryBySlug,
+  resolveCategoryFilterSlug,
 } from "@/lib/categoryMerges";
+import { translateCategoryName } from "@/lib/translateCategory";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { buildMunicipalityCityIndex } from "@/lib/cities/municipalityIndex";
@@ -78,6 +80,8 @@ import type { ListingWithRelations } from "@/hooks/useListings";
 type ListingRow = ListingWithRelations;
 
 const EXPERIENCE_MEMBER_SLUGS = getMergedMemberSlugs("experiences");
+const arraysAreEqual = (left: string[], right: string[]) =>
+  left.length === right.length && left.every((value, index) => value === right[index]);
 
 const Experiences = () => {
   const { t } = useTranslation();
@@ -102,6 +106,7 @@ const Experiences = () => {
   const [selectedRegion, setSelectedRegion] = useState("all");
   const [selectedCity, setSelectedCity] = useState("all");
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState("experiences");
   const [selectedTier, setSelectedTier] = useState<Database["public"]["Tables"]["listings"]["Row"]["tier"] | "all">("all");
   const [shouldScrollToResults, setShouldScrollToResults] = useState(false);
 
@@ -110,48 +115,78 @@ const Experiences = () => {
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Extract city parameters from URL and convert slugs to IDs
+  const mergedCategories = useMemo(
+    () => buildMergedCategoryOptions(categories),
+    [categories],
+  );
+
+  // Extract URL parameters and convert slugs to IDs
   useEffect(() => {
-    if (typeof window !== "undefined" && cities.length > 0) {
-      const params = new URLSearchParams(window.location.search);
-      const cityParams = params.getAll("city");
+    if (typeof window === "undefined" || cities.length === 0) return;
 
-      if (cityParams.length > 0) {
-        // Convert city slugs to city IDs
-        const cityIdMap = new Map(cities.map(c => [c.slug, c.id]));
-        const cityIds = cityParams
-          .map(slug => cityIdMap.get(slug))
-          .filter((id): id is string => id !== undefined);
+    const params = new URLSearchParams(window.location.search);
+    const cityParams = params.getAll("city");
+    const categoryParam = params.get("category");
+    const nextCategory = categoryParam
+      ? resolveCategoryFilterSlug(categoryParam, categories, mergedCategories)
+      : "experiences";
 
-        if (cityIds.length > 0) {
-          setSelectedCities(cityIds);
-          setSelectedCity("all");
-          setShouldScrollToResults(true);
-        }
-      } else {
-        const regionParam = params.get("region");
-        if (regionParam) {
-          setSelectedRegion(regionParam);
-        }
-        setSelectedCities([]);
+    setSelectedCategory((previousCategory) =>
+      previousCategory === nextCategory ? previousCategory : nextCategory,
+    );
+
+    if (cityParams.length > 0) {
+      // Convert city slugs to city IDs
+      const cityIdMap = new Map(cities.map((city) => [city.slug, city.id]));
+      const cityIds = cityParams
+        .map((slug) => cityIdMap.get(slug))
+        .filter((id): id is string => id !== undefined);
+
+      if (cityIds.length > 0) {
+        setSelectedCities((previousCities) =>
+          arraysAreEqual(previousCities, cityIds) ? previousCities : cityIds,
+        );
+        setSelectedCity((previousCity) =>
+          previousCity === "all" ? previousCity : "all",
+        );
+        setShouldScrollToResults(true);
+        return;
       }
     }
-  }, [cities]);
+
+    const regionParam = params.get("region");
+    const nextRegion = regionParam ?? "all";
+
+    setSelectedRegion((previousRegion) =>
+      previousRegion === nextRegion ? previousRegion : nextRegion,
+    );
+    setSelectedCities((previousCities) =>
+      previousCities.length === 0 ? previousCities : [],
+    );
+  }, [categories, cities, mergedCategories]);
+
+  const categoryMissingFromOptions = useMemo(
+    () =>
+      selectedCategory !== "all" &&
+      !mergedCategories.some((category) => category.slug === selectedCategory),
+    [mergedCategories, selectedCategory],
+  );
 
 
   const experiencesCategoryIds = useMemo(() => {
-    const mergedCategories = buildMergedCategoryOptions(categories);
     return getMergedCategoryBySlug("experiences", mergedCategories)?.memberIds ?? [];
-  }, [categories]);
-  const experiencesCategoryLabel = useMemo(() => {
-    const thingsToDo = categories.find((category) => category.slug === "things-to-do");
-    if (thingsToDo?.name) return thingsToDo.name;
-
-    const mergedCategories = buildMergedCategoryOptions(categories);
-    return getMergedCategoryBySlug("experiences", mergedCategories)?.name;
-  }, [categories]);
+  }, [mergedCategories]);
+  const selectedCategoryIds = useMemo(() => {
+    if (selectedCategory === "all") {
+      return Array.from(
+        new Set(mergedCategories.flatMap((category) => category.memberIds)),
+      );
+    }
+    return getMergedCategoryBySlug(selectedCategory, mergedCategories)?.memberIds ?? [];
+  }, [mergedCategories, selectedCategory]);
 
   const hasActiveFilters =
+    selectedCategory !== "experiences" ||
     selectedRegion !== "all" ||
     selectedCity !== "all" ||
     selectedCities.length > 0 ||
@@ -164,6 +199,7 @@ const Experiences = () => {
     setSelectedRegion("all");
     setSelectedCity("all");
     setSelectedCities([]);
+    setSelectedCategory("experiences");
     setSelectedTier("all");
   }, []);
 
@@ -260,14 +296,15 @@ const Experiences = () => {
       selectedRegion,
       selectedCity,
       [...selectedCities].sort().join(","),
+      selectedCategory,
+      [...selectedCategoryIds].sort().join(","),
       selectedTier,
-      [...experiencesCategoryIds].sort().join(","),
       locale,
     ],
     queryFn: async () => {
-      let effectiveCategoryIds = experiencesCategoryIds;
+      let effectiveCategoryIds: string[] = selectedCategoryIds;
 
-      if (effectiveCategoryIds.length === 0) {
+      if (selectedCategory === "experiences" && effectiveCategoryIds.length === 0) {
         const { data: fallbackCategories, error: fallbackError } = await supabase
           .from("categories")
           .select("id")
@@ -278,13 +315,15 @@ const Experiences = () => {
         effectiveCategoryIds = (fallbackCategories ?? []).map((category) => category.id);
       }
 
-      if (effectiveCategoryIds.length === 0) return [];
-
       let query = supabase
         .from("listings")
         .select("*, city:cities ( id, name, slug ), region:regions ( id, name, slug ), category:categories ( id, name, slug, icon )")
-        .in("category_id", effectiveCategoryIds)
         .eq("status", "published");
+
+      if (effectiveCategoryIds.length > 0) {
+        query = query.in("category_id", effectiveCategoryIds);
+      }
+
       if (debouncedSearch) {
         query = query.or(
           `name.ilike.%${debouncedSearch}%,description.ilike.%${debouncedSearch}%`,
@@ -689,12 +728,48 @@ const Experiences = () => {
                             <Tag className="h-4 w-4 text-primary" />
                             {t("directory.category")}
                           </label>
-                          <div className="h-12 flex items-center px-4 bg-primary/10 border border-primary/30 rounded-md text-foreground font-medium">
-                            {experiencesCategoryLabel ??
-                              t(
-                                "categoryNames.things-to-do",
-                              )}
-                          </div>
+                          <Select
+                            value={selectedCategory}
+                            onValueChange={setSelectedCategory}
+                          >
+                            <SelectTrigger className="h-12 bg-muted/30 border-border hover:bg-muted/50 focus:bg-background">
+                              <SelectValue
+                                placeholder={t(
+                                  "directory.allCategories",
+                                )}
+                              />
+                            </SelectTrigger>
+                            <SelectContent className="bg-popover border-border shadow-lg max-h-[280px]">
+                              {categoryMissingFromOptions ? (
+                                <SelectItem value={selectedCategory}>
+                                  {translateCategoryName(
+                                    t,
+                                    selectedCategory,
+                                    selectedCategory,
+                                  )}
+                                </SelectItem>
+                              ) : null}
+                              <SelectItem value="all">
+                                {t("directory.allCategories")}
+                              </SelectItem>
+                              {[...mergedCategories]
+                                .sort((a, b) =>
+                                  a.name.localeCompare(b.name),
+                                )
+                                .map((category) => (
+                                  <SelectItem
+                                    key={category.id}
+                                    value={category.slug}
+                                  >
+                                    {translateCategoryName(
+                                      t,
+                                      category.slug,
+                                      category.name,
+                                    )}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
                         </div>
 
                         <div className="space-y-2">

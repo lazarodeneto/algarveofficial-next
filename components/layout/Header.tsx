@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, type ComponentProps } from "react";
 import NextLink from "next/link";
+import { usePathname } from "next/navigation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import type { Locale } from "@/lib/i18n/config";
 import { AnimatePresence, m } from "framer-motion";
@@ -35,6 +36,7 @@ import { useTranslation } from "react-i18next";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { HeaderNav } from "./HeaderNav";
 import { MobileBottomNav } from "./MobileBottomNav";
+import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 
 function Link(props: ComponentProps<typeof NextLink>) {
   return <NextLink prefetch={false} {...props} />;
@@ -44,11 +46,18 @@ interface HeaderProps {
   localeSwitchPaths?: Record<string, string>;
 }
 
+const SIDEBAR_EXCLUDED_PREFIXES = ["/admin", "/owner", "/dashboard", "/golf"];
+
 export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const { mobileMenuOpen, setMobileMenuOpen } = useMobileMenu();
   const { isAuthenticated, user, logout, getDashboardPath } = useAuth();
   const { t } = useTranslation();
   const l = useLocalePath();
+  const pathname = usePathname() ?? "/";
+  const barePath = stripLocaleFromPathname(pathname);
+  const isLeftSidebarActive = !SIDEBAR_EXCLUDED_PREFIXES.some((prefix) =>
+    barePath.startsWith(prefix),
+  );
 
   const directoryPath = l("/stay?category=places-to-stay");
   const experiencesPath = l("/experiences");
@@ -166,7 +175,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
               <div className="hidden items-center justify-center lg:flex xl:hidden">
                 <BrandLogo
                   size="sm"
-                  showIcon
+                  showIcon={!isLeftSidebarActive}
                   className="whitespace-nowrap gap-1.5"
                   iconClassName="h-5 w-5"
                 />

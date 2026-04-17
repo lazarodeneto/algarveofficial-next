@@ -74,8 +74,14 @@ export function BrandLogo({
       format: "webp",
       resize: "contain",
     }) ?? logoUrl;
-  const siteName = hydratedSettings?.site_name ?? "Algarve Official";
-  const [siteFirstWord, ...siteRestWords] = siteName.split(" ");
+  const configuredSiteName = hydratedSettings?.site_name?.trim();
+  const siteName = configuredSiteName && configuredSiteName.length > 0
+    ? configuredSiteName
+    : "Algarve Official";
+  const [siteFirstWord = "Algarve", ...siteRestWords] = siteName
+    .split(/\s+/)
+    .filter(Boolean);
+  const siteRestLabel = siteRestWords.join(" ");
   const effectiveIconTone =
     iconTone === "auto" ? (hydrated && resolvedTheme === "dark" ? "white" : "gold") : iconTone;
   const officialIconSrc = officialIconSrcByTone[effectiveIconTone];
@@ -107,8 +113,10 @@ export function BrandLogo({
       ) : null}
       {showText && (
         <span className={cn(config.text, "font-serif font-normal tracking-tight")}>
-          <span className="brand-logo-algarve text-gradient-gold">{siteFirstWord ?? "Algarve"}</span>
-          <span className="brand-logo-official text-foreground">{siteRestWords.join(" ") ?? "Official"}</span>
+          <span className="brand-logo-algarve text-gradient-gold">{siteFirstWord}</span>
+          {siteRestLabel ? (
+            <span className="brand-logo-official text-foreground">{siteRestLabel}</span>
+          ) : null}
         </span>
       )}
     </div>

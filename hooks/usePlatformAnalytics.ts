@@ -104,6 +104,16 @@ export type PlatformAnalyticsData = {
   };
 };
 
+type GaTrafficOverviewApiData = {
+  connected: boolean;
+  totalUsers: number;
+  sessions: number;
+  pageViews: number;
+  avgSessionDurationSec: number;
+  topPages: Array<{ page: string; views: number }>;
+  topCities: Array<{ city: string; views: number }>;
+};
+
 const KNOWN_BLOCKS = ["cities", "featured-city", "all-listings", "listings", "curated"] as const;
 
 type KnownBlock = (typeof KNOWN_BLOCKS)[number];
@@ -165,7 +175,7 @@ export function usePlatformAnalytics(filters: AnalyticsFilters) {
           .select("id, name, tier, city_id, category_id, view_count")
           .eq("status", "published"),
         supabase.from("cities").select("id, name").eq("is_active", true),
-        supabase.from("categories").select("id, name").eq("is_active", true),
+        supabase.from("categories").select("id, name, slug").eq("is_active", true),
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase
           .from("analytics_events")
@@ -181,6 +191,7 @@ export function usePlatformAnalytics(filters: AnalyticsFilters) {
       if (listingsResult.error) throw listingsResult.error;
       if (citiesResult.error) throw citiesResult.error;
       if (categoriesResult.error) throw categoriesResult.error;
+      if (profilesResult.error) throw profilesResult.error;
       if (eventsResult.error) throw eventsResult.error;
       if (dailyResult.error) throw dailyResult.error;
 
@@ -190,6 +201,9 @@ export function usePlatformAnalytics(filters: AnalyticsFilters) {
 
       const cityNameById = new Map((citiesResult.data ?? []).map((row) => [row.id, row.name]));
       const categoryNameById = new Map((categoriesResult.data ?? []).map((row) => [row.id, row.name]));
+      const categorySlugById = new Map(
+        (categoriesResult.data ?? []).map((row) => [row.id, row.slug]),
+      );
 
       const filteredListings = listings.filter((listing) => {
         if (filters.cityId && listing.city_id !== filters.cityId) return false;
@@ -378,18 +392,62 @@ export function usePlatformAnalytics(filters: AnalyticsFilters) {
         .sort((a, b) => b.views - a.views)
         .slice(0, 10);
 
-      const isGaConnected = false;
+      let gaTrafficOverview: GaTrafficOverviewApiData | null = null;
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (session?.access_token) {
+          const params = new URLSearchParams({
+            timeRange: filters.timeRange,
+          });
+
+          if (filters.cityId) {
+            const cityName = cityNameById.get(filters.cityId);
+            if (cityName) params.set("city", cityName);
+          }
+
+          if (filters.categoryId) {
+            const categorySlug = categorySlugById.get(filters.categoryId);
+            if (categorySlug) params.set("categorySlug", categorySlug);
+          }
+
+          const gaResponse = await fetch(`/api/admin/analytics/ga?${params.toString()}`, {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          });
+
+          if (gaResponse.ok) {
+            const payload = (await gaResponse.json().catch(() => null)) as
+              | {
+                  ok?: boolean;
+                  data?: GaTrafficOverviewApiData | null;
+                }
+              | null;
+
+            if (payload?.ok && payload.data?.connected) {
+              gaTrafficOverview = payload.data;
+            }
+          }
+        }
+      } catch (gaError) {
+        void gaError;
+      }
+
+      const isGaConnected = Boolean(gaTrafficOverview?.connected);
 
       return {
         trafficOverview: {
           source: isGaConnected ? "ga" : "mock",
           isGaConnected,
-          totalUsers: profilesResult.count ?? 0,
-          sessions,
-          pageViews: totalViews,
-          avgSessionDurationSec: 0,
-          topPages: topPageRows,
-          topCities,
+          totalUsers: gaTrafficOverview?.totalUsers ?? profilesResult.count ?? 0,
+          sessions: gaTrafficOverview?.sessions ?? sessions,
+          pageViews: gaTrafficOverview?.pageViews ?? totalViews,
+          avgSessionDurationSec: gaTrafficOverview?.avgSessionDurationSec ?? 0,
+          topPages: gaTrafficOverview?.topPages?.length ? gaTrafficOverview.topPages : topPageRows,
+          topCities: gaTrafficOverview?.topCities?.length ? gaTrafficOverview.topCities : topCities,
           topCategories,
         },
         contentPerformance: {

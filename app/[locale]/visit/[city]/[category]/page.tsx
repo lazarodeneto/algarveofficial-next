@@ -241,70 +241,78 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
             </div>
           )}
           <div className="app-container pt-[calc(6rem+10px)] pb-12 md:pt-[calc(6.5rem+10px)] md:pb-16">
-            <nav aria-label="Breadcrumb" className="mb-6">
-              <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
-                <li>
-                  <LocaleLink href="/" className="hover:text-foreground transition-colors">
-                    {tx["nav.home"] ?? "Home"}
-                  </LocaleLink>
-                </li>
-                <li aria-hidden="true" className="select-none">/</li>
-                <li>
-                  <LocaleLink href="/stay" className="hover:text-foreground transition-colors">
-                    {tx["nav.visit"] ?? "Visit"}
-                  </LocaleLink>
-                </li>
-                <li aria-hidden="true" className="select-none">/</li>
-                <li>
-                  <LocaleLink
-                    href={{
-                      routeType: "city",
-                      citySlugs: routeData.citySlugs,
-                    }}
-                    className="hover:text-foreground transition-colors capitalize"
-                  >
-                    {data.city.name}
-                  </LocaleLink>
-                </li>
-                <li aria-hidden="true" className="select-none">/</li>
-                <li className="text-foreground font-medium">{getCategoryDisplayName(canonical, locale)}</li>
-              </ol>
-            </nav>
+            <div className="mx-auto max-w-4xl">
+              <nav aria-label="Breadcrumb" className="mb-6">
+                <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
+                  <li>
+                    <LocaleLink href="/" className="hover:text-foreground transition-colors">
+                      {tx["nav.home"] ?? "Home"}
+                    </LocaleLink>
+                  </li>
+                  <li aria-hidden="true" className="select-none">/</li>
+                  <li>
+                    <LocaleLink href="/stay" className="hover:text-foreground transition-colors">
+                      {tx["nav.visit"] ?? "Visit"}
+                    </LocaleLink>
+                  </li>
+                  <li aria-hidden="true" className="select-none">/</li>
+                  <li>
+                    <LocaleLink
+                      href={{
+                        routeType: "city",
+                        citySlugs: routeData.citySlugs,
+                      }}
+                      className="hover:text-foreground transition-colors capitalize"
+                    >
+                      {data.city.name}
+                    </LocaleLink>
+                  </li>
+                  <li aria-hidden="true" className="select-none">/</li>
+                  <li className="text-foreground font-medium">{getCategoryDisplayName(canonical, locale)}</li>
+                </ol>
+              </nav>
 
-            <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl text-foreground mb-4 leading-tight">
-              {content.h1}
-            </h1>
+              <div className="rounded-3xl border border-border bg-card/90 p-6 shadow-sm backdrop-blur-sm md:p-10">
+                <h1 className="font-serif text-3xl font-medium leading-[1.08] tracking-[-0.02em] text-foreground md:text-4xl lg:text-5xl text-balance">
+                  {content.h1}
+                </h1>
 
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mt-4">
-              <span className="flex items-center gap-1.5">
-                <span className="inline-flex h-2 w-2 rounded-full bg-primary" />
-                {hasListings ? `${data.totalCount} ${getCategoryDisplayName(canonical, locale).toLowerCase()}` : `${data.totalCount} listings`}
-              </span>
-              {data.listings.some((listing) => listing.google_rating) && (
-                <span>
-                  ★{" "}
-                  {(
-                    data.listings
-                      .filter((listing) => listing.google_rating)
-                      .reduce((sum, listing) => sum + (listing.google_rating ?? 0), 0) /
-                    data.listings.filter((listing) => listing.google_rating).length
-                  ).toFixed(1)}{" "}
-                  {tx["common.avgRating"] ?? "avg rating"}
-                </span>
-              )}
-              <span>{data.city.name}, Algarve, Portugal</span>
+                <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-flex h-2 w-2 rounded-full bg-primary" />
+                    {hasListings
+                      ? `${data.totalCount} ${getCategoryDisplayName(canonical, locale).toLowerCase()}`
+                      : `${data.totalCount} listings`}
+                  </span>
+                  {data.listings.some((listing) => listing.google_rating) && (
+                    <span>
+                      ★{" "}
+                      {(
+                        data.listings
+                          .filter((listing) => listing.google_rating)
+                          .reduce((sum, listing) => sum + (listing.google_rating ?? 0), 0) /
+                        data.listings.filter((listing) => listing.google_rating).length
+                      ).toFixed(1)}{" "}
+                      {tx["common.avgRating"] ?? "avg rating"}
+                    </span>
+                  )}
+                  <span>{data.city.name}, Algarve, Portugal</span>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="app-container py-8">
-          <div className="max-w-3xl space-y-4">
-            <p className="text-base text-muted-foreground leading-relaxed">
-              {content.intro}
-            </p>
-            <p className="text-base text-muted-foreground leading-relaxed">
-              {content.bodyParagraph}
-            </p>
+        <section className="app-container py-8 md:py-10">
+          <div className="mx-auto max-w-4xl rounded-3xl border border-border bg-card p-6 shadow-sm md:p-10">
+            <div className="space-y-6">
+              <p className="text-lg leading-relaxed text-muted-foreground">
+                {content.intro}
+              </p>
+              <p className="text-lg leading-relaxed text-muted-foreground">
+                {content.bodyParagraph}
+              </p>
+            </div>
           </div>
         </section>
 

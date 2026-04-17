@@ -33,6 +33,7 @@ export default function AdminEventModeration() {
 
   const { data: events = [], isLoading } = useAdminEvents({
     status: 'pending_review',
+    time: 'all',
   }) as { data: CalendarEvent[]; isLoading: boolean };
   const approveEvent = useApproveEvent();
   const rejectEvent = useRejectEvent();

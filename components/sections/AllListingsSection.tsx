@@ -1,15 +1,10 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import Link from "next/link";
-import { MapPin, Loader2 } from "lucide-react";
-import { m } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
-import { FavoriteButton } from "@/components/ui/favorite-button";
+import { ListingCard } from "@/components/ListingCard";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { useTranslation } from "react-i18next";
 import { useLocalePath } from "@/hooks/useLocalePath";
-import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -19,11 +14,8 @@ import {
 } from "@/components/ui/select";
 import { usePublishedListings } from "@/hooks/useListings";
 import { useCategories, useCities, useRegions } from "@/hooks/useReferenceData";
-import { renderCategoryIcon } from "@/lib/categoryIcons";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { buildMergedCategoryOptions, getMergedCategoryBySlug } from "@/lib/categoryMerges";
-import ListingImage from "@/components/ListingImage";
-import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import { Skeleton } from "@/components/ui/skeleton";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
 import { useHydrated } from "@/hooks/useHydrated";
@@ -39,36 +31,9 @@ import {
   resolveListingOrder,
 } from "@/lib/cms/placement-engine";
 import { trackBlockImpression, trackListingClick } from "@/lib/analytics/platformTracking";
-import {
-  getTierCardClasses,
-  getTierImageZoom,
-  getTierImageOverlay,
-  getTierTitleClasses,
-  getTierSpacing,
-  isPremiumTier,
-} from "@/lib/tier-design";
 
 const ITEMS_PER_PAGE = 12;
 const MAX_HOME_LISTINGS = 24;
-
-// Animation variants for listing cards
-const cardVariants = {
-  hidden: {
-    opacity: 0,
-    y: 20,
-    scale: 0.95
-  },
-  visible: (index: number) => ({
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      delay: (index % ITEMS_PER_PAGE) * 0.05,
-      duration: 0.4,
-      ease: [0.25, 0.1, 0.25, 1] as const
-    }
-  })
-};
 
 export function AllListingsSection() {
   const mounted = useHydrated();
@@ -342,159 +307,28 @@ export function AllListingsSection() {
 
         {/* Listings Grid */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8">
-          {visibleListings.map((listing, index) => {
-            const tierCardClass = getTierCardClasses(listing.tier);
-            const tierImageZoom = getTierImageZoom(listing.tier);
-            const tierTitleClass = getTierTitleClasses(listing.tier);
-            const tierSpacing = getTierSpacing(listing.tier);
-            const isPremium = isPremiumTier(listing.tier);
-            
-            return (
-            <m.div
+          {visibleListings.map((listing, index) => (
+            <ListingCard
               key={listing.id}
-              variants={cardVariants}
-              initial="hidden"
-              animate="visible"
-              custom={index}
-              className="h-full group"
-            >
-              <Link
-                href={l(`/listing/${listing.slug}`)}
-                className="block h-full"
-                onClick={() =>
-                  void trackListingClick({
-                    listingId: listing.id,
-                    cityId: listing.city_id,
-                    categoryId: listing.category_id,
-                    tier: listing.tier,
-                    position: index + 1,
-                    blockId: "all-listings",
-                    pageId: "home",
-                    selection: placementSelection,
-                  })
-                }
-              >
-                <article className={cn(
-                  "relative overflow-hidden flex flex-col h-full",
-                  tierCardClass,
-                  isPremium && "ring-1 ring-inset ring-[#C7A35A]/20"
-                )}>
-                  {/* Image */}
-                  <div className={cn(
-                    "relative bg-muted overflow-hidden",
-                    isPremium ? "aspect-[5/4]" : "aspect-[4/3]"
-                  )}>
-                    <ListingImage
-                      src={listing.featured_image_url}
-                      category={listing.category?.slug}
-                      categoryImageUrl={listing.category?.image_url}
-                      listingId={listing.id}
-                      alt={listing.name}
-                      fill
-                      className={cn(
-                        "transition-transform duration-700 ease-out",
-                        tierImageZoom
-                      )}
-                    />
-                    
-                    {/* Overlay gradient */}
-                    <div className={cn(
-                      "absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent transition-opacity duration-300",
-                      listing.tier === "unverified" ? "opacity-0" : "opacity-0 group-hover:opacity-100",
-                      listing.tier === "verified" && "opacity-40 group-hover:opacity-70",
-                      isPremium && "opacity-60 group-hover:opacity-85"
-                    )} />
-
-                    {/* Premium tier accent line */}
-                    {isPremium && (
-                      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#C7A35A]/60 to-transparent" />
-                    )}
-
-                    {/* Badges - Top Left */}
-                    <div className={cn(
-                      "absolute top-4 left-4 flex flex-wrap gap-2",
-                      isPremium && "left-5 top-5"
-                    )}>
-                      <ListingTierBadge tier={listing.tier} />
-                    </div>
-
-                    {/* Google Reviews - Top Right */}
-                    {listing.google_rating && (
-                      <GoogleRatingBadge
-                        rating={listing.google_rating}
-                        reviewCount={listing.google_review_count}
-                        variant="overlay"
-                        size="sm"
-                        className={cn(
-                          "absolute top-4 right-4",
-                          isPremium && "top-5 right-5"
-                        )}
-                      />
-                    )}
-
-                    {/* Bottom row - Category badge (left) & Favorite button (right) */}
-                    <div className={cn(
-                      "absolute bottom-4 left-4 right-4 flex items-center justify-between",
-                      isPremium && "bottom-5 left-5 right-5"
-                    )}>
-                      <Badge variant="secondary" className={cn(
-                        "text-xs bg-black/70 backdrop-blur-sm text-white/95 flex items-center gap-1.5 px-3 py-1.5 rounded-full border-0",
-                        isPremium && "bg-black/80 text-[#C7A35A]"
-                      )}>
-                        {renderCategoryIcon(listing.category?.icon ?? undefined, cn(
-                          "h-3.5 w-3.5",
-                          isPremium ? "text-[#C7A35A]" : "text-white/90"
-                        ))}
-                        {translateCategoryName(t, listing.category?.slug, listing.category?.name)}
-                      </Badge>
-
-                      <FavoriteButton
-                        isFavorite={isFavorite(listing.id)}
-                        onToggle={() => toggleFavorite(listing.id)}
-                        size="sm"
-                        variant="glassmorphism"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className={cn("flex-1 flex flex-col bg-card", tierSpacing.padding)}>
-                    <h3 className={cn(
-                      tierTitleClass,
-                      "text-base lg:text-[1.32rem] text-foreground mb-2",
-                      !isPremium && "font-medium",
-                      isPremium && "text-xl lg:text-2xl"
-                    )}>
-                      {listing.name}
-                    </h3>
-
-                    <p className={cn(
-                      "text-muted-foreground leading-relaxed line-clamp-2",
-                      tierSpacing.gap === "gap-5" ? "mb-5" : "mb-4",
-                      isPremium && "text-sm"
-                    )}>
-                      {listing.short_description || listing.description}
-                    </p>
-
-                    <div className="mt-auto flex items-center gap-2 text-xs text-muted-foreground/80">
-                      <MapPin className={cn(
-                        "h-3.5 w-3.5",
-                        isPremium ? "text-[#C7A35A]/70" : "text-muted-foreground/60"
-                      )} />
-                      <span>{listing.city?.name}</span>
-                      {listing.region && (
-                        <>
-                          <span className="text-border">•</span>
-                          <span>{listing.region.name}</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </article>
-              </Link>
-            </m.div>
-          );
-          })}
+              listing={listing}
+              href={l(`/listing/${listing.slug}`)}
+              index={index}
+              isFavorite={isFavorite(listing.id)}
+              onToggleFavorite={() => toggleFavorite(listing.id)}
+              onCardClick={() =>
+                void trackListingClick({
+                  listingId: listing.id,
+                  cityId: listing.city_id,
+                  categoryId: listing.category_id,
+                  tier: listing.tier,
+                  position: index + 1,
+                  blockId: "all-listings",
+                  pageId: "home",
+                  selection: placementSelection,
+                })
+              }
+            />
+          ))}
         </div>
 
         {/* Infinite Scroll Loader */}
