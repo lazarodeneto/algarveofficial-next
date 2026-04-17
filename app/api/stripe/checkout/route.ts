@@ -19,7 +19,7 @@ function normalizePaidTier(value: unknown): PaidTier | null {
 }
 
 function normalizeCheckoutBillingPeriod(value: unknown): BillingPeriod | null {
-  const period = normalizePricingBillingPeriod(value);
+  const period = normalizePricingBillingPeriod(value as any);
   if (period === "monthly" || period === "yearly" || period === "promo") return period;
   return null;
 }
