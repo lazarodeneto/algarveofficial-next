@@ -120,7 +120,6 @@ export function usePublishedBlogPosts(category?: BlogCategory) {
       })) as BlogPostWithAuthor[];
     },
     enabled: isBrowser,
-    initialData: [] as BlogPostWithAuthor[],
   });
 }
 
@@ -182,7 +181,7 @@ export function usePublishedBlogPost(
     },
     staleTime: 1000 * 60 * 10, // Cache for 10 minutes
     enabled: isBrowser && !!slug,
-    initialData: initialPost ?? null,
+    initialData: initialPost ?? undefined,
   });
 }
 
