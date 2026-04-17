@@ -1,4 +1,5 @@
 export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
 import { normalizePricingBillingPeriod, normalizePricingTier } from "@/lib/pricing/pricing-resolver";
 import { requireAuthenticatedOwner } from "@/lib/server/owner-auth";
@@ -10,19 +11,26 @@ import { planTypeFromBillingPeriod } from "@/lib/subscriptions/types";
 
 type PaidTier = "verified" | "signature";
 type BillingPeriod = "monthly" | "yearly" | "promo";
+
 function normalizePaidTier(value: unknown): PaidTier | null {
   if (typeof value !== "string") return null;
   const tier = normalizePricingTier(value);
   if (tier === "verified" || tier === "signature") return tier;
   return null;
 }
+
 function normalizeCheckoutBillingPeriod(value: unknown): BillingPeriod | null {
   const period = normalizePricingBillingPeriod(value);
   if (period === "monthly" || period === "yearly" || period === "promo") return period;
+  return null;
+}
+
 function resolveSiteUrl(request: NextRequest) {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   if (configured) return configured.replace(/\/$/, "");
   return request.nextUrl.origin;
+}
+
 export async function POST(request: NextRequest) {
   const stripe = getStripeServerClient();
   if (!stripe) {
