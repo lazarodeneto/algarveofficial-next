@@ -1,5 +1,4 @@
 export const runtime = "nodejs";
-export const runtime = "nodejs";
 // Stripe Billing Portal session creator. Resolves the customer ID from the
 // owner's subscription row (DB lookup, not frontend input) and returns a URL
 // the client can open in a new tab. Users can update payment method, cancel,
@@ -12,7 +11,6 @@ import { requireAuthenticatedOwner } from "@/lib/server/owner-auth";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { findByOwner } from "@/lib/subscriptions/db";
 
-export const runtime = "nodejs";
 
 function resolveSiteUrl(request: NextRequest) {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();

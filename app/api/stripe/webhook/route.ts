@@ -1,5 +1,4 @@
 export const runtime = "nodejs";
-export const runtime = "nodejs";
 // Stripe webhook entry point. Idempotent dispatch with audit logging and
 // automatic tier application. Sequence:
 //   1. Verify signature
@@ -20,7 +19,6 @@ import { applyTierToListings, findByOwner } from "@/lib/subscriptions/db";
 import { markEvent, recordStripeEvent } from "@/lib/subscriptions/events";
 import { WEBHOOK_HANDLERS } from "@/lib/subscriptions/webhook-handlers";
 
-export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   const stripe = getStripeServerClient();
