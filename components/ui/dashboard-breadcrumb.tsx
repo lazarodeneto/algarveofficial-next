@@ -47,6 +47,7 @@ const dashboardConfigs: Record<string, BreadcrumbConfig> = {
       "content/header": "admin.sidebar.headerMenu",
       "content/footer": "admin.sidebar.footerMenu",
       "content/media": "admin.sidebar.mediaLibrary",
+      "content/page-builder": "admin.sidebar.pageBuilder",
       "content/settings": "admin.sidebar.settings",
       // Email Marketing routes
       email: "admin.sidebar.emailMarketing",

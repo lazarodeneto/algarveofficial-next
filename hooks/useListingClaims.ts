@@ -37,29 +37,35 @@ interface SubmitClaimData {
  * Hook to submit a listing claim/request
  */
 export function useSubmitListingClaim() {
-  const { user } = useAuth();
   const isBrowser = typeof window !== "undefined";
 
   return useMutation({
     mutationFn: async (data: SubmitClaimData) => {
-      if (!isBrowser) return;
+      if (!isBrowser) {
+        throw new Error("Partner claim submissions are only available in the browser.");
+      }
 
-      const { error } = await supabase
-        .from('listing_claims')
-        .insert({
-          request_type: data.requestType,
-          business_name: data.businessName,
-          business_website: data.businessWebsite ?? null,
-          contact_name: data.contactName,
-          email: data.email,
-          phone: data.phone ?? null,
-          message: data.message,
-          listing_id: data.listingId ?? null,
-          user_id: user?.id ?? null,
-          status: 'pending',
-        });
+      const response = await fetch("/api/partner/claims", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
 
-      if (error) throw error;
+      const payload = await response
+        .json()
+        .catch(() => null) as
+          | { ok?: boolean; error?: { message?: string } }
+          | null;
+
+      if (!response.ok || payload?.ok === false) {
+        throw new Error(
+          payload?.error?.message || "Unable to submit your request right now. Please try again.",
+        );
+      }
+
+      return payload;
     },
   });
 }

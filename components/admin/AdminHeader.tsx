@@ -30,7 +30,6 @@ import { DashboardBreadcrumb } from "@/components/ui/dashboard-breadcrumb";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePendingReviewCount } from "@/hooks/usePendingReviewCount";
 import { useUnreadMessagesCount } from "@/hooks/useUnreadMessagesCount";
-import { usePendingClaimsCount } from "@/hooks/useListingClaims";
 import { usePendingEventsCount } from "@/hooks/useEvents";
 import { usePendingListingReviewCount } from "@/hooks/useListingReviews";
 import { Badge } from "@/components/ui/badge";
@@ -47,21 +46,19 @@ export function AdminHeader() {
   const { data: pendingCount = 0 } = usePendingReviewCount();
   const { data: pendingListingReviewsCount = 0 } = usePendingListingReviewCount();
   const { data: unreadMessagesCount = 0 } = useUnreadMessagesCount();
-  const { data: pendingClaimsCount = 0 } = usePendingClaimsCount();
   const { data: pendingEventsCount = 0 } = usePendingEventsCount();
   const [quickJump, setQuickJump] = useState("");
   const adminName = user?.firstName ?? t("common.admin");
   const adminEmail = user?.email ?? "";
   const adminInitial = (adminName.trim().charAt(0) || adminEmail.trim().charAt(0) || "A").toUpperCase();
 
-  const totalNotifications = pendingCount + pendingListingReviewsCount + pendingClaimsCount + pendingEventsCount;
+  const totalNotifications = pendingCount + pendingListingReviewsCount + pendingEventsCount;
   const notificationTarget = useMemo(() => {
     if (pendingCount > 0) return l("/admin/moderation");
     if (pendingListingReviewsCount > 0) return l("/admin/reviews");
     if (pendingEventsCount > 0) return l("/admin/content/events/moderation");
-    if (pendingClaimsCount > 0) return l("/admin/claims");
     return l("/admin/moderation");
-  }, [l, pendingClaimsCount, pendingCount, pendingEventsCount, pendingListingReviewsCount]);
+  }, [l, pendingCount, pendingEventsCount, pendingListingReviewsCount]);
 
   const quickJumpOptions = useMemo(
     () => [

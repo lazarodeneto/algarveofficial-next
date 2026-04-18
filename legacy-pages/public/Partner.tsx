@@ -111,7 +111,7 @@ const Partner = () => {
     }
 
     try {
-      await submitClaimMutation.mutateAsync({
+      const responseData = await submitClaimMutation.mutateAsync({
         requestType: formData.requestType!,
         businessName: formData.businessName!,
         businessWebsite: formData.businessWebsite || undefined,
@@ -119,9 +119,18 @@ const Partner = () => {
         email: formData.email!,
         phone: formData.phone ? `${countryCode}${formData.phone}` : undefined,
         message: formData.message!,
-      });
+      }) as { warnings?: string[] } | null;
 
       toast.success(content.successMessage);
+      if (
+        responseData?.warnings?.includes("partner_claim_alert_enqueue_failed") ||
+        responseData?.warnings?.includes("partner_claim_alert_trigger_failed") ||
+        responseData?.warnings?.includes("partner_claim_alert_outbox_worker_unhealthy")
+      ) {
+        toast.message(
+          "Your request was saved, but immediate email alert delivery needs configuration. The admin dashboard still has your claim.",
+        );
+      }
       setFormData({
         requestType: undefined,
         businessName: "",
@@ -133,7 +142,8 @@ const Partner = () => {
       });
     } catch (error) {
       console.error("Error submitting claim:", error);
-      toast.error(t("partner.form.error"));
+      const message = error instanceof Error ? error.message : "";
+      toast.error(message || t("partner.form.error"));
     }
   };
 

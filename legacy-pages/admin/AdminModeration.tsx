@@ -56,6 +56,14 @@ export default function AdminModeration() {
   const [previewListing, setPreviewListing] = useState<any | null>(null);
   const { data: pendingEventsCount = 0 } = usePendingEventsCount();
 
+  const invalidateModerationQueries = () => {
+    queryClient.invalidateQueries({ queryKey: ['admin-pending-listings'] });
+    queryClient.invalidateQueries({ queryKey: ['listings', 'pending-review-count'] });
+    queryClient.invalidateQueries({ queryKey: ['listings'] });
+    queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
+    queryClient.invalidateQueries({ queryKey: ['listing'] });
+  };
+
   // Fetch pending listings
   const { data: pendingListings = [], isLoading } = useQuery({
     queryKey: ['admin-pending-listings'],
@@ -87,13 +95,8 @@ export default function AdminModeration() {
         sync_featured_image: true,
       });
     },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['admin-pending-listings'] });
-      // Invalidate all listing-related caches so homepage, directory, and owner dashboard update
-      queryClient.invalidateQueries({ queryKey: ['pending-review-count'] });
-      queryClient.invalidateQueries({ queryKey: ['listings'] });
-      queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
-      queryClient.invalidateQueries({ queryKey: ['listing'] });
+    onSuccess: () => {
+      invalidateModerationQueries();
       toast.success("Listing approved and published");
     },
     onError: (error) => {
@@ -110,7 +113,7 @@ export default function AdminModeration() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-pending-listings'] });
+      invalidateModerationQueries();
       toast.success("Listing rejected");
       setRejectDialogOpen(false);
       setRejectReason("");

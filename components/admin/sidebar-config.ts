@@ -9,6 +9,7 @@ import {
   MapPinned,
   Megaphone,
   Newspaper,
+  PencilRuler,
   Settings2,
   Tags,
 } from "lucide-react";
@@ -77,6 +78,12 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
     id: "content",
     label: "CONTENT",
     items: [
+      {
+        id: "builder",
+        label: "BUILDER",
+        href: "/admin/content/page-builder",
+        icon: PencilRuler,
+      },
       {
         id: "listings",
         label: "Listings",
