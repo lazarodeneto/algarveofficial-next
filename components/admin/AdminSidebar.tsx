@@ -9,6 +9,7 @@ import {
   HelpCircle,
   Home,
   Image,
+  Inbox as InboxIcon,
   Languages,
   Layers,
   List,
@@ -36,6 +37,7 @@ import {
   type SidebarNavItem,
   type SidebarNavSection,
 } from "@/components/navigation/ExpandableSidebar";
+import { useInboxUrgentCount } from "@/hooks/useInboxUrgentCount";
 import { usePendingReviewCount } from "@/hooks/usePendingReviewCount";
 import { usePendingEventsCount } from "@/hooks/useEvents";
 import { useUnreadMessagesCount } from "@/hooks/useUnreadMessagesCount";
@@ -55,6 +57,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
   const l = useLocalePath();
 
   const { data: pendingCount = 0 } = usePendingReviewCount();
+  const { data: inboxUrgentCount = 0 } = useInboxUrgentCount();
   const { data: pendingEventsCount = 0 } = usePendingEventsCount();
   const { data: pendingListingReviewsCount = 0 } = usePendingListingReviewCount();
   const { data: unreadMessagesCount = 0 } = useUnreadMessagesCount();
@@ -64,6 +67,13 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
 
   const mainItems: SidebarNavItem[] = [
     { label: t("admin.sidebar.overview"), href: "/admin", icon: Home, end: true },
+    {
+      label: "Inbox",
+      href: "/admin/inbox",
+      icon: InboxIcon,
+      badge: inboxUrgentCount > 0 ? inboxUrgentCount : undefined,
+      badgeTone: "destructive",
+    },
     { label: t("admin.sidebar.analytics"), href: "/admin/analytics", icon: BarChart3 },
   ];
 
