@@ -40,7 +40,15 @@ function jsonRequest(body: unknown, token = "tok-owner") {
   }) as unknown as Parameters<typeof postCheckoutRoute>[0];
 }
 
-const pricingRow = {
+const pricingRow: {
+  id: string;
+  tier: string;
+  billing_period: string;
+  stripe_price_id: string | null;
+  is_active: boolean;
+  price_cents: number;
+  currency: string;
+} = {
   id: "pricing-verified-monthly",
   tier: "verified",
   billing_period: "monthly",
@@ -56,7 +64,14 @@ function makeSupabaseMock(pricingData: typeof pricingRow[] = [pricingRow]) {
   const eqBillingPeriod = vi.fn(() => ({ eq: eqIsActive }));
   const eqTier = vi.fn(() => ({ eq: eqBillingPeriod }));
   const selectStar = vi.fn(() => ({ eq: eqTier }));
-  return { from: vi.fn(() => ({ select: selectStar })) };
+  return {
+    from: vi.fn(() => ({ select: selectStar })),
+    __spies: {
+      eqBillingPeriod,
+      eqIsActive,
+      limit,
+    },
+  };
 }
 
 afterEach(() => {
@@ -159,6 +174,43 @@ describe("stripe checkout route runtime", () => {
     );
   });
 
+  it("continues checkout when customer lookup throws and falls back to customer_email", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    mocks.getStripeServerClient.mockReturnValue({
+      checkout: {
+        sessions: {
+          create: mocks.sessionsCreate.mockResolvedValue({ url: "https://checkout.stripe.test/session" }),
+        },
+      },
+    });
+
+    mocks.requireAuthenticatedOwner.mockResolvedValue({
+      userId: "owner-123",
+      email: "owner@test.com",
+    });
+
+    mocks.createServiceRoleClient.mockReturnValue(makeSupabaseMock());
+    mocks.findOverlappingActive.mockResolvedValue(null);
+    mocks.findByOwner.mockRejectedValue(new Error("Supabase read failed"));
+
+    const response = await postCheckoutRoute(
+      jsonRequest({ tier: "verified", billing_period: "monthly" }),
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload).toEqual({ url: "https://checkout.stripe.test/session" });
+    expect(warnSpy).toHaveBeenCalledWith(
+      "[checkout] Failed to fetch existing subscription/customer",
+      expect.objectContaining({ userId: "owner-123" }),
+    );
+    expect(mocks.sessionsCreate).toHaveBeenCalledWith(
+      expect.objectContaining({ customer_email: "owner@test.com" }),
+    );
+
+    warnSpy.mockRestore();
+  });
+
   it("returns 401 when requireAuthenticatedOwner rejects", async () => {
     mocks.getStripeServerClient.mockReturnValue({
       checkout: { sessions: { create: mocks.sessionsCreate } },
@@ -217,6 +269,74 @@ describe("stripe checkout route runtime", () => {
     );
 
     expect(response.status).toBe(400);
+    expect(mocks.sessionsCreate).not.toHaveBeenCalled();
+  });
+
+  it("normalizes annual billing period to yearly and uses the yearly metadata path", async () => {
+    const yearlyPricingRow = {
+      ...pricingRow,
+      id: "pricing-verified-yearly",
+      billing_period: "yearly",
+      stripe_price_id: "price_verified_yearly",
+    };
+    const supabase = makeSupabaseMock([yearlyPricingRow]);
+
+    mocks.getStripeServerClient.mockReturnValue({
+      checkout: {
+        sessions: {
+          create: mocks.sessionsCreate.mockResolvedValue({ url: "https://checkout.stripe.test/session" }),
+        },
+      },
+    });
+
+    mocks.requireAuthenticatedOwner.mockResolvedValue({
+      userId: "owner-123",
+      email: "owner@test.com",
+    });
+    mocks.createServiceRoleClient.mockReturnValue(supabase);
+    mocks.findOverlappingActive.mockResolvedValue(null);
+    mocks.findByOwner.mockResolvedValue(null);
+
+    const response = await postCheckoutRoute(
+      jsonRequest({ tier: "verified", billing_period: "annual" }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(supabase.__spies.eqBillingPeriod).toHaveBeenCalledWith("billing_period", "yearly");
+    expect(mocks.sessionsCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        metadata: expect.objectContaining({ billing_period: "yearly" }),
+        subscription_data: expect.objectContaining({
+          metadata: expect.objectContaining({ billing_period: "yearly" }),
+        }),
+      }),
+    );
+  });
+
+  it("returns a structured error when stripe_price_id is missing and never calls Stripe", async () => {
+    const pricingRowWithoutPrice = {
+      ...pricingRow,
+      stripe_price_id: null,
+    };
+
+    mocks.getStripeServerClient.mockReturnValue({
+      checkout: { sessions: { create: mocks.sessionsCreate } },
+    });
+    mocks.requireAuthenticatedOwner.mockResolvedValue({
+      userId: "owner-123",
+      email: "owner@test.com",
+    });
+    mocks.createServiceRoleClient.mockReturnValue(makeSupabaseMock([pricingRowWithoutPrice]));
+    mocks.findOverlappingActive.mockResolvedValue(null);
+    mocks.findByOwner.mockResolvedValue(null);
+
+    const response = await postCheckoutRoute(
+      jsonRequest({ tier: "verified", billing_period: "monthly" }),
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(payload).toEqual({ error: "Pricing configuration error." });
     expect(mocks.sessionsCreate).not.toHaveBeenCalled();
   });
 

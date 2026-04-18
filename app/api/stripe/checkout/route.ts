@@ -89,8 +89,16 @@ export async function POST(request: NextRequest) {
   }
 
   // Reuse existing Stripe customer to avoid duplicates; fall back to pre-filling email.
-  const existingSub = await findByOwner(supabase, auth.userId);
-  const existingCustomerId = existingSub?.stripe_customer_id ?? null;
+  let existingCustomerId: string | null = null;
+  try {
+    const existingSub = await findByOwner(supabase, auth.userId);
+    existingCustomerId = existingSub?.stripe_customer_id ?? null;
+  } catch (error) {
+    console.warn("[checkout] Failed to fetch existing subscription/customer", {
+      userId: auth.userId,
+      error,
+    });
+  }
 
   const sessionMeta = {
     owner_id: auth.userId,

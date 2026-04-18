@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { AlertTriangle } from "lucide-react";
-import { useTranslation } from "react-i18next";
 
 import { RouteMessageState } from "@/components/layout/RouteMessageState";
 
@@ -12,8 +11,6 @@ interface GlobalErrorProps {
 }
 
 export default function GlobalError({ error, reset }: GlobalErrorProps) {
-  const { t } = useTranslation();
-
   useEffect(() => {
     console.error("App route error boundary caught an error:", error);
   }, [error]);
@@ -21,9 +18,9 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
   return (
     <main className="app-container py-20">
       <RouteMessageState
-        eyebrow={t("errorPage.eyebrow")}
-        title={t("errorPage.title")}
-        description={t("errorPage.description")}
+        eyebrow="Something went wrong"
+        title="Unexpected Error"
+        description="We couldn’t load this page right now. Please try again."
         icon={<AlertTriangle className="h-10 w-10" />}
         minHeightClassName="min-h-[70vh]"
         actions={(
@@ -32,7 +29,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
             onClick={reset}
             className="inline-flex items-center rounded-full border border-primary/40 px-6 py-3 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary"
           >
-            {t("errorPage.tryAgain")}
+            Try Again
           </button>
         )}
       />

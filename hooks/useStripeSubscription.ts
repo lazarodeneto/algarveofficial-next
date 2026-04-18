@@ -34,6 +34,13 @@ interface UseStripeSubscriptionReturn {
   error: string | null;
   checkSubscription: () => Promise<void>;
   createCheckout: (tier: SubscriptionTier, billingPeriod: BillingPeriod) => Promise<void>;
+  changePlan: (tier: SubscriptionTier, billingPeriod: BillingPeriod) => Promise<{
+    ok: boolean;
+    immediate?: boolean;
+    message?: string;
+    error?: string;
+    code?: string;
+  }>;
   openCustomerPortal: () => Promise<void>;
 }
 
@@ -78,6 +85,25 @@ async function callWithBearerToken<T>(
     );
   }
   return data;
+}
+
+async function callWithBearerTokenRaw<T>(
+  path: string,
+  method: 'GET' | 'POST',
+  body?: unknown,
+): Promise<{ ok: boolean; status: number; data: T | null }> {
+  const accessToken = await getValidAccessToken();
+  const response = await fetch(path, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+  });
+
+  const data = await response.json().catch(() => null) as T | null;
+  return { ok: response.ok, status: response.status, data };
 }
 
 export function useStripeSubscription(): UseStripeSubscriptionReturn {
@@ -161,6 +187,61 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
     [isAuthenticated, isBrowser],
   );
 
+  const changePlan = useCallback(
+    async (tier: SubscriptionTier, billingPeriod: BillingPeriod) => {
+      if (!isBrowser) {
+        return { ok: false, error: 'Plan change is unavailable during server rendering' };
+      }
+      if (!isAuthenticated) {
+        return { ok: false, error: 'You must be logged in to change your plan' };
+      }
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const normalizedBillingPeriod = billingPeriod === 'annual' ? 'yearly' : 'monthly';
+        const response = await callWithBearerTokenRaw<{
+          ok?: boolean;
+          immediate?: boolean;
+          message?: string;
+          error?: string;
+          code?: string;
+        }>(
+          '/api/subscriptions/change-plan',
+          'POST',
+          { tier, billing_period: normalizedBillingPeriod },
+        );
+
+        if (!response.ok || !response.data?.ok) {
+          const message =
+            response.data?.error
+            || response.data?.message
+            || `Request failed (${response.status})`;
+          setError(message);
+          return {
+            ok: false,
+            error: message,
+            code: response.data?.code,
+          };
+        }
+
+        return {
+          ok: true,
+          immediate: Boolean(response.data.immediate),
+          message: response.data.message,
+        };
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to change subscription plan';
+        setError(message);
+        return { ok: false, error: message };
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [isAuthenticated, isBrowser],
+  );
+
   const openCustomerPortal = useCallback(async () => {
     if (!isBrowser) throw new Error('Customer portal is unavailable during server rendering');
     if (!isAuthenticated) throw new Error('You must be logged in to manage your subscription');
@@ -216,5 +297,13 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
     return () => clearInterval(interval);
   }, [subscription.subscribed, checkSubscription, isBrowser]);
 
-  return { subscription, isLoading, error, checkSubscription, createCheckout, openCustomerPortal };
+  return {
+    subscription,
+    isLoading,
+    error,
+    checkSubscription,
+    createCheckout,
+    changePlan,
+    openCustomerPortal,
+  };
 }

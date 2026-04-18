@@ -135,6 +135,7 @@ async function resolveOwnerId(
 interface HandlerResult {
   ownerId: string | null;
   skipped?: boolean;
+  reason?: string;
 }
 
 // ---------- handlers ----------
@@ -151,9 +152,20 @@ export async function handleCheckoutCompleted(
 
   const pricingId = session.metadata?.pricing_id ?? null;
   const pricing = pricingId ? await findPricingById(supabase, pricingId) : null;
-  const tier = asPaidTier(pricing?.tier ?? session.metadata?.tier ?? null);
-  const billingPeriod = pricing?.billing_period ?? session.metadata?.billing_period ?? null;
-  if (!tier || !billingPeriod) return { ownerId };
+  const rawTier = pricing?.tier ?? session.metadata?.tier ?? null;
+  const rawBillingPeriod = pricing?.billing_period ?? session.metadata?.billing_period ?? null;
+  const tier = asPaidTier(rawTier);
+  const billingPeriod = rawBillingPeriod;
+  if (!tier || !billingPeriod) {
+    console.warn("[webhook] checkout.session.completed: missing tier/billing metadata, skipping state write", {
+      ownerId,
+      sessionId: session.id,
+      tier: rawTier,
+      billingPeriod: rawBillingPeriod,
+      pricingId,
+    });
+    return { ownerId, skipped: true, reason: "missing_metadata" };
+  }
 
   const planType = planTypeFromBillingPeriod(billingPeriod);
   const customerId = typeof session.customer === "string" ? session.customer : null;

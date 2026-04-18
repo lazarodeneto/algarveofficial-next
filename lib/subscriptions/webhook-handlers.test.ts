@@ -28,7 +28,7 @@ function createPricingSupabase({
 }: {
   pricingById?: Record<string, Record<string, unknown> | null>;
   pricingByStripePriceId?: Record<string, Record<string, unknown> | null>;
-}) {
+} = {}) {
   return {
     from(table: string) {
       if (table !== "subscription_pricing") {
@@ -94,6 +94,7 @@ describe("subscription webhook handlers", () => {
       data: {
         object: {
           id: "cs_test_1",
+          mode: "subscription",
           customer: "cus_test_1",
           subscription: "sub_test_1",
           payment_intent: null,
@@ -126,6 +127,44 @@ describe("subscription webhook handlers", () => {
       }),
       { eventCreatedAt: 1710000000 },
     );
+  });
+
+  it("returns explicit skipped result when checkout metadata is missing tier/billing", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const supabase = createPricingSupabase({});
+
+    const event = {
+      created: 1710000000,
+      data: {
+        object: {
+          id: "cs_missing_metadata",
+          mode: "subscription",
+          customer: "cus_test_1",
+          subscription: "sub_test_1",
+          metadata: {
+            owner_id: "owner-1",
+          },
+        },
+      },
+    } as unknown as Stripe.Event;
+
+    const result = await handleCheckoutCompleted({} as Stripe, supabase, event);
+
+    expect(result).toEqual({
+      ownerId: "owner-1",
+      skipped: true,
+      reason: "missing_metadata",
+    });
+    expect(warnSpy).toHaveBeenCalledWith(
+      "[webhook] checkout.session.completed: missing tier/billing metadata, skipping state write",
+      expect.objectContaining({
+        ownerId: "owner-1",
+        sessionId: "cs_missing_metadata",
+      }),
+    );
+    expect(mocks.upsertSubscription).not.toHaveBeenCalled();
+
+    warnSpy.mockRestore();
   });
 
   it("activates the paid tier on invoice.paid", async () => {

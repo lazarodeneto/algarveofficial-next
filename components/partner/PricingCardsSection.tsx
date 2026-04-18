@@ -14,19 +14,21 @@ interface PricingCardsSectionProps {
 const VERIFIED_FEATURES = [
   "Verified trust badge",
   "Enhanced business profile",
-  "Photo gallery (20+ images)",
+  "Photo gallery (up to 10 images)",
   "Map priority placement",
   "Social media links",
+  "WhatsApp integration",
+  "CTA (Call-To-Action) button",
   "Direct contact from travelers",
 ];
 
 const SIGNATURE_FEATURES = [
   "Everything in Verified",
+  "Photo gallery (up to 20 images)",
   "Homepage featured placement",
   "Signature Selection eligibility",
   "WhatsApp integration",
-  "Priority curation support",
-  "First-week visibility",
+  "Priority visibility",
 ];
 
 export function PricingCardsSection({

@@ -17,14 +17,16 @@ const FEATURES: Feature[] = [
   { label: "Basic business profile",         free: true,  verified: true,  signature: true  },
   { label: "Verified trust badge",           free: false, verified: true,  signature: true  },
   { label: "Enhanced business profile",      free: false, verified: true,  signature: true  },
-  { label: "Photo gallery (20+ images)",     free: false, verified: true,  signature: true  },
+  { label: "Photo gallery (up to 10 images)",free: false, verified: true,  signature: false },
+  { label: "Photo gallery (up to 20 images)",free: false, verified: false, signature: true  },
   { label: "Social media links",             free: false, verified: true,  signature: true  },
   { label: "Direct contact from travelers",  free: false, verified: true,  signature: true  },
   { label: "Map priority placement",         free: false, verified: true,  signature: true  },
+  { label: "CTA (Call-To-Action) button",    free: false, verified: true,  signature: true  },
   { label: "Homepage featured placement",    free: false, verified: false, signature: true  },
   { label: "Signature Selection eligibility",free: false, verified: false, signature: true  },
-  { label: "WhatsApp integration",           free: false, verified: false, signature: true  },
-  { label: "Priority curation support",      free: false, verified: false, signature: true  },
+  { label: "WhatsApp integration",           free: false, verified: true,  signature: true  },
+  { label: "Priority visibility",            free: false, verified: false, signature: true  },
 ];
 
 function Cell({ value }: { value: boolean }) {

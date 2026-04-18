@@ -108,4 +108,44 @@ describe("stripe webhook route runtime", () => {
     );
     expect(mocks.markEvent).toHaveBeenCalledWith(expect.anything(), "evt_test_1", "success");
   });
+
+  it("treats skipped handler results as skipped and avoids tier application", async () => {
+    const event = {
+      id: "evt_test_2",
+      type: "invoice.paid",
+      created: 1710000001,
+      data: {
+        object: {
+          metadata: {
+            owner_id: "owner-2",
+          },
+        },
+      },
+    };
+
+    const previous = { owner_id: "owner-2", tier: "verified", status: "active" };
+    const next = { owner_id: "owner-2", tier: "verified", status: "active" };
+
+    mocks.getStripeServerClient.mockReturnValue({
+      webhooks: {
+        constructEvent: vi.fn().mockReturnValue(event),
+      },
+    });
+    mocks.getStripeWebhookSecret.mockReturnValue("whsec_test");
+    mocks.createServiceRoleClient.mockReturnValue({} as never);
+    mocks.recordStripeEvent.mockResolvedValue({
+      alreadyProcessed: false,
+      previousResult: null,
+    });
+    mocks.handler.mockResolvedValue({ ownerId: "owner-2", skipped: true, reason: "missing_metadata" });
+    mocks.findByOwner.mockResolvedValueOnce(previous as never).mockResolvedValueOnce(next as never);
+
+    const response = await postWebhookRoute(webhookRequest());
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload).toEqual({ received: true });
+    expect(mocks.applyTierToListings).not.toHaveBeenCalled();
+    expect(mocks.markEvent).toHaveBeenCalledWith(expect.anything(), "evt_test_2", "skipped");
+  });
 });

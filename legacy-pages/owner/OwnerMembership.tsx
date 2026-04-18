@@ -37,6 +37,7 @@ export default function OwnerMembership() {
     subscription, 
     isLoading: isSubscriptionLoading, 
     createCheckout, 
+    changePlan,
     openCustomerPortal,
     checkSubscription 
   } = useStripeSubscription();
@@ -81,14 +82,39 @@ export default function OwnerMembership() {
         : 'unverified';
   
   const currentBillingPeriod = subscription.billingPeriod;
+  const isChangePlanEligibleStatus = (
+    subscription.status === 'active'
+    || subscription.status === 'trialing'
+    || subscription.status === 'past_due'
+    || subscription.status === 'incomplete'
+  );
+  const shouldUseChangePlan = (
+    subscription.hasStripeCustomer
+    && isChangePlanEligibleStatus
+    && subscription.planType !== 'fixed_2026'
+  );
   
-  const handleCheckout = async (tierId: string) => {
+  const handlePlanAction = async (tierId: string) => {
     if (tierId === 'unverified') return;
     if (tierId === currentTier && billingPeriod === currentBillingPeriod) return;
 
     setCheckoutInProgress(tierId);
 
     try {
+      if (shouldUseChangePlan) {
+        const result = await changePlan(tierId as SubscriptionTier, billingPeriod);
+        if (!result.ok) {
+          toast.error(t('owner.membership.checkoutFailed'), {
+            description: result.error ?? t('owner.membership.checkoutFailed'),
+          });
+          return;
+        }
+
+        toast.success(result.message ?? t('owner.membership.currentPlan'));
+        await checkSubscription();
+        return;
+      }
+
       await createCheckout(tierId as SubscriptionTier, billingPeriod);
       toast.info(t('owner.membership.openingCheckout'), {
         description: t('owner.membership.openingCheckoutDesc'),
@@ -258,8 +284,7 @@ export default function OwnerMembership() {
           // Same tier but different billing cycle — switching billing period
           const isSameTierDifferentBilling = tierMatches && !billingMatches && subscription.hasStripeCustomer;
 
-          // A paid tier the user can switch to (any direction: up, down, or billing period change)
-          // Everything goes through createCheckout; Stripe handles proration automatically.
+          // A paid tier the user can switch to (any direction: up, down, or billing period change).
           const TIER_RANK: Record<string, number> = { unverified: 0, verified: 1, signature: 2 };
           const isPaidSwitch = !isCurrentTier && !isSameTierDifferentBilling && tier.id !== 'unverified';
           const isUpgrade = isPaidSwitch && (
@@ -438,7 +463,7 @@ export default function OwnerMembership() {
                       <Button
                         className="w-full"
                         variant="outline"
-                        onClick={() => handleCheckout(tier.id)}
+                        onClick={() => handlePlanAction(tier.id)}
                         disabled={isCheckingOut}
                       >
                         {isCheckingOut ? (
@@ -457,7 +482,7 @@ export default function OwnerMembership() {
                           tier.id === "verified" && "bg-green-600 hover:bg-green-700 text-white border border-green-500 shadow-lg shadow-green-600/20"
                         )}
                         variant={tier.id === "verified" || tier.highlight ? "default" : "outline"}
-                        onClick={() => handleCheckout(tier.id)}
+                        onClick={() => handlePlanAction(tier.id)}
                         disabled={isCheckingOut}
                       >
                         {isCheckingOut ? (
@@ -476,7 +501,7 @@ export default function OwnerMembership() {
                       <Button
                         className="w-full"
                         variant="outline"
-                        onClick={() => handleCheckout(tier.id)}
+                        onClick={() => handlePlanAction(tier.id)}
                         disabled={isCheckingOut}
                       >
                         {isCheckingOut ? (
