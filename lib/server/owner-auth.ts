@@ -10,6 +10,7 @@ import { getSupabasePublicEnv } from "@/lib/supabase/env";
 
 export interface OwnerAuth {
   userId: string;
+  email: string | null;
 }
 
 export interface OwnerAuthError {
@@ -62,5 +63,5 @@ export async function requireAuthenticatedOwner(
     };
   }
 
-  return { userId: userData.user.id };
+  return { userId: userData.user.id, email: userData.user.email ?? null };
 }
