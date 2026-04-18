@@ -316,7 +316,6 @@
     },
     "sidebar": {
       "actionCenter": "Centro de Ação",
-      "aiImageGen": "Geração de Imagens IA",
       "allPosts": "Todas as Publicações",
       "analytics": "Analítica",
       "automations": "Automações",
@@ -2206,7 +2205,13 @@
       "uploadFailed": "Falha no carregamento",
       "uploadImages": "Carregar Imagens",
       "uploading": "A carregar...",
-      "uploadToStart": "Carregue imagens para começar"
+      "uploadToStart": "Carregue imagens para começar",
+      "quickAdd": "Adição rápida: cole URL ou carregue uma imagem",
+      "addUrl": "Adicionar URL",
+      "provideImageUrl": "Por favor, forneça primeiro um URL de imagem.",
+      "tierLimit": "Este nível do anúncio suporta até {{max}} imagem(ns).",
+      "tierLimitPartialUpload": "Apenas {{count}} imagem(ns) carregada(s) devido ao limite do nível ({{max}}).",
+      "imageAdded": "Imagem adicionada à galeria"
     },
     "membership": {
       "annual": "Anual",

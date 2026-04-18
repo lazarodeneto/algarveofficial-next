@@ -316,7 +316,6 @@
     },
     "sidebar": {
       "actionCenter": "Handlingssenter",
-      "aiImageGen": "AI Image Gen",
       "allPosts": "Alle innlegg",
       "analytics": "Analytics",
       "automations": "Automatiseringer",
@@ -2206,7 +2205,13 @@
       "uploadFailed": "Opplasting mislyktes",
       "uploadImages": "Last opp bilder",
       "uploading": "Laster opp ...",
-      "uploadToStart": "Last opp bilder for å komme i gang"
+      "uploadToStart": "Last opp bilder for å komme i gang",
+      "quickAdd": "Hurtig legg til: lim inn URL eller last opp ett bilde",
+      "addUrl": "Legg til URL",
+      "provideImageUrl": "Vennligst oppgi en bilde-URL først.",
+      "tierLimit": "Dette oppføringsnivået støtter opptil {{max}} bilde(r).",
+      "tierLimitPartialUpload": "Bare {{count}} bilde(r) ble lastet opp på grunn av nivågrensen ({{max}}).",
+      "imageAdded": "Bilde lagt til i galleriet"
     },
     "membership": {
       "annual": "Årlig",

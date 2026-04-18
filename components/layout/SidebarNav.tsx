@@ -13,6 +13,7 @@ import {
   Mail,
   Map,
   MapPinHouse,
+  Waves,
   type LucideIcon,
 } from "lucide-react";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
@@ -24,6 +25,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   "nav.stay": BedDouble,
   "nav.properties": HouseHeart,
   "nav.experiences": Binoculars,
+  "nav.beaches": Waves,
   "nav.map": Map,
   "nav.blog": BookOpen,
   "nav.golf": FlagTriangleRight,
@@ -42,6 +44,15 @@ export function SidebarNav({ expanded = false }: SidebarNavProps) {
 
   const currentPath = stripLocaleFromPathname(pathname || "/");
   const sidebarItems = PRIMARY_NAV_ITEMS.filter((item) => item.labelKey !== "nav.invest");
+  if (!sidebarItems.some((item) => item.labelKey === "nav.beaches")) {
+    const golfIndex = sidebarItems.findIndex((item) => item.labelKey === "nav.golf");
+    const beachesItem = { labelKey: "nav.beaches", fallbackLabel: "Beaches", href: "/beaches" };
+    if (golfIndex >= 0) {
+      sidebarItems.splice(golfIndex, 0, beachesItem);
+    } else {
+      sidebarItems.push(beachesItem);
+    }
+  }
 
   return (
     <nav className={clsx("flex flex-col gap-2", expanded ? "items-stretch" : "items-center")}>

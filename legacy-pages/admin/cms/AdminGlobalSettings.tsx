@@ -39,11 +39,13 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { ColorPicker } from "@/components/admin/ColorPicker";
+import { ImageUrlUploadField } from "@/components/admin/ImageUrlUploadField";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { useCookieBannerSettings } from "@/hooks/useCookieBannerSettings";
 import { useGlobalSettings, GlobalSetting } from "@/hooks/useGlobalSettings";
 import { useContactSettings, ContactSettings } from "@/hooks/useContactSettings";
 import { supabase } from "@/integrations/supabase/client";
+import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import { invokeFunctionWithAuthRetry } from "@/lib/supabaseFunctionInvoke";
 import {
   getSupabaseFunctionErrorMessage,
@@ -581,19 +583,18 @@ export default function AdminGlobalSettings() {
   };
 
   const handleFileUpload = async (file: File, type: "logo" | "logo_dark" | "favicon") => {
-    const isLogo = type.startsWith("logo");
     let setUploading: (v: boolean) => void;
-    let setUrl: (v: string | null) => void;
+    let applyUploadedUrl: (v: string | null) => void;
 
     if (type === "logo") {
       setUploading = setIsUploadingLogo;
-      setUrl = setLogoUrl;
+      applyUploadedUrl = setLogoUrl;
     } else if (type === "logo_dark") {
       setUploading = setIsUploadingLogoDark;
-      setUrl = setLogoDarkUrl;
+      applyUploadedUrl = setLogoDarkUrl;
     } else {
       setUploading = setIsUploadingFavicon;
-      setUrl = setFaviconUrl;
+      applyUploadedUrl = setFaviconUrl;
     }
 
     try {
@@ -613,8 +614,14 @@ export default function AdminGlobalSettings() {
         data: { publicUrl },
       } = supabase.storage.from("branding").getPublicUrl(filePath);
 
-      setUrl(publicUrl);
-      toast.success(`${type === "favicon" ? "Favicon" : "Logo"} uploaded successfully (click Save All to persist)`);
+      applyUploadedUrl(publicUrl);
+      const assetLabel =
+        type === "favicon"
+          ? "Favicon"
+          : type === "logo_dark"
+            ? "Dark logo"
+              : "Logo";
+      toast.success(`${assetLabel} uploaded successfully (click Save All to persist)`);
     } catch (error: any) {
       toast.error(`Error uploading ${type}: ${error.message}`);
     } finally {
@@ -712,8 +719,14 @@ export default function AdminGlobalSettings() {
       };
 
       const existingCategoryByKey = new Map(globalSettings.map((s) => [s.key, s.category ?? null] as const));
-
-      const keysToSave = Array.from(new Set([...Object.keys(categoryMap), ...globalSettings.map((s) => s.key)]));
+      const cmsGlobalSettingKeys = new Set<string>(Object.values(CMS_GLOBAL_SETTING_KEYS));
+      const keysToSave = Array.from(
+        new Set(
+          [...Object.keys(categoryMap), ...globalSettings.map((s) => s.key)].filter(
+            (key) => !cmsGlobalSettingKeys.has(key),
+          ),
+        ),
+      );
 
       // Merge the geo-restriction toggle into localGlobalSettings before saving
       const settingsSnapshot: Record<string, string> = {
@@ -1548,11 +1561,15 @@ export default function AdminGlobalSettings() {
                     )}
                   </div>
                   <div className="flex-1 space-y-2">
-                    <Input
+                    <ImageUrlUploadField
+                      id="og_image"
                       value={getSettingValue("og_image")}
-                      onChange={(e) => updateSetting("og_image", e.target.value, "seo")}
-                      className="bg-background"
+                      onChange={(value) => updateSetting("og_image", value, "seo")}
                       placeholder="https://algarveofficial.com/og-image.png"
+                      bucket="branding"
+                      folder="seo"
+                      assetLabel="OG image"
+                      buttonSize="sm"
                     />
                     <p className="text-xs text-muted-foreground">
                       Recommended: 1200×630px for optimal display on social platforms
@@ -1711,12 +1728,15 @@ export default function AdminGlobalSettings() {
 
               <div className="space-y-2">
                 <Label htmlFor="schema_logo">Logo URL</Label>
-                <Input
+                <ImageUrlUploadField
                   id="schema_logo"
                   value={getSettingValue("schema_logo")}
-                  onChange={(e) => updateSetting("schema_logo", e.target.value, "seo")}
-                  className="bg-background"
+                  onChange={(value) => updateSetting("schema_logo", value, "seo")}
                   placeholder="https://algarveofficial.com/logo.png"
+                  bucket="branding"
+                  folder="seo"
+                  assetLabel="Schema logo"
+                  buttonSize="sm"
                 />
                 <p className="text-xs text-muted-foreground">Minimum 112×112px, square or 16:9</p>
               </div>

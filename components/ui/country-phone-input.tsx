@@ -22,6 +22,18 @@ interface CountryPhoneInputProps {
   compactTrigger?: boolean;
 }
 
+// Multiple countries share the same dial code (e.g. US and CA both use "+1",
+// KZ and RU both use "+7"). Radix Select uses the `value` prop as a unique
+// identifier, so we use "ISO_CODE|dialCode" internally and strip it in the
+// callback so the public API stays as a plain dial code string.
+function toInternalValue(code: string, dialCode: string) {
+  return `${code}|${dialCode}`;
+}
+
+function dialCodeFromInternalValue(value: string) {
+  return value.includes("|") ? value.split("|")[1] : value;
+}
+
 export function CountryPhoneInput({
   countryCode,
   onCountryCodeChange,
@@ -34,11 +46,25 @@ export function CountryPhoneInput({
   compactTrigger = true,
 }: CountryPhoneInputProps) {
   const { data: countries = [] } = useCountryDialCodes();
-  const selectedCountry = countries.find((country) => country.dialCode === countryCode);
+
+  // Derive unique internal value from the external dial code.
+  // When multiple countries share a dial code, the first in priority order wins.
+  const matchedCountry = countries.find((c) => c.dialCode === countryCode);
+  const internalValue = matchedCountry
+    ? toInternalValue(matchedCountry.code, matchedCountry.dialCode)
+    : countryCode;
+
+  const selectedCountry = countries.find(
+    (c) => toInternalValue(c.code, c.dialCode) === internalValue
+  );
+
+  const handleCountryChange = (value: string) => {
+    onCountryCodeChange(dialCodeFromInternalValue(value));
+  };
 
   return (
     <div className={className ?? "flex gap-3"}>
-      <Select value={countryCode} onValueChange={onCountryCodeChange}>
+      <Select value={internalValue} onValueChange={handleCountryChange}>
         <SelectTrigger className={cn(compactTrigger ? "w-[74px] justify-center px-2" : "w-[170px]")}>
           {compactTrigger ? (
             <>
@@ -46,7 +72,9 @@ export function CountryPhoneInput({
                 {selectedCountry?.flag ?? "🌐"}
               </span>
               <span className="sr-only">
-                {selectedCountry ? `${selectedCountry.name} ${selectedCountry.dialCode}` : countryCode}
+                {selectedCountry
+                  ? `${selectedCountry.name} ${selectedCountry.dialCode}`
+                  : countryCode}
               </span>
             </>
           ) : (
@@ -54,17 +82,20 @@ export function CountryPhoneInput({
           )}
         </SelectTrigger>
         <SelectContent className={cn("max-h-72", compactTrigger ? "min-w-[250px]" : undefined)}>
-          {countries.map((country) => (
-            <SelectItem key={`${country.code}-${country.dialCode}`} value={country.dialCode}>
-              <span className="inline-flex w-full items-center gap-2">
-                <span className="text-base leading-none" aria-hidden="true">
-                  {country.flag}
+          {countries.map((country) => {
+            const itemValue = toInternalValue(country.code, country.dialCode);
+            return (
+              <SelectItem key={itemValue} value={itemValue}>
+                <span className="inline-flex w-full items-center gap-2">
+                  <span className="text-base leading-none" aria-hidden="true">
+                    {country.flag}
+                  </span>
+                  <span className="truncate">{country.name}</span>
+                  <span className="ml-auto text-muted-foreground">{country.dialCode}</span>
                 </span>
-                <span className="truncate">{country.name}</span>
-                <span className="ml-auto text-muted-foreground">{country.dialCode}</span>
-              </span>
-            </SelectItem>
-          ))}
+              </SelectItem>
+            );
+          })}
         </SelectContent>
       </Select>
       <div className="relative flex-1">

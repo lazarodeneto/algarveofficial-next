@@ -40,6 +40,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SeoFieldsPanel } from "@/components/admin/seo/SeoFieldsPanel";
+import { ImageUrlUploadField } from "@/components/admin/ImageUrlUploadField";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { getCategoryIconComponent } from "@/lib/categoryIcons";
 import { callAdminTaxonomyApi } from "@/lib/admin/taxonomy-client";
@@ -508,11 +509,15 @@ export default function AdminCmsCategories() {
                     fallbackIconSize={32}
                   />
                   <div className="flex-1">
-                    <Input
+                    <ImageUrlUploadField
+                      id="category-image-url"
                       value={editingCategory.image_url ?? ''}
-                      onChange={(e) => setEditingCategory({ ...editingCategory, image_url: e.target.value })}
-                      className="bg-background"
+                      onChange={(value) => setEditingCategory({ ...editingCategory, image_url: value })}
                       placeholder="https://..."
+                      bucket="listing-images"
+                      folder="categories"
+                      assetLabel="Category image"
+                      buttonSize="sm"
                     />
                     <p className="text-xs text-muted-foreground mt-1">
                       Recommended: 800x600px

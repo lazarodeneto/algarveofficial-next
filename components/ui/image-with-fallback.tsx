@@ -43,6 +43,19 @@ function LoadedImageWithFallback({
   const [hasError, setHasError] = useState(false);
   const resolvedAlt = typeof alt === "string" && alt.trim().length > 0 ? alt : "Image";
   const useNativeImg = !canUseNextImage(src);
+  const hasContainerClass = typeof containerClassName === "string" && containerClassName.trim().length > 0;
+
+  const renderInContainer = (node: React.ReactElement) => {
+    if (!hasContainerClass) {
+      return node;
+    }
+
+    return (
+      <div className={cn("relative overflow-hidden bg-muted", containerClassName)}>
+        {node}
+      </div>
+    );
+  };
 
   if (hasError) {
     return (
@@ -54,7 +67,7 @@ function LoadedImageWithFallback({
 
   if (fill) {
     if (useNativeImg) {
-      return (
+      return renderInContainer(
         <img
           src={src}
           alt={resolvedAlt}
@@ -66,7 +79,7 @@ function LoadedImageWithFallback({
       );
     }
 
-    return (
+    return renderInContainer(
       <Image
         src={src}
         alt={resolvedAlt}
@@ -85,15 +98,20 @@ function LoadedImageWithFallback({
   const aspectRatio = 4 / 3;
   const displayWidth = width ?? 800;
   const displayHeight = height ?? Math.round(displayWidth / aspectRatio);
+  const baseImageClassName = cn(
+    "bg-muted",
+    hasContainerClass && "h-full w-full object-cover",
+    className
+  );
 
   if (useNativeImg) {
-    return (
+    return renderInContainer(
       <img
         src={src}
         alt={resolvedAlt}
         width={displayWidth}
         height={displayHeight}
-        className={cn("bg-muted", className)}
+        className={baseImageClassName}
         loading={loading}
         onError={() => setHasError(true)}
         style={style}
@@ -101,14 +119,14 @@ function LoadedImageWithFallback({
     );
   }
 
-  return (
+  return renderInContainer(
     <Image
       src={src}
       alt={resolvedAlt}
       width={displayWidth}
       height={displayHeight}
       quality={80}
-      className={cn("bg-muted", className)}
+      className={baseImageClassName}
       sizes={sizes ?? "(max-width: 768px) 100vw, 50vw"}
       priority={priority}
       loading={loading}

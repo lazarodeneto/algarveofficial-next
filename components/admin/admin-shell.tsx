@@ -60,7 +60,7 @@ export function AdminShell({ children }: AdminShellProps) {
       <div className="min-h-screen bg-[radial-gradient(circle_at_top,hsla(var(--gold)/0.11)_0%,transparent_40%),linear-gradient(180deg,hsl(var(--background))_0%,hsl(var(--muted)/0.16)_100%)]">
         <Sidebar />
 
-        <div className="pl-60">
+        <div className="lg:pl-20">
           <div className="flex h-screen w-full">
             <ContextPanel />
 

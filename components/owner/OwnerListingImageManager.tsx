@@ -21,10 +21,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { trimWhiteBorders, convertToWebP } from "@/lib/imageUtils";
 import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
+import { ImageUrlUploadField } from "@/components/admin/ImageUrlUploadField";
 
 interface OwnerListingImageManagerProps {
   listingId: string;
@@ -38,8 +40,11 @@ interface ImageRecord {
 }
 
 export function OwnerListingImageManager({ listingId }: OwnerListingImageManagerProps) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isUploading, setIsUploading] = useState(false);
+  const [isAddingByUrl, setIsAddingByUrl] = useState(false);
+  const [quickImageUrl, setQuickImageUrl] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [imageToDelete, setImageToDelete] = useState<string | null>(null);
 
@@ -93,14 +98,17 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
     if (!files || files.length === 0) return;
     const remainingSlots = maxImages - images.length;
     if (remainingSlots <= 0) {
-      toast.error(`This listing tier supports up to ${maxImages} image${maxImages === 1 ? "" : "s"}.`);
+      toast.error(t("owner.media.tierLimit", { max: maxImages }));
       return;
     }
 
     const filesToUpload = Array.from(files).slice(0, remainingSlots);
     if (filesToUpload.length < files.length) {
       toast.info(
-        `Only ${filesToUpload.length} image${filesToUpload.length === 1 ? "" : "s"} uploaded due to tier limit (${maxImages}).`,
+        t("owner.media.tierLimitPartialUpload", {
+          count: filesToUpload.length,
+          max: maxImages,
+        }),
       );
     }
 
@@ -159,12 +167,57 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
       queryClient.invalidateQueries({ queryKey: ["owner-listing-images", listingId] });
       queryClient.invalidateQueries({ queryKey: ["owner-listings"] });
       queryClient.invalidateQueries({ queryKey: ["listings"] });
-      toast.success(`${filesToUpload.length} image(s) uploaded`);
+      toast.success(t("owner.media.imagesUploaded", { count: filesToUpload.length }));
     } catch (error) {
-      toast.error("Upload failed: " + (error as Error).message);
+      toast.error(`${t("owner.media.uploadFailed")}: ${(error as Error).message}`);
     }
 
     setIsUploading(false);
+  };
+
+  const addImageFromUrl = async (url: string) => {
+    const trimmedUrl = url.trim();
+    if (!trimmedUrl) {
+      toast.error(t("owner.media.provideImageUrl"));
+      return;
+    }
+
+    const remainingSlots = maxImages - images.length;
+    if (remainingSlots <= 0) {
+      toast.error(t("owner.media.tierLimit", { max: maxImages }));
+      return;
+    }
+
+    setIsAddingByUrl(true);
+    try {
+      const isFeatured = images.length === 0;
+      const { error: dbError } = await supabase
+        .from("listing_images")
+        .insert({
+          listing_id: listingId,
+          image_url: trimmedUrl,
+          display_order: images.length,
+          is_featured: isFeatured,
+        });
+      if (dbError) throw dbError;
+
+      if (isFeatured) {
+        await supabase
+          .from("listings")
+          .update({ featured_image_url: trimmedUrl })
+          .eq("id", listingId);
+      }
+
+      setQuickImageUrl("");
+      queryClient.invalidateQueries({ queryKey: ["owner-listing-images", listingId] });
+      queryClient.invalidateQueries({ queryKey: ["owner-listings"] });
+      queryClient.invalidateQueries({ queryKey: ["listings"] });
+      toast.success(t("owner.media.imageAdded"));
+    } catch (error) {
+      toast.error(`${t("owner.media.uploadFailed")}: ${(error as Error).message}`);
+    } finally {
+      setIsAddingByUrl(false);
+    }
   };
 
   const confirmDelete = async () => {
@@ -195,9 +248,9 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
       queryClient.invalidateQueries({ queryKey: ["owner-listing-images", listingId] });
       queryClient.invalidateQueries({ queryKey: ["owner-listings"] });
       queryClient.invalidateQueries({ queryKey: ["listings"] });
-      toast.success("Image deleted");
+      toast.success(t("owner.media.imageDeleted"));
     } catch (error) {
-      toast.error("Delete failed: " + (error as Error).message);
+      toast.error(`${t("owner.media.deleteFailed")}: ${(error as Error).message}`);
     }
 
     setDeleteDialogOpen(false);
@@ -228,9 +281,9 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
       queryClient.invalidateQueries({ queryKey: ["owner-listing-images", listingId] });
       queryClient.invalidateQueries({ queryKey: ["owner-listings"] });
       queryClient.invalidateQueries({ queryKey: ["listings"] });
-      toast.success("Featured image updated");
+      toast.success(t("owner.media.featuredUpdated"));
     } catch (error) {
-      toast.error("Failed to update: " + (error as Error).message);
+      toast.error(`${t("owner.media.updateFailed")}: ${(error as Error).message}`);
     }
   };
 
@@ -240,13 +293,48 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ImageIcon className="h-5 w-5" />
-            Photos
+            {t("owner.media.uploadImages")}
           </CardTitle>
           <CardDescription>
-            Add, remove, or set a featured image for your listing ({images.length}/{maxImages})
+            {t("owner.media.uploadDescription")} ({images.length}/{maxImages})
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="rounded-lg border border-border/70 bg-muted/30 p-3">
+            <p className="mb-2 text-xs text-muted-foreground">{t("owner.media.quickAdd")}</p>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+              <div className="flex-1">
+                <ImageUrlUploadField
+                  value={quickImageUrl}
+                  onChange={setQuickImageUrl}
+                  onUploadComplete={(uploadedUrl) => {
+                    void addImageFromUrl(uploadedUrl);
+                  }}
+                  bucket="listing-images"
+                  folder={listingId}
+                  assetLabel="Listing image"
+                  buttonSize="sm"
+                  disabled={isUploading || isAddingByUrl || images.length >= maxImages}
+                />
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                disabled={
+                  isUploading ||
+                  isAddingByUrl ||
+                  images.length >= maxImages ||
+                  quickImageUrl.trim().length === 0
+                }
+                onClick={() => {
+                  void addImageFromUrl(quickImageUrl);
+                }}
+              >
+                {isAddingByUrl ? <Loader2 className="h-4 w-4 animate-spin" /> : t("owner.media.addUrl")}
+              </Button>
+            </div>
+          </div>
+
           {/* Upload Area */}
           <label
             className={cn(
@@ -259,16 +347,16 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
               {isUploading ? (
                 <>
                   <Loader2 className="h-8 w-8 text-muted-foreground animate-spin mb-2" />
-                  <p className="text-sm text-muted-foreground">Uploading...</p>
+                  <p className="text-sm text-muted-foreground">{t("owner.media.uploading")}</p>
                 </>
               ) : (
                 <>
                   <Upload className="h-8 w-8 text-muted-foreground mb-2" />
                   <p className="text-sm text-muted-foreground">
-                    <span className="font-medium text-primary">Click to upload</span> or drag and drop
+                    <span className="font-medium text-primary">{t("owner.media.clickToUpload")}</span> {t("owner.media.orDragDrop")}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    JPG, PNG, WebP (auto-optimized) - up to {maxImages} image{maxImages === 1 ? "" : "s"}
+                    {t("owner.media.fileTypes")} - {t("owner.media.tierLimit", { max: maxImages })}
                   </p>
                 </>
               )}
@@ -291,7 +379,7 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
           ) : images.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <ImageIcon className="h-10 w-10 text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">No photos yet. Upload your first image above.</p>
+              <p className="text-sm text-muted-foreground">{t("owner.media.noImages")}. {t("owner.media.uploadToStart")}.</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -314,7 +402,7 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
 
                   {image.is_featured && (
                     <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 text-[10px] font-medium rounded bg-primary text-primary-foreground">
-                      Featured
+                      {t("owner.media.featured")}
                     </div>
                   )}
 
@@ -328,7 +416,7 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
                         className="h-8 text-xs"
                       >
                         <Star className="h-3.5 w-3.5 mr-1" />
-                        Feature
+                        {t("owner.media.featured")}
                       </Button>
                     )}
                     <Button

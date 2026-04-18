@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
+import { ImageUrlUploadField } from "@/components/admin/ImageUrlUploadField";
 
 export interface SeoData {
   meta_title?: string | null;
@@ -227,12 +228,15 @@ export function SeoFieldsPanel({
                     </div>
                   )}
                   <div className="flex-1">
-                    <Input
+                    <ImageUrlUploadField
                       id="og_image"
-                      value={data.og_image ?? ""}
-                      onChange={(e) => onChange({ ...data, og_image: e.target.value })}
-                      className="bg-background"
+                      value={data.og_image}
+                      onChange={(value) => onChange({ ...data, og_image: value })}
                       placeholder="https://..."
+                      bucket="listing-images"
+                      folder="seo"
+                      assetLabel="OG image"
+                      buttonSize="sm"
                     />
                     <p className="text-xs text-muted-foreground mt-1">
                       Recommended: 1200×630px for best display on social platforms

@@ -316,7 +316,6 @@
     },
     "sidebar": {
       "actionCenter": "Aktionscenter",
-      "aiImageGen": "AI Image Gen",
       "allPosts": "Alle indlæg",
       "analytics": "Analytics",
       "automations": "Automatiseringer",
@@ -2206,7 +2205,13 @@
       "uploadFailed": "Upload mislykkedes",
       "uploadImages": "Upload billeder",
       "uploading": "Uploader...",
-      "uploadToStart": "Upload billeder for at komme i gang"
+      "uploadToStart": "Upload billeder for at komme i gang",
+      "quickAdd": "Hurtig tilføjelse: indsæt URL eller upload ét billede",
+      "addUrl": "Tilføj URL",
+      "provideImageUrl": "Angiv venligst en billed-URL først.",
+      "tierLimit": "Dette listningsniveau understøtter op til {{max}} billede(r).",
+      "tierLimitPartialUpload": "Kun {{count}} billede(r) uploadet på grund af niveaubegrænsningen ({{max}}).",
+      "imageAdded": "Billede tilføjet til galleriet"
     },
     "membership": {
       "annual": "Årlig",

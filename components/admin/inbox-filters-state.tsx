@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useMemo,
   useState,
@@ -48,18 +49,20 @@ export function InboxFiltersProvider({ children }: { children: ReactNode }) {
   const [filters, setFilters] = useState<InboxFilters>(DEFAULT_INBOX_FILTERS);
   const [counts, setCounts] = useState<InboxFilterCounts>(EMPTY_COUNTS);
 
+  const reset = useCallback(() => {
+    setFilters(DEFAULT_INBOX_FILTERS);
+    setCounts(EMPTY_COUNTS);
+  }, []);
+
   const value = useMemo<InboxFiltersState>(
     () => ({
       filters,
       setFilters,
       counts,
       setCounts,
-      reset: () => {
-        setFilters(DEFAULT_INBOX_FILTERS);
-        setCounts(EMPTY_COUNTS);
-      },
+      reset,
     }),
-    [filters, counts],
+    [filters, counts, reset],
   );
 
   return <InboxFiltersContext.Provider value={value}>{children}</InboxFiltersContext.Provider>;

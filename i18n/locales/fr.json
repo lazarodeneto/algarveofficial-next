@@ -316,7 +316,6 @@
     },
     "sidebar": {
       "actionCenter": "Centre d'action",
-      "aiImageGen": "Génération d'Images IA",
       "allPosts": "Tous les Articles",
       "analytics": "Analytique",
       "automations": "Automatisations",
@@ -2206,7 +2205,13 @@
       "uploadFailed": "Échec du téléchargement",
       "uploadImages": "Télécharger Images",
       "uploading": "Téléchargement...",
-      "uploadToStart": "Téléchargez des images pour commencer"
+      "uploadToStart": "Téléchargez des images pour commencer",
+      "quickAdd": "Ajout rapide : collez une URL ou téléversez une image",
+      "addUrl": "Ajouter URL",
+      "provideImageUrl": "Veuillez d'abord fournir une URL d'image.",
+      "tierLimit": "Ce niveau d'annonce prend en charge jusqu'à {{max}} image(s).",
+      "tierLimitPartialUpload": "Seules {{count}} image(s) ont été téléversées à cause de la limite du niveau ({{max}}).",
+      "imageAdded": "Image ajoutée à la galerie"
     },
     "membership": {
       "annual": "Annuel",

@@ -316,7 +316,6 @@
     },
     "sidebar": {
       "actionCenter": "Action Center",
-      "aiImageGen": "AI Image Gen",
       "allPosts": "All Posts",
       "analytics": "Analytics",
       "automations": "Automations",
@@ -2206,7 +2205,13 @@
       "uploadFailed": "Upload failed",
       "uploadImages": "Upload Images",
       "uploading": "Uploading...",
-      "uploadToStart": "Upload images to get started"
+      "uploadToStart": "Upload images to get started",
+      "quickAdd": "Quick add: paste URL or upload one image",
+      "addUrl": "Add URL",
+      "provideImageUrl": "Please provide an image URL first.",
+      "tierLimit": "This listing tier supports up to {{max}} image(s).",
+      "tierLimitPartialUpload": "Only {{count}} image(s) uploaded due to tier limit ({{max}}).",
+      "imageAdded": "Image added to gallery"
     },
     "membership": {
       "annual": "Annual",
@@ -2362,14 +2367,14 @@
       "title": "Claim Existing Business"
     },
     "faq": {
-      "a1": "Submit your application through the form above. Our team will review your business and contact you within 2-3 business days.",
-      "a2": "We offer three tiers: Unverified (free basic listing), Verified (enhanced visibility with trust badge), and Signature (premium placement with Signature Selection eligibility).",
-      "a3": "Initial review typically takes 2-3 business days. Once approved, your listing goes live immediately.",
-      "a4": "Basic listings are free. Verified and Signature tiers have monthly fees with additional benefits. Contact us for current pricing.",
+      "a1": "Fill in the application form at the bottom of this page. It takes less than 3 minutes. Our team will review your submission within 2–3 business days and contact you directly.",
+      "a2": "We offer three levels: Free (basic directory presence), Verified (€19/month — trust badge, enhanced profile, map priority), and Signature (€190/month — everything in Verified plus homepage placement, Signature Selection eligibility, and WhatsApp integration).",
+      "a3": "Initial review takes 2–3 business days. Once approved, your listing goes live immediately. Signature partners with homepage placement typically receive their first inquiries within the first week.",
+      "a4": "No. All tiers are month-to-month. You can upgrade, downgrade, or cancel at any time. Annual billing is available at a 20% discount.",
       "q1": "How do I get my business listed?",
-      "q2": "What are the different listing tiers?",
-      "q3": "How long does the approval process take?",
-      "q4": "Is there a cost to be listed?",
+      "q2": "What are the different listing tiers and prices?",
+      "q3": "How quickly will I see results?",
+      "q4": "Is there a minimum contract?",
       "title": "Frequently Asked Questions"
     },
     "form": {
@@ -2394,9 +2399,9 @@
       "description": "Register your business to be featured in our selected collection of premium experiences.",
       "title": "Apply for New Listing"
     },
-    "subtitle": "Join the Algarve's premier premium directory and connect with discerning travelers seeking premium experiences.",
+    "subtitle": "Join the Algarve's premier luxury directory and connect with 50,000+ high-intent travelers every month — 72% from the UK, Germany, and Scandinavia.",
     "success": "Thank you! Your request has been submitted. We'll contact you within 2-3 business days.",
-    "title": "Become a Partner"
+    "title": "The Algarve's most trusted platform for premium businesses."
   },
   "pricing": {
     "badge": "Partnership Investment",

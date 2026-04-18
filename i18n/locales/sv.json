@@ -316,7 +316,6 @@
     },
     "sidebar": {
       "actionCenter": "Action Center",
-      "aiImageGen": "AI Image Gen",
       "allPosts": "Alla inlägg",
       "analytics": "Analytics",
       "automations": "Automatiseringar",
@@ -2206,7 +2205,13 @@
       "uploadFailed": "Uppladdningen misslyckades",
       "uploadImages": "Ladda upp bilder",
       "uploading": "Laddar upp...",
-      "uploadToStart": "Ladda upp bilder för att komma igång"
+      "uploadToStart": "Ladda upp bilder för att komma igång",
+      "quickAdd": "Snabbtillägg: klistra in URL eller ladda upp en bild",
+      "addUrl": "Lägg till URL",
+      "provideImageUrl": "Ange en bild-URL först.",
+      "tierLimit": "Den här listningsnivån stöder upp till {{max}} bild(er).",
+      "tierLimitPartialUpload": "Endast {{count}} bild(er) laddades upp på grund av nivågränsen ({{max}}).",
+      "imageAdded": "Bild tillagd i galleriet"
     },
     "membership": {
       "annual": "Årlig",

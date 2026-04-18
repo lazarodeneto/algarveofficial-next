@@ -22,9 +22,6 @@ const AdminCategories = withAdminLoading(() => import("@/legacy-pages/admin/Admi
 const AdminCities = withAdminLoading(() => import("@/legacy-pages/admin/AdminCities"));
 const AdminClaims = withAdminLoading(() => import("@/legacy-pages/admin/AdminClaims"));
 const AdminCurated = withAdminLoading(() => import("@/legacy-pages/admin/AdminCurated"));
-const AdminImageGeneration = withAdminLoading(
-  () => import("@/legacy-pages/admin/AdminImageGeneration"),
-);
 const AdminImport = withAdminLoading(() => import("@/legacy-pages/admin/AdminImport"));
 const AdminListings = withAdminLoading(() => import("@/legacy-pages/admin/AdminListings"));
 const AdminMessages = withAdminLoading(() => import("@/legacy-pages/admin/AdminMessages"));
@@ -149,7 +146,6 @@ const staticRouteMap: Record<string, ComponentType> = {
   subscriptions: AdminSubscriptions,
   claims: AdminClaims,
   import: AdminImport,
-  images: AdminImageGeneration,
   "content/home": AdminHomePage,
   "content/partner": AdminPartnerPage,
   "content/support": AdminSupportPage,

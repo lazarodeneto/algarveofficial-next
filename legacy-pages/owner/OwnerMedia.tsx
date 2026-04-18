@@ -35,6 +35,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { trimWhiteBorders, convertToWebP } from "@/lib/imageUtils";
+import { ImageUrlUploadField } from "@/components/admin/ImageUrlUploadField";
+import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
 
 interface ImageItem {
   id: string;
@@ -57,11 +59,15 @@ export default function OwnerMedia() {
   
   const [selectedListingId, setSelectedListingId] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
+  const [isAddingByUrl, setIsAddingByUrl] = useState(false);
+  const [quickImageUrl, setQuickImageUrl] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [imageToDelete, setImageToDelete] = useState<string | null>(null);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   
   const selectedListing = listings.find(l => l.id === selectedListingId);
+  const selectedListingTier = (selectedListing?.tier as string | null | undefined) ?? "unverified";
+  const maxImages = getListingTierMaxGalleryImages(selectedListingTier);
   
   // Convert listing images to ImageItem format
   const images: ImageItem[] = useMemo(() => {
@@ -85,15 +91,46 @@ export default function OwnerMedia() {
   const handleListingChange = (listingId: string) => {
     setSelectedListingId(listingId);
   };
+
+  const syncFeaturedImageUrl = async (currentImages: ImageItem[], deletedId?: string) => {
+    if (!selectedListingId) return;
+    const remaining = deletedId
+      ? currentImages.filter((image) => image.id !== deletedId)
+      : currentImages;
+    const featured = remaining.find((image) => image.isFeatured) ?? remaining[0];
+    const featuredImageUrl = featured?.url ?? null;
+    await supabase
+      .from("listings")
+      .update({ featured_image_url: featuredImageUrl })
+      .eq("id", selectedListingId);
+  };
   
   const handleUpload = async (files: FileList | null) => {
     if (!files || files.length === 0 || !selectedListingId || !user) return;
+
+    const remainingSlots = maxImages - images.length;
+    if (remainingSlots <= 0) {
+      toast.error(t("owner.media.tierLimit", { max: maxImages }));
+      return;
+    }
+
+    const filesToUpload = Array.from(files).slice(0, remainingSlots);
+    if (filesToUpload.length < files.length) {
+      toast.info(
+        t("owner.media.tierLimitPartialUpload", {
+          count: filesToUpload.length,
+          max: maxImages,
+        }),
+      );
+    }
     
     setIsUploading(true);
     
     try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+      const uploadedUrls: { url: string; isFeatured: boolean }[] = [];
+
+      for (let i = 0; i < filesToUpload.length; i++) {
+        const file = filesToUpload[i];
         
         // Trim white borders and convert to WebP
         let processedFile = file;
@@ -129,15 +166,71 @@ export default function OwnerMedia() {
           });
 
         if (dbError) throw dbError;
+
+        uploadedUrls.push({ url: urlData.publicUrl, isFeatured: images.length === 0 && i === 0 });
+      }
+
+      const newFeatured = uploadedUrls.find((image) => image.isFeatured);
+      if (newFeatured) {
+        await supabase
+          .from("listings")
+          .update({ featured_image_url: newFeatured.url })
+          .eq("id", selectedListingId);
       }
       
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
-      toast.success(t('owner.media.imagesUploaded', { count: files.length }));
+      queryClient.invalidateQueries({ queryKey: ["listings"] });
+      toast.success(t('owner.media.imagesUploaded', { count: filesToUpload.length }));
     } catch (error) {
       toast.error(t('owner.media.uploadFailed') + ': ' + (error as Error).message);
     }
     
     setIsUploading(false);
+  };
+
+  const addImageFromUrl = async (url: string) => {
+    const trimmedUrl = url.trim();
+    if (!trimmedUrl || !selectedListingId) {
+      toast.error(t("owner.media.provideImageUrl"));
+      return;
+    }
+
+    const remainingSlots = maxImages - images.length;
+    if (remainingSlots <= 0) {
+      toast.error(t("owner.media.tierLimit", { max: maxImages }));
+      return;
+    }
+
+    setIsAddingByUrl(true);
+    try {
+      const isFeatured = images.length === 0;
+      const { error } = await supabase
+        .from("listing_images")
+        .insert({
+          listing_id: selectedListingId,
+          image_url: trimmedUrl,
+          display_order: images.length,
+          is_featured: isFeatured,
+        });
+
+      if (error) throw error;
+
+      if (isFeatured) {
+        await supabase
+          .from("listings")
+          .update({ featured_image_url: trimmedUrl })
+          .eq("id", selectedListingId);
+      }
+
+      setQuickImageUrl("");
+      queryClient.invalidateQueries({ queryKey: ["owner-listings"] });
+      queryClient.invalidateQueries({ queryKey: ["listings"] });
+      toast.success(t("owner.media.imageAdded"));
+    } catch (error) {
+      toast.error(`${t("owner.media.uploadFailed")}: ${(error as Error).message}`);
+    } finally {
+      setIsAddingByUrl(false);
+    }
   };
   
   const handleDeleteClick = (imageId: string) => {
@@ -168,8 +261,11 @@ export default function OwnerMedia() {
             .eq('id', remaining[0].id);
         }
       }
+
+      await syncFeaturedImageUrl(images, imageToDelete);
       
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
+      queryClient.invalidateQueries({ queryKey: ["listings"] });
       toast.success(t('owner.media.imageDeleted'));
     } catch (error) {
       toast.error(t('owner.media.deleteFailed') + ': ' + (error as Error).message);
@@ -192,8 +288,17 @@ export default function OwnerMedia() {
         .from('listing_images')
         .update({ is_featured: true })
         .eq('id', imageId);
+
+      const featuredImage = images.find((image) => image.id === imageId);
+      if (featuredImage) {
+        await supabase
+          .from("listings")
+          .update({ featured_image_url: featuredImage.url })
+          .eq("id", selectedListingId);
+      }
       
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
+      queryClient.invalidateQueries({ queryKey: ["listings"] });
       toast.success(t('owner.media.featuredUpdated'));
     } catch (error) {
       toast.error(t('owner.media.updateFailed') + ': ' + (error as Error).message);
@@ -265,10 +370,45 @@ export default function OwnerMedia() {
             <CardHeader>
               <CardTitle>{t('owner.media.uploadImages')}</CardTitle>
               <CardDescription>
-                {t('owner.media.uploadDescription')}
+                {t('owner.media.uploadDescription')} ({images.length}/{maxImages})
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+              <div className="rounded-lg border border-border/70 bg-muted/30 p-3">
+                <p className="mb-2 text-xs text-muted-foreground">{t("owner.media.quickAdd")}</p>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+                  <div className="flex-1">
+                    <ImageUrlUploadField
+                      value={quickImageUrl}
+                      onChange={setQuickImageUrl}
+                      onUploadComplete={(uploadedUrl) => {
+                        void addImageFromUrl(uploadedUrl);
+                      }}
+                      bucket="listing-images"
+                      folder={selectedListingId || "uploads"}
+                      assetLabel="Listing image"
+                      buttonSize="sm"
+                      disabled={!selectedListingId || isUploading || isAddingByUrl || images.length >= maxImages}
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={
+                      !selectedListingId ||
+                      isUploading ||
+                      isAddingByUrl ||
+                      images.length >= maxImages ||
+                      quickImageUrl.trim().length === 0
+                    }
+                    onClick={() => {
+                      void addImageFromUrl(quickImageUrl);
+                    }}
+                  >
+                    {isAddingByUrl ? <Loader2 className="h-4 w-4 animate-spin" /> : t("owner.media.addUrl")}
+                  </Button>
+                </div>
+              </div>
               <label
                 className={cn(
                   "flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg cursor-pointer transition-colors",
@@ -300,7 +440,7 @@ export default function OwnerMedia() {
                   accept="image/*"
                   multiple
                   onChange={(e) => handleUpload(e.target.files)}
-                  disabled={isUploading}
+                  disabled={isUploading || images.length >= maxImages}
                 />
               </label>
             </CardContent>

@@ -8,7 +8,7 @@ import {
   MapPin,
   Image as ImageIcon,
   FileText,
-  Info
+  Info,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,6 +34,7 @@ import {
 } from '@/types/events';
 import { toast } from '@/hooks/use-toast';
 import { extractIdParam } from "@/lib/routeParams";
+import { ImageUrlUploadField } from "@/components/admin/ImageUrlUploadField";
 
 export default function OwnerEventSubmit() {
   const router = useRouter();
@@ -376,11 +377,16 @@ export default function OwnerEventSubmit() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="image">Event Image URL</Label>
-                <Input
+                <ImageUrlUploadField
                   id="image"
                   value={formData.image}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                  onChange={(value) => setFormData({ ...formData, image: value })}
                   placeholder="https://..."
+                  bucket="listing-images"
+                  folder="events"
+                  assetLabel="Event image"
+                  buttonSize="sm"
+                  disabled={createEvent.isPending || updateEvent.isPending}
                 />
               </div>
               {formData.image && (

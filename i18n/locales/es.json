@@ -316,7 +316,6 @@
     },
     "sidebar": {
       "actionCenter": "Centro de acción",
-      "aiImageGen": "Generación de Imágenes IA",
       "allPosts": "Todas las Publicaciones",
       "analytics": "Analítica",
       "automations": "Automatizaciones",
@@ -2206,7 +2205,13 @@
       "uploadFailed": "Error al subir",
       "uploadImages": "Subir Imágenes",
       "uploading": "Subiendo...",
-      "uploadToStart": "Suba imágenes para comenzar"
+      "uploadToStart": "Suba imágenes para comenzar",
+      "quickAdd": "Añadir rápido: pega una URL o sube una imagen",
+      "addUrl": "Añadir URL",
+      "provideImageUrl": "Por favor, proporcione primero una URL de imagen.",
+      "tierLimit": "Este nivel del listado admite hasta {{max}} imagen(es).",
+      "tierLimitPartialUpload": "Solo se subieron {{count}} imagen(es) por el límite del nivel ({{max}}).",
+      "imageAdded": "Imagen añadida a la galería"
     },
     "membership": {
       "annual": "Anual",

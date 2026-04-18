@@ -35,11 +35,13 @@ export function InboxClient({ initialSnapshot, currentUserId }: InboxClientProps
       urgent: initialSnapshot.counts.urgent,
       byDomain: initialSnapshot.counts.byDomain,
     });
+  }, [initialSnapshot.counts, setCounts]);
 
+  useEffect(() => {
     return () => {
       reset();
     };
-  }, [initialSnapshot.counts, reset, setCounts]);
+  }, [reset]);
 
   const filtered = useMemo<InboxItem[]>(() => {
     return initialSnapshot.items.filter((item) => {

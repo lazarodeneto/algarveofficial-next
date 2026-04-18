@@ -5,6 +5,82 @@ import { useAuth } from '@/contexts/AuthContext';
 import type { CalendarEvent, EventStatus, EventCategory, EventFormData } from '@/types/events';
 import type { Json } from '@/integrations/supabase/types';
 
+type AdminEventsFilters = {
+  status?: EventStatus;
+  category?: EventCategory;
+  time?: 'upcoming' | 'past' | 'all';
+};
+
+const PENDING_EVENTS_MODERATION_FILTERS: Readonly<AdminEventsFilters> = {
+  status: 'pending_review',
+  time: 'all',
+};
+
+async function fetchAdminEvents(filters?: AdminEventsFilters): Promise<CalendarEvent[]> {
+  const today = new Date().toISOString().split('T')[0];
+  let query = supabase
+    .from('events')
+    .select(`
+      *,
+      city:cities(id, name, slug)
+    `);
+
+  if (filters?.status) {
+    query = query.eq('status', filters.status);
+  }
+  if (filters?.category) {
+    query = query.eq('category', filters.category);
+  }
+
+  const time = filters?.time ?? 'upcoming';
+  if (time === 'upcoming') {
+    query = query.gte('end_date', today);
+  } else if (time === 'past') {
+    query = query.lt('end_date', today);
+  }
+
+  query = query.order(time === 'past' ? 'end_date' : 'start_date', { ascending: time !== 'past' });
+
+  const { data, error } = await query;
+  if (error) throw error;
+
+  const events = (data ?? []) as CalendarEvent[];
+  if (events.length === 0) {
+    return events;
+  }
+
+  const submitterIds = Array.from(
+    new Set(events.map((event) => event.submitter_id).filter(Boolean)),
+  );
+
+  if (submitterIds.length === 0) {
+    return events;
+  }
+
+  const { data: submittersData, error: submittersError } = await supabase
+    .from('public_profiles')
+    .select('id, full_name')
+    .in('id', submitterIds);
+
+  if (submittersError || !submittersData) {
+    return events;
+  }
+
+  const submitterMap = new Map<string, { id: string; full_name: string | null }>();
+  for (const submitter of submittersData) {
+    if (!submitter.id) continue;
+    submitterMap.set(submitter.id, {
+      id: submitter.id,
+      full_name: submitter.full_name ?? null,
+    });
+  }
+
+  return events.map((event) => ({
+    ...event,
+    submitter: submitterMap.get(event.submitter_id),
+  }));
+}
+
 // Fetch published events for public page
 export function usePublishedEvents(category?: EventCategory | 'all', timeFilter: 'upcoming' | 'past' | 'all' = 'upcoming') {
   const isBrowser = typeof window !== "undefined";
@@ -43,75 +119,12 @@ export function usePublishedEvents(category?: EventCategory | 'all', timeFilter:
 }
 
 // Fetch all events for admin with filters
-export function useAdminEvents(filters?: { status?: EventStatus; category?: EventCategory; time?: 'upcoming' | 'past' | 'all' }) {
+export function useAdminEvents(filters?: AdminEventsFilters) {
   const isBrowser = typeof window !== "undefined";
 
   return useQuery({
     queryKey: ['events', 'admin', filters],
-    queryFn: async () => {
-      const today = new Date().toISOString().split('T')[0];
-      let query = supabase
-        .from('events')
-        .select(`
-          *,
-          city:cities(id, name, slug)
-        `);
-
-      if (filters?.status) {
-        query = query.eq('status', filters.status);
-      }
-      if (filters?.category) {
-        query = query.eq('category', filters.category);
-      }
-
-      const time = filters?.time ?? 'upcoming';
-      if (time === 'upcoming') {
-        query = query.gte('end_date', today);
-      } else if (time === 'past') {
-        query = query.lt('end_date', today);
-      }
-
-      query = query.order(time === 'past' ? 'end_date' : 'start_date', { ascending: time !== 'past' });
-
-      const { data, error } = await query;
-      if (error) throw error;
-
-      const events = (data ?? []) as CalendarEvent[];
-      if (events.length === 0) {
-        return events;
-      }
-
-      const submitterIds = Array.from(
-        new Set(events.map((event) => event.submitter_id).filter(Boolean)),
-      );
-
-      if (submitterIds.length === 0) {
-        return events;
-      }
-
-      const { data: submittersData, error: submittersError } = await supabase
-        .from('public_profiles')
-        .select('id, full_name')
-        .in('id', submitterIds);
-
-      if (submittersError || !submittersData) {
-        return events;
-      }
-
-      const submitterMap = new Map<string, { id: string; full_name: string | null }>();
-      for (const submitter of submittersData) {
-        if (!submitter.id) continue;
-        submitterMap.set(submitter.id, {
-          id: submitter.id,
-          full_name: submitter.full_name ?? null,
-        });
-      }
-
-      return events.map((event) => ({
-        ...event,
-        submitter: submitterMap.get(event.submitter_id),
-      }));
-    },
+    queryFn: () => fetchAdminEvents(filters),
     enabled: isBrowser,
     initialData: [] as CalendarEvent[],
   });
@@ -252,18 +265,13 @@ export function usePendingEventsCount() {
   const isBrowser = typeof window !== "undefined";
 
   return useQuery({
-    queryKey: ['events', 'pending', 'count'],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from('events')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'pending_review');
-
-      if (error) throw error;
-      return count || 0;
-    },
+    queryKey: ['events', 'admin', PENDING_EVENTS_MODERATION_FILTERS],
+    queryFn: () => fetchAdminEvents(PENDING_EVENTS_MODERATION_FILTERS),
+    select: (events) => events.length,
     enabled: isBrowser,
-    initialData: 0,
+    initialData: [] as CalendarEvent[],
+    staleTime: 30_000,
+    refetchInterval: 60_000,
   });
 }
 

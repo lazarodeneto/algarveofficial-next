@@ -79,11 +79,20 @@ import type { ListingWithRelations } from "@/hooks/useListings";
 
 type ListingRow = ListingWithRelations;
 
-const EXPERIENCE_MEMBER_SLUGS = getMergedMemberSlugs("experiences");
+type ExperienceCategoryScope = "experiences" | "beaches";
+
 const arraysAreEqual = (left: string[], right: string[]) =>
   left.length === right.length && left.every((value, index) => value === right[index]);
 
-const Experiences = () => {
+interface ExperiencesProps {
+  defaultCategorySlug?: ExperienceCategoryScope;
+  pagePath?: "/experiences" | "/beaches";
+}
+
+const Experiences = ({
+  defaultCategorySlug = "experiences",
+  pagePath = "/experiences",
+}: ExperiencesProps) => {
   const { t } = useTranslation();
   const {
     getMetaDescription,
@@ -106,9 +115,13 @@ const Experiences = () => {
   const [selectedRegion, setSelectedRegion] = useState("all");
   const [selectedCity, setSelectedCity] = useState("all");
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState("experiences");
+  const [selectedCategory, setSelectedCategory] = useState<string>(defaultCategorySlug);
   const [selectedTier, setSelectedTier] = useState<Database["public"]["Tables"]["listings"]["Row"]["tier"] | "all">("all");
   const [shouldScrollToResults, setShouldScrollToResults] = useState(false);
+  const scopedMemberSlugs = useMemo(
+    () => getMergedMemberSlugs(defaultCategorySlug),
+    [defaultCategorySlug],
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 300);
@@ -119,6 +132,12 @@ const Experiences = () => {
     () => buildMergedCategoryOptions(categories),
     [categories],
   );
+  const scopedCategories = useMemo(() => {
+    const scopedSlugSet = new Set(scopedMemberSlugs);
+    return mergedCategories.filter((category) =>
+      category.memberSlugs.some((slug) => scopedSlugSet.has(slug)),
+    );
+  }, [mergedCategories, scopedMemberSlugs]);
 
   // Extract URL parameters and convert slugs to IDs
   useEffect(() => {
@@ -127,9 +146,14 @@ const Experiences = () => {
     const params = new URLSearchParams(window.location.search);
     const cityParams = params.getAll("city");
     const categoryParam = params.get("category");
-    const nextCategory = categoryParam
+    const resolvedCategory = categoryParam
       ? resolveCategoryFilterSlug(categoryParam, categories, mergedCategories)
-      : "experiences";
+      : defaultCategorySlug;
+    const nextCategory =
+      resolvedCategory === "all" ||
+      scopedCategories.some((category) => category.slug === resolvedCategory)
+        ? resolvedCategory
+        : defaultCategorySlug;
 
     setSelectedCategory((previousCategory) =>
       previousCategory === nextCategory ? previousCategory : nextCategory,
@@ -163,30 +187,34 @@ const Experiences = () => {
     setSelectedCities((previousCities) =>
       previousCities.length === 0 ? previousCities : [],
     );
-  }, [categories, cities, mergedCategories]);
+  }, [categories, cities, defaultCategorySlug, mergedCategories, scopedCategories]);
 
   const categoryMissingFromOptions = useMemo(
     () =>
       selectedCategory !== "all" &&
-      !mergedCategories.some((category) => category.slug === selectedCategory),
-    [mergedCategories, selectedCategory],
+      !scopedCategories.some((category) => category.slug === selectedCategory),
+    [scopedCategories, selectedCategory],
   );
 
 
-  const experiencesCategoryIds = useMemo(() => {
-    return getMergedCategoryBySlug("experiences", mergedCategories)?.memberIds ?? [];
-  }, [mergedCategories]);
+  const scopedCategoryIds = useMemo(() => {
+    return getMergedCategoryBySlug(defaultCategorySlug, mergedCategories)?.memberIds ?? [];
+  }, [defaultCategorySlug, mergedCategories]);
   const selectedCategoryIds = useMemo(() => {
     if (selectedCategory === "all") {
       return Array.from(
-        new Set(mergedCategories.flatMap((category) => category.memberIds)),
+        new Set(scopedCategories.flatMap((category) => category.memberIds)),
       );
     }
-    return getMergedCategoryBySlug(selectedCategory, mergedCategories)?.memberIds ?? [];
-  }, [mergedCategories, selectedCategory]);
+    return (
+      getMergedCategoryBySlug(selectedCategory, scopedCategories)?.memberIds ??
+      getMergedCategoryBySlug(defaultCategorySlug, scopedCategories)?.memberIds ??
+      []
+    );
+  }, [defaultCategorySlug, scopedCategories, selectedCategory]);
 
   const hasActiveFilters =
-    selectedCategory !== "experiences" ||
+    selectedCategory !== defaultCategorySlug ||
     selectedRegion !== "all" ||
     selectedCity !== "all" ||
     selectedCities.length > 0 ||
@@ -199,22 +227,22 @@ const Experiences = () => {
     setSelectedRegion("all");
     setSelectedCity("all");
     setSelectedCities([]);
-    setSelectedCategory("experiences");
+    setSelectedCategory(defaultCategorySlug);
     setSelectedTier("all");
-  }, []);
+  }, [defaultCategorySlug]);
 
-  // City listing counts scoped to experiences categories
+  // City listing counts scoped to selected top-level category.
   const { data: cityListingCounts = {} } = useQuery<Record<string, number>>({
-    queryKey: ["experiences-city-counts", [...experiencesCategoryIds].sort().join(",")],
+    queryKey: [`${defaultCategorySlug}-city-counts`, [...scopedCategoryIds].sort().join(",")],
     queryFn: async () => {
-      let effectiveCategoryIds = experiencesCategoryIds;
+      let effectiveCategoryIds = scopedCategoryIds;
 
       if (effectiveCategoryIds.length === 0) {
         const { data: fallbackCategories, error: fallbackError } = await supabase
           .from("categories")
           .select("id")
           .eq("is_active", true)
-          .in("slug", EXPERIENCE_MEMBER_SLUGS);
+          .in("slug", scopedMemberSlugs);
 
         if (fallbackError) throw fallbackError;
         effectiveCategoryIds = (fallbackCategories ?? []).map((category) => category.id);
@@ -292,6 +320,7 @@ const Experiences = () => {
   const { data: listings = [], isLoading: listingsLoading, error: listingsError } = useQuery({
     queryKey: [
       "experiences-listings",
+      defaultCategorySlug,
       debouncedSearch,
       selectedRegion,
       selectedCity,
@@ -304,12 +333,12 @@ const Experiences = () => {
     queryFn: async () => {
       let effectiveCategoryIds: string[] = selectedCategoryIds;
 
-      if (selectedCategory === "experiences" && effectiveCategoryIds.length === 0) {
+      if (selectedCategory === defaultCategorySlug && effectiveCategoryIds.length === 0) {
         const { data: fallbackCategories, error: fallbackError } = await supabase
           .from("categories")
           .select("id")
           .eq("is_active", true)
-          .in("slug", EXPERIENCE_MEMBER_SLUGS);
+          .in("slug", scopedMemberSlugs);
 
         if (fallbackError) throw fallbackError;
         effectiveCategoryIds = (fallbackCategories ?? []).map((category) => category.id);
@@ -587,7 +616,7 @@ const Experiences = () => {
                   // Single city fallback - use the city's own slug
                   params.append("city", city.slug);
                 }
-                return `/experiences?${params.toString()}#showing-listings`;
+                return `${pagePath}?${params.toString()}#showing-listings`;
               }}
               imageTimestamp={imageTimestamp}
               basePath="visit"
@@ -752,7 +781,7 @@ const Experiences = () => {
                               <SelectItem value="all">
                                 {t("directory.allCategories")}
                               </SelectItem>
-                              {[...mergedCategories]
+                              {[...scopedCategories]
                                 .sort((a, b) =>
                                   a.name.localeCompare(b.name),
                                 )

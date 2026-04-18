@@ -316,7 +316,6 @@
     },
     "sidebar": {
       "actionCenter": "Aktionszentrum",
-      "aiImageGen": "KI-Bildgenerierung",
       "allPosts": "Alle Beiträge",
       "analytics": "Analytik",
       "automations": "Automatisierungen",
@@ -2206,7 +2205,13 @@
       "uploadFailed": "Hochladen fehlgeschlagen",
       "uploadImages": "Bilder Hochladen",
       "uploading": "Wird hochgeladen...",
-      "uploadToStart": "Laden Sie Bilder hoch, um zu beginnen"
+      "uploadToStart": "Laden Sie Bilder hoch, um zu beginnen",
+      "quickAdd": "Schnell hinzufügen: URL einfügen oder ein Bild hochladen",
+      "addUrl": "URL hinzufügen",
+      "provideImageUrl": "Bitte geben Sie zuerst eine Bild-URL an.",
+      "tierLimit": "Diese Eintragsstufe unterstützt bis zu {{max}} Bild(er).",
+      "tierLimitPartialUpload": "Aufgrund der Stufenbegrenzung ({{max}}) wurden nur {{count}} Bild(er) hochgeladen.",
+      "imageAdded": "Bild zur Galerie hinzugefügt"
     },
     "membership": {
       "annual": "Jährlich",

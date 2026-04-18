@@ -14,7 +14,7 @@ import { PublishingStep } from "@/components/admin/form-steps/PublishingStep";
 import { useAllCities, useAllRegions, useAllCategories } from "@/hooks/useReferenceData";
 import { useAdminListing } from "@/hooks/useListings";
 import { useCreateListing, useUpdateListing } from "@/hooks/useListingMutations";
-import { getDefaultDetails } from "@/lib/categoryTemplates";
+import { getCategoryTemplate, getDefaultDetails } from "@/lib/categoryTemplates";
 import { extractIdParam } from "@/lib/routeParams";
 import { LISTING_FORM_STEPS, type ListingFormData } from "@/types/listing";
 import { useAuth } from "@/contexts/AuthContext";
@@ -63,7 +63,7 @@ export default function ListingForm() {
   const [formData, setFormData] = useState<ListingFormData>(getEmptyFormData());
   const [initialData, setInitialData] = useState<ListingFormData>(getEmptyFormData());
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [completedStepIds, setCompletedStepIds] = useState<string[]>([]);
 
   // Role checks
   const isAdmin = user?.role === 'admin';
@@ -183,10 +183,47 @@ export default function ListingForm() {
     }
   };
 
-  const validateStep = (step: number): boolean => {
+  const selectedCategorySlug = useMemo(() => {
+    if (!formData.category_id) return "";
+    const selectedCategory = categories.find((category) => category.id === formData.category_id);
+    return selectedCategory?.slug ?? "";
+  }, [categories, formData.category_id]);
+
+  const shouldShowDetailsStep = useMemo(() => {
+    if (!formData.category_id) return true;
+
+    // Keep Details visible until categories are loaded for the selected id.
+    if (!selectedCategorySlug) return true;
+
+    return Boolean(getCategoryTemplate(selectedCategorySlug));
+  }, [formData.category_id, selectedCategorySlug]);
+
+  const visibleSteps = useMemo(() => {
+    if (shouldShowDetailsStep) return LISTING_FORM_STEPS;
+    return LISTING_FORM_STEPS.filter((step) => step.id !== "details");
+  }, [shouldShowDetailsStep]);
+
+  const completedSteps = useMemo(
+    () =>
+      visibleSteps.reduce<number[]>((acc, step, index) => {
+        if (completedStepIds.includes(step.id)) {
+          acc.push(index);
+        }
+        return acc;
+      }, []),
+    [completedStepIds, visibleSteps],
+  );
+
+  const currentStepId = visibleSteps[currentStep]?.id;
+
+  useEffect(() => {
+    setCurrentStep((prev) => Math.min(prev, Math.max(visibleSteps.length - 1, 0)));
+  }, [visibleSteps.length]);
+
+  const validateStep = (stepId: string | undefined): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (step === 0) {
+    if (stepId === "basics") {
       if (!formData.name.trim()) newErrors.name = "Name is required";
       if (!formData.slug.trim()) newErrors.slug = "Slug is required";
       if (!formData.short_description.trim()) newErrors.short_description = "Short description is required";
@@ -199,11 +236,12 @@ export default function ListingForm() {
   };
 
   const handleNext = () => {
-    if (validateStep(currentStep)) {
-      if (!completedSteps.includes(currentStep)) {
-        setCompletedSteps([...completedSteps, currentStep]);
+    const stepId = visibleSteps[currentStep]?.id;
+    if (validateStep(stepId)) {
+      if (stepId) {
+        setCompletedStepIds((prev) => (prev.includes(stepId) ? prev : [...prev, stepId]));
       }
-      setCurrentStep((prev) => Math.min(prev + 1, LISTING_FORM_STEPS.length - 1));
+      setCurrentStep((prev) => Math.min(prev + 1, visibleSteps.length - 1));
     }
   };
 
@@ -391,8 +429,8 @@ export default function ListingForm() {
   }
 
   const renderStep = () => {
-    switch (currentStep) {
-      case 0:
+    switch (currentStepId) {
+      case "basics":
         return (
           <BasicsStep
             data={formData}
@@ -404,11 +442,11 @@ export default function ListingForm() {
             isAdmin={isAdmin}
           />
         );
-      case 1:
+      case "media":
         return <MediaStep data={formData} onChange={handleChange} errors={errors} />;
-      case 2:
+      case "details":
         return <DetailsStep data={formData} onChange={handleChange} errors={errors} categoryId={formData.category_id} categories={formCategories} />;
-      case 3:
+      case "contact":
         return (
           <ContactStep
             data={formData}
@@ -421,7 +459,7 @@ export default function ListingForm() {
             }}
           />
         );
-      case 4:
+      case "publishing":
         return (
           <PublishingStep
             data={formData}
@@ -459,7 +497,7 @@ export default function ListingForm() {
       {/* Step indicator */}
       <div className="mb-8">
         <FormStepIndicator
-          steps={LISTING_FORM_STEPS}
+          steps={visibleSteps}
           currentStep={currentStep}
           onStepClick={setCurrentStep}
           completedSteps={completedSteps}
@@ -476,7 +514,7 @@ export default function ListingForm() {
             <ChevronLeft className="h-4 w-4 mr-2" />
             Previous
           </Button>
-          {currentStep < LISTING_FORM_STEPS.length - 1 ? (
+          {currentStep < visibleSteps.length - 1 ? (
             <Button onClick={handleNext}>
               Next
               <ChevronRight className="h-4 w-4 ml-2" />

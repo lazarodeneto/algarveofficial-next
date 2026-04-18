@@ -316,7 +316,6 @@
     },
     "sidebar": {
       "actionCenter": "Actiecentrum",
-      "aiImageGen": "AI-afbeelding Gen",
       "allPosts": "Alle berichten",
       "analytics": "Analyses",
       "automations": "Automatiseringen",
@@ -2206,7 +2205,13 @@
       "uploadFailed": "Uploaden mislukt",
       "uploadImages": "Afbeeldingen uploaden",
       "uploading": "Uploaden...",
-      "uploadToStart": "Upload afbeeldingen om aan de slag te gaan"
+      "uploadToStart": "Upload afbeeldingen om aan de slag te gaan",
+      "quickAdd": "Snel toevoegen: plak URL of upload één afbeelding",
+      "addUrl": "URL toevoegen",
+      "provideImageUrl": "Voer eerst een afbeeldings-URL in.",
+      "tierLimit": "Dit vermeldingniveau ondersteunt maximaal {{max}} afbeelding(en).",
+      "tierLimitPartialUpload": "Slechts {{count}} afbeelding(en) geüpload vanwege de niveaulimiet ({{max}}).",
+      "imageAdded": "Afbeelding toegevoegd aan galerij"
     },
     "membership": {
       "annual": "Jaarlijks",

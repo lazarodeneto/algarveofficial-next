@@ -20,7 +20,6 @@ import {
   PieChart,
   Send,
   Settings,
-  Sparkles,
   Tags,
   Upload,
   Users,
@@ -74,7 +73,6 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
   const listingChildren: SidebarNavItem[] = [
     { label: t("admin.sidebar.importListings"), href: "/admin/import", icon: Upload },
     { label: t("admin.sidebar.curatedExcellence"), href: "/admin/curated", icon: Gem },
-    { label: t("admin.sidebar.aiImageGen"), href: "/admin/images", icon: Sparkles },
     { label: t("admin.sidebar.categories"), href: "/admin/categories", icon: Tags },
   ];
 

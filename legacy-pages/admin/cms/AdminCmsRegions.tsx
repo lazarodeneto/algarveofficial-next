@@ -110,8 +110,9 @@ function SortableRegionItem({ region, onToggle, onEdit, onDelete }: SortableRegi
           <ImageWithFallback
             src={region.image_url ?? undefined}
             alt={region.name}
-            containerClassName="w-24 h-16 rounded-lg flex-shrink-0"
-            fallbackIconSize={24}
+            containerClassName="h-16 w-24 flex-shrink-0 overflow-hidden rounded-md border border-border/60 bg-muted"
+            className="h-full w-full object-cover"
+            fallbackIconSize={20}
           />
 
           {/* Info */}
