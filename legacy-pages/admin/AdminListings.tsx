@@ -44,13 +44,7 @@ import { TierBadge } from "@/components/admin/TierBadge";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
-import {
-  useBulkDeleteListings, 
-  useBulkPublishListings, 
-  useBulkUpdateTier,
-  useToggleListingCurated,
-  useUpdateListingStatus,
-} from "@/hooks/useListingMutations";
+import { useUpdateListingStatus } from "@/hooks/useListingMutations";
 import { toast } from "sonner";
 import { useLocalePath } from "@/hooks/useLocalePath";
 

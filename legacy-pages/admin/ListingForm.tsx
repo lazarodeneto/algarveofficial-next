@@ -13,7 +13,7 @@ import { ContactStep } from "@/components/admin/form-steps/ContactStep";
 import { PublishingStep } from "@/components/admin/form-steps/PublishingStep";
 import { useAllCities, useAllRegions, useAllCategories } from "@/hooks/useReferenceData";
 import { useAdminListing } from "@/hooks/useListings";
-import { useCreateListing, useUpdateListing } from "@/hooks/useListingMutations";
+import { useUpdateListingStatus } from "@/hooks/useListingMutations";
 import { getDefaultDetails } from "@/lib/categoryTemplates";
 import { extractIdParam } from "@/lib/routeParams";
 import { LISTING_FORM_STEPS, type ListingFormData } from "@/types/listing";
