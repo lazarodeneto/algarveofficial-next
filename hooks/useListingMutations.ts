@@ -10,12 +10,19 @@ export function useUpdateListingStatus() {
       id: string;
       status: "draft" | "pending_review" | "published" | "rejected";
     }) => {
-      return await callAdminListingsApi(
-        `/api/admin/listings/${id}`,
-        "PATCH",
-        { status }
-      );
-    },
+const res = await fetch(`/api/admin/listings/${id}`, {
+  method: "PATCH",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ status }),
+});
+
+if (!res.ok) {
+  throw new Error("Failed to update listing");
+}
+
+return res.json();    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-listings"] });
       toast.success("Status updated");
