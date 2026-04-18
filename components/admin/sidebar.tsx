@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState, type FocusEvent } from "react";
 import { usePathname } from "next/navigation";
-import { ChevronDown } from "lucide-react";
 
 import {
   ADMIN_NAV_GROUPS,
@@ -65,8 +64,6 @@ export function Sidebar() {
     [inboxBadge, l],
   );
 
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
-
   const clearExpandTimer = () => {
     if (expandTimerRef.current) {
       clearTimeout(expandTimerRef.current);
@@ -98,39 +95,6 @@ export function Sidebar() {
       collapseTimerRef.current = null;
     }, delay);
   };
-
-  useEffect(() => {
-    setOpenGroups((current) => {
-      let changed = false;
-      const next = { ...current };
-
-      for (const group of groups) {
-        if (next[group.id] === undefined) {
-          next[group.id] = true;
-          changed = true;
-        }
-      }
-
-      return changed ? next : current;
-    });
-  }, [groups]);
-
-  useEffect(() => {
-    setOpenGroups((current) => {
-      let changed = false;
-      const next = { ...current };
-
-      for (const group of groups) {
-        const hasActiveItem = group.items.some((item) => isItemActive(pathname, item));
-        if (hasActiveItem && !next[group.id]) {
-          next[group.id] = true;
-          changed = true;
-        }
-      }
-
-      return changed ? next : current;
-    });
-  }, [groups, pathname]);
 
   useEffect(
     () => () => {
@@ -204,99 +168,74 @@ export function Sidebar() {
         <nav
           aria-hidden={!expanded}
           className={cn(
-            "absolute inset-0 space-y-3 overflow-y-auto px-3 py-5 motion-safe:transition-[opacity,transform] motion-safe:duration-200 motion-safe:ease-out",
-            expanded ? "translate-x-0 opacity-100" : "pointer-events-none -translate-x-1 opacity-0",
+            "absolute inset-0 space-y-1 px-3 py-5 motion-safe:transition-[opacity,transform] motion-safe:duration-200 motion-safe:ease-out",
+            expanded
+              ? "translate-x-0 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden opacity-100"
+              : "pointer-events-none -translate-x-1 overflow-hidden opacity-0",
           )}
         >
           {groups.map((group) => (
-            <section
-              key={group.id}
-              className="rounded-2xl border border-border/60 bg-background/70 p-1.5 shadow-[0_10px_24px_-26px_rgba(15,23,42,0.45)]"
-            >
-              <button
-                type="button"
-                tabIndex={expanded ? 0 : -1}
-                onClick={() =>
-                  setOpenGroups((current) => ({
-                    ...current,
-                    [group.id]: !current[group.id],
-                  }))
-                }
-                className="flex w-full items-center justify-between rounded-xl px-2 py-1.5 text-left text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/80 transition-colors hover:bg-muted/40 hover:text-foreground"
-                aria-expanded={openGroups[group.id]}
-                aria-controls={`admin-sidebar-group-${group.id}`}
-              >
-                <span>{group.label}</span>
-                <ChevronDown
-                  className={cn(
-                    "h-3.5 w-3.5 transition-transform",
-                    openGroups[group.id] ? "rotate-180" : "rotate-0",
-                  )}
-                />
-              </button>
+            <section key={group.id}>
+              <ul id={`admin-sidebar-group-${group.id}`} className="space-y-1">
+                {group.items.map((item) => {
+                  const active = isItemActive(pathname, item);
+                  const Icon = item.icon;
 
-              {openGroups[group.id] ? (
-                <ul id={`admin-sidebar-group-${group.id}`} className="mt-1 space-y-1.5">
-                  {group.items.map((item) => {
-                    const active = isItemActive(pathname, item);
-                    const Icon = item.icon;
-
-                    return (
-                      <li key={item.id}>
-                        <LocaleLink
-                          href={item.href}
-                          tabIndex={expanded ? 0 : -1}
-                          className={cn(
-                            "group relative flex h-12 w-full items-center gap-3 rounded-2xl border px-4 text-sm transition-all duration-200",
-                            "hover:translate-x-1 hover:border-primary/25 hover:bg-primary/10 hover:text-primary",
-                            active
-                              ? "border-primary/20 bg-primary/10 text-foreground shadow-[0_16px_32px_-24px_rgba(201,163,90,0.65)]"
-                              : "border-transparent bg-transparent text-muted-foreground",
-                          )}
-                        >
-                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors duration-200">
-                            <Icon
-                              className={cn(
-                                "h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110",
-                                active ? "text-primary" : "text-muted-foreground/80",
-                              )}
-                            />
-                          </span>
-                          <span
+                  return (
+                    <li key={item.id}>
+                      <LocaleLink
+                        href={item.href}
+                        tabIndex={expanded ? 0 : -1}
+                        className={cn(
+                          "group relative flex h-12 w-full items-center gap-3 rounded-2xl border px-4 text-sm transition-all duration-200",
+                          "hover:translate-x-1 hover:border-primary/25 hover:bg-primary/10 hover:text-primary",
+                          active
+                            ? "border-primary/20 bg-primary/10 text-foreground shadow-[0_16px_32px_-24px_rgba(201,163,90,0.65)]"
+                            : "border-transparent bg-transparent text-muted-foreground",
+                        )}
+                      >
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors duration-200">
+                          <Icon
                             className={cn(
-                              "min-w-0 flex-1 truncate",
-                              active && "font-semibold text-foreground",
-                            )}
-                          >
-                            {item.label}
-                          </span>
-                          {item.badge ? (
-                            <Badge
-                              variant={urgentCount > 0 ? "destructive" : "secondary"}
-                              className="h-5 min-w-5 rounded-full px-1.5 text-[10px] shadow-sm"
-                            >
-                              {item.badge > 99 ? "99+" : item.badge}
-                            </Badge>
-                          ) : item.badgeLabel ? (
-                            <Badge
-                              variant="outline"
-                              className="h-5 rounded-full border-primary/30 px-1.5 text-[10px] text-primary"
-                            >
-                              {item.badgeLabel}
-                            </Badge>
-                          ) : null}
-                          <span
-                            className={cn(
-                              "pointer-events-none absolute left-0 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-full bg-primary transition-opacity duration-200",
-                              active ? "opacity-100" : "opacity-0 group-hover:opacity-70",
+                              "h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110",
+                              active ? "text-primary" : "text-muted-foreground/80",
                             )}
                           />
-                        </LocaleLink>
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : null}
+                        </span>
+                        <span
+                          className={cn(
+                            "min-w-0 flex-1 truncate",
+                            active && "font-semibold text-foreground",
+                          )}
+                        >
+                          {item.label}
+                        </span>
+                        {item.badge ? (
+                          <Badge
+                            variant={urgentCount > 0 ? "destructive" : "secondary"}
+                            className="h-5 min-w-5 rounded-full px-1.5 text-[10px] shadow-sm"
+                          >
+                            {item.badge > 99 ? "99+" : item.badge}
+                          </Badge>
+                        ) : item.badgeLabel ? (
+                          <Badge
+                            variant="outline"
+                            className="h-5 rounded-full border-primary/30 px-1.5 text-[10px] text-primary"
+                          >
+                            {item.badgeLabel}
+                          </Badge>
+                        ) : null}
+                        <span
+                          className={cn(
+                            "pointer-events-none absolute left-0 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-full bg-primary transition-opacity duration-200",
+                            active ? "opacity-100" : "opacity-0 group-hover:opacity-70",
+                          )}
+                        />
+                      </LocaleLink>
+                    </li>
+                  );
+                })}
+              </ul>
             </section>
           ))}
         </nav>
@@ -304,8 +243,10 @@ export function Sidebar() {
         <nav
           aria-hidden={expanded}
           className={cn(
-            "absolute inset-0 overflow-y-auto px-3 py-5 motion-safe:transition-[opacity,transform] motion-safe:duration-200 motion-safe:ease-out",
-            expanded ? "pointer-events-none translate-x-1 opacity-0" : "translate-x-0 opacity-100",
+            "absolute inset-0 px-3 py-5 motion-safe:transition-[opacity,transform] motion-safe:duration-200 motion-safe:ease-out",
+            expanded
+              ? "pointer-events-none translate-x-1 overflow-hidden opacity-0"
+              : "translate-x-0 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden opacity-100",
           )}
         >
           <div className="flex flex-col gap-3">
