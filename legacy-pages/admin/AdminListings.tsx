@@ -134,14 +134,7 @@ export default function AdminListings() {
     });
   }, [listings, search, cityFilter, categoryFilter, tierFilter, statusFilter]);
 
-  // Bulk action handlers
-  const handleBulkPublish = () => {
-    bulkPublish.mutate(selectedIds, {
-      onSuccess: () => setSelectedIds([]),
-    });
-  };
-
-  const handleBulkDelete = () => {
+ const handleBulkDelete = () => {
     const idsToDelete = singleDeleteId ? [singleDeleteId] : selectedIds;
     bulkDelete.mutate(idsToDelete, {
       onSuccess: () => {
@@ -171,14 +164,6 @@ export default function AdminListings() {
 
   const handleReject = (listingId: string) => {
     updateListingStatus.mutate({ id: listingId, status: "rejected" });
-  };
-
-  const handleToggleCurated = (listing: any) => {
-    if (listing.tier !== "signature") {
-      toast.error("Only signature listings can be curated");
-      return;
-    }
-    toggleCurated.mutate({ id: listing.id, isCurated: !listing.is_curated });
   };
 
   const columns: Column<any>[] = [
