@@ -46,8 +46,8 @@ export default function OwnerMembership() {
   
   // Handle success/cancel redirects from Stripe
   useEffect(() => {
-    const success = searchParams.get('success') === 'true';
-    const canceled = searchParams.get('canceled') === 'true';
+    const success = searchParams.get('success') === '1';
+    const canceled = searchParams.get('canceled') === '1';
 
     if (!success && !canceled) {
       return;

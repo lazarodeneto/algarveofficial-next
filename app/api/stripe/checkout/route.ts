@@ -130,8 +130,8 @@ export async function POST(request: NextRequest) {
     // Propagate metadata to the subscription object so webhook handlers can
     // resolve owner_id from sub.metadata without a DB fallback.
     subscription_data: { metadata: sessionMeta },
-    success_url: `${resolveSiteUrl(request)}/dashboard?success=1`,
-    cancel_url: `${resolveSiteUrl(request)}/dashboard?canceled=1`,
+    success_url: `${resolveSiteUrl(request)}/owner/membership?success=1`,
+    cancel_url: `${resolveSiteUrl(request)}/owner/membership?canceled=1`,
     metadata: sessionMeta,
   });
 

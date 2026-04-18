@@ -15,13 +15,13 @@ import type { PaidTier, PlanType } from "@/lib/subscriptions/types";
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
+  const auth = await requireAuthenticatedOwner(request);
+  if ("error" in auth) return auth.error;
+
   const stripe = getStripeServerClient();
   if (!stripe) {
     return NextResponse.json({ error: "Missing STRIPE_SECRET_KEY." }, { status: 500 });
   }
-
-  const auth = await requireAuthenticatedOwner(request);
-  if ("error" in auth) return auth.error;
 
   const supabase = createServiceRoleClient();
   if (!supabase) {

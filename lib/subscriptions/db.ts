@@ -260,5 +260,14 @@ export async function findOverlappingActive(
     };
   }
 
+  // Recurring in force → block any new recurring checkout to prevent dual billing.
+  // Active subscribers must use /api/subscriptions/change-plan instead.
+  if (recurringActive && requestedPlanType !== "fixed_2026") {
+    return {
+      row: existing,
+      reason: "An active subscription already exists. Use the plan management option to change tiers.",
+    };
+  }
+
   return null;
 }
