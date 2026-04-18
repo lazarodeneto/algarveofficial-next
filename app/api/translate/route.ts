@@ -2,7 +2,14 @@ import { NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 
 export async function GET() {
-  const supabase = createServiceRoleClient();
+const supabase = createServiceRoleClient();
+
+if (!supabase) {
+  return NextResponse.json(
+    { error: "Supabase client not initialized" },
+    { status: 500 }
+  );
+}
 
   const { data: jobs, error } = await supabase
     .from("translation_jobs")
