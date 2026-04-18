@@ -44,6 +44,10 @@ interface UpdateListingStatusVariables {
   status: ListingStatus;
 }
 
+interface DeleteListingsVariables {
+  ids: string[];
+}
+
 interface ListingImageApiPayload {
   url: string;
   alt_text?: string | null;
@@ -224,6 +228,36 @@ export function useUpdateListingStatus() {
     onSuccess: () => {
       invalidateAdminListingQueries(queryClient);
       toast.success("Status updated");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+}
+
+export function useDeleteListings() {
+  const queryClient = useQueryClient();
+
+  return useMutation<number, Error, DeleteListingsVariables>({
+    mutationFn: async ({ ids }) => {
+      const normalizedIds = Array.from(
+        new Set(ids.map((id) => id.trim()).filter((id) => id.length > 0)),
+      );
+
+      if (normalizedIds.length === 0) {
+        throw new Error("No listings selected for deletion.");
+      }
+
+      const result = await adminApiRequest<{ count?: number }>("/api/admin/listings", {
+        method: "PATCH",
+        body: JSON.stringify({ action: "bulk-delete", ids: normalizedIds }),
+      });
+
+      return result?.count ?? normalizedIds.length;
+    },
+    onSuccess: (count) => {
+      invalidateAdminListingQueries(queryClient);
+      toast.success(`Deleted ${count} listing${count === 1 ? "" : "s"}.`);
     },
     onError: (error) => {
       toast.error(error.message);

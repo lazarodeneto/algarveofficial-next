@@ -44,8 +44,9 @@ import { TierBadge } from "@/components/admin/TierBadge";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
-import { useUpdateListingStatus } from "@/hooks/useListingMutations";
+import { useDeleteListings, useUpdateListingStatus } from "@/hooks/useListingMutations";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { toast } from "sonner";
 
 export default function AdminListings() {
   const searchParams = useSearchParams();
@@ -67,6 +68,7 @@ export default function AdminListings() {
   const [selectedTier, setSelectedTier] = useState<"unverified" | "verified" | "signature">("unverified");
 
   const updateListingStatus = useUpdateListingStatus();
+  const deleteListings = useDeleteListings();
 
   // Fetch listings
   const { data: listings = [], isLoading: listingsLoading } = useQuery({
@@ -136,7 +138,25 @@ export default function AdminListings() {
   }, [listings, search, cityFilter, categoryFilter, tierFilter, statusFilter]);
 
   const handleBulkDelete = () => {
-    console.warn("bulk delete disabled temporarily");
+    const targetIds = singleDeleteId ? [singleDeleteId] : selectedIds;
+
+    if (targetIds.length === 0) {
+      toast.error("Select at least one listing to delete.");
+      return;
+    }
+
+    deleteListings.mutate(
+      { ids: targetIds },
+      {
+        onSuccess: () => {
+          setDeleteDialogOpen(false);
+          setSingleDeleteId(null);
+          setSelectedIds((prev) =>
+            prev.filter((id) => !targetIds.includes(id)),
+          );
+        },
+      },
+    );
   };
 
   const handleBulkPublish = () => {
@@ -282,6 +302,7 @@ export default function AdminListings() {
                 setSingleDeleteId(listing.id);
                 setDeleteDialogOpen(true);
               }}
+              disabled={deleteListings.isPending}
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Delete
@@ -442,6 +463,7 @@ export default function AdminListings() {
               variant="outline"
               className="w-full border-destructive/30 text-destructive sm:w-auto"
               onClick={() => setDeleteDialogOpen(true)}
+              disabled={deleteListings.isPending}
             >
               Delete
             </Button>
