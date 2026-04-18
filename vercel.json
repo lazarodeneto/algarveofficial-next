@@ -1,6 +1,14 @@
 {
   "version": 2,
   "framework": "nextjs",
+
+  "crons": [
+    {
+      "path": "/api/translate",
+      "schedule": "*/5 * * * *"
+    }
+  ],
+
   "headers": [
     {
       "source": "/(.*)",
