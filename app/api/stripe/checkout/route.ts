@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { normalizePricingBillingPeriod, normalizePricingTier } from "@/lib/pricing/pricing-resolver";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { getStripeServerClient } from "@/lib/stripe/server";
-import { findOverlappingActive } from "@/lib/subscriptions/db";
+import { findByOwner, findOverlappingActive } from "@/lib/subscriptions/db";
 import { planTypeFromBillingPeriod } from "@/lib/subscriptions/types";
 
 type PaidTier = "verified" | "signature";
@@ -116,16 +116,23 @@ export async function POST(request: NextRequest) {
 
   const pricing = pricingRows[0];
 
+  // Reuse existing Stripe customer to avoid duplicates; fall back to pre-filling email.
+  const existingSub = await findByOwner(supabase, user.id);
+  const existingCustomerId = existingSub?.stripe_customer_id ?? null;
+
+  const sessionMeta = { owner_id: user.id, tier, billing_period: billingPeriod };
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
+    ...(existingCustomerId
+      ? { customer: existingCustomerId }
+      : { customer_email: user.email ?? undefined }),
     line_items: [{ price: pricing.stripe_price_id!, quantity: 1 }],
+    // Propagate metadata to the subscription object so webhook handlers can
+    // resolve owner_id from sub.metadata without a DB fallback.
+    subscription_data: { metadata: sessionMeta },
     success_url: `${resolveSiteUrl(request)}/dashboard?success=1`,
     cancel_url: `${resolveSiteUrl(request)}/dashboard?canceled=1`,
-    metadata: {
-      owner_id: user.id,
-      tier,
-      billing_period: billingPeriod,
-    },
+    metadata: sessionMeta,
   });
 
   return NextResponse.json({ url: session.url });

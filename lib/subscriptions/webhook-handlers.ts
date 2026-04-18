@@ -145,6 +145,7 @@ export async function handleCheckoutCompleted(
   event: Stripe.Event,
 ): Promise<HandlerResult> {
   const session = event.data.object as Stripe.Checkout.Session;
+  if (session.mode !== "subscription") return { ownerId: null, skipped: true };
   const ownerId = getMetadataOwnerId(session.metadata);
   if (!ownerId) return { ownerId: null };
 
@@ -234,7 +235,10 @@ export async function handleSubscriptionCreatedOrUpdated(
   const pricing = await findPricingByStripePriceId(supabase, stripePriceId);
   const tier = asPaidTier(pricing?.tier ?? null);
   const billingPeriod = pricing?.billing_period ?? null;
-  if (!tier || !billingPeriod) return { ownerId };
+  if (!tier || !billingPeriod) {
+    console.warn(`[webhook] ${event.type}: no pricing row for stripe_price_id=${stripePriceId}; owner=${ownerId} sub state unchanged`);
+    return { ownerId };
+  }
 
   const planType = planTypeFromBillingPeriod(billingPeriod);
   const status = mapStripeSubscriptionStatus(sub.status);
@@ -330,7 +334,10 @@ export async function handleInvoicePaid(
   const pricing = await findPricingByStripePriceId(supabase, stripePriceId);
   const tier = asPaidTier(pricing?.tier ?? null);
   const billingPeriod = pricing?.billing_period ?? null;
-  if (!tier || !billingPeriod) return { ownerId };
+  if (!tier || !billingPeriod) {
+    console.warn(`[webhook] invoice.paid: no pricing row for stripe_price_id=${stripePriceId}; owner=${ownerId} sub state unchanged`);
+    return { ownerId };
+  }
 
   const planType = planTypeFromBillingPeriod(billingPeriod);
   const status = mapStripeSubscriptionStatus(sub.status);

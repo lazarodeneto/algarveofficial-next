@@ -149,7 +149,7 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
         );
 
         if (!data?.url) throw new Error('No checkout URL returned');
-        window.open(data.url, '_blank');
+        window.location.href = data.url;
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to create checkout session';
         setError(message);
@@ -199,7 +199,7 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
   useEffect(() => {
     if (!isBrowser) return;
     const params = new URLSearchParams(window.location.search);
-    if (params.get('success') === 'true') {
+    if (params.get('success') === '1') {
       const timer = setTimeout(() => {
         checkSubscription();
       }, 2000);
