@@ -107,9 +107,9 @@ export const HIGH_PRIORITY_CITIES = [
 export const STALE_DAYS = 30;
 
 // SLA deadlines applied at enqueue time (offset from now in hours)
-export const SLA_HOURS: Record<"signature" | "verified", number | null> = {
+export const SLA_HOURS: Record<"signature" | "verified", number> = {
   signature: 2,
-  verified:  null,
+  verified:  4,
 };
 
 export const SLA_PRIORITY: Record<"signature" | "verified", number> = {

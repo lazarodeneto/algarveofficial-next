@@ -1,5 +1,26 @@
 import { supabase } from "@/integrations/supabase/client";
 
+/**
+ * Compute SLA fields from a listing tier.
+ * Matches the DB trigger logic exactly:
+ *   signature → 2 h / priority 100
+ *   verified  → 4 h / priority 10
+ *   default   → 24 h / priority 1
+ */
+function computeSla(tier: string | null | undefined): {
+  sla_deadline: string;
+  sla_priority: number;
+} {
+  const now = Date.now();
+  if (tier === "signature") {
+    return { sla_deadline: new Date(now + 2 * 3_600_000).toISOString(), sla_priority: 100 };
+  }
+  if (tier === "verified") {
+    return { sla_deadline: new Date(now + 4 * 3_600_000).toISOString(), sla_priority: 10 };
+  }
+  return { sla_deadline: new Date(now + 24 * 3_600_000).toISOString(), sla_priority: 1 };
+}
+
 export const LISTING_TRANSLATION_TARGET_LANGS = [
   "pt-pt",
   "fr",
@@ -85,19 +106,25 @@ export async function queueListingTranslationJobs(
     };
   }
 
-  const [{ data: existingTranslations, error: translationsError }, { data: existingJobs, error: jobsError }] =
-    await Promise.all([
-      supabase
-        .from("listing_translations")
-        .select("language_code, translation_status")
-        .eq("listing_id", normalizedListingId)
-        .in("language_code", langs),
-      supabase
-        .from("translation_jobs")
-        .select("target_lang, status")
-        .eq("listing_id", normalizedListingId)
-        .in("target_lang", langs),
-    ]);
+  const [
+    { data: listingRow },
+    { data: existingTranslations, error: translationsError },
+    { data: existingJobs, error: jobsError },
+  ] = await Promise.all([
+    supabase.from("listings").select("tier").eq("id", normalizedListingId).maybeSingle(),
+    supabase
+      .from("listing_translations")
+      .select("language_code, translation_status")
+      .eq("listing_id", normalizedListingId)
+      .in("language_code", langs),
+    supabase
+      .from("translation_jobs")
+      .select("target_lang, status")
+      .eq("listing_id", normalizedListingId)
+      .in("target_lang", langs),
+  ]);
+
+  const sla = computeSla((listingRow as { tier?: string } | null)?.tier);
 
   if (translationsError) throw translationsError;
   if (jobsError) throw jobsError;
@@ -127,13 +154,15 @@ export async function queueListingTranslationJobs(
   if (languagesToQueue.length > 0) {
     const now = new Date().toISOString();
     const payload = languagesToQueue.map((targetLang) => ({
-      listing_id: normalizedListingId,
-      source_lang: "en",
-      target_lang: targetLang as ListingTranslationLang,
-      status: "queued" as const,
-      last_error: null,
-      locked_at: null,
-      updated_at: now,
+      listing_id:   normalizedListingId,
+      source_lang:  "en",
+      target_lang:  targetLang as ListingTranslationLang,
+      status:       "queued" as const,
+      sla_deadline: sla.sla_deadline,
+      sla_priority: sla.sla_priority,
+      last_error:   null,
+      locked_at:    null,
+      updated_at:   now,
     }));
 
     const { error: upsertError } = await supabase

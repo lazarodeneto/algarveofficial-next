@@ -38,10 +38,29 @@ function isSlaBreached(job: Pick<TranslationJob, "sla_deadline" | "status">): bo
   );
 }
 
-function slaDeadlineFor(tier: "signature" | "verified"): string | null {
-  const hours = SLA_HOURS[tier];
-  if (hours == null) return null;
-  return new Date(Date.now() + hours * 3_600_000).toISOString();
+function slaDeadlineFor(tier: "signature" | "verified"): string {
+  return new Date(Date.now() + SLA_HOURS[tier] * 3_600_000).toISOString();
+}
+
+/**
+ * Compute SLA for any tier value, including unknown tiers such as "unverified".
+ * Matches the DB trigger logic exactly:
+ *   signature → 2 h / priority 100
+ *   verified  → 4 h / priority 10
+ *   default   → 24 h / priority 1
+ */
+function slaForTier(tier: string | null | undefined): {
+  sla_deadline: string;
+  sla_priority: number;
+} {
+  const now = Date.now();
+  if (tier === "signature") {
+    return { sla_deadline: new Date(now + 2 * 3_600_000).toISOString(), sla_priority: 100 };
+  }
+  if (tier === "verified") {
+    return { sla_deadline: new Date(now + 4 * 3_600_000).toISOString(), sla_priority: 10 };
+  }
+  return { sla_deadline: new Date(now + 24 * 3_600_000).toISOString(), sla_priority: 1 };
 }
 
 /** A job is outdated when it is done but the listing content has since changed. */
@@ -374,25 +393,24 @@ export async function bulkUpdateTranslationStatus(
 
 /**
  * Enqueue or re-queue a translation job.
- * Fetches the listing's current content_updated_at and stores it as
- * source_updated_at so staleness can be detected after future listing edits.
+ * Fetches the listing's tier and content_updated_at so SLA is always correct
+ * regardless of which caller triggers this — no tier parameter needed.
  */
 export async function enqueueTranslationJob(
   supabase: Supabase,
   listing_id: string,
   target_lang: string,
-  tier: "signature" | "verified" = "verified",
 ): Promise<void> {
-  // Snapshot listing's current content version
+  // Fetch tier and content version in one round-trip
   const { data: listing } = await supabase
     .from("listings")
-    .select("content_updated_at")
+    .select("tier, content_updated_at")
     .eq("id", listing_id)
     .single();
 
-  const source_updated_at =
-    (listing as { content_updated_at?: string } | null)?.content_updated_at ??
-    new Date().toISOString();
+  const row = listing as { tier?: string; content_updated_at?: string } | null;
+  const source_updated_at = row?.content_updated_at ?? new Date().toISOString();
+  const { sla_deadline, sla_priority } = slaForTier(row?.tier);
 
   const { error } = await supabase.from("translation_jobs").upsert(
     {
@@ -402,8 +420,8 @@ export async function enqueueTranslationJob(
       status:            "queued" as TranslationStatus,
       attempts:          0,
       last_error:        null,
-      sla_deadline:      slaDeadlineFor(tier),
-      sla_priority:      SLA_PRIORITY[tier],
+      sla_deadline,
+      sla_priority,
       source_updated_at,
       updated_at:        new Date().toISOString(),
     },
