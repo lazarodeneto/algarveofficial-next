@@ -45,13 +45,12 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { useUpdateListingStatus } from "@/hooks/useListingMutations";
-import { toast } from "sonner";
 import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function AdminListings() {
   const searchParams = useSearchParams();
   const l = useLocalePath();
-  
+
   const [search, setSearch] = useState("");
   const [cityFilter, setCityFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
@@ -65,11 +64,13 @@ export default function AdminListings() {
   // Bulk action dialog states
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [tierDialogOpen, setTierDialogOpen] = useState(false);
-  const [selectedTier, setSelectedTier] = useState<'unverified' | 'verified' | 'signature'>('unverified');
+  const [selectedTier, setSelectedTier] = useState<"unverified" | "verified" | "signature">("unverified");
+
+  const updateListingStatus = useUpdateListingStatus();
 
   // Fetch listings
-  const { data: listings = [], isLoading: listingsLoading, refetch: refetchListings } = useQuery({
-    queryKey: ['admin-all-listings'],
+  const { data: listings = [], isLoading: listingsLoading } = useQuery({
+    queryKey: ["admin-all-listings"],
     queryFn: async () => {
       // PostgREST can cap responses at 1000 rows; fetch in pages to avoid truncation.
       const pageSize = 1000;
@@ -78,15 +79,15 @@ export default function AdminListings() {
 
       while (true) {
         const { data, error } = await supabase
-          .from('listings')
+          .from("listings")
           .select(`
             id, name, tier, status, is_curated, description, slug,
             city:cities(id, name),
             category:categories(id, name),
             region:regions(id, name)
           `)
-          .order('created_at', { ascending: false })
-          .order('id', { ascending: false })
+          .order("created_at", { ascending: false })
+          .order("id", { ascending: false })
           .range(from, from + pageSize - 1);
 
         if (error) throw error;
@@ -107,18 +108,18 @@ export default function AdminListings() {
 
   // Fetch cities for filter
   const { data: cities = [] } = useQuery({
-    queryKey: ['admin-cities-filter'],
+    queryKey: ["admin-cities-filter"],
     queryFn: async () => {
-      const { data } = await supabase.from('cities').select('id, name').order('name');
+      const { data } = await supabase.from("cities").select("id, name").order("name");
       return data || [];
     },
   });
 
   // Fetch categories for filter
   const { data: categories = [] } = useQuery({
-    queryKey: ['admin-categories-filter'],
+    queryKey: ["admin-categories-filter"],
     queryFn: async () => {
-      const { data } = await supabase.from('categories').select('id, name').order('name');
+      const { data } = await supabase.from("categories").select("id, name").order("name");
       return data || [];
     },
   });
@@ -134,28 +135,21 @@ export default function AdminListings() {
     });
   }, [listings, search, cityFilter, categoryFilter, tierFilter, statusFilter]);
 
- const handleBulkDelete = () => {
-    const idsToDelete = singleDeleteId ? [singleDeleteId] : selectedIds;
-    bulkDelete.mutate(idsToDelete, {
-      onSuccess: () => {
-        setSelectedIds([]);
-        setSingleDeleteId(null);
-        setDeleteDialogOpen(false);
-        refetchListings();
-      },
-      onError: (error: Error) => {
-        console.error('Delete error full details:', error);
-      },
-    });
+  const handleBulkDelete = () => {
+    console.warn("bulk delete disabled temporarily");
+  };
+
+  const handleBulkPublish = () => {
+    console.warn("bulk publish disabled temporarily");
   };
 
   const handleBulkSetTier = () => {
-    bulkUpdateTier.mutate({ ids: selectedIds, tier: selectedTier }, {
-      onSuccess: () => {
-        setSelectedIds([]);
-        setTierDialogOpen(false);
-      },
-    });
+    console.warn("bulk tier update disabled temporarily");
+    setTierDialogOpen(false);
+  };
+
+  const handleToggleCurated = (_listing: any) => {
+    console.warn("toggle curated disabled temporarily", _listing?.id);
   };
 
   const handleApprove = (listingId: string) => {
@@ -175,7 +169,7 @@ export default function AdminListings() {
         <div className="min-w-0 max-w-[18rem] sm:max-w-[24rem] lg:max-w-[34rem]">
           <p className="font-medium text-foreground truncate">{listing.name}</p>
           <p className="text-sm text-muted-foreground truncate">
-            {listing.city?.name || 'No city'}
+            {listing.city?.name || "No city"}
           </p>
         </div>
       ),
@@ -186,7 +180,7 @@ export default function AdminListings() {
       className: "hidden sm:table-cell w-[9.5rem]",
       render: (listing) => (
         <span className="block truncate text-sm text-muted-foreground max-w-[9rem]">
-          {listing.category?.name || '—'}
+          {listing.category?.name || "—"}
         </span>
       ),
     },
@@ -275,7 +269,7 @@ export default function AdminListings() {
             {listing.tier === "signature" && (
               <DropdownMenuItem
                 onClick={() => handleToggleCurated(listing)}
-                disabled={toggleCurated.isPending}
+                disabled
               >
                 <Crown className="h-4 w-4 mr-2" />
                 {listing.is_curated ? "Remove from Curated" : "Add to Curated"}
@@ -306,7 +300,12 @@ export default function AdminListings() {
     setStatusFilter("all");
   };
 
-  const hasFilters = search || cityFilter !== "all" || categoryFilter !== "all" || tierFilter !== "all" || statusFilter !== "all";
+  const hasFilters =
+    search ||
+    cityFilter !== "all" ||
+    categoryFilter !== "all" ||
+    tierFilter !== "all" ||
+    statusFilter !== "all";
 
   if (listingsLoading) {
     return (
@@ -421,29 +420,26 @@ export default function AdminListings() {
                 </Link>
               </Button>
             )}
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               variant="outline"
               onClick={handleBulkPublish}
-              disabled={bulkPublish.isPending}
+              disabled
               className="w-full sm:w-auto"
             >
-              {bulkPublish.isPending ? (
-                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-              ) : null}
               Publish
             </Button>
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               variant="outline"
               onClick={() => setTierDialogOpen(true)}
               className="w-full sm:w-auto"
             >
               Set Tier
             </Button>
-            <Button 
-              size="sm" 
-              variant="outline" 
+            <Button
+              size="sm"
+              variant="outline"
               className="w-full border-destructive/30 text-destructive sm:w-auto"
               onClick={() => setDeleteDialogOpen(true)}
             >
@@ -477,8 +473,8 @@ export default function AdminListings() {
           if (!open) setSingleDeleteId(null);
         }}
         title="Delete Listing(s)"
-        description={`Are you sure you want to delete ${singleDeleteId ? '1' : selectedIds.length} listing(s)? This action cannot be undone.`}
-        confirmLabel={bulkDelete.isPending ? "Deleting..." : "Delete"}
+        description={`Are you sure you want to delete ${singleDeleteId ? "1" : selectedIds.length} listing(s)? This action cannot be undone.`}
+        confirmLabel="Delete"
         onConfirm={handleBulkDelete}
         variant="destructive"
       />
@@ -508,13 +504,10 @@ export default function AdminListings() {
             <Button variant="outline" onClick={() => setTierDialogOpen(false)}>
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleBulkSetTier}
-              disabled={bulkUpdateTier.isPending}
+              disabled
             >
-              {bulkUpdateTier.isPending ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : null}
               Apply Tier
             </Button>
           </DialogFooter>
