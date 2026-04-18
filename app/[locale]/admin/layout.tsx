@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { AdminShell } from "@/components/admin/admin-shell";
 import { isValidLocale, type Locale } from "@/lib/i18n/config";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
 
@@ -22,5 +23,5 @@ export async function generateMetadata({
 }
 
 export default function LocaleAdminLayout({ children }: { children: ReactNode }) {
-  return children;
+  return <AdminShell>{children}</AdminShell>;
 }

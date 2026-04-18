@@ -1,8 +1,6 @@
 import {
   BarChart3,
   CalendarDays,
-  ClipboardCheck,
-  Compass,
   FileText,
   Footprints,
   Gem,
@@ -16,8 +14,8 @@ import {
   Mail,
   MapPin,
   Menu,
-  PanelLeft,
   Mountain,
+  PanelLeft,
   PenSquare,
   PieChart,
   Send,
@@ -29,7 +27,6 @@ import {
   Zap,
   CreditCard,
   MessageSquare,
-  Star,
 } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import {
@@ -38,12 +35,6 @@ import {
   type SidebarNavSection,
 } from "@/components/navigation/ExpandableSidebar";
 import { useInboxUrgentCount } from "@/hooks/useInboxUrgentCount";
-import { usePendingReviewCount } from "@/hooks/usePendingReviewCount";
-import { usePendingEventsCount } from "@/hooks/useEvents";
-import { useUnreadMessagesCount } from "@/hooks/useUnreadMessagesCount";
-import { usePendingClaimsCount } from "@/hooks/useListingClaims";
-import { useTranslationQueueCount } from "@/hooks/useTranslationQueueCount";
-import { usePendingListingReviewCount } from "@/hooks/useListingReviews";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useTranslation } from "react-i18next";
 
@@ -56,14 +47,12 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
   const { t } = useTranslation();
   const l = useLocalePath();
 
-  const { data: pendingCount = 0 } = usePendingReviewCount();
-  const { data: inboxUrgentCount = 0 } = useInboxUrgentCount();
-  const { data: pendingEventsCount = 0 } = usePendingEventsCount();
-  const { data: pendingListingReviewsCount = 0 } = usePendingListingReviewCount();
-  const { data: unreadMessagesCount = 0 } = useUnreadMessagesCount();
-  const { data: pendingClaimsCount = 0 } = usePendingClaimsCount();
-  const translationQueueCount = useTranslationQueueCount();
-  const actionCenterCount = unreadMessagesCount + pendingCount + pendingListingReviewsCount + pendingEventsCount + pendingClaimsCount;
+  const { data: inboxCounts } = useInboxUrgentCount();
+  const urgentCount = inboxCounts?.urgentCount ?? 0;
+  const soonCount = inboxCounts?.soonCount ?? 0;
+
+  const inboxBadge = urgentCount > 0 ? urgentCount : soonCount > 0 ? soonCount : undefined;
+  const inboxBadgeTone = urgentCount > 0 ? "destructive" : ("warning" as const);
 
   const mainItems: SidebarNavItem[] = [
     { label: t("admin.sidebar.overview"), href: "/admin", icon: Home, end: true },
@@ -71,48 +60,22 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
       label: "Inbox",
       href: "/admin/inbox",
       icon: InboxIcon,
-      badge: inboxUrgentCount > 0 ? inboxUrgentCount : undefined,
-      badgeTone: "destructive",
+      badge: inboxBadge,
+      badgeTone: inboxBadgeTone,
     },
     { label: t("admin.sidebar.analytics"), href: "/admin/analytics", icon: BarChart3 },
   ];
 
-  const actionCenterItems: SidebarNavItem[] = [
-    {
-      label: t("admin.sidebar.messages"),
-      href: "/admin/messages",
-      icon: MessageSquare,
-      badge: unreadMessagesCount > 0 ? unreadMessagesCount : undefined,
-      badgeTone: "destructive",
-    },
-    {
-      label: t("admin.sidebar.moderationQueue"),
-      href: "/admin/moderation",
-      icon: ClipboardCheck,
-      badge: pendingCount > 0 ? pendingCount : undefined,
-      badgeTone: "destructive",
-    },
-    {
-      label: t("admin.sidebar.reviewModeration"),
-      href: "/admin/reviews",
-      icon: Star,
-      badge: pendingListingReviewsCount > 0 ? pendingListingReviewsCount : undefined,
-      badgeTone: "destructive",
-    },
-    {
-      label: t("admin.sidebar.eventModeration"),
-      href: "/admin/content/events/moderation",
-      icon: CalendarDays,
-      badge: pendingEventsCount > 0 ? pendingEventsCount : undefined,
-      badgeTone: "destructive",
-    },
-    {
-      label: t("admin.sidebar.partnerRequests"),
-      href: "/admin/claims",
-      icon: Users,
-      badge: pendingClaimsCount > 0 ? pendingClaimsCount : undefined,
-      badgeTone: "destructive",
-    },
+  const ownerChildren: SidebarNavItem[] = [
+    { label: t("admin.sidebar.ownerCrm"), href: "/admin/crm", icon: Users },
+    { label: t("admin.sidebar.subscriptions"), href: "/admin/subscriptions", icon: CreditCard },
+  ];
+
+  const listingChildren: SidebarNavItem[] = [
+    { label: t("admin.sidebar.importListings"), href: "/admin/import", icon: Upload },
+    { label: t("admin.sidebar.curatedExcellence"), href: "/admin/curated", icon: Gem },
+    { label: t("admin.sidebar.aiImageGen"), href: "/admin/images", icon: Sparkles },
+    { label: t("admin.sidebar.categories"), href: "/admin/categories", icon: Tags },
   ];
 
   const contentChildren: SidebarNavItem[] = [
@@ -122,14 +85,6 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
     { label: t("admin.sidebar.supportPage"), href: "/admin/content/support", icon: HelpCircle },
     { label: t("admin.sidebar.contactPage"), href: "/admin/content/contact", icon: Mail },
     { label: t("admin.sidebar.events"), href: "/admin/content/events", icon: CalendarDays },
-    {
-      label: t("admin.sidebar.eventModeration"),
-      href: "/admin/content/events/moderation",
-      icon: ClipboardCheck,
-      badge: pendingEventsCount > 0 ? pendingEventsCount : undefined,
-      badgeTone: "destructive",
-    },
-    { label: t("admin.sidebar.newEvent"), href: "/admin/content/events/new", icon: PenSquare },
     { label: t("admin.sidebar.regions"), href: "/admin/content/regions", icon: Mountain },
     { label: t("admin.sidebar.cities"), href: "/admin/content/cities", icon: MapPin },
     { label: t("admin.sidebar.categories"), href: "/admin/content/categories", icon: Tags },
@@ -138,8 +93,6 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
       label: t("admin.sidebar.translations"),
       href: "/admin/content/translations",
       icon: Languages,
-      badge: translationQueueCount > 0 ? translationQueueCount : undefined,
-      badgeTone: "destructive" as const,
     },
     { label: t("admin.sidebar.headerMenu"), href: "/admin/content/header", icon: Menu },
     { label: t("admin.sidebar.leftMenu"), href: "/admin/content/left-menu", icon: PanelLeft },
@@ -163,46 +116,6 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
     { label: t("admin.sidebar.comments"), href: "/admin/blog/comments", icon: MessageSquare },
   ];
 
-  const ownerChildren: SidebarNavItem[] = [
-    {
-      label: t("admin.sidebar.messages"),
-      href: "/admin/messages",
-      icon: MessageSquare,
-      badge: unreadMessagesCount > 0 ? unreadMessagesCount : undefined,
-      badgeTone: "destructive",
-    },
-    { label: t("admin.sidebar.ownerCrm"), href: "/admin/crm", icon: Users },
-    { label: t("admin.sidebar.subscriptions"), href: "/admin/subscriptions", icon: CreditCard },
-    {
-      label: t("admin.sidebar.partnerRequests"),
-      href: "/admin/claims",
-      icon: Users,
-      badge: pendingClaimsCount > 0 ? pendingClaimsCount : undefined,
-      badgeTone: "destructive",
-    },
-  ];
-
-  const listingChildren: SidebarNavItem[] = [
-    {
-      label: t("admin.sidebar.moderationQueue"),
-      href: "/admin/moderation",
-      icon: ClipboardCheck,
-      badge: pendingCount > 0 ? pendingCount : undefined,
-      badgeTone: "destructive",
-    },
-    {
-      label: t("admin.sidebar.reviewModeration"),
-      href: "/admin/reviews",
-      icon: Star,
-      badge: pendingListingReviewsCount > 0 ? pendingListingReviewsCount : undefined,
-      badgeTone: "destructive",
-    },
-    { label: t("admin.sidebar.importListings"), href: "/admin/import", icon: Upload },
-    { label: t("admin.sidebar.curatedExcellence"), href: "/admin/curated", icon: Gem },
-    { label: t("admin.sidebar.aiImageGen"), href: "/admin/images", icon: Sparkles },
-    { label: t("admin.sidebar.categories"), href: "/admin/categories", icon: Tags },
-  ];
-
   const platformChildren: SidebarNavItem[] = [
     { label: t("admin.sidebar.settings"), href: "/admin/settings", icon: Settings },
     { label: t("admin.sidebar.usersRoles"), href: "/admin/users", icon: Users },
@@ -210,11 +123,6 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
 
   const sections: SidebarNavSection[] = [
     { id: "admin-main", title: t("admin.sidebar.workspace"), items: mainItems },
-    {
-      id: "admin-action-center",
-      title: t("admin.sidebar.actionCenter"),
-      items: actionCenterItems,
-    },
     {
       id: "admin-hubs",
       title: t("admin.sidebar.hubs"),
@@ -224,8 +132,6 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
           label: t("admin.sidebar.ownerOps"),
           href: "/admin/crm",
           icon: Users,
-          badge: unreadMessagesCount + pendingClaimsCount > 0 ? unreadMessagesCount + pendingClaimsCount : undefined,
-          badgeTone: "destructive",
           children: ownerChildren,
         },
         {
@@ -233,8 +139,6 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
           label: t("admin.sidebar.listingOps"),
           href: "/admin/listings",
           icon: List,
-          badge: pendingCount + pendingListingReviewsCount > 0 ? pendingCount + pendingListingReviewsCount : undefined,
-          badgeTone: "destructive",
           children: listingChildren,
         },
         {
@@ -249,8 +153,6 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
           label: t("admin.sidebar.contentStudio"),
           href: "/admin/content/page-builder",
           icon: Layers,
-          badge: translationQueueCount + pendingEventsCount > 0 ? translationQueueCount + pendingEventsCount : undefined,
-          badgeTone: "destructive",
           children: contentChildren,
         },
         {
@@ -287,7 +189,11 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
       childIndentStyle="soft"
       sections={localizedSections}
       footerText={
-        collapsed ? undefined : `${t("admin.footer")} · ${actionCenterCount} ${t("admin.sidebar.actionCenter").toLowerCase()}`
+        collapsed
+          ? undefined
+          : urgentCount > 0
+            ? `${urgentCount} urgent · Inbox`
+            : `${t("admin.footer")}`
       }
       desktopExpandedWidthClass="w-[17.5rem]"
       desktopCollapsedWidthClass="w-[4.25rem]"
@@ -298,44 +204,16 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
                 id: "admin-summary",
                 items: [
                   {
-                    id: "pending-summary",
-                    label: t("admin.sidebar.actionCenter"),
-                    icon: Zap,
-                    badge: actionCenterCount ?? undefined,
-                    badgeTone: actionCenterCount > 0 ? "destructive" : "primary",
-                  },
-                  {
-                    id: "translation-summary",
-                    label: t("admin.sidebar.translations"),
-                    icon: Languages,
-                    badge: translationQueueCount ?? undefined,
-                    badgeTone: translationQueueCount > 0 ? "destructive" : "primary",
+                    id: "inbox-summary",
+                    label: "Inbox",
+                    icon: InboxIcon,
+                    badge: inboxBadge,
+                    badgeTone: inboxBadgeTone,
                   },
                 ],
               },
             ]
-          : [
-              {
-                id: "admin-summary",
-                title: t("admin.sidebar.systemHealth"),
-                items: [
-                  {
-                    id: "pending-summary",
-                    label: t("admin.sidebar.actionCenter"),
-                    icon: Zap,
-                    badge: actionCenterCount ?? undefined,
-                    badgeTone: actionCenterCount > 0 ? "destructive" : "primary",
-                  },
-                  {
-                    id: "translation-summary",
-                    label: t("admin.sidebar.translations"),
-                    icon: Languages,
-                    badge: translationQueueCount ?? undefined,
-                    badgeTone: translationQueueCount > 0 ? "destructive" : "primary",
-                  },
-                ],
-              },
-            ]
+          : undefined
       }
     />
   );

@@ -253,6 +253,7 @@ async function buildSnapshotUncached(): Promise<InboxSnapshot> {
     counts: {
       total: items.length,
       urgent: items.filter((i) => i.urgency === "urgent").length,
+      soon: items.filter((i) => i.urgency === "soon").length,
       byDomain,
     },
     generatedAt: new Date().toISOString(),

@@ -1,18 +1,28 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { InboxItem, InboxUrgency } from "@/lib/admin/inbox/types";
 
 interface InboxListProps {
   items: InboxItem[];
   selectedId: string | null;
   onSelect: (id: string) => void;
+  hasActiveFilters: boolean;
+  isAssigneeFiltered: boolean;
+  onClearFilters: () => void;
 }
 
 const URGENCY_TONE: Record<InboxUrgency, string> = {
   urgent: "bg-destructive text-destructive-foreground",
   soon: "bg-amber-500/90 text-white",
   normal: "bg-muted text-muted-foreground",
+};
+
+const URGENCY_LABEL: Record<InboxUrgency, string> = {
+  urgent: "Urgent",
+  soon: "Due soon",
+  normal: "Normal",
 };
 
 const DOMAIN_LABEL: Record<InboxItem["domain"], string> = {
@@ -30,8 +40,40 @@ function formatRelative(minutes: number): string {
   return `${days}d left`;
 }
 
-export function InboxList({ items, selectedId, onSelect }: InboxListProps) {
+export function InboxList({
+  items,
+  selectedId,
+  onSelect,
+  hasActiveFilters,
+  isAssigneeFiltered,
+  onClearFilters,
+}: InboxListProps) {
   if (items.length === 0) {
+    if (isAssigneeFiltered) {
+      return (
+        <div className="flex h-full flex-1 flex-col items-center justify-center gap-3 border-r border-border bg-background px-6 text-center">
+          <p className="text-sm font-medium text-foreground">Nothing assigned to you yet.</p>
+          <p className="text-xs text-muted-foreground">
+            Assign items to yourself from the detail panel.
+          </p>
+          <Button type="button" variant="outline" size="sm" onClick={onClearFilters}>
+            View all items
+          </Button>
+        </div>
+      );
+    }
+
+    if (hasActiveFilters) {
+      return (
+        <div className="flex h-full flex-1 flex-col items-center justify-center gap-3 border-r border-border bg-background px-6 text-center">
+          <p className="text-sm font-medium text-foreground">No items match these filters.</p>
+          <Button type="button" variant="outline" size="sm" onClick={onClearFilters}>
+            Clear filters
+          </Button>
+        </div>
+      );
+    }
+
     return (
       <div className="flex h-full flex-1 items-center justify-center border-r border-border bg-background">
         <p className="text-sm text-muted-foreground">Inbox clear — nothing pending.</p>
@@ -39,17 +81,30 @@ export function InboxList({ items, selectedId, onSelect }: InboxListProps) {
     );
   }
 
+  // Build list with sticky tier dividers
+  let lastUrgency: InboxUrgency | null = null;
+
   return (
     <ul className="flex h-full flex-1 flex-col overflow-y-auto border-r border-border bg-background">
       {items.map((item) => {
+        const showDivider = item.urgency !== lastUrgency;
+        lastUrgency = item.urgency;
         const active = item.id === selectedId;
+
         return (
           <li key={item.id}>
+            {showDivider ? (
+              <div className="sticky top-0 z-10 border-b border-border bg-muted/60 px-4 py-1 backdrop-blur-sm">
+                <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+                  {URGENCY_LABEL[item.urgency]}
+                </span>
+              </div>
+            ) : null}
             <button
               type="button"
               onClick={() => onSelect(item.id)}
-              className={`w-full border-b border-border px-4 py-3 text-left transition ${
-                active ? "bg-muted" : "hover:bg-muted/60"
+              className={`w-full border-b border-border px-4 py-3 text-left transition-colors ${
+                active ? "bg-muted" : "hover:bg-muted/50"
               }`}
             >
               <div className="flex items-center gap-2">

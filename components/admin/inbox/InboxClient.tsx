@@ -1,31 +1,45 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { InboxDetail } from "./InboxDetail";
-import { InboxFilters } from "./InboxFilters";
 import { InboxList } from "./InboxList";
-import type { InboxFilters as InboxFiltersValue, InboxItem, InboxSnapshot } from "@/lib/admin/inbox/types";
+import {
+  DEFAULT_INBOX_FILTERS,
+  isDefaultInboxFilters,
+  useInboxFiltersState,
+} from "@/components/admin/inbox-filters-state";
+import type { InboxItem, InboxSnapshot } from "@/lib/admin/inbox/types";
 
 interface InboxClientProps {
   initialSnapshot: InboxSnapshot;
   currentUserId: string | null;
 }
 
-const DEFAULT_FILTERS: InboxFiltersValue = {
-  domain: "all",
-  urgency: "all",
-  assignee: "all",
-};
-
 export function InboxClient({ initialSnapshot, currentUserId }: InboxClientProps) {
   const router = useRouter();
-  const [filters, setFilters] = useState<InboxFiltersValue>(DEFAULT_FILTERS);
+  const queryClient = useQueryClient();
+
+  const { filters, setFilters, setCounts, reset } = useInboxFiltersState();
+
   const [selectedId, setSelectedId] = useState<string | null>(
     initialSnapshot.items[0]?.id ?? null,
   );
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    setCounts({
+      total: initialSnapshot.counts.total,
+      urgent: initialSnapshot.counts.urgent,
+      byDomain: initialSnapshot.counts.byDomain,
+    });
+
+    return () => {
+      reset();
+    };
+  }, [initialSnapshot.counts, reset, setCounts]);
 
   const filtered = useMemo<InboxItem[]>(() => {
     return initialSnapshot.items.filter((item) => {
@@ -39,7 +53,7 @@ export function InboxClient({ initialSnapshot, currentUserId }: InboxClientProps
   }, [initialSnapshot.items, filters, currentUserId]);
 
   const selectedItem = useMemo(
-    () => filtered.find((i) => i.id === selectedId) ?? null,
+    () => filtered.find((item) => item.id === selectedId) ?? null,
     [filtered, selectedId],
   );
 
@@ -49,13 +63,27 @@ export function InboxClient({ initialSnapshot, currentUserId }: InboxClientProps
   }, []);
 
   const handleResolved = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ["admin", "inbox", "urgent-count"] });
     router.refresh();
-  }, [router]);
+  }, [router, queryClient]);
+
+  const handleClearFilters = useCallback(() => {
+    setFilters(DEFAULT_INBOX_FILTERS);
+  }, [setFilters]);
+
+  const hasActiveFilters = !isDefaultInboxFilters(filters);
+  const isAssigneeFiltered = filters.assignee === "me";
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] w-full overflow-hidden">
-      <InboxFilters value={filters} onChange={setFilters} counts={initialSnapshot.counts} />
-      <InboxList items={filtered} selectedId={selectedId} onSelect={handleSelect} />
+    <div className="flex h-full min-h-0 w-full overflow-hidden bg-background/80">
+      <InboxList
+        items={filtered}
+        selectedId={selectedId}
+        onSelect={handleSelect}
+        hasActiveFilters={hasActiveFilters}
+        isAssigneeFiltered={isAssigneeFiltered}
+        onClearFilters={handleClearFilters}
+      />
       <InboxDetail
         item={selectedItem}
         open={drawerOpen}

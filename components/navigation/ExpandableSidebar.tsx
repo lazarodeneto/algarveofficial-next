@@ -8,7 +8,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
-export type SidebarBadgeTone = "primary" | "destructive";
+export type SidebarBadgeTone = "primary" | "destructive" | "warning";
 
 export interface SidebarNavItem {
   id?: string;
@@ -67,9 +67,9 @@ interface ExpandableSidebarProps {
 }
 
 function badgeClasses(tone: SidebarBadgeTone = "primary") {
-  return tone === "destructive"
-    ? "bg-destructive text-destructive-foreground"
-    : "bg-primary text-primary-foreground";
+  if (tone === "destructive") return "bg-destructive text-destructive-foreground";
+  if (tone === "warning") return "bg-amber-500 text-white";
+  return "bg-primary text-primary-foreground";
 }
 
 export function ExpandableSidebar({

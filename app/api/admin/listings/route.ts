@@ -58,7 +58,6 @@ export async function POST(request: NextRequest) {
 
   const images = parseListingImages(body.images);
 
-  // Validate listing payload with Zod first
   const parsed = listingFormSchema.safeParse(body.listing);
   if (!parsed.success) {
     return adminErrorResponse(
@@ -72,10 +71,16 @@ export async function POST(request: NextRequest) {
   const maxTierImages = getListingTierMaxGalleryImages(validated.tier);
   const tierScopedImages = images.slice(0, maxTierImages);
 
-  // Insert listing with validated data
+  // ✅ FIX: remove full_description before insert
+  const {
+    full_description, // removed (not in DB)
+    published_status,
+    ...safeValidated
+  } = validated;
+
   const insertData = {
-    ...validated,
-    status: validated.published_status,
+    ...safeValidated,
+    status: published_status,
     owner_id: auth.userId,
   } as Database["public"]["Tables"]["listings"]["Insert"];
 
@@ -93,7 +98,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Handle images
   if (tierScopedImages.length > 0) {
     const imageRows = tierScopedImages.map((img) => ({
       listing_id: created.id,
@@ -160,7 +164,10 @@ export async function PATCH(request: NextRequest) {
   }
 
   const action = typeof body.action === "string" ? body.action : "";
-  const ids = Array.isArray(body.ids) ? body.ids.filter((id): id is string => typeof id === "string" && id.trim().length > 0) : [];
+  const ids = Array.isArray(body.ids)
+    ? body.ids.filter((id): id is string => typeof id === "string" && id.trim().length > 0)
+    : [];
+
   if (ids.length === 0) {
     return adminErrorResponse(400, "INVALID_IDS", "At least one listing id is required.");
   }
@@ -168,7 +175,10 @@ export async function PATCH(request: NextRequest) {
   if (action === "bulk-publish") {
     const { error } = await auth.writeClient
       .from("listings")
-      .update({ status: "published", published_at: new Date().toISOString() } as Database["public"]["Tables"]["listings"]["Update"])
+      .update({
+        status: "published",
+        published_at: new Date().toISOString(),
+      } as Database["public"]["Tables"]["listings"]["Update"])
       .in("id", ids);
 
     if (error) {

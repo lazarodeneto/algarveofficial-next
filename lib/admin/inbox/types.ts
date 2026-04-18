@@ -101,6 +101,7 @@ export interface InboxSnapshot {
   counts: {
     total: number;
     urgent: number;
+    soon: number;
     byDomain: Record<InboxDomain, number>;
   };
   generatedAt: string;

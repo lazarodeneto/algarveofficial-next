@@ -4,7 +4,6 @@ import type { ComponentType, ReactElement } from "react";
 import dynamic from "next/dynamic";
 import { AlertTriangle } from "lucide-react";
 
-import { AdminLayout } from "@/components/admin/AdminLayout";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { DashboardRouteLoading } from "@/components/routes/DashboardRouteLoading";
@@ -223,9 +222,5 @@ interface AdminDashboardPageProps {
 export function AdminDashboardPage({ route = "" }: AdminDashboardPageProps) {
   const activePage = resolveAdminPage(route);
 
-  return (
-    <ProtectedRoute allowedRoles={["admin", "editor"]}>
-      <AdminLayout>{activePage}</AdminLayout>
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute allowedRoles={["admin", "editor"]}>{activePage}</ProtectedRoute>;
 }

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +14,12 @@ import {
   assignInboxItem,
   rejectInboxItem,
 } from "@/lib/admin/inbox/actions";
-import type { InboxItem } from "@/lib/admin/inbox/types";
+import type {
+  EventModerationItem,
+  InboxItem,
+  ListingModerationItem,
+  ReviewModerationItem,
+} from "@/lib/admin/inbox/types";
 
 interface InboxDetailProps {
   item: InboxItem | null;
@@ -29,6 +36,49 @@ function formatDue(iso: string, minutes: number): string {
   return `Due by ${label}`;
 }
 
+function EntityLink({ item }: { item: InboxItem }) {
+  if (item.domain === "listings") {
+    const { slug } = (item as ListingModerationItem).meta;
+    return (
+      <Link
+        href={`/admin/listings/${slug}`}
+        className="text-sm text-primary underline-offset-2 hover:underline"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        View listing ↗
+      </Link>
+    );
+  }
+  if (item.domain === "events") {
+    const { eventId } = (item as EventModerationItem).meta;
+    return (
+      <Link
+        href={`/admin/content/events/${eventId}`}
+        className="text-sm text-primary underline-offset-2 hover:underline"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        View event ↗
+      </Link>
+    );
+  }
+  if (item.domain === "reviews") {
+    const { listingId, listingName } = (item as ReviewModerationItem).meta;
+    return (
+      <Link
+        href={`/admin/reviews?listing=${listingId}`}
+        className="text-sm text-primary underline-offset-2 hover:underline"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {listingName ? `Reviews for ${listingName} ↗` : "View review queue ↗"}
+      </Link>
+    );
+  }
+  return null;
+}
+
 export function InboxDetail({
   item,
   open,
@@ -36,15 +86,18 @@ export function InboxDetail({
   onResolved,
   currentUserId,
 }: InboxDetailProps) {
+  const queryClient = useQueryClient();
   const [rejectReason, setRejectReason] = useState("");
   const [assigneeId, setAssigneeId] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [lastAction, setLastAction] = useState<(() => Promise<{ ok: boolean; error?: string }>) | null>(null);
   const [pending, startTransition] = useTransition();
 
   if (!item) return null;
 
   const run = (fn: () => Promise<{ ok: boolean; error?: string }>) => {
     setError(null);
+    setLastAction(() => fn);
     startTransition(async () => {
       const result = await fn();
       if (!result.ok) {
@@ -53,9 +106,15 @@ export function InboxDetail({
       }
       setRejectReason("");
       setAssigneeId("");
+      setLastAction(null);
+      queryClient.invalidateQueries({ queryKey: ["admin", "inbox", "urgent-count"] });
       onResolved();
       onOpenChange(false);
     });
+  };
+
+  const retry = () => {
+    if (lastAction) run(lastAction);
   };
 
   const base = { source: item.source, sourceRowId: item.sourceRowId };
@@ -102,9 +161,11 @@ export function InboxDetail({
           </div>
           <div>
             <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Resolution
+              Link
             </dt>
-            <dd className="capitalize">{item.resolution.primary}</dd>
+            <dd>
+              <EntityLink item={item} />
+            </dd>
           </div>
           {item.assignee ? (
             <div>
@@ -119,6 +180,7 @@ export function InboxDetail({
         </dl>
 
         <div className="mt-6 space-y-4 border-t border-border pt-6">
+          {/* Primary actions */}
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
@@ -127,6 +189,29 @@ export function InboxDetail({
             >
               Approve
             </Button>
+
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <Input
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  placeholder="Rejection reason"
+                  className="w-52"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  disabled={pending || !rejectReason.trim()}
+                  onClick={() => run(() => rejectInboxItem({ ...base, reason: rejectReason }))}
+                >
+                  Reject
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Secondary actions */}
+          <div className="flex flex-wrap gap-2">
             <Button
               type="button"
               variant="outline"
@@ -149,26 +234,8 @@ export function InboxDetail({
             ) : null}
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Reject with reason
-            </label>
-            <Input
-              value={rejectReason}
-              onChange={(e) => setRejectReason(e.target.value)}
-              placeholder="Reason shown to submitter"
-            />
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={pending || !rejectReason.trim()}
-              onClick={() => run(() => rejectInboxItem({ ...base, reason: rejectReason }))}
-            >
-              Reject
-            </Button>
-          </div>
-
-          <div className="space-y-2">
+          {/* Manual assign */}
+          <div className="space-y-1.5">
             <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Assign to user ID
             </label>
@@ -182,17 +249,33 @@ export function InboxDetail({
                 type="button"
                 variant="outline"
                 disabled={pending || !assigneeId.trim()}
-                onClick={() => run(() => assignInboxItem({ ...base, assigneeId: assigneeId.trim() }))}
+                onClick={() =>
+                  run(() => assignInboxItem({ ...base, assigneeId: assigneeId.trim() }))
+                }
               >
                 Assign
               </Button>
             </div>
           </div>
 
+          {/* Error + retry */}
           {error ? (
-            <p className="text-sm text-destructive" role="alert">
-              {error}
-            </p>
+            <div className="flex items-center gap-3 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2">
+              <p className="flex-1 text-sm text-destructive" role="alert">
+                {error}
+              </p>
+              {lastAction ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={pending}
+                  onClick={retry}
+                >
+                  Retry
+                </Button>
+              ) : null}
+            </div>
           ) : null}
         </div>
       </SheetContent>
