@@ -15,6 +15,7 @@ import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { usePartnerSettings } from "@/hooks/usePartnerSettings";
 import { useSubmitListingClaim } from "@/hooks/useListingClaims";
+import { useSubscriptionPricing } from "@/hooks/useSubscriptionPricing";
 import { CountryPhoneInput } from "@/components/ui/country-phone-input";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 
@@ -42,7 +43,13 @@ type PartnerFormData = z.infer<typeof partnerSchema>;
 const Partner = () => {
   const { t } = useTranslation();
   const { settings, isLoading: settingsLoading } = usePartnerSettings();
+  const { membershipTiers } = useSubscriptionPricing(t);
   const locale = useCurrentLocale();
+
+  const verifiedTier = membershipTiers.find((tier) => tier.id === "verified");
+  const signatureTier = membershipTiers.find((tier) => tier.id === "signature");
+  const verifiedPrice = verifiedTier?.monthly.display;
+  const signaturePrice = signatureTier?.monthly.display;
   const localizedSettings = locale === "en" ? settings : null;
   const submitClaimMutation = useSubmitListingClaim();
 
@@ -161,7 +168,7 @@ const Partner = () => {
       <ForWhomSection />
 
       {/* 4. Feature comparison table */}
-      <PricingFeaturesTable />
+      <PricingFeaturesTable verifiedPrice={verifiedPrice} />
 
       {/* 5. How it works */}
       <HowItWorksSection />
@@ -171,6 +178,8 @@ const Partner = () => {
 
       {/* 7. Pricing cards */}
       <PricingCardsSection
+        verifiedPrice={verifiedPrice}
+        signaturePrice={signaturePrice}
         onSelectVerified={() => scrollToForm("new-listing")}
         onExpressSignatureInterest={() => scrollToForm("new-listing")}
       />

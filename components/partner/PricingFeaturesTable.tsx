@@ -35,7 +35,7 @@ function Cell({ value }: { value: boolean }) {
   );
 }
 
-export function PricingFeaturesTable() {
+export function PricingFeaturesTable({ verifiedPrice = "€19" }: { verifiedPrice?: string }) {
   return (
     <section className="py-20 lg:py-24 bg-muted/30">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
@@ -77,7 +77,7 @@ export function PricingFeaturesTable() {
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
                       <span className="text-sm font-semibold text-foreground">Verified</span>
                     </div>
-                    <div className="text-xs text-primary font-semibold">€19/month</div>
+                    <div className="text-xs text-primary font-semibold">{verifiedPrice}/month</div>
                   </th>
 
                   <th className="py-5 px-4 text-center min-w-[120px] opacity-50">

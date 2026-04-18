@@ -7,6 +7,8 @@ import { Crown, ShieldCheck, Check, Lock } from "lucide-react";
 interface PricingCardsSectionProps {
   onSelectVerified: () => void;
   onExpressSignatureInterest?: () => void;
+  verifiedPrice?: string;
+  signaturePrice?: string;
 }
 
 const VERIFIED_FEATURES = [
@@ -30,6 +32,8 @@ const SIGNATURE_FEATURES = [
 export function PricingCardsSection({
   onSelectVerified,
   onExpressSignatureInterest,
+  verifiedPrice = "€19",
+  signaturePrice = "€190",
 }: PricingCardsSectionProps) {
   return (
     <section id="pricing-section" className="py-20 lg:py-28">
@@ -76,7 +80,7 @@ export function PricingCardsSection({
 
               <div className="mb-6">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold text-foreground">€19</span>
+                  <span className="text-4xl font-bold text-foreground">{verifiedPrice}</span>
                   <span className="text-muted-foreground text-sm">/month</span>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
@@ -130,7 +134,7 @@ export function PricingCardsSection({
 
               <div className="mb-6">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold text-foreground/50">€190</span>
+                  <span className="text-4xl font-bold text-foreground/50">{signaturePrice}</span>
                   <span className="text-muted-foreground/50 text-sm">/month</span>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
