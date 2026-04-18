@@ -252,7 +252,9 @@ export async function DELETE(
     return adminErrorResponse(400, "INVALID_LISTING_ID", "Listing id is required.");
   }
 
-  const { error } = await auth.writeClient.rpc("admin_delete_listings", {
+  // Use the requester-scoped client so auth.uid() inside the RPC resolves
+  // to the acting admin user (service-role calls would surface auth.uid() = null).
+  const { error } = await auth.userClient.rpc("admin_delete_listings", {
     listing_ids: [listingId],
   });
 

@@ -10,6 +10,7 @@ type UserRole = Database["public"]["Enums"]["app_role"];
 
 export interface AdminWriteAuth {
   userId: string;
+  userClient: SupabaseClient<Database>;
   writeClient: SupabaseClient<Database>;
 }
 
@@ -157,6 +158,7 @@ export async function requireAdminWriteClient(
 
   return {
     userId: base.userId,
+    userClient: base.userClient,
     writeClient: (serviceClient ?? base.userClient) as SupabaseClient<Database>,
   } satisfies AdminWriteAuth;
 }
