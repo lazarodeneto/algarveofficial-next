@@ -67,13 +67,6 @@ export default function AdminListings() {
   const [tierDialogOpen, setTierDialogOpen] = useState(false);
   const [selectedTier, setSelectedTier] = useState<'unverified' | 'verified' | 'signature'>('unverified');
 
-  // Bulk action mutations
-  const bulkDelete = useBulkDeleteListings();
-  const bulkPublish = useBulkPublishListings();
-  const bulkUpdateTier = useBulkUpdateTier();
-  const toggleCurated = useToggleListingCurated();
-  const updateListingStatus = useUpdateListingStatus();
-
   // Fetch listings
   const { data: listings = [], isLoading: listingsLoading, refetch: refetchListings } = useQuery({
     queryKey: ['admin-all-listings'],
