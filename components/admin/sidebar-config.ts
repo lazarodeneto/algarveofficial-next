@@ -80,7 +80,7 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
     items: [
       {
         id: "builder",
-        label: "BUILDER",
+        label: "Page Builder",
         href: "/admin/content/page-builder",
         icon: PencilRuler,
       },
