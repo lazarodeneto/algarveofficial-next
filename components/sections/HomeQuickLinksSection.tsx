@@ -73,12 +73,13 @@ export function HomeQuickLinksSection() {
           {quickLinkCards.map((card, index) => {
             const Icon = CARD_ICONS[card.id];
             const displayTitle = t(card.translationKey, card.title);
-            const customImageUrl = card.imageUrl;
-            const customVideoUrl = card.videoUrl;
+            const customImageUrl = card.imageUrl.trim();
+            const customVideoUrl = card.videoUrl.trim();
             const prefersFallbackImage = failedImageMedia[card.id] === true;
             const prefersFallbackVideo = failedVideoMedia[card.id] === true;
+            const hasCustomImage = customImageUrl.length > 0;
             const resolvedImageSrc =
-              !prefersFallbackImage && customImageUrl
+              !prefersFallbackImage && hasCustomImage
                 ? buildSupabaseImageUrl(customImageUrl, {
                     width: 480,
                     quality: 56,
@@ -86,8 +87,7 @@ export function HomeQuickLinksSection() {
                     resize: "cover",
                   }) || customImageUrl
                 : null;
-            const imageSrc =
-              resolvedImageSrc ?? card.fallbackImageUrl;
+            const imageSrc = resolvedImageSrc;
             const videoPosterSrc =
               resolvedImageSrc
                 ? buildSupabaseImageUrl(customImageUrl, {
@@ -96,8 +96,9 @@ export function HomeQuickLinksSection() {
                     format: "webp",
                     resize: "cover",
                   }) || customImageUrl
-                : card.fallbackImageUrl;
-            const showVideo = Boolean(customVideoUrl) && !prefersFallbackVideo;
+                : undefined;
+            const showVideo = customVideoUrl.length > 0 && !prefersFallbackVideo;
+            const showImage = !showVideo && Boolean(imageSrc);
 
             return (
               <Link
@@ -135,9 +136,9 @@ export function HomeQuickLinksSection() {
                         style={{ objectPosition: card.imagePosition ?? "center" }}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                    ) : (
+                    ) : showImage ? (
                       <Image
-                        src={imageSrc}
+                        src={imageSrc as string}
                         alt={displayTitle}
                         width={480}
                         height={360}
@@ -151,6 +152,8 @@ export function HomeQuickLinksSection() {
                         style={{ objectPosition: card.imagePosition ?? "center" }}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
+                    ) : (
+                      <div className="h-full w-full bg-black" aria-hidden="true" />
                     )}
                   </div>
                 </div>

@@ -51,6 +51,14 @@ async function requireAdminBase(
   request: NextRequest,
   forbiddenMessage: string,
 ): Promise<AdminBaseAuth | AdminAuthError> {
+  return requireRoleBase(request, forbiddenMessage, ["admin"]);
+}
+
+async function requireRoleBase(
+  request: NextRequest,
+  forbiddenMessage: string,
+  allowedRoles: UserRole[],
+): Promise<AdminBaseAuth | AdminAuthError> {
   const token = getBearerToken(request);
   if (!token) {
     return {
@@ -92,7 +100,7 @@ async function requireAdminBase(
     };
   }
 
-  if ((requesterRole as UserRole) !== "admin") {
+  if (!allowedRoles.includes(requesterRole as UserRole)) {
     return {
       error: adminErrorResponse(403, "AUTH_FORBIDDEN", forbiddenMessage),
     };
@@ -109,6 +117,19 @@ export async function requireAdminReadClient(
   forbiddenMessage = "Only admins can perform this action.",
 ): Promise<AdminReadAuth | AdminAuthError> {
   const base = await requireAdminBase(request, forbiddenMessage);
+  if ("error" in base) return { error: base.error };
+
+  return {
+    userId: base.userId,
+    readClient: base.userClient,
+  } satisfies AdminReadAuth;
+}
+
+export async function requireAdminOrEditorReadClient(
+  request: NextRequest,
+  forbiddenMessage = "Only admins or editors can perform this action.",
+): Promise<AdminReadAuth | AdminAuthError> {
+  const base = await requireRoleBase(request, forbiddenMessage, ["admin", "editor"]);
   if ("error" in base) return { error: base.error };
 
   return {

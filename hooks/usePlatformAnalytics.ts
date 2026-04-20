@@ -81,6 +81,7 @@ export type PlatformAnalyticsData = {
   trafficOverview: {
     source: "ga" | "none";
     isGaConnected: boolean;
+    gaError: string | null;
     totalUsers: number;
     sessions: number;
     pageViews: number;
@@ -113,6 +114,19 @@ type GaTrafficOverviewApiData = {
   topPages: Array<{ page: string; views: number }>;
   topCities: Array<{ city: string; views: number }>;
 };
+
+type GaTrafficOverviewApiResponse =
+  | {
+      ok: true;
+      data: GaTrafficOverviewApiData | null;
+    }
+  | {
+      ok: false;
+      error?: {
+        code?: string;
+        message?: string;
+      };
+    };
 
 const KNOWN_BLOCKS = ["cities", "featured-city", "all-listings", "listings", "curated"] as const;
 
@@ -378,6 +392,7 @@ export function usePlatformAnalytics(filters: AnalyticsFilters) {
       const topCategories = toNamedMetrics(topCategoryStats).map((row) => ({ category: row.name, views: row.views }));
 
       let gaTrafficOverview: GaTrafficOverviewApiData | null = null;
+      let gaErrorMessage: string | null = null;
       try {
         const {
           data: { session },
@@ -404,21 +419,33 @@ export function usePlatformAnalytics(filters: AnalyticsFilters) {
             },
           });
 
-          if (gaResponse.ok) {
-            const payload = (await gaResponse.json().catch(() => null)) as
-              | {
-                  ok?: boolean;
-                  data?: GaTrafficOverviewApiData | null;
-                }
-              | null;
+          const payload = (await gaResponse.json().catch(() => null)) as
+            | GaTrafficOverviewApiResponse
+            | null;
 
+          if (gaResponse.ok) {
             if (payload?.ok && payload.data?.connected) {
               gaTrafficOverview = payload.data;
+            } else if (payload && !payload.ok) {
+              gaErrorMessage = payload.error?.message ?? "Google Analytics API request failed.";
+            } else {
+              gaErrorMessage =
+                "Google Analytics API returned no connected data for the current account/configuration.";
             }
+          } else {
+            gaErrorMessage =
+              payload && !payload.ok
+                ? payload.error?.message ?? `Google Analytics API request failed (${gaResponse.status}).`
+                : `Google Analytics API request failed (${gaResponse.status}).`;
           }
+        } else {
+          gaErrorMessage = "No authenticated admin/editor session found for GA API request.";
         }
       } catch (gaError) {
-        void gaError;
+        gaErrorMessage =
+          gaError instanceof Error
+            ? gaError.message
+            : "Unexpected Google Analytics connection error.";
       }
 
       const isGaConnected = Boolean(gaTrafficOverview?.connected);
@@ -428,6 +455,7 @@ export function usePlatformAnalytics(filters: AnalyticsFilters) {
           trafficOverview: {
             source: "none",
             isGaConnected: false,
+            gaError: gaErrorMessage,
             totalUsers: 0,
             sessions: 0,
             pageViews: 0,
@@ -456,6 +484,7 @@ export function usePlatformAnalytics(filters: AnalyticsFilters) {
         trafficOverview: {
           source: "ga",
           isGaConnected: true,
+          gaError: null,
           totalUsers: gaTrafficOverview?.totalUsers ?? 0,
           sessions: gaTrafficOverview?.sessions ?? 0,
           pageViews: gaTrafficOverview?.pageViews ?? 0,

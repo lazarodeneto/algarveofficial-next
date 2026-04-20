@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import type { TimeRange } from "@/components/admin/analytics/TimeRangeSelector";
-import { requireAdminReadClient } from "@/lib/server/admin-auth";
+import { requireAdminOrEditorReadClient } from "@/lib/server/admin-auth";
 import {
   fetchGaTrafficOverview,
   parseGaPropertyIdFromDashboardUrl,
@@ -24,9 +24,9 @@ function normalizeOptional(raw: string | null): string | undefined {
 }
 
 export async function GET(request: NextRequest) {
-  const auth = await requireAdminReadClient(
+  const auth = await requireAdminOrEditorReadClient(
     request,
-    "Only admins can query analytics data.",
+    "Only admins or editors can query analytics data.",
   );
   if ("error" in auth) return auth.error;
 
@@ -58,11 +58,15 @@ export async function GET(request: NextRequest) {
       data: gaTrafficOverview,
     });
   } catch (error) {
-    void error;
+    const message =
+      error instanceof Error ? error.message : "Unknown Google Analytics connection error.";
 
     return NextResponse.json({
-      ok: true,
-      data: null,
-    });
+      ok: false,
+      error: {
+        code: "GA_FETCH_FAILED",
+        message,
+      },
+    }, { status: 502 });
   }
 }

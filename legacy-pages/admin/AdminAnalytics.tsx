@@ -70,6 +70,7 @@ export default function AdminAnalytics() {
     trafficOverview: {
       source: "none" as const,
       isGaConnected: false,
+      gaError: null,
       totalUsers: 0,
       sessions: 0,
       pageViews: 0,

@@ -23,6 +23,8 @@ import { cn } from "@/lib/utils";
 import { useOwnerListings } from "@/hooks/useOwnerListings";
 import { useSubscriptionPricing } from "@/hooks/useSubscriptionPricing";
 import { useStripeSubscription } from "@/hooks/useStripeSubscription";
+import { useExitIntent } from "@/hooks/useExitIntent";
+import { ExitIntentModal } from "@/components/owner/ExitIntentModal";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { SubscriptionTier, BillingPeriod } from "@/lib/stripePricing";
 import Link from "next/link";
@@ -47,6 +49,7 @@ export default function OwnerMembership() {
   
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly');
   const [checkoutInProgress, setCheckoutInProgress] = useState<string | null>(null);
+  const [exitModalLoading, setExitModalLoading] = useState(false);
   
   // Handle success/cancel redirects from Stripe
   useEffect(() => {
@@ -76,14 +79,18 @@ export default function OwnerMembership() {
   }, [checkSubscription, pathname, router, searchParams, t]);
   
   // Determine current tier from subscription or listings
-  const currentTier = subscription.subscribed 
-    ? subscription.tier 
-    : listings.some(l => l.tier === 'signature') 
-      ? 'signature' 
-      : listings.some(l => l.tier === 'verified') 
-        ? 'verified' 
+  const currentTier = subscription.subscribed
+    ? subscription.tier
+    : listings.some(l => l.tier === 'signature')
+      ? 'signature'
+      : listings.some(l => l.tier === 'verified')
+        ? 'verified'
         : 'unverified';
-  
+
+  const { triggered: exitIntentTriggered, dismiss: dismissExitIntent } = useExitIntent(
+    !subscription.subscribed && currentTier === 'unverified',
+  );
+
   const currentBillingPeriod = subscription.billingPeriod;
   const isChangePlanEligibleStatus = (
     subscription.status === 'active'
@@ -130,6 +137,19 @@ export default function OwnerMembership() {
     }
   };
   
+  const handleExitIntentCheckout = async () => {
+    setExitModalLoading(true);
+    try {
+      await createCheckout('verified', 'monthly');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : t('owner.membership.checkoutFailed');
+      toast.error(t('owner.membership.checkoutFailed'), { description: message });
+      dismissExitIntent();
+    } finally {
+      setExitModalLoading(false);
+    }
+  };
+
   const handleManageSubscription = async () => {
     try {
       await openCustomerPortal();
@@ -631,6 +651,16 @@ export default function OwnerMembership() {
           </div>
         </CardContent>
       </Card>
+
+      <ExitIntentModal
+        open={exitIntentTriggered}
+        onClose={dismissExitIntent}
+        onSubscribe={handleExitIntentCheckout}
+        isLoading={exitModalLoading}
+        verifiedPrice={
+          membershipTiers.find(t => t.id === 'verified')?.monthly.display ?? '€19'
+        }
+      />
     </div>
   );
 }

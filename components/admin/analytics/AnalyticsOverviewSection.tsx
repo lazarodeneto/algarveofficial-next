@@ -11,6 +11,7 @@ type Props = {
   data: {
     source: "ga" | "none";
     isGaConnected: boolean;
+    gaError: string | null;
     totalUsers: number;
     sessions: number;
     pageViews: number;
@@ -73,7 +74,9 @@ export function AnalyticsOverviewSection({ loading = false, data }: Props) {
           <CardDescription>
             {data.isGaConnected
               ? "Google Analytics API is connected and active."
-              : "Google Analytics API is not connected in-app."}
+              : data.gaError
+                ? `Google Analytics API connection error: ${data.gaError}`
+                : "Google Analytics API is not connected in-app."}
           </CardDescription>
         </CardHeader>
         {data.isGaConnected ? (

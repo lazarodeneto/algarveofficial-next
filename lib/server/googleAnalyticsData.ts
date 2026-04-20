@@ -111,7 +111,7 @@ function base64Url(input: string) {
   return Buffer.from(input).toString("base64url");
 }
 
-async function fetchAccessToken(account: GaServiceAccount): Promise<string | null> {
+async function fetchAccessToken(account: GaServiceAccount): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
   const header = { alg: "RS256", typ: "JWT" };
   const payload = {
@@ -144,13 +144,20 @@ async function fetchAccessToken(account: GaServiceAccount): Promise<string | nul
   });
 
   if (!response.ok) {
-    return null;
+    const errorText = await response.text().catch(() => "");
+    throw new Error(
+      `GA OAuth token request failed (${response.status}): ${errorText || "Unknown error"}`,
+    );
   }
 
   const payloadJson = (await response.json().catch(() => null)) as
     | { access_token?: string }
     | null;
-  return payloadJson?.access_token?.trim() || null;
+  const token = payloadJson?.access_token?.trim();
+  if (!token) {
+    throw new Error("GA OAuth token response did not include an access token.");
+  }
+  return token;
 }
 
 function buildDimensionFilter(city?: string, categorySlug?: string) {
@@ -217,18 +224,25 @@ async function runReport(
 
 export async function fetchGaTrafficOverview(
   input: GaTrafficOverviewInput,
-): Promise<GaTrafficOverview | null> {
+): Promise<GaTrafficOverview> {
   const propertyId =
     normalizePropertyId(input.propertyId) ??
     normalizePropertyId(process.env.GA_PROPERTY_ID) ??
     normalizePropertyId(process.env.GOOGLE_ANALYTICS_PROPERTY_ID);
-  if (!propertyId) return null;
+  if (!propertyId) {
+    throw new Error(
+      "GA property ID is missing. Set GA_PROPERTY_ID or provide a valid GA dashboard URL in site settings.",
+    );
+  }
 
   const serviceAccount = resolveServiceAccount();
-  if (!serviceAccount) return null;
+  if (!serviceAccount) {
+    throw new Error(
+      "GA service account credentials are missing. Set GA_SERVICE_ACCOUNT_JSON or GA_SERVICE_ACCOUNT_EMAIL + GA_SERVICE_ACCOUNT_PRIVATE_KEY.",
+    );
+  }
 
   const accessToken = await fetchAccessToken(serviceAccount);
-  if (!accessToken) return null;
 
   const dateRanges = [{ startDate: rangeStart(input.timeRange), endDate: "today" }];
   const dimensionFilter = buildDimensionFilter(input.city, input.categorySlug);

@@ -6,6 +6,7 @@ import {
   Crown,
   ClipboardCheck,
   Plus,
+  Home,
   ArrowUpRight,
   TrendingUp,
   Loader2,
@@ -315,6 +316,12 @@ export default function AdminOverview() {
               <Link href={l("/admin/curated")}>
                 <Crown className="h-4 w-4 mr-2" />
                 Manage Signature Selection
+              </Link>
+            </Button>
+            <Button variant="outline" className="w-full justify-start" asChild>
+              <Link href={l("/admin/content/home")}>
+                <Home className="h-4 w-4 mr-2" />
+                Edit Home CMS
               </Link>
             </Button>
           </CardContent>

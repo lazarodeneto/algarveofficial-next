@@ -237,6 +237,13 @@ export default function AdminHomePage() {
   const quickLinkImageInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const quickLinkVideoInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const overlayIntensity = heroContent.overlayIntensity ?? DEFAULT_OVERLAY_INTENSITY;
+  const heroVideoPreviewUrl = resolveMediaAssetUrl(heroContent.videoUrl);
+  const heroPosterPreviewUrl = resolveMediaAssetUrl(heroContent.posterUrl);
+  const heroYoutubePreviewUrl = heroContent.youtubeUrl.trim();
+  const hasHeroPreviewMedia =
+    (heroContent.mediaType === "youtube" && Boolean(heroYoutubePreviewUrl)) ||
+    (heroContent.mediaType === "poster" && Boolean(heroPosterPreviewUrl)) ||
+    (heroContent.mediaType === "video" && Boolean(heroVideoPreviewUrl || heroPosterPreviewUrl));
 
   // Sync with database settings
   useEffect(() => {
@@ -774,34 +781,40 @@ export default function AdminHomePage() {
 
                 {/* Media Preview */}
                 <div className="aspect-video bg-muted rounded-lg border border-border overflow-hidden relative">
-                  {heroContent.mediaType === 'youtube' && heroContent.youtubeUrl ? (
+                  {heroContent.mediaType === "youtube" && heroYoutubePreviewUrl ? (
                     <iframe
-                      src={getYouTubeEmbedUrl(heroContent.youtubeUrl)}
+                      src={getYouTubeEmbedUrl(heroYoutubePreviewUrl)}
                       className="w-full h-full"
                       allow="autoplay; encrypted-media"
                       allowFullScreen
                     />
-                  ) : heroContent.mediaType === 'poster' && resolveMediaAssetUrl(heroContent.posterUrl) ? (
+                  ) : heroContent.mediaType === "poster" && heroPosterPreviewUrl ? (
                     <img
-                      src={resolveMediaAssetUrl(heroContent.posterUrl) ?? undefined}
+                      src={heroPosterPreviewUrl}
                       className="w-full h-full object-cover"
                       alt="Hero poster"
                     />
-                  ) : (
+                  ) : heroContent.mediaType === "video" &&
+                    (heroVideoPreviewUrl || heroPosterPreviewUrl) ? (
                     <video
-                      src={resolveMediaAssetUrl(heroContent.videoUrl) ?? undefined}
-                      poster={resolveMediaAssetUrl(heroContent.posterUrl) ?? undefined}
+                      key={`${heroVideoPreviewUrl ?? "no-video"}-${heroPosterPreviewUrl ?? "no-poster"}`}
+                      src={heroVideoPreviewUrl ?? undefined}
+                      poster={heroPosterPreviewUrl ?? undefined}
                       className="w-full h-full object-cover"
                       muted
                       loop
                       autoPlay
                       playsInline
                     />
+                  ) : (
+                    <div className="h-full w-full bg-black" aria-label="Empty hero media preview" />
                   )}
-                  <div
-                    className="absolute inset-0 bg-gradient-to-b from-background/60 to-background pointer-events-none"
-                    style={{ opacity: overlayIntensity / 100 }}
-                  />
+                  {hasHeroPreviewMedia ? (
+                    <div
+                      className="absolute inset-0 bg-gradient-to-b from-background/60 to-background pointer-events-none"
+                      style={{ opacity: overlayIntensity / 100 }}
+                    />
+                  ) : null}
                 </div>
 
                 {/* Upload controls based on media type */}
@@ -1063,11 +1076,10 @@ export default function AdminHomePage() {
             <CardContent className="space-y-5">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 {HOME_QUICK_LINK_CARDS.map((card) => {
-                  const imageUrl = resolveMediaAssetUrl(
-                    quickLinkImages[card.imageSettingKey]?.trim() || card.fallbackImageUrl,
-                  );
+                  const customImageUrl = quickLinkImages[card.imageSettingKey]?.trim() ?? "";
+                  const imageUrl = resolveMediaAssetUrl(customImageUrl);
                   const videoUrl = resolveMediaAssetUrl(quickLinkVideos[card.videoSettingKey]?.trim());
-                  const hasCustomImage = Boolean(quickLinkImages[card.imageSettingKey]?.trim());
+                  const hasCustomImage = Boolean(customImageUrl);
                   const hasCustomVideo = Boolean(videoUrl);
                   const isCardBusy = isSaving || isSavingQuickLinks;
                   return (
@@ -1087,12 +1099,14 @@ export default function AdminHomePage() {
                             muted
                             playsInline
                           />
-                        ) : (
+                        ) : hasCustomImage && imageUrl ? (
                           <img
-                            src={imageUrl ?? undefined}
+                            src={imageUrl}
                             alt={`${card.title} card preview`}
                             className="w-full h-full object-cover"
                           />
+                        ) : (
+                          <div className="h-full w-full bg-black" aria-label={`${card.title} empty preview`} />
                         )}
                       </div>
                       <p className="text-[11px] text-muted-foreground mb-3">
@@ -1100,7 +1114,7 @@ export default function AdminHomePage() {
                           ? "Custom video uploaded"
                           : hasCustomImage
                             ? "Custom image uploaded"
-                            : "Using themed default image"}
+                            : "No custom media (black fallback)"}
                       </p>
 
                       <input

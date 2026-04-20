@@ -4,6 +4,7 @@ import {
   Building2,
   CalendarDays,
   FileText,
+  Home,
   Inbox,
   LayoutDashboard,
   MapPinned,
@@ -83,6 +84,12 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
         label: "Page Builder",
         href: "/admin/content/page-builder",
         icon: PencilRuler,
+      },
+      {
+        id: "home-cms",
+        label: "Home CMS",
+        href: "/admin/content/home",
+        icon: Home,
       },
       {
         id: "listings",
