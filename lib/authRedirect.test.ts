@@ -6,7 +6,7 @@ describe("resolvePostAuthRedirectPath", () => {
   it("returns the requested internal path when it is safe", () => {
     expect(
       resolvePostAuthRedirectPath("/en/dashboard/messages?thread=1", "en", "/dashboard"),
-    ).toBe("/en/dashboard/messages?thread=1");
+    ).toBe("/dashboard/messages?thread=1");
   });
 
   it("localizes relative internal paths that do not already carry a locale", () => {
@@ -14,10 +14,10 @@ describe("resolvePostAuthRedirectPath", () => {
   });
 
   it("falls back for auth routes and external-looking paths", () => {
-    expect(resolvePostAuthRedirectPath("/login", "en", "/dashboard")).toBe("/en/dashboard");
-    expect(resolvePostAuthRedirectPath("//evil.test", "en", "/dashboard")).toBe("/en/dashboard");
+    expect(resolvePostAuthRedirectPath("/login", "en", "/dashboard")).toBe("/dashboard");
+    expect(resolvePostAuthRedirectPath("//evil.test", "en", "/dashboard")).toBe("/dashboard");
     expect(resolvePostAuthRedirectPath("https://evil.test", "en", "/dashboard")).toBe(
-      "/en/dashboard",
+      "/dashboard",
     );
   });
 });

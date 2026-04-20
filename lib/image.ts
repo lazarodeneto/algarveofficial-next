@@ -148,7 +148,7 @@ export function getOgImageUrl(src: string | null | undefined): string | null {
 
 export const SIZES = {
   hero: "(max-width: 768px) 100vw, (max-width: 1536px) 100vw, 1920px",
-  card: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1536px) 33vw, 25vw",
+  card: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1536px) 33vw, 33vw",
   cardLg: "(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 50vw",
   thumbnail: "(max-width: 640px) 80px, (max-width: 1024px) 120px, 160px",
   banner: "(max-width: 768px) 100vw, (max-width: 1536px) 80vw, 1200px",

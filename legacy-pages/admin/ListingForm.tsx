@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
 import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
+import { normalizeExternalUrlForStorage } from "@/lib/url-input";
 
 const getEmptyFormData = (): ListingFormData => ({
   name: "",
@@ -295,18 +296,18 @@ export default function ListingForm() {
       tags: formData.tags || [],
       contact_phone: formData.contact?.phone || null,
       contact_email: formData.contact?.email || null,
-      website_url: formData.contact?.website || null,
+      website_url: normalizeExternalUrlForStorage(formData.contact?.website) || null,
       address: formData.location?.address || null,
       latitude: formData.location?.lat || null,
       longitude: formData.location?.lng || null,
-      instagram_url: formData.social_links?.instagram || null,
-      facebook_url: formData.social_links?.facebook || null,
-      google_business_url: formData.social_links?.google_business || null,
-      twitter_url: formData.social_links?.twitter || null,
-      linkedin_url: formData.social_links?.linkedin || null,
-      youtube_url: formData.social_links?.youtube || null,
-      tiktok_url: formData.social_links?.tiktok || null,
-      telegram_url: formData.social_links?.telegram || null,
+      instagram_url: normalizeExternalUrlForStorage(formData.social_links?.instagram) || null,
+      facebook_url: normalizeExternalUrlForStorage(formData.social_links?.facebook) || null,
+      google_business_url: normalizeExternalUrlForStorage(formData.social_links?.google_business) || null,
+      twitter_url: normalizeExternalUrlForStorage(formData.social_links?.twitter) || null,
+      linkedin_url: normalizeExternalUrlForStorage(formData.social_links?.linkedin) || null,
+      youtube_url: normalizeExternalUrlForStorage(formData.social_links?.youtube) || null,
+      tiktok_url: normalizeExternalUrlForStorage(formData.social_links?.tiktok) || null,
+      telegram_url: normalizeExternalUrlForStorage(formData.social_links?.telegram) || null,
       whatsapp_number: formData.social_links?.whatsapp || null,
       featured_image_url: normalizedImages.find((img) => img.is_featured)?.url || normalizedImages[0]?.url || null,
       category_data: formData.details || {},

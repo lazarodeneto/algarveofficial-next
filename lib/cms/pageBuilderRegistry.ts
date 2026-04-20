@@ -409,18 +409,6 @@ export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
     ],
   },
   {
-    id: "pricing",
-    label: "Pricing",
-    path: "/pricing",
-    description: "Partner pricing and plan comparison page.",
-    blocks: [
-      { id: "hero", label: "Hero" },
-      { id: "plans", label: "Plans" },
-      { id: "faq", label: "FAQ" },
-      { id: "cta", label: "CTA" },
-    ],
-  },
-  {
     id: "contact",
     label: "Contact",
     path: "/contact",

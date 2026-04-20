@@ -18,13 +18,13 @@ import { useSubmitListingClaim } from "@/hooks/useListingClaims";
 import { useSubscriptionPricing } from "@/hooks/useSubscriptionPricing";
 import { CountryPhoneInput } from "@/components/ui/country-phone-input";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import { normalizeExternalUrlForStorage } from "@/lib/url-input";
 
 import { PartnerHero } from "@/components/partner/PartnerHero";
 import { SocialProofBar } from "@/components/partner/SocialProofBar";
 import { ForWhomSection } from "@/components/partner/ForWhomSection";
 import { PricingFeaturesTable } from "@/components/partner/PricingFeaturesTable";
 import { HowItWorksSection } from "@/components/partner/HowItWorksSection";
-import { TestimonialsSection } from "@/components/partner/TestimonialsSection";
 import { PricingCardsSection } from "@/components/partner/PricingCardsSection";
 import { FinalCTASection } from "@/components/partner/FinalCTASection";
 
@@ -39,6 +39,7 @@ const partnerSchema = z.object({
 });
 
 type PartnerFormData = z.infer<typeof partnerSchema>;
+type FAQItem = { question: string; answer: string };
 
 const Partner = () => {
   const { t } = useTranslation();
@@ -65,21 +66,52 @@ const Partner = () => {
   const [countryCode, setCountryCode] = useState("+351");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const pricingFaqs: FAQItem[] = [
+    {
+      question: t("pricing.faq.timing.q"),
+      answer: t("pricing.faq.timing.a"),
+    },
+    {
+      question: t("pricing.faq.tierchange.q"),
+      answer: t("pricing.faq.tierchange.a"),
+    },
+    {
+      question: t("pricing.faq.audience.q"),
+      answer: t("pricing.faq.audience.a"),
+    },
+    {
+      question: t("pricing.faq.contract.q"),
+      answer: t("pricing.faq.contract.a"),
+    },
+  ];
+
+  const basePartnerFaqs: FAQItem[] =
+    localizedSettings?.faqs && localizedSettings.faqs.length > 0
+      ? localizedSettings.faqs
+      : [
+          { question: t("partner.faq.q1"), answer: t("partner.faq.a1") },
+          { question: t("partner.faq.q2"), answer: t("partner.faq.a2") },
+          { question: t("partner.faq.q3"), answer: t("partner.faq.a3") },
+          { question: t("partner.faq.q4"), answer: t("partner.faq.a4") },
+        ];
+
+  const allFaqs: FAQItem[] = basePartnerFaqs.slice();
+  for (const pricingFaq of pricingFaqs) {
+    const alreadyIncluded = allFaqs.some(
+      (faq) => faq.question.trim().toLowerCase() === pricingFaq.question.trim().toLowerCase(),
+    );
+    if (!alreadyIncluded) {
+      allFaqs.push(pricingFaq);
+    }
+  }
+
   const content = {
     heroTitle: localizedSettings?.hero_title || t("partner.title"),
     heroSubtitle: localizedSettings?.hero_subtitle || t("partner.subtitle"),
     formTitle: localizedSettings?.form_title || t("partner.form.title"),
     successMessage: localizedSettings?.success_message || t("partner.success"),
     faqTitle: localizedSettings?.faq_title || t("partner.faq.title"),
-    faqs:
-      localizedSettings?.faqs && localizedSettings.faqs.length > 0
-        ? localizedSettings.faqs
-        : [
-            { question: t("partner.faq.q1"), answer: t("partner.faq.a1") },
-            { question: t("partner.faq.q2"), answer: t("partner.faq.a2") },
-            { question: t("partner.faq.q3"), answer: t("partner.faq.a3") },
-            { question: t("partner.faq.q4"), answer: t("partner.faq.a4") },
-          ],
+    faqs: allFaqs,
   };
 
   const scrollToForm = (type?: PartnerFormData["requestType"]) => {
@@ -92,11 +124,22 @@ const Partner = () => {
     });
   };
 
+  const scrollToPricing = () => {
+    requestAnimationFrame(() => {
+      document.getElementById("pricing-section")?.scrollIntoView({ behavior: "smooth" });
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
 
-    const result = partnerSchema.safeParse(formData);
+    const normalizedPayload: Partial<PartnerFormData> = {
+      ...formData,
+      businessWebsite: normalizeExternalUrlForStorage(formData.businessWebsite) ?? "",
+    };
+
+    const result = partnerSchema.safeParse(normalizedPayload);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
       result.error.issues.forEach((err) => {
@@ -112,13 +155,13 @@ const Partner = () => {
 
     try {
       const responseData = await submitClaimMutation.mutateAsync({
-        requestType: formData.requestType!,
-        businessName: formData.businessName!,
-        businessWebsite: formData.businessWebsite || undefined,
-        contactName: formData.contactName!,
-        email: formData.email!,
-        phone: formData.phone ? `${countryCode}${formData.phone}` : undefined,
-        message: formData.message!,
+        requestType: normalizedPayload.requestType!,
+        businessName: normalizedPayload.businessName!,
+        businessWebsite: normalizedPayload.businessWebsite || undefined,
+        contactName: normalizedPayload.contactName!,
+        email: normalizedPayload.email!,
+        phone: normalizedPayload.phone ? `${countryCode}${normalizedPayload.phone}` : undefined,
+        message: normalizedPayload.message!,
       }) as { warnings?: string[] } | null;
 
       toast.success(content.successMessage);
@@ -180,11 +223,22 @@ const Partner = () => {
       {/* 4. Feature comparison table */}
       <PricingFeaturesTable verifiedPrice={verifiedPrice} />
 
-      {/* 5. How it works */}
-      <HowItWorksSection />
+      {/* 5. Mid-page CTA */}
+      <section className="py-10 lg:py-12">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
+          <Button
+            variant="default"
+            size="lg"
+            onClick={() => scrollToForm("new-listing")}
+            className="bg-green-600 hover:bg-green-700 text-white border border-green-500 shadow-lg shadow-green-600/20 uppercase tracking-[0.08em]"
+          >
+            Apply as Verified
+          </Button>
+        </div>
+      </section>
 
-      {/* 6. Testimonials */}
-      <TestimonialsSection />
+      {/* 6. How it works */}
+      <HowItWorksSection />
 
       {/* 7. Pricing cards */}
       <PricingCardsSection
@@ -228,7 +282,10 @@ const Partner = () => {
       </section>
 
       {/* 9. Final CTA */}
-      <FinalCTASection onApply={() => scrollToForm()} />
+      <FinalCTASection
+        onApplyFree={() => scrollToForm("new-listing")}
+        onBuySubscription={scrollToPricing}
+      />
 
       {/* 10. Contact form */}
       <section id="partner-form" className="py-20 lg:py-24 bg-card/50">
@@ -291,7 +348,7 @@ const Partner = () => {
                     <Label htmlFor="businessWebsite">{t("partner.form.businessWebsite")}</Label>
                     <Input
                       id="businessWebsite"
-                      type="url"
+                      type="text"
                       placeholder="https://"
                       value={formData.businessWebsite}
                       onChange={(e) => handleInputChange("businessWebsite", e.target.value)}

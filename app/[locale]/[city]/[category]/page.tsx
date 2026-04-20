@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 
 import { isValidLocale, type Locale } from "@/lib/i18n/config";
+import { buildLocalizedPath } from "@/lib/i18n/routing";
 import { resolveLegacyCategoryCityRoute } from "@/lib/seo/programmatic/legacy-category-city-route";
 import { buildLocalizedAliasMetadata } from "@/lib/seo/metadata-builders";
 
@@ -48,5 +49,5 @@ export default async function LegacyCityCategoryPage({ params }: PageProps) {
     notFound();
   }
 
-  permanentRedirect(`/${locale}${match.canonicalPath}`);
+  permanentRedirect(buildLocalizedPath(locale, match.canonicalPath));
 }

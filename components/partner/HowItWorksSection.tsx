@@ -19,7 +19,7 @@ const STEPS = [
     number: "03",
     title: "Go Live",
     description:
-      "Your listing is activated and immediately visible to 50,000+ monthly visitors. Start receiving inquiries.",
+      "Your listing is activated and immediately visible to international visitors in 10 languages. Start receiving inquiries.",
   },
 ];
 

@@ -94,10 +94,8 @@ export async function redirectToPreferredLocalePath(
   options?: LocaleRedirectOptions,
 ): Promise<never> {
   const locale = await getPreferredLocaleForServerRedirect(options);
-  const normalizedPath =
-    pathname === "/" ? "" : pathname.startsWith("/") ? pathname : `/${pathname}`;
-
-  permanentRedirect(`/${locale}${normalizedPath}`);
+  const normalizedPath = pathname.startsWith("/") ? pathname : `/${pathname}`;
+  permanentRedirect(buildLocalizedPath(locale, normalizedPath));
 }
 
 export async function redirectUnlocalizedAliasPath(

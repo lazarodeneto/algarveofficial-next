@@ -131,7 +131,7 @@
 
     /* Typography */
     --font-serif: var(--font-playfair), 'Playfair Display', Georgia, serif;
-    --font-sans: var(--font-inter), 'Inter', sans-serif;
+    --font-sans: var(--font-dm-sans), 'DM Sans', sans-serif;
 
     /* Sidebar (keeping for shadcn compatibility) */
     --sidebar-background: 240 8% 6%;

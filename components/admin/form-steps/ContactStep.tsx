@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { ListingFormData, ListingContact, ListingSocialLinks, ListingLocation } from "@/types/listing";
 import { safeParseFloat } from "@/lib/forms/parse";
+import { normalizeExternalUrlInput } from "@/lib/url-input";
 
 // URL validation patterns for social media
 const URL_PATTERNS: Record<string, { pattern: RegExp; message: string }> = {
@@ -49,7 +50,7 @@ const URL_PATTERNS: Record<string, { pattern: RegExp; message: string }> = {
   },
   website: {
     pattern: /^https?:\/\/.+\..+$/i,
-    message: "Must be a valid URL starting with http:// or https://",
+    message: "Must be a valid website URL (protocol optional)",
   },
 };
 
@@ -111,8 +112,10 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
     
     const validator = URL_PATTERNS[field];
     if (!validator) return null;
-    
-    if (!validator.pattern.test(value.trim())) {
+
+    const normalizedValue = normalizeExternalUrlInput(value);
+
+    if (!validator.pattern.test(normalizedValue)) {
       return validator.message;
     }
     return null;
@@ -233,7 +236,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
             </Label>
             <Input
               id="website"
-              type="url"
+              type="text"
               value={data.contact?.website ?? ""}
               onChange={(e) => handleContactChange("website", e.target.value)}
               placeholder="https://www.example.com"
@@ -479,6 +482,10 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
                     toast.error("Please enter a Google Business URL first");
                     return;
                   }
+
+                  const normalizedGoogleBusinessUrl = normalizeExternalUrlInput(
+                    data.social_links.google_business,
+                  );
                   
                   setIsFetchingRatings(true);
                   try {
@@ -487,7 +494,7 @@ export function ContactStep({ data, onChange, errors, listingId, onGoogleRatings
                       {
                         body: {
                           listing_id: listingId,
-                          google_business_url: data.social_links.google_business,
+                          google_business_url: normalizedGoogleBusinessUrl,
                         },
                       }
                     );

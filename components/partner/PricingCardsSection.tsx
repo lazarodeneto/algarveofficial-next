@@ -3,6 +3,10 @@
 import { m } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Crown, ShieldCheck, Check, Lock } from "lucide-react";
+import {
+  VERIFIED_PARTNER_FEATURES,
+  SIGNATURE_PARTNER_FEATURES,
+} from "@/lib/partner-subscription-content";
 
 interface PricingCardsSectionProps {
   onSelectVerified: () => void;
@@ -10,26 +14,6 @@ interface PricingCardsSectionProps {
   verifiedPrice?: string;
   signaturePrice?: string;
 }
-
-const VERIFIED_FEATURES = [
-  "Verified trust badge",
-  "Enhanced business profile",
-  "Photo gallery (up to 10 images)",
-  "Map priority placement",
-  "Social media links",
-  "WhatsApp integration",
-  "CTA (Call-To-Action) button",
-  "Direct contact from travelers",
-];
-
-const SIGNATURE_FEATURES = [
-  "Everything in Verified",
-  "Photo gallery (up to 20 images)",
-  "Homepage featured placement",
-  "Signature Selection eligibility",
-  "WhatsApp integration",
-  "Priority visibility",
-];
 
 export function PricingCardsSection({
   onSelectVerified,
@@ -64,11 +48,11 @@ export function PricingCardsSection({
             transition={{ duration: 0.5 }}
             className="h-full"
           >
-            <div className="rounded-2xl p-8 h-full flex flex-col relative overflow-hidden bg-card border-[2px] border-[hsl(43,86%,58%)] shadow-[0_0_32px_hsla(43,86%,58%,0.18)] hover:shadow-[0_0_48px_hsla(43,86%,58%,0.28)] hover:-translate-y-0.5 transition-all duration-300">
+            <div className="rounded-2xl p-8 h-full flex flex-col relative overflow-hidden bg-green-500/5 border-[2px] border-green-500/50 shadow-[0_0_32px_hsla(142,72%,40%,0.16)] hover:shadow-[0_0_48px_hsla(142,72%,40%,0.26)] hover:-translate-y-0.5 transition-all duration-300">
 
               {/* Recommended badge */}
               <div className="absolute top-4 right-4">
-                <span className="inline-flex items-center rounded-full bg-gradient-to-r from-[#C7A35A] via-[#D4AF37] to-[#C7A35A] text-black px-3 py-1 text-[10px] font-bold uppercase tracking-widest shadow-lg">
+                <span className="inline-flex items-center rounded-full bg-green-500 text-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-green-600/20">
                   Recommended
                 </span>
               </div>
@@ -92,7 +76,7 @@ export function PricingCardsSection({
               </div>
 
               <ul className="space-y-3 mb-8 flex-1">
-                {VERIFIED_FEATURES.map((feature) => (
+                {VERIFIED_PARTNER_FEATURES.map((feature) => (
                   <li key={feature} className="flex items-center gap-3 text-sm text-foreground/80">
                     <Check className="w-4 h-4 text-emerald-500 shrink-0" strokeWidth={2.5} />
                     {feature}
@@ -100,7 +84,12 @@ export function PricingCardsSection({
                 ))}
               </ul>
 
-              <Button variant="gold" size="lg" className="w-full shadow-lg" onClick={onSelectVerified}>
+              <Button
+                variant="default"
+                size="lg"
+                className="w-full bg-green-600 hover:bg-green-700 text-white border border-green-500 shadow-lg shadow-green-600/20"
+                onClick={onSelectVerified}
+              >
                 Apply as Verified
               </Button>
               <p className="text-xs text-center text-muted-foreground mt-3">
@@ -146,7 +135,7 @@ export function PricingCardsSection({
               </div>
 
               <ul className="space-y-3 mb-8 flex-1">
-                {SIGNATURE_FEATURES.map((feature) => (
+                {SIGNATURE_PARTNER_FEATURES.map((feature) => (
                   <li key={feature} className="flex items-center gap-3 text-sm text-foreground/50">
                     <Check className="w-4 h-4 text-muted-foreground/40 shrink-0" strokeWidth={2.5} />
                     {feature}

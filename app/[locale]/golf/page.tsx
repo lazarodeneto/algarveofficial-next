@@ -1,75 +1,79 @@
-'use client'
+import type { Metadata } from "next";
+import { isValidLocale, type Locale } from "@/lib/i18n/config";
+import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
+import GolfClient from "@/components/golf/GolfClient";
 
-import { useState, useMemo, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
-import { useTranslation } from 'react-i18next'
-
-const BASE_URL = 'https://algarveofficialgolf.base44.app'
-
-function GolfLoadingState({ fullscreen = true }: { fullscreen?: boolean }) {
-  const { t } = useTranslation()
-
-  return (
-    <div
-      className={
-        fullscreen
-          ? 'fixed inset-0 z-20 flex flex-col items-center justify-center bg-black'
-          : 'flex h-full w-full flex-col items-center justify-center bg-black'
-      }
-    >
-      <div className="flex flex-col items-center gap-6">
-        <div className="relative h-12 w-12">
-          <div className="absolute inset-0 rounded-full border-2 border-white/20" />
-          <div className="absolute inset-0 rounded-full border-2 border-t-white animate-spin" />
-        </div>
-        <div className="text-center">
-          <p className="text-white text-lg font-medium tracking-wide">{t('golf.loadingTitle')}</p>
-          <p className="mt-1 text-sm text-white/50">{t('golf.loadingDescription')}</p>
-        </div>
-      </div>
-    </div>
-  )
+interface PageProps {
+  params: Promise<{ locale: string }>;
 }
 
-function GolfApp() {
-  const { t } = useTranslation()
-  const searchParams = useSearchParams()
-  const [loaded, setLoaded] = useState(false)
+const GOLF_META: Record<Locale, { title: string; description: string }> = {
+  en: {
+    title: "Golf in the Algarve",
+    description:
+      "Explore world-class golf courses across the Algarve — championship links, clifftop fairways and year-round sunshine on Portugal's finest golf coast.",
+  },
+  "pt-pt": {
+    title: "Golfe no Algarve",
+    description:
+      "Explore campos de golfe de classe mundial no Algarve — percursos de campeonato, fairways com vista para o oceano e sol durante todo o ano.",
+  },
+  fr: {
+    title: "Golf en Algarve",
+    description:
+      "Découvrez les meilleurs parcours de golf de l'Algarve — des links de championnat aux fairways sur falaise avec vue sur l'Atlantique.",
+  },
+  de: {
+    title: "Golf in der Algarve",
+    description:
+      "Entdecken Sie Weltklasse-Golfplätze in der Algarve — Meisterschaftsplätze, Fairways mit Meeresblick und Sonnenschein das ganze Jahr.",
+  },
+  es: {
+    title: "Golf en el Algarve",
+    description:
+      "Explora los mejores campos de golf del Algarve — links de campeonato, fairways junto a los acantilados y sol durante todo el año.",
+  },
+  it: {
+    title: "Golf in Algarve",
+    description:
+      "Esplora i campi da golf di livello mondiale in Algarve — percorsi da campionato, fairway sulle scogliere e sole tutto l'anno.",
+  },
+  nl: {
+    title: "Golf in de Algarve",
+    description:
+      "Ontdek wereldklasse golfbanen in de Algarve — kampioenschapsbanen, kliffairways met uitzicht op de Atlantische Oceaan en het hele jaar zon.",
+  },
+  sv: {
+    title: "Golf i Algarve",
+    description:
+      "Utforska världsklassens golfbanor i Algarve — mästerskapsgolfbanor, klippfairways med havsutsikt och sol hela året.",
+  },
+  no: {
+    title: "Golf i Algarve",
+    description:
+      "Utforsk verdensklasse golfbaner i Algarve — mesterskapsanlegg, fairways med havutsikt og sol hele året.",
+  },
+  da: {
+    title: "Golf i Algarve",
+    description:
+      "Udforsk verdensklasse golfbaner i Algarve — mesterskabsbaner, klippefairways med havudsigt og sol hele året.",
+  },
+};
 
-  const iframeSrc = useMemo(() => {
-    const qs = searchParams.toString()
-    return qs ? `${BASE_URL}?${qs}` : BASE_URL
-  }, [searchParams])
-
-  return (
-    <div className="fixed inset-0 z-50 bg-black overflow-hidden">
-      {/* Loading overlay */}
-      <div
-        className={`absolute inset-0 z-20 flex flex-col items-center justify-center bg-black transition-opacity duration-500 ${
-          loaded ? 'opacity-0 pointer-events-none' : 'opacity-100'
-        }`}
-      >
-        <GolfLoadingState fullscreen={false} />
-      </div>
-
-      {/* Iframe */}
-      <iframe
-        src={iframeSrc}
-        onLoad={() => setLoaded(true)}
-        className={`h-[100dvh] w-full border-0 transition-opacity duration-500 ${
-          loaded ? 'opacity-100' : 'opacity-0'
-        }`}
-        allow="geolocation; fullscreen"
-        title={t('golf.iframeTitle')}
-      />
-    </div>
-  )
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale: rawLocale } = await params;
+  if (!isValidLocale(rawLocale)) return {};
+  const locale = rawLocale as Locale;
+  const meta = GOLF_META[locale];
+  return buildLocalizedMetadata({
+    locale,
+    path: "/golf",
+    title: meta.title,
+    description: meta.description,
+    keywords: ["Algarve golf", "golf courses Portugal", "Algarve golf courses", "golf holidays Algarve"],
+  });
 }
 
 export default function GolfPage() {
-  return (
-    <Suspense fallback={<GolfLoadingState />}>
-      <GolfApp />
-    </Suspense>
-  )
+  return <GolfClient />;
 }

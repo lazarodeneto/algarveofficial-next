@@ -494,7 +494,8 @@ export function HeroSection() {
               <button
                 type="button"
                 onClick={openTripPlanner}
-                className="group inline-flex w-full max-w-[17.5rem] items-center justify-center gap-2 rounded-[16px] bg-gradient-to-b from-[#e7c565] via-[#d6a31f] to-[#b57f00] px-6 py-3.5 text-[1.05rem] font-semibold text-black shadow-[0_16px_28px_-18px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.6)] transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f2cf72] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                className="group inline-flex w-full max-w-[17.5rem] items-center justify-center gap-2 rounded-[16px] px-6 py-3.5 text-[1.05rem] font-semibold text-black shadow-[0_16px_28px_-18px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.6)] transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary))] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                style={{ backgroundImage: "var(--gradient-gold)" }}
               >
                 <span>{tripPlannerButtonLabel}</span>
                 <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -519,9 +520,9 @@ export function HeroSection() {
         <div className="pointer-events-none absolute bottom-8 right-8 hidden z-30 lg:flex">
           <button
             onClick={() => scrollToSection("all-premium-listings")}
+            aria-label={t("hero.scroll")}
             className="pointer-events-auto flex flex-col items-end gap-2 text-white/70 transition-colors cursor-pointer animate-bounce hover:text-white"
           >
-            <span className="text-xs tracking-widest uppercase text-white/60">{t("hero.scroll")}</span>
             <ChevronDown className="h-5 w-5 text-white/60" />
           </button>
         </div>

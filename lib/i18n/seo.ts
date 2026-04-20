@@ -15,7 +15,7 @@ import {
 } from "./config";
 
 const DEFAULT_SITE_URL = "https://algarveofficial.com";
-const DEFAULT_LOCALE_USES_PREFIX = true;
+const DEFAULT_LOCALE_USES_PREFIX = false;
 
 function normalizeSeoPath(path: string = ""): string {
   if (!path || path === "/") {
@@ -44,9 +44,8 @@ export function toAbsoluteSiteUrl(pathOrUrl: string): string {
 
 /**
  * Get the URL prefix for a locale.
- * The current routing system canonicalizes every locale with a prefix,
- * including the default English locale, because unlocalized public routes
- * redirect to `/${DEFAULT_LOCALE}/...`.
+ * Default locale URLs are unprefixed ("/path"), while non-default locales
+ * keep their prefix ("/pt-pt/path", "/fr/path", ...).
  */
 export function getLocaleUrlPrefix(locale: Locale): string {
   if (locale === DEFAULT_LOCALE && !DEFAULT_LOCALE_USES_PREFIX) {
@@ -57,11 +56,11 @@ export function getLocaleUrlPrefix(locale: Locale): string {
 }
 
 /**
- * Build a canonical URL with locale prefix.
+ * Build a canonical URL for the locale.
  *
  * @param locale - The locale
  * @param path - The path (without locale prefix, e.g., "/stay")
- * @returns Full canonical URL (e.g., "https://algarveofficial.com/en/stay")
+ * @returns Full canonical URL (e.g., "https://algarveofficial.com/stay")
  */
 export function buildCanonicalUrl(locale: Locale, path: string = ""): string {
   const cleanPath = normalizeSeoPath(path);
@@ -80,11 +79,11 @@ export function buildCanonicalUrl(locale: Locale, path: string = ""): string {
  * buildHreflangs("/stay")
  * // Returns:
  * {
- *   "en": "https://algarveofficial.com/en/directory",
+ *   "en": "https://algarveofficial.com/directory",
  *   "pt-PT": "https://algarveofficial.com/pt-pt/directory",
  *   "fr-FR": "https://algarveofficial.com/fr/directory",
  *   ...
- *   "x-default": "https://algarveofficial.com/en/directory"
+ *   "x-default": "https://algarveofficial.com/directory"
  * }
  */
 export function buildHreflangs(path: string = ""): Record<string, string> {

@@ -3,6 +3,7 @@
 import { m } from "framer-motion";
 import { Check, Minus, Crown, ShieldCheck, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ORDERED_PARTNER_FEATURE_ROWS } from "@/lib/partner-subscription-content";
 
 interface Feature {
   label: string;
@@ -11,23 +12,7 @@ interface Feature {
   signature: boolean;
 }
 
-const FEATURES: Feature[] = [
-  { label: "Directory listing",              free: true,  verified: true,  signature: true  },
-  { label: "Map visibility",                 free: true,  verified: true,  signature: true  },
-  { label: "Basic business profile",         free: true,  verified: true,  signature: true  },
-  { label: "Verified trust badge",           free: false, verified: true,  signature: true  },
-  { label: "Enhanced business profile",      free: false, verified: true,  signature: true  },
-  { label: "Photo gallery (up to 10 images)",free: false, verified: true,  signature: false },
-  { label: "Photo gallery (up to 20 images)",free: false, verified: false, signature: true  },
-  { label: "Social media links",             free: false, verified: true,  signature: true  },
-  { label: "Direct contact from travelers",  free: false, verified: true,  signature: true  },
-  { label: "Map priority placement",         free: false, verified: true,  signature: true  },
-  { label: "CTA (Call-To-Action) button",    free: false, verified: true,  signature: true  },
-  { label: "Homepage featured placement",    free: false, verified: false, signature: true  },
-  { label: "Signature Selection eligibility",free: false, verified: false, signature: true  },
-  { label: "WhatsApp integration",           free: false, verified: true,  signature: true  },
-  { label: "Priority visibility",            free: false, verified: false, signature: true  },
-];
+const ORDERED_FEATURES: Feature[] = ORDERED_PARTNER_FEATURE_ROWS;
 
 function Cell({ value }: { value: boolean }) {
   return value ? (
@@ -96,7 +81,7 @@ export function PricingFeaturesTable({ verifiedPrice = "€19" }: { verifiedPric
               </thead>
 
               <tbody>
-                {FEATURES.map((feature, i) => (
+                {ORDERED_FEATURES.map((feature, i) => (
                   <tr
                     key={feature.label}
                     className={cn(

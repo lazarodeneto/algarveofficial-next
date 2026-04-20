@@ -3,6 +3,9 @@ import { m, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
   Crown,
+  ShieldCheck,
+  Check,
+  Lock,
   CheckCircle2,
   Star,
   Sparkles,
@@ -303,17 +306,34 @@ export default function OwnerMembership() {
           const isVerifiedTier = tier.id === 'verified';
           const isSignatureTier = tier.id === 'signature';
           const cardToneClass = isSignatureTier
-            ? "border-amber-500/50 bg-amber-500/5"
+            ? "glass-box rounded-2xl border-border/30 opacity-60"
             : isVerifiedTier
-              ? "border-green-500/50 bg-green-500/5"
+              ? "rounded-2xl bg-green-500/5 border-[2px] border-green-500/50 shadow-[0_0_32px_hsla(142,72%,40%,0.16)] hover:shadow-[0_0_48px_hsla(142,72%,40%,0.26)] hover:-translate-y-0.5"
               : "bg-card border-border";
           const blockedToneClass = isSignatureMonthlyBlocked ? "border-border bg-muted/40 text-muted-foreground" : "";
           const currentRingClass = isCurrentTier && !isSignatureMonthlyBlocked
-            ? (isSignatureTier ? "ring-2 ring-amber-500/70" : isVerifiedTier ? "ring-2 ring-green-500" : "")
+            ? (isSignatureTier ? "ring-2 ring-[#C7A35A]/35" : isVerifiedTier ? "ring-2 ring-emerald-500/70" : "")
             : "";
           const currentBadgeClass = isSignatureTier
             ? "inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full bg-amber-500 text-amber-950"
             : "inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full bg-green-500 text-white";
+          const tierPriceClass = cn(
+            "font-bold",
+            isVerifiedTier || isSignatureTier ? "text-4xl" : "text-3xl",
+            isSignatureTier ? "text-foreground/50" : "text-foreground",
+          );
+          const tierNoteClass = cn(
+            "text-sm",
+            isSignatureTier ? "text-muted-foreground/50" : "text-muted-foreground",
+          );
+          const featureRowClass = cn(
+            "flex items-start gap-2.5",
+            isSignatureTier ? "text-foreground/50" : isVerifiedTier ? "text-foreground/80" : "text-foreground",
+          );
+          const featureIconClass = cn(
+            "h-4 w-4 flex-shrink-0 mt-0.5",
+            isSignatureTier ? "text-muted-foreground/40" : isVerifiedTier ? "text-emerald-500" : "text-green-400",
+          );
           
           return (
               <m.div
@@ -331,15 +351,26 @@ export default function OwnerMembership() {
                   isSignatureMonthlyBlocked && "opacity-75 saturate-50"
                 )}
               >
-                <CardHeader>
-                  {/* Badges row - inside card, never clipped */}
-                  {(tier.id === 'verified' || isCurrentTier || isSignatureMonthlyBlocked) && (
+                <CardHeader className={cn((isVerifiedTier || isSignatureTier) && "relative")}>
+                  {isVerifiedTier && (
+                    <div className="absolute top-0 right-0">
+                      <span className="inline-flex items-center rounded-full bg-green-500 text-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-green-600/20">
+                        Recommended
+                      </span>
+                    </div>
+                  )}
+
+                  {isSignatureTier && (
+                    <div className="absolute top-0 right-0">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-muted border border-border/50 text-muted-foreground px-3 py-1 text-[10px] font-semibold uppercase tracking-widest">
+                        <Lock className="w-2.5 h-2.5" />
+                        By Invitation
+                      </span>
+                    </div>
+                  )}
+
+                  {(isCurrentTier || isSignatureMonthlyBlocked) && (
                     <div className="flex items-center gap-2 flex-wrap mb-2">
-                      {tier.id === 'verified' && !isCurrentTier && (
-                        <span className="px-3 py-1 text-xs font-medium rounded-full bg-green-500 text-white">
-                          {t('owner.membership.mostPopular')}
-                        </span>
-                      )}
                       {isSignatureMonthlyBlocked && (
                         <span className="px-3 py-1 text-xs font-medium rounded-full bg-muted text-muted-foreground border border-border">
                           {t('owner.membership.annualOnly')}
@@ -358,19 +389,31 @@ export default function OwnerMembership() {
                       )}
                     </div>
                   )}
-                  
-                  <div className="flex items-center gap-2">
-                    {tier.id === 'signature' && <Crown className="h-5 w-5 text-amber-400" />}
-                    {tier.id === 'verified' && <CheckCircle2 className="h-5 w-5 text-green-400" />}
-                    {tier.id === 'unverified' && <Star className="h-5 w-5 text-muted-foreground" />}
-                    <CardTitle>{tier.name}</CardTitle>
-                    {tier.id === 'signature' && (
-                      <span className="text-xs font-medium text-muted-foreground">
-                        {t('owner.membership.invitationOnly')}
-                      </span>
+
+                  <div className="flex items-center gap-2 mb-6">
+                    {isVerifiedTier ? (
+                      <>
+                        <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0" />
+                        <span className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                          Verified Partner
+                        </span>
+                      </>
+                    ) : isSignatureTier ? (
+                      <>
+                        <Crown className="w-5 h-5 text-[#C7A35A]/60 shrink-0" />
+                        <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                          Signature Partner
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Star className="h-5 w-5 text-muted-foreground" />
+                        <CardTitle>{tier.name}</CardTitle>
+                      </>
                     )}
                   </div>
-                  <div className="mt-4">
+
+                  <div className="mt-2">
                     <AnimatePresence mode="wait">
                       <m.div
                         key={`${tier.id}-${billingPeriod}`}
@@ -382,8 +425,8 @@ export default function OwnerMembership() {
                         {/* Price row with savings badge on the right */}
                         <div className="flex items-end justify-between gap-3">
                           <div className="flex items-baseline flex-wrap gap-x-1">
-                            <span className="text-3xl font-bold">{pricing.display}</span>
-                            <span className="text-muted-foreground">/{pricing.note}</span>
+                            <span className={tierPriceClass}>{pricing.display}</span>
+                            <span className={tierNoteClass}>/{pricing.note}</span>
                           </div>
                           {showSavings && (
                             <span className="shrink-0 px-2 py-0.5 text-xs font-medium rounded-full bg-green-500/20 text-green-400 border border-green-500/30">
@@ -396,6 +439,18 @@ export default function OwnerMembership() {
                             {pricing.monthlyEquivalent}
                           </p>
                         )}
+
+                        {isVerifiedTier && (
+                          <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                            Enhanced visibility and trust for established businesses. Less than the cost of a single booking.
+                          </p>
+                        )}
+
+                        {isSignatureTier && (
+                          <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                            Reserved for operators selected by our editorial team based on profile, location, and market fit.
+                          </p>
+                        )}
                       </m.div>
                     </AnimatePresence>
                   </div>
@@ -405,8 +460,8 @@ export default function OwnerMembership() {
                   {/* Benefits */}
                   <div className="space-y-3">
                     {tier.benefits.map((benefit, i) => (
-                      <div key={i} className="flex items-start gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0 mt-0.5" />
+                      <div key={i} className={featureRowClass}>
+                        <Check className={featureIconClass} strokeWidth={2.5} />
                         <span className="text-sm">{benefit}</span>
                       </div>
                     ))}
@@ -453,11 +508,13 @@ export default function OwnerMembership() {
                         {t('owner.membership.currentPlan')}
                       </Button>
                     ) : tier.id === 'signature' ? (
-                      <Button className="w-full" variant="outline" asChild>
-                        <Link href={l("/owner/support")}>
-                          {t('owner.membership.invitationOnlyCta')}
-                          <ExternalLink className="h-3 w-3 ml-2" />
-                        </Link>
+                      <Button
+                        type="button"
+                        disabled
+                        className="w-full rounded-lg border border-border/40 bg-muted/50 px-6 py-2.5 text-sm font-medium text-muted-foreground cursor-not-allowed flex items-center justify-center gap-2"
+                      >
+                        <Lock className="w-3.5 h-3.5" />
+                        By Invitation Only
                       </Button>
                     ) : isSameTierDifferentBilling ? (
                       <Button

@@ -173,7 +173,9 @@ export async function PATCH(request: NextRequest) {
   }
 
   if (action === "bulk-publish") {
-    const { error } = await auth.writeClient
+    // Use requester-scoped client so DB triggers relying on auth.uid()
+    // correctly detect the acting admin user.
+    const { error } = await auth.userClient
       .from("listings")
       .update({
         status: "published",

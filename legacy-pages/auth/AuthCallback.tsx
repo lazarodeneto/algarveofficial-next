@@ -25,13 +25,58 @@ export default function AuthCallback() {
 
     const handleCallback = async () => {
       try {
-        // Get the session from the URL hash (OAuth callback)
+        // Surface OAuth errors returned by Supabase/Google in the callback URL
+        const oauthError = searchParams.get('error');
+        const oauthErrorDescription = searchParams.get('error_description');
+        if (oauthError) {
+          const message = oauthErrorDescription
+            ? decodeURIComponent(oauthErrorDescription.replace(/\+/g, ' '))
+            : oauthError;
+          console.error('OAuth callback error:', oauthError, message);
+          setError(message);
+          return;
+        }
+
+        // With @supabase/ssr's createBrowserClient (PKCE + detectSessionInUrl: true),
+        // the code exchange happens automatically during client init. getSession()
+        // awaits that initialization before returning.
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
         if (sessionError) {
           console.error('Auth callback error:', sessionError);
           setError(sessionError.message);
           return;
+        }
+
+        // If the PKCE exchange silently failed (e.g. verifier missing, code expired),
+        // try an explicit exchange as a fallback before giving up.
+        const code = searchParams.get('code');
+        if (!session && code) {
+          const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+          if (exchangeError) {
+            console.error('Code exchange error:', exchangeError);
+            setError(exchangeError.message);
+            return;
+          }
+          if (exchangeData.session?.user) {
+            const { data: roleData } = await supabase
+              .from('user_roles')
+              .select('role')
+              .eq('user_id', exchangeData.session.user.id)
+              .order('role')
+              .limit(1)
+              .maybeSingle();
+
+            const role = roleData?.role || 'viewer_logged';
+            const defaultRedirect =
+              role === 'admin' || role === 'editor'
+                ? '/admin'
+                : role === 'owner'
+                  ? '/owner'
+                  : '/dashboard';
+            router.replace(resolvePostAuthRedirectPath(requestedPath, resolvedLocale, defaultRedirect));
+            return;
+          }
         }
 
         if (session?.user) {

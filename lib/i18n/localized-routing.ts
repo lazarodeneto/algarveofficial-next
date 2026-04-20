@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { LOCALE_CONFIGS } from "@/lib/i18n/locale-definitions";
 import {
+  addLocaleToPathname,
   getLocaleFromPathname,
   hasLocalePrefix,
   normalizeLocale,
@@ -340,30 +341,21 @@ export function buildLocalizedPath(
   const canonicalBarePath = getCanonicalLocalizedPathname(barePath) ?? barePath;
 
   if (currentLocale) {
-    const localizedPath =
-      canonicalBarePath === "/"
-        ? `/${currentLocale}`
-        : `/${currentLocale}${canonicalBarePath}`;
-    return `${localizedPath}${suffix}`;
+    return `${addLocaleToPathname(canonicalBarePath, currentLocale)}${suffix}`;
   }
 
   if (shouldBypassLocalePrefix(canonicalBarePath)) {
     return `${canonicalBarePath}${suffix}`;
   }
 
-  const localizedPath =
-    canonicalBarePath === "/" ? `/${safeLocale}` : `/${safeLocale}${canonicalBarePath}`;
-
-  return `${localizedPath}${suffix}`;
+  return `${addLocaleToPathname(canonicalBarePath, safeLocale)}${suffix}`;
 }
 
 export function switchLocaleInPathname(pathname: string, nextLocale: string): string {
   const safeLocale = normalizeLocale(nextLocale);
   const { pathname: barePathname, suffix } = splitHref(pathname);
   const stripped = stripLocaleFromPathname(barePathname);
-  const localizedPath = stripped === "/" ? `/${safeLocale}` : `/${safeLocale}${stripped}`;
-
-  return `${localizedPath}${suffix}`;
+  return `${addLocaleToPathname(stripped, safeLocale)}${suffix}`;
 }
 
 export function buildStaticRouteData(routeKey: StaticRouteKey): LocalizedRouteInput {

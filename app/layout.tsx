@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import type { ReactNode } from "react";
-import { Inter, Playfair_Display, Archivo_Narrow } from "next/font/google";
+import { DM_Sans, Playfair_Display, Archivo_Narrow } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 
@@ -21,10 +21,10 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-inter",
+  weight: ["400", "500", "700"],
+  variable: "--font-dm-sans",
   display: "swap",
 });
 
@@ -36,7 +36,7 @@ const archivoNarrow = Archivo_Narrow({
   display: "swap",
 });
 
-const fontVariables = `${playfair.variable} ${inter.variable} ${archivoNarrow.variable}`;
+const fontVariables = `${playfair.variable} ${dmSans.variable} ${archivoNarrow.variable}`;
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim()?.replace(/\/+$/, "") ?? "https://algarveofficial.com";
 const organizationSchema = buildOrganizationSchema(siteUrl);
 const websiteSchema = buildWebsiteSchema(siteUrl);

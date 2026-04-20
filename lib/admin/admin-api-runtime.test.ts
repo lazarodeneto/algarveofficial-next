@@ -7,6 +7,8 @@ import { POST as postNavigationRoute, PUT as putNavigationRoute } from "@/app/ap
 import { POST as postTaxonomyRoute, PUT as putTaxonomyRoute } from "@/app/api/admin/taxonomy/[entity]/route";
 import { POST as postFooterRoute, PUT as putFooterRoute } from "@/app/api/admin/footer/[entity]/route";
 import { GET as getCmsDocumentsRoute } from "@/app/api/admin/cms/documents/route";
+import { PATCH as patchListingsRoute } from "@/app/api/admin/listings/route";
+import { PATCH as patchListingRoute } from "@/app/api/admin/listings/[listingId]/route";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import { requireAdminReadClient, requireAdminWriteClient } from "@/lib/server/admin-auth";
 import { syncCmsDocumentsFromGlobalSettings } from "@/lib/cms/server-persistence";
@@ -26,9 +28,9 @@ const mockedRequireAdminWriteClient = vi.mocked(requireAdminWriteClient);
 const mockedRequireAdminReadClient = vi.mocked(requireAdminReadClient);
 const mockedSyncCmsDocuments = vi.mocked(syncCmsDocumentsFromGlobalSettings);
 
-function jsonRequest(body: unknown) {
+function jsonRequest(body: unknown, method = "POST") {
   return new Request("http://localhost/api/test", {
-    method: "POST",
+    method,
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
   }) as unknown as Parameters<typeof postGlobalSettingsRoute>[0];
@@ -642,5 +644,77 @@ describe("admin cms documents route runtime", () => {
     expect(payload.error?.code).toBe("CMS_DOCUMENT_VERSIONS_READ_FAILED");
     expect(typeof payload.error?.request_id).toBe("string");
     expect(versionsEq).toHaveBeenCalledWith("document_id", 1);
+  });
+});
+
+describe("admin listings route runtime", () => {
+  it("uses requester-scoped client for bulk publish updates", async () => {
+    const bulkIn = vi.fn().mockResolvedValue({ error: null });
+    const bulkUpdate = vi.fn(() => ({ in: bulkIn }));
+    const userFrom = vi.fn(() => ({ update: bulkUpdate }));
+    const writeFrom = vi.fn(() => ({ update: vi.fn() }));
+
+    mockedRequireAdminWriteClient.mockResolvedValueOnce({
+      userId: "admin-1",
+      userClient: { from: userFrom } as never,
+      writeClient: { from: writeFrom } as never,
+    });
+
+    const response = await patchListingsRoute(
+      jsonRequest(
+        { action: "bulk-publish", ids: ["listing-1"] },
+        "PATCH",
+      ) as unknown as Parameters<typeof patchListingsRoute>[0],
+    );
+    const payload = (await response.json()) as { ok?: boolean; count?: number };
+
+    expect(response.status).toBe(200);
+    expect(payload.ok).toBe(true);
+    expect(payload.count).toBe(1);
+    expect(userFrom).toHaveBeenCalledWith("listings");
+    expect(writeFrom).not.toHaveBeenCalled();
+    expect(bulkUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "published",
+      }),
+    );
+    expect(bulkIn).toHaveBeenCalledWith("id", ["listing-1"]);
+  });
+
+  it("uses requester-scoped client for single listing publish updates", async () => {
+    const updateEq = vi.fn().mockResolvedValue({ error: null });
+    const update = vi.fn(() => ({ eq: updateEq }));
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: { id: "listing-1", status: "published" },
+      error: null,
+    });
+    const selectEq = vi.fn(() => ({ maybeSingle }));
+    const select = vi.fn(() => ({ eq: selectEq }));
+    const userFrom = vi.fn(() => ({ update, select }));
+    const writeFrom = vi.fn(() => ({ update: vi.fn(), select: vi.fn() }));
+
+    mockedRequireAdminWriteClient.mockResolvedValueOnce({
+      userId: "admin-1",
+      userClient: { from: userFrom } as never,
+      writeClient: { from: writeFrom } as never,
+    });
+
+    const response = await patchListingRoute(
+      jsonRequest({ status: "published" }, "PATCH") as unknown as Parameters<typeof patchListingRoute>[0],
+      { params: Promise.resolve({ listingId: "listing-1" }) },
+    );
+    const payload = (await response.json()) as { ok?: boolean; data?: { status?: string } };
+
+    expect(response.status).toBe(200);
+    expect(payload.ok).toBe(true);
+    expect(payload.data?.status).toBe("published");
+    expect(update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "published",
+      }),
+    );
+    expect(updateEq).toHaveBeenCalledWith("id", "listing-1");
+    expect(select).toHaveBeenCalledWith("*");
+    expect(writeFrom).not.toHaveBeenCalled();
   });
 });

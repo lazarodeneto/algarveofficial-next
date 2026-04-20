@@ -42,7 +42,7 @@ const fallbackLinks = {
   ],
   company: [
     { name: "About Us", href: "/about-us", translationKey: "footer.aboutUs" },
-    { name: "Partner Pricing", href: "/pricing", translationKey: "footer.pricing" },
+    { name: "Partner Pricing", href: "/partner", translationKey: "footer.pricing" },
     { name: "Become a Partner", href: "/partner", translationKey: "footer.becomePartner" },
     { name: "Blog", href: "/blog", translationKey: "nav.blog" },
     { name: "Events", href: "/events", translationKey: "nav.events" },
@@ -184,6 +184,11 @@ export function normalizeFooterLinkHref(
       params.set("category", canonicalCategorySlug);
       return localizedHref(`/stay?${params.toString()}`);
     }
+  }
+
+  // Legacy pricing page now lives on /partner.
+  if (normalizedPath === "/pricing") {
+    return localizedHref(`/partner${suffix}`);
   }
 
   return localizedHref(`${normalizedPath}${suffix}`);

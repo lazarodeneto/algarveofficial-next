@@ -217,6 +217,30 @@ describe("partner claim route runtime", () => {
     expect(writeClient.spies.rpc).toHaveBeenCalledWith("trigger_process_outbox");
   });
 
+  it("accepts business website without protocol and normalizes it to https", async () => {
+    const writeClient = makeWriteClient();
+    mocks.createServiceRoleClient.mockReturnValue(writeClient.client);
+    mocks.createServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-123" } }, error: null }),
+      },
+    });
+
+    const response = await postPartnerClaimRoute(
+      jsonRequest({
+        ...validPayload(),
+        businessWebsite: "golden-beach.example",
+      }),
+    );
+
+    expect(response.status).toBe(201);
+    expect(writeClient.spies.claimInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        business_website: "https://golden-beach.example/",
+      }),
+    );
+  });
+
   it("falls back to null user id when auth resolution fails", async () => {
     const writeClient = makeWriteClient();
     mocks.createServiceRoleClient.mockReturnValue(writeClient.client);

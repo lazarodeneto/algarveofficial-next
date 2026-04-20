@@ -103,6 +103,7 @@ export function SharedListingCard({
               alt={listing.name}
               isRepresentative={!listing.featured_image_url}
               fill
+              priority={index < 3}
               className="transition-transform duration-500 group-hover:scale-105"
             />
 

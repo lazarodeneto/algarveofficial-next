@@ -52,8 +52,17 @@ export function hasLocalePrefix(pathname: string): boolean {
 
 export function addLocaleToPathname(pathname: string, locale: Locale): string {
   const stripped = stripLocaleFromPathname(pathname);
-  const normalizedPath = stripped === "/" ? "" : stripped;
-  return `/${locale}${normalizedPath ? `/${normalizedPath.replace(/^\//, "")}` : ""}`;
+  const normalizedPath = stripped === "/" ? "/" : stripped;
+
+  if (locale === DEFAULT_LOCALE) {
+    return normalizedPath;
+  }
+
+  if (normalizedPath === "/") {
+    return `/${locale}`;
+  }
+
+  return `/${locale}${normalizedPath}`;
 }
 
 export function resolveLocaleFromAcceptLanguage(acceptLanguage: string | null): Locale {

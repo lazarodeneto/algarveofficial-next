@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/integrations/supabase/types";
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES, type AppLocale } from "@/lib/i18n/locales";
 import { isValidLocale, resolveLocaleFromAcceptLanguage } from "@/lib/i18n/locale-utils";
+import { REQUEST_LOCALE_HEADER_NAME } from "@/lib/i18n/route-rules";
 import { isMaintenanceIpWhitelisted } from "@/lib/maintenance";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
 
@@ -202,9 +203,50 @@ function getPreferredLocale(request: NextRequest): AppLocale {
   return DEFAULT_LOCALE;
 }
 
+function nextWithRequestLocale(request: NextRequest, locale: AppLocale) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set(REQUEST_LOCALE_HEADER_NAME, locale);
+
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
+}
+
+function rewriteWithRequestLocale(
+  request: NextRequest,
+  rewritePathname: string,
+  locale: AppLocale,
+) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set(REQUEST_LOCALE_HEADER_NAME, locale);
+
+  const rewriteUrl = new URL(rewritePathname, request.url);
+  rewriteUrl.search = request.nextUrl.search;
+
+  return NextResponse.rewrite(rewriteUrl, {
+    request: {
+      headers: requestHeaders,
+    },
+  });
+}
+
+function withLocalePrefix(pathname: string, locale: AppLocale) {
+  const normalized = normalizePathname(pathname);
+  if (locale === DEFAULT_LOCALE) {
+    return normalized;
+  }
+  if (normalized === "/") {
+    return `/${locale}`;
+  }
+  return `/${locale}${normalized}`;
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const normalizedPathname = normalizePathname(pathname);
+  const strippedPathname = stripLocalePrefix(normalizedPathname);
 
   if (isStaticAsset(normalizedPathname)) {
     return NextResponse.next();
@@ -230,7 +272,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  if (stripLocalePrefix(normalizedPathname) === "/maintenance") {
+  if (strippedPathname === "/maintenance") {
     if (normalizedPathname === "/maintenance") {
       return NextResponse.next();
     }
@@ -251,15 +293,37 @@ export async function middleware(request: NextRequest) {
         : `/${DEFAULT_LOCALE}`;
       return NextResponse.redirect(new URL(destination, request.url), 308);
     }
-    return NextResponse.next();
+
+    if (strippedPathname === "/pricing") {
+      const redirectUrl = new URL(withLocalePrefix("/partner", localeFromPath), request.url);
+      redirectUrl.search = request.nextUrl.search;
+      return NextResponse.redirect(redirectUrl, 308);
+    }
+
+    if (localeFromPath === DEFAULT_LOCALE) {
+      const redirectUrl = new URL(strippedPathname, request.url);
+      redirectUrl.search = request.nextUrl.search;
+      return NextResponse.redirect(redirectUrl, 308);
+    }
+
+    return nextWithRequestLocale(request, localeFromPath);
   }
 
-  if (normalizedPathname === "/") {
-    return NextResponse.redirect(new URL(`/${DEFAULT_LOCALE}`, request.url), 302);
+  if (strippedPathname === "/pricing") {
+    const locale = getPreferredLocale(request);
+    const redirectUrl = new URL(withLocalePrefix("/partner", locale), request.url);
+    redirectUrl.search = request.nextUrl.search;
+    return NextResponse.redirect(redirectUrl, 308);
   }
 
   const locale = getPreferredLocale(request);
-  return NextResponse.redirect(new URL(`/${locale}${normalizedPathname}`, request.url), 308);
+  if (locale === DEFAULT_LOCALE) {
+    const rewritePath =
+      normalizedPathname === "/" ? `/${DEFAULT_LOCALE}` : `/${DEFAULT_LOCALE}${normalizedPathname}`;
+    return rewriteWithRequestLocale(request, rewritePath, locale);
+  }
+
+  return NextResponse.redirect(new URL(withLocalePrefix(normalizedPathname, locale), request.url), 307);
 }
 
 export const config = {

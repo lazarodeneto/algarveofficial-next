@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Eye, EyeOff, ArrowLeft, Mail, Lock, CheckCircle, Globe } from 'lucide-react';
+import { Loader2, Eye, EyeOff, ArrowLeft, Mail, Lock, CheckCircle } from 'lucide-react';
+import { GoogleIcon } from '@/components/ui/google-icon';
 import { m } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useLocalePath } from '@/hooks/useLocalePath';
@@ -236,7 +237,7 @@ export default function Login() {
                   {isGoogleLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
-                    <Globe className="mr-2 h-4 w-4" />
+                    <GoogleIcon className="mr-2 h-4 w-4" />
                   )}
                   {t('auth.continueWithGoogle')}
                 </Button>

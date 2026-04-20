@@ -6,8 +6,10 @@ import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-
 import { validatePayload, jsonErrorResponse } from "@/lib/api/api-validation";
 import { listingUpdateSchema } from "@/lib/forms/admin-schemas";
 import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
+import { normalizeExternalUrlForStorage } from "@/lib/url-input";
 
 type ListingUpdate = Database["public"]["Tables"]["listings"]["Update"];
+type ListingUpdateRecord = Record<string, unknown>;
 
 type ListingImageInput = {
   url: string;
@@ -51,6 +53,37 @@ function parseListingUpdate(raw: unknown): ListingUpdate {
   delete (updates as Record<string, unknown>).id;
   delete (updates as Record<string, unknown>).created_at;
   delete (updates as Record<string, unknown>).updated_at;
+
+  const urlFields = [
+    "website_url",
+    "instagram_url",
+    "facebook_url",
+    "google_business_url",
+    "twitter_url",
+    "linkedin_url",
+    "youtube_url",
+    "tiktok_url",
+    "telegram_url",
+    // Accept legacy payload aliases too.
+    "website",
+    "instagram",
+    "facebook",
+    "google_business",
+    "twitter",
+    "linkedin",
+    "youtube",
+    "tiktok",
+    "telegram",
+  ] as const;
+
+  for (const field of urlFields) {
+    const value = (updates as ListingUpdateRecord)[field];
+    if (typeof value === "string") {
+      const normalized = normalizeExternalUrlForStorage(value);
+      (updates as ListingUpdateRecord)[field] = normalized;
+    }
+  }
+
   return updates;
 }
 
@@ -107,7 +140,9 @@ export async function PATCH(
   }
 
   if (Object.keys(updates).length > 0) {
-    const { error: updateError } = await auth.writeClient
+    // Use requester-scoped client so DB triggers relying on auth.uid()
+    // correctly detect the acting admin user.
+    const { error: updateError } = await auth.userClient
       .from("listings")
       .update(updates)
       .eq("id", listingId);
@@ -124,7 +159,7 @@ export async function PATCH(
       typeof updates.tier === "string" ? updates.tier : null;
 
     if (!tierForRules) {
-      const { data: tierRow, error: tierError } = await auth.writeClient
+      const { data: tierRow, error: tierError } = await auth.userClient
         .from("listings")
         .select("tier")
         .eq("id", listingId)
@@ -140,7 +175,7 @@ export async function PATCH(
     const maxTierImages = getListingTierMaxGalleryImages(tierForRules);
     tierScopedImages = parsedImages.slice(0, maxTierImages);
 
-    const { error: deleteError } = await auth.writeClient
+    const { error: deleteError } = await auth.userClient
       .from("listing_images")
       .delete()
       .eq("listing_id", listingId);
@@ -156,14 +191,14 @@ export async function PATCH(
         is_featured: img.is_featured === true,
         display_order: img.display_order ?? 0,
       }));
-      const { error: insertError } = await auth.writeClient.from("listing_images").insert(imageRows);
+      const { error: insertError } = await auth.userClient.from("listing_images").insert(imageRows);
       if (insertError) {
         return adminErrorResponse(400, "LISTING_IMAGES_INSERT_FAILED", insertError.message);
       }
 
       const featuredImage = tierScopedImages.find((img) => img.is_featured) ?? tierScopedImages[0];
       if (featuredImage?.url) {
-        const { error: featuredError } = await auth.writeClient
+        const { error: featuredError } = await auth.userClient
           .from("listings")
           .update({ featured_image_url: featuredImage.url })
           .eq("id", listingId);
@@ -172,7 +207,7 @@ export async function PATCH(
         }
       }
     } else {
-      const { error: clearError } = await auth.writeClient
+      const { error: clearError } = await auth.userClient
         .from("listings")
         .update({ featured_image_url: null })
         .eq("id", listingId);
@@ -183,7 +218,7 @@ export async function PATCH(
   }
 
   if (body.sync_featured_image === true) {
-    const { data: featuredImg, error: imageError } = await auth.writeClient
+    const { data: featuredImg, error: imageError } = await auth.userClient
       .from("listing_images")
       .select("image_url")
       .eq("listing_id", listingId)
@@ -196,7 +231,7 @@ export async function PATCH(
     }
 
     if (featuredImg?.image_url) {
-      const { error: syncError } = await auth.writeClient
+      const { error: syncError } = await auth.userClient
         .from("listings")
         .update({ featured_image_url: featuredImg.image_url })
         .eq("id", listingId);
@@ -207,7 +242,7 @@ export async function PATCH(
     }
   }
 
-  const { data: listing, error: readError } = await auth.writeClient
+  const { data: listing, error: readError } = await auth.userClient
     .from("listings")
     .select("*")
     .eq("id", listingId)

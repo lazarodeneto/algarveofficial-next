@@ -4,11 +4,16 @@ import { z } from "zod";
 import { normalizePublicContactEmail, PRIMARY_CONTACT_EMAIL } from "@/lib/contactEmail";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
+import { isValidExternalUrlInput, normalizeExternalUrlForStorage } from "@/lib/url-input";
 
 const partnerClaimSchema = z.object({
   requestType: z.enum(["new-listing", "claim-business"]),
   businessName: z.string().trim().min(2).max(100),
-  businessWebsite: z.union([z.string().trim().url().max(500), z.literal(""), z.undefined()]),
+  businessWebsite: z
+    .union([z.string().trim().max(500), z.literal(""), z.undefined()])
+    .refine((value) => !value || isValidExternalUrlInput(value), {
+      message: "businessWebsite must be a valid URL.",
+    }),
   contactName: z.string().trim().min(2).max(100),
   email: z.string().trim().email().max(255),
   phone: z.union([z.string().trim().max(32), z.literal(""), z.undefined()]),
@@ -79,7 +84,7 @@ function buildPartnerClaimAlertEmail(args: {
 }) {
   const { claimId, claimCreatedAt, recipient, payload } = args;
   const businessName = payload.businessName.trim();
-  const website = normalizeOptional(payload.businessWebsite);
+  const website = normalizeExternalUrlForStorage(payload.businessWebsite);
   const phone = normalizeOptional(payload.phone);
   const subject = `New Partner Claim — ${businessName} (${requestTypeLabel(payload.requestType)})`;
   const listingId = payload.listingId ?? "Not provided";
@@ -223,7 +228,7 @@ export async function POST(request: NextRequest) {
     .insert({
       request_type: payload.requestType,
       business_name: payload.businessName.trim(),
-      business_website: normalizeOptional(payload.businessWebsite),
+      business_website: normalizeExternalUrlForStorage(payload.businessWebsite),
       contact_name: payload.contactName.trim(),
       email: payload.email.trim(),
       phone: normalizeOptional(payload.phone),

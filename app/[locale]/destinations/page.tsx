@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { DestinationsClient } from "@/components/destinations/DestinationsClient";
 import {
   DEFAULT_LOCALE,
@@ -10,11 +11,79 @@ import {
 } from "@/lib/i18n/localized-routing";
 import { getServerTranslations } from "@/lib/i18n/server";
 import { buildBreadcrumbSchema, buildWebPageSchema } from "@/lib/seo/schemaBuilders.js";
+import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ?? "https://algarveofficial.com";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
+}
+
+const DESTINATIONS_META: Record<Locale, { title: string; description: string }> = {
+  en: {
+    title: "Algarve Destinations",
+    description:
+      "Explore Algarve destinations by city and region — discover the best of Lagos, Albufeira, Vilamoura, Tavira and more across Portugal's southern coast.",
+  },
+  "pt-pt": {
+    title: "Destinos do Algarve",
+    description:
+      "Explore os destinos do Algarve por cidade e região — descubra o melhor de Lagos, Albufeira, Vilamoura, Tavira e muito mais.",
+  },
+  fr: {
+    title: "Destinations en Algarve",
+    description:
+      "Explorez les destinations de l'Algarve par ville et région — découvrez le meilleur de Lagos, Albufeira, Vilamoura, Tavira et plus encore.",
+  },
+  de: {
+    title: "Reiseziele in der Algarve",
+    description:
+      "Erkunden Sie die Algarve nach Städten und Regionen — entdecken Sie das Beste aus Lagos, Albufeira, Vilamoura, Tavira und mehr.",
+  },
+  es: {
+    title: "Destinos en el Algarve",
+    description:
+      "Explora los destinos del Algarve por ciudad y región — descubre lo mejor de Lagos, Albufeira, Vilamoura, Tavira y más.",
+  },
+  it: {
+    title: "Destinazioni in Algarve",
+    description:
+      "Esplora le destinazioni dell'Algarve per città e regione — scopri il meglio di Lagos, Albufeira, Vilamoura, Tavira e altro ancora.",
+  },
+  nl: {
+    title: "Bestemmingen in de Algarve",
+    description:
+      "Verken Algarve-bestemmingen per stad en regio — ontdek het beste van Lagos, Albufeira, Vilamoura, Tavira en meer.",
+  },
+  sv: {
+    title: "Resmål i Algarve",
+    description:
+      "Utforska Algarves resmål per stad och region — upptäck det bästa av Lagos, Albufeira, Vilamoura, Tavira och mer.",
+  },
+  no: {
+    title: "Reisemål i Algarve",
+    description:
+      "Utforsk Algarves reisemål etter by og region — oppdag det beste av Lagos, Albufeira, Vilamoura, Tavira og mer.",
+  },
+  da: {
+    title: "Rejsemål i Algarve",
+    description:
+      "Udforsk Algarves rejsemål efter by og region — oplev det bedste af Lagos, Albufeira, Vilamoura, Tavira og mere.",
+  },
+};
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale: rawLocale } = await params;
+  if (!isValidLocale(rawLocale)) return {};
+  const locale = rawLocale as Locale;
+  const meta = DESTINATIONS_META[locale];
+  return buildLocalizedMetadata({
+    locale,
+    path: "/destinations",
+    title: meta.title,
+    description: meta.description,
+    keywords: ["Algarve destinations", "Algarve cities", "Lagos", "Albufeira", "Vilamoura", "Tavira"],
+  });
 }
 
 export default async function DestinationsPage({ params }: PageProps) {

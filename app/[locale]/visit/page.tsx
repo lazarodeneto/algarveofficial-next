@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { permanentRedirect } from "next/navigation";
 import { isValidLocale, DEFAULT_LOCALE } from "@/lib/i18n/config";
+import { buildLocalizedPath } from "@/lib/i18n/routing";
 import { buildLocalizedAliasMetadata } from "@/lib/seo/metadata-builders";
 
 interface PageProps {
@@ -33,5 +34,6 @@ export default async function VisitPage({ params, searchParams }: PageProps) {
   }
   const query = qs.toString();
 
-  permanentRedirect(`/${locale}/stay${query ? `?${query}` : ""}`);
+  const targetPath = buildLocalizedPath(locale, "/stay");
+  permanentRedirect(`${targetPath}${query ? `?${query}` : ""}`);
 }

@@ -99,6 +99,7 @@ export default function ListingImage({
             src={currentUrl}
             alt={showRepresentativeBadge ? `Representative image of ${alt}` : resolvedAlt}
             className="absolute inset-0 h-full w-full object-cover"
+            sizes={sizes ?? SIZES.card}
             loading={loading}
             fetchPriority={fetchPriority}
             onError={handleError}
@@ -112,8 +113,8 @@ export default function ListingImage({
             className="object-cover"
             sizes={sizes ?? SIZES.card}
             priority={priority}
-            loading={loading}
-            fetchPriority={fetchPriority}
+            loading={priority ? undefined : loading}
+            fetchPriority={priority ? "high" : fetchPriority}
             onError={handleError}
           />
         )}
@@ -141,6 +142,7 @@ export default function ListingImage({
           width={displayWidth}
           height={displayHeight}
           className="w-full h-auto"
+          sizes={sizes ?? SIZES.card}
           loading={loading}
           fetchPriority={fetchPriority}
           onError={handleError}
@@ -167,8 +169,8 @@ export default function ListingImage({
         className="w-full h-auto"
         sizes={sizes ?? SIZES.card}
         priority={priority}
-        loading={loading}
-        fetchPriority={fetchPriority}
+        loading={priority ? undefined : loading}
+        fetchPriority={priority ? "high" : fetchPriority}
         onError={handleError}
       />
       {showRepresentativeBadge && (

@@ -1,5 +1,6 @@
 import { permanentRedirect } from "next/navigation";
 
+import { buildLocalizedPath } from "@/lib/i18n/routing";
 import { getPreferredLocaleForServerRedirect } from "@/lib/i18n/serverRedirect";
 
 interface LegacyLiveRootPageProps {
@@ -20,5 +21,6 @@ export default async function LegacyLiveRootPage({ searchParams }: LegacyLiveRoo
   }
 
   const query = qs.toString();
-  permanentRedirect(`/${locale}/residence${query ? `?${query}` : ""}`);
+  const targetPath = buildLocalizedPath(locale, "/residence");
+  permanentRedirect(`${targetPath}${query ? `?${query}` : ""}`);
 }

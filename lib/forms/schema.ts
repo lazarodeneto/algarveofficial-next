@@ -8,6 +8,7 @@
  */
 
 import { z } from "zod";
+import { isValidExternalUrlInput, normalizeExternalUrlForStorage } from "@/lib/url-input";
 
 // ─── Shared primitives ────────────────────────────────────────────────────────
 
@@ -15,7 +16,10 @@ import { z } from "zod";
 const optionalEmail = z.string().email("Invalid email address").or(z.literal(""));
 
 /** Accepts "" (empty input) or a valid URL. */
-const optionalUrl = z.string().url("Invalid URL").or(z.literal(""));
+const optionalUrl = z
+  .union([z.string().trim(), z.literal("")])
+  .refine((value) => value === "" || isValidExternalUrlInput(value), "Invalid URL")
+  .transform((value) => (value === "" ? "" : normalizeExternalUrlForStorage(value) ?? value));
 
 // ─── Listing — Basics step ───────────────────────────────────────────────────
 

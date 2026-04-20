@@ -8,6 +8,10 @@ import type {
   ResolvedPrice,
 } from "@/lib/pricing/pricing-resolver";
 import { extractPricingApiErrorMessage } from "@/lib/subscriptions/pricing-api";
+import {
+  VERIFIED_PARTNER_FEATURES,
+  SIGNATURE_PARTNER_FEATURES,
+} from "@/lib/partner-subscription-content";
 import { toast } from "sonner";
 import type { TFunction } from "i18next";
 
@@ -138,27 +142,11 @@ const tierBenefitKeys = {
     ],
   },
   verified: {
-    benefits: [
-      "tiers.verified.benefits.badge",
-      "tiers.verified.benefits.searchRanking",
-      "tiers.verified.benefits.prioritySupport",
-      "CTA or WhatsApp button",
-    ],
+    benefits: VERIFIED_PARTNER_FEATURES,
     limitations: [],
   },
   signature: {
-    benefits: [
-      "tiers.signature.benefits.badge",
-      "tiers.signature.benefits.topRanking",
-      "tiers.signature.benefits.eligibleCurated",
-      "tiers.signature.benefits.accountManager",
-      "Listed on homepage",
-      "Photo Gallery enhanced",
-      "Video interview (up to 3 min)",
-      "Video commercial (up to 1 min)",
-      "Social media mentions",
-      "CTA or WhatsApp button",
-    ],
+    benefits: SIGNATURE_PARTNER_FEATURES,
     limitations: [],
   },
 };
@@ -244,7 +232,7 @@ export function useSubscriptionPricing(t?: TFunction) {
 
   const translateKeys = (keys: string[]): string[] => {
     if (!t) return keys;
-    return keys.map((key) => t(key));
+    return keys.map((key) => (key.includes(".") ? t(key) : key));
   };
 
   const getMembershipTiers = (): MembershipTier[] => {

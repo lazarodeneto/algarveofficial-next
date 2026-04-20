@@ -1,4 +1,5 @@
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES, type AppLocale } from "./locales";
+import { addLocaleToPathname } from "./locale-utils";
 import type {
   AlternatePathMap,
   EntityRouteData,
@@ -48,18 +49,21 @@ export function buildEntityPath(
     case "category": {
       const prefix = ENTITY_ROUTE_PREFIX[entity.routeType];
       const slug = getRequiredSlug(entity.slugs, locale);
-      return `/${locale}/${prefix}/${slug}`;
+      return addLocaleToPathname(`/${prefix}/${slug}`, locale);
     }
 
     case "city": {
       const citySlug = getRequiredSlug(entity.citySlugs, locale);
-      return `/${locale}/${ENTITY_ROUTE_PREFIX.city}/${citySlug}`;
+      return addLocaleToPathname(`/${ENTITY_ROUTE_PREFIX.city}/${citySlug}`, locale);
     }
 
     case "city-category": {
       const citySlug = getRequiredSlug(entity.citySlugs, locale);
       const categorySlug = getRequiredSlug(entity.categorySlugs, locale);
-      return `/${locale}/${ENTITY_ROUTE_PREFIX["city-category"]}/${citySlug}/${categorySlug}`;
+      return addLocaleToPathname(
+        `/${ENTITY_ROUTE_PREFIX["city-category"]}/${citySlug}/${categorySlug}`,
+        locale,
+      );
     }
 
     default: {
