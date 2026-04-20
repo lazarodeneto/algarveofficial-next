@@ -73,7 +73,7 @@ export function ConciergeContactDialog({ children }: ConciergeContactDialogProps
 
     const handleSubmit = async () => {
         if (!name || !email || !message) {
-            toast.error(t('common.fillRequiredFields'));
+            toast.error(t("common.fillRequiredFields"));
             return;
         }
 
@@ -81,11 +81,11 @@ export function ConciergeContactDialog({ children }: ConciergeContactDialogProps
 
         try {
             const inquiryTypeLabel: Record<string, string> = {
-                buy: "Buying a Property",
-                sell: "Selling a Property",
-                rent: "Premium Rental",
-                invest: "Investment Opportunity",
-                other: "Other Inquiry",
+                buy: t("realEstate.conciergeDialog.inquiryTypes.buy"),
+                sell: t("realEstate.conciergeDialog.inquiryTypes.sell"),
+                rent: t("realEstate.conciergeDialog.inquiryTypes.rent"),
+                invest: t("realEstate.conciergeDialog.inquiryTypes.invest"),
+                other: t("realEstate.conciergeDialog.inquiryTypes.other"),
             };
 
             const { data, error } = await supabase.functions.invoke("send-enquiry", {
@@ -94,7 +94,7 @@ export function ConciergeContactDialog({ children }: ConciergeContactDialogProps
                     email,
                     phone: phone ? `${countryCode}${phone}` : undefined,
                     message: `Inquiry type: ${inquiryTypeLabel[inquiryType] || inquiryType}\n\n${message}`,
-                    listing_title: "Concierge Service Inquiry",
+                    listing_title: t("realEstate.conciergeDialog.inquiryTitle"),
                 },
             });
 
@@ -106,23 +106,25 @@ export function ConciergeContactDialog({ children }: ConciergeContactDialogProps
             resetForm();
             toast.success(
                 <div>
-                    <p className="font-medium">Request Sent Successfully</p>
-                    <p className="text-sm text-muted-foreground">Our concierge team will contact you shortly. Ref: {referenceNumber}</p>
+                    <p className="font-medium">{t("realEstate.conciergeDialog.requestSentTitle")}</p>
+                    <p className="text-sm text-muted-foreground">
+                        {t("realEstate.conciergeDialog.requestSentDescription", { referenceNumber })}
+                    </p>
                 </div>
             );
             if (responseData?.warnings?.includes("email_delivery_failed") || responseData?.warnings?.includes("email_delivery_primary_sender_failed")) {
-                toast.message("Your message was saved, but email notification failed. The admin can still view it in the inbox.");
+                toast.message(t("listing.form.emailWarning"));
             }
             if (responseData?.warnings?.includes("admin_user_not_configured") || responseData?.warnings?.includes("enquiry_saved_but_admin_inbox_insert_failed") || responseData?.warnings?.includes("enquiry_saved_but_admin_message_insert_failed")) {
-                toast.message("Your message was received, but admin inbox delivery needs configuration.");
+                toast.message(t("listing.form.inboxWarning"));
             }
         } catch (err: unknown) {
             console.error("Concierge submission error:", err);
-            const errorMessage = err instanceof Error ? err.message : "Failed to send request. Please try again.";
+            const errorMessage = err instanceof Error ? err.message : t("realEstate.conciergeDialog.sendRequestError");
             const isNetworkError = /failed to fetch|failed to send a request/i.test(errorMessage);
             toast.error(
                 isNetworkError
-                    ? "Unable to reach our server right now. Please try again in a moment."
+                    ? t("realEstate.conciergeDialog.networkError")
                     : errorMessage
             );
         } finally {
@@ -143,45 +145,45 @@ export function ConciergeContactDialog({ children }: ConciergeContactDialogProps
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
-                        <DialogTitle className="font-serif text-2xl">Concierge Service</DialogTitle>
+                        <DialogTitle className="font-serif text-2xl">{t("realEstate.conciergeDialog.title")}</DialogTitle>
                         <DialogDescription>
-                            Let us help you find your dream property or experience in the Algarve.
+                            {t("realEstate.conciergeDialog.description")}
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label>I am interested in...</Label>
+                            <Label>{t("realEstate.conciergeDialog.interestedIn")}</Label>
                             <Select value={inquiryType} onValueChange={setInquiryType}>
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Select interest" />
+                                    <SelectValue placeholder={t("realEstate.conciergeDialog.selectInterest")} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="buy">Buying a Property</SelectItem>
-                                    <SelectItem value="sell">Selling a Property</SelectItem>
-                                    <SelectItem value="rent">Premium Rental</SelectItem>
-                                    <SelectItem value="invest">Investment Opportunity</SelectItem>
-                                    <SelectItem value="other">Other Inquiry</SelectItem>
+                                    <SelectItem value="buy">{t("realEstate.conciergeDialog.inquiryTypes.buy")}</SelectItem>
+                                    <SelectItem value="sell">{t("realEstate.conciergeDialog.inquiryTypes.sell")}</SelectItem>
+                                    <SelectItem value="rent">{t("realEstate.conciergeDialog.inquiryTypes.rent")}</SelectItem>
+                                    <SelectItem value="invest">{t("realEstate.conciergeDialog.inquiryTypes.invest")}</SelectItem>
+                                    <SelectItem value="other">{t("realEstate.conciergeDialog.inquiryTypes.other")}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
 
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="name">Name *</Label>
+                                <Label htmlFor="name">{t("realEstate.conciergeDialog.nameRequired")}</Label>
                                 <div className="relative">
                                     <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         id="name"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        placeholder="Full Name"
+                                        placeholder={t("listing.form.fullName")}
                                         className="pl-9"
                                     />
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="phone">Phone</Label>
+                                <Label htmlFor="phone">{t("listing.form.phone")}</Label>
                                 <CountryPhoneInput
                                     countryCode={countryCode}
                                     onCountryCodeChange={setCountryCode}
@@ -193,7 +195,7 @@ export function ConciergeContactDialog({ children }: ConciergeContactDialogProps
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="email">Email *</Label>
+                            <Label htmlFor="email">{t("realEstate.conciergeDialog.emailRequired")}</Label>
                             <div className="relative">
                                 <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
@@ -208,12 +210,12 @@ export function ConciergeContactDialog({ children }: ConciergeContactDialogProps
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="message">Message *</Label>
+                            <Label htmlFor="message">{t("realEstate.conciergeDialog.messageRequired")}</Label>
                             <Textarea
                                 id="message"
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
-                                placeholder="Tell us about your requirements (location, budget, style)..."
+                                placeholder={t("realEstate.conciergeDialog.messagePlaceholder")}
                                 rows={4}
                             />
                         </div>
@@ -224,12 +226,12 @@ export function ConciergeContactDialog({ children }: ConciergeContactDialogProps
                             {isSubmitting ? (
                                 <>
                                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                    Sending Request...
+                                    {t("realEstate.conciergeDialog.sendingRequest")}
                                 </>
                             ) : (
                                 <>
                                     <Send className="h-4 w-4 mr-2" />
-                                    Send Request
+                                    {t("realEstate.conciergeDialog.sendRequest")}
                                 </>
                             )}
                         </Button>

@@ -4,6 +4,7 @@ import { m } from "framer-motion";
 import { Check, Minus, Crown, ShieldCheck, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ORDERED_PARTNER_FEATURE_ROWS } from "@/lib/partner-subscription-content";
+import { useTranslation } from "react-i18next";
 
 interface Feature {
   label: string;
@@ -23,6 +24,8 @@ function Cell({ value }: { value: boolean }) {
 }
 
 export function PricingFeaturesTable({ verifiedPrice = "€19" }: { verifiedPrice?: string }) {
+  const { t } = useTranslation();
+
   return (
     <section className="py-20 lg:py-24 bg-muted/30">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
@@ -33,9 +36,9 @@ export function PricingFeaturesTable({ verifiedPrice = "€19" }: { verifiedPric
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h2 className="text-title text-foreground">What&apos;s included in each tier</h2>
+          <h2 className="text-title text-foreground">{t("pricingFeatures.title")}</h2>
           <p className="mt-4 text-muted-foreground">
-            Compare features across all three partnership levels.
+            {t("pricingFeatures.subtitle")}
           </p>
         </m.div>
 
@@ -51,30 +54,30 @@ export function PricingFeaturesTable({ verifiedPrice = "€19" }: { verifiedPric
               <thead>
                 <tr className="border-b border-border/40">
                   <th className="text-left py-5 px-6 text-sm font-medium text-muted-foreground w-[46%]">
-                    Feature
+                    {t("pricingFeatures.feature")}
                   </th>
 
                   <th className="py-5 px-4 text-center min-w-[90px]">
-                    <div className="text-sm font-semibold text-muted-foreground">Free</div>
-                    <div className="text-xs text-muted-foreground/50 mt-0.5">Basic</div>
+                    <div className="text-sm font-semibold text-muted-foreground">{t("common.free")}</div>
+                    <div className="text-xs text-muted-foreground/50 mt-0.5">{t("pricingFeatures.basic")}</div>
                   </th>
 
                   <th className="py-5 px-4 text-center min-w-[110px]">
                     <div className="flex items-center justify-center gap-1.5 mb-0.5">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                      <span className="text-sm font-semibold text-foreground">Verified</span>
+                      <span className="text-sm font-semibold text-foreground">{t("common.verified")}</span>
                     </div>
-                    <div className="text-xs text-primary font-semibold">{verifiedPrice}/month</div>
+                    <div className="text-xs text-primary font-semibold">{verifiedPrice}{t("pricingCards.perMonth")}</div>
                   </th>
 
                   <th className="py-5 px-4 text-center min-w-[120px] opacity-50">
                     <div className="flex items-center justify-center gap-1.5 mb-0.5">
                       <Crown className="w-3.5 h-3.5 text-[#C7A35A]" />
-                      <span className="text-sm font-semibold text-foreground">Signature</span>
+                      <span className="text-sm font-semibold text-foreground">{t("common.signature")}</span>
                     </div>
                     <div className="flex items-center justify-center gap-1 text-[10px] font-semibold text-muted-foreground mt-0.5">
                       <Lock className="w-2.5 h-2.5" />
-                      By invitation
+                      {t("pricingCards.byInvitation")}
                     </div>
                   </th>
                 </tr>

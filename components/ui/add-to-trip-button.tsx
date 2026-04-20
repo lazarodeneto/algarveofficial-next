@@ -25,6 +25,7 @@ import { useLocaleRouter } from "@/hooks/useLocaleRouter";
 import { LoginModal } from "@/components/ui/login-modal";
 import { toast } from "sonner";
 import { format, eachDayOfInterval, parseISO } from "date-fns";
+import { useTranslation } from "react-i18next";
 
 interface AddToTripButtonProps {
   listingId: string;
@@ -59,6 +60,7 @@ export function AddToTripButton({
   const { isAuthenticated } = useAuth();
   const { push } = useLocaleRouter();
   const { trips, createTrip, addEventToTrip, getTripById } = useTripPlanner();
+  const { t } = useTranslation();
 
   const handleOpenChange = (newOpen: boolean) => {
     if (newOpen && !isAuthenticated) {
@@ -94,7 +96,7 @@ export function AddToTripButton({
 
   const handleCreateTrip = () => {
     if (!newTripTitle || !newTripStart || !newTripEnd) {
-      toast.error("Please fill in all trip details");
+      toast.error(t("user.tripPlanner.addToTrip.fillTripDetails"));
       return;
     }
 
@@ -106,12 +108,12 @@ export function AddToTripButton({
 
     setSelectedTripId(newTrip.id);
     setIsCreatingTrip(false);
-    toast.success("Trip created!");
+    toast.success(t("user.tripPlanner.addToTrip.tripCreated"));
   };
 
   const handleAddToTrip = async () => {
     if (!selectedTripId || !selectedDate) {
-      toast.error("Please select a trip and date");
+      toast.error(t("user.tripPlanner.addToTrip.selectTripAndDate"));
       return;
     }
 
@@ -132,9 +134,9 @@ export function AddToTripButton({
     setOpen(false);
     resetForm();
     
-    toast.success(`Added "${listingName}" to your trip!`, {
+    toast.success(t("user.tripPlanner.addToTrip.addedToTrip", { listingName }), {
       action: {
-        label: "View Trip",
+        label: t("user.tripPlanner.addToTrip.viewTrip"),
         onClick: () => push("/dashboard/trips"),
       },
     });
@@ -151,14 +153,14 @@ export function AddToTripButton({
         <DialogTrigger asChild>
           <Button variant={variant} size={size} className={className}>
             <Plus className="h-4 w-4 mr-1" />
-            Add to Trip
+            {t("user.tripPlanner.addToTrip.button")}
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Add to Trip</DialogTitle>
+            <DialogTitle>{t("user.tripPlanner.addToTrip.title")}</DialogTitle>
             <DialogDescription>
-              Add &quot;{listingName}&quot; to your itinerary
+              {t("user.tripPlanner.addToTrip.description", { listingName })}
             </DialogDescription>
           </DialogHeader>
 
@@ -166,11 +168,11 @@ export function AddToTripButton({
             {/* Trip Selection or Creation */}
             {!isCreatingTrip ? (
               <div className="space-y-2">
-                <Label>Select Trip</Label>
+                <Label>{t("user.tripPlanner.addToTrip.selectTrip")}</Label>
                 {trips.length > 0 ? (
                   <Select value={selectedTripId} onValueChange={setSelectedTripId}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Choose a trip" />
+                      <SelectValue placeholder={t("user.tripPlanner.addToTrip.chooseTrip")} />
                     </SelectTrigger>
                     <SelectContent>
                       {trips.map((trip) => (
@@ -186,7 +188,7 @@ export function AddToTripButton({
                     </SelectContent>
                   </Select>
                 ) : (
-                  <p className="text-sm text-muted-foreground">No trips yet. Create one below.</p>
+                  <p className="text-sm text-muted-foreground">{t("user.tripPlanner.addToTrip.noTrips")}</p>
                 )}
                 <Button
                   variant="outline"
@@ -195,20 +197,20 @@ export function AddToTripButton({
                   className="w-full mt-2"
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Create New Trip
+                  {t("user.tripPlanner.createNewTrip")}
                 </Button>
               </div>
             ) : (
               <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
-                <Label>New Trip Details</Label>
+                <Label>{t("user.tripPlanner.addToTrip.newTripDetails")}</Label>
                 <Input
-                  placeholder="Trip title (e.g., Algarve Summer 2024)"
+                  placeholder={t("user.tripPlanner.tripTitlePlaceholder")}
                   value={newTripTitle}
                   onChange={(e) => setNewTripTitle(e.target.value)}
                 />
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label className="text-xs">Start Date</Label>
+                    <Label className="text-xs">{t("user.tripPlanner.startDate")}</Label>
                     <Input
                       type="date"
                       value={newTripStart}
@@ -216,7 +218,7 @@ export function AddToTripButton({
                     />
                   </div>
                   <div>
-                    <Label className="text-xs">End Date</Label>
+                    <Label className="text-xs">{t("user.tripPlanner.endDate")}</Label>
                     <Input
                       type="date"
                       value={newTripEnd}
@@ -226,14 +228,14 @@ export function AddToTripButton({
                 </div>
                 <div className="flex gap-2">
                   <Button size="sm" onClick={handleCreateTrip}>
-                    Create Trip
+                    {t("user.tripPlanner.createTrip")}
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsCreatingTrip(false)}
                   >
-                    Cancel
+                    {t("common.cancel")}
                   </Button>
                 </div>
               </div>
@@ -244,11 +246,11 @@ export function AddToTripButton({
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
-                  Date
+                  {t("user.tripPlanner.addToTrip.date")}
                 </Label>
                 <Select value={selectedDate} onValueChange={setSelectedDate}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a date" />
+                    <SelectValue placeholder={t("user.tripPlanner.addToTrip.selectDate")} />
                   </SelectTrigger>
                   <SelectContent>
                     {availableDates.map((date) => (
@@ -266,7 +268,7 @@ export function AddToTripButton({
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <Clock className="h-4 w-4" />
-                  Time (optional)
+                  {t("user.tripPlanner.addToTrip.timeOptional")}
                 </Label>
                 <Input
                   type="time"
@@ -281,7 +283,7 @@ export function AddToTripButton({
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4" />
-                  Estimated Cost (€)
+                  {t("user.tripPlanner.addToTrip.estimatedCostEuro")}
                 </Label>
                 <Input
                   type="number"
@@ -296,9 +298,9 @@ export function AddToTripButton({
             {/* Notes */}
             {selectedDate && (
               <div className="space-y-2">
-                <Label>Notes (optional)</Label>
+                <Label>{t("user.tripPlanner.addToTrip.notesOptional")}</Label>
                 <Textarea
-                  placeholder="Any notes for this activity..."
+                  placeholder={t("user.tripPlanner.addToTrip.notesPlaceholder")}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={2}
@@ -310,7 +312,7 @@ export function AddToTripButton({
           {/* Actions */}
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               onClick={handleAddToTrip}
@@ -319,12 +321,12 @@ export function AddToTripButton({
               {isAdding ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Adding...
+                  {t("user.tripPlanner.addToTrip.adding")}
                 </>
               ) : (
                 <>
                   <Check className="h-4 w-4 mr-2" />
-                  Add to Trip
+                  {t("user.tripPlanner.addToTrip.button")}
                 </>
               )}
             </Button>

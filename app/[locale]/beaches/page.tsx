@@ -42,11 +42,17 @@ export default async function BeachesPage({ params }: PageProps) {
     "nav.home",
     "nav.beaches",
     "categories.beaches",
+    "beachesPage.heroTitle",
+    "beachesPage.heroDescription",
   ]);
 
   const pageUrl = buildAbsoluteRouteUrl(locale, "/beaches");
   const homeUrl = buildAbsoluteRouteUrl(locale, buildStaticRouteData("home"));
   const pageTitle = tx["nav.beaches"] ?? tx["categories.beaches"] ?? "Beaches";
+  const heroTitle = tx["beachesPage.heroTitle"] ?? "Beaches in the Algarve";
+  const heroDescription =
+    tx["beachesPage.heroDescription"] ??
+    "Discover golden sands, turquoise water, and premium beach clubs curated for AlgarveOfficial visitors.";
   const pageDescription = "Explore curated beaches and beach clubs across the Algarve.";
   const pageSchema = buildWebPageSchema({
     type: "CollectionPage",
@@ -79,10 +85,10 @@ export default async function BeachesPage({ params }: PageProps) {
               {pageTitle}
             </p>
             <h1 className="mt-4 font-serif text-4xl text-foreground md:text-5xl">
-              Beaches in the Algarve
+              {heroTitle}
             </h1>
             <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground">
-              Discover golden sands, turquoise water, and premium beach clubs curated for AlgarveOfficial visitors.
+              {heroDescription}
             </p>
           </section>
         </main>

@@ -14,6 +14,7 @@ import { useGlobalSearch, SearchResult } from "@/hooks/useGlobalSearch";
 import { Building2, Grid3X3, MapPin, Search, Clock, Sparkles, TrendingUp } from "lucide-react";
 import { Button } from "./button";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { useTranslation } from "react-i18next";
 
 const getIcon = (type: SearchResult["type"]) => {
   switch (type) {
@@ -37,6 +38,7 @@ interface CommandSearchProps {
 export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearchProps) {
   const router = useRouter();
   const l = useLocalePath();
+  const { t } = useTranslation();
   const { query, setQuery, results, recentSearches, addToRecent, clearRecent } = useGlobalSearch();
 
   const handleSelect = (result: SearchResult) => {
@@ -60,7 +62,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
     <CommandDialog open={open} onOpenChange={onOpenChange}>
       <Command className="rounded-lg border-none shadow-2xl">
         <CommandInput
-          placeholder="Ask AI Agent Algarve Planner..."
+          placeholder={t("hero.aiPlannerPlaceholder")}
           value={query}
           onValueChange={setQuery}
           className="h-14 text-lg"
@@ -68,13 +70,13 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
         <CommandList className="max-h-[400px]">
           <CommandEmpty className="py-12 text-center">
             <Search className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No results found.</p>
-            <p className="text-sm text-muted-foreground/70">Try searching for something else.</p>
+            <p className="text-muted-foreground">{t("search.noResults")}</p>
+            <p className="text-sm text-muted-foreground/70">{t("search.noResultsHint")}</p>
           </CommandEmpty>
 
           {/* Search Results */}
           {results.length > 0 && (
-            <CommandGroup heading="Search Results">
+            <CommandGroup heading={t("search.results")}>
               {results.map((result) => (
                 <CommandItem
                   key={`${result.type}-${result.id}`}
@@ -104,7 +106,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2">
                     <Clock className="h-3.5 w-3.5" />
-                    Recent Searches
+                    {t("search.recent")}
                   </span>
                   <Button
                     variant="ghost"
@@ -115,7 +117,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
                     }}
                     className="h-auto py-1 px-2 text-xs text-muted-foreground hover:text-foreground"
                   >
-                    Clear
+                    {t("search.clear")}
                   </Button>
                 </div>
               }>
@@ -143,7 +145,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
           {query.length === 0 && (
             <>
               <CommandSeparator />
-              <CommandGroup heading="Quick Links">
+              <CommandGroup heading={t("search.quickLinks")}>
                 <CommandItem
                   value="directory browse all listings"
                   onSelect={() => {
@@ -153,7 +155,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
                   className="flex items-center gap-3 py-3 px-4 cursor-pointer"
                 >
                   <Grid3X3 className="h-4 w-4 text-primary" />
-                  <span>Browse All Listings</span>
+                  <span>{t("search.browseAll")}</span>
                 </CommandItem>
                 <CommandItem
                   value="destinations regions explore"
@@ -164,7 +166,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
                   className="flex items-center gap-3 py-3 px-4 cursor-pointer"
                 >
                   <MapPin className="h-4 w-4 text-primary" />
-                  <span>Explore Regions</span>
+                  <span>{t("search.exploreRegions")}</span>
                 </CommandItem>
                 <CommandItem
                   value="map explorer listings"
@@ -175,7 +177,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
                   className="flex items-center gap-3 py-3 px-4 cursor-pointer"
                 >
                   <MapPin className="h-4 w-4 text-primary" />
-                  <span>Open Map Explorer</span>
+                  <span>{t("search.openMapExplorer")}</span>
                 </CommandItem>
                 <CommandItem
                   value="invest market strategy"
@@ -186,7 +188,7 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
                   className="flex items-center gap-3 py-3 px-4 cursor-pointer"
                 >
                   <TrendingUp className="h-4 w-4 text-primary" />
-                  <span>Investment Insights</span>
+                  <span>{t("search.investmentInsights")}</span>
                 </CommandItem>
               </CommandGroup>
             </>
@@ -200,19 +202,19 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
               <kbd className="pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 inline-flex">
                 ↑↓
               </kbd>
-              Navigate
+              {t("search.navigate")}
             </span>
             <span className="flex items-center gap-1">
               <kbd className="pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 inline-flex">
                 ↵
               </kbd>
-              Select
+              {t("search.select")}
             </span>
             <span className="flex items-center gap-1">
               <kbd className="pointer-events-none h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 inline-flex">
                 esc
               </kbd>
-              Close
+              {t("search.close")}
             </span>
           </div>
         </div>
@@ -223,6 +225,8 @@ export function CommandSearch({ open, onOpenChange, initialQuery }: CommandSearc
 
 // Search trigger button for the header
 export function SearchTrigger({ onClick }: { onClick: () => void }) {
+  const { t } = useTranslation();
+
   return (
     <Button
       variant="ghost"
@@ -231,7 +235,7 @@ export function SearchTrigger({ onClick }: { onClick: () => void }) {
       className="text-muted-foreground hover:text-foreground"
     >
       <Search className="h-5 w-5" />
-      <span className="sr-only">Search</span>
+      <span className="sr-only">{t("common.search")}</span>
     </Button>
   );
 }

@@ -1156,7 +1156,8 @@
     "verified": "Verifisert",
     "viewAll": "Vis alle",
     "viewSite": "Vis nettstedet",
-    "fromPrice": "Fra {{price}}"
+    "fromPrice": "Fra {{price}}",
+    "algarvePortugalSuffix": ", Algarve, Portugal"
   },
   "contact": {
     "email": "info@algarveofficial.com",
@@ -1599,7 +1600,15 @@
     "topCategoryInCity": "Topp {{category}} i {{city}}",
     "upgradeYourListing": "Oppgrader oppføringen din",
     "viewAllInCity": "Se alle {{category}} i {{city}}",
-    "categoryInCity": "{{category}} i {{city}}"
+    "categoryInCity": "{{category}} i {{city}}",
+    "listingsForCityCategoryComingSoon": "Listings for {{category}} in {{city}} are being added",
+    "cityCategoryComingSoonDescription": "This page is available so visitors can discover this topic in {{city}} while new listings are published. Explore the main city page or nearby city/category combinations in the meantime.",
+    "viewCity": "View {{city}}",
+    "discoverCuratedInCity": "Discover curated listings for {{category}} in {{city}}. From local favorites to premium experiences.",
+    "browseAllVisit": "Browse all of Visit",
+    "listingsForCityComingSoon": "Listings for {{city}} are being added",
+    "cityComingSoonDescription": "This page is available so visitors can discover {{city}} while new listings are published. In the meantime, you can explore the main Visit directory or jump into active category pages below.",
+    "relatedAlgarveCities": "Related Algarve cities"
   },
   "categoryHub": {
     "heroTitle": "{{category}} i Algarve",
@@ -1863,7 +1872,14 @@
     "verifiedPartner": "Verifisert partner",
     "viewGallery": "Vis Galleri",
     "viewOnMap": "Vis på kart",
-    "visitWebsite": "Besøk nettstedet"
+    "visitWebsite": "Besøk nettstedet",
+    "relatedDestinationsDescription": "Discover other prestigious regions across the Algarve",
+    "social": {
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "googleBusiness": "Google Business",
+      "telegram": "Telegram"
+    }
   },
   "live": {
     "allActiveCityHubs": "Alle Active City Hubs",
@@ -2401,7 +2417,18 @@
     },
     "subtitle": "Bli med i Algarves fremste luksuskatalog og få kontakt med kresne reisende som søker førsteklasses opplevelser.",
     "success": "Takk! Din forespørsel er sendt. Vi kontakter deg innen 2-3 virkedager.",
-    "title": "Bli partner"
+    "title": "Bli partner",
+    "hero": {
+      "badge": "Partner Programme",
+      "trustLine": "✓ No long-term contract · ✓ 2–3 day review · ✓ Go live immediately",
+      "applyForPartnership": "Apply for Partnership",
+      "viewPricing": "View Pricing"
+    },
+    "finalCta": {
+      "applyFree": "Apply (Free)",
+      "buySubscription": "Buy Subscription",
+      "trustLine": "✓ No long-term contract · ✓ Cancel anytime · ✓ 2–3 day review"
+    }
   },
   "pricing": {
     "badge": "Partnerinvestering",
@@ -2515,7 +2542,31 @@
       "title": "Søkeassistanse"
     },
     "sortedByFeatured": "Sortert etter: Utvalgte",
-    "title": "Eiendomskatalog"
+    "title": "Eiendomskatalog",
+    "conciergeDialog": {
+      "title": "Concierge Service",
+      "description": "Let us help you find your dream property or experience in the Algarve.",
+      "interestedIn": "I am interested in...",
+      "selectInterest": "Select interest",
+      "nameRequired": "Name *",
+      "emailRequired": "Email *",
+      "messageRequired": "Message *",
+      "messagePlaceholder": "Tell us about your requirements (location, budget, style)...",
+      "sendRequest": "Send Request",
+      "sendingRequest": "Sending Request...",
+      "inquiryTitle": "Concierge Service Inquiry",
+      "requestSentTitle": "Request Sent Successfully",
+      "requestSentDescription": "Our concierge team will contact you shortly. Ref: {{referenceNumber}}",
+      "sendRequestError": "Failed to send request. Please try again.",
+      "networkError": "Unable to reach our server right now. Please try again in a moment.",
+      "inquiryTypes": {
+        "buy": "Buying a Property",
+        "sell": "Selling a Property",
+        "rent": "Premium Rental",
+        "invest": "Investment Opportunity",
+        "other": "Other Inquiry"
+      }
+    }
   },
   "reviews": {
     "anonymousUser": "Besøkende",
@@ -2544,7 +2595,12 @@
     "updated": "Anmeldelse oppdatert",
     "verifiedStay": "Verifisert opphold",
     "writeReview": "Skriv en anmeldelse",
-    "yourReviewStatus": "Din anmeldelse"
+    "yourReviewStatus": "Din anmeldelse",
+    "ratingsTitle": "Reviews & Ratings",
+    "sortBy": "Sort by",
+    "mostRecent": "Most Recent",
+    "mostHelpful": "Most Helpful",
+    "showLess": "Show Less"
   },
   "search": {
     "browseAll": "Bla gjennom alle oppføringer",
@@ -2554,7 +2610,13 @@
     "noResultsHint": "Prøv å søke etter noe annet.",
     "placeholder": "Søk i oppføringer, kategorier, byer, regioner...",
     "quickLinks": "Hurtigkoblinger",
-    "recent": "Nylige søk"
+    "recent": "Nylige søk",
+    "results": "Search Results",
+    "openMapExplorer": "Open Map Explorer",
+    "investmentInsights": "Investment Insights",
+    "navigate": "Navigate",
+    "select": "Select",
+    "close": "Close"
   },
   "sections": {
     "algarveGuide": {
@@ -2721,5 +2783,85 @@
       },
       "name": "Verifisert"
     }
+  },
+  "pagination": {
+    "label": "pagination",
+    "goToPrevious": "Go to previous page",
+    "goToNext": "Go to next page",
+    "morePages": "More pages"
+  },
+  "pricingCards": {
+    "title": "Choose your partnership level",
+    "subtitle": "Transparent pricing. No hidden fees. Cancel anytime.",
+    "annualDiscount": "Annual billing available at 20% discount.",
+    "recommended": "Recommended",
+    "verifiedPartner": "Verified Partner",
+    "perMonth": "/month",
+    "verifiedDescription": "Enhanced visibility and trust for established businesses. Less than the cost of a single booking.",
+    "applyAsVerified": "Apply as Verified",
+    "noLongTermContract": "No long-term contract · Cancel anytime",
+    "byInvitation": "By Invitation",
+    "signaturePartner": "Signature Partner",
+    "signatureDescription": "Reserved for operators selected by our editorial team based on profile, location, and market fit.",
+    "byInvitationOnly": "By Invitation Only",
+    "eligiblePartnersContacted": "Our team contacts eligible Verified partners directly.",
+    "interestedInSignature": "Interested in Signature?",
+    "mentionInApplication": "Mention it in your Verified application",
+    "reviewEligibilityNote": "— we review all partners for eligibility.",
+    "notReady": "Not ready to commit?",
+    "startFreeListing": "Start with a free basic listing",
+    "upgradeWhenReady": "and upgrade when ready."
+  },
+  "user": {
+    "tripPlanner": {
+      "addToTrip": {
+        "button": "Add to Trip",
+        "title": "Add to Trip",
+        "description": "Add \"{{listingName}}\" to your itinerary",
+        "fillTripDetails": "Please fill in all trip details",
+        "tripCreated": "Trip created!",
+        "selectTripAndDate": "Please select a trip and date",
+        "addedToTrip": "Added \"{{listingName}}\" to your trip!",
+        "viewTrip": "View Trip",
+        "selectTrip": "Select Trip",
+        "chooseTrip": "Choose a trip",
+        "noTrips": "No trips yet. Create one below.",
+        "newTripDetails": "New Trip Details",
+        "date": "Date",
+        "selectDate": "Select a date",
+        "timeOptional": "Time (optional)",
+        "estimatedCostEuro": "Estimated Cost (€)",
+        "notesOptional": "Notes (optional)",
+        "notesPlaceholder": "Any notes for this activity...",
+        "adding": "Adding..."
+      },
+      "eventDialog": {
+        "editActivity": "Edit Activity",
+        "addActivity": "Add Activity",
+        "change": "Change",
+        "selectListing": "Select a Listing",
+        "searchListings": "Search listings...",
+        "myFavorites": "My Favorites",
+        "allListings": "All Listings",
+        "noFavorites": "No favorites yet. Try searching all listings.",
+        "noListingsFound": "No listings found.",
+        "date": "Date",
+        "timeSlot": "Time Slot",
+        "selectTime": "Select time",
+        "estimatedCostEuro": "Estimated Cost (€)",
+        "notes": "Notes",
+        "notesPlaceholder": "Add any notes or reminders..."
+      }
+    }
+  },
+  "beachesPage": {
+    "heroTitle": "Beaches in the Algarve",
+    "heroDescription": "Discover golden sands, turquoise water, and premium beach clubs curated for AlgarveOfficial visitors."
+  },
+  "pricingFeatures": {
+    "title": "What's included in each tier",
+    "subtitle": "Compare features across all three partnership levels.",
+    "feature": "Feature",
+    "basic": "Basic"
   }
 }

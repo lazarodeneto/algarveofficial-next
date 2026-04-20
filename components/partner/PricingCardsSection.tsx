@@ -7,6 +7,7 @@ import {
   VERIFIED_PARTNER_FEATURES,
   SIGNATURE_PARTNER_FEATURES,
 } from "@/lib/partner-subscription-content";
+import { useTranslation } from "react-i18next";
 
 interface PricingCardsSectionProps {
   onSelectVerified: () => void;
@@ -21,6 +22,8 @@ export function PricingCardsSection({
   verifiedPrice = "€19",
   signaturePrice = "€190",
 }: PricingCardsSectionProps) {
+  const { t } = useTranslation();
+
   return (
     <section id="pricing-section" className="py-20 lg:py-28">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
@@ -31,10 +34,10 @@ export function PricingCardsSection({
           transition={{ duration: 0.6 }}
           className="text-center mb-14"
         >
-          <h2 className="text-title text-foreground">Choose your partnership level</h2>
+          <h2 className="text-title text-foreground">{t("pricingCards.title")}</h2>
           <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
-            Transparent pricing. No hidden fees. Cancel anytime.{" "}
-            <span className="text-foreground/60">Annual billing available at 20% discount.</span>
+            {t("pricingCards.subtitle")}{" "}
+            <span className="text-foreground/60">{t("pricingCards.annualDiscount")}</span>
           </p>
         </m.div>
 
@@ -53,25 +56,24 @@ export function PricingCardsSection({
               {/* Recommended badge */}
               <div className="absolute top-4 right-4">
                 <span className="inline-flex items-center rounded-full bg-green-500 text-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-green-600/20">
-                  Recommended
+                  {t("pricingCards.recommended")}
                 </span>
               </div>
 
               <div className="flex items-center gap-2 mb-6">
                 <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0" />
                 <span className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
-                  Verified Partner
+                  {t("pricingCards.verifiedPartner")}
                 </span>
               </div>
 
               <div className="mb-6">
                 <div className="flex items-baseline gap-1">
                   <span className="text-4xl font-bold text-foreground">{verifiedPrice}</span>
-                  <span className="text-muted-foreground text-sm">/month</span>
+                  <span className="text-muted-foreground text-sm">{t("pricingCards.perMonth")}</span>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                  Enhanced visibility and trust for established businesses.
-                  Less than the cost of a single booking.
+                  {t("pricingCards.verifiedDescription")}
                 </p>
               </div>
 
@@ -90,10 +92,10 @@ export function PricingCardsSection({
                 className="w-full bg-green-600 hover:bg-green-700 text-white border border-green-500 shadow-lg shadow-green-600/20"
                 onClick={onSelectVerified}
               >
-                Apply as Verified
+                {t("pricingCards.applyAsVerified")}
               </Button>
               <p className="text-xs text-center text-muted-foreground mt-3">
-                No long-term contract · Cancel anytime
+                {t("pricingCards.noLongTermContract")}
               </p>
             </div>
           </m.div>
@@ -112,25 +114,24 @@ export function PricingCardsSection({
               <div className="absolute top-4 right-4">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-muted border border-border/50 text-muted-foreground px-3 py-1 text-[10px] font-semibold uppercase tracking-widest">
                   <Lock className="w-2.5 h-2.5" />
-                  By Invitation
+                  {t("pricingCards.byInvitation")}
                 </span>
               </div>
 
               <div className="flex items-center gap-2 mb-6">
                 <Crown className="w-5 h-5 text-[#C7A35A]/60 shrink-0" />
                 <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                  Signature Partner
+                  {t("pricingCards.signaturePartner")}
                 </span>
               </div>
 
               <div className="mb-6">
                 <div className="flex items-baseline gap-1">
                   <span className="text-4xl font-bold text-foreground/50">{signaturePrice}</span>
-                  <span className="text-muted-foreground/50 text-sm">/month</span>
+                  <span className="text-muted-foreground/50 text-sm">{t("pricingCards.perMonth")}</span>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                  Reserved for operators selected by our editorial team based on
-                  profile, location, and market fit.
+                  {t("pricingCards.signatureDescription")}
                 </p>
               </div>
 
@@ -149,11 +150,11 @@ export function PricingCardsSection({
                 className="w-full rounded-lg border border-border/40 bg-muted/50 px-6 py-2.5 text-sm font-medium text-muted-foreground cursor-not-allowed flex items-center justify-center gap-2"
               >
                 <Lock className="w-3.5 h-3.5" />
-                By Invitation Only
+                {t("pricingCards.byInvitationOnly")}
               </button>
 
               <p className="text-xs text-center text-muted-foreground/60 mt-3">
-                Our team contacts eligible Verified partners directly.
+                {t("pricingCards.eligiblePartnersContacted")}
               </p>
             </div>
           </m.div>
@@ -162,26 +163,26 @@ export function PricingCardsSection({
         {/* Bottom note */}
         <div className="mt-8 text-center space-y-2">
           <p className="text-sm text-muted-foreground">
-            Interested in Signature?{" "}
+            {t("pricingCards.interestedInSignature")}{" "}
             <button
               type="button"
               onClick={onExpressSignatureInterest}
               className="text-primary underline underline-offset-2 hover:text-primary/70 transition-colors"
             >
-              Mention it in your Verified application
+              {t("pricingCards.mentionInApplication")}
             </button>{" "}
-            — we review all partners for eligibility.
+            {t("pricingCards.reviewEligibilityNote")}
           </p>
           <p className="text-sm text-muted-foreground">
-            Not ready to commit?{" "}
+            {t("pricingCards.notReady")}{" "}
             <button
               type="button"
               onClick={onSelectVerified}
               className="text-primary underline underline-offset-2 hover:text-primary/70 transition-colors"
             >
-              Start with a free basic listing
+              {t("pricingCards.startFreeListing")}
             </button>{" "}
-            and upgrade when ready.
+            {t("pricingCards.upgradeWhenReady")}
           </p>
         </div>
       </div>

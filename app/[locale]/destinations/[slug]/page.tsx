@@ -327,6 +327,9 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
       "destinationDetail.faqTitle",
       "common.noListingsYet",
       "common.noListingsYetDesc",
+      "listing.relatedDestinations",
+      "listing.relatedDestinationsDescription",
+      "owner.listings.noImage",
     ]),
   ]);
 
@@ -501,10 +504,10 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
           <section className="py-16 lg:py-24 bg-card">
             <div className="app-container content-max">
               <h2 className="text-title font-serif font-medium text-foreground text-center mb-2">
-                Explore More Destinations
+                {tx["listing.relatedDestinations"] ?? "Explore More Destinations"}
               </h2>
               <p className="text-body text-muted-foreground text-center mb-10">
-                Discover other prestigious regions across the Algarve
+                {tx["listing.relatedDestinationsDescription"] ?? "Discover other prestigious regions across the Algarve"}
               </p>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {otherRegions.map((r) => {
@@ -527,7 +530,7 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-muted to-muted-foreground/10 flex items-center justify-center">
-                            <span className="text-muted-foreground/30 text-xs">No image</span>
+                            <span className="text-muted-foreground/30 text-xs">{tx["owner.listings.noImage"] ?? "No image"}</span>
                           </div>
                         )}
                       </div>

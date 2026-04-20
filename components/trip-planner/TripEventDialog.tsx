@@ -29,6 +29,7 @@ import { usePublishedListings } from '@/hooks/useListings';
 import { useCities, useCategories } from '@/hooks/useReferenceData';
 import { useFavoriteListings } from '@/hooks/useFavoriteListings';
 import ListingImage from '@/components/ListingImage';
+import { useTranslation } from "react-i18next";
 
 interface TripEventDialogProps {
   open: boolean;
@@ -80,6 +81,7 @@ export function TripEventDialog({ open, onClose, onSave, initialDate, editEvent 
 }
 
 function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEventDialogFormProps) {
+  const { t } = useTranslation();
   const [selectedListing, setSelectedListing] = useState<string>(() => editEvent?.listing_id ?? '');
   const [date, setDate] = useState(() => editEvent?.date ?? initialDate ?? '');
   const [timeSlot, setTimeSlot] = useState<string>(() => editEvent?.time_slot || '');
@@ -134,7 +136,7 @@ function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEv
     <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
       <DialogHeader>
         <DialogTitle className="font-serif text-xl">
-          {editEvent ? 'Edit Activity' : 'Add Activity'}
+          {editEvent ? t("user.tripPlanner.eventDialog.editActivity") : t("user.tripPlanner.eventDialog.addActivity")}
         </DialogTitle>
       </DialogHeader>
 
@@ -161,7 +163,7 @@ function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEv
                 </p>
               </div>
               <Button variant="ghost" size="sm" onClick={() => setSelectedListing('')}>
-                Change
+                {t("user.tripPlanner.eventDialog.change")}
               </Button>
             </CardContent>
           </Card>
@@ -170,12 +172,12 @@ function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEv
         {/* Listing Selection */}
         {!selectedListingInfo && (
           <div className="space-y-3">
-            <Label>Select a Listing</Label>
+            <Label>{t("user.tripPlanner.eventDialog.selectListing")}</Label>
             
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search listings..."
+                placeholder={t("user.tripPlanner.eventDialog.searchListings")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9"
@@ -186,10 +188,10 @@ function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEv
               <TabsList className="w-full">
                 <TabsTrigger value="favorites" className="flex-1">
                   <Star className="h-4 w-4 mr-2" />
-                  My Favorites
+                  {t("user.tripPlanner.eventDialog.myFavorites")}
                 </TabsTrigger>
                 <TabsTrigger value="all" className="flex-1">
-                  All Listings
+                  {t("user.tripPlanner.eventDialog.allListings")}
                 </TabsTrigger>
               </TabsList>
 
@@ -199,8 +201,8 @@ function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEv
                     {filteredListings.length === 0 ? (
                       <p className="text-sm text-muted-foreground text-center py-8">
                         {activeTab === 'favorites' 
-                          ? 'No favorites yet. Try searching all listings.'
-                          : 'No listings found.'}
+                          ? t("user.tripPlanner.eventDialog.noFavorites")
+                          : t("user.tripPlanner.eventDialog.noListingsFound")}
                       </p>
                     ) : (
                       filteredListings.map((listing) => (
@@ -248,7 +250,7 @@ function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEv
         {/* Event Details */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="date">Date</Label>
+            <Label htmlFor="date">{t("user.tripPlanner.eventDialog.date")}</Label>
             <Input
               id="date"
               type="date"
@@ -257,10 +259,10 @@ function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEv
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="time">Time Slot</Label>
+            <Label htmlFor="time">{t("user.tripPlanner.eventDialog.timeSlot")}</Label>
             <Select value={timeSlot} onValueChange={setTimeSlot}>
               <SelectTrigger>
-                <SelectValue placeholder="Select time" />
+                <SelectValue placeholder={t("user.tripPlanner.eventDialog.selectTime")} />
               </SelectTrigger>
               <SelectContent>
                 {TIME_SLOTS.map(slot => (
@@ -274,7 +276,7 @@ function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEv
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="cost">Estimated Cost (€)</Label>
+          <Label htmlFor="cost">{t("user.tripPlanner.eventDialog.estimatedCostEuro")}</Label>
           <Input
             id="cost"
             type="number"
@@ -286,10 +288,10 @@ function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEv
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="notes">Notes</Label>
+          <Label htmlFor="notes">{t("user.tripPlanner.eventDialog.notes")}</Label>
           <Textarea
             id="notes"
-            placeholder="Add any notes or reminders..."
+            placeholder={t("user.tripPlanner.eventDialog.notesPlaceholder")}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
@@ -299,10 +301,10 @@ function TripEventDialogForm({ onClose, onSave, initialDate, editEvent }: TripEv
 
       <DialogFooter className="pt-4">
         <Button variant="outline" onClick={onClose}>
-          Cancel
+          {t("common.cancel")}
         </Button>
         <Button onClick={handleSave} disabled={!selectedListing || !date}>
-          {editEvent ? 'Save Changes' : 'Add Activity'}
+          {editEvent ? t("user.tripPlanner.saveChanges") : t("user.tripPlanner.eventDialog.addActivity")}
         </Button>
       </DialogFooter>
     </DialogContent>

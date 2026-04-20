@@ -47,6 +47,14 @@ interface PageProps {
   params: Promise<PageParams>;
 }
 
+function formatTemplate(
+  template: string | undefined,
+  fallback: string,
+  values: Record<string, string>,
+): string {
+  return (template ?? fallback).replace(/\{\{(\w+)\}\}/g, (_, key: string) => values[key] ?? "");
+}
+
 export const revalidate = 60;
 export const dynamic = "force-dynamic";
 
@@ -154,11 +162,18 @@ export default async function VisitCityPage({ params }: PageProps) {
   const tx = await getServerTranslations(locale, [
     "nav.home",
     "nav.visit",
+    "common.algarvePortugalSuffix",
     "common.avgRating",
     "common.curated",
     "common.fromPrice",
     "common.signature",
     "common.verified",
+    "guides.breadcrumbLabel",
+    "guides.browseAllVisit",
+    "guides.cityComingSoonDescription",
+    "guides.exploreMoreInCity",
+    "guides.listingsForCityComingSoon",
+    "guides.relatedAlgarveCities",
   ]);
 
   const itemListSchema = buildVisitCityItemListSchema(locale, data.city.name, citySlug, data.listings);
@@ -219,7 +234,7 @@ export default async function VisitCityPage({ params }: PageProps) {
             </div>
           )}
           <div className="app-container pt-[calc(6rem+10px)] pb-12 md:pt-[calc(6.5rem+10px)] md:pb-16">
-            <nav aria-label="Breadcrumb" className="mb-6">
+            <nav aria-label={tx["guides.breadcrumbLabel"] ?? "Breadcrumb"} className="mb-6">
               <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
                 <li>
                   <LocaleLink href="/" className="hover:text-foreground transition-colors">
@@ -258,7 +273,10 @@ export default async function VisitCityPage({ params }: PageProps) {
                   {tx["common.avgRating"] ?? "avg rating"}
                 </span>
               )}
-              <span>{data.city.name}, Algarve, Portugal</span>
+              <span>
+                {data.city.name}
+                {tx["common.algarvePortugalSuffix"] ?? ", Algarve, Portugal"}
+              </span>
             </div>
           </div>
         </section>
@@ -284,14 +302,22 @@ export default async function VisitCityPage({ params }: PageProps) {
           ) : (
             <div className="rounded-3xl border border-dashed border-border bg-card/40 p-8 text-center">
               <h2 className="text-xl font-semibold text-foreground">
-                Listings for {data.city.name} are being added
+                {formatTemplate(
+                  tx["guides.listingsForCityComingSoon"],
+                  "Listings for {{city}} are being added",
+                  { city: data.city.name },
+                )}
               </h2>
               <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                This page is available so visitors can discover {data.city.name} while new listings are published. In the meantime, you can explore the main Visit directory or jump into active category pages below.
+                {formatTemplate(
+                  tx["guides.cityComingSoonDescription"],
+                  "This page is available so visitors can discover {{city}} while new listings are published. In the meantime, you can explore the main Visit directory or jump into active category pages below.",
+                  { city: data.city.name },
+                )}
               </p>
               <div className="mt-5 flex flex-wrap justify-center gap-3">
                 <LocaleLink href="/stay" className="rounded-full border border-border px-5 py-2 text-sm font-medium text-foreground hover:border-primary/50 hover:text-primary transition-colors">
-                  Browse all of Visit
+                  {tx["guides.browseAllVisit"] ?? "Browse all of Visit"}
                 </LocaleLink>
                 {programmaticCategories.slice(0, 3).map((category) => (
                   <LocaleLink
@@ -322,7 +348,9 @@ export default async function VisitCityPage({ params }: PageProps) {
         {programmaticCategories.length > 0 && (
           <section className="app-container py-8 border-t border-border">
             <h2 className="text-lg font-semibold text-foreground mb-4">
-              Explore more in {data.city.name}
+              {formatTemplate(tx["guides.exploreMoreInCity"], "Explore More in {{city}}", {
+                city: data.city.name,
+              })}
             </h2>
             <div className="flex flex-wrap gap-2">
               {programmaticCategories.map((category) => (
@@ -354,7 +382,7 @@ export default async function VisitCityPage({ params }: PageProps) {
         {data.relatedCities.length > 0 && (
           <section className="app-container py-8 border-t border-border">
             <h2 className="text-lg font-semibold text-foreground mb-4">
-              Related Algarve cities
+              {tx["guides.relatedAlgarveCities"] ?? "Related Algarve cities"}
             </h2>
             <div className="flex flex-wrap gap-2">
               {data.relatedCities.map((city) => (

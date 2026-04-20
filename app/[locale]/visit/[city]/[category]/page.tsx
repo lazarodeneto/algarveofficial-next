@@ -47,6 +47,14 @@ interface PageProps {
   params: Promise<PageParams>;
 }
 
+function formatTemplate(
+  template: string | undefined,
+  fallback: string,
+  values: Record<string, string>,
+): string {
+  return (template ?? fallback).replace(/\{\{(\w+)\}\}/g, (_, key: string) => values[key] ?? "");
+}
+
 export const revalidate = 60;
 export const dynamic = "force-dynamic";
 
@@ -193,12 +201,24 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
     "nav.home",
     "nav.visit",
     "common.avgRating",
+    "common.algarvePortugalSuffix",
     "common.fromPrice",
     "common.inOtherCities",
     "common.moreToExploreIn",
     "common.curated",
     "common.signature",
     "common.verified",
+    "guides.breadcrumbLabel",
+    "guides.cityCategoryComingSoonDescription",
+    "guides.discoverCuratedInCity",
+    "guides.findBestInCity",
+    "guides.getFeatured",
+    "guides.getFeaturedInCity",
+    "guides.listingsForCityCategoryComingSoon",
+    "guides.listYourBusiness",
+    "guides.standOutInCity",
+    "guides.upgradeYourListing",
+    "guides.viewCity",
   ]);
 
   const itemListSchema = buildItemListSchema(locale, canonical, data.city.name, citySlug, categoryUrlSlug, data.listings);
@@ -242,7 +262,7 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
             </div>
           )}
           <div className="app-container pt-[calc(6rem+10px)] pb-12 md:pt-[calc(6.5rem+10px)] md:pb-16">
-            <nav aria-label="Breadcrumb" className="mb-6">
+            <nav aria-label={tx["guides.breadcrumbLabel"] ?? "Breadcrumb"} className="mb-6">
               <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
                 <li>
                   <LocaleLink href="/" className="hover:text-foreground transition-colors">
@@ -293,7 +313,10 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
                   {tx["common.avgRating"] ?? "avg rating"}
                 </span>
               )}
-              <span>{data.city.name}, Algarve, Portugal</span>
+              <span>
+                {data.city.name}
+                {tx["common.algarvePortugalSuffix"] ?? ", Algarve, Portugal"}
+              </span>
             </div>
           </div>
         </section>
@@ -319,10 +342,21 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
           ) : (
             <div className="rounded-3xl border border-dashed border-border bg-card/40 p-8 text-center">
               <h2 className="text-xl font-semibold text-foreground">
-                Listings for {getCategoryDisplayName(canonical, locale)} in {data.city.name} are being added
+                {formatTemplate(
+                  tx["guides.listingsForCityCategoryComingSoon"],
+                  "Listings for {{category}} in {{city}} are being added",
+                  {
+                    category: getCategoryDisplayName(canonical, locale),
+                    city: data.city.name,
+                  },
+                )}
               </h2>
               <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                This page is available so visitors can discover this topic in {data.city.name} while new listings are published. Explore the main city page or nearby city/category combinations in the meantime.
+                {formatTemplate(
+                  tx["guides.cityCategoryComingSoonDescription"],
+                  "This page is available so visitors can discover this topic in {{city}} while new listings are published. Explore the main city page or nearby city/category combinations in the meantime.",
+                  { city: data.city.name },
+                )}
               </p>
               <div className="mt-5 flex flex-wrap justify-center gap-3">
                 <LocaleLink
@@ -332,7 +366,7 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
                   }}
                   className="rounded-full border border-border px-5 py-2 text-sm font-medium text-foreground hover:border-primary/50 hover:text-primary transition-colors"
                 >
-                  View {data.city.name}
+                  {formatTemplate(tx["guides.viewCity"], "View {{city}}", { city: data.city.name })}
                 </LocaleLink>
                 {data.relatedCities.slice(0, 3).map((city) => (
                   <LocaleLink
@@ -430,23 +464,32 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
           <section className="app-container py-8 border-t border-border bg-gradient-to-b from-primary/5 to-transparent">
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-2xl font-serif font-semibold mb-3">
-                Get More Visibility in {data.city.name}
+                {formatTemplate(tx["guides.getFeaturedInCity"], "Get Featured in {{city}}", {
+                  city: data.city.name,
+                })}
               </h2>
               <p className="text-muted-foreground mb-6">
-                Stand out from the competition. Upgrade your listing to reach more customers searching for {getCategoryDisplayName(canonical, locale).toLowerCase()} in {data.city.name}.
+                {formatTemplate(
+                  tx["guides.standOutInCity"],
+                  "Stand out to visitors researching {{category}} in {{city}}.",
+                  {
+                    category: getCategoryDisplayName(canonical, locale).toLowerCase(),
+                    city: data.city.name,
+                  },
+                )}
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <LocaleLink 
                   href={`/partner?category=${canonical}&city=${citySlug}&type=upgrade`}
                   className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
                 >
-                  Upgrade Your Listing
+                  {tx["guides.upgradeYourListing"] ?? "Upgrade Your Listing"}
                 </LocaleLink>
                 <LocaleLink 
                   href={`/partner`}
                   className="inline-flex items-center justify-center rounded-full border border-primary px-6 py-3 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
                 >
-                  Get Featured
+                  {tx["guides.getFeatured"] ?? "Get Featured"}
                 </LocaleLink>
               </div>
             </div>
@@ -456,17 +499,31 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
         <section className="app-container py-8 border-t border-border bg-muted/30">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-2xl font-serif font-semibold mb-4">
-              Find the best {getCategoryDisplayName(canonical, locale)} in {data.city.name}
+              {formatTemplate(
+                tx["guides.findBestInCity"],
+                "Find the best {{category}} in {{city}}",
+                {
+                  category: getCategoryDisplayName(canonical, locale),
+                  city: data.city.name,
+                },
+              )}
             </h2>
             <p className="text-muted-foreground mb-6">
-              Discover curated listings for {getCategoryDisplayName(canonical, locale).toLowerCase()} in {data.city.name}. From local favorites to premium experiences.
+              {formatTemplate(
+                tx["guides.discoverCuratedInCity"],
+                "Discover curated listings for {{category}} in {{city}}. From local favorites to premium experiences.",
+                {
+                  category: getCategoryDisplayName(canonical, locale).toLowerCase(),
+                  city: data.city.name,
+                },
+              )}
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <LocaleLink 
                 href={`/partner`}
                 className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
               >
-                List Your Business
+                {tx["guides.listYourBusiness"] ?? "List Your Business"}
               </LocaleLink>
             </div>
           </div>

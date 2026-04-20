@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { StarRating } from "@/components/ui/star-rating";
 import { ReviewForm } from "./ReviewForm";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 
 export interface Review {
   id: string;
@@ -61,6 +62,7 @@ interface ReviewSectionProps {
 }
 
 export function ReviewSection({ listingId }: ReviewSectionProps) {
+  const { t } = useTranslation();
   const [reviews, setReviews] = useState<Review[]>(mockReviews);
   const [showAll, setShowAll] = useState(false);
   const [sortBy, setSortBy] = useState<"recent" | "helpful">("recent");
@@ -125,16 +127,16 @@ export function ReviewSection({ listingId }: ReviewSectionProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-serif font-medium">Reviews & Ratings</h2>
+        <h2 className="text-xl font-serif font-medium">{t("reviews.ratingsTitle")}</h2>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Sort by:</span>
+          <span className="text-sm text-muted-foreground">{t("reviews.sortBy")}:</span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as "recent" | "helpful")}
             className="text-sm bg-transparent border border-border rounded px-2 py-1"
           >
-            <option value="recent">Most Recent</option>
-            <option value="helpful">Most Helpful</option>
+            <option value="recent">{t("reviews.mostRecent")}</option>
+            <option value="helpful">{t("reviews.mostHelpful")}</option>
           </select>
         </div>
       </div>
@@ -145,7 +147,7 @@ export function ReviewSection({ listingId }: ReviewSectionProps) {
           <span className="text-4xl font-bold">{stats.average.toFixed(1)}</span>
           <StarRating rating={stats.average} size="lg" />
           <span className="text-sm text-muted-foreground mt-1">
-            {stats.total} {stats.total === 1 ? "review" : "reviews"}
+            {stats.total} {stats.total === 1 ? t("reviews.countOne") : t("reviews.countOther")}
           </span>
         </div>
         <div className="flex-1 space-y-2">
@@ -216,7 +218,7 @@ export function ReviewSection({ listingId }: ReviewSectionProps) {
                 className="text-muted-foreground hover:text-foreground"
               >
                 <ThumbsUp className={`h-4 w-4 mr-2 ${helpedReviews.has(review.id) ? "fill-primary text-primary" : ""}`} />
-                Helpful ({review.helpful_votes})
+                {t("reviews.helpful")} ({review.helpful_votes})
               </Button>
             </div>
           </div>
@@ -233,12 +235,12 @@ export function ReviewSection({ listingId }: ReviewSectionProps) {
           {showAll ? (
             <>
               <ChevronUp className="h-4 w-4 mr-2" />
-              Show Less
+              {t("reviews.showLess")}
             </>
           ) : (
             <>
               <ChevronDown className="h-4 w-4 mr-2" />
-              Show All {reviews.length} Reviews
+              {t("reviews.showAll")} {reviews.length} {t("reviews.countOther")}
             </>
           )}
         </Button>

@@ -4,6 +4,7 @@ import { m } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface PartnerHeroProps {
   title: string;
@@ -12,6 +13,8 @@ interface PartnerHeroProps {
 }
 
 export function PartnerHero({ title, subtitle, onApply }: PartnerHeroProps) {
+  const { t } = useTranslation();
+
   const scrollToPricing = () => {
     document.getElementById("pricing-section")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -29,7 +32,7 @@ export function PartnerHero({ title, subtitle, onApply }: PartnerHeroProps) {
           className="space-y-7"
         >
           <Badge variant="gold" className="mb-2 text-[11px] tracking-[0.18em] uppercase px-4 py-1.5">
-            Partner Programme
+            {t("partner.hero.badge")}
           </Badge>
 
           <h1 className="text-hero text-foreground max-w-4xl mx-auto">
@@ -41,7 +44,7 @@ export function PartnerHero({ title, subtitle, onApply }: PartnerHeroProps) {
           </p>
 
           <p className="text-sm text-muted-foreground/60 tracking-wide">
-            ✓ No long-term contract &nbsp;·&nbsp; ✓ 2–3 day review &nbsp;·&nbsp; ✓ Go live immediately
+            {t("partner.hero.trustLine")}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
@@ -51,7 +54,7 @@ export function PartnerHero({ title, subtitle, onApply }: PartnerHeroProps) {
               onClick={onApply}
               className="min-w-[220px] shadow-xl"
             >
-              Apply for Partnership
+              {t("partner.hero.applyForPartnership")}
             </Button>
             <Button
               variant="outline"
@@ -59,7 +62,7 @@ export function PartnerHero({ title, subtitle, onApply }: PartnerHeroProps) {
               onClick={scrollToPricing}
               className="min-w-[160px]"
             >
-              View Pricing
+              {t("partner.hero.viewPricing")}
             </Button>
           </div>
         </m.div>

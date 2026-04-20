@@ -528,7 +528,7 @@ function ListingDetailClientInner({
     ? normalizeExternalUrl(listing.telegram_url)
     : null;
   const directContactUrl = directWhatsAppUrl ?? directTelegramUrl;
-  const directContactLabel = directWhatsAppUrl ? t("listing.messageWhatsApp") : "Telegram";
+  const directContactLabel = directWhatsAppUrl ? t("listing.messageWhatsApp") : t("listing.social.telegram");
   const ctaUrl = tierRules.allowCtaButton
     ? (
       normalizeExternalUrl(listing.website_url)
@@ -772,7 +772,7 @@ function ListingDetailClientInner({
       <Header localeSwitchPaths={localeSwitchPaths} />
 
       <main className="flex-1 pt-[10px] pb-24 lg:pb-0">
-        <nav className="bg-card border-b border-border" aria-label="Breadcrumb">
+        <nav className="bg-card border-b border-border" aria-label={t("guides.breadcrumbLabel")}>
           <div className="container mx-auto max-w-7xl px-4 py-3">
             <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
               {visualBreadcrumbs.map((crumb, index) => (
@@ -1000,10 +1000,14 @@ function ListingDetailClientInner({
                     <MapPin className="h-4 w-4" />
                     {cityRouteData ? (
                       <LocaleLink href={cityRouteData} className="hover:text-primary transition-colors">
-                        {listing.city?.name}, Algarve, Portugal
+                        {listing.city?.name}
+                        {t("common.algarvePortugalSuffix")}
                       </LocaleLink>
                     ) : (
-                      <span>{listing.city?.name}, Algarve, Portugal</span>
+                      <span>
+                        {listing.city?.name}
+                        {t("common.algarvePortugalSuffix")}
+                      </span>
                     )}
                   </div>
 
@@ -1117,7 +1121,7 @@ function ListingDetailClientInner({
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-2.5 rounded-lg bg-muted hover:bg-pink-500/20 transition-all duration-200 hover:scale-110"
-                        title="Instagram"
+                        title={t("listing.social.instagram")}
                       >
                         <Instagram className="h-5 w-5 text-[#E1306C]" />
                       </a>
@@ -1128,7 +1132,7 @@ function ListingDetailClientInner({
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-2.5 rounded-lg bg-muted hover:bg-blue-500/20 transition-all duration-200 hover:scale-110"
-                        title="Facebook"
+                        title={t("listing.social.facebook")}
                       >
                         <Facebook className="h-5 w-5 text-[#1877F2]" />
                       </a>
@@ -1139,7 +1143,7 @@ function ListingDetailClientInner({
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-2.5 rounded-lg bg-muted transition-all duration-200 hover:scale-110"
-                        title="Google Business"
+                        title={t("listing.social.googleBusiness")}
                       >
                         <GoogleIcon className="h-5 w-5" />
                       </a>
@@ -1224,10 +1228,10 @@ function ListingDetailClientInner({
           <section className="py-16 lg:py-24 bg-card border-t border-border">
             <div className="app-container content-max">
               <h2 className="text-title font-serif font-medium text-foreground text-center mb-2">
-                Explore More Destinations
+                {t("listing.relatedDestinations")}
               </h2>
               <p className="text-body text-muted-foreground text-center mb-10">
-                Discover other prestigious regions across the Algarve
+                {t("listing.relatedDestinationsDescription")}
               </p>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {initialOtherRegions.map((r) => {
