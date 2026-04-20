@@ -63,6 +63,10 @@ import {
 } from "@/lib/maintenance";
 import { normalizePublicImageUrl, resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import {
+  normalizeGaMeasurementId,
+  resolveGaMeasurementId,
+} from "@/lib/analytics/ga-config";
 
 export default function AdminGlobalSettings() {
   const l = useLocalePath();
@@ -419,7 +423,7 @@ export default function AdminGlobalSettings() {
       setIpWhitelist(siteSettings.maintenance_ip_whitelist ?? []);
       setLogoUrl(siteSettings.logo_url ?? null);
       setFaviconUrl(siteSettings.favicon_url ?? null);
-      setGaMeasurementId(siteSettings.ga_measurement_id ?? "");
+      setGaMeasurementId(resolveGaMeasurementId(siteSettings.ga_measurement_id));
       setGaDashboardUrl(siteSettings.ga_dashboard_url ?? "");
     }
   }, [siteSettings]);
@@ -647,7 +651,7 @@ export default function AdminGlobalSettings() {
         maintenance_ip_whitelist: ipWhitelist,
         logo_url: logoUrl,
         favicon_url: faviconUrl,
-        ga_measurement_id: gaMeasurementId,
+        ga_measurement_id: normalizeGaMeasurementId(gaMeasurementId),
         ga_dashboard_url: gaDashboardUrl,
       });
 

@@ -113,7 +113,14 @@ export async function changePlan(
     };
   }
 
-  const stripeSub = await stripe.subscriptions.retrieve(sub.stripe_subscription_id);
+  let stripeSub: Awaited<ReturnType<typeof stripe.subscriptions.retrieve>>;
+  try {
+    stripeSub = await stripe.subscriptions.retrieve(sub.stripe_subscription_id);
+  } catch (err) {
+    const msg = (err as { message?: string })?.message ?? "Failed to retrieve subscription.";
+    return { ok: false, error: "NO_SUBSCRIPTION", message: msg };
+  }
+
   const itemId = stripeSub.items.data[0]?.id;
   if (!itemId) {
     return { ok: false, error: "NOT_RECURRING", message: "Subscription has no items." };
@@ -121,23 +128,28 @@ export async function changePlan(
 
   const upgrade = isUpgrade(currentTier, currentPlanType, req.targetTier, targetPlanType);
 
-  if (upgrade) {
-    // Immediate, with proration. Stripe charges the prorated difference now.
+  try {
+    if (upgrade) {
+      // Immediate, with proration. Stripe charges the prorated difference now.
+      await stripe.subscriptions.update(sub.stripe_subscription_id, {
+        items: [{ id: itemId, price: newPriceId }],
+        proration_behavior: "create_prorations",
+        payment_behavior: "error_if_incomplete",
+      });
+      return { ok: true, immediate: true };
+    }
+
+    // Downgrade: deferred to next period boundary. No proration. The current
+    // item is replaced but anchored to the existing billing cycle, so the
+    // customer keeps the current (higher) tier until the natural period rollover.
     await stripe.subscriptions.update(sub.stripe_subscription_id, {
       items: [{ id: itemId, price: newPriceId }],
-      proration_behavior: "create_prorations",
-      payment_behavior: "error_if_incomplete",
+      proration_behavior: "none",
+      billing_cycle_anchor: "unchanged",
     });
-    return { ok: true, immediate: true };
+    return { ok: true, immediate: false };
+  } catch (err) {
+    const msg = (err as { message?: string })?.message ?? "Failed to update subscription.";
+    return { ok: false, error: "NO_SUBSCRIPTION", message: msg };
   }
-
-  // Downgrade: deferred to next period boundary. No proration. The current
-  // item is replaced but anchored to the existing billing cycle, so the
-  // customer keeps the current (higher) tier until the natural period rollover.
-  await stripe.subscriptions.update(sub.stripe_subscription_id, {
-    items: [{ id: itemId, price: newPriceId }],
-    proration_behavior: "none",
-    billing_cycle_anchor: "unchanged",
-  });
-  return { ok: true, immediate: false };
 }

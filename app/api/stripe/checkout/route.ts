@@ -84,7 +84,8 @@ export async function POST(request: NextRequest) {
   }
 
   const pricing = pricingRows[0];
-  if (!pricing.stripe_price_id) {
+  const stripePriceId = pricing.stripe_price_id;
+  if (!stripePriceId) {
     return NextResponse.json({ error: "Pricing configuration error." }, { status: 500 });
   }
 
@@ -107,25 +108,41 @@ export async function POST(request: NextRequest) {
     billing_period: billingPeriod,
   };
 
+  const buildSessionParams = (customerId: string | null) => ({
+    mode: "subscription" as const,
+    ...(customerId
+      ? { customer: customerId }
+      : { customer_email: auth.email ?? undefined }),
+    client_reference_id: auth.userId,
+    line_items: [{ price: stripePriceId, quantity: 1 }],
+    // Propagate metadata to the subscription object so webhook handlers can
+    // resolve owner_id from sub.metadata without a DB fallback.
+    subscription_data: { metadata: sessionMeta },
+    success_url: `${resolveSiteUrl(request)}/owner/membership?success=1`,
+    cancel_url: `${resolveSiteUrl(request)}/owner/membership?canceled=1`,
+    metadata: sessionMeta,
+  });
+
   let session;
   try {
-    session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      ...(existingCustomerId
-        ? { customer: existingCustomerId }
-        : { customer_email: auth.email ?? undefined }),
-      client_reference_id: auth.userId,
-      line_items: [{ price: pricing.stripe_price_id, quantity: 1 }],
-      // Propagate metadata to the subscription object so webhook handlers can
-      // resolve owner_id from sub.metadata without a DB fallback.
-      subscription_data: { metadata: sessionMeta },
-      success_url: `${resolveSiteUrl(request)}/owner/membership?success=1`,
-      cancel_url: `${resolveSiteUrl(request)}/owner/membership?canceled=1`,
-      metadata: sessionMeta,
-    });
+    session = await stripe.checkout.sessions.create(buildSessionParams(existingCustomerId));
   } catch (err) {
-    console.error("[checkout] Stripe session create failed:", err);
-    return NextResponse.json({ error: "Failed to create checkout session." }, { status: 502 });
+    // Stale customer ID (e.g. test→live mode switch): retry without it.
+    const stripeErr = err as { code?: string; message?: string };
+    if (existingCustomerId && stripeErr?.code === "resource_missing") {
+      console.warn("[checkout] Stale customer ID, retrying without it:", existingCustomerId);
+      try {
+        session = await stripe.checkout.sessions.create(buildSessionParams(null));
+      } catch (retryErr) {
+        console.error("[checkout] Stripe session create failed (retry):", retryErr);
+        const msg = (retryErr as { message?: string })?.message ?? "Failed to create checkout session.";
+        return NextResponse.json({ error: msg }, { status: 502 });
+      }
+    } else {
+      console.error("[checkout] Stripe session create failed:", err);
+      const msg = stripeErr?.message ?? "Failed to create checkout session.";
+      return NextResponse.json({ error: msg }, { status: 502 });
+    }
   }
 
   return NextResponse.json({ url: session.url });

@@ -8,10 +8,12 @@ import { Analytics } from "@vercel/analytics/next";
 import "../index.css";
 import { AppLazyMotion } from "@/components/providers/AppLazyMotion";
 import { RootProviders } from "@/components/providers/RootProviders";
+import { resolveGaMeasurementId } from "@/lib/analytics/ga-config";
 import { toHtmlLang } from "@/lib/i18n/config";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { buildMetadata } from "@/lib/metadata";
 import { buildOrganizationSchema, buildWebsiteSchema } from "@/lib/seo/schemaBuilders.js";
+import { createPublicServerClient } from "@/lib/supabase/public-server";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -56,6 +58,25 @@ const themeInitScript = `
   })();
 `;
 
+async function getGoogleTagId(): Promise<string> {
+  try {
+    const supabase = createPublicServerClient();
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("ga_measurement_id")
+      .eq("id", "default")
+      .maybeSingle();
+
+    if (error) {
+      return resolveGaMeasurementId(null);
+    }
+
+    return resolveGaMeasurementId(data?.ga_measurement_id);
+  } catch {
+    return resolveGaMeasurementId(null);
+  }
+}
+
 export const metadata: Metadata = {
   ...buildMetadata({
     title: "AlgarveOfficial | Luxury Villas, Golf & Restaurants",
@@ -71,12 +92,27 @@ interface RootLayoutProps {
 }
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-  const locale = await getRequestLocale();
+  const [locale, googleTagId] = await Promise.all([
+    getRequestLocale(),
+    getGoogleTagId(),
+  ]);
   const htmlLang = toHtmlLang(locale);
 
   return (
     <html lang={htmlLang} data-locale={locale} suppressHydrationWarning className={fontVariables}>
       <body className={fontVariables}>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${googleTagId}`}
+          strategy="beforeInteractive"
+        />
+        <Script id="google-tag-init" strategy="beforeInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${googleTagId}');
+          `}
+        </Script>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}

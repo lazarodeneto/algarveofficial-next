@@ -3,6 +3,8 @@ import { Activity, Clock3, Eye, Users } from "lucide-react";
 import { AnalyticsCard } from "@/components/admin/analytics/AnalyticsCard";
 import { AnalyticsChart } from "@/components/admin/analytics/AnalyticsChart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { resolveGaMeasurementId } from "@/lib/analytics/ga-config";
 
 type Props = {
   loading?: boolean;
@@ -28,6 +30,8 @@ function formatDuration(seconds: number): string {
 }
 
 export function AnalyticsOverviewSection({ loading = false, data }: Props) {
+  const { settings } = useSiteSettings();
+  const gaMeasurementId = resolveGaMeasurementId(settings?.ga_measurement_id);
   const showBlankState = !data.isGaConnected;
 
   return (
@@ -75,7 +79,7 @@ export function AnalyticsOverviewSection({ loading = false, data }: Props) {
         {data.isGaConnected ? (
           <CardContent>
             <div className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
-              Source: GA
+              Source: {gaMeasurementId}
             </div>
           </CardContent>
         ) : null}
