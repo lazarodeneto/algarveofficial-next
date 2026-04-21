@@ -197,6 +197,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
+                  aria-label={t("nav.saved")}
                 >
                   <Heart className="h-4 w-4" />
                   <span className="sr-only">{t("nav.saved")}</span>
@@ -208,6 +209,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                 size="icon"
                 className="h-8 w-8 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
                 onClick={() => setSearchOpen(true)}
+                aria-label={t("nav.search")}
               >
                 <Search className="h-4 w-4" />
                 <span className="sr-only">{t("nav.search")}</span>
@@ -226,6 +228,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                     variant="ghost"
                     size="icon"
                     className={`h-8 w-8 transition-colors ${accountInitialButtonClass}`}
+                    aria-label={t("nav.account")}
                   >
                     <span className="text-xs font-semibold leading-none">{userInitial}</span>
                     <span className="sr-only">{t("nav.account")}</span>
@@ -237,6 +240,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                     variant="ghost"
                     size="icon"
                     className={`h-8 w-8 transition-colors ${accountAccentButtonClass}`}
+                    aria-label={t("nav.account")}
                   >
                     <User className="h-4 w-4" />
                     <span className="sr-only">{t("nav.account")}</span>
@@ -254,6 +258,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                     variant="ghost"
                     size="icon"
                     className="h-9 w-9 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
+                    aria-label={t("nav.saved")}
                   >
                     <Heart className="h-4.5 w-4.5" />
                     <span className="sr-only">{t("nav.saved")}</span>
@@ -265,6 +270,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                   size="icon"
                   className="h-9 w-9 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
                   onClick={() => setSearchOpen(true)}
+                  aria-label={t("nav.search")}
                 >
                   <Search className="h-4.5 w-4.5" />
                   <span className="sr-only">{t("nav.search")}</span>
@@ -295,6 +301,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                         variant="ghost"
                         size="icon"
                         className={`h-9 w-9 transition-colors ${accountInitialButtonClass}`}
+                        aria-label={t("nav.account")}
                       >
                         <span className="text-sm font-semibold leading-none">{userInitial}</span>
                         <span className="sr-only">{t("nav.account")}</span>
@@ -307,6 +314,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                       variant="ghost"
                       size="icon"
                       className={`h-9 w-9 transition-colors ${accountAccentButtonClass}`}
+                      aria-label={t("nav.account")}
                     >
                       <User className="h-4.5 w-4.5" />
                       <span className="sr-only">{t("nav.account")}</span>
@@ -334,7 +342,12 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
             {/* Mobile menu button */}
             <div className="lg:hidden ml-auto flex items-center gap-1 sm:gap-3">
               <Link href={favoritesPath}>
-                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full border border-black/10 bg-white/80 text-foreground shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10 dark:text-white/85">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 rounded-full border border-black/10 bg-white/80 text-foreground shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10 dark:text-white/85"
+                  aria-label={t("nav.saved")}
+                >
                   <Heart className="h-5 w-5 sm:h-5 sm:w-5" />
                 </Button>
               </Link>

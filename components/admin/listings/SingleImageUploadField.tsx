@@ -84,6 +84,7 @@ export function SingleImageUploadField({
                             className="h-8 w-8"
                             onClick={handleRemove}
                             disabled={disabled}
+                            aria-label="Remove image"
                         >
                             <X className="h-4 w-4" />
                         </Button>

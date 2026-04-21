@@ -66,6 +66,7 @@ export function FavoriteButton({
         variant="ghost"
         size="icon"
         onClick={handleClick}
+        aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
         className={cn(
           sizeClasses[size],
           variantClasses[variant],

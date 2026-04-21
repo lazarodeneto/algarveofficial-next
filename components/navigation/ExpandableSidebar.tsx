@@ -494,6 +494,7 @@ export function ExpandableSidebar({
               size="icon"
               className="hidden lg:flex h-7 w-7 text-muted-foreground hover:text-foreground"
               onClick={onToggle}
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
             </Button>
@@ -541,6 +542,7 @@ export function ExpandableSidebar({
             size="icon"
             className={cn(`${mobileVisibilityClass} fixed top-4 left-4 z-50 bg-card border border-border`, mobileToggleClassName)}
             onClick={() => setMobileOpen((prev) => !prev)}
+            aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>

@@ -329,6 +329,7 @@ function MessageItem({ message, onDelete }: { message: ChatMessage; onDelete: ()
           size="icon"
           className="h-6 w-6 text-muted-foreground hover:text-destructive"
           onClick={onDelete}
+          aria-label="Delete message"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </Button>

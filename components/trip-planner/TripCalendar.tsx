@@ -84,10 +84,10 @@ export function TripCalendar({ trip, view, onAddEvent, onEditEvent, onDeleteEven
       {/* Calendar Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={goPrev}>
+          <Button variant="outline" size="icon" onClick={goPrev} aria-label="Previous period">
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={goNext}>
+          <Button variant="outline" size="icon" onClick={goNext} aria-label="Next period">
             <ChevronRight className="h-4 w-4" />
           </Button>
           <Button variant="ghost" size="sm" onClick={goToToday}>
@@ -165,6 +165,7 @@ export function TripCalendar({ trip, view, onAddEvent, onEditEvent, onDeleteEven
                       variant="ghost" 
                       size="icon" 
                       className="h-8 w-8"
+                      aria-label="Add activity"
                       onClick={(e) => {
                         e.stopPropagation();
                         onAddEvent(format(day, 'yyyy-MM-dd'));
@@ -233,6 +234,7 @@ export function TripCalendar({ trip, view, onAddEvent, onEditEvent, onDeleteEven
                                   variant="ghost"
                                   size="icon"
                                   className="h-6 w-6"
+                                  aria-label="Edit activity"
                                   onClick={() => onEditEvent(event)}
                                 >
                                   <Edit2 className="h-3 w-3" />
@@ -241,6 +243,7 @@ export function TripCalendar({ trip, view, onAddEvent, onEditEvent, onDeleteEven
                                   variant="ghost"
                                   size="icon"
                                   className="h-6 w-6 text-destructive hover:text-destructive"
+                                  aria-label="Delete activity"
                                   onClick={() => onDeleteEvent(event.id)}
                                 >
                                   <Trash2 className="h-3 w-3" />

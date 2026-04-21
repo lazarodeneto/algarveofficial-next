@@ -1,5 +1,5 @@
-import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 
 import type { Database } from "@/integrations/supabase/types";
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES, type AppLocale } from "@/lib/i18n/locales";
@@ -27,22 +27,22 @@ type MaintenanceSettingsRow = {
 
 let maintenanceSettingsCache:
   | {
-      fetchedAt: number;
-      settings: MaintenanceSettingsRow | null;
-    }
+    fetchedAt: number;
+    settings: MaintenanceSettingsRow | null;
+  }
   | null = null;
 
 function isStaticAsset(pathname: string): boolean {
   const normalized = pathname.startsWith("/") ? pathname : `/${pathname}`;
-  
+
   if (normalized.startsWith("/_next/")) return true;
   if (normalized.startsWith("/api/")) return true;
   if (normalized.startsWith("/images/")) return true;
   if (normalized.startsWith("/icons/")) return true;
   if (normalized.startsWith("/videos/")) return true;
-  
+
   if (/\.[a-z0-9]+$/i.test(normalized)) return true;
-  
+
   return false;
 }
 
@@ -139,7 +139,7 @@ async function fetchMaintenanceSettings(): Promise<MaintenanceSettingsRow | null
       return maintenanceSettingsCache.settings;
     }
 
-    console.error("[middleware] failed to fetch maintenance settings", error);
+    console.error("[proxy] failed to fetch maintenance settings", error);
     return null;
   }
 }
@@ -207,11 +207,42 @@ function nextWithRequestLocale(request: NextRequest, locale: AppLocale) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set(REQUEST_LOCALE_HEADER_NAME, locale);
 
-  return NextResponse.next({
+  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+
+  const isDev = process.env.NODE_ENV === "development";
+
+  const csp = `
+  default-src 'self';
+  script-src 'self' 'nonce-${nonce}' 'strict-dynamic'
+    https://www.googletagmanager.com
+    https://www.google-analytics.com
+    https://js.stripe.com
+    ${isDev ? "'unsafe-eval'" : ""};
+  style-src 'self' 'nonce-${nonce}';
+  img-src 'self' data: blob: https:;
+  font-src 'self' https:;
+  connect-src 'self'
+    https://www.google-analytics.com
+    https://api.stripe.com;
+  frame-src https://js.stripe.com;
+  object-src 'none';
+  base-uri 'self';
+  form-action 'self';
+  frame-ancestors 'none';
+  upgrade-insecure-requests;
+`.replace(/\n/g, "");
+
+  requestHeaders.set("x-nonce", nonce);
+
+  const response = NextResponse.next({
     request: {
       headers: requestHeaders,
     },
   });
+
+  response.headers.set("Content-Security-Policy", csp);
+
+  return response;
 }
 
 function rewriteWithRequestLocale(
@@ -243,7 +274,7 @@ function withLocalePrefix(pathname: string, locale: AppLocale) {
   return `/${locale}${normalized}`;
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const normalizedPathname = normalizePathname(pathname);
   const strippedPathname = stripLocalePrefix(normalizedPathname);

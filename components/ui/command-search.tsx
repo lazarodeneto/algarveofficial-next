@@ -233,6 +233,7 @@ export function SearchTrigger({ onClick }: { onClick: () => void }) {
       size="icon"
       onClick={onClick}
       className="text-muted-foreground hover:text-foreground"
+      aria-label={t("common.search")}
     >
       <Search className="h-5 w-5" />
       <span className="sr-only">{t("common.search")}</span>

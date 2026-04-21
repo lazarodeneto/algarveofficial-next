@@ -58,7 +58,13 @@ export function UserHeader() {
           </Button>
 
           {/* Favorites Quick Access */}
-          <Button variant="ghost" size="icon" asChild className="relative text-muted-foreground hover:text-foreground group">
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            aria-label={t("nav.saved")}
+            className="relative text-muted-foreground hover:text-foreground group"
+          >
             <Link href={l("/dashboard/favorites")}>
               <Heart className="h-5 w-5 transition-colors group-hover:text-foreground" />
               {favoritesCount > 0 && (
@@ -70,7 +76,13 @@ export function UserHeader() {
           </Button>
 
           {/* Notifications - links to messages */}
-          <Button variant="ghost" size="icon" asChild className="relative text-muted-foreground hover:text-foreground group">
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            aria-label={t("nav.messages")}
+            className="relative text-muted-foreground hover:text-foreground group"
+          >
             <Link href={l("/dashboard/messages")}>
               <Bell className="h-5 w-5 transition-colors group-hover:text-foreground" />
               {unreadCount > 0 && (

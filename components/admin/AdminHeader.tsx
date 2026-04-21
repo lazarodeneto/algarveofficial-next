@@ -188,13 +188,25 @@ export function AdminHeader() {
             ))}
           </div>
 
-          <Button variant="ghost" size="icon" asChild className="hidden h-9 w-9 text-muted-foreground hover:text-foreground group xl:inline-flex">
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            aria-label={t("nav.home")}
+            className="hidden h-9 w-9 text-muted-foreground hover:text-foreground group xl:inline-flex"
+          >
             <Link href={l("/")}>
               <Home className="h-5 w-5 transition-colors group-hover:text-foreground" />
             </Link>
           </Button>
 
-          <Button variant="ghost" size="icon" asChild className="relative h-9 w-9 text-muted-foreground hover:text-foreground group">
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            aria-label={t("admin.sidebar.moderationQueue")}
+            className="relative h-9 w-9 text-muted-foreground hover:text-foreground group"
+          >
             <Link href={notificationTarget}>
               <Bell className="h-5 w-5 transition-colors group-hover:text-foreground" />
               {totalNotifications > 0 && (
@@ -205,7 +217,13 @@ export function AdminHeader() {
             </Link>
           </Button>
 
-          <Button variant="ghost" size="icon" asChild className="relative h-9 w-9 text-muted-foreground hover:text-foreground group">
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            aria-label={t("nav.messages")}
+            className="relative h-9 w-9 text-muted-foreground hover:text-foreground group"
+          >
             <Link href={l("/admin/messages")}>
               <MessageSquare className="h-5 w-5 transition-colors group-hover:text-foreground" />
               {unreadMessagesCount > 0 && (

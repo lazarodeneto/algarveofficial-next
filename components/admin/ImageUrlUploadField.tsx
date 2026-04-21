@@ -134,6 +134,7 @@ export function ImageUrlUploadField({
             className="h-8 w-8 text-destructive"
             onClick={() => onChange("")}
             disabled={disabled || isUploading}
+            aria-label="Clear image URL"
           >
             <X className="h-4 w-4" />
           </Button>

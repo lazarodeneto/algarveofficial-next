@@ -170,14 +170,20 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                     </div>
 
                     <div className="absolute top-6 right-6">
-                        <Button size="icon" variant="ghost" className={cn(
-                            "rounded-full backdrop-blur-md border transition-all duration-300",
-                            isPremium 
-                                ? "bg-[#C7A35A]/20 hover:bg-[#C7A35A] hover:text-black text-white border-white/20 hover:border-[#C7A35A]" 
-                                : "bg-black/20 hover:bg-black/40 text-white border-white/10"
-                        )} onClick={(e) => {
-                            e.preventDefault();
-                        }}>
+                        <Button
+                            size="icon"
+                            variant="ghost"
+                            className={cn(
+                                "rounded-full backdrop-blur-md border transition-all duration-300",
+                                isPremium
+                                    ? "bg-[#C7A35A]/20 hover:bg-[#C7A35A] hover:text-black text-white border-white/20 hover:border-[#C7A35A]"
+                                    : "bg-black/20 hover:bg-black/40 text-white border-white/10"
+                            )}
+                            aria-label={t("listing.saveToFavorites")}
+                            onClick={(e) => {
+                                e.preventDefault();
+                            }}
+                        >
                             <Heart className="w-5 h-5 group-hover/fav:fill-current transition-all" />
                         </Button>
                     </div>

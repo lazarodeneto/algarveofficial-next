@@ -76,7 +76,13 @@ export function OwnerHeader() {
           </Button>
 
           {/* Notifications - links to messages page */}
-          <Button variant="ghost" size="icon" asChild className="relative text-muted-foreground hover:text-foreground group">
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            aria-label={t("nav.messages")}
+            className="relative text-muted-foreground hover:text-foreground group"
+          >
             <Link href={l("/owner/messages")}>
               <Bell className="h-5 w-5 transition-colors group-hover:text-foreground" />
               {totalNotifications > 0 && (

@@ -222,6 +222,7 @@ export function ImageUploader({
                     className="h-8 w-8 text-white hover:text-primary hover:bg-white/20"
                     onClick={() => setFeatured(image.id)}
                     title="Set as featured"
+                    aria-label="Set as featured image"
                   >
                     <Star
                       className={cn(
@@ -237,6 +238,7 @@ export function ImageUploader({
                     className="h-8 w-8 text-white hover:text-destructive hover:bg-white/20"
                     onClick={() => removeImage(image.id)}
                     title="Remove image"
+                    aria-label="Remove image"
                   >
                     <X className="h-4 w-4" />
                   </Button>
