@@ -30,8 +30,14 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files — never commit these
 .env*
+.env.local
+.env.local.save
+.env.*.local
+
+# Claude Code local settings contain approved command history which may include secrets
+.claude/settings.local.json
 
 # vercel
 .vercel
