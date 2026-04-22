@@ -169,7 +169,7 @@ export function useHomepageSettings() {
 
   return {
     settings: isBrowser ? settings : null,
-    isLoading: isBrowser ? isLoading : false,
+    isLoading: !isBrowser || isLoading,
     error: isBrowser ? error : null,
     updateSettings: isBrowser ? updateSettings.mutate : noopUpdateSettings,
     updateSettingsAsync: isBrowser ? updateSettings.mutateAsync : noopUpdateSettingsAsync,

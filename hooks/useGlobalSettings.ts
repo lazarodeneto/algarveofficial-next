@@ -113,10 +113,13 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
     ? saveMutation.mutateAsync
     : async (): Promise<GlobalSetting[]> => [];
 
-  return {
-    settings: isBrowser ? query.data ?? EMPTY_GLOBAL_SETTINGS : EMPTY_GLOBAL_SETTINGS,
-    isLoading: isBrowser ? query.isLoading : false,
+return {
+    settings: isBrowser ? (query.data ?? []) : [],
+    isLoading: !isBrowser || query.isLoading || query.fetchStatus === "fetching",
     error: isBrowser ? query.error : null,
+    isFetching: isBrowser ? query.isFetching : false,
+    save: isBrowser ? saveMutation.mutate : saveSettingsAsync,
+    saveAsync: isBrowser ? saveMutation.mutateAsync : saveSettingsAsync,
     saveSettingsAsync,
     isSaving: isBrowser ? saveMutation.isPending : false,
   };
