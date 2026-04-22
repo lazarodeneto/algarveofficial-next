@@ -51,16 +51,16 @@ export function PricingCardsSection({
             transition={{ duration: 0.5 }}
             className="h-full"
           >
-            <div className="rounded-2xl p-8 h-full flex flex-col relative overflow-hidden bg-green-500/5 border-[2px] border-green-500/50 shadow-[0_0_32px_hsla(142,72%,40%,0.16)] hover:shadow-[0_0_48px_hsla(142,72%,40%,0.26)] hover:-translate-y-0.5 transition-all duration-300">
+            <div className="rounded-2xl p-6 sm:p-8 h-full flex flex-col relative overflow-hidden bg-green-500/5 border-[2px] border-green-500/50 shadow-[0_0_32px_hsla(142,72%,40%,0.16)] hover:shadow-[0_0_48px_hsla(142,72%,40%,0.26)] hover:-translate-y-0.5 transition-all duration-300">
 
               {/* Recommended badge */}
-              <div className="absolute top-4 right-4">
+              <div className="mb-4 flex justify-start sm:justify-end md:absolute md:right-4 md:top-4 md:mb-0">
                 <span className="inline-flex items-center rounded-full bg-green-500 text-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-green-600/20">
                   {t("pricingCards.recommended")}
                 </span>
               </div>
 
-              <div className="flex items-center gap-2 mb-6">
+              <div className="mb-6 flex items-center gap-2 md:pr-28">
                 <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0" />
                 <span className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
                   {t("pricingCards.verifiedPartner")}
@@ -108,17 +108,17 @@ export function PricingCardsSection({
             transition={{ duration: 0.5, delay: 0.08 }}
             className="h-full"
           >
-            <div className="glass-box rounded-2xl p-8 h-full flex flex-col relative overflow-hidden opacity-60 border-border/30 transition-all duration-300">
+            <div className="glass-box rounded-2xl p-6 sm:p-8 h-full flex flex-col relative overflow-hidden opacity-60 border-border/30 transition-all duration-300">
 
               {/* Invitation Only badge */}
-              <div className="absolute top-4 right-4">
+              <div className="mb-4 flex justify-start sm:justify-end md:absolute md:right-4 md:top-4 md:mb-0">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-muted border border-border/50 text-muted-foreground px-3 py-1 text-[10px] font-semibold uppercase tracking-widest">
                   <Lock className="w-2.5 h-2.5" />
                   {t("pricingCards.byInvitation")}
                 </span>
               </div>
 
-              <div className="flex items-center gap-2 mb-6">
+              <div className="mb-6 flex items-center gap-2 md:pr-36">
                 <Crown className="w-5 h-5 text-[#C7A35A]/60 shrink-0" />
                 <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                   {t("pricingCards.signaturePartner")}

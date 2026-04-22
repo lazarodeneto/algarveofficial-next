@@ -330,7 +330,7 @@ export function HeroSection() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(
     false,
   );
-  const { settings, hasLocaleTranslation, isLoading: isHeroSettingsLoading } = useHeroSettings();
+  const { settings, isLoading: isHeroSettingsLoading } = useHeroSettings();
   const { settings: runtimeSettings } = useGlobalSettings({
     keys: [HERO_OVERLAY_INTENSITY_SETTING_KEY],
   });
@@ -406,13 +406,12 @@ export function HeroSection() {
     50,
   );
   const overlayOpacity = overlayIntensity / 100;
-  const localizedHeroHeadline = `${t("hero.headline")} ${t("hero.headlineHighlight")}`;
+  const localizedHeroHeadline = `${t("hero.headline")} ${t("hero.headlineHighlight")}`.trim();
   const localizedHeroSubtitle = t("hero.subtitle");
-  const shouldForceLocalizedHeroCopy = locale !== "en" && !hasLocaleTranslation;
-  // Use locale-aware hero copy: non-English locales should never fall back to English CMS values.
-  const heroHeadline = shouldForceLocalizedHeroCopy
-    ? localizedHeroHeadline
-    : settings?.hero_title?.trim() ?? localizedHeroHeadline;
+  // Keep homepage CMS copy for English, but always use dictionary translations for non-English locales.
+  const heroHeadline = locale === "en"
+    ? settings?.hero_title?.trim() ?? localizedHeroHeadline
+    : localizedHeroHeadline;
   const heroHeadlineLines = useMemo(() => {
     const normalized = heroHeadline.replace(/\s+/g, " ").trim().toLowerCase();
     if (normalized === "discover the algarve through trusted local expertise") {
@@ -420,10 +419,13 @@ export function HeroSection() {
     }
     return [heroHeadline];
   }, [heroHeadline]);
-  const heroSubtitle = shouldForceLocalizedHeroCopy
-    ? localizedHeroSubtitle
-    : settings?.hero_subtitle?.trim() ?? localizedHeroSubtitle;
-  const tripPlannerButtonLabel = t("hero.planTripCta");
+  const heroSubtitle = locale === "en"
+    ? settings?.hero_subtitle?.trim() ?? localizedHeroSubtitle
+    : localizedHeroSubtitle;
+  const localizedTripPlannerButtonLabel = t("hero.planTripCta");
+  const tripPlannerButtonLabel = locale === "en"
+    ? settings?.hero_cta_primary_text?.trim() ?? localizedTripPlannerButtonLabel
+    : localizedTripPlannerButtonLabel;
   // ... inside the component function ...
 
   const mediaMode = useMemo<"youtube" | "video" | "poster" | "none" | "loading">(() => {

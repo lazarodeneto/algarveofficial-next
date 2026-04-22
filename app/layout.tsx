@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import type { ReactNode } from "react";
 import { DM_Sans, Playfair_Display, Archivo_Narrow } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -7,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next";
 
 import "../index.css";
 import { AppLazyMotion } from "@/components/providers/AppLazyMotion";
+import { ClientRuntimeScripts } from "@/components/providers/ClientRuntimeScripts";
 import { RootProviders } from "@/components/providers/RootProviders";
 import { resolveGaMeasurementId } from "@/lib/analytics/ga-config";
 import { toHtmlLang } from "@/lib/i18n/config";
@@ -43,20 +43,6 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim()?.replace(/\/+$/, "") ??
 const organizationSchema = buildOrganizationSchema(siteUrl);
 const websiteSchema = buildWebsiteSchema(siteUrl);
 const enableVercelTelemetry = process.env.NODE_ENV === "production";
-const themeInitScript = `
-  (() => {
-    try {
-      const storedTheme = localStorage.getItem('algarve-theme') || 'light';
-      const resolvedTheme =
-        storedTheme === 'system'
-      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-          : storedTheme;
-
-      document.documentElement.classList.remove('dark', 'light');
-      document.documentElement.classList.add(resolvedTheme);
-    } catch {}
-  })();
-`;
 
 async function getGoogleTagId(): Promise<string> {
   try {
@@ -101,18 +87,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang={htmlLang} data-locale={locale} suppressHydrationWarning className={fontVariables}>
       <body className={fontVariables}>
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${googleTagId}`}
-          strategy="afterInteractive"
-        />
-        <Script id="google-tag-init" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${googleTagId}');
-          `}
-        </Script>
+        <ClientRuntimeScripts googleTagId={googleTagId} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
@@ -121,9 +96,6 @@ export default async function RootLayout({ children }: RootLayoutProps) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
-        <Script id="theme-init" strategy="afterInteractive">
-          {themeInitScript}
-        </Script>
         <AppLazyMotion>
           <RootProviders>{children}</RootProviders>
         </AppLazyMotion>

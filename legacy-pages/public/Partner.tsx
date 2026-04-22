@@ -21,7 +21,6 @@ import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { normalizeExternalUrlForStorage } from "@/lib/url-input";
 
 import { PartnerHero } from "@/components/partner/PartnerHero";
-import { SocialProofBar } from "@/components/partner/SocialProofBar";
 import { ForWhomSection } from "@/components/partner/ForWhomSection";
 import { PricingFeaturesTable } from "@/components/partner/PricingFeaturesTable";
 import { HowItWorksSection } from "@/components/partner/HowItWorksSection";
@@ -214,16 +213,13 @@ const Partner = () => {
         onApply={() => scrollToForm()}
       />
 
-      {/* 2. Social proof bar */}
-      <SocialProofBar />
-
-      {/* 3. Who this is for */}
+      {/* 2. Who this is for */}
       <ForWhomSection />
 
-      {/* 4. Feature comparison table */}
+      {/* 3. Feature comparison table */}
       <PricingFeaturesTable verifiedPrice={verifiedPrice} />
 
-      {/* 5. Mid-page CTA */}
+      {/* 4. Mid-page CTA */}
       <section className="py-10 lg:py-12">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
           <Button
@@ -237,10 +233,10 @@ const Partner = () => {
         </div>
       </section>
 
-      {/* 6. How it works */}
+      {/* 5. How it works */}
       <HowItWorksSection />
 
-      {/* 7. Pricing cards */}
+      {/* 6. Pricing cards */}
       <PricingCardsSection
         verifiedPrice={verifiedPrice}
         signaturePrice={signaturePrice}
@@ -248,7 +244,7 @@ const Partner = () => {
         onExpressSignatureInterest={() => scrollToForm("new-listing")}
       />
 
-      {/* 8. FAQ */}
+      {/* 7. FAQ */}
       <section className="py-20 lg:py-24 bg-muted/30">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <m.div
@@ -281,13 +277,13 @@ const Partner = () => {
         </div>
       </section>
 
-      {/* 9. Final CTA */}
+      {/* 8. Final CTA */}
       <FinalCTASection
         onApplyFree={() => scrollToForm("new-listing")}
         onBuySubscription={scrollToPricing}
       />
 
-      {/* 10. Contact form */}
+      {/* 9. Contact form */}
       <section id="partner-form" className="py-20 lg:py-24 bg-card/50">
         <div className="mx-auto max-w-xl px-4 sm:px-6 lg:px-8">
           <m.div

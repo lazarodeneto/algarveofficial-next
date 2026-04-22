@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Suspense } from "react";
 import type { Locale } from "@/lib/i18n/config";
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/lib/i18n/config";
@@ -81,7 +80,7 @@ export default async function LocaleBlogPostPage({ params }: LocaleBlogPostPageP
 
   return (
     <>
-      <Script
+      <script
         id="schema-blog-article"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}

@@ -24,6 +24,7 @@ const ListingsLeafletMap = dynamic(() => import("@/components/map/ListingsLeafle
 });
 import { usePublishedListings, type ListingFilters, type ListingTier } from "@/hooks/useListings";
 import { useCategories, useCities, useRegions } from "@/hooks/useReferenceData";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { translateCategoryName } from "@/lib/translateCategory";
 import {
@@ -43,6 +44,7 @@ function isWithinAlgarveBounds(latitude: number, longitude: number): boolean {
 
 export default function MapExplorer() {
   const { t } = useTranslation();
+  const locale = useCurrentLocale();
   const l = useLocalePath();
   const { getText, isBlockEnabled } = useCmsPageBuilder("map");
   const router = useRouter();
@@ -204,6 +206,11 @@ export default function MapExplorer() {
     selectedCity !== "all" ||
     selectedCategory !== "all" ||
     selectedTier !== "all";
+  const localizedHeroTitle = t("map.title");
+  const localizedHeroSubtitle = t("map.subtitle");
+  const heroTitle = locale === "en" ? getText("hero.title", localizedHeroTitle) : localizedHeroTitle;
+  const heroSubtitle =
+    locale === "en" ? getText("hero.subtitle", localizedHeroSubtitle) : localizedHeroSubtitle;
 
   return (
     <div className="min-h-screen bg-background">
@@ -215,8 +222,8 @@ export default function MapExplorer() {
             <CmsBlock pageId="map" blockId="hero" as="section" className="pb-6 -mx-4 md:-mx-6 lg:mx-0">
               <LiveStyleHero
                 badge={getText("hero.badge", "Map Explorer")}
-                title={getText("hero.title", t("map.title"))}
-                subtitle={getText("hero.subtitle", t("map.subtitle"))}
+                title={heroTitle}
+                subtitle={heroSubtitle}
                 media={
                   <HeroBackgroundMedia
                     mediaType={getText("hero.mediaType", "image")}

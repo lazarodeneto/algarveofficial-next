@@ -170,43 +170,11 @@ function getPreferredLocale(request: NextRequest): AppLocale {
 function nextWithRequestLocale(request: NextRequest, locale: AppLocale) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set(REQUEST_LOCALE_HEADER_NAME, locale);
-
-  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
-
-  const isDev = process.env.NODE_ENV === "development";
-
-  const csp = `
-  default-src 'self';
-  script-src 'self' 'nonce-${nonce}' 'strict-dynamic'
-    https://www.googletagmanager.com
-    https://www.google-analytics.com
-    https://js.stripe.com
-    ${isDev ? "'unsafe-eval'" : ""};
-  style-src 'self' 'nonce-${nonce}';
-  img-src 'self' data: blob: https:;
-  font-src 'self' https:;
-  connect-src 'self'
-    https://www.google-analytics.com
-    https://api.stripe.com;
-  frame-src https://js.stripe.com;
-  object-src 'none';
-  base-uri 'self';
-  form-action 'self';
-  frame-ancestors 'none';
-  upgrade-insecure-requests;
-`.replace(/\n/g, "");
-
-  requestHeaders.set("x-nonce", nonce);
-
-  const response = NextResponse.next({
+  return NextResponse.next({
     request: {
       headers: requestHeaders,
     },
   });
-
-  response.headers.set("Content-Security-Policy", csp);
-
-  return response;
 }
 
 function rewriteWithRequestLocale(

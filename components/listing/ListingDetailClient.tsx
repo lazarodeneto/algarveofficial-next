@@ -608,6 +608,7 @@ function ListingDetailClientInner({
   const shouldShowMobileConciergeAction = !isSignatureOrVerifiedTier;
   const shouldShowMobileWhatsAppAction = isSignatureOrVerifiedTier && Boolean(directWhatsAppUrl);
   const shouldShowMobileWebsiteAction = isSignatureOrVerifiedTier && Boolean(ctaUrl);
+  const mobileActionBarBottomOffset = Math.max(mobileBottomNavHeight - 1, 0);
   const conciergeWhatsAppUrl = `https://wa.me/${toWhatsAppDigits(PRIMARY_WHATSAPP_NUMBER)}?text=${encodeURIComponent(CONCIERGE_DEFAULT_MESSAGE)}`;
 
   const handleMessageClick = () => {
@@ -1414,61 +1415,63 @@ function ListingDetailClientInner({
       {!mobileMenuOpen ? (
         <div
           className={cn(
-            "fixed z-40 border-t border-border bg-background/92 px-1.5 py-2.5 backdrop-blur-md transition-transform duration-200 ease-out lg:hidden",
+            "fixed z-40 border-t border-border bg-background/92 px-1.5 pt-2 pb-0 backdrop-blur-md transition-transform duration-200 ease-out lg:hidden",
             isUserScrolling && "translate-y-[calc(100%+var(--listing-mobile-actions-offset))]",
           )}
           style={{
-            bottom: `${mobileBottomNavHeight}px`,
+            bottom: `${mobileActionBarBottomOffset}px`,
             left: "max(env(safe-area-inset-left), 0.375rem)",
             right: "max(env(safe-area-inset-right), 0.375rem)",
             ["--listing-mobile-actions-offset" as string]: `${mobileBottomNavHeight}px`,
           }}
         >
-          <div className="flex w-full items-center gap-2">
-            {shouldShowMobileConciergeAction ? (
+          <div className="mx-auto flex w-full max-w-[34rem] items-center justify-center gap-2 py-1">
+            <div className="flex items-center justify-center gap-2 px-0.5">
+              {shouldShowMobileConciergeAction ? (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  asChild
+                  className="h-11 w-11 shrink-0 rounded-xl p-0 border-[hsl(43_74%_49%/0.35)] text-[hsl(43_74%_49%)] hover:border-[hsl(43_74%_49%/0.55)] hover:text-[hsl(43_74%_49%)] sm:h-12 sm:w-12"
+                >
+                  <a
+                    href={conciergeWhatsAppUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={t("realEstate.conciergeButton")}
+                  >
+                    <ConciergeBell className="h-6 w-6" />
+                  </a>
+                </Button>
+              ) : null}
+
               <Button
                 variant="outline"
                 size="icon"
-                asChild
-                className="h-11 w-11 shrink-0 rounded-xl border-[hsl(43_74%_49%/0.35)] text-[hsl(43_74%_49%)] hover:border-[hsl(43_74%_49%/0.55)] hover:text-[hsl(43_74%_49%)] sm:h-12 sm:w-12"
+                onClick={handleSaveClick}
+                className="h-11 w-11 shrink-0 rounded-xl p-0 sm:h-12 sm:w-12"
+                aria-label={t("listing.saveToFavorites")}
               >
-                <a
-                  href={conciergeWhatsAppUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={t("realEstate.conciergeButton")}
-                >
-                  <ConciergeBell className="h-6 w-6" />
-                </a>
+                <Heart className={`h-6 w-6 ${isFavorite(listing.id) ? "fill-red-500 text-red-500" : ""}`} />
               </Button>
-            ) : null}
-
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handleSaveClick}
-              className="h-11 w-11 shrink-0 rounded-xl sm:h-12 sm:w-12"
-              aria-label={t("listing.saveToFavorites")}
-            >
-              <Heart className={`h-6 w-6 ${isFavorite(listing.id) ? "fill-red-500 text-red-500" : ""}`} />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handleShareClick}
-              className="h-11 w-11 shrink-0 rounded-xl sm:h-12 sm:w-12"
-              aria-label={t("listing.share")}
-            >
-              <Share2 className="h-6 w-6" />
-            </Button>
-
-            {shouldShowMobileWebsiteAction ? (
-              <Button variant="outline" size="icon" asChild className="h-11 w-11 shrink-0 rounded-xl sm:h-12 sm:w-12">
-                <a href={ctaUrl ?? undefined} target="_blank" rel="noopener noreferrer" aria-label={t("listing.visitWebsite")}>
-                  <Globe className="h-6 w-6" />
-                </a>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleShareClick}
+                className="h-11 w-11 shrink-0 rounded-xl p-0 sm:h-12 sm:w-12"
+                aria-label={t("listing.share")}
+              >
+                <Share2 className="h-6 w-6" />
               </Button>
-            ) : null}
+
+              {shouldShowMobileWebsiteAction ? (
+                <Button variant="outline" size="icon" asChild className="h-11 w-11 shrink-0 rounded-xl p-0 sm:h-12 sm:w-12">
+                  <a href={ctaUrl ?? undefined} target="_blank" rel="noopener noreferrer" aria-label={t("listing.visitWebsite")}>
+                    <Globe className="h-6 w-6" />
+                  </a>
+                </Button>
+              ) : null}
+            </div>
 
             {shouldShowMobileWhatsAppAction ? (
               <Button
