@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 
+export const runtime = "nodejs";
+
 import type { Database } from "@/integrations/supabase/types";
 import { buildLocalizedPath } from "@/lib/i18n/routing";
 import { createClient } from "@/lib/supabase/server";

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
+export const runtime = "nodejs";
+
 import type { Database } from "@/integrations/supabase/types";
 import { logAdminMutation } from "@/lib/server/admin-audit-log";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";

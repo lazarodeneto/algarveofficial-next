@@ -1,7 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createServerClient } from "@supabase/ssr";
 
-import type { Database } from "@/integrations/supabase/types";
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES, type AppLocale } from "@/lib/i18n/locales";
 import { isValidLocale, resolveLocaleFromAcceptLanguage } from "@/lib/i18n/locale-utils";
 import { REQUEST_LOCALE_HEADER_NAME } from "@/lib/i18n/route-rules";
@@ -144,42 +142,8 @@ async function fetchMaintenanceSettings(): Promise<MaintenanceSettingsRow | null
   }
 }
 
-function createMiddlewareSupabaseClient(request: NextRequest) {
-  const { url, anonKey } = getSupabasePublicEnv();
-
-  return createServerClient<Database>(url, anonKey, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
-      setAll() {
-        // Middleware maintenance checks are read-only; session writes are not required here.
-      },
-    },
-  });
-}
-
-async function getAuthenticatedRole(request: NextRequest): Promise<string | null> {
-  try {
-    const supabase = createMiddlewareSupabaseClient(request);
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-
-    if (userError || !userData.user) {
-      return null;
-    }
-
-    const { data: roleData, error: roleError } = await supabase.rpc("get_user_role", {
-      _user_id: userData.user.id,
-    });
-
-    if (roleError || typeof roleData !== "string") {
-      return null;
-    }
-
-    return roleData;
-  } catch {
-    return null;
-  }
+function getAuthenticatedRole(request: NextRequest): Promise<string | null> {
+  return Promise.resolve(null);
 }
 
 function isPublicLocale(locale: string | null | undefined): locale is AppLocale {
@@ -356,9 +320,3 @@ export async function proxy(request: NextRequest) {
 
   return NextResponse.redirect(new URL(withLocalePrefix(normalizedPathname, locale), request.url), 307);
 }
-
-export const config = {
-  matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
-  ],
-};

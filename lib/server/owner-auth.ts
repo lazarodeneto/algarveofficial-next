@@ -2,6 +2,8 @@
 // current subscription). Validates Bearer token and confirms the user has the
 // owner or admin role.
 
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 

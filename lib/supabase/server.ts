@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
+export const runtime = "nodejs";
+
 import { getSupabasePublicEnv } from "./env";
 
 export async function createClient() {

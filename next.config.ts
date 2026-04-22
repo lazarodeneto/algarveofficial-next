@@ -82,6 +82,10 @@ const nextConfig: NextConfig = {
     root: process.cwd(),
   },
 
+  // Force Node.js runtime for SSR pages to avoid ESM/CJS issues with @supabase/ssr
+  // and its transitive dependencies (@exodus/bytes, html-encoding-sniffer)
+  serverExternalPackages: ["@supabase/ssr", "@exodus/bytes"],
+
   images: {
     formats: ["image/avif", "image/webp"],
     qualities: [50, 52, 54, 56, 72, 80],
