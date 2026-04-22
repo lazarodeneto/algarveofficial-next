@@ -5,7 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Cookie, Shield, Database, Settings, Info, CheckCircle, Clock, Globe } from "lucide-react";
 import { useCookieSettings } from "@/hooks/useCookieSettings";
 import { useTranslation } from "react-i18next";
-import DOMPurify from "isomorphic-dompurify";
+import DOMPurify from "dompurify";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 
 const iconMap: Record<string, React.ElementType> = {

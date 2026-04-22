@@ -3,7 +3,7 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import type { ElementType } from "react";
-import DOMPurify from "isomorphic-dompurify";
+import DOMPurify from "dompurify";
 import { useTranslation } from "react-i18next";
 import { usePrivacySettings } from "@/hooks/usePrivacySettings";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";

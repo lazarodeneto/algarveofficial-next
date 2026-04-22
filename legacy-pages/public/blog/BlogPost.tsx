@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { m } from 'framer-motion';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
-import DOMPurify from "isomorphic-dompurify";
+import DOMPurify from "dompurify";
 import { getSessionId } from '@/lib/sessionId';
 import { 
   ArrowLeft, 

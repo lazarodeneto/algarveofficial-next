@@ -151,6 +151,15 @@ const nextConfig: NextConfig = {
   experimental: {
     scrollRestoration: true,
   },
+
+  webpack(config) {
+    config.resolve = config.resolve ?? {};
+    config.resolve.alias = {
+      ...(config.resolve.alias ?? {}),
+      jsdom: false,
+    };
+    return config;
+  },
 };
 
 export default withBundleAnalyzer(nextConfig);

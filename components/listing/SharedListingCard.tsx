@@ -77,6 +77,8 @@ export function SharedListingCard({
   const regionName = listing.region?.name ?? listing.region_name ?? undefined;
   const description = listing.short_description || listing.description;
   const shouldShowCuratedBadge = Boolean(showCuratedBadge && listing.is_curated && curatedLabel);
+  const isSignature = listing.tier === "signature";
+  const isVerified = listing.tier === "verified";
 
   return (
     <m.div
@@ -87,10 +89,17 @@ export function SharedListingCard({
     >
       <Link href={href} className="group block h-full" onClick={onCardClick}>
         <article className="relative z-0 isolate glass-box glass-box-listing-shimmer overflow-hidden flex flex-col h-full">
-          {listing.tier === "signature" ? (
+          {isSignature ? (
             <span
               aria-hidden
               className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] border-[2px] border-[hsl(43,86%,58%)] shadow-[0_0_10px_hsla(43,86%,58%,0.34)]"
+            />
+          ) : null}
+
+          {isVerified ? (
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] border-[2px] border-emerald-500/80"
             />
           ) : null}
 

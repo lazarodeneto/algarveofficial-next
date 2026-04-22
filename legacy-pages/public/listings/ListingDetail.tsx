@@ -1,3 +1,5 @@
+"use client";
+
 // src/pages/ListingDetail.tsx
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -43,7 +45,7 @@ import { useHydrated } from "@/hooks/useHydrated";
 import { LoginModal } from "@/components/ui/login-modal";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import { toast } from "sonner";
-import DOMPurify from "isomorphic-dompurify";
+import DOMPurify from "dompurify";
 import { LocalBusinessJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";

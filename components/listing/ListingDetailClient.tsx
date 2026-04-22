@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { type SVGProps, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -20,7 +20,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import DOMPurify from "isomorphic-dompurify";
+import DOMPurify from "dompurify";
 import { toast } from "sonner";
 
 import type { Tables } from "@/integrations/supabase/types";
@@ -253,6 +253,24 @@ const getCategoryLayout = (
 };
 
 const normalizeImageUrl = (value?: string | null): string | null => normalizePublicImageUrl(value);
+
+const WHATSAPP_CTA_CLASSNAME =
+  "w-full border-[#25D366] bg-[#25D366] text-white hover:border-[#1EBE5D] hover:bg-[#1EBE5D] hover:text-white focus-visible:ring-[#25D366]/60";
+
+function WhatsAppLogo(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+      {...props}
+    >
+      <path d="M13.601 2.326A7.854 7.854 0 0 0 8.047 0C3.623 0 .027 3.594.026 8.018a7.94 7.94 0 0 0 1.078 3.96L0 16l4.126-1.081a7.95 7.95 0 0 0 3.921 1h.003c4.423 0 8.02-3.595 8.021-8.019A7.935 7.935 0 0 0 13.6 2.326ZM8.05 14.586h-.002a6.54 6.54 0 0 1-3.329-.91l-.239-.142-2.448.642.653-2.387-.155-.245a6.547 6.547 0 0 1-1-3.506c.001-3.62 2.946-6.565 6.57-6.565 1.75 0 3.398.682 4.634 1.918a6.532 6.532 0 0 1 1.919 4.633c-.001 3.621-2.946 6.566-6.57 6.566Z" />
+      <path d="M11.815 10.588c-.198-.099-1.17-.578-1.351-.644-.181-.066-.312-.099-.444.1-.132.198-.511.644-.627.776-.115.132-.23.149-.428.05-.198-.099-.836-.308-1.592-.983-.588-.525-.985-1.173-1.1-1.371-.115-.198-.012-.305.087-.404.089-.089.198-.23.297-.346.099-.115.132-.198.198-.33.066-.132.033-.248-.017-.347-.05-.099-.444-1.07-.608-1.468-.16-.387-.323-.335-.444-.341l-.378-.007a.73.73 0 0 0-.528.248c-.181.198-.692.677-.692 1.65 0 .974.709 1.915.808 2.047.099.132 1.397 2.133 3.387 2.992.474.204.844.326 1.132.417.476.151.909.13 1.251.079.382-.057 1.17-.479 1.335-.941.165-.462.165-.858.116-.941-.05-.083-.182-.132-.38-.231Z" />
+    </svg>
+  );
+}
 
 function normalizeExternalUrl(value?: string | null): string | null {
   const trimmed = value?.trim();
@@ -528,6 +546,7 @@ function ListingDetailClientInner({
     ? normalizeExternalUrl(listing.telegram_url)
     : null;
   const directContactUrl = directWhatsAppUrl ?? directTelegramUrl;
+  const hasWhatsAppDirectContact = Boolean(directWhatsAppUrl);
   const directContactLabel = directWhatsAppUrl ? t("listing.messageWhatsApp") : t("listing.social.telegram");
   const ctaUrl = tierRules.allowCtaButton
     ? (
@@ -1096,9 +1115,17 @@ function ListingDetailClientInner({
                   {(tierRules.allowDirectContactButton || tierRules.allowCtaButton) ? (
                     <div className="space-y-2 mb-4">
                       {directContactUrl ? (
-                        <Button asChild className="w-full">
+                        <Button
+                          asChild
+                          variant={hasWhatsAppDirectContact ? "outline" : "default"}
+                          className={hasWhatsAppDirectContact ? WHATSAPP_CTA_CLASSNAME : "w-full"}
+                        >
                           <a href={directContactUrl} target="_blank" rel="noopener noreferrer">
-                            <MessageCircle className="h-4 w-4 mr-2" />
+                            {hasWhatsAppDirectContact ? (
+                              <WhatsAppLogo className="mr-2" />
+                            ) : (
+                              <MessageCircle className="mr-2" />
+                            )}
                             {directContactLabel}
                           </a>
                         </Button>
@@ -1354,8 +1381,16 @@ function ListingDetailClientInner({
           {(tierRules.allowDirectContactButton || tierRules.allowCtaButton) ? (
             <div className="flex-1 flex flex-col gap-2">
               {directContactUrl ? (
-                <Button onClick={handleDirectContactClick} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                  <MessageCircle className="h-5 w-5 mr-2" />
+                <Button
+                  onClick={handleDirectContactClick}
+                  variant={hasWhatsAppDirectContact ? "outline" : "default"}
+                  className={hasWhatsAppDirectContact ? WHATSAPP_CTA_CLASSNAME : "w-full"}
+                >
+                  {hasWhatsAppDirectContact ? (
+                    <WhatsAppLogo className="mr-2" />
+                  ) : (
+                    <MessageCircle className="mr-2" />
+                  )}
                   {directContactLabel}
                 </Button>
               ) : null}

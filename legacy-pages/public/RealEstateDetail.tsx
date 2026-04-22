@@ -1,8 +1,9 @@
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import DOMPurify from "isomorphic-dompurify";
+import DOMPurify from "dompurify";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
