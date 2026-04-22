@@ -82,6 +82,8 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   // Search modal state (local to Header)
   const [searchOpen, setSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
+  const scrollTimeoutRef = useRef<number | null>(null);
 
   // Mirror mobile menu state to DOM for CSS failsafe (production caching workaround)
   useEffect(() => {
@@ -142,22 +144,38 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Show header border only after user scrolls
+  // Show header border only after user scrolls + mirror mobile bottom-nav hide timing
   useEffect(() => {
     const onScroll = () => {
       setIsScrolled(window.scrollY > 0);
+      setIsUserScrolling(true);
+      if (scrollTimeoutRef.current !== null) {
+        window.clearTimeout(scrollTimeoutRef.current);
+      }
+      scrollTimeoutRef.current = window.setTimeout(() => {
+        setIsUserScrolling(false);
+      }, 180);
     };
 
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (scrollTimeoutRef.current !== null) {
+        window.clearTimeout(scrollTimeoutRef.current);
+      }
+    };
   }, []);
 
   return (
     <>
       <CommandSearch open={searchOpen} onOpenChange={setSearchOpen} />
 
-      <header className="site-header fixed top-0 left-0 right-0 z-50 transition-all duration-300 lg:left-20">
+      <header
+        className={`site-header fixed top-0 left-0 right-0 z-50 transition-all duration-300 transition-transform ease-out lg:left-20 ${isUserScrolling && !mobileMenuOpen
+          ? "-translate-y-[calc(100%+env(safe-area-inset-top))] duration-200 lg:translate-y-0"
+          : ""}`}
+      >
         <div
           className={`absolute inset-0 transition-all duration-300 ${isScrolled
             ? "border-b border-black/8 bg-[hsl(var(--background)/0.96)] shadow-[0_18px_48px_-38px_rgba(15,23,42,0.35)] backdrop-blur-2xl dark:border-white/10 dark:bg-[hsl(var(--background)/0.78)]"
@@ -391,34 +409,26 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                   onTouchEnd={handleTouchEnd}
                 >
                 <div className="px-4 pt-4 pb-6 space-y-4">
-                  <div className="flex items-center justify-end">
+                  <div className="flex items-start gap-2">
+                    <div className="flex-1 rounded-2xl border border-black/10 bg-white/70 p-2.5 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
+                      <div className="flex items-center gap-3">
+                        <ThemeToggle className="w-14 shrink-0" />
+                        <LanguageSwitcher
+                          localeSwitchPaths={localeSwitchPaths}
+                          containerClassName="min-w-0 flex-1"
+                          selectClassName="h-10 w-full rounded-full border-black/12 bg-white pl-4 pr-12 text-sm text-black shadow-none dark:border-white/12 dark:bg-white dark:text-black"
+                        />
+                      </div>
+                    </div>
                     <button
                       onClick={() => setMobileMenuOpen(false)}
-                      className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white/75 dark:border-white/20 dark:bg-white/10"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-black/10 bg-white/75 dark:border-white/20 dark:bg-white/10"
                       aria-label={t("nav.closeMenu")}
                     >
                       <X className="h-5 w-5" />
                     </button>
                   </div>
                   <div className="flex min-h-full flex-col">
-                    <div className="mb-4 rounded-2xl border border-black/10 bg-white/70 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                          {t("common.theme")}
-                        </div>
-                        <ThemeToggle />
-                      </div>
-                      <div className="mt-3 flex items-center justify-between gap-3">
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                          {t("common.language")}
-                        </div>
-                        <LanguageSwitcher
-                          localeSwitchPaths={localeSwitchPaths}
-                          containerClassName="min-w-0"
-                          selectClassName="h-10 w-[10rem] rounded-full border-black/12 bg-white px-4 py-2 text-sm text-black shadow-none dark:border-white/12 dark:bg-white dark:text-black"
-                        />
-                      </div>
-                    </div>
 
                     <div className="w-full rounded-2xl border border-black/10 bg-white/66 px-2 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
                     <div className="mx-3">

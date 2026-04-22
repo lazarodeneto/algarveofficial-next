@@ -605,6 +605,7 @@ function ListingDetailClientInner({
     )
     : null;
   const isSignatureOrVerifiedTier = listing.tier === "signature" || listing.tier === "verified";
+  const shouldShowMobileConciergeAction = !isSignatureOrVerifiedTier;
   const shouldShowMobileWhatsAppAction = isSignatureOrVerifiedTier && Boolean(directWhatsAppUrl);
   const shouldShowMobileWebsiteAction = isSignatureOrVerifiedTier && Boolean(ctaUrl);
   const conciergeWhatsAppUrl = `https://wa.me/${toWhatsAppDigits(PRIMARY_WHATSAPP_NUMBER)}?text=${encodeURIComponent(CONCIERGE_DEFAULT_MESSAGE)}`;
@@ -953,7 +954,7 @@ function ListingDetailClientInner({
                     rating={listing.google_rating}
                     reviewCount={listing.google_review_count}
                     variant="overlay"
-                    className="absolute top-4 right-4"
+                    className="absolute bottom-4 right-4"
                   />
                 ) : null}
               </div>
@@ -1077,17 +1078,21 @@ function ListingDetailClientInner({
                   </div>
 
                   {(listing.google_rating || listing.tier === "signature" || listing.tier === "verified") ? (
-                    <div className="flex items-center gap-2 mt-3">
+                    <div className="mt-3">
                       {(listing.tier === "signature" || listing.tier === "verified") ? (
-                        <ListingTierBadge tier={listing.tier} />
+                        <div className="flex flex-wrap items-center gap-2">
+                          <ListingTierBadge tier={listing.tier} />
+                          {listing.tier === "signature" ? <ListingTierBadge tier="verified" /> : null}
+                        </div>
                       ) : null}
-                      {listing.tier === "signature" ? <ListingTierBadge tier="verified" /> : null}
                       {listing.google_rating ? (
-                        <GoogleRatingBadge
-                          rating={listing.google_rating}
-                          reviewCount={listing.google_review_count}
-                          variant="themed"
-                        />
+                        <div className={listing.tier === "signature" || listing.tier === "verified" ? "mt-2" : ""}>
+                          <GoogleRatingBadge
+                            rating={listing.google_rating}
+                            reviewCount={listing.google_review_count}
+                            variant="themed"
+                          />
+                        </div>
                       ) : null}
                     </div>
                   ) : null}
@@ -1117,29 +1122,10 @@ function ListingDetailClientInner({
                         : undefined,
                     )
                   : null}
-
-                {listing.tags && listing.tags.length > 0 ? (
-                  <>
-                    <Separator />
-                    <div>
-                      <h2 className="text-xl font-serif font-medium mb-4">{t("listing.tags")}</h2>
-                      <div className="flex flex-wrap gap-2">
-                        {listing.tags.map((tag) => (
-                          <Badge key={tag} variant="outline" className="text-sm">
-                            {translateCategoryValue(t, tag)}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                ) : null}
-
-                <Separator />
-                <ListingReviews listingId={listing.id} userId={user?.id} onRequestLogin={() => setShowLoginModal(true)} />
               </div>
 
               <div className="space-y-6">
-                <div className="luxury-card p-6 sticky top-24">
+                <div className="luxury-card p-6 lg:sticky lg:top-24">
                   <div className="flex gap-3 mb-6">
                     <Button
                       variant="outline"
@@ -1249,6 +1235,27 @@ function ListingDetailClientInner({
                     />
                   ) : null}
                 </div>
+              </div>
+
+              <div className="lg:col-span-2 space-y-8">
+                {listing.tags && listing.tags.length > 0 ? (
+                  <>
+                    <Separator />
+                    <div>
+                      <h2 className="text-xl font-serif font-medium mb-4">{t("listing.tags")}</h2>
+                      <div className="flex flex-wrap gap-2">
+                        {listing.tags.map((tag) => (
+                          <Badge key={tag} variant="outline" className="text-sm">
+                            {translateCategoryValue(t, tag)}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                ) : null}
+
+                <Separator />
+                <ListingReviews listingId={listing.id} userId={user?.id} onRequestLogin={() => setShowLoginModal(true)} />
               </div>
             </div>
           </div>
@@ -1407,36 +1414,40 @@ function ListingDetailClientInner({
       {!mobileMenuOpen ? (
         <div
           className={cn(
-            "fixed inset-x-0 z-40 border-t border-border bg-background/92 px-1 py-2.5 backdrop-blur-md transition-transform duration-200 ease-out lg:hidden",
+            "fixed z-40 border-t border-border bg-background/92 px-1.5 py-2.5 backdrop-blur-md transition-transform duration-200 ease-out lg:hidden",
             isUserScrolling && "translate-y-[calc(100%+var(--listing-mobile-actions-offset))]",
           )}
           style={{
             bottom: `${mobileBottomNavHeight}px`,
+            left: "max(env(safe-area-inset-left), 0.375rem)",
+            right: "max(env(safe-area-inset-right), 0.375rem)",
             ["--listing-mobile-actions-offset" as string]: `${mobileBottomNavHeight}px`,
           }}
         >
-          <div className="mx-auto flex w-full max-w-md items-center justify-between gap-1">
-            <Button
-              variant="outline"
-              size="icon"
-              asChild
-              className="h-12 w-12 shrink-0 rounded-xl border-[hsl(43_74%_49%/0.35)] text-[hsl(43_74%_49%)] hover:border-[hsl(43_74%_49%/0.55)] hover:text-[hsl(43_74%_49%)]"
-            >
-              <a
-                href={conciergeWhatsAppUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={t("realEstate.conciergeButton")}
+          <div className="flex w-full items-center gap-2">
+            {shouldShowMobileConciergeAction ? (
+              <Button
+                variant="outline"
+                size="icon"
+                asChild
+                className="h-11 w-11 shrink-0 rounded-xl border-[hsl(43_74%_49%/0.35)] text-[hsl(43_74%_49%)] hover:border-[hsl(43_74%_49%/0.55)] hover:text-[hsl(43_74%_49%)] sm:h-12 sm:w-12"
               >
-                <ConciergeBell className="h-6 w-6" />
-              </a>
-            </Button>
+                <a
+                  href={conciergeWhatsAppUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={t("realEstate.conciergeButton")}
+                >
+                  <ConciergeBell className="h-6 w-6" />
+                </a>
+              </Button>
+            ) : null}
 
             <Button
               variant="outline"
               size="icon"
               onClick={handleSaveClick}
-              className="h-12 w-12 shrink-0 rounded-xl"
+              className="h-11 w-11 shrink-0 rounded-xl sm:h-12 sm:w-12"
               aria-label={t("listing.saveToFavorites")}
             >
               <Heart className={`h-6 w-6 ${isFavorite(listing.id) ? "fill-red-500 text-red-500" : ""}`} />
@@ -1445,14 +1456,14 @@ function ListingDetailClientInner({
               variant="outline"
               size="icon"
               onClick={handleShareClick}
-              className="h-12 w-12 shrink-0 rounded-xl"
+              className="h-11 w-11 shrink-0 rounded-xl sm:h-12 sm:w-12"
               aria-label={t("listing.share")}
             >
               <Share2 className="h-6 w-6" />
             </Button>
 
             {shouldShowMobileWebsiteAction ? (
-              <Button variant="outline" size="icon" asChild className="h-12 w-12 shrink-0 rounded-xl">
+              <Button variant="outline" size="icon" asChild className="h-11 w-11 shrink-0 rounded-xl sm:h-12 sm:w-12">
                 <a href={ctaUrl ?? undefined} target="_blank" rel="noopener noreferrer" aria-label={t("listing.visitWebsite")}>
                   <Globe className="h-6 w-6" />
                 </a>
@@ -1464,7 +1475,7 @@ function ListingDetailClientInner({
                 variant="outline"
                 size="icon"
                 asChild
-                className="h-12 min-w-[7.5rem] max-w-[10rem] flex-1 shrink-0 gap-1 rounded-xl border-[#25D366] bg-[#25D366] px-1.5 text-white hover:border-[#1EBE5D] hover:bg-[#1EBE5D] hover:text-white"
+                className="h-11 min-w-[8rem] flex-1 shrink-0 gap-1 rounded-xl border-[#25D366] bg-[#25D366] px-2 text-white hover:border-[#1EBE5D] hover:bg-[#1EBE5D] hover:text-white sm:h-12 sm:px-2.5"
               >
                 <a href={directWhatsAppUrl ?? undefined} target="_blank" rel="noopener noreferrer" aria-label={t("listing.messageWhatsApp")}>
                   <WhatsAppLogo className="h-7 w-7" />

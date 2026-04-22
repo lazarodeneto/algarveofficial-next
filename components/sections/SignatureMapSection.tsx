@@ -138,14 +138,19 @@ export function SignatureMapSection() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Badge variant="outline" className="text-body-xs">
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
+            <Link href={l("/map")} className="w-full sm:w-auto">
+              <Button variant="outline" className="w-full sm:w-auto">
+                {t("common.openFullMap")}
+              </Button>
+            </Link>
+            <p className="text-body-xs text-muted-foreground text-center sm:hidden">
+              {t("sections.vip.discovery.mapped", { count: mapPoints.length })} · {t("sections.vip.discovery.matching", { count: filteredDiscoveryListings.length })}
+            </p>
+            <Badge variant="outline" className="hidden text-body-xs sm:inline-flex">
               <MapPinned className="h-3.5 w-3.5 mr-1.5" />
               {t("sections.vip.discovery.mapped", { count: mapPoints.length })} · {t("sections.vip.discovery.matching", { count: filteredDiscoveryListings.length })}
             </Badge>
-            <Link href={l("/map")}>
-              <Button variant="outline">{t("common.openFullMap")}</Button>
-            </Link>
           </div>
         </div>
 

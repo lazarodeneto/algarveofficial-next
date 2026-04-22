@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useTransition } from "react";
+import { ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocaleRouter } from "@/hooks/useLocaleRouter";
@@ -32,7 +33,7 @@ export function LanguageSwitcher({
     | undefined;
 
   return (
-    <div className={cn("flex items-center gap-2", containerClassName)}>
+    <div className={cn("relative flex items-center", containerClassName)}>
       <label htmlFor={switcherId} className="sr-only">
         {languageLabel}
       </label>
@@ -51,7 +52,10 @@ export function LanguageSwitcher({
             switchLocale(nextLocale, switchPathsByLocale?.[nextLocale]);
           });
         }}
-        className={cn("rounded-md border pl-3 pr-8 py-2", selectClassName)}
+        className={cn(
+          "w-full appearance-none rounded-md border py-2 pl-3 pr-10",
+          selectClassName,
+        )}
       >
         {SUPPORTED_LOCALES.map((locale) => (
           <option key={locale} value={locale}>
@@ -59,6 +63,10 @@ export function LanguageSwitcher({
           </option>
         ))}
       </select>
+      <ChevronDown
+        aria-hidden="true"
+        className="pointer-events-none absolute right-3 h-4 w-4 text-current/70"
+      />
     </div>
   );
 }
