@@ -74,7 +74,6 @@ const preferTranslatedValue = (translated: string | null | undefined, fallback: 
 
 export function useHomepageSettings() {
   const queryClient = useQueryClient();
-  const isBrowser = typeof window !== "undefined";
   const routeLocale = useCurrentLocale();
   const locale = normalizeHomepageLocale(routeLocale);
 
@@ -96,16 +95,11 @@ export function useHomepageSettings() {
       }
       return (data ?? null) as HomepageSettings | null;
     },
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
-    enabled: isBrowser,
+    staleTime: 1000 * 60 * 5,
   });
 
   const updateSettings = useMutation({
     mutationFn: async (newSettings: Partial<HomepageSettings>) => {
-      if (!isBrowser) {
-        return {} as HomepageSettings;
-      }
-
       // Read current row first so updates only include columns that actually exist
       // in the connected database schema.
       const { data: current, error: currentError } = await supabase
@@ -164,16 +158,13 @@ export function useHomepageSettings() {
     },
   });
 
-  const noopUpdateSettings = () => undefined;
-  const noopUpdateSettingsAsync = async (): Promise<HomepageSettings> => ({} as HomepageSettings);
-
   return {
-    settings: isBrowser ? settings : null,
-    isLoading: !isBrowser || isLoading,
-    error: isBrowser ? error : null,
-    updateSettings: isBrowser ? updateSettings.mutate : noopUpdateSettings,
-    updateSettingsAsync: isBrowser ? updateSettings.mutateAsync : noopUpdateSettingsAsync,
-    isUpdating: isBrowser ? updateSettings.isPending : false,
+    settings,
+    isLoading,
+    error,
+    updateSettings: updateSettings.mutate,
+    updateSettingsAsync: updateSettings.mutateAsync,
+    isUpdating: updateSettings.isPending,
   };
 }
 
@@ -187,7 +178,7 @@ export function useHeroSettings() {
     enabled: Boolean(settings?.id) && locale !== "en",
     staleTime: 1000 * 60 * 5,
     queryFn: async () => {
-      if (typeof window === "undefined" || !settings?.id || locale === "en") return null;
+      if (!settings?.id || locale === "en") return null;
 
       const { data, error } = await homepageTranslationClient
         .from("homepage_settings_translations")

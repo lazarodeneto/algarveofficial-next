@@ -21,7 +21,6 @@ const EMPTY_GLOBAL_SETTINGS: GlobalSetting[] = [];
 
 export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
   const queryClient = useQueryClient();
-  const isBrowser = typeof window !== "undefined";
   const routeLocale = useCurrentLocale();
   const rawLocale = options.locale?.trim().toLowerCase().replaceAll("_", "-") ?? "";
   const locale = rawLocale === "default" ? "default" : normalizeLocale(rawLocale || routeLocale);
@@ -66,13 +65,11 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
       if (error) throw error;
       return (data ?? []) as GlobalSetting[];
     },
-    enabled: isBrowser && (options.enabled ?? true),
     staleTime: 1000 * 60 * 5,
   });
 
   const saveMutation = useMutation({
     mutationFn: async (settings: GlobalSetting[]) => {
-      if (!isBrowser) return [];
       if (!settings.length) return [];
 
       const {
@@ -109,18 +106,14 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
     },
   });
 
-  const saveSettingsAsync = isBrowser
-    ? saveMutation.mutateAsync
-    : async (): Promise<GlobalSetting[]> => [];
-
-return {
-    settings: isBrowser ? (query.data ?? []) : [],
-    isLoading: !isBrowser || query.isLoading || query.fetchStatus === "fetching",
-    error: isBrowser ? query.error : null,
-    isFetching: isBrowser ? query.isFetching : false,
-    save: isBrowser ? saveMutation.mutate : saveSettingsAsync,
-    saveAsync: isBrowser ? saveMutation.mutateAsync : saveSettingsAsync,
-    saveSettingsAsync,
-    isSaving: isBrowser ? saveMutation.isPending : false,
+  return {
+    settings: query.data ?? [],
+    isLoading: query.isLoading || query.fetchStatus === "fetching",
+    error: query.error,
+    isFetching: query.isFetching,
+    save: saveMutation.mutate,
+    saveAsync: saveMutation.mutateAsync,
+    saveSettingsAsync: saveMutation.mutateAsync,
+    isSaving: saveMutation.isPending,
   };
 }

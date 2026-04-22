@@ -444,7 +444,7 @@ const ADMIN_LISTING_IMAGE_FIELDS = "id, listing_id, image_url, alt_text, display
 export function usePublishedListings(filters: ListingFilters = {}) {
   const locale = normalizePublicContentLocale(useCurrentLocale());
   const normalizedFilters = normalizeListingFilters(filters);
-  const isBrowser = typeof window !== "undefined";
+  
 
   return useQuery({
     queryKey: publishedListingsQueryKey(normalizedFilters as Record<string, unknown>, locale),
@@ -518,7 +518,6 @@ export function usePublishedListings(filters: ListingFilters = {}) {
         categoryTranslations,
       );
     },
-    enabled: isBrowser,
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes — listings rarely change
     gcTime: 1000 * 60 * 15,
   });
@@ -530,7 +529,7 @@ export function usePublishedListings(filters: ListingFilters = {}) {
  */
 export function useListing(idOrSlug: string | undefined) {
   const locale = normalizePublicContentLocale(useCurrentLocale());
-  const isBrowser = typeof window !== "undefined";
+  
 
   return useQuery({
     queryKey: ['listing', idOrSlug, locale],
@@ -584,7 +583,6 @@ export function useListing(idOrSlug: string | undefined) {
 
       return localizedListing;
     },
-    enabled: isBrowser && !!idOrSlug,
     initialData: null as (ListingWithRelations & { images?: unknown[] }) | null,
   });
 }
@@ -619,7 +617,7 @@ export function useResolveSlug(slug: string | undefined) {
  */
 export function useCuratedListings() {
   const locale = normalizePublicContentLocale(useCurrentLocale());
-  const isBrowser = typeof window !== "undefined";
+  
 
   return useQuery({
     queryKey: ['listings', 'curated', locale],
@@ -659,7 +657,6 @@ export function useCuratedListings() {
         categoryTranslations,
       );
     },
-    enabled: isBrowser,
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
   });
@@ -671,7 +668,7 @@ export function useCuratedListings() {
  */
 export function useSignatureListings() {
   const locale = normalizePublicContentLocale(useCurrentLocale());
-  const isBrowser = typeof window !== "undefined";
+  
 
   return useQuery({
     queryKey: signatureListingsQueryKey(locale),
@@ -710,7 +707,6 @@ export function useSignatureListings() {
         categoryTranslations,
       );
     },
-    enabled: isBrowser,
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
   });
