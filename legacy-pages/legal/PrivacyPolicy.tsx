@@ -3,12 +3,12 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import type { ElementType } from "react";
-import DOMPurify from "dompurify";
 import { useTranslation } from "react-i18next";
 import { usePrivacySettings } from "@/hooks/usePrivacySettings";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { Shield, Database, Clock, UserCheck, Mail, FileText } from "lucide-react";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
+import { sanitizeHtmlString } from "@/lib/sanitizeHtml";
 
 const iconMap: Record<string, ElementType> = {
   Shield,
@@ -76,7 +76,7 @@ const PrivacyPolicy = () => {
                   </div>
                   <div
                     className="pl-9 space-y-4 text-muted-foreground prose prose-sm dark:prose-invert max-w-none"
-                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(section.content) }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtmlString(section.content) }}
                   />
                 </section>
               );

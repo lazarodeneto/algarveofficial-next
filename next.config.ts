@@ -157,6 +157,8 @@ const nextConfig: NextConfig = {
     config.resolve.alias = {
       ...(config.resolve.alias ?? {}),
       jsdom: false,
+      "html-encoding-sniffer": false,
+      "@exodus/bytes": false,
     };
     return config;
   },

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import DOMPurify from "dompurify";
+import { sanitizeHtmlString } from "@/lib/sanitizeHtml";
 
 interface SanitizedHtmlProps {
   html: string | null | undefined;
@@ -11,18 +11,11 @@ interface SanitizedHtmlProps {
   preserveLineBreaks?: boolean;
 }
 
-function normalizeLinks(html: string) {
-  return html.replace(
-    /(<a\b[^>]*)\btarget=["']_blank["']([^>]*>)/gi,
-    (_match, pre, post) => `${pre}target="_blank" rel="noopener noreferrer"${post}`,
-  );
-}
-
 export function SanitizedHtml({
   html,
   className,
-  allowedTags,
-  allowedAttributes,
+  allowedTags: _allowedTags,
+  allowedAttributes: _allowedAttributes,
   preserveLineBreaks = false,
 }: SanitizedHtmlProps) {
   const sanitizedHtml = useMemo(() => {
@@ -32,15 +25,10 @@ export function SanitizedHtml({
     }
 
     const candidate = preserveLineBreaks ? rawValue.replace(/\n/g, "<br/>") : rawValue;
-    
-    const sanitized = DOMPurify.sanitize(candidate, {
-      ALLOWED_TAGS: allowedTags,
-      ALLOWED_ATTR: allowedAttributes,
-      ALLOW_DATA_ATTR: false,
-    });
+    const sanitized = sanitizeHtmlString(candidate);
 
-    return normalizeLinks(String(sanitized));
-  }, [allowedAttributes, allowedTags, html, preserveLineBreaks]);
+    return sanitized;
+  }, [html, preserveLineBreaks]);
 
 
   if (!sanitizedHtml) {

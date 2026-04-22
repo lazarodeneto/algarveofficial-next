@@ -21,7 +21,6 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import DOMPurify from "dompurify";
 import { toast } from "sonner";
 
 import type { Tables } from "@/integrations/supabase/types";
@@ -49,6 +48,7 @@ import { translateCategoryValue } from "@/lib/translateCategoryValue";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { formatRichTextDescription } from "@/lib/formatRichText";
+import { sanitizeHtmlString } from "@/lib/sanitizeHtml";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 import { getCategoryUrlSlug } from "@/lib/seo/programmatic/category-slugs";
 import { getListingCategoryLanding } from "@/lib/listingCategoryLanding";
@@ -1097,12 +1097,12 @@ function ListingDetailClientInner({
 
                 <div>
                   <h2 className="text-xl font-serif font-medium mb-4">{t("listing.about")}</h2>
-                  <div
-                    className="text-body-sm text-muted-foreground leading-relaxed [&_p]:mb-5 [&_p:last-child]:mb-0 [&_strong]:font-semibold [&_strong]:text-foreground"
-                    dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(formatRichTextDescription(effectiveDescription)),
-                    }}
-                  />
+                <div
+                  className="text-body-sm text-muted-foreground leading-relaxed [&_p]:mb-5 [&_p:last-child]:mb-0 [&_strong]:font-semibold [&_strong]:text-foreground"
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeHtmlString(formatRichTextDescription(effectiveDescription)),
+                  }}
+                />
                 </div>
 
                 <Separator />

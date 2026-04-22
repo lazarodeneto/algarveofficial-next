@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import DOMPurify from "dompurify";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -58,6 +57,7 @@ import { Database } from "@/integrations/supabase/types";
 import { BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { CountryPhoneInput } from "@/components/ui/country-phone-input";
 import { formatRichTextDescription } from "@/lib/formatRichText";
+import { sanitizeHtmlString } from "@/lib/sanitizeHtml";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { translateCategoryValue } from "@/lib/translateCategoryValue";
@@ -475,7 +475,7 @@ export default function RealEstateDetail() {
                                 {effectiveDescription ? (
                                     <div
                                         dangerouslySetInnerHTML={{
-                                            __html: DOMPurify.sanitize(formatRichTextDescription(effectiveDescription)),
+                                            __html: sanitizeHtmlString(formatRichTextDescription(effectiveDescription)),
                                         }}
                                     />
                                 ) : (

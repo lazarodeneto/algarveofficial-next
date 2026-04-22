@@ -5,8 +5,8 @@ import { Footer } from "@/components/layout/Footer";
 import { Cookie, Shield, Database, Settings, Info, CheckCircle, Clock, Globe } from "lucide-react";
 import { useCookieSettings } from "@/hooks/useCookieSettings";
 import { useTranslation } from "react-i18next";
-import DOMPurify from "dompurify";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
+import { sanitizeHtmlString } from "@/lib/sanitizeHtml";
 
 const iconMap: Record<string, React.ElementType> = {
   Cookie,
@@ -68,7 +68,7 @@ const CookiePolicy = () => {
                   </div>
                   <div 
                     className="pl-9 space-y-4 text-muted-foreground prose prose-sm dark:prose-invert max-w-none"
-                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(section.content) }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtmlString(section.content) }}
                   />
                 </section>
               );

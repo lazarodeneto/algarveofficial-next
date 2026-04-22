@@ -3,12 +3,12 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import type { ElementType } from "react";
-import DOMPurify from "dompurify";
 import { useTranslation } from "react-i18next";
 import { useTermsSettings } from "@/hooks/useTermsSettings";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { FileText, Scale, Users, ShieldCheck, AlertTriangle, CreditCard, Ban, Globe } from "lucide-react";
+import { sanitizeHtmlString } from "@/lib/sanitizeHtml";
 
 const iconMap: Record<string, ElementType> = {
   FileText,
@@ -78,7 +78,7 @@ const TermsOfService = () => {
                   </div>
                   <div
                     className="pl-9 space-y-4 text-muted-foreground prose prose-sm dark:prose-invert max-w-none"
-                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(section.content) }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtmlString(section.content) }}
                   />
                 </section>
               );

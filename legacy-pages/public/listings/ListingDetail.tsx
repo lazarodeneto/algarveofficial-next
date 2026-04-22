@@ -45,7 +45,6 @@ import { useHydrated } from "@/hooks/useHydrated";
 import { LoginModal } from "@/components/ui/login-modal";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import { toast } from "sonner";
-import DOMPurify from "dompurify";
 import { LocalBusinessJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
@@ -55,6 +54,7 @@ import { translateCategoryName } from "@/lib/translateCategory";
 import { translateCategoryValue } from "@/lib/translateCategoryValue";
 import { isUuid } from "@/lib/slugify";
 import { formatRichTextDescription } from "@/lib/formatRichText";
+import { sanitizeHtmlString } from "@/lib/sanitizeHtml";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 import { getListingCategoryLanding } from "@/lib/listingCategoryLanding";
 import ListingImage from "@/components/ListingImage";
@@ -781,7 +781,7 @@ export default function ListingDetail() {
                   <div
                     className="text-muted-foreground leading-relaxed [&_p]:mb-5 [&_p:last-child]:mb-0 [&_strong]:font-semibold [&_strong]:text-foreground"
                     dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(formatRichTextDescription(effectiveDescription)),
+                      __html: sanitizeHtmlString(formatRichTextDescription(effectiveDescription)),
                     }}
                   />
                 </div>

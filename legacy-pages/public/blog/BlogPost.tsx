@@ -6,7 +6,6 @@ import { useParams, useRouter } from "next/navigation";
 import { m } from 'framer-motion';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
-import DOMPurify from "dompurify";
 import { getSessionId } from '@/lib/sessionId';
 import { 
   ArrowLeft, 
@@ -39,6 +38,7 @@ import {
   buildStaticRouteData,
   type BlogPostRouteData,
 } from '@/lib/i18n/localized-routing';
+import { sanitizeHtmlString } from '@/lib/sanitizeHtml';
 import { 
   usePublishedBlogPost, 
   useIncrementBlogViews,
@@ -239,11 +239,7 @@ export default function BlogPost({
                     prose-ul:text-muted-foreground prose-ol:text-muted-foreground
                     prose-li:marker:text-primary"
                   dangerouslySetInnerHTML={{ 
-                    __html: DOMPurify.sanitize((post.content || '').replace(/\n/g, '<br/>'), {
-                      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'img', 'blockquote', 'pre', 'code'],
-                      ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'target', 'rel'],
-                      ALLOW_DATA_ATTR: false
-                    })
+                    __html: sanitizeHtmlString((post.content || '').replace(/\n/g, '<br/>'))
                   }}
                 />
 
