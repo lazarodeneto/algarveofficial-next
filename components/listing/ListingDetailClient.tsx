@@ -983,8 +983,8 @@ function ListingDetailClientInner({
           </div>
         </section>
 
-        <section className="px-4 py-8">
-          <div className="container mx-auto max-w-7xl">
+        <section className="py-8">
+          <div className="container mx-auto max-w-7xl px-4">
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
               <div className="lg:col-span-2 space-y-8">
                 <div>
@@ -1209,8 +1209,8 @@ function ListingDetailClientInner({
         </section>
 
         {relatedListings.length > 0 ? (
-          <section className="py-8 px-4 border-t border-border">
-            <div className="container mx-auto max-w-7xl">
+          <section className="border-t border-border py-8">
+            <div className="container mx-auto max-w-7xl px-4">
               <h2 className="text-2xl font-serif font-medium mb-6">
                 {t("listing.relatedListings", { category: categoryLabel })}
               </h2>
@@ -1260,7 +1260,7 @@ function ListingDetailClientInner({
               <p className="text-body text-muted-foreground text-center mb-10">
                 {t("listing.relatedDestinationsDescription")}
               </p>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {initialOtherRegions.map((r) => {
                   const imgSrc = normalizeImageUrl(r.image_url ?? r.hero_image_url);
                   return (
@@ -1301,8 +1301,8 @@ function ListingDetailClientInner({
           </section>
         )}
 
-        <section className="py-8 px-4 border-t border-border">
-          <div className="container mx-auto max-w-7xl">
+        <section className="border-t border-border py-8">
+          <div className="container mx-auto max-w-7xl px-4">
             <Link href={l("/")}>
               <Button variant="ghost">
                 <ArrowLeft className="h-4 w-4 mr-2" />

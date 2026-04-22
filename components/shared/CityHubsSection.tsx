@@ -99,7 +99,7 @@ export function CityHubsSection({
       <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <Link
           href={getCityHref(featured)}
-          className="group block h-full overflow-hidden rounded-[32px] border border-border bg-card shadow-sm"
+          className="group mx-auto block h-full w-full max-w-[22rem] overflow-hidden rounded-[32px] border border-border bg-card shadow-sm sm:max-w-none"
         >
           <div className="relative h-full min-h-[28rem]">
             {featured.hero_image_url || featured.image_url ? (
@@ -132,7 +132,7 @@ export function CityHubsSection({
           </div>
         </Link>
 
-        <div className="rounded-[32px] border border-border bg-card p-6 shadow-sm">
+        <div className="mx-auto w-full max-w-[22rem] rounded-[32px] border border-border bg-card p-6 shadow-sm sm:max-w-none">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
             {t(translationKeys.cityIndex)}
           </p>

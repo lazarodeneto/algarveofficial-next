@@ -1287,7 +1287,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
           <>
             <div className={STANDARD_PUBLIC_NO_HERO_SPACER_CLASS} aria-hidden="true" />
             <section className="app-container content-max pt-6 pb-8">
-              <div className="rounded-[2rem] border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur md:p-10">
+              <div className="mx-auto w-full max-w-[22rem] rounded-[2rem] border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur sm:max-w-3xl md:p-10">
                 <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
                   {t("directory.heroLabel")}
                 </p>
@@ -1360,7 +1360,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
               blockId="filters"
               cms={activeCms}
               as={m.div}
-              className="relative z-30 isolate mb-8"
+              className="relative z-30 isolate mb-8 mx-auto w-full max-w-[22rem] sm:max-w-none"
               style={undefined}
             >
               <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
@@ -1486,7 +1486,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                       </div>
 
                       {hasActiveFilters ? (
-                        <div className="flex justify-end">
+                        <div className="flex justify-center sm:justify-end">
                           <Button
                             variant="ghost"
                             size="sm"

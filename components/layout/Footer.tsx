@@ -241,7 +241,7 @@ export default function Footer() {
     sectionSlug: string,
     links: Array<{ name: string; href: string; open_in_new_tab?: boolean; translationKey?: string }>
   ) => (
-    <div key={title}>
+    <div key={title} className="w-full max-w-[22rem]">
       <h3 className="text-sm font-medium text-foreground tracking-wide uppercase mb-4">
         {titleKey ? t(titleKey) : title}
       </h3>
@@ -309,9 +309,9 @@ export default function Footer() {
     <footer className="bg-card/95 backdrop-blur-sm border-t border-border">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main Footer */}
-        <div className="grid grid-cols-1 gap-8 py-12 sm:grid-cols-2 sm:py-14 md:grid-cols-4 lg:grid-cols-6 lg:gap-12 lg:py-16">
+        <div className="grid grid-cols-1 justify-items-center gap-8 py-12 sm:grid-cols-2 sm:justify-items-start sm:py-14 md:grid-cols-4 lg:grid-cols-6 lg:gap-12 lg:py-16">
           {/* Brand Column */}
-          <div className="col-span-1 mb-4 sm:col-span-2 sm:mb-8 md:col-span-2 lg:col-span-2 lg:mb-0">
+          <div className="col-span-1 mb-4 w-full max-w-[22rem] sm:col-span-2 sm:mb-8 md:col-span-2 lg:col-span-2 lg:mb-0 lg:max-w-none">
             <BrandLogo size="md" />
             <p className="mt-4 text-body-sm text-muted-foreground leading-relaxed max-w-xs">
               {t("footer.description")}
@@ -371,7 +371,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="flex flex-col items-center justify-between gap-4 border-t border-border py-6 pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:flex-row lg:pb-6">
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-border py-6 pb-[calc(5.25rem+env(safe-area-inset-bottom))] text-center sm:flex-row sm:text-left lg:pb-6">
           <p className="text-body-xs text-muted-foreground">
             {t("footer.copyright", { year: new Date().getFullYear() })}
           </p>
