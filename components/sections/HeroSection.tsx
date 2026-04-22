@@ -130,13 +130,15 @@ function HeroPosterImage({
   posterUrl,
   className,
   priority = false,
+  isLoading = false,
 }: {
   hasPosterUrl: boolean;
   posterUrl: string;
   className?: string;
   priority?: boolean;
+  isLoading?: boolean;
 }) {
-  if (!hasPosterUrl) return <div className={`${className ?? ""} bg-black`} />;
+  if (!hasPosterUrl || isLoading) return <div className={`${className ?? ""} bg-gradient-to-b from-slate-900 to-black animate-pulse`} />;
 
   const posterSrc =
     buildSupabaseImageUrl(posterUrl, {
@@ -424,8 +426,8 @@ export function HeroSection() {
   const tripPlannerButtonLabel = t("hero.planTripCta");
   // ... inside the component function ...
 
-  const mediaMode = useMemo<"youtube" | "video" | "poster" | "none">(() => {
-    if (isHeroSettingsLoading) return "none";
+  const mediaMode = useMemo<"youtube" | "video" | "poster" | "none" | "loading">(() => {
+    if (isHeroSettingsLoading) return "loading";
 
     if (shouldSkipVideo) {
       return hasPosterUrl ? "poster" : "none";
@@ -452,15 +454,16 @@ export function HeroSection() {
 
   return (
     <div className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
-      <section className={cn(STANDARD_PUBLIC_HERO_SURFACE_CLASS, "min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem]")}>
+      <section className={STANDARD_PUBLIC_HERO_SURFACE_CLASS}>
         {/* Video Background */}
         <div className="absolute inset-0">
-          {mediaMode !== "none" ? (
+          {(mediaMode === "loading" || mediaMode !== "none") ? (
             <HeroPosterImage
               hasPosterUrl={hasPosterUrl}
               posterUrl={posterUrl}
               className="absolute inset-0 w-full h-full object-cover"
               priority={true}
+              isLoading={mediaMode === "loading"}
             />
           ) : (
             <div className="absolute inset-0 bg-black" aria-hidden="true" />
