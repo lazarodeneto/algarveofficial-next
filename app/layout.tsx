@@ -103,9 +103,9 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       <body className={fontVariables}>
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${googleTagId}`}
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
         />
-        <Script id="google-tag-init" strategy="beforeInteractive">
+        <Script id="google-tag-init" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
@@ -121,7 +121,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
-        <Script id="theme-init" strategy="beforeInteractive">
+        <Script id="theme-init" strategy="afterInteractive">
           {themeInitScript}
         </Script>
         <AppLazyMotion>

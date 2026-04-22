@@ -28,6 +28,7 @@ export type CityRow = Tables<"cities">;
 
 export interface DestinationsClientProps {
   initialRegions: RegionRow[];
+  imageTimestamp?: number;
 }
 
 const DESTINATIONS_REGION_FIELDS = `
@@ -62,9 +63,9 @@ async function fetchCities() {
   return (data ?? []) as CityRow[];
 }
 
-function DestinationsClientInner({ initialRegions }: DestinationsClientProps) {
+function DestinationsClientInner({ initialRegions, imageTimestamp: propImageTimestamp }: DestinationsClientProps) {
   const { t } = useTranslation();
-  const imageTimestamp = Date.now();
+  const imageTimestamp = propImageTimestamp ?? 0;
   const cms = useCmsPageBuilder("destinations");
 
   const { data: regions = initialRegions, isLoading: regionsLoading } = useQuery({

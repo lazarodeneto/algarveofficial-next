@@ -109,6 +109,7 @@ export interface DirectoryClientProps {
   initialFilters: DirectoryInitialFilters;
   globalSettings: GlobalSetting[];
   cmsPageId?: string;
+  imageTimestamp?: number;
 }
 
 function parseJsonSetting<T>(raw: string | undefined, fallback: T): T {
@@ -729,7 +730,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   const pathname = usePathname() ?? "/directory";
   const nextSearchParams = useNextSearchParams();
   const searchParamsString = nextSearchParams?.toString() ?? "";
-  const imageTimestamp = Date.now();
+  const imageTimestamp = props.imageTimestamp ?? 0;
   const searchParams = useMemo(
     () => new URLSearchParams(searchParamsString),
     [searchParamsString],

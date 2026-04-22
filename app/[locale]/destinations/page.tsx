@@ -174,7 +174,7 @@ export default async function DestinationsPage({ params }: PageProps) {
         </main>
       </div>
 
-      <DestinationsClient initialRegions={[]} />
+      <DestinationsClient initialRegions={[]} imageTimestamp={0} />
     </>
   );
 }

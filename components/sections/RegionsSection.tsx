@@ -8,22 +8,26 @@ import { useSavedDestinations } from "@/hooks/useSavedDestinations";
 import { useRegionListingCounts, useRegions } from "@/hooks/useReferenceData";
 import { useTranslation } from "react-i18next";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { getRegionImageSet } from "@/lib/regionImages";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { getRegionImageSet } from "@/lib/regionImages";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
 
-function Link(props: ComponentProps<typeof NextLink>) {
-  return <NextLink prefetch={false} {...props} />;
+interface RegionsSectionProps {
+  imageTimestamp?: number;
 }
 
-export function RegionsSection() {
+export function RegionsSection({ imageTimestamp = 0 }: RegionsSectionProps) {
   const { isDestinationSaved, toggleRegion } = useSavedDestinations();
   const { data: regionCounts } = useRegionListingCounts();
   const { data: regions, isLoading: regionsLoading } = useRegions();
   const { t } = useTranslation();
   const l = useLocalePath();
   const isLoading = regionsLoading;
+
+  function Link(props: ComponentProps<typeof NextLink>) {
+    return <NextLink prefetch={false} {...props} />;
+  }
 
   // Filter to only regions that have images available (from DB or static)
   const displayRegions = regions?.filter((region) => region.image_url || getRegionImageSet(region.slug)) ?? [];
@@ -80,7 +84,6 @@ export function RegionsSection() {
               const images = getRegionImageSet(region.slug);
               const hasCustomImage = !!region.image_url;
               const listingCount = regionCounts?.[region.id] ?? 0;
-              const imageTimestamp = Date.now();
 
               return (
                 <div key={region.id} className="relative min-w-0">

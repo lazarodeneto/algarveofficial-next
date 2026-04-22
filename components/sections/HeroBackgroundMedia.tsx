@@ -1,12 +1,14 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
+import { useRef } from "react";
 
 import { cn } from "@/lib/utils";
 
-function addCacheBust(url: string): string {
+function addCacheBust(url: string, timestamp?: number): string {
   if (!url || url.startsWith("data:") || url.startsWith("//") || url.startsWith("/")) return url;
   const separator = url.includes("?") ? "&" : "?";
-  return `${url}${separator}_t=${Date.now()}`;
+  const t = timestamp ?? 0;
+  return t > 0 ? `${url}${separator}_t=${t}` : url;
 }
 
 export type HeroMediaType = "image" | "video" | "youtube" | "poster";
@@ -21,6 +23,7 @@ interface HeroBackgroundMediaProps {
   fallback?: ReactNode;
   className?: string;
   priority?: boolean;
+  timestamp?: number;
 }
 
 function normalizeMediaType(value: string | undefined): HeroMediaType {
@@ -86,12 +89,13 @@ export function HeroBackgroundMedia({
   fallback,
   className,
   priority = true,
+  timestamp,
 }: HeroBackgroundMediaProps) {
   const resolvedMediaType = normalizeMediaType(mediaType);
-  const trimmedImageUrl = addCacheBust(imageUrl?.trim() ?? "");
+  const trimmedImageUrl = addCacheBust(imageUrl?.trim() ?? "", timestamp);
   const trimmedVideoUrl = videoUrl?.trim() ?? "";
   const trimmedYoutubeUrl = youtubeUrl?.trim() ?? "";
-  const trimmedPosterUrl = addCacheBust(posterUrl?.trim() ?? "");
+  const trimmedPosterUrl = addCacheBust(posterUrl?.trim() ?? "", timestamp);
   const hasImage = trimmedImageUrl.length > 0;
   const hasVideo = trimmedVideoUrl.length > 0;
   const hasPoster = trimmedPosterUrl.length > 0;

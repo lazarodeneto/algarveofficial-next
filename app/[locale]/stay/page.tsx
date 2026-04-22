@@ -224,6 +224,7 @@ export default async function StayPage({ params, searchParams }: PageProps) {
         initialFilters={data.filters}
         globalSettings={data.globalSettings}
         cmsPageId="stay"
+        imageTimestamp={0}
       />
     </>
   );

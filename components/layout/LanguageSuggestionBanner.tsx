@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
@@ -29,15 +29,21 @@ export function LanguageSuggestionBanner() {
   const { t } = useTranslation();
   const currentLocale = useCurrentLocale();
   const { switchLocale } = useLocaleRouter();
-  const [dismissed, setDismissed] = useState(
-    () => typeof window !== "undefined" && localStorage.getItem(STORAGE_KEY) === "true",
-  );
+  const [dismissed, setDismissed] = useState(false);
+  const [browserLang, setBrowserLang] = useState<string | null>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored === "true") {
+      setDismissed(true);
+    }
+    setBrowserLang(navigator.language?.toLowerCase() ?? "");
+  }, []);
+
   const suggestion = useMemo(() => {
     if (dismissed) return null;
-    if (typeof window === "undefined") return null;
-    if (localStorage.getItem(STORAGE_KEY) === "true") return null;
+    if (!browserLang) return null;
 
-    const browserLang = navigator.language?.toLowerCase() ?? "";
     const prefix = browserLang.split("-")[0];
     const match = SUPPORTED_LANGS[prefix];
     if (!match) return null;
@@ -45,7 +51,7 @@ export function LanguageSuggestionBanner() {
     if (match.code === currentLocale) return null;
 
     return match;
-  }, [currentLocale, dismissed]);
+  }, [currentLocale, dismissed, browserLang]);
 
   if (!suggestion) return null;
 
