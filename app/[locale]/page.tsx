@@ -8,7 +8,7 @@ import { isValidLocale, type Locale } from "@/lib/i18n/config";
 import { getDehydratedHomePageState } from "@/lib/homepage-data";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 interface PageProps {
   params: Promise<{ locale: string }>;

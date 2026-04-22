@@ -56,7 +56,6 @@ function formatTemplate(
 }
 
 export const revalidate = 60;
-export const dynamic = "force-dynamic";
 
 function buildCityCategoryRouteData(
   canonical: CanonicalCategorySlug,

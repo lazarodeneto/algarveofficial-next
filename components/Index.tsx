@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, type ComponentType } from "react";
+import { useMemo, useState, useEffect, type ComponentType } from "react";
 import dynamic from "next/dynamic";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -9,6 +9,44 @@ import { HomeQuickLinksSection } from "@/components/sections/HomeQuickLinksSecti
 import { useHomepageSettings } from "@/hooks/useHomepageSettings";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { CmsBlock } from "@/components/cms/CmsBlock";
+
+const SKELETON_DELAY_MS = 120;
+
+function DelayedFallback() {
+  const [showSkeleton, setShowSkeleton] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSkeleton(true), SKELETON_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!showSkeleton) {
+    return <div className="min-h-[200px]" />;
+  }
+
+  return (
+    <div className="py-8">
+      <div className="h-48 rounded-[1.75rem] border border-border/50 bg-muted/35 animate-pulse" />
+    </div>
+  );
+}
+
+function FadeInWrapper({ children }: { children: React.ReactNode }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    requestAnimationFrame(() => setVisible(true));
+  }, []);
+
+  return (
+    <div
+      className="transition-opacity duration-300 ease-out"
+      style={{ opacity: visible ? 1 : 0 }}
+    >
+      {children}
+    </div>
+  );
+}
 
 function HomeSectionFallback() {
   return (
@@ -26,8 +64,20 @@ const withHomeSectionLoading = <T extends ComponentType<any>>(
     const mod = await loader();
     return select ? select(mod) : (mod as { default: T }).default;
   }, {
-    loading: () => <HomeSectionFallback />,
+    loading: () => <DelayedFallback />,
   });
+
+const withFadeIn = <T extends ComponentType<any>>(
+  WrappedComponent: T,
+) => {
+  return function FadeInComponent(props: any) {
+    return (
+      <FadeInWrapper>
+        <WrappedComponent {...props} />
+      </FadeInWrapper>
+    );
+  };
+};
 
 const AlgarveGuideSection = withHomeSectionLoading(
   () => import("@/components/sections/AlgarveGuideSection"),

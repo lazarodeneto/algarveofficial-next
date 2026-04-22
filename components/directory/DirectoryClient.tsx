@@ -961,37 +961,28 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   });
 
   const stayCityIndex = useMemo(
-    () =>
-      buildMunicipalityCityIndex({
+    () => {
+      if (!isStayPage && !isExperiencesPage) return [];
+      const counts = isStayPage ? stayCityListingCounts : experiencesCityListingCounts;
+      return buildMunicipalityCityIndex({
         cities,
-        cityListingCounts: stayCityListingCounts,
+        cityListingCounts: counts,
         cityRegionMappings,
         regions,
-      }).slice(0, 8),
-    [cities, cityRegionMappings, regions, stayCityListingCounts],
-  );
-
-  const experiencesCityIndex = useMemo(
-    () =>
-      buildMunicipalityCityIndex({
-        cities,
-        cityListingCounts: experiencesCityListingCounts,
-        cityRegionMappings,
-        regions,
-      }).slice(0, 8),
-    [cities, cityRegionMappings, regions, experiencesCityListingCounts],
+      }).slice(0, 8);
+    },
+    [isStayPage, isExperiencesPage, cities, cityRegionMappings, regions, stayCityListingCounts, experiencesCityListingCounts],
   );
 
   const cityHubsTopCities = useMemo(() => {
-    if (isStayPage) return stayCityIndex as VisitCityIndexItem[];
-    if (isExperiencesPage) return experiencesCityIndex as VisitCityIndexItem[];
+    if (isStayPage || isExperiencesPage) return stayCityIndex as VisitCityIndexItem[];
     return props.visitCityIndex?.slice(0, 8) ?? [];
-  }, [isStayPage, isExperiencesPage, props.visitCityIndex, stayCityIndex, experiencesCityIndex]);
+  }, [isStayPage, isExperiencesPage, props.visitCityIndex, stayCityIndex]);
 
   const cityHubsHighlightedCity = useMemo(() => {
     const cmsBlockData = activeCms.getBlockData("featured-city-hub");
     const cmsCityId = cmsBlockData && typeof cmsBlockData.cityId === "string" ? cmsBlockData.cityId : null;
-    const targetIndex = isStayPage ? stayCityIndex : isExperiencesPage ? experiencesCityIndex : null;
+    const targetIndex = (isStayPage || isExperiencesPage) ? stayCityIndex : null;
 
     // First try to find in category-specific city index (municipality index)
     if (cmsCityId && targetIndex) {
@@ -1033,7 +1024,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
 
     if (isStayPage || isExperiencesPage) {
       const configured = props.featuredVisitCity;
-      const defaultIndex = isStayPage ? stayCityIndex : experiencesCityIndex;
+      const defaultIndex = stayCityIndex;
       if (!configured) return defaultIndex[0] ?? undefined;
 
       return (
@@ -1047,7 +1038,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
       );
     }
     return props.featuredVisitCity ?? undefined;
-  }, [isStayPage, isExperiencesPage, props.featuredVisitCity, stayCityIndex, experiencesCityIndex, activeCms, props.visitCityIndex, cities]);
+  }, [isStayPage, isExperiencesPage, props.featuredVisitCity, stayCityIndex, activeCms, props.visitCityIndex, cities]);
   const stayCityPathBuilder = useCallback((city: CityHubItem) => {
     const params = new URLSearchParams({
       category: "accommodation",

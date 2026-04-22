@@ -66,8 +66,6 @@ export function useCuratedAssignments(
   contextId: string | null,
   limit: number = 3
 ) {
-  const isBrowser = typeof window !== "undefined";
-
   return useQuery({
     queryKey: curatedAssignmentsQueryKey(contextType, contextId, limit),
     queryFn: async () => {
@@ -134,9 +132,8 @@ export function useCuratedAssignments(
 
       return validListings.slice(0, limit);
     },
-    enabled: isBrowser,
     initialData: [] as CuratedListingWithRelations[],
-    staleTime: 1000 * 60, // Keep curated cards responsive to recent admin changes
+    staleTime: 1000 * 60,
     gcTime: 1000 * 60 * 30,
   });
 }

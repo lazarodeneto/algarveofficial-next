@@ -10,10 +10,10 @@ import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export const revalidate = 3600;
-export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale: rawLocale } = await params;

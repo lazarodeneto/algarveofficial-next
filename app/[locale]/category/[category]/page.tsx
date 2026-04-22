@@ -28,7 +28,6 @@ interface PageProps {
 }
 
 export const revalidate = 60;
-export const dynamic = "force-dynamic";
 
 function formatTemplate(
   template: string | undefined,

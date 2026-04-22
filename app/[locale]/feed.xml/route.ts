@@ -69,7 +69,7 @@ async function getEvents() {
   return data ?? [];
 }
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   return SUPPORTED_LOCALES.map((locale) => ({ locale }));
