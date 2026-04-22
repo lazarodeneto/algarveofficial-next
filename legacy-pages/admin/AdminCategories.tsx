@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Tags, Plus, Search, Edit, Trash2, MoreHorizontal, Loader2 } from "lucide-react";
+import { Tags, Plus, Search, Edit, Trash2, MoreHorizontal, Loader2, Upload, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,6 +29,10 @@ import { callAdminTaxonomyApi } from "@/lib/admin/taxonomy-client";
 import { SingleImageUploadField } from "@/components/admin/listings/SingleImageUploadField";
 import { toast } from "sonner";
 import { Tables } from "@/integrations/supabase/types";
+import Image from "next/image";
+import { normalizePublicImageUrl } from "@/lib/imageUrls";
+import { canUseNextImage } from "@/lib/nextImageSafety";
+import { getCategoryFallbackImageUrl } from "@/lib/fallback-images";
 
 type Category = Tables<"categories">;
 
@@ -38,6 +42,8 @@ export default function AdminCategories() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [uploadingFor, setUploadingFor] = useState<string | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
@@ -133,6 +139,46 @@ export default function AdminCategories() {
   const confirmDelete = () => {
     if (selectedCategory) {
       deleteMutation.mutate(selectedCategory.id);
+    }
+  };
+
+  const handleFallbackUpload = async (file: File, categoryId: string) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Image must be less than 2MB");
+      return;
+    }
+
+    setUploadingFor(categoryId);
+    setUploadSuccess(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("categoryId", categoryId);
+
+      const response = await fetch("/api/admin/upload-category-fallback", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setUploadSuccess(categoryId);
+        queryClient.invalidateQueries({ queryKey: ["admin-categories"] });
+        toast.success("Fallback image updated");
+        setTimeout(() => setUploadSuccess(null), 2000);
+      } else {
+        toast.error(result.error || "Upload failed");
+      }
+    } catch (error) {
+      toast.error("Upload failed");
+    } finally {
+      setUploadingFor(null);
     }
   };
 
@@ -281,52 +327,112 @@ export default function AdminCategories() {
       </div>
 
       {/* Categories Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredCategories.map((category) => (
-          <Card key={category.id} className="bg-card border-border hover:border-primary/30 transition-colors">
-            <CardContent className="p-4">
-              <div className="flex items-start justify-between gap-2 mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Tags className="h-4 w-4 text-primary" />
-                  </div>
-                  <h3 className="font-medium text-foreground">{category.name}</h3>
+      <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-3">
+        {filteredCategories.map((category) => {
+          const uploadedFallbackImageUrl = normalizePublicImageUrl(category.fallback_image_url);
+          const defaultFallbackImageUrl = normalizePublicImageUrl(getCategoryFallbackImageUrl(category.slug));
+          const previewImageUrl = uploadedFallbackImageUrl ?? defaultFallbackImageUrl;
+          const canRenderWithNextImage = canUseNextImage(previewImageUrl);
+          const hasCustomFallbackImage = Boolean(uploadedFallbackImageUrl);
+
+          return (
+            <Card key={category.id} className="bg-card border-border hover:border-primary/30 transition-colors overflow-hidden">
+              <CardContent className="p-3">
+                {/* Fallback Image */}
+                <div className="mb-2.5">
+                  {previewImageUrl ? (
+                    <div className="relative w-full aspect-[16/10] rounded-lg overflow-hidden bg-muted">
+                      {canRenderWithNextImage ? (
+                        <Image
+                          src={previewImageUrl}
+                          alt={category.name}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <img
+                          src={previewImageUrl}
+                          alt={category.name}
+                          className="absolute inset-0 h-full w-full object-cover"
+                          loading="lazy"
+                        />
+                      )}
+                      {uploadSuccess === category.id && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                          <Check className="h-6 w-6 text-green-500" />
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="w-full aspect-[16/10] rounded-lg bg-muted flex items-center justify-center text-muted-foreground text-xs">
+                      No fallback image
+                    </div>
+                  )}
+                  <label className={`mt-2 flex items-center justify-center gap-2 text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors ${uploadingFor === category.id ? 'opacity-50 pointer-events-none' : ''}`}>
+                    {uploadingFor === category.id ? (
+                      <><Loader2 className="h-3 w-3 animate-spin" /> Uploading...</>
+                    ) : (
+                      <>
+                        <Upload className="h-3 w-3" />
+                        {(hasCustomFallbackImage ? 'Replace' : 'Upload')} fallback image
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          disabled={uploadingFor !== null}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleFallbackUpload(file, category.id);
+                          }}
+                        />
+                      </>
+                    )}
+                  </label>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => handleEdit(category)}>
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="text-destructive"
-                      onClick={() => handleDelete(category)}
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-              <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                {category.short_description || category.description || 'No description'}
-              </p>
-              <div className="flex gap-2">
-                {!category.is_active && (
-                  <Badge variant="secondary">Inactive</Badge>
-                )}
-                {category.is_featured && (
-                  <Badge className="bg-primary/20 text-primary border-primary/30">Featured</Badge>
-                )}
-              </div>
+
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Tags className="h-3.5 w-3.5 text-primary" />
+                    </div>
+                    <h3 className="font-medium text-foreground text-[1.05rem] leading-tight">{category.name}</h3>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleEdit(category)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={() => handleDelete(category)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                  {category.short_description || category.description || 'No description'}
+                </p>
+                <div className="flex gap-2">
+                  {!category.is_active && (
+                    <Badge variant="secondary">Inactive</Badge>
+                  )}
+                  {category.is_featured && (
+                    <Badge className="bg-primary/20 text-primary border-primary/30">Featured</Badge>
+                  )}
+                </div>
             </CardContent>
           </Card>
-        ))}
+          );
+        })}
       </div>
 
       {/* Count */}

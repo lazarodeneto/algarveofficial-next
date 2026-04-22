@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { getOptimizedImageUrl, SIZES } from "@/lib/image";
 import { canUseNextImage } from "@/lib/nextImageSafety";
+import { getCategoryFallbackImageUrl, normalizeFallbackImageUrl } from "@/lib/fallback-images";
 
 export interface ListingImageProps {
   src?: string | null;
@@ -56,6 +57,7 @@ function resolveCategoryImageUrl(src: string | null | undefined): string | null 
 
 export default function ListingImage({
   src,
+  category,
   categoryImageUrl,
   fallbackSrc = "/placeholder.svg",
   alt,
@@ -72,10 +74,13 @@ export default function ListingImage({
 }: ListingImageProps) {
   const [hasError, setHasError] = useState(false);
 
+  const categorySlug = category;
+
   const sourceCandidates = [
     hasError ? null : resolveListingImageUrl(src),
     hasError ? null : resolveCategoryImageUrl(categoryImageUrl),
     resolveListingImageUrl(fallbackSrc),
+    getCategoryFallbackImageUrl(categorySlug),
   ].filter((url): url is string => url !== null);
 
   const currentUrl = sourceCandidates[0] ?? "/placeholder.svg";

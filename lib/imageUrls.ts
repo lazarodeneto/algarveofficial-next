@@ -37,6 +37,7 @@ export function normalizePublicImageUrl(value?: string | null): string | null {
 
   const trimmed = value.trim();
   if (!trimmed) return null;
+  if (isPlaceholderImageUrl(trimmed)) return null;
   if (isBlockedPublicImageUrl(trimmed)) return null;
 
   if (trimmed.startsWith("//")) {
@@ -57,6 +58,15 @@ export function normalizePublicImageUrl(value?: string | null): string | null {
   }
 
   return trimmed;
+}
+
+function isPlaceholderImageUrl(value: string): boolean {
+  try {
+    const hostname = new URL(value).hostname.toLowerCase();
+    return hostname === "yoursite.com" || hostname.endsWith(".yoursite.com");
+  } catch {
+    return value.toLowerCase().includes("yoursite.com");
+  }
 }
 
 const SUPABASE_PUBLIC_OBJECT_SEGMENT = "/storage/v1/object/public/";
