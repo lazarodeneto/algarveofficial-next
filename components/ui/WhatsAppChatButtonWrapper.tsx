@@ -18,6 +18,7 @@ export function WhatsAppChatButtonWrapper() {
   });
   const barePath = stripLocaleFromPathname(pathname);
   const shouldHide = HIDDEN_ROUTE_PREFIXES.some((prefix) => barePath.startsWith(prefix));
+  const isListingRoute = barePath.startsWith("/listing");
 
   const phoneNumber = toWhatsAppDigits(
     settings.find((s) => s.key === "whatsapp_number")?.value || PRIMARY_WHATSAPP_NUMBER,
@@ -29,5 +30,9 @@ export function WhatsAppChatButtonWrapper() {
     return null;
   }
 
-  return <WhatsAppChatButton phoneNumber={phoneNumber} defaultMessage={defaultMessage} />;
+  return (
+    <div className={isListingRoute ? "hidden lg:block" : undefined}>
+      <WhatsAppChatButton phoneNumber={phoneNumber} defaultMessage={defaultMessage} />
+    </div>
+  );
 }

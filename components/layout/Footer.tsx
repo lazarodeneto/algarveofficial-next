@@ -10,7 +10,6 @@ import { BrandLogo } from "@/components/ui/brand-logo";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { FooterNav } from "@/components/layout/FooterNav";
 import { toast } from "sonner";
 import { useNewsletterSignup } from "@/hooks/useNewsletterSignup";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
@@ -241,7 +240,12 @@ export default function Footer() {
     sectionSlug: string,
     links: Array<{ name: string; href: string; open_in_new_tab?: boolean; translationKey?: string }>
   ) => (
-    <div key={title} className="w-full max-w-[22rem]">
+    <div
+      key={title}
+      className={`w-full max-w-[22rem] text-center sm:text-left ${
+        sectionSlug === "legal" ? "rounded-xl bg-muted/25 px-4 py-4 sm:bg-transparent sm:px-0 sm:py-0" : ""
+      }`}
+    >
       <h3 className="text-sm font-medium text-foreground tracking-wide uppercase mb-4">
         {titleKey ? t(titleKey) : title}
       </h3>
@@ -276,7 +280,7 @@ export default function Footer() {
         <button
           type="button"
           onClick={openCookiePreferences}
-          className="mt-3 text-body-sm text-left text-muted-foreground transition-colors hover:text-primary"
+          className="mt-3 text-body-sm text-muted-foreground transition-colors hover:text-primary text-center sm:text-left"
         >
           {t("footer.cookieSettings")}
         </button>
@@ -351,11 +355,11 @@ export default function Footer() {
             </div>
 
             <div className="mt-5 space-y-3">
-              <div className="flex items-center gap-3 text-body-sm text-muted-foreground">
+              <div className="flex items-center justify-center gap-3 text-body-sm text-muted-foreground sm:justify-start">
                 <MapPin className="h-4 w-4 text-primary" />
                 <span>{t("footer.location")}</span>
               </div>
-              <div className="flex items-center gap-3 text-body-sm text-muted-foreground">
+              <div className="flex items-center justify-center gap-3 text-body-sm text-muted-foreground sm:justify-start">
                 <Mail className="h-4 w-4 text-primary" />
                 <span>{normalizePublicContactEmail(t("footer.email"))}</span>
               </div>
@@ -364,10 +368,6 @@ export default function Footer() {
 
         {/* Dynamic Sections */}
         {sections.map((section) => renderSection(section.title, section.titleKey, section.slug, section.links))}
-        </div>
-
-        <div className="pb-6">
-          <FooterNav />
         </div>
 
         {/* Bottom Bar */}

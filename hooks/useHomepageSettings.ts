@@ -208,7 +208,8 @@ export function useHeroSettings() {
 
   const localizedSettings = useMemo(() => {
     if (!settings) return null;
-    if (!translation || locale === "en") return settings;
+    if (locale === "en") return settings;
+    if (!translation) return settings;
 
     return {
       ...settings,
@@ -227,6 +228,7 @@ export function useHeroSettings() {
 
   return {
     settings: localizedSettings,
+    hasLocaleTranslation: locale === "en" ? true : Boolean(translation),
     isLoading: isLoading || (locale !== "en" && Boolean(settings?.id) && isTranslationLoading),
   };
 }

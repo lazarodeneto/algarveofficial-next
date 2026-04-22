@@ -1,6 +1,6 @@
 "use client";
 
-import { type SVGProps, useEffect, useMemo, useState } from "react";
+import { type SVGProps, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -10,6 +10,7 @@ import {
   ArrowLeft,
   MapPin,
   Globe,
+  ConciergeBell,
   Instagram,
   Facebook,
   Share2,
@@ -39,6 +40,7 @@ import { useChatModal } from "@/components/chat/ChatProvider";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useHydrated } from "@/hooks/useHydrated";
+import { useMobileMenu } from "@/contexts/MobileMenuContext";
 import { LoginModal } from "@/components/ui/login-modal";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -59,6 +61,8 @@ import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import { ListingReviews } from "@/components/listing-details/ListingReviews";
 import type { ListingReview } from "@/hooks/useListingReviews";
 import { getListingTierRules } from "@/lib/listingTierRules";
+import { PRIMARY_WHATSAPP_NUMBER, toWhatsAppDigits } from "@/lib/contactPhone";
+import { cn } from "@/lib/utils";
 import { LuxuryAccommodationLayout } from "@/components/listing-details/LuxuryAccommodationLayout";
 import { FineDiningLayout } from "@/components/listing-details/FineDiningLayout";
 import { GolfLayout } from "@/components/listing-details/GolfLayout";
@@ -256,6 +260,8 @@ const normalizeImageUrl = (value?: string | null): string | null => normalizePub
 
 const WHATSAPP_CTA_CLASSNAME =
   "w-full border-[#25D366] bg-[#25D366] text-white hover:border-[#1EBE5D] hover:bg-[#1EBE5D] hover:text-white focus-visible:ring-[#25D366]/60";
+const MOBILE_BOTTOM_NAV_FALLBACK_HEIGHT = 78;
+const CONCIERGE_DEFAULT_MESSAGE = "Hello! I'm interested in learning more about your premium services in Algarve.";
 
 function WhatsAppLogo(props: SVGProps<SVGSVGElement>) {
   return (
@@ -419,6 +425,7 @@ function ListingDetailClientInner({
   const { user } = useAuth();
   const { openChat } = useChatModal();
   const { isFavorite, toggleFavorite } = useFavoriteListings();
+  const { mobileMenuOpen } = useMobileMenu();
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -428,6 +435,9 @@ function ListingDetailClientInner({
   const [tr, setTr] = useState<ListingTranslationRow | null>(initialTranslation);
   const [trLoading, setTrLoading] = useState(false);
   const [trError, setTrError] = useState<string | null>(null);
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
+  const [mobileBottomNavHeight, setMobileBottomNavHeight] = useState(MOBILE_BOTTOM_NAV_FALLBACK_HEIGHT);
+  const scrollTimeoutRef = useRef<number | null>(null);
 
   const { data: listing, isLoading, error } = useQuery({
     queryKey: ["listing", initialLookupValue, routeLocale],
@@ -520,6 +530,46 @@ function ListingDetailClientInner({
     };
   }, [initialTranslation, listing?.id, routeLocale]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsUserScrolling(true);
+      if (scrollTimeoutRef.current !== null) {
+        window.clearTimeout(scrollTimeoutRef.current);
+      }
+      scrollTimeoutRef.current = window.setTimeout(() => {
+        setIsUserScrolling(false);
+      }, 180);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollTimeoutRef.current !== null) {
+        window.clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const updateBottomNavHeight = () => {
+      const mobileNav = document.querySelector<HTMLElement>(".bottom-nav");
+      if (!mobileNav) return;
+      const measuredHeight = mobileNav.getBoundingClientRect().height;
+      if (measuredHeight > 0) {
+        setMobileBottomNavHeight(Math.ceil(measuredHeight));
+      }
+    };
+
+    updateBottomNavHeight();
+    window.addEventListener("resize", updateBottomNavHeight);
+    window.addEventListener("orientationchange", updateBottomNavHeight);
+
+    return () => {
+      window.removeEventListener("resize", updateBottomNavHeight);
+      window.removeEventListener("orientationchange", updateBottomNavHeight);
+    };
+  }, []);
+
   const isAdminOrEditor = user?.role === "admin" || user?.role === "editor";
 
   const effectiveTitle = useMemo(() => tr?.title?.trim() || listing?.name || "", [listing?.name, tr?.title]);
@@ -554,6 +604,10 @@ function ListingDetailClientInner({
       ?? normalizeExternalUrl(details.booking_url as string | undefined)
     )
     : null;
+  const isSignatureOrVerifiedTier = listing.tier === "signature" || listing.tier === "verified";
+  const shouldShowMobileWhatsAppAction = isSignatureOrVerifiedTier && Boolean(directWhatsAppUrl);
+  const shouldShowMobileWebsiteAction = isSignatureOrVerifiedTier && Boolean(ctaUrl);
+  const conciergeWhatsAppUrl = `https://wa.me/${toWhatsAppDigits(PRIMARY_WHATSAPP_NUMBER)}?text=${encodeURIComponent(CONCIERGE_DEFAULT_MESSAGE)}`;
 
   const handleMessageClick = () => {
     if (!listing) return;
@@ -574,14 +628,6 @@ function ListingDetailClientInner({
     }
 
     setShowLoginModal(true);
-  };
-
-  const handleDirectContactClick = () => {
-    if (directContactUrl) {
-      window.open(directContactUrl, "_blank", "noopener,noreferrer");
-      return;
-    }
-    handleMessageClick();
   };
 
   const openAgentContactModal = (scheduleVisit = false) => {
@@ -1358,54 +1404,79 @@ function ListingDetailClientInner({
 
       <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
 
-      <div className="fixed inset-x-0 z-40 border-t border-border bg-background/92 p-3 backdrop-blur-md safe-area-bottom lg:hidden bottom-[calc(4.9rem+env(safe-area-inset-bottom))]">
-        <div className="flex gap-2.5 sm:gap-3">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleSaveClick}
-            className="shrink-0"
-            aria-label={t("listing.saveToFavorites")}
-          >
-            <Heart className={`h-5 w-5 ${isFavorite(listing.id) ? "fill-red-500 text-red-500" : ""}`} />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleShareClick}
-            className="shrink-0"
-            aria-label={t("listing.share")}
-          >
-            <Share2 className="h-5 w-5" />
-          </Button>
-          {(tierRules.allowDirectContactButton || tierRules.allowCtaButton) ? (
-            <div className="flex-1 flex flex-col gap-2">
-              {directContactUrl ? (
-                <Button
-                  onClick={handleDirectContactClick}
-                  variant={hasWhatsAppDirectContact ? "outline" : "default"}
-                  className={hasWhatsAppDirectContact ? WHATSAPP_CTA_CLASSNAME : "w-full"}
-                >
-                  {hasWhatsAppDirectContact ? (
-                    <WhatsAppLogo className="mr-2" />
-                  ) : (
-                    <MessageCircle className="mr-2" />
-                  )}
-                  {directContactLabel}
-                </Button>
-              ) : null}
-              {ctaUrl ? (
-                <Button variant="outline" asChild>
-                  <a href={ctaUrl} target="_blank" rel="noopener noreferrer">
-                    <Globe className="h-5 w-5 mr-2" />
-                    {t("listing.visitWebsite")}
-                  </a>
-                </Button>
-              ) : null}
-            </div>
-          ) : null}
+      {!mobileMenuOpen ? (
+        <div
+          className={cn(
+            "fixed inset-x-0 z-40 border-t border-border bg-background/92 px-1 py-2.5 backdrop-blur-md transition-transform duration-200 ease-out lg:hidden",
+            isUserScrolling && "translate-y-[calc(100%+var(--listing-mobile-actions-offset))]",
+          )}
+          style={{
+            bottom: `${mobileBottomNavHeight}px`,
+            ["--listing-mobile-actions-offset" as string]: `${mobileBottomNavHeight}px`,
+          }}
+        >
+          <div className="mx-auto flex w-full max-w-md items-center justify-between gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              asChild
+              className="h-12 w-12 shrink-0 rounded-xl border-[hsl(43_74%_49%/0.35)] text-[hsl(43_74%_49%)] hover:border-[hsl(43_74%_49%/0.55)] hover:text-[hsl(43_74%_49%)]"
+            >
+              <a
+                href={conciergeWhatsAppUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={t("realEstate.conciergeButton")}
+              >
+                <ConciergeBell className="h-6 w-6" />
+              </a>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleSaveClick}
+              className="h-12 w-12 shrink-0 rounded-xl"
+              aria-label={t("listing.saveToFavorites")}
+            >
+              <Heart className={`h-6 w-6 ${isFavorite(listing.id) ? "fill-red-500 text-red-500" : ""}`} />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleShareClick}
+              className="h-12 w-12 shrink-0 rounded-xl"
+              aria-label={t("listing.share")}
+            >
+              <Share2 className="h-6 w-6" />
+            </Button>
+
+            {shouldShowMobileWebsiteAction ? (
+              <Button variant="outline" size="icon" asChild className="h-12 w-12 shrink-0 rounded-xl">
+                <a href={ctaUrl ?? undefined} target="_blank" rel="noopener noreferrer" aria-label={t("listing.visitWebsite")}>
+                  <Globe className="h-6 w-6" />
+                </a>
+              </Button>
+            ) : null}
+
+            {shouldShowMobileWhatsAppAction ? (
+              <Button
+                variant="outline"
+                size="icon"
+                asChild
+                className="h-12 min-w-[7.5rem] max-w-[10rem] flex-1 shrink-0 gap-1 rounded-xl border-[#25D366] bg-[#25D366] px-1.5 text-white hover:border-[#1EBE5D] hover:bg-[#1EBE5D] hover:text-white"
+              >
+                <a href={directWhatsAppUrl ?? undefined} target="_blank" rel="noopener noreferrer" aria-label={t("listing.messageWhatsApp")}>
+                  <WhatsAppLogo className="h-7 w-7" />
+                  <span className="text-[11px] font-semibold tracking-[0.08em] leading-none">
+                    {t("listing.social.whatsapp", "WhatsApp").toUpperCase()}
+                  </span>
+                </a>
+              </Button>
+            ) : null}
+          </div>
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }

@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { useHydrated } from "@/hooks/useHydrated";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { buildSupabaseImageUrl } from "@/lib/imageUrls";
 import { cn } from "@/lib/utils";
 import { STANDARD_PUBLIC_HERO_SURFACE_CLASS, STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
@@ -327,10 +328,11 @@ export function HeroSection() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(
     false,
   );
-  const { settings, isLoading: isHeroSettingsLoading } = useHeroSettings();
+  const { settings, hasLocaleTranslation, isLoading: isHeroSettingsLoading } = useHeroSettings();
   const { settings: runtimeSettings } = useGlobalSettings({
     keys: [HERO_OVERLAY_INTENSITY_SETTING_KEY],
   });
+  const locale = useCurrentLocale();
   const { t } = useTranslation();
   const { isSlow } = useConnectionQuality();
   const { createTrip } = useTripPlanner();
@@ -402,8 +404,13 @@ export function HeroSection() {
     50,
   );
   const overlayOpacity = overlayIntensity / 100;
-  // Use CMS hero copy when available.
-  const heroHeadline = settings?.hero_title?.trim() ?? `${t("hero.headline")} ${t("hero.headlineHighlight")}`;
+  const localizedHeroHeadline = `${t("hero.headline")} ${t("hero.headlineHighlight")}`;
+  const localizedHeroSubtitle = t("hero.subtitle");
+  const shouldForceLocalizedHeroCopy = locale !== "en" && !hasLocaleTranslation;
+  // Use locale-aware hero copy: non-English locales should never fall back to English CMS values.
+  const heroHeadline = shouldForceLocalizedHeroCopy
+    ? localizedHeroHeadline
+    : settings?.hero_title?.trim() ?? localizedHeroHeadline;
   const heroHeadlineLines = useMemo(() => {
     const normalized = heroHeadline.replace(/\s+/g, " ").trim().toLowerCase();
     if (normalized === "discover the algarve through trusted local expertise") {
@@ -411,7 +418,9 @@ export function HeroSection() {
     }
     return [heroHeadline];
   }, [heroHeadline]);
-  const heroSubtitle = settings?.hero_subtitle?.trim() ?? t("hero.subtitle");
+  const heroSubtitle = shouldForceLocalizedHeroCopy
+    ? localizedHeroSubtitle
+    : settings?.hero_subtitle?.trim() ?? localizedHeroSubtitle;
   const tripPlannerButtonLabel = t("hero.planTripCta");
   // ... inside the component function ...
 

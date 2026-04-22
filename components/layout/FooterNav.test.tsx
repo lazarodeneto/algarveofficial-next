@@ -29,12 +29,12 @@ describe("FooterNav", () => {
   it("renders footer labels instead of raw translation keys", () => {
     render(<FooterNav />);
 
-    expect(screen.getByRole("link", { name: "About Us" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Privacy Policy" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Cookie Policy" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Terms of Service" })).toBeInTheDocument();
 
-    expect(screen.queryByText("nav.about")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "About Us" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Blog" })).not.toBeInTheDocument();
     expect(screen.queryByText("nav.privacy")).not.toBeInTheDocument();
     expect(screen.queryByText("nav.cookies")).not.toBeInTheDocument();
     expect(screen.queryByText("nav.terms")).not.toBeInTheDocument();
