@@ -35,6 +35,7 @@ export interface HomepageSettings {
 }
 
 interface HomepageSettingsTranslation {
+  settings_id?: string;
   locale: string;
   status: string | null;
   hero_title: string | null;
@@ -44,7 +45,14 @@ interface HomepageSettingsTranslation {
 }
 
 const HOMEPAGE_TRANSLATION_FIELDS =
-  "locale, status, hero_title, hero_subtitle, hero_cta_primary_text, hero_cta_secondary_text";
+  "settings_id, locale, status, hero_title, hero_subtitle, hero_cta_primary_text, hero_cta_secondary_text";
+
+const HOMEPAGE_TRANSLATABLE_FIELDS = new Set<keyof HomepageSettings>([
+  "hero_title",
+  "hero_subtitle",
+  "hero_cta_primary_text",
+  "hero_cta_secondary_text",
+]);
 
 const homepageTranslationClient = supabase as typeof supabase & {
   from: (relation: "homepage_settings_translations") => {
@@ -53,6 +61,14 @@ const homepageTranslationClient = supabase as typeof supabase & {
         eq: (column: string, value: string) => {
           maybeSingle: () => Promise<{ data: HomepageSettingsTranslation | null; error: unknown }>;
         };
+      };
+    };
+    upsert: (
+      payload: Record<string, unknown>,
+      options: { onConflict: string },
+    ) => {
+      select: (...args: unknown[]) => {
+        maybeSingle: () => Promise<{ data: HomepageSettingsTranslation | null; error: unknown }>;
       };
     };
   };
@@ -70,6 +86,36 @@ const normalizeHomepageLocale = (language: string | undefined): string => {
 const preferTranslatedValue = (translated: string | null | undefined, fallback: string | null) => {
   const trimmed = translated?.trim();
   return trimmed && trimmed.length > 0 ? trimmed : fallback;
+};
+
+const normalizeTranslatableText = (value: unknown): string | null => {
+  if (value === null || value === undefined) return null;
+  if (typeof value !== "string") return String(value);
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? value : null;
+};
+
+const mergeHomepageTranslation = (
+  settings: HomepageSettings | null,
+  translation: HomepageSettingsTranslation | null,
+  locale: string,
+): HomepageSettings | null => {
+  if (!settings) return null;
+  if (locale === "en" || !translation) return settings;
+
+  return {
+    ...settings,
+    hero_title: preferTranslatedValue(translation.hero_title, settings.hero_title),
+    hero_subtitle: preferTranslatedValue(translation.hero_subtitle, settings.hero_subtitle),
+    hero_cta_primary_text: preferTranslatedValue(
+      translation.hero_cta_primary_text,
+      settings.hero_cta_primary_text,
+    ),
+    hero_cta_secondary_text: preferTranslatedValue(
+      translation.hero_cta_secondary_text,
+      settings.hero_cta_secondary_text,
+    ),
+  } satisfies HomepageSettings;
 };
 
 export function useHomepageSettings() {
@@ -98,81 +144,6 @@ export function useHomepageSettings() {
     staleTime: 1000 * 60 * 5,
   });
 
-  const updateSettings = useMutation({
-    mutationFn: async (newSettings: Partial<HomepageSettings>) => {
-      // Read current row first so updates only include columns that actually exist
-      // in the connected database schema.
-      const { data: current, error: currentError } = await supabase
-        .from('homepage_settings')
-        .select('*')
-        .order('updated_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (currentError) throw currentError;
-      const currentRow = current as Record<string, unknown> | null;
-
-      if (!currentRow) {
-        // Create if doesn't exist
-        const payload = {
-          ...newSettings,
-          updated_at: new Date().toISOString(),
-        };
-        const { data, error } = await supabase
-          .from('homepage_settings')
-          .insert(payload)
-          .select()
-          .single();
-        if (error) throw error;
-        return data as HomepageSettings;
-      }
-
-      // Filter unknown keys to avoid failures when DB is missing newer columns.
-      const allowedKeys = new Set(Object.keys(currentRow));
-      const filteredSettings = Object.fromEntries(
-        Object.entries(newSettings).filter(([key, value]) => value !== undefined && allowedKeys.has(key))
-      );
-      const safeSettings = {
-        ...filteredSettings,
-        ...(allowedKeys.has("updated_at") ? { updated_at: new Date().toISOString() } : {}),
-      };
-
-      if (Object.keys(filteredSettings).length === 0) {
-        throw new Error("No compatible homepage fields were saved. Please run latest database migrations.");
-      }
-
-      const { data, error } = await supabase
-        .from('homepage_settings')
-        .update(safeSettings)
-        .eq('id', String(currentRow.id))
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data as HomepageSettings;
-    },
-    onSuccess: (data) => {
-      queryClient.setQueryData(homepageSettingsQueryKey(locale), data);
-      // Force cache refresh so the public homepage gets fresh data immediately
-      queryClient.invalidateQueries({ queryKey: homepageSettingsQueryKey(locale) });
-    },
-  });
-
-  return {
-    settings,
-    isLoading,
-    error,
-    updateSettings: updateSettings.mutate,
-    updateSettingsAsync: updateSettings.mutateAsync,
-    isUpdating: updateSettings.isPending,
-  };
-}
-
-// Lightweight hook for public pages - just fetches hero data
-export function useHeroSettings() {
-  const { settings, isLoading } = useHomepageSettings();
-  const locale = normalizeHomepageLocale(useCurrentLocale());
-
   const { data: translation, isLoading: isTranslationLoading } = useQuery({
     queryKey: homepageSettingsTranslationQueryKey(settings?.id ?? null, locale),
     enabled: Boolean(settings?.id) && locale !== "en",
@@ -188,8 +159,7 @@ export function useHeroSettings() {
         .maybeSingle();
 
       if (error) {
-        // Public hero copy should gracefully fall back to English if translation
-        // rows are temporarily unavailable or not yet migrated.
+        // Non-English locales gracefully fall back to the base row.
         return null;
       }
 
@@ -197,29 +167,177 @@ export function useHeroSettings() {
     },
   });
 
-  const localizedSettings = useMemo(() => {
-    if (!settings) return null;
-    if (locale === "en") return settings;
-    if (!translation) return settings;
+  const localizedSettings = useMemo(
+    () => mergeHomepageTranslation(settings ?? null, translation ?? null, locale),
+    [locale, settings, translation],
+  );
 
-    return {
-      ...settings,
-      hero_title: preferTranslatedValue(translation.hero_title, settings.hero_title),
-      hero_subtitle: preferTranslatedValue(translation.hero_subtitle, settings.hero_subtitle),
-      hero_cta_primary_text: preferTranslatedValue(
-        translation.hero_cta_primary_text,
-        settings.hero_cta_primary_text,
-      ),
-      hero_cta_secondary_text: preferTranslatedValue(
-        translation.hero_cta_secondary_text,
-        settings.hero_cta_secondary_text,
-      ),
-    } satisfies HomepageSettings;
-  }, [locale, settings, translation]);
+  const updateSettings = useMutation({
+    mutationFn: async (newSettings: Partial<HomepageSettings>) => {
+      const translatableUpdates = Object.fromEntries(
+        Object.entries(newSettings)
+          .filter(([key, value]) => value !== undefined && HOMEPAGE_TRANSLATABLE_FIELDS.has(key as keyof HomepageSettings))
+          .map(([key, value]) => [key, normalizeTranslatableText(value)]),
+      );
+
+      const baseUpdates = Object.fromEntries(
+        Object.entries(newSettings).filter(
+          ([key, value]) => value !== undefined && !HOMEPAGE_TRANSLATABLE_FIELDS.has(key as keyof HomepageSettings),
+        ),
+      );
+
+      // Read current row first so updates only include columns that actually exist
+      // in the connected database schema.
+      const { data: current, error: currentError } = await supabase
+        .from('homepage_settings')
+        .select('*')
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (currentError) throw currentError;
+      const currentRow = current as Record<string, unknown> | null;
+      const shouldWriteBaseTranslatableFields = locale === "en";
+      const desiredBaseUpdates = shouldWriteBaseTranslatableFields
+        ? newSettings
+        : baseUpdates;
+
+      if (!currentRow) {
+        // Create if doesn't exist
+        const createPayloadSource = shouldWriteBaseTranslatableFields
+          ? desiredBaseUpdates
+          : baseUpdates;
+        const payload = {
+          ...createPayloadSource,
+          updated_at: new Date().toISOString(),
+        };
+        const { data, error } = await supabase
+          .from('homepage_settings')
+          .insert(payload)
+          .select()
+          .single();
+        if (error) throw error;
+        const createdRow = data as HomepageSettings;
+
+        if (locale !== "en" && Object.keys(translatableUpdates).length > 0) {
+          const { data: upsertedTranslation, error: translationError } = await homepageTranslationClient
+            .from("homepage_settings_translations")
+            .upsert(
+              {
+                settings_id: createdRow.id,
+                locale,
+                ...translatableUpdates,
+                status: "reviewed",
+                translated_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              },
+              { onConflict: "settings_id,locale" },
+            )
+            .select(HOMEPAGE_TRANSLATION_FIELDS)
+            .maybeSingle();
+
+          if (translationError) {
+            const message =
+              translationError instanceof Error
+                ? translationError.message
+                : "Failed to save localized hero content.";
+            throw new Error(message);
+          }
+
+          return mergeHomepageTranslation(createdRow, upsertedTranslation, locale) as HomepageSettings;
+        }
+
+        return createdRow;
+      }
+
+      // Filter unknown keys to avoid failures when DB is missing newer columns.
+      const allowedKeys = new Set(Object.keys(currentRow));
+      const filteredBaseUpdates = Object.fromEntries(
+        Object.entries(desiredBaseUpdates).filter(([key, value]) => value !== undefined && allowedKeys.has(key))
+      );
+
+      const hasBaseUpdates = Object.keys(filteredBaseUpdates).length > 0;
+      const hasTranslationUpdates = Object.keys(translatableUpdates).length > 0;
+
+      if (!hasBaseUpdates && !hasTranslationUpdates) {
+        throw new Error("No compatible homepage fields were saved. Please run latest database migrations.");
+      }
+
+      let updatedRow = currentRow as unknown as HomepageSettings;
+
+      if (hasBaseUpdates) {
+        const safeBaseUpdates = {
+          ...filteredBaseUpdates,
+          ...(allowedKeys.has("updated_at") ? { updated_at: new Date().toISOString() } : {}),
+        };
+
+        const { data, error } = await supabase
+          .from('homepage_settings')
+          .update(safeBaseUpdates)
+          .eq('id', String(currentRow.id))
+          .select()
+          .single();
+
+        if (error) throw error;
+        updatedRow = data as HomepageSettings;
+      }
+
+      if (locale !== "en" && hasTranslationUpdates) {
+        const { data: upsertedTranslation, error: translationError } = await homepageTranslationClient
+          .from("homepage_settings_translations")
+          .upsert(
+            {
+              settings_id: String(currentRow.id),
+              locale,
+              ...translatableUpdates,
+              status: "reviewed",
+              translated_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "settings_id,locale" },
+          )
+          .select(HOMEPAGE_TRANSLATION_FIELDS)
+          .maybeSingle();
+
+        if (translationError) {
+          const message =
+            translationError instanceof Error
+              ? translationError.message
+              : "Failed to save localized hero content.";
+          throw new Error(message);
+        }
+
+        return mergeHomepageTranslation(updatedRow, upsertedTranslation, locale) as HomepageSettings;
+      }
+
+      return updatedRow;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(homepageSettingsQueryKey(locale), data);
+      // Force cache refresh so the public homepage gets fresh data immediately
+      queryClient.invalidateQueries({ queryKey: homepageSettingsQueryKey(locale) });
+      queryClient.invalidateQueries({ queryKey: homepageSettingsTranslationQueryKey(data?.id ?? null, locale) });
+    },
+  });
 
   return {
     settings: localizedSettings,
-    hasLocaleTranslation: locale === "en" ? true : Boolean(translation),
     isLoading: isLoading || (locale !== "en" && Boolean(settings?.id) && isTranslationLoading),
+    error,
+    hasLocaleTranslation: locale === "en" ? true : Boolean(translation),
+    updateSettings: updateSettings.mutate,
+    updateSettingsAsync: updateSettings.mutateAsync,
+    isUpdating: updateSettings.isPending,
+  };
+}
+
+// Lightweight hook for public pages - just fetches hero data
+export function useHeroSettings() {
+  const { settings, isLoading, hasLocaleTranslation } = useHomepageSettings();
+
+  return {
+    settings,
+    hasLocaleTranslation,
+    isLoading,
   };
 }
