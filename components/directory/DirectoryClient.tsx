@@ -1291,7 +1291,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                 <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
                   {t("directory.heroLabel")}
                 </p>
-                <h1 className="mt-4 font-serif text-4xl text-foreground md:text-5xl">
+                <h1 className="mt-4 font-serif text-3xl text-foreground sm:text-4xl md:text-5xl">
                   {t("directory.title")}
                 </h1>
                 <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground">
@@ -1390,7 +1390,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                           placeholder={t("directory.searchPlaceholder")}
                           value={search}
                           onChange={(event) => setSearch(event.target.value)}
-                          className="pl-12 h-12 text-lg bg-muted/30 border-border focus:bg-background"
+                          className="h-12 border-border bg-muted/30 pl-12 text-base focus:bg-background sm:text-lg"
                         />
                       </div>
 
@@ -1514,7 +1514,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
               as="section"
             >
               <div id={resultsAnchorId} />
-              <div className="flex items-center justify-between mb-6">
+              <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-body-sm text-muted-foreground">
                   {isLoading ? (
                     <span className="flex items-center gap-2">
@@ -1526,7 +1526,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                   )}
                 </p>
                 <Link href={mapHref}>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="w-full sm:w-auto">
                     <MapPin className="h-4 w-4 mr-2" />
                     {t("directory.mapView")}
                   </Button>

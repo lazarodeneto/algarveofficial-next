@@ -361,8 +361,8 @@ function ClusteredMarkers({
               }}
             >
               {showPopups && (
-                <Popup className="listing-map-popup" minWidth={220}>
-                  <div className="space-y-2 min-w-[220px]">
+                <Popup className="listing-map-popup" minWidth={180}>
+                  <div className="w-[min(220px,calc(100vw-7rem))] space-y-2">
                     <ListingImage
                       src={point.featuredImageUrl}
                       category={point.categorySlug}
@@ -421,7 +421,7 @@ function ClusteredMarkers({
           >
             {showPopups && (
               <Popup>
-                <div className="min-w-[210px] space-y-2">
+                <div className="w-[min(210px,calc(100vw-7rem))] space-y-2">
                   <p className="text-sm font-semibold text-foreground">{node.count} listings in this area</p>
                   <ul className="text-xs text-muted-foreground space-y-1">
                     {node.samples.map((sample) => (

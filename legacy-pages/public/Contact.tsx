@@ -150,7 +150,7 @@ export default function Contact() {
             <Header />
 
             {/* Hero Section */}
-            <section className="relative overflow-hidden pt-24 pb-8 lg:pt-32 lg:pb-12">
+            <section className="relative overflow-hidden pt-20 pb-6 lg:pt-32 lg:pb-12">
                 <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
                 <div className="absolute top-1/4 left-1/4 w-px h-32 bg-gradient-to-b from-transparent via-primary/30 to-transparent" />
                 <div className="absolute top-1/3 right-1/3 w-px h-24 bg-gradient-to-b from-transparent via-primary/20 to-transparent" />
@@ -161,10 +161,10 @@ export default function Contact() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
                     >
-                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-medium text-foreground leading-tight">
+                        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-medium text-foreground leading-tight">
                             {heroTitle}
                         </h1>
-                        <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
+                        <p className="mt-4 max-w-2xl mx-auto text-base text-muted-foreground sm:text-lg">
                             {heroSubtitle}
                         </p>
                     </m.div>
@@ -173,7 +173,7 @@ export default function Contact() {
 
             <section className="pt-6 pb-12 lg:pt-10 lg:pb-20">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="grid lg:grid-cols-5 gap-12 lg:gap-16 items-start">
+                    <div className="grid items-start gap-8 sm:gap-10 lg:grid-cols-5 lg:gap-16">
 
                         {/* Contact Info Sidebar */}
                         <div className="lg:col-span-2 space-y-6">

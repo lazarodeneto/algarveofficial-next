@@ -190,12 +190,12 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
               </>
             }
           >
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
+            <div className="mt-4 flex w-full flex-wrap items-center justify-center gap-4">
               <Select
                 value={selectedCategory}
                 onValueChange={(value) => setSelectedCategory(value as EventCategory | "all")}
               >
-                <SelectTrigger className="w-[220px] bg-card/90 border-border text-foreground">
+                <SelectTrigger className="w-full max-w-[260px] bg-card/90 border-border text-foreground sm:w-[220px]">
                   <Filter className="mr-2 h-4 w-4" />
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>

@@ -309,9 +309,9 @@ export default function Footer() {
     <footer className="bg-card/95 backdrop-blur-sm border-t border-border">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main Footer */}
-        <div className="py-16 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 gap-8 py-12 sm:grid-cols-2 sm:py-14 md:grid-cols-4 lg:grid-cols-6 lg:gap-12 lg:py-16">
           {/* Brand Column */}
-          <div className="col-span-2 md:col-span-2 lg:col-span-2 mb-8 lg:mb-0">
+          <div className="col-span-1 mb-4 sm:col-span-2 sm:mb-8 md:col-span-2 lg:col-span-2 lg:mb-0">
             <BrandLogo size="md" />
             <p className="mt-4 text-body-sm text-muted-foreground leading-relaxed max-w-xs">
               {t("footer.description")}
@@ -324,7 +324,7 @@ export default function Footer() {
               <p className="mt-1 text-body-xs text-muted-foreground">
                 {t("newsletter.footerSubtitle")}
               </p>
-              <form onSubmit={handleNewsletterSubmit} className="mt-3 flex gap-2">
+              <form onSubmit={handleNewsletterSubmit} className="mt-3 flex flex-col gap-2 sm:flex-row">
                 <Label htmlFor="footer-newsletter-email" className="sr-only">
                   {t("newsletter.placeholder")}
                 </Label>
@@ -342,7 +342,7 @@ export default function Footer() {
                   type="submit"
                   variant="gold"
                   size="sm"
-                  className="h-10 px-4 whitespace-nowrap"
+                  className="h-10 w-full px-4 whitespace-nowrap sm:w-auto"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? t("newsletter.subscribing") : t("newsletter.footerCta")}
@@ -371,7 +371,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="py-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-border py-6 pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:flex-row lg:pb-6">
           <p className="text-body-xs text-muted-foreground">
             {t("footer.copyright", { year: new Date().getFullYear() })}
           </p>

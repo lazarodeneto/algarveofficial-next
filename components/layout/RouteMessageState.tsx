@@ -26,19 +26,19 @@ export function RouteMessageState({
   return (
     <div
       className={cn(
-        "flex items-center justify-center px-4 py-16 text-center",
+        "flex items-center justify-center px-4 py-10 text-center sm:py-14",
         minHeightClassName,
         className,
       )}
     >
-      <div className="mx-auto max-w-2xl rounded-[2rem] border border-border/70 bg-card/70 px-8 py-10 shadow-[0_24px_70px_-50px_rgba(15,23,42,0.45)] backdrop-blur-sm">
+      <div className="mx-auto max-w-2xl rounded-[1.5rem] border border-border/70 bg-card/70 px-5 py-7 shadow-[0_24px_70px_-50px_rgba(15,23,42,0.45)] backdrop-blur-sm sm:rounded-[2rem] sm:px-8 sm:py-10">
         {icon ? <div className="mb-5 flex justify-center text-primary">{icon}</div> : null}
         {eyebrow ? (
           <p className="text-xs uppercase tracking-[0.24em] text-primary">{eyebrow}</p>
         ) : null}
-        <h1 className="mt-4 font-serif text-3xl text-foreground sm:text-4xl">{title}</h1>
+        <h1 className="mt-4 font-serif text-2xl text-foreground sm:text-4xl">{title}</h1>
         <p className="mt-4 text-sm text-muted-foreground sm:text-base">{description}</p>
-        {actions ? <div className="mt-8 flex flex-wrap items-center justify-center gap-3">{actions}</div> : null}
+        {actions ? <div className="mt-8 flex flex-wrap items-center justify-center gap-3 [&>*]:w-full sm:[&>*]:w-auto">{actions}</div> : null}
       </div>
     </div>
   );

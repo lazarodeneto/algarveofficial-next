@@ -790,7 +790,7 @@ function ListingDetailClientInner({
     <div className="min-h-screen bg-background flex flex-col">
       <Header localeSwitchPaths={localeSwitchPaths} />
 
-      <main className="flex-1 pt-[10px] pb-24 lg:pb-0">
+      <main className="flex-1 pt-[10px] pb-44 sm:pb-48 lg:pb-0">
         <nav className="bg-card border-b border-border" aria-label={t("guides.breadcrumbLabel")}>
           <div className="container mx-auto max-w-7xl px-4 py-3">
             <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
@@ -831,10 +831,10 @@ function ListingDetailClientInner({
         ) : null}
 
         <section className="relative bg-muted">
-          <div className="container mx-auto max-w-7xl px-4 py-[40px]">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="container mx-auto max-w-7xl px-4 py-6 sm:py-10">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               <div
-                className="lg:col-span-2 relative aspect-[16/10] rounded-xl overflow-hidden cursor-pointer group"
+                className="relative aspect-[4/3] cursor-pointer overflow-hidden rounded-xl group sm:aspect-[16/10] lg:col-span-2"
                 onClick={() => setLightboxOpen(true)}
               >
                 <ListingImage
@@ -983,9 +983,9 @@ function ListingDetailClientInner({
           </div>
         </section>
 
-        <section className="py-8 px-4">
+        <section className="px-4 py-8">
           <div className="container mx-auto max-w-7xl">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
               <div className="lg:col-span-2 space-y-8">
                 <div>
                   <div className="flex items-center gap-3 mb-3">
@@ -1013,9 +1013,9 @@ function ListingDetailClientInner({
                     ) : null}
                   </div>
 
-                  <h1 className="text-3xl md:text-4xl font-serif font-medium mb-3">{listingTitle}</h1>
+                  <h1 className="mb-3 font-serif text-2xl font-medium sm:text-3xl md:text-4xl">{listingTitle}</h1>
 
-                  <div className="flex items-center gap-2 text-body-sm text-muted-foreground">
+                  <div className="flex flex-wrap items-center gap-2 text-body-sm text-muted-foreground">
                     <MapPin className="h-4 w-4" />
                     {cityRouteData ? (
                       <LocaleLink href={cityRouteData} className="hover:text-primary transition-colors">
@@ -1358,8 +1358,8 @@ function ListingDetailClientInner({
 
       <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
 
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-md border-t border-border z-40 safe-area-bottom">
-        <div className="flex gap-3">
+      <div className="fixed inset-x-0 z-40 border-t border-border bg-background/92 p-3 backdrop-blur-md safe-area-bottom lg:hidden bottom-[calc(4.9rem+env(safe-area-inset-bottom))]">
+        <div className="flex gap-2.5 sm:gap-3">
           <Button
             variant="outline"
             size="icon"

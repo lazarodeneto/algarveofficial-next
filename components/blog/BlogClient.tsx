@@ -433,7 +433,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
                   placeholder={t("blog.searchPlaceholder")}
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
-                  className="pl-12 h-12 text-lg bg-card border-border text-foreground"
+                  className="h-12 border-border bg-card pl-12 text-base text-foreground sm:text-lg"
                 />
               </div>
 

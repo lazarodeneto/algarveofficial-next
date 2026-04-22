@@ -183,17 +183,17 @@ export function AllListingsSection() {
 
   if (isLoading) {
     return (
-      <section className="py-20 bg-background">
+      <section className="bg-background py-12 sm:py-16 lg:py-20">
         <div className="app-container content-max">
-          <div className="text-center mb-12">
+          <div className="mb-10 text-center sm:mb-12">
             <Skeleton className="h-10 w-72 mx-auto mb-4" />
             <Skeleton className="h-5 w-[28rem] max-w-full mx-auto" />
           </div>
 
-          <div className="flex flex-wrap gap-4 mb-8 justify-center">
-            <Skeleton className="h-10 w-[180px]" />
-            <Skeleton className="h-10 w-[180px]" />
-            <Skeleton className="h-10 w-[180px]" />
+          <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-4">
+            <Skeleton className="h-10 w-full sm:w-[180px]" />
+            <Skeleton className="h-10 w-full sm:w-[180px]" />
+            <Skeleton className="h-10 w-full sm:w-[180px]" />
           </div>
 
           <div
@@ -212,7 +212,7 @@ export function AllListingsSection() {
 
   if (hasError) {
     return (
-      <section className="py-20 bg-background">
+      <section className="bg-background py-12 sm:py-16 lg:py-20">
         <div className="app-container content-max text-center">
           <h2 className="text-title font-serif font-medium mb-3">
             {t("sections.listings.title")} <span className="text-gradient-gold">{t("sections.listings.titleHighlight")}</span>
@@ -229,22 +229,22 @@ export function AllListingsSection() {
   }
 
   return (
-    <section id="all-premium-listings" className="py-20 lg:py-28 scroll-mt-24 bg-gradient-to-b from-[#F8F6F2] to-white dark:from-[#1a1a1f] dark:to-background">
+    <section id="all-premium-listings" className="scroll-mt-24 bg-gradient-to-b from-[#F8F6F2] to-white py-12 sm:py-16 lg:py-28 dark:from-[#1a1a1f] dark:to-background">
       <div className="app-container content-max px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-light tracking-wide mb-5 text-foreground">
+        <div className="mb-10 text-center sm:mb-16">
+          <h2 className="mb-4 font-serif text-2xl font-light tracking-wide text-foreground sm:mb-5 sm:text-4xl lg:text-5xl">
             {t("sections.listings.title")} <span className="text-gradient-gold italic">{t("sections.listings.titleHighlight")}</span>
           </h2>
-          <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="mx-auto max-w-2xl text-body text-muted-foreground leading-relaxed sm:text-body-lg">
             {t("sections.listings.subtitle", { count: cappedListings.length })}
           </p>
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-4 mb-8 justify-center">
+        <div className="mb-6 flex flex-col items-stretch justify-center gap-3 sm:mb-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
           <Select value={categorySelectValue} onValueChange={(v) => handleFilterChange('category', v)}>
-            <SelectTrigger className="h-12 w-[180px] bg-background border-border hover:border-primary/50 transition-colors">
+            <SelectTrigger className="h-12 w-full bg-background border-border transition-colors hover:border-primary/50 sm:w-[180px]">
               <SelectValue placeholder={t("sections.listings.allCategories")} />
             </SelectTrigger>
             <SelectContent className="bg-popover border-border">
@@ -258,7 +258,7 @@ export function AllListingsSection() {
           </Select>
 
           <Select value={citySelectValue} onValueChange={(v) => handleFilterChange('city', v)}>
-            <SelectTrigger className="h-12 w-[180px] bg-background border-border hover:border-primary/50 transition-colors">
+            <SelectTrigger className="h-12 w-full bg-background border-border transition-colors hover:border-primary/50 sm:w-[180px]">
               <SelectValue placeholder={t("sections.listings.allCities")} />
             </SelectTrigger>
             <SelectContent className="bg-popover border-border">
@@ -272,7 +272,7 @@ export function AllListingsSection() {
           </Select>
 
           <Select value={regionSelectValue} onValueChange={(v) => handleFilterChange('region', v)}>
-            <SelectTrigger className="h-12 w-[180px] bg-background border-border hover:border-primary/50 transition-colors">
+            <SelectTrigger className="h-12 w-full bg-background border-border transition-colors hover:border-primary/50 sm:w-[180px]">
               <SelectValue placeholder={t("sections.listings.allRegions")} />
             </SelectTrigger>
             <SelectContent className="bg-popover border-border">
@@ -288,6 +288,7 @@ export function AllListingsSection() {
           {(selectedCategory !== "all" || selectedCity !== "all" || selectedRegion !== "all") && (
             <Button
               variant="ghost"
+              className="w-full sm:w-auto"
               onClick={() => {
                 setSelectedCategory("all");
                 setSelectedCity("all");
@@ -301,12 +302,12 @@ export function AllListingsSection() {
         </div>
 
         {/* Results count */}
-        <p className="text-body-sm text-muted-foreground text-center mb-8">
+        <p className="mb-6 text-center text-body-sm text-muted-foreground sm:mb-8">
           {t("sections.listings.showing", { visible: visibleListings.length, total: cappedListings.length })}
         </p>
 
         {/* Listings Grid */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 sm:gap-y-8 lg:grid-cols-3">
           {visibleListings.map((listing, index) => (
             <ListingCard
               key={listing.id}

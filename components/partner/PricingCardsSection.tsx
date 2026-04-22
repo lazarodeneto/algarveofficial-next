@@ -25,7 +25,7 @@ export function PricingCardsSection({
   const { t } = useTranslation();
 
   return (
-    <section id="pricing-section" className="py-20 lg:py-28">
+    <section id="pricing-section" className="overflow-x-clip py-20 lg:py-28">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <m.div
           initial={{ opacity: 0, y: 20 }}

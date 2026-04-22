@@ -42,16 +42,20 @@ export function LiveStyleHero({
         <div className="absolute inset-0 bg-black/45 backdrop-blur-[1px]" style={{ opacity: overlayOpacity }} />
       </div>
 
-      <div className={cn("relative z-10 text-center text-white space-y-6 px-4 max-w-4xl mx-auto", contentClassName)}>
-        <Badge variant="gold" className="uppercase tracking-[0.22em] text-[11px] px-4 py-1.5">
+      <div className={cn("relative z-10 mx-auto max-w-4xl space-y-4 px-4 text-center text-white sm:space-y-6", contentClassName)}>
+        <Badge variant="gold" className="px-3.5 py-1.5 text-[10px] uppercase tracking-[0.2em] sm:px-4 sm:text-[11px]">
           {badge}
         </Badge>
-        <h1 className={cn("font-serif text-5xl md:text-7xl font-light leading-tight", titleClassName)}>{title}</h1>
+        <h1 className={cn("font-serif text-[clamp(2rem,8.6vw,2.9rem)] font-light leading-[1.05] sm:text-5xl sm:leading-tight md:text-7xl", titleClassName)}>{title}</h1>
         <div className="w-24 h-1 bg-[#C9A96E] mx-auto rounded-full shadow-[0_0_15px_rgba(201,169,110,0.5)]" />
-        <p className={cn("text-base md:text-xl font-light max-w-2xl mx-auto text-white/90 leading-relaxed", subtitleClassName)}>
+        <p className={cn("mx-auto max-w-[35ch] text-sm font-light leading-relaxed text-white/90 sm:max-w-2xl sm:text-base md:text-xl", subtitleClassName)}>
           {subtitle}
         </p>
-        {ctas ? <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">{ctas}</div> : null}
+        {ctas ? (
+          <div className="mx-auto flex w-full max-w-md flex-col items-stretch justify-center gap-3 pt-1 sm:max-w-none sm:flex-row sm:items-center sm:pt-2 [&>*]:w-full sm:[&>*]:w-auto">
+            {ctas}
+          </div>
+        ) : null}
         {children}
       </div>
     </section>

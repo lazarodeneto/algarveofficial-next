@@ -20,7 +20,7 @@ export function PartnerHero({ title, subtitle, onApply }: PartnerHeroProps) {
   };
 
   return (
-    <section className="relative pt-28 pb-20 lg:pt-36 lg:pb-28 overflow-hidden">
+    <section className="relative overflow-hidden pt-24 pb-14 sm:pt-28 sm:pb-20 lg:pt-36 lg:pb-28">
       <div className="absolute inset-0 bg-gradient-to-b from-primary/8 via-primary/3 to-transparent pointer-events-none" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[420px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
 
@@ -47,12 +47,12 @@ export function PartnerHero({ title, subtitle, onApply }: PartnerHeroProps) {
             {t("partner.hero.trustLine")}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-center sm:gap-4">
             <Button
               variant="gold"
               size="xl"
               onClick={onApply}
-              className="min-w-[220px] shadow-xl"
+              className="w-full sm:min-w-[220px] sm:w-auto shadow-xl"
             >
               {t("partner.hero.applyForPartnership")}
             </Button>
@@ -60,7 +60,7 @@ export function PartnerHero({ title, subtitle, onApply }: PartnerHeroProps) {
               variant="outline"
               size="xl"
               onClick={scrollToPricing}
-              className="min-w-[160px]"
+              className="w-full sm:min-w-[160px] sm:w-auto"
             >
               {t("partner.hero.viewPricing")}
             </Button>

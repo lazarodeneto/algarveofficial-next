@@ -154,7 +154,7 @@ export function DirectoryMapView({ filteredListingIds }: DirectoryMapViewProps) 
   };
 
   return (
-    <div className="h-[600px] rounded-xl overflow-hidden border border-border">
+    <div className="h-[360px] rounded-xl overflow-hidden border border-border sm:h-[460px] lg:h-[600px]">
       <MapContainer
         center={[center.lat, center.lng]}
         zoom={10}
@@ -173,7 +173,7 @@ export function DirectoryMapView({ filteredListingIds }: DirectoryMapViewProps) 
             icon={getMarkerIcon(listing.tier ?? 'unverified')}
           >
             <Popup className="custom-popup">
-              <div className="min-w-[200px] p-1">
+              <div className="w-[min(220px,calc(100vw-7rem))] p-1">
                 <ListingImage
                   src={listing.featured_image_url}
                   category={listing.categorySlug}
