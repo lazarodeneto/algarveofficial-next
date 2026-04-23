@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import type { CanonicalCategorySlug } from "./category-slugs";
@@ -74,6 +75,7 @@ const LISTING_RELATION_FIELDS = `
   categories(id, slug, name),
   listing_images(id, image_url, is_featured, display_order)
 `;
+const PROGRAMMATIC_INDEX_REVALIDATE_SECONDS = 300;
 
 // ─── Slug validation ─────────────────────────────────────────────────────────
 
@@ -125,7 +127,7 @@ function getLatestTimestamp(
   return new Date(candidate) > new Date(current) ? candidate : current;
 }
 
-export async function getProgrammaticCityIndexEntries(): Promise<ProgrammaticCityIndexEntry[]> {
+async function queryProgrammaticCityIndexEntries(): Promise<ProgrammaticCityIndexEntry[]> {
   const supabase = createPublicServerClient();
 
   const [listingsRes, citiesRes] = await Promise.all([
@@ -176,7 +178,17 @@ export async function getProgrammaticCityIndexEntries(): Promise<ProgrammaticCit
   });
 }
 
-export async function getProgrammaticCategoryCityIndexEntries(): Promise<ProgrammaticCategoryCityIndexEntry[]> {
+const getProgrammaticCityIndexEntriesCached = unstable_cache(
+  queryProgrammaticCityIndexEntries,
+  ["programmatic-city-index-v1"],
+  { revalidate: PROGRAMMATIC_INDEX_REVALIDATE_SECONDS },
+);
+
+export async function getProgrammaticCityIndexEntries(): Promise<ProgrammaticCityIndexEntry[]> {
+  return getProgrammaticCityIndexEntriesCached();
+}
+
+async function queryProgrammaticCategoryCityIndexEntries(): Promise<ProgrammaticCategoryCityIndexEntry[]> {
   const supabase = createPublicServerClient();
 
   const [listingsRes, categoriesRes, citiesRes] = await Promise.all([
@@ -233,6 +245,16 @@ export async function getProgrammaticCategoryCityIndexEntries(): Promise<Program
     if (cityDelta !== 0) return cityDelta;
     return a.categorySlug.localeCompare(b.categorySlug, "en");
   });
+}
+
+const getProgrammaticCategoryCityIndexEntriesCached = unstable_cache(
+  queryProgrammaticCategoryCityIndexEntries,
+  ["programmatic-category-city-index-v1"],
+  { revalidate: PROGRAMMATIC_INDEX_REVALIDATE_SECONDS },
+);
+
+export async function getProgrammaticCategoryCityIndexEntries(): Promise<ProgrammaticCategoryCityIndexEntry[]> {
+  return getProgrammaticCategoryCityIndexEntriesCached();
 }
 
 function mapProgrammaticListing(
@@ -316,7 +338,7 @@ async function getPopularAlternativeCities(excludeCityId: string) {
     .slice(0, 8);
 }
 
-export async function getCityPageData(citySlug: string): Promise<CityPageData | null> {
+const getCityPageDataCached = cache(async (citySlug: string): Promise<CityPageData | null> => {
   const supabase = createPublicServerClient();
 
   const cityRes = await supabase
@@ -382,6 +404,10 @@ export async function getCityPageData(citySlug: string): Promise<CityPageData | 
     relatedCategories,
     totalCount: countRes.count ?? 0,
   };
+});
+
+export async function getCityPageData(citySlug: string): Promise<CityPageData | null> {
+  return getCityPageDataCached(citySlug);
 }
 
 // ─── Page data ───────────────────────────────────────────────────────────────

@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import {
@@ -81,6 +82,16 @@ export interface VisitCityIndexItem {
   totalCount: MunicipalityCityIndexItem["totalCount"];
   municipalityRegionId?: MunicipalityCityIndexItem["municipalityRegionId"];
   municipalityCityIds?: MunicipalityCityIndexItem["municipalityCityIds"];
+}
+
+interface DirectoryReferenceData {
+  cities: CityRow[];
+  regions: RegionRow[];
+  categories: CategoryRow[];
+  categoryCounts: Record<string, number>;
+  visitCityIndex: VisitCityIndexItem[];
+  featuredVisitCity: VisitCityIndexItem | null;
+  globalSettings: GlobalSetting[];
 }
 
 type CityRegionMappingRow = Tables<"city_region_mapping">;
@@ -404,11 +415,42 @@ async function fetchDirectoryGlobalSettings(
   return data as unknown as GlobalSetting[];
 }
 
+const getDirectoryReferenceData = unstable_cache(
+  async (locale: PublicContentLocale): Promise<DirectoryReferenceData> => {
+    const supabase = createPublicServerClient();
+    const [cities, regions, categories, categoryCounts, globalSettings, cityRegionMappings] = await Promise.all([
+      fetchDirectoryCities(supabase, locale),
+      fetchDirectoryRegions(supabase, locale),
+      fetchDirectoryCategories(supabase, locale),
+      fetchDirectoryCategoryCounts(supabase),
+      fetchDirectoryGlobalSettings(supabase),
+      fetchCityRegionMappings(supabase),
+    ]);
+
+    const { visitCityIndex, featuredVisitCity } = await buildVisitCityIndex(
+      cities,
+      cityRegionMappings,
+      regions,
+    );
+
+    return {
+      cities,
+      regions,
+      categories,
+      categoryCounts,
+      visitCityIndex,
+      featuredVisitCity,
+      globalSettings,
+    };
+  },
+  ["directory-reference-data-v1"],
+  { revalidate: 300 },
+);
+
 export async function getDirectoryPageData(
   locale: string,
   filters: DirectoryInitialFilters,
 ): Promise<DirectoryPageData> {
-  const supabase = createPublicServerClient();
   const contentLocale = normalizePublicContentLocale(locale);
 
   const normalizedFilters: ListingFilters = {
@@ -419,21 +461,17 @@ export async function getDirectoryPageData(
     tier: filters.tier && filters.tier !== "all" ? (filters.tier as "signature" | "verified") : undefined,
   };
 
-  const [cities, regions, categories, categoryCounts, globalSettings, cityRegionMappings] = await Promise.all([
-    fetchDirectoryCities(supabase, contentLocale),
-    fetchDirectoryRegions(supabase, contentLocale),
-    fetchDirectoryCategories(supabase, contentLocale),
-    fetchDirectoryCategoryCounts(supabase),
-    fetchDirectoryGlobalSettings(supabase),
-    fetchCityRegionMappings(supabase),
-  ]);
-
-  const { visitCityIndex, featuredVisitCity } = await buildVisitCityIndex(
+  const {
     cities,
-    cityRegionMappings,
     regions,
-  );
+    categories,
+    categoryCounts,
+    visitCityIndex,
+    featuredVisitCity,
+    globalSettings,
+  } = await getDirectoryReferenceData(contentLocale);
 
+  const supabase = createPublicServerClient();
   const listings = await fetchDirectoryListings(
     supabase,
     normalizedFilters,
