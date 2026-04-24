@@ -35,6 +35,44 @@ export interface ListingLocation {
   [key: string]: string | number | undefined;
 }
 
+export type GolfHoleDataStatus = "missing" | "incomplete" | "configured";
+export type GolfCourseStructure = "single" | "multi" | "custom";
+
+export interface ListingGolfDetailsForm {
+  holes_count: number | null;
+  architect: string;
+  course_rating: number | null;
+  slope_rating: number | null;
+  booking_url: string;
+  scorecard_image_url: string;
+  scorecard_pdf_url: string;
+  map_image_url: string;
+}
+
+export interface ListingGolfHoleForm {
+  hole_number: number;
+  par: number | null;
+  stroke_index: number | null;
+  distance_white: number | null;
+  distance_yellow: number | null;
+  distance_red: number | null;
+}
+
+export interface ListingGolfCourseForm {
+  id: string;
+  name: string;
+  holes_count: number;
+  is_default: boolean;
+  holes: ListingGolfHoleForm[];
+}
+
+export interface ListingGolfFormData {
+  structure: GolfCourseStructure;
+  details: ListingGolfDetailsForm;
+  courses: ListingGolfCourseForm[];
+  status: GolfHoleDataStatus;
+}
+
 export interface ListingFormData {
   name: string;
   slug: string;
@@ -53,6 +91,7 @@ export interface ListingFormData {
   social_links?: ListingSocialLinks;
   location?: ListingLocation;
   tags?: string[];
+  golf?: ListingGolfFormData;
   [key: string]: unknown;
 }
 

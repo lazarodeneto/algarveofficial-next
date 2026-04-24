@@ -15,9 +15,17 @@ interface DetailsStepProps {
   errors: Record<string, string>;
   categoryId: string;
   categories: CategoryRef[];
+  excludeFieldNames?: string[];
 }
 
-export function DetailsStep({ data, onChange, errors, categoryId, categories }: DetailsStepProps) {
+export function DetailsStep({
+  data,
+  onChange,
+  errors,
+  categoryId,
+  categories,
+  excludeFieldNames = [],
+}: DetailsStepProps) {
   // Resolve category slug from UUID
   const category = categories.find(c => c.id === categoryId);
   const categorySlug = category?.slug ?? '';
@@ -80,9 +88,12 @@ export function DetailsStep({ data, onChange, errors, categoryId, categories }: 
     );
   }
 
+  const excludedFields = new Set(excludeFieldNames);
+  const visibleFields = template.fields.filter((field) => !excludedFields.has(field.name));
+
   // Group fields: required first, then optional
-  const requiredFields = template.fields.filter((f) => f.required);
-  const optionalFields = template.fields.filter((f) => !f.required);
+  const requiredFields = visibleFields.filter((f) => f.required);
+  const optionalFields = visibleFields.filter((f) => !f.required);
 
   return (
     <div className="space-y-6">

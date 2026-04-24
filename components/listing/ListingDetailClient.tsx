@@ -551,20 +551,44 @@ function ListingDetailClientInner({
   }, []);
 
   useEffect(() => {
+    let frameId: number | null = null;
+    let resizeObserver: ResizeObserver | null = null;
+
     const updateBottomNavHeight = () => {
       const mobileNav = document.querySelector<HTMLElement>(".bottom-nav");
       if (!mobileNav) return;
-      const measuredHeight = mobileNav.getBoundingClientRect().height;
-      if (measuredHeight > 0) {
-        setMobileBottomNavHeight(Math.ceil(measuredHeight));
+
+      if (frameId !== null) {
+        window.cancelAnimationFrame(frameId);
       }
+
+      frameId = window.requestAnimationFrame(() => {
+        const measuredHeight = mobileNav.offsetHeight;
+        if (measuredHeight > 0) {
+          const normalizedHeight = Math.ceil(measuredHeight);
+          setMobileBottomNavHeight((currentHeight) =>
+            currentHeight === normalizedHeight ? currentHeight : normalizedHeight,
+          );
+        }
+      });
     };
 
     updateBottomNavHeight();
     window.addEventListener("resize", updateBottomNavHeight);
     window.addEventListener("orientationchange", updateBottomNavHeight);
+    if (typeof ResizeObserver !== "undefined") {
+      const mobileNav = document.querySelector<HTMLElement>(".bottom-nav");
+      if (mobileNav) {
+        resizeObserver = new ResizeObserver(updateBottomNavHeight);
+        resizeObserver.observe(mobileNav);
+      }
+    }
 
     return () => {
+      if (frameId !== null) {
+        window.cancelAnimationFrame(frameId);
+      }
+      resizeObserver?.disconnect();
       window.removeEventListener("resize", updateBottomNavHeight);
       window.removeEventListener("orientationchange", updateBottomNavHeight);
     };

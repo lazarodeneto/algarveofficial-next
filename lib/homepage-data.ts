@@ -478,3 +478,31 @@ export async function getDehydratedHomePageState(locale?: string): Promise<{
   const dehydratedState = dehydrate(queryClient);
   return { dehydratedState, queryClient };
 }
+
+export async function getDehydratedHomeCriticalState(locale?: string): Promise<{
+  dehydratedState: ReturnType<typeof dehydrate>;
+  queryClient: QueryClient;
+}> {
+  const resolvedLocale = normalizeHomepageLocale(locale ?? "en");
+  const supabase = getServerSupabase();
+
+  const [homepageSettings, globalSettings] = await Promise.all([
+    fetchHomepageSettingsWithTranslation(supabase, resolvedLocale),
+    fetchGlobalSettings(supabase),
+  ]);
+
+  const queryClient = createAppQueryClient();
+
+  queryClient.setQueryData(homepageSettingsQueryKey(resolvedLocale), homepageSettings);
+  queryClient.setQueryData(
+    globalSettingsQueryKey(HOME_QUICK_LINK_SETTING_KEYS, "default"),
+    globalSettings.filter((setting) => HOME_QUICK_LINK_SETTING_KEYS.includes(setting.key)),
+  );
+  queryClient.setQueryData(
+    globalSettingsQueryKey([HERO_OVERLAY_INTENSITY_SETTING_KEY], "default"),
+    globalSettings.filter((setting) => setting.key === HERO_OVERLAY_INTENSITY_SETTING_KEY),
+  );
+
+  const dehydratedState = dehydrate(queryClient);
+  return { dehydratedState, queryClient };
+}

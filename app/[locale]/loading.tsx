@@ -1,5 +1,5 @@
-import { RouteLoadingState } from "@/components/layout/RouteLoadingState";
-
 export default function LocaleLoading() {
-  return <RouteLoadingState minHeightClassName="min-h-[60vh]" />;
+  // Keep locale segment streaming fallback empty so LCP content (hero image) can
+  // become the first meaningful paint instead of a full-screen loader shell.
+  return null;
 }

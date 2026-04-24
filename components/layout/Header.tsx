@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef, useCallback, type ComponentProps } from "react";
 import NextLink from "next/link";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { useLocalePath } from "@/hooks/useLocalePath";
-import type { Locale } from "@/lib/i18n/config";
 import { AnimatePresence, m } from "framer-motion";
 import {
   AlignJustify,
@@ -23,15 +23,12 @@ import {
   HouseHeart,
   Compass,
   FlagTriangleRight,
-  ListChecks,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMobileMenu } from "@/contexts/MobileMenuContext";
-import { CommandSearch } from "@/components/ui/command-search";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useTranslation } from "react-i18next";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { HeaderNav } from "./HeaderNav";
@@ -42,11 +39,16 @@ function Link(props: ComponentProps<typeof NextLink>) {
   return <NextLink prefetch={false} {...props} />;
 }
 
+const CommandSearch = dynamic(
+  () => import("@/components/ui/command-search").then((module) => module.CommandSearch),
+  { ssr: false },
+);
+
 interface HeaderProps {
   localeSwitchPaths?: Record<string, string>;
 }
 
-const SIDEBAR_EXCLUDED_PREFIXES = ["/admin", "/owner", "/dashboard", "/golf"];
+const SIDEBAR_EXCLUDED_PREFIXES = ["/admin", "/owner", "/dashboard"];
 
 export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const { mobileMenuOpen, setMobileMenuOpen } = useMobileMenu();
@@ -169,7 +171,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
 
   return (
     <>
-      <CommandSearch open={searchOpen} onOpenChange={setSearchOpen} />
+      {searchOpen ? <CommandSearch open={searchOpen} onOpenChange={setSearchOpen} /> : null}
 
       <header
         className={`site-header fixed top-0 left-0 right-0 z-50 transition-all duration-300 transition-transform ease-out lg:left-20 ${isUserScrolling && !mobileMenuOpen

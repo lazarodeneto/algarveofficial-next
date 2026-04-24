@@ -369,7 +369,6 @@ function MegaPanel({ section }: { section: HeaderRuntimeSection }) {
                     src={section.image}
                     alt={section.imageAlt}
                     fill
-                    priority
                     sizes="(max-width: 1360px) 32vw, 300px"
                     className="object-cover"
                 />

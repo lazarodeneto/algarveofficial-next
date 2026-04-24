@@ -17,6 +17,12 @@ interface RuntimeSettingRow {
 const CMS_RUNTIME_KEYS = new Set<string>(Object.values(CMS_GLOBAL_SETTING_KEYS));
 const CMS_VERSION_BATCH_SIZE = 100;
 
+function isMissingCmsDocumentsColumnError(error: unknown, column: string) {
+  if (!error || typeof error !== "object") return false;
+  const message = "message" in error ? String((error as { message?: unknown }).message ?? "") : "";
+  return message.toLowerCase().includes(`column cms_documents.${column.toLowerCase()} does not exist`);
+}
+
 function parseRequestedKeys(request: NextRequest) {
   const direct = request.nextUrl.searchParams.getAll("key");
   if (direct.length > 0) {
@@ -124,12 +130,26 @@ export async function GET(request: NextRequest) {
   const cmsDocTypes = ["page_config", "text_overrides", "design_tokens", "custom_css"];
   const localeCandidates = [...new Set([locale, "default"])];
 
-  const { data: docs, error: docsError } = await readClient
-    .from("cms_documents" as never)
-    .select("page_id, locale, doc_type, current_version_id")
-    .in("doc_type", cmsDocTypes as never)
-    .in("locale", localeCandidates as never)
-    .eq("status", "published");
+  const queryCmsDocuments = (includeStatusFilter: boolean) => {
+    let query = readClient
+      .from("cms_documents" as never)
+      .select("page_id, locale, doc_type, current_version_id")
+      .in("doc_type", cmsDocTypes as never)
+      .in("locale", localeCandidates as never);
+
+    if (includeStatusFilter) {
+      query = query.eq("status", "published");
+    }
+
+    return query;
+  };
+
+  let docsResult = await queryCmsDocuments(true);
+  if (docsResult.error && isMissingCmsDocumentsColumnError(docsResult.error, "status")) {
+    docsResult = await queryCmsDocuments(false);
+  }
+
+  const { data: docs, error: docsError } = docsResult;
 
   if (docsError) {
     return NextResponse.json({

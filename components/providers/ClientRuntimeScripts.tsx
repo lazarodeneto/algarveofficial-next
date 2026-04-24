@@ -6,6 +6,14 @@ interface ClientRuntimeScriptsProps {
   googleTagId: string;
 }
 
+type IdleCallbackWindow = Window & {
+  requestIdleCallback?: (
+    callback: IdleRequestCallback,
+    options?: IdleRequestOptions,
+  ) => number;
+  cancelIdleCallback?: (handle: number) => void;
+};
+
 type AnalyticsWindow = Window & {
   dataLayer?: unknown[][];
   gtag?: (...args: unknown[]) => void;
@@ -68,6 +76,30 @@ function configureGoogleTag(googleTagId: string) {
   analyticsWindow.__algarveGtagConfigured.add(googleTagId);
 }
 
+function scheduleGoogleTagInitialization(googleTagId: string) {
+  if (!googleTagId) {
+    return () => {};
+  }
+
+  const runtimeWindow = window as IdleCallbackWindow;
+
+  const run = () => {
+    ensureGoogleTagScript(googleTagId);
+    configureGoogleTag(googleTagId);
+  };
+
+  if (
+    typeof runtimeWindow.requestIdleCallback === "function" &&
+    typeof runtimeWindow.cancelIdleCallback === "function"
+  ) {
+    const idleId = runtimeWindow.requestIdleCallback(run, { timeout: 2500 });
+    return () => runtimeWindow.cancelIdleCallback?.(idleId);
+  }
+
+  const timeoutId = window.setTimeout(run, 1200);
+  return () => window.clearTimeout(timeoutId);
+}
+
 export function ClientRuntimeScripts({ googleTagId }: ClientRuntimeScriptsProps) {
   useEffect(() => {
     applyThemeFromStorage();
@@ -75,8 +107,7 @@ export function ClientRuntimeScripts({ googleTagId }: ClientRuntimeScriptsProps)
 
   useEffect(() => {
     if (!googleTagId) return;
-    ensureGoogleTagScript(googleTagId);
-    configureGoogleTag(googleTagId);
+    return scheduleGoogleTagInitialization(googleTagId);
   }, [googleTagId]);
 
   return null;

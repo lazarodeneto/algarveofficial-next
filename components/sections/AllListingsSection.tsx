@@ -18,7 +18,6 @@ import { translateCategoryName } from "@/lib/translateCategory";
 import { buildMergedCategoryOptions, getMergedCategoryBySlug } from "@/lib/categoryMerges";
 import { Skeleton } from "@/components/ui/skeleton";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
-import { useHydrated } from "@/hooks/useHydrated";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import {
   normalizeListingFilterId,
@@ -34,9 +33,9 @@ import { trackBlockImpression, trackListingClick } from "@/lib/analytics/platfor
 
 const ITEMS_PER_PAGE = 12;
 const MAX_HOME_LISTINGS = 24;
+const LOADING_SKELETON_COUNT = ITEMS_PER_PAGE;
 
 export function AllListingsSection() {
-  const mounted = useHydrated();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
@@ -55,7 +54,7 @@ export function AllListingsSection() {
   const { data: cities, isLoading: citiesLoading, error: citiesError } = useCities();
   const { data: regions, isLoading: regionsLoading, error: regionsError } = useRegions();
 
-  const isLoading = !mounted || listingsLoading || categoriesLoading || citiesLoading || regionsLoading;
+  const isLoading = listingsLoading || categoriesLoading || citiesLoading || regionsLoading;
   const hasError = Boolean(listingsError || categoriesError || citiesError || regionsError);
 
   const placementSelection = normalizePlacementSelection(listingBlockData.selection);
@@ -163,8 +162,6 @@ export function AllListingsSection() {
 
   // Intersection Observer for infinite scroll
   useEffect(() => {
-    if (!mounted) return undefined;
-
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
@@ -179,7 +176,7 @@ export function AllListingsSection() {
     }
 
     return () => observer.disconnect();
-  }, [hasMore, isLoadingMore, loadMore, mounted]);
+  }, [hasMore, isLoadingMore, loadMore]);
 
   if (isLoading) {
     return (
@@ -201,7 +198,7 @@ export function AllListingsSection() {
             aria-live="polite"
             aria-label={t("directory.loading")}
           >
-            {Array.from({ length: 8 }).map((_, i) => (
+            {Array.from({ length: LOADING_SKELETON_COUNT }).map((_, i) => (
               <SkeletonCard key={i} variant="listing" />
             ))}
           </div>

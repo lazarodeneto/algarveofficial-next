@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { DEFAULT_LOCALE, isValidLocale, type Locale } from "@/lib/i18n/config";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
+import Header from "@/components/layout/Header";
 
 interface LayoutProps {
   children: ReactNode;
@@ -23,5 +24,10 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
 }
 
 export default function GolfLayout({ children }: LayoutProps) {
-  return children;
+  return (
+    <>
+      <Header />
+      {children}
+    </>
+  );
 }

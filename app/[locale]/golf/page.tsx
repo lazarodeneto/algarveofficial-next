@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
-import { isValidLocale, type Locale } from "@/lib/i18n/config";
+
+import { DEFAULT_LOCALE, isValidLocale, type Locale } from "@/lib/i18n/config";
+import { getGolfListings, getLeaderboard } from "@/lib/golf";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
-import GolfClient from "@/components/golf/GolfClient";
+import { GolfPageClient } from "@/components/golf/GolfPageClient";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -63,8 +65,10 @@ const GOLF_META: Record<Locale, { title: string; description: string }> = {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale: rawLocale } = await params;
   if (!isValidLocale(rawLocale)) return {};
+
   const locale = rawLocale as Locale;
   const meta = GOLF_META[locale];
+
   return buildLocalizedMetadata({
     locale,
     path: "/golf",
@@ -74,6 +78,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
-export default function GolfPage() {
-  return <GolfClient />;
+export default async function GolfPage({ params }: PageProps) {
+  const { locale: rawLocale } = await params;
+  const locale: Locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+
+  const [courses, leaderboard] = await Promise.all([
+    getGolfListings(),
+    getLeaderboard(),
+  ]);
+
+  return <GolfPageClient locale={locale} courses={courses} leaderboard={leaderboard} />;
 }

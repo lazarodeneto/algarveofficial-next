@@ -19,6 +19,67 @@ interface CmsDocumentWrite {
   content: Record<string, unknown>;
 }
 
+interface CmsDocumentsCapabilities {
+  blockKey: "block_id" | "block_scope" | null;
+  hasStatus: boolean;
+}
+
+let cachedCmsDocumentsCapabilities: CmsDocumentsCapabilities | null = null;
+
+function isMissingCmsDocumentsColumnError(error: unknown, column: string) {
+  if (!error || typeof error !== "object") return false;
+  const message = "message" in error ? String((error as { message?: unknown }).message ?? "") : "";
+  return message.toLowerCase().includes(`column cms_documents.${column.toLowerCase()} does not exist`);
+}
+
+async function detectCmsDocumentsCapabilities(
+  client: SupabaseClient<Database>,
+): Promise<CmsDocumentsCapabilities> {
+  if (cachedCmsDocumentsCapabilities) {
+    return cachedCmsDocumentsCapabilities;
+  }
+
+  const statusProbe = await client.from("cms_documents" as never).select("id, status").limit(1);
+  let hasStatus = true;
+  if (statusProbe.error) {
+    if (isMissingCmsDocumentsColumnError(statusProbe.error, "status")) {
+      hasStatus = false;
+    } else {
+      throw statusProbe.error;
+    }
+  }
+
+  const blockIdProbe = await client.from("cms_documents" as never).select("id, block_id").limit(1);
+  let blockKey: CmsDocumentsCapabilities["blockKey"] = "block_id";
+  if (blockIdProbe.error) {
+    if (isMissingCmsDocumentsColumnError(blockIdProbe.error, "block_id")) {
+      const blockScopeProbe = await client
+        .from("cms_documents" as never)
+        .select("id, block_scope")
+        .limit(1);
+
+      if (blockScopeProbe.error) {
+        if (isMissingCmsDocumentsColumnError(blockScopeProbe.error, "block_scope")) {
+          blockKey = null;
+        } else {
+          throw blockScopeProbe.error;
+        }
+      } else {
+        blockKey = "block_scope";
+      }
+    } else {
+      throw blockIdProbe.error;
+    }
+  }
+
+  cachedCmsDocumentsCapabilities = {
+    blockKey,
+    hasStatus,
+  };
+
+  return cachedCmsDocumentsCapabilities;
+}
+
 function parseJsonObject(raw: string): Record<string, unknown> | null {
   try {
     const parsed = JSON.parse(raw);
@@ -92,32 +153,46 @@ async function appendCmsDocumentVersion(
   client: SupabaseClient<Database>,
   write: CmsDocumentWrite,
 ) {
+  const capabilities = await detectCmsDocumentsCapabilities(client);
   const table = client.from("cms_documents" as never);
   let query = table
     .select("id")
     .eq("page_id", write.pageId)
     .eq("locale", write.locale)
-    .eq("doc_type", write.docType)
-    .eq("status", "published");
+    .eq("doc_type", write.docType);
 
-  query = write.blockId
-    ? query.eq("block_id", write.blockId)
-    : query.is("block_id", null);
+  if (capabilities.blockKey === "block_id") {
+    query = write.blockId
+      ? query.eq("block_id", write.blockId)
+      : query.is("block_id", null);
+  } else if (capabilities.blockKey === "block_scope") {
+    query = query.eq("block_scope", write.blockId ?? "__page__");
+  }
 
   const { data: existing, error: lookupError } = await query.maybeSingle();
   if (lookupError) throw lookupError;
 
   let documentId = (existing as { id?: number } | null)?.id ?? null;
   if (!documentId) {
+    const insertPayload: Record<string, unknown> = {
+      page_id: write.pageId,
+      locale: write.locale,
+      doc_type: write.docType,
+    };
+
+    if (capabilities.blockKey === "block_id") {
+      insertPayload.block_id = write.blockId;
+    } else if (capabilities.blockKey === "block_scope") {
+      insertPayload.block_scope = write.blockId ?? "__page__";
+    }
+
+    if (capabilities.hasStatus) {
+      insertPayload.status = "published";
+    }
+
     const { data: inserted, error: insertDocError } = await client
       .from("cms_documents" as never)
-      .insert({
-        page_id: write.pageId,
-        block_id: write.blockId,
-        locale: write.locale,
-        doc_type: write.docType,
-        status: "published",
-      } as never)
+      .insert(insertPayload as never)
       .select("id")
       .single();
 
@@ -149,12 +224,18 @@ async function appendCmsDocumentVersion(
   if (insertVersionError) throw insertVersionError;
 
   const versionId = (insertedVersion as { id: number }).id;
+  const updatePayload: Record<string, unknown> = {
+    current_version_id: versionId,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (capabilities.hasStatus) {
+    updatePayload.status = "published";
+  }
+
   const { error: updateDocError } = await client
     .from("cms_documents" as never)
-    .update({
-      current_version_id: versionId,
-      updated_at: new Date().toISOString(),
-    } as never)
+    .update(updatePayload as never)
     .eq("id", documentId);
 
   if (updateDocError) throw updateDocError;

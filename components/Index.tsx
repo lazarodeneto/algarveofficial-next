@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect, type ComponentType } from "react";
+import { useMemo, type ComponentType } from "react";
 import dynamic from "next/dynamic";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -10,48 +10,49 @@ import { useHomepageSettings } from "@/hooks/useHomepageSettings";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 
-const SKELETON_DELAY_MS = 120;
-
-function DelayedFallback() {
-  const [showSkeleton, setShowSkeleton] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShowSkeleton(true), SKELETON_DELAY_MS);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (!showSkeleton) {
-    return <div className="min-h-[200px]" />;
-  }
-
-  return (
-    <div className="py-8">
-      <div className="h-48 rounded-[1.75rem] border border-border/50 bg-muted/35 animate-pulse" />
-    </div>
-  );
-}
-
-function FadeInWrapper({ children }: { children: React.ReactNode }) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    requestAnimationFrame(() => setVisible(true));
-  }, []);
-
-  return (
-    <div
-      className="transition-opacity duration-300 ease-out"
-      style={{ opacity: visible ? 1 : 0 }}
-    >
-      {children}
-    </div>
-  );
-}
-
 function HomeSectionFallback() {
   return (
-    <div className="py-8">
-      <div className="h-48 rounded-[1.75rem] border border-border/50 bg-muted/35 animate-pulse" />
+    <div className="py-8" aria-hidden="true">
+      <div className="h-64 rounded-[1.75rem] border border-border/50 bg-muted/35 animate-pulse" />
+    </div>
+  );
+}
+
+function VipSectionFallback() {
+  return (
+    <div className="py-8" aria-hidden="true">
+      <div className="app-container space-y-6">
+        <div className="h-10 w-72 rounded-md bg-muted/35 animate-pulse" />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className="h-72 rounded-2xl border border-border/50 bg-muted/35 animate-pulse" />
+          ))}
+        </div>
+        <div className="h-[460px] rounded-2xl border border-border/50 bg-muted/35 animate-pulse" />
+      </div>
+    </div>
+  );
+}
+
+function AllListingsSectionFallback() {
+  return (
+    <div className="bg-background py-12 sm:py-16 lg:py-20" aria-hidden="true">
+      <div className="app-container content-max">
+        <div className="mb-10 text-center sm:mb-12">
+          <div className="mx-auto mb-4 h-10 w-72 rounded-md bg-muted/35 animate-pulse" />
+          <div className="mx-auto h-5 w-[28rem] max-w-full rounded-md bg-muted/35 animate-pulse" />
+        </div>
+        <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-4">
+          <div className="h-10 w-full rounded-md bg-muted/35 animate-pulse sm:w-[180px]" />
+          <div className="h-10 w-full rounded-md bg-muted/35 animate-pulse sm:w-[180px]" />
+          <div className="h-10 w-full rounded-md bg-muted/35 animate-pulse sm:w-[180px]" />
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6 2xl:gap-7">
+          {Array.from({ length: 12 }).map((_, index) => (
+            <div key={index} className="aspect-[4/5] rounded-2xl border border-border/50 bg-muted/35 animate-pulse" />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -59,25 +60,14 @@ function HomeSectionFallback() {
 const withHomeSectionLoading = <T extends ComponentType<any>>(
   loader: () => Promise<{ [key: string]: T } | { default: T }>,
   select?: (module: any) => T,
+  loading: () => ReturnType<typeof HomeSectionFallback> = () => <HomeSectionFallback />,
 ) =>
   dynamic(async () => {
     const mod = await loader();
     return select ? select(mod) : (mod as { default: T }).default;
   }, {
-    loading: () => <DelayedFallback />,
+    loading,
   });
-
-const withFadeIn = <T extends ComponentType<any>>(
-  WrappedComponent: T,
-) => {
-  return function FadeInComponent(props: any) {
-    return (
-      <FadeInWrapper>
-        <WrappedComponent {...props} />
-      </FadeInWrapper>
-    );
-  };
-};
 
 const AlgarveGuideSection = withHomeSectionLoading(
   () => import("@/components/sections/AlgarveGuideSection"),
@@ -106,10 +96,12 @@ const CuratedExcellence = withHomeSectionLoading(
 const SignatureMapSection = withHomeSectionLoading(
   () => import("@/components/sections/SignatureMapSection"),
   (mod) => mod.SignatureMapSection,
+  () => <VipSectionFallback />,
 );
 const AllListingsSection = withHomeSectionLoading(
   () => import("@/components/sections/AllListingsSection"),
   (mod) => mod.AllListingsSection,
+  () => <AllListingsSectionFallback />,
 );
 const NewsletterSection = withHomeSectionLoading(
   () => import("@/components/sections/NewsletterSection"),
@@ -187,11 +179,9 @@ const Index = () => {
       <Header />
       {!isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
       <main id="main-content" className="main">
-        {isBlockEnabled("hero", true) && (
-          <CmsBlock pageId="home" blockId="hero" as="section">
-            <HeroSection />
-          </CmsBlock>
-        )}
+        <CmsBlock pageId="home" blockId="hero" as="section">
+          <HeroSection />
+        </CmsBlock>
         {isBlockEnabled("quick-links", true) && (
           <CmsBlock pageId="home" blockId="quick-links" as="section">
             <HomeQuickLinksSection />

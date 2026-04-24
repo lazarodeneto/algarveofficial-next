@@ -44,6 +44,39 @@ describe("normalizeCmsPageConfigs", () => {
     });
   });
 
+  it("migrates legacy golf block ids to the new canonical golf layout blocks", () => {
+    const normalized = normalizeCmsPageConfigs({
+      golf: {
+        blocks: {
+          results: {
+            enabled: false,
+            className: "legacy-results",
+          },
+          filters: {
+            enabled: true,
+          },
+          "featured-city-hub": {
+            enabled: true,
+          },
+        },
+      },
+    });
+
+    expect(normalized.golf?.blocks?.["featured-courses"]).toEqual({
+      enabled: false,
+      className: "legacy-results",
+    });
+    expect(normalized.golf?.blocks?.["course-tools"]).toEqual({
+      enabled: true,
+    });
+    expect(normalized.golf?.blocks?.leaderboard).toEqual({
+      enabled: true,
+    });
+    expect(normalized.golf?.blocks?.results).toBeUndefined();
+    expect(normalized.golf?.blocks?.filters).toBeUndefined();
+    expect(normalized.golf?.blocks?.["featured-city-hub"]).toBeUndefined();
+  });
+
   it("drops unknown pages and unknown blocks from persisted payloads", () => {
     const normalized = normalizeCmsPageConfigs({
       "not-a-real-page": {

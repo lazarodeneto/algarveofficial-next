@@ -1,6 +1,6 @@
 // framer-motion import removed - using CSS animations for LCP elements
 import { ArrowRight, ChevronDown } from "lucide-react";
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -11,16 +11,12 @@ import { useConnectionQuality } from "@/hooks/useConnectionQuality";
 import { useTripPlanner } from "@/hooks/useTripPlanner";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import Link from "next/link";
 import { HERO_OVERLAY_INTENSITY_SETTING_KEY, normalizeHeroOverlayIntensity } from "@/lib/heroOverlay";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { buildSupabaseImageUrl } from "@/lib/imageUrls";
-import { cn } from "@/lib/utils";
 import { STANDARD_PUBLIC_HERO_SURFACE_CLASS, STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 
 const parseYouTubeTimeToSeconds = (value: string | null): number | null => {
@@ -125,20 +121,34 @@ const getYouTubeEmbedUrl = (url: string): string => {
   return `https://www.youtube-nocookie.com/embed/${videoId}?${params.toString()}`;
 };
 
+const CreateTripDialog = dynamic(
+  () => import("@/components/trip-planner/CreateTripDialog").then((m) => m.CreateTripDialog),
+  { ssr: false },
+);
+const LoginModal = dynamic(
+  () => import("@/components/ui/login-modal").then((m) => m.LoginModal),
+  { ssr: false },
+);
+
+function getInitialReducedMotionPreference() {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return false;
+  }
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 function HeroPosterImage({
   hasPosterUrl,
   posterUrl,
   className,
   priority = false,
-  isLoading = false,
 }: {
   hasPosterUrl: boolean;
   posterUrl: string;
   className?: string;
   priority?: boolean;
-  isLoading?: boolean;
 }) {
-  if (!hasPosterUrl || isLoading) return <div className={`${className ?? ""} bg-gradient-to-b from-slate-900 to-black animate-pulse`} />;
+  if (!hasPosterUrl) return <div className={`${className ?? ""} bg-gradient-to-b from-slate-900 to-black`} />;
 
   const posterSrc =
     buildSupabaseImageUrl(posterUrl, {
@@ -159,84 +169,38 @@ function HeroPosterImage({
       loading={priority ? "eager" : "lazy"}
       priority={priority}
       fetchPriority={priority ? "high" : "auto"}
+      unoptimized
       className={className}
     />
   );
 }
 
-const YouTubeEmbedPlayer = ({ youtubeUrl, posterUrl }: { youtubeUrl: string; posterUrl?: string }) => {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [shouldLoadIframe, setShouldLoadIframe] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!youtubeUrl) return;
-
-    const loadDelay = posterUrl ? 900 : 0;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let timer: any;
-    let observer: IntersectionObserver | null = null;
-
-    const startTimer = () => {
-      timer = window.setTimeout(() => {
-        setShouldLoadIframe(true);
-      }, loadDelay);
-    };
-
-    if (containerRef.current) {
-      observer = new IntersectionObserver(
-        (entries) => {
-          if (entries[0]?.isIntersecting) {
-            startTimer();
-            observer?.disconnect();
-          }
-        },
-        { threshold: 0.01 }
-      );
-      observer.observe(containerRef.current);
-    } else {
-      startTimer();
-    }
-
-    return () => {
-      window.clearTimeout(timer);
-      observer?.disconnect();
-    };
-  }, [posterUrl, youtubeUrl]);
-
+const YouTubeEmbedPlayer = ({ youtubeUrl }: { youtubeUrl: string }) => {
   return (
-    <div ref={containerRef}>
-      {shouldLoadIframe ? (
-        <iframe
-          src={getYouTubeEmbedUrl(youtubeUrl)}
-          className={`pointer-events-none transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            width: '177.77777778vh',
-            height: '56.25vw',
-            minWidth: '100%',
-            minHeight: '100%',
-            transform: 'translate(-50%, -50%)',
-          }}
-          allow="autoplay; encrypted-media"
-          allowFullScreen
-          title="Hero background video"
-          onLoad={() => {
-            setIsLoaded(true);
-          }}
-        />
-      ) : null}
-    </div>
+    <iframe
+      src={getYouTubeEmbedUrl(youtubeUrl)}
+      className="pointer-events-none"
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        width: "177.77777778vh",
+        height: "56.25vw",
+        minWidth: "100%",
+        minHeight: "100%",
+        transform: "translate(-50%, -50%)",
+      }}
+      allow="autoplay; encrypted-media"
+      allowFullScreen
+      title="Hero background video"
+    />
   );
 };
 
-const YouTubeEmbed = ({ youtubeUrl, posterUrl }: { youtubeUrl: string; posterUrl?: string }) => (
-  <YouTubeEmbedPlayer key={youtubeUrl} youtubeUrl={youtubeUrl} posterUrl={posterUrl} />
+const YouTubeEmbed = ({ youtubeUrl }: { youtubeUrl: string }) => (
+  <YouTubeEmbedPlayer key={youtubeUrl} youtubeUrl={youtubeUrl} />
 );
 
-// Optimized video component with immediate autoplay
 const HeroVideoPlayer = ({
   videoUrl,
   posterUrl,
@@ -244,70 +208,19 @@ const HeroVideoPlayer = ({
   videoUrl: string;
   posterUrl?: string;
 }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
-
-  useEffect(() => {
-    if (!videoUrl) return;
-
-    const loadDelay = posterUrl ? 900 : 0;
-    const timer = window.setTimeout(() => {
-      setShouldLoadVideo(true);
-    }, loadDelay);
-
-    return () => window.clearTimeout(timer);
-  }, [posterUrl, videoUrl]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !shouldLoadVideo) return;
-
-    const attemptPlay = async () => {
-      try {
-        video.muted = true;
-        await video.play();
-        setIsPlaying(true);
-      } catch {
-        console.debug("Autoplay blocked, keeping hero poster visible");
-      }
-    };
-
-    if (video.readyState >= 3) {
-      attemptPlay();
-    } else {
-      video.addEventListener('canplay', attemptPlay, { once: true });
-    }
-
-    return () => {
-      video.removeEventListener("canplay", attemptPlay);
-    };
-  }, [shouldLoadVideo, videoUrl]);
-
   return (
-    <>
-      {shouldLoadVideo ? (
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="metadata"
-          poster={posterUrl ?? undefined}
-          crossOrigin="anonymous"
-          onPlaying={() => {
-            setIsPlaying(true);
-          }}
-          onError={() => {
-            setIsPlaying(false);
-          }}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${isPlaying ? 'opacity-100' : 'opacity-0'}`}
-        >
-          <source src={videoUrl} type="video/mp4" />
-        </video>
-      ) : null}
-    </>
+    <video
+      autoPlay
+      loop
+      muted
+      playsInline
+      preload="metadata"
+      poster={posterUrl ?? undefined}
+      crossOrigin="anonymous"
+      className="absolute inset-0 h-full w-full object-cover"
+    >
+      <source src={videoUrl} type="video/mp4" />
+    </video>
   );
 };
 
@@ -317,18 +230,9 @@ const HeroVideo = ({ videoUrl, posterUrl }: { videoUrl: string; posterUrl?: stri
 
 
 export function HeroSection() {
-  const CreateTripDialog = dynamic(
-    () => import("@/components/trip-planner/CreateTripDialog").then((m) => m.CreateTripDialog),
-    { ssr: false },
-  );
-  const LoginModal = dynamic(
-    () => import("@/components/ui/login-modal").then((m) => m.LoginModal),
-    { ssr: false },
-  );
-
   const hydrated = useHydrated();
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(
-    false,
+    getInitialReducedMotionPreference,
   );
   const { settings, isLoading: isHeroSettingsLoading } = useHeroSettings();
   const { settings: runtimeSettings } = useGlobalSettings({
@@ -346,11 +250,14 @@ export function HeroSection() {
 
   // Determine if video should be skipped for performance
   // Skip video on: reduced motion preference, slow connections, or mobile devices
-  const shouldSkipVideo = prefersReducedMotion ?? isSlow;
+  const shouldSkipVideo = prefersReducedMotion || isSlow;
 
   useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return undefined;
+    }
+
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setPrefersReducedMotion(mediaQuery.matches);
     const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
     mediaQuery.addEventListener("change", handler);
     return () => mediaQuery.removeEventListener("change", handler);
@@ -465,12 +372,11 @@ export function HeroSection() {
               posterUrl={posterUrl}
               className="absolute inset-0 w-full h-full object-cover"
               priority={true}
-              isLoading={mediaMode === "loading"}
             />
           ) : (
             <div className="absolute inset-0 bg-black" aria-hidden="true" />
           )}
-          {mediaMode === "youtube" && <YouTubeEmbed youtubeUrl={youtubeUrl} posterUrl={hasPosterUrl ? posterUrl : undefined} />}
+          {mediaMode === "youtube" && <YouTubeEmbed youtubeUrl={youtubeUrl} />}
           {mediaMode === "video" && <HeroVideo videoUrl={videoUrl} posterUrl={hasPosterUrl ? heroVideoPosterSrc : undefined} />}
 
           <div className="absolute inset-0 bg-black/45 backdrop-blur-[1px]" style={{ opacity: overlayOpacity }} />
@@ -519,15 +425,15 @@ export function HeroSection() {
         </div>
 
         {/* Trip Planner Dialog */}
-        {hydrated ? (
-          <>
-            <CreateTripDialog
-              open={tripPlannerOpen}
-              onClose={() => setTripPlannerOpen(false)}
-              onSave={handleCreateTrip}
-            />
-            <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
-          </>
+        {hydrated && tripPlannerOpen ? (
+          <CreateTripDialog
+            open={tripPlannerOpen}
+            onClose={() => setTripPlannerOpen(false)}
+            onSave={handleCreateTrip}
+          />
+        ) : null}
+        {hydrated && showLoginModal ? (
+          <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
         ) : null}
 
         {/* Scroll Indicator - keep above overlapping quick-links cards */}

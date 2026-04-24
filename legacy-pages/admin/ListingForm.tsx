@@ -11,12 +11,24 @@ import { MediaStep } from "@/components/admin/form-steps/MediaStep";
 import { DetailsStep } from "@/components/admin/form-steps/DetailsStep";
 import { ContactStep } from "@/components/admin/form-steps/ContactStep";
 import { PublishingStep } from "@/components/admin/form-steps/PublishingStep";
+import { GolfStep } from "@/components/admin/form-steps/GolfStep";
 import { useAllCities, useAllRegions, useAllCategories } from "@/hooks/useReferenceData";
 import { useAdminListing } from "@/hooks/useListings";
 import { useCreateListing, useUpdateListing } from "@/hooks/useListingMutations";
+import {
+  useAdminListingGolf,
+  useUpsertAdminListingGolf,
+  type AdminGolfData,
+} from "@/hooks/useAdminListingGolf";
 import { getCategoryTemplate, getDefaultDetails } from "@/lib/categoryTemplates";
 import { extractIdParam } from "@/lib/routeParams";
-import { LISTING_FORM_STEPS, type ListingFormData } from "@/types/listing";
+import {
+  LISTING_FORM_STEPS,
+  type ListingFormData,
+  type ListingGolfDetailsForm,
+  type ListingGolfFormData,
+  type ListingGolfHoleForm,
+} from "@/types/listing";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -45,6 +57,63 @@ const getEmptyFormData = (): ListingFormData => ({
   owner_id: undefined,
 });
 
+const getEmptyGolfDetails = (): ListingGolfDetailsForm => ({
+  holes_count: 18,
+  architect: "",
+  course_rating: null,
+  slope_rating: null,
+  booking_url: "",
+  scorecard_image_url: "",
+  scorecard_pdf_url: "",
+  map_image_url: "",
+});
+
+const getEmptyGolfState = (): ListingGolfFormData => ({
+  structure: "single",
+  details: getEmptyGolfDetails(),
+  courses: [
+    {
+      id: "default-course",
+      name: "Main Course",
+      holes_count: 18,
+      is_default: true,
+      holes: [],
+    },
+  ],
+  status: "missing",
+});
+
+const createHoleDraft = (holeNumber: number): ListingGolfHoleForm => ({
+  hole_number: holeNumber,
+  par: null,
+  stroke_index: holeNumber,
+  distance_white: null,
+  distance_yellow: null,
+  distance_red: null,
+});
+
+const normalizeGolfDetailsForCategoryData = (
+  details: ListingGolfDetailsForm,
+  structure: ListingGolfFormData["structure"],
+): Record<string, unknown> => ({
+  course_structure: structure,
+  holes_count: details.holes_count,
+  holes: details.holes_count,
+  architect: details.architect || null,
+  course_rating: details.course_rating,
+  slope_rating: details.slope_rating,
+  booking_url: details.booking_url || null,
+  scorecard_image_url: details.scorecard_image_url || null,
+  scorecard_pdf_url: details.scorecard_pdf_url || null,
+  map_image_url: details.map_image_url || null,
+});
+
+const formatSaveTimestamp = (date = new Date()): string =>
+  new Intl.DateTimeFormat(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+
 export default function ListingForm() {
   const params = useParams<Record<string, string | string[] | undefined>>();
   const pathname = usePathname() ?? "";
@@ -65,6 +134,13 @@ export default function ListingForm() {
   const [initialData, setInitialData] = useState<ListingFormData>(getEmptyFormData());
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [completedStepIds, setCompletedStepIds] = useState<string[]>([]);
+  const [golfForm, setGolfForm] = useState<ListingGolfFormData>(getEmptyGolfState());
+  const [golfErrors, setGolfErrors] = useState<Record<string, string>>({});
+  const [golfSaveNotice, setGolfSaveNotice] = useState<{
+    type: "success" | "warning";
+    text: string;
+    savedAt?: string;
+  } | null>(null);
 
   // Role checks
   const isAdmin = user?.role === 'admin';
@@ -189,6 +265,266 @@ export default function ListingForm() {
     const selectedCategory = categories.find((category) => category.id === formData.category_id);
     return selectedCategory?.slug ?? "";
   }, [categories, formData.category_id]);
+
+  const isGolfCategory = selectedCategorySlug.toLowerCase() === "golf";
+  const showGolfSetup = isGolfCategory && isAdmin;
+  const golfDetailsFieldsOwnedByGolfSetup = showGolfSetup ? ["holes", "booking_url"] : [];
+
+  const {
+    data: golfRemoteData,
+    isLoading: golfLoading,
+  } = useAdminListingGolf(id, Boolean(isEditMode && id && showGolfSetup));
+
+  const upsertGolfSetup = useUpsertAdminListingGolf(id);
+
+  useEffect(() => {
+    if (!showGolfSetup) {
+      setGolfErrors({});
+      setGolfSaveNotice(null);
+      return;
+    }
+
+    if (golfRemoteData) {
+      setGolfForm(golfRemoteData as AdminGolfData);
+    } else if (!isEditMode) {
+      setGolfForm(getEmptyGolfState());
+    }
+  }, [golfRemoteData, isEditMode, showGolfSetup]);
+
+  const syncGolfDetailsToListingDetails = (nextGolf: ListingGolfFormData) => {
+    const primaryCourse = nextGolf.courses[0];
+    const normalizedDetails: ListingGolfDetailsForm = {
+      ...nextGolf.details,
+      holes_count:
+        nextGolf.structure === "multi"
+          ? null
+          : primaryCourse?.holes_count ?? nextGolf.details.holes_count ?? 18,
+    };
+
+    setFormData((prev) => ({
+      ...prev,
+      details: {
+        ...(prev.details ?? {}),
+        ...normalizeGolfDetailsForCategoryData(normalizedDetails, nextGolf.structure),
+      },
+    }));
+  };
+
+  useEffect(() => {
+    if (!showGolfSetup || !golfRemoteData) return;
+    syncGolfDetailsToListingDetails(golfRemoteData);
+  }, [golfRemoteData, showGolfSetup]);
+
+  const handleGolfChange = (next: ListingGolfFormData) => {
+    setGolfForm(next);
+    setGolfSaveNotice(null);
+    syncGolfDetailsToListingDetails(next);
+  };
+
+  const validateGolfCourses = (golf: ListingGolfFormData) => {
+    const validation: Record<string, string> = {};
+
+    if (golf.structure !== "multi" && golf.courses.length !== 1) {
+      validation["structure"] = "Single and custom layouts must have exactly one course.";
+    }
+
+    for (const course of golf.courses) {
+      if (!course.name.trim()) {
+        validation[`course.${course.id}.name`] = "Course name is required.";
+      }
+
+      if (!Number.isInteger(course.holes_count) || course.holes_count < 1) {
+        validation[`course.${course.id}.holes_count`] = "Holes count is required.";
+      }
+
+      if (course.holes_count > 18 && golf.structure !== "multi") {
+        validation[`course.${course.id}.holes_count`] =
+          "Holes above 18 require Multi-Course Resort mode.";
+      }
+
+      const holes = [...course.holes].sort((a, b) => a.hole_number - b.hole_number);
+
+      const seen = new Set<number>();
+      for (const hole of holes) {
+        const keyBase = `course.${course.id}.hole.${hole.hole_number}`;
+
+        if (!Number.isInteger(hole.hole_number) || hole.hole_number < 1 || hole.hole_number > 18) {
+          validation[`${keyBase}.hole_number`] = "Hole number must be between 1 and 18.";
+        } else if (seen.has(hole.hole_number)) {
+          validation[`${keyBase}.hole_number`] = "Duplicate hole number.";
+        } else {
+          seen.add(hole.hole_number);
+        }
+
+        if (
+          hole.par !== null &&
+          (!Number.isInteger(hole.par) || hole.par < 1)
+        ) {
+          validation[`${keyBase}.par`] = "Par must be 1 or higher.";
+        }
+
+        if (
+          hole.stroke_index !== null &&
+          (!Number.isInteger(hole.stroke_index) || hole.stroke_index < 1 || hole.stroke_index > 18)
+        ) {
+          validation[`${keyBase}.stroke_index`] = "Stroke index must be between 1 and 18.";
+        }
+
+        for (const distanceField of ["distance_white", "distance_yellow", "distance_red"] as const) {
+          const distance = hole[distanceField];
+          if (distance !== null && (!Number.isFinite(distance) || distance < 0)) {
+            validation[`${keyBase}.${distanceField}`] = "Distance must be 0 or greater.";
+          }
+        }
+      }
+    }
+
+    return validation;
+  };
+
+  const handleGolfClearHoles = async () => {
+    if (!id) {
+      toast.info("Save the listing first, then configure hole-by-hole data.");
+      return;
+    }
+
+    const shouldClear = window.confirm(
+      "Clear all hole rows for this listing? This cannot be undone.",
+    );
+    if (!shouldClear) return;
+
+    try {
+      const updated = await upsertGolfSetup.mutateAsync({
+        clear_courses: true,
+      });
+      setGolfForm(updated);
+      setGolfErrors({});
+      setGolfSaveNotice({
+        type: "success",
+        text: "Saved. All hole rows were cleared.",
+        savedAt: formatSaveTimestamp(),
+      });
+      syncGolfDetailsToListingDetails(updated);
+      toast.success("Hole rows cleared.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to clear holes.";
+      toast.error(message);
+    }
+  };
+
+  const handleGolfSaveChanges = async () => {
+    if (!id) {
+      toast.info("Save the listing first, then configure hole-by-hole data.");
+      return;
+    }
+
+    const nextErrors = validateGolfCourses(golfForm);
+    setGolfErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) {
+      toast.error("Fix validation errors before saving golf setup.");
+      return;
+    }
+
+    try {
+      let incompleteHolesAutoCompleted = 0;
+      const payloadCourses = golfForm.courses.map((course) => {
+        const boundedHoles = [...course.holes]
+          .sort((a, b) => a.hole_number - b.hole_number)
+          .slice(0, course.holes_count);
+        const holeByNumber = new Map<number, ListingGolfHoleForm>();
+        for (const hole of boundedHoles) {
+          if (
+            Number.isInteger(hole.hole_number) &&
+            hole.hole_number >= 1 &&
+            hole.hole_number <= course.holes_count &&
+            !holeByNumber.has(hole.hole_number)
+          ) {
+            holeByNumber.set(hole.hole_number, hole);
+          }
+        }
+
+        const completeHoles = Array.from({ length: course.holes_count }, (_, index) => {
+          const holeNumber = index + 1;
+          const hole = holeByNumber.get(holeNumber);
+          const par =
+            hole && Number.isInteger(hole.par) && (hole.par ?? 0) > 0
+              ? (hole.par as number)
+              : 4;
+          if (!hole || !Number.isInteger(hole.par) || (hole.par ?? 0) < 1) {
+            incompleteHolesAutoCompleted += 1;
+          }
+
+          const strokeIndex =
+            hole && Number.isInteger(hole.stroke_index) && (hole.stroke_index ?? 0) >= 1 && (hole.stroke_index ?? 0) <= 18
+              ? (hole.stroke_index as number)
+              : holeNumber;
+
+          return {
+            hole_number: holeNumber,
+            par,
+            stroke_index: strokeIndex,
+            distance_white:
+              hole && typeof hole.distance_white === "number" && Number.isFinite(hole.distance_white) && hole.distance_white >= 0
+                ? hole.distance_white
+                : null,
+            distance_yellow:
+              hole && typeof hole.distance_yellow === "number" && Number.isFinite(hole.distance_yellow) && hole.distance_yellow >= 0
+                ? hole.distance_yellow
+                : null,
+            distance_red:
+              hole && typeof hole.distance_red === "number" && Number.isFinite(hole.distance_red) && hole.distance_red >= 0
+                ? hole.distance_red
+                : null,
+          };
+        });
+
+        return {
+          ...course,
+          name: course.name.trim(),
+          holes: completeHoles.map((hole) => ({
+            hole_number: hole.hole_number,
+            par: hole.par,
+            stroke_index: hole.stroke_index,
+            distance_white: hole.distance_white,
+            distance_yellow: hole.distance_yellow,
+            distance_red: hole.distance_red,
+          })),
+        };
+      });
+
+      const updated = await upsertGolfSetup.mutateAsync({
+        structure: golfForm.structure,
+        details: golfForm.details,
+        courses: payloadCourses,
+      });
+      setGolfForm(updated);
+      setGolfErrors({});
+      syncGolfDetailsToListingDetails(updated);
+      if (incompleteHolesAutoCompleted > 0) {
+        const autoCompletedLabel =
+          incompleteHolesAutoCompleted === 1
+            ? "Saved. 1 incomplete hole was auto-completed (par 4)."
+            : `Saved. ${incompleteHolesAutoCompleted} incomplete holes were auto-completed (par 4).`;
+        setGolfSaveNotice({
+          type: "warning",
+          text: autoCompletedLabel,
+          savedAt: formatSaveTimestamp(),
+        });
+        toast.success(autoCompletedLabel);
+      } else {
+        const successLabel = "Saved. All provided golf entries were stored.";
+        setGolfSaveNotice({
+          type: "success",
+          text: successLabel,
+          savedAt: formatSaveTimestamp(),
+        });
+        toast.success(successLabel);
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to save golf setup.";
+      toast.error(message);
+    }
+  };
 
   const shouldShowDetailsStep = useMemo(() => {
     if (!formData.category_id) return true;
@@ -446,7 +782,32 @@ export default function ListingForm() {
       case "media":
         return <MediaStep data={formData} onChange={handleChange} errors={errors} />;
       case "details":
-        return <DetailsStep data={formData} onChange={handleChange} errors={errors} categoryId={formData.category_id} categories={formCategories} />;
+        return (
+          <div className="space-y-8">
+            <DetailsStep
+              data={formData}
+              onChange={handleChange}
+              errors={errors}
+              categoryId={formData.category_id}
+              categories={formCategories}
+              excludeFieldNames={golfDetailsFieldsOwnedByGolfSetup}
+            />
+
+            {showGolfSetup ? (
+              <GolfStep
+                golf={golfForm}
+                validationErrors={golfErrors}
+                canSave={Boolean(id)}
+                isLoading={golfLoading}
+                isSaving={upsertGolfSetup.isPending}
+                saveNotice={golfSaveNotice}
+                onGolfChange={handleGolfChange}
+                onClearHoles={handleGolfClearHoles}
+                onSaveChanges={handleGolfSaveChanges}
+              />
+            ) : null}
+          </div>
+        );
       case "contact":
         return (
           <ContactStep

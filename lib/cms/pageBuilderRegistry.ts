@@ -379,12 +379,10 @@ export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
     description: "Golf courses and experiences in the Algarve.",
     blocks: [
       { id: "hero", label: "Hero" },
-      { id: "city-hubs", label: "City Hubs" },
-      { id: "featured-city-hub", label: "Featured City Hub", description: "Highlight a single city with a large hero card." },
-      { id: "city-index", label: "City Index", description: "Grid of top cities by listing count." },
-      { id: "filters", label: "Advanced Filters" },
-      { id: "results", label: "Results Grid" },
-      { id: "cta", label: "Call to Action" },
+      { id: "featured-courses", label: "Featured Courses", category: "content" },
+      { id: "course-tools", label: "Course Tools", category: "utility" },
+      { id: "leaderboard", label: "Leaderboard", category: "content" },
+      { id: "cta", label: "Call to Action", category: "utility" },
     ],
   },
   {
@@ -531,6 +529,13 @@ export const CMS_PAGE_DEFINITION_MAP: Record<string, CmsPageDefinition> =
   }, {});
 
 export const CMS_BLOCK_ID_ALIASES_BY_PAGE: Record<string, Record<string, string>> = {
+  golf: {
+    "city-hubs": "featured-courses",
+    "filters": "course-tools",
+    "results": "featured-courses",
+    "featured-city-hub": "leaderboard",
+    "city-index": "leaderboard",
+  },
   invest: {
     "all-active-city-hubs": "all-city-hubs",
   },

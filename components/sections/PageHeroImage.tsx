@@ -9,6 +9,7 @@ export type PageHeroImageKey =
   | "destinations"
   | "directory"
   | "events"
+  | "golf"
   | "invest"
   | "live"
   | "map"
@@ -45,6 +46,10 @@ const PAGE_HERO_IMAGE_CONFIG: Record<
   events: {
     regionSlug: "vilamoura-prestige",
     objectPosition: "center 44%",
+  },
+  golf: {
+    regionSlug: "vilamoura-prestige",
+    objectPosition: "center 52%",
   },
   invest: {
     regionSlug: "vilamoura-prestige",
