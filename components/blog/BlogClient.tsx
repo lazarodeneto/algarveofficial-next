@@ -25,6 +25,8 @@ import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
 import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
+import { resolveHero } from "@/lib/cms/resolve-hero";
+import type { BlogPageConfig } from "@/lib/blog-cms";
 import {
   CMS_GLOBAL_SETTING_KEYS,
   normalizeCmsPageConfigs,
@@ -62,6 +64,7 @@ export interface BlogClientProps {
   initialPosts: BlogPostRow[];
   initialAuthors: BlogAuthor[];
   initialGlobalSettings: BlogGlobalSetting[];
+  pageConfig?: BlogPageConfig | null;
 }
 
 const BLOG_CMS_KEYS = [
@@ -332,12 +335,14 @@ async function fetchGlobalSettings(_locale: string) {
   return (data ?? []) as BlogGlobalSetting[];
 }
 
-function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }: BlogClientProps) {
+function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, pageConfig }: BlogClientProps) {
   const { t } = useTranslation();
   const l = useLocalePath();
   const locale = normalizeBlogLocale(useCurrentLocale());
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<BlogCategory | "all">("all");
+
+  const hero = resolveHero(pageConfig as Parameters<typeof resolveHero>[0] ?? null);
 
   const mergedInitialPosts = useMemo(
     () => mergePostsWithAuthors(initialPosts, initialAuthors),
@@ -402,11 +407,11 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings }
               subtitle={t("blog.subtitle")}
               media={
                 <HeroBackgroundMedia
-                  mediaType={cms.getText("hero.mediaType", "image")}
-                  imageUrl={cms.getText("hero.imageUrl", "")}
-                  videoUrl={cms.getText("hero.videoUrl", "")}
-                  youtubeUrl={cms.getText("hero.youtubeUrl", "")}
-                  posterUrl={cms.getText("hero.posterUrl", "")}
+                  mediaType={hero.mediaType}
+                  imageUrl={hero.imageUrl ?? undefined}
+                  videoUrl={hero.videoUrl ?? undefined}
+                  youtubeUrl={hero.youtubeUrl ?? undefined}
+                  posterUrl={hero.posterUrl ?? undefined}
                   alt={t("blog.hero.alt")}
                   fallback={<PageHeroImage page="blog" alt={t("blog.hero.alt")} />}
                 />

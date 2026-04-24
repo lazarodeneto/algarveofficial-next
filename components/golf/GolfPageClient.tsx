@@ -4,7 +4,10 @@ import Link from "next/link";
 import { useMemo } from "react";
 
 import type { GolfLeaderboardEntry, GolfListing } from "@/lib/golf";
+import type { GolfCmsPageConfig } from "@/lib/golf-cms";
 import { buildLocalizedPath } from "@/lib/i18n/routing";
+import { resolveHero, resolvePageContent, type CmsHeroData } from "@/lib/cms/resolve-hero";
+import { CmsPageRenderer } from "@/components/cms/renderers/CmsPageRenderer";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { CourseCard } from "@/components/golf/CourseCard";
@@ -20,6 +23,7 @@ interface GolfPageClientProps {
   locale: string;
   courses: GolfListing[];
   leaderboard: GolfLeaderboardEntry[];
+  pageConfig?: GolfCmsPageConfig | null;
 }
 
 const GOLF_CONTENT_BLOCK_ORDER = [
@@ -29,8 +33,10 @@ const GOLF_CONTENT_BLOCK_ORDER = [
   "cta",
 ] as const;
 
-export function GolfPageClient({ locale, courses, leaderboard }: GolfPageClientProps) {
+export function GolfPageClient({ locale, courses, leaderboard, pageConfig }: GolfPageClientProps) {
   const cms = useCmsPageBuilder("golf");
+
+  const heroPageConfig = pageConfig?.hero;
 
   const coursesHref = buildLocalizedPath(locale, "/golf/courses");
   const leaderboardHref = buildLocalizedPath(locale, "/golf/leaderboard");
@@ -40,11 +46,16 @@ export function GolfPageClient({ locale, courses, leaderboard }: GolfPageClientP
     [cms],
   );
 
-  const heroMediaType = cms.getText("hero.mediaType", "image");
-  const heroImageUrl = cms.getText("hero.imageUrl", "");
-  const heroVideoUrl = cms.getText("hero.videoUrl", "");
-  const heroYoutubeUrl = cms.getText("hero.youtubeUrl", "");
-  const heroPosterUrl = cms.getText("hero.posterUrl", "");
+  const serverHero = heroPageConfig ?? {};
+  const hero = resolveHero(serverHero);
+  const pageContent = resolvePageContent(serverHero);
+
+  const DEFAULT_BADGE = "Curated Golf";
+  const DEFAULT_TITLE = "Play Championship Golf in the Algarve";
+  const DEFAULT_SUBTITLE = "Discover elite golf listings, compare course specs, and plan your next round across Portugal's premier coast.";
+  const DEFAULT_ALT = "Golf fairways in the Algarve";
+  const DEFAULT_CTA_COURSES = "Browse Courses";
+  const DEFAULT_CTA_LEADERBOARD = "View Leaderboard";
 
   return (
     <>
@@ -52,21 +63,18 @@ export function GolfPageClient({ locale, courses, leaderboard }: GolfPageClientP
         <div className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
           <CmsBlock pageId="golf" blockId="hero" as="section">
             <LiveStyleHero
-              badge={cms.getText("hero.badge", "Curated Golf")}
-              title={cms.getText("hero.title", "Play Championship Golf in the Algarve")}
-              subtitle={cms.getText(
-                "hero.subtitle",
-                "Discover elite golf listings, compare course specs, and plan your next round across Portugal's premier coast.",
-              )}
+              badge={pageContent.badge ?? DEFAULT_BADGE}
+              title={pageContent.title ?? DEFAULT_TITLE}
+              subtitle={pageContent.subtitle ?? DEFAULT_SUBTITLE}
               media={
                 <HeroBackgroundMedia
-                  mediaType={heroMediaType}
-                  imageUrl={heroImageUrl}
-                  videoUrl={heroVideoUrl}
-                  youtubeUrl={heroYoutubeUrl}
-                  posterUrl={heroPosterUrl}
-                  alt={cms.getText("hero.alt", "Golf fairways in the Algarve")}
-                  fallback={<PageHeroImage page="golf" alt="Golf fairways in the Algarve" />}
+                  mediaType={hero.mediaType}
+                  imageUrl={hero.imageUrl ?? undefined}
+                  videoUrl={hero.videoUrl ?? undefined}
+                  youtubeUrl={hero.youtubeUrl ?? undefined}
+                  posterUrl={hero.posterUrl ?? undefined}
+                  alt={pageContent.alt ?? DEFAULT_ALT}
+                  fallback={<PageHeroImage page="golf" alt={DEFAULT_ALT} />}
                   className="scale-[1.02] object-cover"
                 />
               }
@@ -75,12 +83,12 @@ export function GolfPageClient({ locale, courses, leaderboard }: GolfPageClientP
                 <>
                   <Button asChild variant="gold" size="lg">
                     <Link href={coursesHref}>
-                      {cms.getText("hero.cta.courses", "Browse Courses")}
+                      {pageContent.ctaCourses ?? DEFAULT_CTA_COURSES}
                     </Link>
                   </Button>
                   <Button asChild variant="heroOutline" size="lg">
                     <Link href={leaderboardHref}>
-                      {cms.getText("hero.cta.leaderboard", "View Leaderboard")}
+                      {pageContent.ctaLeaderboard ?? DEFAULT_CTA_LEADERBOARD}
                     </Link>
                   </Button>
                 </>
@@ -90,6 +98,11 @@ export function GolfPageClient({ locale, courses, leaderboard }: GolfPageClientP
         </div>
       ) : null}
 
+      {heroPageConfig && "blocks" in heroPageConfig && (heroPageConfig as { blocks?: unknown[] }).blocks?.length ? (
+        <CmsPageRenderer pageConfig={heroPageConfig as Parameters<typeof CmsPageRenderer>[0]["pageConfig"]} exclude={["hero"]} />
+      ) : null}
+
+      {heroPageConfig && "blocks" in heroPageConfig && (heroPageConfig as { blocks?: unknown[] }).blocks?.length ? null : (
       <main className="app-container space-y-10 pb-20 pt-6">
         {orderedContentBlocks.map((blockId) => {
           if (blockId === "featured-courses") {
@@ -235,6 +248,7 @@ export function GolfPageClient({ locale, courses, leaderboard }: GolfPageClientP
           return null;
         })}
       </main>
+      )}
     </>
   );
 }

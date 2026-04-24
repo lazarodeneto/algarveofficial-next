@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { isValidLocale, type Locale } from "@/lib/i18n/config";
+import { DEFAULT_LOCALE, isValidLocale, type Locale } from "@/lib/i18n/config";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
-import Blog from "@/legacy-pages/public/blog/Blog";
+import { getBlogPageConfig } from "@/lib/blog-cms";
+import { BlogClient } from "@/components/blog/BlogClient";
 import { RouteLoadingState } from "@/components/layout/RouteLoadingState";
+import { createPublicServerClient } from "@/lib/supabase/public-server";
+
+export const revalidate = 60;
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -76,10 +80,50 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
-export default function BlogPage() {
+async function fetchBlogData(locale: string) {
+  const supabase = createPublicServerClient();
+  const { data: posts, error } = await supabase
+    .from("blog_posts")
+    .select("id, slug, title, excerpt, featured_image, category, reading_time, tags, author_id, published_at, seo_title, seo_description, created_at, updated_at")
+    .eq("status", "published")
+    .order("published_at", { ascending: false })
+    .limit(50);
+
+  if (error) {
+    console.error("[blog] Failed to fetch posts:", error);
+    return [];
+  }
+
+  return posts ?? [];
+}
+
+async function fetchBlogAuthors() {
+  const supabase = createPublicServerClient();
+  const { data: authors } = await supabase
+    .from("public_profiles")
+    .select("id, full_name, avatar_url")
+    .limit(100);
+  return authors ?? [];
+}
+
+export default async function BlogPage({ params }: PageProps) {
+  const { locale: rawLocale } = await params;
+  const locale: Locale = isValidLocale(rawLocale) ? (rawLocale as Locale) : DEFAULT_LOCALE;
+
+  const [posts, authors, pageConfig] = await Promise.all([
+    fetchBlogData(locale),
+    fetchBlogAuthors(),
+    getBlogPageConfig(locale),
+  ]);
+
   return (
     <Suspense fallback={<RouteLoadingState />}>
-      <Blog />
+      <BlogClient
+        initialPosts={posts}
+        initialAuthors={authors}
+        initialGlobalSettings={[]}
+        pageConfig={pageConfig ?? undefined}
+      />
     </Suspense>
   );
 }

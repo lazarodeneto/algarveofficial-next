@@ -15,6 +15,44 @@ interface GlobalSettingsWriteItem {
   locale?: string | null;
 }
 
+import { revalidateTag } from "next/cache";
+
+const CMS_TAG_MAP: Record<string, string> = {
+  golf: "cms:golf",
+  blog: "cms:blog",
+  destinations: "cms:destinations",
+  experiences: "cms:experiences",
+  live: "cms:live",
+  "real-estate": "cms:real-estate",
+  directory: "cms:directory",
+  events: "cms:events",
+  stay: "cms:stay",
+  map: "cms:map",
+  invest: "cms:invest",
+};
+
+async function revalidateCmsPages(settings: GlobalSettingsWriteItem[]) {
+  const pageConfigsSetting = settings.find(
+    (s) => s.key === CMS_GLOBAL_SETTING_KEYS.pageConfigs
+  );
+
+  if (!pageConfigsSetting?.value) return;
+
+  try {
+    const parsed = JSON.parse(pageConfigsSetting.value);
+    const pageIds = Object.keys(parsed);
+
+    for (const pageId of pageIds) {
+      const tag = CMS_TAG_MAP[pageId];
+      if (tag) {
+        revalidateTag(tag, "max");
+      }
+    }
+  } catch {
+    // Ignore parse errors
+  }
+}
+
 const CMS_SETTING_KEYS: Set<string> = new Set([
   CMS_GLOBAL_SETTING_KEYS.pageConfigs,
   CMS_GLOBAL_SETTING_KEYS.textOverrides,
@@ -123,6 +161,8 @@ export async function POST(request: NextRequest) {
         locale: setting.locale,
       })),
     );
+
+    await revalidateCmsPages(settings);
   } catch (syncError) {
     console.error("[cms-sync] Failed to mirror global settings into cms_documents:", syncError);
     return adminErrorResponse(

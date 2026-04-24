@@ -3,7 +3,10 @@ import type { Metadata } from "next";
 import { DEFAULT_LOCALE, isValidLocale, type Locale } from "@/lib/i18n/config";
 import { getGolfListings, getLeaderboard } from "@/lib/golf";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
+import { getGolfCmsPageConfig, type GolfCmsPageConfig } from "@/lib/golf-cms";
 import { GolfPageClient } from "@/components/golf/GolfPageClient";
+
+export const revalidate = 60;
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -82,10 +85,11 @@ export default async function GolfPage({ params }: PageProps) {
   const { locale: rawLocale } = await params;
   const locale: Locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
 
-  const [courses, leaderboard] = await Promise.all([
+  const [courses, leaderboard, pageConfig] = await Promise.all([
     getGolfListings(),
     getLeaderboard(),
+    getGolfCmsPageConfig(locale),
   ]);
 
-  return <GolfPageClient locale={locale} courses={courses} leaderboard={leaderboard} />;
+  return <GolfPageClient locale={locale} courses={courses} leaderboard={leaderboard} pageConfig={pageConfig} />;
 }

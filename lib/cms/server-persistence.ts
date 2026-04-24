@@ -149,6 +149,36 @@ export function buildCmsWritesFromGlobalSettings(settings: GlobalSettingWriteIte
   return writes;
 }
 
+function deepMergeContent(
+  existing: Record<string, unknown>,
+  incoming: Record<string, unknown>,
+): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...existing };
+
+  for (const [key, value] of Object.entries(incoming)) {
+    if (value === null || value === undefined) {
+      continue;
+    }
+    if (
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      value !== null &&
+      existing[key] &&
+      typeof existing[key] === "object" &&
+      !Array.isArray(existing[key])
+    ) {
+      result[key] = deepMergeContent(
+        existing[key] as Record<string, unknown>,
+        value as Record<string, unknown>,
+      );
+    } else {
+      result[key] = value;
+    }
+  }
+
+  return result;
+}
+
 async function appendCmsDocumentVersion(
   client: SupabaseClient<Database>,
   write: CmsDocumentWrite,
@@ -202,7 +232,7 @@ async function appendCmsDocumentVersion(
 
   const { data: latestVersionRow, error: latestVersionError } = await client
     .from("cms_document_versions" as never)
-    .select("version")
+    .select("version, content")
     .eq("document_id", documentId)
     .order("version", { ascending: false })
     .limit(1)
@@ -211,12 +241,16 @@ async function appendCmsDocumentVersion(
   if (latestVersionError) throw latestVersionError;
   const nextVersion = ((latestVersionRow as { version?: number } | null)?.version ?? 0) + 1;
 
+  const existingContent = (latestVersionRow as { content?: Record<string, unknown> } | null)?.content ?? {};
+  const newContent = write.content ?? {};
+  const mergedContent = deepMergeContent(existingContent, newContent);
+
   const { data: insertedVersion, error: insertVersionError } = await client
     .from("cms_document_versions" as never)
     .insert({
       document_id: documentId,
       version: nextVersion,
-      content: write.content,
+      content: mergedContent,
     } as never)
     .select("id")
     .single();

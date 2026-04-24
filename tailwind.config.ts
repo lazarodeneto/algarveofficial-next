@@ -35,6 +35,9 @@ export default {
       },
     },
     extend: {
+      transitionTimingFunction: {
+        premium: "cubic-bezier(0.22, 1, 0.36, 1)",
+      },
       maxWidth: {
         "content-xs": "22rem",
         "content-sm": "28rem",

@@ -23,6 +23,7 @@ export interface CmsBlockConfig {
 }
 
 export interface CmsPageConfig {
+  hero?: Record<string, unknown>;
   blocks?: Record<string, CmsBlockConfig>;
   text?: Record<string, string>;
   meta?: {

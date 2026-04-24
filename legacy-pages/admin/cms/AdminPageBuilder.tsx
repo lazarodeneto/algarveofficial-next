@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Plus, Save, Trash2, ExternalLink, Paintbrush, Video, ImageIcon, RotateCcw, ArrowDown, ArrowUp } from "lucide-react";
+import { Loader2, Plus, Save, Trash2, ExternalLink, Paintbrush, Video, ImageIcon, RotateCcw, ArrowDown, ArrowUp, ArrowLeft, Monitor, Tablet, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,6 +45,21 @@ import {
 import { convertToWebP } from "@/lib/imageUtils";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import {
+  normalizePageConfig,
+  addBlock,
+  removeBlock,
+  toggleBlock,
+  reorderBlocks,
+  updateBlockSettings,
+} from "@/lib/cms/normalize-page-config";
+import { type CmsPageConfig } from "@/lib/cms/block-schemas";
+import { BlockList } from "@/components/cms/builder/BlockList";
+import { BlockEditor } from "@/components/cms/builder/BlockEditor";
+import { BlockPreview } from "@/components/cms/builder/BlockPreview";
+import { AddBlockDialog } from "@/components/cms/builder/AddBlockDialog";
+
+const ENABLE_VISUAL_BLOCK_BUILDER = true;
 
 const HERO_MEDIA_SUPPORTED_PAGE_IDS = new Set([
   "blog",
@@ -144,6 +159,30 @@ function AdminPageBuilderContent() {
   const heroImageInputRef = useRef<HTMLInputElement | null>(null);
   const heroVideoInputRef = useRef<HTMLInputElement | null>(null);
   const heroPosterInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [visualConfig, setVisualConfig] = useState<CmsPageConfig | null>(null);
+  const [selectedVisualBlockId, setSelectedVisualBlockId] = useState<string | null>(null);
+  const [previewDevice, setPreviewDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
+
+  const PREVIEW_WIDTHS = {
+    desktop: "100%",
+    tablet: "768px",
+    mobile: "375px",
+  };
+
+  const BLOCK_TYPE_LABELS: Record<string, string> = {
+    hero: "Hero Section",
+    "featured-listings": "Featured Listings",
+    "categories-grid": "Categories Grid",
+    "cities-grid": "Cities Grid",
+    cta: "Call to Action",
+    "editorial-text": "Editorial Text",
+    "image-gallery": "Image Gallery",
+    faq: "FAQ",
+    "courses-grid": "Golf Courses Grid",
+    "golf-leaderboard": "Golf Leaderboard",
+    "regions-grid": "Regions Grid",
+  };
 
   const { data: cities = [] } = useQuery({
     queryKey: ["admin-cities-for-cms"],
@@ -253,7 +292,12 @@ function AdminPageBuilderContent() {
     setDesignTokenRows(toRows(parsedTokens));
     setCustomCss(settingMap[CMS_GLOBAL_SETTING_KEYS.customCss] ?? "");
     setInitialized(true);
-  }, [initialized, isLoading, settingMap]);
+
+    if (ENABLE_VISUAL_BLOCK_BUILDER) {
+      const visualPageConfig = normalizePageConfig(parsedPageConfigs[selectedPageId] ?? {});
+      setVisualConfig(visualPageConfig);
+    }
+  }, [initialized, isLoading, settingMap, selectedPageId]);
 
   const selectedPageDefinition = useMemo(
     () => CMS_PAGE_DEFINITIONS.find((page) => page.id === selectedPageId) ?? CMS_PAGE_DEFINITIONS[0],
@@ -534,13 +578,50 @@ function AdminPageBuilderContent() {
 
   const handleSaveAll = async () => {
     try {
+      const enrichedConfigs: CmsPageConfigMap = { ...pageConfigs };
+
+      for (const pageId of Object.keys(enrichedConfigs)) {
+        const pageConfig = enrichedConfigs[pageId] ?? {};
+        const textMap = pageConfig.text ?? {};
+        const heroMediaSupported = HERO_MEDIA_SUPPORTED_PAGE_IDS.has(pageId);
+
+        if (heroMediaSupported && (textMap["hero.mediaType"] || textMap["hero.imageUrl"] || textMap["hero.videoUrl"])) {
+          const heroData: Record<string, unknown> = {
+            enabled: true,
+            mediaType: textMap["hero.mediaType"] || "image",
+          };
+
+          if (textMap["hero.imageUrl"]) {
+            heroData.imageUrl = textMap["hero.imageUrl"];
+          }
+          if (textMap["hero.videoUrl"]) {
+            heroData.videoUrl = textMap["hero.videoUrl"];
+          }
+          if (textMap["hero.youtubeUrl"]) {
+            heroData.youtubeUrl = textMap["hero.youtubeUrl"];
+          }
+          if (textMap["hero.posterUrl"]) {
+            heroData.posterUrl = textMap["hero.posterUrl"];
+          }
+          if (textMap["hero.alt"]) {
+            heroData.alt = textMap["hero.alt"];
+          }
+
+          enrichedConfigs[pageId] = {
+            ...pageConfig,
+            hero: heroData,
+          };
+        }
+      }
+
       console.log("[admin-page-builder] Full pageConfigs state:", JSON.stringify(pageConfigs, null, 2).slice(0, 3000));
       console.log("[admin-page-builder] Selected pageId:", selectedPageId);
       console.log("[admin-page-builder] Selected page config:", JSON.stringify(pageConfigs[selectedPageId], null, 2));
+      console.log("[admin-page-builder] ENRICHED CONFIGS:", JSON.stringify(enrichedConfigs[selectedPageId]?.hero, null, 2));
       const payload = [
         {
           key: CMS_GLOBAL_SETTING_KEYS.pageConfigs,
-          value: JSON.stringify(pageConfigs, null, 2),
+          value: JSON.stringify(enrichedConfigs, null, 2),
           category: "cms",
         },
         {
@@ -625,6 +706,128 @@ function AdminPageBuilderContent() {
           )}
         </CardContent>
       </Card>
+
+      {ENABLE_VISUAL_BLOCK_BUILDER && visualConfig && (
+        <div className="fixed inset-0 z-50 bg-brand-sand flex">
+          <div className="w-72 h-full border-r border-border bg-white flex flex-col shadow-soft">
+            <div className="p-4 border-b border-border">
+              <h2 className="font-serif text-lg text-brand-ink">Blocks</h2>
+              <p className="text-xs text-muted-foreground">{selectedPageDefinition?.label}</p>
+            </div>
+            <div className="flex-1 overflow-y-auto p-3">
+              <BlockList
+                blocks={visualConfig.blocks ?? []}
+                selectedBlockId={selectedVisualBlockId}
+                onSelectBlock={setSelectedVisualBlockId}
+                onToggleBlock={(id) => {
+                  setVisualConfig((prev) => prev ? normalizePageConfig(toggleBlock(prev, id)) : null);
+                }}
+                onReorderBlock={(id, direction) => {
+                  setVisualConfig((prev) => prev ? normalizePageConfig(reorderBlocks(prev, id, direction)) : null);
+                }}
+                onRemoveBlock={(id) => {
+                  setVisualConfig((prev) => prev ? normalizePageConfig(removeBlock(prev, id)) : null);
+                }}
+              />
+            </div>
+            <div className="p-3 border-t border-border">
+              <AddBlockDialog
+                onAddBlock={(type) => {
+                  const newBlock = addBlock(visualConfig, type);
+                  setVisualConfig(normalizePageConfig(newBlock));
+                  setSelectedVisualBlockId(newBlock.blocks?.[newBlock.blocks.length - 1]?.id ?? null);
+                }}
+                existingBlockIds={visualConfig.blocks?.map((b) => b.type) ?? []}
+              />
+            </div>
+          </div>
+
+          <div className="flex-1 flex flex-col h-full overflow-hidden">
+            <div className="h-14 border-b border-border bg-white flex items-center justify-between px-6">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setVisualConfig(null)}
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Exit Builder
+                </Button>
+                <span className="text-sm text-muted-foreground">|</span>
+                <span className="text-sm font-medium text-brand-ink">
+                  {selectedVisualBlockId
+                    ? BLOCK_TYPE_LABELS[selectedVisualBlockId] ?? selectedVisualBlockId
+                    : "Select a block"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {process.env.NODE_ENV === "development" && (
+                  <span className="bg-brand-gold text-white px-3 py-1 rounded-full text-xs font-medium">
+                    Preview Mode
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6">
+              {selectedVisualBlockId && (
+                <BlockEditor
+                  block={visualConfig.blocks?.find((b) => b.id === selectedVisualBlockId) ?? null}
+                  onUpdateSettings={(settings) => {
+                    setVisualConfig((prev) => {
+                      if (!prev) return prev;
+                      return normalizePageConfig(updateBlockSettings(prev, selectedVisualBlockId, settings));
+                    });
+                  }}
+                />
+              )}
+              {!selectedVisualBlockId && (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  <p>Select a block to edit</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="w-[420px] h-full border-l border-border bg-white flex flex-col shadow-soft">
+            <div className="h-14 border-b border-border flex items-center justify-center px-4">
+              <div className="flex bg-muted rounded-lg p-1">
+                <Button
+                  variant={previewDevice === "desktop" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setPreviewDevice("desktop")}
+                >
+                  <Monitor className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={previewDevice === "tablet" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setPreviewDevice("tablet")}
+                >
+                  <Tablet className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={previewDevice === "mobile" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setPreviewDevice("mobile")}
+                >
+                  <Smartphone className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6 bg-muted/30">
+              <div className="mx-auto bg-white rounded-2xl shadow-soft overflow-hidden transition-all duration-300 ease-premium"
+                style={{ width: PREVIEW_WIDTHS[previewDevice] }}>
+                {visualConfig && (
+                  <BlockPreview
+                    pageConfig={visualConfig}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-6 xl:grid-cols-2">
         {selectedPageDefinition?.blocks.some((block) => block.id === "hero") ? (

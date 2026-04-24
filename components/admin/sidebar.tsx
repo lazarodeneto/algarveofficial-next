@@ -125,7 +125,7 @@ export function Sidebar() {
       onBlurCapture={handleBlurCapture}
       className={cn(
         "fixed inset-y-0 left-0 z-40 hidden transform-gpu lg:flex flex-col overflow-hidden border-r border-border bg-background/95 backdrop-blur-xl shadow-[0_20px_48px_-36px_rgba(15,23,42,0.45)]",
-        "will-change-[width] motion-safe:transition-[width,box-shadow] motion-safe:duration-300 motion-safe:ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+        "will-change-[width] motion-safe:transition-[width,box-shadow] motion-safe:duration-300 motion-safe:ease-premium motion-reduce:transition-none",
         expanded ? "w-60" : "w-20",
       )}
     >
