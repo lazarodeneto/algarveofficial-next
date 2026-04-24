@@ -149,11 +149,7 @@ export function CuratedExcellence({
       <div className={fullWidth ? "relative" : "relative app-container"}>
         {/* Section Header */}
         {showSectionHeader && (
-          <m.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+          <div
             className="text-center mb-16"
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
@@ -164,22 +160,17 @@ export function CuratedExcellence({
             <p className="mt-6 text-body lg:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed readable">
               {t('sections.curated.subtitle')}
             </p>
-          </m.div>
+          </div>
         )}
 
         {/* Featured Listing Card */}
           <Link href={l(`/listing/${featuredListing.slug}`)} className="block">
-          <m.div
-            initial={{ opacity: 0, y: 40, scale: 0.98 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
+          <div
             className={fullWidth
               ? "group relative flex flex-col overflow-hidden glass-box glass-box-listing-shimmer glass-box-contour cursor-pointer transition-all duration-500 hover:border-primary/40 hover:shadow-[0_0_26px_rgba(172,184,198,0.28),0_0_52px_rgba(172,184,198,0.14)]"
               : "group relative flex flex-col md:flex-row overflow-hidden glass-box glass-box-listing-shimmer glass-box-contour cursor-pointer transition-all duration-500 hover:border-primary/40 hover:shadow-[0_0_26px_rgba(172,184,198,0.28),0_0_52px_rgba(172,184,198,0.14)]"
             }
           >
-            {/* Gold accent border on left */}
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[hsl(43,74%,49%)] via-[hsl(43,80%,35%)] to-[hsl(43,74%,49%)] rounded-l-lg z-10" />
 
             {/* Image */}
@@ -248,7 +239,7 @@ export function CuratedExcellence({
                 </span>
               </div>
             </div>
-          </m.div>
+          </div>
         </Link>
       </div>
     </section>

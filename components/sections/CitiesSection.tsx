@@ -1,3 +1,4 @@
+import { PremiumCard } from "@/components/ui/premium-card";
 import { m } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -117,37 +118,31 @@ export function CitiesSection() {
         ) : (
           <div className="grid-adaptive">
             {citiesToRender.map((city) => (
-              <div key={city.id}>
-                <Link
-                  href={l(`/visit/${city.slug}`)}
-                  className="glass-box flex items-center gap-3 p-4 rounded-xl hover:border-primary/30 cursor-pointer"
-                  onClick={() =>
-                    void trackEvent("block_click", {
-                      blockId: "cities",
-                      pageId: "home",
-                      cityId: city.id,
-                      selection,
-                    })
-                  }
+              <Link
+                key={city.id}
+                href={l(`/visit/${city.slug}`)}
+                onClick={() =>
+                  void trackEvent("block_click", {
+                    blockId: "cities",
+                    pageId: "home",
+                    cityId: city.id,
+                    selection,
+                  })
+                }
                 >
-                  {/* Favorite Heart Icon - Clickable (stops propagation) */}
-                  <div onClick={(e) => e.preventDefault()}>
-                    <FavoriteButton
-                      isFavorite={isDestinationSaved("city", city.id)}
-                      onToggle={() => toggleCity(city.id)}
-                      size="sm"
-                      variant="ghost"
-                      className="shrink-0"
-                    />
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-foreground text-body-md break-words text-balance leading-tight">
-                      {city.name}
-                    </p>
-                  </div>
-                </Link>
-              </div>
+                <PremiumCard
+                  title={city.name}
+                  imageUrl={city.image_url ?? undefined}
+                >
+                  <FavoriteButton
+                    isFavorite={isDestinationSaved("city", city.id)}
+                    onToggle={() => toggleCity(city.id)}
+                    size="sm"
+                    variant="ghost"
+                    className="absolute top-3 right-3"
+                  />
+                </PremiumCard>
+              </Link>
             ))}
           </div>
         )}

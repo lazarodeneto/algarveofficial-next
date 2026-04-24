@@ -63,7 +63,7 @@ export function ImageUploader({
       );
 
       const newImages: ListingImage[] = convertedFiles.map((result, index) => ({
-        id: `temp-${Date.now()}-${index}`,
+        id: `temp-${index}-${result.original.name.replace(/\D/g, '')}`,
         url: URL.createObjectURL(result.converted),
         alt: result.original.name.replace(/\.[^/.]+$/, ''),
         is_featured: images.length === 0 && index === 0,

@@ -97,6 +97,12 @@ export default {
           light: "hsl(var(--gold-light))",
           dark: "hsl(var(--gold-dark))",
         },
+        brand: {
+          sand: "#F5F0E6",
+          gold: "#C7A35A",
+          ink: "#0B1F3A",
+          teal: "#0E7490",
+        },
         ivory: "hsl(var(--ivory))",
         charcoal: {
           DEFAULT: "hsl(var(--charcoal))",
@@ -122,6 +128,8 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        xl: "1rem",
+        "2xl": "1.5rem",
       },
       keyframes: {
         "accordion-down": {
@@ -151,6 +159,9 @@ export default {
         "fade-in": "fade-in 0.6s ease-out forwards",
         "fade-in-up": "fade-in-up 0.8s ease-out forwards",
         shimmer: "shimmer 3s ease-in-out infinite",
+      },
+      boxShadow: {
+        soft: "0 10px 30px rgba(0,0,0,0.08)",
       },
     },
   },

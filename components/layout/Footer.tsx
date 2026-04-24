@@ -373,7 +373,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="flex flex-col items-center justify-between gap-4 border-t border-border py-6 pb-[calc(5.25rem+env(safe-area-inset-bottom))] text-center sm:flex-row sm:text-left lg:pb-6">
           <p className="text-body-xs text-muted-foreground">
-            {t("footer.copyright", { year: new Date().getFullYear() })}
+            {t("footer.copyright", { year: 2026 })}
           </p>
           <p className="text-body-xs text-muted-foreground">
             {t("footer.tagline")}

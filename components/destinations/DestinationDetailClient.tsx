@@ -811,7 +811,7 @@ function DestinationDetailClientInner({
                       <div className="relative w-full h-36 overflow-hidden">
                         {r.image_url || r.hero_image_url ? (
                           <Image
-                            src={`${r.image_url ?? r.hero_image_url}?_t=${Date.now()}`}
+                            src={(r.image_url ?? r.hero_image_url)!}
                             alt={r.name}
                             fill
                             unoptimized
