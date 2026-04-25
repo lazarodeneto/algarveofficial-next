@@ -1,8 +1,26 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { m } from "framer-motion";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import {
   Plus,
   Search,
@@ -14,6 +32,8 @@ import {
   X,
   Trash2,
   Loader2,
+  GripVertical,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,9 +86,34 @@ export default function AdminListings() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [tierDialogOpen, setTierDialogOpen] = useState(false);
   const [selectedTier, setSelectedTier] = useState<"unverified" | "verified" | "signature">("unverified");
+  const [featuredContext, setFeaturedContext] = useState<"homepage:home">("homepage:home");
+
+  // Parse context
+  const [ctxType, ctxValue] = featuredContext.split(":") as ["homepage" | "category" | "city" | "region", string];
 
   const updateListingStatus = useUpdateListingStatus();
   const deleteListings = useDeleteListings();
+  const queryClient = useQueryClient();
+
+  // Featured rank update via secure API
+  const updateFeaturedRank = useMutation({
+    mutationFn: async ({ id, rank, action }: { id: string; rank?: number | null; action?: string }) => {
+      const res = await fetch("/api/admin/pin-listing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ listingId: id, position: rank, action }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed");
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["admin-all-listings"],
+        exact: true,
+      });
+    },
+  });
 
   // Fetch listings
   const { data: listings = [], isLoading: listingsLoading } = useQuery({
@@ -79,11 +124,11 @@ export default function AdminListings() {
       let from = 0;
       const allRows: any[] = [];
 
+// Note: featured_rank column must be added via migration before this will typecheck
       while (true) {
-        const { data, error } = await supabase
-          .from("listings")
+        const { data, error } = await (supabase as any)
           .select(`
-            id, name, tier, status, is_curated, description, slug,
+            id, name, tier, status, is_curated, description, slug, featured_rank,
             city:cities(id, name),
             category:categories(id, name),
             region:regions(id, name)
@@ -137,6 +182,119 @@ export default function AdminListings() {
     });
   }, [listings, search, cityFilter, categoryFilter, tierFilter, statusFilter]);
 
+  // Featured-only listings (for drag & drop)
+  const featuredListings = useMemo(() => {
+    return listings
+      .filter((l: any) => l.featured_rank != null)
+      .sort((a: any, b: any) => (a.featured_rank ?? 999) - (b.featured_rank ?? 999));
+  }, [listings]);
+
+  // dnd-kit sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  // Bulk reorder featured listings (with RPC for atomic update + optimistic UI)
+  const reorderFeaturedRank = useMutation({
+    mutationFn: async (items: { id: string; rank: number }[]) => {
+      await (supabase as any).rpc("set_featured_ranks", { payload: items });
+    },
+    onMutate: async (next) => {
+      await queryClient.cancelQueries({ queryKey: ["admin-all-listings"] });
+      const previous = queryClient.getQueryData(["admin-all-listings"]);
+      queryClient.setQueryData(["admin-all-listings"], (old: any) => {
+        if (!old) return old;
+        const rankMap = Object.fromEntries(next.map((i) => [i.id, i.rank]));
+        return {
+          ...old,
+          pages: old.pages?.map((page: any) =>
+            page.map((l: any) => ({
+              ...l,
+              featured_rank: rankMap[l.id] ?? l.featured_rank,
+            }))
+          ) ?? old,
+        };
+      });
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      queryClient.setQueryData(["admin-all-listings"], context?.previous);
+      toast.error("Reorder failed. Restored previous order.");
+    },
+    onSuccess: () => {
+      toast.success("Featured ranking updated");
+    },
+  });
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = featuredListings.findIndex((l: any) => l.id === active.id);
+    const newIndex = featuredListings.findIndex((l: any) => l.id === over.id);
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+      const reordered = arrayMove(featuredListings, oldIndex, newIndex);
+      const updates = reordered.map((item: any, index: number) => ({
+        id: item.id,
+        rank: index + 1,
+      }));
+      reorderFeaturedRank.mutate(updates);
+    }
+  };
+
+  // Max featured limit
+  const MAX_FEATURED = 12;
+
+  // Clear all featured
+  const clearAllFeatured = useMutation({
+    mutationFn: async () => {
+      // Get all featured listings
+      const featured = listings.filter((l: any) => l.featured_rank != null);
+      // Unpin each via API
+      await Promise.all(
+        featured.map((l: any) =>
+          fetch("/api/admin/pin-listing", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ listingId: l.id, action: "unpin" }),
+          })
+        )
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-all-listings"], exact: true });
+      queryClient.invalidateQueries({ queryKey: ["homepage-data"] });
+      queryClient.invalidateQueries({ queryKey: ["category-listings"] });
+      toast.success("Cleared all featured listings");
+    },
+    onError: () => {
+      toast.error("Failed to clear featured");
+    },
+  });
+
+  // Pin listing to top (via secure API)
+  const pinToTop = async (listingId: string) => {
+    if (featuredListings.length >= MAX_FEATURED) {
+      toast.error(`Max ${MAX_FEATURED} featured listings reached`);
+      return;
+    }
+    
+    const newRank = featuredListings.length + 1;
+    updateFeaturedRank.mutate({ id: listingId, rank: newRank }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["homepage-data"] });
+        queryClient.invalidateQueries({ queryKey: ["category-listings"] });
+        toast.success("Pinned to featured");
+      },
+      onError: (err: any) => {
+        toast.error(err.message || "Cannot pin: subscription required");
+      },
+    });
+  };
+
+  // Expose pinToTop for column action
   const handleBulkDelete = () => {
     const targetIds = singleDeleteId ? [singleDeleteId] : selectedIds;
 
@@ -235,6 +393,51 @@ export default function AdminListings() {
         ),
     },
     {
+      key: "featured_rank",
+      label: (
+        <div className="flex flex-col">
+          <span>Rank</span>
+          <span className="text-[10px] text-muted-foreground font-normal">1 = top</span>
+        </div>
+      ),
+      className: "w-[5.5rem] whitespace-nowrap",
+      render: (listing: any) => {
+        const currentRank = listing.featured_rank ?? "";
+        const isFeatured = !!listing.featured_rank;
+        const isTop = listing.featured_rank === 1;
+        return (
+          <div className={`flex items-center gap-2 ${isTop ? "bg-yellow-50 border-l-2 border-yellow-400 pl-2 -ml-2" : ""}`}>
+            <Input
+              type="number"
+              min={1}
+              placeholder="—"
+              value={currentRank}
+              className={`h-8 w-14 text-center text-sm ${
+                isFeatured
+                  ? "border-yellow-400 bg-yellow-50 font-medium text-yellow-700"
+                  : "bg-background"
+              }`}
+              onChange={(e) => {
+                const value = e.target.value;
+                const parsed = value === "" ? null : Math.max(1, parseInt(value, 10) || 1);
+                updateFeaturedRank.mutate({ id: listing.id, rank: parsed });
+              }}
+              onBlur={(e) => {
+                const value = e.target.value;
+                const parsed = value === "" ? null : Math.max(1, parseInt(value, 10) || 1);
+                updateFeaturedRank.mutate({ id: listing.id, rank: parsed });
+              }}
+            />
+            {isTop && (
+              <span className="text-xs px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-800 font-medium">
+                #1
+              </span>
+            )}
+          </div>
+        );
+      },
+    },
+    {
       key: "status",
       label: "Status",
       className: "w-[7.5rem] sm:w-[8.5rem] whitespace-nowrap",
@@ -293,6 +496,22 @@ export default function AdminListings() {
               >
                 <Crown className="h-4 w-4 mr-2" />
                 {listing.is_curated ? "Remove from Curated" : "Add to Curated"}
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
+            {!listing.featured_rank && featuredListings.length < MAX_FEATURED && (
+              <DropdownMenuItem onClick={() => pinToTop(listing.id)}>
+                <Star className="h-4 w-4 mr-2" />
+                Pin to Featured
+              </DropdownMenuItem>
+            )}
+            {listing.featured_rank && (
+              <DropdownMenuItem
+                className="text-yellow-600"
+                onClick={() => updateFeaturedRank.mutate({ id: listing.id, rank: null })}
+              >
+                <Star className="h-4 w-4 mr-2" />
+                Unpin from Featured
               </DropdownMenuItem>
             )}
             <DropdownMenuSeparator />
@@ -471,6 +690,64 @@ export default function AdminListings() {
         )}
       </div>
 
+      {/* Featured List Section (Drag & Drop) */}
+      {featuredListings.length > 0 && (
+        <div className="mb-6 p-4 border border-yellow-300 bg-yellow-50 rounded-lg">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Star className="h-4 w-4 text-yellow-600" />
+              <h3 className="font-medium text-yellow-800">Featured Listings</h3>
+              <Select value={featuredContext} onValueChange={(v) => setFeaturedContext(v as any)}>
+                <SelectTrigger className="h-8 w-40 bg-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="homepage:home">Homepage</SelectItem>
+                  <SelectItem value="category:restaurants">Restaurants</SelectItem>
+                  <SelectItem value="category:hotels">Hotels</SelectItem>
+                  <SelectItem value="city:lagos">Lagos</SelectItem>
+                  <SelectItem value="city:albufeira">Albufeira</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-yellow-700">
+                Slot €{featuredListings.length * 100}/mo · {MAX_FEATURED - featuredListings.length} left
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => clearAllFeatured.mutate()}
+                disabled={clearAllFeatured.isPending}
+                className="text-yellow-700 border-yellow-300 hover:bg-yellow-100"
+              >
+                Clear All
+              </Button>
+            </div>
+          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={featuredListings.map((l: any) => l.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-2">
+                {featuredListings.map((listing: any, index: number) => (
+                  <SortableListingItem
+                    key={listing.id}
+                    listing={listing}
+                    index={index}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        </div>
+      )}
+
       {/* Data Table */}
       <DataTable
         columns={columns}
@@ -535,6 +812,74 @@ export default function AdminListings() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+// Sortable Listing Item for Featured Section
+function SortableListingItem({
+  listing,
+  index,
+}: {
+  listing: any;
+  index: number;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: listing.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  const isTopThree = index < 3;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-3 p-3 bg-white rounded-md border ${
+        isDragging
+          ? "border-yellow-500 shadow-lg opacity-90"
+          : isTopThree
+          ? "border-yellow-300"
+          : "border-gray-200"
+      }`}
+      {...attributes}
+    >
+      <button
+        type="button"
+        className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600"
+        {...listeners}
+      >
+        <GripVertical className="h-4 w-4" />
+      </button>
+      <span
+        className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium ${
+          index === 0
+            ? "bg-yellow-400 text-yellow-900"
+            : index === 1
+            ? "bg-yellow-200 text-yellow-800"
+            : index === 2
+            ? "bg-yellow-100 text-yellow-700"
+            : "bg-gray-100 text-gray-600"
+        }`}
+      >
+        {index + 1}
+      </span>
+      <div className="flex-1 min-w-0">
+        <p className="font-medium text-foreground truncate">{listing.name}</p>
+        <p className="text-sm text-muted-foreground truncate">
+          {listing.city?.name || "No city"} · {listing.category?.name || "No category"}
+        </p>
+      </div>
+      <TierBadge tier={listing.tier} size="sm" />
     </div>
   );
 }

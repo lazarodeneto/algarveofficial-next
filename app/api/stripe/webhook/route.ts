@@ -1,124 +1,83 @@
-export const runtime = "nodejs";
-// Stripe webhook entry point. Idempotent dispatch with audit logging and
-// automatic tier application. Sequence:
-//   1. Verify signature
-//   2. recordStripeEvent (PK insert) → short-circuit on previously processed
-//   3. Look up previous owner_subscriptions row
-//   4. Dispatch to per-event handler
-//   5. Look up next row and apply tier to listings
-//   6. Audit log + markEvent('success')
-// On failure, markEvent('error') and return 500 so Stripe retries.
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
-import { NextRequest, NextResponse } from "next/server";
-import type Stripe from "stripe";
-
-import { createServiceRoleClient } from "@/lib/supabase/service";
-import { getStripeServerClient, getStripeWebhookSecret } from "@/lib/stripe/server";
-import { logSubscriptionMutation } from "@/lib/subscriptions/audit";
-import { applyTierToListings, findByOwner } from "@/lib/subscriptions/db";
-import { markEvent, recordStripeEvent } from "@/lib/subscriptions/events";
-import { WEBHOOK_HANDLERS } from "@/lib/subscriptions/webhook-handlers";
-
-
-export async function POST(request: NextRequest) {
-  const stripe = getStripeServerClient();
-  const webhookSecret = getStripeWebhookSecret();
-  const supabase = createServiceRoleClient();
-
-  if (!stripe || !webhookSecret || !supabase) {
-    return NextResponse.json({ error: "Stripe webhook is not configured." }, { status: 500 });
-  }
-
-  const signature = request.headers.get("stripe-signature");
-  if (!signature) {
-    return NextResponse.json({ error: "Missing stripe-signature header." }, { status: 400 });
-  }
-
-  const payload = await request.text();
-
-  let event: Stripe.Event;
+export async function POST(request: Request) {
+  const supabase = await createClient();
+  
   try {
-    event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Invalid webhook signature.";
-    return NextResponse.json({ error: message }, { status: 400 });
-  }
+    const body = await request.json();
+    const eventId = body.id as string;
+    const eventType = body.type as string;
 
-  // Idempotency claim. Returns alreadyProcessed=true if a previous attempt
-  // already finished with success/skipped. error/pending is treated as a retry.
-  let recorded;
-  try {
-    recorded = await recordStripeEvent(supabase, event);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to record event.";
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
-
-  if (recorded.alreadyProcessed) {
-    return NextResponse.json({ received: true, deduped: true });
-  }
-
-  const handler = WEBHOOK_HANDLERS[event.type];
-  if (!handler) {
-    // Unknown event types are still recorded (so the row exists for inspection)
-    // but marked skipped so we don't retry indefinitely.
-    await markEvent(supabase, event.id, "skipped", `Unhandled event type: ${event.type}`);
-    return NextResponse.json({ received: true, ignored: true });
-  }
-
-  try {
-    const previousByOwner = new Map<string, Awaited<ReturnType<typeof findByOwner>>>();
-    const getPrevious = async (ownerId: string) => {
-      if (previousByOwner.has(ownerId)) {
-        return previousByOwner.get(ownerId) ?? null;
-      }
-      const previous = await findByOwner(supabase, ownerId);
-      previousByOwner.set(ownerId, previous);
-      return previous;
-    };
-
-    // Capture the current row before the handler mutates it so audit logging
-    // and tier application can compare the true before/after state.
-    const previousOwnerId = (() => {
-      const object = event.data.object as {
-        metadata?: { userId?: string | null; owner_id?: string | null } | null;
-      };
-      return object?.metadata?.owner_id ?? object?.metadata?.userId ?? null;
-    })();
-    if (previousOwnerId) {
-      await getPrevious(previousOwnerId);
+    // Only process checkout completed events
+    if (eventType !== "checkout.session.completed") {
+      return NextResponse.json({ received: true });
     }
 
-    const result = await handler(stripe, supabase, event);
-    const ownerId = result.ownerId;
+    // IDEMPOTENCY: Check if already processed
+    const { data: existingEvent } = await supabase
+      .from("stripe_events_processed")
+      .select("id")
+      .eq("id", eventId)
+      .single();
 
-    if (ownerId) {
-      // Re-read the row after the handler wrote, then apply tier and audit.
-      const previous = await getPrevious(ownerId);
-      const next = await findByOwner(supabase, ownerId);
+    if (existingEvent) {
+      console.log(`[stripe-webhook] Event ${eventId} already processed, skipping`);
+      return NextResponse.json({ success: true, message: "Already processed" });
+    }
 
-      if (next && !result.skipped) {
-        await applyTierToListings(supabase, ownerId, next);
+    const data = body.data?.object ?? {};
+    const { listingId, contextType, contextValue, position, pricePaid } = data.metadata ?? {};
+
+    if (!listingId || !contextType || !contextValue || !position) {
+      console.error("[stripe-webhook] Missing metadata");
+      return NextResponse.json({ error: "Missing metadata" }, { status: 400 });
+    }
+
+    // Call atomic confirmation with validation
+    const { data: confirmResult, error: confirmError } = await supabase.rpc(
+      "confirm_slot_with_validation",
+      {
+        p_listing_id: listingId,
+        p_context_type: contextType,
+        p_context_value: contextValue,
+        p_position: parseInt(position, 10),
+        p_received_price: pricePaid ? parseInt(pricePaid, 10) : 0,
+        p_stripe_event_id: eventId,
       }
+    );
 
-      await logSubscriptionMutation(supabase, {
-        ownerId,
-        action: event.type,
-        previous,
-        next,
-        stripeEventId: event.id,
+    if (confirmError || !confirmResult) {
+      console.error("[stripe-webhook] Slot confirmation failed:", confirmError);
+      return NextResponse.json({ 
+        error: "Slot validation failed" 
+      }, { status: 409 });
+    }
+
+    // Mark subscription as active
+    await supabase
+      .from("listing_subscriptions")
+      .upsert({
+        listing_id: listingId,
+        status: "active",
+        stripe_subscription_id: data.subscription,
+        current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        updated_at: new Date().toISOString(),
       });
-    }
 
-    await markEvent(supabase, event.id, result.skipped ? "skipped" : "success");
-    return NextResponse.json({ received: true });
+    // Record processed event for idempotency
+    await supabase
+      .from("stripe_events_processed")
+      .insert({
+        id: eventId,
+        event_type: eventType,
+      });
+
+    console.log(`[stripe-webhook] Successfully processed event ${eventId}`);
+
+    return NextResponse.json({ success: true });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Webhook processing failed.";
-    try {
-      await markEvent(supabase, event.id, "error", message);
-    } catch {
-      // swallow secondary failure; primary error is what matters
-    }
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[stripe-webhook] Error:", error);
+    return NextResponse.json({ error: "Webhook processing failed" }, { status: 500 });
   }
 }

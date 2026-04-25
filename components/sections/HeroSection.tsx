@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useHeroSettings } from "@/hooks/useHomepageSettings";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
+import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { useTranslation } from "react-i18next";
 import { useConnectionQuality } from "@/hooks/useConnectionQuality";
 import { useTripPlanner } from "@/hooks/useTripPlanner";
@@ -248,6 +249,11 @@ export function HeroSection() {
   const { canUseCategory, isLoaded: isCookieConsentLoaded, openPreferences } = useCookieConsent();
   const hasFunctionalConsent = canUseCategory("functional");
 
+  // CMS SOURCE OF TRUTH:
+  // 1. cms_page_configs_v1 text overrides (primary)
+  // 2. homepage_settings (fallback only)
+  const { getText } = useCmsPageBuilder("home");
+
   // Determine if video should be skipped for performance
   // Skip video on: reduced motion preference, slow connections, or mobile devices
   const shouldSkipVideo = prefersReducedMotion || isSlow;
@@ -315,10 +321,11 @@ export function HeroSection() {
   const overlayOpacity = overlayIntensity / 100;
   const localizedHeroHeadline = `${t("hero.headline")} ${t("hero.headlineHighlight")}`.trim();
   const localizedHeroSubtitle = t("hero.subtitle");
-  // Keep homepage CMS copy for English, but always use dictionary translations for non-English locales.
-  const heroHeadline = locale === "en"
-    ? settings?.hero_title?.trim() ?? localizedHeroHeadline
-    : localizedHeroHeadline;
+  // CMS SOURCE OF TRUTH: 1. cms_page_configs_v1 (getText), 2. homepage_settings (fallback)
+  const heroHeadline =
+    getText("home.hero.title", "") ||
+    (locale === "en" ? settings?.hero_title?.trim() : null) ||
+    localizedHeroHeadline;
   const heroHeadlineLines = useMemo(() => {
     const normalized = heroHeadline.replace(/\s+/g, " ").trim().toLowerCase();
     if (normalized === "discover the algarve through trusted local expertise") {
@@ -326,13 +333,15 @@ export function HeroSection() {
     }
     return [heroHeadline];
   }, [heroHeadline]);
-  const heroSubtitle = locale === "en"
-    ? settings?.hero_subtitle?.trim() ?? localizedHeroSubtitle
-    : localizedHeroSubtitle;
+  const heroSubtitle =
+    getText("home.hero.subtitle", "") ||
+    (locale === "en" ? settings?.hero_subtitle?.trim() : null) ||
+    localizedHeroSubtitle;
   const localizedTripPlannerButtonLabel = t("hero.planTripCta");
-  const tripPlannerButtonLabel = locale === "en"
-    ? settings?.hero_cta_primary_text?.trim() ?? localizedTripPlannerButtonLabel
-    : localizedTripPlannerButtonLabel;
+  const tripPlannerButtonLabel =
+    getText("home.hero.cta.primary", "") ||
+    (locale === "en" ? settings?.hero_cta_primary_text?.trim() : null) ||
+    localizedTripPlannerButtonLabel;
   // ... inside the component function ...
 
   const mediaMode = useMemo<"youtube" | "video" | "poster" | "none" | "loading">(() => {

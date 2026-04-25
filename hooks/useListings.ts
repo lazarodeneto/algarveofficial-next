@@ -325,7 +325,8 @@ const PUBLIC_LISTING_FIELDS = `
   view_count,
   published_at,
   created_at,
-  updated_at
+  updated_at,
+  featured_rank
 `;
 
 // Safe fields for related entities

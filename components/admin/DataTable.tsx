@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 
 export interface Column<T> {
   key: string;
-  label: string;
+  label: string | ReactNode;
   render?: (item: T) => ReactNode;
   className?: string;
 }
