@@ -110,3 +110,71 @@ export function FaqBlockEditor({ settings, onUpdateSettings }: BlockEditorProps)
     </div>
   );
 }
+
+export function CoursesGridBlockEditor({ settings, onUpdateSettings }: BlockEditorProps) {
+  const updateField = (field: string, value: unknown) => {
+    onUpdateSettings({ ...settings, [field]: value });
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label>Title</Label>
+        <Input value={(settings.title as string) ?? ""} onChange={(e) => updateField("title", e.target.value)} />
+      </div>
+      <div className="space-y-2">
+        <Label>Max Items</Label>
+        <Input
+          type="number"
+          value={String((settings.limit as number) ?? 12)}
+          onChange={(e) => updateField("limit", Number.parseInt(e.target.value, 10) || 12)}
+        />
+      </div>
+    </div>
+  );
+}
+
+export function GolfLeaderboardBlockEditor({ settings, onUpdateSettings }: BlockEditorProps) {
+  const updateField = (field: string, value: unknown) => {
+    onUpdateSettings({ ...settings, [field]: value });
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label>Title</Label>
+        <Input
+          value={(settings.title as string) ?? "Leaderboard"}
+          onChange={(e) => updateField("title", e.target.value)}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label>Rows</Label>
+        <Input
+          type="number"
+          value={String((settings.limit as number) ?? 10)}
+          onChange={(e) => updateField("limit", Number.parseInt(e.target.value, 10) || 10)}
+        />
+      </div>
+    </div>
+  );
+}
+
+export function RegionsGridBlockEditor({ settings, onUpdateSettings }: BlockEditorProps) {
+  const updateField = (field: string, value: unknown) => {
+    onUpdateSettings({ ...settings, [field]: value });
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label>Title</Label>
+        <Input value={(settings.title as string) ?? ""} onChange={(e) => updateField("title", e.target.value)} />
+      </div>
+      <div className="space-y-2">
+        <Label>Subtitle</Label>
+        <Input value={(settings.subtitle as string) ?? ""} onChange={(e) => updateField("subtitle", e.target.value)} />
+      </div>
+    </div>
+  );
+}

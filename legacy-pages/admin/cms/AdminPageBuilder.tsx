@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Plus, Save, Trash2, ExternalLink, Paintbrush, Video, ImageIcon, RotateCcw, ArrowDown, ArrowUp, ArrowLeft, Monitor, Tablet, Smartphone } from "lucide-react";
+import { Loader2, Plus, Save, Trash2, ExternalLink, Paintbrush, Video, ImageIcon, RotateCcw, ArrowDown, ArrowUp, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,6 +26,7 @@ import {
   CMS_PAGE_DEFINITIONS,
   normalizeCmsPageConfigs,
   type CmsBlockConfig,
+  type CmsBlockDefinition,
   type CmsDesignTokenMap,
   type CmsPageConfigMap,
   type CmsTextOverrideMap,
@@ -44,20 +45,15 @@ import {
 } from "@/lib/cms/listing-block-config";
 import { convertToWebP } from "@/lib/imageUtils";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
+import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
+import { PageHeroImage } from "@/components/sections/PageHeroImage";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import {
   normalizePageConfig,
-  addBlock,
-  removeBlock,
-  toggleBlock,
-  reorderBlocks,
-  updateBlockSettings,
 } from "@/lib/cms/normalize-page-config";
-import { type CmsPageConfig } from "@/lib/cms/block-schemas";
-import { BlockList } from "@/components/cms/builder/BlockList";
-import { BlockEditor } from "@/components/cms/builder/BlockEditor";
+import { resolveHero, resolvePageContent } from "@/lib/cms/resolve-hero";
+import { getDefaultBlockSettings, isSupportedBlockType, type CmsPageConfig } from "@/lib/cms/block-schemas";
 import { BlockPreview } from "@/components/cms/builder/BlockPreview";
-import { AddBlockDialog } from "@/components/cms/builder/AddBlockDialog";
 
 const ENABLE_VISUAL_BLOCK_BUILDER = true;
 
@@ -124,6 +120,57 @@ function fromRows(rows: KeyValueRow[]): Record<string, string> {
   }, {});
 }
 
+interface AdminCmsPageConfigPayload {
+  page_id: string;
+  locale: string;
+  document_id: number | null;
+  content: Record<string, unknown>;
+  latest_draft_version: number | null;
+  latest_published_version: number | null;
+}
+
+interface AdminCmsPageConfigResponse {
+  ok: boolean;
+  data?: AdminCmsPageConfigPayload;
+  error?: { message?: string };
+}
+
+interface AdminCmsPreviewResponse {
+  ok: boolean;
+  data?: {
+    url: string;
+    path: string;
+    locale: string;
+  };
+  error?: { message?: string };
+}
+
+function buildHeroTextMap(hero: CmsPageConfig["hero"] | undefined): Record<string, string> {
+  if (!hero) return {};
+
+  const map: Record<string, string> = {};
+
+  if (typeof hero.mediaType === "string") map["hero.mediaType"] = hero.mediaType;
+  if (typeof hero.imageUrl === "string") map["hero.imageUrl"] = hero.imageUrl;
+  if (typeof hero.videoUrl === "string") map["hero.videoUrl"] = hero.videoUrl;
+  if (typeof hero.youtubeUrl === "string") map["hero.youtubeUrl"] = hero.youtubeUrl;
+  if (typeof hero.posterUrl === "string") map["hero.posterUrl"] = hero.posterUrl;
+  if (typeof hero.alt === "string") map["hero.alt"] = hero.alt;
+  if (typeof hero.badge === "string") map["hero.badge"] = hero.badge;
+  if (typeof hero.title === "string") map["hero.title"] = hero.title;
+  if (typeof hero.subtitle === "string") map["hero.subtitle"] = hero.subtitle;
+  if (typeof hero.ctaPrimary === "string") map["hero.cta.primary"] = hero.ctaPrimary;
+  if (typeof hero.ctaSecondary === "string") map["hero.cta.secondary"] = hero.ctaSecondary;
+  if (typeof (hero as { ctaCourses?: unknown }).ctaCourses === "string") {
+    map["hero.cta.primary"] = (hero as { ctaCourses?: string }).ctaCourses ?? "";
+  }
+  if (typeof (hero as { ctaLeaderboard?: unknown }).ctaLeaderboard === "string") {
+    map["hero.cta.secondary"] = (hero as { ctaLeaderboard?: string }).ctaLeaderboard ?? "";
+  }
+
+  return map;
+}
+
 function AdminPageBuilderContent() {
   const router = useRouter();
   const locale = useCurrentLocale();
@@ -146,6 +193,7 @@ function AdminPageBuilderContent() {
   });
 
   const [selectedPageId, setSelectedPageId] = useState<string>(initialPageId);
+  const isGolfPage = selectedPageId === "golf";
 
   const [pageConfigs, setPageConfigs] = useState<CmsPageConfigMap>({});
   const [globalTextRows, setGlobalTextRows] = useState<KeyValueRow[]>([]);
@@ -161,28 +209,12 @@ function AdminPageBuilderContent() {
   const heroPosterInputRef = useRef<HTMLInputElement | null>(null);
 
   const [visualConfig, setVisualConfig] = useState<CmsPageConfig | null>(null);
-  const [selectedVisualBlockId, setSelectedVisualBlockId] = useState<string | null>(null);
-  const [previewDevice, setPreviewDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
-
-  const PREVIEW_WIDTHS = {
-    desktop: "100%",
-    tablet: "768px",
-    mobile: "375px",
-  };
-
-  const BLOCK_TYPE_LABELS: Record<string, string> = {
-    hero: "Hero Section",
-    "featured-listings": "Featured Listings",
-    "categories-grid": "Categories Grid",
-    "cities-grid": "Cities Grid",
-    cta: "Call to Action",
-    "editorial-text": "Editorial Text",
-    "image-gallery": "Image Gallery",
-    faq: "FAQ",
-    "courses-grid": "Golf Courses Grid",
-    "golf-leaderboard": "Golf Leaderboard",
-    "regions-grid": "Regions Grid",
-  };
+  const [golfDocumentId, setGolfDocumentId] = useState<number | null>(null);
+  const [golfLatestDraftVersion, setGolfLatestDraftVersion] = useState<number | null>(null);
+  const [golfLatestPublishedVersion, setGolfLatestPublishedVersion] = useState<number | null>(null);
+  const [isGolfCmsLoading, setIsGolfCmsLoading] = useState(false);
+  const [isGolfSavingDraft, setIsGolfSavingDraft] = useState(false);
+  const [isGolfPublishing, setIsGolfPublishing] = useState(false);
 
   const { data: cities = [] } = useQuery({
     queryKey: ["admin-cities-for-cms"],
@@ -234,6 +266,104 @@ function AdminPageBuilderContent() {
       return;
     }
     router.push(href);
+  };
+
+  const getAdminAccessToken = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    const accessToken = session?.access_token;
+    if (!accessToken) {
+      throw new Error("Missing authenticated session for CMS page-builder updates.");
+    }
+
+    return accessToken;
+  };
+
+  const fetchGolfCmsConfig = async () => {
+    const accessToken = await getAdminAccessToken();
+    const response = await fetch(
+      `/api/admin/cms/page-config?page_id=golf&locale=${encodeURIComponent(locale)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+
+    const payload = (await response.json().catch(() => null)) as AdminCmsPageConfigResponse | null;
+    if (!response.ok || !payload?.ok || !payload.data) {
+      throw new Error(payload?.error?.message || "Failed to load Golf CMS page config.");
+    }
+
+    return payload.data;
+  };
+
+  const saveGolfDraft = async (content: CmsPageConfig) => {
+    const accessToken = await getAdminAccessToken();
+    const response = await fetch("/api/admin/cms/page-config", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        action: "save_draft",
+        page_id: "golf",
+        locale,
+        content,
+      }),
+    });
+
+    const payload = (await response.json().catch(() => null)) as AdminCmsPageConfigResponse | null;
+    if (!response.ok || !payload?.ok || !payload.data) {
+      throw new Error(payload?.error?.message || "Failed to save Golf CMS draft.");
+    }
+
+    return payload.data;
+  };
+
+  const publishGolf = async () => {
+    const accessToken = await getAdminAccessToken();
+    const response = await fetch("/api/admin/cms/page-config", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        action: "publish",
+        page_id: "golf",
+        locale,
+      }),
+    });
+
+    const payload = (await response.json().catch(() => null)) as AdminCmsPageConfigResponse | null;
+    if (!response.ok || !payload?.ok || !payload.data) {
+      throw new Error(payload?.error?.message || "Failed to publish Golf CMS draft.");
+    }
+
+    return payload.data;
+  };
+
+  const openGolfPreview = async () => {
+    const accessToken = await getAdminAccessToken();
+    const response = await fetch(
+      `/api/admin/cms/preview-url?path=${encodeURIComponent("/golf")}&locale=${encodeURIComponent(locale)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+
+    const payload = (await response.json().catch(() => null)) as AdminCmsPreviewResponse | null;
+    if (!response.ok || !payload?.ok || !payload.data?.url) {
+      throw new Error(payload?.error?.message || "Failed to generate Golf preview URL.");
+    }
+
+    window.open(payload.data.url, "_blank", "noopener,noreferrer");
   };
 
   const settingMap = useMemo(() => {
@@ -294,10 +424,64 @@ function AdminPageBuilderContent() {
     setInitialized(true);
 
     if (ENABLE_VISUAL_BLOCK_BUILDER) {
-      const visualPageConfig = normalizePageConfig(parsedPageConfigs[selectedPageId] ?? {});
+      const visualPageConfig = normalizePageConfig(
+        selectedPageId === "golf" ? {} : parsedPageConfigs[selectedPageId] ?? {},
+      );
       setVisualConfig(visualPageConfig);
     }
   }, [initialized, isLoading, settingMap, selectedPageId]);
+
+  useEffect(() => {
+    if (!initialized || !ENABLE_VISUAL_BLOCK_BUILDER || selectedPageId === "golf") return;
+    setVisualConfig(normalizePageConfig(pageConfigs[selectedPageId] ?? {}));
+  }, [initialized, pageConfigs, selectedPageId]);
+
+  useEffect(() => {
+    if (!initialized || selectedPageId !== "golf") return;
+
+    let cancelled = false;
+
+    const loadGolfCmsConfig = async () => {
+      setIsGolfCmsLoading(true);
+      try {
+        const data = await fetchGolfCmsConfig();
+        const normalizedContent = normalizePageConfig(data.content ?? {});
+
+        if (cancelled) return;
+
+        setGolfDocumentId(data.document_id);
+        setGolfLatestDraftVersion(data.latest_draft_version);
+        setGolfLatestPublishedVersion(data.latest_published_version);
+        setVisualConfig(normalizedContent);
+
+        setPageConfigs((prev) => ({
+          ...prev,
+          golf: {
+            ...(prev.golf ?? {}),
+            hero: (normalizedContent.hero as Record<string, unknown>) ?? {},
+            meta: normalizedContent.meta,
+            text: {
+              ...((prev.golf?.text as Record<string, string> | undefined) ?? {}),
+              ...buildHeroTextMap(normalizedContent.hero),
+            },
+          },
+        }));
+      } catch (error) {
+        if (cancelled) return;
+        toast.error(`Failed to load Golf page builder config: ${(error as Error).message}`);
+      } finally {
+        if (!cancelled) {
+          setIsGolfCmsLoading(false);
+        }
+      }
+    };
+
+    void loadGolfCmsConfig();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialized, locale, selectedPageId]);
 
   const selectedPageDefinition = useMemo(
     () => CMS_PAGE_DEFINITIONS.find((page) => page.id === selectedPageId) ?? CMS_PAGE_DEFINITIONS[0],
@@ -305,7 +489,44 @@ function AdminPageBuilderContent() {
   );
   const selectedPageLabelForCopy = selectedPageDefinition?.label ?? "selected";
 
-  const selectedPageConfig = pageConfigs[selectedPageId] ?? {};
+  const selectedPageConfig = useMemo(() => {
+    const baseConfig = pageConfigs[selectedPageId] ?? {};
+    if (selectedPageId !== "golf" || !visualConfig) {
+      return baseConfig;
+    }
+
+    const golfBlocksMap = (visualConfig.blocks ?? []).reduce<Record<string, CmsBlockConfig>>(
+      (acc, block) => {
+        const settings =
+          block.settings && typeof block.settings === "object" && !Array.isArray(block.settings)
+            ? (block.settings as Record<string, unknown>)
+            : {};
+
+        acc[block.id] = {
+          enabled: block.enabled,
+          order: block.order,
+          className: typeof settings.className === "string" ? settings.className : undefined,
+          data: settings as CmsBlockConfig["data"],
+        };
+        return acc;
+      },
+      {},
+    );
+
+    return {
+      ...baseConfig,
+      hero: (visualConfig.hero as Record<string, unknown>) ?? {},
+      meta: visualConfig.meta,
+      blocks: {
+        ...((baseConfig.blocks as Record<string, CmsBlockConfig> | undefined) ?? {}),
+        ...golfBlocksMap,
+      },
+      text: {
+        ...((baseConfig.text as Record<string, string> | undefined) ?? {}),
+        ...buildHeroTextMap(visualConfig.hero),
+      },
+    };
+  }, [pageConfigs, selectedPageId, visualConfig]);
   const selectedPageTextMap = selectedPageConfig.text ?? {};
   const heroMediaSupported = HERO_MEDIA_SUPPORTED_PAGE_IDS.has(selectedPageId);
   const heroMediaType = selectedPageTextMap["hero.mediaType"] ?? "image";
@@ -313,28 +534,118 @@ function AdminPageBuilderContent() {
   const heroVideoUrl = selectedPageTextMap["hero.videoUrl"] ?? "";
   const heroYoutubeUrl = selectedPageTextMap["hero.youtubeUrl"] ?? "";
   const heroPosterUrl = selectedPageTextMap["hero.posterUrl"] ?? "";
+  const resolvedHeroMedia = useMemo(
+    () => resolveHero(selectedPageConfig as Parameters<typeof resolveHero>[0]),
+    [selectedPageConfig],
+  );
+  const resolvedHeroContent = useMemo(
+    () => resolvePageContent(selectedPageConfig as Parameters<typeof resolvePageContent>[0]),
+    [selectedPageConfig],
+  );
+
+  const GOLF_DEFAULT_BADGE = "Curated Golf";
+  const GOLF_DEFAULT_TITLE = "Play Championship Golf in the Algarve";
+  const GOLF_DEFAULT_SUBTITLE = "Discover elite golf listings, compare course specs, and plan your next round across Portugal's premier coast.";
+  const GOLF_DEFAULT_ALT = "Golf fairways in the Algarve";
+  const GOLF_DEFAULT_CTA_COURSES = "Browse Courses";
+  const GOLF_DEFAULT_CTA_LEADERBOARD = "View Leaderboard";
 
   const selectedPageTextRows = useMemo(
     () => toRows(selectedPageConfig.text ?? {}),
     [selectedPageConfig.text],
   );
+  const blockControlsDefinitions = useMemo<CmsBlockDefinition[]>(() => {
+    if (!isGolfPage || !visualConfig) {
+      return selectedPageDefinition?.blocks ?? [];
+    }
+
+    const fromCmsBlocks: CmsBlockDefinition[] = (visualConfig.blocks ?? []).map((block) => ({
+      id: block.id,
+      label: block.type,
+    }));
+
+    if (!fromCmsBlocks.some((block) => block.id === "hero")) {
+      fromCmsBlocks.unshift({ id: "hero", label: "Hero" });
+    }
+
+    return fromCmsBlocks.length > 0 ? fromCmsBlocks : selectedPageDefinition?.blocks ?? [];
+  }, [isGolfPage, selectedPageDefinition, visualConfig]);
 
   const updateBlockConfig = (blockId: string, updater: (current: CmsBlockConfig) => CmsBlockConfig) => {
+    const currentBlockSnapshot = ((selectedPageConfig.blocks?.[blockId] as CmsBlockConfig | undefined) ?? {});
+    const nextBlockConfig = updater(currentBlockSnapshot);
+
     setPageConfigs((prev) => {
       const currentPage = prev[selectedPageId] ?? {};
       const currentBlocks = currentPage.blocks ?? {};
-      const currentBlock = currentBlocks[blockId] ?? {};
       return {
         ...prev,
         [selectedPageId]: {
           ...currentPage,
           blocks: {
             ...currentBlocks,
-            [blockId]: updater(currentBlock),
+            [blockId]: nextBlockConfig,
           },
         },
       };
     });
+
+    if (selectedPageId === "golf") {
+      setVisualConfig((prev) => {
+        if (!prev) return prev;
+
+        const blocks = [...(prev.blocks ?? [])];
+        const blockIndex = blocks.findIndex((block) => block.id === blockId);
+        const existingBlock = blockIndex >= 0 ? blocks[blockIndex] : null;
+
+        const inferredType =
+          existingBlock?.type ??
+          (isSupportedBlockType(blockId)
+            ? blockId
+            : blockId === "leaderboard"
+              ? "golf-leaderboard"
+              : blockId === "featured-courses"
+                ? "courses-grid"
+                : blockId);
+
+        const baseSettings =
+          existingBlock?.settings && typeof existingBlock.settings === "object" && !Array.isArray(existingBlock.settings)
+            ? { ...(existingBlock.settings as Record<string, unknown>) }
+            : isSupportedBlockType(inferredType)
+              ? { ...getDefaultBlockSettings(inferredType) }
+              : {};
+
+        if (typeof nextBlockConfig.className === "string") {
+          baseSettings.className = nextBlockConfig.className;
+        }
+        if (nextBlockConfig.data && typeof nextBlockConfig.data === "object") {
+          Object.assign(baseSettings, nextBlockConfig.data as Record<string, unknown>);
+        }
+
+        const nextBlock = {
+          id: blockId,
+          type: inferredType,
+          enabled: typeof nextBlockConfig.enabled === "boolean"
+            ? nextBlockConfig.enabled
+            : existingBlock?.enabled ?? true,
+          order: typeof nextBlockConfig.order === "number"
+            ? nextBlockConfig.order
+            : existingBlock?.order ?? (blocks.length + 1) * 10,
+          settings: baseSettings,
+        };
+
+        if (blockIndex >= 0) {
+          blocks[blockIndex] = nextBlock;
+        } else {
+          blocks.push(nextBlock);
+        }
+
+        return normalizePageConfig({
+          ...prev,
+          blocks,
+        });
+      });
+    }
   };
 
   const getCitiesBlockMode = (config: CmsBlockConfig) =>
@@ -435,6 +746,19 @@ function AdminPageBuilderContent() {
         },
       };
     });
+
+    if (selectedPageId === "golf") {
+      setVisualConfig((prev) => {
+        if (!prev) return prev;
+        return normalizePageConfig({
+          ...prev,
+          meta: {
+            ...(prev.meta ?? {}),
+            [field]: value,
+          },
+        });
+      });
+    }
   };
 
   const setPageTextRows = (rows: KeyValueRow[]) => {
@@ -451,13 +775,25 @@ function AdminPageBuilderContent() {
   };
 
   const setPageTextValue = (textKey: string, value: string) => {
+    const isGolfHeroMediaField =
+      selectedPageId === "golf" &&
+      (textKey === "hero.imageUrl" ||
+        textKey === "hero.videoUrl" ||
+        textKey === "hero.youtubeUrl" ||
+        textKey === "hero.posterUrl");
+    const isMediaTypeField = textKey === "hero.mediaType";
+    const normalizedInput = isMediaTypeField ? value.trim().toLowerCase() : value;
+
     setPageConfigs((prev) => {
       const currentPage = prev[selectedPageId] ?? {};
       const nextText = { ...(currentPage.text ?? {}) };
-      const trimmed = value.trim();
+      const trimmed = normalizedInput.trim();
 
       if (trimmed) {
-        nextText[textKey] = value;
+        nextText[textKey] = normalizedInput;
+      } else if (isGolfHeroMediaField) {
+        // Keep explicit empty strings for golf hero media so draft merges can clear prior values.
+        nextText[textKey] = "";
       } else {
         delete nextText[textKey];
       }
@@ -470,12 +806,100 @@ function AdminPageBuilderContent() {
         },
       };
     });
+
+    if (selectedPageId !== "golf" || !textKey.startsWith("hero.")) {
+      return;
+    }
+
+    setVisualConfig((prev) => {
+      if (!prev) return prev;
+
+      const nextHero = {
+        ...(prev.hero ?? {}),
+      } as Record<string, unknown>;
+
+      const nextValue = normalizedInput.trim() ? normalizedInput : undefined;
+      switch (textKey) {
+        case "hero.mediaType":
+          nextHero.mediaType = nextValue ?? "image";
+          break;
+        case "hero.imageUrl":
+          nextHero.imageUrl = nextValue ?? "";
+          break;
+        case "hero.videoUrl":
+          nextHero.videoUrl = nextValue ?? "";
+          break;
+        case "hero.youtubeUrl":
+          nextHero.youtubeUrl = nextValue ?? "";
+          break;
+        case "hero.posterUrl":
+          nextHero.posterUrl = nextValue ?? "";
+          break;
+        case "hero.alt":
+          nextHero.alt = nextValue;
+          break;
+        case "hero.badge":
+          nextHero.badge = nextValue;
+          break;
+        case "hero.title":
+          nextHero.title = nextValue;
+          break;
+        case "hero.subtitle":
+          nextHero.subtitle = nextValue;
+          break;
+        case "hero.cta.primary":
+          nextHero.ctaPrimary = nextValue;
+          break;
+        case "hero.cta.secondary":
+          nextHero.ctaSecondary = nextValue;
+          break;
+        default:
+          break;
+      }
+
+      return normalizePageConfig({
+        ...prev,
+        hero: nextHero,
+      });
+    });
   };
 
   const resetHeroMedia = () => {
-    ["hero.mediaType", "hero.imageUrl", "hero.videoUrl", "hero.youtubeUrl", "hero.posterUrl"].forEach((key) =>
-      setPageTextValue(key, ""),
-    );
+    setPageConfigs((prev) => {
+      const currentPage = prev[selectedPageId] ?? {};
+      const nextText = { ...(currentPage.text ?? {}) };
+
+      nextText["hero.mediaType"] = "image";
+      nextText["hero.imageUrl"] = "";
+      nextText["hero.videoUrl"] = "";
+      nextText["hero.youtubeUrl"] = "";
+      nextText["hero.posterUrl"] = "";
+
+      return {
+        ...prev,
+        [selectedPageId]: {
+          ...currentPage,
+          text: nextText,
+        },
+      };
+    });
+
+    if (selectedPageId === "golf") {
+      setVisualConfig((prev) => {
+        if (!prev) return prev;
+        return normalizePageConfig({
+          ...prev,
+          hero: {
+            ...(prev.hero ?? {}),
+            mediaType: "image",
+            imageUrl: "",
+            videoUrl: "",
+            youtubeUrl: "",
+            posterUrl: "",
+          },
+        });
+      });
+    }
   };
 
   const handleHeroMediaUpload = async (
@@ -518,6 +942,7 @@ function AdminPageBuilderContent() {
         setPageTextValue("hero.mediaType", "video");
       } else {
         setPageTextValue("hero.posterUrl", publicUrl);
+        setPageTextValue("hero.mediaType", "poster");
         if (!heroImageUrl) {
           setPageTextValue("hero.imageUrl", publicUrl);
         }
@@ -574,6 +999,59 @@ function AdminPageBuilderContent() {
 
   const removeDesignTokenRow = (id: string) => {
     setDesignTokenRows((prev) => prev.filter((row) => row.id !== id));
+  };
+
+  const handleGolfSaveDraft = async () => {
+    if (!visualConfig) {
+      toast.error("Golf page config is not loaded yet.");
+      return;
+    }
+
+    const draftPayload = normalizePageConfig({
+      hero: visualConfig.hero ?? {},
+      blocks: visualConfig.blocks ?? [],
+      meta: visualConfig.meta ?? {},
+    });
+
+    setIsGolfSavingDraft(true);
+    try {
+      const data = await saveGolfDraft(draftPayload);
+      const normalizedContent = normalizePageConfig(data.content ?? draftPayload);
+      setGolfDocumentId(data.document_id);
+      setGolfLatestDraftVersion(data.latest_draft_version);
+      setGolfLatestPublishedVersion(data.latest_published_version);
+      setVisualConfig(normalizedContent);
+      toast.success("Golf draft saved.");
+    } catch (error) {
+      toast.error(`Failed to save Golf draft: ${(error as Error).message}`);
+    } finally {
+      setIsGolfSavingDraft(false);
+    }
+  };
+
+  const handleGolfPublish = async () => {
+    setIsGolfPublishing(true);
+    try {
+      const data = await publishGolf();
+      const normalizedContent = normalizePageConfig(data.content ?? {});
+      setGolfDocumentId(data.document_id);
+      setGolfLatestDraftVersion(data.latest_draft_version);
+      setGolfLatestPublishedVersion(data.latest_published_version);
+      setVisualConfig(normalizedContent);
+      toast.success("Golf page published.");
+    } catch (error) {
+      toast.error(`Failed to publish Golf page: ${(error as Error).message}`);
+    } finally {
+      setIsGolfPublishing(false);
+    }
+  };
+
+  const handleGolfPreview = async () => {
+    try {
+      await openGolfPreview();
+    } catch (error) {
+      toast.error(`Failed to open Golf preview: ${(error as Error).message}`);
+    }
   };
 
   const handleSaveAll = async () => {
@@ -666,10 +1144,46 @@ function AdminPageBuilderContent() {
             Control every page section, copy block, and design token from one CMS workspace.
           </p>
         </div>
-        <Button onClick={handleSaveAll} disabled={isSaving}>
-          {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-          Save All
-        </Button>
+        {isGolfPage ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={handleGolfPreview}
+              disabled={isGolfCmsLoading || isGolfSavingDraft || isGolfPublishing}
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Preview
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleGolfSaveDraft}
+              disabled={isGolfCmsLoading || isGolfSavingDraft || isGolfPublishing}
+            >
+              {isGolfSavingDraft ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4 mr-2" />
+              )}
+              Save Draft
+            </Button>
+            <Button
+              onClick={handleGolfPublish}
+              disabled={isGolfCmsLoading || isGolfSavingDraft || isGolfPublishing}
+            >
+              {isGolfPublishing ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4 mr-2" />
+              )}
+              Publish
+            </Button>
+          </div>
+        ) : (
+          <Button onClick={handleSaveAll} disabled={isSaving}>
+            {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+            Save All
+          </Button>
+        )}
       </div>
 
       <Card className="border-border bg-card/50">
@@ -704,128 +1218,19 @@ function AdminPageBuilderContent() {
           {selectedPageDefinition?.description && (
             <p className="text-sm text-muted-foreground">{selectedPageDefinition.description}</p>
           )}
+          {isGolfPage && (
+            <p className="text-xs text-muted-foreground">
+              {isGolfCmsLoading
+                ? "Loading Golf CMS document..."
+                : `Document #${golfDocumentId ?? "new"} · Draft v${golfLatestDraftVersion ?? "-"} · Published v${golfLatestPublishedVersion ?? "-"}`}
+            </p>
+          )}
         </CardContent>
       </Card>
 
-      {ENABLE_VISUAL_BLOCK_BUILDER && visualConfig && (
-        <div className="fixed inset-0 z-50 bg-brand-sand flex">
-          <div className="w-72 h-full border-r border-border bg-white flex flex-col shadow-soft">
-            <div className="p-4 border-b border-border">
-              <h2 className="font-serif text-lg text-brand-ink">Blocks</h2>
-              <p className="text-xs text-muted-foreground">{selectedPageDefinition?.label}</p>
-            </div>
-            <div className="flex-1 overflow-y-auto p-3">
-              <BlockList
-                blocks={visualConfig.blocks ?? []}
-                selectedBlockId={selectedVisualBlockId}
-                onSelectBlock={setSelectedVisualBlockId}
-                onToggleBlock={(id) => {
-                  setVisualConfig((prev) => prev ? normalizePageConfig(toggleBlock(prev, id)) : null);
-                }}
-                onReorderBlock={(id, direction) => {
-                  setVisualConfig((prev) => prev ? normalizePageConfig(reorderBlocks(prev, id, direction)) : null);
-                }}
-                onRemoveBlock={(id) => {
-                  setVisualConfig((prev) => prev ? normalizePageConfig(removeBlock(prev, id)) : null);
-                }}
-              />
-            </div>
-            <div className="p-3 border-t border-border">
-              <AddBlockDialog
-                onAddBlock={(type) => {
-                  const newBlock = addBlock(visualConfig, type);
-                  setVisualConfig(normalizePageConfig(newBlock));
-                  setSelectedVisualBlockId(newBlock.blocks?.[newBlock.blocks.length - 1]?.id ?? null);
-                }}
-                existingBlockIds={visualConfig.blocks?.map((b) => b.type) ?? []}
-              />
-            </div>
-          </div>
-
-          <div className="flex-1 flex flex-col h-full overflow-hidden">
-            <div className="h-14 border-b border-border bg-white flex items-center justify-between px-6">
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setVisualConfig(null)}
-                >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Exit Builder
-                </Button>
-                <span className="text-sm text-muted-foreground">|</span>
-                <span className="text-sm font-medium text-brand-ink">
-                  {selectedVisualBlockId
-                    ? BLOCK_TYPE_LABELS[selectedVisualBlockId] ?? selectedVisualBlockId
-                    : "Select a block"}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                {process.env.NODE_ENV === "development" && (
-                  <span className="bg-brand-gold text-white px-3 py-1 rounded-full text-xs font-medium">
-                    Preview Mode
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-6">
-              {selectedVisualBlockId && (
-                <BlockEditor
-                  block={visualConfig.blocks?.find((b) => b.id === selectedVisualBlockId) ?? null}
-                  onUpdateSettings={(settings) => {
-                    setVisualConfig((prev) => {
-                      if (!prev) return prev;
-                      return normalizePageConfig(updateBlockSettings(prev, selectedVisualBlockId, settings));
-                    });
-                  }}
-                />
-              )}
-              {!selectedVisualBlockId && (
-                <div className="flex items-center justify-center h-full text-muted-foreground">
-                  <p>Select a block to edit</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="w-[420px] h-full border-l border-border bg-white flex flex-col shadow-soft">
-            <div className="h-14 border-b border-border flex items-center justify-center px-4">
-              <div className="flex bg-muted rounded-lg p-1">
-                <Button
-                  variant={previewDevice === "desktop" ? "secondary" : "ghost"}
-                  size="sm"
-                  onClick={() => setPreviewDevice("desktop")}
-                >
-                  <Monitor className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={previewDevice === "tablet" ? "secondary" : "ghost"}
-                  size="sm"
-                  onClick={() => setPreviewDevice("tablet")}
-                >
-                  <Tablet className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={previewDevice === "mobile" ? "secondary" : "ghost"}
-                  size="sm"
-                  onClick={() => setPreviewDevice("mobile")}
-                >
-                  <Smartphone className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6 bg-muted/30">
-              <div className="mx-auto bg-white rounded-2xl shadow-soft overflow-hidden transition-all duration-300 ease-premium"
-                style={{ width: PREVIEW_WIDTHS[previewDevice] }}>
-                {visualConfig && (
-                  <BlockPreview
-                    pageConfig={visualConfig}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
+      {ENABLE_VISUAL_BLOCK_BUILDER && visualConfig && !isGolfPage && (
+        <div className="w-full">
+          <BlockPreview pageConfig={visualConfig} />
         </div>
       )}
 
@@ -975,22 +1380,56 @@ function AdminPageBuilderContent() {
 
                     <div className="space-y-3">
                       <Label>Preview</Label>
-                      <div className="relative aspect-video overflow-hidden rounded-xl border border-border bg-muted/40">
-                        <HeroBackgroundMedia
-                          mediaType={heroMediaType}
-                          imageUrl={heroImageUrl}
-                          videoUrl={heroVideoUrl}
-                          youtubeUrl={heroYoutubeUrl}
-                          posterUrl={heroPosterUrl}
-                          alt={`${selectedPageDefinition.label} hero preview`}
-                          fallback={<div className="h-full w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950" />}
-                        />
-                        <div className="absolute inset-0 bg-black/35" />
-                        <div className="absolute inset-x-0 bottom-0 p-4 text-white">
-                          <p className="text-xs uppercase tracking-[0.24em] text-white/75">Preview</p>
-                          <p className="text-lg font-serif">{selectedPageDefinition.label}</p>
+                      {selectedPageId === "golf" ? (
+                        <div className="overflow-hidden rounded-xl border border-border bg-muted/40">
+                          <LiveStyleHero
+                            badge={resolvedHeroContent.badge ?? GOLF_DEFAULT_BADGE}
+                            title={resolvedHeroContent.title ?? GOLF_DEFAULT_TITLE}
+                            subtitle={resolvedHeroContent.subtitle ?? GOLF_DEFAULT_SUBTITLE}
+                            media={(
+                              <HeroBackgroundMedia
+                                mediaType={resolvedHeroMedia.mediaType ?? heroMediaType}
+                                imageUrl={resolvedHeroMedia.imageUrl ?? heroImageUrl}
+                                videoUrl={resolvedHeroMedia.videoUrl ?? heroVideoUrl}
+                                youtubeUrl={resolvedHeroMedia.youtubeUrl ?? heroYoutubeUrl}
+                                posterUrl={resolvedHeroMedia.posterUrl ?? heroPosterUrl}
+                                alt={resolvedHeroContent.alt ?? GOLF_DEFAULT_ALT}
+                                fallback={<PageHeroImage page="golf" alt={GOLF_DEFAULT_ALT} />}
+                                className="object-cover"
+                              />
+                            )}
+                            overlayOpacity={0.42}
+                            ctas={(
+                              <>
+                                <Button type="button" variant="gold" size="lg" disabled>
+                                  {resolvedHeroContent.ctaCourses ?? GOLF_DEFAULT_CTA_COURSES}
+                                </Button>
+                                <Button type="button" variant="heroOutline" size="lg" disabled>
+                                  {resolvedHeroContent.ctaLeaderboard ?? GOLF_DEFAULT_CTA_LEADERBOARD}
+                                </Button>
+                              </>
+                            )}
+                            className="h-[420px] min-h-0 !rounded-xl"
+                          />
                         </div>
-                      </div>
+                      ) : (
+                        <div className="relative aspect-video overflow-hidden rounded-xl border border-border bg-muted/40">
+                          <HeroBackgroundMedia
+                            mediaType={heroMediaType}
+                            imageUrl={heroImageUrl}
+                            videoUrl={heroVideoUrl}
+                            youtubeUrl={heroYoutubeUrl}
+                            posterUrl={heroPosterUrl}
+                            alt={`${selectedPageDefinition.label} hero preview`}
+                            fallback={<div className="h-full w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950" />}
+                          />
+                          <div className="absolute inset-0 bg-black/35" />
+                          <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+                            <p className="text-xs uppercase tracking-[0.24em] text-white/75">Preview</p>
+                            <p className="text-lg font-serif">{selectedPageDefinition.label}</p>
+                          </div>
+                        </div>
+                      )}
                       <p className="text-xs text-muted-foreground">
                         Image uploads are auto-converted to WebP. Video uploads keep their original format.
                       </p>
@@ -1014,7 +1453,7 @@ function AdminPageBuilderContent() {
             <CardDescription>Enable/disable blocks and control basic block-level classes/order.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {selectedPageDefinition?.blocks.map((block) => {
+            {blockControlsDefinitions.map((block) => {
               const config = selectedPageConfig.blocks?.[block.id] ?? {};
               const citiesBlockMode = getCitiesBlockMode(config);
               const blockSelection = getBlockSelection(config);

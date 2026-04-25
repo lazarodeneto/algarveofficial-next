@@ -1,63 +1,160 @@
 "use client";
 
-import type * as React from "react";
+import type { ReactElement } from "react";
 
-import { type CmsPageConfig } from "@/lib/cms/block-schemas";
-import { getEnabledBlocks } from "@/lib/cms/normalize-page-config";
+import { type CmsBlock, type CmsPageConfig } from "@/lib/cms/block-schemas";
+import { getEnabledBlocks, normalizePageConfig } from "@/lib/cms/normalize-page-config";
 import { resolveHero } from "@/lib/cms/resolve-hero";
-import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { CoursesGridBlock, GolfLeaderboardBlock, RegionsGridBlock } from "@/components/cms/blocks/golf";
+import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 
 interface CmsPageRendererProps {
   pageConfig: CmsPageConfig | null;
   exclude?: string[];
 }
 
-function BlockNotFound({ type }: { type: string }) {
-  if (process.env.NODE_ENV === "development") {
-    return (
-      <div className="p-8 border-2 border-dashed border-red-500 bg-red-50 text-red-700">
-        <p>Unknown block type: {type}</p>
-        <p className="text-sm">Render this block or update the renderer map.</p>
-      </div>
-    );
+function renderEditorialText(content: unknown) {
+  if (typeof content !== "string" || !content.trim()) return null;
+  return (
+    <div
+      className="prose max-w-none"
+      dangerouslySetInnerHTML={{ __html: content }}
+    />
+  );
+}
+
+function renderBlockByType(block: CmsBlock, settings: Record<string, unknown>): ReactElement | null {
+  switch (block.type) {
+    case "hero":
+      return null;
+
+    case "featured-listings":
+      return (
+        <section className="app-container py-6" data-cms-block-type="featured-listings">
+          <h2 className="font-serif text-3xl text-foreground md:text-4xl">
+            {(settings.title as string) ?? "Featured Listings"}
+          </h2>
+        </section>
+      );
+
+    case "categories-grid":
+      return (
+        <section className="app-container py-6" data-cms-block-type="categories-grid">
+          <h2 className="font-serif text-3xl text-foreground md:text-4xl">
+            {(settings.title as string) ?? "Categories"}
+          </h2>
+        </section>
+      );
+
+    case "cities-grid":
+      return (
+        <section className="app-container py-6" data-cms-block-type="cities-grid">
+          <h2 className="font-serif text-3xl text-foreground md:text-4xl">
+            {(settings.title as string) ?? "Cities"}
+          </h2>
+        </section>
+      );
+
+    case "cta":
+      return (
+        <section className="app-container py-6" data-cms-block-type="cta">
+          <h2 className="font-serif text-3xl text-foreground md:text-4xl">
+            {(settings.title as string) ?? "Call to Action"}
+          </h2>
+          {typeof settings.description === "string" ? (
+            <p className="mt-2 text-muted-foreground">{settings.description}</p>
+          ) : null}
+        </section>
+      );
+
+    case "editorial-text":
+      return (
+        <section className="app-container py-6" data-cms-block-type="editorial-text">
+          {renderEditorialText(settings.content)}
+        </section>
+      );
+
+    case "image-gallery":
+      return (
+        <section className="app-container py-6" data-cms-block-type="image-gallery">
+          <h2 className="font-serif text-3xl text-foreground md:text-4xl">
+            {(settings.title as string) ?? "Image Gallery"}
+          </h2>
+        </section>
+      );
+
+    case "faq":
+      return (
+        <section className="app-container py-6" data-cms-block-type="faq">
+          <h2 className="font-serif text-3xl text-foreground md:text-4xl">
+            {(settings.title as string) ?? "FAQ"}
+          </h2>
+        </section>
+      );
+
+    case "courses-grid":
+      return <CoursesGridBlock settings={settings} />;
+
+    case "golf-leaderboard":
+      return <GolfLeaderboardBlock settings={settings} />;
+
+    case "regions-grid":
+      return <RegionsGridBlock settings={settings} />;
+
+    default:
+      if (process.env.NODE_ENV === "development") {
+        console.warn(`[cms-renderer] Ignoring unknown block type "${block.type}".`);
+      }
+      return null;
   }
-  return null;
+}
+
+function CmsBlockRenderer({ block }: { block: CmsBlock }) {
+  const settings =
+    block.settings && typeof block.settings === "object" && !Array.isArray(block.settings)
+      ? (block.settings as Record<string, unknown>)
+      : {};
+
+  const rendered = renderBlockByType(block, settings);
+  if (!rendered) return null;
+
+  return (
+    <div data-cms-block-id={block.id} data-cms-block-type={block.type}>
+      {rendered}
+    </div>
+  );
 }
 
 export function CmsPageRenderer({ pageConfig, exclude = [] }: CmsPageRendererProps) {
-  if (!pageConfig) {
+  if (!pageConfig) return null;
+
+  const normalizedConfig = normalizePageConfig(pageConfig);
+  const excluded = new Set(exclude);
+  const heroExcluded = excluded.has("hero");
+
+  const hero = resolveHero({
+    hero: {
+      ...(normalizedConfig.hero ?? {}),
+      ctaCourses:
+        ((normalizedConfig.hero as { ctaCourses?: string } | undefined)?.ctaCourses ??
+        normalizedConfig.hero?.ctaPrimary) ?? undefined,
+      ctaLeaderboard:
+        ((normalizedConfig.hero as { ctaLeaderboard?: string } | undefined)?.ctaLeaderboard ??
+        normalizedConfig.hero?.ctaSecondary) ?? undefined,
+    },
+  });
+
+  const blocks = getEnabledBlocks(normalizedConfig).filter(
+    (block) => !excluded.has(block.id) && !excluded.has(block.type),
+  );
+
+  if (heroExcluded && blocks.length === 0) {
     return null;
-  }
-
-  const heroInput = pageConfig.hero
-    ? {
-        enabled: pageConfig.hero.enabled ?? true,
-        mediaType: pageConfig.hero.mediaType ?? "image",
-        imageUrl: pageConfig.hero.imageUrl,
-        videoUrl: pageConfig.hero.videoUrl,
-        youtubeUrl: pageConfig.hero.youtubeUrl,
-        posterUrl: pageConfig.hero.posterUrl,
-        alt: pageConfig.hero.alt,
-        badge: pageConfig.hero.badge,
-        title: pageConfig.hero.title,
-        subtitle: pageConfig.hero.subtitle,
-        ctaCourses: pageConfig.hero.ctaPrimary,
-        ctaLeaderboard: pageConfig.hero.ctaSecondary,
-      }
-    : null;
-
-  const hero = resolveHero(heroInput);
-
-  let enabledBlocks = getEnabledBlocks(pageConfig);
-
-  if (exclude.length > 0) {
-    enabledBlocks = enabledBlocks.filter((block) => !exclude.includes(block.type));
   }
 
   return (
     <div data-cms-renderer>
-      {hero?.enabled && hero?.mediaType && (
+      {!heroExcluded && hero?.enabled !== false && hero?.mediaType ? (
         <section data-cms-hero>
           <HeroBackgroundMedia
             mediaType={hero.mediaType}
@@ -68,109 +165,11 @@ export function CmsPageRenderer({ pageConfig, exclude = [] }: CmsPageRendererPro
             alt={hero.alt ?? "CMS Hero"}
           />
         </section>
-      )}
+      ) : null}
 
-      {enabledBlocks.map((block) => (
+      {blocks.map((block) => (
         <CmsBlockRenderer key={block.id} block={block} />
       ))}
     </div>
   );
-}
-
-interface CmsBlockRendererProps {
-  block: ReturnType<typeof getEnabledBlocks>[number];
-}
-
-function CmsBlockRenderer({ block }: CmsBlockRendererProps) {
-  if (process.env.NODE_ENV === "development") {
-    console.log("[CmsBlockRenderer] Rendering block:", block.type, block.id);
-  }
-
-  const renderSafe = (renderFn: () => React.ReactElement | null) => {
-    try {
-      return renderFn();
-    } catch (e) {
-      console.warn("[CmsBlockRenderer] Block render error:", block.type, e);
-      if (process.env.NODE_ENV === "development") {
-        return (
-          <div className="border-2 border-dashed border-red-500 p-4 m-4 text-xs text-red-600">
-            Failed to render block: {block.type} (ID: {block.id})
-          </div>
-        );
-      }
-      return null;
-    }
-  };
-
-  switch (block.type) {
-    case "hero":
-      return null;
-
-    case "featured-listings":
-      return renderSafe(() => (
-        <div data-block={block.id} data-block-type="featured-listings">
-          <p className="text-muted-foreground">Featured Listings Block</p>
-        </div>
-      ));
-
-    case "categories-grid":
-      return renderSafe(() => (
-        <div data-block={block.id} data-block-type="categories-grid">
-          <p className="text-muted-foreground">Categories Grid Block</p>
-        </div>
-      ));
-
-    case "cities-grid":
-      return renderSafe(() => (
-        <div data-block={block.id} data-block-type="cities-grid">
-          <p className="text-muted-foreground">Cities Grid Block</p>
-        </div>
-      ));
-
-    case "cta":
-      return renderSafe(() => (
-        <div data-block={block.id} data-block-type="cta">
-          <p className="text-muted-foreground">CTA Block</p>
-        </div>
-      ));
-
-    case "editorial-text":
-      return renderSafe(() => (
-        <div
-          data-block={block.id}
-          data-block-type="editorial-text"
-          className="prose max-w-none"
-          dangerouslySetInnerHTML={{
-            __html: (block.settings?.content as string) ?? "",
-          }}
-        />
-      ));
-
-    case "image-gallery":
-      return renderSafe(() => (
-        <div data-block={block.id} data-block-type="image-gallery">
-          <p className="text-muted-foreground">Image Gallery Block</p>
-        </div>
-      ));
-
-    case "faq":
-      return renderSafe(() => (
-        <div data-block={block.id} data-block-type="faq">
-          <p className="text-muted-foreground">FAQ Block</p>
-        </div>
-      ));
-
-    case "courses-grid":
-      return renderSafe(() => <CoursesGridBlock settings={block.settings ?? {}} />);
-
-    case "golf-leaderboard":
-      return renderSafe(() => <GolfLeaderboardBlock settings={block.settings ?? {}} />);
-
-    case "regions-grid":
-      return renderSafe(() => <RegionsGridBlock settings={block.settings ?? {}} />);
-
-    default:
-      console.warn("[CmsBlockRenderer] Unknown block type:", block.type);
-      return <BlockNotFound type={block.type} />;
-  }
 }

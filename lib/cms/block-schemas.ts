@@ -2,17 +2,17 @@ import { z } from "zod";
 
 export const CmsHeroSettingsSchema = z.object({
   enabled: z.boolean().default(true),
-  mediaType: z.enum(["image", "video", "youtube"]).default("image"),
-  imageUrl: z.string().optional(),
-  videoUrl: z.string().optional(),
-  youtubeUrl: z.string().optional(),
-  posterUrl: z.string().optional(),
-  alt: z.string().optional(),
-  badge: z.string().optional(),
-  title: z.string().optional(),
-  subtitle: z.string().optional(),
-  ctaPrimary: z.string().optional(),
-  ctaSecondary: z.string().optional(),
+  mediaType: z.enum(["image", "video", "youtube", "poster"]).default("image"),
+  imageUrl: z.string().nullable().optional(),
+  videoUrl: z.string().nullable().optional(),
+  youtubeUrl: z.string().nullable().optional(),
+  posterUrl: z.string().nullable().optional(),
+  alt: z.string().nullable().optional(),
+  badge: z.string().nullable().optional(),
+  title: z.string().nullable().optional(),
+  subtitle: z.string().nullable().optional(),
+  ctaPrimary: z.string().nullable().optional(),
+  ctaSecondary: z.string().nullable().optional(),
 });
 
 export type CmsHeroSettings = z.infer<typeof CmsHeroSettingsSchema>;
@@ -59,6 +59,14 @@ export const SUPPORTED_BLOCK_TYPES = [
 ] as const;
 
 export type SupportedBlockType = (typeof SUPPORTED_BLOCK_TYPES)[number];
+
+export const SYSTEM_MANAGED_BLOCK_TYPES = ["hero"] as const;
+
+export type SystemManagedBlockType = (typeof SYSTEM_MANAGED_BLOCK_TYPES)[number];
+
+export function isSystemManagedBlockType(type: string): type is SystemManagedBlockType {
+  return SYSTEM_MANAGED_BLOCK_TYPES.includes(type as SystemManagedBlockType);
+}
 
 export function isSupportedBlockType(type: string): type is SupportedBlockType {
   return SUPPORTED_BLOCK_TYPES.includes(type as SupportedBlockType);

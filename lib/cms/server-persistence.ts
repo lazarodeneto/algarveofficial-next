@@ -149,7 +149,7 @@ export function buildCmsWritesFromGlobalSettings(settings: GlobalSettingWriteIte
   return writes;
 }
 
-function deepMergeContent(
+export function deepMergeContent(
   existing: Record<string, unknown>,
   incoming: Record<string, unknown>,
 ): Record<string, unknown> {

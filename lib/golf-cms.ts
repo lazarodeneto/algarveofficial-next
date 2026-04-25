@@ -1,6 +1,8 @@
 import { unstable_cache } from "next/cache";
 import { draftMode } from "next/headers";
+
 import { createPublicServerClient } from "@/lib/supabase/public-server";
+import { createServiceRoleClient } from "@/lib/supabase/service";
 
 export const CMS_TAGS = {
   golf: "cms:golf",
@@ -44,73 +46,163 @@ export interface GolfCmsPageConfig {
   };
 }
 
-async function fetchGolfCmsPageConfig(locale: string): Promise<GolfCmsPageConfig | null> {
-  const supabase = createPublicServerClient();
-  const { isEnabled: isPreview } = await draftMode();
-
-  console.log("[CMS DEBUG] Fetching golf config, locale:", locale, "preview:", isPreview);
-
-  let docsQuery = supabase
-    .from("cms_documents")
-    .select("id, page_id, locale, doc_type, current_version_id, status")
-    .eq("page_id", "golf")
-    .eq("doc_type", "page_config")
-    .in("locale", [locale, "default"])
-    .order("locale", { ascending: false });
-
-  if (!isPreview) {
-    docsQuery = docsQuery.eq("status", "published");
-  }
-
-  const { data: docs, error } = await docsQuery;
-
-  console.log("[CMS DEBUG] Docs query result:", { count: docs?.length, error, preview: isPreview });
-
-  if (error || !docs?.length) {
-    console.log("[CMS DEBUG] No docs found for golf page");
-    return null;
-  }
-
-  const bestDoc = docs.find((d: { locale: string }) => d.locale === locale) ?? docs[0];
-  console.log("[CMS DEBUG] Best doc:", bestDoc);
-
-  if (!bestDoc?.current_version_id) {
-    console.log("[CMS DEBUG] No current_version_id");
-    return null;
-  }
-
-  if (isPreview) {
-    const { data: latestVersion } = await supabase
-      .from("cms_document_versions")
-      .select("id, content, created_at")
-      .eq("document_id", bestDoc.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .single();
-
-    if (latestVersion?.content) {
-      console.log("[CMS DEBUG] Preview version content");
-      return latestVersion.content as GolfCmsPageConfig;
-    }
-  }
-
-  const { data: version } = await supabase
-    .from("cms_document_versions")
-    .select("content")
-    .eq("id", bestDoc.current_version_id)
-    .single();
-
-  console.log("[CMS DEBUG] Version content:", version);
-
-  if (!version?.content) {
-    return null;
-  }
-
-  return version.content as GolfCmsPageConfig;
+interface CmsDocumentRow {
+  id: string;
+  locale: string;
+  current_version_id: string | null;
 }
 
-export const getGolfCmsPageConfig = unstable_cache(
-  fetchGolfCmsPageConfig,
+interface CmsDocumentVersionRow {
+  id: string;
+  version: number;
+  content: Record<string, unknown>;
+  is_published: boolean;
+}
+
+function createCmsReadClient() {
+  const service = createServiceRoleClient();
+  return (service ?? createPublicServerClient()) as any;
+}
+
+function isMissingCmsDocumentVersionsColumnError(error: unknown, column: string) {
+  if (!error || typeof error !== "object") return false;
+  const message = "message" in error ? String((error as { message?: unknown }).message ?? "") : "";
+  return message.toLowerCase().includes(`column cms_document_versions.${column.toLowerCase()} does not exist`);
+}
+
+async function fetchLatestVersionForDocument(
+  documentId: string,
+  isPreview: boolean,
+  publishedVersionId: string | null,
+): Promise<CmsDocumentVersionRow | null> {
+  const supabase: any = createCmsReadClient();
+
+  if (isPreview) {
+    const withPublishedFlag = await supabase
+      .from("cms_document_versions" as never)
+      .select("id, version, content, is_published")
+      .eq("document_id", documentId)
+      .order("version", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!withPublishedFlag.error) {
+      return (withPublishedFlag.data as CmsDocumentVersionRow | null) ?? null;
+    }
+
+    if (!isMissingCmsDocumentVersionsColumnError(withPublishedFlag.error, "is_published")) {
+      return null;
+    }
+
+    const latestFallback = await supabase
+      .from("cms_document_versions" as never)
+      .select("id, version, content")
+      .eq("document_id", documentId)
+      .order("version", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (latestFallback.error || !latestFallback.data) {
+      return null;
+    }
+
+    return {
+      ...(latestFallback.data as Omit<CmsDocumentVersionRow, "is_published">),
+      is_published: false,
+    };
+  }
+
+  const withPublishedFlag = await supabase
+    .from("cms_document_versions" as never)
+    .select("id, version, content, is_published")
+    .eq("document_id", documentId)
+    .eq("is_published", true)
+    .order("version", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!withPublishedFlag.error) {
+    return (withPublishedFlag.data as CmsDocumentVersionRow | null) ?? null;
+  }
+
+  if (!isMissingCmsDocumentVersionsColumnError(withPublishedFlag.error, "is_published")) {
+    return null;
+  }
+
+  if (!publishedVersionId) {
+    return null;
+  }
+
+  const publishedByPointer = await supabase
+    .from("cms_document_versions" as never)
+    .select("id, version, content")
+    .eq("document_id", documentId)
+    .eq("id", publishedVersionId)
+    .maybeSingle();
+
+  if (publishedByPointer.error || !publishedByPointer.data) {
+    return null;
+  }
+
+  return {
+    ...((publishedByPointer.data as unknown) as Omit<CmsDocumentVersionRow, "is_published">),
+    is_published: true,
+  };
+}
+
+async function fetchGolfCmsPageConfigByMode(
+  locale: string,
+  isPreview: boolean,
+): Promise<GolfCmsPageConfig | null> {
+  const supabase: any = createCmsReadClient();
+
+  const { data: docs, error } = await supabase
+    .from("cms_documents" as never)
+    .select("id, locale, current_version_id")
+    .eq("page_id", "golf")
+    .eq("doc_type", "page_config")
+    .in("locale", [locale, "default"]);
+
+  if (error || !docs?.length) {
+    return null;
+  }
+
+  const orderedDocs = [...((docs as unknown) as CmsDocumentRow[])].sort((a, b) => {
+    if (a.locale === locale && b.locale !== locale) return -1;
+    if (b.locale === locale && a.locale !== locale) return 1;
+    if (a.locale === "default" && b.locale !== "default") return -1;
+    if (b.locale === "default" && a.locale !== "default") return 1;
+    return 0;
+  });
+
+  for (const doc of orderedDocs) {
+    const version = await fetchLatestVersionForDocument(
+      doc.id,
+      isPreview,
+      doc.current_version_id,
+    );
+    if (!version?.content) continue;
+    return version.content as GolfCmsPageConfig;
+  }
+
+  return null;
+}
+
+const getCachedGolfCmsPageConfig = unstable_cache(
+  async (locale: string) => fetchGolfCmsPageConfigByMode(locale, false),
   ["golf-cms"],
-  { tags: [CMS_TAGS.golf] }
+  { tags: [CMS_TAGS.golf] },
 );
+
+export async function getGolfCmsPageConfig(locale: string): Promise<GolfCmsPageConfig | null> {
+  const { isEnabled: isPreview } = await draftMode();
+  if (isPreview) {
+    return fetchGolfCmsPageConfigByMode(locale, true);
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    return fetchGolfCmsPageConfigByMode(locale, false);
+  }
+
+  return getCachedGolfCmsPageConfig(locale);
+}

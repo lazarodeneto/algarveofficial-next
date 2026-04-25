@@ -84,7 +84,7 @@ function convertLegacyTextToHero(textMap: Record<string, string> | undefined) {
 
   return {
     enabled: true,
-    mediaType: (textMap["hero.mediaType"] as "image" | "video" | "youtube") ?? "image",
+    mediaType: (textMap["hero.mediaType"] as "image" | "video" | "youtube" | "poster") ?? "image",
     imageUrl: textMap["hero.imageUrl"],
     videoUrl: textMap["hero.videoUrl"],
     youtubeUrl: textMap["hero.youtubeUrl"],

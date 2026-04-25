@@ -1,10 +1,18 @@
 "use client";
 
 import { type CmsBlock, getDefaultBlockSettings, isSupportedBlockType } from "@/lib/cms/block-schemas";
-import { HeroBlockEditor } from "./editors/HeroBlockEditor";
 import { FeaturedListingsBlockEditor } from "./editors/FeaturedListingsBlockEditor";
 import { EditorialTextBlockEditor } from "./editors/GenericEditors";
-import { CategoriesGridBlockEditor, CitiesGridBlockEditor, CtaBlockEditor, ImageGalleryBlockEditor, FaqBlockEditor } from "./editors/GenericEditors";
+import {
+  CategoriesGridBlockEditor,
+  CitiesGridBlockEditor,
+  CtaBlockEditor,
+  ImageGalleryBlockEditor,
+  FaqBlockEditor,
+  CoursesGridBlockEditor,
+  GolfLeaderboardBlockEditor,
+  RegionsGridBlockEditor,
+} from "./editors/GenericEditors";
 
 interface BlockEditorProps {
   block: CmsBlock | null;
@@ -43,7 +51,11 @@ export function BlockEditor({ block, onUpdateSettings }: BlockEditorProps) {
 
   switch (block.type) {
     case "hero":
-      return <HeroBlockEditor {...editorProps} />;
+      return (
+        <div className="p-6 text-sm text-muted-foreground">
+          Hero section is managed automatically and cannot be edited here.
+        </div>
+      );
 
     case "featured-listings":
       return <FeaturedListingsBlockEditor {...editorProps} />;
@@ -65,6 +77,15 @@ export function BlockEditor({ block, onUpdateSettings }: BlockEditorProps) {
 
     case "faq":
       return <FaqBlockEditor {...editorProps} />;
+
+    case "courses-grid":
+      return <CoursesGridBlockEditor {...editorProps} />;
+
+    case "golf-leaderboard":
+      return <GolfLeaderboardBlockEditor {...editorProps} />;
+
+    case "regions-grid":
+      return <RegionsGridBlockEditor {...editorProps} />;
 
     default:
       return <BlockNotFoundEditor blockType={block.type} />;

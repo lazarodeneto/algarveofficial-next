@@ -1,16 +1,16 @@
 export interface CmsHeroData {
   enabled?: boolean;
-  mediaType?: "image" | "video" | "youtube";
+  mediaType?: "image" | "video" | "youtube" | "poster";
   imageUrl?: string | null;
   videoUrl?: string | null;
   youtubeUrl?: string | null;
   posterUrl?: string | null;
-  alt?: string;
-  badge?: string;
-  title?: string;
-  subtitle?: string;
-  ctaCourses?: string;
-  ctaLeaderboard?: string;
+  alt?: string | null;
+  badge?: string | null;
+  title?: string | null;
+  subtitle?: string | null;
+  ctaCourses?: string | null;
+  ctaLeaderboard?: string | null;
 }
 
 export interface LegacyTextHero {
@@ -25,17 +25,17 @@ export interface LegacyTextHero {
 export interface CmsPageContent {
   hero?: CmsHeroData;
   text?: Record<string, string>;
-  badge?: string;
-  title?: string;
-  subtitle?: string;
-  mediaType?: string;
-  imageUrl?: string;
-  videoUrl?: string;
-  youtubeUrl?: string;
-  posterUrl?: string;
-  alt?: string;
-  ctaCourses?: string;
-  ctaLeaderboard?: string;
+  badge?: string | null;
+  title?: string | null;
+  subtitle?: string | null;
+  mediaType?: string | null;
+  imageUrl?: string | null;
+  videoUrl?: string | null;
+  youtubeUrl?: string | null;
+  posterUrl?: string | null;
+  alt?: string | null;
+  ctaCourses?: string | null;
+  ctaLeaderboard?: string | null;
 }
 
 export function resolveHero(content: CmsPageContent | null | undefined): CmsHeroData {
@@ -84,12 +84,12 @@ export function resolveHero(content: CmsPageContent | null | undefined): CmsHero
 }
 
 export function resolvePageContent(content: CmsPageContent | null | undefined): {
-  badge?: string;
-  title?: string;
-  subtitle?: string;
-  ctaCourses?: string;
-  ctaLeaderboard?: string;
-  alt?: string;
+  badge?: string | null;
+  title?: string | null;
+  subtitle?: string | null;
+  ctaCourses?: string | null;
+  ctaLeaderboard?: string | null;
+  alt?: string | null;
 } {
   if (!content) {
     return {};

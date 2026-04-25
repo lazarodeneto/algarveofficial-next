@@ -18,11 +18,13 @@ interface AddBlockDialogProps {
   existingBlockIds: string[];
 }
 
-const BLOCK_TYPE_INFO: Record<SupportedBlockType, { label: string; description: string }> = {
-  hero: {
-    label: "Hero Section",
-    description: "Full-width hero with image, video, or YouTube",
-  },
+type AddableBlockType = Exclude<SupportedBlockType, "hero">;
+
+const ADDABLE_BLOCK_TYPES = SUPPORTED_BLOCK_TYPES.filter(
+  (type): type is AddableBlockType => type !== "hero",
+);
+
+const BLOCK_TYPE_INFO: Record<AddableBlockType, { label: string; description: string }> = {
   "featured-listings": {
     label: "Featured Listings",
     description: "Curated listings grid or carousel",
@@ -71,8 +73,8 @@ export function AddBlockDialog({
 }: AddBlockDialogProps) {
   const [open, setOpen] = useState(false);
 
-  const availableBlocks = SUPPORTED_BLOCK_TYPES.filter(
-    (type) => !existingBlockIds.includes(type)
+  const availableBlocks = ADDABLE_BLOCK_TYPES.filter(
+    (type) => !existingBlockIds.includes(type),
   );
 
   return (

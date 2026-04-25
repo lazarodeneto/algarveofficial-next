@@ -6,7 +6,8 @@ import { useMemo } from "react";
 import type { GolfLeaderboardEntry, GolfListing } from "@/lib/golf";
 import type { GolfCmsPageConfig } from "@/lib/golf-cms";
 import { buildLocalizedPath } from "@/lib/i18n/routing";
-import { resolveHero, resolvePageContent, type CmsHeroData } from "@/lib/cms/resolve-hero";
+import { resolveHero, resolvePageContent } from "@/lib/cms/resolve-hero";
+import { normalizePageConfig } from "@/lib/cms/normalize-page-config";
 import { CmsPageRenderer } from "@/components/cms/renderers/CmsPageRenderer";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
@@ -36,7 +37,32 @@ const GOLF_CONTENT_BLOCK_ORDER = [
 export function GolfPageClient({ locale, courses, leaderboard, pageConfig }: GolfPageClientProps) {
   const cms = useCmsPageBuilder("golf");
 
-  const heroPageConfig = pageConfig?.hero;
+  const normalizedPageConfig = useMemo(
+    () => normalizePageConfig(pageConfig ?? {}),
+    [pageConfig],
+  );
+  console.log("CMS BLOCKS:", pageConfig?.blocks);
+  
+  const CORE_BLOCKS = [
+    "courses-grid",
+    "featured-listings",
+    "regions-grid",
+    "golf-leaderboard"
+  ];
+
+  const hasCmsBlocks = pageConfig?.blocks?.some(
+    (b) => b.enabled !== false && CORE_BLOCKS.includes(b.type)
+  ) ?? false;
+  const isCmsBlockEnabled = useMemo(() => {
+    const blocks = normalizedPageConfig.blocks ?? [];
+    return (blockIdOrType: string, defaultEnabled = true) => {
+      const block =
+        blocks.find((item) => item.id === blockIdOrType) ??
+        blocks.find((item) => item.type === blockIdOrType);
+      if (!block) return defaultEnabled;
+      return block.enabled !== false;
+    };
+  }, [normalizedPageConfig.blocks]);
 
   const coursesHref = buildLocalizedPath(locale, "/golf/courses");
   const leaderboardHref = buildLocalizedPath(locale, "/golf/leaderboard");
@@ -46,9 +72,9 @@ export function GolfPageClient({ locale, courses, leaderboard, pageConfig }: Gol
     [cms],
   );
 
-  const serverHero = heroPageConfig ?? {};
-  const hero = resolveHero(serverHero);
-  const pageContent = resolvePageContent(serverHero);
+  const resolvedPageConfig = normalizedPageConfig;
+  const hero = resolveHero(resolvedPageConfig as Parameters<typeof resolveHero>[0]);
+  const pageContent = resolvePageContent(resolvedPageConfig as Parameters<typeof resolvePageContent>[0]);
 
   const DEFAULT_BADGE = "Curated Golf";
   const DEFAULT_TITLE = "Play Championship Golf in the Algarve";
@@ -59,7 +85,7 @@ export function GolfPageClient({ locale, courses, leaderboard, pageConfig }: Gol
 
   return (
     <>
-      {cms.isBlockEnabled("hero", true) ? (
+      {isCmsBlockEnabled("hero", true) ? (
         <div className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
           <CmsBlock pageId="golf" blockId="hero" as="section">
             <LiveStyleHero
@@ -98,158 +124,158 @@ export function GolfPageClient({ locale, courses, leaderboard, pageConfig }: Gol
         </div>
       ) : null}
 
-      {heroPageConfig && "blocks" in heroPageConfig && (heroPageConfig as { blocks?: unknown[] }).blocks?.length ? (
-        <CmsPageRenderer pageConfig={heroPageConfig as Parameters<typeof CmsPageRenderer>[0]["pageConfig"]} exclude={["hero"]} />
-      ) : null}
-
-      {heroPageConfig && "blocks" in heroPageConfig && (heroPageConfig as { blocks?: unknown[] }).blocks?.length ? null : (
-      <main className="app-container space-y-10 pb-20 pt-6">
-        {orderedContentBlocks.map((blockId) => {
-          if (blockId === "featured-courses") {
-            return (
-              <CmsBlock key={blockId} pageId="golf" blockId={blockId} as="section">
-                <div className="space-y-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <h2 className="font-serif text-3xl text-foreground md:text-4xl">
-                      {cms.getText("featured-courses.title", "Featured Courses")}
-                    </h2>
-                    <Button asChild variant="outline" size="sm">
-                      <Link href={coursesHref}>
-                        {cms.getText("featured-courses.cta", "See all")}
-                      </Link>
-                    </Button>
-                  </div>
-
-                  {courses.length > 0 ? (
-                    <div className="grid min-h-[360px] gap-5 md:grid-cols-2 xl:grid-cols-3">
-                      {courses.map((course) => (
-                        <CourseCard key={course.id} course={course} locale={locale} />
-                      ))}
+      {hasCmsBlocks ? (
+        <CmsPageRenderer
+          pageConfig={normalizedPageConfig}
+          exclude={["hero"]}
+        />
+      ) : (
+        <main className="app-container space-y-10 pb-20 pt-6">
+          {orderedContentBlocks.map((blockId) => {
+            if (blockId === "featured-courses") {
+              return (
+                <CmsBlock key={blockId} pageId="golf" blockId={blockId} as="section">
+                  <div className="space-y-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <h2 className="font-serif text-3xl text-foreground md:text-4xl">
+                        {cms.getText("featured-courses.title", "Featured Courses")}
+                      </h2>
+                      <Button asChild variant="outline" size="sm">
+                        <Link href={coursesHref}>
+                          {cms.getText("featured-courses.cta", "See all")}
+                        </Link>
+                      </Button>
                     </div>
-                  ) : (
-                    <Card className="min-h-[220px] border-border/70">
+
+                    {courses.length > 0 ? (
+                      <div className="grid min-h-[360px] gap-5 md:grid-cols-2 xl:grid-cols-3">
+                        {courses.map((course) => (
+                          <CourseCard key={course.id} course={course} locale={locale} />
+                        ))}
+                      </div>
+                    ) : (
+                      <Card className="min-h-[220px] border-border/70">
+                        <CardHeader>
+                          <CardTitle>
+                            {cms.getText("featured-courses.empty.title", "No golf listings available")}
+                          </CardTitle>
+                          <CardDescription>
+                            {cms.getText(
+                              "featured-courses.empty.description",
+                              "Golf listings will appear here as soon as they are published.",
+                            )}
+                          </CardDescription>
+                        </CardHeader>
+                      </Card>
+                    )}
+                  </div>
+                </CmsBlock>
+              );
+            }
+
+            if (blockId === "course-tools") {
+              return (
+                <CmsBlock key={blockId} pageId="golf" blockId={blockId} as="section">
+                  <div className="grid gap-5 md:grid-cols-2">
+                    <Card className="min-h-[170px] border-border/70">
                       <CardHeader>
-                        <CardTitle>
-                          {cms.getText("featured-courses.empty.title", "No golf listings available")}
-                        </CardTitle>
+                        <CardTitle>{cms.getText("course-tools.booking.title", "Book Tee Time")}</CardTitle>
                         <CardDescription>
                           {cms.getText(
-                            "featured-courses.empty.description",
-                            "Golf listings will appear here as soon as they are published.",
+                            "course-tools.booking.subtitle",
+                            "Integrated booking will be available in the next phase.",
                           )}
                         </CardDescription>
                       </CardHeader>
+                      <CardContent className="text-sm text-muted-foreground">
+                        {cms.getText(
+                          "course-tools.booking.body",
+                          "We are connecting partner booking providers and slot availability.",
+                        )}
+                      </CardContent>
                     </Card>
-                  )}
-                </div>
-              </CmsBlock>
-            );
-          }
 
-          if (blockId === "course-tools") {
-            return (
-              <CmsBlock key={blockId} pageId="golf" blockId={blockId} as="section">
-                <div className="grid gap-5 md:grid-cols-2">
-                  <Card className="min-h-[170px] border-border/70">
-                    <CardHeader>
-                      <CardTitle>{cms.getText("course-tools.booking.title", "Book Tee Time")}</CardTitle>
-                      <CardDescription>
+                    <Card className="min-h-[170px] border-border/70">
+                      <CardHeader>
+                        <CardTitle>
+                          {cms.getText("course-tools.scorecards.title", "Scorecards & Handicap")}
+                        </CardTitle>
+                        <CardDescription>
+                          {cms.getText(
+                            "course-tools.scorecards.subtitle",
+                            "Structured round tracking is coming in phase 2.",
+                          )}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="text-sm text-muted-foreground">
                         {cms.getText(
-                          "course-tools.booking.subtitle",
-                          "Integrated booking will be available in the next phase.",
+                          "course-tools.scorecards.body",
+                          "Soon you will save rounds, compare scores, and monitor handicap progress.",
                         )}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="text-sm text-muted-foreground">
-                      {cms.getText(
-                        "course-tools.booking.body",
-                        "We are connecting partner booking providers and slot availability.",
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  <Card className="min-h-[170px] border-border/70">
-                    <CardHeader>
-                      <CardTitle>
-                        {cms.getText("course-tools.scorecards.title", "Scorecards & Handicap")}
-                      </CardTitle>
-                      <CardDescription>
-                        {cms.getText(
-                          "course-tools.scorecards.subtitle",
-                          "Structured round tracking is coming in phase 2.",
-                        )}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="text-sm text-muted-foreground">
-                      {cms.getText(
-                        "course-tools.scorecards.body",
-                        "Soon you will save rounds, compare scores, and monitor handicap progress.",
-                      )}
-                    </CardContent>
-                  </Card>
-                </div>
-              </CmsBlock>
-            );
-          }
-
-          if (blockId === "leaderboard") {
-            return (
-              <CmsBlock key={blockId} pageId="golf" blockId={blockId} as="section">
-                <div className="space-y-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <h2 className="font-serif text-3xl text-foreground md:text-4xl">
-                      {cms.getText("leaderboard.title", "Leaderboard")}
-                    </h2>
-                    <Button asChild variant="outline" size="sm">
-                      <Link href={leaderboardHref}>
-                        {cms.getText("leaderboard.cta", "Open page")}
-                      </Link>
-                    </Button>
+                      </CardContent>
+                    </Card>
                   </div>
+                </CmsBlock>
+              );
+            }
 
-                  <Card className="min-h-[280px] border-border/70">
-                    <CardContent className="p-0">
-                      <LeaderboardTable entries={leaderboard.slice(0, 10)} />
+            if (blockId === "leaderboard") {
+              return (
+                <CmsBlock key={blockId} pageId="golf" blockId={blockId} as="section">
+                  <div className="space-y-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <h2 className="font-serif text-3xl text-foreground md:text-4xl">
+                        {cms.getText("leaderboard.title", "Leaderboard")}
+                      </h2>
+                      <Button asChild variant="outline" size="sm">
+                        <Link href={leaderboardHref}>
+                          {cms.getText("leaderboard.cta", "Open page")}
+                        </Link>
+                      </Button>
+                    </div>
+
+                    <Card className="min-h-[280px] border-border/70">
+                      <CardContent className="p-0">
+                        <LeaderboardTable entries={leaderboard.slice(0, 10)} />
+                      </CardContent>
+                    </Card>
+                  </div>
+                </CmsBlock>
+              );
+            }
+
+            if (blockId === "cta") {
+              return (
+                <CmsBlock key={blockId} pageId="golf" blockId={blockId} as="section">
+                  <Card className="border-border/70 bg-card/70">
+                    <CardHeader>
+                      <CardTitle>{cms.getText("cta.title", "Ready to Plan Your Next Round?")}</CardTitle>
+                      <CardDescription>
+                        {cms.getText(
+                          "cta.subtitle",
+                          "Compare courses, save your favorites, and jump into round tracking.",
+                        )}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex flex-wrap gap-3">
+                      <Button asChild>
+                        <Link href={coursesHref}>{cms.getText("cta.primary", "Browse Courses")}</Link>
+                      </Button>
+                      <Button asChild variant="outline">
+                        <Link href={leaderboardHref}>
+                          {cms.getText("cta.secondary", "View Leaderboard")}
+                        </Link>
+                      </Button>
                     </CardContent>
                   </Card>
-                </div>
-              </CmsBlock>
-            );
-          }
+                </CmsBlock>
+              );
+            }
 
-          if (blockId === "cta") {
-            return (
-              <CmsBlock key={blockId} pageId="golf" blockId={blockId} as="section">
-                <Card className="border-border/70 bg-card/70">
-                  <CardHeader>
-                    <CardTitle>{cms.getText("cta.title", "Ready to Plan Your Next Round?")}</CardTitle>
-                    <CardDescription>
-                      {cms.getText(
-                        "cta.subtitle",
-                        "Compare courses, save your favorites, and jump into round tracking.",
-                      )}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex flex-wrap gap-3">
-                    <Button asChild>
-                      <Link href={coursesHref}>{cms.getText("cta.primary", "Browse Courses")}</Link>
-                    </Button>
-                    <Button asChild variant="outline">
-                      <Link href={leaderboardHref}>
-                        {cms.getText("cta.secondary", "View Leaderboard")}
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              </CmsBlock>
-            );
-          }
-
-          return null;
-        })}
-      </main>
+            return null;
+          })}
+        </main>
       )}
     </>
   );
 }
-
