@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
-import { getSupabasePublicEnv } from "@/lib/supabase/env";
-import { createServiceRoleClient } from "@/lib/supabase/service";
+import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
 import { validatePayload } from "@/lib/api/api-validation";
 import { userUpdateSchema } from "@/lib/forms/admin-schemas";
 
@@ -18,14 +16,6 @@ interface UpdateUserBody {
   email?: unknown;
   phone?: unknown;
   role?: unknown;
-}
-
-function getBearerToken(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
-  if (!authHeader) return null;
-  const [scheme, token] = authHeader.split(" ");
-  if (!scheme || !token || scheme.toLowerCase() !== "bearer") return null;
-  return token.trim();
 }
 
 function isValidUuid(value: string) {
@@ -50,67 +40,7 @@ function normalizeRole(value: unknown): UserRole | undefined {
   return ALLOWED_ROLES.has(normalized) ? normalized : undefined;
 }
 
-async function createAuthorizedClients(request: NextRequest) {
-  const token = getBearerToken(request);
-  if (!token) {
-    return { error: NextResponse.json({ error: "Missing authorization token." }, { status: 401 }) };
-  }
-
-  const serviceClient = createServiceRoleClient();
-  if (!serviceClient) {
-    return {
-      error: NextResponse.json(
-        { error: "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin user management." },
-        { status: 500 },
-      ),
-    };
-  }
-
-  const { url, anonKey } = getSupabasePublicEnv();
-  const userClient = createClient<Database>(url, anonKey, {
-    global: {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
-
-  const { data: userData, error: userError } = await userClient.auth.getUser();
-  if (userError || !userData.user) {
-    return { error: NextResponse.json({ error: "Unauthorized." }, { status: 401 }) };
-  }
-
-  const { data: requesterRole, error: roleError } = await userClient.rpc("get_user_role", {
-    _user_id: userData.user.id,
-  });
-
-  if (roleError) {
-    return {
-      error: NextResponse.json(
-        { error: roleError.message ?? "Failed to verify user role." },
-        { status: 403 },
-      ),
-    };
-  }
-
-  if (requesterRole !== "admin") {
-    return { error: NextResponse.json({ error: "Only admins can manage users." }, { status: 403 }) };
-  }
-
-  return {
-    serviceClient,
-    requesterId: userData.user.id,
-  };
-}
-
-async function getCurrentRole(
-  serviceClient: NonNullable<ReturnType<typeof createServiceRoleClient>>,
-  userId: string,
-) {
+async function getCurrentRole(serviceClient: any, userId: string) {
   const { data: roleRow, error } = await serviceClient
     .from("user_roles")
     .select("id, role")
@@ -118,14 +48,13 @@ async function getCurrentRole(
     .maybeSingle();
 
   if (error) throw error;
-
   return {
     rowId: roleRow?.id ?? null,
     role: (roleRow?.role ?? "viewer_logged") as UserRole,
   };
 }
 
-async function countAdmins(serviceClient: NonNullable<ReturnType<typeof createServiceRoleClient>>) {
+async function countAdmins(serviceClient: any) {
   const { count, error } = await serviceClient
     .from("user_roles")
     .select("id", { count: "exact", head: true })
@@ -135,10 +64,7 @@ async function countAdmins(serviceClient: NonNullable<ReturnType<typeof createSe
   return count ?? 0;
 }
 
-async function countOwnedListings(
-  serviceClient: NonNullable<ReturnType<typeof createServiceRoleClient>>,
-  userId: string,
-) {
+async function countOwnedListings(serviceClient: any, userId: string) {
   const { count, error } = await serviceClient
     .from("listings")
     .select("id", { count: "exact", head: true })
@@ -152,25 +78,24 @@ export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ userId: string }> },
 ) {
-  const clients = await createAuthorizedClients(request);
-  if ("error" in clients) return clients.error;
+  const auth = await requireAdminWriteClient(request, "Only admins can manage users.");
+  if ("error" in auth) return auth.error;
 
   const { userId } = await context.params;
   if (!isValidUuid(userId)) {
-    return NextResponse.json({ error: "Invalid user id." }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Invalid user id." }, { status: 400 });
   }
 
   let body: UpdateUserBody;
   try {
     body = (await request.json()) as UpdateUserBody;
   } catch {
-    return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Invalid JSON payload." }, { status: 400 });
   }
 
-  // Validate payload with Zod
   const validation = validatePayload(userUpdateSchema, body, "USER");
   if (!validation.success) {
-    return NextResponse.json({ error: validation.error }, { status: 400 });
+    return NextResponse.json({ ok: false, error: validation.error }, { status: 400 });
   }
 
   const fullName = validation.data.fullName ?? null;
@@ -178,28 +103,27 @@ export async function PATCH(
   const phone = validation.data.phone ?? null;
   const role = validation.data.role;
 
-  const { serviceClient } = clients;
+  const serviceClient = auth.writeClient;
   const currentRoleState = await getCurrentRole(serviceClient, userId);
-  const nextEmail = email;
 
   if (role && currentRoleState.role === "admin" && role !== "admin") {
     const adminCount = await countAdmins(serviceClient);
     if (adminCount <= 1) {
-      return NextResponse.json({ error: "Cannot demote the last admin." }, { status: 409 });
+      return NextResponse.json({ ok: false, error: "Cannot demote the last admin." }, { status: 409 });
     }
   }
 
   const { data: authUserResult, error: authLookupError } = await serviceClient.auth.admin.getUserById(userId);
   if (authLookupError || !authUserResult.user) {
     return NextResponse.json(
-      { error: authLookupError?.message ?? "User not found in auth." },
+      { ok: false, error: authLookupError?.message ?? "User not found in auth." },
       { status: 404 },
     );
   }
 
   const authPayload: Parameters<typeof serviceClient.auth.admin.updateUserById>[1] = {};
-  if (nextEmail !== null) {
-    authPayload.email = nextEmail;
+  if (email !== null) {
+    authPayload.email = email;
     authPayload.email_confirm = true;
   }
   if (fullName !== null) {
@@ -212,7 +136,7 @@ export async function PATCH(
   if (Object.keys(authPayload).length > 0) {
     const { error: authUpdateError } = await serviceClient.auth.admin.updateUserById(userId, authPayload);
     if (authUpdateError) {
-      return NextResponse.json({ error: authUpdateError.message }, { status: 400 });
+      return NextResponse.json({ ok: false, error: authUpdateError.message }, { status: 400 });
     }
   }
 
@@ -220,7 +144,7 @@ export async function PATCH(
     updated_at: new Date().toISOString(),
   };
   if (fullName !== null) profilePayload.full_name = fullName;
-  if (nextEmail !== null) profilePayload.email = nextEmail;
+  if (email !== null) profilePayload.email = email;
   if (phone !== null) profilePayload.phone = phone;
 
   if (Object.keys(profilePayload).length > 1) {
@@ -230,7 +154,7 @@ export async function PATCH(
       .eq("id", userId);
 
     if (profileUpdateError) {
-      return NextResponse.json({ error: profileUpdateError.message }, { status: 400 });
+      return NextResponse.json({ ok: false, error: profileUpdateError.message }, { status: 400 });
     }
   }
 
@@ -242,7 +166,7 @@ export async function PATCH(
         .eq("id", currentRoleState.rowId);
 
       if (roleUpdateError) {
-        return NextResponse.json({ error: roleUpdateError.message }, { status: 400 });
+        return NextResponse.json({ ok: false, error: roleUpdateError.message }, { status: 400 });
       }
     } else {
       const { error: roleInsertError } = await serviceClient
@@ -250,7 +174,7 @@ export async function PATCH(
         .insert({ user_id: userId, role });
 
       if (roleInsertError) {
-        return NextResponse.json({ error: roleInsertError.message }, { status: 400 });
+        return NextResponse.json({ ok: false, error: roleInsertError.message }, { status: 400 });
       }
     }
   }
@@ -262,41 +186,38 @@ export async function DELETE(
   request: NextRequest,
   context: { params: Promise<{ userId: string }> },
 ) {
-  const clients = await createAuthorizedClients(request);
-  if ("error" in clients) return clients.error;
+  const auth = await requireAdminWriteClient(request, "Only admins can delete users.");
+  if ("error" in auth) return auth.error;
 
   const { userId } = await context.params;
   if (!isValidUuid(userId)) {
-    return NextResponse.json({ error: "Invalid user id." }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Invalid user id." }, { status: 400 });
   }
 
-  const { serviceClient, requesterId } = clients;
-  if (userId === requesterId) {
-    return NextResponse.json({ error: "Admins cannot permanently delete their own account here." }, { status: 409 });
+  const serviceClient = auth.writeClient;
+  if (userId === auth.userId) {
+    return NextResponse.json({ ok: false, error: "Admins cannot delete their own account." }, { status: 409 });
   }
 
   const currentRoleState = await getCurrentRole(serviceClient, userId);
   if (currentRoleState.role === "admin") {
     const adminCount = await countAdmins(serviceClient);
     if (adminCount <= 1) {
-      return NextResponse.json({ error: "Cannot delete the last admin." }, { status: 409 });
+      return NextResponse.json({ ok: false, error: "Cannot delete the last admin." }, { status: 409 });
     }
   }
 
   const ownedListingsCount = await countOwnedListings(serviceClient, userId);
   if (ownedListingsCount > 0) {
     return NextResponse.json(
-      {
-        error:
-          "This user still owns published or draft listings. Reassign or remove those listings before deleting the account.",
-      },
+      { ok: false, error: "Reassign or remove user listings before deletion." },
       { status: 409 },
     );
   }
 
   const { error: authDeleteError } = await serviceClient.auth.admin.deleteUser(userId, false);
   if (authDeleteError) {
-    return NextResponse.json({ error: authDeleteError.message }, { status: 400 });
+    return NextResponse.json({ ok: false, error: authDeleteError.message }, { status: 400 });
   }
 
   const cleanupTargets: Array<{ table: string; column: string }> = [

@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { fetchAdmin } from "@/lib/api/fetchAdmin";
 import {
   List,
   Crown,
@@ -30,6 +32,18 @@ import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function AdminOverview() {
   const l = useLocalePath();
+  const router = useRouter();
+  const { user, isLoading: authLoading } = useAuth();
+
+  if (authLoading) return null;
+  if (!user) {
+    router.replace(l("/login"));
+    return null;
+  }
+  if (user.role !== "admin" && user.role !== "editor") {
+    router.replace(l("/dashboard"));
+    return null;
+  }
   // Google Ratings Sync
   const {
     syncStatus,
@@ -56,46 +70,30 @@ export default function AdminOverview() {
     }
   };
 
-  // Fetch dashboard stats
-  const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ['admin-dashboard-stats'],
+  // Fetch dashboard stats — via server API with cookie auth
+  const { data: statsData, isLoading: statsLoading } = useQuery({
+    queryKey: ["admin-dashboard-stats", user?.id],
+    enabled: !!user && !authLoading,
+    retry: 2,
+    retryDelay: attempt => Math.min(1000 * 2 ** attempt, 5000),
     queryFn: async () => {
-      const [totalRes, publishedRes, pendingRes, unverifiedRes, nullTierRes, verifiedRes, signatureRes] = await Promise.all([
-        supabase.from('listings').select('id', { count: 'exact' }).limit(1),
-        supabase.from('listings').select('id', { count: 'exact' }).eq('status', 'published').limit(1),
-        supabase.from('listings').select('id', { count: 'exact' }).eq('status', 'pending_review').limit(1),
-        supabase.from('listings').select('id', { count: 'exact' }).eq('tier', 'unverified').limit(1),
-        supabase.from('listings').select('id', { count: 'exact' }).is('tier', null).limit(1),
-        supabase.from('listings').select('id', { count: 'exact' }).eq('tier', 'verified').limit(1),
-        supabase.from('listings').select('id', { count: 'exact' }).eq('tier', 'signature').limit(1),
-      ]);
-
-      return {
-        totalListings: totalRes.count || 0,
-        publishedListings: publishedRes.count || 0,
-        pendingReview: pendingRes.count || 0,
-        tierDistribution: {
-          // Treat legacy NULL tier rows as unverified/free.
-          unverified: (unverifiedRes.count || 0) + (nullTierRes.count || 0),
-          verified: verifiedRes.count || 0,
-          signature: signatureRes.count || 0,
-        }
-      };
+      const json = await fetchAdmin("/api/admin/dashboard/stats");
+      if (!json.stats) {
+        console.warn("[admin:anomaly]", JSON.stringify({ path: "/api/admin/dashboard/stats", message: "No stats returned" }));
+      }
+      return json.stats;
     },
   });
 
   // Fetch recent listings
   const { data: recentListings = [], isLoading: listingsLoading } = useQuery({
-    queryKey: ['admin-recent-listings'],
+    queryKey: ["admin-recent-listings", user?.id],
+    enabled: !!user && !authLoading,
+    retry: 2,
+    retryDelay: attempt => Math.min(1000 * 2 ** attempt, 5000),
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('listings')
-        .select('id, name, tier, status, city:cities(name)')
-        .order('created_at', { ascending: false })
-        .limit(5);
-      
-      if (error) throw error;
-      return data;
+      const json = await fetchAdmin("/api/admin/dashboard/stats");
+      return json.recentListings ?? [];
     },
   });
 
@@ -135,19 +133,19 @@ export default function AdminOverview() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatsCard
           title="Total Listings"
-          value={stats?.totalListings ?? 0}
+          value={statsData?.totalListings ?? 0}
           icon={<List className="h-6 w-6" />}
           description="Across all categories"
         />
         <StatsCard
           title="Published"
-          value={stats?.publishedListings ?? 0}
+          value={statsData?.publishedListings ?? 0}
           icon={<TrendingUp className="h-6 w-6" />}
           description="Live on the site"
         />
         <StatsCard
           title="Pending Review"
-          value={stats?.pendingReview ?? 0}
+          value={statsData?.pendingReview ?? 0}
           icon={<ClipboardCheck className="h-6 w-6" />}
           description="Awaiting approval"
         />
@@ -165,7 +163,7 @@ export default function AdminOverview() {
               className="text-center p-4 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors cursor-pointer block"
             >
               <p className="text-3xl font-serif font-semibold text-muted-foreground">
-                {stats?.tierDistribution.unverified || 0}
+                {statsData?.tierDistribution.unverified || 0}
               </p>
               <TierBadge tier="unverified" size="sm" />
             </Link>
@@ -174,7 +172,7 @@ export default function AdminOverview() {
               className="text-center p-4 rounded-lg bg-green-500/10 hover:bg-green-500/20 transition-colors cursor-pointer block"
             >
               <p className="text-3xl font-serif font-semibold text-green-400">
-                {stats?.tierDistribution.verified || 0}
+                {statsData?.tierDistribution.verified || 0}
               </p>
               <TierBadge tier="verified" size="sm" />
             </Link>
@@ -183,7 +181,7 @@ export default function AdminOverview() {
               className="text-center p-4 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors cursor-pointer block"
             >
               <p className="text-3xl font-serif font-semibold text-primary">
-                {stats?.tierDistribution.signature || 0}
+                {statsData?.tierDistribution.signature || 0}
               </p>
               <TierBadge tier="signature" size="sm" />
             </Link>
@@ -309,7 +307,7 @@ export default function AdminOverview() {
             <Button variant="outline" className="w-full justify-start" asChild>
               <Link href={l("/admin/moderation")}>
                 <ClipboardCheck className="h-4 w-4 mr-2" />
-                Review Pending ({stats?.pendingReview || 0})
+                Review Pending ({statsData?.pendingReview || 0})
               </Link>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>

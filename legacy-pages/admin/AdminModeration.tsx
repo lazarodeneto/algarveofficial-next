@@ -21,28 +21,17 @@ import { usePendingEventsCount } from "@/hooks/useEvents";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { toast } from "sonner";
 import { resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
-import { getValidAccessToken } from "@/lib/authToken";
+import { fetchAdmin } from "@/lib/api/fetchAdmin";
 
 async function patchAdminListing(
   listingId: string,
   payload: Record<string, unknown>,
 ) {
-  const accessToken = await getValidAccessToken();
-  const response = await fetch(`/api/admin/listings/${listingId}`, {
+  return fetchAdmin(`/api/admin/listings/${listingId}`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-
-  const data = (await response.json().catch(() => null)) as
-    | { ok?: boolean; error?: { message?: string } }
-    | null;
-  if (!response.ok || !data?.ok) {
-    throw new Error(data?.error?.message || "Failed to update listing moderation state.");
-  }
 }
 
 export default function AdminModeration() {

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { adminErrorResponse, requireAdminReadClient } from "@/lib/server/admin-auth";
+import { adminErrorResponse, requireAdminSession } from "@/lib/server/admin-auth";
 
 export async function GET(request: NextRequest) {
-  const auth = await requireAdminReadClient(request, "Only admins can open CMS preview links.");
+  const auth = await requireAdminSession(request);
   if ("error" in auth) return auth.error;
 
   const path = request.nextUrl.searchParams.get("path")?.trim() || "/";

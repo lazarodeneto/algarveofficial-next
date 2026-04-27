@@ -264,9 +264,9 @@ export const ThreadDetailDialog = forwardRef<HTMLDivElement, ThreadDetailDialogP
           cancelLabel="Cancel"
           variant="destructive"
           onConfirm={() => {
-            if (!messageToDelete || !threadId) return;
+            if (!messageToDelete) return;
             deleteMessage.mutate(
-              { messageId: messageToDelete.id, threadId },
+              { messageId: messageToDelete.id },
               { onSuccess: () => setMessageToDelete(null) }
             );
           }}

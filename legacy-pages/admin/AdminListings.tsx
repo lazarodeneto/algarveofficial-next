@@ -1,8 +1,10 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchAdmin } from "@/lib/api/fetchAdmin";
 import { m } from "framer-motion";
 import {
   DndContext,
@@ -65,12 +67,25 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { useDeleteListings, useUpdateListingStatus } from "@/hooks/useListingMutations";
+import { useAuth } from "@/contexts/AuthContext";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { toast } from "sonner";
 
 export default function AdminListings() {
   const searchParams = useSearchParams();
   const l = useLocalePath();
+  const router = useRouter();
+  const { user, isLoading: authLoading } = useAuth();
+
+  if (authLoading) return null;
+  if (!user) {
+    router.replace(l("/login"));
+    return null;
+  }
+  if (user.role !== "admin" && user.role !== "editor") {
+    router.replace(l("/dashboard"));
+    return null;
+  }
 
   const [search, setSearch] = useState("");
   const [cityFilter, setCityFilter] = useState<string>("all");
@@ -98,78 +113,84 @@ export default function AdminListings() {
   // Featured rank update via secure API
   const updateFeaturedRank = useMutation({
     mutationFn: async ({ id, rank, action }: { id: string; rank?: number | null; action?: string }) => {
-      const res = await fetch("/api/admin/pin-listing", {
+      return fetchAdmin("/api/admin/pin-listing", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ listingId: id, position: rank, action }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed");
-      return data;
     },
+    retry: 2,
+    retryDelay: attempt => Math.min(1000 * 2 ** attempt, 5000),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["admin-all-listings"],
+        queryKey: ["admin-listings", user?.id],
         exact: true,
       });
     },
   });
 
-  // Fetch listings
-  const { data: listings = [], isLoading: listingsLoading } = useQuery({
-    queryKey: ["admin-all-listings"],
+  // IMPORTANT:
+// Listings must be fetched via API route (/api/admin/listings).
+// Do NOT use Supabase client here (avoids RLS/session race conditions).
+
+// Fetch listings — via server API with cookie auth
+  const { data: listings = [], isLoading: listingsLoading, error: listingsError } = useQuery({
+    queryKey: ["admin-listings", user?.id],
+    enabled: !!user && !authLoading,
+    retry: 2,
+    retryDelay: attempt => Math.min(1000 * 2 ** attempt, 5000),
     queryFn: async () => {
-      // PostgREST can cap responses at 1000 rows; fetch in pages to avoid truncation.
-      const pageSize = 1000;
-      let from = 0;
-      const allRows: any[] = [];
-
-// Note: featured_rank column must be added via migration before this will typecheck
-      while (true) {
-        const { data, error } = await (supabase as any)
-          .select(`
-            id, name, tier, status, is_curated, description, slug, featured_rank,
-            city:cities(id, name),
-            category:categories(id, name),
-            region:regions(id, name)
-          `)
-          .order("created_at", { ascending: false })
-          .order("id", { ascending: false })
-          .range(from, from + pageSize - 1);
-
-        if (error) throw error;
-
-        const batch = data || [];
-        allRows.push(...batch);
-
-        if (batch.length < pageSize) break;
-        from += pageSize;
+      const json = await fetchAdmin("/api/admin/listings");
+      if (json.data?.length === 0) {
+        console.warn("[admin:anomaly]", JSON.stringify({ path: "/api/admin/listings", message: "No listings returned for admin" }));
       }
-
-      // Safety: avoid accidental duplicate rows across pagination boundaries.
-      const unique = new Map<string, any>();
-      for (const row of allRows) unique.set(row.id, row);
-      return Array.from(unique.values());
+      return json.data ?? [];
     },
   });
 
-  // Fetch cities for filter
+  const { data: refData } = useQuery({
+    queryKey: ["admin-ref-data", user?.id],
+    enabled: !!user && !authLoading,
+    retry: 2,
+    retryDelay: attempt => Math.min(1000 * 2 ** attempt, 5000),
+    queryFn: async () => {
+      const json = await fetchAdmin("/api/admin/listings?include_ref_data=true");
+      return { cities: json.cities ?? [], categories: json.categories ?? [] };
+    },
+  });
+
+  const cityOptions = refData?.cities ?? [];
+  const categoryOptions = refData?.categories ?? [];
+
+  // Fallback: fetch cities directly (public table, no auth needed)
   const { data: cities = [] } = useQuery({
-    queryKey: ["admin-cities-filter"],
+    queryKey: ["cities"],
     queryFn: async () => {
-      const { data } = await supabase.from("cities").select("id, name").order("name");
-      return data || [];
+      const { data, error } = await supabase.from("cities").select("id, name").order("name");
+      if (error) {
+        console.error("[cities]", error);
+        return [];
+      }
+      return data ?? [];
     },
   });
 
-  // Fetch categories for filter
+  // Fallback: fetch categories directly (public table, no auth needed)
   const { data: categories = [] } = useQuery({
-    queryKey: ["admin-categories-filter"],
+    queryKey: ["categories"],
     queryFn: async () => {
-      const { data } = await supabase.from("categories").select("id, name").order("name");
-      return data || [];
+      const { data, error } = await supabase.from("categories").select("id, name").order("name");
+      if (error) {
+        console.error("[categories]", error);
+        return [];
+      }
+      return data ?? [];
     },
   });
+
+  // Use API data if available, fallback to direct queries
+  const displayCities = cityOptions.length > 0 ? cityOptions : cities;
+  const displayCategories = categoryOptions.length > 0 ? categoryOptions : categories;
 
   const filteredListings = useMemo(() => {
     return listings.filter((listing: any) => {
@@ -195,31 +216,33 @@ export default function AdminListings() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  // Bulk reorder featured listings (with RPC for atomic update + optimistic UI)
+  // Bulk reorder featured listings (with API for atomic update + optimistic UI)
   const reorderFeaturedRank = useMutation({
     mutationFn: async (items: { id: string; rank: number }[]) => {
-      await (supabase as any).rpc("set_featured_ranks", { payload: items });
+      return fetchAdmin("/api/admin/listings/featured/reorder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items }),
+      });
     },
+    retry: 2,
+    retryDelay: attempt => Math.min(1000 * 2 ** attempt, 5000),
     onMutate: async (next) => {
-      await queryClient.cancelQueries({ queryKey: ["admin-all-listings"] });
-      const previous = queryClient.getQueryData(["admin-all-listings"]);
-      queryClient.setQueryData(["admin-all-listings"], (old: any) => {
+      const key = ["admin-listings", user?.id] as const;
+      await queryClient.cancelQueries({ queryKey: key, exact: false });
+      const previous = queryClient.getQueryData(key);
+      queryClient.setQueryData(key, (old: any[]) => {
         if (!old) return old;
         const rankMap = Object.fromEntries(next.map((i) => [i.id, i.rank]));
-        return {
-          ...old,
-          pages: old.pages?.map((page: any) =>
-            page.map((l: any) => ({
-              ...l,
-              featured_rank: rankMap[l.id] ?? l.featured_rank,
-            }))
-          ) ?? old,
-        };
+        return old.map((l: any) => ({
+          ...l,
+          featured_rank: rankMap[l.id] ?? l.featured_rank,
+        }));
       });
       return { previous };
     },
     onError: (_err, _vars, context) => {
-      queryClient.setQueryData(["admin-all-listings"], context?.previous);
+      queryClient.setQueryData(["admin-listings", user?.id], context?.previous);
       toast.error("Reorder failed. Restored previous order.");
     },
     onSuccess: () => {
@@ -250,12 +273,10 @@ export default function AdminListings() {
   // Clear all featured
   const clearAllFeatured = useMutation({
     mutationFn: async () => {
-      // Get all featured listings
       const featured = listings.filter((l: any) => l.featured_rank != null);
-      // Unpin each via API
       await Promise.all(
         featured.map((l: any) =>
-          fetch("/api/admin/pin-listing", {
+          fetchAdmin("/api/admin/pin-listing", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ listingId: l.id, action: "unpin" }),
@@ -263,8 +284,10 @@ export default function AdminListings() {
         )
       );
     },
+    retry: 2,
+    retryDelay: attempt => Math.min(1000 * 2 ** attempt, 5000),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-all-listings"], exact: true });
+      queryClient.invalidateQueries({ queryKey: ["admin-listings", user?.id], exact: false });
       queryClient.invalidateQueries({ queryKey: ["homepage-data"] });
       queryClient.invalidateQueries({ queryKey: ["category-listings"] });
       toast.success("Cleared all featured listings");
@@ -555,6 +578,22 @@ export default function AdminListings() {
     );
   }
 
+  if (listingsError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-destructive">
+        <p>Failed to load listings</p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => window.location.reload()}
+          className="mt-2"
+        >
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -594,7 +633,7 @@ export default function AdminListings() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Cities</SelectItem>
-                {[...cities].sort((a: any, b: any) => a.name.localeCompare(b.name)).map((city: any) => (
+                {[...displayCities].sort((a: any, b: any) => a.name.localeCompare(b.name)).map((city: any) => (
                   <SelectItem key={city.id} value={city.id}>
                     {city.name}
                   </SelectItem>
@@ -607,7 +646,7 @@ export default function AdminListings() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                {[...categories].sort((a: any, b: any) => a.name.localeCompare(b.name)).map((category: any) => (
+                {[...categoryOptions].sort((a: any, b: any) => a.name.localeCompare(b.name)).map((category: any) => (
                   <SelectItem key={category.id} value={category.id}>
                     {category.name}
                   </SelectItem>

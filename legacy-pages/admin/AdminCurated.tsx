@@ -13,8 +13,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { TierBadge } from "@/components/admin/TierBadge";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchAdmin } from "@/lib/api/fetchAdmin";
 import { toast } from "sonner";
-import { getValidAccessToken } from "@/lib/authToken";
 
 type PageContext = "homepage" | "region" | "category" | "city";
 
@@ -38,22 +38,11 @@ async function callAdminCuratedAssignmentsApi(
   method: "POST" | "DELETE",
   payload: Record<string, unknown>,
 ) {
-  const accessToken = await getValidAccessToken();
-  const response = await fetch("/api/admin/curated-assignments", {
+  return fetchAdmin("/api/admin/curated-assignments", {
     method,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-
-  const data = (await response.json().catch(() => null)) as
-    | { ok?: boolean; error?: { message?: string } }
-    | null;
-  if (!response.ok || !data?.ok) {
-    throw new Error(data?.error?.message || "Failed to update curated assignments.");
-  }
 }
 
 export default function AdminCurated() {

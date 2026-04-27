@@ -31,7 +31,7 @@ import {
 import { DataTable, Column } from "@/components/admin/DataTable";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { toast } from "sonner";
-import { getValidAccessToken } from "@/lib/authToken";
+import { fetchAdmin } from "@/lib/api/fetchAdmin";
 
 type UserRole = "admin" | "editor" | "owner" | "viewer_logged";
 type AdminUser = {
@@ -106,20 +106,11 @@ export default function AdminUsers() {
   // Update role mutation
   const updateRoleMutation = useMutation({
     mutationFn: async ({ userId, role }: { userId: string; role: UserRole }) => {
-      const accessToken = await getValidAccessToken();
-      const response = await fetch(`/api/admin/users/${userId}`, {
+      return fetchAdmin(`/api/admin/users/${userId}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role }),
       });
-
-      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-      if (!response.ok) {
-        throw new Error(payload?.error || "Failed to update user role.");
-      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
@@ -145,24 +136,11 @@ export default function AdminUsers() {
       email: string;
       phone: string;
     }) => {
-      const accessToken = await getValidAccessToken();
-      const response = await fetch(`/api/admin/users/${userId}`, {
+      return fetchAdmin(`/api/admin/users/${userId}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          fullName,
-          email,
-          phone,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fullName, email, phone }),
       });
-
-      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-      if (!response.ok) {
-        throw new Error(payload?.error || "Failed to update user.");
-      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
@@ -177,20 +155,9 @@ export default function AdminUsers() {
 
   const deleteUserMutation = useMutation({
     mutationFn: async ({ userId }: { userId: string }) => {
-      const accessToken = await getValidAccessToken();
-      const response = await fetch(`/api/admin/users/${userId}`, {
+      return fetchAdmin(`/api/admin/users/${userId}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
       });
-
-      const payload = (await response.json().catch(() => null)) as { error?: string; warning?: string | null } | null;
-      if (!response.ok) {
-        throw new Error(payload?.error || "Failed to permanently delete user.");
-      }
-
-      return payload;
     },
     onSuccess: (payload) => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });

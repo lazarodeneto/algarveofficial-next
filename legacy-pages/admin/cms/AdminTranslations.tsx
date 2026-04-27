@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { invokeFunctionWithAuthRetry } from "@/lib/supabaseFunctionInvoke";
-import { getValidAccessToken } from "@/lib/authToken";
+import { fetchAdmin } from "@/lib/api/fetchAdmin";
 import {
   getSupabaseFunctionErrorMessage,
   isSupabaseFunctionAuthError,
@@ -313,30 +313,19 @@ export default function AdminTranslations() {
       data: Record<string, unknown>,
       keyCount: number,
     ) => {
-      const accessToken = await getValidAccessToken();
-      const response = await fetch("/api/admin/i18n/sync", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          locale: localeCode,
-          data,
-          keyCount,
-        }),
-      });
-
-      let payload: { error?: string; hint?: string } | null = null;
       try {
-        payload = (await response.json()) as { error?: string; hint?: string };
-      } catch {
-        payload = null;
-      }
-
-      if (!response.ok) {
-        const message = [payload?.error, payload?.hint].filter(Boolean).join(" ");
-        throw new Error(message || `Failed to persist locale ${localeCode}`);
+        await fetchAdmin("/api/admin/i18n/sync", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            locale: localeCode,
+            data,
+            keyCount,
+          }),
+        });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : `Failed to persist locale ${localeCode}`;
+        throw new Error(message);
       }
     },
     [],

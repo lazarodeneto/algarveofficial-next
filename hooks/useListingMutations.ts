@@ -56,8 +56,11 @@ interface ListingImageApiPayload {
 }
 
 function invalidateAdminListingQueries(queryClient: QueryClient) {
+  void queryClient.invalidateQueries({
+    queryKey: ["admin-all-listings"],
+    exact: false,
+  });
   void queryClient.invalidateQueries({ queryKey: ["admin-listings"] });
-  void queryClient.invalidateQueries({ queryKey: ["admin-all-listings"] });
   void queryClient.invalidateQueries({ queryKey: ["listing", "admin"] });
 }
 

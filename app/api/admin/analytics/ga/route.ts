@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import type { TimeRange } from "@/components/admin/analytics/TimeRangeSelector";
-import { requireAdminOrEditorReadClient } from "@/lib/server/admin-auth";
+import { requireAdminSession } from "@/lib/server/admin-auth";
 import {
   fetchGaTrafficOverview,
   parseGaPropertyIdFromDashboardUrl,
@@ -24,10 +24,7 @@ function normalizeOptional(raw: string | null): string | undefined {
 }
 
 export async function GET(request: NextRequest) {
-  const auth = await requireAdminOrEditorReadClient(
-    request,
-    "Only admins or editors can query analytics data.",
-  );
+  const auth = await requireAdminSession(request);
   if ("error" in auth) return auth.error;
 
   const timeRange = parseTimeRange(request.nextUrl.searchParams.get("timeRange"));
@@ -35,7 +32,7 @@ export async function GET(request: NextRequest) {
   const categorySlug = normalizeOptional(request.nextUrl.searchParams.get("categorySlug"));
 
   let propertyIdFromSettings: string | null = null;
-  const { data: siteSettings } = await auth.readClient
+  const { data: siteSettings } = await auth.userClient
     .from("site_settings")
     .select("ga_dashboard_url")
     .eq("id", "default")

@@ -3,7 +3,8 @@ import { z } from "zod";
 
 import type { Database } from "@/integrations/supabase/types";
 import { logAdminMutation } from "@/lib/server/admin-audit-log";
-import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
+import { adminErrorResponse, requireAdminSession, requireAdminWriteClient } from "@/lib/server/admin-auth";
+import { logAdminRequest, logAdminError, createRequestId } from "@/lib/server/observability";
 import { listingFormSchema } from "@/lib/forms/schema";
 import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
 
@@ -35,6 +36,51 @@ function parseListingImages(raw: unknown): ListingImageInput[] {
     });
   }
   return rows;
+}
+
+export async function GET(request: NextRequest) {
+  logAdminRequest(request);
+  const requestId = createRequestId();
+
+  const auth = await requireAdminSession(request);
+  if ("error" in auth) return auth.error;
+
+  const includeRefData = request.nextUrl.searchParams.get("include_ref_data") === "true";
+
+  if (includeRefData) {
+    const [{ data: cities, error: citiesErr }, { data: categories, error: catsErr }] = await Promise.all([
+      auth.userClient.from("cities").select("id, name").order("name"),
+      auth.userClient.from("categories").select("id, name").order("name"),
+    ]);
+
+    if (citiesErr || catsErr) {
+      const errMsg = citiesErr?.message || catsErr?.message || "Unknown error";
+      logAdminError("REF_DATA_FETCH_FAILED", errMsg, { requestId });
+      return NextResponse.json(
+        { ok: false, error: { message: errMsg, requestId } },
+        { status: 500 },
+      );
+    }
+    return NextResponse.json({ ok: true, data: [], cities, categories });
+  }
+
+  const { data, error } = await auth.userClient
+    .from("listings")
+    .select(`
+      id, name, tier, status, is_curated, description, slug, featured_rank,
+      city:cities(id, name),
+      category:categories(id, name),
+      region:regions(id, name)
+    `)
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false });
+
+  if (error) {
+    logAdminError("LISTINGS_FETCH_FAILED", error, { requestId });
+    return NextResponse.json({ ok: false, error: { message: error.message, requestId } }, { status: 500 });
+  }
+
+  return NextResponse.json({ ok: true, data });
 }
 
 export async function POST(request: NextRequest) {

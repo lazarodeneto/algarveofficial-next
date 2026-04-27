@@ -162,17 +162,19 @@ export default function AdminCategories() {
 
       const response = await fetch("/api/admin/upload-category-fallback", {
         method: "POST",
+        credentials: "include",
         body: formData,
       });
 
       const result = await response.json();
 
-      if (result.success) {
+      if (response.ok && result.ok) {
         setUploadSuccess(categoryId);
         queryClient.invalidateQueries({ queryKey: ["admin-categories"] });
         toast.success("Fallback image updated");
         setTimeout(() => setUploadSuccess(null), 2000);
       } else {
+        console.error("[admin:http]", JSON.stringify({ status: response.status, url: "/api/admin/upload-category-fallback" }));
         toast.error(result.error || "Upload failed");
       }
     } catch (error) {

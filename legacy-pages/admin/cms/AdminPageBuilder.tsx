@@ -21,6 +21,7 @@ import { Loader2, Plus, Save, Trash2, ExternalLink, Paintbrush, Video, ImageIcon
 import { toast } from "sonner";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchAdmin } from "@/lib/api/fetchAdmin";
 import {
   CMS_GLOBAL_SETTING_KEYS,
   CMS_PAGE_DEFINITIONS,
@@ -268,46 +269,17 @@ function AdminPageBuilderContent() {
     router.push(href);
   };
 
-  const getAdminAccessToken = async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    const accessToken = session?.access_token;
-    if (!accessToken) {
-      throw new Error("Missing authenticated session for CMS page-builder updates.");
-    }
-
-    return accessToken;
-  };
-
   const fetchGolfCmsConfig = async () => {
-    const accessToken = await getAdminAccessToken();
-    const response = await fetch(
-      `/api/admin/cms/page-config?page_id=golf&locale=${encodeURIComponent(locale)}`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const json = await fetchAdmin(
+      `/api/admin/cms/page-config?page_id=golf&locale=${encodeURIComponent(locale)}`
     );
-
-    const payload = (await response.json().catch(() => null)) as AdminCmsPageConfigResponse | null;
-    if (!response.ok || !payload?.ok || !payload.data) {
-      throw new Error(payload?.error?.message || "Failed to load Golf CMS page config.");
-    }
-
-    return payload.data;
+    return json.data;
   };
 
   const saveGolfDraft = async (content: CmsPageConfig) => {
-    const accessToken = await getAdminAccessToken();
-    const response = await fetch("/api/admin/cms/page-config", {
+    const json = await fetchAdmin("/api/admin/cms/page-config", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         action: "save_draft",
         page_id: "golf",
@@ -315,55 +287,27 @@ function AdminPageBuilderContent() {
         content,
       }),
     });
-
-    const payload = (await response.json().catch(() => null)) as AdminCmsPageConfigResponse | null;
-    if (!response.ok || !payload?.ok || !payload.data) {
-      throw new Error(payload?.error?.message || "Failed to save Golf CMS draft.");
-    }
-
-    return payload.data;
+    return json.data;
   };
 
   const publishGolf = async () => {
-    const accessToken = await getAdminAccessToken();
-    const response = await fetch("/api/admin/cms/page-config", {
+    const json = await fetchAdmin("/api/admin/cms/page-config", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         action: "publish",
         page_id: "golf",
         locale,
       }),
     });
-
-    const payload = (await response.json().catch(() => null)) as AdminCmsPageConfigResponse | null;
-    if (!response.ok || !payload?.ok || !payload.data) {
-      throw new Error(payload?.error?.message || "Failed to publish Golf CMS draft.");
-    }
-
-    return payload.data;
+    return json.data;
   };
 
   const openGolfPreview = async () => {
-    const accessToken = await getAdminAccessToken();
-    const response = await fetch(
-      `/api/admin/cms/preview-url?path=${encodeURIComponent("/golf")}&locale=${encodeURIComponent(locale)}`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+    const json = await fetchAdmin(
+      `/api/admin/cms/preview-url?path=${encodeURIComponent("/golf")}&locale=${encodeURIComponent(locale)}`
     );
-
-    const payload = (await response.json().catch(() => null)) as AdminCmsPreviewResponse | null;
-    if (!response.ok || !payload?.ok || !payload.data?.url) {
-      throw new Error(payload?.error?.message || "Failed to generate Golf preview URL.");
-    }
-
-    window.open(payload.data.url, "_blank", "noopener,noreferrer");
+    window.open(json.data.url, "_blank", "noopener,noreferrer");
   };
 
   const settingMap = useMemo(() => {

@@ -114,39 +114,13 @@ async function requireRoleBase(
   } satisfies AdminBaseAuth;
 }
 
-export async function requireAdminReadClient(
-  request: NextRequest,
-  forbiddenMessage = "Only admins can perform this action.",
-): Promise<AdminReadAuth | AdminAuthError> {
-  const base = await requireAdminBase(request, forbiddenMessage);
-  if ("error" in base) return { error: base.error };
-
-  return {
-    userId: base.userId,
-    readClient: base.userClient,
-  } satisfies AdminReadAuth;
-}
-
-export async function requireAdminOrEditorReadClient(
-  request: NextRequest,
-  forbiddenMessage = "Only admins or editors can perform this action.",
-): Promise<AdminReadAuth | AdminAuthError> {
-  const base = await requireRoleBase(request, forbiddenMessage, ["admin", "editor"]);
-  if ("error" in base) return { error: base.error };
-
-  return {
-    userId: base.userId,
-    readClient: base.userClient,
-  } satisfies AdminReadAuth;
-}
-
 export async function requireAdminWriteClient(
   request: NextRequest,
   forbiddenMessage = "Only admins can perform this action.",
   options?: AdminWriteClientOptions,
 ): Promise<AdminWriteAuth | AdminAuthError> {
-  const base = await requireAdminBase(request, forbiddenMessage);
-  if ("error" in base) return { error: base.error };
+  const cookieAuth = await requireAdminSession(request);
+  if ("error" in cookieAuth) return cookieAuth;
 
   const serviceClient = createServiceRoleClient();
   if (options?.requireServiceRole && !serviceClient) {
@@ -171,7 +145,7 @@ export async function requireAdminWriteClient(
   }
 
   logAdminMutation({
-    userId: base.userId,
+    userId: cookieAuth.userId,
     action,
     payload: {
       requiresServiceRole: options?.requireServiceRole === true,
@@ -180,8 +154,63 @@ export async function requireAdminWriteClient(
   });
 
   return {
-    userId: base.userId,
-    userClient: base.userClient,
-    writeClient: (serviceClient ?? base.userClient) as SupabaseClient<Database>,
-  } satisfies AdminWriteAuth;
+    userId: cookieAuth.userId,
+    userClient: cookieAuth.userClient,
+    writeClient: (serviceClient ?? cookieAuth.userClient) as SupabaseClient<Database>,
+  };
+}
+
+export async function requireAdminSession(
+  request: NextRequest,
+): Promise<AdminBaseAuth | AdminAuthError> {
+  const { url, anonKey } = getSupabasePublicEnv();
+  const { createServerClient } = await import("@supabase/ssr");
+  const { cookies } = await import("next/headers");
+
+  const cookieStore = await cookies();
+  const supabase = createServerClient(url, anonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll() {
+      },
+    },
+  });
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return {
+      error: adminErrorResponse(401, "AUTH_UNAUTHORIZED", "Unauthorized."),
+    };
+  }
+
+  const { data: role, error: roleError } = await supabase.rpc("get_user_role", {
+    _user_id: user.id,
+  });
+
+  if (roleError) {
+    return {
+      error: adminErrorResponse(
+        403,
+        "AUTH_ROLE_CHECK_FAILED",
+        roleError.message || "Failed to verify user role.",
+      ),
+    };
+  }
+
+  if (role !== "admin" && role !== "editor") {
+    return {
+      error: adminErrorResponse(403, "AUTH_FORBIDDEN", "Only admins or editors can access this resource."),
+    };
+  }
+
+  return {
+    userId: user.id,
+    userClient: supabase,
+  };
 }

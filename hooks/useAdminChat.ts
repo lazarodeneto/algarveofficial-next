@@ -1,10 +1,8 @@
 "use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { normalizeThreadStatus, type ThreadStatus } from "@/lib/chatThreadStatus";
-import { invokeFunctionWithAuthRetry } from "@/lib/supabaseFunctionInvoke";
-import { getSupabaseFunctionErrorMessage } from "@/lib/supabaseFunctionError";
 
 export interface ChatThread {
   id: string;
@@ -42,142 +40,104 @@ interface ThreadFilters {
   search?: string;
 }
 
-type UntypedRpcResult<T = unknown> = Promise<{ data: T | null; error: unknown }>;
-
-const callUntypedRpc = <T = unknown>(fn: string, args?: Record<string, unknown>) =>
-  (supabase.rpc as unknown as (fn: string, args?: Record<string, unknown>) => UntypedRpcResult<T>)(fn, args);
-
 /**
- * Hook to fetch admin chat threads
- * Realtime invalidation for thread list is handled by InboxRealtimeProvider
+ * Hook to fetch admin chat threads.
+ * SECURITY: This hook MUST use API route /api/admin/chat/threads.
+ * Do NOT use Supabase client here.
  */
 export function useAdminChatThreads(filters: ThreadFilters = {}) {
+  const { user, isLoading: authLoading } = useAuth();
+
   return useQuery({
-    queryKey: ["admin-chat-threads", filters],
+    queryKey: ["admin-chat-threads", user?.id, filters],
+    enabled: !!user && !authLoading,
     queryFn: async () => {
-      let query = supabase
-        .from("chat_threads")
-        .select("*")
-        .order("last_message_at", { ascending: false, nullsFirst: false });
+      const params = new URLSearchParams();
+      if (filters.status && filters.status !== "all") params.set("status", filters.status);
+      if (filters.ownerId) params.set("ownerId", filters.ownerId);
+      if (filters.dateFrom) params.set("dateFrom", filters.dateFrom.toISOString());
+      if (filters.dateTo) params.set("dateTo", filters.dateTo.toISOString());
 
-      if (filters.status && filters.status !== "all") {
-        query = query.eq("status", filters.status);
-      }
-
-      if (filters.ownerId) {
-        query = query.eq("owner_id", filters.ownerId);
-      }
-
-      if (filters.dateFrom) {
-        query = query.gte("created_at", filters.dateFrom.toISOString());
-      }
-
-      if (filters.dateTo) {
-        const endOfDay = new Date(filters.dateTo);
-        endOfDay.setHours(23, 59, 59, 999);
-        query = query.lte("created_at", endOfDay.toISOString());
-      }
-
-      const { data: threads, error } = await query;
-      if (error) throw error;
-      if (!threads || threads.length === 0) return [] as ChatThread[];
-
-      const viewerIds = [...new Set(threads.map((t) => t.viewer_id).filter((id): id is string => Boolean(id)))];
-      const ownerIds = [...new Set(threads.map((t) => t.owner_id).filter((id): id is string => Boolean(id)))];
-      const listingIds = [...new Set(threads.map((t) => t.listing_id).filter((id): id is string => Boolean(id)))];
-      const threadIds = threads.map((t) => t.id);
-
-      // Fetch related data in parallel (safe fields only)
-      const [viewersResult, ownersResult, listingsResult, messagesResult] = await Promise.all([
-        supabase.from("profiles").select("id, full_name").in("id", viewerIds),
-        supabase.from("profiles").select("id, full_name").in("id", ownerIds),
-        supabase.from("listings").select("id, name, slug").in("id", listingIds),
-        supabase.from("chat_messages").select("thread_id").in("thread_id", threadIds),
-      ]);
-
-      const viewerMap = new Map(viewersResult.data?.map((v) => [v.id, v]) || []);
-      const ownerMap = new Map(ownersResult.data?.map((o) => [o.id, o]) || []);
-      const listingMap = new Map(listingsResult.data?.map((l) => [l.id, l]) || []);
-
-      const messageCountMap = new Map<string, number>();
-      messagesResult.data?.forEach((m) => {
-        messageCountMap.set(m.thread_id, (messageCountMap.get(m.thread_id) || 0) + 1);
+      const res = await fetch(`/api/admin/chat/threads?${params}`, {
+        method: "GET",
+        credentials: "include",
       });
-
-      return threads.map((thread) => ({
-        ...thread,
-        status: normalizeThreadStatus(thread.status),
-        viewer: thread.viewer_id ? viewerMap.get(thread.viewer_id) : undefined,
-        owner: ownerMap.get(thread.owner_id),
-        listing: thread.listing_id ? listingMap.get(thread.listing_id) : undefined,
-        message_count: messageCountMap.get(thread.id) ?? 0,
-      })) as ChatThread[];
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error);
+      return (json.threads ?? []) as ChatThread[];
     },
   });
 }
 
 /**
- * Hook to fetch messages for a specific thread (admin view)
- * No Realtime subscription - uses polling via useAdminMessagePolling in AdminLayout
+ * Hook to fetch messages for a specific thread (admin view).
+ * SECURITY: This hook MUST use API route.
  */
 export function useAdminChatMessages(threadId: string | null) {
+  const { user, isLoading: authLoading } = useAuth();
+
   return useQuery({
-    queryKey: ["admin-chat-messages", threadId],
+    queryKey: ["admin-chat-messages", user?.id, threadId],
+    enabled: !!user && !authLoading && !!threadId,
     queryFn: async () => {
-      if (!threadId) return [];
-
-      const { data, error } = await supabase
-        .from("chat_messages")
-        .select("*")
-        .eq("thread_id", threadId)
-        .order("created_at", { ascending: true });
-
-      if (error) throw error;
-      return data as ChatMessage[];
+      const res = await fetch(`/api/admin/chat/threads?threadId=${threadId}`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error);
+      return (json.data ?? []) as ChatMessage[];
     },
-    enabled: !!threadId,
     staleTime: 5_000,
   });
 }
 
+/**
+ * Hook to fetch list of owners who have chat threads.
+ * SECURITY: This hook MUST use API route.
+ */
 export function useAdminOwners() {
+  const { user, isLoading: authLoading } = useAuth();
+
   return useQuery({
-    queryKey: ["admin-owners-list"],
+    queryKey: ["admin-owners-list", user?.id],
+    enabled: !!user && !authLoading,
     queryFn: async () => {
-      const { data: threads, error: threadsError } = await supabase.from("chat_threads").select("owner_id");
-
-      if (threadsError) throw threadsError;
-
-      const ownerIds = [...new Set(threads?.map((t) => t.owner_id) || [])];
-      if (ownerIds.length === 0) return [];
-
-      const { data: profiles, error: profilesError } = await supabase
-        .from("profiles")
-        .select("id, full_name")
-        .in("id", ownerIds);
-
-      if (profilesError) throw profilesError;
-      return profiles || [];
+      const res = await fetch("/api/admin/chat/threads/owners", {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      if (!json.ok) return [];
+      return json.data ?? [];
     },
     staleTime: 60_000,
   });
 }
 
 export function useUpdateThreadStatus() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ threadId, status }: { threadId: string; status: ThreadStatus }) => {
-      const { error } = await supabase.from("chat_threads").update({ status }).eq("id", threadId);
-      if (error) throw error;
+      const res = await fetch("/api/admin/chat/threads", {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ threadId, status }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed to update thread");
       return { threadId, status };
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["admin-chat-threads"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-chat-messages", variables.threadId] });
-      queryClient.invalidateQueries({ queryKey: ["admin-messages", "unread-count"] });
-      queryClient.invalidateQueries({ queryKey: ["user-chat-threads"] });
-      queryClient.invalidateQueries({ queryKey: ["owner-chat-threads"] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-chat-threads", user?.id], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["admin-chat-messages", user?.id], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["admin-messages", "unread-count"], exact: false });
       toast.success("Thread status updated");
     },
     onError: (error) => {
@@ -188,32 +148,25 @@ export function useUpdateThreadStatus() {
 }
 
 export function useAdminSendMessage() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ threadId, messageText }: { threadId: string; messageText: string }) => {
-      const { data, error } = await invokeFunctionWithAuthRetry("whatsapp-send", {
-        body: {
-          thread_id: threadId,
-          message_text: messageText,
-        },
+      const res = await fetch("/api/admin/chat/message", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ threadId, messageText }),
       });
-
-      if (error) {
-        throw new Error(await getSupabaseFunctionErrorMessage(error, "Failed to send message"));
-      }
-
-      return data;
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed to send message");
+      return json.data;
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["admin-chat-messages", variables.threadId] });
-      queryClient.invalidateQueries({ queryKey: ["admin-chat-threads"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-messages", "unread-count"] });
-      queryClient.invalidateQueries({ queryKey: ["chat-messages", variables.threadId] });
-      queryClient.invalidateQueries({ queryKey: ["user-chat-threads"] });
-      queryClient.invalidateQueries({ queryKey: ["owner-chat-threads"] });
-      queryClient.invalidateQueries({ queryKey: ["user-messages", "unread-count"] });
-      queryClient.invalidateQueries({ queryKey: ["owner-messages", "unread-count"] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-chat-messages", user?.id], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["admin-chat-threads", user?.id], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["admin-messages", "unread-count"], exact: false });
       toast.success("Message sent");
     },
     onError: (error) => {
@@ -224,47 +177,43 @@ export function useAdminSendMessage() {
 }
 
 export function useMarkThreadAsRead() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
     onMutate: async () => {
       const unreadKey = ["admin-messages", "unread-count"] as const;
       const previousUnreadCount = queryClient.getQueryData<number>(unreadKey);
-
       if (previousUnreadCount && previousUnreadCount > 0) {
         queryClient.setQueryData(unreadKey, previousUnreadCount - 1);
       }
-
       return { previousUnreadCount };
     },
     mutationFn: async (threadId: string) => {
-      const { error } = await supabase
-        .from("chat_messages")
-        .update({ delivery_status: "read" })
-        .eq("thread_id", threadId)
-        .neq("sender_type", "admin")
-        .neq("delivery_status", "read");
-
-      if (error) throw error;
+      const res = await fetch("/api/admin/chat/read", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ threadId }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed");
     },
     onError: (_, __, context) => {
       if (context?.previousUnreadCount !== undefined) {
         queryClient.setQueryData(["admin-messages", "unread-count"], context.previousUnreadCount);
       }
     },
-    onSuccess: (_, threadId) => {
-      queryClient.invalidateQueries({ queryKey: ["admin-chat-messages", threadId] });
-      queryClient.invalidateQueries({ queryKey: ["admin-chat-threads"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-messages", "unread-count"] });
-      queryClient.invalidateQueries({ queryKey: ["user-chat-threads"] });
-      queryClient.invalidateQueries({ queryKey: ["owner-chat-threads"] });
-      queryClient.invalidateQueries({ queryKey: ["user-messages", "unread-count"] });
-      queryClient.invalidateQueries({ queryKey: ["owner-messages", "unread-count"] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-chat-messages", user?.id], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["admin-chat-threads", user?.id], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["admin-messages", "unread-count"], exact: false });
     },
   });
 }
 
 export function useMarkThreadsAsRead() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -275,50 +224,49 @@ export function useMarkThreadsAsRead() {
       return { previousUnreadCount };
     },
     mutationFn: async (threadIds: string[]) => {
-      const uniqueThreadIds = Array.from(new Set(threadIds.filter(Boolean)));
-      if (uniqueThreadIds.length === 0) return;
-
-      const { error } = await supabase
-        .from("chat_messages")
-        .update({ delivery_status: "read" })
-        .in("thread_id", uniqueThreadIds)
-        .neq("sender_type", "admin")
-        .neq("delivery_status", "read");
-
-      if (error) throw error;
+      const unique = Array.from(new Set(threadIds.filter(Boolean)));
+      if (unique.length === 0) return;
+      const res = await fetch("/api/admin/chat/read", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ threadIds: unique }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed");
     },
     onError: (_, __, context) => {
       if (context?.previousUnreadCount !== undefined) {
         queryClient.setQueryData(["admin-messages", "unread-count"], context.previousUnreadCount);
       }
     },
-    onSuccess: (_, threadIds) => {
-      queryClient.invalidateQueries({ queryKey: ["admin-chat-threads"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-chat-messages"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-messages", "unread-count"] });
-      threadIds.forEach((threadId) => {
-        queryClient.invalidateQueries({ queryKey: ["admin-chat-messages", threadId] });
-      });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-chat-threads", user?.id], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["admin-chat-messages", user?.id], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["admin-messages", "unread-count"], exact: false });
     },
   });
 }
 
 export function useDeleteThread() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (threadId: string) => {
-      const { error } = await callUntypedRpc("admin_delete_chat_thread", { p_thread_id: threadId });
-      if (error) throw error;
+      const res = await fetch("/api/admin/chat/threads", {
+        method: "DELETE",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ threadId }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed to delete thread");
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-chat-threads"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-chat-messages"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-messages", "unread-count"] });
-      queryClient.invalidateQueries({ queryKey: ["user-chat-threads"] });
-      queryClient.invalidateQueries({ queryKey: ["owner-chat-threads"] });
-      queryClient.invalidateQueries({ queryKey: ["user-messages", "unread-count"] });
-      queryClient.invalidateQueries({ queryKey: ["owner-messages", "unread-count"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-chat-threads", user?.id], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["admin-chat-messages", user?.id], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["admin-messages", "unread-count"], exact: false });
       toast.success("Thread deleted");
     },
     onError: (error) => {
@@ -329,22 +277,24 @@ export function useDeleteThread() {
 }
 
 export function useDeleteChatMessage() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ messageId, threadId }: { messageId: string; threadId: string }) => {
-      const { error } = await callUntypedRpc("admin_delete_chat_message", { p_message_id: messageId });
-      if (error) throw error;
-      return threadId;
+    mutationFn: async ({ messageId }: { messageId: string }) => {
+      const res = await fetch("/api/admin/chat/message", {
+        method: "DELETE",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messageId }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed to delete message");
     },
-    onSuccess: (threadId) => {
-      queryClient.invalidateQueries({ queryKey: ["admin-chat-messages", threadId] });
-      queryClient.invalidateQueries({ queryKey: ["admin-chat-threads"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-messages", "unread-count"] });
-      queryClient.invalidateQueries({ queryKey: ["user-chat-threads"] });
-      queryClient.invalidateQueries({ queryKey: ["owner-chat-threads"] });
-      queryClient.invalidateQueries({ queryKey: ["user-messages", "unread-count"] });
-      queryClient.invalidateQueries({ queryKey: ["owner-messages", "unread-count"] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-chat-messages", user?.id], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["admin-chat-threads", user?.id], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["admin-messages", "unread-count"], exact: false });
       toast.success("Message deleted");
     },
     onError: (error) => {
