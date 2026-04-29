@@ -1,5 +1,5 @@
 export interface HomeQuickLinkCardDefinition {
-  id: "stay" | "see-do" | "restaurants" | "real-estate";
+  id: "stay" | "see-do" | "events" | "real-estate";
   title: string;
   translationKey: string;
   imageSettingKey: string;
@@ -36,15 +36,15 @@ export const HOME_QUICK_LINK_CARDS: HomeQuickLinkCardDefinition[] = [
     customHref: "/directory?category=places-to-stay",
   },
   {
-    id: "restaurants",
-    title: "Eat",
-    translationKey: "categoryNames.restaurants",
-    imageSettingKey: "home_card_whats_on_image",
-    videoSettingKey: "home_card_whats_on_video",
-    categorySlug: "restaurants",
+    id: "events",
+    title: "Events",
+    translationKey: "nav.events",
+    imageSettingKey: "home_card_events_image",
+    videoSettingKey: "home_card_events_video",
+    categorySlug: "events",
     fallbackImageUrl: "/home-quick-links/whats-on.svg",
     imagePosition: "center",
-    customHref: "/directory?category=restaurants",
+    customHref: "/events",
   },
   {
     id: "real-estate",

@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState, type ComponentProps } from "react";
 import NextLink from "next/link";
 import Image from "next/image";
-import { ArrowRight, BedSingle, Binoculars, Building2, LucideIcon, UtensilsCrossed } from "lucide-react";
+import { ArrowRight, BedSingle, Binoculars, Building2, CalendarDays, LucideIcon } from "lucide-react";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import {
@@ -14,10 +14,10 @@ function Link(props: ComponentProps<typeof NextLink>) {
   return <NextLink prefetch={false} {...props} />;
 }
 
-const CARD_ICONS: Record<"stay" | "see-do" | "restaurants" | "real-estate", LucideIcon> = {
+const CARD_ICONS: Record<"stay" | "see-do" | "events" | "real-estate", LucideIcon> = {
   "see-do": Binoculars,
   stay: BedSingle,
-  restaurants: UtensilsCrossed,
+  events: CalendarDays,
   "real-estate": Building2,
 };
 
