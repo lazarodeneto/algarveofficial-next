@@ -82,7 +82,7 @@ export function SignatureMapSection() {
           </Link>
         </div>
 
-        <div className="overflow-hidden rounded-[1.75rem] bg-black shadow-[0_30px_90px_-54px_rgba(0,0,0,0.95)]">
+        <div className="overflow-hidden rounded-[1.75rem] bg-black shadow-elevated">
           {isLoading ? (
             <div className="flex h-[420px] items-center justify-center bg-muted/30">
               <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">

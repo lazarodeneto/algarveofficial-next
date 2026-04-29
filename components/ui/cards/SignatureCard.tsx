@@ -117,7 +117,7 @@ export function SignatureCard({
   );
 
   const className = cn(
-    "group relative isolate block h-full min-h-[240px] overflow-hidden rounded-2xl bg-black shadow-card transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-card-hover",
+    "group relative isolate block h-full min-h-[240px] overflow-hidden rounded-2xl bg-black shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
     classNameProp
   );
 

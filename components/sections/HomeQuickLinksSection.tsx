@@ -120,7 +120,7 @@ export function HomeQuickLinksSection() {
               <Link
                 key={card.id}
                 href={card.customHref ? l(card.customHref) : l(`/stay?category=${card.categorySlug}`)}
-                className="group relative isolate h-64 overflow-hidden rounded-2xl bg-black font-sans shadow-[0_24px_74px_-46px_rgba(0,0,0,0.86)] transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-[0_28px_82px_-48px_rgba(0,0,0,0.95)]"
+                className="group relative isolate h-64 overflow-hidden rounded-2xl bg-black font-sans shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                     {showVideo ? (
                       <video

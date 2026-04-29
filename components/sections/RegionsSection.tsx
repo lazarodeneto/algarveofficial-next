@@ -53,7 +53,7 @@ function EditorialRegionCard({
       prefetch={false}
       href={href}
       className={cn(
-        "group relative isolate block h-full min-h-[240px] overflow-hidden rounded-2xl bg-black shadow-[0_22px_70px_-46px_rgba(0,0,0,0.85)] transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-[0_28px_82px_-48px_rgba(0,0,0,0.95)]",
+        "group relative isolate block h-full min-h-[240px] overflow-hidden rounded-2xl bg-black shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
         isHero ? "lg:col-span-2 lg:row-span-2" : ""
       )}
     >

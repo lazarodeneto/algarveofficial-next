@@ -24,8 +24,9 @@ export function UtilityCard({
   return (
     <article
       className={cn(
-        "rounded-2xl border p-6 transition duration-200",
-        "hover:-translate-y-0.5 hover:shadow-md",
+        "rounded-2xl border p-6 transition-all duration-200 ease-out",
+        "hover:-translate-y-0.5 hover:shadow-card-hover",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
         utilityVariants[variant],
         className
       )}
