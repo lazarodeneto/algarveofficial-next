@@ -48,6 +48,12 @@ vi.mock("react-i18next", () => ({
       if (key === "categoryNames.whats-on") {
         return "Wat Er te Doen Is";
       }
+      if (key === "categoryNames.restaurants") {
+        return "Restaurants / Ervaringen";
+      }
+      if (key === "categoryNames.real-estate") {
+        return "Vastgoed";
+      }
 
       return fallback ?? key;
     },
@@ -70,10 +76,10 @@ describe("HomeQuickLinksSection", () => {
     });
   });
 
-  it("renders all three cards with themed fallback artwork when no custom images are set", () => {
+  it("renders all four cards with themed fallback artwork when no custom images are set", () => {
     render(<HomeQuickLinksSection />);
 
-    expect(screen.getAllByRole("link")).toHaveLength(3);
+    expect(screen.getAllByRole("link")).toHaveLength(4);
     expect(screen.getByAltText("Things to Do")).toHaveAttribute(
       "src",
       "/home-quick-links/things-to-do.svg",
@@ -82,9 +88,13 @@ describe("HomeQuickLinksSection", () => {
       "src",
       "/home-quick-links/places-to-stay.svg",
     );
-    expect(screen.getByAltText("Wat Er te Doen Is")).toHaveAttribute(
+    expect(screen.getByAltText("Restaurants / Ervaringen")).toHaveAttribute(
       "src",
       "/home-quick-links/whats-on.svg",
+    );
+    expect(screen.getByAltText("Vastgoed")).toHaveAttribute(
+      "src",
+      "/home-quick-links/places-to-stay.svg",
     );
   });
 
@@ -102,12 +112,12 @@ describe("HomeQuickLinksSection", () => {
 
     render(<HomeQuickLinksSection />);
 
-    const whatsOnImage = screen.getByAltText("Wat Er te Doen Is");
+    const whatsOnImage = screen.getByAltText("Restaurants / Ervaringen");
     expect(whatsOnImage).toHaveAttribute("src", "https://images.example.com/broken-whats-on.jpg");
 
     fireEvent.error(whatsOnImage);
 
-    expect(screen.getByAltText("Wat Er te Doen Is")).toHaveAttribute(
+    expect(screen.getByAltText("Restaurants / Ervaringen")).toHaveAttribute(
       "src",
       "/home-quick-links/whats-on.svg",
     );
@@ -137,7 +147,7 @@ describe("HomeQuickLinksSection", () => {
 
     fireEvent.error(video!);
 
-    expect(screen.getByAltText("Wat Er te Doen Is")).toHaveAttribute(
+    expect(screen.getByAltText("Restaurants / Ervaringen")).toHaveAttribute(
       "src",
       "https://images.example.com/custom-whats-on.jpg",
     );
@@ -146,7 +156,7 @@ describe("HomeQuickLinksSection", () => {
   it("reserves room for wrapped localized titles", () => {
     render(<HomeQuickLinksSection />);
 
-    const wrappedTitle = screen.getByRole("heading", { name: "Wat Er te Doen Is" });
+    const wrappedTitle = screen.getByRole("heading", { name: "Restaurants / Ervaringen" });
 
     expect(wrappedTitle.className).toContain("text-balance");
     expect(wrappedTitle.className).toContain("sm:min-h-[3.5rem]");

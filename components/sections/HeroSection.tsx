@@ -20,6 +20,12 @@ import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { buildSupabaseImageUrl } from "@/lib/imageUrls";
 import { STANDARD_PUBLIC_HERO_SURFACE_CLASS, STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 
+const HOMEPAGE_H1 = "Discover the Algarve – Hotels, Restaurants, Experiences & Real Estate";
+const HOMEPAGE_SUBTITLE =
+  "A curated selection of the region’s finest hotels, restaurants, experiences and properties.";
+const HOMEPAGE_PRIMARY_CTA = "Explore Signature Collection";
+const HOMEPAGE_SECONDARY_CTA = "Browse All Listings";
+
 const parseYouTubeTimeToSeconds = (value: string | null): number | null => {
   if (!value) return null;
   const normalized = value.trim().toLowerCase();
@@ -323,6 +329,7 @@ export function HeroSection() {
   // CMS SOURCE OF TRUTH: 1. cms_page_configs_v1 (getText), 2. homepage_settings (fallback)
   const heroHeadline =
     getText("home.hero.title", "") ||
+    HOMEPAGE_H1 ||
     (locale === "en" ? settings?.hero_title?.trim() : null) ||
     localizedHeroHeadline;
   const heroHeadlineLines = useMemo(() => {
@@ -334,11 +341,13 @@ export function HeroSection() {
   }, [heroHeadline]);
   const heroSubtitle =
     getText("home.hero.subtitle", "") ||
+    HOMEPAGE_SUBTITLE ||
     (locale === "en" ? settings?.hero_subtitle?.trim() : null) ||
     localizedHeroSubtitle;
   const localizedTripPlannerButtonLabel = t("hero.planTripCta");
-  const tripPlannerButtonLabel =
+  const primaryCtaLabel =
     getText("home.hero.cta.primary", "") ||
+    HOMEPAGE_PRIMARY_CTA ||
     (locale === "en" ? settings?.hero_cta_primary_text?.trim() : null) ||
     localizedTripPlannerButtonLabel;
   // ... inside the component function ...
@@ -421,12 +430,19 @@ export function HeroSection() {
             <div className="flex flex-col items-center gap-3 sm:gap-3.5 w-full max-w-[22rem] sm:max-w-2xl mx-auto px-0">
               <button
                 type="button"
-                onClick={openTripPlanner}
+                onClick={() => scrollToSection("signature-collection")}
                 className="group inline-flex w-full max-w-[17.5rem] items-center justify-center gap-2 rounded-[16px] px-6 py-3.5 text-[1.05rem] font-semibold text-black shadow-[0_16px_28px_-18px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.6)] transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary))] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
                 style={{ backgroundImage: "var(--gradient-gold)" }}
               >
-                <span>{tripPlannerButtonLabel}</span>
+                <span>{primaryCtaLabel}</span>
                 <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push(l("/directory"))}
+                className="inline-flex w-full max-w-[17.5rem] items-center justify-center rounded-[16px] border border-white/40 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+              >
+                {getText("home.hero.cta.secondary", "") || HOMEPAGE_SECONDARY_CTA}
               </button>
             </div>
           </div>
@@ -447,7 +463,7 @@ export function HeroSection() {
         {/* Scroll Indicator - keep above overlapping quick-links cards */}
         <div className="pointer-events-none absolute bottom-8 right-8 hidden z-30 lg:flex">
           <button
-            onClick={() => scrollToSection("all-premium-listings")}
+            onClick={() => scrollToSection("signature-collection")}
             aria-label={t("hero.scroll")}
             className="pointer-events-auto flex flex-col items-end gap-2 text-white/70 transition-colors cursor-pointer animate-bounce hover:text-white"
           >

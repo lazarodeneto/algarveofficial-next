@@ -14,9 +14,9 @@ interface PageProps {
 
 const HOME_METADATA: Record<Locale, { title: string; description: string }> = {
   en: {
-    title: "AlgarveOfficial | Luxury Villas, Golf & Restaurants",
+    title: "Discover the Algarve’s Best Places to Stay, Eat and Invest",
     description:
-      "Discover the Algarve's finest villas, restaurants and golf courses — curated by experts who know every corner of Portugal's most prestigious coast.",
+      "A curated selection of the region's finest hotels, restaurants, experiences and properties, with full directory search across the Algarve.",
   },
   "pt-pt": {
     title: "AlgarveOfficial | Villas de Luxo, Golfe e Restaurantes",

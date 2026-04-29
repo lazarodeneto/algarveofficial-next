@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState, type ComponentProps } from "react";
 import NextLink from "next/link";
 import Image from "next/image";
-import { BedSingle, Binoculars, CalendarDays, LucideIcon } from "lucide-react";
+import { BedSingle, Binoculars, Building2, LucideIcon, UtensilsCrossed } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 import { useLocalePath } from "@/hooks/useLocalePath";
@@ -15,10 +15,11 @@ function Link(props: ComponentProps<typeof NextLink>) {
   return <NextLink prefetch={false} {...props} />;
 }
 
-const CARD_ICONS: Record<"stay" | "see-do" | "whats-on", LucideIcon> = {
+const CARD_ICONS: Record<"stay" | "see-do" | "restaurants" | "real-estate", LucideIcon> = {
   "see-do": Binoculars,
   stay: BedSingle,
-  "whats-on": CalendarDays,
+  restaurants: UtensilsCrossed,
+  "real-estate": Building2,
 };
 
 export function HomeQuickLinksSection() {
@@ -66,7 +67,7 @@ export function HomeQuickLinksSection() {
     return (
       <section id="home-quick-links" className="relative z-20 -mt-2 pb-4 sm:-mt-14 sm:pb-5 lg:-mt-20 lg:pb-7" aria-hidden="true">
         <div className="app-container">
-          <div className="mx-auto flex w-full flex-col gap-4 px-1 pb-2 sm:grid sm:max-w-[780px] sm:grid-cols-2 sm:justify-items-center sm:gap-4 sm:px-0 md:grid-cols-3 min-[940px]:grid-cols-3">
+          <div className="mx-auto flex w-full flex-col gap-4 px-1 pb-2 sm:grid sm:max-w-[1040px] sm:grid-cols-2 sm:justify-items-center sm:gap-4 sm:px-0 lg:grid-cols-4">
             {HOME_QUICK_LINK_CARDS.map((card) => (
               <div
                 key={card.id}
@@ -93,7 +94,7 @@ export function HomeQuickLinksSection() {
   return (
     <section id="home-quick-links" className="relative z-20 -mt-2 pb-4 sm:-mt-14 sm:pb-5 lg:-mt-20 lg:pb-7">
       <div className="app-container">
-        <div className="mx-auto flex w-full flex-col gap-4 px-1 pb-2 sm:grid sm:max-w-[780px] sm:grid-cols-2 sm:justify-items-center sm:gap-4 sm:px-0 md:grid-cols-3 min-[940px]:grid-cols-3">
+        <div className="mx-auto flex w-full flex-col gap-4 px-1 pb-2 sm:grid sm:max-w-[1040px] sm:grid-cols-2 sm:justify-items-center sm:gap-4 sm:px-0 lg:grid-cols-4">
           {quickLinkCards.map((card) => {
             const Icon = CARD_ICONS[card.id];
             const displayTitle = t(card.translationKey, card.title);

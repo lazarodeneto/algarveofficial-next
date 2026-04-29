@@ -66,7 +66,7 @@ export function CitiesSection() {
     listings: cityListings,
     manualCityIds: validCityIds,
   });
-  const citiesToRender = placementResults.map((result) => result.item);
+  const citiesToRender = placementResults.map((result) => result.item).slice(0, 8);
 
   useEffect(() => {
     void trackBlockImpression({
@@ -96,10 +96,10 @@ export function CitiesSection() {
             {t("sections.cities.label")}
           </span>
           <h2 className="mt-4 text-title font-serif font-medium text-foreground">
-            {t("sections.cities.title")}
+            Explore the Algarve by City
           </h2>
           <p className="mt-4 text-body text-muted-foreground max-w-2xl mx-auto">
-            {t("sections.cities.subtitle")}
+            Explore the Algarve by city, from Lagos to Tavira, including beaches, restaurants and premium experiences.
           </p>
         </m.div>
 
@@ -155,9 +155,9 @@ export function CitiesSection() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-12 text-center"
         >
-          <Link href={l("/stay")}>
+          <Link href={l("/visit")}>
             <Button variant="luxury" size="lg">
-              {t("sections.cities.viewAll")}
+              View All Cities
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>

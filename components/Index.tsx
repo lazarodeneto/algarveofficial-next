@@ -4,6 +4,8 @@ import { useMemo, type ComponentType } from "react";
 import dynamic from "next/dynamic";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { DirectorySplitSection } from "@/components/sections/DirectorySplitSection";
+import { HomepageSignatureCollection } from "@/components/sections/HomepageSignatureCollection";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { HomeQuickLinksSection } from "@/components/sections/HomeQuickLinksSection";
 import { useHomepageSettings } from "@/hooks/useHomepageSettings";
@@ -29,29 +31,6 @@ function VipSectionFallback() {
           ))}
         </div>
         <div className="h-[460px] rounded-2xl border border-border/50 bg-muted/35 animate-pulse" />
-      </div>
-    </div>
-  );
-}
-
-function AllListingsSectionFallback() {
-  return (
-    <div className="bg-background py-12 sm:py-16 lg:py-20" aria-hidden="true">
-      <div className="app-container content-max">
-        <div className="mb-10 text-center sm:mb-12">
-          <div className="mx-auto mb-4 h-10 w-72 rounded-md bg-muted/35 animate-pulse" />
-          <div className="mx-auto h-5 w-[28rem] max-w-full rounded-md bg-muted/35 animate-pulse" />
-        </div>
-        <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-4">
-          <div className="h-10 w-full rounded-md bg-muted/35 animate-pulse sm:w-[180px]" />
-          <div className="h-10 w-full rounded-md bg-muted/35 animate-pulse sm:w-[180px]" />
-          <div className="h-10 w-full rounded-md bg-muted/35 animate-pulse sm:w-[180px]" />
-        </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6 2xl:gap-7">
-          {Array.from({ length: 12 }).map((_, index) => (
-            <div key={index} className="aspect-[4/5] rounded-2xl border border-border/50 bg-muted/35 animate-pulse" />
-          ))}
-        </div>
       </div>
     </div>
   );
@@ -85,23 +64,10 @@ const CitiesSection = withHomeSectionLoading(
   () => import("@/components/sections/CitiesSection"),
   (mod) => mod.CitiesSection,
 );
-const FeaturedCitySection = withHomeSectionLoading(
-  () => import("@/components/sections/FeaturedCitySection"),
-  (mod) => mod.FeaturedCitySection,
-);
-const CuratedExcellence = withHomeSectionLoading(
-  () => import("@/components/sections/CuratedExcellence"),
-  (mod) => mod.CuratedExcellence,
-);
 const SignatureMapSection = withHomeSectionLoading(
   () => import("@/components/sections/SignatureMapSection"),
   (mod) => mod.SignatureMapSection,
   () => <VipSectionFallback />,
-);
-const AllListingsSection = withHomeSectionLoading(
-  () => import("@/components/sections/AllListingsSection"),
-  (mod) => mod.AllListingsSection,
-  () => <AllListingsSectionFallback />,
 );
 const NewsletterSection = withHomeSectionLoading(
   () => import("@/components/sections/NewsletterSection"),
@@ -116,21 +82,16 @@ const CTASection = withHomeSectionLoading(
 const SECTION_COMPONENTS: Record<string, ComponentType<unknown>> = {
   regions: RegionsSection,
   categories: CategoriesSection,
-  "featured-city": FeaturedCitySection,
   cities: CitiesSection,
   vip: SignatureMapSection,
-  'all-listings': AllListingsSection,
 };
 
 // Default section order if none in database
 const DEFAULT_SECTION_ORDER = [
   "regions",
   "categories",
-  "featured-city",
-  "curated",
   "vip",
   "cities",
-  "all-listings",
 ];
 
 const Index = () => {
@@ -164,7 +125,7 @@ const Index = () => {
       'all-listings': settings.show_all_listings_section ?? true,
     };
 
-    const normalizedOrder = sectionOrder.filter((id) => id === "curated" || id in SECTION_COMPONENTS);
+    const normalizedOrder = sectionOrder.filter((id) => id in SECTION_COMPONENTS);
     const cmsOrdered = getBlockOrder(normalizedOrder);
 
     return cmsOrdered
@@ -187,34 +148,28 @@ const Index = () => {
             <HomeQuickLinksSection />
           </CmsBlock>
         )}
+        {(settings?.show_curated_section ?? true) && isBlockEnabled("curated", true) && (
+          <CmsBlock pageId="home" blockId="curated" as="section">
+            <HomepageSignatureCollection />
+          </CmsBlock>
+        )}
+        {(settings?.show_all_listings_section ?? true) && isBlockEnabled("all-listings", true) && (
+          <CmsBlock pageId="home" blockId="all-listings" as="section">
+            <DirectorySplitSection />
+          </CmsBlock>
+        )}
         {(settings?.show_vip_section ?? true) && isBlockEnabled("vip", true) && (
           <CmsBlock pageId="home" blockId="vip" as="section">
             <SignatureMapSection />
           </CmsBlock>
         )}
-        {(settings?.show_all_listings_section ?? true) && isBlockEnabled("all-listings", true) && (
-          <CmsBlock pageId="home" blockId="all-listings" as="section">
-            <AllListingsSection />
-          </CmsBlock>
-        )}
         <div className="mx-auto w-full content-max density">
-          {sectionsToRender.filter(({ id }) => id !== "vip" && id !== "all-listings").map(({ id, enabled }) => {
-            const defaultEnabled = id === "featured-city" ? false : true;
+          {sectionsToRender.filter(({ id }) => id !== "vip").map(({ id, enabled }) => {
+            const defaultEnabled = true;
             if (!enabled || !isBlockEnabled(id, defaultEnabled)) return null;
 
             const SectionComponent = SECTION_COMPONENTS[id];
             if (!SectionComponent) return null;
-
-            if (id === 'curated') {
-              return (
-                <CmsBlock pageId="home" blockId={id} key={id} as="section">
-                  <CuratedExcellence
-                    context={{ type: 'home' }}
-                    limit={4}
-                  />
-                </CmsBlock>
-              );
-            }
 
             return (
               <CmsBlock

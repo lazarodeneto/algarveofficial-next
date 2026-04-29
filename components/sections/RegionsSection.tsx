@@ -30,7 +30,7 @@ export function RegionsSection({ imageTimestamp = 0 }: RegionsSectionProps) {
   }
 
   // Filter to only regions that have images available (from DB or static)
-  const displayRegions = regions?.filter((region) => region.image_url || getRegionImageSet(region.slug)) ?? [];
+  const displayRegions = (regions?.filter((region) => region.image_url || getRegionImageSet(region.slug)) ?? []).slice(0, 8);
 
   if (isLoading) {
     return (
@@ -68,13 +68,13 @@ export function RegionsSection({ imageTimestamp = 0 }: RegionsSectionProps) {
             style={{ willChange: 'transform, opacity' }}
           >
             <span className="text-sm font-medium text-primary tracking-[0.2em] uppercase">
-              {t("sections.regions.label")}
+              Selected Destinations
             </span>
             <h2 className="mt-4 text-title font-serif font-medium text-foreground">
-              {t("sections.regions.title")}
+              Explore the Algarve by Region
             </h2>
             <p className="mt-4 text-body text-muted-foreground max-w-2xl mx-auto">
-              {t("sections.regions.subtitle")}
+              Discover selected Algarve destinations with premium places to stay, eat and explore.
             </p>
           </m.div>
 
@@ -163,7 +163,7 @@ export function RegionsSection({ imageTimestamp = 0 }: RegionsSectionProps) {
             >
               <Button variant="gold" size="lg" className="gap-2 w-full">
                 <Compass className="h-5 w-5" />
-                {t("sections.regions.viewAll")}
+                View All Regions
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>

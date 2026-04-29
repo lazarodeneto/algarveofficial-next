@@ -130,11 +130,11 @@ export function SignatureMapSection() {
             <div className="flex items-center gap-3">
               <ListingTierBadge tier="signature" size="sm" />
               <h2 className="text-title font-serif font-medium text-foreground">
-                {t("sections.vip.title")} <span className="text-gradient-gold">Map</span>
+                Explore on the Map
               </h2>
             </div>
             <p className="text-body text-muted-foreground mt-2 max-w-2xl readable">
-              {t("sections.vip.subtitleCustom")}
+              Find places by location across the Algarve
             </p>
           </div>
 

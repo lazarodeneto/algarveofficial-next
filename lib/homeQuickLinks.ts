@@ -1,5 +1,5 @@
 export interface HomeQuickLinkCardDefinition {
-  id: "stay" | "see-do" | "whats-on";
+  id: "stay" | "see-do" | "restaurants" | "real-estate";
   title: string;
   translationKey: string;
   imageSettingKey: string;
@@ -22,6 +22,7 @@ export const HOME_QUICK_LINK_CARDS: HomeQuickLinkCardDefinition[] = [
     categorySlug: "things-to-do",
     fallbackImageUrl: "/home-quick-links/things-to-do.svg",
     imagePosition: "center",
+    customHref: "/directory?category=things-to-do",
   },
   {
     id: "stay",
@@ -32,17 +33,29 @@ export const HOME_QUICK_LINK_CARDS: HomeQuickLinkCardDefinition[] = [
     categorySlug: "places-to-stay",
     fallbackImageUrl: "/home-quick-links/places-to-stay.svg",
     imagePosition: "center",
+    customHref: "/directory?category=places-to-stay",
   },
   {
-    id: "whats-on",
-    title: "What's On",
-    translationKey: "categoryNames.whats-on",
+    id: "restaurants",
+    title: "Restaurants / Experiences",
+    translationKey: "categoryNames.restaurants",
     imageSettingKey: "home_card_whats_on_image",
     videoSettingKey: "home_card_whats_on_video",
-    categorySlug: "whats-on",
+    categorySlug: "restaurants",
     fallbackImageUrl: "/home-quick-links/whats-on.svg",
     imagePosition: "center",
-    customHref: "/events",
+    customHref: "/directory?category=restaurants",
+  },
+  {
+    id: "real-estate",
+    title: "Real Estate",
+    translationKey: "categoryNames.real-estate",
+    imageSettingKey: "home_card_real_estate_image",
+    videoSettingKey: "home_card_real_estate_video",
+    categorySlug: "real-estate",
+    fallbackImageUrl: "/home-quick-links/places-to-stay.svg",
+    imagePosition: "center",
+    customHref: "/real-estate",
   },
 ];
 

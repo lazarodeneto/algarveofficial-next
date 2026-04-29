@@ -4,6 +4,7 @@ import { join } from "node:path";
 
 const chunkDir = join(process.cwd(), ".next", "static", "chunks");
 const maxGzipKb = Number(process.env.CLIENT_CHUNK_GZIP_BUDGET_KB ?? 350);
+const forbiddenChunkNamePattern = /(i18n|locale)/i;
 
 function fail(message) {
   console.error(message);
@@ -19,15 +20,29 @@ try {
 }
 
 const oversized = [];
+const forbiddenLocaleChunks = [];
 
 for (const file of files) {
   const fullPath = join(chunkDir, file);
   if (!statSync(fullPath).isFile()) continue;
 
+  if (forbiddenChunkNamePattern.test(file)) {
+    forbiddenLocaleChunks.push(file);
+  }
+
   const gzipKb = gzipSync(readFileSync(fullPath)).length / 1024;
   if (gzipKb > maxGzipKb) {
     oversized.push({ file, gzipKb });
   }
+}
+
+if (forbiddenLocaleChunks.length > 0) {
+  fail(
+    [
+      "Locale bundle detected in client chunk.",
+      ...forbiddenLocaleChunks.map((file) => `- ${file}`),
+    ].join("\n"),
+  );
 }
 
 if (oversized.length > 0) {

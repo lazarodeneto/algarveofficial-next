@@ -54,7 +54,9 @@ export function CategoriesSection() {
   }
 
   // Filter out categories with 0 listings
-  const categoriesWithListings = mergedCategories.filter((category) => getCategoryCount(category.memberIds) > 0);
+  const categoriesWithListings = mergedCategories
+    .filter((category) => getCategoryCount(category.memberIds) > 0)
+    .slice(0, 6);
 
   if (categoriesWithListings.length === 0) {
     return null;
@@ -75,10 +77,10 @@ export function CategoriesSection() {
             {t("sections.categories.label")}
           </span>
           <h2 className="mt-4 text-title font-serif font-medium text-foreground">
-            {t("sections.categories.title")}
+            Premium Categories
           </h2>
           <p className="mt-4 text-body text-muted-foreground dark:text-white/80 max-w-2xl mx-auto">
-            {t("sections.categories.subtitle")}
+            Browse the premium directory by category, from places to stay to restaurants, experiences and property.
           </p>
         </m.div>
 
@@ -108,7 +110,7 @@ export function CategoriesSection() {
                 </div>
 
                 <Link
-                  href={l(`/stay?category=${category.slug}`)}
+                  href={l(`/directory?category=${category.slug}`)}
                   className="block w-full h-full min-w-0 min-h-[11.5rem] sm:min-h-[12rem] lg:min-h-[7rem] p-5 lg:px-5 lg:py-3 glass-box glass-box-silver-liquid text-center flex flex-col items-center"
                 >
                   <div className="relative z-10 w-12 h-12 rounded-lg bg-muted dark:bg-muted flex items-center justify-center mb-3 lg:mb-2">
