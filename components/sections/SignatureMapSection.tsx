@@ -82,7 +82,8 @@ export function SignatureMapSection() {
           </Link>
         </div>
 
-        <div className="overflow-hidden rounded-[1.75rem] bg-black shadow-elevated">
+        {/* Desktop: interactive map / Mobile: lightweight CTA card */}
+        <div className="hidden lg:block overflow-hidden rounded-[1.75rem] bg-black shadow-elevated">
           {isLoading ? (
             <div className="flex h-[420px] items-center justify-center bg-muted/30">
               <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
@@ -104,6 +105,26 @@ export function SignatureMapSection() {
             <div className="h-[420px] w-full bg-muted/35 animate-pulse" />
           )}
         </div>
+
+        {/* Mobile map CTA — avoids heavy Leaflet hydration */}
+        <Link
+          href={l("/map")}
+          className="lg:hidden group relative isolate flex aspect-[16/9] items-center justify-center overflow-hidden rounded-2xl bg-muted shadow-card transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+          <div className="relative z-10 text-center">
+            <MapPinned className="mx-auto h-10 w-10 text-primary" />
+            <p className="mt-3 font-serif text-xl font-semibold text-foreground">
+              Explore on Map
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {mapPoints.length} curated places across the Algarve
+            </p>
+            <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+              Open Map <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </div>
+        </Link>
       </div>
     </section>
   );

@@ -53,8 +53,7 @@ function EditorialRegionCard({
       prefetch={false}
       href={href}
       className={cn(
-        "group relative isolate block h-full min-h-[240px] overflow-hidden rounded-2xl bg-black shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-        isHero ? "lg:col-span-2 lg:row-span-2" : ""
+        "group relative isolate block h-full min-h-[240px] overflow-hidden rounded-2xl bg-black shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       )}
     >
       {image ? (
@@ -167,8 +166,8 @@ export function RegionsSection({ imageTimestamp = 0 }: RegionsSectionProps) {
         </m.div>
 
         {/* Editorial region grid */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:auto-rows-[260px] lg:gap-6">
-          {displayRegions.slice(0, 5).map((region, index) => {
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6">
+          {displayRegions.slice(0, 6).map((region) => {
             const images = getRegionImageSet(region.slug);
             const hasCustomImage = !!region.image_url;
             const listingCount = regionCounts?.[region.id] ?? 0;
@@ -188,7 +187,7 @@ export function RegionsSection({ imageTimestamp = 0 }: RegionsSectionProps) {
                 subtitle={`${listingCount} ${t("sections.regions.listings")}`}
                 description={region.short_description ?? "Discover premium experiences"}
                 href={l(`/destinations/${region.slug}`)}
-                isHero={index === 0}
+                isHero={false}
                 isFavorite={isDestinationSaved('region', region.id)}
                 onToggleFavorite={() => toggleRegion(region.id)}
               />

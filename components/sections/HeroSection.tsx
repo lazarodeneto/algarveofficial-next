@@ -3,6 +3,7 @@ import { ArrowRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useHeroSettings } from "@/hooks/useHomepageSettings";
@@ -434,11 +435,17 @@ export function HeroSection() {
                 variant="heroOutline"
                 size="lg"
                 onClick={() => router.push(l("/map"))}
-                className="w-full max-w-[18rem] sm:w-auto"
+                className="hidden sm:inline-flex w-full max-w-[18rem] sm:w-auto"
               >
                 {getText("home.hero.cta.secondary", "") || HOMEPAGE_SECONDARY_CTA}
               </Button>
             </div>
+            <Link
+              href={l("/map")}
+              className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-white/75 underline underline-offset-4 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:hidden"
+            >
+              {getText("home.hero.cta.secondary", "") || HOMEPAGE_SECONDARY_CTA} <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
           </div>
         </div>
 
