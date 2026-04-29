@@ -16,6 +16,7 @@ type Props = {
   variant?: "hero" | "default";
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
+  className?: string;
 };
 
 function TierBadge({ tier }: { tier?: Props["tier"] }) {
@@ -45,6 +46,7 @@ export function SignatureCard({
   variant = "default",
   isFavorite = false,
   onToggleFavorite,
+  className: classNameProp,
 }: Props) {
   const isHero = variant === "hero";
   const isExternalImage = typeof image === "string" && /^https?:\/\//i.test(image);
@@ -116,7 +118,8 @@ export function SignatureCard({
 
   const className = cn(
     "group relative isolate block h-full min-h-[240px] overflow-hidden rounded-2xl bg-black shadow-[0_24px_74px_-46px_rgba(0,0,0,0.86)] transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-[0_28px_82px_-48px_rgba(0,0,0,0.95)]",
-    isHero ? "lg:col-span-2 lg:row-span-2" : ""
+    isHero ? "lg:col-span-2 lg:row-span-2" : "",
+    classNameProp
   );
 
   if (href) {

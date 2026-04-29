@@ -55,7 +55,7 @@ export function HomepageSignatureCollection() {
             {Array.from({ length: 8 }).map((_, index) => (
               <div
                 key={index}
-                className={`min-h-[240px] rounded-2xl bg-muted/35 animate-pulse ${index === 0 ? "lg:col-span-2 lg:row-span-2" : ""}`}
+                className={`min-h-[240px] rounded-2xl bg-muted/35 animate-pulse ${index === 0 ? "lg:col-span-2 lg:row-span-2" : index === 6 ? "lg:col-span-2" : ""}`}
               />
             ))}
           </div>
@@ -73,7 +73,7 @@ export function HomepageSignatureCollection() {
               onToggleFavorite={() => toggleFavorite(hero.id)}
             />
 
-            {rest.map((listing) => (
+            {rest.map((listing, index) => (
               <SignatureCard
                 key={listing.id}
                 title={listing.name}
@@ -82,9 +82,10 @@ export function HomepageSignatureCollection() {
                 category={`${listing.city?.name ?? "Algarve"} · ${translateCategoryName(t, listing.category?.slug, listing.category?.name)}`}
                 tier={listing.tier}
                 href={l(`/listing/${listing.slug}`)}
-                variant="default"
+                variant={index === rest.length - 1 && rest.length % 3 === 0 ? "hero" : "default"}
                 isFavorite={isFavorite(listing.id)}
                 onToggleFavorite={() => toggleFavorite(listing.id)}
+                className={index === rest.length - 1 && rest.length % 3 === 0 ? "lg:col-span-2" : undefined}
               />
             ))}
           </div>
