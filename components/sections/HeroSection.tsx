@@ -415,7 +415,7 @@ export function HeroSection() {
               AlgarveOfficial
             </p>
 
-            <div className="font-serif text-[clamp(3rem,9vw,5.75rem)] font-semibold leading-[0.92] tracking-normal text-white">
+            <div className="font-serif text-[clamp(3rem,9vw,5.75rem)] font-semibold italic leading-[0.92] tracking-normal text-white">
               The Algarve, Curated
             </div>
 
