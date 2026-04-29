@@ -4,94 +4,16 @@ import Link from "next/link";
 import { ArrowRight, Crown, Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
-import ListingImage from "@/components/ListingImage";
-import { Button } from "@/components/ui/button";
-import { FavoriteButton } from "@/components/ui/favorite-button";
-import ListingTierBadge from "@/components/ui/ListingTierBadge";
+import { Button } from "@/components/ui/Button";
+import { SignatureCard } from "@/components/ui/cards/SignatureCard";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { supabase } from "@/integrations/supabase/client";
 import { getHomepageSignatureSelection } from "@/lib/listings/getHomepageSignatureSelection";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { useTranslation } from "react-i18next";
-import { cn } from "@/lib/utils";
 
 const DISPLAY_LIMIT = 8;
-
-type ListingItem = Awaited<ReturnType<typeof getHomepageSignatureSelection>>["listings"][number];
-
-function EditorialListingCard({
-  listing,
-  href,
-  isFavorite,
-  onToggleFavorite,
-  heightClass,
-  titleSize,
-}: {
-  listing: ListingItem;
-  href: string;
-  isFavorite: boolean;
-  onToggleFavorite: () => void;
-  heightClass: string;
-  titleSize: "xl" | "lg" | "md";
-}) {
-  const { t } = useTranslation();
-
-  const titleClasses = {
-    xl: "text-4xl sm:text-5xl",
-    lg: "text-3xl",
-    md: "text-2xl",
-  }[titleSize];
-
-  return (
-    <Link
-      href={href}
-      className={cn(
-        "group relative isolate block overflow-hidden rounded-2xl bg-black shadow-[0_28px_90px_-48px_rgba(0,0,0,0.95)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_34px_100px_-48px_rgba(0,0,0,1)]",
-        heightClass
-      )}
-    >
-      <ListingImage
-        src={listing.featured_image_url}
-        category={listing.category?.slug}
-        categoryImageUrl={listing.category?.image_url}
-        listingId={listing.id}
-        alt={listing.name}
-        fill
-        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/5" />
-      <div className="absolute left-4 top-4 flex items-center gap-2">
-        <ListingTierBadge tier={listing.tier} size="sm" />
-      </div>
-      <div className="absolute right-4 top-4" onClick={(event) => event.preventDefault()}>
-        <FavoriteButton
-          isFavorite={isFavorite}
-          onToggle={onToggleFavorite}
-          size="sm"
-          variant="glassmorphism"
-        />
-      </div>
-      <div className="relative z-10 flex h-full flex-col justify-end p-5 text-white sm:p-6">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-          {listing.city?.name ?? "Algarve"} · {translateCategoryName(t, listing.category?.slug, listing.category?.name)}
-        </p>
-        <h3 className={cn("max-w-xl font-serif font-semibold leading-none tracking-normal", titleClasses)}>
-          {listing.name}
-        </h3>
-        {titleSize !== "md" ? (
-          <p className="mt-4 max-w-lg line-clamp-2 text-sm leading-6 text-white/82">
-            {listing.short_description || listing.description || "A selected Algarve destination from the editorial collection."}
-          </p>
-        ) : null}
-        <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white/90">
-          View details <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-        </span>
-      </div>
-    </Link>
-  );
-}
 
 export function HomepageSignatureCollection() {
   const l = useLocalePath();
@@ -108,16 +30,8 @@ export function HomepageSignatureCollection() {
   const title = isFallback ? "Editor's Selection" : "Signature Collection";
   const subtitle = "A curated selection of the Algarve's finest places";
   const displayListings = listings.slice(0, DISPLAY_LIMIT);
-
-  // Determine card heights and title sizes per position for editorial rhythm
-  const getCardConfig = (index: number, total: number) => {
-    // First card = featured (tallest)
-    if (index === 0) return { heightClass: "min-h-[32rem]", titleSize: "xl" as const };
-    // Cards 1-4 = medium height
-    if (index >= 1 && index <= 4) return { heightClass: "min-h-[23rem]", titleSize: "lg" as const };
-    // Remaining = standard
-    return { heightClass: "min-h-[18rem]", titleSize: "md" as const };
-  };
+  const hero = displayListings[0];
+  const rest = displayListings.slice(1);
 
   return (
     <section id="signature-collection" className="bg-background py-20 sm:py-24 lg:py-32">
@@ -137,31 +51,42 @@ export function HomepageSignatureCollection() {
         </div>
 
         {isLoading ? (
-          <div className="columns-1 gap-5 sm:columns-2 lg:columns-3 xl:columns-4">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:auto-rows-[220px] lg:gap-8">
             {Array.from({ length: 8 }).map((_, index) => (
-              <div key={index} className="mb-5 break-inside-avoid">
-                <div className="h-[25rem] rounded-2xl border border-border/60 bg-muted/35 animate-pulse" />
-              </div>
+              <div
+                key={index}
+                className={`min-h-[240px] rounded-2xl bg-muted/35 animate-pulse ${index === 0 ? "lg:col-span-2 lg:row-span-2" : ""}`}
+              />
             ))}
           </div>
-        ) : displayListings.length > 0 ? (
-          /* Masonry layout: CSS columns flow top-to-bottom, filling all columns naturally */
-          <div className="columns-1 gap-5 sm:columns-2 lg:columns-3 xl:columns-4">
-            {displayListings.map((listing, index) => {
-              const config = getCardConfig(index, displayListings.length);
-              return (
-                <div key={listing.id} className="mb-5 break-inside-avoid">
-                  <EditorialListingCard
-                    listing={listing}
-                    href={l(`/listing/${listing.slug}`)}
-                    isFavorite={isFavorite(listing.id)}
-                    onToggleFavorite={() => toggleFavorite(listing.id)}
-                    heightClass={config.heightClass}
-                    titleSize={config.titleSize}
-                  />
-                </div>
-              );
-            })}
+        ) : hero ? (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:auto-rows-[220px] lg:gap-8">
+            <SignatureCard
+              title={hero.name}
+              subtitle={hero.short_description || hero.description || "A selected Algarve destination from the editorial collection."}
+              image={hero.featured_image_url}
+              category={`${hero.city?.name ?? "Algarve"} · ${translateCategoryName(t, hero.category?.slug, hero.category?.name)}`}
+              tier={hero.tier}
+              href={l(`/listing/${hero.slug}`)}
+              variant="hero"
+              isFavorite={isFavorite(hero.id)}
+              onToggleFavorite={() => toggleFavorite(hero.id)}
+            />
+
+            {rest.map((listing) => (
+              <SignatureCard
+                key={listing.id}
+                title={listing.name}
+                subtitle={listing.short_description || listing.description || undefined}
+                image={listing.featured_image_url}
+                category={`${listing.city?.name ?? "Algarve"} · ${translateCategoryName(t, listing.category?.slug, listing.category?.name)}`}
+                tier={listing.tier}
+                href={l(`/listing/${listing.slug}`)}
+                variant="default"
+                isFavorite={isFavorite(listing.id)}
+                onToggleFavorite={() => toggleFavorite(listing.id)}
+              />
+            ))}
           </div>
         ) : (
           <div className="rounded-2xl border border-border/70 bg-muted/25 p-8 text-center">

@@ -4,10 +4,8 @@ import { useMemo, type ComponentType } from "react";
 import dynamic from "next/dynamic";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { DirectorySplitSection } from "@/components/sections/DirectorySplitSection";
 import { HomepageSignatureCollection } from "@/components/sections/HomepageSignatureCollection";
 import { HeroSection } from "@/components/sections/HeroSection";
-import { HomeEditorialStorySection } from "@/components/sections/HomeEditorialStorySection";
 import { HomeQuickLinksSection } from "@/components/sections/HomeQuickLinksSection";
 import { useHomepageSettings } from "@/hooks/useHomepageSettings";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
@@ -49,30 +47,14 @@ const withHomeSectionLoading = <T extends ComponentType<any>>(
     loading,
   });
 
-const AlgarveGuideSection = withHomeSectionLoading(
-  () => import("@/components/sections/AlgarveGuideSection"),
-  (mod) => mod.AlgarveGuideSection,
-);
 const RegionsSection = withHomeSectionLoading(
   () => import("@/components/sections/RegionsSection"),
   (mod) => mod.RegionsSection,
-);
-const CategoriesSection = withHomeSectionLoading(
-  () => import("@/components/sections/CategoriesSection"),
-  (mod) => mod.CategoriesSection,
-);
-const CitiesSection = withHomeSectionLoading(
-  () => import("@/components/sections/CitiesSection"),
-  (mod) => mod.CitiesSection,
 );
 const SignatureMapSection = withHomeSectionLoading(
   () => import("@/components/sections/SignatureMapSection"),
   (mod) => mod.SignatureMapSection,
   () => <VipSectionFallback />,
-);
-const NewsletterSection = withHomeSectionLoading(
-  () => import("@/components/sections/NewsletterSection"),
-  (mod) => mod.NewsletterSection,
 );
 const CTASection = withHomeSectionLoading(
   () => import("@/components/sections/CTASection"),
@@ -82,17 +64,13 @@ const CTASection = withHomeSectionLoading(
 // Section ID to component mapping
 const SECTION_COMPONENTS: Record<string, ComponentType<unknown>> = {
   regions: RegionsSection,
-  categories: CategoriesSection,
-  cities: CitiesSection,
   vip: SignatureMapSection,
 };
 
 // Default section order if none in database
 const DEFAULT_SECTION_ORDER = [
-  "regions",
-  "categories",
   "vip",
-  "cities",
+  "regions",
 ];
 
 const Index = () => {
@@ -120,10 +98,8 @@ const Index = () => {
     const visibilityMap: Record<string, boolean> = {
       regions: settings.show_regions_section ?? true,
       categories: settings.show_categories_section ?? true,
-      cities: settings.show_cities_section ?? true,
       curated: settings.show_curated_section ?? true,
       vip: settings.show_vip_section ?? true,
-      'all-listings': settings.show_all_listings_section ?? true,
     };
 
     const normalizedOrder = sectionOrder.filter((id) => id in SECTION_COMPONENTS);
@@ -149,15 +125,9 @@ const Index = () => {
             <HomeQuickLinksSection />
           </CmsBlock>
         )}
-        <HomeEditorialStorySection />
         {(settings?.show_curated_section ?? true) && isBlockEnabled("curated", true) && (
           <CmsBlock pageId="home" blockId="curated" as="section">
             <HomepageSignatureCollection />
-          </CmsBlock>
-        )}
-        {(settings?.show_all_listings_section ?? true) && isBlockEnabled("all-listings", true) && (
-          <CmsBlock pageId="home" blockId="all-listings" as="section">
-            <DirectorySplitSection />
           </CmsBlock>
         )}
         {(settings?.show_vip_section ?? true) && isBlockEnabled("vip", true) && (
@@ -185,17 +155,7 @@ const Index = () => {
               </CmsBlock>
             );
           })}
-          {isBlockEnabled("algarve-guide", true) && (
-            <CmsBlock pageId="home" blockId="algarve-guide" as="section">
-              <AlgarveGuideSection />
-            </CmsBlock>
-          )}
         </div>
-        {isBlockEnabled("newsletter", true) && (
-          <CmsBlock pageId="home" blockId="newsletter" as="section">
-            <NewsletterSection />
-          </CmsBlock>
-        )}
         {showCta && isBlockEnabled("cta", true) && (
           <CmsBlock pageId="home" blockId="cta" as="section">
             <CTASection />

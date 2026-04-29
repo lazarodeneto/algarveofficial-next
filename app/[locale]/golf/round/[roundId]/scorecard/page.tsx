@@ -11,7 +11,7 @@ import { DEFAULT_LOCALE, isValidLocale, type Locale } from "@/lib/i18n/config";
 import { buildLocalizedPath } from "@/lib/i18n/routing";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
 import { createClient } from "@/lib/supabase/server";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import ScorecardSummary from "@/components/golf/ScorecardSummary";
 import ScorecardTable from "@/components/golf/ScorecardTable";
 import { STANDARD_PUBLIC_CONTENT_TOP_CLASS } from "@/components/sections/hero-layout";

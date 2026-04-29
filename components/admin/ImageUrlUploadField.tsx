@@ -4,7 +4,7 @@ import { useId, useState } from "react";
 import { Loader2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { convertToWebP, trimWhiteBorders } from "@/lib/imageUtils";

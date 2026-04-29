@@ -28,7 +28,7 @@ vi.mock("@/components/ui/input", () => ({
   Input: () => null,
 }));
 
-vi.mock("@/components/ui/button", () => ({
+vi.mock("@/components/ui/Button", () => ({
   Button: () => null,
 }));
 

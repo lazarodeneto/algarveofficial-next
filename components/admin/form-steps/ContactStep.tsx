@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Separator } from "@/components/ui/separator";
 import { Globe, Phone, Mail, Instagram, Facebook, Linkedin, Youtube, Star, Loader2, RefreshCw, Twitter, MessageCircle, Send, AlertTriangle, Music } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";

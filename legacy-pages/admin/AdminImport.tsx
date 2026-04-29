@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { Upload, FileJson, AlertCircle, CheckCircle2, Loader2, Download, Eye, ClipboardPaste, RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";

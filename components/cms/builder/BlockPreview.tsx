@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Monitor, Smartphone } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { type CmsPageConfig } from "@/lib/cms/block-schemas";
 import { CmsPageRenderer } from "../renderers/CmsPageRenderer";
 

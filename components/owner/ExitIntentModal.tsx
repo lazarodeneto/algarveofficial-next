@@ -3,7 +3,7 @@
 import { m } from "framer-motion";
 import { ShieldCheck, Check, ArrowRight, Loader2 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { VERIFIED_PARTNER_FEATURES } from "@/lib/partner-subscription-content";
 
 interface ExitIntentModalProps {

@@ -1,0 +1,44 @@
+- generic [active]:
+  - link "Skip to main content" [ref=e1] [cursor=pointer]:
+    - /url: "#main-content"
+  - status [ref=e2]
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - complementary [ref=e3]:
+    - link "AlgarveOfficial homepage" [ref=e5] [cursor=pointer]:
+      - /url: /
+      - img "Algarve Official crown mark" [ref=e7]
+    - navigation [ref=e9]:
+      - link "Stay" [ref=e10] [cursor=pointer]:
+        - /url: /stay?category=places-to-stay
+        - img [ref=e12]
+      - link "Experiences" [ref=e15] [cursor=pointer]:
+        - /url: /experiences
+        - img [ref=e17]
+      - link "Properties" [ref=e22] [cursor=pointer]:
+        - /url: /properties
+        - img [ref=e24]
+      - link "Beaches" [ref=e27] [cursor=pointer]:
+        - /url: /beaches
+        - img [ref=e29]
+      - link "Golf" [ref=e33] [cursor=pointer]:
+        - /url: /golf
+        - img [ref=e35]
+      - link "Map" [ref=e37] [cursor=pointer]:
+        - /url: /map
+        - img [ref=e39]
+      - link "Blog" [ref=e41] [cursor=pointer]:
+        - /url: /blog
+        - img [ref=e43]
+      - link "Events" [ref=e45] [cursor=pointer]:
+        - /url: /events
+        - img [ref=e47]
+      - link "Residence" [ref=e49] [cursor=pointer]:
+        - /url: /residence
+        - img [ref=e51]
+      - link "Contact" [ref=e55] [cursor=pointer]:
+        - /url: /contact
+        - img [ref=e57]
+  - button "Open Next.js Dev Tools" [ref=e65] [cursor=pointer]:
+    - img [ref=e66]

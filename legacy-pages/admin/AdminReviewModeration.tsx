@@ -3,7 +3,7 @@ import { CalendarClock, Check, ExternalLink, Loader2, MessageSquare, Star, User,
 import { toast } from "sonner";
 
 import { useAdminListingReviews, useModerateListingReview, type AdminListingReview, type ListingReviewStatus } from "@/hooks/useListingReviews";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";

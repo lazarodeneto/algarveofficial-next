@@ -1,6 +1,6 @@
 import { useState, MouseEvent } from "react";
 import { Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { LoginModal } from "@/components/ui/login-modal";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";

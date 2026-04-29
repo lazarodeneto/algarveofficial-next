@@ -3,7 +3,7 @@ import { ArrowUpDown } from "lucide-react";
 
 import { AnalyticsChart } from "@/components/admin/analytics/AnalyticsChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 type NamedMetric = {

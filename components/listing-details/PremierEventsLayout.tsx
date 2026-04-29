@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Calendar, Clock, MapPin, Users, Sparkles, Lock, Globe, Ticket, ExternalLink, Star, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { translateCategoryValue } from "@/lib/translateCategoryValue";

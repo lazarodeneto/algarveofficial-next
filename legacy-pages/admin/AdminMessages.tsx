@@ -4,7 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MessageSquare, RefreshCw, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { DataTable, Column } from "@/components/admin/DataTable";
 import { ThreadFilters } from "@/components/admin/messages/ThreadFilters";
 import { ThreadDetailDialog } from "@/components/admin/messages/ThreadDetailDialog";

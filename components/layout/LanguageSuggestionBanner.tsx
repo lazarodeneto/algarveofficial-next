@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { useTranslation } from "react-i18next";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocaleRouter } from "@/hooks/useLocaleRouter";

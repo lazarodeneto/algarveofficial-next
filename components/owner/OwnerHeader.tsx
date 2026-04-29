@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Bell, LogOut, Settings, ChevronDown, ExternalLink, ShieldCheck, LayoutDashboard, Building2, Check, UserCheck, Crown } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import {
   DropdownMenu,
   DropdownMenuContent,

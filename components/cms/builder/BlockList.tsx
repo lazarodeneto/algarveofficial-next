@@ -18,7 +18,7 @@ import {
   ArrowDown,
   Trash2,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { type CmsBlock } from "@/lib/cms/block-schemas";

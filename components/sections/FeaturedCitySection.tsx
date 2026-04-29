@@ -72,7 +72,7 @@ export function FeaturedCitySection() {
       data-cms-featured-city-selection={selection}
     >
       <div className="app-container">
-        <div className="overflow-hidden rounded-[28px] border border-border bg-card shadow-sm">
+        <div className="overflow-hidden rounded-[28px] border border-border bg-card shadow-sm [transform:translateZ(0)]">
           <div className="relative min-h-[28rem]">
             {selectedCity.hero_image_url || selectedCity.image_url ? (
               <img

@@ -1,0 +1,117 @@
+[     639ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[     680ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[     720ms] [INFO] 🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙 @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[    1177ms] [WARNING] Image with src "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/media/regions/region-golden-triangle-1776153777744.webp?_t=0" is using quality "76" which is not configured in images.qualities [50, 52, 54, 56, 72, 80]. Please update your config to [50, 52, 54, 56, 72, 76, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[    1180ms] [WARNING] Image with src "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/media/regions/region-vilamoura-prestige-1776154462556.webp?_t=0" is using quality "68" which is not configured in images.qualities [50, 52, 54, 56, 72, 80]. Please update your config to [50, 52, 54, 56, 68, 72, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[    1182ms] [WARNING] Image with src "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/media/regions/region-carvoeiro-cliffs-1776154495506.webp?_t=0" is using quality "68" which is not configured in images.qualities [50, 52, 54, 56, 72, 80]. Please update your config to [50, 52, 54, 56, 68, 72, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[    1184ms] [WARNING] Image with src "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/media/regions/region-lagos-signature-1776154554952.webp?_t=0" is using quality "68" which is not configured in images.qualities [50, 52, 54, 56, 72, 80]. Please update your config to [50, 52, 54, 56, 68, 72, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[    1186ms] [WARNING] Image with src "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/media/regions/region-tavira-heritage-1776154581378.webp?_t=0" is using quality "68" which is not configured in images.qualities [50, 52, 54, 56, 72, 80]. Please update your config to [50, 52, 54, 56, 68, 72, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[    2572ms] [WARNING] Image with src "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/listing-images/1929430c-82d8-4a37-b1f3-bfe9b560e763/1773313842463-vga89uh.webp" has "fill" and a height value of 0. This is likely because the parent element of the image has not been styled to have a set height. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[    2576ms] [WARNING] Image with src "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/listing-images/admin-listings/1776798852680-f82c76e7-b58d-4196-aab9-ddcafaac2ecb.webp" has "fill" and a height value of 0. This is likely because the parent element of the image has not been styled to have a set height. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[    2578ms] [WARNING] Image with src "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/listing-images/fd67d847-e1fd-41ec-83f5-57cdffb3f7c5/1776243687894-3jl21s8.webp" has "fill" and a height value of 0. This is likely because the parent element of the image has not been styled to have a set height. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[    2579ms] [WARNING] Image with src "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/listing-images/26eb8a26-734a-488c-96f4-d4239094c37b/1773317529494-7xybb6r.webp" has "fill" and a height value of 0. This is likely because the parent element of the image has not been styled to have a set height. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   56253ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   56553ms] [LOG] [Fast Refresh] done in 342ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   97714ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   98220ms] [WARNING] Image with src "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/listing-images/1929430c-82d8-4a37-b1f3-bfe9b560e763/1773313842463-vga89uh.webp" is using quality "76" which is not configured in images.qualities [50, 52, 54, 56, 72, 80]. Please update your config to [50, 52, 54, 56, 72, 76, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   98224ms] [WARNING] Image with src "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/listing-images/admin-listings/1776798852680-f82c76e7-b58d-4196-aab9-ddcafaac2ecb.webp" is using quality "68" which is not configured in images.qualities [50, 52, 54, 56, 72, 80]. Please update your config to [50, 52, 54, 56, 68, 72, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   98227ms] [WARNING] Image with src "https://static.wixstatic.com/media/20bbc3_c2b50784f1b8477ebf4c50e4eb0378d2~mv2.jpg/v1/fill/w_782,h_609,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/20bbc3_c2b50784f1b8477ebf4c50e4eb0378d2~mv2.jpg" is using quality "68" which is not configured in images.qualities [50, 52, 54, 56, 72, 80]. Please update your config to [50, 52, 54, 56, 68, 72, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   98240ms] [LOG] [Fast Refresh] done in 578ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   98397ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   98479ms] [LOG] [Fast Refresh] done in 182ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   98595ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   98617ms] [LOG] [Fast Refresh] done in 123ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   99735ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   99756ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   99792ms] [INFO] 🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙 @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  100125ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  100225ms] [LOG] [Fast Refresh] done in 201ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  100444ms] [WARNING] Image with src "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/media/regions/region-golden-triangle-1776153777744.webp?_t=0" is using quality "76" which is not configured in images.qualities [50, 52, 54, 56, 72, 80]. Please update your config to [50, 52, 54, 56, 72, 76, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  100446ms] [WARNING] Image with src "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/media/regions/region-vilamoura-prestige-1776154462556.webp?_t=0" is using quality "68" which is not configured in images.qualities [50, 52, 54, 56, 72, 80]. Please update your config to [50, 52, 54, 56, 68, 72, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  100448ms] [WARNING] Image with src "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/media/regions/region-carvoeiro-cliffs-1776154495506.webp?_t=0" is using quality "68" which is not configured in images.qualities [50, 52, 54, 56, 72, 80]. Please update your config to [50, 52, 54, 56, 68, 72, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  100450ms] [WARNING] Image with src "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/media/regions/region-lagos-signature-1776154554952.webp?_t=0" is using quality "68" which is not configured in images.qualities [50, 52, 54, 56, 72, 80]. Please update your config to [50, 52, 54, 56, 68, 72, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  100452ms] [WARNING] Image with src "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/media/regions/region-tavira-heritage-1776154581378.webp?_t=0" is using quality "68" which is not configured in images.qualities [50, 52, 54, 56, 72, 80]. Please update your config to [50, 52, 54, 56, 68, 72, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  100769ms] [WARNING] Image with src "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/listing-images/1929430c-82d8-4a37-b1f3-bfe9b560e763/1773313842463-vga89uh.webp" is using quality "76" which is not configured in images.qualities [50, 52, 54, 56, 72, 80]. Please update your config to [50, 52, 54, 56, 72, 76, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  100770ms] [WARNING] Image with src "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/listing-images/admin-listings/1776798852680-f82c76e7-b58d-4196-aab9-ddcafaac2ecb.webp" is using quality "68" which is not configured in images.qualities [50, 52, 54, 56, 72, 80]. Please update your config to [50, 52, 54, 56, 68, 72, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  100771ms] [WARNING] Image with src "https://static.wixstatic.com/media/20bbc3_c2b50784f1b8477ebf4c50e4eb0378d2~mv2.jpg/v1/fill/w_782,h_609,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/20bbc3_c2b50784f1b8477ebf4c50e4eb0378d2~mv2.jpg" is using quality "68" which is not configured in images.qualities [50, 52, 54, 56, 72, 80]. Please update your config to [50, 52, 54, 56, 68, 72, 80].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  100779ms] [ERROR] %o
+
+%s Error: Invalid src prop (https://static.wixstatic.com/media/20bbc3_c2b50784f1b8477ebf4c50e4eb0378d2~mv2.jpg/v1/fill/w_782,h_609,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/20bbc3_c2b50784f1b8477ebf4c50e4eb0378d2~mv2.jpg) on `next/image`, hostname "static.wixstatic.com" is not configured under images in your `next.config.js`
+See more info: https://nextjs.org/docs/messages/next-image-unconfigured-host
+    at defaultLoader (http://localhost:3000/_next/static/chunks/node_modules_next_02l8rx_._.js:4979:49)
+    at http://localhost:3000/_next/static/chunks/node_modules_next_02l8rx_._.js:2403:39
+    at Array.map (<anonymous>)
+    at generateImgAttrs (http://localhost:3000/_next/static/chunks/node_modules_next_02l8rx_._.js:2403:24)
+    at getImgProps (http://localhost:3000/_next/static/chunks/node_modules_next_02l8rx_._.js:2816:27)
+    at http://localhost:3000/_next/static/chunks/node_modules_next_02l8rx_._.js:5383:82
+    at Object.react_stack_bottom_frame (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:15037:24)
+    at renderWithHooks (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4620:24)
+    at updateForwardRef (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5908:21)
+    at beginWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6766:24)
+    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)
+    at performUnitOfWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)
+    at workLoopSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)
+    at renderRootSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)
+    at performWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)
+    at performSyncWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10263:9)
+    at flushSyncWorkAcrossRoots_impl (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10179:316)
+    at processRootScheduleInMicrotask (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10200:106)
+    at http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10274:158 The above error occurred in the <Unknown> component. It was handled by the <ErrorBoundaryHandler> error boundary. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_0fhqo1d._.js:1998
+[  100782ms] [ERROR] Locale route error boundary caught an error: Error: Invalid src prop (https://static.wixstatic.com/media/20bbc3_c2b50784f1b8477ebf4c50e4eb0378d2~mv2.jpg/v1/fill/w_782,h_609,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/20bbc3_c2b50784f1b8477ebf4c50e4eb0378d2~mv2.jpg) on `next/image`, hostname "static.wixstatic.com" is not configured under images in your `next.config.js`
+See more info: https://nextjs.org/docs/messages/next-image-unconfigured-host
+    at defaultLoader (http://localhost:3000/_next/static/chunks/node_modules_next_02l8rx_._.js:4979:49)
+    at http://localhost:3000/_next/static/chunks/node_modules_next_02l8rx_._.js:2403:39
+    at Array.map (<anonymous>)
+    at generateImgAttrs (http://localhost:3000/_next/static/chunks/node_modules_next_02l8rx_._.js:2403:24)
+    at getImgProps (http://localhost:3000/_next/static/chunks/node_modules_next_02l8rx_._.js:2816:27)
+    at http://localhost:3000/_next/static/chunks/node_modules_next_02l8rx_._.js:5383:82
+    at Object.react_stack_bottom_frame (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:15037:24)
+    at renderWithHooks (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4620:24)
+    at updateForwardRef (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5908:21)
+    at beginWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6766:24)
+    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)
+    at performUnitOfWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)
+    at workLoopSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)
+    at renderRootSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)
+    at performWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)
+    at performSyncWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10263:9)
+    at flushSyncWorkAcrossRoots_impl (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10179:316)
+    at processRootScheduleInMicrotask (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10200:106)
+    at http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10274:158 @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:3272
+[  100782ms] [ERROR] Locale route error boundary caught an error: Error: Invalid src prop (https://static.wixstatic.com/media/20bbc3_c2b50784f1b8477ebf4c50e4eb0378d2~mv2.jpg/v1/fill/w_782,h_609,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/20bbc3_c2b50784f1b8477ebf4c50e4eb0378d2~mv2.jpg) on `next/image`, hostname "static.wixstatic.com" is not configured under images in your `next.config.js`
+See more info: https://nextjs.org/docs/messages/next-image-unconfigured-host
+    at defaultLoader (http://localhost:3000/_next/static/chunks/node_modules_next_02l8rx_._.js:4979:49)
+    at http://localhost:3000/_next/static/chunks/node_modules_next_02l8rx_._.js:2403:39
+    at Array.map (<anonymous>)
+    at generateImgAttrs (http://localhost:3000/_next/static/chunks/node_modules_next_02l8rx_._.js:2403:24)
+    at getImgProps (http://localhost:3000/_next/static/chunks/node_modules_next_02l8rx_._.js:2816:27)
+    at http://localhost:3000/_next/static/chunks/node_modules_next_02l8rx_._.js:5383:82
+    at Object.react_stack_bottom_frame (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:15037:24)
+    at renderWithHooks (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4620:24)
+    at updateForwardRef (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:5908:21)
+    at beginWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6766:24)
+    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)
+    at performUnitOfWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)
+    at workLoopSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)
+    at renderRootSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)
+    at performWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)
+    at performSyncWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10263:9)
+    at flushSyncWorkAcrossRoots_impl (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10179:316)
+    at processRootScheduleInMicrotask (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10200:106)
+    at http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10274:158 @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:3272

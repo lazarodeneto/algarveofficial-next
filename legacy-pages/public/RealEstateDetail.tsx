@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { Button } from "@/components/ui/button"; // Shadcn button
+import { Button } from "@/components/ui/Button"; // Shadcn button
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea"; // Need to check if exists, else Input
 import { Badge } from "@/components/ui/badge";

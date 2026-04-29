@@ -6,7 +6,7 @@ import { da, de, enUS, es, fr, it, nb, nl, pt, sv } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";

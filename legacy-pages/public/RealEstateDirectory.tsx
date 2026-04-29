@@ -8,7 +8,7 @@ import { RealEstateFilters } from "@/components/real-estate/RealEstateFilters";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Loader2, Building2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { CuratedExcellence } from "@/components/sections/CuratedExcellence";
 import { ConciergeContactDialog } from "@/components/real-estate/ConciergeContactDialog";
 import { useTranslation } from "react-i18next";

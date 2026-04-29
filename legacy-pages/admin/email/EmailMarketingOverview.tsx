@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Users, Send, Mail, MousePointer, Loader2, Plus } from "lucide-react";
 import { useEmailStats, useRecentCampaignActivity } from "@/hooks/useEmailStats";
 import { useRouter } from "next/navigation";

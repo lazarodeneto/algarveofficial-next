@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/textarea";
 import { DashboardBreadcrumb } from "@/components/ui/dashboard-breadcrumb";
 import { SeoFieldsPanel, SeoData } from "@/components/admin/seo/SeoFieldsPanel";

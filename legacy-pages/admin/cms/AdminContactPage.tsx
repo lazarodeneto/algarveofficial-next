@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Save, Loader2, Mail, MapPin, Phone, MessageSquare, ExternalLink } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";

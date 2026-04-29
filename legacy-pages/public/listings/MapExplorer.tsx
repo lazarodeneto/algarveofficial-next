@@ -5,7 +5,7 @@ import { ArrowLeft, Building2, Filter, Loader2, MapPinned, Search, Tag } from "l
 import { useTranslation } from "react-i18next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -498,13 +498,13 @@ function MapExplorerContent() {
                           event.preventDefault();
                           setActiveId(listing.id);
                         }}
-                        className={`group flex gap-3 rounded-2xl border bg-card p-3 transition duration-200 ${
+                        className={`group flex gap-3 rounded-2xl border bg-card p-3 transition-[border-color,box-shadow,background-color] duration-200 ${
                           isSelected
-                            ? "scale-[1.01] border-primary/80 shadow-lg shadow-primary/10"
+                            ? "border-primary/80 bg-card shadow-lg shadow-primary/10"
                             : "border-border hover:border-primary/35 hover:shadow-sm"
                         }`}
                       >
-                        <div className="relative h-28 w-32 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-32 sm:w-40">
+                        <div className="relative h-28 w-32 shrink-0 overflow-hidden rounded-xl bg-muted [backface-visibility:hidden] sm:h-32 sm:w-40">
                           <ListingImage
                             src={listing.featured_image_url}
                             category={listing.category?.slug}
@@ -513,7 +513,7 @@ function MapExplorerContent() {
                             alt={listing.name}
                             fill
                             sizes="(max-width: 1024px) 35vw, 18vw"
-                            className="h-full w-full transition duration-500 group-hover:scale-105"
+                            className="h-full w-full transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
                           />
                         </div>
 

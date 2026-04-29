@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/card";
 import { Home, Bed, Bath, Maximize, MapPin, Waves, TreePine, Shield, Calendar, Euro } from "lucide-react";
 import { useTranslation } from "react-i18next";

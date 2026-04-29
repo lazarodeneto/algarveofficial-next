@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useNewsletterSignup } from "@/hooks/useNewsletterSignup";

@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import { format, addDays, startOfWeek, isSameDay, parseISO, isWithinInterval, isBefore, startOfDay } from 'date-fns';
 import { ChevronLeft, ChevronRight, Plus, Clock, Euro, Trash2, Edit2, CirclePlus, CircleX } from 'lucide-react';
 import { m, AnimatePresence } from 'framer-motion';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';

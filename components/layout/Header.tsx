@@ -24,7 +24,7 @@ import {
   Compass,
   FlagTriangleRight,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMobileMenu } from "@/contexts/MobileMenuContext";
 import { ThemeToggle } from "@/components/ui/theme-toggle";

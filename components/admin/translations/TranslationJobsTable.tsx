@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { Loader2, RefreshCw, ShieldCheck, X, Zap } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import {

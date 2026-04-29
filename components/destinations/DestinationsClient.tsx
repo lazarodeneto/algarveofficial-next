@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { getRegionImageSet } from "@/lib/regionImages";

@@ -1,7 +1,7 @@
 "use client";
 
 import { m } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Crown, ShieldCheck, Check, Lock } from "lucide-react";
 import {
   VERIFIED_PARTNER_FEATURES,

@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import type { InboxItem, InboxUrgency } from "@/lib/admin/inbox/types";
 
 interface InboxListProps {

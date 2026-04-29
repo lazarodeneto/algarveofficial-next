@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { Upload, X, GripVertical, Star, ImageIcon, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { convertToWebP, trimWhiteBorders } from "@/lib/imageUtils";
 import { resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";

@@ -16,7 +16,7 @@ import { RealEstateCard } from "@/components/real-estate/RealEstateCard";
 import { RealEstateFilters } from "@/components/real-estate/RealEstateFilters";
 import { ConciergeContactDialog } from "@/components/real-estate/ConciergeContactDialog";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";

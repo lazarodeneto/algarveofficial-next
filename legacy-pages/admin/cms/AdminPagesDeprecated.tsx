@@ -1,6 +1,6 @@
 import { DashboardBreadcrumb } from "@/components/ui/dashboard-breadcrumb";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { AlertTriangle, Layers, ArrowRight } from "lucide-react";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 

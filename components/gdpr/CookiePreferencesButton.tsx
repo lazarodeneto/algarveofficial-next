@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Cookie } from "lucide-react";
 import { openCookiePreferences } from "@/lib/cookieConsent";
 

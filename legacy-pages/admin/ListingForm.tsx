@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { FormStepIndicator } from "@/components/admin/listings/FormStepIndicator";
 import { FormActionBar } from "@/components/admin/listings/FormActionBar";
 import { BasicsStep } from "@/components/admin/form-steps/BasicsStep";

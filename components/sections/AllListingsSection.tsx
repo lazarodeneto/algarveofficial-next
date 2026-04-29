@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { ListingCard } from "@/components/ListingCard";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { useTranslation } from "react-i18next";

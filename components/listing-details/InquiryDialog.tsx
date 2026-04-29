@@ -2,7 +2,7 @@ import { useState } from "react";
 import { format, addDays } from "date-fns";
 import { Calendar, Users, MessageSquare, Send, Loader2, Phone } from "lucide-react";
 import { CountryPhoneInput } from "@/components/ui/country-phone-input";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";

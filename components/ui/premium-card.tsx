@@ -19,7 +19,7 @@ export function PremiumCard({
   return (
     <div
       className={cn(
-        "group overflow-hidden rounded-2xl bg-white shadow-soft transition-all duration-300 hover:scale-[1.02]",
+        "group overflow-hidden rounded-2xl bg-white shadow-soft transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-xl",
         className
       )}
     >
@@ -29,7 +29,7 @@ export function PremiumCard({
             src={imageUrl}
             alt={title}
             fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className="rounded-2xl object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
           />
         </div>
       )}

@@ -7,7 +7,7 @@ import { AlertTriangle } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { DashboardRouteLoading } from "@/components/routes/DashboardRouteLoading";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { OwnerLayout } from "@/components/owner/OwnerLayout";
 
 const withOwnerLoading = <T extends ComponentType<any>>(

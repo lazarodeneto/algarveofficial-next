@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
-import { ButtonProps, buttonVariants } from "@/components/ui/button";
+import { ButtonProps, buttonVariants } from "@/components/ui/Button";
 
 const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => {
   const { t } = useTranslation();

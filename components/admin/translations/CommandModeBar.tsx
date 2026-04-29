@@ -13,7 +13,7 @@ import {
   Star,
   Zap,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import type { AttentionCounts } from "@/lib/admin/translations/types";
 

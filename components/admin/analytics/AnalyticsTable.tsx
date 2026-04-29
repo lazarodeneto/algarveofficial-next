@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 

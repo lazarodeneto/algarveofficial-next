@@ -16,7 +16,7 @@ import {
   ExternalLink,
   Calendar,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";

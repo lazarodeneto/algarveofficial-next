@@ -18,7 +18,7 @@ import {
   CheckCircle2,
   XCircle,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatsCard } from "@/components/admin/StatsCard";
 import { TierBadge } from "@/components/admin/TierBadge";

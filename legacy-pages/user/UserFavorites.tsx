@@ -20,7 +20,7 @@ import {
   ArrowRight,
   Loader2,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";

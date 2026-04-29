@@ -2,7 +2,7 @@ import { type ReactNode, useCallback, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { ChevronDown, ChevronLeft, ChevronRight, Menu, X, type LucideIcon } from "lucide-react";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";

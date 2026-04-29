@@ -11,7 +11,7 @@ import { Footer } from '@/components/layout/Footer';
 import { RouteMessageState } from '@/components/layout/RouteMessageState';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CmsBlock } from '@/components/cms/CmsBlock';
 import { useCmsPageBuilder } from '@/hooks/useCmsPageBuilder';

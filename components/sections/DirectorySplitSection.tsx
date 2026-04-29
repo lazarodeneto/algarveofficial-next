@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Search } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { useLocalePath } from "@/hooks/useLocalePath";
 
 export function DirectorySplitSection() {

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/command";
 import { useGlobalSearch, SearchResult } from "@/hooks/useGlobalSearch";
 import { Building2, Grid3X3, MapPin, Search, Clock, Sparkles, TrendingUp } from "lucide-react";
-import { Button } from "./button";
+import { Button } from "./Button";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useTranslation } from "react-i18next";
 

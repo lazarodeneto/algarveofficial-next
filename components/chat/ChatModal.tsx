@@ -2,7 +2,7 @@ import { useState } from "react";
 import { X, MessageCircle, ArrowLeft } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChatThreads } from "@/hooks/useChat";
 import { ThreadList } from "./ThreadList";

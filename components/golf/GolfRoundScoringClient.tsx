@@ -12,7 +12,7 @@ import {
 } from "@/lib/golf/round-shared";
 import { buildLocalizedPath } from "@/lib/i18n/routing";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 
 interface GolfRoundScoringClientProps {
   initialRound: GolfRound;

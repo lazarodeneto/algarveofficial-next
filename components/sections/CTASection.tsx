@@ -1,6 +1,6 @@
 import { m } from "framer-motion";
 import { ArrowRight, Star } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
 import { useLocalePath } from "@/hooks/useLocalePath";

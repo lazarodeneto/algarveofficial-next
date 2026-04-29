@@ -6,7 +6,7 @@ import L from "leaflet";
 import { usePublishedListings } from "@/hooks/useListings";
 import { useCities, useCategories } from "@/hooks/useReferenceData";
 import { MapPin } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import ListingImage from "@/components/ListingImage";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";

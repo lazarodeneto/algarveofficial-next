@@ -5,6 +5,7 @@ import { Crown, ArrowRight } from "lucide-react";
 import { useCallback, useId, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { FavoriteButton } from "@/components/ui/favorite-button";
+import { getOverlay, useImageBrightness } from "@/lib/hooks/useImageBrightness";
 
 /* ──────────────────────────────────────────────────────────────── */
 /*  Types                                                          */
@@ -156,6 +157,7 @@ function MasonryCard({
   const [cardRef, isVisible] = useInView<HTMLDivElement>({
     rootMargin: rootMargin ?? "200px",
   });
+  const brightness = useImageBrightness(isVisible ? item.image : null);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -210,7 +212,7 @@ function MasonryCard({
           href={item.href}
           ref={cardRef as React.Ref<HTMLAnchorElement>}
           className={cn(
-            "group relative mb-5 block break-inside-avoid overflow-hidden rounded-2xl bg-muted shadow-sm transition duration-300 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+            "group relative mb-5 block break-inside-avoid overflow-hidden rounded-2xl bg-muted shadow-sm transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
             props.className
           )}
         />
@@ -224,7 +226,7 @@ function MasonryCard({
           onClick={isClickable ? () => onItemClick?.(item) : undefined}
           onKeyDown={isClickable ? handleKeyDown : undefined}
           className={cn(
-            "group relative mb-5 break-inside-avoid overflow-hidden rounded-2xl bg-muted shadow-sm transition duration-300 hover:shadow-xl",
+            "group relative mb-5 break-inside-avoid overflow-hidden rounded-2xl bg-muted shadow-sm transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-xl",
             isClickable && "cursor-pointer",
             props.className
           )}
@@ -275,10 +277,10 @@ function MasonryCard({
             blurDataURL={item.blurDataURL}
             onLoad={() => setLoaded(true)}
             className={cn(
-              "object-cover transition duration-500",
+              "rounded-2xl object-cover transition-transform duration-500 ease-out will-change-transform",
               item.variant === "hero"
-                ? "group-hover:scale-[1.03]"
-                : "group-hover:scale-[1.04]",
+                ? "group-hover:scale-110"
+                : "group-hover:scale-110",
               loaded ? "opacity-100" : "opacity-0"
             )}
           />
@@ -288,8 +290,9 @@ function MasonryCard({
       {/* Gradient overlay — full card */}
       <div
         className={cn(
-          "pointer-events-none absolute inset-0 bg-gradient-to-t transition duration-300",
-          variantConfig.overlay
+          "pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t transition duration-300",
+          getOverlay(brightness),
+          "to-transparent"
         )}
       />
 

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import type { GolfListing } from "@/lib/golf";
 import { buildLocalizedPath } from "@/lib/i18n/routing";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface CourseCardProps {

@@ -120,7 +120,7 @@ export function HomeQuickLinksSection() {
               <Link
                 key={card.id}
                 href={card.customHref ? l(card.customHref) : l(`/stay?category=${card.categorySlug}`)}
-                className="group relative isolate h-60 overflow-hidden rounded-2xl border border-border/40 bg-black font-sans shadow-[0_18px_54px_-38px_rgba(0,0,0,0.75)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_64px_-40px_rgba(0,0,0,0.86)] sm:h-64"
+                className="group relative isolate h-60 overflow-hidden rounded-2xl border border-border/40 bg-black font-sans shadow-[0_18px_54px_-38px_rgba(0,0,0,0.75)] transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-[0_24px_64px_-40px_rgba(0,0,0,0.86)] sm:h-64"
               >
                     {showVideo ? (
                       <video
@@ -136,7 +136,7 @@ export function HomeQuickLinksSection() {
                         onPlay={(event) => enforceMutedPlayback(event.currentTarget)}
                         onError={() => markVideoAsFailed(card.id)}
                         style={{ objectPosition: card.imagePosition ?? "center" }}
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                        className="absolute inset-0 h-full w-full rounded-2xl object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
                       />
                     ) : showImage ? (
                       <Image
@@ -151,12 +151,12 @@ export function HomeQuickLinksSection() {
                         decoding="async"
                         onError={() => markImageAsFailed(card.id)}
                         style={{ objectPosition: card.imagePosition ?? "center" }}
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                        className="absolute inset-0 h-full w-full rounded-2xl object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
                       />
                     ) : (
                       <div className="absolute inset-0 bg-black" aria-hidden="true" />
                     )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/82 via-black/24 to-black/0" />
+                  <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t from-black/82 via-black/24 to-black/0" />
                   <div className="relative z-10 flex h-full flex-col justify-end p-5 text-white sm:p-6">
                     <Icon className="mb-3 h-5 w-5 text-primary sm:h-6 sm:w-6" />
                     <h3 className="font-serif text-2xl font-semibold leading-none tracking-normal sm:text-3xl">

@@ -3,7 +3,7 @@ import { usePathname } from "next/navigation";
 import { CheckCircle2, Gift, Mail, Sparkles, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { useNewsletterSignup } from "@/hooks/useNewsletterSignup";
 import { useCookieConsent } from "@/hooks/useCookieConsent";

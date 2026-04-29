@@ -9,7 +9,7 @@ import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
 import { GolfLocationMap } from "@/components/golf/GolfLocationMap";
 import { StartRoundButton } from "@/components/golf/StartRoundButton";
 import { STANDARD_PUBLIC_CONTENT_TOP_CLASS } from "@/components/sections/hero-layout";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import {
   Card,
   CardContent,

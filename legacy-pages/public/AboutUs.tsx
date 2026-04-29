@@ -7,7 +7,7 @@ import { Compass, Handshake, Newspaper, Sparkles, Users, LineChart } from "lucid
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 
 const teamCards = [
   {

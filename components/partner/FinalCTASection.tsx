@@ -1,7 +1,7 @@
 "use client";
 
 import { m } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { ArrowRight, BadgeEuro } from "lucide-react";
 import { useTranslation } from "react-i18next";
 

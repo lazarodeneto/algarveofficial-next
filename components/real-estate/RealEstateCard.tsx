@@ -4,7 +4,7 @@ import { Database } from "@/integrations/supabase/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Bath, Maximize, MapPin, Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { useTranslation } from "react-i18next";
 import { translateCategoryValue } from "@/lib/translateCategoryValue";
 import ListingImage from "@/components/ListingImage";

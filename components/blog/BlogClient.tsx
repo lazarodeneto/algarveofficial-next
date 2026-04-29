@@ -14,7 +14,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { BlogFeaturedImage } from "@/components/blog/BlogFeaturedImage";
@@ -560,7 +560,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
                             src={post.featured_image ?? "/placeholder.svg"}
                             category={post.category}
                             alt={post.title}
-                            className="w-full h-full object-cover group-hover:scale-105 group-hover:brightness-95 transition-all duration-500"
+                            className="w-full h-full object-cover group-hover:scale-105 group-hover:brightness-95 transition-all duration-500 rounded-2xl"
                             loading="lazy"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

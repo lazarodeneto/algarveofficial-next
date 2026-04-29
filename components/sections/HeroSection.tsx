@@ -23,8 +23,8 @@ import { STANDARD_PUBLIC_HERO_SURFACE_CLASS, STANDARD_PUBLIC_HERO_WRAPPER_CLASS 
 const HOMEPAGE_H1 = "Discover the Algarve – Hotels, Restaurants, Experiences & Real Estate";
 const HOMEPAGE_SUBTITLE =
   "Discover the finest places to stay, eat and experience across Portugal’s most beautiful coastline.";
-const HOMEPAGE_PRIMARY_CTA = "Explore Signature Collection";
-const HOMEPAGE_SECONDARY_CTA = "Browse All Listings";
+const HOMEPAGE_PRIMARY_CTA = "Explore curated places";
+const HOMEPAGE_SECONDARY_CTA = "Search by location";
 
 const parseYouTubeTimeToSeconds = (value: string | null): number | null => {
   if (!value) return null;
@@ -435,7 +435,7 @@ export function HeroSection() {
               </button>
               <button
                 type="button"
-                onClick={() => router.push(l("/directory"))}
+                onClick={() => router.push(l("/map"))}
                 className="inline-flex w-full max-w-[18rem] items-center justify-center rounded-full border border-white/35 bg-black/18 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition duration-200 hover:-translate-y-0.5 hover:bg-white/12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:w-auto"
               >
                 {getText("home.hero.cta.secondary", "") || HOMEPAGE_SECONDARY_CTA}

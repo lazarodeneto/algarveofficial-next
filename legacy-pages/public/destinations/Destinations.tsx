@@ -4,7 +4,7 @@ import { ArrowRight, MapPin, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { useRegions } from "@/hooks/useRegions";
 import { getRegionImageSet } from "@/lib/regionImages";
 import { CmsBlock } from "@/components/cms/CmsBlock";

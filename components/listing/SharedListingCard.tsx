@@ -88,7 +88,7 @@ export function SharedListingCard({
       className={cn("h-full", className)}
     >
       <Link href={href} className="group block h-full" onClick={onCardClick}>
-        <article className="relative z-0 isolate glass-box glass-box-listing-shimmer overflow-hidden flex flex-col h-full">
+        <article className="relative z-0 isolate glass-box glass-box-listing-shimmer overflow-hidden flex flex-col h-full [backface-visibility:hidden]">
           {isSignature ? (
             <span
               aria-hidden
@@ -103,7 +103,7 @@ export function SharedListingCard({
             />
           ) : null}
 
-          <div className="relative z-0 aspect-square bg-muted overflow-hidden">
+          <div className="relative z-0 aspect-square overflow-hidden rounded-t-[inherit] bg-muted">
             <ListingImage
               src={listing.featured_image_url}
               category={categorySlug}
@@ -113,7 +113,7 @@ export function SharedListingCard({
               isRepresentative={!listing.featured_image_url}
               fill
               priority={index < 3}
-              className="transition-transform duration-500 group-hover:scale-105"
+              className="transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
             />
 
             <div className="absolute top-3 left-3 flex flex-wrap gap-2">
