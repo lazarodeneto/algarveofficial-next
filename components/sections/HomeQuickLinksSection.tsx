@@ -156,7 +156,7 @@ export function HomeQuickLinksSection() {
                     ) : (
                       <div className="absolute inset-0 bg-black" aria-hidden="true" />
                     )}
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/82 via-black/24 to-black/0" />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 via-[35%] to-transparent" />
                   <div className="relative z-10 flex h-full flex-col justify-end p-5 text-white sm:p-6">
                     <h3 className="font-sans text-2xl font-bold not-italic uppercase leading-none tracking-normal sm:text-3xl">
                       {displayTitle}
