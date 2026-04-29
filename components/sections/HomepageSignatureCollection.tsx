@@ -73,21 +73,45 @@ export function HomepageSignatureCollection() {
               onToggleFavorite={() => toggleFavorite(hero.id)}
             />
 
-            {rest.map((listing, index) => (
-              <SignatureCard
-                key={listing.id}
-                title={listing.name}
-                subtitle={listing.short_description || listing.description || undefined}
-                image={listing.featured_image_url}
-                category={`${listing.city?.name ?? "Algarve"} · ${translateCategoryName(t, listing.category?.slug, listing.category?.name)}`}
-                tier={listing.tier}
-                href={l(`/listing/${listing.slug}`)}
-                variant={index === rest.length - 1 && rest.length % 3 === 0 ? "hero" : "default"}
-                isFavorite={isFavorite(listing.id)}
-                onToggleFavorite={() => toggleFavorite(listing.id)}
-                className={index === rest.length - 1 && rest.length % 3 === 0 ? "lg:col-span-2" : undefined}
-              />
-            ))}
+            {(() => {
+              // After hero's 2x2 area, 4 items fill the side (cols 3-4, rows 1-2).
+              // Remaining items flow into full-width rows below.
+              const itemsAfterSide = Math.max(0, rest.length - 4);
+              const itemsInLastRow = itemsAfterSide > 0 ? itemsAfterSide % 4 : 0;
+              const lastIndex = rest.length - 1;
+              const secondLastIndex = rest.length - 2;
+
+              return rest.map((listing, index) => {
+                const isLast = index === lastIndex;
+                const isSecondLast = index === secondLastIndex;
+
+                // Gap-fill logic: make last card(s) wider to fill empty grid slots
+                let spanClass = "";
+                if (itemsInLastRow === 3 && isLast) {
+                  spanClass = "lg:col-span-2"; // 3 items → last spans 2, fills 1-slot gap
+                } else if (itemsInLastRow === 2 && (isLast || isSecondLast)) {
+                  spanClass = "lg:col-span-2"; // 2 items → both span 2, fills 2-slot gap
+                } else if (itemsInLastRow === 1 && isLast) {
+                  spanClass = "lg:col-span-4"; // 1 item → full width, fills 3-slot gap
+                }
+
+                return (
+                  <SignatureCard
+                    key={listing.id}
+                    title={listing.name}
+                    subtitle={listing.short_description || listing.description || undefined}
+                    image={listing.featured_image_url}
+                    category={`${listing.city?.name ?? "Algarve"} · ${translateCategoryName(t, listing.category?.slug, listing.category?.name)}`}
+                    tier={listing.tier}
+                    href={l(`/listing/${listing.slug}`)}
+                    variant={spanClass ? "hero" : "default"}
+                    isFavorite={isFavorite(listing.id)}
+                    onToggleFavorite={() => toggleFavorite(listing.id)}
+                    className={spanClass || undefined}
+                  />
+                );
+              });
+            })()}
           </div>
         ) : (
           <div className="rounded-2xl border border-border/70 bg-muted/25 p-8 text-center">
