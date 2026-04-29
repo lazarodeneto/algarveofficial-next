@@ -244,12 +244,12 @@ function MasonryCard({
     : ({ aspectRatio: aspectRatioMap[item.variant] } as React.CSSProperties);
 
   return (
-    <CardWrapper aria-labelledby={item.title ? titleId : undefined}>
-      {/* Image container — aspect ratio locks height, eliminating CLS */}
-      <div
-        className={cn("relative w-full", variantConfig.heightClass)}
-        style={aspectStyle}
-      >
+    <CardWrapper
+      aria-labelledby={item.title ? titleId : undefined}
+      className={variantConfig.heightClass}
+    >
+      {/* Image fills entire card */}
+      <div className="absolute inset-0">
         {/* Skeleton — visible until image loads or while not in viewport */}
         {(!loaded || !isVisible) && (
           <div
@@ -285,7 +285,7 @@ function MasonryCard({
         ) : null}
       </div>
 
-      {/* Gradient overlay */}
+      {/* Gradient overlay — full card */}
       <div
         className={cn(
           "pointer-events-none absolute inset-0 bg-gradient-to-t transition duration-300",
@@ -293,69 +293,61 @@ function MasonryCard({
         )}
       />
 
-      {/* Tier badge — top left */}
-      {item.tier && item.tier !== "default" && (
-        <div className="absolute left-4 top-4 z-10">
+      {/* Top bar — badge + favorite, flex separated */}
+      <div className="absolute inset-x-0 top-0 z-10 flex items-start justify-between p-4 sm:p-5">
+        {/* Tier badge */}
+        {item.tier && item.tier !== "default" && (
           <span
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wider backdrop-blur-sm",
+              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wider backdrop-blur-sm",
               variantConfig.badge
             )}
           >
             {item.tier === "signature" && <Crown className="h-3 w-3" />}
             {item.tier}
           </span>
-        </div>
-      )}
+        )}
 
-      {/* Favorite button */}
-      {onToggleFavorite && (
-        <div className="absolute right-3 top-3 z-10">
+        {/* Favorite button */}
+        {onToggleFavorite && (
           <FavoriteButton
             isFavorite={favoriteActive}
             onToggle={() => onToggleFavorite(item.id)}
             size="sm"
             variant="glassmorphism"
-            className="bg-white/90 backdrop-blur border-white/20 hover:bg-white hover:border-red-400/30 [&_svg]:text-neutral-700 [&_svg]:hover:text-red-400"
+            className="shrink-0 bg-white/90 backdrop-blur border-white/20 hover:bg-white hover:border-red-400/30 [&_svg]:text-neutral-700 [&_svg]:hover:text-red-400"
           />
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Content overlay — bottom */}
+      {/* Content — bottom, with line-clamp protection */}
       <div className="absolute inset-x-0 bottom-0 z-10 p-4 sm:p-5">
-        <div
-          className={cn(
-            "bg-gradient-to-t from-black/60 to-transparent",
-            item.variant === "hero" ? "p-1" : ""
-          )}
-        >
-          {item.subtitle && (
-            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-              {item.subtitle}
-            </p>
-          )}
-          {item.title && (
-            <h3
-              id={titleId}
-              className={cn(
-                "font-serif font-semibold leading-tight tracking-normal text-white",
-                variantConfig.titleClass
-              )}
-            >
-              {item.title}
-            </h3>
-          )}
-          {variantConfig.showDescription && item.imageAlt && (
-            <p className={cn("mt-3 max-w-lg line-clamp-2 text-white/80", variantConfig.subtitleClass)}>
-              {item.imageAlt}
-            </p>
-          )}
-          {variantConfig.showCta && (
-            <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white/90 transition group-hover:text-white">
-              Explore <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </span>
-          )}
-        </div>
+        {item.subtitle && (
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+            {item.subtitle}
+          </p>
+        )}
+        {item.title && (
+          <h3
+            id={titleId}
+            className={cn(
+              "font-serif font-semibold leading-tight tracking-normal text-white",
+              variantConfig.titleClass
+            )}
+          >
+            {item.title}
+          </h3>
+        )}
+        {variantConfig.showDescription && item.imageAlt && (
+          <p className={cn("mt-3 max-w-lg line-clamp-2 text-white/80", variantConfig.subtitleClass)}>
+            {item.imageAlt}
+          </p>
+        )}
+        {variantConfig.showCta && (
+          <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white/90 transition group-hover:text-white">
+            Explore <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </span>
+        )}
       </div>
     </CardWrapper>
   );
