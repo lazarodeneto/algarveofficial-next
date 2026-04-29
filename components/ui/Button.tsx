@@ -5,21 +5,21 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "relative inline-flex items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-full text-sm font-semibold tracking-normal ring-offset-background transition-all duration-300 ease-out shadow-[0_18px_38px_-24px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.55)] [backface-visibility:hidden] hover:-translate-y-1 hover:scale-[1.02] hover:brightness-105 hover:shadow-[0_22px_46px_-24px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.62)] active:translate-y-[1px] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A62A]/55 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none disabled:hover:translate-y-0 disabled:hover:scale-100 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 will-change-transform",
+  "relative inline-flex items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-full text-sm font-semibold tracking-normal ring-offset-background transition-all duration-200 ease-out shadow-[0_18px_38px_-24px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.55)] [backface-visibility:hidden] hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[0_22px_46px_-24px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.62)] active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A62A]/55 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none disabled:hover:translate-y-0 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         /* ── Core variants ──────────────────────────────── */
-        primary: "bg-[linear-gradient(180deg,#E8CF82_0%,#D9B542_45%,#C89B1F_100%)] text-black",
+        primary: "bg-gradient-gold text-black",
         secondary: "border border-border/70 bg-background text-foreground shadow-[0_10px_28px_-22px_rgba(0,0,0,0.5)] hover:border-[#D4A62A]/50 hover:bg-[#D4A62A]/8",
         ghost: "bg-transparent text-foreground shadow-none hover:bg-foreground/5 hover:shadow-[0_10px_24px_rgba(0,0,0,0.08)]",
         link: "rounded-none bg-transparent p-0 text-primary shadow-none underline-offset-4 hover:translate-y-0 hover:scale-100 hover:bg-transparent hover:shadow-none hover:underline active:translate-y-0 active:scale-100",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
 
         /* ── Backward-compatible aliases (deprecated, mapped to core) ── */
-        default: "bg-[linear-gradient(180deg,#E8CF82_0%,#D9B542_45%,#C89B1F_100%)] text-black",
-        gold: "bg-[linear-gradient(180deg,#E8CF82_0%,#D9B542_45%,#C89B1F_100%)] text-black",
-        hero: "bg-[linear-gradient(180deg,#E8CF82_0%,#D9B542_45%,#C89B1F_100%)] text-black",
+        default: "bg-gradient-gold text-black",
+        gold: "bg-gradient-gold text-black",
+        hero: "bg-gradient-gold text-black",
         outline: "border border-border/70 bg-background text-foreground shadow-[0_10px_28px_-22px_rgba(0,0,0,0.5)] hover:border-[#D4A62A]/50 hover:bg-[#D4A62A]/8",
         heroOutline: "border border-white/45 bg-white/12 text-white backdrop-blur-md hover:bg-white/18",
         premium: "border border-border/70 bg-background text-foreground hover:border-[#D4A62A]/50 hover:bg-[#D4A62A]/8",

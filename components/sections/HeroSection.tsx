@@ -1,5 +1,6 @@
 // framer-motion import removed - using CSS animations for LCP elements
 import { ArrowRight, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -424,22 +425,23 @@ export function HeroSection() {
             </p>
 
             <div className="mx-auto flex w-full max-w-[38rem] flex-col items-center gap-3 pt-3 sm:flex-row sm:justify-center sm:gap-4">
-              <button
-                type="button"
+              <Button
+                variant="gold"
+                size="lg"
                 onClick={() => scrollToSection("signature-collection")}
-                className="group inline-flex w-full max-w-[18rem] items-center justify-center gap-2 rounded-full px-6 py-3.5 text-base font-semibold text-black shadow-[0_18px_38px_-24px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.55)] transition duration-200 hover:-translate-y-0.5 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary))] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:w-auto"
-                style={{ backgroundImage: "var(--gradient-gold)" }}
+                className="w-full max-w-[18rem] gap-2 sm:w-auto"
               >
-                <span>{primaryCtaLabel}</span>
+                {primaryCtaLabel}
                 <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                variant="heroOutline"
+                size="lg"
                 onClick={() => router.push(l("/map"))}
-                className="inline-flex w-full max-w-[18rem] items-center justify-center rounded-full border border-white/35 bg-black/18 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition duration-200 hover:-translate-y-0.5 hover:bg-white/12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:w-auto"
+                className="w-full max-w-[18rem] sm:w-auto"
               >
                 {getText("home.hero.cta.secondary", "") || HOMEPAGE_SECONDARY_CTA}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
