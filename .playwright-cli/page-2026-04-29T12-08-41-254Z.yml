@@ -1,0 +1,48 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - status [ref=e3]
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - complementary [ref=e4]:
+    - link "AlgarveOfficial homepage" [ref=e6] [cursor=pointer]:
+      - /url: /
+      - img "Algarve Official crown mark" [ref=e8]
+    - navigation [ref=e10]:
+      - link "Stay" [ref=e11] [cursor=pointer]:
+        - /url: /stay?category=places-to-stay
+        - img [ref=e13]
+      - link "Experiences" [ref=e16] [cursor=pointer]:
+        - /url: /experiences
+        - img [ref=e18]
+      - link "Properties" [ref=e23] [cursor=pointer]:
+        - /url: /properties
+        - img [ref=e25]
+      - link "Beaches" [ref=e28] [cursor=pointer]:
+        - /url: /beaches
+        - img [ref=e30]
+      - link "Golf" [ref=e34] [cursor=pointer]:
+        - /url: /golf
+        - img [ref=e36]
+      - link "Map" [ref=e38] [cursor=pointer]:
+        - /url: /map
+        - img [ref=e40]
+      - link "Blog" [ref=e42] [cursor=pointer]:
+        - /url: /blog
+        - img [ref=e44]
+      - link "Events" [ref=e46] [cursor=pointer]:
+        - /url: /events
+        - img [ref=e48]
+      - link "Residence" [ref=e50] [cursor=pointer]:
+        - /url: /residence
+        - img [ref=e52]
+      - link "Contact" [ref=e56] [cursor=pointer]:
+        - /url: /contact
+        - img [ref=e58]
+  - button "Open concierge on WhatsApp" [ref=e63] [cursor=pointer]:
+    - img [ref=e64]
+    - generic [ref=e67]: Open concierge on WhatsApp
+  - button "Open Next.js Dev Tools" [ref=e73] [cursor=pointer]:
+    - img [ref=e74]
+  - alert [ref=e77]

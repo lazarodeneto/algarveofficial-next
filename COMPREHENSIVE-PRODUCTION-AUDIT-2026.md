@@ -829,14 +829,14 @@ export async function generateMetadata({ params }: CityPageProps): Promise<Metad
   const canonicalUrl = `${siteUrl}${localePath}`;
 
   const titleMap: Record<string, string> = {
-    en: `${cityName}, Algarve | Luxury Restaurants, Villas & Activities`,
+    en: `${cityName}, Algarve | Premium Restaurants, Villas & Activities`,
     "pt-pt": `${cityName}, Algarve | Restaurantes, Villas & Atividades`,
     fr: `${cityName}, Algarve | Restaurants, Villas & Activités`,
     de: `${cityName}, Algarve | Restaurants, Villen & Aktivitäten`,
   };
 
   const descMap: Record<string, string> = {
-    en: `Discover the best restaurants, luxury villas, golf courses and things to do in ${cityName}, Algarve. Curated by local experts.`,
+    en: `Discover the best restaurants, premium villas, golf courses and things to do in ${cityName}, Algarve. Curated by local experts.`,
     "pt-pt": `Descubra os melhores restaurantes, villas de luxo, campos de golfe e atividades em ${cityName}, Algarve.`,
     fr: `Découvrez les meilleurs restaurants, villas de luxe et activités à ${cityName}, Algarve.`,
     de: `Entdecken Sie die besten Restaurants, Villen und Aktivitäten in ${cityName}, Algarve.`,

@@ -80,7 +80,7 @@ export interface ListingFormData {
   full_description?: string;
   category_id: string;
   city_id: string;
-  luxury_region_id?: string;
+  premium_region_id?: string;
   owner_id?: string;
   tier: "unverified" | "verified" | "signature";
   published_status: "draft" | "pending_review" | "published" | "rejected" | "archived";

@@ -1,6 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
+import {
+  applyDefaultConsent,
+  loadConsent,
+  updateGoogleConsent,
+} from "@/lib/consent/consent-mode";
 
 interface ClientRuntimeScriptsProps {
   googleTagId: string;
@@ -57,12 +62,11 @@ function configureGoogleTag(googleTagId: string) {
   if (!googleTagId) return;
 
   const analyticsWindow = window as AnalyticsWindow;
-  analyticsWindow.dataLayer = analyticsWindow.dataLayer || [];
-  analyticsWindow.gtag =
-    analyticsWindow.gtag ||
-    function gtag(...args: unknown[]) {
-      analyticsWindow.dataLayer?.push(args);
-    };
+  applyDefaultConsent();
+  const savedConsent = loadConsent();
+  if (savedConsent) {
+    updateGoogleConsent(savedConsent);
+  }
 
   if (!analyticsWindow.__algarveGtagConfigured) {
     analyticsWindow.__algarveGtagConfigured = new Set<string>();
@@ -71,6 +75,7 @@ function configureGoogleTag(googleTagId: string) {
     return;
   }
 
+  if (!analyticsWindow.gtag) return;
   analyticsWindow.gtag("js", new Date());
   analyticsWindow.gtag("config", googleTagId);
   analyticsWindow.__algarveGtagConfigured.add(googleTagId);
@@ -84,8 +89,8 @@ function scheduleGoogleTagInitialization(googleTagId: string) {
   const runtimeWindow = window as IdleCallbackWindow;
 
   const run = () => {
-    ensureGoogleTagScript(googleTagId);
     configureGoogleTag(googleTagId);
+    ensureGoogleTagScript(googleTagId);
   };
 
   if (
@@ -107,6 +112,11 @@ export function ClientRuntimeScripts({ googleTagId }: ClientRuntimeScriptsProps)
 
   useEffect(() => {
     if (!googleTagId) return;
+    applyDefaultConsent();
+    const savedConsent = loadConsent();
+    if (savedConsent) {
+      updateGoogleConsent(savedConsent);
+    }
     return scheduleGoogleTagInitialization(googleTagId);
   }, [googleTagId]);
 

@@ -23,27 +23,27 @@ export function WellnessLayout({ details }: WellnessLayoutProps) {
       <div>
         <h2 className="text-xl font-serif font-medium mb-4">{t("categoryLayouts.wellness.wellnessFocus")}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="luxury-card p-4 text-center">
+          <div className="premium-card p-4 text-center">
             <Sparkles className="h-6 w-6 mx-auto mb-2 text-primary" />
             <p className="text-sm text-muted-foreground">{t("categoryLayouts.common.type")}</p>
             <p className="font-medium capitalize">{translateCategoryValue(t, wellnessType) || t("categoryLayouts.common.typeFallback.spa")}</p>
           </div>
           {medicalSupervision && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Heart className="h-6 w-6 mx-auto mb-2 text-red-400" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.wellness.medical")}</p>
               <p className="font-medium">{t("categoryLayouts.wellness.supervised")}</p>
             </div>
           )}
           {detoxPrograms && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Leaf className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.wellness.detox")}</p>
               <p className="font-medium">{t("categoryLayouts.wellness.programsAvailable")}</p>
             </div>
           )}
           {yogaMeditation && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Brain className="h-6 w-6 mx-auto mb-2 text-purple-400" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.wellness.mindfulness")}</p>
               <p className="font-medium">{t("categoryLayouts.wellness.yogaMeditation")}</p>

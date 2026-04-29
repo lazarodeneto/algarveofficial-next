@@ -20,7 +20,7 @@ INSERT INTO public.listings (
   'published',
   false,
   '{"holes": 18, "par": 72, "course_length": "6592 meters", "designer": "Jack Nicklaus", "course_type": "Championship", "style": "Parkland", "rating": "5-star", "green_fees_from": 220, "facilities": ["Pro Shop", "Practice Range", "Clubhouse", "Restaurant", "Spa", "Accommodation"], "awards": ["Top 100 Golf Courses in Europe"], "equipment_rental": true, "lessons_available": true, "buggy_included": false}'::jsonb,
-  ARRAY['championship', 'jack nicklaus', 'luxury', 'signature design', 'european ranking'],
+  ARRAY['championship', 'jack nicklaus', 'premium', 'signature design', 'european ranking'],
   'Sítio do Pocinho, 8901-907 Vila Nova de Cacela'
 ),
 (
@@ -68,7 +68,7 @@ INSERT INTO public.listings (
   'published',
   false,
   '{"holes": 18, "par": 72, "course_length": "6488 meters", "designer": "William Mitchell", "course_type": "Championship", "style": "Parkland", "rating": "5-star", "green_fees_from": 240, "facilities": ["Pro Shop", "Practice Range", "Clubhouse", "Fine Dining", "Golf Academy"], "awards": ["8x Portuguese Open Host"], "equipment_rental": true, "lessons_available": true, "buggy_included": false}'::jsonb,
-  ARRAY['championship', 'portuguese open', 'ria formosa', 'luxury', 'nature reserve'],
+  ARRAY['championship', 'portuguese open', 'ria formosa', 'premium', 'nature reserve'],
   'Quinta do Lago, 8135-024 Almancil'
 ),
 (
@@ -455,7 +455,7 @@ INSERT INTO public.listings (
   'unverified',
   'published',
   false,
-  '{"holes": 9, "par": 33, "course_length": "1275 meters", "designer": "Martin Hawtree", "course_type": "Resort", "style": "Cliff-top", "rating": "3.5-star", "green_fees_from": 80, "facilities": ["Pro Shop", "Practice Range", "Clubhouse", "Luxury Resort", "Restaurant", "Spa"], "awards": ["Devils Parlour - Iconic Hole"], "equipment_rental": true, "lessons_available": true, "buggy_included": false}'::jsonb,
+  '{"holes": 9, "par": 33, "course_length": "1275 meters", "designer": "Martin Hawtree", "course_type": "Resort", "style": "Cliff-top", "rating": "3.5-star", "green_fees_from": 80, "facilities": ["Pro Shop", "Practice Range", "Clubhouse", "Premium Resort", "Restaurant", "Spa"], "awards": ["Devils Parlour - Iconic Hole"], "equipment_rental": true, "lessons_available": true, "buggy_included": false}'::jsonb,
   ARRAY['cliff-top', 'iconic', 'devils parlour', '9 holes', 'atlantic'],
   'Praia da Falésia, 8200-593 Albufeira'
 ),

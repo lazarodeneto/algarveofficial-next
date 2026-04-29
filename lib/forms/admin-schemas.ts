@@ -201,7 +201,7 @@ export const listingUpdateSchema = z.object({
   full_description: z.string().nullable().optional(),
   category_id: z.string().min(1).optional(),
   city_id: z.string().min(1).optional(),
-  luxury_region_id: z.string().optional(),
+  premium_region_id: z.string().optional(),
   tier: z.enum(["unverified", "verified", "signature"]).optional(),
   status: z.enum(["draft", "pending_review", "published", "rejected", "archived"]).optional(),
   is_curated: z.boolean().optional(),

@@ -123,7 +123,7 @@ export function RealEstateLayout({ details, onInquire }: RealEstateLayoutProps) 
           {overviewMetrics.map((metric) => {
             const Icon = metric.icon;
             return (
-              <div key={metric.key} className="luxury-card p-4 text-center">
+              <div key={metric.key} className="premium-card p-4 text-center">
                 <Icon className="h-6 w-6 mx-auto mb-2 text-primary" />
                 <p className="text-body-sm text-muted-foreground">{metric.label}</p>
                 <p className="text-body-md font-medium capitalize">{metric.value}</p>

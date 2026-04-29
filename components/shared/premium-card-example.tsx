@@ -17,7 +17,7 @@ function ExampleSection() {
             imageUrl="/images/golf-1.jpg"
           />
           <PremiumCard
-            title="Luxury Villa"
+            title="Premium Villa"
             description="5 bedrooms with pool"
             imageUrl="/images/villa-1.jpg"
           />

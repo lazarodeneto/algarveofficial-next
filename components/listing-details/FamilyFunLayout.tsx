@@ -27,13 +27,13 @@ export function FamilyFunLayout({ details }: FamilyFunLayoutProps) {
       <div>
         <h2 className="text-xl font-serif font-medium mb-4">{t("categoryLayouts.family.attractionDetails")}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="luxury-card p-4 text-center">
+          <div className="premium-card p-4 text-center">
             <Sparkles className="h-6 w-6 mx-auto mb-2 text-primary" />
             <p className="text-sm text-muted-foreground">{t("categoryLayouts.common.type")}</p>
             <p className="font-medium capitalize">{translateCategoryValue(t, attractionType) || t("categoryLayouts.common.typeFallback.attraction")}</p>
           </div>
           {ticketType && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               {(() => {
                 const TicketTypeIcon = ticketTypeIcons[ticketType] ?? Ticket;
                 return <TicketTypeIcon className="h-6 w-6 mx-auto mb-2 text-primary" />;
@@ -43,14 +43,14 @@ export function FamilyFunLayout({ details }: FamilyFunLayoutProps) {
             </div>
           )}
           {ageRange && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Users className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.family.ageRange")}</p>
               <p className="font-medium">{ageRange}</p>
             </div>
           )}
           {seasonalAvailability && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Calendar className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.family.season")}</p>
               <p className="font-medium capitalize">{seasonalAvailability}</p>

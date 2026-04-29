@@ -74,27 +74,27 @@ export function VIPConciergeLayout({ details }: VIPConciergeLayoutProps) {
       <div>
         <h2 className="text-xl font-serif font-medium mb-4">{t("categoryLayouts.concierge.availabilityResponse")}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="luxury-card p-4 text-center">
+          <div className="premium-card p-4 text-center">
             <Clock className="h-6 w-6 mx-auto mb-2 text-primary" />
             <p className="text-sm text-muted-foreground">{t("categoryLayouts.concierge.availability")}</p>
             <p className="font-medium">{getAvailabilityLabel()}</p>
           </div>
           {responseTime && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Zap className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.concierge.responseTime")}</p>
               <p className="font-medium">{responseTime}</p>
             </div>
           )}
           {languages.length > 0 && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Globe className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.privateChef.languages")}</p>
               <p className="font-medium">{languages.map(l => translateCategoryValue(t, l)).join(', ')}</p>
             </div>
           )}
           {dedicatedManager && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <User className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.concierge.manager")}</p>
               <p className="font-medium">{t("categoryLayouts.concierge.dedicated")}</p>
@@ -103,7 +103,7 @@ export function VIPConciergeLayout({ details }: VIPConciergeLayoutProps) {
         </div>
       </div>
 
-      <div className="luxury-card p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+      <div className="premium-card p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
         <div className="flex items-start gap-4">
           <div className="p-3 rounded-full bg-primary/20"><Crown className="h-8 w-8 text-primary" /></div>
           <div>

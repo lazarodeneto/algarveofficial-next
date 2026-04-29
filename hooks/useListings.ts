@@ -18,6 +18,13 @@ import {
 export type ListingRow = Tables<'listings'>;
 export type ListingTier = 'unverified' | 'verified' | 'signature';
 
+export type ListingBounds = {
+  north: number;
+  south: number;
+  east: number;
+  west: number;
+};
+
 export interface ListingFilters {
   search?: string;
   categoryId?: string;
@@ -28,6 +35,7 @@ export interface ListingFilters {
   tier?: ListingTier;
   excludeCategoryId?: string;
   excludeCategorySlug?: string;
+  bounds?: ListingBounds;
 }
 
 export interface ListingWithRelations extends ListingRow {
@@ -154,6 +162,23 @@ function normalizeListingFilters(filters: ListingFilters): ListingFilters {
     normalized.excludeCategorySlug = excludeCategorySlug;
   }
 
+  if (
+    filters.bounds &&
+    Number.isFinite(filters.bounds.north) &&
+    Number.isFinite(filters.bounds.south) &&
+    Number.isFinite(filters.bounds.east) &&
+    Number.isFinite(filters.bounds.west) &&
+    filters.bounds.north > filters.bounds.south &&
+    filters.bounds.east > filters.bounds.west
+  ) {
+    normalized.bounds = {
+      north: Number(filters.bounds.north),
+      south: Number(filters.bounds.south),
+      east: Number(filters.bounds.east),
+      west: Number(filters.bounds.west),
+    };
+  }
+
   return normalized;
 }
 
@@ -218,6 +243,8 @@ async function resolveSearchCategoryIds(search?: string): Promise<string[]> {
 type ListingFilterQuery = {
   in: (column: string, values: readonly string[]) => unknown;
   eq: (column: string, value: unknown) => unknown;
+  gte: (column: string, value: unknown) => ListingFilterQuery;
+  lte: (column: string, value: unknown) => ListingFilterQuery;
   or: (filters: string) => unknown;
   neq: (column: string, value: string) => unknown;
 };
@@ -248,6 +275,14 @@ function applyListingFilters<T>(
 
   if (filters.tier) {
     builder = builder.eq('tier', filters.tier) as T & ListingFilterQuery;
+  }
+
+  if (filters.bounds) {
+    builder = builder
+      .gte("latitude", filters.bounds.south)
+      .lte("latitude", filters.bounds.north)
+      .gte("longitude", filters.bounds.west)
+      .lte("longitude", filters.bounds.east) as T & ListingFilterQuery;
   }
 
   if (filters.search?.trim()) {

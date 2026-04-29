@@ -25,7 +25,7 @@ VALUES (
       {"value": "invitation_only", "label": "Invitation-Only"},
       {"value": "cultural_art", "label": "Cultural & Art"},
       {"value": "gastronomy_wine", "label": "Gastronomy & Wine"},
-      {"value": "real_estate", "label": "Luxury Real Estate Events"},
+      {"value": "real_estate", "label": "Premium Real Estate Events"},
       {"value": "yachting_maritime", "label": "Yachting & Maritime"},
       {"value": "golf_sports", "label": "Golf & Sports"},
       {"value": "brand_launch", "label": "Brand Launches"},

@@ -33,7 +33,7 @@ export const listingFormSchema = z.object({
   full_description:   z.string().nullable().default(null),
   category_id:        z.string().min(1, "Category is required"),
   city_id:            z.string().min(1, "City is required"),
-  luxury_region_id:   z.string().optional(),
+  premium_region_id:   z.string().optional(),
   tier:               z.enum(["unverified", "verified", "signature"]).default("unverified"),
   published_status:   z
     .enum(["draft", "pending_review", "published", "rejected", "archived"])

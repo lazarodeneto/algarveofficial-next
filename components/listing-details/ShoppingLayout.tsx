@@ -35,20 +35,20 @@ export function ShoppingLayout({ details }: ShoppingLayoutProps) {
       <div>
         <h2 className="text-xl font-serif font-medium mb-4">{t("categoryLayouts.shopping.shoppingExperience")}</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div className="luxury-card p-4 text-center">
+          <div className="premium-card p-4 text-center">
             <ShoppingBag className="h-6 w-6 mx-auto mb-2 text-primary" />
             <p className="text-sm text-muted-foreground">{t("categoryLayouts.shopping.storeType")}</p>
             <p className="font-medium capitalize">{translateCategoryValue(t, shopType) || t("categoryLayouts.common.typeFallback.boutique")}</p>
           </div>
           {personalShopping && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Users className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.shopping.service")}</p>
               <p className="font-medium">{t("categoryLayouts.shopping.personalShopping")}</p>
             </div>
           )}
           {taxFree && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Receipt className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.shopping.benefit")}</p>
               <p className="font-medium">{t("categoryLayouts.shopping.taxFree")}</p>

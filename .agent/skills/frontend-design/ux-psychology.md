@@ -1068,7 +1068,7 @@ DESIGN APPROACH:
 │  Trust            │  Blue, Green      │  Finance   │
 │  Excitement       │  Red, Orange      │  Sales     │
 │  Calm             │  Blue, Soft green │  Wellness  │
-│  Luxury           │  Black, Gold      │  Premium   │
+│  Premium           │  Black, Gold      │  Premium   │
 │  Creativity       │  Teal, Pink       │  Art       │
 │  Energy           │  Yellow, Orange   │  Sports    │
 │  Nature           │  Green, Brown     │  Eco       │

@@ -344,7 +344,7 @@
       "listingOps": "Listings",
       "listings": "Listings",
       "live": "Live Queue",
-      "luxuryRegions": "Premium Regions",
+      "premiumRegions": "Premium Regions",
       "mediaLibrary": "Media Library",
       "messages": "Messages",
       "moderationQueue": "Moderation Queue",
@@ -577,8 +577,8 @@
     "familyFun": "Algarve Experience",
     "fineDining": "Gastronomy",
     "golf": "Golf & Tournaments",
-    "luxuryAccommodation": "Accommodation",
-    "luxuryExperiences": "Algarve Experience",
+    "premiumAccommodation": "Accommodation",
+    "premiumExperiences": "Algarve Experience",
     "premierEvents": "Premier Events",
     "privateChefs": "Gastronomy",
     "protectionServices": "Algarve Services",
@@ -690,8 +690,8 @@
     "lessons": "Private Lessons",
     "Lighting Design": "Lighting Design",
     "links": "Links",
-    "Luxury Apartments": "Premium Apartments",
-    "luxury_villa": "Premium Villa",
+    "Premium Apartments": "Premium Apartments",
+    "premium_villa": "Premium Villa",
     "market": "Market & Fair",
     "massage": "Massage",
     "mediterranean": "Mediterranean",
@@ -738,7 +738,7 @@
     "restrooms": "Accessible Restrooms",
     "retreat": "Wellness Retreat",
     "rooftop": "Rooftop",
-    "Rustic Luxury": "Rustic Premium",
+    "Rustic Premium": "Rustic Premium",
     "sale": "For Sale",
     "sauna": "Sauna",
     "sea_ria_views": "Sea & Ria Views",
@@ -755,7 +755,7 @@
     "sports": "Sports & Fitness",
     "standard": "Standard",
     "Sustainable": "Sustainable",
-    "sustainable_luxury": "Sustainable Premium",
+    "sustainable_premium": "Sustainable Premium",
     "thalasso": "Thalassotherapy",
     "thermal": "Thermal Baths",
     "total": "Total",
@@ -1305,7 +1305,7 @@
       "emailNotifications": "Email Notifications",
       "emailNotificationsDesc": "Receive updates about new listings and recommendations",
       "fullName": "Full Name",
-      "luxuryRegions": "Premium Regions",
+      "premiumRegions": "Premium Regions",
       "manageNotifications": "Manage your notification preferences",
       "marketingEmails": "Marketing Emails",
       "marketingEmailsDesc": "Receive special offers and promotions",
@@ -1555,7 +1555,7 @@
     "notFoundTitle": "Guide Not Found",
     "pages": {
       "beach-clubs-in-albufeira": {
-        "description": "Experience the best beach clubs in Albufeira — premium sunbeds, cocktails, and oceanfront luxury.",
+        "description": "Experience the best beach clubs in Albufeira — premium sunbeds, cocktails, and oceanfront premium.",
         "title": "Beach Clubs in Albufeira"
       },
       "beaches-in-tavira": {
@@ -1579,11 +1579,11 @@
         "title": "Golf in Vilamoura"
       },
       "real-estate-in-quinta-do-lago": {
-        "description": "Explore luxury properties and investment opportunities in prestigious Quinta do Lago.",
+        "description": "Explore premium properties and investment opportunities in prestigious Quinta do Lago.",
         "title": "Real Estate in Quinta do Lago"
       },
       "shopping-in-lagos": {
-        "description": "Discover the best shopping in Lagos — from luxury boutiques to local artisan markets.",
+        "description": "Discover the best shopping in Lagos — from premium boutiques to local artisan markets.",
         "title": "Shopping in Lagos"
       },
       "things-to-do-in-albufeira": {
@@ -1935,7 +1935,7 @@
       "budget": {
         "balanced": "Balanced Premium",
         "lean": "Lean Setup",
-        "luxury": "LUXURY",
+        "premium": "PREMIUM",
         "premium": "Premium Comfort"
       },
       "budgetLabel": "Monthly Living Budget (after-tax)",
@@ -2134,7 +2134,7 @@
     "popupClose": "Continue Browsing",
     "popupCta": "Get Free Guide + Subscribe",
     "popupDismiss": "Close popup",
-    "popupSubtitle": "Subscribe and get our curated luxury guide plus monthly premium picks, events, and local opportunities.",
+    "popupSubtitle": "Subscribe and get our curated premium guide plus monthly premium picks, events, and local opportunities.",
     "popupSuccessBody": "Your Algarve Insider Guide and monthly curated updates are on the way.",
     "popupSuccessTitle": "You are in. Check your inbox.",
     "popupTitle": "Get the Algarve Insider Guide",
@@ -2415,7 +2415,7 @@
       "description": "Register your business to be featured in our selected collection of premium experiences.",
       "title": "Apply for New Listing"
     },
-    "subtitle": "Join the Algarve's premier luxury directory and connect with 50,000+ high-intent travelers every month — 72% from the UK, Germany, and Scandinavia.",
+    "subtitle": "Join the Algarve's premier premium directory and connect with 50,000+ high-intent travelers every month — 72% from the UK, Germany, and Scandinavia.",
     "success": "Thank you! Your request has been submitted. We'll contact you within 2-3 business days.",
     "title": "The Algarve's most trusted platform for premium businesses.",
     "hero": {
@@ -2451,7 +2451,7 @@
     },
     "faq": {
       "audience": {
-        "a": "Our audience is predominantly high-net-worth individuals, luxury travelers, and premium lifestyle buyers. 72% of visitors are from the UK, Germany, France, and Scandinavia.",
+        "a": "Our audience is predominantly high-net-worth individuals, premium travelers, and premium lifestyle buyers. 72% of visitors are from the UK, Germany, France, and Scandinavia.",
         "q": "What kind of audience will my listing reach?"
       },
       "contract": {
@@ -2528,7 +2528,7 @@
     "featuredCityHub": "Featured City Hub",
     "featuredCityHubDescription": "Explore premium real estate in {{name}}, Algarve.",
     "hero": {
-      "alt": "Luxury Algarve real estate exterior",
+      "alt": "Premium Algarve real estate exterior",
       "badge": "Exclusive Portfolio",
       "subtitle": "Discover the finest collection of premium properties in Portugal's most prestigious coastal region.",
       "title": "Prime Real Estate"

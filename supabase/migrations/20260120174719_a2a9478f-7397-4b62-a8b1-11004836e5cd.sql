@@ -1,6 +1,6 @@
 -- ═══════════════════════════════════════════════════════════════════════════
 -- ALGARVEOFFICIAL - COMPLETE BACKEND SCHEMA
--- Multi-city luxury CMS portal for Algarve, Portugal
+-- Multi-city premium CMS portal for Algarve, Portugal
 -- ═══════════════════════════════════════════════════════════════════════════
 
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -44,7 +44,7 @@ CREATE TABLE public.user_roles (
 -- PART 3: GEOGRAPHY - CITIES & REGIONS
 -- ═══════════════════════════════════════════════════════════════════════════
 
--- Luxury Regions (editorial groupings)
+-- Premium Regions (editorial groupings)
 CREATE TABLE public.regions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
@@ -929,7 +929,7 @@ INSERT INTO public.homepage_settings (
 ) VALUES (
   gen_random_uuid(),
   'Discover Algarve''s Finest',
-  'Curated luxury experiences across Portugal''s most prestigious coastal destination',
+  'Curated premium experiences across Portugal''s most prestigious coastal destination',
   'Explore Regions',
   '#regions',
   'Curated Excellence',

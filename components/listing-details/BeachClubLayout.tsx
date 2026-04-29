@@ -42,27 +42,27 @@ export function BeachClubLayout({ details }: BeachClubLayoutProps) {
       <div>
         <h2 className="text-xl font-serif font-medium mb-4">{t("categoryLayouts.beach.beachExperience")}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="luxury-card p-4 text-center">
+          <div className="premium-card p-4 text-center">
             <Umbrella className="h-6 w-6 mx-auto mb-2 text-primary" />
             <p className="text-sm text-muted-foreground">{t("categoryLayouts.common.type")}</p>
             <p className="font-medium capitalize">{translateCategoryValue(t, placeType) || t("categoryLayouts.common.typeFallback.beach")}</p>
           </div>
           {atmosphere && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <div className="mx-auto mb-2 text-primary">{getAtmosphereIcon()}</div>
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.beach.atmosphere")}</p>
               <p className="font-medium capitalize">{translateCategoryValue(t, atmosphere)}</p>
             </div>
           )}
           {sunsetView && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Sunset className="h-6 w-6 mx-auto mb-2 text-orange-400" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.beach.sunset")}</p>
               <p className="font-medium">{t("categoryLayouts.beach.amazingViews")}</p>
             </div>
           )}
           {vipAreas && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Crown className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.beach.vip")}</p>
               <p className="font-medium">{t("categoryLayouts.beach.privateAreas")}</p>
@@ -109,12 +109,12 @@ export function BeachClubLayout({ details }: BeachClubLayoutProps) {
             <TabsTrigger value="sunset"><Sunset className="h-4 w-4 mr-2" />{t("categoryLayouts.beach.sunset")}</TabsTrigger>
           </TabsList>
           <TabsContent value="day" className="mt-4">
-            <div className="luxury-card p-4">
+            <div className="premium-card p-4">
               <p className="text-muted-foreground">{t("categoryLayouts.beach.daytimeDescription")}</p>
             </div>
           </TabsContent>
           <TabsContent value="sunset" className="mt-4">
-            <div className="luxury-card p-4">
+            <div className="premium-card p-4">
               <p className="text-muted-foreground">
                 {sunsetView ? t("categoryLayouts.beach.sunsetWithView") : t("categoryLayouts.beach.sunsetWithout")}
               </p>

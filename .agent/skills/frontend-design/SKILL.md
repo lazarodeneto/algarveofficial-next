@@ -6,7 +6,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 
 # Frontend Design System
 
-> **Philosophy:** Every pixel has purpose. Restraint is luxury. User psychology drives decisions.
+> **Philosophy:** Every pixel has purpose. Restraint is premium. User psychology drives decisions.
 > **Core Principle:** THINK, don't memorize. ASK, don't assume.
 
 ---
@@ -92,7 +92,7 @@ Before any design work, ANSWER THESE or ASK USER:
 | **Gen X** | Familiar, trustworthy, clear |
 | **Boomers** | Readable, high contrast, simple |
 | **B2B** | Professional, data-focused, trust |
-| **Luxury** | Restrained elegance, whitespace |
+| **Premium** | Restrained elegance, whitespace |
 
 ---
 
@@ -178,7 +178,7 @@ All spacing and sizing in multiples of 8:
 | Trust, calm | Blue family | Aggressive reds |
 | Growth, nature | Green family | Industrial grays |
 | Energy, urgency | Orange, red | Passive blues |
-| Luxury, creativity | Deep Teal, Gold, Emerald | Cheap-feeling brights |
+| Premium, creativity | Deep Teal, Gold, Emerald | Cheap-feeling brights |
 | Clean, minimal | Neutrals | Overwhelming color |
 
 ### Selection Process
@@ -269,7 +269,7 @@ Duration based on:
 ├── Distance (further = longer)
 ├── Size (larger = slower)
 ├── Importance (critical = clear)
-└── Context (urgent = fast, luxury = slow)
+└── Context (urgent = fast, premium = slow)
 ```
 
 ### Easing Selection
@@ -295,7 +295,7 @@ For animation patterns: [animation-guide.md](animation-guide.md), for advanced: 
 
 ### Premium Indicators
 
-- [ ] Generous whitespace (luxury = breathing room)
+- [ ] Generous whitespace (premium = breathing room)
 - [ ] Subtle depth and dimension
 - [ ] Smooth, purposeful animations
 - [ ] Attention to detail (alignment, consistency)

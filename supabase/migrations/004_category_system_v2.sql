@@ -14,9 +14,9 @@ CREATE TABLE IF NOT EXISTS tags (
 
 -- Delete old categories that will be replaced
 DELETE FROM categories WHERE slug IN (
-  'luxury-accommodation', 'luxury-hotels', 'luxury-hotels-resorts',
+  'premium-accommodation', 'premium-hotels', 'premium-hotels-resorts',
   'fine-dining', 'fine-dining-algarve', 'private-chefs', 'restaurants-algarve',
-  'luxury-experiences', 'experiences-algarve', 'family-fun', 'things-do-do',
+  'premium-experiences', 'experiences-algarve', 'family-fun', 'things-do-do',
   'algarve-experience', 'premier-events', 'events-in-algarve', 'algarve-events',
   'golf-tournaments', 'wellness-spas', 'shopping-boutiques',
   'vip-concierge', 'algarve-concierge-services', 'prime-real-estate',

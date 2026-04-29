@@ -216,8 +216,8 @@ export function BasicsStep({
         <div className="space-y-2">
           <Label htmlFor="region">Premium Region</Label>
           <Select
-            value={denormalizeSelect(data.luxury_region_id)}
-            onValueChange={(value) => onChange("luxury_region_id", normalizeSelect(value))}
+            value={denormalizeSelect(data.premium_region_id)}
+            onValueChange={(value) => onChange("premium_region_id", normalizeSelect(value))}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select region (optional)..." />

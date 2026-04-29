@@ -19,7 +19,7 @@ const listingFormSchema = z.object({
   full_description: z.string().nullable().default(null),
   category_id: z.string().min(1, "Category is required"),
   city_id: z.string().min(1, "City is required"),
-  luxury_region_id: z.string().optional(),
+  premium_region_id: z.string().optional(),
   tier: z.enum(["unverified", "verified", "signature"]).default("unverified"),
   published_status: z
     .enum(["draft", "pending_review", "published", "rejected", "archived"])
@@ -38,7 +38,7 @@ function normalizeForDb(values: z.infer<typeof listingFormSchema>) {
     full_description: emptyToNull(values.full_description) ?? null,
     category_id: normalizeSelect(values.category_id) ?? "",
     city_id: normalizeSelect(values.city_id) ?? "",
-    luxury_region_id: normalizeSelect(values.luxury_region_id) ?? null,
+    premium_region_id: normalizeSelect(values.premium_region_id) ?? null,
     tier: values.tier ?? "unverified",
     published_status: values.published_status ?? "draft",
     is_curated: values.is_curated ?? false,
@@ -56,7 +56,7 @@ function denormalizeForUi(dbValues: Record<string, unknown>) {
     full_description: dbValues.full_description as string | null | undefined,
     category_id: denormalizeSelect(dbValues.category_id as string | undefined),
     city_id: denormalizeSelect(dbValues.city_id as string | undefined),
-    luxury_region_id: denormalizeSelect(dbValues.luxury_region_id as string | undefined),
+    premium_region_id: denormalizeSelect(dbValues.premium_region_id as string | undefined),
     tier: (dbValues.tier as string) ?? "unverified",
     published_status: (dbValues.published_status as string) ?? "draft",
     is_curated: dbValues.is_curated as boolean,
@@ -168,7 +168,7 @@ describe("Form Pipeline: UI → API → DB", () => {
         full_description: null,
         category_id: "",
         city_id: "",
-        luxury_region_id: undefined,
+        premium_region_id: undefined,
         tier: "unverified" as const,
         published_status: "draft" as const,
         is_curated: false,
@@ -193,7 +193,7 @@ describe("Form Pipeline: UI → API → DB", () => {
         full_description: "Full description here",
         category_id: "cat-123",
         city_id: "city-456",
-        luxury_region_id: "region-789",
+        premium_region_id: "region-789",
         tier: "verified" as const,
         published_status: "published" as const,
         is_curated: true,
@@ -220,7 +220,7 @@ describe("Form Pipeline: UI → API → DB", () => {
         full_description: null,
         category_id: null,
         city_id: "city-456",
-        luxury_region_id: null,
+        premium_region_id: null,
         tier: "verified",
         published_status: "published",
         is_curated: true,
@@ -234,7 +234,7 @@ describe("Form Pipeline: UI → API → DB", () => {
       expect(ui.name).toBe("");
       expect(ui.slug).toBe("");
       expect(ui.category_id).toBe("none");
-      expect(ui.luxury_region_id).toBe("none");
+      expect(ui.premium_region_id).toBe("none");
     });
 
     it("preserves valid DB values for UI", () => {
@@ -245,7 +245,7 @@ describe("Form Pipeline: UI → API → DB", () => {
         full_description: "Full",
         category_id: "cat-123",
         city_id: "city-456",
-        luxury_region_id: "region-789",
+        premium_region_id: "region-789",
         tier: "signature",
         published_status: "draft",
         is_curated: false,

@@ -6,7 +6,7 @@ import { buildMetadata } from "@/lib/metadata";
 export const metadata: Metadata = buildMetadata({
   title: "Contact AlgarveOfficial",
   description:
-    "Contact AlgarveOfficial for concierge support, listing enquiries, partnerships, and tailored luxury experiences in the Algarve.",
+    "Contact AlgarveOfficial for concierge support, listing enquiries, partnerships, and tailored premium experiences in the Algarve.",
   path: "/contact",
 });
 

@@ -14,12 +14,12 @@ import {
 import { useTranslation } from "react-i18next";
 import { translateCategoryValue } from "@/lib/translateCategoryValue";
 
-interface LuxuryExperienceLayoutProps {
+interface PremiumExperienceLayoutProps {
   details: Record<string, unknown>;
   bookingUrl?: string;
 }
 
-export function LuxuryExperienceLayout({ details }: LuxuryExperienceLayoutProps) {
+export function PremiumExperienceLayout({ details }: PremiumExperienceLayoutProps) {
   const { t } = useTranslation();
   const experienceType = details.experience_type as string;
   const duration = details.duration as string;
@@ -39,7 +39,7 @@ export function LuxuryExperienceLayout({ details }: LuxuryExperienceLayoutProps)
       <div>
         <h2 className="text-xl font-serif font-medium mb-4">{t("categoryLayouts.experience.experienceDetails")}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="luxury-card p-4 text-center">
+          <div className="premium-card p-4 text-center">
             {(() => {
               const ExperienceIcon = experienceIcons[experienceType] ?? Sparkles;
               return <ExperienceIcon className="h-7 w-7 mx-auto mb-2 text-primary" />;
@@ -48,21 +48,21 @@ export function LuxuryExperienceLayout({ details }: LuxuryExperienceLayoutProps)
             <p className="font-medium capitalize">{translateCategoryValue(t, experienceType) || t("categoryLayouts.common.typeFallback.experience")}</p>
           </div>
           {duration && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Clock className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.experience.duration")}</p>
               <p className="font-medium">{duration}</p>
             </div>
           )}
           {capacity && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Users className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.experience.capacity")}</p>
               <p className="font-medium">{t("categoryLayouts.experience.guests", { count: capacity })}</p>
             </div>
           )}
           {privateOrShared && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               {privateOrShared === "private" ? (
                 <Lock className="h-6 w-6 mx-auto mb-2 text-primary" />
               ) : (

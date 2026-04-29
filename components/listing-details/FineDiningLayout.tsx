@@ -36,20 +36,20 @@ export function FineDiningLayout({ details }: FineDiningLayoutProps) {
       <div>
         <h2 className="text-xl font-serif font-medium mb-4">{t("categoryLayouts.dining.culinaryProfile")}</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div className="luxury-card p-4 text-center">
+          <div className="premium-card p-4 text-center">
             <UtensilsCrossed className="h-6 w-6 mx-auto mb-2 text-primary" />
             <p className="text-sm text-muted-foreground">{t("categoryLayouts.dining.diningType")}</p>
             <p className="font-medium capitalize">{translateCategoryValue(t, diningType) || t("categoryDataValues.restaurant")}</p>
           </div>
           {cuisineType && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Globe2 className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.dining.cuisine")}</p>
               <p className="font-medium capitalize">{translateCategoryValue(t, cuisineType)}</p>
             </div>
           )}
           {dressCode && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Shirt className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.dining.dressCode")}</p>
               <p className="font-medium capitalize">{dressCode}</p>

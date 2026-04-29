@@ -63,7 +63,7 @@ import type { ListingReview } from "@/hooks/useListingReviews";
 import { getListingTierRules } from "@/lib/listingTierRules";
 import { PRIMARY_WHATSAPP_NUMBER, toWhatsAppDigits } from "@/lib/contactPhone";
 import { cn } from "@/lib/utils";
-import { LuxuryAccommodationLayout } from "@/components/listing-details/LuxuryAccommodationLayout";
+import { PremiumAccommodationLayout } from "@/components/listing-details/PremiumAccommodationLayout";
 import { FineDiningLayout } from "@/components/listing-details/FineDiningLayout";
 import { GolfLayout } from "@/components/listing-details/GolfLayout";
 import { BeachClubLayout } from "@/components/listing-details/BeachClubLayout";
@@ -71,7 +71,7 @@ import { ShoppingLayout } from "@/components/listing-details/ShoppingLayout";
 import { WellnessLayout } from "@/components/listing-details/WellnessLayout";
 import { PrivateChefLayout } from "@/components/listing-details/PrivateChefLayout";
 import { VIPConciergeLayout } from "@/components/listing-details/VIPConciergeLayout";
-import { LuxuryExperienceLayout } from "@/components/listing-details/LuxuryExperienceLayout";
+import { PremiumExperienceLayout } from "@/components/listing-details/PremiumExperienceLayout";
 import { FamilyFunLayout } from "@/components/listing-details/FamilyFunLayout";
 import { VIPTransportationLayout } from "@/components/listing-details/VIPTransportationLayout";
 import { RealEstateLayout } from "@/components/listing-details/RealEstateLayout";
@@ -209,8 +209,8 @@ const getCategoryLayout = (
 
   switch (categorySlug) {
     case "places-to-stay":
-    case "luxury-accommodation":
-      return <LuxuryAccommodationLayout {...props} />;
+    case "premium-accommodation":
+      return <PremiumAccommodationLayout {...props} />;
     case "restaurants":
     case "fine-dining":
       return <FineDiningLayout {...props} />;
@@ -228,8 +228,8 @@ const getCategoryLayout = (
     case "vip-concierge":
       return <VIPConciergeLayout {...props} />;
     case "things-to-do":
-    case "luxury-experiences":
-      return <LuxuryExperienceLayout {...props} />;
+    case "premium-experiences":
+      return <PremiumExperienceLayout {...props} />;
     case "family-fun":
       return <FamilyFunLayout {...props} />;
     case "vip-transportation":
@@ -1150,7 +1150,7 @@ function ListingDetailClientInner({
               </div>
 
               <div className="space-y-6">
-                <div className="luxury-card p-6 lg:sticky lg:top-24">
+                <div className="premium-card p-6 lg:sticky lg:top-24">
                   <div className="flex gap-3 mb-6">
                     <Button
                       variant="outline"

@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
     path: "/about-us",
     title: "About AlgarveOfficial",
     description:
-      "Learn about AlgarveOfficial and our mission to curate Portugal's premier luxury stays, dining, golf, and concierge experiences.",
+      "Learn about AlgarveOfficial and our mission to curate Portugal's premier premium stays, dining, golf, and concierge experiences.",
   });
 }
 

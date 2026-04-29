@@ -24,7 +24,7 @@ const dashboardConfigs: Record<string, BreadcrumbConfig> = {
       curated: "admin.sidebar.curatedExcellence",
       moderation: "admin.sidebar.moderationQueue",
       cities: "admin.sidebar.cities",
-      regions: "admin.sidebar.luxuryRegions",
+      regions: "admin.sidebar.premiumRegions",
       categories: "admin.sidebar.categories",
       users: "admin.sidebar.usersRoles",
       messages: "admin.sidebar.messages",

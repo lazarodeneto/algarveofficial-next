@@ -18,7 +18,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         hero: "glass-button bg-gradient-to-r from-[#C7A35A] to-[#D4AF37] text-black font-semibold tracking-wide shadow-lg hover:shadow-xl hover:scale-[1.02] hover:brightness-105 active:scale-[0.98] transition-all duration-200",
         heroOutline: "glass-button-outline border border-white/30 text-white bg-white/5 backdrop-blur-xl hover:bg-white/15 hover:border-white/50 hover:text-white hover:shadow-lg active:bg-white/20 font-semibold tracking-wide transition-all duration-200",
-        luxury: "glass-button-subtle bg-card/60 backdrop-blur-xl border border-white/20 text-foreground hover:border-[#C7A35A]/40 hover:bg-card/80 hover:shadow-md active:scale-[0.98] transition-all duration-200",
+        premium: "glass-button-subtle bg-card/60 backdrop-blur-xl border border-white/20 text-foreground hover:border-[#C7A35A]/40 hover:bg-card/80 hover:shadow-md active:scale-[0.98] transition-all duration-200",
         gold: "glass-button bg-gradient-to-r from-[#C7A35A] to-[#D4AF37] text-black font-semibold hover:brightness-110 hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] shadow-md transition-all duration-200",
       },
       size: {

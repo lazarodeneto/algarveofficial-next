@@ -29,7 +29,7 @@ export function VIPTransportationLayout({ details }: VIPTransportationLayoutProp
       <div>
         <h2 className="text-xl font-serif font-medium mb-4">{t("categoryLayouts.transport.vehicleDetails")}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="luxury-card p-4 text-center">
+          <div className="premium-card p-4 text-center">
             {(() => {
               const TransportIcon = transportIcons[transportType] ?? Car;
               return <TransportIcon className="h-7 w-7 mx-auto mb-2 text-primary" />;
@@ -38,19 +38,19 @@ export function VIPTransportationLayout({ details }: VIPTransportationLayoutProp
             <p className="font-medium capitalize">{translateCategoryValue(t, transportType) || t("categoryLayouts.common.typeFallback.vehicle")}</p>
           </div>
           {capacity && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Users className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.transport.capacity")}</p>
               <p className="font-medium">{t("categoryLayouts.transport.passengers", { count: capacity })}</p>
             </div>
           )}
-          <div className="luxury-card p-4 text-center">
+          <div className="premium-card p-4 text-center">
             <User className="h-6 w-6 mx-auto mb-2 text-primary" />
             <p className="text-sm text-muted-foreground">{t("categoryLayouts.transport.driverPilot")}</p>
             <p className="font-medium">{withDriverOrPilot ? t("categoryLayouts.transport.included") : t("categoryLayouts.transport.selfDrive")}</p>
           </div>
           {hourlyOrDaily && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Clock className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.transport.rental")}</p>
               <p className="font-medium capitalize">{translateCategoryValue(t, hourlyOrDaily)}</p>

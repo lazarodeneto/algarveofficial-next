@@ -22,7 +22,7 @@ describe("localized routing contract", () => {
       routeType: "listing",
       id: "listing-1",
       slugs: {
-        en: "luxury-villa",
+        en: "premium-villa",
         fr: "villa-luxe",
         "pt-pt": "vivenda-luxo",
         de: "luxus-villa",

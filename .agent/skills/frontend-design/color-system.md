@@ -95,7 +95,7 @@
 | **Finance, Tech, Healthcare** | Blues, Teals | Trust, stability, calm |
 | **Eco, Wellness, Nature** | Greens, Earth tones | Growth, health, organic |
 | **Food, Energy, Youth** | Orange, Yellow, Warm | Appetite, excitement, warmth |
-| **Luxury, Beauty, Creative** | Deep Teal, Gold, Black | Sophistication, premium |
+| **Premium, Beauty, Creative** | Deep Teal, Gold, Black | Sophistication, premium |
 | **Urgency, Sales, Alerts** | Red, Orange | Action, attention, passion |
 
 ### Emotional Associations (For Decision Making)
@@ -185,7 +185,7 @@ What type of project?
 ├── E-commerce → Need trust + urgency balance
 ├── SaaS/Dashboard → Need low-fatigue, data focus
 ├── Health/Wellness → Need calming, natural feel
-├── Luxury/Premium → Need understated elegance
+├── Premium/Premium → Need understated elegance
 ├── Creative/Portfolio → Need personality, memorable
 └── Other → ASK the user
 ```

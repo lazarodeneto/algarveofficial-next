@@ -1,0 +1,1619 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e15] [cursor=pointer]:
+    - /url: "#main-content"
+  - status [ref=e16]: Navigated to Map Explorer | AlgarveOfficial
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - complementary [ref=e17]:
+    - link "AlgarveOfficial homepage" [ref=e19] [cursor=pointer]:
+      - /url: /
+      - img "Algarve Official" [ref=e21]
+    - navigation [ref=e23]:
+      - link "Stay" [ref=e24] [cursor=pointer]:
+        - /url: /stay?category=places-to-stay
+        - img [ref=e26]
+      - link "Experiences" [ref=e29] [cursor=pointer]:
+        - /url: /experiences
+        - img [ref=e31]
+      - link "Properties" [ref=e36] [cursor=pointer]:
+        - /url: /properties
+        - img [ref=e38]
+      - link "Beaches" [ref=e41] [cursor=pointer]:
+        - /url: /beaches
+        - img [ref=e43]
+      - link "Golf" [ref=e47] [cursor=pointer]:
+        - /url: /golf
+        - img [ref=e49]
+      - link "Map" [ref=e51] [cursor=pointer]:
+        - /url: /map
+        - img [ref=e53]
+      - link "Blog" [ref=e55] [cursor=pointer]:
+        - /url: /blog
+        - img [ref=e57]
+      - link "Events" [ref=e59] [cursor=pointer]:
+        - /url: /events
+        - img [ref=e61]
+      - link "Residence" [ref=e63] [cursor=pointer]:
+        - /url: /residence
+        - img [ref=e65]
+      - link "Contact" [ref=e69] [cursor=pointer]:
+        - /url: /contact
+        - img [ref=e71]
+  - generic [ref=e75]:
+    - banner [ref=e76]:
+      - navigation [ref=e78]:
+        - generic [ref=e79]:
+          - link "AlgarveOfficial" [ref=e82] [cursor=pointer]:
+            - /url: /
+            - generic [ref=e84]: AlgarveOfficial
+          - navigation "Primary navigation" [ref=e86]:
+            - link "Stay" [ref=e87] [cursor=pointer]:
+              - /url: /stay?category=places-to-stay
+              - img [ref=e88]
+              - generic [ref=e91]: Stay
+            - link "Experiences" [ref=e92] [cursor=pointer]:
+              - /url: /experiences
+              - img [ref=e93]
+              - generic [ref=e98]: Experiences
+            - link "Properties" [ref=e99] [cursor=pointer]:
+              - /url: /properties
+              - img [ref=e100]
+              - generic [ref=e103]: Properties
+            - link "Golf" [ref=e104] [cursor=pointer]:
+              - /url: /golf
+              - img [ref=e105]
+              - generic [ref=e107]: Golf
+            - link "Events" [ref=e108] [cursor=pointer]:
+              - /url: /events
+              - generic [ref=e109]: Events
+          - generic [ref=e111]:
+            - link "Saved" [ref=e112] [cursor=pointer]:
+              - /url: /login
+              - button "Saved" [ref=e113]:
+                - img
+                - generic [ref=e114]: Saved
+            - button "Search" [ref=e115] [cursor=pointer]:
+              - img
+              - generic [ref=e116]: Search
+            - generic [ref=e117]:
+              - generic [ref=e118]: Language
+              - combobox "Language" [ref=e119]:
+                - option "English" [selected]
+                - option "Português"
+                - option "Français"
+                - option "Deutsch"
+                - option "Español"
+                - option "Italiano"
+                - option "Nederlands"
+                - option "Svenska"
+                - option "Norsk"
+                - option "Dansk"
+              - img
+            - link "Account" [ref=e120] [cursor=pointer]:
+              - /url: /login
+              - button "Account" [ref=e121]:
+                - img
+                - generic [ref=e122]: Account
+            - button "Switch to dark mode" [ref=e123] [cursor=pointer]:
+              - img [ref=e125]
+    - main [ref=e127]:
+      - generic [ref=e128]:
+        - generic [ref=e130]:
+          - generic [ref=e131]:
+            - img [ref=e132]
+            - generic [ref=e134]: Advanced Filters
+          - generic [ref=e135]:
+            - img [ref=e136]
+            - textbox "Search listings by name..." [ref=e139]
+          - combobox [ref=e141] [cursor=pointer]:
+            - generic: All Regions
+            - img [ref=e142]
+          - combobox [ref=e145] [cursor=pointer]:
+            - generic: All Cities
+            - img [ref=e146]
+          - combobox [ref=e149] [cursor=pointer]:
+            - generic: All Categories
+            - img [ref=e150]
+          - combobox [ref=e153] [cursor=pointer]:
+            - generic: All Tiers
+            - img [ref=e154]
+          - generic [ref=e156]:
+            - img [ref=e157]
+            - generic [ref=e161]: 100 mapped
+            - generic [ref=e162]: /
+            - generic [ref=e163]: 100 results
+        - generic [ref=e164]:
+          - generic [ref=e165]:
+            - generic [ref=e167]:
+              - heading "Visible on map" [level=2] [ref=e168]
+              - paragraph [ref=e169]: 100 total results match your filters
+            - generic [ref=e170]:
+              - 'link "Seafront & Golf Front Living: Where Architecture Embraces the Ria de Alvor, Palmares — Lagos Seafront & Golf Front Living: Where Architecture Embraces the Ria de Alvor, Palmares — Lagos SIGNATURE Lagos Real Estate More than a home — a private viewpoint over the Algarve. Known as “The Hidden Pearl,” this property is a rare discovery that reveals itself discreetly upon arrival, only to open fully onto the surrounding landscape. Located in one of the region’s most exclusive areas, this newly completed villa (20" [ref=e171] [cursor=pointer]':
+                - /url: /listing/seafront-golf-front-living-where-architecture-embraces-the-ria-de-alvor-palmares-lagos
+                - 'img "Seafront & Golf Front Living: Where Architecture Embraces the Ria de Alvor, Palmares — Lagos" [ref=e174]'
+                - generic [ref=e175]:
+                  - generic [ref=e176]:
+                    - 'heading "Seafront & Golf Front Living: Where Architecture Embraces the Ria de Alvor, Palmares — Lagos" [level=3] [ref=e177]'
+                    - generic [ref=e178]:
+                      - img [ref=e179]
+                      - text: SIGNATURE
+                  - generic [ref=e181]:
+                    - generic [ref=e182]:
+                      - img [ref=e183]
+                      - text: Lagos
+                    - generic [ref=e187]:
+                      - img [ref=e188]
+                      - text: Real Estate
+                  - paragraph [ref=e191]: More than a home — a private viewpoint over the Algarve. Known as “The Hidden Pearl,” this property is a rare discovery that reveals itself discreetly upon arrival, only to open fully onto the surrounding landscape. Located in one of the region’s most exclusive areas, this newly completed villa (20
+              - link "Alvor Golf Shop Alvor Golf Shop VERIFIED Alvor Shopping Alvor Golf Shop is the Algarve's best-kept secret for golfers. Nestled in Quinta da Praia Resort, we offer club hire, sales, clothing, accessories, and professional repairs — all at unbeatable prices. With friendly, flexible service that goes the extra mile, we make sure you spend less time worrying" [ref=e192] [cursor=pointer]:
+                - /url: /listing/alvor-golf-shop
+                - img "Alvor Golf Shop" [ref=e195]
+                - generic [ref=e196]:
+                  - generic [ref=e197]:
+                    - heading "Alvor Golf Shop" [level=3] [ref=e198]
+                    - generic [ref=e199]:
+                      - img [ref=e200]
+                      - text: VERIFIED
+                  - generic [ref=e203]:
+                    - generic [ref=e204]:
+                      - img [ref=e205]
+                      - text: Alvor
+                    - generic [ref=e209]:
+                      - img [ref=e210]
+                      - text: Shopping
+                  - paragraph [ref=e213]: Alvor Golf Shop is the Algarve's best-kept secret for golfers. Nestled in Quinta da Praia Resort, we offer club hire, sales, clothing, accessories, and professional repairs — all at unbeatable prices. With friendly, flexible service that goes the extra mile, we make sure you spend less time worrying
+              - link "Tudo Bem - Loja de Cristais Tudo Bem - Loja de Cristais Vale do Lobo Shopping Tudo Bem - Loja de Cristais in Vale do Lobo offers a refined selection of vibrational jewelry and crystals designed to harmonize body and soul." [ref=e214] [cursor=pointer]:
+                - /url: /listing/tudo-bem-loja-de-cristais-vale-do-lobo
+                - img "Tudo Bem - Loja de Cristais" [ref=e217]
+                - generic [ref=e218]:
+                  - heading "Tudo Bem - Loja de Cristais" [level=3] [ref=e220]
+                  - generic [ref=e221]:
+                    - generic [ref=e222]:
+                      - img [ref=e223]
+                      - text: Vale do Lobo
+                    - generic [ref=e227]:
+                      - img [ref=e228]
+                      - text: Shopping
+                  - paragraph [ref=e231]: Tudo Bem - Loja de Cristais in Vale do Lobo offers a refined selection of vibrational jewelry and crystals designed to harmonize body and soul.
+              - link "Engel & Völkers Quinta do Lago e Vale do Lobo - Algarve - Portugal Engel & Völkers Quinta do Lago e Vale do Lobo - Algarve - Portugal Almancil Concierge Services Engel & Völkers offers expert luxury real estate consultancy in Almancil, specialising in Quinta do Lago and Vale do Lobo within the Golden Triangle." [ref=e232] [cursor=pointer]:
+                - /url: /listing/engel-volkers-quinta-do-lago-e-vale-do-lobo-algarve-portugal-almancil
+                - img "Engel & Völkers Quinta do Lago e Vale do Lobo - Algarve - Portugal" [ref=e235]
+                - generic [ref=e236]:
+                  - heading "Engel & Völkers Quinta do Lago e Vale do Lobo - Algarve - Portugal" [level=3] [ref=e238]
+                  - generic [ref=e239]:
+                    - generic [ref=e240]:
+                      - img [ref=e241]
+                      - text: Almancil
+                    - generic [ref=e245]:
+                      - img [ref=e246]
+                      - text: Concierge Services
+                  - paragraph [ref=e249]: Engel & Völkers offers expert luxury real estate consultancy in Almancil, specialising in Quinta do Lago and Vale do Lobo within the Golden Triangle.
+              - link "Márcia Neto Jewellery Márcia Neto Jewellery Vilamoura Shopping Márcia Neto Jewellery is a luxury boutique in Vilamoura Prestige, offering exquisite jewellery in an elegant setting." [ref=e250] [cursor=pointer]:
+                - /url: /listing/marcia-neto-jewellery-vilamoura
+                - img "Márcia Neto Jewellery" [ref=e253]
+                - generic [ref=e254]:
+                  - heading "Márcia Neto Jewellery" [level=3] [ref=e256]
+                  - generic [ref=e257]:
+                    - generic [ref=e258]:
+                      - img [ref=e259]
+                      - text: Vilamoura
+                    - generic [ref=e263]:
+                      - img [ref=e264]
+                      - text: Shopping
+                  - paragraph [ref=e267]: Márcia Neto Jewellery is a luxury boutique in Vilamoura Prestige, offering exquisite jewellery in an elegant setting.
+              - link "Spikes Spikes Vale do Lobo Restaurants Spikes is a distinguished restaurant in Vale do Lobo, offering a refined dining experience within the Golden Triangle." [ref=e268] [cursor=pointer]:
+                - /url: /listing/spikes-vale-do-lobo
+                - img "Spikes" [ref=e271]
+                - generic [ref=e272]:
+                  - heading "Spikes" [level=3] [ref=e274]
+                  - generic [ref=e275]:
+                    - generic [ref=e276]:
+                      - img [ref=e277]
+                      - text: Vale do Lobo
+                    - generic [ref=e281]:
+                      - img [ref=e282]
+                      - text: Restaurants
+                  - paragraph [ref=e285]: Spikes is a distinguished restaurant in Vale do Lobo, offering a refined dining experience within the Golden Triangle.
+              - link "El Ta'koy El Ta'koy Vale do Lobo Restaurants El Ta’koy in Vale do Lobo offers a refined dining experience inspired by Hawaiian street food, set across two levels with stunning coastline views." [ref=e286] [cursor=pointer]:
+                - /url: /listing/el-takoy-vale-do-lobo
+                - img "El Ta'koy" [ref=e289]
+                - generic [ref=e290]:
+                  - heading "El Ta'koy" [level=3] [ref=e292]
+                  - generic [ref=e293]:
+                    - generic [ref=e294]:
+                      - img [ref=e295]
+                      - text: Vale do Lobo
+                    - generic [ref=e299]:
+                      - img [ref=e300]
+                      - text: Restaurants
+                  - paragraph [ref=e303]: El Ta’koy in Vale do Lobo offers a refined dining experience inspired by Hawaiian street food, set across two levels with stunning coastline views.
+              - link "Tiramisú Restaurant & Pool Bar Tiramisú Restaurant & Pool Bar Quarteira Restaurants Tiramisú Restaurant & Pool Bar offers refined dining in the heart of Vilamoura Prestige, Quarteira, blending elegant cuisine with a sophisticated poolside ambiance." [ref=e304] [cursor=pointer]:
+                - /url: /listing/tiramisu-restaurant-pool-bar-quarteira
+                - img "Tiramisú Restaurant & Pool Bar" [ref=e307]
+                - generic [ref=e308]:
+                  - heading "Tiramisú Restaurant & Pool Bar" [level=3] [ref=e310]
+                  - generic [ref=e311]:
+                    - generic [ref=e312]:
+                      - img [ref=e313]
+                      - text: Quarteira
+                    - generic [ref=e317]:
+                      - img [ref=e318]
+                      - text: Restaurants
+                  - paragraph [ref=e321]: Tiramisú Restaurant & Pool Bar offers refined dining in the heart of Vilamoura Prestige, Quarteira, blending elegant cuisine with a sophisticated poolside ambiance.
+              - link "Golf & Leisure Golf & Leisure Almancil Golf Golf & Leisure is a premier retail store in Almancil offering a curated selection of golf and leisure products in the Algarve's Golden Triangle." [ref=e322] [cursor=pointer]:
+                - /url: /listing/golf-leisure-almancil
+                - img "Golf & Leisure" [ref=e325]
+                - generic [ref=e326]:
+                  - heading "Golf & Leisure" [level=3] [ref=e328]
+                  - generic [ref=e329]:
+                    - generic [ref=e330]:
+                      - img [ref=e331]
+                      - text: Almancil
+                    - generic [ref=e335]:
+                      - img [ref=e336]
+                      - text: Golf
+                  - paragraph [ref=e339]: Golf & Leisure is a premier retail store in Almancil offering a curated selection of golf and leisure products in the Algarve's Golden Triangle.
+              - link "Seashell Seashell Vale do Lobo Concierge Services Seashell offers expert property management services in the central Algarve, specialising in a curated portfolio of over 60 villas and apartments." [ref=e340] [cursor=pointer]:
+                - /url: /listing/seashell-vale-do-lobo
+                - img "Seashell" [ref=e343]
+                - generic [ref=e344]:
+                  - heading "Seashell" [level=3] [ref=e346]
+                  - generic [ref=e347]:
+                    - generic [ref=e348]:
+                      - img [ref=e349]
+                      - text: Vale do Lobo
+                    - generic [ref=e353]:
+                      - img [ref=e354]
+                      - text: Concierge Services
+                  - paragraph [ref=e357]: Seashell offers expert property management services in the central Algarve, specialising in a curated portfolio of over 60 villas and apartments.
+              - link "Chilly Lounge Indian Resturant Chilly Lounge Indian Resturant Vilamoura Beach Clubs Chilly Lounge Indian Restaurant offers a premium dining experience in Vilamoura, combining exquisite Indian cuisine with a refined beach club setting." [ref=e358] [cursor=pointer]:
+                - /url: /listing/chilly-lounge-indian-resturant-vilamoura
+                - img "Chilly Lounge Indian Resturant" [ref=e361]
+                - generic [ref=e362]:
+                  - heading "Chilly Lounge Indian Resturant" [level=3] [ref=e364]
+                  - generic [ref=e365]:
+                    - generic [ref=e366]:
+                      - img [ref=e367]
+                      - text: Vilamoura
+                    - generic [ref=e371]:
+                      - img [ref=e372]
+                      - text: Beach Clubs
+                  - paragraph [ref=e375]: Chilly Lounge Indian Restaurant offers a premium dining experience in Vilamoura, combining exquisite Indian cuisine with a refined beach club setting.
+              - link "Adventurecruise Buggy Tours - Acbtours LDA Adventurecruise Buggy Tours - Acbtours LDA Vilamoura Experiences Explore the Algarve's stunning landscapes with Adventurecruise Buggy Tours, featuring thrilling trails through mountains, rivers, and forests." [ref=e376] [cursor=pointer]:
+                - /url: /listing/adventurecruise-buggy-tours-acbtours-lda-vilamoura
+                - img "Adventurecruise Buggy Tours - Acbtours LDA" [ref=e379]
+                - generic [ref=e380]:
+                  - heading "Adventurecruise Buggy Tours - Acbtours LDA" [level=3] [ref=e382]
+                  - generic [ref=e383]:
+                    - generic [ref=e384]:
+                      - img [ref=e385]
+                      - text: Vilamoura
+                    - generic [ref=e389]:
+                      - img [ref=e390]
+                      - text: Experiences
+                  - paragraph [ref=e393]: Explore the Algarve's stunning landscapes with Adventurecruise Buggy Tours, featuring thrilling trails through mountains, rivers, and forests.
+              - link "Eden Villas Eden Villas Vilamoura Accommodation Eden Villas offers luxury accommodation in the prestigious Vilamoura region of the Algarve, combining comfort with an exclusive setting." [ref=e394] [cursor=pointer]:
+                - /url: /listing/eden-villas-vilamoura
+                - img "Eden Villas" [ref=e397]
+                - generic [ref=e398]:
+                  - heading "Eden Villas" [level=3] [ref=e400]
+                  - generic [ref=e401]:
+                    - generic [ref=e402]:
+                      - img [ref=e403]
+                      - text: Vilamoura
+                    - generic [ref=e407]:
+                      - img [ref=e408]
+                      - text: Accommodation
+                  - paragraph [ref=e411]: Eden Villas offers luxury accommodation in the prestigious Vilamoura region of the Algarve, combining comfort with an exclusive setting.
+              - link "The Beach Basket The Beach Basket Albufeira Restaurants The Beach Basket offers refined dining in the heart of Albufeira, Private Algarve, presenting an elegant culinary experience." [ref=e412] [cursor=pointer]:
+                - /url: /listing/the-beach-basket-albufeira
+                - img "The Beach Basket" [ref=e415]
+                - generic [ref=e416]:
+                  - heading "The Beach Basket" [level=3] [ref=e418]
+                  - generic [ref=e419]:
+                    - generic [ref=e420]:
+                      - img [ref=e421]
+                      - text: Albufeira
+                    - generic [ref=e425]:
+                      - img [ref=e426]
+                      - text: Restaurants
+                  - paragraph [ref=e429]: The Beach Basket offers refined dining in the heart of Albufeira, Private Algarve, presenting an elegant culinary experience.
+              - link "Northwoods Bar Northwoods Bar Vilamoura Beach Clubs Northwoods Bar is a premium beach club located in Vilamoura Prestige, offering an exclusive coastal experience in the Algarve." [ref=e430] [cursor=pointer]:
+                - /url: /listing/northwoods-bar-vilamoura
+                - img "Northwoods Bar" [ref=e433]
+                - generic [ref=e434]:
+                  - heading "Northwoods Bar" [level=3] [ref=e436]
+                  - generic [ref=e437]:
+                    - generic [ref=e438]:
+                      - img [ref=e439]
+                      - text: Vilamoura
+                    - generic [ref=e443]:
+                      - img [ref=e444]
+                      - text: Beach Clubs
+                  - paragraph [ref=e447]: Northwoods Bar is a premium beach club located in Vilamoura Prestige, offering an exclusive coastal experience in the Algarve.
+              - link "Palmyra Palmyra Almancil Accommodation Palmyra is a luxury hotel and resort located in Almancil, within the prestigious Golden Triangle of the Algarve." [ref=e448] [cursor=pointer]:
+                - /url: /listing/palmyra-almancil
+                - img "Palmyra" [ref=e451]
+                - generic [ref=e452]:
+                  - heading "Palmyra" [level=3] [ref=e454]
+                  - generic [ref=e455]:
+                    - generic [ref=e456]:
+                      - img [ref=e457]
+                      - text: Almancil
+                    - generic [ref=e461]:
+                      - img [ref=e462]
+                      - text: Accommodation
+                  - paragraph [ref=e465]: Palmyra is a luxury hotel and resort located in Almancil, within the prestigious Golden Triangle of the Algarve.
+              - link "Gallery Aderita Artística Space Gallery Aderita Artística Space Almancil Shopping Gallery Aderita Artística Space is a refined art gallery located in Almancil, within the prestigious Golden Triangle of the Algarve." [ref=e466] [cursor=pointer]:
+                - /url: /listing/gallery-aderita-artistica-space-almancil
+                - img "Gallery Aderita Artística Space" [ref=e469]
+                - generic [ref=e470]:
+                  - heading "Gallery Aderita Artística Space" [level=3] [ref=e472]
+                  - generic [ref=e473]:
+                    - generic [ref=e474]:
+                      - img [ref=e475]
+                      - text: Almancil
+                    - generic [ref=e479]:
+                      - img [ref=e480]
+                      - text: Shopping
+                  - paragraph [ref=e483]: Gallery Aderita Artística Space is a refined art gallery located in Almancil, within the prestigious Golden Triangle of the Algarve.
+              - link "Algarve Family Transfers Algarve Family Transfers Quinta do Lago Transportation Algarve Family Transfers offers private transfer services from major airports to destinations across Portugal and southern Spain, ensuring seamless and comfortable travel." [ref=e484] [cursor=pointer]:
+                - /url: /listing/algarve-family-transfers-quinta-do-lago
+                - img "Algarve Family Transfers" [ref=e487]
+                - generic [ref=e488]:
+                  - heading "Algarve Family Transfers" [level=3] [ref=e490]
+                  - generic [ref=e491]:
+                    - generic [ref=e492]:
+                      - img [ref=e493]
+                      - text: Quinta do Lago
+                    - generic [ref=e497]:
+                      - img [ref=e498]
+                      - text: Transportation
+                  - paragraph [ref=e501]: Algarve Family Transfers offers private transfer services from major airports to destinations across Portugal and southern Spain, ensuring seamless and comfortable travel.
+              - link "Le Club Algarve Le Club Algarve Almancil Beach Clubs Le Club Algarve is a premier sushi and steakhouse restaurant located on Santa Eulália Beach, offering a stylish dining experience with sea views and a vibrant atmosphere." [ref=e502] [cursor=pointer]:
+                - /url: /listing/le-club-algarve-almancil
+                - img "Le Club Algarve" [ref=e505]
+                - generic [ref=e506]:
+                  - heading "Le Club Algarve" [level=3] [ref=e508]
+                  - generic [ref=e509]:
+                    - generic [ref=e510]:
+                      - img [ref=e511]
+                      - text: Almancil
+                    - generic [ref=e515]:
+                      - img [ref=e516]
+                      - text: Beach Clubs
+                  - paragraph [ref=e519]: Le Club Algarve is a premier sushi and steakhouse restaurant located on Santa Eulália Beach, offering a stylish dining experience with sea views and a vibrant atmosphere.
+              - link "Casa do Mar Casa do Mar Albufeira Accommodation Casa do Mar offers a luxury private villa experience in Olhos de Água, Algarve, featuring spacious accommodations and exclusive amenities." [ref=e520] [cursor=pointer]:
+                - /url: /listing/casa-do-mar-albufeira
+                - img "Casa do Mar" [ref=e523]
+                - generic [ref=e524]:
+                  - heading "Casa do Mar" [level=3] [ref=e526]
+                  - generic [ref=e527]:
+                    - generic [ref=e528]:
+                      - img [ref=e529]
+                      - text: Albufeira
+                    - generic [ref=e533]:
+                      - img [ref=e534]
+                      - text: Accommodation
+                  - paragraph [ref=e537]: Casa do Mar offers a luxury private villa experience in Olhos de Água, Algarve, featuring spacious accommodations and exclusive amenities.
+              - link "As Fontes - Events Venue As Fontes - Events Venue Almancil Events As Fontes is a premier event and wedding venue located in Almancil, within the prestigious Golden Triangle of the Algarve." [ref=e538] [cursor=pointer]:
+                - /url: /listing/as-fontes-events-venue-almancil
+                - img "As Fontes - Events Venue" [ref=e541]
+                - generic [ref=e542]:
+                  - heading "As Fontes - Events Venue" [level=3] [ref=e544]
+                  - generic [ref=e545]:
+                    - generic [ref=e546]:
+                      - img [ref=e547]
+                      - text: Almancil
+                    - generic [ref=e551]:
+                      - img [ref=e552]
+                      - text: Events
+                  - paragraph [ref=e555]: As Fontes is a premier event and wedding venue located in Almancil, within the prestigious Golden Triangle of the Algarve.
+              - link "Residencial Santa Teresa Residencial Santa Teresa Almancil Accommodation Residencial Santa Teresa offers simply furnished rooms in a relaxed setting, featuring a bar and complimentary internet access in Almancil's Golden Triangle." [ref=e556] [cursor=pointer]:
+                - /url: /listing/residencial-santa-teresa-almancil
+                - img "Residencial Santa Teresa" [ref=e559]
+                - generic [ref=e560]:
+                  - heading "Residencial Santa Teresa" [level=3] [ref=e562]
+                  - generic [ref=e563]:
+                    - generic [ref=e564]:
+                      - img [ref=e565]
+                      - text: Almancil
+                    - generic [ref=e569]:
+                      - img [ref=e570]
+                      - text: Accommodation
+                  - paragraph [ref=e573]: Residencial Santa Teresa offers simply furnished rooms in a relaxed setting, featuring a bar and complimentary internet access in Almancil's Golden Triangle.
+              - link "SPA do Lago - Montargil SPA do Lago - Montargil Quinta do Lago Wellness & Spas Experience refined wellness at SPA do Lago, a distinguished spa within the 5-star AP Lago Montargil Hotel in Quinta do Lago's Golden Triangle." [ref=e574] [cursor=pointer]:
+                - /url: /listing/spa-do-lago-montargil-quinta-do-lago
+                - img "SPA do Lago - Montargil" [ref=e577]
+                - generic [ref=e578]:
+                  - heading "SPA do Lago - Montargil" [level=3] [ref=e580]
+                  - generic [ref=e581]:
+                    - generic [ref=e582]:
+                      - img [ref=e583]
+                      - text: Quinta do Lago
+                    - generic [ref=e587]:
+                      - img [ref=e588]
+                      - text: Wellness & Spas
+                  - paragraph [ref=e591]: Experience refined wellness at SPA do Lago, a distinguished spa within the 5-star AP Lago Montargil Hotel in Quinta do Lago's Golden Triangle.
+              - link "White Leaf - Catering Algarve White Leaf - Catering Algarve Almancil Restaurants White Leaf - Catering Algarve offers exclusive private dining and bespoke catering services in Almancil, within the prestigious Golden Triangle of the Algarve." [ref=e592] [cursor=pointer]:
+                - /url: /listing/white-leaf-catering-algarve-almancil
+                - img "White Leaf - Catering Algarve" [ref=e595]
+                - generic [ref=e596]:
+                  - heading "White Leaf - Catering Algarve" [level=3] [ref=e598]
+                  - generic [ref=e599]:
+                    - generic [ref=e600]:
+                      - img [ref=e601]
+                      - text: Almancil
+                    - generic [ref=e605]:
+                      - img [ref=e606]
+                      - text: Restaurants
+                  - paragraph [ref=e609]: White Leaf - Catering Algarve offers exclusive private dining and bespoke catering services in Almancil, within the prestigious Golden Triangle of the Algarve.
+              - link "Nature Coffee LDA Nature Coffee LDA Quinta do Lago Restaurants Nature Coffee LDA offers a stylish all-day dining experience in Quinta do Lago, set against a distinctive green wall backdrop." [ref=e610] [cursor=pointer]:
+                - /url: /listing/nature-coffee-lda-quinta-do-lago
+                - img "Nature Coffee LDA" [ref=e613]
+                - generic [ref=e614]:
+                  - heading "Nature Coffee LDA" [level=3] [ref=e616]
+                  - generic [ref=e617]:
+                    - generic [ref=e618]:
+                      - img [ref=e619]
+                      - text: Quinta do Lago
+                    - generic [ref=e623]:
+                      - img [ref=e624]
+                      - text: Restaurants
+                  - paragraph [ref=e627]: Nature Coffee LDA offers a stylish all-day dining experience in Quinta do Lago, set against a distinctive green wall backdrop.
+              - link "Algarve House Hunter Algarve House Hunter Tavira Concierge Services Algarve House Hunter is an independent buyer’s agent specializing in property searches and acquisitions across Portugal, dedicated exclusively to buyers." [ref=e628] [cursor=pointer]:
+                - /url: /listing/algarve-house-hunter-vale-do-lobo
+                - img "Algarve House Hunter" [ref=e631]
+                - generic [ref=e632]:
+                  - heading "Algarve House Hunter" [level=3] [ref=e634]
+                  - generic [ref=e635]:
+                    - generic [ref=e636]:
+                      - img [ref=e637]
+                      - text: Tavira
+                    - generic [ref=e641]:
+                      - img [ref=e642]
+                      - text: Concierge Services
+                  - paragraph [ref=e645]: Algarve House Hunter is an independent buyer’s agent specializing in property searches and acquisitions across Portugal, dedicated exclusively to buyers.
+              - link "Lagos Transfers Lagos Transfers Quinta do Lago Transportation Lagos Transfers offers reliable airport and golf transfers in Quinta do Lago, ensuring your journey is seamless and comfortable." [ref=e646] [cursor=pointer]:
+                - /url: /listing/lagos-transfers-quinta-do-lago
+                - img "Lagos Transfers" [ref=e649]
+                - generic [ref=e650]:
+                  - heading "Lagos Transfers" [level=3] [ref=e652]
+                  - generic [ref=e653]:
+                    - generic [ref=e654]:
+                      - img [ref=e655]
+                      - text: Quinta do Lago
+                    - generic [ref=e659]:
+                      - img [ref=e660]
+                      - text: Transportation
+                  - paragraph [ref=e663]: Lagos Transfers offers reliable airport and golf transfers in Quinta do Lago, ensuring your journey is seamless and comfortable.
+              - link "Yue Gang 粵港 Canton Restaurant Yue Gang 粵港 Canton Restaurant Almancil Restaurants Yue Gang offers authentic Cantonese cuisine in the heart of Almancil's Golden Triangle, delivering a refined dining experience." [ref=e664] [cursor=pointer]:
+                - /url: /listing/yue-gang-yue-gang-canton-restaurant-almancil
+                - img "Yue Gang 粵港 Canton Restaurant" [ref=e667]
+                - generic [ref=e668]:
+                  - heading "Yue Gang 粵港 Canton Restaurant" [level=3] [ref=e670]
+                  - generic [ref=e671]:
+                    - generic [ref=e672]:
+                      - img [ref=e673]
+                      - text: Almancil
+                    - generic [ref=e677]:
+                      - img [ref=e678]
+                      - text: Restaurants
+                  - paragraph [ref=e681]: Yue Gang offers authentic Cantonese cuisine in the heart of Almancil's Golden Triangle, delivering a refined dining experience.
+              - link "Springvillas - Algarve Luxury Villas Rentals Springvillas - Algarve Luxury Villas Rentals Portimão Accommodation Springvillas offers a curated selection of luxury holiday villas across the Algarve, specialising in premium private stays from its Portimão base." [ref=e682] [cursor=pointer]:
+                - /url: /listing/springvillas-algarve-luxury-villas-rentals-almancil
+                - img "Springvillas - Algarve Luxury Villas Rentals" [ref=e685]
+                - generic [ref=e686]:
+                  - heading "Springvillas - Algarve Luxury Villas Rentals" [level=3] [ref=e688]
+                  - generic [ref=e689]:
+                    - generic [ref=e690]:
+                      - img [ref=e691]
+                      - text: Portimão
+                    - generic [ref=e695]:
+                      - img [ref=e696]
+                      - text: Accommodation
+                  - paragraph [ref=e699]: Springvillas offers a curated selection of luxury holiday villas across the Algarve, specialising in premium private stays from its Portimão base.
+              - link "Yellowfish Transfers Yellowfish Transfers Quinta do Lago Transportation Yellowfish Transfers offers exclusive VIP transportation services in Quinta do Lago, within the Algarve's prestigious Golden Triangle." [ref=e700] [cursor=pointer]:
+                - /url: /listing/yellowfish-transfers-quinta-do-lago
+                - img "Yellowfish Transfers" [ref=e703]
+                - generic [ref=e704]:
+                  - heading "Yellowfish Transfers" [level=3] [ref=e706]
+                  - generic [ref=e707]:
+                    - generic [ref=e708]:
+                      - img [ref=e709]
+                      - text: Quinta do Lago
+                    - generic [ref=e713]:
+                      - img [ref=e714]
+                      - text: Transportation
+                  - paragraph [ref=e717]: Yellowfish Transfers offers exclusive VIP transportation services in Quinta do Lago, within the Algarve's prestigious Golden Triangle.
+              - link "Aleixomor'aqui Aleixomor'aqui Almancil Golf Aleixomor'Aqui is a distinguished golf club and course located in Almancil's prestigious Golden Triangle, offering refined lodging options." [ref=e718] [cursor=pointer]:
+                - /url: /listing/aleixomoraqui-almancil
+                - img "Aleixomor'aqui" [ref=e721]
+                - generic [ref=e722]:
+                  - heading "Aleixomor'aqui" [level=3] [ref=e724]
+                  - generic [ref=e725]:
+                    - generic [ref=e726]:
+                      - img [ref=e727]
+                      - text: Almancil
+                    - generic [ref=e731]:
+                      - img [ref=e732]
+                      - text: Golf
+                  - paragraph [ref=e735]: Aleixomor'Aqui is a distinguished golf club and course located in Almancil's prestigious Golden Triangle, offering refined lodging options.
+              - link "Cantinho do Almareado Cantinho do Almareado Albufeira Restaurants Cantinho do Almareado offers a refined dining experience in the heart of Albufeira, Private Algarve, blending elegant ambiance with exceptional cuisine." [ref=e736] [cursor=pointer]:
+                - /url: /listing/cantinho-do-almareado-albufeira
+                - img "Cantinho do Almareado" [ref=e739]
+                - generic [ref=e740]:
+                  - heading "Cantinho do Almareado" [level=3] [ref=e742]
+                  - generic [ref=e743]:
+                    - generic [ref=e744]:
+                      - img [ref=e745]
+                      - text: Albufeira
+                    - generic [ref=e749]:
+                      - img [ref=e750]
+                      - text: Restaurants
+                  - paragraph [ref=e753]: Cantinho do Almareado offers a refined dining experience in the heart of Albufeira, Private Algarve, blending elegant ambiance with exceptional cuisine.
+              - link "A Paisagem A Paisagem Quarteira Restaurants A Paisagem offers refined dining in Quarteira’s Vilamoura Prestige, delivering an elegant culinary experience in the Algarve." [ref=e754] [cursor=pointer]:
+                - /url: /listing/a-paisagem-quarteira
+                - img "A Paisagem" [ref=e757]
+                - generic [ref=e758]:
+                  - heading "A Paisagem" [level=3] [ref=e760]
+                  - generic [ref=e761]:
+                    - generic [ref=e762]:
+                      - img [ref=e763]
+                      - text: Quarteira
+                    - generic [ref=e767]:
+                      - img [ref=e768]
+                      - text: Restaurants
+                  - paragraph [ref=e771]: A Paisagem offers refined dining in Quarteira’s Vilamoura Prestige, delivering an elegant culinary experience in the Algarve.
+              - link "Algarve Party Planner Algarve Party Planner Portimão Concierge Services Algarve Party Planner offers expert organisation of weddings, vacations, and exclusive parties in Portimão, Portugal." [ref=e772] [cursor=pointer]:
+                - /url: /listing/algarve-party-planner-almancil
+                - img "Algarve Party Planner" [ref=e775]
+                - generic [ref=e776]:
+                  - heading "Algarve Party Planner" [level=3] [ref=e778]
+                  - generic [ref=e779]:
+                    - generic [ref=e780]:
+                      - img [ref=e781]
+                      - text: Portimão
+                    - generic [ref=e785]:
+                      - img [ref=e786]
+                      - text: Concierge Services
+                  - paragraph [ref=e789]: Algarve Party Planner offers expert organisation of weddings, vacations, and exclusive parties in Portimão, Portugal.
+              - link "Pro Shine Algarve - Car Detail Studio Pro Shine Algarve - Car Detail Studio Quarteira Concierge Services Pro Shine Algarve offers expert car detailing and protection services in Quarteira, within the prestigious Vilamoura area of the Algarve." [ref=e790] [cursor=pointer]:
+                - /url: /listing/pro-shine-algarve-car-detail-studio-quarteira
+                - img "Pro Shine Algarve - Car Detail Studio" [ref=e793]
+                - generic [ref=e794]:
+                  - heading "Pro Shine Algarve - Car Detail Studio" [level=3] [ref=e796]
+                  - generic [ref=e797]:
+                    - generic [ref=e798]:
+                      - img [ref=e799]
+                      - text: Quarteira
+                    - generic [ref=e803]:
+                      - img [ref=e804]
+                      - text: Concierge Services
+                  - paragraph [ref=e807]: Pro Shine Algarve offers expert car detailing and protection services in Quarteira, within the prestigious Vilamoura area of the Algarve.
+              - link "Nakofino Nakofino Quarteira Events Nakofino is a premier event and wedding venue in Quarteira, offering refined dining experiences within Vilamoura Prestige, Algarve." [ref=e808] [cursor=pointer]:
+                - /url: /listing/nakofino-quarteira
+                - img "Nakofino" [ref=e811]
+                - generic [ref=e812]:
+                  - heading "Nakofino" [level=3] [ref=e814]
+                  - generic [ref=e815]:
+                    - generic [ref=e816]:
+                      - img [ref=e817]
+                      - text: Quarteira
+                    - generic [ref=e821]:
+                      - img [ref=e822]
+                      - text: Events
+                  - paragraph [ref=e825]: Nakofino is a premier event and wedding venue in Quarteira, offering refined dining experiences within Vilamoura Prestige, Algarve.
+              - link "KOJO Boutique KOJO Boutique Quinta do Lago Shopping KOJO Boutique is a luxury clothing store located in Quinta do Lago, within the Algarve's prestigious Golden Triangle." [ref=e826] [cursor=pointer]:
+                - /url: /listing/kojo-boutique-quinta-do-lago
+                - img "KOJO Boutique" [ref=e829]
+                - generic [ref=e830]:
+                  - heading "KOJO Boutique" [level=3] [ref=e832]
+                  - generic [ref=e833]:
+                    - generic [ref=e834]:
+                      - img [ref=e835]
+                      - text: Quinta do Lago
+                    - generic [ref=e839]:
+                      - img [ref=e840]
+                      - text: Shopping
+                  - paragraph [ref=e843]: KOJO Boutique is a luxury clothing store located in Quinta do Lago, within the Algarve's prestigious Golden Triangle.
+              - link "Visacar Albufeira Visacar Albufeira Quarteira Transportation Visacar Albufeira se a sua viatura está à venda connosco, faça login e consulte toda a informação disponível." [ref=e844] [cursor=pointer]:
+                - /url: /listing/visacar-albufeira-quarteira
+                - img "Visacar Albufeira" [ref=e847]
+                - generic [ref=e848]:
+                  - heading "Visacar Albufeira" [level=3] [ref=e850]
+                  - generic [ref=e851]:
+                    - generic [ref=e852]:
+                      - img [ref=e853]
+                      - text: Quarteira
+                    - generic [ref=e857]:
+                      - img [ref=e858]
+                      - text: Transportation
+                  - paragraph [ref=e861]: Visacar Albufeira se a sua viatura está à venda connosco, faça login e consulte toda a informação disponível.
+              - link "ASCA - Community Center of the Social & Cultural Association of Almancil. ASCA - Community Center of the Social & Cultural Association of Almancil. Almancil Events ASCA is the distinguished social and cultural association of Almancil, offering a refined community hub in the Golden Triangle." [ref=e862] [cursor=pointer]:
+                - /url: /listing/asca-community-center-of-the-social-cultural-association-of-almancil
+                - img "ASCA - Community Center of the Social & Cultural Association of Almancil." [ref=e865]
+                - generic [ref=e866]:
+                  - heading "ASCA - Community Center of the Social & Cultural Association of Almancil." [level=3] [ref=e868]
+                  - generic [ref=e869]:
+                    - generic [ref=e870]:
+                      - img [ref=e871]
+                      - text: Almancil
+                    - generic [ref=e875]:
+                      - img [ref=e876]
+                      - text: Events
+                  - paragraph [ref=e879]: ASCA is the distinguished social and cultural association of Almancil, offering a refined community hub in the Golden Triangle.
+              - link "MB Weddings and Events Portugal MB Weddings and Events Portugal Almancil Events MB Weddings and Events Portugal specialises in planning bespoke destination weddings across Portugal with expert local knowledge and personalised service." [ref=e880] [cursor=pointer]:
+                - /url: /listing/mb-weddings-and-events-portugal-almancil
+                - img "MB Weddings and Events Portugal" [ref=e883]
+                - generic [ref=e884]:
+                  - heading "MB Weddings and Events Portugal" [level=3] [ref=e886]
+                  - generic [ref=e887]:
+                    - generic [ref=e888]:
+                      - img [ref=e889]
+                      - text: Almancil
+                    - generic [ref=e893]:
+                      - img [ref=e894]
+                      - text: Events
+                  - paragraph [ref=e897]: MB Weddings and Events Portugal specialises in planning bespoke destination weddings across Portugal with expert local knowledge and personalised service.
+              - link "Physioin Physioin Quarteira Concierge Services Physioin in Quarteira offers a multidisciplinary therapeutic centre with qualified professionals dedicated to health and well-being." [ref=e898] [cursor=pointer]:
+                - /url: /listing/physioin-quarteira
+                - img "Physioin" [ref=e901]
+                - generic [ref=e902]:
+                  - heading "Physioin" [level=3] [ref=e904]
+                  - generic [ref=e905]:
+                    - generic [ref=e906]:
+                      - img [ref=e907]
+                      - text: Quarteira
+                    - generic [ref=e911]:
+                      - img [ref=e912]
+                      - text: Concierge Services
+                  - paragraph [ref=e915]: Physioin in Quarteira offers a multidisciplinary therapeutic centre with qualified professionals dedicated to health and well-being.
+              - link "Coast and Country Tours Coast and Country Tours Albufeira Experiences Coast and Country Tours is an Albufeira-based tour operator offering Algarve sightseeing tours, jeep safaris and private transfers." [ref=e916] [cursor=pointer]:
+                - /url: /listing/coast-and-country-tours-almancil
+                - img "Coast and Country Tours" [ref=e919]
+                - generic [ref=e920]:
+                  - heading "Coast and Country Tours" [level=3] [ref=e922]
+                  - generic [ref=e923]:
+                    - generic [ref=e924]:
+                      - img [ref=e925]
+                      - text: Albufeira
+                    - generic [ref=e929]:
+                      - img [ref=e930]
+                      - text: Experiences
+                  - paragraph [ref=e933]: Coast and Country Tours is an Albufeira-based tour operator offering Algarve sightseeing tours, jeep safaris and private transfers.
+              - link "Golfejardim - Sociedade de Equipamentos, Lda. Golfejardim - Sociedade de Equipamentos, Lda. Almancil Shopping Golfejardim offers premium Club Car vehicles, golf equipment, and garden tools across Portugal, serving discerning clients in the Golden Triangle and beyond." [ref=e934] [cursor=pointer]:
+                - /url: /listing/golfejardim-sociedade-de-equipamentos-lda-almancil
+                - img "Golfejardim - Sociedade de Equipamentos, Lda." [ref=e937]
+                - generic [ref=e938]:
+                  - heading "Golfejardim - Sociedade de Equipamentos, Lda." [level=3] [ref=e940]
+                  - generic [ref=e941]:
+                    - generic [ref=e942]:
+                      - img [ref=e943]
+                      - text: Almancil
+                    - generic [ref=e947]:
+                      - img [ref=e948]
+                      - text: Shopping
+                  - paragraph [ref=e951]: Golfejardim offers premium Club Car vehicles, golf equipment, and garden tools across Portugal, serving discerning clients in the Golden Triangle and beyond.
+              - link "The Real Algarve The Real Algarve Vilamoura Concierge Services The Real Algarve provides exclusive access to luxury villas in Vilamoura, ensuring a premium stay in the heart of the Algarve." [ref=e952] [cursor=pointer]:
+                - /url: /listing/the-real-algarve-vilamoura
+                - img "The Real Algarve" [ref=e955]
+                - generic [ref=e956]:
+                  - heading "The Real Algarve" [level=3] [ref=e958]
+                  - generic [ref=e959]:
+                    - generic [ref=e960]:
+                      - img [ref=e961]
+                      - text: Vilamoura
+                    - generic [ref=e965]:
+                      - img [ref=e966]
+                      - text: Concierge Services
+                  - paragraph [ref=e969]: The Real Algarve provides exclusive access to luxury villas in Vilamoura, ensuring a premium stay in the heart of the Algarve.
+              - link "Intelligence VIP Protection Services Intelligence VIP Protection Services Almancil Concierge Services Intelligence VIP Protection Services offers professional security solutions in Almancil, located in the Algarve's prestigious Golden Triangle." [ref=e970] [cursor=pointer]:
+                - /url: /listing/intelligence-vip-protection-services-almancil
+                - img "Intelligence VIP Protection Services" [ref=e973]
+                - generic [ref=e974]:
+                  - heading "Intelligence VIP Protection Services" [level=3] [ref=e976]
+                  - generic [ref=e977]:
+                    - generic [ref=e978]:
+                      - img [ref=e979]
+                      - text: Almancil
+                    - generic [ref=e983]:
+                      - img [ref=e984]
+                      - text: Concierge Services
+                  - paragraph [ref=e987]: Intelligence VIP Protection Services offers professional security solutions in Almancil, located in the Algarve's prestigious Golden Triangle.
+              - link "Xclusiv4u️ Transfers & Tours Xclusiv4u️ Transfers & Tours Albufeira Transportation Xclusiv4u offers premium transfers and bespoke tours in the Algarve, ensuring seamless and stylish travel experiences." [ref=e988] [cursor=pointer]:
+                - /url: /listing/xclusiv4u-transfers-tours-quinta-do-lago
+                - img "Xclusiv4u️ Transfers & Tours" [ref=e991]
+                - generic [ref=e992]:
+                  - heading "Xclusiv4u️ Transfers & Tours" [level=3] [ref=e994]
+                  - generic [ref=e995]:
+                    - generic [ref=e996]:
+                      - img [ref=e997]
+                      - text: Albufeira
+                    - generic [ref=e1001]:
+                      - img [ref=e1002]
+                      - text: Transportation
+                  - paragraph [ref=e1005]: Xclusiv4u offers premium transfers and bespoke tours in the Algarve, ensuring seamless and stylish travel experiences.
+              - link "Olive Homes Olive Homes Quarteira Concierge Services Olive Homes is an Algarve real estate agency based in Fonte Santa, Quarteira, with residential sales activity across Vilamoura and the wider region." [ref=e1006] [cursor=pointer]:
+                - /url: /listing/olive-homes-vilamoura-2
+                - img "Olive Homes" [ref=e1009]
+                - generic [ref=e1010]:
+                  - heading "Olive Homes" [level=3] [ref=e1012]
+                  - generic [ref=e1013]:
+                    - generic [ref=e1014]:
+                      - img [ref=e1015]
+                      - text: Quarteira
+                    - generic [ref=e1019]:
+                      - img [ref=e1020]
+                      - text: Concierge Services
+                  - paragraph [ref=e1023]: Olive Homes is an Algarve real estate agency based in Fonte Santa, Quarteira, with residential sales activity across Vilamoura and the wider region.
+              - link "Idéko Concept Store Idéko Concept Store Almancil Shopping Idéko Concept Store is a luxury boutique in Almancil's Golden Triangle, offering curated home goods in an elegant setting." [ref=e1024] [cursor=pointer]:
+                - /url: /listing/ideko-concept-store-almancil
+                - img "Idéko Concept Store" [ref=e1027]
+                - generic [ref=e1028]:
+                  - heading "Idéko Concept Store" [level=3] [ref=e1030]
+                  - generic [ref=e1031]:
+                    - generic [ref=e1032]:
+                      - img [ref=e1033]
+                      - text: Almancil
+                    - generic [ref=e1037]:
+                      - img [ref=e1038]
+                      - text: Shopping
+                  - paragraph [ref=e1041]: Idéko Concept Store is a luxury boutique in Almancil's Golden Triangle, offering curated home goods in an elegant setting.
+              - link "Visacar - Car Rentals Visacar - Car Rentals Quarteira Transportation Visacar offers premium car rental services in the Algarve, ensuring seamless mobility throughout the region." [ref=e1042] [cursor=pointer]:
+                - /url: /listing/visacar-car-rentals-almancil
+                - img "Visacar - Car Rentals" [ref=e1045]
+                - generic [ref=e1046]:
+                  - heading "Visacar - Car Rentals" [level=3] [ref=e1048]
+                  - generic [ref=e1049]:
+                    - generic [ref=e1050]:
+                      - img [ref=e1051]
+                      - text: Quarteira
+                    - generic [ref=e1055]:
+                      - img [ref=e1056]
+                      - text: Transportation
+                  - paragraph [ref=e1059]: Visacar offers premium car rental services in the Algarve, ensuring seamless mobility throughout the region.
+              - link "Ontime Travel Ontime Travel Albufeira Transportation Ontime Travel offers seamless airport transfers in Faro and throughout the Algarve, ensuring prompt and reliable service." [ref=e1060] [cursor=pointer]:
+                - /url: /listing/ontime-travel-lda-vilamoura
+                - img "Ontime Travel" [ref=e1063]
+                - generic [ref=e1064]:
+                  - heading "Ontime Travel" [level=3] [ref=e1066]
+                  - generic [ref=e1067]:
+                    - generic [ref=e1068]:
+                      - img [ref=e1069]
+                      - text: Albufeira
+                    - generic [ref=e1073]:
+                      - img [ref=e1074]
+                      - text: Transportation
+                  - paragraph [ref=e1077]: Ontime Travel offers seamless airport transfers in Faro and throughout the Algarve, ensuring prompt and reliable service.
+              - link "Izzy's Beach Restaurant Izzy's Beach Restaurant Almancil Restaurants Izzy’s Beach Restaurant offers a refined dining experience on the Almancil coastline in the Golden Triangle." [ref=e1078] [cursor=pointer]:
+                - /url: /listing/izzy-s-beach-restaurant-almancil
+                - img "Izzy's Beach Restaurant" [ref=e1081]
+                - generic [ref=e1082]:
+                  - heading "Izzy's Beach Restaurant" [level=3] [ref=e1084]
+                  - generic [ref=e1085]:
+                    - generic [ref=e1086]:
+                      - img [ref=e1087]
+                      - text: Almancil
+                    - generic [ref=e1091]:
+                      - img [ref=e1092]
+                      - text: Restaurants
+                  - paragraph [ref=e1095]: Izzy’s Beach Restaurant offers a refined dining experience on the Almancil coastline in the Golden Triangle.
+              - link "Prado Vilamoura - Prado Villas Prado Vilamoura - Prado Villas Vilamoura Accommodation Prado Vilamoura offers premium self-catering villas and apartments in the heart of Vilamoura, perfect for a refined Algarve holiday experience." [ref=e1096] [cursor=pointer]:
+                - /url: /listing/prado-vilamoura-prado-villas-vilamoura
+                - img "Prado Vilamoura - Prado Villas" [ref=e1099]
+                - generic [ref=e1100]:
+                  - heading "Prado Vilamoura - Prado Villas" [level=3] [ref=e1102]
+                  - generic [ref=e1103]:
+                    - generic [ref=e1104]:
+                      - img [ref=e1105]
+                      - text: Vilamoura
+                    - generic [ref=e1109]:
+                      - img [ref=e1110]
+                      - text: Accommodation
+                  - paragraph [ref=e1113]: Prado Vilamoura offers premium self-catering villas and apartments in the heart of Vilamoura, perfect for a refined Algarve holiday experience.
+              - link "Rare Steakhouse Rare Steakhouse Vilamoura Restaurants Rare Steakhouse offers a refined dining experience at Vilamoura Marina, specializing in premium steaks." [ref=e1114] [cursor=pointer]:
+                - /url: /listing/rare-steakhouse-vilamoura
+                - img "Rare Steakhouse" [ref=e1117]
+                - generic [ref=e1118]:
+                  - heading "Rare Steakhouse" [level=3] [ref=e1120]
+                  - generic [ref=e1121]:
+                    - generic [ref=e1122]:
+                      - img [ref=e1123]
+                      - text: Vilamoura
+                    - generic [ref=e1127]:
+                      - img [ref=e1128]
+                      - text: Restaurants
+                  - paragraph [ref=e1131]: Rare Steakhouse offers a refined dining experience at Vilamoura Marina, specializing in premium steaks.
+              - link "AP Lago Montargil Conference & SPA AP Lago Montargil Conference & SPA Quinta do Lago Wellness & Spas Experience refined comfort and wellness at AP Lago Montargil Conference & SPA in Quinta do Lago's Golden Triangle." [ref=e1132] [cursor=pointer]:
+                - /url: /listing/ap-lago-montargil-conference-spa-quinta-do-lago
+                - img "AP Lago Montargil Conference & SPA" [ref=e1135]
+                - generic [ref=e1136]:
+                  - heading "AP Lago Montargil Conference & SPA" [level=3] [ref=e1138]
+                  - generic [ref=e1139]:
+                    - generic [ref=e1140]:
+                      - img [ref=e1141]
+                      - text: Quinta do Lago
+                    - generic [ref=e1145]:
+                      - img [ref=e1146]
+                      - text: Wellness & Spas
+                  - paragraph [ref=e1149]: Experience refined comfort and wellness at AP Lago Montargil Conference & SPA in Quinta do Lago's Golden Triangle.
+              - link "Hotel Quinta do Lago Hotel Quinta do Lago Almancil Accommodation Hotel Quinta do Lago offers refined accommodation in the prestigious Golden Triangle of Almancil, Algarve, blending comfort with a serene setting." [ref=e1150] [cursor=pointer]:
+                - /url: /listing/hotel-quinta-do-lago-almancil
+                - img "Hotel Quinta do Lago" [ref=e1153]
+                - generic [ref=e1154]:
+                  - heading "Hotel Quinta do Lago" [level=3] [ref=e1156]
+                  - generic [ref=e1157]:
+                    - generic [ref=e1158]:
+                      - img [ref=e1159]
+                      - text: Almancil
+                    - generic [ref=e1163]:
+                      - img [ref=e1164]
+                      - text: Accommodation
+                  - paragraph [ref=e1167]: Hotel Quinta do Lago offers refined accommodation in the prestigious Golden Triangle of Almancil, Algarve, blending comfort with a serene setting.
+              - link "Hotel Rural Quinta do Marco Hotel Rural Quinta do Marco Quinta do Lago Wellness & Spas Hotel Rural Quinta do Marco offers a serene retreat in Quinta do Lago, set on an 18-hectare estate between the mountains and the sea." [ref=e1168] [cursor=pointer]:
+                - /url: /listing/hotel-rural-quinta-do-marco-quinta-do-lago
+                - img "Hotel Rural Quinta do Marco" [ref=e1171]
+                - generic [ref=e1172]:
+                  - heading "Hotel Rural Quinta do Marco" [level=3] [ref=e1174]
+                  - generic [ref=e1175]:
+                    - generic [ref=e1176]:
+                      - img [ref=e1177]
+                      - text: Quinta do Lago
+                    - generic [ref=e1181]:
+                      - img [ref=e1182]
+                      - text: Wellness & Spas
+                  - paragraph [ref=e1185]: Hotel Rural Quinta do Marco offers a serene retreat in Quinta do Lago, set on an 18-hectare estate between the mountains and the sea.
+              - link "PURE PURE Quinta do Lago Restaurants PURE Boutique Café and Juice Bar in Quinta do Lago offers a refined setting to enjoy fresh refreshments with stunning views in the heart of the Golden Triangle." [ref=e1186] [cursor=pointer]:
+                - /url: /listing/pure-quinta-do-lago
+                - img "PURE" [ref=e1189]
+                - generic [ref=e1190]:
+                  - heading "PURE" [level=3] [ref=e1192]
+                  - generic [ref=e1193]:
+                    - generic [ref=e1194]:
+                      - img [ref=e1195]
+                      - text: Quinta do Lago
+                    - generic [ref=e1199]:
+                      - img [ref=e1200]
+                      - text: Restaurants
+                  - paragraph [ref=e1203]: PURE Boutique Café and Juice Bar in Quinta do Lago offers a refined setting to enjoy fresh refreshments with stunning views in the heart of the Golden Triangle.
+              - link "Restaurante Bica Velha Restaurante Bica Velha Almancil Restaurants Restaurante Bica Velha offers a refined dining experience in a beautiful historic building in the heart of Loulé city centre." [ref=e1204] [cursor=pointer]:
+                - /url: /listing/restaurante-bica-velha-almancil
+                - img "Restaurante Bica Velha" [ref=e1207]
+                - generic [ref=e1208]:
+                  - heading "Restaurante Bica Velha" [level=3] [ref=e1210]
+                  - generic [ref=e1211]:
+                    - generic [ref=e1212]:
+                      - img [ref=e1213]
+                      - text: Almancil
+                    - generic [ref=e1217]:
+                      - img [ref=e1218]
+                      - text: Restaurants
+                  - paragraph [ref=e1221]: Restaurante Bica Velha offers a refined dining experience in a beautiful historic building in the heart of Loulé city centre.
+              - link "Folie Private Luxury Cruises Folie Private Luxury Cruises Almancil Experiences Folie Private Luxury Cruises offers exclusive yacht experiences in Almancil, located in the prestigious Golden Triangle of the Algarve." [ref=e1222] [cursor=pointer]:
+                - /url: /listing/folie-private-luxury-cruises-almancil
+                - img "Folie Private Luxury Cruises" [ref=e1225]
+                - generic [ref=e1226]:
+                  - heading "Folie Private Luxury Cruises" [level=3] [ref=e1228]
+                  - generic [ref=e1229]:
+                    - generic [ref=e1230]:
+                      - img [ref=e1231]
+                      - text: Almancil
+                    - generic [ref=e1235]:
+                      - img [ref=e1236]
+                      - text: Experiences
+                  - paragraph [ref=e1239]: Folie Private Luxury Cruises offers exclusive yacht experiences in Almancil, located in the prestigious Golden Triangle of the Algarve.
+              - link "Água Qlub Água Qlub Vilamoura Restaurants Água Qlub is a distinguished beach restaurant and bar in Vilamoura, offering five unique concepts seamlessly combined for a refined dining experience." [ref=e1240] [cursor=pointer]:
+                - /url: /listing/agua-qlub-vilamoura
+                - img "Água Qlub" [ref=e1243]
+                - generic [ref=e1244]:
+                  - heading "Água Qlub" [level=3] [ref=e1246]
+                  - generic [ref=e1247]:
+                    - generic [ref=e1248]:
+                      - img [ref=e1249]
+                      - text: Vilamoura
+                    - generic [ref=e1253]:
+                      - img [ref=e1254]
+                      - text: Restaurants
+                  - paragraph [ref=e1257]: Água Qlub is a distinguished beach restaurant and bar in Vilamoura, offering five unique concepts seamlessly combined for a refined dining experience.
+              - link "Tivoli Carvoeiro Algarve Resort Tivoli Carvoeiro Algarve Resort Quinta do Lago Accommodation Experience unparalleled luxury at Tivoli Carvoeiro Algarve Resort, a distinguished 5-star hotel in Quinta do Lago offering spectacular ocean views in the Golden Triangle." [ref=e1258] [cursor=pointer]:
+                - /url: /listing/tivoli-carvoeiro-algarve-resort-quinta-do-lago
+                - img "Tivoli Carvoeiro Algarve Resort" [ref=e1261]
+                - generic [ref=e1262]:
+                  - heading "Tivoli Carvoeiro Algarve Resort" [level=3] [ref=e1264]
+                  - generic [ref=e1265]:
+                    - generic [ref=e1266]:
+                      - img [ref=e1267]
+                      - text: Quinta do Lago
+                    - generic [ref=e1271]:
+                      - img [ref=e1272]
+                      - text: Accommodation
+                  - paragraph [ref=e1275]: Experience unparalleled luxury at Tivoli Carvoeiro Algarve Resort, a distinguished 5-star hotel in Quinta do Lago offering spectacular ocean views in the Golden Triangle.
+              - link "Quinta do Lago Country Club Quinta do Lago Country Club Almancil Accommodation Experience exclusive luxury at Quinta do Lago Country Club, offering elegant apartments with stunning lake and sea views in the Algarve's prestigious Golden Triangle." [ref=e1276] [cursor=pointer]:
+                - /url: /listing/quinta-do-lago-country-club-almancil
+                - img "Quinta do Lago Country Club" [ref=e1279]
+                - generic [ref=e1280]:
+                  - heading "Quinta do Lago Country Club" [level=3] [ref=e1282]
+                  - generic [ref=e1283]:
+                    - generic [ref=e1284]:
+                      - img [ref=e1285]
+                      - text: Almancil
+                    - generic [ref=e1289]:
+                      - img [ref=e1290]
+                      - text: Accommodation
+                  - paragraph [ref=e1293]: Experience exclusive luxury at Quinta do Lago Country Club, offering elegant apartments with stunning lake and sea views in the Algarve's prestigious Golden Triangle.
+              - link "Serenity - the Art of Well Being, Pine Cliffs Algarve Serenity - the Art of Well Being, Pine Cliffs Algarve Albufeira Wellness & Spas Serenity at Pine Cliffs Algarve offers a refined spa and wellbeing experience in a tranquil setting, dedicated to health and rejuvenation." [ref=e1294] [cursor=pointer]:
+                - /url: /listing/serenity-the-art-of-well-being-pine-cliffs-algarve-almancil
+                - img "Serenity - the Art of Well Being, Pine Cliffs Algarve" [ref=e1297]
+                - generic [ref=e1298]:
+                  - heading "Serenity - the Art of Well Being, Pine Cliffs Algarve" [level=3] [ref=e1300]
+                  - generic [ref=e1301]:
+                    - generic [ref=e1302]:
+                      - img [ref=e1303]
+                      - text: Albufeira
+                    - generic [ref=e1307]:
+                      - img [ref=e1308]
+                      - text: Wellness & Spas
+                  - paragraph [ref=e1311]: Serenity at Pine Cliffs Algarve offers a refined spa and wellbeing experience in a tranquil setting, dedicated to health and rejuvenation.
+              - link "Tee Times Golf Agency Tee Times Golf Agency Quarteira Concierge Services Tee Times Golf Agency specialises in booking tee times and golf holidays across Portugal and Spain, offering tailored services for discerning golfers." [ref=e1312] [cursor=pointer]:
+                - /url: /listing/tee-times-golf-agency-vale-do-lobo
+                - img "Tee Times Golf Agency" [ref=e1315]
+                - generic [ref=e1316]:
+                  - heading "Tee Times Golf Agency" [level=3] [ref=e1318]
+                  - generic [ref=e1319]:
+                    - generic [ref=e1320]:
+                      - img [ref=e1321]
+                      - text: Quarteira
+                    - generic [ref=e1325]:
+                      - img [ref=e1326]
+                      - text: Concierge Services
+                  - paragraph [ref=e1329]: Tee Times Golf Agency specialises in booking tee times and golf holidays across Portugal and Spain, offering tailored services for discerning golfers.
+              - link "Sunglass Hut Designer Outlet Algarve Sunglass Hut Designer Outlet Algarve Almancil Shopping Sunglass Hut Designer Outlet Algarve in Almancil offers a curated selection of premium sunglasses for men, women, and children from renowned brands including Ray-Ban, Persol, and Oakley." [ref=e1330] [cursor=pointer]:
+                - /url: /listing/sunglass-hut-designer-outlet-algarve-almancil
+                - img "Sunglass Hut Designer Outlet Algarve" [ref=e1333]
+                - generic [ref=e1334]:
+                  - heading "Sunglass Hut Designer Outlet Algarve" [level=3] [ref=e1336]
+                  - generic [ref=e1337]:
+                    - generic [ref=e1338]:
+                      - img [ref=e1339]
+                      - text: Almancil
+                    - generic [ref=e1343]:
+                      - img [ref=e1344]
+                      - text: Shopping
+                  - paragraph [ref=e1347]: Sunglass Hut Designer Outlet Algarve in Almancil offers a curated selection of premium sunglasses for men, women, and children from renowned brands including Ray-Ban, Persol, and Oakley.
+              - link "Golf in Portugal Golf in Portugal Vale do Lobo Golf Discover and compare premier golf courses across Portugal with expert local guidance and real-time tee time bookings." [ref=e1348] [cursor=pointer]:
+                - /url: /listing/golf-in-portugal-vale-do-lobo
+                - img "Golf in Portugal" [ref=e1351]
+                - generic [ref=e1352]:
+                  - heading "Golf in Portugal" [level=3] [ref=e1354]
+                  - generic [ref=e1355]:
+                    - generic [ref=e1356]:
+                      - img [ref=e1357]
+                      - text: Vale do Lobo
+                    - generic [ref=e1361]:
+                      - img [ref=e1362]
+                      - text: Golf
+                  - paragraph [ref=e1365]: Discover and compare premier golf courses across Portugal with expert local guidance and real-time tee time bookings.
+              - link "Quinta do Lago N&s Golf Courses Quinta do Lago N&s Golf Courses Almancil Golf Experience world-class golf at Quinta do Lago in the Algarve, set in the prestigious Golden Triangle with exceptional courses and abundant sunshine." [ref=e1366] [cursor=pointer]:
+                - /url: /listing/quinta-do-lago-ns-golf-courses-almancil
+                - img "Quinta do Lago N&s Golf Courses" [ref=e1369]
+                - generic [ref=e1370]:
+                  - heading "Quinta do Lago N&s Golf Courses" [level=3] [ref=e1372]
+                  - generic [ref=e1373]:
+                    - generic [ref=e1374]:
+                      - img [ref=e1375]
+                      - text: Almancil
+                    - generic [ref=e1379]:
+                      - img [ref=e1380]
+                      - text: Golf
+                  - paragraph [ref=e1383]: Experience world-class golf at Quinta do Lago in the Algarve, set in the prestigious Golden Triangle with exceptional courses and abundant sunshine.
+              - link "Adriana Beach Club Hotel Resort Adriana Beach Club Hotel Resort Almancil Beach Clubs Experience luxury at Adriana Beach Club Hotel Resort in Almancil, offering direct access to Praia da Falésia for an exceptional beachside stay." [ref=e1384] [cursor=pointer]:
+                - /url: /listing/adriana-beach-club-hotel-resort-almancil
+                - img "Adriana Beach Club Hotel Resort" [ref=e1387]
+                - generic [ref=e1388]:
+                  - heading "Adriana Beach Club Hotel Resort" [level=3] [ref=e1390]
+                  - generic [ref=e1391]:
+                    - generic [ref=e1392]:
+                      - img [ref=e1393]
+                      - text: Almancil
+                    - generic [ref=e1397]:
+                      - img [ref=e1398]
+                      - text: Beach Clubs
+                  - paragraph [ref=e1401]: Experience luxury at Adriana Beach Club Hotel Resort in Almancil, offering direct access to Praia da Falésia for an exceptional beachside stay.
+              - link "Diplomático Restaurante Boutique & Bar Diplomático Restaurante Boutique & Bar Vilamoura Restaurants Diplomático Restaurante Boutique & Bar offers an elegant dining and bar experience in the heart of Vilamoura." [ref=e1402] [cursor=pointer]:
+                - /url: /listing/diplomatico-restaurante-boutique-bar-vilamoura
+                - img "Diplomático Restaurante Boutique & Bar" [ref=e1405]
+                - generic [ref=e1406]:
+                  - heading "Diplomático Restaurante Boutique & Bar" [level=3] [ref=e1408]
+                  - generic [ref=e1409]:
+                    - generic [ref=e1410]:
+                      - img [ref=e1411]
+                      - text: Vilamoura
+                    - generic [ref=e1415]:
+                      - img [ref=e1416]
+                      - text: Restaurants
+                  - paragraph [ref=e1419]: Diplomático Restaurante Boutique & Bar offers an elegant dining and bar experience in the heart of Vilamoura.
+              - link "Elite Cars Canarias S.l. Elite Cars Canarias S.l. Quarteira Transportation Elite Cars Canarias S.L. offers premium VIP transportation services in Quarteira, Algarve, ensuring seamless and luxurious travel within Vilamoura Prestige." [ref=e1420] [cursor=pointer]:
+                - /url: /listing/elite-cars-canarias-sl-quarteira
+                - img "Elite Cars Canarias S.l." [ref=e1423]
+                - generic [ref=e1424]:
+                  - heading "Elite Cars Canarias S.l." [level=3] [ref=e1426]
+                  - generic [ref=e1427]:
+                    - generic [ref=e1428]:
+                      - img [ref=e1429]
+                      - text: Quarteira
+                    - generic [ref=e1433]:
+                      - img [ref=e1434]
+                      - text: Transportation
+                  - paragraph [ref=e1437]: Elite Cars Canarias S.L. offers premium VIP transportation services in Quarteira, Algarve, ensuring seamless and luxurious travel within Vilamoura Prestige.
+              - link "Kulinarium Kulinarium Quinta do Lago Restaurants Kulinarium is a distinguished beach restaurant in Carvoeiro, celebrated for its robust flavors and inviting atmosphere." [ref=e1438] [cursor=pointer]:
+                - /url: /listing/kulinarium-quinta-do-lago
+                - img "Kulinarium" [ref=e1441]
+                - generic [ref=e1442]:
+                  - heading "Kulinarium" [level=3] [ref=e1444]
+                  - generic [ref=e1445]:
+                    - generic [ref=e1446]:
+                      - img [ref=e1447]
+                      - text: Quinta do Lago
+                    - generic [ref=e1451]:
+                      - img [ref=e1452]
+                      - text: Restaurants
+                  - paragraph [ref=e1455]: Kulinarium is a distinguished beach restaurant in Carvoeiro, celebrated for its robust flavors and inviting atmosphere.
+              - link "Castro Marim Golfe & Country Club Castro Marim Golfe & Country Club Almancil Golf Castro Marim Golfe & Country Club offers an exclusive golf and country club experience in the Algarve's prestigious Golden Triangle." [ref=e1456] [cursor=pointer]:
+                - /url: /listing/castro-marim-golfe-country-club-almancil
+                - img "Castro Marim Golfe & Country Club" [ref=e1459]
+                - generic [ref=e1460]:
+                  - heading "Castro Marim Golfe & Country Club" [level=3] [ref=e1462]
+                  - generic [ref=e1463]:
+                    - generic [ref=e1464]:
+                      - img [ref=e1465]
+                      - text: Almancil
+                    - generic [ref=e1469]:
+                      - img [ref=e1470]
+                      - text: Golf
+                  - paragraph [ref=e1473]: Castro Marim Golfe & Country Club offers an exclusive golf and country club experience in the Algarve's prestigious Golden Triangle.
+              - link "Dunas Douradas Beach Club Dunas Douradas Beach Club Almancil Accommodation Dunas Douradas Beach Club offers refined resort living in Almancil’s prestigious Golden Triangle, blending luxury accommodation with wellness and leisure facilities." [ref=e1474] [cursor=pointer]:
+                - /url: /listing/dunas-douradas-beach-club-almancil
+                - img "Dunas Douradas Beach Club" [ref=e1477]
+                - generic [ref=e1478]:
+                  - heading "Dunas Douradas Beach Club" [level=3] [ref=e1480]
+                  - generic [ref=e1481]:
+                    - generic [ref=e1482]:
+                      - img [ref=e1483]
+                      - text: Almancil
+                    - generic [ref=e1487]:
+                      - img [ref=e1488]
+                      - text: Accommodation
+                  - paragraph [ref=e1491]: Dunas Douradas Beach Club offers refined resort living in Almancil’s prestigious Golden Triangle, blending luxury accommodation with wellness and leisure facilities.
+              - link "Casa Branca Exclusive Holiday Village Casa Branca Exclusive Holiday Village Vale do Lobo Accommodation Casa Branca Exclusive Holiday Village offers a beautiful and exclusive retreat in the Southern Algarve, ideally situated between Albufeira and Paderne." [ref=e1492] [cursor=pointer]:
+                - /url: /listing/casa-branca-exclusive-holiday-village-vale-do-lobo
+                - img "Casa Branca Exclusive Holiday Village" [ref=e1495]
+                - generic [ref=e1496]:
+                  - heading "Casa Branca Exclusive Holiday Village" [level=3] [ref=e1498]
+                  - generic [ref=e1499]:
+                    - generic [ref=e1500]:
+                      - img [ref=e1501]
+                      - text: Vale do Lobo
+                    - generic [ref=e1505]:
+                      - img [ref=e1506]
+                      - text: Accommodation
+                  - paragraph [ref=e1509]: Casa Branca Exclusive Holiday Village offers a beautiful and exclusive retreat in the Southern Algarve, ideally situated between Albufeira and Paderne.
+              - link "3hb Faro 3hb Faro Almancil Wellness & Spas PT EN 3HB FARO HOTEL QUARTOS GASTRONOMIA WELLNESS OFERTAS GALERIA LOCALIZAÇÃO CONTACTOS HOTEL QUARTOS GASTRONOMIA WELLNESS OFERTAS GALERIA LOCALIZAÇÃO C..." [ref=e1510] [cursor=pointer]:
+                - /url: /listing/3hb-faro-almancil
+                - img "3hb Faro" [ref=e1513]
+                - generic [ref=e1514]:
+                  - heading "3hb Faro" [level=3] [ref=e1516]
+                  - generic [ref=e1517]:
+                    - generic [ref=e1518]:
+                      - img [ref=e1519]
+                      - text: Almancil
+                    - generic [ref=e1523]:
+                      - img [ref=e1524]
+                      - text: Wellness & Spas
+                  - paragraph [ref=e1527]: PT EN 3HB FARO HOTEL QUARTOS GASTRONOMIA WELLNESS OFERTAS GALERIA LOCALIZAÇÃO CONTACTOS HOTEL QUARTOS GASTRONOMIA WELLNESS OFERTAS GALERIA LOCALIZAÇÃO C...
+              - link "Quinta Jardins do Lago Quinta Jardins do Lago Quinta do Lago Experiences Polished hotel on sprawling grounds with an 18th-century manor house, a botanical garden & a spa." [ref=e1528] [cursor=pointer]:
+                - /url: /listing/quinta-jardins-do-lago-quinta-do-lago
+                - img "Quinta Jardins do Lago" [ref=e1531]
+                - generic [ref=e1532]:
+                  - heading "Quinta Jardins do Lago" [level=3] [ref=e1534]
+                  - generic [ref=e1535]:
+                    - generic [ref=e1536]:
+                      - img [ref=e1537]
+                      - text: Quinta do Lago
+                    - generic [ref=e1541]:
+                      - img [ref=e1542]
+                      - text: Experiences
+                  - paragraph [ref=e1545]: Polished hotel on sprawling grounds with an 18th-century manor house, a botanical garden & a spa.
+              - link "Areias Village Areias Village Albufeira Accommodation Areias Village offers refined accommodation steps from Aveiros and Oura beaches in the heart of Albufeira, blending comfort with tranquility." [ref=e1546] [cursor=pointer]:
+                - /url: /listing/areias-village-albufeira
+                - img "Areias Village" [ref=e1549]
+                - generic [ref=e1550]:
+                  - heading "Areias Village" [level=3] [ref=e1552]
+                  - generic [ref=e1553]:
+                    - generic [ref=e1554]:
+                      - img [ref=e1555]
+                      - text: Albufeira
+                    - generic [ref=e1559]:
+                      - img [ref=e1560]
+                      - text: Accommodation
+                  - paragraph [ref=e1563]: Areias Village offers refined accommodation steps from Aveiros and Oura beaches in the heart of Albufeira, blending comfort with tranquility.
+              - link "VIP Cars VIP Cars Vilamoura Transportation VIP Cars provides premium car rental services with a global reach, ensuring seamless mobility for discerning clients." [ref=e1564] [cursor=pointer]:
+                - /url: /listing/vip-cars-vilamoura
+                - img "VIP Cars" [ref=e1567]
+                - generic [ref=e1568]:
+                  - heading "VIP Cars" [level=3] [ref=e1570]
+                  - generic [ref=e1571]:
+                    - generic [ref=e1572]:
+                      - img [ref=e1573]
+                      - text: Vilamoura
+                    - generic [ref=e1577]:
+                      - img [ref=e1578]
+                      - text: Transportation
+                  - paragraph [ref=e1581]: VIP Cars provides premium car rental services with a global reach, ensuring seamless mobility for discerning clients.
+              - link "Viva La Ciccia - Steakhouse & Pasta Viva La Ciccia - Steakhouse & Pasta Albufeira Restaurants Viva La Ciccia - Steakhouse & Pasta offers a refined dining experience in Albufeira, specializing in premium steak and pasta dishes within the Private Algarve region." [ref=e1582] [cursor=pointer]:
+                - /url: /listing/viva-la-ciccia-steakhouse-pasta-albufeira
+                - img "Viva La Ciccia - Steakhouse & Pasta" [ref=e1585]
+                - generic [ref=e1586]:
+                  - heading "Viva La Ciccia - Steakhouse & Pasta" [level=3] [ref=e1588]
+                  - generic [ref=e1589]:
+                    - generic [ref=e1590]:
+                      - img [ref=e1591]
+                      - text: Albufeira
+                    - generic [ref=e1595]:
+                      - img [ref=e1596]
+                      - text: Restaurants
+                  - paragraph [ref=e1599]: Viva La Ciccia - Steakhouse & Pasta offers a refined dining experience in Albufeira, specializing in premium steak and pasta dishes within the Private Algarve region.
+              - link "Martinhal Quinta do Lago Family Resort Martinhal Quinta do Lago Family Resort Almancil Accommodation Martinhal Quinta do Lago Family Resort offers a refined selection of family villas in the prestigious Quinta do Lago area of the Algarve’s Golden Triangle." [ref=e1600] [cursor=pointer]:
+                - /url: /listing/martinhal-quinta-do-lago-family-resort-almancil
+                - img "Martinhal Quinta do Lago Family Resort" [ref=e1603]
+                - generic [ref=e1604]:
+                  - heading "Martinhal Quinta do Lago Family Resort" [level=3] [ref=e1606]
+                  - generic [ref=e1607]:
+                    - generic [ref=e1608]:
+                      - img [ref=e1609]
+                      - text: Almancil
+                    - generic [ref=e1613]:
+                      - img [ref=e1614]
+                      - text: Accommodation
+                  - paragraph [ref=e1617]: Martinhal Quinta do Lago Family Resort offers a refined selection of family villas in the prestigious Quinta do Lago area of the Algarve’s Golden Triangle.
+              - link "NAU Morgado Golf & Country Club NAU Morgado Golf & Country Club Quinta do Lago Accommodation Experience refined family holidays at NAU Morgado Golf & Country Club in Quinta do Lago, offering comfortable accommodation amidst nature, pools, and golf courses for an unforgettable stay." [ref=e1618] [cursor=pointer]:
+                - /url: /listing/nau-morgado-golf-country-club-quinta-do-lago
+                - img "NAU Morgado Golf & Country Club" [ref=e1621]
+                - generic [ref=e1622]:
+                  - heading "NAU Morgado Golf & Country Club" [level=3] [ref=e1624]
+                  - generic [ref=e1625]:
+                    - generic [ref=e1626]:
+                      - img [ref=e1627]
+                      - text: Quinta do Lago
+                    - generic [ref=e1631]:
+                      - img [ref=e1632]
+                      - text: Accommodation
+                  - paragraph [ref=e1635]: Experience refined family holidays at NAU Morgado Golf & Country Club in Quinta do Lago, offering comfortable accommodation amidst nature, pools, and golf courses for an unforgettable stay.
+              - link "The Premium Training The Premium Training Quarteira Concierge Services The Premium Training offers exclusive fitness and health services in Quarteira's Vilamoura Prestige, blending luxury with wellness expertise." [ref=e1636] [cursor=pointer]:
+                - /url: /listing/the-premium-training-quarteira
+                - img "The Premium Training" [ref=e1639]
+                - generic [ref=e1640]:
+                  - heading "The Premium Training" [level=3] [ref=e1642]
+                  - generic [ref=e1643]:
+                    - generic [ref=e1644]:
+                      - img [ref=e1645]
+                      - text: Quarteira
+                    - generic [ref=e1649]:
+                      - img [ref=e1650]
+                      - text: Concierge Services
+                  - paragraph [ref=e1653]: The Premium Training offers exclusive fitness and health services in Quarteira's Vilamoura Prestige, blending luxury with wellness expertise.
+              - link "7 Seven SPA Vilamoura 7 Seven SPA Vilamoura Almancil Wellness & Spas 7 Seven SPA Vilamoura offers a refined wellness retreat in Almancil’s Golden Triangle, combining spa facilities with exclusive lodging for a serene escape." [ref=e1654] [cursor=pointer]:
+                - /url: /listing/7-seven-spa-vilamoura-almancil
+                - img "7 Seven SPA Vilamoura" [ref=e1657]
+                - generic [ref=e1658]:
+                  - heading "7 Seven SPA Vilamoura" [level=3] [ref=e1660]
+                  - generic [ref=e1661]:
+                    - generic [ref=e1662]:
+                      - img [ref=e1663]
+                      - text: Almancil
+                    - generic [ref=e1667]:
+                      - img [ref=e1668]
+                      - text: Wellness & Spas
+                  - paragraph [ref=e1671]: 7 Seven SPA Vilamoura offers a refined wellness retreat in Almancil’s Golden Triangle, combining spa facilities with exclusive lodging for a serene escape.
+              - link "Algar Seco Parque Algar Seco Parque Quinta do Lago Accommodation Passe umas férias descontraídas no Algar Seco Parque no Algarve; apartamentos, bungalows e moradias em regime de self-catering localizados no cimo das f..." [ref=e1672] [cursor=pointer]:
+                - /url: /listing/algar-seco-parque-quinta-do-lago
+                - img "Algar Seco Parque" [ref=e1675]
+                - generic [ref=e1676]:
+                  - heading "Algar Seco Parque" [level=3] [ref=e1678]
+                  - generic [ref=e1679]:
+                    - generic [ref=e1680]:
+                      - img [ref=e1681]
+                      - text: Quinta do Lago
+                    - generic [ref=e1685]:
+                      - img [ref=e1686]
+                      - text: Accommodation
+                  - paragraph [ref=e1689]: Passe umas férias descontraídas no Algar Seco Parque no Algarve; apartamentos, bungalows e moradias em regime de self-catering localizados no cimo das f...
+              - 'link "Zitur - Vale Fuzeiros Nature Guesthouse Zitur - Vale Fuzeiros Nature Guesthouse Quinta do Lago Accommodation Zitur Algarve Nature & Culture, 3 alojamentos para amantes da Natureza e Cultura: Casa Vale Fuzeiros Nature Guest House, Casa Silves History Guest House..." [ref=e1690] [cursor=pointer]':
+                - /url: /listing/zitur-vale-fuzeiros-nature-guesthouse-quinta-do-lago
+                - img "Zitur - Vale Fuzeiros Nature Guesthouse" [ref=e1693]
+                - generic [ref=e1694]:
+                  - heading "Zitur - Vale Fuzeiros Nature Guesthouse" [level=3] [ref=e1696]
+                  - generic [ref=e1697]:
+                    - generic [ref=e1698]:
+                      - img [ref=e1699]
+                      - text: Quinta do Lago
+                    - generic [ref=e1703]:
+                      - img [ref=e1704]
+                      - text: Accommodation
+                  - paragraph [ref=e1707]: "Zitur Algarve Nature & Culture, 3 alojamentos para amantes da Natureza e Cultura: Casa Vale Fuzeiros Nature Guest House, Casa Silves History Guest House..."
+              - link "Ria Park Hotel & SPA Ria Park Hotel & SPA Almancil Accommodation Located in the Algarve, within the Ria Formosa Natural Park, in Vale do Lobo, the Ria Park Hotel & SPA is surrounded by a verdant valley from where you..." [ref=e1708] [cursor=pointer]:
+                - /url: /listing/ria-park-hotel-spa-almancil
+                - img "Ria Park Hotel & SPA" [ref=e1711]
+                - generic [ref=e1712]:
+                  - heading "Ria Park Hotel & SPA" [level=3] [ref=e1714]
+                  - generic [ref=e1715]:
+                    - generic [ref=e1716]:
+                      - img [ref=e1717]
+                      - text: Almancil
+                    - generic [ref=e1721]:
+                      - img [ref=e1722]
+                      - text: Accommodation
+                  - paragraph [ref=e1725]: Located in the Algarve, within the Ria Formosa Natural Park, in Vale do Lobo, the Ria Park Hotel & SPA is surrounded by a verdant valley from where you...
+              - link "Wild Fire Smokehouse & Grill Wild Fire Smokehouse & Grill Quarteira Restaurants Wild Fire Smokehouse & Grill offers a refined dining experience in Vilamoura Prestige, Quarteira, specializing in expertly prepared smoked and grilled dishes." [ref=e1726] [cursor=pointer]:
+                - /url: /listing/wild-fire-smokehouse-grill-quarteira
+                - img "Wild Fire Smokehouse & Grill" [ref=e1729]
+                - generic [ref=e1730]:
+                  - heading "Wild Fire Smokehouse & Grill" [level=3] [ref=e1732]
+                  - generic [ref=e1733]:
+                    - generic [ref=e1734]:
+                      - img [ref=e1735]
+                      - text: Quarteira
+                    - generic [ref=e1739]:
+                      - img [ref=e1740]
+                      - text: Restaurants
+                  - paragraph [ref=e1743]: Wild Fire Smokehouse & Grill offers a refined dining experience in Vilamoura Prestige, Quarteira, specializing in expertly prepared smoked and grilled dishes.
+              - link "Ancão Gardens Ancão Gardens Almancil Accommodation Ancão Gardens offers luxury living in the heart of the Algarve’s Golden Triangle, perfectly positioned between Vale do Lobo and Quinta do Lago." [ref=e1744] [cursor=pointer]:
+                - /url: /listing/ancao-gardens-almancil
+                - img "Ancão Gardens" [ref=e1747]
+                - generic [ref=e1748]:
+                  - heading "Ancão Gardens" [level=3] [ref=e1750]
+                  - generic [ref=e1751]:
+                    - generic [ref=e1752]:
+                      - img [ref=e1753]
+                      - text: Almancil
+                    - generic [ref=e1757]:
+                      - img [ref=e1758]
+                      - text: Accommodation
+                  - paragraph [ref=e1761]: Ancão Gardens offers luxury living in the heart of the Algarve’s Golden Triangle, perfectly positioned between Vale do Lobo and Quinta do Lago.
+              - link "Palmares Ocean Living & Golf Palmares Ocean Living & Golf Almancil Golf Discover Palmares Ocean Living & Golf in Almancil, a distinguished coastal resort offering exceptional real estate, world-class golf, and refined hospitality in the Algarve's Golden Triangle." [ref=e1762] [cursor=pointer]:
+                - /url: /listing/palmares-ocean-living-golf-almancil
+                - img "Palmares Ocean Living & Golf" [ref=e1765]
+                - generic [ref=e1766]:
+                  - heading "Palmares Ocean Living & Golf" [level=3] [ref=e1768]
+                  - generic [ref=e1769]:
+                    - generic [ref=e1770]:
+                      - img [ref=e1771]
+                      - text: Almancil
+                    - generic [ref=e1775]:
+                      - img [ref=e1776]
+                      - text: Golf
+                  - paragraph [ref=e1779]: Discover Palmares Ocean Living & Golf in Almancil, a distinguished coastal resort offering exceptional real estate, world-class golf, and refined hospitality in the Algarve's Golden Triangle.
+              - link "Casatuia Casatuia Quinta do Lago Family Attractions Casatuia offers tranquil lodging just 40 minutes from Faro airport, combining peaceful surroundings with easy access to nearby restaurants and stunning beaches in Quinta do Lago." [ref=e1780] [cursor=pointer]:
+                - /url: /listing/casatuia-quinta-do-lago
+                - img "Casatuia" [ref=e1783]
+                - generic [ref=e1784]:
+                  - heading "Casatuia" [level=3] [ref=e1786]
+                  - generic [ref=e1787]:
+                    - generic [ref=e1788]:
+                      - img [ref=e1789]
+                      - text: Quinta do Lago
+                    - generic [ref=e1793]:
+                      - img [ref=e1794]
+                      - text: Family Attractions
+                  - paragraph [ref=e1797]: Casatuia offers tranquil lodging just 40 minutes from Faro airport, combining peaceful surroundings with easy access to nearby restaurants and stunning beaches in Quinta do Lago.
+              - link "Iberostar Selection Lagos Algarve Iberostar Selection Lagos Algarve Quinta do Lago Accommodation Experience refined 5-star luxury at Iberostar Selection Lagos Algarve, nestled in the prestigious Quinta do Lago within the Golden Triangle." [ref=e1798] [cursor=pointer]:
+                - /url: /listing/iberostar-selection-lagos-algarve-quinta-do-lago
+                - img "Iberostar Selection Lagos Algarve" [ref=e1801]
+                - generic [ref=e1802]:
+                  - heading "Iberostar Selection Lagos Algarve" [level=3] [ref=e1804]
+                  - generic [ref=e1805]:
+                    - generic [ref=e1806]:
+                      - img [ref=e1807]
+                      - text: Quinta do Lago
+                    - generic [ref=e1811]:
+                      - img [ref=e1812]
+                      - text: Accommodation
+                  - paragraph [ref=e1815]: Experience refined 5-star luxury at Iberostar Selection Lagos Algarve, nestled in the prestigious Quinta do Lago within the Golden Triangle.
+              - link "EPIC SANA Algarve Hotel EPIC SANA Algarve Hotel Albufeira Wellness & Spas EPIC SANA Algarve Hotel offers refined lodging and wellness experiences in Albufeira, combining comfort with a focus on health and relaxation." [ref=e1816] [cursor=pointer]:
+                - /url: /listing/epic-sana-algarve-hotel-almancil
+                - img "EPIC SANA Algarve Hotel" [ref=e1819]
+                - generic [ref=e1820]:
+                  - heading "EPIC SANA Algarve Hotel" [level=3] [ref=e1822]
+                  - generic [ref=e1823]:
+                    - generic [ref=e1824]:
+                      - img [ref=e1825]
+                      - text: Albufeira
+                    - generic [ref=e1829]:
+                      - img [ref=e1830]
+                      - text: Wellness & Spas
+                  - paragraph [ref=e1833]: EPIC SANA Algarve Hotel offers refined lodging and wellness experiences in Albufeira, combining comfort with a focus on health and relaxation.
+              - link "Jupiter Marina Hotel Jupiter Marina Hotel Quarteira Wellness & Spas Jupiter Marina Hotel in Quarteira offers an elegant adults-only retreat with a focus on wellness and romantic experiences." [ref=e1834] [cursor=pointer]:
+                - /url: /listing/jupiter-marina-hotel-quarteira
+                - img "Jupiter Marina Hotel" [ref=e1837]
+                - generic [ref=e1838]:
+                  - heading "Jupiter Marina Hotel" [level=3] [ref=e1840]
+                  - generic [ref=e1841]:
+                    - generic [ref=e1842]:
+                      - img [ref=e1843]
+                      - text: Quarteira
+                    - generic [ref=e1847]:
+                      - img [ref=e1848]
+                      - text: Wellness & Spas
+                  - paragraph [ref=e1851]: Jupiter Marina Hotel in Quarteira offers an elegant adults-only retreat with a focus on wellness and romantic experiences.
+              - link "Eden Village Apartments Eden Village Apartments Vilamoura Accommodation Eden Village Apartments offers refined accommodation in the heart of Vilamoura, combining comfort with convenient access to local dining experiences." [ref=e1852] [cursor=pointer]:
+                - /url: /listing/eden-village-apartments-vilamoura
+                - img "Eden Village Apartments" [ref=e1855]
+                - generic [ref=e1856]:
+                  - heading "Eden Village Apartments" [level=3] [ref=e1858]
+                  - generic [ref=e1859]:
+                    - generic [ref=e1860]:
+                      - img [ref=e1861]
+                      - text: Vilamoura
+                    - generic [ref=e1865]:
+                      - img [ref=e1866]
+                      - text: Accommodation
+                  - paragraph [ref=e1869]: Eden Village Apartments offers refined accommodation in the heart of Vilamoura, combining comfort with convenient access to local dining experiences.
+              - link "Velamar Boutique Hotel Velamar Boutique Hotel Albufeira Accommodation Velamar Boutique Hotel offers refined boutique accommodation just moments from Albufeira’s renowned beaches." [ref=e1870] [cursor=pointer]:
+                - /url: /listing/velamar-boutique-hotel-albufeira
+                - img "Velamar Boutique Hotel" [ref=e1873]
+                - generic [ref=e1874]:
+                  - heading "Velamar Boutique Hotel" [level=3] [ref=e1876]
+                  - generic [ref=e1877]:
+                    - generic [ref=e1878]:
+                      - img [ref=e1879]
+                      - text: Albufeira
+                    - generic [ref=e1883]:
+                      - img [ref=e1884]
+                      - text: Accommodation
+                  - paragraph [ref=e1887]: Velamar Boutique Hotel offers refined boutique accommodation just moments from Albufeira’s renowned beaches.
+              - link "Moodz SPA & Resort Moodz SPA & Resort Almancil Wellness & Spas Moodz SPA & Resort in Almancil offers a refined sanctuary for relaxation and rejuvenation within the Algarve's prestigious Golden Triangle." [ref=e1888] [cursor=pointer]:
+                - /url: /listing/moodz-spa-resort-almancil
+                - img "Moodz SPA & Resort" [ref=e1891]
+                - generic [ref=e1892]:
+                  - heading "Moodz SPA & Resort" [level=3] [ref=e1894]
+                  - generic [ref=e1895]:
+                    - generic [ref=e1896]:
+                      - img [ref=e1897]
+                      - text: Almancil
+                    - generic [ref=e1901]:
+                      - img [ref=e1902]
+                      - text: Wellness & Spas
+                  - paragraph [ref=e1905]: Moodz SPA & Resort in Almancil offers a refined sanctuary for relaxation and rejuvenation within the Algarve's prestigious Golden Triangle.
+              - link "Jorge's Fish Restaurant Jorge's Fish Restaurant Quarteira Restaurants Jorge's Fish Restaurant in Quarteira offers a refined dining experience with expertly prepared fresh seafood in the prestigious Vilamoura region." [ref=e1906] [cursor=pointer]:
+                - /url: /listing/jorges-fish-restaurant-quarteira
+                - img "Jorge's Fish Restaurant" [ref=e1909]
+                - generic [ref=e1910]:
+                  - heading "Jorge's Fish Restaurant" [level=3] [ref=e1912]
+                  - generic [ref=e1913]:
+                    - generic [ref=e1914]:
+                      - img [ref=e1915]
+                      - text: Quarteira
+                    - generic [ref=e1919]:
+                      - img [ref=e1920]
+                      - text: Restaurants
+                  - paragraph [ref=e1923]: Jorge's Fish Restaurant in Quarteira offers a refined dining experience with expertly prepared fresh seafood in the prestigious Vilamoura region.
+              - link "Mercedes Country House Mercedes Country House Almancil Family Attractions Mercedes Country House offers a tranquil retreat just 15 minutes from Faro Airport, featuring nine elegant rooms set within a serene one-hectare estate." [ref=e1924] [cursor=pointer]:
+                - /url: /listing/mercedes-country-house-almancil
+                - img "Mercedes Country House" [ref=e1927]
+                - generic [ref=e1928]:
+                  - heading "Mercedes Country House" [level=3] [ref=e1930]
+                  - generic [ref=e1931]:
+                    - generic [ref=e1932]:
+                      - img [ref=e1933]
+                      - text: Almancil
+                    - generic [ref=e1937]:
+                      - img [ref=e1938]
+                      - text: Family Attractions
+                  - paragraph [ref=e1941]: Mercedes Country House offers a tranquil retreat just 15 minutes from Faro Airport, featuring nine elegant rooms set within a serene one-hectare estate.
+              - link "Rei das Praias Rei das Praias Quinta do Lago Beach Clubs Rei das Praias offers a refined beachside experience in Quinta do Lago's Golden Triangle, combining exceptional dining and a stylish bar setting." [ref=e1942] [cursor=pointer]:
+                - /url: /listing/rei-das-praias-quinta-do-lago
+                - img "Rei das Praias" [ref=e1945]
+                - generic [ref=e1946]:
+                  - heading "Rei das Praias" [level=3] [ref=e1948]
+                  - generic [ref=e1949]:
+                    - generic [ref=e1950]:
+                      - img [ref=e1951]
+                      - text: Quinta do Lago
+                    - generic [ref=e1955]:
+                      - img [ref=e1956]
+                      - text: Beach Clubs
+                  - paragraph [ref=e1959]: Rei das Praias offers a refined beachside experience in Quinta do Lago's Golden Triangle, combining exceptional dining and a stylish bar setting.
+              - link "Susy´s Freie Trauung Algarve - Freie Traurednerin & Sängerin Susy´s Freie Trauung Algarve - Freie Traurednerin & Sängerin Ferragudo Events Experience a heartfelt, personalized wedding ceremony with Susy´s Freie Trauung Algarve, offering bespoke vows and soulful singing in the stunning Algarve region." [ref=e1960] [cursor=pointer]:
+                - /url: /listing/susy-s-freie-trauung-algarve-freie-traurednerin-sangerin-almancil
+                - img "Susy´s Freie Trauung Algarve - Freie Traurednerin & Sängerin" [ref=e1963]
+                - generic [ref=e1964]:
+                  - heading "Susy´s Freie Trauung Algarve - Freie Traurednerin & Sängerin" [level=3] [ref=e1966]
+                  - generic [ref=e1967]:
+                    - generic [ref=e1968]:
+                      - img [ref=e1969]
+                      - text: Ferragudo
+                    - generic [ref=e1973]:
+                      - img [ref=e1974]
+                      - text: Events
+                  - paragraph [ref=e1977]: Experience a heartfelt, personalized wedding ceremony with Susy´s Freie Trauung Algarve, offering bespoke vows and soulful singing in the stunning Algarve region.
+          - generic [ref=e1981]:
+            - generic:
+              - generic:
+                - button "S" [ref=e1984] [cursor=pointer]:
+                  - generic [ref=e1987]: S
+                - button "E" [ref=e2001] [cursor=pointer]:
+                  - generic [ref=e2004]: E
+                - button "C" [ref=e2008] [cursor=pointer]:
+                  - generic [ref=e2011]: C
+                - button "W" [ref=e2015] [cursor=pointer]:
+                  - generic [ref=e2018]: W
+                - button "G" [ref=e2020] [cursor=pointer]:
+                  - generic [ref=e2023]: G
+                - button "13" [ref=e2196] [cursor=pointer]:
+                  - generic [ref=e2197]: "13"
+                - button "13" [ref=e2198] [cursor=pointer]:
+                  - generic [ref=e2199]: "13"
+                - button "4" [ref=e2200] [cursor=pointer]:
+                  - generic [ref=e2201]: "4"
+                - button "6" [ref=e2202] [cursor=pointer]:
+                  - generic [ref=e2203]: "6"
+                - button "35" [ref=e2204] [cursor=pointer]:
+                  - generic [ref=e2205]: "35"
+                - button "13" [ref=e2206] [cursor=pointer]:
+                  - generic [ref=e2207]: "13"
+                - button "6" [ref=e2208] [cursor=pointer]:
+                  - generic [ref=e2209]: "6"
+                - button "13" [ref=e2210] [cursor=pointer]:
+                  - generic [ref=e2211]: "13"
+            - generic:
+              - generic [ref=e2055]:
+                - button "Zoom in" [ref=e2056] [cursor=pointer]: +
+                - button "Zoom out" [ref=e2057] [cursor=pointer]: −
+              - generic [ref=e2058]:
+                - link "Leaflet" [ref=e2059] [cursor=pointer]:
+                  - /url: https://leafletjs.com
+                  - img [ref=e2060]
+                  - text: Leaflet
+                - text: "| ©"
+                - link "OpenStreetMap" [ref=e2064] [cursor=pointer]:
+                  - /url: https://www.openstreetmap.org/copyright
+                - text: ©
+                - link "CARTO" [ref=e2065] [cursor=pointer]:
+                  - /url: https://carto.com/
+    - contentinfo [ref=e2066]:
+      - generic [ref=e2067]:
+        - generic [ref=e2068]:
+          - generic [ref=e2069]:
+            - link "AlgarveOfficial" [ref=e2070] [cursor=pointer]:
+              - /url: /
+              - generic [ref=e2072]: AlgarveOfficial
+            - paragraph [ref=e2073]: Your gateway to premium experiences across Portugal's most prestigious coastal region.
+            - generic [ref=e2074]:
+              - paragraph [ref=e2075]: Get Algarve news and updates
+              - paragraph [ref=e2076]: Curated local news, events, openings, and highlights from across the Algarve.
+              - generic [ref=e2077]:
+                - generic [ref=e2078]: Enter your email
+                - textbox "Enter your email" [ref=e2079]
+                - button "Subscribe" [ref=e2080] [cursor=pointer]
+            - generic [ref=e2081]:
+              - generic [ref=e2082]:
+                - img [ref=e2083]
+                - generic [ref=e2086]: District of Faro, Portugal
+              - generic [ref=e2087]:
+                - img [ref=e2088]
+                - generic [ref=e2091]: info@algarveofficial.com
+          - generic [ref=e2092]:
+            - heading "Regions" [level=3] [ref=e2093]
+            - list [ref=e2094]:
+              - listitem [ref=e2095]:
+                - link "Golden Triangle" [ref=e2096] [cursor=pointer]:
+                  - /url: /destinations/golden-triangle
+              - listitem [ref=e2097]:
+                - link "Vilamoura Prestige" [ref=e2098] [cursor=pointer]:
+                  - /url: /destinations/vilamoura-prestige
+              - listitem [ref=e2099]:
+                - link "Carvoeiro Cliffs" [ref=e2100] [cursor=pointer]:
+                  - /url: /destinations/carvoeiro-cliffs
+              - listitem [ref=e2101]:
+                - link "Lagos Signature" [ref=e2102] [cursor=pointer]:
+                  - /url: /destinations/lagos-signature
+              - listitem [ref=e2103]:
+                - link "Tavira Heritage" [ref=e2104] [cursor=pointer]:
+                  - /url: /destinations/tavira-heritage
+          - generic [ref=e2105]:
+            - heading "Categories" [level=3] [ref=e2106]
+            - list [ref=e2107]:
+              - listitem [ref=e2108]:
+                - link "Accommodation" [ref=e2109] [cursor=pointer]:
+                  - /url: /stay?category=places-to-stay
+              - listitem [ref=e2110]:
+                - link "Gastronomy" [ref=e2111] [cursor=pointer]:
+                  - /url: /stay?category=restaurants
+              - listitem [ref=e2112]:
+                - link "Golf & Tournaments" [ref=e2113] [cursor=pointer]:
+                  - /url: /stay?category=golf
+              - listitem [ref=e2114]:
+                - link "Algarve Experience" [ref=e2115] [cursor=pointer]:
+                  - /url: /stay?category=things-to-do
+              - listitem [ref=e2116]:
+                - link "Premier Events" [ref=e2117] [cursor=pointer]:
+                  - /url: /stay?category=whats-on
+              - listitem [ref=e2118]:
+                - link "Algarve Services" [ref=e2119] [cursor=pointer]:
+                  - /url: /stay?category=algarve-services
+          - generic [ref=e2120]:
+            - heading "Company" [level=3] [ref=e2121]
+            - list [ref=e2122]:
+              - listitem [ref=e2123]:
+                - link "About Us" [ref=e2124] [cursor=pointer]:
+                  - /url: /about-us
+              - listitem [ref=e2125]:
+                - link "Partner Pricing" [ref=e2126] [cursor=pointer]:
+                  - /url: /partner
+              - listitem [ref=e2127]:
+                - link "Become a Partner" [ref=e2128] [cursor=pointer]:
+                  - /url: /partner
+              - listitem [ref=e2129]:
+                - link "Blog" [ref=e2130] [cursor=pointer]:
+                  - /url: /blog
+              - listitem [ref=e2131]:
+                - link "Events" [ref=e2132] [cursor=pointer]:
+                  - /url: /events
+              - listitem [ref=e2133]:
+                - link "Contact" [ref=e2134] [cursor=pointer]:
+                  - /url: /contact
+          - generic [ref=e2135]:
+            - heading "Legal" [level=3] [ref=e2136]
+            - list [ref=e2137]:
+              - listitem [ref=e2138]:
+                - link "Privacy Policy" [ref=e2139] [cursor=pointer]:
+                  - /url: /privacy-policy
+              - listitem [ref=e2140]:
+                - link "Terms of Service" [ref=e2141] [cursor=pointer]:
+                  - /url: /terms
+              - listitem [ref=e2142]:
+                - link "Cookie Policy" [ref=e2143] [cursor=pointer]:
+                  - /url: /cookie-policy
+            - button "Cookie Settings" [ref=e2144] [cursor=pointer]
+        - generic [ref=e2145]:
+          - paragraph [ref=e2146]: © 2026 AlgarveOfficial. All rights reserved.
+          - paragraph [ref=e2147]: Selecting premium experiences in the Algarve
+  - button "Open concierge on WhatsApp" [ref=e2148] [cursor=pointer]:
+    - img [ref=e2149]
+    - generic [ref=e2152]: Open concierge on WhatsApp
+  - button "Open Next.js Dev Tools" [ref=e11] [cursor=pointer]:
+    - img [ref=e12]
+  - alert [ref=e2153]
+  - generic [ref=e2155]:
+    - generic [ref=e2156]:
+      - generic [ref=e2158]:
+        - img [ref=e2160]
+        - generic [ref=e2162]:
+          - heading "Your Privacy Matters" [level=2] [ref=e2163]
+          - paragraph [ref=e2164]: We use cookies and similar technologies to analyze site usage and improve your experience. This includes collecting anonymized data such as page views and session information. You can choose to accept or decline analytics tracking.
+          - generic [ref=e2165]:
+            - link "Privacy Policy" [ref=e2166] [cursor=pointer]:
+              - /url: /privacy-policy
+            - link "Cookie Policy" [ref=e2167] [cursor=pointer]:
+              - /url: /cookie-policy
+      - generic [ref=e2168]:
+        - button "Reject All" [ref=e2169] [cursor=pointer]
+        - button "Manage Preferences" [ref=e2170] [cursor=pointer]
+        - button "Accept All" [ref=e2171] [cursor=pointer]
+    - generic [ref=e2172]:
+      - generic [ref=e2173]: Optional categories stay off until you enable them
+      - generic [ref=e2174]:
+        - generic [ref=e2175]:
+          - generic [ref=e2176]: Necessary cookies
+          - checkbox "Necessary cookies" [checked] [disabled] [ref=e2178]
+        - generic [ref=e2180]:
+          - generic [ref=e2181]: Functional cookies
+          - checkbox "Functional cookies" [ref=e2183]
+        - generic [ref=e2185]:
+          - generic [ref=e2186]: Analytics cookies
+          - checkbox "Analytics cookies" [ref=e2188]
+        - generic [ref=e2190]:
+          - generic [ref=e2191]: Marketing cookies
+          - checkbox "Marketing cookies" [ref=e2193]
+        - button "Details>" [ref=e2195] [cursor=pointer]

@@ -80,19 +80,19 @@ describe("HomeQuickLinksSection", () => {
     render(<HomeQuickLinksSection />);
 
     expect(screen.getAllByRole("link")).toHaveLength(4);
-    expect(screen.getByAltText("Things to Do")).toHaveAttribute(
+    expect(screen.getByAltText("Experiences")).toHaveAttribute(
       "src",
       "/home-quick-links/things-to-do.svg",
     );
-    expect(screen.getByAltText("Places to Stay")).toHaveAttribute(
+    expect(screen.getByAltText("Stay")).toHaveAttribute(
       "src",
       "/home-quick-links/places-to-stay.svg",
     );
-    expect(screen.getByAltText("Restaurants / Ervaringen")).toHaveAttribute(
+    expect(screen.getByAltText("Eat")).toHaveAttribute(
       "src",
       "/home-quick-links/whats-on.svg",
     );
-    expect(screen.getByAltText("Vastgoed")).toHaveAttribute(
+    expect(screen.getByAltText("Real Estate")).toHaveAttribute(
       "src",
       "/home-quick-links/places-to-stay.svg",
     );
@@ -112,12 +112,12 @@ describe("HomeQuickLinksSection", () => {
 
     render(<HomeQuickLinksSection />);
 
-    const whatsOnImage = screen.getByAltText("Restaurants / Ervaringen");
+    const whatsOnImage = screen.getByAltText("Eat");
     expect(whatsOnImage).toHaveAttribute("src", "https://images.example.com/broken-whats-on.jpg");
 
     fireEvent.error(whatsOnImage);
 
-    expect(screen.getByAltText("Restaurants / Ervaringen")).toHaveAttribute(
+    expect(screen.getByAltText("Eat")).toHaveAttribute(
       "src",
       "/home-quick-links/whats-on.svg",
     );
@@ -147,7 +147,7 @@ describe("HomeQuickLinksSection", () => {
 
     fireEvent.error(video!);
 
-    expect(screen.getByAltText("Restaurants / Ervaringen")).toHaveAttribute(
+    expect(screen.getByAltText("Eat")).toHaveAttribute(
       "src",
       "https://images.example.com/custom-whats-on.jpg",
     );
@@ -156,10 +156,10 @@ describe("HomeQuickLinksSection", () => {
   it("reserves room for wrapped localized titles", () => {
     render(<HomeQuickLinksSection />);
 
-    const wrappedTitle = screen.getByRole("heading", { name: "Restaurants / Ervaringen" });
+    const wrappedTitle = screen.getByRole("heading", { name: "Real Estate" });
 
-    expect(wrappedTitle.className).toContain("text-balance");
-    expect(wrappedTitle.className).toContain("sm:min-h-[3.5rem]");
+    expect(wrappedTitle.className).toContain("font-serif");
+    expect(wrappedTitle.className).toContain("text-3xl");
   });
 
   it("stacks the cards vertically on mobile widths", () => {
@@ -168,9 +168,9 @@ describe("HomeQuickLinksSection", () => {
     const layout = container.querySelector("#home-quick-links .app-container > div");
     const firstCard = screen.getAllByRole("link")[0];
 
-    expect(layout?.className).toContain("flex-col");
+    expect(layout?.className).toContain("grid");
     expect(layout?.className).not.toContain("overflow-x-auto");
-    expect(firstCard.className).toContain("w-full");
+    expect(firstCard.className).toContain("h-64");
     expect(firstCard.className).not.toContain("flex-none");
   });
 });

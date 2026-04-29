@@ -156,7 +156,7 @@ export function CitiesSection() {
           className="mt-12 text-center"
         >
           <Link href={l("/visit")}>
-            <Button variant="luxury" size="lg">
+            <Button variant="premium" size="lg">
               View All Cities
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>

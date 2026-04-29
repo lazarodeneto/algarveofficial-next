@@ -18,7 +18,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { translateCategoryValue } from "@/lib/translateCategoryValue";
 
-interface LuxuryAccommodationLayoutProps {
+interface PremiumAccommodationLayoutProps {
   details: Record<string, unknown>;
   bookingUrl?: string;
 }
@@ -36,7 +36,7 @@ const amenityIcons: Record<string, React.ReactNode> = {
   concierge: <Crown className="h-5 w-5" />,
 };
 
-export function LuxuryAccommodationLayout({ details }: LuxuryAccommodationLayoutProps) {
+export function PremiumAccommodationLayout({ details }: PremiumAccommodationLayoutProps) {
   const { t } = useTranslation();
   const accommodationType = details.accommodation_type as string;
   const numberOfUnits = details.number_of_units as number;
@@ -52,27 +52,27 @@ export function LuxuryAccommodationLayout({ details }: LuxuryAccommodationLayout
       <div>
         <h2 className="text-xl font-serif font-medium mb-4">{t("categoryLayouts.accommodation.highlights")}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="luxury-card p-4 text-center">
+          <div className="premium-card p-4 text-center">
             <Building2 className="h-6 w-6 mx-auto mb-2 text-primary" />
             <p className="text-sm text-muted-foreground">{t("categoryLayouts.common.type")}</p>
             <p className="font-medium capitalize">{translateCategoryValue(t, accommodationType) ?? 'N/A'}</p>
           </div>
           {numberOfUnits && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Home className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.accommodation.unitsRooms")}</p>
               <p className="font-medium">{numberOfUnits}</p>
             </div>
           )}
           {starRating && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Star className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.accommodation.starRating")}</p>
               <p className="font-medium">{t("categoryLayouts.accommodation.stars", { count: starRating })}</p>
             </div>
           )}
           {suitableFor.length > 0 && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Users className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.accommodation.idealFor")}</p>
               <p className="font-medium capitalize">{suitableFor.map(s => translateCategoryValue(t, s)).join(', ')}</p>

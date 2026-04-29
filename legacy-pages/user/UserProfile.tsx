@@ -358,7 +358,7 @@ export default function UserProfile() {
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <Mountain className="h-4 w-4" />
-              {t("dashboard.profile.luxuryRegions")} ({savedRegionIds.length} {t("dashboard.profile.selected")})
+              {t("dashboard.profile.premiumRegions")} ({savedRegionIds.length} {t("dashboard.profile.selected")})
             </div>
             <div className="flex flex-wrap gap-2">
               {regions.map(region => (

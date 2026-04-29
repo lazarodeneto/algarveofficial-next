@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Building2, Filter, Loader2, MapPinned, Search, Tag } from "lucide-react";
@@ -6,23 +6,25 @@ import { useTranslation } from "react-i18next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { type MapListingPoint } from "@/components/map/ListingsLeafletMap";
+import { type MapListingPoint, type MapViewportBounds } from "@/components/map/ListingsLeafletMap";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
+import ListingImage from "@/components/ListingImage";
+import ListingTierBadge from "@/components/ui/ListingTierBadge";
 
 import dynamic from "next/dynamic";
 const ListingsLeafletMap = dynamic(() => import("@/components/map/ListingsLeafletMap"), { 
   ssr: false,
   loading: () => <div className="h-[calc(100vh-13rem)] min-h-[560px] w-full bg-muted animate-pulse rounded-lg" />
 });
-import { usePublishedListings, type ListingFilters, type ListingTier } from "@/hooks/useListings";
+import { usePublishedListings, type ListingBounds, type ListingFilters, type ListingTier } from "@/hooks/useListings";
 import { useCategories, useCities, useRegions } from "@/hooks/useReferenceData";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
@@ -33,6 +35,7 @@ import {
   resolveCategoryFilterSlug,
 } from "@/lib/categoryMerges";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
+import { MapSyncProvider, useMapSync } from "@/lib/map/MapSyncContext";
 
 const DEFAULT_CENTER: [number, number] = [37.08, -8.15];
 const DEFAULT_ZOOM = 9.5;
@@ -42,10 +45,59 @@ function isWithinAlgarveBounds(latitude: number, longitude: number): boolean {
   return latitude >= 36.7 && latitude <= 37.5 && longitude >= -9.2 && longitude <= -7.2;
 }
 
+function parseBounds(searchParams: { get: (name: string) => string | null }): ListingBounds | undefined {
+  const north = Number(searchParams.get("north"));
+  const south = Number(searchParams.get("south"));
+  const east = Number(searchParams.get("east"));
+  const west = Number(searchParams.get("west"));
+
+  if (
+    !Number.isFinite(north) ||
+    !Number.isFinite(south) ||
+    !Number.isFinite(east) ||
+    !Number.isFinite(west) ||
+    north <= south ||
+    east <= west
+  ) {
+    return undefined;
+  }
+
+  return { north, south, east, west };
+}
+
+function roundBound(value: number): string {
+  return value.toFixed(5);
+}
+
+function boundsChanged(a?: ListingBounds | null, b?: ListingBounds | null): boolean {
+  if (!a || !b) return Boolean(a || b);
+
+  const latSpan = Math.max(0.01, Math.abs(a.north - a.south));
+  const lngSpan = Math.max(0.01, Math.abs(a.east - a.west));
+  const latThreshold = latSpan * 0.18;
+  const lngThreshold = lngSpan * 0.18;
+
+  return (
+    Math.abs(a.north - b.north) > latThreshold ||
+    Math.abs(a.south - b.south) > latThreshold ||
+    Math.abs(a.east - b.east) > lngThreshold ||
+    Math.abs(a.west - b.west) > lngThreshold
+  );
+}
+
 export default function MapExplorer() {
+  return (
+    <MapSyncProvider>
+      <MapExplorerContent />
+    </MapSyncProvider>
+  );
+}
+
+function MapExplorerContent() {
   const { t } = useTranslation();
   const locale = useCurrentLocale();
   const l = useLocalePath();
+  const { activeId, setActiveId } = useMapSync();
   const { getText, isBlockEnabled } = useCmsPageBuilder("map");
   const router = useRouter();
   const pathname = usePathname() || "/map";
@@ -56,7 +108,11 @@ export default function MapExplorer() {
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedTier, setSelectedTier] = useState<string>("all");
-  const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
+  const [currentBounds, setCurrentBounds] = useState<ListingBounds | null>(null);
+  const [pendingBounds, setPendingBounds] = useState<ListingBounds | null>(null);
+  const baselineBoundsRef = useRef<ListingBounds | null>(null);
+
+  const appliedBounds = useMemo(() => parseBounds(searchParams), [searchParams]);
 
   const setSearchParams = useCallback(
     (nextParams: URLSearchParams, options?: { replace?: boolean }) => {
@@ -144,8 +200,9 @@ export default function MapExplorer() {
       cityId: selectedCity !== "all" ? selectedCity : undefined,
       regionId: selectedRegion !== "all" ? selectedRegion : undefined,
       tier: selectedTier !== "all" ? (selectedTier as ListingTier) : undefined,
+      bounds: appliedBounds,
     }),
-    [debouncedSearch, selectedCategory, selectedCategoryIds, selectedCity, selectedRegion, selectedTier]
+    [appliedBounds, debouncedSearch, selectedCategory, selectedCategoryIds, selectedCity, selectedRegion, selectedTier]
   );
 
   const {
@@ -177,6 +234,8 @@ export default function MapExplorer() {
             cityName: listing.city?.name || "Algarve",
             tier: listing.tier,
             featuredImageUrl: listing.featured_image_url,
+            priceFrom: listing.price_from,
+            priceCurrency: listing.price_currency,
             href: l(`/listing/${listing.slug}`),
           } satisfies MapListingPoint;
         })
@@ -185,11 +244,11 @@ export default function MapExplorer() {
   );
 
   useEffect(() => {
-    if (!selectedListingId) return;
-    if (!mapPoints.some((point) => point.id === selectedListingId)) {
-      setSelectedListingId(null);
+    if (!activeId) return;
+    if (!mapPoints.some((point) => point.id === activeId)) {
+      setActiveId(null);
     }
-  }, [mapPoints, selectedListingId]);
+  }, [activeId, mapPoints, setActiveId]);
 
   const clearFilters = () => {
     setSearch("");
@@ -197,7 +256,14 @@ export default function MapExplorer() {
     setSelectedCity("all");
     setSelectedCategory("all");
     setSelectedTier("all");
-    setSelectedListingId(null);
+    setPendingBounds(null);
+    setActiveId(null);
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("north");
+    nextParams.delete("south");
+    nextParams.delete("east");
+    nextParams.delete("west");
+    setSearchParams(nextParams);
   };
 
   const hasActiveFilters =
@@ -205,7 +271,49 @@ export default function MapExplorer() {
     selectedRegion !== "all" ||
     selectedCity !== "all" ||
     selectedCategory !== "all" ||
-    selectedTier !== "all";
+    selectedTier !== "all" ||
+    Boolean(appliedBounds);
+
+  useEffect(() => {
+    if (appliedBounds) {
+      baselineBoundsRef.current = appliedBounds;
+      setPendingBounds(null);
+      return;
+    }
+
+    baselineBoundsRef.current = null;
+    setPendingBounds(null);
+  }, [appliedBounds]);
+
+  const handleBoundsChange = useCallback(
+    (bounds: MapViewportBounds) => {
+      const nextBounds: ListingBounds = bounds;
+      setCurrentBounds(nextBounds);
+
+      const baseline = appliedBounds ?? baselineBoundsRef.current;
+      if (!baseline) {
+        baselineBoundsRef.current = nextBounds;
+        return;
+      }
+
+      setPendingBounds(boundsChanged(nextBounds, baseline) ? nextBounds : null);
+    },
+    [appliedBounds]
+  );
+
+  const searchPendingArea = useCallback(() => {
+    if (!pendingBounds) return;
+
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set("north", roundBound(pendingBounds.north));
+    nextParams.set("south", roundBound(pendingBounds.south));
+    nextParams.set("east", roundBound(pendingBounds.east));
+    nextParams.set("west", roundBound(pendingBounds.west));
+    setSearchParams(nextParams);
+    baselineBoundsRef.current = pendingBounds;
+    setPendingBounds(null);
+    setActiveId(null);
+  }, [pendingBounds, searchParams, setActiveId, setSearchParams]);
   const localizedHeroTitle = t("map.title");
   const localizedHeroSubtitle = t("map.subtitle");
   const heroTitle = locale === "en" ? getText("hero.title", localizedHeroTitle) : localizedHeroTitle;
@@ -247,196 +355,256 @@ export default function MapExplorer() {
             </CmsBlock>
           ) : null}
 
-          <div className="grid gap-6 lg:grid-cols-[340px,1fr]">
-            <aside className="relative flex flex-col space-y-4">
-              <Card className="relative z-20 order-1 border-border bg-background lg:sticky lg:top-24">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Filter className="h-4 w-4 text-primary" />
-                    {t("directory.advancedFilters")}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder={t("directory.searchPlaceholder")}
-                      value={search}
-                      onChange={(event) => setSearch(event.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
+          <section className="sticky top-16 z-30 -mx-4 border-y border-border/70 bg-background/95 px-4 py-3 shadow-sm backdrop-blur md:-mx-6 md:px-6 lg:top-20 lg:mx-0 lg:rounded-2xl lg:border lg:px-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+              <div className="flex min-w-0 items-center gap-2 pr-1 text-sm font-semibold text-foreground sm:shrink-0">
+                <Filter className="h-4 w-4 text-primary" />
+                <span className="truncate">{t("directory.advancedFilters")}</span>
+              </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">{t("directory.region")}</label>
-                    <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("directory.allRegions")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">{t("directory.allRegions")}</SelectItem>
-                        {regions.map((region) => (
-                          <SelectItem key={region.id} value={region.id}>
-                            {region.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+              <div className="relative min-w-0 flex-1 sm:min-w-[240px] lg:max-w-sm">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder={t("directory.searchPlaceholder")}
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  className="h-10 pl-10"
+                />
+              </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">{t("directory.city")}</label>
-                    <Select value={selectedCity} onValueChange={setSelectedCity}>
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("directory.allCities")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">{t("directory.allCities")}</SelectItem>
-                        {cities.map((city) => (
-                          <SelectItem key={city.id} value={city.id}>
-                            {city.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+              <div className="min-w-0 flex-1 sm:min-w-[150px] sm:flex-none">
+                <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+                  <SelectTrigger className="h-10 w-full">
+                    <SelectValue placeholder={t("directory.allRegions")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t("directory.allRegions")}</SelectItem>
+                    {regions.map((region) => (
+                      <SelectItem key={region.id} value={region.id}>
+                        {region.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">{t("directory.category")}</label>
-                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("directory.allCategories")} />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-[280px]">
-                        <SelectItem value="all">{t("directory.allCategories")}</SelectItem>
-                        {mergedCategories
-                          .map((category) => (
-                            <SelectItem key={category.id} value={category.slug}>
-                              {translateCategoryName(t, category.slug, category.name)}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+              <div className="min-w-0 flex-1 sm:min-w-[140px] sm:flex-none">
+                <Select value={selectedCity} onValueChange={setSelectedCity}>
+                  <SelectTrigger className="h-10 w-full">
+                    <SelectValue placeholder={t("directory.allCities")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t("directory.allCities")}</SelectItem>
+                    {cities.map((city) => (
+                      <SelectItem key={city.id} value={city.id}>
+                        {city.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">{t("directory.tier")}</label>
-                    <Select value={selectedTier} onValueChange={setSelectedTier}>
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("directory.allTiers")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">{t("directory.allTiers")}</SelectItem>
-                        <SelectItem value="signature">{t("directory.tierSignature")}</SelectItem>
-                        <SelectItem value="verified">{t("directory.tierVerified")}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+              <div className="min-w-0 flex-1 sm:min-w-[170px] sm:flex-none">
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="h-10 w-full">
+                    <SelectValue placeholder={t("directory.allCategories")} />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[280px]">
+                    <SelectItem value="all">{t("directory.allCategories")}</SelectItem>
+                    {mergedCategories.map((category) => (
+                      <SelectItem key={category.id} value={category.slug}>
+                        {translateCategoryName(t, category.slug, category.name)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                  <div className="rounded-lg bg-muted/40 p-3">
-                    <p className="text-sm text-foreground font-medium">
-                      {t("map.mappableListings", { count: mapPoints.length })}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {t("map.totalResults", { count: listings.length })}
-                    </p>
-                  </div>
+              <div className="min-w-0 flex-1 sm:min-w-[130px] sm:flex-none">
+                <Select value={selectedTier} onValueChange={setSelectedTier}>
+                  <SelectTrigger className="h-10 w-full">
+                    <SelectValue placeholder={t("directory.allTiers")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t("directory.allTiers")}</SelectItem>
+                    <SelectItem value="signature">{t("directory.tierSignature")}</SelectItem>
+                    <SelectItem value="verified">{t("directory.tierVerified")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-                  {hasActiveFilters && (
-                    <Button variant="ghost" className="w-full" onClick={clearFilters}>
-                      {t("directory.clearAllFilters")}
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
+              <div className="flex min-w-0 items-center gap-2 rounded-full border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground sm:shrink-0">
+                <MapPinned className="h-3.5 w-3.5 text-primary" />
+                <span className="whitespace-nowrap">{mapPoints.length} mapped</span>
+                <span className="text-muted-foreground/50">/</span>
+                <span className="whitespace-nowrap">{listings.length} results</span>
+              </div>
 
-              <Card className="relative z-10 order-2 border-border bg-background">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <MapPinned className="h-4 w-4 text-primary" />
+              {hasActiveFilters && (
+                <Button variant="ghost" size="sm" className="w-full sm:w-auto sm:shrink-0" onClick={clearFilters}>
+                  {t("directory.clearAllFilters")}
+                </Button>
+              )}
+            </div>
+          </section>
+
+          <div className="mt-5 lg:grid lg:grid-cols-[45fr,55fr] lg:gap-5">
+            <section className="lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto lg:pr-2">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="font-serif text-2xl font-medium text-foreground">
                     {t("map.visibleOnMap")}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="max-h-[360px] overflow-auto pr-2 space-y-2">
-                  {isLoading && (
-                    <>
-                      <Skeleton className="h-14 w-full" />
-                      <Skeleton className="h-14 w-full" />
-                      <Skeleton className="h-14 w-full" />
-                    </>
-                  )}
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {t("map.totalResults", { count: listings.length })}
+                  </p>
+                </div>
+                <Button type="button" variant="outline" className="lg:hidden">
+                  <MapPinned className="mr-2 h-4 w-4" />
+                  Show map
+                </Button>
+              </div>
 
-                  {!isLoading && mapPoints.length === 0 && (
-                    <p className="text-sm text-muted-foreground py-2">{t("map.noMappedListings")}</p>
-                  )}
+              <div className="space-y-3">
+                {isLoading && (
+                  <>
+                    <Skeleton className="h-32 w-full rounded-2xl" />
+                    <Skeleton className="h-32 w-full rounded-2xl" />
+                    <Skeleton className="h-32 w-full rounded-2xl" />
+                  </>
+                )}
 
-                  {!isLoading &&
-                    mapPoints.slice(0, 30).map((point) => (
-                      <button
-                        key={point.id}
-                        type="button"
-                        onClick={() => setSelectedListingId(point.id)}
-                        className={`w-full text-left rounded-lg border p-2 transition-colors ${
-                          selectedListingId === point.id
-                            ? "border-primary bg-primary/10"
-                            : "border-border hover:border-primary/40 hover:bg-muted/30"
+                {!isLoading && listings.length === 0 && (
+                  <div className="rounded-2xl border border-border bg-muted/20 p-6">
+                    <p className="text-sm text-muted-foreground">{t("map.noMappedListings")}</p>
+                  </div>
+                )}
+
+                {!isLoading &&
+                  listings.map((listing) => {
+                    const categoryName = translateCategoryName(t, listing.category?.slug, listing.category?.name);
+                    const isSelected = activeId === listing.id;
+
+                    return (
+                      <Link
+                        key={listing.id}
+                        id={`listing-${listing.id}`}
+                        href={l(`/listing/${listing.slug}`)}
+                        onMouseEnter={() => setActiveId(listing.id)}
+                        onMouseLeave={() => setActiveId(null)}
+                        onFocus={() => setActiveId(listing.id)}
+                        onClick={(event) => {
+                          if (window.innerWidth < 1024) return;
+                          event.preventDefault();
+                          setActiveId(listing.id);
+                        }}
+                        className={`group flex gap-3 rounded-2xl border bg-card p-3 transition duration-200 ${
+                          isSelected
+                            ? "scale-[1.01] border-primary/80 shadow-lg shadow-primary/10"
+                            : "border-border hover:border-primary/35 hover:shadow-sm"
                         }`}
                       >
-                        <p className="text-sm font-medium text-foreground line-clamp-1">{point.name}</p>
-                        <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                          <Building2 className="h-3 w-3" />
-                          <span className="line-clamp-1">{point.cityName}</span>
+                        <div className="relative h-28 w-32 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-32 sm:w-40">
+                          <ListingImage
+                            src={listing.featured_image_url}
+                            category={listing.category?.slug}
+                            categoryImageUrl={listing.category?.image_url}
+                            listingId={listing.id}
+                            alt={listing.name}
+                            fill
+                            sizes="(max-width: 1024px) 35vw, 18vw"
+                            className="h-full w-full transition duration-500 group-hover:scale-105"
+                          />
                         </div>
-                        {point.categoryName && (
-                          <Badge variant="outline" className="mt-2 text-[10px]">
-                            <Tag className="h-3 w-3 mr-1" />
-                            {point.categoryName}
-                          </Badge>
-                        )}
-                      </button>
-                    ))}
-                </CardContent>
-              </Card>
-            </aside>
 
-            <section>
-              {error ? (
-                <Card className="border-destructive/40">
-                  <CardContent className="py-10">
-                    <p className="text-destructive">{t("directory.errorMessage")}</p>
-                  </CardContent>
-                </Card>
-              ) : isLoading ? (
-                <Card className="border-border">
-                  <CardContent className="p-4">
-                    <div className="h-[calc(100vh-13rem)] min-h-[560px] rounded-lg bg-muted/30 flex items-center justify-center">
-                      <span className="flex items-center gap-2 text-muted-foreground">
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                        {t("directory.loading")}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : (
-                <ListingsLeafletMap
-                  points={mapPoints}
-                  defaultCenter={DEFAULT_CENTER}
-                  defaultZoom={DEFAULT_ZOOM}
-                  maxBounds={MAX_BOUNDS}
-                  maxBoundsViscosity={1}
-                  minZoom={8}
-                  enforceBoundsOnPoints
-                  enableClustering
-                  showPopups={false}
-                  autoFit
-                  scrollWheelZoom
-                  activeListingId={selectedListingId}
-                  focusListingId={selectedListingId}
-                  onListingSelect={setSelectedListingId}
-                  mapClassName="h-[calc(100vh-13rem)] min-h-[560px]"
-                  emptyMessage={t("map.emptyCoordinates")}
-                />
-              )}
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className="line-clamp-2 text-base font-semibold leading-snug text-foreground">
+                              {listing.name}
+                            </h3>
+                            {listing.tier ? <ListingTierBadge tier={listing.tier} size="sm" /> : null}
+                          </div>
+
+                          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                            <span className="inline-flex items-center gap-1">
+                              <Building2 className="h-3 w-3" />
+                              {listing.city?.name || listing.region?.name || "Algarve"}
+                            </span>
+                            {categoryName ? (
+                              <Badge variant="outline" className="text-[10px]">
+                                <Tag className="mr-1 h-3 w-3" />
+                                {categoryName}
+                              </Badge>
+                            ) : null}
+                          </div>
+
+                          {(listing.short_description || listing.description) ? (
+                            <p className="mt-2 line-clamp-2 text-sm leading-5 text-muted-foreground">
+                              {listing.short_description || listing.description}
+                            </p>
+                          ) : null}
+                        </div>
+                      </Link>
+                    );
+                  })}
+              </div>
+            </section>
+
+            <section className="hidden lg:block">
+              <div className="sticky top-36">
+                {error ? (
+                  <Card className="border-destructive/40">
+                    <CardContent className="py-10">
+                      <p className="text-destructive">{t("directory.errorMessage")}</p>
+                    </CardContent>
+                  </Card>
+                ) : isLoading ? (
+                  <Card className="border-border">
+                    <CardContent className="p-4">
+                      <div className="h-[calc(100vh-13rem)] min-h-[560px] rounded-lg bg-muted/30 flex items-center justify-center">
+                        <span className="flex items-center gap-2 text-muted-foreground">
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          {t("directory.loading")}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="relative">
+                    {pendingBounds ? (
+                      <div className="pointer-events-none absolute left-1/2 top-4 z-[700] -translate-x-1/2">
+                        <Button
+                          type="button"
+                          className="pointer-events-auto rounded-full bg-foreground px-5 py-2 text-sm font-semibold text-background shadow-xl hover:bg-foreground/90"
+                          onClick={searchPendingArea}
+                        >
+                          Search this area
+                        </Button>
+                      </div>
+                    ) : null}
+
+                    <ListingsLeafletMap
+                      points={mapPoints}
+                      defaultCenter={DEFAULT_CENTER}
+                      defaultZoom={DEFAULT_ZOOM}
+                      maxBounds={MAX_BOUNDS}
+                      maxBoundsViscosity={1}
+                      minZoom={8}
+                      enforceBoundsOnPoints
+                      enableClustering
+                      showPopups={false}
+                      autoFit={!appliedBounds}
+                      scrollWheelZoom
+                      activeListingId={activeId}
+                      focusListingId={activeId}
+                      onListingSelect={setActiveId}
+                      onBoundsChange={handleBoundsChange}
+                      mapClassName="h-[calc(100vh-13rem)] min-h-[560px]"
+                      emptyMessage={t("map.emptyCoordinates")}
+                    />
+                  </div>
+                )}
+              </div>
             </section>
           </div>
         </div>

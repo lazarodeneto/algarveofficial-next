@@ -3,11 +3,11 @@ CREATE TABLE public.partner_settings (
   id TEXT PRIMARY KEY DEFAULT 'default',
   -- Hero Section
   hero_title TEXT DEFAULT 'Become a Partner',
-  hero_subtitle TEXT DEFAULT 'Join the Algarve''s premier luxury directory and connect with discerning travelers seeking premium experiences.',
+  hero_subtitle TEXT DEFAULT 'Join the Algarve''s premier premium directory and connect with discerning travelers seeking premium experiences.',
   
   -- Option Cards
   new_listing_title TEXT DEFAULT 'Apply for New Listing',
-  new_listing_description TEXT DEFAULT 'Register your business to be featured in our curated collection of luxury experiences.',
+  new_listing_description TEXT DEFAULT 'Register your business to be featured in our curated collection of premium experiences.',
   new_listing_cta TEXT DEFAULT 'Apply Now',
   
   claim_business_title TEXT DEFAULT 'Claim Existing Business',
@@ -21,7 +21,7 @@ CREATE TABLE public.partner_settings (
   -- Benefits Section
   benefits_title TEXT DEFAULT 'Why Partner With Us',
   benefit_1_title TEXT DEFAULT 'Increased Visibility',
-  benefit_1_description TEXT DEFAULT 'Reach thousands of discerning travelers actively seeking luxury Algarve experiences.',
+  benefit_1_description TEXT DEFAULT 'Reach thousands of discerning travelers actively seeking premium Algarve experiences.',
   benefit_2_title TEXT DEFAULT 'Premium Positioning',
   benefit_2_description TEXT DEFAULT 'Stand out with verified and signature tier badges that build trust with customers.',
   benefit_3_title TEXT DEFAULT 'Direct Contact',

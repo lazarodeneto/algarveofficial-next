@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
     path: "/contact",
     title: "Contact AlgarveOfficial",
     description:
-      "Contact AlgarveOfficial for concierge support, listing enquiries, partnerships, and tailored luxury experiences in the Algarve.",
+      "Contact AlgarveOfficial for concierge support, listing enquiries, partnerships, and tailored premium experiences in the Algarve.",
   });
 }
 

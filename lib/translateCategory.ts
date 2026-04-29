@@ -2,7 +2,7 @@ import { TFunction } from "i18next";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 
 const LEGACY_CATEGORY_RENAMES: Record<string, string> = {
-  "Luxury Accommodation": "Places to Stay",
+  "Premium Accommodation": "Places to Stay",
   Accommodation: "Places to Stay",
   "Places to Stay": "Places to Stay",
   "Place to Stay": "Places to Stay",
@@ -13,8 +13,8 @@ const LEGACY_CATEGORY_RENAMES: Record<string, string> = {
   "VIP Transportation": "Algarve Services",
   "Architecture & Decoration": "Algarve Services",
   "Protection Services": "Algarve Services",
-  "Luxury Experience": "Things to Do",
-  "Luxury Experiences": "Things to Do",
+  "Premium Experience": "Things to Do",
+  "Premium Experiences": "Things to Do",
   "Algarve Experience": "Things to Do",
   "Family Attractions": "Things to Do",
   "Things to Do": "Things to Do",

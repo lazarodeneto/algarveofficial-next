@@ -20,8 +20,8 @@ INSERT INTO public.categories (
   true,
   '[
     {"name": "service_focus", "label": "Service Focus", "type": "select", "required": true, "options": ["Architecture Studios", "Interior Design", "Decoration & Styling", "Landscape Architecture", "Lighting Design", "Bespoke Furniture", "Mixed Services"]},
-    {"name": "project_types", "label": "Project Types", "type": "multiselect", "required": true, "options": ["Residential Villas", "Luxury Apartments", "Hospitality", "Commercial", "Boutique Hotels", "Private Estates", "Renovation Projects"]},
-    {"name": "design_style", "label": "Design Style", "type": "multiselect", "required": true, "options": ["Modern", "Contemporary", "Mediterranean", "Minimalist", "Classic", "Bespoke", "Sustainable", "Coastal", "Rustic Luxury"]},
+    {"name": "project_types", "label": "Project Types", "type": "multiselect", "required": true, "options": ["Residential Villas", "Premium Apartments", "Hospitality", "Commercial", "Boutique Hotels", "Private Estates", "Renovation Projects"]},
+    {"name": "design_style", "label": "Design Style", "type": "multiselect", "required": true, "options": ["Modern", "Contemporary", "Mediterranean", "Minimalist", "Classic", "Bespoke", "Sustainable", "Coastal", "Rustic Premium"]},
     {"name": "service_scope", "label": "Service Scope", "type": "select", "required": true, "options": ["Concept & Design Only", "Full Project Management", "Turnkey Solutions", "Consultation Services"]},
     {"name": "years_experience", "label": "Years of Experience", "type": "number", "required": false},
     {"name": "awards_recognition", "label": "Awards & Recognition", "type": "textarea", "required": false, "placeholder": "List notable awards, publications, or recognitions"},

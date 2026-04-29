@@ -135,8 +135,8 @@ const nextConfig: NextConfig = {
       // Legacy category redirects (301 permanent)
       { source: "/visit/:city/vip-transportation", destination: "/visit/:city/transportation", permanent: true },
       { source: "/visit/:city/premier-events", destination: "/visit/:city/events", permanent: true },
-      { source: "/visit/:city/luxury-accommodation", destination: "/visit/:city/accommodation", permanent: true },
-      { source: "/visit/:city/luxury-experiences", destination: "/visit/:city/experiences", permanent: true },
+      { source: "/visit/:city/premium-accommodation", destination: "/visit/:city/accommodation", permanent: true },
+      { source: "/visit/:city/premium-experiences", destination: "/visit/:city/experiences", permanent: true },
       { source: "/visit/:city/architecture-decoration", destination: "/visit/:city/architecture-design", permanent: true },
       { source: "/visit/:city/beaches-clubs", destination: "/visit/:city/beach-clubs", permanent: true },
       { source: "/visit/:city/vip-concierge", destination: "/visit/:city/concierge-services", permanent: true },

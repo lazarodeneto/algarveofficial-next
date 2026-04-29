@@ -23,7 +23,7 @@ export function DirectorySplitSection() {
             </p>
           </div>
           <Link href={l("/directory")} className="w-full md:w-auto">
-            <Button size="lg" variant="luxury" className="w-full gap-2 md:w-auto">
+            <Button size="lg" variant="premium" className="w-full gap-2 md:w-auto">
               <Search className="h-4 w-4" />
               Browse All Listings
               <ArrowRight className="h-4 w-4" />

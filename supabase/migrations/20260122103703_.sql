@@ -22,7 +22,7 @@ BEGIN
   SELECT id INTO v_region_id FROM regions WHERE is_active = true LIMIT 1;
   
   -- Get category IDs
-  SELECT id INTO v_category_hotel FROM categories WHERE slug = 'luxury-accommodation' LIMIT 1;
+  SELECT id INTO v_category_hotel FROM categories WHERE slug = 'premium-accommodation' LIMIT 1;
   SELECT id INTO v_category_dining FROM categories WHERE slug = 'fine-dining' LIMIT 1;
   SELECT id INTO v_category_golf FROM categories WHERE slug = 'golf' LIMIT 1;
   SELECT id INTO v_category_beach FROM categories WHERE slug = 'beach-clubs' LIMIT 1;
@@ -34,7 +34,7 @@ BEGIN
   -- Only proceed if we have required data
   IF v_city_id IS NOT NULL AND v_admin_id IS NOT NULL THEN
     
-    -- Demo Listing 1: Luxury Hotel
+    -- Demo Listing 1: Premium Hotel
     IF v_category_hotel IS NOT NULL AND NOT EXISTS (SELECT 1 FROM listings WHERE slug = 'pine-cliffs-resort') THEN
       INSERT INTO listings (
         name, slug, short_description, description, 
@@ -45,13 +45,13 @@ BEGIN
       ) VALUES (
         'Pine Cliffs Resort',
         'pine-cliffs-resort',
-        'Award-winning luxury clifftop resort with stunning Atlantic views',
-        'Perched dramatically on the Algarve coast, Pine Cliffs Resort offers an unparalleled luxury experience with world-class amenities, including a championship golf course, premium spa, and direct beach access via scenic cliff elevator.',
+        'Award-winning premium clifftop resort with stunning Atlantic views',
+        'Perched dramatically on the Algarve coast, Pine Cliffs Resort offers an unparalleled premium experience with world-class amenities, including a championship golf course, premium spa, and direct beach access via scenic cliff elevator.',
         v_category_hotel, v_city_id, v_region_id, v_admin_id,
         'signature', 'published', true,
         'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
         4.7, 2847,
-        ARRAY['luxury', 'resort', 'golf', 'spa', 'beachfront'],
+        ARRAY['premium', 'resort', 'golf', 'spa', 'beachfront'],
         'https://www.pinecliffs.com',
         'reservations@pinecliffs.com'
       );
@@ -97,7 +97,7 @@ BEGIN
         'signature', 'published', true,
         'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800',
         4.8, 892,
-        ARRAY['golf', 'nicklaus', 'championship', 'luxury', 'exclusive'],
+        ARRAY['golf', 'nicklaus', 'championship', 'premium', 'exclusive'],
         'https://www.monte-rei.com'
       );
     END IF;

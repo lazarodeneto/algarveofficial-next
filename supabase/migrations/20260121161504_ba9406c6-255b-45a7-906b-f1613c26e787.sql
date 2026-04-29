@@ -2,7 +2,7 @@
 INSERT INTO public.cities (name, slug, short_description, is_active, is_featured, display_order)
 VALUES
   ('Almancil', 'almancil', 'Gateway to the Golden Triangle', true, true, 1),
-  ('Quinta do Lago', 'quinta-do-lago', 'Premier luxury resort destination', true, true, 2),
+  ('Quinta do Lago', 'quinta-do-lago', 'Premier premium resort destination', true, true, 2),
   ('Vale do Lobo', 'vale-do-lobo', 'Exclusive beachfront resort living', true, true, 3),
   ('Vilamoura', 'vilamoura', 'Marina lifestyle and golf paradise', true, true, 4),
   ('Quarteira', 'quarteira', 'Traditional charm meets coastal beauty', true, false, 5),

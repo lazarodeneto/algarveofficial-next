@@ -465,7 +465,7 @@ def generate_design_system(query: str, project_name: str = None, output_format: 
     Main entry point for design system generation.
 
     Args:
-        query: Search query (e.g., "SaaS dashboard", "e-commerce luxury")
+        query: Search query (e.g., "SaaS dashboard", "e-commerce premium")
         project_name: Optional project name for output header
         output_format: "ascii" (default) or "markdown"
         persist: If True, save design system to design-system/ folder

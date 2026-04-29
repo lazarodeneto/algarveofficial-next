@@ -287,7 +287,7 @@ export default function CityDetail() {
                     })}
                     className="group block"
                   >
-                    <article className="luxury-card overflow-hidden flex flex-col h-full hoverable">
+                    <article className="premium-card overflow-hidden flex flex-col h-full hoverable">
                       {/* Image */}
                       <div className="relative aspect-[4/3] overflow-hidden">
                         <ImageWithFallback

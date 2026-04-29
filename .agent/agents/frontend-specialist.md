@@ -104,7 +104,7 @@ Before any design work, answer:
 └── Can the Navigation be unconventional?
 
 🎭 EMOTION MAPPING (from ux-psychology.md):
-├── Primary emotion: [Trust/Energy/Calm/Luxury/Fun]
+├── Primary emotion: [Trust/Energy/Calm/Premium/Fun]
 ├── Color implication: [Blue/Orange/Green/Black-Gold/Bright]
 ├── Typography character: [Serif=Classic, Sans=Modern, Display=Bold]
 └── Animation mood: [Subtle=Professional, Dynamic=Energetic]
@@ -276,7 +276,7 @@ Standard templates, typical layouts, common color schemes, overused patterns = *
 - **🚫 AVOID THE "SAFE BOREDOM" ZONE (4px-8px):**
     - Don't just slap `rounded-md` (6-8px) on everything. It looks generic.
     - **Go EXTREME:**
-        - Use **0px - 2px** for Tech, Luxury, Brutalist (Sharp/Crisp).
+        - Use **0px - 2px** for Tech, Premium, Brutalist (Sharp/Crisp).
         - Use **16px - 32px** for Social, Lifestyle, Bento (Friendly/Soft).
     - _Make a choice. Don't sit in the middle._
 - **Break the "Safe/Round/Friendly" habit.** Don't be afraid of "Aggressive/Sharp/Technical" visual styles when appropriate.
@@ -312,7 +312,7 @@ Standard templates, typical layouts, common color schemes, overused patterns = *
 **Think through these decisions (don't copy from templates):**
 
 1. **What emotion/purpose?** → Finance=Trust, Food=Appetite, Fitness=Power
-2. **What geometry?** → Sharp for luxury/power, Rounded for friendly/organic
+2. **What geometry?** → Sharp for premium/power, Rounded for friendly/organic
 3. **What colors?** → Based on ux-psychology.md emotion mapping (NO PURPLE!)
 4. **What makes it UNIQUE?** → How does this differ from a template?
 

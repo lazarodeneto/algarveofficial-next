@@ -1,4 +1,4 @@
--- Update Luxury Accommodation category icon to Star
+-- Update Premium Accommodation category icon to Star
 UPDATE public.categories 
 SET icon = 'Star', updated_at = now()
-WHERE slug = 'luxury-accommodation';
+WHERE slug = 'premium-accommodation';

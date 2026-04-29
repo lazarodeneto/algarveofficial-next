@@ -12,7 +12,7 @@ INSERT INTO listings (
   instagram_url, facebook_url, google_business_url,
   tags, tier, is_curated, status, category_data
 ) VALUES
--- LUXURY ACCOMMODATION (5)
+-- PREMIUM ACCOMMODATION (5)
 -- Conrad Algarve - Almancil, Golden Triangle
 (
   '280be9b4-c0fe-48f3-b371-f490d8cccfd5',
@@ -21,13 +21,13 @@ INSERT INTO listings (
   'a3723c89-5605-4abc-88c8-90a001d0bdfd',
   'Conrad Algarve',
   'conrad-algarve',
-  'Five-star luxury resort in the heart of the Golden Triangle with world-class spa and dining.',
-  'Conrad Algarve is a stunning five-star resort located in Quinta do Lago, offering 154 elegantly appointed rooms and suites. The resort features the award-winning Sayanna Wellness spa, multiple restaurants including the Michelin-starred Gusto by Heinz Beck, and direct access to some of the Algarve''s finest golf courses. Set amidst lush gardens with views of the Ria Formosa Natural Park, this is the epitome of Portuguese luxury hospitality.',
+  'Five-star premium resort in the heart of the Golden Triangle with world-class spa and dining.',
+  'Conrad Algarve is a stunning five-star resort located in Quinta do Lago, offering 154 elegantly appointed rooms and suites. The resort features the award-winning Sayanna Wellness spa, multiple restaurants including the Michelin-starred Gusto by Heinz Beck, and direct access to some of the Algarve''s finest golf courses. Set amidst lush gardens with views of the Ria Formosa Natural Park, this is the epitome of Portuguese premium hospitality.',
   'Estrada da Quinta do Lago, 8135-106 Almancil',
   37.0447, -8.0234,
   '+351 289 350 700', 'info@conradalgarve.com', 'https://www.hilton.com/en/hotels/faocici-conrad-algarve/',
   'https://www.instagram.com/conradalgarve/', 'https://www.facebook.com/ConradAlgarve/', 'https://goo.gl/maps/conradalgarve',
-  ARRAY['luxury', 'resort', 'spa', 'golf', 'fine-dining', 'quinta-do-lago'],
+  ARRAY['premium', 'resort', 'spa', 'golf', 'fine-dining', 'quinta-do-lago'],
   'unverified', false, 'published',
   '{"accommodation_type": "resort", "number_of_units": 154, "star_rating": "5", "amenities": ["pool", "spa", "gym", "golf_access", "restaurant", "concierge", "wifi", "parking"], "suitable_for": ["couples", "families", "business"], "concierge_available": true, "private_staff": true, "pet_friendly": true}'::jsonb
 ),
@@ -39,13 +39,13 @@ INSERT INTO listings (
   '76d65dcb-40c4-497d-a29d-2e738b50edc4',
   'Vila Vita Parc Resort & Spa',
   'vila-vita-parc',
-  'Award-winning luxury resort perched on dramatic Algarve cliffs with two Michelin-starred restaurants.',
-  'Vila Vita Parc is an iconic 22-hectare resort overlooking the Atlantic Ocean near the charming village of Porches. Home to two Michelin-starred restaurants including the legendary Ocean by Hans Neuner, this resort offers an unparalleled culinary journey. With private beach access, extensive spa facilities, and beautifully landscaped gardens, Vila Vita Parc represents the pinnacle of Algarve luxury.',
+  'Award-winning premium resort perched on dramatic Algarve cliffs with two Michelin-starred restaurants.',
+  'Vila Vita Parc is an iconic 22-hectare resort overlooking the Atlantic Ocean near the charming village of Porches. Home to two Michelin-starred restaurants including the legendary Ocean by Hans Neuner, this resort offers an unparalleled culinary journey. With private beach access, extensive spa facilities, and beautifully landscaped gardens, Vila Vita Parc represents the pinnacle of Algarve premium.',
   'Rua Anneliese Pohl, Alporchinhos, 8400-450 Lagoa',
   37.0892, -8.4156,
   '+351 282 310 100', 'info@vilavitaparc.com', 'https://www.vilavitaparc.com/',
   'https://www.instagram.com/vilavitaparc/', 'https://www.facebook.com/VilaVitaParcResort/', 'https://goo.gl/maps/vilavitaparc',
-  ARRAY['luxury', 'resort', 'michelin', 'spa', 'beach', 'fine-dining'],
+  ARRAY['premium', 'resort', 'michelin', 'spa', 'beach', 'fine-dining'],
   'unverified', false, 'published',
   '{"accommodation_type": "resort", "number_of_units": 170, "star_rating": "5", "amenities": ["pool", "spa", "private_beach", "golf_access", "restaurant", "concierge", "wine_cellar", "tennis"], "suitable_for": ["couples", "families", "honeymoon"], "concierge_available": true, "private_staff": true, "pet_friendly": false}'::jsonb
 ),
@@ -58,12 +58,12 @@ INSERT INTO listings (
   'Anantara Vilamoura Algarve Resort',
   'anantara-vilamoura',
   'Thai-inspired five-star golf resort in the heart of Vilamoura with world-class spa.',
-  'Anantara Vilamoura brings the renowned Anantara hospitality to Portugal''s premier resort destination. This stunning property features Thai-inspired architecture, an award-winning Anantara Spa, and direct access to Victoria Golf Course. With spacious rooms overlooking manicured gardens and multiple dining venues, it offers a unique East-meets-West luxury experience in the Algarve.',
+  'Anantara Vilamoura brings the renowned Anantara hospitality to Portugal''s premier resort destination. This stunning property features Thai-inspired architecture, an award-winning Anantara Spa, and direct access to Victoria Golf Course. With spacious rooms overlooking manicured gardens and multiple dining venues, it offers a unique East-meets-West premium experience in the Algarve.',
   'Victoria Clubhouse, Av. dos Descobrimentos, 8125-309 Vilamoura',
   37.0789, -8.1234,
   '+351 289 317 000', 'vilamoura@anantara.com', 'https://www.anantara.com/en/vilamoura-algarve',
   'https://www.instagram.com/anantaravilamoura/', 'https://www.facebook.com/AnantaraVilamoura/', 'https://goo.gl/maps/anantaravilamoura',
-  ARRAY['luxury', 'resort', 'golf', 'spa', 'thai', 'vilamoura'],
+  ARRAY['premium', 'resort', 'golf', 'spa', 'thai', 'vilamoura'],
   'unverified', false, 'published',
   '{"accommodation_type": "resort", "number_of_units": 280, "star_rating": "5", "amenities": ["pool", "spa", "gym", "golf_access", "restaurant", "concierge", "kids_club"], "suitable_for": ["couples", "families", "golf_enthusiasts"], "concierge_available": true, "private_staff": true, "pet_friendly": true}'::jsonb
 ),
@@ -76,12 +76,12 @@ INSERT INTO listings (
   'Pine Cliffs Resort',
   'pine-cliffs-resort-albufeira',
   'Iconic cliff-top resort with private beach access and renowned golf academy.',
-  'Perched atop the dramatic red cliffs of Praia da Falésia, Pine Cliffs Resort is one of the Algarve''s most iconic properties. The resort features the famous 9-hole Pine Cliffs Golf Course with its legendary Devil''s Parlour hole, the Serenity Spa, and direct access to one of Europe''s most beautiful beaches. Multiple accommodation options from hotel rooms to luxury villas cater to every guest.',
+  'Perched atop the dramatic red cliffs of Praia da Falésia, Pine Cliffs Resort is one of the Algarve''s most iconic properties. The resort features the famous 9-hole Pine Cliffs Golf Course with its legendary Devil''s Parlour hole, the Serenity Spa, and direct access to one of Europe''s most beautiful beaches. Multiple accommodation options from hotel rooms to premium villas cater to every guest.',
   'Praia da Falésia, 8200-909 Albufeira',
   37.0856, -8.1678,
   '+351 289 500 100', 'reservations@pinecliffs.com', 'https://www.pinecliffs.com/',
   'https://www.instagram.com/pinecliffsresort/', 'https://www.facebook.com/PineCliffsResort/', 'https://goo.gl/maps/pinecliffs',
-  ARRAY['luxury', 'resort', 'golf', 'beach', 'cliffs', 'family'],
+  ARRAY['premium', 'resort', 'golf', 'beach', 'cliffs', 'family'],
   'unverified', false, 'published',
   '{"accommodation_type": "resort", "number_of_units": 217, "star_rating": "5", "amenities": ["pool", "spa", "private_beach", "golf_course", "restaurant", "kids_club", "tennis"], "suitable_for": ["couples", "families", "golf_enthusiasts"], "concierge_available": true, "private_staff": true, "pet_friendly": false}'::jsonb
 ),
@@ -93,13 +93,13 @@ INSERT INTO listings (
   'a3723c89-5605-4abc-88c8-90a001d0bdfd',
   'Dunas Douradas Beach Club',
   'dunas-douradas-beach-club',
-  'Exclusive beachfront resort in Vale do Lobo with luxury villas and apartments.',
-  'Dunas Douradas Beach Club offers an exclusive collection of luxury villas and apartments set directly on the golden sands of Vale do Lobo. This private resort provides the perfect blend of beach living and resort amenities, with direct access to golf courses, fine dining, and the vibrant Golden Triangle lifestyle. Ideal for families seeking space and privacy with five-star services.',
+  'Exclusive beachfront resort in Vale do Lobo with premium villas and apartments.',
+  'Dunas Douradas Beach Club offers an exclusive collection of premium villas and apartments set directly on the golden sands of Vale do Lobo. This private resort provides the perfect blend of beach living and resort amenities, with direct access to golf courses, fine dining, and the vibrant Golden Triangle lifestyle. Ideal for families seeking space and privacy with five-star services.',
   'Vale do Lobo, 8135-864 Almancil',
   37.0356, -8.0567,
   '+351 289 394 900', 'info@dunasdouradas.com', 'https://www.dunasdouradas.com/',
   'https://www.instagram.com/dunasdouradasbeachclub/', 'https://www.facebook.com/DunasDouradas/', 'https://goo.gl/maps/dunasdouradas',
-  ARRAY['luxury', 'beach', 'villas', 'family', 'vale-do-lobo', 'golden-triangle'],
+  ARRAY['premium', 'beach', 'villas', 'family', 'vale-do-lobo', 'golden-triangle'],
   'unverified', false, 'published',
   '{"accommodation_type": "villa_resort", "number_of_units": 85, "star_rating": "5", "amenities": ["pool", "beach_access", "restaurant", "concierge", "tennis", "kids_club"], "suitable_for": ["families", "couples", "groups"], "concierge_available": true, "private_staff": false, "pet_friendly": true}'::jsonb
 ),
@@ -323,7 +323,7 @@ INSERT INTO listings (
   37.0448, -8.0235,
   '+351 289 350 700', 'spa@conradalgarve.com', 'https://www.hilton.com/en/hotels/faocici-conrad-algarve/spa/',
   'https://www.instagram.com/conradalgarve/', 'https://www.facebook.com/ConradAlgarve/', 'https://goo.gl/maps/sayannaconrad',
-  ARRAY['spa', 'wellness', 'massage', 'hammam', 'pool', 'luxury'],
+  ARRAY['spa', 'wellness', 'massage', 'hammam', 'pool', 'premium'],
   'unverified', false, 'published',
   '{"spa_type": "resort_spa", "treatments": ["massage", "facial", "body_treatment", "ayurveda", "hammam"], "facilities": ["indoor_pool", "sauna", "hammam", "relaxation_lounge", "fitness_center"], "couples_treatments": true, "packages_available": true}'::jsonb
 ),
@@ -336,7 +336,7 @@ INSERT INTO listings (
   'Longevity Health & Wellness Hotel',
   'longevity-health-wellness',
   'Pioneering medical wellness retreat in the Monchique mountains.',
-  'Longevity Health & Wellness Hotel is a groundbreaking destination that combines luxury hospitality with cutting-edge medical wellness. Set in the tranquil Serra de Monchique mountains, it offers comprehensive health programs including detox, weight management, anti-aging, and stress recovery. The medical team works alongside wellness experts to create transformative experiences backed by science.',
+  'Longevity Health & Wellness Hotel is a groundbreaking destination that combines premium hospitality with cutting-edge medical wellness. Set in the tranquil Serra de Monchique mountains, it offers comprehensive health programs including detox, weight management, anti-aging, and stress recovery. The medical team works alongside wellness experts to create transformative experiences backed by science.',
   'Largo do Gabriel Mendonça, 8550-232 Monchique',
   37.3156, -8.5534,
   '+351 282 240 100', 'info@longevitywellnessresort.com', 'https://www.longevitywellnessresort.com/',
@@ -346,7 +346,7 @@ INSERT INTO listings (
   '{"spa_type": "medical_spa", "treatments": ["medical_consultation", "detox", "massage", "facial", "iv_therapy", "cryotherapy"], "facilities": ["pool", "sauna", "medical_center", "fitness_center", "restaurant"], "couples_treatments": true, "packages_available": true}'::jsonb
 ),
 
--- LUXURY EXPERIENCES (2)
+-- PREMIUM EXPERIENCES (2)
 -- Dream Wave Charters - Vilamoura, Vilamoura Prestige
 (
   '280be9b4-c0fe-48f3-b371-f490d8cccfd5',
@@ -355,13 +355,13 @@ INSERT INTO listings (
   '76da4eed-79a5-4b52-a213-a3821b7766e1',
   'Dream Wave Charters',
   'dream-wave-charters',
-  'Luxury yacht charters from Vilamoura Marina with bespoke experiences.',
+  'Premium yacht charters from Vilamoura Marina with bespoke experiences.',
   'Dream Wave Charters offers exclusive yacht experiences departing from Vilamoura Marina. From intimate sunset cruises to full-day adventures exploring the dramatic Algarve coastline, each charter is tailored to your preferences. Discover hidden caves, secluded beaches, and the famous Benagil cave. Professional crews ensure every detail is perfect, with gourmet catering and water sports available.',
   'Marina de Vilamoura, 8125-409 Vilamoura',
   37.0734, -8.1178,
   '+351 969 234 567', 'info@dreamwavecharters.com', 'https://www.dreamwavecharters.com/',
   'https://www.instagram.com/dreamwavecharters/', 'https://www.facebook.com/DreamWaveCharters/', 'https://goo.gl/maps/dreamwave',
-  ARRAY['yacht', 'charter', 'coast', 'caves', 'sunset', 'luxury'],
+  ARRAY['yacht', 'charter', 'coast', 'caves', 'sunset', 'premium'],
   'unverified', false, 'published',
   '{"experience_type": "yacht_charter", "duration_options": ["half_day", "full_day", "sunset"], "group_size_max": 12, "includes": ["captain", "crew", "snacks", "drinks"], "customizable": true}'::jsonb
 ),
@@ -394,12 +394,12 @@ INSERT INTO listings (
   'Bluebird Transfers Algarve',
   'bluebird-transfers',
   'Premium airport transfers and VIP transportation throughout the Algarve.',
-  'Bluebird Transfers provides premium transportation services throughout the Algarve region. Specializing in airport transfers from Faro to all destinations, their fleet includes luxury sedans, minivans, and executive vehicles. Professional, multilingual chauffeurs ensure a comfortable and punctual journey. Additional services include golf transfers, event transportation, and customized tours.',
+  'Bluebird Transfers provides premium transportation services throughout the Algarve region. Specializing in airport transfers from Faro to all destinations, their fleet includes premium sedans, minivans, and executive vehicles. Professional, multilingual chauffeurs ensure a comfortable and punctual journey. Additional services include golf transfers, event transportation, and customized tours.',
   'Albufeira, 8200-999 Albufeira',
   37.0889, -8.2501,
   '+351 289 123 456', 'book@bluebirdtransfers.com', 'https://www.bluebirdtransfers.com/',
   'https://www.instagram.com/bluebirdtransfers/', 'https://www.facebook.com/BluebirdTransfers/', 'https://goo.gl/maps/bluebirdtransfers',
-  ARRAY['transfers', 'airport', 'vip', 'chauffeur', 'luxury'],
+  ARRAY['transfers', 'airport', 'vip', 'chauffeur', 'premium'],
   'unverified', false, 'published',
   '{"service_types": ["airport_transfer", "private_tour", "event_transport"], "vehicle_types": ["sedan", "suv", "minivan", "limousine"], "airport_coverage": ["faro", "lisbon", "seville"], "multilingual_drivers": true}'::jsonb
 ),
@@ -411,13 +411,13 @@ INSERT INTO listings (
   'a3723c89-5605-4abc-88c8-90a001d0bdfd',
   'Portugal Exclusive',
   'portugal-exclusive',
-  'Ultra-luxury chauffeur services and bespoke tours throughout Portugal.',
-  'Portugal Exclusive is the premium choice for discerning travelers requiring exceptional transportation and curated experiences. Based in the Golden Triangle, they offer luxury vehicle services with impeccably presented vehicles and professional chauffeurs. Beyond transfers, they specialize in creating bespoke journeys including wine tours, golf expeditions, and cultural experiences throughout Portugal.',
+  'Ultra-premium chauffeur services and bespoke tours throughout Portugal.',
+  'Portugal Exclusive is the premium choice for discerning travelers requiring exceptional transportation and curated experiences. Based in the Golden Triangle, they offer premium vehicle services with impeccably presented vehicles and professional chauffeurs. Beyond transfers, they specialize in creating bespoke journeys including wine tours, golf expeditions, and cultural experiences throughout Portugal.',
   'Quinta do Lago, 8135-024 Almancil',
   37.0445, -8.0201,
   '+351 289 394 567', 'concierge@portugalexclusive.com', 'https://www.portugalexclusive.com/',
   'https://www.instagram.com/portugalexclusive/', 'https://www.facebook.com/PortugalExclusive/', 'https://goo.gl/maps/portugalexclusive',
-  ARRAY['chauffeur', 'luxury', 'tours', 'vip', 'bespoke', 'concierge'],
+  ARRAY['chauffeur', 'premium', 'tours', 'vip', 'bespoke', 'concierge'],
   'unverified', false, 'published',
   '{"service_types": ["chauffeur", "private_tour", "event_transport", "corporate"], "vehicle_types": ["mercedes_s_class", "bentley", "range_rover", "minibus"], "airport_coverage": ["faro", "lisbon", "seville", "private_jets"], "multilingual_drivers": true}'::jsonb
 ),
@@ -431,15 +431,15 @@ INSERT INTO listings (
   'a3723c89-5605-4abc-88c8-90a001d0bdfd',
   'Fine & Country Algarve',
   'fine-country-algarve',
-  'Prestigious luxury real estate specialists in the Algarve Golden Triangle.',
-  'Fine & Country Algarve represents the finest properties in Portugal''s most exclusive region. Specializing in luxury villas, golf properties, and beachfront estates in Quinta do Lago, Vale do Lobo, and the surrounding Golden Triangle, their expert team provides discreet, professional service to international buyers. From contemporary masterpieces to traditional Portuguese estates, they match discerning clients with exceptional homes.',
+  'Prestigious premium real estate specialists in the Algarve Golden Triangle.',
+  'Fine & Country Algarve represents the finest properties in Portugal''s most exclusive region. Specializing in premium villas, golf properties, and beachfront estates in Quinta do Lago, Vale do Lobo, and the surrounding Golden Triangle, their expert team provides discreet, professional service to international buyers. From contemporary masterpieces to traditional Portuguese estates, they match discerning clients with exceptional homes.',
   'Avenida André Jordan 37, Quinta do Lago, 8135-024 Almancil',
   37.0456, -8.0212,
   '+351 289 396 073', 'algarve@fineandcountry.com', 'https://www.fineandcountry.com/algarve',
   'https://www.instagram.com/fineandcountryalgarve/', 'https://www.facebook.com/FineAndCountryAlgarve/', 'https://goo.gl/maps/fineandcountryalgarve',
-  ARRAY['real-estate', 'luxury', 'villas', 'golden-triangle', 'investment'],
+  ARRAY['real-estate', 'premium', 'villas', 'golden-triangle', 'investment'],
   'unverified', false, 'published',
-  '{"property_types": ["villas", "apartments", "land", "commercial"], "price_range_focus": "luxury", "areas_covered": ["quinta_do_lago", "vale_do_lobo", "vilamoura", "almancil"], "services": ["sales", "rentals", "property_management", "investment_advisory"]}'::jsonb
+  '{"property_types": ["villas", "apartments", "land", "commercial"], "price_range_focus": "premium", "areas_covered": ["quinta_do_lago", "vale_do_lobo", "vilamoura", "almancil"], "services": ["sales", "rentals", "property_management", "investment_advisory"]}'::jsonb
 ),
 -- Engel & Volkers - Vilamoura, Vilamoura Prestige
 (
@@ -449,13 +449,13 @@ INSERT INTO listings (
   '76da4eed-79a5-4b52-a213-a3821b7766e1',
   'Engel & Völkers Vilamoura',
   'engel-volkers-vilamoura',
-  'International luxury real estate brand with expertise in Vilamoura properties.',
-  'Engel & Völkers brings global luxury real estate expertise to Vilamoura and the central Algarve. Their multilingual team specializes in premium properties ranging from marina apartments to golf villas and exclusive estates. With access to an international network of buyers and sellers, they provide comprehensive real estate services backed by a prestigious brand known worldwide.',
+  'International premium real estate brand with expertise in Vilamoura properties.',
+  'Engel & Völkers brings global premium real estate expertise to Vilamoura and the central Algarve. Their multilingual team specializes in premium properties ranging from marina apartments to golf villas and exclusive estates. With access to an international network of buyers and sellers, they provide comprehensive real estate services backed by a prestigious brand known worldwide.',
   'Marina de Vilamoura, 8125-409 Vilamoura',
   37.0738, -8.1182,
   '+351 289 302 770', 'vilamoura@engelvoelkers.com', 'https://www.engelvoelkers.com/pt/vilamoura/',
   'https://www.instagram.com/evvilamoura/', 'https://www.facebook.com/EVVilamoura/', 'https://goo.gl/maps/engelvolkersvilamoura',
-  ARRAY['real-estate', 'luxury', 'vilamoura', 'marina', 'international'],
+  ARRAY['real-estate', 'premium', 'vilamoura', 'marina', 'international'],
   'unverified', false, 'published',
   '{"property_types": ["villas", "apartments", "land", "commercial"], "price_range_focus": "premium", "areas_covered": ["vilamoura", "albufeira", "lagoa", "quarteira"], "services": ["sales", "rentals", "property_management"]}'::jsonb
 ),

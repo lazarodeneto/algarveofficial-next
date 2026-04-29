@@ -87,7 +87,7 @@ async function getGoogleTagId(): Promise<string> {
 
 export const metadata: Metadata = {
   ...buildMetadata({
-    title: "AlgarveOfficial | Luxury Villas, Golf & Restaurants",
+    title: "AlgarveOfficial | Premium Villas, Golf & Restaurants",
     description:
       "Discover the Algarve's finest villas, restaurants and golf courses — curated by experts who know every corner of Portugal's most prestigious coast.",
     path: "/",

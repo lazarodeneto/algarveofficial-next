@@ -1,0 +1,34 @@
+[     549ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[     587ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[     805ms] [INFO] 🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙 @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[    1471ms] [WARNING] Image with src "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/listing-images/1929430c-82d8-4a37-b1f3-bfe9b560e763/1773313842463-vga89uh.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1067500ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1068057ms] [LOG] [Fast Refresh] done in 388ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1070540ms] [INFO] Loading the image 'https://%3Cbr%20/%3E%20%3Cb%3ENotice%3C/b%3E:%20Undefined%20index:%20meta_image%20in%20%3Cb%3E/home/www/ttaxitravel.com/templates/template.php%3C/b%3E%20on%20line%20%3Cb%3E33%3C/b%3E%3Cbr%20/%3E' violates the following Content Security Policy directive: "img-src 'self' data: blob: https: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.ggpht.com https://*.ytimg.com https://*.unsplash.com". The policy is report-only, so the violation has been logged but no further action has been taken. @ http://localhost:3000/map:0
+[ 1070551ms] [INFO] Loading the image 'https://%3Cbr%20/%3E%20%3Cb%3ENotice%3C/b%3E:%20Undefined%20index:%20meta_image%20in%20%3Cb%3E/home/www/ttaxitravel.com/templates/template.php%3C/b%3E%20on%20line%20%3Cb%3E33%3C/b%3E%3Cbr%20/%3E' violates the following Content Security Policy directive: "img-src 'self' data: blob: https: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.ggpht.com https://*.ytimg.com https://*.unsplash.com". The policy is report-only, so the violation has been logged but no further action has been taken. @ http://localhost:3000/map:0
+[ 1070791ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_RESPONSE.NotSameSite @ https://algarveofficial.com/api/csp-report:0
+[ 1079838ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1080094ms] [LOG] [Fast Refresh] done in 238ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1090048ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1090259ms] [LOG] [Fast Refresh] done in 184ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1094643ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1094841ms] [LOG] [Fast Refresh] done in 184ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1108087ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1108796ms] [LOG] [Fast Refresh] done in 200ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1127155ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1127956ms] [INFO] Loading the image 'https://%3Cbr%20/%3E%20%3Cb%3ENotice%3C/b%3E:%20Undefined%20index:%20meta_image%20in%20%3Cb%3E/home/www/ttaxitravel.com/templates/template.php%3C/b%3E%20on%20line%20%3Cb%3E33%3C/b%3E%3Cbr%20/%3E' violates the following Content Security Policy directive: "img-src 'self' data: blob: https: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.ggpht.com https://*.ytimg.com https://*.unsplash.com". The policy is report-only, so the violation has been logged but no further action has been taken. @ http://localhost:3000/map:0
+[ 1127957ms] [INFO] Loading the image 'https://%3Cbr%20/%3E%20%3Cb%3ENotice%3C/b%3E:%20Undefined%20index:%20meta_image%20in%20%3Cb%3E/home/www/ttaxitravel.com/templates/template.php%3C/b%3E%20on%20line%20%3Cb%3E33%3C/b%3E%3Cbr%20/%3E' violates the following Content Security Policy directive: "img-src 'self' data: blob: https: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.ggpht.com https://*.ytimg.com https://*.unsplash.com". The policy is report-only, so the violation has been logged but no further action has been taken. @ http://localhost:3000/map:0
+[ 1127988ms] [LOG] [Fast Refresh] done in 183ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1135803ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1136001ms] [ERROR] The final argument passed to %s changed size between renders. The order and size of this array must remain constant.
+
+Previous: %s
+Incoming: %s useEffect [, ] [] @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:3272
+[ 1136476ms] [LOG] [Fast Refresh] done in 169ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1153137ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1153887ms] [LOG] [Fast Refresh] done in 833ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1161943ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1162127ms] [LOG] [Fast Refresh] done in 298ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1185982ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1186063ms] [LOG] [Fast Refresh] done in 182ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431

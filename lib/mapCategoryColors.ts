@@ -2,7 +2,7 @@ import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 
 const CATEGORY_COLORS: Record<string, string> = {
   "places-to-stay": "#2563eb",
-  "luxury-accommodation": "#2563eb",
+  "premium-accommodation": "#2563eb",
   "restaurants": "#dc2626",
   "golf": "#16a34a",
   "beaches-clubs": "#0ea5e9",
@@ -12,7 +12,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   "vip-concierge": "#f59e0b",
   "algarve-services": "#f59e0b",
   "things-to-do": "#f97316",
-  "luxury-experiences": "#f97316",
+  "premium-experiences": "#f97316",
   "family-fun": "#22c55e",
   "vip-transportation": "#6366f1",
   "whats-on": "#ef4444",

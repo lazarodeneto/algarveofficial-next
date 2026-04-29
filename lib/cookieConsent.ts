@@ -1,3 +1,9 @@
+import {
+  saveConsent,
+  updateGoogleConsent,
+  type ConsentState,
+} from "@/lib/consent/consent-mode";
+
 export const COOKIE_CONSENT_STORAGE_KEY = "cookie_consent_preferences";
 export const COOKIE_CONSENT_CHANGE_EVENT = "cookie-consent:changed";
 export const COOKIE_PREFERENCES_OPEN_EVENT = "cookie-consent:open-preferences";
@@ -100,7 +106,24 @@ export function getStoredCookieConsent(): CookieConsentRecord | null {
 export function saveCookieConsent(record: CookieConsentRecord): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, JSON.stringify(record));
+  const googleConsent = consentStateFromCookieConsent(record);
+  saveConsent(googleConsent);
+  updateGoogleConsent(googleConsent);
   window.dispatchEvent(new Event(COOKIE_CONSENT_CHANGE_EVENT));
+}
+
+export function consentStateFromCookieConsent(record: CookieConsentRecord): ConsentState {
+  const analytics = record.analytics ? "granted" : "denied";
+  const marketing = record.marketing ? "granted" : "denied";
+
+  return {
+    analytics_storage: analytics,
+    ad_storage: marketing,
+    ad_user_data: marketing,
+    ad_personalization: marketing,
+    functionality_storage: "granted",
+    security_storage: "granted",
+  };
 }
 
 export function draftFromCookieConsent(

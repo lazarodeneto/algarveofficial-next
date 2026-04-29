@@ -537,7 +537,7 @@ export const CMS_PAGE_TRANSLATION_KEY_CATALOG: Record<string, string[]> = {
     "live.pillars.title",
     "live.planner.budget.balanced",
     "live.planner.budget.lean",
-    "live.planner.budget.luxury",
+    "live.planner.budget.premium",
     "live.planner.budgetLabel",
     "live.planner.checklist.buy",
     "live.planner.checklist.family",

@@ -108,7 +108,7 @@ python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "<keyword>" --domain <dom
 | More style options | `style` | `--domain style "glassmorphism dark"` |
 | Chart recommendations | `chart` | `--domain chart "real-time dashboard"` |
 | UX best practices | `ux` | `--domain ux "animation accessibility"` |
-| Alternative fonts | `typography` | `--domain typography "elegant luxury"` |
+| Alternative fonts | `typography` | `--domain typography "elegant premium"` |
 | Landing structure | `landing` | `--domain landing "hero social-proof"` |
 
 ### Step 4: Stack Guidelines (Default: html-tailwind)
@@ -182,7 +182,7 @@ python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "beauty spa wellness serv
 python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "animation accessibility" --domain ux
 
 # Get alternative typography options if needed
-python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "elegant luxury serif" --domain typography
+python3 .agent/.shared/ui-ux-pro-max/scripts/search.py "elegant premium serif" --domain typography
 ```
 
 ### Step 4: Stack Guidelines

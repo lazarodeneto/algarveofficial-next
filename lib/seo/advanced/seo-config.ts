@@ -2,7 +2,7 @@ import { SUPPORTED_LOCALES, LOCALE_CONFIGS, DEFAULT_LOCALE } from "@/lib/i18n/co
 
 export const SITE_CONFIG = {
   name: "AlgarveOfficial",
-  tagline: "Luxury Villas, Golf & Restaurants",
+  tagline: "Premium Villas, Golf & Restaurants",
   description:
     "Discover the Algarve's finest villas, restaurants and golf courses — curated by experts who know every corner of Portugal's most prestigious coast.",
   url: "https://algarveofficial.com",
@@ -25,9 +25,9 @@ export const SITE_CONFIG = {
 
 export const CATEGORY_META: Record<string, { title: string; description: string; keywords: string[] }> = {
   "places-to-stay": {
-    title: "Luxury Accommodations",
+    title: "Premium Accommodations",
     description: "Discover the finest villas, resorts, and exclusive retreats in the Algarve.",
-    keywords: ["luxury villas", "Algarve accommodation", "5-star hotels", "boutique hotels", "private pools"],
+    keywords: ["premium villas", "Algarve accommodation", "5-star hotels", "boutique hotels", "private pools"],
   },
   restaurants: {
     title: "Fine Dining & Restaurants",
@@ -74,7 +74,7 @@ export const LOCATION_META: Record<string, { title: string; description: string;
   },
   "vilamoura": {
     title: "Vilamoura",
-    description: "Luxury marina, championship golf, and exclusive beach life.",
+    description: "Premium marina, championship golf, and exclusive beach life.",
     keywords: ["Vilamoura marina", "Vilamoura golf", "Vilamoura beach", "casino"],
   },
   "portimao": {
@@ -124,7 +124,7 @@ export const DEFAULT_KEYWORDS = [
   "Portugal travel",
   "Algarve directory",
   "premium listings",
-  "luxury villas",
+  "premium villas",
   "Algarve restaurants",
   "Algarve golf",
   "Algarve events",

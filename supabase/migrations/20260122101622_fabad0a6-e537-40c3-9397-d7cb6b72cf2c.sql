@@ -1,12 +1,12 @@
 -- Update all category icons to definitive Lucide icon names
-UPDATE categories SET icon = 'Hotel' WHERE slug = 'luxury-accommodation';
+UPDATE categories SET icon = 'Hotel' WHERE slug = 'premium-accommodation';
 UPDATE categories SET icon = 'UtensilsCrossed' WHERE slug = 'fine-dining';
 UPDATE categories SET icon = 'LandPlot' WHERE slug = 'golf';
 UPDATE categories SET icon = 'Waves' WHERE slug = 'beaches-clubs';
 UPDATE categories SET icon = 'Sparkles' WHERE slug = 'wellness-spas';
 UPDATE categories SET icon = 'ChefHat' WHERE slug = 'private-chefs';
 UPDATE categories SET icon = 'ConciergeBell' WHERE slug = 'vip-concierge';
-UPDATE categories SET icon = 'Binoculars' WHERE slug = 'luxury-experiences';
+UPDATE categories SET icon = 'Binoculars' WHERE slug = 'premium-experiences';
 UPDATE categories SET icon = 'Ship' WHERE slug = 'family-fun';
 UPDATE categories SET icon = 'Plane' WHERE slug = 'vip-transportation';
 UPDATE categories SET icon = 'House' WHERE slug = 'real-estate';

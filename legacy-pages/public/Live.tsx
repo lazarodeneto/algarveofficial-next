@@ -133,7 +133,7 @@ const Live = () => {
     if (monthlyBudget < 3000) return t("live.planner.budget.lean");
     if (monthlyBudget < 5500) return t("live.planner.budget.balanced");
     if (monthlyBudget < 20000) return t("live.planner.budget.premium");
-    return t("live.planner.budget.luxury");
+    return t("live.planner.budget.premium");
   }, [monthlyBudget, t]);
 
   const timelineLabelMap: Record<string, string> = {
@@ -579,7 +579,7 @@ const Live = () => {
               </h2>
             </div>
             <Link href={l("/destinations")}>
-              <Button variant="luxury">
+              <Button variant="premium">
                 {t("live.destinations.viewAll")}
                 <ArrowRight className="h-4 w-4 ml-1" />
               </Button>

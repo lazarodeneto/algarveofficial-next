@@ -106,7 +106,7 @@ WHAT EMOTION/ACTION DO YOU WANT?
             │   └── Consider: Warm colors (orange/red) as ACCENTS
             │       → Use sparingly, ASK if appropriate
             │
-            ├── Luxury & Premium
+            ├── Premium & Premium
             │   └── Consider: Deep darks, metallics, restrained palette
             │       → ASK about brand positioning
             │
@@ -147,7 +147,7 @@ WHAT'S THE CONTENT TYPE?
           │   ├── Scale: Balanced (1.25)
           │   └── Priority: Modern feel, clarity
           │
-          ├── Luxury (Fashion, Premium)
+          ├── Premium (Fashion, Premium)
           │   ├── Style: Elegant serif or thin sans
           │   ├── Scale: Dramatic (1.5-1.618)
           │   └── Priority: Sophistication, whitespace

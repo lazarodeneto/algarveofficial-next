@@ -344,7 +344,7 @@ export function buildPlaceSchema(region: RegionSchemaInput) {
         name: "Portugal",
       },
     },
-    touristType: ["Luxury Traveler", "Beach Lover", "Golf Enthusiast", "Cultural Tourist"],
+    touristType: ["Premium Traveler", "Beach Lover", "Golf Enthusiast", "Cultural Tourist"],
   };
 }
 

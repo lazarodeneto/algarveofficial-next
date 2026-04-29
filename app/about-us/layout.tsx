@@ -6,7 +6,7 @@ import { buildMetadata } from "@/lib/metadata";
 export const metadata: Metadata = buildMetadata({
   title: "About AlgarveOfficial",
   description:
-    "Learn about AlgarveOfficial and our mission to curate Portugal's premier luxury stays, dining, golf, and concierge experiences.",
+    "Learn about AlgarveOfficial and our mission to curate Portugal's premier premium stays, dining, golf, and concierge experiences.",
   path: "/about-us",
 });
 

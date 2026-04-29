@@ -27,7 +27,7 @@ export function AffiliateCTA({
 
   return (
     <div className={cn(
-      "luxury-card p-6 bg-gradient-to-br border-primary/20",
+      "premium-card p-6 bg-gradient-to-br border-primary/20",
       gradientClass
     )}>
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">

@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
     path: "/properties",
     title: "Algarve Properties & Real Estate",
     description:
-      "Discover luxury Algarve properties and curated real estate opportunities across prime coastal locations.",
+      "Discover premium Algarve properties and curated real estate opportunities across prime coastal locations.",
   });
 }
 

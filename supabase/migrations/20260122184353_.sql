@@ -41,7 +41,7 @@ INSERT INTO public.listings (
   '280be9b4-c0fe-48f3-b371-f490d8cccfd5',
   'published', 'unverified', false,
   'Two Michelin Star restaurant by Chef Dieter Koschina',
-  'Vila Joya is one of Portugal''s most celebrated restaurants, holding two Michelin stars under the guidance of Austrian-born Chef Dieter Koschina. Located in a stunning clifftop boutique hotel in Albufeira, the restaurant offers an extraordinary tasting menu that showcases the best of Portuguese ingredients with refined European technique. The intimate setting and impeccable service create an atmosphere of pure luxury.',
+  'Vila Joya is one of Portugal''s most celebrated restaurants, holding two Michelin stars under the guidance of Austrian-born Chef Dieter Koschina. Located in a stunning clifftop boutique hotel in Albufeira, the restaurant offers an extraordinary tasting menu that showcases the best of Portuguese ingredients with refined European technique. The intimate setting and impeccable service create an atmosphere of pure premium.',
   'Praia da Galé, 8200-917 Albufeira',
   37.0756, -8.3183,
   'https://www.vilajoya.com/en/restaurants/restaurant',

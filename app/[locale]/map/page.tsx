@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       translations["map.description"] ??
       translations["map.title"] ??
       "AlgarveOfficial",
-    keywords: ["Algarve map", "interactive map", "luxury listings", "restaurants", "golf"],
+    keywords: ["Algarve map", "interactive map", "premium listings", "restaurants", "golf"],
   });
 
   return metadata;

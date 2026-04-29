@@ -233,7 +233,7 @@ function DestinationsClientInner({ initialRegions, imageTimestamp: propImageTime
                 >
                   <LocaleLink
                     href={`/destinations/${city.slug}`}
-                    className="glass-box group relative overflow-hidden rounded-xl aspect-[4/5] luxury-card cursor-pointer block"
+                    className="glass-box group relative overflow-hidden rounded-xl aspect-[4/5] premium-card cursor-pointer block"
                   >
                     <div className="absolute inset-0">
                       {city.hero_image_url || city.image_url ? (
@@ -300,7 +300,7 @@ function DestinationsClientInner({ initialRegions, imageTimestamp: propImageTime
                 >
                   <LocaleLink
                     href={`/destinations/${region.slug}`}
-                    className="glass-box group relative overflow-hidden rounded-xl aspect-[4/5] luxury-card cursor-pointer block"
+                    className="glass-box group relative overflow-hidden rounded-xl aspect-[4/5] premium-card cursor-pointer block"
                   >
                     <div className="absolute inset-0">
                       {image ? (

@@ -37,7 +37,7 @@ export async function generateMetadata({
   const localeConfig = LOCALE_CONFIGS[locale] ?? LOCALE_CONFIGS.en;
 
   return buildMetadata({
-    title: "AlgarveOfficial | Luxury Villas, Golf & Restaurants",
+    title: "AlgarveOfficial | Premium Villas, Golf & Restaurants",
     description:
       "Discover the Algarve's finest villas, restaurants and golf courses — curated by experts who know every corner of Portugal's most prestigious coast.",
     path: "/",

@@ -21,9 +21,9 @@ import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 
 const ICON_BY_RAW_SLUG: Record<string, LucideIcon> = {
   "places-to-stay": BedDouble,
-  "luxury-accommodation": BedDouble,
-  "luxury-hotels": BedDouble,
-  "luxury-hotels-resorts": BedDouble,
+  "premium-accommodation": BedDouble,
+  "premium-hotels": BedDouble,
+  "premium-hotels-resorts": BedDouble,
   restaurants: UtensilsCrossed,
   "restaurants-algarve": UtensilsCrossed,
   "fine-dining": UtensilsCrossed,
@@ -36,7 +36,7 @@ const ICON_BY_RAW_SLUG: Record<string, LucideIcon> = {
   "wellness-spas": Sparkles,
   "shopping-boutiques": ShoppingBag,
   "things-to-do": Binoculars,
-  "luxury-experiences": Binoculars,
+  "premium-experiences": Binoculars,
   "family-fun": Binoculars,
   "whats-on": CalendarHeart,
   "premier-events": CalendarHeart,

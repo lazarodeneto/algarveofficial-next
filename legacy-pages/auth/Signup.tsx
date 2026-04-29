@@ -147,7 +147,7 @@ export default function Signup() {
             <span>{t('auth.backToHome')}</span>
           </Link>
 
-          <Card className="luxury-card border-border/50">
+          <Card className="premium-card border-border/50">
             <CardHeader className="space-y-1 pb-6">
               <div className="lg:hidden mb-4">
                 <h1 className="font-serif text-2xl text-gradient-gold">AlgarveOfficial</h1>

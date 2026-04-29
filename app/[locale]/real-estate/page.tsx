@@ -11,7 +11,7 @@ const REAL_ESTATE_META: Record<Locale, { title: string; description: string }> =
   en: {
     title: "Real Estate in the Algarve",
     description:
-      "Find luxury villas, apartments and investment properties for sale across the Algarve — expert-curated listings in Portugal's most sought-after coastal destination.",
+      "Find premium villas, apartments and investment properties for sale across the Algarve — expert-curated listings in Portugal's most sought-after coastal destination.",
   },
   "pt-pt": {
     title: "Imobiliário no Algarve",
@@ -70,7 +70,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     path: "/real-estate",
     title: meta.title,
     description: meta.description,
-    keywords: ["Algarve real estate", "property for sale Algarve", "luxury villas Portugal", "Algarve investment property"],
+    keywords: ["Algarve real estate", "property for sale Algarve", "premium villas Portugal", "Algarve investment property"],
   });
 }
 

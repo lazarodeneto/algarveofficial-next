@@ -1,8 +1,7 @@
 import { useCallback, useMemo, useState, type ComponentProps } from "react";
 import NextLink from "next/link";
 import Image from "next/image";
-import { BedSingle, Binoculars, Building2, LucideIcon, UtensilsCrossed } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { ArrowRight, BedSingle, Binoculars, Building2, LucideIcon, UtensilsCrossed } from "lucide-react";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import {
@@ -23,7 +22,6 @@ const CARD_ICONS: Record<"stay" | "see-do" | "restaurants" | "real-estate", Luci
 };
 
 export function HomeQuickLinksSection() {
-  const { t } = useTranslation();
   const l = useLocalePath();
   const { settings, isLoading } = useGlobalSettings({ keys: HOME_QUICK_LINK_SETTING_KEYS });
   const [failedVideoMedia, setFailedVideoMedia] = useState<Record<string, boolean>>({});
@@ -65,24 +63,16 @@ export function HomeQuickLinksSection() {
 
   if (isLoading) {
     return (
-      <section id="home-quick-links" className="relative z-20 -mt-2 pb-4 sm:-mt-14 sm:pb-5 lg:-mt-20 lg:pb-7" aria-hidden="true">
+      <section id="home-quick-links" className="relative z-10 bg-background pb-10 pt-8 sm:pb-14 sm:pt-10 lg:pb-16 lg:pt-12" aria-hidden="true">
         <div className="app-container">
-          <div className="mx-auto flex w-full flex-col gap-4 px-1 pb-2 sm:grid sm:max-w-[1040px] sm:grid-cols-2 sm:justify-items-center sm:gap-4 sm:px-0 lg:grid-cols-4">
+          <div className="mx-auto grid w-full gap-4 px-1 sm:max-w-[1120px] sm:grid-cols-2 sm:gap-5 sm:px-0 lg:grid-cols-4">
             {HOME_QUICK_LINK_CARDS.map((card) => (
               <div
                 key={card.id}
-                className="glass-box glass-box-silver-liquid glass-box-contour relative isolate flex h-full w-full flex-col rounded-[24px] sm:max-w-[280px]"
+                className="relative isolate h-60 overflow-hidden rounded-2xl border border-border/50 bg-muted/35 shadow-sm sm:h-64"
               >
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 z-20 rounded-[24px] border-[2px] border-[hsl(43,86%,58%)] shadow-[0_0_10px_hsla(43,86%,58%,0.34)]"
-                />
-                <div className="relative z-10 px-1.5 pt-4 pb-1 sm:px-3 sm:pt-5 sm:pb-1.5">
-                  <div className="mx-auto h-6 w-32 rounded-md bg-muted/35 animate-pulse sm:h-7 sm:w-36" />
-                </div>
-                <div className="relative z-10 mt-auto p-3 pt-1 sm:p-3.5 sm:pt-1.5">
-                  <div className="aspect-[4/3] rounded-xl border border-white/35 bg-muted/35 animate-pulse dark:border-white/15" />
-                </div>
+                <div className="absolute inset-0 animate-pulse bg-muted/45" />
+                <div className="absolute bottom-5 left-5 h-7 w-28 rounded-md bg-background/35" />
               </div>
             ))}
           </div>
@@ -92,12 +82,12 @@ export function HomeQuickLinksSection() {
   }
 
   return (
-    <section id="home-quick-links" className="relative z-20 -mt-2 pb-4 sm:-mt-14 sm:pb-5 lg:-mt-20 lg:pb-7">
+    <section id="home-quick-links" className="relative z-10 bg-background pb-10 pt-8 sm:pb-14 sm:pt-10 lg:pb-16 lg:pt-12">
       <div className="app-container">
-        <div className="mx-auto flex w-full flex-col gap-4 px-1 pb-2 sm:grid sm:max-w-[1040px] sm:grid-cols-2 sm:justify-items-center sm:gap-4 sm:px-0 lg:grid-cols-4">
+        <div className="mx-auto grid w-full gap-4 px-1 sm:max-w-[1120px] sm:grid-cols-2 sm:gap-5 sm:px-0 lg:grid-cols-4">
           {quickLinkCards.map((card) => {
             const Icon = CARD_ICONS[card.id];
-            const displayTitle = t(card.translationKey, card.title);
+            const displayTitle = card.title;
             const customImageUrl = card.imageUrl.trim();
             const customVideoUrl = card.videoUrl.trim();
             const prefersFallbackImage = failedImageMedia[card.id] === true;
@@ -130,22 +120,8 @@ export function HomeQuickLinksSection() {
               <Link
                 key={card.id}
                 href={card.customHref ? l(card.customHref) : l(`/stay?category=${card.categorySlug}`)}
-                className="glass-box glass-box-silver-liquid glass-box-contour group relative isolate flex h-full w-full flex-col rounded-[24px] font-sans transition-transform duration-300 hover:-translate-y-1 sm:max-w-[280px]"
+                className="group relative isolate h-60 overflow-hidden rounded-2xl border border-border/40 bg-black font-sans shadow-[0_18px_54px_-38px_rgba(0,0,0,0.75)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_64px_-40px_rgba(0,0,0,0.86)] sm:h-64"
               >
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 z-20 rounded-[24px] border-[2px] border-[hsl(43,86%,58%)] shadow-[0_0_10px_hsla(43,86%,58%,0.34)]"
-                />
-
-                <div className="relative z-10 flex items-center justify-center gap-1 px-1.5 pt-4 pb-1 sm:gap-2 sm:px-3 sm:pt-5 sm:pb-1.5">
-                  <Icon className="h-4 w-4 shrink-0 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-[hsl(43,74%,49%)]" />
-                  <h3 className="font-['Archivo_Narrow'] text-balance text-center text-[1.25rem] font-semibold uppercase leading-tight tracking-[0em] text-black dark:text-white sm:min-h-[3.5rem] sm:text-[1.2rem] lg:text-[1.3rem]">
-                    {displayTitle}
-                  </h3>
-                </div>
-
-                <div className="relative z-10 mt-auto p-3 pt-1 sm:p-3.5 sm:pt-1.5">
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-white/35 bg-white/25 dark:border-white/15 dark:bg-black/20">
                     {showVideo ? (
                       <video
                         src={customVideoUrl}
@@ -160,7 +136,7 @@ export function HomeQuickLinksSection() {
                         onPlay={(event) => enforceMutedPlayback(event.currentTarget)}
                         onError={() => markVideoAsFailed(card.id)}
                         style={{ objectPosition: card.imagePosition ?? "center" }}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                       />
                     ) : showImage ? (
                       <Image
@@ -175,13 +151,21 @@ export function HomeQuickLinksSection() {
                         decoding="async"
                         onError={() => markImageAsFailed(card.id)}
                         style={{ objectPosition: card.imagePosition ?? "center" }}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                       />
                     ) : (
-                      <div className="h-full w-full bg-black" aria-hidden="true" />
+                      <div className="absolute inset-0 bg-black" aria-hidden="true" />
                     )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/82 via-black/24 to-black/0" />
+                  <div className="relative z-10 flex h-full flex-col justify-end p-5 text-white sm:p-6">
+                    <Icon className="mb-3 h-5 w-5 text-primary sm:h-6 sm:w-6" />
+                    <h3 className="font-serif text-2xl font-semibold leading-none tracking-normal sm:text-3xl">
+                      {displayTitle}
+                    </h3>
+                    <span className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-white/82">
+                      Explore <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </span>
                   </div>
-                </div>
               </Link>
             );
           })}

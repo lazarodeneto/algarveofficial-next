@@ -100,6 +100,6 @@ test.describe("SEO - Edge Cases", () => {
     expect(href).toBeTruthy();
     expect(href).toContain(route);
     expect(href).not.toContain("vip-transportation");
-    expect(href).not.toContain("luxury");
+    expect(href).not.toContain("premium");
   });
 });

@@ -18,8 +18,8 @@ const canonicalRoutes = [
 const legacyRedirects: Array<[string, string]> = [
   ["/visit/lagos/vip-transportation", "/visit/lagos/transportation"],
   ["/visit/lagos/premier-events", "/visit/lagos/events"],
-  ["/visit/lagos/luxury-accommodation", "/visit/lagos/accommodation"],
-  ["/visit/lagos/luxury-experiences", "/visit/lagos/experiences"],
+  ["/visit/lagos/premium-accommodation", "/visit/lagos/accommodation"],
+  ["/visit/lagos/premium-experiences", "/visit/lagos/experiences"],
   ["/visit/lagos/architecture-decoration", "/visit/lagos/architecture-design"],
   ["/visit/lagos/beaches-clubs", "/visit/lagos/beach-clubs"],
   ["/visit/lagos/vip-concierge", "/visit/lagos/concierge-services"],

@@ -72,15 +72,15 @@ const VIRTUAL_CANONICAL_CATEGORY_ICONS: Record<string, string> = {
 };
 
 const CANONICAL_SLUG_BY_LEGACY_SLUG: Record<string, CanonicalCategorySlug> = {
-  "luxury-accommodation": "accommodation",
-  "luxury-hotels": "accommodation",
-  "luxury-hotels-resorts": "accommodation",
+  "premium-accommodation": "accommodation",
+  "premium-hotels": "accommodation",
+  "premium-hotels-resorts": "accommodation",
   "places-to-stay": "accommodation",
   "fine-dining": "restaurants",
   "fine-dining-algarve": "restaurants",
   "private-chefs": "restaurants",
   "restaurants-algarve": "restaurants",
-  "luxury-experiences": "experiences",
+  "premium-experiences": "experiences",
   "experiences-algarve": "experiences",
   "family-fun": "experiences",
   "things-do-do": "experiences",
@@ -104,8 +104,8 @@ const CANONICAL_SLUG_BY_LEGACY_SLUG: Record<string, CanonicalCategorySlug> = {
 
 const ROUTE_ALIAS_SLUGS: Record<string, CanonicalCategorySlug> = {
   accommodation: "accommodation",
-  "luxury-accommodation": "accommodation",
-  "luxury-hotels": "accommodation",
+  "premium-accommodation": "accommodation",
+  "premium-hotels": "accommodation",
   "algarve-accommodation": "accommodation",
   "places-to-stay": "accommodation",
   "place-to-stay": "accommodation",
@@ -156,8 +156,8 @@ const SEARCH_ALIAS_TO_CANONICAL: Record<string, CanonicalCategorySlug> = {
   accommodation: "accommodation",
   "places to stay": "accommodation",
   "place to stay": "accommodation",
-  "luxury accommodation": "accommodation",
-  "luxury hotels": "accommodation",
+  "premium accommodation": "accommodation",
+  "premium hotels": "accommodation",
   "algarve hotels": "accommodation",
   hotels: "accommodation",
   resorts: "accommodation",
@@ -210,10 +210,10 @@ const SEARCH_ALIAS_TO_CANONICAL: Record<string, CanonicalCategorySlug> = {
 };
 
 const MERGED_MEMBERS_BY_CANONICAL: Record<string, string[]> = {
-  accommodation: ["accommodation", "places-to-stay", "luxury-accommodation"],
+  accommodation: ["accommodation", "places-to-stay", "premium-accommodation"],
   restaurants: ["restaurants", "fine-dining", "private-chefs"],
   "beach-clubs": ["beach-clubs", "beaches-clubs"],
-  experiences: ["experiences", "things-to-do", "luxury-experiences", "family-fun"],
+  experiences: ["experiences", "things-to-do", "premium-experiences", "family-fun"],
   golf: ["golf", "golf-tournaments"],
   events: ["events", "whats-on", "premier-events"],
   "family-attractions": ["family-attractions", "family-fun"],

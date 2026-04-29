@@ -24,7 +24,7 @@ const STAY_META: Record<Locale, { title: string; description: string }> = {
   en: {
     title: "Stay in the Algarve",
     description:
-      "Find the perfect places to stay across the Algarve — from boutique hotels to luxury resorts.",
+      "Find the perfect places to stay across the Algarve — from boutique hotels to premium resorts.",
   },
   "pt-pt": {
     title: "Estadia no Algarve",

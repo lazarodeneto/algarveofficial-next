@@ -162,7 +162,7 @@ CSS 3D Space:
 | **Geometric** | Tech, network | SaaS, tech sites |
 | **Confetti** | Celebration | Success moments |
 | **Snow/Rain** | Atmospheric | Seasonal, mood |
-| **Dust/Bokeh** | Dreamy | Photography, luxury |
+| **Dust/Bokeh** | Dreamy | Photography, premium |
 | **Fireflies** | Magical | Games, fantasy |
 
 ### Libraries

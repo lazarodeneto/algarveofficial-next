@@ -5,7 +5,7 @@ CREATE TABLE public.site_settings (
   secondary_color TEXT DEFAULT 'rgba(196, 155, 55, 0.3)',
   accent_color TEXT DEFAULT 'rgba(255, 215, 102, 1)',
   site_name TEXT DEFAULT 'AlgarveOfficial',
-  tagline TEXT DEFAULT 'Luxury Experiences in Portugal',
+  tagline TEXT DEFAULT 'Premium Experiences in Portugal',
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 

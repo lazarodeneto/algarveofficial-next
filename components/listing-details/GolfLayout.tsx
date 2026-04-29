@@ -33,27 +33,27 @@ export function GolfLayout({ details }: GolfLayoutProps) {
       <div>
         <h2 className="text-xl font-serif font-medium mb-4">{t("categoryLayouts.golf.courseOverview")}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="luxury-card p-4 text-center">
+          <div className="premium-card p-4 text-center">
             <LandPlot className="h-6 w-6 mx-auto mb-2 text-primary" />
             <p className="text-sm text-muted-foreground">{t("categoryLayouts.common.type")}</p>
             <p className="font-medium capitalize">{translateCategoryValue(t, golfType) || t("categoryLayouts.common.typeFallback.course")}</p>
           </div>
           {holes && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Flag className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.golf.holes")}</p>
               <p className="font-medium">{holes}</p>
             </div>
           )}
           {courseStyle && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Trophy className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.golf.style")}</p>
               <p className="font-medium capitalize">{translateCategoryValue(t, courseStyle)}</p>
             </div>
           )}
           {oceanView && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Waves className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.golf.view")}</p>
               <p className="font-medium">{t("categoryLayouts.golf.oceanView")}</p>
@@ -91,7 +91,7 @@ export function GolfLayout({ details }: GolfLayoutProps) {
         </div>
       </div>
 
-      <div className="luxury-card p-6 bg-gradient-to-br from-green-900/20 to-green-950/30 border-green-500/20">
+      <div className="premium-card p-6 bg-gradient-to-br from-green-900/20 to-green-950/30 border-green-500/20">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
             <h3 className="text-lg font-serif font-medium">{t("categoryLayouts.golf.readyToPlay")}</h3>

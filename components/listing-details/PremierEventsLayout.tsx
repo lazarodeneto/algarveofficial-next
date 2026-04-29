@@ -44,27 +44,27 @@ export function PremierEventsLayout({ details }: PremierEventsLayoutProps) {
       <div>
         <h2 className="text-xl font-serif font-medium mb-4">{t("categoryLayouts.events.eventDetails")}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="luxury-card p-4 text-center">
+          <div className="premium-card p-4 text-center">
             <Calendar className="h-6 w-6 mx-auto mb-2 text-primary" />
             <p className="text-sm text-muted-foreground">{t("categoryLayouts.events.date")}</p>
             <p className="font-medium text-sm">{eventDate || t("categoryLayouts.events.tba")}</p>
             {eventEndDate && <p className="text-xs text-muted-foreground">to {eventEndDate}</p>}
           </div>
           {(startTime || endTime) && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Clock className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.events.time")}</p>
               <p className="font-medium text-sm">{startTime}{endTime ? ` - ${endTime}` : ''}</p>
             </div>
           )}
           {venueName && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <MapPin className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.events.venue")}</p>
               <p className="font-medium text-sm">{venueName}</p>
             </div>
           )}
-          <div className="luxury-card p-4 text-center">
+          <div className="premium-card p-4 text-center">
             <AccessIcon className="h-6 w-6 mx-auto mb-2 text-primary" />
             <p className="text-sm text-muted-foreground">{t("categoryLayouts.events.access")}</p>
             <p className="font-medium text-sm capitalize">{translateCategoryValue(t, accessType) || t("categoryLayouts.common.typeFallback.public")}</p>

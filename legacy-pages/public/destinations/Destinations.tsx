@@ -55,7 +55,7 @@ export default function Destinations() {
                 const heroSrc = region.hero_image_url || region.image_url;
                 return (
                   <m.div key={region.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: index * 0.1 }}>
-                    <Link href={`/destinations/${region.slug}`} className="glass-box group relative overflow-hidden rounded-xl aspect-[4/5] luxury-card cursor-pointer block">
+                    <Link href={`/destinations/${region.slug}`} className="glass-box group relative overflow-hidden rounded-xl aspect-[4/5] premium-card cursor-pointer block">
                       <div className="absolute inset-0">
                         {heroSrc ? (
                           <img src={heroSrc} alt={region.name} width={400} height={500} loading="lazy" decoding="async" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />

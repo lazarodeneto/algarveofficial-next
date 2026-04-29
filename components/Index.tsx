@@ -7,6 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import { DirectorySplitSection } from "@/components/sections/DirectorySplitSection";
 import { HomepageSignatureCollection } from "@/components/sections/HomepageSignatureCollection";
 import { HeroSection } from "@/components/sections/HeroSection";
+import { HomeEditorialStorySection } from "@/components/sections/HomeEditorialStorySection";
 import { HomeQuickLinksSection } from "@/components/sections/HomeQuickLinksSection";
 import { useHomepageSettings } from "@/hooks/useHomepageSettings";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
@@ -148,6 +149,7 @@ const Index = () => {
             <HomeQuickLinksSection />
           </CmsBlock>
         )}
+        <HomeEditorialStorySection />
         {(settings?.show_curated_section ?? true) && isBlockEnabled("curated", true) && (
           <CmsBlock pageId="home" blockId="curated" as="section">
             <HomepageSignatureCollection />

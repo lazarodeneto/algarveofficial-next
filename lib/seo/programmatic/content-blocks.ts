@@ -62,13 +62,13 @@ function normalizeCityKey(name: string): string {
 
 const CITY_CONTEXT: Record<string, string> = {
   albufeira: "golden beaches and vibrant marina",
-  vilamoura: "luxury marina and championship golf courses",
+  vilamoura: "premium marina and championship golf courses",
   lagos: "dramatic clifftop scenery and historic old town",
   portimao: "Praia da Rocha and the River Arade",
   tavira: "Roman bridge and Ria Formosa lagoon",
   faro: "old city walls and Ria Formosa Nature Park",
   "quinta-do-lago": "prestigious golf estates and nature reserve",
-  "vale-do-lobo": "luxury resort and championship golf courses",
+  "vale-do-lobo": "premium resort and championship golf courses",
   carvoeiro: "dramatic rock formations and sea caves",
   sagres: "Atlantic cliffs and surf beaches at Europe's southwestern tip",
   quarteira: "long sandy promenade and traditional fish market",
@@ -131,7 +131,7 @@ const TEMPLATES: Record<Locale, Templates> = {
         shopping:
           `Shopping in ${cityName} means discovering independent boutiques, artisan markets, and concept stores that reflect the authentic character of the Algarve. ${cityDesc}. From handcrafted cork products and locally designed ceramics to contemporary fashion and gourmet food, our listings guide you to the best retail experiences.`,
         "concierge-services":
-          `Making the most of the Algarve requires the right support — from luxury transfers and private concierge services to property management and yacht charters. ${cityDesc}. AlgarveOfficial's service listings in ${cityName} are vetted for professionalism, reliability, and the elevated standards our members expect.`,
+          `Making the most of the Algarve requires the right support — from premium transfers and private concierge services to property management and yacht charters. ${cityDesc}. AlgarveOfficial's service listings in ${cityName} are vetted for professionalism, reliability, and the elevated standards our members expect.`,
         events:
           `${cityName}'s events calendar reflects the full energy of Algarve life. ${cityDesc}. From jazz-by-the-sea evenings and gastronomy festivals to exclusive private dinners and cultural celebrations, our curated events listings keep you connected to what's happening right now.`,
         "family-attractions":
@@ -139,13 +139,13 @@ const TEMPLATES: Record<Locale, Templates> = {
         beaches:
           `The beaches near ${cityName} have earned their place among Europe's finest — golden sand, turquoise water, and a laid-back atmosphere that defines the Algarve experience. ${cityDesc}. Our listings include both unspoiled coves and fully serviced beach areas.`,
         "real-estate":
-          `Real estate in ${cityName} offers exceptional opportunities in the Algarve market. ${cityDesc}. From luxury villas to investment properties, our curated listings connect you with the best real estate options in the region.`,
+          `Real estate in ${cityName} offers exceptional opportunities in the Algarve market. ${cityDesc}. From premium villas to investment properties, our curated listings connect you with the best real estate options in the region.`,
         transportation:
           `Transportation services in ${cityName} ensure seamless travel throughout the Algarve. ${cityDesc}. From private transfers to car rentals and yacht charters, our listings provide reliable options for every journey.`,
         "security-services":
           `Security services in ${cityName} provide peace of mind for residents and visitors. ${cityDesc}. Our curated listings connect you with professional security providers.`,
         "architecture-design":
-          `Architecture and design in ${cityName} showcases the best of Algarve's built environment. ${cityDesc}. From luxury renovations to new constructions, our listings feature the finest architects and designers.`,
+          `Architecture and design in ${cityName} showcases the best of Algarve's built environment. ${cityDesc}. From premium renovations to new constructions, our listings feature the finest architects and designers.`,
       };
       return categoryBlurbs[canonical] ?? `Explore the best ${categoryDisplayName.toLowerCase()} in ${cityName}, Algarve.`;
     },

@@ -187,7 +187,7 @@ export function CookiePreferencesModal({
         <div className="space-y-3">
           <PreferenceSwitch
             id="modal-essential"
-            label={t("cookie.essential")}
+            label="Necessary cookies"
             description={
               showEnglishDescriptions
                 ? "Required for security, authentication, and core website functionality."
@@ -198,7 +198,7 @@ export function CookiePreferencesModal({
           />
           <PreferenceSwitch
             id="modal-functional"
-            label={t("cookie.functional")}
+            label="Functional cookies"
             description={
               showEnglishDescriptions
                 ? "Enables embedded media and convenience features such as richer interactive experiences."
@@ -214,7 +214,7 @@ export function CookiePreferencesModal({
           />
           <PreferenceSwitch
             id="modal-analytics"
-            label={t("cookie.analytics")}
+            label="Analytics cookies"
             description={
               showEnglishDescriptions
                 ? "Measures visits, page views, and site performance so we can improve the experience."
@@ -230,7 +230,7 @@ export function CookiePreferencesModal({
           />
           <PreferenceSwitch
             id="modal-marketing"
-            label={t("cookie.marketing")}
+            label="Marketing cookies"
             description={
               showEnglishDescriptions
                 ? "Controls marketing prompts, campaign measurement, and related promotional technologies."
@@ -252,7 +252,7 @@ export function CookiePreferencesModal({
             onClick={onDenyAll}
             className="h-12 rounded-xl border border-zinc-300 bg-white px-4 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900"
           >
-            {t("cookie.denyAll", t("cookie.decline"))}
+            Reject All
           </button>
           <button
             type="button"

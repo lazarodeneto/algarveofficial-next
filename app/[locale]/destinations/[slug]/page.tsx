@@ -372,7 +372,7 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
     latitude: undefined,
     longitude: undefined,
     containedInPlace: "Algarve",
-    touristType: ["Luxury Traveler", "Cultural Tourist", "Golf Enthusiast", "Beach Lover", "Family Traveler"],
+    touristType: ["Premium Traveler", "Cultural Tourist", "Golf Enthusiast", "Beach Lover", "Family Traveler"],
   });
 
   const faqSchema = buildFaqSchema(destinationFaqs);

@@ -24,27 +24,27 @@ export function PrivateChefLayout({ details }: PrivateChefLayoutProps) {
       <div>
         <h2 className="text-xl font-serif font-medium mb-4">{t("categoryLayouts.privateChef.chefProfile")}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="luxury-card p-4 text-center">
+          <div className="premium-card p-4 text-center">
             <ChefHat className="h-6 w-6 mx-auto mb-2 text-primary" />
             <p className="text-sm text-muted-foreground">{t("categoryLayouts.privateChef.specialties")}</p>
             <p className="font-medium">{t("categoryLayouts.privateChef.cuisinesCount", { count: cuisineStyles.length })}</p>
           </div>
           {minimumMenuPrice && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Euro className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.privateChef.startingFrom")}</p>
               <p className="font-medium">€{minimumMenuPrice}+</p>
             </div>
           )}
           {languages.length > 0 && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <Globe className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.privateChef.languages")}</p>
               <p className="font-medium">{t("categoryLayouts.privateChef.spokenCount", { count: languages.length })}</p>
             </div>
           )}
           {serviceArea.length > 0 && (
-            <div className="luxury-card p-4 text-center">
+            <div className="premium-card p-4 text-center">
               <MapPin className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-sm text-muted-foreground">{t("categoryLayouts.privateChef.coverage")}</p>
               <p className="font-medium">{t("categoryLayouts.privateChef.areasCount", { count: serviceArea.length })}</p>

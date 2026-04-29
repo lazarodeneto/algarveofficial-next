@@ -11,7 +11,7 @@ const PROPERTIES_META: Record<Locale, { title: string; description: string }> = 
   en: {
     title: "Properties in the Algarve",
     description:
-      "Browse premium properties for sale and rent across the Algarve — luxury villas, sea-view apartments and investment opportunities on Portugal's finest coast.",
+      "Browse premium properties for sale and rent across the Algarve — premium villas, sea-view apartments and investment opportunities on Portugal's finest coast.",
   },
   "pt-pt": {
     title: "Propriedades no Algarve",

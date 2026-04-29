@@ -7189,7 +7189,7 @@
     },
     {
       "type": "logical-or-fallback",
-      "file": "components/listing-details/LuxuryAccommodationLayout.tsx",
+      "file": "components/listing-details/PremiumAccommodationLayout.tsx",
       "line": 53,
       "value": "N/A"
     },

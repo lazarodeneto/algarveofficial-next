@@ -206,7 +206,7 @@ Currently zero "best of" pages exist. These drive massive long-tail traffic and 
 ```
 /en/best-restaurants-algarve          → "best restaurants algarve" (8,100/mo)
 /en/best-golf-courses-algarve         → "best golf courses algarve" (1,900/mo)
-/en/luxury-villas-algarve             → "luxury villas algarve" (2,400/mo)
+/en/premium-villas-algarve             → "premium villas algarve" (2,400/mo)
 /en/best-beaches-algarve              → "best beaches algarve" (4,400/mo)
 ```
 
@@ -472,7 +472,7 @@ TIER 0 — Brand (max authority)
 TIER 1 — Destination Hubs (PR/backlink magnets)
   /en/{city}                         → Lagos, Vilamoura, Albufeira...
   /en/best-restaurants-algarve       → "Best of" editorial page
-  /en/luxury-villas-algarve          → Head term landing page
+  /en/premium-villas-algarve          → Head term landing page
   /en/best-beaches-algarve
 
 TIER 2 — Category Archives (high-volume keywords)

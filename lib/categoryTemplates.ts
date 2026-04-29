@@ -26,8 +26,8 @@ export interface CategoryTemplate {
 
 // ============= CATEGORY TEMPLATES =============
 
-export const luxuryAccommodationTemplate: CategoryTemplate = {
-  slug: 'luxury-accommodation',
+export const premiumAccommodationTemplate: CategoryTemplate = {
+  slug: 'premium-accommodation',
   name: 'Places to Stay',
   description: 'Hotels, Resorts, Villas, Penthouses',
   fields: [
@@ -410,8 +410,8 @@ export const vipConciergeTemplate: CategoryTemplate = {
   },
 };
 
-export const luxuryExperienceTemplate: CategoryTemplate = {
-  slug: 'luxury-experiences',
+export const premiumExperienceTemplate: CategoryTemplate = {
+  slug: 'premium-experiences',
   name: 'Things to Do',
   description: 'Yacht, Helicopter, Bespoke Tours',
   fields: [
@@ -699,7 +699,7 @@ export const architectureDecorationTemplate: CategoryTemplate = {
       required: true,
       options: [
         { value: 'Residential Villas', label: 'Residential Villas' },
-        { value: 'Luxury Apartments', label: 'Premium Apartments' },
+        { value: 'Premium Apartments', label: 'Premium Apartments' },
         { value: 'Hospitality', label: 'Hospitality' },
         { value: 'Commercial', label: 'Commercial' },
         { value: 'Boutique Hotels', label: 'Boutique Hotels' },
@@ -721,7 +721,7 @@ export const architectureDecorationTemplate: CategoryTemplate = {
         { value: 'Bespoke', label: 'Bespoke' },
         { value: 'Sustainable', label: 'Sustainable' },
         { value: 'Coastal', label: 'Coastal' },
-        { value: 'Rustic Luxury', label: 'Rustic Premium' },
+        { value: 'Rustic Premium', label: 'Rustic Premium' },
       ],
     },
     {
@@ -1009,9 +1009,9 @@ export const protectionServicesTemplate: CategoryTemplate = {
 // ============= TEMPLATE REGISTRY =============
 
 export const categoryTemplates: Record<string, CategoryTemplate> = {
-  'places-to-stay': luxuryAccommodationTemplate,
-  'luxury-accommodation': luxuryAccommodationTemplate,
-  '1': luxuryAccommodationTemplate, // Also map by ID for convenience
+  'places-to-stay': premiumAccommodationTemplate,
+  'premium-accommodation': premiumAccommodationTemplate,
+  '1': premiumAccommodationTemplate, // Also map by ID for convenience
   'fine-dining': restaurantsTemplate, // Legacy alias
   'restaurants': restaurantsTemplate,
   '2': restaurantsTemplate,
@@ -1027,9 +1027,9 @@ export const categoryTemplates: Record<string, CategoryTemplate> = {
   '7': privateChefTemplate,
   'vip-concierge': vipConciergeTemplate,
   '8': vipConciergeTemplate,
-  'things-to-do': luxuryExperienceTemplate,
-  'luxury-experiences': luxuryExperienceTemplate,
-  '9': luxuryExperienceTemplate,
+  'things-to-do': premiumExperienceTemplate,
+  'premium-experiences': premiumExperienceTemplate,
+  '9': premiumExperienceTemplate,
   'family-fun': familyFunTemplate,
   '10': familyFunTemplate,
   'vip-transportation': vipTransportationTemplate,

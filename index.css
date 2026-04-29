@@ -30,7 +30,7 @@
   font-display: swap;
 }
 
-/* AlgarveOfficial - Luxury Dark Theme Design System */
+/* AlgarveOfficial - Premium Dark Theme Design System */
 
 @layer base {
 
@@ -56,7 +56,7 @@
   }
 
   :root {
-    /* Core luxury dark palette */
+    /* Core premium dark palette */
     --background: 240 10% 4%;
     --foreground: 45 20% 95%;
 
@@ -109,7 +109,7 @@
     --glass-liquid-overlay-opacity: 1;
     --glass-liquid-shimmer-opacity: 1;
 
-    /* Custom luxury tokens */
+    /* Custom premium tokens */
     --gold: 43 74% 49%;
     --gold-light: 43 60% 65%;
     --gold-dark: 43 80% 35%;
@@ -555,7 +555,7 @@
     box-shadow: var(--shadow-elevated);
   }
 
-  .luxury-border {
+  .premium-border {
     @apply border border-border/50;
   }
 
@@ -1267,7 +1267,7 @@
       0 10px 24px -10px hsla(215 22% 12% / 0.16);
   }
 
-  .luxury-card {
+  .premium-card {
     @apply bg-card rounded-lg border border-white/15 transition-all duration-300 relative;
     box-shadow:
       inset 0 1px 0 0 hsla(0 0% 100% / 0.1),
@@ -1275,14 +1275,14 @@
       0 8px 32px -8px hsla(0 0% 0% / 0.5);
   }
 
-  .luxury-card,
+  .premium-card,
   .glow-card,
   .glass-panel,
   .gradient-border {
     overflow: hidden;
   }
 
-  .luxury-card::after,
+  .premium-card::after,
   .glow-card::after,
   .glass-panel::after,
   .gradient-border::after {
@@ -1306,7 +1306,7 @@
     animation: card-shimmer 9.6s linear infinite;
   }
 
-  .luxury-card > *,
+  .premium-card > *,
   .glow-card > *,
   .glass-panel > *,
   .gradient-border > * {
@@ -1314,7 +1314,7 @@
     z-index: 2;
   }
 
-  .luxury-card:hover {
+  .premium-card:hover {
     @apply border-primary/40;
     box-shadow:
       inset 0 1px 0 0 hsla(43 74% 49% / 0.2),
@@ -1323,11 +1323,11 @@
   }
 
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-    .luxury-card {
+    .premium-card {
       @apply bg-card/60 backdrop-blur-xl;
     }
 
-    .luxury-card:hover {
+    .premium-card:hover {
       @apply bg-card/70;
     }
   }
@@ -1592,12 +1592,12 @@
     box-shadow: 1px 0 4px rgba(0, 0, 0, 0.04);
   }
 
-  .light .luxury-card {
+  .light .premium-card {
     @apply bg-white backdrop-blur-xl rounded-lg border border-border transition-all duration-300 relative;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
   }
 
-  .light .luxury-card:hover {
+  .light .premium-card:hover {
     @apply border-primary/30 bg-white;
     box-shadow:
       0 4px 20px rgba(0, 0, 0, 0.08),
@@ -1659,7 +1659,7 @@
     .glass-button-outline::after,
     .glass-button-subtle::after,
     .glass-tag::after,
-    .luxury-card::after,
+    .premium-card::after,
     .glow-card::after,
     .glass-panel,
     .glass-panel::before,
@@ -1676,7 +1676,7 @@
     .glass-box:hover,
     .glass-panel:hover,
     .gradient-border:hover,
-    .luxury-card:hover,
+    .premium-card:hover,
     .glow-card:hover {
       transform: none !important;
     }
@@ -1728,8 +1728,8 @@
     .gradient-border,
     .gradient-border::before,
     .gradient-border::after,
-    .luxury-card,
-    .luxury-card::after,
+    .premium-card,
+    .premium-card::after,
     .glow-card,
     .glow-card::after,
     .glass-button::after,
@@ -1746,7 +1746,7 @@
     .glass-box:hover,
     .glass-panel:hover,
     .gradient-border:hover,
-    .luxury-card:hover,
+    .premium-card:hover,
     .glow-card:hover,
     .glass-button:hover,
     .glass-button-outline:hover,

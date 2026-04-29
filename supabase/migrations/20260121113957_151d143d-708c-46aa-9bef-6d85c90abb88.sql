@@ -70,7 +70,7 @@ UNION ALL
 SELECT id, 'Tavira Heritage', '/destinations/tavira-heritage', 5 FROM public.footer_sections WHERE slug = 'regions';
 -- Insert default footer links for Categories
 INSERT INTO public.footer_links (section_id, name, href, display_order)
-SELECT id, 'Luxury Accommodation', '/directory?category=1', 1 FROM public.footer_sections WHERE slug = 'categories'
+SELECT id, 'Premium Accommodation', '/directory?category=1', 1 FROM public.footer_sections WHERE slug = 'categories'
 UNION ALL
 SELECT id, 'Fine Dining', '/directory?category=2', 2 FROM public.footer_sections WHERE slug = 'categories'
 UNION ALL

@@ -235,7 +235,7 @@ When editing a region or city in the admin:
 | `slug` | URL identifier | "vilamoura" |
 | `image_url` | Thumbnail image | Supabase URL |
 | `hero_image_url` | Full-width banner | Supabase URL |
-| `short_description` | Card description | "Luxury beach resort..." |
+| `short_description` | Card description | "Premium beach resort..." |
 | `description` | Full description | Longer detailed text |
 | `is_featured` | Show on homepage carousel | true/false |
 | `is_visible_destinations` | Show on destinations page | true/false |

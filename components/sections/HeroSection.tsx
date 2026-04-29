@@ -22,7 +22,7 @@ import { STANDARD_PUBLIC_HERO_SURFACE_CLASS, STANDARD_PUBLIC_HERO_WRAPPER_CLASS 
 
 const HOMEPAGE_H1 = "Discover the Algarve – Hotels, Restaurants, Experiences & Real Estate";
 const HOMEPAGE_SUBTITLE =
-  "A curated selection of the region’s finest hotels, restaurants, experiences and properties.";
+  "Discover the finest places to stay, eat and experience across Portugal’s most beautiful coastline.";
 const HOMEPAGE_PRIMARY_CTA = "Explore Signature Collection";
 const HOMEPAGE_SECONDARY_CTA = "Browse All Listings";
 
@@ -323,7 +323,6 @@ export function HeroSection() {
     (settings as { hero_overlay_intensity?: unknown } | undefined)?.hero_overlay_intensity ?? overlayBackup,
     50,
   );
-  const overlayOpacity = overlayIntensity / 100;
   const localizedHeroHeadline = `${t("hero.headline")} ${t("hero.headlineHighlight")}`.trim();
   const localizedHeroSubtitle = t("hero.subtitle");
   // CMS SOURCE OF TRUTH: 1. cms_page_configs_v1 (getText), 2. homepage_settings (fallback)
@@ -332,13 +331,6 @@ export function HeroSection() {
     HOMEPAGE_H1 ||
     (locale === "en" ? settings?.hero_title?.trim() : null) ||
     localizedHeroHeadline;
-  const heroHeadlineLines = useMemo(() => {
-    const normalized = heroHeadline.replace(/\s+/g, " ").trim().toLowerCase();
-    if (normalized === "discover the algarve through trusted local expertise") {
-      return ["Discover the Algarve Through Trusted", "Local Expertise"];
-    }
-    return [heroHeadline];
-  }, [heroHeadline]);
   const heroSubtitle =
     getText("home.hero.subtitle", "") ||
     HOMEPAGE_SUBTITLE ||
@@ -396,7 +388,10 @@ export function HeroSection() {
           {mediaMode === "youtube" && <YouTubeEmbed youtubeUrl={youtubeUrl} />}
           {mediaMode === "video" && <HeroVideo videoUrl={videoUrl} posterUrl={hasPosterUrl ? heroVideoPosterSrc : undefined} />}
 
-          <div className="absolute inset-0 bg-black/45 backdrop-blur-[1px]" style={{ opacity: overlayOpacity }} />
+          <div
+            className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.18)_0%,rgba(0,0,0,0.28)_38%,rgba(0,0,0,0.72)_100%)]"
+            style={{ opacity: Math.max(0.82, overlayIntensity / 100) }}
+          />
           {showMediaConsentPrompt ? (
             <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center px-4">
               <button
@@ -410,28 +405,29 @@ export function HeroSection() {
           ) : null}
         </div>
 
-        <div className="relative z-10 mx-auto w-full max-w-[22rem] px-4 sm:max-w-4xl sm:px-4">
-          <div className="space-y-1.5 px-3 pt-5 pb-14 text-center text-white sm:space-y-2 sm:px-8 sm:pt-6 sm:pb-16 md:px-10">
-
-            <h1 className="text-shadow-hero font-serif text-[clamp(2rem,10vw,3.8rem)] sm:text-5xl md:text-6xl font-light leading-[0.95] sm:leading-tight tracking-[-0.03em] text-white">
-              {heroHeadlineLines.map((line) => (
-                <span key={line} className="block">
-                  {line}
-                </span>
-              ))}
+        <div className="relative z-10 mx-auto flex min-h-[inherit] w-full max-w-5xl items-center justify-center px-5 pb-12 pt-24 sm:px-8 sm:pb-16 sm:pt-28 lg:pb-20 lg:pt-32">
+          <div className="mx-auto max-w-2xl space-y-5 text-center text-white">
+            <h1 className="sr-only">
+              {heroHeadline}
             </h1>
 
-            <div className="mx-auto h-0.5 w-16 rounded-full bg-[var(--colour-card-outline-gold)] shadow-[var(--shadow-card)] sm:w-20" />
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-white/82 sm:text-base">
+              AlgarveOfficial
+            </p>
 
-            <p className="text-shadow-hero mx-auto max-w-[17rem] text-[0.82rem] font-light leading-6 text-white/90 sm:max-w-xl sm:text-sm sm:leading-6 md:max-w-2xl md:text-base">
+            <div className="font-serif text-[clamp(3rem,9vw,5.75rem)] font-semibold leading-[0.92] tracking-normal text-white">
+              The Algarve, Curated
+            </div>
+
+            <p className="mx-auto max-w-xl text-base font-light leading-7 text-white/88 sm:text-lg">
               {heroSubtitle}
             </p>
 
-            <div className="flex flex-col items-center gap-3 sm:gap-3.5 w-full max-w-[22rem] sm:max-w-2xl mx-auto px-0">
+            <div className="mx-auto flex w-full max-w-[38rem] flex-col items-center gap-3 pt-3 sm:flex-row sm:justify-center sm:gap-4">
               <button
                 type="button"
                 onClick={() => scrollToSection("signature-collection")}
-                className="group inline-flex w-full max-w-[17.5rem] items-center justify-center gap-2 rounded-[16px] px-6 py-3.5 text-[1.05rem] font-semibold text-black shadow-[0_16px_28px_-18px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.6)] transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary))] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                className="group inline-flex w-full max-w-[18rem] items-center justify-center gap-2 rounded-full px-6 py-3.5 text-base font-semibold text-black shadow-[0_18px_38px_-24px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.55)] transition duration-200 hover:-translate-y-0.5 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--primary))] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:w-auto"
                 style={{ backgroundImage: "var(--gradient-gold)" }}
               >
                 <span>{primaryCtaLabel}</span>
@@ -440,7 +436,7 @@ export function HeroSection() {
               <button
                 type="button"
                 onClick={() => router.push(l("/directory"))}
-                className="inline-flex w-full max-w-[17.5rem] items-center justify-center rounded-[16px] border border-white/40 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+                className="inline-flex w-full max-w-[18rem] items-center justify-center rounded-full border border-white/35 bg-black/18 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition duration-200 hover:-translate-y-0.5 hover:bg-white/12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:w-auto"
               >
                 {getText("home.hero.cta.secondary", "") || HOMEPAGE_SECONDARY_CTA}
               </button>

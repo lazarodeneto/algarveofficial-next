@@ -154,7 +154,7 @@ export function CookieConsentDrawer({
     commitConsent({ essential: true, functional: true, analytics: true, marketing: true });
   }, [commitConsent]);
 
-  const handleDenyAll = useCallback(() => {
+  const handleRejectAll = useCallback(() => {
     commitConsent({ essential: true, functional: false, analytics: false, marketing: false });
   }, [commitConsent]);
 
@@ -206,18 +206,17 @@ export function CookieConsentDrawer({
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 <button
                   type="button"
-                  onClick={handleDenyAll}
+                  onClick={handleRejectAll}
                   className="h-9 w-full rounded-xl border border-zinc-300 bg-white px-2 text-[10px] font-semibold text-zinc-900 transition hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 sm:h-12 sm:px-4 sm:text-sm"
                 >
-                  {t("cookie.denyAll", t("cookie.decline"))}
+                  Reject All
                 </button>
                 <button
                   type="button"
-                  onClick={handleSaveSettings}
-                  disabled={!hasChanges}
+                  onClick={() => setIsModalOpen(true)}
                   className="h-9 w-full rounded-xl border border-zinc-300 bg-zinc-200 px-2 text-[10px] font-semibold text-zinc-800 transition hover:bg-zinc-300 disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 sm:h-12 sm:px-4 sm:text-sm"
                 >
-                  {t("cookie.saveSettings")}
+                  {t("cookie.managePreferences", "Manage Preferences")}
                 </button>
                 <button
                   type="button"
@@ -235,10 +234,10 @@ export function CookieConsentDrawer({
               </div>
 
               <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                <QuickToggle id="cookie-essential" label={t("cookie.essential")} checked disabled />
+                <QuickToggle id="cookie-essential" label="Necessary cookies" checked disabled />
                 <QuickToggle
                   id="cookie-functional"
-                  label={t("cookie.functional")}
+                  label="Functional cookies"
                   checked={draftPreferences.functional}
                   onChange={(checked) =>
                     setDraftPreferences((current) => ({
@@ -249,7 +248,7 @@ export function CookieConsentDrawer({
                 />
                 <QuickToggle
                   id="cookie-analytics"
-                  label={t("cookie.analytics")}
+                  label="Analytics cookies"
                   checked={draftPreferences.analytics}
                   onChange={(checked) =>
                     setDraftPreferences((current) => ({
@@ -260,7 +259,7 @@ export function CookieConsentDrawer({
                 />
                 <QuickToggle
                   id="cookie-marketing"
-                  label={t("cookie.marketing")}
+                  label="Marketing cookies"
                   checked={draftPreferences.marketing}
                   onChange={(checked) =>
                     setDraftPreferences((current) => ({
@@ -292,7 +291,7 @@ export function CookieConsentDrawer({
         onClose={() => setIsModalOpen(false)}
         onPreferencesChange={setDraftPreferences}
         onAcceptAll={handleAcceptAll}
-        onDenyAll={handleDenyAll}
+        onDenyAll={handleRejectAll}
         onSave={handleSaveSettings}
       />
     </>
