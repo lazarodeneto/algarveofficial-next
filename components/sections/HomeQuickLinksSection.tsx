@@ -158,7 +158,7 @@ export function HomeQuickLinksSection() {
                     )}
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/82 via-black/24 to-black/0" />
                   <div className="relative z-10 flex h-full flex-col justify-end p-5 text-white sm:p-6">
-                    <h3 className="font-sans text-2xl font-bold leading-none tracking-normal sm:text-3xl">
+                    <h3 className="font-sans text-2xl font-bold not-italic leading-none tracking-normal sm:text-3xl">
                       {displayTitle}
                     </h3>
                     <span className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-white/82">
