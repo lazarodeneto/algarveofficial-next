@@ -89,7 +89,7 @@ export function HomepageSignatureCollection() {
             ))}
 
             {rest.length > 4 && (
-              <div className="col-span-1 grid grid-cols-1 gap-5 sm:col-span-2 sm:grid-cols-2 lg:col-span-4 lg:grid-cols-4 lg:gap-8">
+              <div className="col-span-1 grid grid-cols-1 gap-5 sm:col-span-2 sm:grid-cols-2 lg:col-span-4 lg:grid-cols-4 lg:auto-rows-[220px] lg:gap-8">
                 {(() => {
                   const bottom = rest.slice(4);
                   const count = bottom.length;
@@ -108,7 +108,7 @@ export function HomepageSignatureCollection() {
                         category={`${listing.city?.name ?? "Algarve"} · ${translateCategoryName(t, listing.category?.slug, listing.category?.name)}`}
                         tier={listing.tier}
                         href={l(`/listing/${listing.slug}`)}
-                        variant={spanClass ? "hero" : "default"}
+                        variant="default"
                         isFavorite={isFavorite(listing.id)}
                         onToggleFavorite={() => toggleFavorite(listing.id)}
                         className={spanClass || undefined}
