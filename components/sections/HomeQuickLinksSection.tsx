@@ -65,11 +65,11 @@ export function HomeQuickLinksSection() {
     return (
       <section id="home-quick-links" className="relative z-10 bg-background pb-10 pt-8 sm:pb-14 sm:pt-10 lg:pb-16 lg:pt-12" aria-hidden="true">
         <div className="app-container">
-          <div className="mx-auto grid w-full gap-5 px-1 sm:max-w-[1120px] sm:grid-cols-2 sm:px-0 lg:grid-cols-4 lg:auto-rows-[220px] lg:gap-8">
-            {HOME_QUICK_LINK_CARDS.map((card, index) => (
+          <div className="mx-auto grid w-full gap-4 px-1 sm:max-w-[1120px] sm:grid-cols-2 sm:gap-5 sm:px-0 lg:grid-cols-4 lg:gap-5">
+            {HOME_QUICK_LINK_CARDS.map((card) => (
               <div
                 key={card.id}
-                className={`relative isolate min-h-[240px] overflow-hidden rounded-2xl bg-muted/35 shadow-sm ${index === 0 ? "lg:col-span-2 lg:row-span-2" : ""}`}
+                className="relative isolate h-60 overflow-hidden rounded-2xl bg-muted/35 shadow-sm sm:h-64 lg:h-72"
               >
                 <div className="absolute inset-0 animate-pulse bg-muted/45" />
                 <div className="absolute bottom-5 left-5 h-7 w-28 rounded-md bg-background/35" />
@@ -84,8 +84,8 @@ export function HomeQuickLinksSection() {
   return (
     <section id="home-quick-links" className="relative z-10 bg-background pb-10 pt-8 sm:pb-14 sm:pt-10 lg:pb-16 lg:pt-12">
       <div className="app-container">
-        <div className="mx-auto grid w-full gap-5 px-1 sm:max-w-[1120px] sm:grid-cols-2 sm:px-0 lg:grid-cols-4 lg:auto-rows-[220px] lg:gap-8">
-          {quickLinkCards.map((card, index) => {
+        <div className="mx-auto grid w-full gap-4 px-1 sm:max-w-[1120px] sm:grid-cols-2 sm:gap-5 sm:px-0 lg:grid-cols-4 lg:gap-5">
+          {quickLinkCards.map((card) => {
             const Icon = CARD_ICONS[card.id];
             const displayTitle = card.title;
             const customImageUrl = card.imageUrl.trim();
@@ -120,7 +120,7 @@ export function HomeQuickLinksSection() {
               <Link
                 key={card.id}
                 href={card.customHref ? l(card.customHref) : l(`/stay?category=${card.categorySlug}`)}
-                className={`group relative isolate h-full min-h-[240px] overflow-hidden rounded-2xl bg-black font-sans shadow-[0_24px_74px_-46px_rgba(0,0,0,0.86)] transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-[0_28px_82px_-48px_rgba(0,0,0,0.95)] ${index === 0 ? "lg:col-span-2 lg:row-span-2" : ""}`}
+                className="group relative isolate h-60 overflow-hidden rounded-2xl bg-black font-sans shadow-[0_24px_74px_-46px_rgba(0,0,0,0.86)] transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-[0_28px_82px_-48px_rgba(0,0,0,0.95)] sm:h-64 lg:h-72"
               >
                     {showVideo ? (
                       <video
@@ -157,12 +157,12 @@ export function HomeQuickLinksSection() {
                       <div className="absolute inset-0 bg-black" aria-hidden="true" />
                     )}
                   <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t from-black/82 via-black/24 to-black/0" />
-                  <div className={`relative z-10 flex h-full flex-col justify-end text-white ${index === 0 ? "p-6 sm:p-8" : "p-5 sm:p-6"}`}>
-                    <Icon className={`mb-3 text-primary ${index === 0 ? "h-6 w-6 sm:h-7 sm:w-7" : "h-5 w-5 sm:h-6 sm:w-6"}`} />
-                    <h3 className={`font-serif font-semibold leading-tight tracking-normal ${index === 0 ? "text-3xl sm:text-4xl" : "text-lg sm:text-xl"}`}>
+                  <div className="relative z-10 flex h-full flex-col justify-end p-5 text-white sm:p-6">
+                    <Icon className="mb-3 h-5 w-5 text-primary sm:h-6 sm:w-6" />
+                    <h3 className="font-serif text-2xl font-semibold leading-none tracking-normal sm:text-3xl">
                       {displayTitle}
                     </h3>
-                    <span className={`inline-flex items-center gap-2 font-semibold text-white/82 ${index === 0 ? "mt-3 text-sm sm:text-base" : "mt-3 text-sm"}`}>
+                    <span className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-white/82">
                       Explore <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </span>
                   </div>
