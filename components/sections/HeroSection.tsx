@@ -408,17 +408,13 @@ export function HeroSection() {
 
         <div className="relative z-10 mx-auto flex min-h-[inherit] w-full max-w-5xl items-center justify-center px-5 pb-12 pt-24 sm:px-8 sm:pb-16 sm:pt-28 lg:pb-20 lg:pt-32">
           <div className="mx-auto max-w-2xl space-y-5 text-center text-white">
-            <h1 className="sr-only">
-              {heroHeadline}
-            </h1>
-
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-white/82 sm:text-base">
               AlgarveOfficial
             </p>
 
-            <div className="font-serif text-[clamp(3rem,9vw,5.75rem)] font-semibold italic leading-[0.92] tracking-normal text-white">
+            <h1 className="font-serif text-[clamp(3rem,9vw,5.75rem)] font-semibold italic leading-[0.92] tracking-normal text-white">
               The Algarve, Curated
-            </div>
+            </h1>
 
             <p className="mx-auto max-w-xl text-base font-light leading-7 text-white/88 sm:text-lg">
               {heroSubtitle}
@@ -457,6 +453,9 @@ export function HeroSection() {
         {hydrated && showLoginModal ? (
           <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
         ) : null}
+
+        {/* Mobile scroll hint — fading bottom edge */}
+        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent lg:hidden" />
 
         {/* Scroll Indicator - keep above overlapping quick-links cards */}
         <div className="pointer-events-none absolute bottom-8 right-8 hidden z-30 lg:flex">

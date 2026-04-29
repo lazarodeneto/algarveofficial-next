@@ -101,7 +101,7 @@ export function SignatureCard({
         <TierBadge tier={tier} />
         <h3
           className={cn(
-            "mt-3 line-clamp-2 font-serif font-semibold leading-tight tracking-normal",
+            "mt-3 line-clamp-2 font-serif font-semibold not-italic leading-tight tracking-normal",
             isHero ? "text-3xl sm:text-4xl" : "text-lg sm:text-xl"
           )}
         >
@@ -117,8 +117,7 @@ export function SignatureCard({
   );
 
   const className = cn(
-    "group relative isolate block h-full min-h-[240px] overflow-hidden rounded-2xl bg-black shadow-[0_24px_74px_-46px_rgba(0,0,0,0.86)] transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-[0_28px_82px_-48px_rgba(0,0,0,0.95)]",
-    isHero ? "lg:col-span-2 lg:row-span-2" : "",
+    "group relative isolate block h-full min-h-[240px] overflow-hidden rounded-2xl bg-black shadow-card transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-card-hover",
     classNameProp
   );
 

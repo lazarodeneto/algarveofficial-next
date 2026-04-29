@@ -42,38 +42,25 @@ export function HomepageSignatureCollection() {
             Curated AlgarveOfficial
           </div>
           <h2 className="font-serif text-3xl font-medium tracking-normal text-foreground sm:text-4xl lg:text-5xl">
-            Signature Collection in the Algarve
+            {title}
           </h2>
-          <p className="mt-5 font-serif text-4xl font-semibold leading-tight text-foreground sm:text-5xl">{title}</p>
-          <p className="mx-auto mt-3 max-w-2xl text-body text-muted-foreground">
+          <p className="mx-auto mt-5 max-w-2xl text-body text-muted-foreground">
             {subtitle}. Hotels, restaurants, experiences and property selected for trust, quality and location.
           </p>
         </div>
 
         {isLoading ? (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:auto-rows-[220px] lg:gap-8">
-            {Array.from({ length: 8 }).map((_, index) => (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+            {Array.from({ length: DISPLAY_LIMIT }).map((_, index) => (
               <div
                 key={index}
-                className={`min-h-[240px] rounded-2xl bg-muted/35 animate-pulse ${index === 0 ? "lg:col-span-2 lg:row-span-2" : index === 6 ? "lg:col-span-2" : ""}`}
+                className="min-h-[240px] rounded-2xl bg-muted/35 animate-pulse"
               />
             ))}
           </div>
-        ) : hero ? (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:auto-rows-[220px] lg:gap-8">
-            <SignatureCard
-              title={hero.name}
-              subtitle={hero.short_description || hero.description || "A selected Algarve destination from the editorial collection."}
-              image={hero.featured_image_url}
-              category={`${hero.city?.name ?? "Algarve"} · ${translateCategoryName(t, hero.category?.slug, hero.category?.name)}`}
-              tier={hero.tier}
-              href={l(`/listing/${hero.slug}`)}
-              variant="hero"
-              isFavorite={isFavorite(hero.id)}
-              onToggleFavorite={() => toggleFavorite(hero.id)}
-            />
-
-            {rest.slice(0, 4).map((listing) => (
+        ) : displayListings.length > 0 ? (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+            {displayListings.map((listing) => (
               <SignatureCard
                 key={listing.id}
                 title={listing.name}
@@ -87,37 +74,6 @@ export function HomepageSignatureCollection() {
                 onToggleFavorite={() => toggleFavorite(listing.id)}
               />
             ))}
-
-            {rest.length > 4 && (
-              <div className="col-span-1 grid grid-cols-1 gap-5 sm:col-span-2 sm:grid-cols-2 lg:col-span-4 lg:grid-cols-4 lg:auto-rows-[220px] lg:gap-8">
-                {(() => {
-                  const bottom = rest.slice(4);
-                  const count = bottom.length;
-                  // Fill 4-col row: if 3 items, last spans 2; if 2 items, both span 2; if 1 item, spans 4
-                  return bottom.map((listing, index) => {
-                    let spanClass = "";
-                    if (count === 3 && index === 2) spanClass = "lg:col-span-2";
-                    else if (count === 2) spanClass = "lg:col-span-2";
-                    else if (count === 1) spanClass = "lg:col-span-4";
-                    return (
-                      <SignatureCard
-                        key={listing.id}
-                        title={listing.name}
-                        subtitle={listing.short_description || listing.description || undefined}
-                        image={listing.featured_image_url}
-                        category={`${listing.city?.name ?? "Algarve"} · ${translateCategoryName(t, listing.category?.slug, listing.category?.name)}`}
-                        tier={listing.tier}
-                        href={l(`/listing/${listing.slug}`)}
-                        variant="default"
-                        isFavorite={isFavorite(listing.id)}
-                        onToggleFavorite={() => toggleFavorite(listing.id)}
-                        className={spanClass || undefined}
-                      />
-                    );
-                  });
-                })()}
-              </div>
-            )}
           </div>
         ) : (
           <div className="rounded-2xl border border-border/70 bg-muted/25 p-8 text-center">
@@ -129,7 +85,7 @@ export function HomepageSignatureCollection() {
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link href={l("/directory?tier=signature")} className="w-full sm:w-auto">
             <Button size="lg" variant="gold" className="w-full gap-2">
-              View Full Collection (24)
+              View Full Collection
               <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>

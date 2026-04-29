@@ -424,7 +424,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                     </div>
                     <button
                       onClick={() => setMobileMenuOpen(false)}
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-black/10 bg-white/75 dark:border-white/20 dark:bg-white/10"
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-black/10 bg-white/75 dark:border-white/20 dark:bg-white/10"
                       aria-label={t("nav.closeMenu")}
                     >
                       <X className="h-5 w-5" />

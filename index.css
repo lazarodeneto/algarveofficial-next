@@ -126,8 +126,11 @@
 
     /* Shadows */
     --shadow-gold: 0 4px 30px -4px hsla(43 74% 49% / 0.3);
-    --shadow-card: 0 8px 32px -8px hsla(0 0% 0% / 0.5);
-    --shadow-elevated: 0 20px 50px -12px hsla(0 0% 0% / 0.6);
+    --shadow-card: 0 8px 32px -16px hsla(0 0% 0% / 0.6);
+    --shadow-card-hover: 0 16px 48px -20px hsla(0 0% 0% / 0.75);
+    --shadow-elevated: 0 24px 64px -24px hsla(0 0% 0% / 0.85);
+    --shadow-button: 0 18px 38px -24px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.55);
+    --shadow-button-hover: 0 22px 46px -24px rgba(0,0,0,0.95), inset 0 1px 0 rgba(255,255,255,0.62);
 
     /* Typography */
     --font-serif: var(--font-playfair), 'Playfair Display', Georgia, serif;
@@ -217,8 +220,11 @@
 
     /* Light mode shadows - softer and more subtle */
     --shadow-gold: 0 4px 20px -4px hsla(43 74% 49% / 0.25);
-    --shadow-card: 0 1px 3px hsla(220 20% 10% / 0.04), 0 4px 16px hsla(220 20% 10% / 0.06);
-    --shadow-elevated: 0 4px 20px -4px hsla(220 20% 10% / 0.1), 0 2px 8px -2px hsla(220 20% 10% / 0.06);
+    --shadow-card: 0 8px 32px -16px hsla(220 20% 10% / 0.08);
+    --shadow-card-hover: 0 16px 48px -20px hsla(220 20% 10% / 0.12);
+    --shadow-elevated: 0 24px 64px -24px hsla(220 20% 10% / 0.15);
+    --shadow-button: 0 18px 38px -24px hsla(220 20% 10% / 0.15), inset 0 1px 0 rgba(255,255,255,0.55);
+    --shadow-button-hover: 0 22px 46px -24px hsla(220 20% 10% / 0.2), inset 0 1px 0 rgba(255,255,255,0.62);
 
     /* Light mode sidebar - SAME gold as dark mode */
     --sidebar-background: 0 0% 100%;
@@ -554,8 +560,20 @@
     box-shadow: var(--shadow-card);
   }
 
+  .shadow-card-hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+
   .shadow-elevated {
     box-shadow: var(--shadow-elevated);
+  }
+
+  .shadow-button {
+    box-shadow: var(--shadow-button);
+  }
+
+  .shadow-button-hover {
+    box-shadow: var(--shadow-button-hover);
   }
 
   .premium-border {

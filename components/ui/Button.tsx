@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "relative inline-flex items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-full text-sm font-semibold tracking-normal ring-offset-background transition-all duration-200 ease-out shadow-[0_18px_38px_-24px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.55)] [backface-visibility:hidden] hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[0_22px_46px_-24px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.62)] active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A62A]/55 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none disabled:hover:translate-y-0 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "relative inline-flex items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-full text-sm font-semibold tracking-normal ring-offset-background transition-all duration-200 ease-out shadow-button [backface-visibility:hidden] hover:-translate-y-0.5 hover:brightness-105 hover:shadow-button-hover active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A62A]/55 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none disabled:hover:translate-y-0 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {

@@ -14,13 +14,6 @@ export function CTASection() {
 
   return (
     <section className="py-24 lg:py-32 bg-background relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-1/4 left-1/4 w-px h-32 bg-gradient-to-b from-transparent via-primary/50 to-transparent" />
-        <div className="absolute top-1/3 right-1/3 w-px h-24 bg-gradient-to-b from-transparent via-primary/30 to-transparent" />
-        <div className="absolute bottom-1/4 right-1/4 w-px h-40 bg-gradient-to-b from-transparent via-primary/40 to-transparent" />
-      </div>
-
       <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
         <m.div
           initial={{ opacity: 0, y: 20 }}

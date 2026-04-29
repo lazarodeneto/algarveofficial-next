@@ -69,7 +69,7 @@ export function HomeQuickLinksSection() {
             {HOME_QUICK_LINK_CARDS.map((card) => (
               <div
                 key={card.id}
-                className="relative isolate h-60 overflow-hidden rounded-2xl bg-muted/35 shadow-sm sm:h-64 lg:h-72"
+                className="relative isolate h-64 overflow-hidden rounded-2xl bg-muted/35 shadow-sm"
               >
                 <div className="absolute inset-0 animate-pulse bg-muted/45" />
                 <div className="absolute bottom-5 left-5 h-7 w-28 rounded-md bg-background/35" />
@@ -120,7 +120,7 @@ export function HomeQuickLinksSection() {
               <Link
                 key={card.id}
                 href={card.customHref ? l(card.customHref) : l(`/stay?category=${card.categorySlug}`)}
-                className="group relative isolate h-60 overflow-hidden rounded-2xl bg-black font-sans shadow-[0_24px_74px_-46px_rgba(0,0,0,0.86)] transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-[0_28px_82px_-48px_rgba(0,0,0,0.95)] sm:h-64 lg:h-72"
+                className="group relative isolate h-64 overflow-hidden rounded-2xl bg-black font-sans shadow-[0_24px_74px_-46px_rgba(0,0,0,0.86)] transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-[0_28px_82px_-48px_rgba(0,0,0,0.95)]"
               >
                     {showVideo ? (
                       <video

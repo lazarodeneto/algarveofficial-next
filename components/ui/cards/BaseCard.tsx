@@ -147,7 +147,7 @@ export function BaseCard({
           {...props}
           href={href}
           className={cn(
-            "group relative isolate block overflow-hidden rounded-2xl bg-muted shadow-sm transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+            "group relative isolate block overflow-hidden rounded-2xl bg-muted shadow-card transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
             config.heightClass,
             props.className
           )}
@@ -161,7 +161,7 @@ export function BaseCard({
           onClick={isClickable ? onClick : undefined}
           onKeyDown={isClickable ? handleKeyDown : undefined}
           className={cn(
-            "group relative isolate overflow-hidden rounded-2xl bg-muted shadow-sm transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-xl",
+            "group relative isolate overflow-hidden rounded-2xl bg-muted shadow-card transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-card-hover",
             isClickable && "cursor-pointer",
             config.heightClass,
             props.className
