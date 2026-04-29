@@ -136,7 +136,7 @@ export function HomeQuickLinksSection() {
                         onPlay={(event) => enforceMutedPlayback(event.currentTarget)}
                         onError={() => markVideoAsFailed(card.id)}
                         style={{ objectPosition: card.imagePosition ?? "center" }}
-                        className="absolute inset-0 h-full w-full rounded-2xl object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
                       />
                     ) : showImage ? (
                       <Image
@@ -151,12 +151,12 @@ export function HomeQuickLinksSection() {
                         decoding="async"
                         onError={() => markImageAsFailed(card.id)}
                         style={{ objectPosition: card.imagePosition ?? "center" }}
-                        className="absolute inset-0 h-full w-full rounded-2xl object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
                       />
                     ) : (
                       <div className="absolute inset-0 bg-black" aria-hidden="true" />
                     )}
-                  <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t from-black/82 via-black/24 to-black/0" />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/82 via-black/24 to-black/0" />
                   <div className="relative z-10 flex h-full flex-col justify-end p-5 text-white sm:p-6">
                     <Icon className="mb-3 h-5 w-5 text-primary sm:h-6 sm:w-6" />
                     <h3 className="font-serif text-2xl font-semibold leading-none tracking-normal sm:text-3xl">

@@ -209,7 +209,7 @@ export function BaseCard({
       {/* Gradient overlay */}
       <div
         className={cn(
-          "pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t",
+          "pointer-events-none absolute inset-0 bg-gradient-to-t",
           getOverlay(brightness),
           "to-transparent"
         )}

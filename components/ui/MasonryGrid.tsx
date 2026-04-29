@@ -277,7 +277,7 @@ function MasonryCard({
             blurDataURL={item.blurDataURL}
             onLoad={() => setLoaded(true)}
             className={cn(
-              "rounded-2xl object-cover transition-transform duration-500 ease-out will-change-transform",
+              "object-cover transition-transform duration-500 ease-out will-change-transform",
               item.variant === "hero"
                 ? "group-hover:scale-110"
                 : "group-hover:scale-110",
@@ -290,7 +290,7 @@ function MasonryCard({
       {/* Gradient overlay — full card */}
       <div
         className={cn(
-          "pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t transition duration-300",
+          "pointer-events-none absolute inset-0 bg-gradient-to-t transition duration-300",
           getOverlay(brightness),
           "to-transparent"
         )}

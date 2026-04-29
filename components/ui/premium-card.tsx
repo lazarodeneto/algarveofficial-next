@@ -29,7 +29,7 @@ export function PremiumCard({
             src={imageUrl}
             alt={title}
             fill
-            className="rounded-2xl object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
+            className="object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
           />
         </div>
       )}

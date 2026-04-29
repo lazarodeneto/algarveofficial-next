@@ -62,7 +62,7 @@ export function SignatureCard({
           unoptimized={isExternalImage}
           sizes={isHero ? "(max-width: 1024px) 100vw, 50vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"}
           quality={72}
-          className="rounded-2xl object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
+          className="object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
         />
       ) : (
         <div className="absolute inset-0 bg-neutral-900" aria-hidden="true" />
@@ -70,7 +70,7 @@ export function SignatureCard({
 
       <div
         className={cn(
-          "pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t",
+          "pointer-events-none absolute inset-0 bg-gradient-to-t",
           getOverlay(brightness),
           "to-transparent"
         )}

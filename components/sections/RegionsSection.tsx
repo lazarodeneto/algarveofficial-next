@@ -64,10 +64,10 @@ function EditorialRegionCard({
           fill
           sizes={isHero ? "(max-width: 1024px) 100vw, 58vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 28vw"}
           quality={72}
-          className="rounded-2xl object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
+          className="object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
         />
       ) : null}
-      <div className={cn("pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t to-transparent", getOverlay(brightness))} />
+      <div className={cn("pointer-events-none absolute inset-0 bg-gradient-to-t to-transparent", getOverlay(brightness))} />
       <div className="absolute right-4 top-4 z-10" onClick={(event) => event.preventDefault()}>
         <FavoriteButton
           isFavorite={isFavorite}
