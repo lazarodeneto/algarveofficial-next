@@ -1,9 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { Crown, ArrowRight } from "lucide-react";
+import { useCallback, useId, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { FavoriteButton } from "@/components/ui/favorite-button";
+
+/* ──────────────────────────────────────────────────────────────── */
+/*  Types                                                          */
+/* ──────────────────────────────────────────────────────────────── */
 
 export type MasonryGridItem = {
   id: string;
@@ -15,6 +20,8 @@ export type MasonryGridItem = {
   aspectRatio?: string; // e.g. "3/4", "4/3", "1/1" — prevents CLS when provided
   priority?: boolean;
   blurDataURL?: string; // base64 blur placeholder
+  tier?: "signature" | "verified" | "default";
+  featured?: boolean;
 };
 
 interface MasonryGridProps {
@@ -29,10 +36,13 @@ interface MasonryGridProps {
   skeletonCount?: number;
   /** Root margin for intersection observer (e.g. "200px") */
   rootMargin?: string;
+  /** Max hero cards per viewport chunk (default: 1 per 6 items) */
+  heroFrequency?: number;
 }
 
-/* ------------------------------------------------------------------ */
-//  useInView — lightweight intersection observer hook
+/* ──────────────────────────────────────────────────────────────── */
+/*  useInView — lightweight intersection observer hook             */
+/* ──────────────────────────────────────────────────────────────── */
 
 function useInView<T extends HTMLElement>(
   options?: IntersectionObserverInit
@@ -40,42 +50,93 @@ function useInView<T extends HTMLElement>(
   const ref = useRef<T | null>(null);
   const [inView, setInView] = useState(false);
 
-  useEffect(() => {
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
+  const setupObserver = useCallback(() => {
     const el = ref.current;
     if (!el || inView) return;
 
-    const observer = new IntersectionObserver(
+    if (observerRef.current) observerRef.current.disconnect();
+
+    observerRef.current = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setInView(true);
-          observer.disconnect();
+          observerRef.current?.disconnect();
         }
       },
       { threshold: 0, ...options }
     );
 
-    observer.observe(el);
-    return () => observer.disconnect();
+    observerRef.current.observe(el);
   }, [inView, options]);
+
+  useState(() => setupObserver);
+
+  // Setup on mount and when ref changes
+  useMemo(() => setupObserver(), [setupObserver]);
 
   return [ref, inView];
 }
 
-/* ------------------------------------------------------------------ */
-//  Skeleton placeholder — same dimensions as a card so CLS = 0
+/* ──────────────────────────────────────────────────────────────── */
+/*  Layout engine — prioritise + distribute cards                  */
+/* ──────────────────────────────────────────────────────────────── */
 
-function SkeletonCard() {
+type CardVariant = "hero" | "standard" | "compact";
+
+interface LayoutItem extends MasonryGridItem {
+  variant: CardVariant;
+}
+
+function assignVariants(
+  items: MasonryGridItem[],
+  heroFrequency: number
+): LayoutItem[] {
+  let heroCount = 0;
+  let sinceLastHero = 0;
+
+  return items.map((item, index) => {
+    // Determine raw priority
+    const isHeroEligible = item.featured || item.tier === "signature";
+    const isVerified = item.tier === "verified";
+
+    let variant: CardVariant;
+
+    if (isHeroEligible && sinceLastHero >= heroFrequency) {
+      variant = "hero";
+      heroCount++;
+      sinceLastHero = 0;
+    } else if (isHeroEligible || isVerified) {
+      variant = "standard";
+      sinceLastHero++;
+    } else {
+      variant = "compact";
+      sinceLastHero++;
+    }
+
+    return { ...item, variant };
+  });
+}
+
+/* ──────────────────────────────────────────────────────────────── */
+/*  Skeleton                                                       */
+/* ──────────────────────────────────────────────────────────────── */
+
+function SkeletonCard({ variant = "standard" }: { variant?: CardVariant }) {
+  const aspect = variant === "hero" ? "aspect-[4/5]" : variant === "compact" ? "aspect-[3/4]" : "aspect-[3/4]";
   return (
     <div className="mb-5 break-inside-avoid">
-      <div className="relative overflow-hidden rounded-2xl bg-muted">
-        <div className="aspect-[3/4] w-full animate-pulse bg-muted" />
+      <div className={cn("relative overflow-hidden rounded-2xl bg-muted", aspect)}>
+        <div className="absolute inset-0 animate-pulse bg-muted" />
       </div>
     </div>
   );
 }
 
-/* ------------------------------------------------------------------ */
-//  Individual card
+/* ──────────────────────────────────────────────────────────────── */
+/*  Card component — three variants                                */
+/* ──────────────────────────────────────────────────────────────── */
 
 function MasonryCard({
   item,
@@ -84,7 +145,7 @@ function MasonryCard({
   onItemClick,
   rootMargin,
 }: {
-  item: MasonryGridItem;
+  item: LayoutItem;
   isFavorite?: (id: string) => boolean;
   onToggleFavorite?: (id: string) => void;
   onItemClick?: (item: MasonryGridItem) => void;
@@ -107,9 +168,40 @@ function MasonryCard({
   );
 
   const isClickable = Boolean(onItemClick || item.href);
-  const aspectStyle = item.aspectRatio
-    ? ({ aspectRatio: item.aspectRatio } as React.CSSProperties)
-    : undefined;
+
+  // Variant-driven styling
+  const variantConfig = {
+    hero: {
+      heightClass: "min-h-[32rem] sm:min-h-[36rem]",
+      titleClass: "text-3xl sm:text-4xl lg:text-5xl",
+      subtitleClass: "text-base sm:text-lg",
+      overlay: "from-black/90 via-black/40 to-black/10",
+      badge: "bg-primary text-primary-foreground",
+      showDescription: true,
+      showCta: true,
+      imageQuality: 75,
+    },
+    standard: {
+      heightClass: "min-h-[22rem] sm:min-h-[26rem]",
+      titleClass: "text-2xl sm:text-3xl",
+      subtitleClass: "text-sm sm:text-base",
+      overlay: "from-black/85 via-black/30 to-black/5",
+      badge: "bg-white/15 text-white border border-white/25",
+      showDescription: true,
+      showCta: false,
+      imageQuality: 70,
+    },
+    compact: {
+      heightClass: "min-h-[16rem] sm:min-h-[20rem]",
+      titleClass: "text-xl sm:text-2xl",
+      subtitleClass: "text-sm",
+      overlay: "from-black/80 via-black/25 to-transparent",
+      badge: "bg-white/10 text-white/80 border border-white/15",
+      showDescription: false,
+      showCta: false,
+      imageQuality: 65,
+    },
+  }[item.variant];
 
   const CardWrapper = item.href
     ? (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
@@ -141,14 +233,21 @@ function MasonryCard({
 
   const favoriteActive = isFavorite?.(item.id) ?? false;
 
+  // Aspect ratio for CLS safety
+  const aspectRatioMap: Record<CardVariant, string> = {
+    hero: "4/5",
+    standard: "3/4",
+    compact: "1/1",
+  };
+  const aspectStyle = item.aspectRatio
+    ? ({ aspectRatio: item.aspectRatio } as React.CSSProperties)
+    : ({ aspectRatio: aspectRatioMap[item.variant] } as React.CSSProperties);
+
   return (
     <CardWrapper aria-labelledby={item.title ? titleId : undefined}>
       {/* Image container — aspect ratio locks height, eliminating CLS */}
       <div
-        className={cn(
-          "relative w-full",
-          !item.aspectRatio && "min-h-[200px]"
-        )}
+        className={cn("relative w-full", variantConfig.heightClass)}
         style={aspectStyle}
       >
         {/* Skeleton — visible until image loads or while not in viewport */}
@@ -164,25 +263,52 @@ function MasonryCard({
             src={item.image}
             alt={item.imageAlt ?? item.title ?? ""}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-            quality={70}
+            sizes={
+              item.variant === "hero"
+                ? "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+            }
+            quality={variantConfig.imageQuality}
             priority={item.priority}
             loading={item.priority ? "eager" : "lazy"}
             placeholder={item.blurDataURL ? "blur" : undefined}
             blurDataURL={item.blurDataURL}
             onLoad={() => setLoaded(true)}
             className={cn(
-              "object-cover transition duration-500 group-hover:scale-[1.04]",
+              "object-cover transition duration-500",
+              item.variant === "hero"
+                ? "group-hover:scale-[1.03]"
+                : "group-hover:scale-[1.04]",
               loaded ? "opacity-100" : "opacity-0"
             )}
           />
         ) : null}
       </div>
 
-      {/* Hover overlay */}
-      <div className="pointer-events-none absolute inset-0 bg-black/0 transition duration-300 group-hover:bg-black/20" />
+      {/* Gradient overlay */}
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-0 bg-gradient-to-t transition duration-300",
+          variantConfig.overlay
+        )}
+      />
 
-      {/* Favorite button — integrated with project FavoriteButton */}
+      {/* Tier badge — top left */}
+      {item.tier && item.tier !== "default" && (
+        <div className="absolute left-4 top-4 z-10">
+          <span
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wider backdrop-blur-sm",
+              variantConfig.badge
+            )}
+          >
+            {item.tier === "signature" && <Crown className="h-3 w-3" />}
+            {item.tier}
+          </span>
+        </div>
+      )}
+
+      {/* Favorite button */}
       {onToggleFavorite && (
         <div className="absolute right-3 top-3 z-10">
           <FavoriteButton
@@ -195,27 +321,49 @@ function MasonryCard({
         </div>
       )}
 
-      {/* Bottom gradient + text */}
-      {(item.title || item.subtitle) && (
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-4 pt-12">
-          {item.title && (
-            <p id={titleId} className="text-sm font-semibold text-white">
-              {item.title}
-            </p>
+      {/* Content overlay — bottom */}
+      <div className="absolute inset-x-0 bottom-0 z-10 p-4 sm:p-5">
+        <div
+          className={cn(
+            "bg-gradient-to-t from-black/60 to-transparent",
+            item.variant === "hero" ? "p-1" : ""
           )}
+        >
           {item.subtitle && (
-            <p className="mt-0.5 text-xs font-medium text-white/80">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
               {item.subtitle}
             </p>
           )}
+          {item.title && (
+            <h3
+              id={titleId}
+              className={cn(
+                "font-serif font-semibold leading-tight tracking-normal text-white",
+                variantConfig.titleClass
+              )}
+            >
+              {item.title}
+            </h3>
+          )}
+          {variantConfig.showDescription && item.imageAlt && (
+            <p className={cn("mt-3 max-w-lg line-clamp-2 text-white/80", variantConfig.subtitleClass)}>
+              {item.imageAlt}
+            </p>
+          )}
+          {variantConfig.showCta && (
+            <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white/90 transition group-hover:text-white">
+              Explore <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </span>
+          )}
         </div>
-      )}
+      </div>
     </CardWrapper>
   );
 }
 
-/* ------------------------------------------------------------------ */
-//  Main grid
+/* ──────────────────────────────────────────────────────────────── */
+/*  Main grid                                                      */
+/* ──────────────────────────────────────────────────────────────── */
 
 export default function MasonryGrid({
   items,
@@ -226,7 +374,13 @@ export default function MasonryGrid({
   isLoading,
   skeletonCount = 8,
   rootMargin,
+  heroFrequency = 6,
 }: MasonryGridProps) {
+  const layoutItems = useMemo(
+    () => assignVariants(items, heroFrequency),
+    [items, heroFrequency]
+  );
+
   return (
     <div
       className={cn(
@@ -236,9 +390,9 @@ export default function MasonryGrid({
     >
       {isLoading
         ? Array.from({ length: skeletonCount }).map((_, i) => (
-            <SkeletonCard key={`skeleton-${i}`} />
+            <SkeletonCard key={`skeleton-${i}`} variant={i === 0 ? "hero" : "standard"} />
           ))
-        : items.map((item) => (
+        : layoutItems.map((item) => (
             <MasonryCard
               key={item.id}
               item={item}
