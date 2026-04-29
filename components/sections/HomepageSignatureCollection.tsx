@@ -14,34 +14,42 @@ import { supabase } from "@/integrations/supabase/client";
 import { getHomepageSignatureSelection } from "@/lib/listings/getHomepageSignatureSelection";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 
 const DISPLAY_LIMIT = 8;
+
+type ListingItem = Awaited<ReturnType<typeof getHomepageSignatureSelection>>["listings"][number];
 
 function EditorialListingCard({
   listing,
   href,
   isFavorite,
   onToggleFavorite,
-  size,
+  heightClass,
+  titleSize,
 }: {
-  listing: Awaited<ReturnType<typeof getHomepageSignatureSelection>>["listings"][number];
+  listing: ListingItem;
   href: string;
   isFavorite: boolean;
   onToggleFavorite: () => void;
-  size: "featured" | "medium" | "small";
+  heightClass: string;
+  titleSize: "xl" | "lg" | "md";
 }) {
   const { t } = useTranslation();
-  const sizeClasses = {
-    featured: "min-h-[32rem] lg:col-span-2 lg:row-span-2",
-    medium: "min-h-[23rem]",
-    small: "min-h-[18rem]",
-  }[size];
-  const titleClasses = size === "featured" ? "text-4xl sm:text-5xl" : size === "medium" ? "text-3xl" : "text-2xl";
+
+  const titleClasses = {
+    xl: "text-4xl sm:text-5xl",
+    lg: "text-3xl",
+    md: "text-2xl",
+  }[titleSize];
 
   return (
     <Link
       href={href}
-      className={`${sizeClasses} group relative isolate overflow-hidden rounded-2xl bg-black shadow-[0_28px_90px_-48px_rgba(0,0,0,0.95)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_34px_100px_-48px_rgba(0,0,0,1)]`}
+      className={cn(
+        "group relative isolate block overflow-hidden rounded-2xl bg-black shadow-[0_28px_90px_-48px_rgba(0,0,0,0.95)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_34px_100px_-48px_rgba(0,0,0,1)]",
+        heightClass
+      )}
     >
       <ListingImage
         src={listing.featured_image_url}
@@ -50,7 +58,7 @@ function EditorialListingCard({
         listingId={listing.id}
         alt={listing.name}
         fill
-        sizes={size === "featured" ? "(max-width: 1024px) 92vw, 46vw" : "(max-width: 1024px) 92vw, 23vw"}
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
         className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/5" />
@@ -69,10 +77,10 @@ function EditorialListingCard({
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
           {listing.city?.name ?? "Algarve"} · {translateCategoryName(t, listing.category?.slug, listing.category?.name)}
         </p>
-        <h3 className={`max-w-xl font-serif font-semibold leading-none tracking-normal ${titleClasses}`}>
+        <h3 className={cn("max-w-xl font-serif font-semibold leading-none tracking-normal", titleClasses)}>
           {listing.name}
         </h3>
-        {size !== "small" ? (
+        {titleSize !== "md" ? (
           <p className="mt-4 max-w-lg line-clamp-2 text-sm leading-6 text-white/82">
             {listing.short_description || listing.description || "A selected Algarve destination from the editorial collection."}
           </p>
@@ -98,11 +106,18 @@ export function HomepageSignatureCollection() {
   const listings = data?.listings ?? [];
   const isFallback = data?.isFallback ?? true;
   const title = isFallback ? "Editor's Selection" : "Signature Collection";
-  const subtitle = "A curated selection of the Algarve’s finest places";
+  const subtitle = "A curated selection of the Algarve's finest places";
   const displayListings = listings.slice(0, DISPLAY_LIMIT);
-  const featuredListing = displayListings[0];
-  const mediumListings = displayListings.slice(1, 5);
-  const smallListings = displayListings.slice(5, 7);
+
+  // Determine card heights and title sizes per position for editorial rhythm
+  const getCardConfig = (index: number, total: number) => {
+    // First card = featured (tallest)
+    if (index === 0) return { heightClass: "min-h-[32rem]", titleSize: "xl" as const };
+    // Cards 1-4 = medium height
+    if (index >= 1 && index <= 4) return { heightClass: "min-h-[23rem]", titleSize: "lg" as const };
+    // Remaining = standard
+    return { heightClass: "min-h-[18rem]", titleSize: "md" as const };
+  };
 
   return (
     <section id="signature-collection" className="bg-background py-20 sm:py-24 lg:py-32">
@@ -122,40 +137,31 @@ export function HomepageSignatureCollection() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="columns-1 gap-5 sm:columns-2 lg:columns-3 xl:columns-4">
             {Array.from({ length: 8 }).map((_, index) => (
-              <div key={index} className="h-[25rem] rounded-2xl border border-border/60 bg-muted/35 animate-pulse" />
+              <div key={index} className="mb-5 break-inside-avoid">
+                <div className="h-[25rem] rounded-2xl border border-border/60 bg-muted/35 animate-pulse" />
+              </div>
             ))}
           </div>
-        ) : featuredListing ? (
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-4 lg:auto-rows-fr">
-            <EditorialListingCard
-              listing={featuredListing}
-              href={l(`/listing/${featuredListing.slug}`)}
-              isFavorite={isFavorite(featuredListing.id)}
-              onToggleFavorite={() => toggleFavorite(featuredListing.id)}
-              size="featured"
-            />
-            {mediumListings.map((listing) => (
-              <EditorialListingCard
-                key={listing.id}
-                listing={listing}
-                href={l(`/listing/${listing.slug}`)}
-                isFavorite={isFavorite(listing.id)}
-                onToggleFavorite={() => toggleFavorite(listing.id)}
-                size="medium"
-              />
-            ))}
-            {smallListings.map((listing) => (
-              <EditorialListingCard
-                key={listing.id}
-                listing={listing}
-                href={l(`/listing/${listing.slug}`)}
-                isFavorite={isFavorite(listing.id)}
-                onToggleFavorite={() => toggleFavorite(listing.id)}
-                size="small"
-              />
-            ))}
+        ) : displayListings.length > 0 ? (
+          /* Masonry layout: CSS columns flow top-to-bottom, filling all columns naturally */
+          <div className="columns-1 gap-5 sm:columns-2 lg:columns-3 xl:columns-4">
+            {displayListings.map((listing, index) => {
+              const config = getCardConfig(index, displayListings.length);
+              return (
+                <div key={listing.id} className="mb-5 break-inside-avoid">
+                  <EditorialListingCard
+                    listing={listing}
+                    href={l(`/listing/${listing.slug}`)}
+                    isFavorite={isFavorite(listing.id)}
+                    onToggleFavorite={() => toggleFavorite(listing.id)}
+                    heightClass={config.heightClass}
+                    titleSize={config.titleSize}
+                  />
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div className="rounded-2xl border border-border/70 bg-muted/25 p-8 text-center">
