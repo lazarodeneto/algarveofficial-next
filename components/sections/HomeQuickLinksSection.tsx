@@ -158,12 +158,11 @@ export function HomeQuickLinksSection() {
                     )}
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/82 via-black/24 to-black/0" />
                   <div className="relative z-10 flex h-full flex-col justify-end p-5 text-white sm:p-6">
-                    <Icon className="mb-3 h-5 w-5 text-primary sm:h-6 sm:w-6" />
-                    <h3 className="font-serif text-2xl font-semibold leading-none tracking-normal sm:text-3xl">
+                    <h3 className="font-sans text-2xl font-bold leading-none tracking-normal sm:text-3xl">
                       {displayTitle}
                     </h3>
                     <span className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-white/82">
-                      Explore <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      <Icon className="h-4 w-4 text-primary" /> Explore <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </span>
                   </div>
               </Link>
