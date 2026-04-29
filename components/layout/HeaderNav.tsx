@@ -6,7 +6,6 @@ import clsx from "clsx";
 import {
   BedDouble,
   Binoculars,
-  CalendarDays,
   FlagTriangleRight,
   Home,
   HouseHeart,
@@ -21,7 +20,6 @@ const HEADER_NAV_ITEMS = PRIMARY_NAV_ITEMS.filter(
     item.href !== "/contact" &&
     item.href !== "/map" &&
     item.href !== "/blog" &&
-    item.href !== "/events" &&
     item.href !== "/residence" &&
     item.href !== "/invest",
 );
@@ -34,7 +32,6 @@ const HEADER_NAV_ICONS: Record<string, LucideIcon> = {
   "nav.properties": HouseHeart,
   "nav.experiences": Binoculars,
   "nav.golf": FlagTriangleRight,
-  "nav.events": CalendarDays,
 };
 
 export function HeaderNav() {
@@ -42,7 +39,7 @@ export function HeaderNav() {
   const { t } = useTranslation();
 
   const currentPath = stripLocaleFromPathname(pathname || "/");
-  const ariaLabel = t("nav.primaryNavigation");
+  const ariaLabel = t("nav.primaryNavigation", "Primary navigation");
 
   return (
     <nav

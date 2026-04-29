@@ -122,7 +122,8 @@ export function HomeQuickLinksSection() {
                   }) || customImageUrl
                 : undefined;
             const showVideo = customVideoUrl.length > 0 && !prefersFallbackVideo;
-            const showImage = !showVideo && Boolean(imageSrc);
+            const fallbackImageSrc = card.fallbackImageUrl;
+            const showImage = !showVideo;
 
             return (
               <Link
@@ -137,7 +138,7 @@ export function HomeQuickLinksSection() {
 
                 <div className="relative z-10 flex items-center justify-center gap-1 px-1.5 pt-4 pb-1 sm:gap-2 sm:px-3 sm:pt-5 sm:pb-1.5">
                   <Icon className="h-4 w-4 shrink-0 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-[hsl(43,74%,49%)]" />
-                  <h3 className="font-['Archivo_Narrow'] text-[1.25rem] font-semibold uppercase leading-tight tracking-[0em] text-black dark:text-white sm:text-[1.2rem] lg:text-[1.3rem] truncate">
+                  <h3 className="font-['Archivo_Narrow'] text-balance text-center text-[1.25rem] font-semibold uppercase leading-tight tracking-[0em] text-black dark:text-white sm:min-h-[3.5rem] sm:text-[1.2rem] lg:text-[1.3rem]">
                     {displayTitle}
                   </h3>
                 </div>
@@ -162,7 +163,7 @@ export function HomeQuickLinksSection() {
                       />
                     ) : showImage ? (
                       <Image
-                        src={imageSrc as string}
+                        src={imageSrc ?? fallbackImageSrc}
                         alt={displayTitle}
                         width={480}
                         height={360}

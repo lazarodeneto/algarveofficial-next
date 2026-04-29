@@ -34,6 +34,7 @@ interface AdminWriteClientOptions {
   requireServiceRole?: boolean;
   missingServiceRoleMessage?: string;
   auditAction?: string;
+  allowedRoles?: UserRole[];
 }
 
 export function adminErrorResponse(status: number, code: string, message: string) {
@@ -119,7 +120,7 @@ export async function requireAdminWriteClient(
   forbiddenMessage = "Only admins can perform this action.",
   options?: AdminWriteClientOptions,
 ): Promise<AdminWriteAuth | AdminAuthError> {
-  const cookieAuth = await requireAdminSession(request);
+  const cookieAuth = await requireAdminSession(request, options?.allowedRoles);
   if ("error" in cookieAuth) return cookieAuth;
 
   const serviceClient = createServiceRoleClient();
@@ -160,8 +161,22 @@ export async function requireAdminWriteClient(
   };
 }
 
+export async function requireAdminReadClient(
+  request: NextRequest,
+  allowedRoles: UserRole[] = ["admin", "editor"],
+): Promise<AdminReadAuth | AdminAuthError> {
+  const cookieAuth = await requireAdminSession(request, allowedRoles);
+  if ("error" in cookieAuth) return cookieAuth;
+
+  return {
+    userId: cookieAuth.userId,
+    readClient: cookieAuth.userClient,
+  };
+}
+
 export async function requireAdminSession(
   request: NextRequest,
+  allowedRoles: UserRole[] = ["admin", "editor"],
 ): Promise<AdminBaseAuth | AdminAuthError> {
   const { url, anonKey } = getSupabasePublicEnv();
   const { createServerClient } = await import("@supabase/ssr");
@@ -203,7 +218,7 @@ export async function requireAdminSession(
     };
   }
 
-  if (role !== "admin" && role !== "editor") {
+  if (!allowedRoles.includes(role as UserRole)) {
     return {
       error: adminErrorResponse(403, "AUTH_FORBIDDEN", "Only admins or editors can access this resource."),
     };

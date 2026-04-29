@@ -1,15 +1,6 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import en from "./locales/en.json";
-import pt from "./locales/pt-pt.json";
-import de from "./locales/de.json";
-import fr from "./locales/fr.json";
-import es from "./locales/es.json";
-import it from "./locales/it.json";
-import nl from "./locales/nl.json";
-import sv from "./locales/sv.json";
-import no from "./locales/no.json";
-import da from "./locales/da.json";
+import { loadLocale, normalizeLocaleCode, type LocaleMessages } from "./locale-loader";
 import {
   enforcePremiumInLocaleData,
   preserveBundledLocaleValues,
@@ -55,27 +46,8 @@ function deepMerge(
   return result;
 }
 
-const englishSource = en as Record<string, unknown>;
-
-const bundledRaw: Record<string, Record<string, unknown>> = {
-  en: en as Record<string, unknown>,
-  "pt-pt": pt as Record<string, unknown>,
-  de: de as Record<string, unknown>,
-  fr: fr as Record<string, unknown>,
-  es: es as Record<string, unknown>,
-  it: it as Record<string, unknown>,
-  nl: nl as Record<string, unknown>,
-  sv: sv as Record<string, unknown>,
-  no: no as Record<string, unknown>,
-  da: da as Record<string, unknown>,
-};
-
-const bundled = Object.fromEntries(
-  Object.entries(bundledRaw).map(([code, data]) => [
-    code,
-    code === "en" ? data : enforcePremiumInLocaleData(data, englishSource),
-  ]),
-) as Record<string, Record<string, unknown>>;
+const bundled = new Map<string, LocaleMessages>();
+let englishSourcePromise: Promise<LocaleMessages> | null = null;
 
 const BUNDLED_PRIORITY_I18N_KEYS = [
   "newsletter.footerTitle",
@@ -86,21 +58,7 @@ const BUNDLED_PRIORITY_I18N_KEYS = [
 ];
 
 function normalizeLocale(locale: string | null | undefined): string {
-  const normalized = String(locale ?? "").trim().toLowerCase();
-  if (!normalized) return DEFAULT_LOCALE;
-  if (normalized === "pt" || normalized.startsWith("pt-pt")) return "pt-pt";
-  if (normalized.startsWith("de")) return "de";
-  if (normalized.startsWith("fr")) return "fr";
-  if (normalized.startsWith("es")) return "es";
-  if (normalized.startsWith("it")) return "it";
-  if (normalized.startsWith("nl")) return "nl";
-  if (normalized.startsWith("sv")) return "sv";
-  if (normalized === "no" || normalized.startsWith("nb") || normalized.startsWith("nn")) return "no";
-  if (normalized.startsWith("da")) return "da";
-  if (SUPPORTED_LOCALES.includes(normalized as (typeof SUPPORTED_LOCALES)[number])) {
-    return normalized;
-  }
-  return DEFAULT_LOCALE;
+  return normalizeLocaleCode(locale);
 }
 
 function getInitialLang(): string {
@@ -118,9 +76,7 @@ function getInitialLang(): string {
 i18n
   .use(initReactI18next)
   .init({
-    resources: Object.fromEntries(
-      Object.entries(bundled).map(([code, data]) => [code, { translation: data }])
-    ),
+    resources: {},
     lng: getInitialLang(),
     fallbackLng: false,
     supportedLngs: [...SUPPORTED_LOCALES],
@@ -129,8 +85,42 @@ i18n
     interpolation: { escapeValue: false },
   });
 
-const loadedLocales = new Set<string>(["en"]);
+const loadedLocales = new Set<string>();
 const localeLoadPromises = new Map<string, Promise<void>>();
+
+function addBundledLocale(locale: string, data: LocaleMessages) {
+  bundled.set(locale, data);
+  i18n.addResourceBundle(locale, "translation", data, true, true);
+}
+
+export function primeLocale(locale: string, data: LocaleMessages) {
+  const normalizedLocale = normalizeLocale(locale);
+  addBundledLocale(normalizedLocale, data);
+}
+
+async function loadEnglishSource() {
+  if (!englishSourcePromise) {
+    englishSourcePromise = loadLocale("en");
+  }
+  return englishSourcePromise;
+}
+
+async function loadBundledLocale(locale: string) {
+  const normalizedLocale = normalizeLocale(locale);
+  const existing = bundled.get(normalizedLocale);
+  if (existing) return existing;
+
+  const rawLocaleData = await loadLocale(normalizedLocale);
+  if (normalizedLocale === "en") {
+    addBundledLocale(normalizedLocale, rawLocaleData);
+    return rawLocaleData;
+  }
+
+  const englishSource = await loadEnglishSource();
+  const premiumSafeData = enforcePremiumInLocaleData(rawLocaleData, englishSource);
+  addBundledLocale(normalizedLocale, premiumSafeData);
+  return premiumSafeData;
+}
 
 async function patchLocaleFromSupabase(locale: string) {
   const dbLocale = LOCALE_DB_MAP[locale];
@@ -148,13 +138,12 @@ async function patchLocaleFromSupabase(locale: string) {
 
     if (error || !data?.data || typeof data.data !== "object") return;
 
-    const merged = deepMerge(
-      bundled[locale] ?? {},
-      data.data as Record<string, unknown>,
-    );
+    const bundledLocale = await loadBundledLocale(locale);
+    const englishSource = await loadEnglishSource();
+    const merged = deepMerge(bundledLocale, data.data as Record<string, unknown>);
     const bundledSafeMerged = preserveBundledLocaleValues(
       merged,
-      bundled[locale] ?? {},
+      bundledLocale,
       englishSource,
       BUNDLED_PRIORITY_I18N_KEYS,
     );
@@ -168,7 +157,6 @@ async function patchLocaleFromSupabase(locale: string) {
 
 export async function ensureLocaleLoaded(locale: string) {
   const normalizedLocale = normalizeLocale(locale);
-  if (normalizedLocale === "en") return;
 
   if (loadedLocales.has(normalizedLocale)) return;
 
@@ -179,6 +167,7 @@ export async function ensureLocaleLoaded(locale: string) {
   }
 
   const loadPromise = (async () => {
+    await loadBundledLocale(normalizedLocale);
     await patchLocaleFromSupabase(normalizedLocale);
     loadedLocales.add(normalizedLocale);
   })().finally(() => {

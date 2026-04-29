@@ -181,7 +181,8 @@ export function normalizeFooterLinkHref(
 
     if (canonicalCategorySlug) {
       params.set("category", canonicalCategorySlug);
-      return localizedHref(`/stay?${params.toString()}`);
+      const categoryBasePath = normalizedPath.startsWith("/directory") ? "/directory" : "/stay";
+      return localizedHref(`${categoryBasePath}?${params.toString()}`);
     }
   }
 

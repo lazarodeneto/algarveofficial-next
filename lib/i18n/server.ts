@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { loadLocale } from "@/i18n/locale-loader";
 import type { Locale } from "./config";
 import { createPublicServerClient } from "../supabase/public-server";
 import {
@@ -22,19 +23,6 @@ const DB_LOCALE_MAP: Record<Locale, string> = {
   sv: "sv",
   no: "no",
   da: "da",
-};
-
-const localeLoaders: Record<Locale, () => Promise<TranslationNode>> = {
-  en: () => import("@/i18n/locales/en.json").then((module) => module.default as TranslationNode),
-  "pt-pt": () => import("@/i18n/locales/pt-pt.json").then((module) => module.default as TranslationNode),
-  de: () => import("@/i18n/locales/de.json").then((module) => module.default as TranslationNode),
-  fr: () => import("@/i18n/locales/fr.json").then((module) => module.default as TranslationNode),
-  es: () => import("@/i18n/locales/es.json").then((module) => module.default as TranslationNode),
-  it: () => import("@/i18n/locales/it.json").then((module) => module.default as TranslationNode),
-  nl: () => import("@/i18n/locales/nl.json").then((module) => module.default as TranslationNode),
-  sv: () => import("@/i18n/locales/sv.json").then((module) => module.default as TranslationNode),
-  no: () => import("@/i18n/locales/no.json").then((module) => module.default as TranslationNode),
-  da: () => import("@/i18n/locales/da.json").then((module) => module.default as TranslationNode),
 };
 
 const BUNDLED_PRIORITY_I18N_KEYS = [
@@ -76,8 +64,8 @@ function pickTranslationKeys(
  * context — it does NOT persist across separate requests).
  */
 const getFullLocaleBundle = cache(async (locale: Locale): Promise<TranslationLeafMap> => {
-  const englishBundleNode = await localeLoaders.en();
-  const localeBundleNode = await localeLoaders[locale]();
+  const englishBundleNode = await loadLocale("en") as TranslationNode;
+  const localeBundleNode = await loadLocale(locale) as TranslationNode;
   const premiumSafeBundleNode =
     locale === "en"
       ? localeBundleNode

@@ -170,7 +170,6 @@ function HeroPosterImage({
       loading={priority ? "eager" : "lazy"}
       priority={priority}
       fetchPriority={priority ? "high" : "auto"}
-      unoptimized
       className={className}
     />
   );

@@ -31,6 +31,7 @@ interface GolfStepProps {
 
 type HoleTemplate = "blank" | "par72" | "par3";
 
+const MAX_COURSE_HOLES = 54;
 const PAR72_TEMPLATE: number[] = [4, 4, 3, 5, 4, 4, 3, 5, 4, 4, 5, 3, 4, 4, 5, 3, 4, 4];
 
 function statusConfig(status: GolfHoleDataStatus) {
@@ -86,7 +87,7 @@ function ensureHoleCount(holes: ListingGolfHoleForm[], holesCount: number): List
 }
 
 function applyTemplate(holesCount: number, template: HoleTemplate): ListingGolfHoleForm[] {
-  const normalizedCount = Math.max(1, Math.min(holesCount, 18));
+  const normalizedCount = Math.max(1, Math.min(holesCount, MAX_COURSE_HOLES));
 
   return Array.from({ length: normalizedCount }, (_, index) => {
     const holeNumber = index + 1;
@@ -145,9 +146,7 @@ function normalizeCoursesForStructure(
 
   const cappedHoleCount = structure === "custom"
     ? Math.min(Math.max(first.holes_count, 6), 18)
-    : first.holes_count > 18
-      ? 18
-      : Math.max(first.holes_count, 9);
+    : Math.min(Math.max(first.holes_count, 9), 18);
 
   return [
     {
@@ -313,7 +312,7 @@ export function GolfStep({
   const handleCourseHoleCountChange = (courseId: string, holesCount: number) => {
     const normalizedCount = golf.structure === "custom"
       ? Math.min(Math.max(holesCount, 6), 18)
-      : Math.min(Math.max(holesCount, 9), 18);
+      : Math.min(Math.max(holesCount, 9), golf.structure === "multi" ? MAX_COURSE_HOLES : 18);
 
     const nextCourses = golf.courses.map((course) =>
       course.id === courseId
@@ -582,7 +581,7 @@ export function GolfStep({
                 id="golf-course-holes-count"
                 value={selectedCourse.holes_count}
                 min={golf.structure === "custom" ? 6 : 9}
-                max={18}
+                max={golf.structure === "multi" ? MAX_COURSE_HOLES : 18}
                 step={1}
                 disabled={isDisabled}
                 error={Boolean(validationErrors[`course.${selectedCourse.id}.holes_count`])}
@@ -598,6 +597,22 @@ export function GolfStep({
                 {(golf.structure === "custom" ? [6, 9, 12, 18] : [9, 18]).map((preset) => (
                   <Button
                     key={`preset-${preset}`}
+                    type="button"
+                    variant={selectedCourse.holes_count === preset ? "default" : "outline"}
+                    size="sm"
+                    disabled={isDisabled}
+                    onClick={() => handleCourseHoleCountChange(selectedCourse.id, preset)}
+                  >
+                    {preset} holes
+                  </Button>
+                ))}
+              </div>
+            ) : null}
+            {golf.structure === "multi" ? (
+              <div className="sm:col-span-3 flex flex-wrap gap-2">
+                {[9, 18, 27, 36, 45, 54].map((preset) => (
+                  <Button
+                    key={`multi-preset-${preset}`}
                     type="button"
                     variant={selectedCourse.holes_count === preset ? "default" : "outline"}
                     size="sm"
@@ -795,7 +810,7 @@ export function GolfStep({
                       id={`hole-${selectedCourse.id}-${index}-number`}
                       value={hole.hole_number}
                       min={1}
-                      max={18}
+                      max={MAX_COURSE_HOLES}
                       step={1}
                       disabled={isDisabled}
                       error={Boolean(validationErrors[`${errorPrefix}.hole_number`])}
@@ -822,7 +837,7 @@ export function GolfStep({
                       id={`hole-${selectedCourse.id}-${index}-si`}
                       value={hole.stroke_index}
                       min={1}
-                      max={18}
+                      max={MAX_COURSE_HOLES}
                       step={1}
                       disabled={isDisabled}
                       error={Boolean(validationErrors[`${errorPrefix}.stroke_index`])}

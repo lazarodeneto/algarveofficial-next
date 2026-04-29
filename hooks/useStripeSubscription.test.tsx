@@ -4,12 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useStripeSubscription } from "./useStripeSubscription";
 
 const mocks = vi.hoisted(() => ({
-  getValidAccessToken: vi.fn(),
   useAuth: vi.fn(),
-}));
-
-vi.mock("@/lib/authToken", () => ({
-  getValidAccessToken: mocks.getValidAccessToken,
 }));
 
 vi.mock("@/contexts/AuthContext", () => ({
@@ -29,7 +24,6 @@ describe("useStripeSubscription", () => {
 
   beforeEach(() => {
     vi.stubGlobal("fetch", fetchMock);
-    mocks.getValidAccessToken.mockResolvedValue("token-owner");
     mocks.useAuth.mockReturnValue({
       isAuthenticated: true,
       user: { id: "owner-1", role: "admin" },
@@ -67,8 +61,9 @@ describe("useStripeSubscription", () => {
       expect.objectContaining({
         method: "POST",
         headers: expect.objectContaining({
-          Authorization: "Bearer token-owner",
+          "Content-Type": "application/json",
         }),
+        credentials: "include",
         body: JSON.stringify({ tier: "verified", billing_period: "yearly" }),
       }),
     );

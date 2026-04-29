@@ -372,6 +372,7 @@ async function handleSave(request: NextRequest, method: "POST" | "PATCH") {
     "Only admins can update subscription pricing.",
     {
       requireServiceRole: true,
+      allowedRoles: ["admin"],
       missingServiceRoleMessage:
         "Server is missing SUPABASE_SERVICE_ROLE_KEY for subscription pricing admin writes.",
     },

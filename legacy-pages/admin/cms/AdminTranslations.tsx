@@ -35,30 +35,19 @@ import {
   RefreshCw,
   Zap,
 } from "lucide-react";
-
-// ── Static locale data (bundled at build time) ────────────────────────────────
-import en from "@/i18n/locales/en.json";
-import pt from "@/i18n/locales/pt-pt.json";
-import de from "@/i18n/locales/de.json";
-import fr from "@/i18n/locales/fr.json";
-import es from "@/i18n/locales/es.json";
-import it from "@/i18n/locales/it.json";
-import nl from "@/i18n/locales/nl.json";
-import sv from "@/i18n/locales/sv.json";
-import no from "@/i18n/locales/no.json";
-import da from "@/i18n/locales/da.json";
+import { loadLocale } from "@/i18n/locale-loader";
 
 // ── Locale configuration ──────────────────────────────────────────────────────
-const LOCALES: { code: string; name: string; flag: string; data: Record<string, unknown> }[] = [
-  { code: "pt",    name: "Portuguese",  flag: "🇵🇹", data: pt as Record<string, unknown> },
-  { code: "de",    name: "German",      flag: "🇩🇪", data: de as Record<string, unknown> },
-  { code: "fr",    name: "French",      flag: "🇫🇷", data: fr as Record<string, unknown> },
-  { code: "es",    name: "Spanish",     flag: "🇪🇸", data: es as Record<string, unknown> },
-  { code: "it",    name: "Italian",     flag: "🇮🇹", data: it as Record<string, unknown> },
-  { code: "nl",    name: "Dutch",       flag: "🇳🇱", data: nl as Record<string, unknown> },
-  { code: "sv",    name: "Swedish",     flag: "🇸🇪", data: sv as Record<string, unknown> },
-  { code: "no",    name: "Norwegian",   flag: "🇳🇴", data: no as Record<string, unknown> },
-  { code: "da",    name: "Danish",      flag: "🇩🇰", data: da as Record<string, unknown> },
+const LOCALES: { code: string; localeCode: string; name: string; flag: string }[] = [
+  { code: "pt", localeCode: "pt-pt", name: "Portuguese", flag: "🇵🇹" },
+  { code: "de", localeCode: "de", name: "German", flag: "🇩🇪" },
+  { code: "fr", localeCode: "fr", name: "French", flag: "🇫🇷" },
+  { code: "es", localeCode: "es", name: "Spanish", flag: "🇪🇸" },
+  { code: "it", localeCode: "it", name: "Italian", flag: "🇮🇹" },
+  { code: "nl", localeCode: "nl", name: "Dutch", flag: "🇳🇱" },
+  { code: "sv", localeCode: "sv", name: "Swedish", flag: "🇸🇪" },
+  { code: "no", localeCode: "no", name: "Norwegian", flag: "🇳🇴" },
+  { code: "da", localeCode: "da", name: "Danish", flag: "🇩🇰" },
 ];
 const TARGET_LANGS = [...LISTING_TRANSLATION_TARGET_LANGS];
 const TARGET_LANGS_SET = new Set<string>(TARGET_LANGS);
@@ -115,16 +104,43 @@ function chunkArray<T>(items: readonly T[], size: number): T[][] {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function AdminTranslations() {
-  const enFlat = useMemo(() => flattenI18nData(en as Record<string, unknown>), []);
+  const [englishData, setEnglishData] = useState<Record<string, unknown> | null>(null);
+  const [localeDataByCode, setLocaleDataByCode] = useState<Record<string, Record<string, unknown>>>({});
+  const enFlat = useMemo(() => flattenI18nData(englishData ?? {}), [englishData]);
   const enKeys = useMemo(() => Object.keys(enFlat), [enFlat]);
   const i18nClient = useMemo(
     () => supabase as unknown as { from: (table: string) => any },
     [],
   );
 
+  useEffect(() => {
+    let active = true;
+
+    const loadBundledLocales = async () => {
+      const [english, localeEntries] = await Promise.all([
+        loadLocale("en"),
+        Promise.all(
+          LOCALES.map(async (locale) => [
+            locale.code,
+            await loadLocale(locale.localeCode),
+          ] as const),
+        ),
+      ]);
+
+      if (!active) return;
+      setEnglishData(english);
+      setLocaleDataByCode(Object.fromEntries(localeEntries));
+    };
+
+    void loadBundledLocales();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   // Compute initial state from bundled locale files
   const initialLocaleStates: LocaleState[] = LOCALES.map((loc) => {
-    const missing = computeMissingKeys(enKeys, loc.data);
+    const missing = computeMissingKeys(enKeys, localeDataByCode[loc.code] ?? {});
     return {
       code: loc.code,
       name: loc.name,
@@ -257,6 +273,8 @@ export default function AdminTranslations() {
     let active = true;
 
     const hydrateLocaleStates = async () => {
+      if (enKeys.length === 0) return;
+
       const { data, error } = await i18nClient
         .from("i18n_locale_data" as never)
         .select("locale,data,updated_at")
@@ -278,7 +296,7 @@ export default function AdminTranslations() {
           const patchRow = patchByLocale.get(locale.code);
           const missingKeys = computeMissingKeys(
             enKeys,
-            locale.data,
+            localeDataByCode[locale.code] ?? {},
             patchRow?.data,
           );
 
@@ -299,7 +317,7 @@ export default function AdminTranslations() {
     return () => {
       active = false;
     };
-  }, [enKeys, i18nClient]);
+  }, [enKeys, i18nClient, localeDataByCode]);
 
   const updateLocale = useCallback((code: string, patch: Partial<LocaleState>) => {
     setLocaleStates((prev) =>
@@ -336,6 +354,11 @@ export default function AdminTranslations() {
     async (localeCode: string) => {
       const localeConfig = LOCALES.find((l) => l.code === localeCode);
       if (!localeConfig) return false;
+      const bundledLocaleData = localeDataByCode[localeCode];
+      if (!bundledLocaleData || !englishData) {
+        toast.error("Bundled locale data is still loading.");
+        return false;
+      }
 
       updateLocale(localeCode, { status: "syncing", lastError: undefined });
       setCurrentLocale(localeCode);
@@ -352,7 +375,7 @@ export default function AdminTranslations() {
         }
 
         const existingFlat = {
-          ...flattenI18nData(localeConfig.data),
+          ...flattenI18nData(bundledLocaleData),
           ...(existingLocalePatch?.data && typeof existingLocalePatch.data === "object"
             ? flattenI18nData(existingLocalePatch.data as Record<string, unknown>)
             : {}),
@@ -435,7 +458,7 @@ export default function AdminTranslations() {
         const mergedFlat = { ...existingFlat, ...translated };
         const mergedNested = enforcePremiumInLocaleData(
           unflattenI18nData(mergedFlat),
-          en as Record<string, unknown>,
+          englishData,
         );
         const mergedNestedFlat = flattenI18nData(mergedNested);
         const nowIso = new Date().toISOString();
@@ -470,7 +493,7 @@ export default function AdminTranslations() {
         setCurrentLocale(null);
       }
     },
-    [enFlat, enKeys, i18nClient, persistLocaleData, updateLocale]
+    [enFlat, enKeys, englishData, i18nClient, localeDataByCode, persistLocaleData, updateLocale]
   );
 
   // ── Sync all locales sequentially ──────────────────────────────────────────

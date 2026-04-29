@@ -3,17 +3,23 @@
 import { useEffect, useMemo, type ReactNode } from "react";
 import { I18nextProvider } from "react-i18next";
 
-import baseI18n, { ensureLocaleLoaded } from "@/i18n";
+import baseI18n, { ensureLocaleLoaded, primeLocale } from "@/i18n";
+import type { LocaleMessages } from "@/i18n/locale-loader";
 import { useLocale } from "@/lib/i18n/locale-context";
 
 interface I18nProviderProps {
   children: ReactNode;
+  initialMessages?: LocaleMessages;
 }
 
-export function I18nProvider({ children }: I18nProviderProps) {
+export function I18nProvider({ children, initialMessages }: I18nProviderProps) {
   const locale = useLocale() as string;
   const i18n = useMemo(
     () => {
+      if (initialMessages) {
+        primeLocale(locale, initialMessages);
+      }
+
       const instance = baseI18n.cloneInstance({
         lng: locale,
         fallbackLng: false,
@@ -24,7 +30,7 @@ export function I18nProvider({ children }: I18nProviderProps) {
       }
       return instance;
     },
-    [locale],
+    [initialMessages, locale],
   );
 
   useEffect(() => {

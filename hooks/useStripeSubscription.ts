@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { getValidAccessToken } from '@/lib/authToken';
 import type { SubscriptionTier, BillingPeriod } from '@/lib/stripePricing';
 
 export interface SubscriptionState {
@@ -64,17 +63,16 @@ function normalizeBillingPeriodForUi(value: unknown): BillingPeriod | null {
   return null;
 }
 
-async function callWithBearerToken<T>(
+async function callSubscriptionApi<T>(
   path: string,
   method: 'GET' | 'POST',
   body?: unknown,
 ): Promise<T> {
-  const accessToken = await getValidAccessToken();
   const response = await fetch(path, {
     method,
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
     },
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
   });
@@ -87,17 +85,16 @@ async function callWithBearerToken<T>(
   return data;
 }
 
-async function callWithBearerTokenRaw<T>(
+async function callSubscriptionApiRaw<T>(
   path: string,
   method: 'GET' | 'POST',
   body?: unknown,
 ): Promise<{ ok: boolean; status: number; data: T | null }> {
-  const accessToken = await getValidAccessToken();
   const response = await fetch(path, {
     method,
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
     },
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
   });
@@ -123,7 +120,7 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
     setError(null);
 
     try {
-      const data = await callWithBearerToken<{
+      const data = await callSubscriptionApi<{
         subscribed: boolean;
         tier: string;
         planType: string | null;
@@ -168,7 +165,7 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
       setError(null);
 
       try {
-        const data = await callWithBearerToken<{ url?: string }>(
+        const data = await callSubscriptionApi<{ url?: string }>(
           '/api/stripe/checkout',
           'POST',
           { tier, billing_period: billingPeriod },
@@ -201,7 +198,7 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
 
       try {
         const normalizedBillingPeriod = billingPeriod === 'annual' ? 'yearly' : 'monthly';
-        const response = await callWithBearerTokenRaw<{
+        const response = await callSubscriptionApiRaw<{
           ok?: boolean;
           immediate?: boolean;
           message?: string;
@@ -250,7 +247,7 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
     setError(null);
 
     try {
-      const data = await callWithBearerToken<{ url?: string }>(
+      const data = await callSubscriptionApi<{ url?: string }>(
         '/api/stripe/billing-portal',
         'POST',
       );

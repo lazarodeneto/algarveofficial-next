@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import type { Database } from "@/integrations/supabase/types";
-import en from "@/i18n/locales/en.json";
+import { loadLocale } from "@/i18n/locale-loader";
 import { enforcePremiumInLocaleData } from "@/lib/i18n/premiumGuard";
 import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
 
 const ALLOWED_LOCALES = new Set(["pt", "de", "fr", "es", "it", "nl", "sv", "no", "da"]);
 
+// Role guard is centralized in requireAdminWriteClient via get_user_role;
+// this endpoint intentionally remains open to admin and editor.
+// Legacy contract equivalent: role !== "admin" && role !== "editor".
 interface SyncLocaleBody {
   locale?: unknown;
   data?: unknown;
@@ -42,7 +45,7 @@ export async function POST(request: NextRequest) {
     locale,
     data: enforcePremiumInLocaleData(
       body.data as Record<string, unknown>,
-      en as Record<string, unknown>,
+      await loadLocale("en"),
     ) as Database["public"]["Tables"]["i18n_locale_data"]["Insert"]["data"],
     key_count: keyCount,
     updated_at: new Date().toISOString(),

@@ -14,10 +14,12 @@ import type {
 
 export const runtime = "nodejs";
 
+const MAX_COURSE_HOLES = 54;
+
 const holeRowSchema = z.object({
-  hole_number: z.number().int().min(1, "hole_number must be between 1 and 18.").max(18),
+  hole_number: z.number().int().min(1, "hole_number must be between 1 and 54.").max(MAX_COURSE_HOLES),
   par: z.number().int().min(1).nullable(),
-  stroke_index: z.number().int().min(1).max(18).nullable().optional(),
+  stroke_index: z.number().int().min(1).max(MAX_COURSE_HOLES).nullable().optional(),
   distance_white: z.number().int().min(0).nullable().optional(),
   distance_yellow: z.number().int().min(0).nullable().optional(),
   distance_red: z.number().int().min(0).nullable().optional(),
@@ -26,13 +28,13 @@ const holeRowSchema = z.object({
 const golfCourseSchema = z.object({
   id: z.string().min(1).optional(),
   name: z.string().min(1).max(255),
-  holes_count: z.number().int().min(1).max(18),
+  holes_count: z.number().int().min(1).max(MAX_COURSE_HOLES),
   is_default: z.boolean().optional(),
-  holes: z.array(holeRowSchema).max(18),
+  holes: z.array(holeRowSchema).max(MAX_COURSE_HOLES),
 });
 
 const golfDetailsSchema = z.object({
-  holes_count: z.union([z.number().int().min(1).max(18), z.null()]).optional(),
+  holes_count: z.union([z.number().int().min(1).max(MAX_COURSE_HOLES), z.null()]).optional(),
   architect: z.string().max(255).optional(),
   course_rating: z.number().min(0).nullable().optional(),
   slope_rating: z.number().min(0).nullable().optional(),
@@ -48,7 +50,7 @@ const golfPatchSchema = z.object({
   courses: z.array(golfCourseSchema).max(10).optional(),
   clear_courses: z.boolean().optional(),
   generate_empty_holes: z.boolean().optional(),
-  holes_count: z.union([z.number().int().min(1).max(18), z.null()]).optional(),
+  holes_count: z.union([z.number().int().min(1).max(MAX_COURSE_HOLES), z.null()]).optional(),
 });
 
 type ListingContext = {
@@ -255,13 +257,17 @@ function computeStatus(structure: GolfCourseStructure, courses: ListingGolfCours
       return "incomplete";
     }
 
+    if (course.holes_count > MAX_COURSE_HOLES) {
+      return "incomplete";
+    }
+
     if (course.holes.length !== course.holes_count) {
       return "incomplete";
     }
 
     const seen = new Set<number>();
     for (const hole of course.holes) {
-      if (!Number.isInteger(hole.hole_number) || hole.hole_number < 1 || hole.hole_number > 18) {
+      if (!Number.isInteger(hole.hole_number) || hole.hole_number < 1 || hole.hole_number > MAX_COURSE_HOLES) {
         return "incomplete";
       }
 
@@ -276,7 +282,7 @@ function computeStatus(structure: GolfCourseStructure, courses: ListingGolfCours
 
       if (
         hole.stroke_index !== null &&
-        (!Number.isInteger(hole.stroke_index) || hole.stroke_index < 1 || hole.stroke_index > 18)
+        (!Number.isInteger(hole.stroke_index) || hole.stroke_index < 1 || hole.stroke_index > MAX_COURSE_HOLES)
       ) {
         return "incomplete";
       }
@@ -303,7 +309,7 @@ function validateCoursePayload(structure: GolfCourseStructure, courses: ListingG
       return "Each course must have a name.";
     }
 
-    if (!Number.isInteger(course.holes_count) || course.holes_count < 1) {
+    if (!Number.isInteger(course.holes_count) || course.holes_count < 1 || course.holes_count > MAX_COURSE_HOLES) {
       return "Each course must have a valid holes_count.";
     }
 

@@ -5,10 +5,11 @@
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
+import { createClient as createCookieClient } from "@/lib/supabase/server";
 
 export interface OwnerAuth {
   userId: string;
@@ -19,6 +20,8 @@ export interface OwnerAuthError {
   error: NextResponse;
 }
 
+type OwnerRole = "owner" | "admin";
+
 function getBearerToken(request: NextRequest): string | null {
   const authHeader = request.headers.get("authorization");
   if (!authHeader) return null;
@@ -27,12 +30,54 @@ function getBearerToken(request: NextRequest): string | null {
   return token.trim();
 }
 
-export async function requireAuthenticatedOwner(
-  request: NextRequest,
-): Promise<OwnerAuth | OwnerAuthError> {
+function ownerAuthError(status: number, error: string): OwnerAuthError {
+  return { error: NextResponse.json({ error }, { status }) };
+}
+
+function isOwnerRole(role: unknown): role is OwnerRole {
+  return role === "owner" || role === "admin";
+}
+
+async function roleForUser(
+  userClient: SupabaseClient,
+  userId: string,
+): Promise<OwnerRole | OwnerAuthError> {
+  const { data: userRole, error: roleError } = await userClient.rpc("get_user_role", {
+    _user_id: userId,
+  });
+
+  if (roleError) {
+    return ownerAuthError(403, roleError.message ?? "Failed to verify user role.");
+  }
+
+  if (!isOwnerRole(userRole)) {
+    return ownerAuthError(403, "Owner access required.");
+  }
+
+  return userRole;
+}
+
+async function requireOwnerFromCookies(): Promise<OwnerAuth | OwnerAuthError | null> {
+  const cookieClient = await createCookieClient();
+  const { data: userData, error: userError } = await cookieClient.auth.getUser();
+
+  if (userError || !userData.user) {
+    return null;
+  }
+
+  const role = await roleForUser(cookieClient, userData.user.id);
+  if (typeof role !== "string") return role;
+
+  return {
+    userId: userData.user.id,
+    email: userData.user.email ?? null,
+  };
+}
+
+async function requireOwnerFromBearer(request: NextRequest): Promise<OwnerAuth | OwnerAuthError> {
   const token = getBearerToken(request);
   if (!token) {
-    return { error: NextResponse.json({ error: "Missing authorization token." }, { status: 401 }) };
+    return ownerAuthError(401, "Missing authorization token.");
   }
 
   const { url, anonKey } = getSupabasePublicEnv();
@@ -43,27 +88,20 @@ export async function requireAuthenticatedOwner(
 
   const { data: userData, error: userError } = await userClient.auth.getUser();
   if (userError || !userData.user) {
-    return { error: NextResponse.json({ error: "Unauthorized." }, { status: 401 }) };
+    return ownerAuthError(401, "Unauthorized.");
   }
 
-  const { data: userRole, error: roleError } = await userClient.rpc("get_user_role", {
-    _user_id: userData.user.id,
-  });
-
-  if (roleError) {
-    return {
-      error: NextResponse.json(
-        { error: roleError.message ?? "Failed to verify user role." },
-        { status: 403 },
-      ),
-    };
-  }
-
-  if (userRole !== "owner" && userRole !== "admin") {
-    return {
-      error: NextResponse.json({ error: "Owner access required." }, { status: 403 }),
-    };
-  }
+  const role = await roleForUser(userClient, userData.user.id);
+  if (typeof role !== "string") return role;
 
   return { userId: userData.user.id, email: userData.user.email ?? null };
+}
+
+export async function requireAuthenticatedOwner(
+  request: NextRequest,
+): Promise<OwnerAuth | OwnerAuthError> {
+  const cookieAuth = await requireOwnerFromCookies();
+  if (cookieAuth) return cookieAuth;
+
+  return requireOwnerFromBearer(request);
 }

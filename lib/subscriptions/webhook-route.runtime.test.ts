@@ -148,4 +148,42 @@ describe("stripe webhook route runtime", () => {
     expect(mocks.applyTierToListings).not.toHaveBeenCalled();
     expect(mocks.markEvent).toHaveBeenCalledWith(expect.anything(), "evt_test_2", "skipped");
   });
+
+  it("short-circuits duplicate successful events before mutating subscription state", async () => {
+    const event = {
+      id: "evt_duplicate_success",
+      type: "invoice.paid",
+      created: 1710000002,
+      data: {
+        object: {
+          metadata: {
+            owner_id: "owner-duplicate",
+          },
+        },
+      },
+    };
+
+    mocks.getStripeServerClient.mockReturnValue({
+      webhooks: {
+        constructEvent: vi.fn().mockReturnValue(event),
+      },
+    });
+    mocks.getStripeWebhookSecret.mockReturnValue("whsec_test");
+    mocks.createServiceRoleClient.mockReturnValue({} as never);
+    mocks.recordStripeEvent.mockResolvedValue({
+      alreadyProcessed: true,
+      previousResult: "success",
+    });
+
+    const response = await postWebhookRoute(webhookRequest());
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload).toEqual({ received: true });
+    expect(mocks.handler).not.toHaveBeenCalled();
+    expect(mocks.findByOwner).not.toHaveBeenCalled();
+    expect(mocks.logSubscriptionMutation).not.toHaveBeenCalled();
+    expect(mocks.applyTierToListings).not.toHaveBeenCalled();
+    expect(mocks.markEvent).not.toHaveBeenCalled();
+  });
 });

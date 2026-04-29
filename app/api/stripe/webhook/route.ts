@@ -1,83 +1,95 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+export const runtime = "nodejs";
 
-export async function POST(request: Request) {
-  const supabase = await createClient();
-  
+import { NextRequest, NextResponse } from "next/server";
+
+import { getStripeServerClient, getStripeWebhookSecret } from "@/lib/stripe/server";
+import { createServiceRoleClient } from "@/lib/supabase/service";
+import { logSubscriptionMutation } from "@/lib/subscriptions/audit";
+import { applyTierToListings, findByOwner } from "@/lib/subscriptions/db";
+import { markEvent, recordStripeEvent } from "@/lib/subscriptions/events";
+import { WEBHOOK_HANDLERS } from "@/lib/subscriptions/webhook-handlers";
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+export async function POST(request: NextRequest) {
+  const stripe = getStripeServerClient();
+  const webhookSecret = getStripeWebhookSecret();
+
+  if (!stripe || !webhookSecret) {
+    return NextResponse.json({ error: "Stripe webhook is not configured." }, { status: 503 });
+  }
+
+  const signature = request.headers.get("stripe-signature");
+  if (!signature) {
+    return NextResponse.json({ error: "Missing Stripe signature." }, { status: 400 });
+  }
+
+  let event;
   try {
-    const body = await request.json();
-    const eventId = body.id as string;
-    const eventType = body.type as string;
+    const rawBody = await request.text();
+    event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
+  } catch (error) {
+    console.error("[stripe-webhook] signature verification failed", error);
+    return NextResponse.json({ error: "Invalid Stripe signature." }, { status: 400 });
+  }
 
-    // Only process checkout completed events
-    if (eventType !== "checkout.session.completed") {
+  const supabase = createServiceRoleClient();
+  if (!supabase) {
+    return NextResponse.json(
+      { error: "Server is missing service role configuration." },
+      { status: 500 },
+    );
+  }
+
+  const handler = WEBHOOK_HANDLERS[event.type];
+  if (!handler) {
+    return NextResponse.json({ received: true });
+  }
+
+  try {
+    const recorded = await recordStripeEvent(supabase, event);
+    if (recorded.alreadyProcessed) {
       return NextResponse.json({ received: true });
     }
 
-    // IDEMPOTENCY: Check if already processed
-    const { data: existingEvent } = await supabase
-      .from("stripe_events_processed")
-      .select("id")
-      .eq("id", eventId)
-      .single();
+    const metadataOwnerId =
+      typeof event.data.object === "object" && event.data.object !== null
+        ? ((event.data.object as { metadata?: { owner_id?: string | null; userId?: string | null } | null })
+            .metadata?.owner_id ??
+          (event.data.object as { metadata?: { owner_id?: string | null; userId?: string | null } | null })
+            .metadata?.userId ??
+          null)
+        : null;
 
-    if (existingEvent) {
-      console.log(`[stripe-webhook] Event ${eventId} already processed, skipping`);
-      return NextResponse.json({ success: true, message: "Already processed" });
+    const previousOwnerId = metadataOwnerId;
+    const previous = previousOwnerId ? await findByOwner(supabase, previousOwnerId) : null;
+    const result = await handler(stripe, supabase, event);
+    const ownerId = result.ownerId ?? previousOwnerId;
+    const next = ownerId ? await findByOwner(supabase, ownerId) : null;
+
+    await logSubscriptionMutation(supabase, {
+      ownerId,
+      action: event.type,
+      previous,
+      next,
+      stripeEventId: event.id,
+    });
+
+    if (ownerId && next && !result.skipped) {
+      await applyTierToListings(supabase, ownerId, next);
     }
 
-    const data = body.data?.object ?? {};
-    const { listingId, contextType, contextValue, position, pricePaid } = data.metadata ?? {};
-
-    if (!listingId || !contextType || !contextValue || !position) {
-      console.error("[stripe-webhook] Missing metadata");
-      return NextResponse.json({ error: "Missing metadata" }, { status: 400 });
-    }
-
-    // Call atomic confirmation with validation
-    const { data: confirmResult, error: confirmError } = await supabase.rpc(
-      "confirm_slot_with_validation",
-      {
-        p_listing_id: listingId,
-        p_context_type: contextType,
-        p_context_value: contextValue,
-        p_position: parseInt(position, 10),
-        p_received_price: pricePaid ? parseInt(pricePaid, 10) : 0,
-        p_stripe_event_id: eventId,
-      }
-    );
-
-    if (confirmError || !confirmResult) {
-      console.error("[stripe-webhook] Slot confirmation failed:", confirmError);
-      return NextResponse.json({ 
-        error: "Slot validation failed" 
-      }, { status: 409 });
-    }
-
-    // Mark subscription as active
-    await supabase
-      .from("listing_subscriptions")
-      .upsert({
-        listing_id: listingId,
-        status: "active",
-        stripe_subscription_id: data.subscription,
-        current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        updated_at: new Date().toISOString(),
-      });
-
-    // Record processed event for idempotency
-    await supabase
-      .from("stripe_events_processed")
-      .insert({
-        id: eventId,
-        event_type: eventType,
-      });
-
-    console.log(`[stripe-webhook] Successfully processed event ${eventId}`);
-
-    return NextResponse.json({ success: true });
+    await markEvent(supabase, event.id, result.skipped ? "skipped" : "success");
+    return NextResponse.json({ received: true });
   } catch (error) {
-    console.error("[stripe-webhook] Error:", error);
-    return NextResponse.json({ error: "Webhook processing failed" }, { status: 500 });
+    console.error("[stripe-webhook] processing failed", error);
+    try {
+      await markEvent(supabase, event.id, "error", errorMessage(error));
+    } catch (markError) {
+      console.error("[stripe-webhook] failed to mark event error", markError);
+    }
+    return NextResponse.json({ error: "Webhook processing failed." }, { status: 500 });
   }
 }

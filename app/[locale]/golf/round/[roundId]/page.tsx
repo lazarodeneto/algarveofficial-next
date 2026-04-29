@@ -42,34 +42,37 @@ export default async function GolfRoundPage({ params }: PageProps) {
     redirect(buildLocalizedPath(locale, `/login?next=${encodeURIComponent(requestedPath)}`));
   }
 
-  try {
-    const round = await getRound({ roundId, userId: user.id });
-    if (!round) notFound();
-
-    return (
-      <main className={`app-container pb-10 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
-        <GolfRoundScoringClient initialRound={round} locale={locale} />
-      </main>
-    );
-  } catch (error) {
+  const roundResult = await getRound({ roundId, userId: user.id }).catch((error: unknown) => {
     if (error instanceof GolfRoundsError && error.code === "INVALID_INPUT") {
       notFound();
     }
 
     if (error instanceof GolfRoundsError && error.code === "NO_HOLES_CONFIGURED") {
-      return (
-        <main className={`app-container pb-10 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
-          <div className="mx-auto max-w-lg rounded-2xl border border-border/70 bg-card p-6">
-            <h1 className="font-serif text-3xl text-foreground">Round unavailable</h1>
-            <p className="mt-3 text-sm text-muted-foreground">
-              This course does not have a complete hole setup yet. Please try another golf
-              listing for now.
-            </p>
-          </div>
-        </main>
-      );
+      return "no-holes" as const;
     }
 
     throw error;
+  });
+
+  if (roundResult === "no-holes") {
+    return (
+      <main className={`app-container pb-10 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
+        <div className="mx-auto max-w-lg rounded-2xl border border-border/70 bg-card p-6">
+          <h1 className="font-serif text-3xl text-foreground">Round unavailable</h1>
+          <p className="mt-3 text-sm text-muted-foreground">
+            This course does not have a complete hole setup yet. Please try another golf
+            listing for now.
+          </p>
+        </div>
+      </main>
+    );
   }
+
+  if (!roundResult) notFound();
+
+  return (
+    <main className={`app-container pb-10 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
+      <GolfRoundScoringClient initialRound={roundResult} locale={locale} />
+    </main>
+  );
 }

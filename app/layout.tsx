@@ -14,7 +14,6 @@ import { toHtmlLang } from "@/lib/i18n/config";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { buildMetadata } from "@/lib/metadata";
 import { buildOrganizationSchema, buildWebsiteSchema } from "@/lib/seo/schemaBuilders.js";
-import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 
 const playfair = Playfair_Display({
@@ -51,9 +50,6 @@ const supabaseOrigin = (() => {
     return null;
   }
 })();
-const configuredHeroPreloadUrl = normalizePublicImageUrl(
-  process.env.NEXT_PUBLIC_HOME_HERO_PRELOAD_URL?.trim() ?? null,
-);
 const organizationSchema = buildOrganizationSchema(siteUrl);
 const websiteSchema = buildWebsiteSchema(siteUrl);
 const enableVercelTelemetry = process.env.NODE_ENV === "production";
@@ -81,43 +77,11 @@ const loadGoogleTagId = unstable_cache(
   { revalidate: 300 },
 );
 
-const loadHomeHeroPreloadUrl = unstable_cache(
-  async () => {
-    if (configuredHeroPreloadUrl) return configuredHeroPreloadUrl;
-
-    try {
-      const supabase = createPublicServerClient();
-      const { data, error } = await supabase
-        .from("homepage_settings")
-        .select("hero_poster_url")
-        .order("updated_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (error) return null;
-
-      return normalizePublicImageUrl(data?.hero_poster_url ?? null);
-    } catch {
-      return null;
-    }
-  },
-  ["homepage-hero-preload-url"],
-  { revalidate: 300 },
-);
-
 async function getGoogleTagId(): Promise<string> {
   try {
     return await loadGoogleTagId();
   } catch {
     return resolveGaMeasurementId(null);
-  }
-}
-
-async function getHomeHeroPreloadUrl(): Promise<string | null> {
-  try {
-    return await loadHomeHeroPreloadUrl();
-  } catch {
-    return configuredHeroPreloadUrl;
   }
 }
 
@@ -136,10 +100,9 @@ interface RootLayoutProps {
 }
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-  const [locale, googleTagId, homeHeroPreloadUrl] = await Promise.all([
+  const [locale, googleTagId] = await Promise.all([
     getRequestLocale(),
     getGoogleTagId(),
-    getHomeHeroPreloadUrl(),
   ]);
   const htmlLang = toHtmlLang(locale);
 
@@ -151,9 +114,6 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             <link rel="preconnect" href={supabaseOrigin} crossOrigin="" />
             <link rel="dns-prefetch" href={supabaseOrigin} />
           </>
-        ) : null}
-        {homeHeroPreloadUrl ? (
-          <link rel="preload" as="image" href={homeHeroPreloadUrl} fetchPriority="high" />
         ) : null}
       </head>
       <body className={fontVariables}>

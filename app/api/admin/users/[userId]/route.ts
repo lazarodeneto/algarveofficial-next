@@ -11,6 +11,7 @@ const ALLOWED_ROLES = new Set<UserRole>(["admin", "editor", "owner", "viewer_log
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+// Role guard is centralized in requireAdminWriteClient via get_user_role.
 interface UpdateUserBody {
   fullName?: unknown;
   email?: unknown;
@@ -78,7 +79,11 @@ export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ userId: string }> },
 ) {
-  const auth = await requireAdminWriteClient(request, "Only admins can manage users.");
+  const auth = await requireAdminWriteClient(
+    request,
+    "Only admins can manage users.",
+    { allowedRoles: ["admin"] },
+  );
   if ("error" in auth) return auth.error;
 
   const { userId } = await context.params;
@@ -186,7 +191,11 @@ export async function DELETE(
   request: NextRequest,
   context: { params: Promise<{ userId: string }> },
 ) {
-  const auth = await requireAdminWriteClient(request, "Only admins can delete users.");
+  const auth = await requireAdminWriteClient(
+    request,
+    "Only admins can delete users.",
+    { allowedRoles: ["admin"] },
+  );
   if ("error" in auth) return auth.error;
 
   const { userId } = await context.params;

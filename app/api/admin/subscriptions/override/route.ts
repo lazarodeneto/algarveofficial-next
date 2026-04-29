@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
     "Only admins can set subscription tier overrides.",
     {
       requireServiceRole: true,
+      allowedRoles: ["admin"],
       missingServiceRoleMessage:
         "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin subscription override writes.",
     },

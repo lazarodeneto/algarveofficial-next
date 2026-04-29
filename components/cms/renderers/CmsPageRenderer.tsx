@@ -5,6 +5,7 @@ import type { ReactElement } from "react";
 import { type CmsBlock, type CmsPageConfig } from "@/lib/cms/block-schemas";
 import { getEnabledBlocks, normalizePageConfig } from "@/lib/cms/normalize-page-config";
 import { resolveHero } from "@/lib/cms/resolve-hero";
+import { sanitizeHtmlString } from "@/lib/sanitizeHtml";
 import { CoursesGridBlock, GolfLeaderboardBlock, RegionsGridBlock } from "@/components/cms/blocks/golf";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 
@@ -15,10 +16,13 @@ interface CmsPageRendererProps {
 
 function renderEditorialText(content: unknown) {
   if (typeof content !== "string" || !content.trim()) return null;
+  const sanitizedContent = sanitizeHtmlString(content);
+  if (!sanitizedContent) return null;
+
   return (
     <div
       className="prose max-w-none"
-      dangerouslySetInnerHTML={{ __html: content }}
+      dangerouslySetInnerHTML={{ __html: sanitizedContent }}
     />
   );
 }

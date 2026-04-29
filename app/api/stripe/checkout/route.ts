@@ -106,6 +106,7 @@ export async function POST(request: NextRequest) {
     userId: auth.userId,
     tier,
     billing_period: billingPeriod,
+    pricing_id: pricing.id,
   };
 
   const buildSessionParams = (customerId: string | null) => ({

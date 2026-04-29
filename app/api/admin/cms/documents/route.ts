@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 
-import { requireAdminSession } from "@/lib/server/admin-auth";
+import { requireAdminReadClient } from "@/lib/server/admin-auth";
 
 type CmsDocType = "page_config" | "text_overrides" | "design_tokens" | "custom_css";
 const VALID_DOC_TYPES = new Set<CmsDocType>([
@@ -37,7 +37,7 @@ function parseBoundedInt(value: string | null, fallback: number, min: number, ma
 
 export async function GET(request: NextRequest) {
   const requestId = randomUUID();
-  const auth = await requireAdminSession(request);
+  const auth = await requireAdminReadClient(request);
   if ("error" in auth) return auth.error;
 
   const pageId = request.nextUrl.searchParams.get("page_id")?.trim() ?? "";
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
     return errorResponse(400, "INVALID_DOC_TYPE", "Unsupported cms doc_type.", requestId);
   }
 
-  let query = auth.userClient
+  let query = auth.readClient
     .from("cms_documents" as never)
     .select("id, page_id, locale, doc_type, status, current_version_id, created_at, updated_at")
     .order("updated_at", { ascending: false })
@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
 
   const versionsByDoc = new Map<number, unknown[]>();
   for (const doc of docs) {
-    const { data: versionRows, error: versionsError } = await auth.userClient
+    const { data: versionRows, error: versionsError } = await auth.readClient
       .from("cms_document_versions" as never)
       .select("id, document_id, version, content, created_at, created_by")
       .eq("document_id", doc.id as never)

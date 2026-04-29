@@ -9,13 +9,18 @@ const VALID_TIERS = new Set(["unverified", "verified", "signature"]);
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+// Role guard is centralized in requireAdminWriteClient via get_user_role.
 interface BulkTierBody {
   ids?: unknown;
   tier?: unknown;
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requireAdminWriteClient(request, "Only admins can update listing tiers.");
+  const auth = await requireAdminWriteClient(
+    request,
+    "Only admins can update listing tiers.",
+    { allowedRoles: ["admin"] },
+  );
   if ("error" in auth) return auth.error;
 
   let body: BulkTierBody;

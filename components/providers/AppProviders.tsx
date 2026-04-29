@@ -4,6 +4,7 @@ import { type ReactNode, useState } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 
 import { I18nProvider } from "./I18nProvider";
+import type { LocaleMessages } from "@/i18n/locale-loader";
 import { HtmlLocaleSync } from "./HtmlLocaleSync";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 import { FaviconUpdater } from "@/components/FaviconUpdater";
@@ -23,14 +24,15 @@ import { createAppQueryClient } from "@/lib/react-query";
 
 interface AppProvidersProps {
   children: ReactNode;
+  initialMessages?: LocaleMessages;
 }
 
-export function AppProviders({ children }: AppProvidersProps) {
+export function AppProviders({ children, initialMessages }: AppProvidersProps) {
   const [queryClient] = useState(() => createAppQueryClient());
 
   return (
     <QueryClientProvider client={queryClient}>
-      <I18nProvider>
+      <I18nProvider initialMessages={initialMessages}>
         <HtmlLocaleSync />
         <GlobalErrorBoundary>
         <ThemeProvider>

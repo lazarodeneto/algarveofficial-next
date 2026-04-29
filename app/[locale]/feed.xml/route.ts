@@ -36,7 +36,7 @@ async function getBlogPosts() {
   const supabase = createPublicServerClient();
   const { data, error } = await supabase
     .from("blog_posts")
-    .select("slug, title, excerpt, content, featured_image, published_at, updated_at, author_name")
+    .select("slug, title, excerpt, featured_image, published_at, updated_at")
     .eq("status", "published")
     .not("slug", "is", null)
     .order("published_at", { ascending: false })
@@ -54,7 +54,7 @@ async function getEvents() {
   const supabase = createPublicServerClient();
   const { data, error } = await supabase
     .from("events")
-    .select("slug, title, description, image, start_date, end_date, location_name, updated_at")
+    .select("slug, title, description, image, start_date, end_date, location, venue, updated_at")
     .eq("status", "published")
     .not("slug", "is", null)
     .gte("start_date", new Date().toISOString())
@@ -105,7 +105,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ loca
     const eventUrl = `${baseUrl}/events/${event.slug}`;
     const startDate = formatRssDate(event.start_date);
     const lastMod = formatRssDate(event.updated_at);
-    const location = event.location_name ? `<location>${escapeXml(event.location_name)}</location>` : "";
+    const locationName = event.location ?? event.venue;
+    const location = locationName ? `<location>${escapeXml(locationName)}</location>` : "";
     const image = event.image ? `<image>${escapeXml(event.image)}</image>` : "";
 
     items.push(`    <item>

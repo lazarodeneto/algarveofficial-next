@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { AppProviders } from "@/components/providers/AppProviders";
 import { PublicSiteFrame } from "@/components/layout/PublicSiteFrame";
+import { loadInitialLocaleMessages } from "@/i18n/server-locale";
 import { LocaleProvider } from "@/lib/i18n/locale-context";
 import { CookieConsentBannerWrapper } from "@/components/gdpr/CookieConsentBannerWrapper";
 import { FloatingCookieSettingsButton } from "@/components/gdpr/FloatingCookieSettingsButton";
@@ -68,10 +69,11 @@ export default async function LocaleLayout({
   // ✅ Get locale config
   const localeConfig = LOCALE_CONFIGS[locale] ?? LOCALE_CONFIGS.en;
   void localeConfig;
+  const messages = await loadInitialLocaleMessages(locale);
 
   return (
     <LocaleProvider locale={locale}>
-      <AppProviders>
+      <AppProviders initialMessages={messages}>
         <PublicSiteFrame>{children}</PublicSiteFrame>
         <WhatsAppChatButtonWrapper />
         <FloatingCookieSettingsButton />
