@@ -10,6 +10,7 @@ import {
 } from "@/lib/publicContentLocale";
 import {
   categoriesQueryKey,
+  cityListingCountsQueryKey,
   citiesQueryKey,
   regionListingCountsQueryKey,
   regionsQueryKey,
@@ -175,6 +176,37 @@ export function useRegionListingCounts() {
       for (const row of data ?? []) {
         if (row.region_id) {
           counts[row.region_id] = (counts[row.region_id] || 0) + 1;
+        }
+      }
+      return counts;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+/**
+ * Fetch published listing counts grouped by city.
+ * Used for city discovery surfaces that should only show cities with inventory.
+ */
+export function useCityListingCounts() {
+  return useQuery({
+    queryKey: cityListingCountsQueryKey(),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('listings')
+        .select('city_id', { count: 'exact', head: false })
+        .eq('status', 'published')
+        .not('city_id', 'is', null);
+
+      if (error) {
+        console.warn('Error fetching city counts:', error);
+        return {};
+      }
+
+      const counts: Record<string, number> = {};
+      for (const row of data ?? []) {
+        if (row.city_id) {
+          counts[row.city_id] = (counts[row.city_id] || 0) + 1;
         }
       }
       return counts;

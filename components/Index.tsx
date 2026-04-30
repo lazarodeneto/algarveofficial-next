@@ -6,7 +6,9 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { HomepageSignatureCollection } from "@/components/sections/HomepageSignatureCollection";
 import { HeroSection } from "@/components/sections/HeroSection";
+import { HomeAllCitiesSection } from "@/components/sections/HomeAllCitiesSection";
 import { HomeQuickLinksSection } from "@/components/sections/HomeQuickLinksSection";
+import { HomeTrustSection } from "@/components/sections/HomeTrustSection";
 import { useHomepageSettings } from "@/hooks/useHomepageSettings";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { CmsBlock } from "@/components/cms/CmsBlock";
@@ -69,7 +71,6 @@ const SECTION_COMPONENTS: Record<string, ComponentType<unknown>> = {
 
 // Default section order if none in database
 const DEFAULT_SECTION_ORDER = [
-  "vip",
   "regions",
 ];
 
@@ -102,15 +103,12 @@ const Index = () => {
       vip: settings.show_vip_section ?? true,
     };
 
-    const normalizedOrder = sectionOrder.filter((id) => id in SECTION_COMPONENTS);
+    const normalizedOrder = sectionOrder.filter((id) => id in SECTION_COMPONENTS && id !== "vip");
     const cmsOrdered = getBlockOrder(normalizedOrder);
 
     return cmsOrdered
       .map(id => ({ id, enabled: visibilityMap[id] ?? true }));
   }, [settings, isLoading, getBlockOrder]);
-
-  // Check if CTA section should be shown
-  const showCta = settings?.show_cta_section ?? true;
 
   return (
     <div className="min-h-screen bg-background">
@@ -130,13 +128,8 @@ const Index = () => {
             <HomepageSignatureCollection />
           </CmsBlock>
         )}
-        {(settings?.show_vip_section ?? true) && isBlockEnabled("vip", true) && (
-          <CmsBlock pageId="home" blockId="vip" as="section">
-            <SignatureMapSection />
-          </CmsBlock>
-        )}
         <div className="mx-auto w-full content-max density">
-          {sectionsToRender.filter(({ id }) => id !== "vip").map(({ id, enabled }) => {
+          {sectionsToRender.map(({ id, enabled }) => {
             const defaultEnabled = true;
             if (!enabled || !isBlockEnabled(id, defaultEnabled)) return null;
 
@@ -156,11 +149,18 @@ const Index = () => {
             );
           })}
         </div>
-        {showCta && isBlockEnabled("cta", true) && (
-          <CmsBlock pageId="home" blockId="cta" as="section">
-            <CTASection />
+        <HomeAllCitiesSection />
+        {(settings?.show_vip_section ?? true) && isBlockEnabled("vip", true) && (
+          <CmsBlock pageId="home" blockId="vip" as="section">
+            <SignatureMapSection />
           </CmsBlock>
         )}
+        {isBlockEnabled("trust", true) && (
+          <CmsBlock pageId="home" blockId="trust" as="section">
+            <HomeTrustSection />
+          </CmsBlock>
+        )}
+        <CTASection />
       </main>
       <Footer />
     </div>

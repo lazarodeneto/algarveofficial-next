@@ -65,7 +65,7 @@ export function HomeQuickLinksSection() {
     return (
       <section id="home-quick-links" className="relative z-10 bg-background pb-10 pt-8 sm:pb-14 sm:pt-10 lg:pb-16 lg:pt-12" aria-hidden="true">
         <div className="app-container">
-          <div className="mx-auto grid w-full gap-4 px-1 sm:max-w-[1120px] sm:grid-cols-2 sm:gap-5 sm:px-0 lg:grid-cols-4 lg:gap-5">
+          <div className="mx-auto grid w-full grid-cols-2 gap-3 px-1 sm:max-w-[1120px] sm:gap-5 sm:px-0 lg:grid-cols-4 lg:gap-5">
             {HOME_QUICK_LINK_CARDS.map((card) => (
               <div
                 key={card.id}
@@ -84,7 +84,7 @@ export function HomeQuickLinksSection() {
   return (
     <section id="home-quick-links" className="relative z-10 bg-background pb-10 pt-8 sm:pb-14 sm:pt-10 lg:pb-16 lg:pt-12">
       <div className="app-container">
-        <div className="mx-auto grid w-full gap-4 px-1 sm:max-w-[1120px] sm:grid-cols-2 sm:gap-5 sm:px-0 lg:grid-cols-4 lg:gap-5">
+        <div className="mx-auto grid w-full grid-cols-2 gap-3 px-1 sm:max-w-[1120px] sm:gap-5 sm:px-0 lg:grid-cols-4 lg:gap-5">
           {quickLinkCards.map((card) => {
             const Icon = CARD_ICONS[card.id];
             const displayTitle = card.title;
@@ -136,7 +136,7 @@ export function HomeQuickLinksSection() {
                         onPlay={(event) => enforceMutedPlayback(event.currentTarget)}
                         onError={() => markVideoAsFailed(card.id)}
                         style={{ objectPosition: card.imagePosition ?? "center" }}
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 ease-out will-change-transform group-hover:scale-[1.06]"
                       />
                     ) : showImage ? (
                       <Image
@@ -151,17 +151,17 @@ export function HomeQuickLinksSection() {
                         decoding="async"
                         onError={() => markImageAsFailed(card.id)}
                         style={{ objectPosition: card.imagePosition ?? "center" }}
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 ease-out will-change-transform group-hover:scale-[1.06]"
                       />
                     ) : (
                       <div className="absolute inset-0 bg-black" aria-hidden="true" />
                     )}
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 via-[35%] to-transparent" />
-                  <div className="relative z-10 flex h-full flex-col justify-end p-5 text-white sm:p-6">
-                    <h3 className="font-sans text-2xl font-bold not-italic uppercase leading-none tracking-normal sm:text-3xl">
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 via-[42%] to-transparent" />
+                  <div className="relative z-10 flex h-full flex-col justify-end p-4 text-white sm:p-6">
+                    <h3 className="font-sans text-base font-bold not-italic uppercase leading-none tracking-normal min-[480px]:text-xl sm:text-3xl">
                       {displayTitle}
                     </h3>
-                    <span className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-white/82">
+                    <span className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-white/82 sm:mt-3 sm:gap-2 sm:text-sm">
                       <Icon className="h-4 w-4 text-primary" /> Explore <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </span>
                   </div>

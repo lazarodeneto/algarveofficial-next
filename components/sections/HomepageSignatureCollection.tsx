@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Crown, Search } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/Button";
@@ -13,7 +13,7 @@ import { getHomepageSignatureSelection } from "@/lib/listings/getHomepageSignatu
 import { translateCategoryName } from "@/lib/translateCategory";
 import { useTranslation } from "react-i18next";
 
-const DISPLAY_LIMIT = 8;
+const DISPLAY_LIMIT = 6;
 
 export function HomepageSignatureCollection() {
   const l = useLocalePath();
@@ -28,29 +28,30 @@ export function HomepageSignatureCollection() {
   const listings = data?.listings ?? [];
   const isFallback = data?.isFallback ?? true;
   const title = isFallback ? "Editor's Selection" : "Signature Collection";
-  const subtitle = "A curated selection of the Algarve's finest places";
   const displayListings = listings.slice(0, DISPLAY_LIMIT);
-  const hero = displayListings[0];
-  const rest = displayListings.slice(1);
 
   return (
-    <section id="signature-collection" className="bg-background py-20 sm:py-24 lg:py-32">
+    <section id="signature-collection" className="bg-background py-14 sm:py-20 lg:py-24">
       <div className="app-container content-max">
-        <div className="mx-auto mb-12 max-w-3xl text-center sm:mb-16">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
-            <Crown className="h-4 w-4" />
-            Curated AlgarveOfficial
+        <div className="mb-9 flex flex-col gap-5 sm:mb-12 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              Editor&apos;s picks
+            </p>
+            <h2 className="mt-3 font-serif text-3xl font-medium tracking-normal text-foreground sm:text-4xl">
+              {title}
+            </h2>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
+              Handpicked places and properties that define the very best of the Algarve.
+            </p>
           </div>
-          <h2 className="font-serif text-3xl font-medium tracking-normal text-foreground sm:text-4xl lg:text-5xl">
-            {title}
-          </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-body text-muted-foreground">
-            {subtitle}. Hotels, restaurants, experiences and property selected for trust, quality and location.
-          </p>
+          <Link href={l("/directory?tier=signature")} className="hidden text-sm font-semibold text-primary transition-colors hover:text-primary/80 lg:inline-flex">
+            View all collection <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
         </div>
 
         {isLoading ? (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
             {Array.from({ length: DISPLAY_LIMIT }).map((_, index) => (
               <div
                 key={index}
@@ -59,8 +60,8 @@ export function HomepageSignatureCollection() {
             ))}
           </div>
         ) : displayListings.length > 0 ? (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-            {displayListings.map((listing) => (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+            {displayListings.map((listing, index) => (
               <SignatureCard
                 key={listing.id}
                 title={listing.name}
@@ -72,6 +73,7 @@ export function HomepageSignatureCollection() {
                 variant="default"
                 isFavorite={isFavorite(listing.id)}
                 onToggleFavorite={() => toggleFavorite(listing.id)}
+                className={index > 3 ? "hidden sm:block" : undefined}
               />
             ))}
           </div>
@@ -82,17 +84,11 @@ export function HomepageSignatureCollection() {
           </div>
         )}
 
-        <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row lg:hidden">
           <Link href={l("/directory?tier=signature")} className="w-full sm:w-auto">
             <Button size="lg" variant="gold" className="w-full gap-2">
-              View Full Collection
+              View full collection
               <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
-          <Link href={l("/directory")} className="w-full sm:w-auto">
-            <Button size="lg" variant="outline" className="w-full gap-2">
-              <Search className="h-4 w-4" />
-              Browse All Listings
             </Button>
           </Link>
         </div>

@@ -334,32 +334,56 @@
 
   h1 {
     font-weight: 600;
-    font-style: italic;
+    font-style: normal;
     line-height: 1.08;
     letter-spacing: -0.4px;
   }
 
+  h1.italic,
+  .editorial h1,
+  .prose h1 {
+    font-style: italic;
+  }
+
   h2 {
     font-weight: 600;
-    font-style: italic;
+    font-style: normal;
     line-height: 1.16;
     letter-spacing: -0.25px;
   }
 
+  h2.italic,
+  .editorial h2,
+  .prose h2 {
+    font-style: italic;
+  }
+
   h3 {
     font-weight: 500;
-    font-style: italic;
+    font-style: normal;
     line-height: 1.22;
     letter-spacing: -0.15px;
+  }
+
+  h3.italic,
+  .editorial h3,
+  .prose h3 {
+    font-style: italic;
   }
 
   h4,
   h5,
   h6 {
     font-weight: 500;
-    font-style: italic;
+    font-style: normal;
     line-height: 1.3;
     letter-spacing: -0.1px;
+  }
+
+  h6.italic,
+  .editorial h6,
+  .prose h6 {
+    font-style: italic;
   }
 
   @media (min-width: 768px) {

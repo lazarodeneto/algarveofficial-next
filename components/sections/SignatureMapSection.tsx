@@ -1,127 +1,56 @@
-import dynamic from "next/dynamic";
-import Link from "next/link";
-import { ArrowRight, Loader2, MapPinned } from "lucide-react";
-import { useMemo } from "react";
+"use client";
 
-import type { MapListingPoint } from "@/components/map/ListingsLeafletMap";
-import { Button } from "@/components/ui/Button";
+import Link from "next/link";
+import { ArrowRight, MapPinned, Search } from "lucide-react";
+
+import { buttonVariants } from "@/components/ui/Button";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useSignatureListings } from "@/hooks/useListings";
-import { useHydrated } from "@/hooks/useHydrated";
-import { translateCategoryName } from "@/lib/translateCategory";
-import { useTranslation } from "react-i18next";
-
-const ListingsLeafletMap = dynamic(
-  () => import("@/components/map/ListingsLeafletMap"),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="h-[420px] w-full rounded-[1.75rem] bg-muted/35 animate-pulse" />
-    ),
-  }
-);
 
 export function SignatureMapSection() {
-  const { t } = useTranslation();
   const l = useLocalePath();
-  const hydrated = useHydrated();
-  const { data: signatureListings = [], isLoading } = useSignatureListings();
-
-  const mapPoints = useMemo<MapListingPoint[]>(
-    () =>
-      signatureListings
-        .map<MapListingPoint | null>((listing) => {
-          const latitude = Number(listing.latitude ?? listing.city?.latitude ?? NaN);
-          const longitude = Number(listing.longitude ?? listing.city?.longitude ?? NaN);
-          if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
-
-          return {
-            id: listing.id,
-            name: listing.name,
-            slug: listing.slug,
-            latitude,
-            longitude,
-            categorySlug: listing.category?.slug,
-            categoryName: translateCategoryName(t, listing.category?.slug, listing.category?.name),
-            categoryImageUrl: listing.category?.image_url,
-            cityName: listing.city?.name ?? "Algarve",
-            tier: listing.tier,
-            featuredImageUrl: listing.featured_image_url,
-            priceFrom: listing.price_from,
-            priceCurrency: listing.price_currency,
-            href: l(`/listing/${listing.slug}`),
-          } satisfies MapListingPoint;
-        })
-        .filter((point): point is MapListingPoint => point !== null)
-        .slice(0, 240),
-    [l, signatureListings, t]
-  );
+  const { data: signatureListings = [] } = useSignatureListings();
+  const mappedCount = signatureListings.filter((listing) => {
+    const latitude = Number(listing.latitude ?? listing.city?.latitude ?? NaN);
+    const longitude = Number(listing.longitude ?? listing.city?.longitude ?? NaN);
+    return Number.isFinite(latitude) && Number.isFinite(longitude);
+  }).length;
+  const displayCount = mappedCount > 0 ? mappedCount : 200;
 
   return (
-    <section id="explore-map" className="bg-background py-20 sm:py-24 lg:py-28">
+    <section id="explore-map" className="bg-background py-10 sm:py-14 lg:py-16">
       <div className="app-container content-max">
-        <div className="mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-          <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-primary">
-              <MapPinned className="h-4 w-4" />
-              Explore on Map
-            </span>
-            <h2 className="mt-4 font-serif text-3xl font-medium tracking-normal text-foreground sm:text-4xl">
-              Search the Algarve by location
-            </h2>
-            <p className="mt-4 text-body text-muted-foreground">
-              Move from curated inspiration to a geographic search view with clustered markers and area-based filtering.
-            </p>
-          </div>
-
-          <Link href={l("/map")} className="w-full sm:w-auto">
-            <Button variant="gold" size="lg" className="w-full gap-2 sm:w-auto">
-              Search by location
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
-
-        {/* Desktop: interactive map / Mobile: lightweight CTA card */}
-        <div className="hidden lg:block overflow-hidden rounded-[1.75rem] bg-black shadow-elevated">
-          {isLoading ? (
-            <div className="flex h-[420px] items-center justify-center bg-muted/30">
-              <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                {t("sections.vip.discovery.loadingMap")}
-              </span>
-            </div>
-          ) : hydrated ? (
-            <ListingsLeafletMap
-              points={mapPoints}
-              enableClustering
-              showPopups={false}
-              autoFit
-              scrollWheelZoom={false}
-              mapClassName="h-[420px]"
-              emptyMessage="No mapped signature places yet."
-            />
-          ) : (
-            <div className="h-[420px] w-full bg-muted/35 animate-pulse" />
-          )}
-        </div>
-
-        {/* Mobile map CTA — avoids heavy Leaflet hydration */}
         <Link
           href={l("/map")}
-          className="lg:hidden group relative isolate flex aspect-[16/9] items-center justify-center overflow-hidden rounded-2xl bg-muted shadow-card transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="group relative isolate block overflow-hidden rounded-2xl border border-border/70 bg-[#10281f] shadow-card transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-          <div className="relative z-10 text-center">
-            <MapPinned className="mx-auto h-10 w-10 text-primary" />
-            <p className="mt-3 font-serif text-xl font-semibold text-foreground">
-              Explore on Map
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {mapPoints.length} curated places across the Algarve
-            </p>
-            <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
-              Open Map <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          <div className="absolute inset-0 opacity-90" aria-hidden="true">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_30%,rgba(212,166,42,0.2),transparent_18%),linear-gradient(135deg,rgba(255,255,255,0.06)_0_1px,transparent_1px_42px)]" />
+            <div className="absolute left-[16%] top-[22%] h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_0_8px_rgba(212,166,42,0.16)]" />
+            <div className="absolute left-[53%] top-[48%] h-2.5 w-2.5 rounded-full bg-white/85 shadow-[0_0_0_8px_rgba(255,255,255,0.12)]" />
+            <div className="absolute right-[20%] top-[30%] h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_0_8px_rgba(212,166,42,0.16)]" />
+            <div className="absolute bottom-[25%] left-[38%] h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_0_8px_rgba(212,166,42,0.14)]" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#10281f] via-[#10281f]/88 to-[#10281f]/56" />
+          </div>
+
+          <div className="relative z-10 grid min-h-[260px] gap-8 p-6 sm:min-h-[300px] sm:p-8 lg:grid-cols-[1fr_auto] lg:items-end lg:p-10">
+            <div className="max-w-2xl text-white">
+              <span className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+                <MapPinned className="h-4 w-4" />
+                Explore on Map
+              </span>
+              <h2 className="mt-4 font-serif text-3xl font-medium tracking-normal sm:text-4xl">
+                Search the Algarve by location
+              </h2>
+              <p className="mt-4 max-w-xl text-base leading-7 text-white/78 sm:text-lg">
+                Explore {displayCount}+ places across the Algarve, then filter by area, category and intent.
+              </p>
+            </div>
+
+            <span className={buttonVariants({ variant: "gold", size: "lg", className: "w-full gap-2 sm:w-auto" })}>
+              <Search className="h-4 w-4" />
+              Search by location
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </span>
           </div>
         </Link>

@@ -20,11 +20,12 @@ import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { buildSupabaseImageUrl } from "@/lib/imageUrls";
+import { heroAssets } from "@/lib/assetUrls";
 import { STANDARD_PUBLIC_HERO_SURFACE_CLASS, STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 
-const HOMEPAGE_H1 = "Discover the Algarve – Hotels, Restaurants, Experiences & Real Estate";
+const HOMEPAGE_H1 = "The Algarve, Curated";
 const HOMEPAGE_SUBTITLE =
-  "Discover the finest places to stay, eat and experience across Portugal’s most beautiful coastline.";
+  "Hotels, restaurants, experiences, golf and real estate — in one platform.";
 const HOMEPAGE_PRIMARY_CTA = "Explore curated places";
 const HOMEPAGE_SECONDARY_CTA = "Search by location";
 
@@ -157,15 +158,15 @@ function HeroPosterImage({
   className?: string;
   priority?: boolean;
 }) {
-  if (!hasPosterUrl) return <div className={`${className ?? ""} bg-gradient-to-b from-slate-900 to-black`} />;
+  const fallbackPosterUrl = heroAssets.poster;
 
   const posterSrc =
-    buildSupabaseImageUrl(posterUrl, {
+    buildSupabaseImageUrl(hasPosterUrl ? posterUrl : fallbackPosterUrl, {
       width: 1920,
       quality: 54,
       format: "webp",
       resize: "cover",
-    }) ?? posterUrl;
+    }) ?? (hasPosterUrl ? posterUrl : fallbackPosterUrl);
 
   return (
     <Image
@@ -287,10 +288,6 @@ export function HeroSection() {
   const [tripPlannerOpen, setTripPlannerOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const openTripPlanner = () => {
-    setTripPlannerOpen(true);
-  };
-
   const handleCreateTrip = (data: { title: string; description?: string; start_date: string; end_date: string }) => {
     if (!isAuthenticated) {
       toast.info(t("hero.loginRequired"));
@@ -344,6 +341,7 @@ export function HeroSection() {
     HOMEPAGE_PRIMARY_CTA ||
     (locale === "en" ? settings?.hero_cta_primary_text?.trim() : null) ||
     localizedTripPlannerButtonLabel;
+  const heroHeadlineLead = heroHeadline.replace(/\s*,?\s*Curated\s*$/i, "").trim() || "The Algarve";
   // ... inside the component function ...
 
   const mediaMode = useMemo<"youtube" | "video" | "poster" | "none" | "loading">(() => {
@@ -377,7 +375,7 @@ export function HeroSection() {
       <section className={STANDARD_PUBLIC_HERO_SURFACE_CLASS}>
         {/* Video Background */}
         <div className="absolute inset-0">
-          {(mediaMode === "loading" || mediaMode !== "none") ? (
+          {mediaMode === "loading" || mediaMode === "poster" || mediaMode === "none" ? (
             <HeroPosterImage
               hasPosterUrl={hasPosterUrl}
               posterUrl={posterUrl}
@@ -390,9 +388,10 @@ export function HeroSection() {
           {mediaMode === "youtube" && <YouTubeEmbed youtubeUrl={youtubeUrl} />}
           {mediaMode === "video" && <HeroVideo videoUrl={videoUrl} posterUrl={hasPosterUrl ? heroVideoPosterSrc : undefined} />}
 
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.68)_0%,rgba(0,0,0,0.46)_42%,rgba(0,0,0,0.18)_72%,rgba(0,0,0,0.32)_100%)]" />
           <div
-            className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.18)_0%,rgba(0,0,0,0.28)_38%,rgba(0,0,0,0.72)_100%)]"
-            style={{ opacity: Math.max(0.82, overlayIntensity / 100) }}
+            className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.12)_0%,rgba(0,0,0,0.16)_48%,rgba(0,0,0,0.66)_100%)]"
+            style={{ opacity: Math.max(0.68, overlayIntensity / 125) }}
           />
           {showMediaConsentPrompt ? (
             <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center px-4">
@@ -407,26 +406,27 @@ export function HeroSection() {
           ) : null}
         </div>
 
-        <div className="relative z-10 mx-auto flex min-h-[inherit] w-full max-w-5xl items-center justify-center px-5 pb-12 pt-24 sm:px-8 sm:pb-16 sm:pt-28 lg:pb-20 lg:pt-32">
-          <div className="mx-auto max-w-2xl space-y-5 text-center text-white">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-white/82 sm:text-base">
-              AlgarveOfficial
+        <div className="relative z-10 mx-auto flex min-h-[inherit] w-full max-w-7xl items-center px-5 pb-10 pt-28 sm:px-8 sm:pb-14 sm:pt-32 lg:px-16 lg:pb-16 lg:pt-40">
+          <div className="max-w-3xl space-y-5 text-left text-white">
+            <p className="inline-flex rounded-full border border-white/20 bg-white/12 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/82 backdrop-blur-md sm:text-xs">
+              Curated for you
             </p>
 
-            <h1 className="font-serif text-[clamp(3rem,9vw,5.75rem)] font-semibold italic leading-[0.92] tracking-normal text-white">
-              The Algarve, Curated
+            <h1 className="font-serif text-[clamp(3.25rem,8vw,6.75rem)] font-semibold leading-[0.92] tracking-normal text-white">
+              <span className="block">{heroHeadlineLead},</span>
+              <span className="block italic text-primary">Curated</span>
             </h1>
 
-            <p className="mx-auto max-w-xl text-base font-light leading-7 text-white/88 sm:text-lg">
+            <p className="max-w-xl text-base font-light leading-7 text-white/88 sm:text-lg">
               {heroSubtitle}
             </p>
 
-            <div className="mx-auto flex w-full max-w-[38rem] flex-col items-center gap-3 pt-3 sm:flex-row sm:justify-center sm:gap-4">
+            <div className="flex w-full flex-col gap-3 pt-3 sm:max-w-[42rem] sm:flex-row sm:items-center sm:gap-4">
               <Button
                 variant="gold"
                 size="lg"
                 onClick={() => scrollToSection("signature-collection")}
-                className="w-full max-w-[18rem] gap-2 sm:w-auto"
+                className="min-h-12 w-full gap-2 px-7 sm:w-auto"
               >
                 {primaryCtaLabel}
                 <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -435,7 +435,7 @@ export function HeroSection() {
                 variant="heroOutline"
                 size="lg"
                 onClick={() => router.push(l("/map"))}
-                className="hidden sm:inline-flex w-full max-w-[18rem] sm:w-auto"
+                className="hidden min-h-12 w-full px-7 sm:inline-flex sm:w-auto"
               >
                 {getText("home.hero.cta.secondary", "") || HOMEPAGE_SECONDARY_CTA}
               </Button>
@@ -446,6 +446,11 @@ export function HeroSection() {
             >
               {getText("home.hero.cta.secondary", "") || HOMEPAGE_SECONDARY_CTA} <ArrowRight className="h-3.5 w-3.5" />
             </Link>
+            <div className="flex max-w-2xl flex-wrap items-center gap-x-5 gap-y-2 pt-4 text-xs font-semibold text-white/78">
+              <span>Curated by locals</span>
+              <span>Verified and trusted</span>
+              <span>For visitors and investors</span>
+            </div>
           </div>
         </div>
 
@@ -469,9 +474,9 @@ export function HeroSection() {
           <button
             onClick={() => scrollToSection("signature-collection")}
             aria-label={t("hero.scroll")}
-            className="pointer-events-auto flex flex-col items-end gap-2 text-white/70 transition-colors cursor-pointer animate-bounce hover:text-white"
+            className="pointer-events-auto flex h-11 w-11 items-center justify-center rounded-full border border-white/35 bg-black/20 text-white/70 backdrop-blur-md transition-colors cursor-pointer hover:text-white"
           >
-            <ChevronDown className="h-5 w-5 text-white/60" />
+            <ChevronDown className="h-5 w-5 text-white/70" />
           </button>
         </div>
       </section>

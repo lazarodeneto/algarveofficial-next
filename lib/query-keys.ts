@@ -32,6 +32,10 @@ export function regionListingCountsQueryKey() {
   return ["reference-data", "region-listing-counts"] as const;
 }
 
+export function cityListingCountsQueryKey() {
+  return ["reference-data", "city-listing-counts"] as const;
+}
+
 export function curatedAssignmentsQueryKey(
   contextType: string,
   contextId: string | null,

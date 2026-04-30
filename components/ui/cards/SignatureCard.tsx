@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
-import { getOverlay, useImageBrightness } from "@/lib/hooks/useImageBrightness";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -50,8 +49,6 @@ export function SignatureCard({
 }: Props) {
   const isHero = variant === "hero";
   const isExternalImage = typeof image === "string" && /^https?:\/\//i.test(image);
-  const brightness = useImageBrightness(image);
-
   const content = (
     <>
       {image ? (
@@ -62,7 +59,7 @@ export function SignatureCard({
           unoptimized={isExternalImage}
           sizes={isHero ? "(max-width: 1024px) 100vw, 50vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"}
           quality={72}
-          className="object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
+          className="object-cover transition-transform duration-300 ease-out will-change-transform group-hover:scale-[1.06]"
         />
       ) : (
         <div className="absolute inset-0 bg-neutral-900" aria-hidden="true" />
@@ -70,17 +67,19 @@ export function SignatureCard({
 
       <div
         className={cn(
-          "pointer-events-none absolute inset-0 bg-gradient-to-t",
-          getOverlay(brightness),
-          "to-transparent"
+          "pointer-events-none absolute inset-x-0 bottom-0 h-[72%] bg-gradient-to-t from-black/95 via-black/76 via-[48%] to-transparent"
         )}
       />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[38%] bg-black/28" />
 
-      {category ? (
-        <div className="absolute left-4 top-4 z-10 text-xs font-semibold uppercase tracking-[0.16em] text-white/72">
-          {category}
-        </div>
-      ) : null}
+      <div className="absolute left-5 right-16 top-5 z-10 flex flex-wrap items-center gap-2 sm:left-6 sm:top-6">
+        <TierBadge tier={tier} />
+        {category ? (
+          <span className="min-w-0 truncate text-xs font-bold uppercase tracking-[0.18em] text-white/82">
+            {category}
+          </span>
+        ) : null}
+      </div>
 
       {onToggleFavorite ? (
         <button
@@ -91,24 +90,23 @@ export function SignatureCard({
             event.stopPropagation();
             onToggleFavorite();
           }}
-          className="absolute right-4 top-4 z-10 rounded-full bg-white/20 p-2 text-white backdrop-blur transition hover:bg-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          className="absolute right-4 top-4 z-10 rounded-full bg-white/18 p-2 text-white backdrop-blur transition duration-300 ease-out hover:bg-white/28 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
         >
           <Heart className={cn("h-4 w-4", isFavorite && "fill-white")} />
         </button>
       ) : null}
 
       <div className={cn("absolute bottom-0 left-0 right-0 z-10 text-white", isHero ? "p-6 sm:p-8" : "p-5 sm:p-6")}>
-        <TierBadge tier={tier} />
         <h3
           className={cn(
-            "mt-3 line-clamp-2 font-serif font-semibold not-italic leading-tight tracking-normal",
-            isHero ? "text-3xl sm:text-4xl" : "text-lg sm:text-xl"
+            "line-clamp-2 font-sans font-bold not-italic leading-tight tracking-normal",
+            "text-lg sm:text-xl"
           )}
         >
           {title}
         </h3>
         {subtitle ? (
-          <p className={cn("mt-3 line-clamp-2 text-white/80", isHero ? "text-sm sm:text-base" : "text-sm")}>
+          <p className={cn("mt-3 line-clamp-2 text-white/90", isHero ? "text-sm sm:text-base" : "text-sm")}>
             {subtitle}
           </p>
         ) : null}
@@ -117,7 +115,7 @@ export function SignatureCard({
   );
 
   const className = cn(
-    "group relative isolate block h-full min-h-[240px] overflow-hidden rounded-2xl bg-black shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+    "group relative isolate block h-full min-h-[220px] overflow-hidden rounded-2xl bg-black shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
     classNameProp
   );
 
