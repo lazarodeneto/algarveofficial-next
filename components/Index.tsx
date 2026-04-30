@@ -149,7 +149,11 @@ const Index = () => {
             );
           })}
         </div>
-        <HomeAllCitiesSection />
+        {isBlockEnabled("all-cities", true) && (
+          <CmsBlock pageId="home" blockId="all-cities" as="section">
+            <HomeAllCitiesSection />
+          </CmsBlock>
+        )}
         {(settings?.show_vip_section ?? true) && isBlockEnabled("vip", true) && (
           <CmsBlock pageId="home" blockId="vip" as="section">
             <SignatureMapSection />

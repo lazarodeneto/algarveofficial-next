@@ -92,7 +92,7 @@ export function NewsletterSection() {
             <div className="rounded-full bg-primary/20 p-4">
               <CheckCircle2 className="h-8 w-8 text-primary" />
             </div>
-            <h3 className="text-xl font-serif font-medium text-foreground">
+            <h3 className="text-xl font-serif font-medium not-italic text-foreground">
               {t('newsletter.successTitle')}
             </h3>
             <p className="text-muted-foreground">

@@ -164,7 +164,7 @@ export function HomeQuickLinksSection() {
                       {displayTitle}
                     </h3>
                     <span className="mt-1.5 inline-flex items-center gap-1 text-sm font-medium text-white/85 sm:mt-2 sm:gap-1.5">
-                      <Icon className="h-3.5 w-3.5" strokeWidth={1.8} />
+                      <Icon className="h-7 w-7" strokeWidth={1.8} />
                       {t("sections.homepage.common.explore")}
                       <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
                     </span>

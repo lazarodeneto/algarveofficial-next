@@ -17,16 +17,19 @@ export function AlgarveGuideSection() {
     <section
       id="algarve-travel-guide"
       aria-labelledby="algarve-travel-guide-title"
-      className="bg-background py-20 lg:py-24"
+      className="bg-background py-16 sm:py-20 lg:py-24"
     >
       <div className="app-container content-max">
         <div className="mx-auto max-w-[1040px]">
           <div className="mx-auto mb-8 h-px w-24 bg-gradient-to-r from-transparent via-primary/70 to-transparent" />
 
           <header className="mx-auto max-w-4xl text-center">
+            <span className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              Guide
+            </span>
             <h2
               id="algarve-travel-guide-title"
-              className="text-title font-serif font-medium text-foreground"
+              className="mt-3 font-serif text-3xl font-medium tracking-normal text-foreground sm:text-4xl"
             >
               {text("sections.algarveGuide.title", "Your essential Algarve guide")}
             </h2>
@@ -52,7 +55,7 @@ export function AlgarveGuideSection() {
 
           <div className="mt-12 grid gap-5 md:grid-cols-3">
             <article className="rounded-2xl border border-border/70 bg-card/40 p-6">
-              <h3 className="text-2xl font-serif font-medium text-foreground">
+              <h3 className="text-2xl font-serif font-medium not-italic text-foreground">
                 {text("sections.algarveGuide.stayTitle", "Where to stay")}
               </h3>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">
@@ -76,7 +79,7 @@ export function AlgarveGuideSection() {
             </article>
 
             <article className="rounded-2xl border border-border/70 bg-card/40 p-6">
-              <h3 className="text-2xl font-serif font-medium text-foreground">
+              <h3 className="text-2xl font-serif font-medium not-italic text-foreground">
                 {text("sections.algarveGuide.destinationsTitle", "Where to go")}
               </h3>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">
@@ -104,7 +107,7 @@ export function AlgarveGuideSection() {
             </article>
 
             <article className="rounded-2xl border border-border/70 bg-card/40 p-6">
-              <h3 className="text-2xl font-serif font-medium text-foreground">
+              <h3 className="text-2xl font-serif font-medium not-italic text-foreground">
                 {text("sections.algarveGuide.doTitle", "What to do")}
               </h3>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">

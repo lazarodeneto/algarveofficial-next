@@ -88,7 +88,7 @@ describe("HomeQuickLinksSection", () => {
       "src",
       "/home-quick-links/places-to-stay.svg",
     );
-    expect(screen.getByAltText("Eat")).toHaveAttribute(
+    expect(screen.getByAltText("Events")).toHaveAttribute(
       "src",
       "/home-quick-links/whats-on.svg",
     );
@@ -102,7 +102,7 @@ describe("HomeQuickLinksSection", () => {
     mockUseGlobalSettings.mockReturnValue({
       settings: [
         {
-          key: "home_card_whats_on_image",
+          key: "home_card_events_image",
           value: "https://images.example.com/broken-whats-on.jpg",
           category: "homepage",
         },
@@ -112,12 +112,12 @@ describe("HomeQuickLinksSection", () => {
 
     render(<HomeQuickLinksSection />);
 
-    const whatsOnImage = screen.getByAltText("Eat");
+    const whatsOnImage = screen.getByAltText("Events");
     expect(whatsOnImage).toHaveAttribute("src", "https://images.example.com/broken-whats-on.jpg");
 
     fireEvent.error(whatsOnImage);
 
-    expect(screen.getByAltText("Eat")).toHaveAttribute(
+    expect(screen.getByAltText("Events")).toHaveAttribute(
       "src",
       "/home-quick-links/whats-on.svg",
     );
@@ -127,12 +127,12 @@ describe("HomeQuickLinksSection", () => {
     mockUseGlobalSettings.mockReturnValue({
       settings: [
         {
-          key: "home_card_whats_on_image",
+          key: "home_card_events_image",
           value: "https://images.example.com/custom-whats-on.jpg",
           category: "homepage",
         },
         {
-          key: "home_card_whats_on_video",
+          key: "home_card_events_video",
           value: "https://videos.example.com/custom-whats-on.mp4",
           category: "homepage",
         },
@@ -147,7 +147,7 @@ describe("HomeQuickLinksSection", () => {
 
     fireEvent.error(video!);
 
-    expect(screen.getByAltText("Eat")).toHaveAttribute(
+    expect(screen.getByAltText("Events")).toHaveAttribute(
       "src",
       "https://images.example.com/custom-whats-on.jpg",
     );
@@ -159,7 +159,7 @@ describe("HomeQuickLinksSection", () => {
     const wrappedTitle = screen.getByRole("heading", { name: "Real Estate" });
 
     expect(wrappedTitle.className).toContain("font-serif");
-    expect(wrappedTitle.className).toContain("text-3xl");
+    expect(wrappedTitle.className).toContain("text-[1.65rem]");
   });
 
   it("stacks the cards vertically on mobile widths", () => {
@@ -170,7 +170,7 @@ describe("HomeQuickLinksSection", () => {
 
     expect(layout?.className).toContain("grid");
     expect(layout?.className).not.toContain("overflow-x-auto");
-    expect(firstCard.className).toContain("h-64");
+    expect(firstCard.className).toContain("aspect-[4/3]");
     expect(firstCard.className).not.toContain("flex-none");
   });
 });

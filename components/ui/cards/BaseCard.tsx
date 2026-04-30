@@ -196,10 +196,8 @@ export function BaseCard({
             blurDataURL={blurDataURL}
             onLoad={() => setLoaded(true)}
             className={cn(
-              "rounded-2xl object-cover transition-transform duration-500 ease-out will-change-transform",
-              variant === "featured" || variant === "editorial"
-                ? "group-hover:scale-110"
-                : "group-hover:scale-110",
+              "rounded-2xl object-cover transition-transform duration-500 ease-out will-change-transform motion-reduce:transition-none",
+              "group-hover:scale-[1.05]",
               loaded ? "opacity-100" : "opacity-0"
             )}
           />
@@ -250,7 +248,7 @@ export function BaseCard({
         <h3
           id={titleId}
           className={cn(
-            "font-serif font-semibold leading-tight tracking-normal text-white",
+            "font-serif font-semibold not-italic leading-tight tracking-normal text-white",
             config.titleClass
           )}
         >
