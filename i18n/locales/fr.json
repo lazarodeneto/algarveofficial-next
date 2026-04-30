@@ -1879,6 +1879,10 @@
       "facebook": "Facebook",
       "googleBusiness": "Google Business",
       "telegram": "Telegram"
+    },
+    "badge": {
+      "verified": "Vérifié",
+      "signature": "Signature"
     }
   },
   "live": {
@@ -1935,7 +1939,6 @@
       "budget": {
         "balanced": "Premium Équilibré",
         "lean": "Configuration Minimaliste",
-        "premium": "PREMIUM",
         "premium": "Confort Premium"
       },
       "budgetLabel": "Budget Mensuel de Vie",
@@ -2746,6 +2749,110 @@
       "subtitle": "Expériences signature triées sur le volet",
       "subtitleCustom": "Expériences signature triées sur le volet dans le Algarve.",
       "title": "Sélection Signature"
+    },
+    "homepage": {
+      "hero": {
+        "label": "Sélectionné pour vous",
+        "titleLead": "L'Algarve",
+        "titleHighlight": "Sélectionné",
+        "subtitle": "Hôtels, restaurants, expériences, golf et immobilier réunis sur une seule plateforme.",
+        "primaryCta": "Explorer les adresses sélectionnées",
+        "secondaryCta": "Rechercher par lieu",
+        "enableMediaCookies": "Activer les cookies média",
+        "videoTitle": "Vidéo d'arrière-plan AlgarveOfficial",
+        "scroll": "Faire défiler vers la collection Signature",
+        "proof": {
+          "curated": "Sélection locale",
+          "verified": "Vérifié et fiable",
+          "intent": "Pour visiteurs et investisseurs"
+        }
+      },
+      "editorsSelection": {
+        "badge": "Choix de l'éditeur",
+        "title": "Sélection de l'éditeur",
+        "titleAlt": "Collection Signature",
+        "subtitle": "Des lieux et propriétés triés sur le volet qui incarnent le meilleur de l'Algarve.",
+        "cta": "Voir toute la collection",
+        "ctaMobile": "Voir la collection complète",
+        "emptyTitle": "Les annonces sélectionnées sont en préparation.",
+        "emptySubtitle": "Parcourez l'annuaire complet de l'Algarve pendant la mise à jour de la collection éditoriale."
+      },
+      "trustSection": {
+        "label": "Pourquoi AlgarveOfficial",
+        "title": "Une sélection pour découvrir en confiance",
+        "subtitle": "Des lieux, propriétés et expériences de qualité dans toute l'Algarve.",
+        "items": {
+          "curated": {
+            "title": "Sélection premium soigneusement choisie",
+            "description": "Des lieux, propriétés et expériences de qualité dans toute l'Algarve."
+          },
+          "verified": {
+            "title": "Regards locaux, annonces vérifiées",
+            "description": "Une découverte guidée par le lieu et le contexte, loin du bruit des annuaires."
+          },
+          "comprehensive": {
+            "title": "Séjourner, savourer, explorer, investir",
+            "description": "Une plateforme pour visiteurs, résidents, propriétaires et investisseurs."
+          }
+        }
+      },
+      "categories": {
+        "label": "Notre sélection",
+        "title": "Catégories premium",
+        "subtitle": "Parcourez l'annuaire premium par catégorie, des séjours aux restaurants, expériences et biens immobiliers."
+      },
+      "cities": {
+        "label": "Villes",
+        "title": "Explorer l'Algarve par ville",
+        "subtitle": "Explorez l'Algarve par ville, de Lagos à Tavira, avec plages, restaurants et expériences premium.",
+        "allTitle": "Toutes les villes",
+        "allSubtitle": "Parcourez toutes les villes et localités de l'Algarve au même endroit.",
+        "viewAll": "Voir toutes les villes"
+      },
+      "regions": {
+        "label": "Destinations",
+        "title": "Explorer par région",
+        "subtitle": "Découvrez des lieux remarquables dans toute l'Algarve, des plages dorées aux villages de l'intérieur.",
+        "viewAll": "Voir toutes les régions"
+      },
+      "directory": {
+        "label": "Annuaire complet",
+        "title": "Parcourir toutes les annonces de l'Algarve",
+        "subtitle": "Vous cherchez plus d'options ? Explorez plus de 1 000 lieux dans toute l'Algarve.",
+        "cta": "Parcourir toutes les annonces"
+      },
+      "signatureMap": {
+        "label": "Explorer sur la carte",
+        "title": "Rechercher l'Algarve par lieu",
+        "subtitle": "Explorez plus de {{count}} lieux dans l'Algarve, puis filtrez par zone, catégorie et intention.",
+        "cta": "Rechercher par lieu"
+      },
+      "curatedExcellence": {
+        "badge": "Sélection Signature",
+        "title": "Sélection Signature",
+        "subtitle": "Propriétés et expériences Signature sélectionnées à la main pour les voyageurs en quête d’exception.",
+        "viewDetails": "Voir les détails"
+      },
+      "cta": {
+        "label": "Rejoignez la communauté",
+        "title": "Rejoignez la plateforme AlgarveOfficial",
+        "subtitle": "Parcourez des lieux sélectionnés en Algarve ou présentez votre activité premium sur une plateforme pensée pour la découverte.",
+        "primaryButton": "Explorer les annonces",
+        "secondaryButton": "Ajouter votre activité",
+        "stats": "Plus de {{count}} annonces sélectionnées en Algarve",
+        "emptyStats": "Lieux sélectionnés en Algarve."
+      },
+      "common": {
+        "algarve": "Algarve",
+        "explore": "Explorer",
+        "listingCount": "{{count}} annonces",
+        "saveListing": "Enregistrer l’annonce",
+        "removeFromSaved": "Retirer des favoris"
+      },
+      "cityDescriptions": {
+        "loule": "Ville historique de l’intérieur, réputée pour ses marchés, son artisanat et son accès facile au centre de l’Algarve.",
+        "porches": "Paisible paroisse côtière connue pour sa céramique, ses séjours en haut de falaise et ses criques voisines."
+      }
     }
   },
   "tiers": {
@@ -2863,5 +2970,12 @@
     "subtitle": "Compare features across all three partnership levels.",
     "feature": "Feature",
     "basic": "Basic"
+  },
+  "lead": {
+    "headline": "L' Algarve",
+    "headlineHighlight": "Sélectionné",
+    "lead": "Sélectionné par des locaux",
+    "verified": "Vérifié et fiable",
+    "intent": "Pour visiteurs et investisseurs"
   }
 }

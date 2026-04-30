@@ -30,6 +30,7 @@ type RegionCardProps = {
   isHero?: boolean;
   isFavorite: boolean;
   onToggleFavorite: () => void;
+  exploreLabel: string;
   className?: string;
 };
 
@@ -39,9 +40,9 @@ function EditorialRegionCard({
   subtitle,
   image,
   imageAlt,
-  isHero = false,
   isFavorite,
   onToggleFavorite,
+  exploreLabel,
   className,
 }: RegionCardProps) {
   return (
@@ -49,7 +50,7 @@ function EditorialRegionCard({
       prefetch={false}
       href={href}
       className={cn(
-        "group relative isolate block h-full min-h-[220px] overflow-hidden rounded-2xl bg-black shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+        "group relative isolate block h-full min-h-[200px] overflow-hidden rounded-2xl bg-black shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] motion-reduce:transition-none hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
         className,
       )}
     >
@@ -58,13 +59,14 @@ function EditorialRegionCard({
           src={image}
           alt={imageAlt}
           fill
-          sizes={isHero ? "(max-width: 1024px) 100vw, 58vw" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 28vw"}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           quality={72}
-          className="object-cover transition-transform duration-300 ease-out will-change-transform group-hover:scale-[1.06]"
+          className="object-cover transition-transform duration-500 ease-out will-change-transform motion-reduce:transition-none group-hover:scale-[1.04]"
         />
       ) : null}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/78 via-black/32 via-[42%] to-transparent" />
-      <div className="absolute right-4 top-4 z-10" onClick={(event) => event.preventDefault()}>
+      {/* Consistent overlay — lighter than Signature */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+      <div className="absolute right-3 top-3 z-10" onClick={(event) => event.preventDefault()}>
         <FavoriteButton
           isFavorite={isFavorite}
           onToggle={onToggleFavorite}
@@ -72,22 +74,16 @@ function EditorialRegionCard({
           variant="glassmorphism"
         />
       </div>
-      <div
-        className={cn("absolute inset-x-0 bottom-0 z-10 text-white", isHero ? "p-5 sm:p-7" : "p-4 sm:p-5")}
-        style={{ textShadow: "0 2px 8px rgba(0,0,0,0.55)" }}
-      >
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/70">
-            {subtitle}
-          </p>
-          <h3 className={cn(
-            "line-clamp-2 font-serif font-semibold italic leading-tight tracking-normal text-white drop-shadow-md",
-            isHero ? "text-3xl sm:text-5xl" : "text-2xl sm:text-3xl"
-          )}>
-            {title}
-          </h3>
-          <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white/90">
-            Explore <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </span>
+      <div className="absolute inset-x-0 bottom-0 z-10 p-4 text-white text-shadow-card sm:p-5">
+        <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70">
+          {subtitle}
+        </p>
+        <h3 className="line-clamp-2 font-serif text-xl font-semibold not-italic leading-tight tracking-normal text-white sm:text-2xl">
+          {title}
+        </h3>
+        <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-white/85 sm:mt-3 sm:gap-2">
+          {exploreLabel} <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+        </span>
       </div>
     </NextLink>
   );
@@ -126,29 +122,29 @@ export function RegionsSection({ imageTimestamp = 0 }: RegionsSectionProps) {
   }
 
   return (
-    <section id="regions" className="bg-background py-14 sm:py-20 lg:py-24">
+    <section id="regions" className="bg-background py-16 sm:py-20 lg:py-24">
       <div className="app-container">
         {/* Section Header */}
         <div className="mb-9 flex flex-col gap-5 sm:mb-12 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
             <span className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              Destinations
+              {t("sections.homepage.regions.label")}
             </span>
             <h2 className="mt-3 text-title font-serif font-medium text-foreground">
-              Explore by Region
+              {t("sections.homepage.regions.title")}
             </h2>
             <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
-              Discover incredible places across the Algarve, from golden beaches to charming inland villages.
+              {t("sections.homepage.regions.subtitle")}
             </p>
           </div>
           <NextLink prefetch={false} href={l("/destinations")} className="hidden text-sm font-semibold text-primary transition-colors hover:text-primary/80 lg:inline-flex">
-            View all regions <ArrowRight className="ml-2 h-4 w-4" />
+            {t("sections.homepage.regions.viewAll")} <ArrowRight className="ml-2 h-4 w-4" />
           </NextLink>
         </div>
 
-        {/* Editorial region grid */}
+        {/* Region grid — equal weight, navigational */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6">
-          {displayRegions.map((region, index) => {
+          {displayRegions.map((region) => {
             const images = getRegionImageSet(region.slug);
             const hasCustomImage = !!region.image_url;
             const listingCount = regionCounts?.[region.id] ?? 0;
@@ -165,13 +161,12 @@ export function RegionsSection({ imageTimestamp = 0 }: RegionsSectionProps) {
                 image={imageSrc}
                 imageAlt={region.name}
                 title={region.name}
-                subtitle={`${listingCount} ${t("sections.regions.listings")}`}
-                description={region.short_description ?? "Discover premium experiences"}
+                subtitle={t("sections.homepage.common.listingCount", { count: listingCount })}
+                description={region.short_description ?? t("sections.homepage.regions.subtitle")}
                 href={l(`/destinations/${region.slug}`)}
-                isHero={false}
                 isFavorite={isDestinationSaved('region', region.id)}
                 onToggleFavorite={() => toggleRegion(region.id)}
-                className={index > 2 ? "hidden sm:block" : undefined}
+                exploreLabel={t("sections.homepage.common.explore")}
               />
             );
           })}
@@ -186,7 +181,7 @@ export function RegionsSection({ imageTimestamp = 0 }: RegionsSectionProps) {
           >
             <Button variant="gold" size="lg" className="gap-2 w-full">
               <Compass className="h-5 w-5" />
-              View All Regions
+              {t("sections.homepage.regions.viewAll")}
               <ArrowRight className="h-4 w-4" />
             </Button>
           </NextLink>

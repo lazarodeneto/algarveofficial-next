@@ -1879,6 +1879,10 @@
       "facebook": "Facebook",
       "googleBusiness": "Google Business",
       "telegram": "Telegram"
+    },
+    "badge": {
+      "verified": "Verificato",
+      "signature": "Signature"
     }
   },
   "live": {
@@ -1935,7 +1939,6 @@
       "budget": {
         "balanced": "Premium Bilanciato",
         "lean": "Configurazione Minimale",
-        "premium": "PREMIUM",
         "premium": "Comfort Premium"
       },
       "budgetLabel": "Budget Mensile di Vita",
@@ -2746,6 +2749,110 @@
       "subtitle": "Esperienze signature selezionate a mano",
       "subtitleCustom": "Esperienze esclusive selezionate con cura nel Algarve.",
       "title": "Selezione Signature"
+    },
+    "homepage": {
+      "hero": {
+        "label": "Selezionato per te",
+        "titleLead": "L'Algarve",
+        "titleHighlight": "Curato",
+        "subtitle": "Hotel, ristoranti, esperienze, golf e immobiliare in un’unica piattaforma.",
+        "primaryCta": "Esplora luoghi selezionati",
+        "secondaryCta": "Cerca per località",
+        "enableMediaCookies": "Attiva i cookie multimediali",
+        "videoTitle": "Video di sfondo AlgarveOfficial",
+        "scroll": "Scorri alla collezione Signature",
+        "proof": {
+          "curated": "Selezionato da esperti locali",
+          "verified": "Verificato e affidabile",
+          "intent": "Per visitatori e investitori"
+        }
+      },
+      "editorsSelection": {
+        "badge": "Scelte dell'editore",
+        "title": "Selezione dell'editore",
+        "titleAlt": "Collezione Signature",
+        "subtitle": "Luoghi e proprietà scelti a mano che raccontano il meglio dell'Algarve.",
+        "cta": "Vedi tutta la collezione",
+        "ctaMobile": "Vedi la collezione completa",
+        "emptyTitle": "Le proposte selezionate sono in preparazione.",
+        "emptySubtitle": "Esplora l'intera directory dell'Algarve mentre la collezione editoriale viene aggiornata."
+      },
+      "trustSection": {
+        "label": "Perché AlgarveOfficial",
+        "title": "Curato per scoprire con fiducia",
+        "subtitle": "Luoghi, proprietà ed esperienze di qualità in tutto l'Algarve.",
+        "items": {
+          "curated": {
+            "title": "Selezione premium curata",
+            "description": "Luoghi, proprietà ed esperienze di qualità in tutto l'Algarve."
+          },
+          "verified": {
+            "title": "Conoscenza locale, annunci verificati",
+            "description": "Una scoperta guidata da luogo e contesto, non dal rumore di una directory."
+          },
+          "comprehensive": {
+            "title": "Soggiornare, gustare, esplorare, investire",
+            "description": "Una piattaforma per visitatori, residenti, proprietari e investitori."
+          }
+        }
+      },
+      "categories": {
+        "label": "Cosa offriamo",
+        "title": "Categorie premium",
+        "subtitle": "Sfoglia la directory premium per categoria, dai soggiorni ai ristoranti, esperienze e immobiliare."
+      },
+      "cities": {
+        "label": "Città",
+        "title": "Esplora l'Algarve per città",
+        "subtitle": "Esplora l'Algarve per città, da Lagos a Tavira, tra spiagge, ristoranti ed esperienze premium.",
+        "allTitle": "Tutte le città",
+        "allSubtitle": "Consulta tutte le città e località dell'Algarve in un unico posto.",
+        "viewAll": "Vedi tutte le città"
+      },
+      "regions": {
+        "label": "Destinazioni",
+        "title": "Esplora per regione",
+        "subtitle": "Scopri luoghi straordinari in tutto l'Algarve, dalle spiagge dorate ai borghi dell'entroterra.",
+        "viewAll": "Vedi tutte le regioni"
+      },
+      "directory": {
+        "label": "Directory completa",
+        "title": "Sfoglia tutti gli annunci dell'Algarve",
+        "subtitle": "Cerchi altre opzioni? Esplora oltre 1.000 luoghi in tutto l'Algarve.",
+        "cta": "Sfoglia tutti gli annunci"
+      },
+      "signatureMap": {
+        "label": "Esplora sulla mappa",
+        "title": "Cerca l'Algarve per località",
+        "subtitle": "Esplora oltre {{count}} luoghi dell'Algarve e filtra per zona, categoria e intenzione.",
+        "cta": "Cerca per località"
+      },
+      "curatedExcellence": {
+        "badge": "Selezione Signature",
+        "title": "Selezione Signature",
+        "subtitle": "Proprietà ed esperienze Signature scelte a mano per ospiti esigenti in cerca dello straordinario.",
+        "viewDetails": "Vedi dettagli"
+      },
+      "cta": {
+        "label": "Unisciti alla community",
+        "title": "Unisciti alla piattaforma AlgarveOfficial",
+        "subtitle": "Esplora luoghi selezionati in Algarve o porta la tua attività premium su una piattaforma pensata per farsi scoprire.",
+        "primaryButton": "Esplora gli annunci",
+        "secondaryButton": "Inserisci la tua attività",
+        "stats": "Oltre {{count}} annunci selezionati in Algarve",
+        "emptyStats": "Luoghi selezionati in Algarve."
+      },
+      "common": {
+        "algarve": "Algarve",
+        "explore": "Esplora",
+        "listingCount": "{{count}} annunci",
+        "saveListing": "Salva annuncio",
+        "removeFromSaved": "Rimuovi dai salvati"
+      },
+      "cityDescriptions": {
+        "loule": "Storica cittadina dell’entroterra, con mercati, tradizione artigianale e facile accesso all’Algarve centrale.",
+        "porches": "Tranquilla località costiera nota per la ceramica, i soggiorni sulle scogliere e le calette vicine."
+      }
     }
   },
   "tiers": {
@@ -2863,5 +2970,12 @@
     "subtitle": "Compare features across all three partnership levels.",
     "feature": "Feature",
     "basic": "Basic"
+  },
+  "lead": {
+    "headline": "L' Algarve",
+    "headlineHighlight": "Selezionato",
+    "lead": "Selezionato da locali",
+    "verified": "Verificato e affidabile",
+    "intent": "Per visitatori e investitori"
   }
 }

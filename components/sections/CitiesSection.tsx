@@ -93,13 +93,13 @@ export function CitiesSection() {
           className="text-center mb-16"
         >
           <span className="text-sm font-medium text-primary tracking-[0.2em] uppercase">
-            {t("sections.cities.label")}
+            {t("sections.homepage.cities.label")}
           </span>
           <h2 className="mt-4 text-title font-serif font-medium text-foreground">
-            Explore the Algarve by City
+            {t("sections.homepage.cities.title")}
           </h2>
           <p className="mt-4 text-body text-muted-foreground max-w-2xl mx-auto">
-            Explore the Algarve by city, from Lagos to Tavira, including beaches, restaurants and premium experiences.
+            {t("sections.homepage.cities.subtitle")}
           </p>
         </m.div>
 
@@ -157,7 +157,7 @@ export function CitiesSection() {
         >
           <Link href={l("/visit")}>
             <Button variant="premium" size="lg">
-              View All Cities
+              {t("sections.homepage.cities.viewAll")}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>

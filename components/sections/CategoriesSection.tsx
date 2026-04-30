@@ -74,13 +74,13 @@ export function CategoriesSection() {
           className="text-center mb-16"
         >
           <span className="text-sm font-medium text-primary tracking-[0.2em] uppercase">
-            {t("sections.categories.label")}
+            {t("sections.homepage.categories.label")}
           </span>
           <h2 className="mt-4 text-title font-serif font-medium text-foreground">
-            Premium Categories
+            {t("sections.homepage.categories.title")}
           </h2>
           <p className="mt-4 text-body text-muted-foreground dark:text-white/80 max-w-2xl mx-auto">
-            Browse the premium directory by category, from places to stay to restaurants, experiences and property.
+            {t("sections.homepage.categories.subtitle")}
           </p>
         </m.div>
 
@@ -116,7 +116,7 @@ export function CategoriesSection() {
                   <div className="relative z-10 w-12 h-12 rounded-lg bg-muted dark:bg-muted flex items-center justify-center mb-3 lg:mb-2">
                     <IconComponent className="w-6 h-6 text-primary" />
                   </div>
-                  <h3 className="relative z-10 text-[1.15rem] sm:text-[1.25rem] lg:text-[1.45rem] font-medium text-foreground mb-3 break-words text-balance leading-[1.15] min-h-[2.8rem] sm:min-h-[3.2rem] lg:min-h-[3.4rem] lg:mb-2 flex items-center justify-center">
+                  <h3 className="relative z-10 text-[1.15rem] sm:text-[1.25rem] lg:text-[1.45rem] font-medium not-italic text-foreground mb-3 break-words text-balance leading-[1.15] min-h-[2.8rem] sm:min-h-[3.2rem] lg:min-h-[3.4rem] lg:mb-2 flex items-center justify-center">
                     {displayName}
                   </h3>
                   <span className="relative z-10 text-body-sm font-medium text-primary mt-auto">

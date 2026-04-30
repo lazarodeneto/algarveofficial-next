@@ -3,6 +3,7 @@ import { initReactI18next } from "react-i18next";
 import { loadLocale, normalizeLocaleCode, type LocaleMessages } from "./locale-loader";
 import {
   enforcePremiumInLocaleData,
+  forceBundledLocaleValues,
   preserveBundledLocaleValues,
 } from "@/lib/i18n/premiumGuard";
 import { DEFAULT_LOCALE } from "@/lib/i18n/config";
@@ -55,6 +56,12 @@ const BUNDLED_PRIORITY_I18N_KEYS = [
   "newsletter.footerCta",
   "footer.email",
   "footer.tagline",
+];
+
+const BUNDLED_FORCE_I18N_KEYS = [
+  "categoryNames.things-to-do",
+  "categoryNames.places-to-stay",
+  "categoryNames.real-estate",
 ];
 
 function normalizeLocale(locale: string | null | undefined): string {
@@ -147,7 +154,12 @@ async function patchLocaleFromSupabase(locale: string) {
       englishSource,
       BUNDLED_PRIORITY_I18N_KEYS,
     );
-    const premiumSafeMerged = enforcePremiumInLocaleData(bundledSafeMerged, englishSource);
+    const forcedBundledMerged = forceBundledLocaleValues(
+      bundledSafeMerged,
+      bundledLocale,
+      BUNDLED_FORCE_I18N_KEYS,
+    );
+    const premiumSafeMerged = enforcePremiumInLocaleData(forcedBundledMerged, englishSource);
 
     i18n.addResourceBundle(locale, "translation", premiumSafeMerged, true, true);
   } catch {

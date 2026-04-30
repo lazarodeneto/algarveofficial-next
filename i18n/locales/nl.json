@@ -1879,6 +1879,10 @@
       "facebook": "Facebook",
       "googleBusiness": "Google Business",
       "telegram": "Telegram"
+    },
+    "badge": {
+      "verified": "Geverifieerd",
+      "signature": "Signature"
     }
   },
   "live": {
@@ -1935,7 +1939,6 @@
       "budget": {
         "balanced": "Gebalanceerd Premium",
         "lean": "Slanke Opzet",
-        "premium": "PREMIUM",
         "premium": "Premium Comfort"
       },
       "budgetLabel": "Maandelijks Levensbudget",
@@ -2746,6 +2749,110 @@
       "subtitle": "Handgekozen kenmerkende ervaringen",
       "subtitleCustom": "Zorgvuldig geselecteerde kenmerkende ervaringen in de Algarve.",
       "title": "Handtekening selectie"
+    },
+    "homepage": {
+      "hero": {
+        "label": "Voor u samengesteld",
+        "titleLead": "De Algarve",
+        "titleHighlight": "Gecureerd",
+        "subtitle": "Hotels, restaurants, ervaringen, golf en vastgoed op één platform.",
+        "primaryCta": "Ontdek geselecteerde plekken",
+        "secondaryCta": "Zoek op locatie",
+        "enableMediaCookies": "Mediacookies inschakelen",
+        "videoTitle": "Achtergrondvideo van AlgarveOfficial",
+        "scroll": "Scroll naar de Signature-collectie",
+        "proof": {
+          "curated": "Samengesteld door locals",
+          "verified": "Geverifieerd en vertrouwd",
+          "intent": "Voor bezoekers en investeerders"
+        }
+      },
+      "editorsSelection": {
+        "badge": "Keuze van de redactie",
+        "title": "Selectie van de redactie",
+        "titleAlt": "Signature-collectie",
+        "subtitle": "Zorgvuldig gekozen plekken en woningen die het beste van de Algarve laten zien.",
+        "cta": "Bekijk de hele collectie",
+        "ctaMobile": "Bekijk de volledige collectie",
+        "emptyTitle": "De geselecteerde vermeldingen worden voorbereid.",
+        "emptySubtitle": "Bekijk de volledige Algarve-directory terwijl de redactionele collectie wordt bijgewerkt."
+      },
+      "trustSection": {
+        "label": "Waarom AlgarveOfficial",
+        "title": "Gecureerd om met vertrouwen te ontdekken",
+        "subtitle": "Kwalitatieve plekken, woningen en ervaringen in de hele Algarve.",
+        "items": {
+          "curated": {
+            "title": "Premium selectie, zorgvuldig samengesteld",
+            "description": "Kwalitatieve plekken, woningen en ervaringen in de hele Algarve."
+          },
+          "verified": {
+            "title": "Lokale inzichten, geverifieerde vermeldingen",
+            "description": "Ontdekking op basis van plaats en context, niet van directoryruis."
+          },
+          "comprehensive": {
+            "title": "Verblijven, dineren, ontdekken, investeren",
+            "description": "Eén platform voor bezoekers, bewoners, eigenaren en investeerders."
+          }
+        }
+      },
+      "categories": {
+        "label": "Wat wij bieden",
+        "title": "Premium categorieën",
+        "subtitle": "Blader door de premium directory per categorie, van verblijf en restaurants tot ervaringen en vastgoed."
+      },
+      "cities": {
+        "label": "Steden",
+        "title": "Ontdek de Algarve per stad",
+        "subtitle": "Ontdek de Algarve per stad, van Lagos tot Tavira, met stranden, restaurants en premium ervaringen.",
+        "allTitle": "Alle steden",
+        "allSubtitle": "Bekijk elke stad en plaats in de Algarve op één plek.",
+        "viewAll": "Bekijk alle steden"
+      },
+      "regions": {
+        "label": "Bestemmingen",
+        "title": "Ontdek per regio",
+        "subtitle": "Ontdek bijzondere plekken in de hele Algarve, van gouden stranden tot charmante dorpen landinwaarts.",
+        "viewAll": "Bekijk alle regio’s"
+      },
+      "directory": {
+        "label": "Volledige directory",
+        "title": "Bekijk alle vermeldingen in de Algarve",
+        "subtitle": "Op zoek naar meer opties? Ontdek meer dan 1.000 plekken in de hele Algarve.",
+        "cta": "Bekijk alle vermeldingen"
+      },
+      "signatureMap": {
+        "label": "Ontdek op de kaart",
+        "title": "Zoek de Algarve op locatie",
+        "subtitle": "Ontdek meer dan {{count}} plekken in de Algarve en filter op gebied, categorie en intentie.",
+        "cta": "Zoek op locatie"
+      },
+      "curatedExcellence": {
+        "badge": "Signature-selectie",
+        "title": "Signature-selectie",
+        "subtitle": "Handgekozen Signature-woningen en ervaringen voor veeleisende gasten die iets uitzonderlijks zoeken.",
+        "viewDetails": "Bekijk details"
+      },
+      "cta": {
+        "label": "Word deel van de community",
+        "title": "Sluit u aan bij het AlgarveOfficial-platform",
+        "subtitle": "Ontdek geselecteerde plekken in de Algarve of breng uw premium bedrijf naar een platform dat is gebouwd voor ontdekking.",
+        "primaryButton": "Ontdek vermeldingen",
+        "secondaryButton": "Plaats uw bedrijf",
+        "stats": "Meer dan {{count}} geselecteerde vermeldingen in de Algarve",
+        "emptyStats": "Geselecteerde plekken in de Algarve."
+      },
+      "common": {
+        "algarve": "Algarve",
+        "explore": "Ontdek",
+        "listingCount": "{{count}} vermeldingen",
+        "saveListing": "Vermelding opslaan",
+        "removeFromSaved": "Verwijderen uit opgeslagen"
+      },
+      "cityDescriptions": {
+        "loule": "Historische stad landinwaarts, met markten, ambachtelijke tradities en gemakkelijke toegang tot de centrale Algarve.",
+        "porches": "Rustige kustplaats bekend om keramiek, verblijven boven de kliffen en nabijgelegen baaien."
+      }
     }
   },
   "tiers": {
@@ -2863,5 +2970,12 @@
     "subtitle": "Compare features across all three partnership levels.",
     "feature": "Feature",
     "basic": "Basic"
+  },
+  "lead": {
+    "headline": "De Algarve",
+    "headlineHighlight": "Selectie",
+    "lead": "Selectie door locals",
+    "verified": "Geverifieerd en betrouwbaar",
+    "intent": "Voor bezoekers en investeerders"
   }
 }

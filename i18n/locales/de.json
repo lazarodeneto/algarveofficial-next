@@ -1624,7 +1624,9 @@
     "aiPlannerButton": "KI-PLANER",
     "aiPlannerPlaceholder": "KI-Algarve-Planer... (z.B. 'Plane 3 Tage im Algarve')",
     "headline": "Entdecken Sie das",
-    "headlineHighlight": "Beste der Algarve",
+    "headlineHighlight": "Kuriert",
+    "homepageTitle": "Die Algarve, Kuriert",
+    "homepageSubtitle": "Hotels, Restaurants, Erlebnisse, Golf und Immobilien — auf einer vertrauenswürdigen Plattform.",
     "listYourBusiness": "Ihr Unternehmen Eintragen",
     "location": "Bezirk Faro, Portugal",
     "loginRequired": "Melden Sie sich an oder erstellen Sie ein Konto, um eine Reise zu erstellen und zu speichern.",
@@ -1640,6 +1642,10 @@
     "tagMichelinDining": "Michelin-Restaurants",
     "tagPrivateAviation": "Privatfliegerei",
     "tripCreated": "Reise erfolgreich erstellt.",
+    "label": "Kuriert für Sie",
+    "curated": "Von Locals kuratiert",
+    "verified": "Verifiziert und vertrauenswürdig",
+    "intent": "Für Besucher und Investoren",
     "trust": {
       "anonymousVisitor": "Verifizierter Besucher",
       "approvedReview": "Genehmigte Bewertung",
@@ -1761,124 +1767,9 @@
     "relatedPolicies": "Verwandte Richtlinien"
   },
   "listing": {
-    "about": "Über",
-    "backToHome": "Zurück zur Startseite",
-    "backToListings": "Zurück zu allen Einträgen",
-    "bathrooms": "Badezimmer",
-    "bedrooms": "Schlafzimmer",
-    "bookVisit": "Besuch buchen",
-    "builtArea": "Wohnfläche",
-    "certifiedListing": "Zertifizierter Eintrag",
-    "claimThisListing": "Fordern Sie dieses Angebot an",
-    "contact": "Kontakt",
-    "contactForLocation": "Kontakt für Standortdetails",
-    "experience": "Erlebnis",
-    "exterior": "Außenbereich",
-    "features": "Ausstattung",
-    "follow": "Folgen",
-    "form": {
-      "consent": "Ich stimme zu, bezüglich dieser Immobilie kontaktiert zu werden",
-      "email": "E-Mail",
-      "emailWarning": "Ihre Nachricht wurde gespeichert, aber die E-Mail-Benachrichtigung ist fehlgeschlagen. Der Administrator kann es weiterhin im Posteingang anzeigen.",
-      "errorToast": "Anfrage konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
-      "fullName": "Vollständiger Name",
-      "inboxWarning": "Ihre Nachricht wurde empfangen, aber die Zustellung im Administrator-Posteingang muss konfiguriert werden.",
-      "inPerson": "Persönlicher Besuch",
-      "message": "Nachricht",
-      "name": "Ihr Name",
-      "phone": "Telefon",
-      "requestViewing": "Besichtigung anfragen",
-      "scheduleVisit": "Besuch planen",
-      "selectVisitType": "Besuchsart wählen",
-      "send": "Anfrage senden",
-      "sending": "Senden...",
-      "successToast": "Ihre Anfrage wurde gesendet!",
-      "telephone": "Telefon",
-      "videoCall": "Videoanruf",
-      "visitType": "Art des Besuchs"
-    },
-    "freehold": "Eigentum",
-    "golfFront": "Golfplatzlage",
-    "handpickedSelection": "Handverlesene Auswahl",
-    "inquiry": {
-      "back": "Zurück",
-      "checkIn": "Check-in",
-      "checkOut": "Check-out",
-      "checkOutAfterCheckIn": "Check-out muss nach dem Check-in liegen",
-      "continue": "Weiter",
-      "dates": "Reisedaten",
-      "defaultMessage": "Ich hätte gerne weitere Informationen zu dieser Immobilie.",
-      "email": "E-Mail-Adresse",
-      "error": "Anfrage konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
-      "fillContact": "Kontaktdaten ausfüllen",
-      "guest": "Gast",
-      "guests": "Gäste",
-      "guests_plural": "Gäste",
-      "message": "Nachricht",
-      "messagePlaceholder": "Beschreiben Sie Ihre Anforderungen oder stellen Sie Fragen...",
-      "party": "Reisegruppe",
-      "phone": "Telefonnummer",
-      "reference": "Referenz: {{ref}}",
-      "selectDates": "Daten auswählen",
-      "selectPartySize": "Gruppengröße wählen",
-      "send": "Anfrage senden",
-      "sending": "Wird gesendet...",
-      "specialRequests": "Besondere Wünsche",
-      "step": "Schritt {{current}} von {{total}}",
-      "stepDates": "Reisedaten",
-      "stepMessage": "Ihre Nachricht",
-      "stepParty": "Reisegruppe",
-      "success": "Anfrage erfolgreich gesendet! Wir melden uns in Kürze.",
-      "title": "Kontaktaufnahme bezüglich {{name}}",
-      "yourName": "Ihr Name"
-    },
-    "interested": "Interessiert?",
-    "isYourBusiness": "Ist das Ihr Unternehmen?",
-    "livingArea": "Wohnfläche",
-    "location": "Standort",
-    "locationHidden": "Standort auf Anfrage verfügbar",
-    "locationUnavailable": "Der Standort ist für diesen Eintrag nicht verfügbar.",
-    "messageWhatsApp": "Nachricht auf WhatsApp",
-    "notFound": "Eintrag nicht gefunden",
-    "notFoundMessage": "Dieser Eintrag wurde möglicherweise entfernt oder ist nicht verfügbar.",
-    "plotSize": "Grundstück",
-    "price": "Preis",
-    "priceOnRequest": "Preis auf Anfrage",
-    "relatedDestinations": "Entdecken Sie weitere Reiseziele",
-    "relatedListings": "Mehr in {{category}}",
-    "reviews": {
-      "content": "Ihre Bewertung",
-      "contentPlaceholder": "Teilen Sie Ihre Erfahrungen mit diesem Angebot...",
-      "errorContent": "Bitte schreiben Sie eine Bewertung",
-      "errorRating": "Bitte wählen Sie eine Bewertung aus",
-      "errorTitle": "Bitte geben Sie einen Titel ein",
-      "rating": "Bewertung",
-      "submit": "Bewertung einreichen",
-      "submitting": "Wird eingereicht...",
-      "success": "Bewertung erfolgreich eingereicht!",
-      "title": "Titel",
-      "titlePlaceholder": "Fassen Sie Ihre Erfahrung zusammen",
-      "write": "Bewertung schreiben"
-    },
-    "save": "Speichern",
-    "saveToFavorites": "In den Favoriten speichern",
-    "scheduleViewing": "Besichtigung vereinbaren",
-    "sendInquiry": "Anfrage senden",
-    "sendMessage": "Nachricht senden",
-    "share": "Teilen",
-    "similarListings": "Ähnliche Angebote",
-    "tags": "Schlagwörter",
-    "verifiedDocuments": "Dokumente geprüft",
-    "verifiedPartner": "Verifizierter Partner",
-    "viewGallery": "Galerie ansehen",
-    "viewOnMap": "Auf Karte zeigen",
-    "visitWebsite": "Website besuchen",
-    "relatedDestinationsDescription": "Discover other prestigious regions across the Algarve",
-    "social": {
-      "instagram": "Instagram",
-      "facebook": "Facebook",
-      "googleBusiness": "Google Business",
-      "telegram": "Telegram"
+    "badge": {
+      "verified": "Verifiziert",
+      "signature": "Signature"
     }
   },
   "live": {
@@ -1935,7 +1826,6 @@
       "budget": {
         "balanced": "Ausgewogenes Premium",
         "lean": "Schlanke Einrichtung",
-        "premium": "PREMIUM",
         "premium": "Premium-Komfort"
       },
       "budgetLabel": "Monatliches Lebensbudget",
@@ -2618,6 +2508,105 @@
     "select": "Select",
     "close": "Close"
   },
+  "homepage": {
+    "editorsSelection": {
+      "badge": "Empfehlungen",
+      "subtitle": "Ausgewählte Orte und Immobilien, die das Beste der Algarve definieren.",
+      "title": "Auswahl des Editors",
+      "titleAlt": "Signature-Kollektion",
+      "cta": "Gesamte Kollektion ansehen",
+      "ctaMobile": "Kollektion ansehen",
+      "emptyTitle": "Ausgewählte Einträge werden vorbereitet.",
+      "emptySubtitle": "Durchsuchen Sie das vollständige Verzeichnis, während die Kollektion aktualisiert wird."
+    },
+    "trustSection": {
+      "label": "Warum AlgarveOfficial",
+      "title": "Kuriert für sichere Entdeckung",
+      "subtitle": "Qualitätsorte, -immobilien und -erlebnisse in der Algarve.",
+      "items": {
+        "curated": {
+          "title": "Premium-kurierte Auswahl",
+          "description": "Qualitätsorte, -immobilien und -erlebnisse in der Algarve."
+        },
+        "verified": {
+          "title": "Lokale Einblicke, verifizierte Einträge",
+          "description": "Entdeckung geführt durch Ort und Kontext, nicht durch Verzeichnisrauschen."
+        },
+        "comprehensive": {
+          "title": "Stay, dine, explore, invest",
+          "description": "Eine Plattform für Besucher, Bewohner, Eigentümer und Investoren."
+        }
+      }
+    },
+    "categories": {
+      "label": "Was Wir Anbieten",
+      "title": "Premium-Kategorien",
+      "subtitle": "Durchsuchen Sie das Premium-Verzeichnis nach Kategorie, von Unterkünften bis Restaurants, Erlebnisse und Immobilien."
+    },
+    "hero": {
+      "label": "Kuriert für Sie",
+      "title": "Die Algarve, Kuriert",
+      "subtitle": "Hotels, Restaurants, Erlebnisse, Golf und Immobilien — auf einer vertrauenswürdigen Plattform.",
+      "primaryCts": "Kuratierte Orte erkunden",
+      "secondaryCta": "Nach Ort suchen",
+      "curated": "Von Locals kuratiert",
+      "verified": "Verifiziert und vertrauenswürdig",
+      "intent": "Für Besucher und Investoren"
+    },
+    "quickLinks": {
+      "label": "Erkunden Sie los",
+      "title": "Wählen Sie Ihre Algarve",
+      "subtitle": "Beginnen Sie mit den Orten, Erlebnissen und Möglichkeiten, die zu Ihrer Reise oder Ihren Plänen passen.",
+      "cta": "Erkunden",
+      "items": {
+        "stay": {
+          "title": "Unterkunft",
+          "subtitle": "Hotels, Villen und Resorts",
+          "cta": "Unterkünfte ansehen"
+        },
+        "experiences": {
+          "title": "Erlebnisse",
+          "subtitle": "Touren, Golf und Erlebnisse",
+          "cta": "Entdecken"
+        },
+        "dining": {
+          "title": "Gastronomie",
+          "subtitle": "Restaurants und Küche",
+          "cta": "Erkunden"
+        },
+        "realEstate": {
+          "title": "Immobilien",
+          "subtitle": "Immobilien und Investition",
+          "cta": "Ansehen"
+        }
+      }
+    },
+    "cities": {
+      "label": "Städte",
+      "title": "Die Algarve nach Stadt erkunden",
+      "subtitle": "Erkunden Sie die Algarve nach Stadt, von Lagos bis Tavira, inklusive Strände, Restaurants und Premium-Erlebnisse.",
+      "viewAll": "Alle Städte ansehen",
+      "listingCount": "{{count}} Eintrag",
+      "listingCount_plural": "{{count}} Einträge"
+    },
+    "regions": {
+      "label": "Regionen",
+      "title": "Nach Region erkunden",
+      "subtitle": "Entdecken Sie die Algarve nach Gebiet, von Küstenorten bis Landidyllen.",
+      "viewAll": "Alle Regionen ansehen",
+      "listingCount": "{{count}} Eintrag",
+      "listingCount_plural": "{{count}} Einträge"
+    },
+    "mapCta": {
+      "label": "Auf Karte erkunden",
+      "title": "Die Algarve nach Ort durchsuchen",
+      "subtitle": "Erkunden Sie Orte in der Algarve, dann filtern Sie nach Gebiet, Kategorie und Absicht.",
+      "cta": "Nach Ort suchen"
+    }
+  },
+  "navigation": {
+    "skipToContent": "Zum Hauptinhalt springen"
+  },
   "sections": {
     "algarveGuide": {
       "and": "und",
@@ -2746,6 +2735,110 @@
       "subtitle": "Handverlesene Signature-Erlebnisse",
       "subtitleCustom": "Handverlesene Signature-Erlebnisse im Algarve.",
       "title": "Signature Auswahl"
+    },
+    "homepage": {
+      "hero": {
+        "label": "Für Sie kuratiert",
+        "titleLead": "Die Algarve",
+        "titleHighlight": "Kuratiert",
+        "subtitle": "Hotels, Restaurants, Erlebnisse, Golf und Immobilien auf einer Plattform.",
+        "primaryCta": "Kuratierte Orte entdecken",
+        "secondaryCta": "Nach Ort suchen",
+        "enableMediaCookies": "Medien-Cookies aktivieren",
+        "videoTitle": "AlgarveOfficial Hintergrundvideo",
+        "scroll": "Zur Signature-Kollektion scrollen",
+        "proof": {
+          "curated": "Von Einheimischen kuratiert",
+          "verified": "Verifiziert und vertrauenswürdig",
+          "intent": "Für Besucher und Investoren"
+        }
+      },
+      "editorsSelection": {
+        "badge": "Empfehlungen der Redaktion",
+        "title": "Auswahl der Redaktion",
+        "titleAlt": "Signature-Kollektion",
+        "subtitle": "Handverlesene Orte und Immobilien, die das Beste der Algarve zeigen.",
+        "cta": "Gesamte Kollektion ansehen",
+        "ctaMobile": "Komplette Kollektion ansehen",
+        "emptyTitle": "Kuratierte Einträge werden vorbereitet.",
+        "emptySubtitle": "Durchsuchen Sie das vollständige Algarve-Verzeichnis, während die redaktionelle Kollektion aktualisiert wird."
+      },
+      "trustSection": {
+        "label": "Warum AlgarveOfficial",
+        "title": "Kuratiert für sichere Entdeckung",
+        "subtitle": "Hochwertige Orte, Immobilien und Erlebnisse in der ganzen Algarve.",
+        "items": {
+          "curated": {
+            "title": "Premium-Auswahl, sorgfältig kuratiert",
+            "description": "Hochwertige Orte, Immobilien und Erlebnisse in der ganzen Algarve."
+          },
+          "verified": {
+            "title": "Lokale Einblicke, verifizierte Einträge",
+            "description": "Entdeckung mit Ortskenntnis und Kontext statt Verzeichnisrauschen."
+          },
+          "comprehensive": {
+            "title": "Wohnen, genießen, entdecken, investieren",
+            "description": "Eine Plattform für Besucher, Bewohner, Eigentümer und Investoren."
+          }
+        }
+      },
+      "categories": {
+        "label": "Unser Angebot",
+        "title": "Premium-Kategorien",
+        "subtitle": "Durchsuchen Sie das Premium-Verzeichnis nach Kategorie, von Unterkünften über Restaurants und Erlebnisse bis zu Immobilien."
+      },
+      "cities": {
+        "label": "Städte",
+        "title": "Die Algarve nach Stadt entdecken",
+        "subtitle": "Entdecken Sie die Algarve nach Stadt, von Lagos bis Tavira, mit Stränden, Restaurants und Premium-Erlebnissen.",
+        "allTitle": "Alle Städte",
+        "allSubtitle": "Alle Städte und Orte der Algarve an einem Ort.",
+        "viewAll": "Alle Städte anzeigen"
+      },
+      "regions": {
+        "label": "Reiseziele",
+        "title": "Nach Region entdecken",
+        "subtitle": "Entdecken Sie besondere Orte in der Algarve, von goldenen Stränden bis zu charmanten Dörfern im Inland.",
+        "viewAll": "Alle Regionen anzeigen"
+      },
+      "directory": {
+        "label": "Vollständiges Verzeichnis",
+        "title": "Alle Einträge an der Algarve durchsuchen",
+        "subtitle": "Sie suchen mehr Auswahl? Entdecken Sie über 1.000 Orte in der ganzen Algarve.",
+        "cta": "Alle Einträge durchsuchen"
+      },
+      "signatureMap": {
+        "label": "Auf der Karte entdecken",
+        "title": "Die Algarve nach Standort durchsuchen",
+        "subtitle": "Entdecken Sie über {{count}} Orte in der Algarve und filtern Sie nach Gebiet, Kategorie und Reiseziel.",
+        "cta": "Nach Ort suchen"
+      },
+      "curatedExcellence": {
+        "badge": "Signature-Auswahl",
+        "title": "Signature-Auswahl",
+        "subtitle": "Handverlesene Signature-Immobilien und Erlebnisse für anspruchsvolle Gäste, die das Außergewöhnliche suchen.",
+        "viewDetails": "Details ansehen"
+      },
+      "cta": {
+        "label": "Werden Sie Teil der Community",
+        "title": "Werden Sie Teil der AlgarveOfficial-Plattform",
+        "subtitle": "Entdecken Sie kuratierte Orte in der Algarve oder bringen Sie Ihr Premium-Unternehmen auf eine Plattform für gezielte Entdeckung.",
+        "primaryButton": "Einträge entdecken",
+        "secondaryButton": "Unternehmen eintragen",
+        "stats": "Über {{count}} ausgewählte Einträge in der Algarve",
+        "emptyStats": "Ausgewählte Orte in der Algarve."
+      },
+      "common": {
+        "algarve": "Algarve",
+        "explore": "Entdecken",
+        "listingCount": "{{count}} Einträge",
+        "saveListing": "Eintrag speichern",
+        "removeFromSaved": "Aus gespeicherten entfernen"
+      },
+      "cityDescriptions": {
+        "loule": "Historische Stadt im Hinterland mit Märkten, Handwerkstradition und guter Anbindung an die zentrale Algarve.",
+        "porches": "Ruhige Küstengemeinde, bekannt für Keramik, Aufenthalte an den Klippen und nahegelegene Buchten."
+      }
     }
   },
   "tiers": {

@@ -1879,6 +1879,10 @@
       "facebook": "Facebook",
       "googleBusiness": "Google Business",
       "telegram": "Telegram"
+    },
+    "badge": {
+      "verified": "Verifierad",
+      "signature": "Signature"
     }
   },
   "live": {
@@ -1935,7 +1939,6 @@
       "budget": {
         "balanced": "Balanserad Premium",
         "lean": "Minimal Setup",
-        "premium": "PREMIUM",
         "premium": "Premium Komfort"
       },
       "budgetLabel": "Månatlig Levnadsbudget",
@@ -2746,6 +2749,110 @@
       "subtitle": "Handplockade signaturupplevelser",
       "subtitleCustom": "Handplockade signaturupplevelser i Algarve.",
       "title": "Signaturval"
+    },
+    "homepage": {
+      "hero": {
+        "label": "Utvalt för dig",
+        "titleLead": "Algarve",
+        "titleHighlight": "Kurerat",
+        "subtitle": "Hotell, restauranger, upplevelser, golf och fastigheter på en och samma plattform.",
+        "primaryCta": "Utforska utvalda platser",
+        "secondaryCta": "Sök efter plats",
+        "enableMediaCookies": "Aktivera mediecookies",
+        "videoTitle": "Bakgrundsvideo för AlgarveOfficial",
+        "scroll": "Scrolla till Signature-kollektionen",
+        "proof": {
+          "curated": "Utvalt av lokalbor",
+          "verified": "Verifierat och pålitligt",
+          "intent": "För besökare och investerare"
+        }
+      },
+      "editorsSelection": {
+        "badge": "Redaktörens val",
+        "title": "Redaktörens urval",
+        "titleAlt": "Signature-kollektion",
+        "subtitle": "Handplockade platser och fastigheter som visar det bästa av Algarve.",
+        "cta": "Visa hela kollektionen",
+        "ctaMobile": "Visa komplett kollektion",
+        "emptyTitle": "Utvalda annonser förbereds.",
+        "emptySubtitle": "Utforska hela Algarve-katalogen medan den redaktionella kollektionen uppdateras."
+      },
+      "trustSection": {
+        "label": "Varför AlgarveOfficial",
+        "title": "Kurerat för trygg upptäckt",
+        "subtitle": "Kvalitetsplatser, fastigheter och upplevelser över hela Algarve.",
+        "items": {
+          "curated": {
+            "title": "Premiumurval, noggrant kurerat",
+            "description": "Kvalitetsplatser, fastigheter och upplevelser över hela Algarve."
+          },
+          "verified": {
+            "title": "Lokala insikter, verifierade annonser",
+            "description": "Upptäckande guidat av plats och sammanhang, inte katalogbrus."
+          },
+          "comprehensive": {
+            "title": "Bo, äta, utforska, investera",
+            "description": "En plattform för besökare, invånare, ägare och investerare."
+          }
+        }
+      },
+      "categories": {
+        "label": "Vad vi erbjuder",
+        "title": "Premiumkategorier",
+        "subtitle": "Bläddra i premiumkatalogen efter kategori, från boende och restauranger till upplevelser och fastigheter."
+      },
+      "cities": {
+        "label": "Städer",
+        "title": "Utforska Algarve efter stad",
+        "subtitle": "Utforska Algarve efter stad, från Lagos till Tavira, med stränder, restauranger och premiumupplevelser.",
+        "allTitle": "Alla städer",
+        "allSubtitle": "Se alla städer och orter i Algarve på ett ställe.",
+        "viewAll": "Visa alla städer"
+      },
+      "regions": {
+        "label": "Destinationer",
+        "title": "Utforska efter region",
+        "subtitle": "Upptäck fantastiska platser över hela Algarve, från gyllene stränder till charmiga byar inlandet.",
+        "viewAll": "Visa alla regioner"
+      },
+      "directory": {
+        "label": "Fullständig katalog",
+        "title": "Bläddra bland alla annonser i Algarve",
+        "subtitle": "Letar du efter fler alternativ? Utforska över 1 000 platser i hela Algarve.",
+        "cta": "Bläddra bland alla annonser"
+      },
+      "signatureMap": {
+        "label": "Utforska på kartan",
+        "title": "Sök i Algarve efter plats",
+        "subtitle": "Utforska fler än {{count}} platser i Algarve och filtrera efter område, kategori och syfte.",
+        "cta": "Sök efter plats"
+      },
+      "curatedExcellence": {
+        "badge": "Signature-urval",
+        "title": "Signature-urval",
+        "subtitle": "Handplockade Signature-fastigheter och upplevelser för kräsna gäster som söker det extraordinära.",
+        "viewDetails": "Visa detaljer"
+      },
+      "cta": {
+        "label": "Gå med i communityn",
+        "title": "Gå med i AlgarveOfficial-plattformen",
+        "subtitle": "Utforska utvalda platser i Algarve eller ta ditt premiumföretag till en plattform byggd för upptäckt.",
+        "primaryButton": "Utforska annonser",
+        "secondaryButton": "Lista ditt företag",
+        "stats": "Över {{count}} utvalda annonser i Algarve",
+        "emptyStats": "Utvalda platser i Algarve."
+      },
+      "common": {
+        "algarve": "Algarve",
+        "explore": "Utforska",
+        "listingCount": "{{count}} annonser",
+        "saveListing": "Spara annons",
+        "removeFromSaved": "Ta bort från sparade"
+      },
+      "cityDescriptions": {
+        "loule": "Historisk stad i inlandet med marknader, hantverkstraditioner och enkel tillgång till centrala Algarve.",
+        "porches": "Lugn kustort känd för keramik, boenden vid klipporna och närliggande vikar."
+      }
     }
   },
   "tiers": {
@@ -2863,5 +2970,12 @@
     "subtitle": "Compare features across all three partnership levels.",
     "feature": "Feature",
     "basic": "Basic"
+  },
+  "lead": {
+    "headline": "Algarve",
+    "headlineHighlight": "Utvalt",
+    "lead": "Utvalt av lokalbefolkning",
+    "verified": "Verifierad och betrodd",
+    "intent": "För besökare och investerare"
   }
 }

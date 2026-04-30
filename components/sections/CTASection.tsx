@@ -12,53 +12,63 @@ export function CTASection() {
   const listingCount = listings?.length ?? 0;
 
   return (
-    <section className="relative overflow-hidden bg-background py-14 sm:py-20 lg:py-24">
+    <section className="bg-background py-16 sm:py-20 lg:py-24">
       <div className="app-container content-max">
-        <div className="grid overflow-hidden rounded-2xl bg-muted/25 lg:grid-cols-[1.2fr_0.8fr]">
-          <div className="p-6 sm:p-8 lg:p-12">
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-primary">
-            <Building2 className="h-4 w-4" />
-            Join our community
+        <div className="grid overflow-hidden rounded-2xl border border-black/5 bg-white shadow-soft-surface transition-all duration-300 ease-out motion-reduce:transition-none hover:shadow-card-hover lg:grid-cols-[1.1fr_0.9fr]">
+          {/* Left: text panel */}
+          <div className="flex flex-col justify-center p-6 sm:p-8 lg:p-12">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+              <Building2 className="h-4 w-4" strokeWidth={1.8} />
+              {t("sections.homepage.cta.label")}
+            </div>
+
+            <h2 className="max-w-xl font-serif text-3xl font-medium leading-tight tracking-normal text-foreground sm:text-4xl lg:text-[2.5rem]">
+              {t("sections.homepage.cta.title")}
+            </h2>
+
+            <p className="mt-4 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
+              {t("sections.homepage.cta.subtitle")}
+            </p>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Button variant="primary" size="lg" className="min-h-11 w-full gap-2 px-6 sm:w-auto" asChild>
+                <Link href={l("/directory")}>
+                  <Search className="mr-1.5 h-4 w-4" strokeWidth={1.8} />
+                  {t("sections.homepage.cta.primaryButton")}
+                  <ArrowRight className="ml-1.5 h-4 w-4" strokeWidth={1.8} />
+                </Link>
+              </Button>
+              <Button
+                variant="secondary"
+                size="lg"
+                className="min-h-11 w-full px-6 sm:w-auto"
+                asChild
+              >
+                <Link href={l("/partner")}>
+                  {t("sections.homepage.cta.secondaryButton")}
+                </Link>
+              </Button>
+            </div>
+
+            {/* Micro trust line */}
+            <p className="mt-6 text-sm text-muted-foreground">
+              {listingCount > 0
+                ? t("sections.homepage.cta.stats", { count: listingCount })
+                : t("sections.homepage.cta.emptyStats")}
+            </p>
           </div>
 
-          <h2 className="max-w-2xl font-serif text-3xl font-medium leading-tight text-foreground sm:text-4xl lg:text-5xl">
-            Join the AlgarveOfficial platform
-          </h2>
-
-          <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
-            Browse curated places across the Algarve, or bring your premium business into a platform built for discovery.
-          </p>
-
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Button variant="hero" size="lg" asChild>
-              <Link href={l("/directory")}>
-                <Search className="mr-2 h-4 w-4" />
-                Explore Listings
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button
-              variant="heroOutline"
-              size="lg"
-              className="bg-white text-[rgba(11,31,58,0.92)] border-[rgba(11,31,58,0.12)] hover:bg-white hover:text-[rgba(11,31,58,0.98)]"
-              asChild
-            >
-              <Link href={l("/partner")}>
-                List Your Business
-              </Link>
-            </Button>
-          </div>
-
-          <p className="mt-6 text-sm text-muted-foreground">
-            {listingCount > 0 ? t('sections.cta.stats', { count: listingCount }) : "Curated places, regional guides and trusted local discovery."}
-          </p>
-          </div>
+          {/* Right: image panel */}
           <div
-            className="relative hidden min-h-[320px] bg-cover bg-center lg:block"
-            style={{ backgroundImage: "url('/images/region-tavira-800w-BTeay4E1.webp')" }}
+            className="relative min-h-[240px] bg-cover bg-center sm:min-h-[300px] lg:min-h-full"
+            style={{
+              backgroundImage:
+                "url('/images/region-tavira-800w-BTeay4E1.webp')",
+            }}
             aria-hidden="true"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-muted/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/60 via-white/20 to-transparent lg:from-white/40" />
+            <div className="absolute inset-0 bg-gradient-to-t from-white/40 to-transparent lg:hidden" />
           </div>
         </div>
       </div>

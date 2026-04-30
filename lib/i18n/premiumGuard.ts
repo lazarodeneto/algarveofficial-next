@@ -159,3 +159,22 @@ export function preserveBundledLocaleValues(
 
   return unflattenI18nData(normalizedFlat);
 }
+
+export function forceBundledLocaleValues(
+  localeData: Record<string, unknown>,
+  bundledLocaleData: Record<string, unknown>,
+  keys: string[],
+): Record<string, unknown> {
+  const localeFlat = flattenI18nData(localeData);
+  const bundledFlat = flattenI18nData(bundledLocaleData);
+  const normalizedFlat = { ...localeFlat };
+
+  for (const key of keys) {
+    const bundledValue = bundledFlat[key];
+    if (typeof bundledValue === "string") {
+      normalizedFlat[key] = bundledValue;
+    }
+  }
+
+  return unflattenI18nData(normalizedFlat);
+}

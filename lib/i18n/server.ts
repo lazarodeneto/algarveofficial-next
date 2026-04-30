@@ -5,6 +5,7 @@ import { createPublicServerClient } from "../supabase/public-server";
 import {
   enforcePremiumInLocaleData,
   flattenI18nData,
+  forceBundledLocaleValues,
   preserveBundledLocaleValues,
   unflattenI18nData,
 } from "./premiumGuard";
@@ -31,6 +32,12 @@ const BUNDLED_PRIORITY_I18N_KEYS = [
   "newsletter.footerCta",
   "footer.email",
   "footer.tagline",
+];
+
+const BUNDLED_FORCE_I18N_KEYS = [
+  "categoryNames.things-to-do",
+  "categoryNames.places-to-stay",
+  "categoryNames.real-estate",
 ];
 
 function pickTranslationKeys(
@@ -95,7 +102,12 @@ const getFullLocaleBundle = cache(async (locale: Locale): Promise<TranslationLea
       englishBundleNode,
       BUNDLED_PRIORITY_I18N_KEYS,
     );
-    const premiumSafeMerged = enforcePremiumInLocaleData(bundledSafeMerged, englishBundleNode);
+    const forcedBundledMerged = forceBundledLocaleValues(
+      bundledSafeMerged,
+      premiumSafeBundleNode,
+      BUNDLED_FORCE_I18N_KEYS,
+    );
+    const premiumSafeMerged = enforcePremiumInLocaleData(forcedBundledMerged, englishBundleNode);
     return flattenI18nData(premiumSafeMerged);
   } catch (err) {
     console.error("[i18n] Failed to load server translations", { locale, error: err });

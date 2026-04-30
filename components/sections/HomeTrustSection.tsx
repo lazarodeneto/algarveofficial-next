@@ -1,48 +1,59 @@
 import { BadgeCheck, Compass, Layers3 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const trustItems = [
   {
-    title: "Premium curated selection",
-    description: "A focused platform for quality places, property and experiences across the Algarve.",
+    titleKey: "sections.homepage.trustSection.items.curated.title",
+    descriptionKey: "sections.homepage.trustSection.items.curated.description",
     icon: BadgeCheck,
   },
   {
-    title: "Local insights and verified listings",
-    description: "Discovery is guided by place, category and editorial context, not endless directory noise.",
+    titleKey: "sections.homepage.trustSection.items.verified.title",
+    descriptionKey: "sections.homepage.trustSection.items.verified.description",
     icon: Compass,
   },
   {
-    title: "Stay, dine, explore and invest",
-    description: "One multi-category platform for visitors, residents, owners and investors.",
+    titleKey: "sections.homepage.trustSection.items.comprehensive.title",
+    descriptionKey: "sections.homepage.trustSection.items.comprehensive.description",
     icon: Layers3,
   },
 ];
 
 export function HomeTrustSection() {
+  const { t } = useTranslation();
+
   return (
-    <section id="platform-trust" className="bg-muted/25 py-14 sm:py-20">
+    <section id="platform-trust" className="bg-muted/25 py-14 sm:py-16 lg:py-20">
       <div className="app-container content-max">
-        <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-          <div>
-            <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
-              Why AlgarveOfficial
-            </span>
-            <h2 className="mt-4 font-serif text-3xl font-medium tracking-normal text-foreground sm:text-4xl">
-              Curated for confident discovery
-            </h2>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            {trustItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <div key={item.title} className="rounded-2xl border border-border/70 bg-background p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-card">
-                  <Icon className="h-5 w-5 text-primary" />
-                  <h3 className="mt-4 text-base font-semibold text-foreground">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.description}</p>
+        <div className="mb-10 text-center lg:mb-12">
+          <span className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+            {t("sections.homepage.trustSection.label")}
+          </span>
+          <h2 className="mx-auto mt-3 max-w-xl font-serif text-3xl font-medium tracking-normal text-foreground sm:text-4xl">
+            {t("sections.homepage.trustSection.title")}
+          </h2>
+        </div>
+
+        <div className="grid gap-5 sm:grid-cols-3">
+          {trustItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div
+                key={item.titleKey}
+                className="rounded-2xl border border-black/5 bg-white p-5 shadow-soft-surface transition-all duration-300 ease-out motion-reduce:transition-none hover:-translate-y-0.5 hover:shadow-card-hover"
+              >
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
+                  <Icon className="h-5 w-5 text-primary" strokeWidth={1.8} />
                 </div>
-              );
-            })}
-          </div>
+                <h3 className="mt-4 text-base font-semibold not-italic text-foreground">
+                  {t(item.titleKey)}
+                </h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  {t(item.descriptionKey)}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

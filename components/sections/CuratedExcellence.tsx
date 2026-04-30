@@ -154,11 +154,11 @@ export function CuratedExcellence({
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
               <Crown className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">{t('sections.curated.badge')}</span>
+              <span className="text-sm font-medium text-primary">{t("sections.homepage.curatedExcellence.badge")}</span>
             </div>
-            <h2 className="text-hero font-serif font-medium text-foreground">{t('sections.curated.title')}</h2>
+            <h2 className="text-hero font-serif font-medium text-foreground">{t("sections.homepage.curatedExcellence.title")}</h2>
             <p className="mt-6 text-body lg:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed readable">
-              {t('sections.curated.subtitle')}
+              {t("sections.homepage.curatedExcellence.subtitle")}
             </p>
           </div>
         )}
@@ -220,11 +220,11 @@ export function CuratedExcellence({
                 <ListingTierBadge tier="signature" />
                 {/* Location & Category */}
                 <span className="text-sm text-primary font-medium uppercase tracking-wider group-hover:text-black dark:group-hover:text-white transition-colors">
-                  {featuredListing.city?.name ?? 'Algarve'} · {translateCategoryName(t, featuredListing.category?.slug, featuredListing.category?.name) || t('listing.experience')}
+                  {featuredListing.city?.name ?? t("sections.homepage.common.algarve")} · {translateCategoryName(t, featuredListing.category?.slug, featuredListing.category?.name) || t("listing.experience")}
                 </span>
               </div>
 
-              <h3 className="text-2xl md:text-3xl lg:text-4xl font-serif font-medium text-foreground mb-3 group-hover:text-primary transition-colors">
+              <h3 className="text-2xl md:text-3xl lg:text-4xl font-serif font-medium not-italic text-foreground mb-3 group-hover:text-primary transition-colors">
                 {featuredListing.name}
               </h3>
 
@@ -235,7 +235,7 @@ export function CuratedExcellence({
               {/* CTA */}
               <div className="flex items-center gap-4">
                 <span className="text-sm text-primary font-medium group-hover:underline">
-                  {t('sections.curated.viewDetails')} →
+                  {t("sections.homepage.curatedExcellence.viewDetails")} →
                 </span>
               </div>
             </div>

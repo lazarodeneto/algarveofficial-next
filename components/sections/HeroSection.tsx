@@ -23,12 +23,6 @@ import { buildSupabaseImageUrl } from "@/lib/imageUrls";
 import { heroAssets } from "@/lib/assetUrls";
 import { STANDARD_PUBLIC_HERO_SURFACE_CLASS, STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 
-const HOMEPAGE_H1 = "The Algarve, Curated";
-const HOMEPAGE_SUBTITLE =
-  "Hotels, restaurants, experiences, golf and real estate — in one platform.";
-const HOMEPAGE_PRIMARY_CTA = "Explore curated places";
-const HOMEPAGE_SECONDARY_CTA = "Search by location";
-
 const parseYouTubeTimeToSeconds = (value: string | null): number | null => {
   if (!value) return null;
   const normalized = value.trim().toLowerCase();
@@ -171,7 +165,7 @@ function HeroPosterImage({
   return (
     <Image
       src={posterSrc}
-      alt="Premium Algarve coastline"
+      alt=""
       width={1920}
       height={1080}
       quality={54}
@@ -184,7 +178,13 @@ function HeroPosterImage({
   );
 }
 
-const YouTubeEmbedPlayer = ({ youtubeUrl }: { youtubeUrl: string }) => {
+const YouTubeEmbedPlayer = ({
+  youtubeUrl,
+  youtubeTitle,
+}: {
+  youtubeUrl: string;
+  youtubeTitle: string;
+}) => {
   return (
     <iframe
       src={getYouTubeEmbedUrl(youtubeUrl)}
@@ -201,13 +201,13 @@ const YouTubeEmbedPlayer = ({ youtubeUrl }: { youtubeUrl: string }) => {
       }}
       allow="autoplay; encrypted-media"
       allowFullScreen
-      title="Hero background video"
+      title={youtubeTitle}
     />
   );
 };
 
-const YouTubeEmbed = ({ youtubeUrl }: { youtubeUrl: string }) => (
-  <YouTubeEmbedPlayer key={youtubeUrl} youtubeUrl={youtubeUrl} />
+const YouTubeEmbed = ({ youtubeUrl, youtubeTitle }: { youtubeUrl: string; youtubeTitle: string }) => (
+  <YouTubeEmbedPlayer key={youtubeUrl} youtubeUrl={youtubeUrl} youtubeTitle={youtubeTitle} />
 );
 
 const HeroVideoPlayer = ({
@@ -322,27 +322,27 @@ export function HeroSection() {
     (settings as { hero_overlay_intensity?: unknown } | undefined)?.hero_overlay_intensity ?? overlayBackup,
     50,
   );
-  const localizedHeroHeadline = `${t("hero.headline")} ${t("hero.headlineHighlight")}`.trim();
-  const localizedHeroSubtitle = t("hero.subtitle");
-  // CMS SOURCE OF TRUTH: 1. cms_page_configs_v1 (getText), 2. homepage_settings (fallback)
-  const heroHeadline =
-    getText("home.hero.title", "") ||
-    HOMEPAGE_H1 ||
-    (locale === "en" ? settings?.hero_title?.trim() : null) ||
-    localizedHeroHeadline;
-  const heroSubtitle =
-    getText("home.hero.subtitle", "") ||
-    HOMEPAGE_SUBTITLE ||
-    (locale === "en" ? settings?.hero_subtitle?.trim() : null) ||
-    localizedHeroSubtitle;
-  const localizedTripPlannerButtonLabel = t("hero.planTripCta");
-  const primaryCtaLabel =
-    getText("home.hero.cta.primary", "") ||
-    HOMEPAGE_PRIMARY_CTA ||
-    (locale === "en" ? settings?.hero_cta_primary_text?.trim() : null) ||
-    localizedTripPlannerButtonLabel;
-  const heroHeadlineLead = heroHeadline.replace(/\s*,?\s*Curated\s*$/i, "").trim() || "The Algarve";
-  // ... inside the component function ...
+  const englishCmsHeroTitle =
+    locale === "en"
+      ? getText("home.hero.title", "") || settings?.hero_title?.trim()
+      : "";
+  const englishCmsHeroSubtitle =
+    locale === "en"
+      ? getText("home.hero.subtitle", "") || settings?.hero_subtitle?.trim()
+      : "";
+  const englishCmsPrimaryCta =
+    locale === "en"
+      ? getText("home.hero.cta.primary", "") || settings?.hero_cta_primary_text?.trim()
+      : "";
+  const heroTitleLead = englishCmsHeroTitle
+    ? englishCmsHeroTitle.replace(/\s*,?\s*Curated\s*$/i, "").trim()
+    : t("sections.homepage.hero.titleLead");
+  const heroTitleHighlight =
+    englishCmsHeroTitle?.match(/\bCurated\b/i)?.[0] ?? t("sections.homepage.hero.titleHighlight");
+  const heroSubtitle = englishCmsHeroSubtitle || t("sections.homepage.hero.subtitle");
+  const primaryCtaLabel = englishCmsPrimaryCta || t("sections.homepage.hero.primaryCta");
+  const secondaryCtaLabel = t("sections.homepage.hero.secondaryCta");
+  const youtubeTitle = t("sections.homepage.hero.videoTitle");
 
   const mediaMode = useMemo<"youtube" | "video" | "poster" | "none" | "loading">(() => {
     if (isHeroSettingsLoading) return "loading";
@@ -385,7 +385,7 @@ export function HeroSection() {
           ) : (
             <div className="absolute inset-0 bg-black" aria-hidden="true" />
           )}
-          {mediaMode === "youtube" && <YouTubeEmbed youtubeUrl={youtubeUrl} />}
+          {mediaMode === "youtube" && <YouTubeEmbed youtubeUrl={youtubeUrl} youtubeTitle={youtubeTitle} />}
           {mediaMode === "video" && <HeroVideo videoUrl={videoUrl} posterUrl={hasPosterUrl ? heroVideoPosterSrc : undefined} />}
 
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.68)_0%,rgba(0,0,0,0.46)_42%,rgba(0,0,0,0.18)_72%,rgba(0,0,0,0.32)_100%)]" />
@@ -400,7 +400,7 @@ export function HeroSection() {
                 onClick={openPreferences}
                 className="pointer-events-auto inline-flex items-center justify-center rounded-full border border-white/35 bg-black/30 px-5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-md transition hover:bg-black/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
               >
-                Enable Media Cookies
+                {t("sections.homepage.hero.enableMediaCookies")}
               </button>
             </div>
           ) : null}
@@ -409,12 +409,12 @@ export function HeroSection() {
         <div className="relative z-10 mx-auto flex min-h-[inherit] w-full max-w-7xl items-center px-5 pb-10 pt-28 sm:px-8 sm:pb-14 sm:pt-32 lg:px-16 lg:pb-16 lg:pt-40">
           <div className="max-w-3xl space-y-5 text-left text-white">
             <p className="inline-flex rounded-full border border-white/20 bg-white/12 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/82 backdrop-blur-md sm:text-xs">
-              Curated for you
+              {t("sections.homepage.hero.label")}
             </p>
 
-            <h1 className="font-serif text-[clamp(3.25rem,8vw,6.75rem)] font-semibold leading-[0.92] tracking-normal text-white">
-              <span className="block">{heroHeadlineLead},</span>
-              <span className="block italic text-primary">Curated</span>
+            <h1 className="font-serif text-[clamp(2.75rem,10vw,6.75rem)] font-semibold leading-[0.92] tracking-normal text-white">
+              <span className="block">{heroTitleLead},</span>
+              <span className="block italic text-primary">{heroTitleHighlight}</span>
             </h1>
 
             <p className="max-w-xl text-base font-light leading-7 text-white/88 sm:text-lg">
@@ -437,19 +437,19 @@ export function HeroSection() {
                 onClick={() => router.push(l("/map"))}
                 className="hidden min-h-12 w-full px-7 sm:inline-flex sm:w-auto"
               >
-                {getText("home.hero.cta.secondary", "") || HOMEPAGE_SECONDARY_CTA}
+                {secondaryCtaLabel}
               </Button>
             </div>
             <Link
               href={l("/map")}
               className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-white/75 underline underline-offset-4 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:hidden"
             >
-              {getText("home.hero.cta.secondary", "") || HOMEPAGE_SECONDARY_CTA} <ArrowRight className="h-3.5 w-3.5" />
+              {secondaryCtaLabel} <ArrowRight className="h-3.5 w-3.5" />
             </Link>
             <div className="flex max-w-2xl flex-wrap items-center gap-x-5 gap-y-2 pt-4 text-xs font-semibold text-white/78">
-              <span>Curated by locals</span>
-              <span>Verified and trusted</span>
-              <span>For visitors and investors</span>
+              <span>{t("sections.homepage.hero.proof.curated")}</span>
+              <span>{t("sections.homepage.hero.proof.verified")}</span>
+              <span>{t("sections.homepage.hero.proof.intent")}</span>
             </div>
           </div>
         </div>
@@ -473,7 +473,7 @@ export function HeroSection() {
         <div className="pointer-events-none absolute bottom-8 right-8 hidden z-30 lg:flex">
           <button
             onClick={() => scrollToSection("signature-collection")}
-            aria-label={t("hero.scroll")}
+            aria-label={t("sections.homepage.hero.scroll")}
             className="pointer-events-auto flex h-11 w-11 items-center justify-center rounded-full border border-white/35 bg-black/20 text-white/70 backdrop-blur-md transition-colors cursor-pointer hover:text-white"
           >
             <ChevronDown className="h-5 w-5 text-white/70" />
