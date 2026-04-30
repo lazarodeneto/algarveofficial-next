@@ -38,6 +38,7 @@ function EditorialRegionCard({
   href,
   title,
   subtitle,
+  description,
   image,
   imageAlt,
   isFavorite,
@@ -81,6 +82,11 @@ function EditorialRegionCard({
         <h3 className="line-clamp-2 font-card-title text-xl font-bold not-italic leading-tight tracking-[-0.01em] text-white sm:text-2xl">
           {title}
         </h3>
+        {description ? (
+          <p className="mt-1.5 line-clamp-2 text-sm leading-5 text-white/78">
+            {description}
+          </p>
+        ) : null}
         <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-white/85 sm:mt-3 sm:gap-2">
           {exploreLabel} <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
         </span>
@@ -153,6 +159,10 @@ export function RegionsSection({ imageTimestamp = 0 }: RegionsSectionProps) {
               : typeof images?.image800 === "string"
                 ? images.image800
                 : images?.image800?.src;
+            const helperKey = `sections.homepage.regions.helpers.${region.slug}`;
+            const helperText = t(helperKey, {
+              defaultValue: region.short_description ?? t("sections.homepage.regions.subtitle"),
+            });
 
             return (
               <EditorialRegionCard
@@ -162,7 +172,7 @@ export function RegionsSection({ imageTimestamp = 0 }: RegionsSectionProps) {
                 imageAlt={region.name}
                 title={region.name}
                 subtitle={t("sections.homepage.common.listingCount", { count: listingCount })}
-                description={region.short_description ?? t("sections.homepage.regions.subtitle")}
+                description={helperText}
                 href={l(`/destinations/${region.slug}`)}
                 isFavorite={isDestinationSaved('region', region.id)}
                 onToggleFavorite={() => toggleRegion(region.id)}

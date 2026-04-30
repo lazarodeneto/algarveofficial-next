@@ -45,17 +45,17 @@ vi.mock("next/image", () => ({
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string, fallback?: string) => {
-      if (key === "categoryNames.whats-on") {
-        return "Wat Er te Doen Is";
-      }
-      if (key === "categoryNames.restaurants") {
-        return "Restaurants / Ervaringen";
-      }
-      if (key === "categoryNames.real-estate") {
-        return "Vastgoed";
-      }
+      const labels: Record<string, string> = {
+        "sections.homepage.quickLinks.items.stay.title": "Stay",
+        "sections.homepage.quickLinks.items.eatDrink.title": "Eat & Drink",
+        "sections.homepage.quickLinks.items.thingsToDo.title": "Things to Do",
+        "sections.homepage.quickLinks.items.golf.title": "Golf",
+        "sections.homepage.quickLinks.items.realEstate.title": "Real Estate",
+        "sections.homepage.quickLinks.items.events.title": "Events",
+        "sections.homepage.common.explore": "Explore",
+      };
 
-      return fallback ?? key;
+      return labels[key] ?? fallback ?? key;
     },
   }),
 }));
@@ -76,25 +76,33 @@ describe("HomeQuickLinksSection", () => {
     });
   });
 
-  it("renders all four cards with themed fallback artwork when no custom images are set", () => {
+  it("renders all six cards with themed fallback artwork when no custom images are set", () => {
     render(<HomeQuickLinksSection />);
 
-    expect(screen.getAllByRole("link")).toHaveLength(4);
-    expect(screen.getByAltText("Experiences")).toHaveAttribute(
+    expect(screen.getAllByRole("link")).toHaveLength(6);
+    expect(screen.getByAltText("Stay")).toHaveAttribute(
+      "src",
+      "/home-quick-links/places-to-stay.svg",
+    );
+    expect(screen.getByAltText("Eat & Drink")).toHaveAttribute(
       "src",
       "/home-quick-links/things-to-do.svg",
     );
-    expect(screen.getByAltText("Stay")).toHaveAttribute(
+    expect(screen.getByAltText("Things to Do")).toHaveAttribute(
+      "src",
+      "/home-quick-links/things-to-do.svg",
+    );
+    expect(screen.getByAltText("Golf")).toHaveAttribute(
+      "src",
+      "/home-quick-links/things-to-do.svg",
+    );
+    expect(screen.getByAltText("Real Estate")).toHaveAttribute(
       "src",
       "/home-quick-links/places-to-stay.svg",
     );
     expect(screen.getByAltText("Events")).toHaveAttribute(
       "src",
       "/home-quick-links/whats-on.svg",
-    );
-    expect(screen.getByAltText("Real Estate")).toHaveAttribute(
-      "src",
-      "/home-quick-links/places-to-stay.svg",
     );
   });
 
@@ -158,8 +166,8 @@ describe("HomeQuickLinksSection", () => {
 
     const wrappedTitle = screen.getByRole("heading", { name: "Real Estate" });
 
-    expect(wrappedTitle.className).toContain("font-serif");
-    expect(wrappedTitle.className).toContain("text-[1.65rem]");
+    expect(wrappedTitle.className).toContain("break-words");
+    expect(wrappedTitle.className).toContain("lg:text-[1.15rem]");
   });
 
   it("stacks the cards vertically on mobile widths", () => {

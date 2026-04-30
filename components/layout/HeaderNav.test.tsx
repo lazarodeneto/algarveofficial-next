@@ -30,11 +30,11 @@ vi.mock("@/components/navigation/LocaleLink", () => ({
 }));
 
 describe("HeaderNav", () => {
-  it("renders the desktop header nav without the contact item", () => {
+  it("renders the desktop header nav without utility items", () => {
     render(<HeaderNav />);
 
     expect(screen.getByRole("navigation", { name: "Primary navigation" })).toHaveClass("uppercase");
-    expect(screen.getByRole("link", { name: "Events" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Events" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Contact" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Map" })).not.toBeInTheDocument();
     expect(screen.queryByText("nav.contact")).not.toBeInTheDocument();

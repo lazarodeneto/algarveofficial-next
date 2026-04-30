@@ -21,7 +21,8 @@ const HEADER_NAV_ITEMS = PRIMARY_NAV_ITEMS.filter(
     item.href !== "/map" &&
     item.href !== "/blog" &&
     item.href !== "/residence" &&
-    item.href !== "/invest",
+    item.href !== "/invest" &&
+    item.href !== "/events",
 );
 
 const HEADER_NAV_ICONS: Record<string, LucideIcon> = {

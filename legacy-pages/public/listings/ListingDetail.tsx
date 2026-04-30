@@ -361,9 +361,15 @@ export default function ListingDetail() {
         toast.success("Link copied to clipboard");
       }
     } catch (err) {
-      if ((err as Error).name !== "AbortError") {
+      if ((err as Error).name === "AbortError") {
+        return;
+      }
+
+      try {
         await navigator.clipboard.writeText(window.location.href);
         toast.success("Link copied to clipboard");
+      } catch {
+        toast.error("Clipboard permission denied");
       }
     }
   };

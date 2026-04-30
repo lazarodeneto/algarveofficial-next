@@ -1,4 +1,4 @@
-import { ArrowRight, Building2, Search } from "lucide-react";
+import { ArrowRight, Building2, Search, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
@@ -29,6 +29,27 @@ export function CTASection() {
             <p className="mt-4 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
               {t("sections.homepage.cta.subtitle")}
             </p>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border border-border/70 bg-background/80 p-4">
+                <UserRound className="h-5 w-5 text-primary" strokeWidth={1.8} />
+                <h3 className="mt-3 text-sm font-semibold text-foreground">
+                  {t("sections.homepage.cta.visitorTitle")}
+                </h3>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  {t("sections.homepage.cta.visitorText")}
+                </p>
+              </div>
+              <div className="rounded-xl border border-border/70 bg-background/80 p-4">
+                <Building2 className="h-5 w-5 text-primary" strokeWidth={1.8} />
+                <h3 className="mt-3 text-sm font-semibold text-foreground">
+                  {t("sections.homepage.cta.businessTitle")}
+                </h3>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  {t("sections.homepage.cta.businessText")}
+                </p>
+              </div>
+            </div>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Button variant="primary" size="lg" className="min-h-11 w-full gap-2 px-6 sm:w-auto" asChild>

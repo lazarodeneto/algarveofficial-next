@@ -34,6 +34,8 @@ import {
   getMergedCategoryBySlug,
   resolveCategoryFilterSlug,
 } from "@/lib/categoryMerges";
+import { getCategoryMapColor } from "@/lib/mapCategoryColors";
+import { getMapCategoryIcon } from "@/lib/mapCategoryIcons";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { MapSyncProvider, useMapSync } from "@/lib/map/MapSyncContext";
 
@@ -411,11 +413,25 @@ function MapExplorerContent() {
                   </SelectTrigger>
                   <SelectContent className="max-h-[280px]">
                     <SelectItem value="all">{t("directory.allCategories")}</SelectItem>
-                    {mergedCategories.map((category) => (
-                      <SelectItem key={category.id} value={category.slug}>
-                        {translateCategoryName(t, category.slug, category.name)}
-                      </SelectItem>
-                    ))}
+                    {mergedCategories.map((category) => {
+                      const Icon = getMapCategoryIcon(category.slug);
+                      const color = getCategoryMapColor(category.slug);
+
+                      return (
+                        <SelectItem key={category.id} value={category.slug}>
+                          <span className="flex items-center gap-2">
+                            <span
+                              className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-white"
+                              style={{ backgroundColor: color }}
+                              aria-hidden="true"
+                            >
+                              <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
+                            </span>
+                            <span>{translateCategoryName(t, category.slug, category.name)}</span>
+                          </span>
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>

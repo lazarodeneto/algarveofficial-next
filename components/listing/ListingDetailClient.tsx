@@ -690,9 +690,15 @@ function ListingDetailClientInner({
         toast.success("Link copied to clipboard");
       }
     } catch (shareError) {
-      if ((shareError as Error).name !== "AbortError") {
+      if ((shareError as Error).name === "AbortError") {
+        return;
+      }
+
+      try {
         await navigator.clipboard.writeText(window.location.href);
         toast.success("Link copied to clipboard");
+      } catch {
+        toast.error("Clipboard permission denied");
       }
     }
   };

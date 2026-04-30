@@ -286,7 +286,11 @@ function EventDetailClientInner({
         // Ignore user-cancelled share actions.
       }
     } else {
-      await navigator.clipboard.writeText(shareUrl);
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+      } catch {
+        // Browser clipboard permission can be denied outside trusted gestures.
+      }
     }
   };
 

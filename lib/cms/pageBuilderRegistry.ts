@@ -59,6 +59,7 @@ export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
     blocks: [
       { id: "hero", label: "Hero", category: "hero" },
       { id: "quick-links", label: "Home Quick Links", category: "discovery" },
+      { id: "smart-search", label: "Smart Search", category: "discovery" },
       { id: "regions", label: "Regions", category: "discovery" },
       { id: "all-cities", label: "All Cities", category: "discovery" },
       { id: "categories", label: "Categories", category: "discovery" },

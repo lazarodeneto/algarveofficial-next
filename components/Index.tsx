@@ -8,6 +8,7 @@ import { HomepageSignatureCollection } from "@/components/sections/HomepageSigna
 import { HeroSection } from "@/components/sections/HeroSection";
 import { HomeAllCitiesSection } from "@/components/sections/HomeAllCitiesSection";
 import { HomeQuickLinksSection } from "@/components/sections/HomeQuickLinksSection";
+import { HomeSmartSearchSection } from "@/components/sections/HomeSmartSearchSection";
 import { HomeTrustSection } from "@/components/sections/HomeTrustSection";
 import { useHomepageSettings } from "@/hooks/useHomepageSettings";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
@@ -121,6 +122,11 @@ const Index = () => {
         {isBlockEnabled("quick-links", true) && (
           <CmsBlock pageId="home" blockId="quick-links" as="section">
             <HomeQuickLinksSection />
+          </CmsBlock>
+        )}
+        {isBlockEnabled("smart-search", true) && (
+          <CmsBlock pageId="home" blockId="smart-search" as="section">
+            <HomeSmartSearchSection />
           </CmsBlock>
         )}
         {(settings?.show_curated_section ?? true) && isBlockEnabled("curated", true) && (

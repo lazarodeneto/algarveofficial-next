@@ -2790,14 +2790,23 @@
         "title": "Explorar o Algarve por cidade",
         "subtitle": "Explore o Algarve por cidade, de Lagos a Tavira, incluindo praias, restaurantes e experiências premium.",
         "allTitle": "Todas as cidades",
-        "allSubtitle": "Consulte todas as cidades e vilas do Algarve num só lugar.",
-        "viewAll": "Ver todas as cidades"
+        "allSubtitle": "Compare cidades e vilas do Algarve por localização, ambiente e lugares selecionados nas proximidades.",
+        "viewAll": "Ver todas as cidades",
+        "browseTitle": "Explorar por cidade"
       },
       "regions": {
         "label": "Destinos",
         "title": "Explorar por região",
         "subtitle": "Descubra lugares excecionais em todo o Algarve, das praias douradas às aldeias do interior.",
-        "viewAll": "Ver todas as regiões"
+        "viewAll": "Ver todas as regiões",
+        "helpers": {
+          "golden-triangle": "Quinta do Lago, Vale do Lobo, Almancil",
+          "vilamoura-prestige": "Vilamoura, marina, golfe e zonas de resort",
+          "carvoeiro-cliffs": "Carvoeiro, Ferragudo, Lagoa",
+          "lagos-signature": "Lagos, Ponta da Piedade, praias do oeste",
+          "tavira-heritage": "Tavira, Santa Luzia, Algarve oriental",
+          "monchique-retreats": "Monchique, serra e refúgios rurais"
+        }
       },
       "directory": {
         "label": "Diretório completo",
@@ -2808,8 +2817,14 @@
       "signatureMap": {
         "label": "Explorar no mapa",
         "title": "Pesquisar o Algarve por localização",
-        "subtitle": "Explore mais de {{count}} lugares no Algarve e filtre por zona, categoria e intenção.",
-        "cta": "Pesquisar por localização"
+        "subtitle": "Explore lugares no Algarve por cidade, categoria e região.",
+        "cta": "Abrir mapa interativo",
+        "labels": {
+          "lagos": "Lagos",
+          "albufeira": "Albufeira",
+          "vilamoura": "Vilamoura",
+          "tavira": "Tavira"
+        }
       },
       "curatedExcellence": {
         "badge": "Seleção Signature",
@@ -2820,11 +2835,15 @@
       "cta": {
         "label": "Junte-se à comunidade",
         "title": "Junte-se à plataforma AlgarveOfficial",
-        "subtitle": "Explore lugares selecionados no Algarve ou traga o seu negócio premium para uma plataforma criada para descoberta.",
-        "primaryButton": "Explorar listagens",
+        "subtitle": "Escolha o próximo lugar a visitar ou traga o seu negócio premium para uma plataforma criada para descoberta.",
+        "primaryButton": "Explorar lugares",
         "secondaryButton": "Listar o seu negócio",
         "stats": "Mais de {{count}} listagens selecionadas no Algarve",
-        "emptyStats": "Lugares selecionados no Algarve."
+        "emptyStats": "Lugares selecionados no Algarve.",
+        "visitorTitle": "Para visitantes",
+        "visitorText": "Descubra lugares selecionados em todo o Algarve.",
+        "businessTitle": "Para negócios",
+        "businessText": "Liste o seu negócio no AlgarveOfficial."
       },
       "common": {
         "algarve": "Algarve",
@@ -2836,6 +2855,67 @@
       "cityDescriptions": {
         "loule": "Cidade histórica do interior, com mercados, tradição artesanal e acesso fácil ao centro do Algarve.",
         "porches": "Freguesia costeira tranquila, conhecida pela cerâmica, estadias sobre as falésias e enseadas próximas."
+      },
+      "smartSearch": {
+        "label": "Planeie mais depressa",
+        "title": "O que procura no Algarve?",
+        "subtitle": "Escolha uma intenção, uma cidade ou entre diretamente no diretório completo.",
+        "intentLabel": "Explorar por intenção",
+        "cityLabel": "Ligações para cidades populares",
+        "popularCities": "Cidades populares",
+        "cta": "Pesquisar no diretório",
+        "intents": {
+          "stay": "Estadia",
+          "eatDrink": "Comer e beber",
+          "thingsToDo": "Coisas para fazer",
+          "golf": "Golfe",
+          "realEstate": "Imobiliário",
+          "events": "Eventos"
+        },
+        "cities": {
+          "lagos": "Lagos",
+          "vilamoura": "Vilamoura",
+          "albufeira": "Albufeira",
+          "tavira": "Tavira",
+          "carvoeiro": "Carvoeiro",
+          "quintaDoLago": "Quinta do Lago"
+        }
+      },
+      "quickLinks": {
+        "items": {
+          "stay": {
+            "title": "Estadia"
+          },
+          "eatDrink": {
+            "title": "Comer e beber"
+          },
+          "thingsToDo": {
+            "title": "Coisas para fazer"
+          },
+          "golf": {
+            "title": "Golfe"
+          },
+          "realEstate": {
+            "title": "Imobiliário"
+          },
+          "events": {
+            "title": "Eventos"
+          }
+        }
+      },
+      "mapGateway": {
+        "eyebrow": "Explorar no mapa",
+        "title": "Pesquisar o Algarve por localização",
+        "subtitle": "Encontre lugares selecionados por cidade, região, categoria e interesse — de estadias costeiras a golfe, restaurantes e imobiliário.",
+        "cta": "Abrir mapa interativo",
+        "ariaLabel": "Abrir mapa interativo do Algarve",
+        "illustrationLabel": "Pré-visualização abstrata de localizações no Algarve",
+        "labels": {
+          "lagos": "Lagos",
+          "albufeira": "Albufeira",
+          "vilamoura": "Vilamoura",
+          "tavira": "Tavira"
+        }
       }
     }
   },

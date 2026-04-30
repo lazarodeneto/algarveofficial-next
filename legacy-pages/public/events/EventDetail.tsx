@@ -130,7 +130,9 @@ export default function EventDetail({
         console.log('Share cancelled');
       }
     } else {
-      navigator.clipboard.writeText(window.location.href);
+      void navigator.clipboard.writeText(window.location.href).catch(() => {
+        // Browser clipboard permission can be denied outside trusted gestures.
+      });
     }
   };
 

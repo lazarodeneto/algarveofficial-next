@@ -2771,14 +2771,23 @@
         "title": "Explore the Algarve by city",
         "subtitle": "Explore the Algarve by city, from Lagos to Tavira, including beaches, restaurants and premium experiences.",
         "allTitle": "All cities",
-        "allSubtitle": "Browse every Algarve city and town in one place.",
-        "viewAll": "View all cities"
+        "allSubtitle": "Compare Algarve cities and towns by location, mood and nearby curated places.",
+        "viewAll": "Browse all cities",
+        "browseTitle": "Browse by city"
       },
       "regions": {
         "label": "Destinations",
         "title": "Explore by region",
         "subtitle": "Discover incredible places across the Algarve, from golden beaches to charming inland villages.",
-        "viewAll": "View all regions"
+        "viewAll": "View all regions",
+        "helpers": {
+          "golden-triangle": "Quinta do Lago, Vale do Lobo, Almancil",
+          "vilamoura-prestige": "Vilamoura, marina, golf and resort areas",
+          "carvoeiro-cliffs": "Carvoeiro, Ferragudo, Lagoa",
+          "lagos-signature": "Lagos, Ponta da Piedade, western beaches",
+          "tavira-heritage": "Tavira, Santa Luzia, eastern Algarve",
+          "monchique-retreats": "Monchique, mountains and rural escapes"
+        }
       },
       "directory": {
         "label": "Full directory",
@@ -2789,8 +2798,14 @@
       "signatureMap": {
         "label": "Explore on map",
         "title": "Search the Algarve by location",
-        "subtitle": "Explore {{count}}+ places across the Algarve, then filter by area, category and intent.",
-        "cta": "Search by location"
+        "subtitle": "Explore places across the Algarve by city, category and region.",
+        "cta": "Open interactive map",
+        "labels": {
+          "lagos": "Lagos",
+          "albufeira": "Albufeira",
+          "vilamoura": "Vilamoura",
+          "tavira": "Tavira"
+        }
       },
       "curatedExcellence": {
         "badge": "Signature selection",
@@ -2801,11 +2816,15 @@
       "cta": {
         "label": "Join our community",
         "title": "Join the AlgarveOfficial platform",
-        "subtitle": "Browse curated places across the Algarve, or bring your premium business into a platform built for discovery.",
-        "primaryButton": "Explore listings",
+        "subtitle": "Choose your next place to visit, or bring your premium business into a platform built for discovery.",
+        "primaryButton": "Explore places",
         "secondaryButton": "List your business",
         "stats": "Over {{count}} selected listings across the Algarve",
-        "emptyStats": "Selected places across the Algarve."
+        "emptyStats": "Selected places across the Algarve.",
+        "visitorTitle": "For visitors",
+        "visitorText": "Discover curated places across the Algarve.",
+        "businessTitle": "For businesses",
+        "businessText": "Get listed on AlgarveOfficial."
       },
       "common": {
         "algarve": "Algarve",
@@ -2817,6 +2836,67 @@
       "cityDescriptions": {
         "loule": "Historic inland town with markets, craft heritage and easy access to the central Algarve.",
         "porches": "Quiet coastal parish known for ceramics, clifftop stays and nearby coves."
+      },
+      "smartSearch": {
+        "label": "Plan faster",
+        "title": "What are you looking for in the Algarve?",
+        "subtitle": "Choose an intent, a city, or jump straight into the full directory.",
+        "intentLabel": "Explore by intent",
+        "cityLabel": "Popular city links",
+        "popularCities": "Popular cities",
+        "cta": "Search the directory",
+        "intents": {
+          "stay": "Stay",
+          "eatDrink": "Eat & Drink",
+          "thingsToDo": "Things to Do",
+          "golf": "Golf",
+          "realEstate": "Real Estate",
+          "events": "Events"
+        },
+        "cities": {
+          "lagos": "Lagos",
+          "vilamoura": "Vilamoura",
+          "albufeira": "Albufeira",
+          "tavira": "Tavira",
+          "carvoeiro": "Carvoeiro",
+          "quintaDoLago": "Quinta do Lago"
+        }
+      },
+      "quickLinks": {
+        "items": {
+          "stay": {
+            "title": "Stay"
+          },
+          "eatDrink": {
+            "title": "Eat & Drink"
+          },
+          "thingsToDo": {
+            "title": "Things to Do"
+          },
+          "golf": {
+            "title": "Golf"
+          },
+          "realEstate": {
+            "title": "Real Estate"
+          },
+          "events": {
+            "title": "Events"
+          }
+        }
+      },
+      "mapGateway": {
+        "eyebrow": "Explore on map",
+        "title": "Search the Algarve by location",
+        "subtitle": "Find curated places by city, region, category and interest — from coastal stays to golf, dining and real estate.",
+        "cta": "Open interactive map",
+        "ariaLabel": "Open interactive Algarve map",
+        "illustrationLabel": "Abstract Algarve location preview",
+        "labels": {
+          "lagos": "Lagos",
+          "albufeira": "Albufeira",
+          "vilamoura": "Vilamoura",
+          "tavira": "Tavira"
+        }
       }
     }
   },

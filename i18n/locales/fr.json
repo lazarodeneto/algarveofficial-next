@@ -1531,7 +1531,103 @@
       "categories": "Catégories",
       "company": "Entreprise",
       "legal": "Légal",
-      "regions": "Régions"
+      "regions": "Régions",
+      "homepage": {
+        "editorsSelection": {
+          "badge": "Editor's picks",
+          "subtitle": "Handpicked places and properties that define the very best of the Algarve.",
+          "title": "Editor's Selection",
+          "titleAlt": "Signature Collection",
+          "cta": "View all collection",
+          "ctaMobile": "View full collection",
+          "emptyTitle": "Curated listings are being prepared.",
+          "emptySubtitle": "Browse the full Algarve directory while the editorial collection is updated."
+        },
+        "trustSection": {
+          "label": "Why AlgarveOfficial",
+          "title": "Curated for confident discovery",
+          "subtitle": "Quality places, properties and experiences across the Algarve.",
+          "items": {
+            "curated": {
+              "title": "Premium curated selection",
+              "description": "Quality places, properties and experiences across the Algarve."
+            },
+            "verified": {
+              "title": "Local insights, verified listings",
+              "description": "Discovery guided by place and context, not directory noise."
+            },
+            "comprehensive": {
+              "title": "Stay, dine, explore, invest",
+              "description": "One platform for visitors, residents, owners and investors."
+            }
+          }
+        },
+        "categories": {
+          "label": "What We Offer",
+          "title": "Premium Categories",
+          "subtitle": "Browse the premium directory by category, from places to stay to restaurants, experiences and property."
+        },
+        "hero": {
+          "label": "Curated for you",
+          "title": "The Algarve, Curated",
+          "subtitle": "Hotels, restaurants, experiences, golf and real estate — in one platform.",
+          "primaryCta": "Explore curated places",
+          "secondaryCta": "Search by location",
+          "curated": "Curated by locals",
+          "verified": "Verified and trusted",
+          "intent": "For visitors and investors"
+        },
+        "quickLinks": {
+          "label": "Start exploring",
+          "title": "Choose your Algarve",
+          "subtitle": "Start with the places, experiences and opportunities that match your trip or plans.",
+          "cta": "Explore",
+          "items": {
+            "stay": {
+              "title": "Where to Stay",
+              "subtitle": "Hotels, villas and resorts",
+              "cta": "Browse stays"
+            },
+            "experiences": {
+              "title": "Things to Do",
+              "subtitle": "Tours, golf and experiences",
+              "cta": "Discover"
+            },
+            "dining": {
+              "title": "Dining",
+              "subtitle": "Restaurants and gastronomy",
+              "cta": "Explore"
+            },
+            "realEstate": {
+              "title": "Real Estate",
+              "subtitle": "Properties and investment",
+              "cta": "Browse"
+            }
+          }
+        },
+        "cities": {
+          "label": "Cities",
+          "title": "Explore the Algarve by City",
+          "subtitle": "Explore the Algarve by city, from Lagos to Tavira, including beaches, restaurants and premium experiences.",
+          "viewAll": "View All Cities",
+          "listingCount": "{{count}} listing",
+          "listingCount_plural": "{{count}} listings"
+        },
+        "regions": {
+          "label": "Regions",
+          "title": "Explore by Region",
+          "subtitle": "Discover the Algarve by area, from coastal towns to countryside retreats.",
+          "viewAll": "View All Regions",
+          "listingCount": "{{count}} listing",
+          "listingCount_plural": "{{count}} listings"
+        },
+        "mapCta": {
+          "label": "Explore on map",
+          "title": "Search the Algarve by location",
+          "subtitle": "Explore places across the Algarve, then filter by area, category and intent.",
+          "cta": "Search by location"
+        }
+      }
     },
     "tagline": "Sélection d'expériences de luxe en Algarve",
     "terms": "Conditions d'Utilisation",
@@ -1658,7 +1754,10 @@
       "signatureLabel": "établissements signature",
       "subtitle": "Preuve sociale visible de véritables annonces, de vrais volumes d'avis et de noms d'établissements curés au moment de la première impression.",
       "title": "Preuve que la sélection mérite votre temps"
-    }
+    },
+    "lead": "Curated by locals",
+    "verified": "Verified and trusted",
+    "intent": "For visitors and investors"
   },
   "invest": {
     "allActiveCityHubs": "Tous les pôles urbains actifs",
@@ -2806,14 +2905,23 @@
         "title": "Explorer l'Algarve par ville",
         "subtitle": "Explorez l'Algarve par ville, de Lagos à Tavira, avec plages, restaurants et expériences premium.",
         "allTitle": "Toutes les villes",
-        "allSubtitle": "Parcourez toutes les villes et localités de l'Algarve au même endroit.",
-        "viewAll": "Voir toutes les villes"
+        "allSubtitle": "Comparez les villes et villages de l'Algarve par emplacement, ambiance et lieux sélectionnés à proximité.",
+        "viewAll": "Voir toutes les villes",
+        "browseTitle": "Parcourir par ville"
       },
       "regions": {
         "label": "Destinations",
         "title": "Explorer par région",
         "subtitle": "Découvrez des lieux remarquables dans toute l'Algarve, des plages dorées aux villages de l'intérieur.",
-        "viewAll": "Voir toutes les régions"
+        "viewAll": "Voir toutes les régions",
+        "helpers": {
+          "golden-triangle": "Quinta do Lago, Vale do Lobo, Almancil",
+          "vilamoura-prestige": "Vilamoura, marina, golf et zones de resort",
+          "carvoeiro-cliffs": "Carvoeiro, Ferragudo, Lagoa",
+          "lagos-signature": "Lagos, Ponta da Piedade, plages de l’ouest",
+          "tavira-heritage": "Tavira, Santa Luzia, Algarve oriental",
+          "monchique-retreats": "Monchique, montagnes et retraites rurales"
+        }
       },
       "directory": {
         "label": "Annuaire complet",
@@ -2824,8 +2932,14 @@
       "signatureMap": {
         "label": "Explorer sur la carte",
         "title": "Rechercher l'Algarve par lieu",
-        "subtitle": "Explorez plus de {{count}} lieux dans l'Algarve, puis filtrez par zone, catégorie et intention.",
-        "cta": "Rechercher par lieu"
+        "subtitle": "Explorez les lieux de l'Algarve par ville, catégorie et région.",
+        "cta": "Ouvrir la carte interactive",
+        "labels": {
+          "lagos": "Lagos",
+          "albufeira": "Albufeira",
+          "vilamoura": "Vilamoura",
+          "tavira": "Tavira"
+        }
       },
       "curatedExcellence": {
         "badge": "Sélection Signature",
@@ -2836,11 +2950,15 @@
       "cta": {
         "label": "Rejoignez la communauté",
         "title": "Rejoignez la plateforme AlgarveOfficial",
-        "subtitle": "Parcourez des lieux sélectionnés en Algarve ou présentez votre activité premium sur une plateforme pensée pour la découverte.",
-        "primaryButton": "Explorer les annonces",
-        "secondaryButton": "Ajouter votre activité",
+        "subtitle": "Choisissez votre prochain lieu à visiter ou présentez votre entreprise premium sur une plateforme conçue pour la découverte.",
+        "primaryButton": "Explorer les lieux",
+        "secondaryButton": "Référencer votre entreprise",
         "stats": "Plus de {{count}} annonces sélectionnées en Algarve",
-        "emptyStats": "Lieux sélectionnés en Algarve."
+        "emptyStats": "Lieux sélectionnés en Algarve.",
+        "visitorTitle": "Pour les visiteurs",
+        "visitorText": "Découvrez des lieux sélectionnés dans toute l'Algarve.",
+        "businessTitle": "Pour les entreprises",
+        "businessText": "Référencez votre entreprise sur AlgarveOfficial."
       },
       "common": {
         "algarve": "Algarve",
@@ -2852,6 +2970,67 @@
       "cityDescriptions": {
         "loule": "Ville historique de l’intérieur, réputée pour ses marchés, son artisanat et son accès facile au centre de l’Algarve.",
         "porches": "Paisible paroisse côtière connue pour sa céramique, ses séjours en haut de falaise et ses criques voisines."
+      },
+      "smartSearch": {
+        "label": "Planifier plus vite",
+        "title": "Que recherchez-vous en Algarve ?",
+        "subtitle": "Choisissez une intention, une ville ou accédez directement au répertoire complet.",
+        "intentLabel": "Explorer par intention",
+        "cityLabel": "Liens vers les villes populaires",
+        "popularCities": "Villes populaires",
+        "cta": "Rechercher dans le répertoire",
+        "intents": {
+          "stay": "Séjourner",
+          "eatDrink": "Manger et boire",
+          "thingsToDo": "À faire",
+          "golf": "Golf",
+          "realEstate": "Immobilier",
+          "events": "Événements"
+        },
+        "cities": {
+          "lagos": "Lagos",
+          "vilamoura": "Vilamoura",
+          "albufeira": "Albufeira",
+          "tavira": "Tavira",
+          "carvoeiro": "Carvoeiro",
+          "quintaDoLago": "Quinta do Lago"
+        }
+      },
+      "quickLinks": {
+        "items": {
+          "stay": {
+            "title": "Séjourner"
+          },
+          "eatDrink": {
+            "title": "Manger et boire"
+          },
+          "thingsToDo": {
+            "title": "À faire"
+          },
+          "golf": {
+            "title": "Golf"
+          },
+          "realEstate": {
+            "title": "Immobilier"
+          },
+          "events": {
+            "title": "Événements"
+          }
+        }
+      },
+      "mapGateway": {
+        "eyebrow": "Explorer sur la carte",
+        "title": "Rechercher l'Algarve par lieu",
+        "subtitle": "Trouvez des lieux sélectionnés par ville, région, catégorie et centre d'intérêt — des séjours côtiers au golf, à la gastronomie et à l'immobilier.",
+        "cta": "Ouvrir la carte interactive",
+        "ariaLabel": "Ouvrir la carte interactive de l'Algarve",
+        "illustrationLabel": "Aperçu abstrait des lieux de l'Algarve",
+        "labels": {
+          "lagos": "Lagos",
+          "albufeira": "Albufeira",
+          "vilamoura": "Vilamoura",
+          "tavira": "Tavira"
+        }
       }
     }
   },
@@ -2977,5 +3156,44 @@
     "lead": "Sélectionné par des locaux",
     "verified": "Vérifié et fiable",
     "intent": "Pour visiteurs et investisseurs"
+  },
+  "homepage": {
+    "editorsSelection": {
+      "badge": "Editor's picks",
+      "subtitle": "Handpicked places and properties that define the very best of the Algarve.",
+      "title": "Editor's Selection",
+      "titleAlt": "Signature Collection",
+      "cta": "View all collection",
+      "ctaMobile": "View full collection",
+      "emptyTitle": "Curated listings are being prepared.",
+      "emptySubtitle": "Browse the full Algarve directory while the editorial collection is updated."
+    },
+    "trustSection": {
+      "label": "Why AlgarveOfficial",
+      "title": "Curated for confident discovery",
+      "subtitle": "Quality places, properties and experiences across the Algarve.",
+      "items": {
+        "curated": {
+          "title": "Premium curated selection",
+          "description": "Quality places, properties and experiences across the Algarve."
+        },
+        "verified": {
+          "title": "Local insights, verified listings",
+          "description": "Discovery guided by place and context, not directory noise."
+        },
+        "comprehensive": {
+          "title": "Stay, dine, explore, invest",
+          "description": "One platform for visitors, residents, owners and investors."
+        }
+      }
+    },
+    "categories": {
+      "label": "What We Offer",
+      "title": "Premium Categories",
+      "subtitle": "Browse the premium directory by category, from places to stay to restaurants, experiences and property."
+    }
+  },
+  "navigation": {
+    "skipToContent": "Skip to main content"
   }
 }

@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState, type ComponentProps } from "react";
 import NextLink from "next/link";
 import Image from "next/image";
-import { ArrowRight, BedSingle, Binoculars, Building2, CalendarDays, LucideIcon } from "lucide-react";
+import { ArrowRight, BedSingle, Binoculars, Building2, CalendarDays, Flag, LucideIcon, Utensils } from "lucide-react";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import {
@@ -15,7 +15,9 @@ function Link(props: ComponentProps<typeof NextLink>) {
   return <NextLink prefetch={false} {...props} />;
 }
 
-const CARD_ICONS: Record<"stay" | "see-do" | "events" | "real-estate", LucideIcon> = {
+const CARD_ICONS: Record<"stay" | "eat-drink" | "see-do" | "golf" | "real-estate" | "events", LucideIcon> = {
+  "eat-drink": Utensils,
+  golf: Flag,
   "see-do": Binoculars,
   stay: BedSingle,
   events: CalendarDays,
@@ -67,7 +69,7 @@ export function HomeQuickLinksSection() {
     return (
       <section id="home-quick-links" className="relative z-10 bg-background pb-10 pt-8 sm:pb-12 sm:pt-10 lg:pb-14 lg:pt-12" aria-hidden="true">
         <div className="app-container">
-          <div className="mx-auto grid w-full grid-cols-2 gap-3 px-1 sm:max-w-[1120px] sm:gap-5 sm:px-0 lg:grid-cols-4 lg:gap-5">
+          <div className="mx-auto grid w-full grid-cols-2 gap-3 px-1 sm:max-w-[1120px] sm:gap-5 sm:px-0 lg:grid-cols-6 lg:gap-4">
             {HOME_QUICK_LINK_CARDS.map((card) => (
               <div
                 key={card.id}
@@ -86,7 +88,7 @@ export function HomeQuickLinksSection() {
   return (
     <section id="home-quick-links" className="relative z-10 bg-background pb-10 pt-8 sm:pb-12 sm:pt-10 lg:pb-14 lg:pt-12">
       <div className="app-container content-max">
-        <div className="mx-auto grid w-full grid-cols-2 gap-3 px-1 sm:gap-5 sm:px-0 lg:grid-cols-4 lg:gap-5">
+        <div className="mx-auto grid w-full grid-cols-2 gap-3 px-1 sm:grid-cols-3 sm:gap-5 sm:px-0 lg:grid-cols-6 lg:gap-4">
           {quickLinkCards.map((card) => {
             const Icon = CARD_ICONS[card.id];
             const displayTitle = t(card.translationKey);
@@ -122,7 +124,7 @@ export function HomeQuickLinksSection() {
               <Link
                 key={card.id}
                 href={card.customHref ? l(card.customHref) : l(`/stay?category=${card.categorySlug}`)}
-                className="group relative isolate aspect-[4/3] overflow-hidden rounded-2xl bg-black font-sans shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] motion-reduce:transition-none hover:-translate-y-1 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="group relative isolate aspect-[4/3] overflow-hidden rounded-2xl border-[8px] border-gray-200 bg-black font-sans shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] motion-reduce:transition-none hover:-translate-y-1 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary lg:aspect-[5/6]"
               >
                     {showVideo ? (
                       <video
@@ -160,7 +162,7 @@ export function HomeQuickLinksSection() {
                     )}
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 p-4 text-white text-shadow-card sm:p-5">
-                    <h3 className="max-w-full text-balance break-words font-sans text-[1.306rem] font-black uppercase not-italic leading-tight tracking-normal min-[480px]:text-[1.463rem] sm:text-[1.777rem]">
+                    <h3 className="max-w-full text-balance font-sans text-[1.02rem] font-black uppercase not-italic leading-[1.08] tracking-normal min-[480px]:text-[1.14rem] sm:text-[1.26rem] lg:text-[0.98rem] xl:text-[1.08rem] [overflow-wrap:normal] [word-break:normal] hyphens-none">
                       {displayTitle}
                     </h3>
                     <span className="mt-1.5 inline-flex items-center gap-1 text-sm font-medium text-white/85 sm:mt-2 sm:gap-1.5">

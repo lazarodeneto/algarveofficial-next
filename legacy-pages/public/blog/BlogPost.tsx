@@ -87,8 +87,10 @@ export default function BlogPost({
     };
 
     if (platform === 'copy') {
-      navigator.clipboard.writeText(url);
-      toast.success('Link copied to clipboard');
+      void navigator.clipboard
+        .writeText(url)
+        .then(() => toast.success('Link copied to clipboard'))
+        .catch(() => toast.error('Clipboard permission denied'));
       return;
     }
 

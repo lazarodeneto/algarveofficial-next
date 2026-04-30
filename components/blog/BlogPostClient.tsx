@@ -131,8 +131,10 @@ function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClient
     const title = post?.title ?? initialPost.title;
 
     if (platform === "copy") {
-      void navigator.clipboard.writeText(url);
-      toast.success(t("blog.linkCopied"));
+      void navigator.clipboard
+        .writeText(url)
+        .then(() => toast.success(t("blog.linkCopied")))
+        .catch(() => toast.error(t("blog.copyFailed", "Clipboard permission denied")));
       return;
     }
 

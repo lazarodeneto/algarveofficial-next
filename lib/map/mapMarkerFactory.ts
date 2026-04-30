@@ -1,4 +1,8 @@
 import { divIcon, type DivIcon } from "leaflet";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { getCategoryMapColor } from "@/lib/mapCategoryColors";
+import { getMapCategoryIcon } from "@/lib/mapCategoryIcons";
 
 type MarkerTier = "signature" | "verified" | "default";
 
@@ -35,33 +39,16 @@ function formatPrice(price: number, currency?: string | null): string {
 }
 
 function getCategorySVG(category?: string | null): string {
-  const slug = category?.toLowerCase() ?? "";
-
-  if (slug.includes("restaurant") || slug.includes("dining") || slug.includes("chef")) {
-    return `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3v8"/><path d="M8 3v8"/><path d="M4 7h4"/><path d="M6 11v10"/><path d="M18 3v18"/><path d="M15 3v7a3 3 0 0 0 3 3"/></svg>`;
-  }
-
-  if (slug.includes("golf")) {
-    return `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 19h12"/><path d="M12 19V5"/><path d="m12 5 7 3-7 3"/><circle cx="7" cy="17" r="1"/></svg>`;
-  }
-
-  if (slug.includes("shopping") || slug.includes("boutique")) {
-    return `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 13H7L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>`;
-  }
-
-  if (slug.includes("beach")) {
-    return `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c3 0 3-2 6-2s3 2 6 2 3-2 6-2"/><path d="M3 22c3 0 3-2 6-2s3 2 6 2 3-2 6-2"/><path d="M12 4v8"/><path d="m5 12 7-8 7 8"/></svg>`;
-  }
-
-  if (slug.includes("real-estate") || slug.includes("property") || slug.includes("accommodation") || slug.includes("stay")) {
-    return `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 9-8 9 8"/><path d="M5 10v11h14V10"/><path d="M9 21v-6h6v6"/></svg>`;
-  }
-
-  if (slug.includes("experience") || slug.includes("event")) {
-    return `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20"/><path d="m17 5-5-3-5 3"/><path d="m17 19-5 3-5-3"/><path d="M2 12h20"/></svg>`;
-  }
-
-  return `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="7"/><path d="M12 9v3l2 2"/></svg>`;
+  const Icon = getMapCategoryIcon(category);
+  return renderToStaticMarkup(
+    createElement(Icon, {
+      "aria-hidden": true,
+      color: "white",
+      fill: "none",
+      size: 18,
+      strokeWidth: 2.35,
+    }),
+  );
 }
 
 function shouldUsePriceMarker(category?: string | null, price?: number | null): price is number {
@@ -80,9 +67,11 @@ export function createMarker({
 }: MarkerOptions): DivIcon {
   const normalizedTier = normalizeTier(tier);
   const priceMarker = shouldUsePriceMarker(category, price);
+  const categoryColor = getCategoryMapColor(category);
   const cacheKey = [
     priceMarker ? "price" : "icon",
     category ?? "default",
+    categoryColor,
     normalizedTier,
     priceMarker ? price : "none",
     currency ?? "EUR",
@@ -91,16 +80,16 @@ export function createMarker({
   const cached = markerCache.get(cacheKey);
   if (cached) return cached;
 
-  const colors: Record<MarkerTier, string> = {
+  const tierRing: Record<MarkerTier, string> = {
     signature: "#C9A23A",
-    verified: "#16a34a",
-    default: "#111111",
+    verified: "#ffffff",
+    default: "#ffffff",
   };
-  const bg = colors[normalizedTier];
+  const bg = categoryColor;
   const scale = isActive ? 1.16 : 1;
   const shadow = isActive
-    ? "0 14px 28px rgba(0,0,0,0.34), 0 0 0 4px rgba(201,162,58,0.28)"
-    : "0 7px 16px rgba(0,0,0,0.26)";
+    ? `0 14px 28px rgba(15,23,42,0.32), 0 0 0 5px ${categoryColor}40`
+    : "0 7px 16px rgba(15,23,42,0.24)";
 
   if (priceMarker) {
     const label = escapeHtml(formatPrice(price, currency));
@@ -120,7 +109,8 @@ export function createMarker({
           line-height:1;
           white-space:nowrap;
           box-shadow:${shadow};
-          border:2px solid ${isActive ? "#C9A23A" : "rgba(17,17,17,0.12)"};
+          border:2px solid ${isActive ? categoryColor : "rgba(17,17,17,0.12)"};
+          outline:3px solid ${categoryColor}26;
         ">${label}</div>
       `,
       className: "ao-price-marker",
@@ -133,6 +123,7 @@ export function createMarker({
   }
 
   const size = isActive ? 44 : 36;
+  const innerSize = size - 6;
   const icon = divIcon({
     html: `
       <div style="
@@ -141,15 +132,25 @@ export function createMarker({
         width:${size}px;
         height:${size}px;
         border-radius:9999px;
-        background:${bg};
+        background:#ffffff;
         display:flex;
         align-items:center;
         justify-content:center;
-        color:white;
-        border:3px solid #ffffff;
+        border:3px solid ${tierRing[normalizedTier]};
         box-shadow:${shadow};
       ">
-        ${getCategorySVG(category)}
+        <div style="
+          width:${innerSize}px;
+          height:${innerSize}px;
+          border-radius:9999px;
+          background:${bg};
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          box-shadow:inset 0 1px 0 rgba(255,255,255,0.32);
+        ">
+          ${getCategorySVG(category)}
+        </div>
       </div>
     `,
     className: "listing-marker-icon",

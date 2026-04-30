@@ -1531,7 +1531,103 @@
       "categories": "Kategorier",
       "company": "Bedrift",
       "legal": "Lovlig",
-      "regions": "Regioner"
+      "regions": "Regioner",
+      "homepage": {
+        "editorsSelection": {
+          "badge": "Editor's picks",
+          "subtitle": "Handpicked places and properties that define the very best of the Algarve.",
+          "title": "Editor's Selection",
+          "titleAlt": "Signature Collection",
+          "cta": "View all collection",
+          "ctaMobile": "View full collection",
+          "emptyTitle": "Curated listings are being prepared.",
+          "emptySubtitle": "Browse the full Algarve directory while the editorial collection is updated."
+        },
+        "trustSection": {
+          "label": "Why AlgarveOfficial",
+          "title": "Curated for confident discovery",
+          "subtitle": "Quality places, properties and experiences across the Algarve.",
+          "items": {
+            "curated": {
+              "title": "Premium curated selection",
+              "description": "Quality places, properties and experiences across the Algarve."
+            },
+            "verified": {
+              "title": "Local insights, verified listings",
+              "description": "Discovery guided by place and context, not directory noise."
+            },
+            "comprehensive": {
+              "title": "Stay, dine, explore, invest",
+              "description": "One platform for visitors, residents, owners and investors."
+            }
+          }
+        },
+        "categories": {
+          "label": "What We Offer",
+          "title": "Premium Categories",
+          "subtitle": "Browse the premium directory by category, from places to stay to restaurants, experiences and property."
+        },
+        "hero": {
+          "label": "Curated for you",
+          "title": "The Algarve, Curated",
+          "subtitle": "Hotels, restaurants, experiences, golf and real estate — in one platform.",
+          "primaryCta": "Explore curated places",
+          "secondaryCta": "Search by location",
+          "curated": "Curated by locals",
+          "verified": "Verified and trusted",
+          "intent": "For visitors and investors"
+        },
+        "quickLinks": {
+          "label": "Start exploring",
+          "title": "Choose your Algarve",
+          "subtitle": "Start with the places, experiences and opportunities that match your trip or plans.",
+          "cta": "Explore",
+          "items": {
+            "stay": {
+              "title": "Where to Stay",
+              "subtitle": "Hotels, villas and resorts",
+              "cta": "Browse stays"
+            },
+            "experiences": {
+              "title": "Things to Do",
+              "subtitle": "Tours, golf and experiences",
+              "cta": "Discover"
+            },
+            "dining": {
+              "title": "Dining",
+              "subtitle": "Restaurants and gastronomy",
+              "cta": "Explore"
+            },
+            "realEstate": {
+              "title": "Real Estate",
+              "subtitle": "Properties and investment",
+              "cta": "Browse"
+            }
+          }
+        },
+        "cities": {
+          "label": "Cities",
+          "title": "Explore the Algarve by City",
+          "subtitle": "Explore the Algarve by city, from Lagos to Tavira, including beaches, restaurants and premium experiences.",
+          "viewAll": "View All Cities",
+          "listingCount": "{{count}} listing",
+          "listingCount_plural": "{{count}} listings"
+        },
+        "regions": {
+          "label": "Regions",
+          "title": "Explore by Region",
+          "subtitle": "Discover the Algarve by area, from coastal towns to countryside retreats.",
+          "viewAll": "View All Regions",
+          "listingCount": "{{count}} listing",
+          "listingCount_plural": "{{count}} listings"
+        },
+        "mapCta": {
+          "label": "Explore on map",
+          "title": "Search the Algarve by location",
+          "subtitle": "Explore places across the Algarve, then filter by area, category and intent.",
+          "cta": "Search by location"
+        }
+      }
     },
     "tagline": "Valg av luksusopplevelser i Algarve",
     "terms": "Vilkår for bruk",
@@ -1658,7 +1754,10 @@
       "signatureLabel": "signaturvenue",
       "subtitle": "Synlig sosial bevis fra ekte oppføringer, reelt recensjonsvolum og kuraterte venuenavn på det tidspunktet for første inntrykk.",
       "title": "Bevis på at utvalget er verdt din tid"
-    }
+    },
+    "lead": "Curated by locals",
+    "verified": "Verified and trusted",
+    "intent": "For visitors and investors"
   },
   "invest": {
     "allActiveCityHubs": "Alle Active City Hubs",
@@ -2806,14 +2905,23 @@
         "title": "Utforsk Algarve etter by",
         "subtitle": "Utforsk Algarve etter by, fra Lagos til Tavira, med strender, restauranter og premiumopplevelser.",
         "allTitle": "Alle byer",
-        "allSubtitle": "Se alle byer og steder i Algarve på ett sted.",
-        "viewAll": "Se alle byer"
+        "allSubtitle": "Sammenlign Algarves byer og steder etter beliggenhet, stemning og kuraterte steder i nærheten.",
+        "viewAll": "Se alle byer",
+        "browseTitle": "Bla etter by"
       },
       "regions": {
         "label": "Destinasjoner",
         "title": "Utforsk etter region",
         "subtitle": "Oppdag bemerkelsesverdige steder i hele Algarve, fra gylne strender til sjarmerende landsbyer i innlandet.",
-        "viewAll": "Se alle regioner"
+        "viewAll": "Se alle regioner",
+        "helpers": {
+          "golden-triangle": "Quinta do Lago, Vale do Lobo, Almancil",
+          "vilamoura-prestige": "Vilamoura, marina, golf and resort areas",
+          "carvoeiro-cliffs": "Carvoeiro, Ferragudo, Lagoa",
+          "lagos-signature": "Lagos, Ponta da Piedade, western beaches",
+          "tavira-heritage": "Tavira, Santa Luzia, eastern Algarve",
+          "monchique-retreats": "Monchique, mountains and rural escapes"
+        }
       },
       "directory": {
         "label": "Full katalog",
@@ -2824,8 +2932,14 @@
       "signatureMap": {
         "label": "Utforsk på kartet",
         "title": "Søk i Algarve etter sted",
-        "subtitle": "Utforsk over {{count}} steder i Algarve og filtrer etter område, kategori og formål.",
-        "cta": "Søk etter sted"
+        "subtitle": "Utforsk steder i Algarve etter by, kategori og region.",
+        "cta": "Åpne interaktivt kart",
+        "labels": {
+          "lagos": "Lagos",
+          "albufeira": "Albufeira",
+          "vilamoura": "Vilamoura",
+          "tavira": "Tavira"
+        }
       },
       "curatedExcellence": {
         "badge": "Signature-utvalg",
@@ -2836,11 +2950,15 @@
       "cta": {
         "label": "Bli med i fellesskapet",
         "title": "Bli med på AlgarveOfficial-plattformen",
-        "subtitle": "Utforsk utvalgte steder i Algarve, eller ta premiumvirksomheten din inn på en plattform laget for oppdagelse.",
-        "primaryButton": "Utforsk oppføringer",
-        "secondaryButton": "Legg til bedriften din",
+        "subtitle": "Velg ditt neste sted å besøke, eller ta premiumbedriften din inn på en plattform laget for oppdagelse.",
+        "primaryButton": "Utforsk steder",
+        "secondaryButton": "List bedriften din",
         "stats": "Over {{count}} utvalgte oppføringer i Algarve",
-        "emptyStats": "Utvalgte steder i Algarve."
+        "emptyStats": "Utvalgte steder i Algarve.",
+        "visitorTitle": "For besøkende",
+        "visitorText": "Oppdag kuraterte steder over hele Algarve.",
+        "businessTitle": "For bedrifter",
+        "businessText": "List bedriften din på AlgarveOfficial."
       },
       "common": {
         "algarve": "Algarve",
@@ -2852,6 +2970,67 @@
       "cityDescriptions": {
         "loule": "Historisk innlandsby med markeder, håndverkstradisjoner og enkel tilgang til sentrale Algarve.",
         "porches": "Rolig kystbygd kjent for keramikk, opphold ved klippene og nærliggende viker."
+      },
+      "smartSearch": {
+        "label": "Planlegg raskere",
+        "title": "Hva ser du etter i Algarve?",
+        "subtitle": "Velg en hensikt, en by eller gå rett til hele katalogen.",
+        "intentLabel": "Utforsk etter hensikt",
+        "cityLabel": "Populære bylenker",
+        "popularCities": "Populære byer",
+        "cta": "Søk i katalogen",
+        "intents": {
+          "stay": "Bo",
+          "eatDrink": "Mat og drikke",
+          "thingsToDo": "Ting å gjøre",
+          "golf": "Golf",
+          "realEstate": "Eiendom",
+          "events": "Arrangementer"
+        },
+        "cities": {
+          "lagos": "Lagos",
+          "vilamoura": "Vilamoura",
+          "albufeira": "Albufeira",
+          "tavira": "Tavira",
+          "carvoeiro": "Carvoeiro",
+          "quintaDoLago": "Quinta do Lago"
+        }
+      },
+      "quickLinks": {
+        "items": {
+          "stay": {
+            "title": "Bo"
+          },
+          "eatDrink": {
+            "title": "Mat og drikke"
+          },
+          "thingsToDo": {
+            "title": "Ting å gjøre"
+          },
+          "golf": {
+            "title": "Golf"
+          },
+          "realEstate": {
+            "title": "Eiendom"
+          },
+          "events": {
+            "title": "Arrangementer"
+          }
+        }
+      },
+      "mapGateway": {
+        "eyebrow": "Utforsk på kart",
+        "title": "Søk i Algarve etter sted",
+        "subtitle": "Finn kuraterte steder etter by, region, kategori og interesse — fra kystopphold til golf, mat og eiendom.",
+        "cta": "Åpne interaktivt kart",
+        "ariaLabel": "Åpne interaktivt Algarve-kart",
+        "illustrationLabel": "Abstrakt stedsvisning av Algarve",
+        "labels": {
+          "lagos": "Lagos",
+          "albufeira": "Albufeira",
+          "vilamoura": "Vilamoura",
+          "tavira": "Tavira"
+        }
       }
     }
   },
@@ -2977,5 +3156,44 @@
     "lead": "Utvalgt av lokale",
     "verified": "Verifisert og betrodd",
     "intent": "For besøkende og investorer"
+  },
+  "homepage": {
+    "editorsSelection": {
+      "badge": "Editor's picks",
+      "subtitle": "Handpicked places and properties that define the very best of the Algarve.",
+      "title": "Editor's Selection",
+      "titleAlt": "Signature Collection",
+      "cta": "View all collection",
+      "ctaMobile": "View full collection",
+      "emptyTitle": "Curated listings are being prepared.",
+      "emptySubtitle": "Browse the full Algarve directory while the editorial collection is updated."
+    },
+    "trustSection": {
+      "label": "Why AlgarveOfficial",
+      "title": "Curated for confident discovery",
+      "subtitle": "Quality places, properties and experiences across the Algarve.",
+      "items": {
+        "curated": {
+          "title": "Premium curated selection",
+          "description": "Quality places, properties and experiences across the Algarve."
+        },
+        "verified": {
+          "title": "Local insights, verified listings",
+          "description": "Discovery guided by place and context, not directory noise."
+        },
+        "comprehensive": {
+          "title": "Stay, dine, explore, invest",
+          "description": "One platform for visitors, residents, owners and investors."
+        }
+      }
+    },
+    "categories": {
+      "label": "What We Offer",
+      "title": "Premium Categories",
+      "subtitle": "Browse the premium directory by category, from places to stay to restaurants, experiences and property."
+    }
+  },
+  "navigation": {
+    "skipToContent": "Skip to main content"
   }
 }

@@ -129,7 +129,7 @@ export function HomeAllCitiesSection() {
             {t("sections.homepage.cities.label")}
           </p>
           <h2 className="mt-3 font-serif text-3xl font-medium tracking-normal text-foreground sm:text-4xl">
-            {t("sections.homepage.cities.allTitle")}
+            {t("sections.homepage.cities.browseTitle")}
           </h2>
           <p className="mt-3 max-w-xl text-base leading-7 text-muted-foreground">
             {t("sections.homepage.cities.allSubtitle")}

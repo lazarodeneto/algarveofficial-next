@@ -91,7 +91,7 @@ function createClusterCustomIcon(cluster: MarkerCluster): DivIcon {
   const size = count >= 100 ? 54 : count >= 30 ? 48 : 40;
 
   return divIcon({
-    html: `<div class="custom-cluster-icon__bubble">${count}</div>`,
+    html: `<div class="custom-cluster-icon__bubble"><span>${count}</span></div>`,
     className: "custom-cluster-icon",
     iconSize: point(size, size, true),
     iconAnchor: [size / 2, size / 2],
@@ -149,16 +149,16 @@ function FlyToActivePoint({
     if (!activeListingId || previousActiveId.current === activeListingId) return;
 
     const activePoint = points.find((point) => point.id === activeListingId);
-    if (!activePoint || !isValidLatLng(activePoint.latitude, activePoint.longitude)) return;
+    const latitude = Number(activePoint?.latitude);
+    const longitude = Number(activePoint?.longitude);
+    if (!activePoint || !isValidLatLng(latitude, longitude)) return;
 
     previousActiveId.current = activeListingId;
     const currentZoom = map.getZoom();
     const safeZoom = Number.isFinite(currentZoom) ? Math.max(currentZoom, 14) : 14;
 
-    map.flyTo([activePoint.latitude, activePoint.longitude], safeZoom, {
-      animate: true,
-      duration: 0.45,
-    });
+    map.stop();
+    map.setView([latitude, longitude], safeZoom, { animate: false });
   }, [activeListingId, map, points]);
 
   return null;

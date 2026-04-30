@@ -329,7 +329,7 @@ export default function Footer() {
               <p className="mt-1 text-body-xs text-muted-foreground">
                 {t("newsletter.footerSubtitle")}
               </p>
-              <form onSubmit={handleNewsletterSubmit} className="mt-3 flex flex-col gap-2 sm:flex-row">
+              <form onSubmit={handleNewsletterSubmit} className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1.6fr)_minmax(7rem,1fr)]">
                 <Label htmlFor="footer-newsletter-email" className="sr-only">
                   {t("newsletter.placeholder")}
                 </Label>
@@ -340,14 +340,14 @@ export default function Footer() {
                   onChange={(event) => setNewsletterEmail(event.target.value)}
                   placeholder={t("newsletter.placeholder")}
                   autoComplete="email"
-                  className="h-11 text-body-xs"
+                  className="h-11 min-w-0 text-body-xs"
                   disabled={isSubmitting}
                 />
                 <Button
                   type="submit"
                   variant="gold"
                   size="sm"
-                  className="h-10 w-full px-4 whitespace-nowrap sm:w-auto"
+                  className="h-10 w-full px-4 whitespace-nowrap"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? t("newsletter.subscribing") : t("newsletter.footerCta")}
