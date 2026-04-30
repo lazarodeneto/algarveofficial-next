@@ -224,7 +224,7 @@ export function CuratedExcellence({
                 </span>
               </div>
 
-              <h3 className="text-2xl md:text-3xl lg:text-4xl font-serif font-medium not-italic text-foreground mb-3 group-hover:text-primary transition-colors">
+              <h3 className="mb-3 font-card-title text-2xl font-bold not-italic leading-tight tracking-[-0.01em] text-foreground transition-colors group-hover:text-primary md:text-3xl lg:text-4xl">
                 {featuredListing.name}
               </h3>
 

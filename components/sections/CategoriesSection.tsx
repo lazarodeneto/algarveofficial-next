@@ -116,7 +116,7 @@ export function CategoriesSection() {
                   <div className="relative z-10 w-12 h-12 rounded-lg bg-muted dark:bg-muted flex items-center justify-center mb-3 lg:mb-2">
                     <IconComponent className="w-6 h-6 text-primary" />
                   </div>
-                  <h3 className="relative z-10 text-[1.15rem] sm:text-[1.25rem] lg:text-[1.45rem] font-medium not-italic text-foreground mb-3 break-words text-balance leading-[1.15] min-h-[2.8rem] sm:min-h-[3.2rem] lg:min-h-[3.4rem] lg:mb-2 flex items-center justify-center">
+                  <h3 className="relative z-10 flex min-h-[2.8rem] items-center justify-center break-words text-balance text-[1.15rem] font-card-title font-bold not-italic leading-[1.15] tracking-[-0.01em] text-foreground mb-3 sm:min-h-[3.2rem] sm:text-[1.25rem] lg:min-h-[3.4rem] lg:mb-2 lg:text-[1.45rem]">
                     {displayName}
                   </h3>
                   <span className="relative z-10 text-body-sm font-medium text-primary mt-auto">

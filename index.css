@@ -545,7 +545,7 @@
     @apply pointer-events-none text-[0.47rem] font-semibold opacity-100;
     line-height: 1.15;
     letter-spacing: 0.01em;
-    font-family: var(--font-archivo-narrow), var(--font-sans);
+    font-family: var(--font-sans);
     text-transform: uppercase;
     white-space: nowrap;
     overflow: visible;
@@ -1817,6 +1817,10 @@
   }
 
   .font-sans {
+    font-family: var(--font-sans);
+  }
+
+  .font-card-title {
     font-family: var(--font-sans);
   }
 

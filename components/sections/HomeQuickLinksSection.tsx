@@ -160,7 +160,7 @@ export function HomeQuickLinksSection() {
                     )}
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 p-4 text-white text-shadow-card sm:p-5">
-                    <h3 className="font-serif text-[1.65rem] font-semibold not-italic leading-tight min-[480px]:text-[1.875rem] sm:text-[2.25rem]">
+                    <h3 className="max-w-full text-balance break-words font-sans text-[1.306rem] font-black uppercase not-italic leading-tight tracking-normal min-[480px]:text-[1.463rem] sm:text-[1.777rem]">
                       {displayTitle}
                     </h3>
                     <span className="mt-1.5 inline-flex items-center gap-1 text-sm font-medium text-white/85 sm:mt-2 sm:gap-1.5">

@@ -34,7 +34,7 @@ export function PremiumCard({
         </div>
       )}
       <div className="p-5">
-        <h3 className="text-lg font-medium text-brand-ink md:text-xl">
+        <h3 className="font-card-title text-lg font-bold leading-tight tracking-[-0.01em] text-brand-ink md:text-xl">
           {title}
         </h3>
         {description && (

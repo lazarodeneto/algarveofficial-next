@@ -117,7 +117,7 @@ export function SignatureCard({
       >
         <h3
           className={cn(
-            "line-clamp-2 font-serif font-semibold not-italic leading-tight tracking-normal",
+            "line-clamp-2 font-card-title font-bold not-italic leading-tight tracking-[-0.01em]",
             isFeatured ? "text-xl sm:text-2xl" : "text-lg sm:text-xl"
           )}
         >

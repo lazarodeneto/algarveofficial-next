@@ -50,7 +50,7 @@ function EditorialRegionCard({
       prefetch={false}
       href={href}
       className={cn(
-        "group relative isolate block h-full min-h-[200px] overflow-hidden rounded-2xl bg-black shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] motion-reduce:transition-none hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+        "group relative isolate block h-full min-h-[338px] overflow-hidden rounded-2xl bg-black shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] motion-reduce:transition-none hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
         className,
       )}
     >
@@ -78,7 +78,7 @@ function EditorialRegionCard({
         <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70">
           {subtitle}
         </p>
-        <h3 className="line-clamp-2 font-serif text-xl font-semibold not-italic leading-tight tracking-normal text-white sm:text-2xl">
+        <h3 className="line-clamp-2 font-card-title text-xl font-bold not-italic leading-tight tracking-[-0.01em] text-white sm:text-2xl">
           {title}
         </h3>
         <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-white/85 sm:mt-3 sm:gap-2">

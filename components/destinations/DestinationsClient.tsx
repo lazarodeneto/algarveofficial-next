@@ -372,19 +372,19 @@ function DestinationsClientInner({ initialRegions, imageTimestamp: propImageTime
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                 >
-                  <LocaleLink
+<LocaleLink
                     href={`/destinations/${region.slug}`}
-                    className="group block p-6 rounded-xl bg-background border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-elevated"
+                    className="group block p-4 rounded-xl bg-background border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-elevated"
                   >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                        <MapPin className="w-6 h-6 text-primary" />
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                        <MapPin className="w-5 h-5 text-primary" />
                       </div>
                     </div>
-                    <h3 className="text-lg font-serif font-medium text-foreground mb-2 group-hover:text-primary transition-colors">
+                    <h3 className="text-base font-serif font-medium text-foreground mb-2 group-hover:text-primary transition-colors">
                       {region.name}
                     </h3>
-                    <p className="text-sm text-muted-foreground mb-3">
+                    <p className="text-xs text-muted-foreground">
                       {region.short_description || region.description}
                     </p>
                   </LocaleLink>

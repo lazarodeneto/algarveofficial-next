@@ -248,7 +248,7 @@ export function BaseCard({
         <h3
           id={titleId}
           className={cn(
-            "font-serif font-semibold not-italic leading-tight tracking-normal text-white",
+            "font-card-title font-bold not-italic leading-tight tracking-[-0.01em] text-white",
             config.titleClass
           )}
         >
