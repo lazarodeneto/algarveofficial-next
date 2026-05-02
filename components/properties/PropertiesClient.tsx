@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import { Database } from "@/integrations/supabase/types";
 import { matchesPropertyCategoryFilters } from "@/lib/properties/filters";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import {
     fetchCityTranslations,
     fetchListingTranslations,
@@ -58,6 +59,7 @@ interface FilterState {
 
 export default function PropertiesClient() {
     const { t } = useTranslation();
+    const cms = useCmsPageBuilder("properties");
     const targetLang = normalizePublicContentLocale(useCurrentLocale());
     const [filters, setFilters] = useState<FilterState>({
         priceMin: "",
@@ -168,7 +170,7 @@ export default function PropertiesClient() {
         staleTime: 1000 * 60 * 5,
     });
 
-    const isLoading = isCategoryLoading ?? isListingsLoading;
+    const isLoading = Boolean(isCategoryLoading || isListingsLoading);
 
     const filteredListings = useMemo(() => {
         const rows = listings ?? [];
@@ -187,8 +189,11 @@ export default function PropertiesClient() {
         <div className="min-h-screen bg-background flex flex-col">
             <Header />
             <div className={STANDARD_PUBLIC_NO_HERO_SPACER_CLASS} aria-hidden="true" />
-            <main className="flex-grow">
+            <main id="main-content" className="flex-grow">
                 <div className="app-container pb-14 sm:pb-20 relative z-20">
+                    <h1 className="mb-8 font-serif text-4xl text-foreground sm:text-5xl">
+                        {cms.getText("hero.title", t("realEstate.pageTitle"))}
+                    </h1>
                     <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8">
                         <div className="xl:col-span-4 2xl:col-span-3">
                             <div className="sticky top-24">
@@ -198,7 +203,7 @@ export default function PropertiesClient() {
                                     onSearch={() => { }}
                                     onClear={handleClear}
                                 />
-                                <div className="hidden xl:block mt-6 sm:mt-8 p-5 sm:p-8 bg-black text-white rounded-2xl space-y-4">
+                                <div className="hidden xl:block mt-6 sm:mt-8 p-5 sm:p-8 bg-black text-white rounded-sm space-y-4">
                                     <h4 className="font-serif text-xl italic">{t("realEstate.searchAssistance.title")}</h4>
                                     <p className="text-sm text-white/70 font-light leading-relaxed">
                                         {t("realEstate.searchAssistance.description")}
@@ -240,16 +245,16 @@ export default function PropertiesClient() {
                                     ))}
                                 </div>
                             ) : (
-                                <div className="text-center py-32 bg-card/50 backdrop-blur-md rounded-[2.5rem] border border-primary/10 flex flex-col items-center justify-center">
+                                <div className="text-center py-32 bg-card/50 backdrop-blur-md rounded-xl border border-primary/10 flex flex-col items-center justify-center">
                                     <Building2 className="w-12 h-12 text-primary/30 mb-4" />
-                                    <p className="text-2xl font-serif italic text-muted-foreground">No properties match your refined search</p>
-                                    <Button variant="link" onClick={handleClear} className="mt-4 text-primary hover:text-primary/80 uppercase tracking-widest text-xs font-semibold">Clear All Filters</Button>
+                                    <p className="text-2xl font-serif italic text-muted-foreground">{t("realEstate.emptyRefinedSearch")}</p>
+                                    <Button variant="link" onClick={handleClear} className="mt-4 text-primary hover:text-primary/80 uppercase tracking-widest text-xs font-semibold">{t("realEstate.clearFilters")}</Button>
                                 </div>
                             )}
                         </div>
 
                         <div className="xl:hidden xl:col-span-4 2xl:col-span-3">
-                            <div className="p-5 sm:p-8 bg-black text-white rounded-2xl space-y-4">
+                            <div className="p-5 sm:p-8 bg-black text-white rounded-sm space-y-4">
                                 <h4 className="font-serif text-xl italic">{t("realEstate.searchAssistance.title")}</h4>
                                 <p className="text-sm text-white/70 font-light leading-relaxed">
                                     {t("realEstate.searchAssistance.description")}

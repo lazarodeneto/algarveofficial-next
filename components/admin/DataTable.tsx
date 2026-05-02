@@ -63,7 +63,7 @@ export function DataTable<T extends { id: string }>({
   };
 
   return (
-    <div className={cn("overflow-x-auto rounded-2xl border border-border/70 bg-card/95 shadow-sm", wrapperClassName)}>
+    <div className={cn("overflow-x-auto rounded-sm border border-border/70 bg-card/95 shadow-sm", wrapperClassName)}>
       <Table className={cn("min-w-[720px]", tableClassName)}>
         <TableHeader>
           <TableRow className="bg-muted/50 hover:bg-muted/50">

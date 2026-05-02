@@ -91,7 +91,11 @@ export function CityHubsSection({
   const getCityHref = (city: CityHubItem) =>
     l(cityPathBuilder?.(city) ?? `/${cityHubBasePath}/${city.slug}`);
 
-  const featured = highlightedCity ?? topCities[0];
+  const visibleTopCities = topCities.filter((city) => getCityCount(city) > 0);
+  const featured =
+    highlightedCity && getCityCount(highlightedCity) > 0
+      ? highlightedCity
+      : visibleTopCities[0];
   if (!featured) return null;
 
   return (
@@ -99,7 +103,7 @@ export function CityHubsSection({
       <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <Link
           href={getCityHref(featured)}
-          className="group mx-auto block h-full w-full max-w-[22rem] overflow-hidden rounded-[32px] border border-border bg-card shadow-sm sm:max-w-none"
+          className="group mx-auto block h-full w-full max-w-[22rem] overflow-hidden rounded-lg border border-border bg-card shadow-sm sm:max-w-none"
         >
           <div className="relative h-full min-h-[28rem]">
             {featured.hero_image_url || featured.image_url ? (
@@ -132,7 +136,7 @@ export function CityHubsSection({
           </div>
         </Link>
 
-        <div className="mx-auto w-full max-w-[22rem] rounded-[32px] border border-border bg-card p-6 shadow-sm sm:max-w-none">
+        <div className="mx-auto w-full max-w-[22rem] rounded-sm border border-border bg-card p-6 shadow-sm sm:max-w-none">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
             {t(translationKeys.cityIndex)}
           </p>
@@ -143,11 +147,11 @@ export function CityHubsSection({
             {t(translationKeys.cityIndexDescription)}
           </p>
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {topCities.map((city) => (
+            {visibleTopCities.map((city) => (
               <Link
                 key={city.id}
                 href={getCityHref(city)}
-                className="rounded-2xl border border-border px-4 py-3 transition-colors hover:border-primary/40 hover:bg-muted/40"
+                className="rounded-sm border border-border px-4 py-3 transition-colors hover:border-primary/40 hover:bg-muted/40"
               >
                 <div className="font-medium text-foreground">
                   {city.name}

@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useCities, useCityListingCounts } from "@/hooks/useReferenceData";
 import { useTranslation } from "react-i18next";
+import { cmsText, isSafeHomeCtaHref, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
 
 const FEATURED_LIMIT = 4;
 
@@ -28,7 +29,7 @@ function FeaturedCityCard({
   return (
     <Link
       href={href}
-      className="group relative isolate block h-full min-h-[180px] sm:min-h-[200px] overflow-hidden rounded-2xl bg-black shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] motion-reduce:transition-none hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      className="group relative isolate block h-full min-h-[180px] sm:min-h-[200px] overflow-hidden rounded-md bg-black shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] motion-reduce:transition-none hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
     >
       {image ? (
         <Image
@@ -37,7 +38,7 @@ function FeaturedCityCard({
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           quality={72}
-          className="object-cover transition-transform duration-500 ease-out will-change-transform motion-reduce:transition-none group-hover:scale-[1.04]"
+          className="object-cover transition-transform duration-500 ease-out motion-reduce:transition-none group-hover:scale-[1.04]"
         />
       ) : (
         <div className="absolute inset-0 bg-neutral-900" aria-hidden="true" />
@@ -72,7 +73,7 @@ function CompactCityCard({
   return (
     <Link
       href={href}
-      className="group rounded-2xl border border-black/5 bg-white p-4 shadow-soft-surface transition-all duration-300 ease-out motion-reduce:transition-none hover:-translate-y-0.5 hover:border-primary/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      className="group rounded-sm border border-black/5 bg-white p-4 shadow-soft-surface transition-all duration-300 ease-out motion-reduce:transition-none hover:-translate-y-0.5 hover:border-primary/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
     >
       <div className="flex items-start gap-3">
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors duration-300 ease-out group-hover:bg-primary/15">
@@ -96,7 +97,7 @@ function CompactCityCard({
   );
 }
 
-export function HomeAllCitiesSection() {
+export function HomeAllCitiesSection({ copy }: { copy?: HomeSectionCopy } = {}) {
   const l = useLocalePath();
   const { i18n, t } = useTranslation();
   const { data: cities = [], isLoading: citiesLoading } = useCities();
@@ -115,6 +116,9 @@ export function HomeAllCitiesSection() {
 
   const featuredCities = sortedCities.slice(0, FEATURED_LIMIT);
   const compactCities = sortedCities.slice(FEATURED_LIMIT);
+  const ctaHref = isSafeHomeCtaHref(copy?.ctaHref) && copy?.ctaHref?.trim()
+    ? copy.ctaHref.trim()
+    : "/destinations";
 
   if (!isLoading && citiesWithListings.length === 0) {
     return null;
@@ -126,13 +130,13 @@ export function HomeAllCitiesSection() {
         {/* Header */}
         <div className="mb-10 sm:mb-12">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-            {t("sections.homepage.cities.label")}
+            {cmsText(copy?.eyebrow, t("sections.homepage.cities.label"))}
           </p>
           <h2 className="mt-3 font-serif text-3xl font-medium tracking-normal text-foreground sm:text-4xl">
-            {t("sections.homepage.cities.browseTitle")}
+            {cmsText(copy?.title, t("sections.homepage.cities.browseTitle"))}
           </h2>
           <p className="mt-3 max-w-xl text-base leading-7 text-muted-foreground">
-            {t("sections.homepage.cities.allSubtitle")}
+            {cmsText(copy?.subtitle ?? copy?.description, t("sections.homepage.cities.allSubtitle"))}
           </p>
         </div>
 
@@ -141,13 +145,13 @@ export function HomeAllCitiesSection() {
             {/* Featured skeleton */}
             <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {Array.from({ length: FEATURED_LIMIT }).map((_, index) => (
-                <Skeleton key={`featured-${index}`} className="h-[200px] rounded-2xl" />
+                <Skeleton key={`featured-${index}`} className="h-[200px] rounded-md" />
               ))}
             </div>
             {/* Compact skeleton */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {Array.from({ length: 8 }).map((_, index) => (
-                <Skeleton key={`compact-${index}`} className="h-[100px] rounded-2xl" />
+                <Skeleton key={`compact-${index}`} className="h-[100px] rounded-sm" />
               ))}
             </div>
           </>
@@ -198,8 +202,8 @@ export function HomeAllCitiesSection() {
         {/* CTA */}
         <div className="mt-10 flex justify-center sm:mt-12">
           <Button variant="premium" size="lg" asChild>
-            <Link href={l("/destinations")}>
-              {t("sections.homepage.cities.viewAll")}
+            <Link href={l(ctaHref)}>
+              {cmsText(copy?.ctaLabel, t("sections.homepage.cities.viewAll"))}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>

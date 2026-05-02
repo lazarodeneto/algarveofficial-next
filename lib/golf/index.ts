@@ -1,4 +1,5 @@
 import { createPublicServerClient } from "@/lib/supabase/public-server";
+import { normalizePublicImageUrl } from "@/lib/imageUrls";
 
 export interface GolfLocationRef {
   id: string;
@@ -12,11 +13,19 @@ export interface GolfCourseDetails {
   par: number | null;
   slopeRating: number | null;
   courseRating: number | null;
+  courseType: string | null;
+  difficulty: string | null;
+  accessType: string | null;
+  priceRange: string | null;
+  lengthMeters: number | null;
   architect: string | null;
   yearOpened: number | null;
   practiceFacilities: string | null;
+  drivingRange: boolean | null;
   clubhouse: boolean | null;
+  restaurant: boolean | null;
   buggyAvailable: boolean | null;
+  academy: boolean | null;
   caddyAvailable: boolean | null;
   dressCode: string | null;
   bookingUrl: string | null;
@@ -28,6 +37,10 @@ export interface GolfCourseDetails {
 export interface GolfScorecardHole {
   holeNumber: number;
   par: number;
+  hcp: number | null;
+  white: number | null;
+  yellow: number | null;
+  red: number | null;
 }
 
 export interface GolfListing {
@@ -44,6 +57,8 @@ export interface GolfListing {
   websiteUrl: string | null;
   contactPhone: string | null;
   contactEmail: string | null;
+  googleRating: number | null;
+  googleReviewCount: number | null;
   city: GolfLocationRef | null;
   region: GolfLocationRef | null;
   categorySlug: string | null;
@@ -74,11 +89,23 @@ const GOLF_LISTING_FIELDS = `
   website_url,
   contact_phone,
   contact_email,
+  google_rating,
+  google_review_count,
   category_data,
   city:cities(id, name, slug),
   region:regions(id, name, slug),
   category:categories(id, name, slug)
 `;
+
+export const CANONICAL_GOLF_CATEGORY_SLUG = "golf";
+
+const GOLF_CATEGORY_ALIASES = new Set([
+  "golf",
+  "golf-course",
+  "golf-courses",
+  "golf courses",
+  "golf-tournaments",
+]);
 
 const MOCK_LEADERBOARD: GolfLeaderboardEntry[] = [
   { rank: 1, player: "Joao Silva", score: -6, rounds: 4 },
@@ -142,6 +169,18 @@ function toInteger(value: unknown): number | null {
   return Number.isInteger(parsed) ? parsed : null;
 }
 
+function pickTeeNumber(value: unknown): number | null {
+  const record = asRecord(value);
+  if (record) {
+    return (
+      toNullableNumber(record.white) ??
+      toNullableNumber(record.yellow) ??
+      toNullableNumber(record.red)
+    );
+  }
+  return toNullableNumber(value);
+}
+
 function pickNullable<T>(primary: T | null | undefined, fallback: T | null | undefined): T | null {
   return primary ?? fallback ?? null;
 }
@@ -160,18 +199,24 @@ function mapLocationRef(row: Record<string, unknown> | null): GolfLocationRef | 
 
 function mapScorecardHoles(categoryData: Record<string, unknown> | null): GolfScorecardHole[] {
   if (!categoryData) return [];
-  const raw = categoryData.scorecard_holes;
+  const raw = Array.isArray(categoryData.scorecard_holes)
+    ? categoryData.scorecard_holes
+    : categoryData.scorecard;
   if (!Array.isArray(raw)) return [];
 
   return raw
     .map((entry) => {
       const row = asRecord(entry);
-      const holeNumber = toInteger(row?.hole_number);
+      const holeNumber = toInteger(row?.hole_number ?? row?.hole);
       const par = toInteger(row?.par);
       if (!holeNumber || !par) return null;
       return {
         holeNumber,
         par,
+        hcp: toInteger(row?.stroke_index ?? row?.hcp),
+        white: toNullableNumber(row?.distance_white ?? row?.white),
+        yellow: toNullableNumber(row?.distance_yellow ?? row?.yellow),
+        red: toNullableNumber(row?.distance_red ?? row?.red),
       } as GolfScorecardHole;
     })
     .filter((row): row is GolfScorecardHole => row !== null)
@@ -188,17 +233,29 @@ function mapCourseDetails(source: Record<string, unknown> | null, listingId: str
     slopeRating: toNullableNumber(source.slope_rating) ?? toNullableNumber(source.slopeRating),
     courseRating:
       toNullableNumber(source.course_rating) ?? toNullableNumber(source.courseRating),
+    courseType: toNullableString(source.course_type) ?? toNullableString(source.courseType),
+    difficulty: toNullableString(source.difficulty),
+    accessType: toNullableString(source.access_type) ?? toNullableString(source.accessType),
+    priceRange: toNullableString(source.price_range) ?? toNullableString(source.priceRange),
+    lengthMeters:
+      pickTeeNumber(source.length_meters) ??
+      toNullableNumber(source.lengthMeters) ??
+      toNullableNumber(source.length),
     architect: toNullableString(source.architect) ?? toNullableString(source.designer),
     yearOpened:
       toNullableNumber(source.year_opened) ?? toNullableNumber(source.yearOpened),
     practiceFacilities:
       toNullableString(source.practice_facilities) ??
       toNullableString(source.practiceFacilities),
+    drivingRange:
+      toNullableBoolean(source.driving_range) ?? toNullableBoolean(source.drivingRange),
     clubhouse: toNullableBoolean(source.clubhouse),
+    restaurant: toNullableBoolean(source.restaurant),
     buggyAvailable:
       toNullableBoolean(source.buggy_available) ??
       toNullableBoolean(source.buggyAvailable) ??
       toNullableBoolean(source.equipment_rental),
+    academy: toNullableBoolean(source.academy),
     caddyAvailable:
       toNullableBoolean(source.caddy_available) ?? toNullableBoolean(source.caddyAvailable),
     dressCode: toNullableString(source.dress_code) ?? toNullableString(source.dressCode),
@@ -233,11 +290,19 @@ function mergeCourseDetails(
     par: pickNullable(primary?.par, fallback?.par),
     slopeRating: pickNullable(primary?.slopeRating, fallback?.slopeRating),
     courseRating: pickNullable(primary?.courseRating, fallback?.courseRating),
+    courseType: pickNullable(primary?.courseType, fallback?.courseType),
+    difficulty: pickNullable(primary?.difficulty, fallback?.difficulty),
+    accessType: pickNullable(primary?.accessType, fallback?.accessType),
+    priceRange: pickNullable(primary?.priceRange, fallback?.priceRange),
+    lengthMeters: pickNullable(primary?.lengthMeters, fallback?.lengthMeters),
     architect: pickNullable(primary?.architect, fallback?.architect),
     yearOpened: pickNullable(primary?.yearOpened, fallback?.yearOpened),
     practiceFacilities: pickNullable(primary?.practiceFacilities, fallback?.practiceFacilities),
+    drivingRange: pickNullable(primary?.drivingRange, fallback?.drivingRange),
     clubhouse: pickNullable(primary?.clubhouse, fallback?.clubhouse),
+    restaurant: pickNullable(primary?.restaurant, fallback?.restaurant),
     buggyAvailable: pickNullable(primary?.buggyAvailable, fallback?.buggyAvailable),
+    academy: pickNullable(primary?.academy, fallback?.academy),
     caddyAvailable: pickNullable(primary?.caddyAvailable, fallback?.caddyAvailable),
     dressCode: pickNullable(primary?.dressCode, fallback?.dressCode),
     bookingUrl: pickNullable(primary?.bookingUrl, fallback?.bookingUrl),
@@ -252,14 +317,15 @@ async function getGolfCategoryIds(
 ): Promise<string[]> {
   const { data, error } = await supabase
     .from("categories")
-    .select("id")
-    .ilike("slug", "golf")
-    .limit(10);
+    .select("id, name, slug")
+    .limit(200);
 
   if (error || !data) return [];
 
   return (data ?? [])
-    .map((row) => toNullableString((row as Record<string, unknown>).id))
+    .map((row) => row as Record<string, unknown>)
+    .filter((row) => isGolfCategoryValue(toNullableString(row.slug)) || isGolfCategoryValue(toNullableString(row.name)))
+    .map((row) => toNullableString(row.id))
     .filter((id): id is string => id !== null);
 }
 
@@ -380,6 +446,33 @@ function normalizeFilterValue(value: string | null | undefined): string {
   return decodeURIComponent(value).trim().toLowerCase();
 }
 
+function normalizeGolfCategoryValue(value: string | null | undefined): string {
+  if (!value) return "";
+  return decodeURIComponent(value)
+    .trim()
+    .toLowerCase()
+    .replace(/[_\s]+/g, "-");
+}
+
+export function isGolfCategoryValue(value: string | null | undefined): boolean {
+  const normalized = normalizeGolfCategoryValue(value);
+  if (!normalized) return false;
+
+  return GOLF_CATEGORY_ALIASES.has(normalized) || GOLF_CATEGORY_ALIASES.has(normalized.replace(/-/g, " "));
+}
+
+export function isGolfListingCategory(
+  listing: Pick<GolfListing, "categorySlug" | "categoryName">,
+): boolean {
+  return isGolfCategoryValue(listing.categorySlug) || isGolfCategoryValue(listing.categoryName);
+}
+
+export function filterGolfListings<T extends Pick<GolfListing, "categorySlug" | "categoryName">>(
+  listings: T[],
+): T[] {
+  return listings.filter(isGolfListingCategory);
+}
+
 function matchesFilter(
   filter: string | null | undefined,
   candidates: Array<string | null | undefined>,
@@ -410,10 +503,30 @@ function mapGolfListing(
   const city = mapLocationRef(unwrapRelation(row.city));
   const region = mapLocationRef(unwrapRelation(row.region));
   const category = unwrapRelation(row.category);
+  const categorySlug = toNullableString(category?.slug);
+  const categoryName = toNullableString(category?.name);
+  const isGolfCategory = isGolfCategoryValue(categorySlug) || isGolfCategoryValue(categoryName);
   const categoryData = asRecord(row.category_data);
 
   const detailsFromTable = detailsByListingId.get(id) ?? null;
-  const detailsFromCategoryData = mapCourseDetails(categoryData, id);
+  const categoryGolf = asRecord(categoryData?.golf);
+  const categoryFacilities = asRecord(categoryData?.facilities);
+  const categoryAccess = asRecord(categoryData?.access);
+  const categoryPositioning = asRecord(categoryData?.positioning);
+  const categoryDataDetailsSource = categoryData
+    ? {
+        ...categoryData,
+        ...(categoryGolf ?? {}),
+        driving_range: categoryFacilities?.driving_range,
+        clubhouse: categoryFacilities?.clubhouse,
+        restaurant: categoryFacilities?.restaurant,
+        buggy_available: categoryFacilities?.buggy,
+        academy: categoryFacilities?.academy,
+        access_type: categoryAccess?.type,
+        price_range: categoryPositioning?.price_range,
+      }
+    : null;
+  const detailsFromCategoryData = mapCourseDetails(categoryDataDetailsSource, id);
   const details = mergeCourseDetails(id, detailsFromTable, detailsFromCategoryData);
   const scorecardHoles = mapScorecardHoles(categoryData);
 
@@ -423,7 +536,7 @@ function mapGolfListing(
     name,
     shortDescription: toNullableString(row.short_description),
     description: toNullableString(row.description),
-    featuredImageUrl: toNullableString(row.featured_image_url),
+    featuredImageUrl: normalizePublicImageUrl(toNullableString(row.featured_image_url)),
     tier: toNullableString(row.tier),
     status: toNullableString(row.status),
     latitude: toNullableNumber(row.latitude),
@@ -431,10 +544,12 @@ function mapGolfListing(
     websiteUrl: toNullableString(row.website_url),
     contactPhone: toNullableString(row.contact_phone),
     contactEmail: toNullableString(row.contact_email),
+    googleRating: toNullableNumber(row.google_rating),
+    googleReviewCount: toInteger(row.google_review_count),
     city,
     region,
-    categorySlug: toNullableString(category?.slug),
-    categoryName: toNullableString(category?.name),
+    categorySlug: isGolfCategory ? CANONICAL_GOLF_CATEGORY_SLUG : categorySlug,
+    categoryName,
     details,
     holeCount: holeCountsByListingId.get(id) ?? 0,
     scorecardHoles,
@@ -475,9 +590,9 @@ export async function getGolfListings(options?: {
   const detailsByListingId = await getGolfDetailsByListingId(supabase, listingIds);
   const holeCountsByListingId = await getGolfHoleCountsByListingId(supabase, listingIds);
 
-  const mapped = listingRows
+  const mapped = filterGolfListings(listingRows
     .map((row) => mapGolfListing(row, detailsByListingId, holeCountsByListingId))
-    .filter((row): row is GolfListing => row !== null);
+    .filter((row): row is GolfListing => row !== null));
 
   return mapped.filter((listing) => {
     const regionMatches = matchesFilter(options?.region, [
@@ -521,7 +636,8 @@ export async function getGolfListingBySlug(slug: string) {
     listingId ? [listingId] : [],
   );
 
-  return mapGolfListing(listingRow, detailsByListingId, holeCountsByListingId);
+  const listing = mapGolfListing(listingRow, detailsByListingId, holeCountsByListingId);
+  return listing && isGolfListingCategory(listing) ? listing : null;
 }
 
 export async function getCourses(options?: {

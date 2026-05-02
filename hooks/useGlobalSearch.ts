@@ -4,6 +4,7 @@ import { usePublishedListings } from "@/hooks/useListings";
 import { useCities, useCategories, useRegions } from "@/hooks/useReferenceData";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { buildMergedCategoryOptions } from "@/lib/categoryMerges";
+import { buildCategoryHref, buildCityHref, buildListingHref } from "@/lib/public-route-builders";
 
 export interface SearchResult {
   id: string;
@@ -83,7 +84,7 @@ export function useGlobalSearch() {
           type: "listing",
           title: listing.name,
           subtitle: listing.city?.name,
-          href: `/listing/${listing.slug || listing.id}`,
+          href: buildListingHref({ slug: listing.slug, id: listing.id }),
         });
       }
     });
@@ -100,8 +101,8 @@ export function useGlobalSearch() {
             id: category.id,
             type: "category",
             title: categoryDisplayName,
-            subtitle: "Category",
-            href: `/directory?category=${category.slug}`,
+            subtitle: t("directory.category"),
+            href: buildCategoryHref(category.slug),
           });
         }
       }
@@ -117,8 +118,8 @@ export function useGlobalSearch() {
             id: city.id,
             type: "city",
             title: city.name,
-            subtitle: "City",
-            href: `/city/${city.slug}`,
+            subtitle: t("directory.city"),
+            href: buildCityHref(city.slug),
           });
         }
       }
@@ -134,7 +135,7 @@ export function useGlobalSearch() {
             id: region.id,
             type: "region",
             title: region.name,
-            subtitle: "Region",
+            subtitle: t("directory.region"),
             href: `/destinations/${region.slug}`,
           });
         }

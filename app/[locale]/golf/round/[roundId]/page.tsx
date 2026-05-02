@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { getRound, GolfRoundsError } from "@/lib/golf/rounds";
 import { DEFAULT_LOCALE, isValidLocale, type Locale } from "@/lib/i18n/config";
 import { buildLocalizedPath } from "@/lib/i18n/routing";
+import { getServerTranslations } from "@/lib/i18n/server";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
 import { createClient } from "@/lib/supabase/server";
 import { GolfRoundScoringClient } from "@/components/golf/GolfRoundScoringClient";
@@ -55,13 +56,20 @@ export default async function GolfRoundPage({ params }: PageProps) {
   });
 
   if (roundResult === "no-holes") {
+    const translations = await getServerTranslations(locale, [
+      "golf.round.unavailableTitle",
+      "golf.round.unavailableDescription",
+    ]);
+
     return (
       <main className={`app-container pb-10 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
         <div className="mx-auto max-w-lg rounded-2xl border border-border/70 bg-card p-6">
-          <h1 className="font-serif text-3xl text-foreground">Round unavailable</h1>
+          <h1 className="font-serif text-3xl text-foreground">
+            {translations["golf.round.unavailableTitle"] ?? "Round unavailable"}
+          </h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            This course does not have a complete hole setup yet. Please try another golf
-            listing for now.
+            {translations["golf.round.unavailableDescription"] ??
+              "This course does not have a complete hole setup yet. Please try another golf listing for now."}
           </p>
         </div>
       </main>

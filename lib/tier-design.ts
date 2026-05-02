@@ -88,7 +88,7 @@ const TIER_CONFIG: Record<ListingTier, TierConfig> = {
   signature: {
     name: "signature",
     card: {
-      base: "bg-card border-[2px] border-[hsl(43,86%,58%)] rounded-2xl shadow-[0_0_10px_hsla(43,86%,58%,0.34)]",
+      base: "bg-card border-[2px] border-[hsl(43,86%,58%)] rounded-sm shadow-[0_0_10px_hsla(43,86%,58%,0.34)]",
       hover: "hover:shadow-[0_0_25px_hsla(43,86%,58%,0.45)] hover:-translate-y-1 hover:scale-[1.01] hover:border-[hsl(43,86%,58%)]",
       border: "border-[2px] border-[hsl(43,86%,58%)] shadow-[0_0_10px_hsla(43,86%,58%,0.34)]",
       shadow: "shadow-[0_0_10px_hsla(43,86%,58%,0.25)]",
@@ -115,7 +115,7 @@ const TIER_CONFIG: Record<ListingTier, TierConfig> = {
   curated: {
     name: "curated",
     card: {
-      base: "bg-gradient-to-br from-card via-[#FAF9F6] to-[#F5F0E8] dark:from-card dark:via-[#1a1a18] dark:to-[#1f1d18] border-[#C7A35A]/40 dark:border-[#C7A35A]/50 rounded-3xl overflow-hidden",
+      base: "bg-gradient-to-br from-card via-[#FAF9F6] to-[#F5F0E8] dark:from-card dark:via-[#1a1a18] dark:to-[#1f1d18] border-[#C7A35A]/40 dark:border-[#C7A35A]/50 rounded-xl overflow-hidden",
       hover: "hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] hover:-translate-y-1.5 hover:scale-[1.02] hover:border-[#C7A35A]/60",
       border: "border-2 border-[#C7A35A]/40 dark:border-[#C7A35A]/50",
       shadow: "shadow-xl shadow-[#C7A35A]/15",

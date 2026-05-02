@@ -55,11 +55,11 @@ export function WhatsAppChatButton({
       <button
         type="button"
         onClick={handleOpenWhatsApp}
-        className="pointer-events-auto relative flex h-14 w-14 items-center justify-center rounded-full border border-[hsl(43_74%_49%/0.45)] bg-[linear-gradient(145deg,hsla(43,74%,49%,0.34),hsla(43,74%,49%,0.16))] backdrop-blur-xl shadow-[0_10px_30px_-14px_rgba(199,163,90,0.8)] transition-all hover:scale-[1.03] hover:border-[hsl(43_74%_49%/0.62)] hover:bg-[linear-gradient(145deg,hsla(43,74%,49%,0.44),hsla(43,74%,49%,0.22))]"
+        className="pointer-events-auto relative flex h-14 w-14 items-center justify-center rounded-full border border-[#C7A35A] bg-[#C7A35A] text-amber-950 shadow-lg shadow-amber-700/15 transition-all hover:scale-[1.03] hover:bg-[#B79245] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         aria-label="Open concierge on WhatsApp"
         title="Open concierge on WhatsApp"
       >
-        <ConciergeBell className="relative z-10 h-7 w-7 text-[hsl(43_82%_68%)] drop-shadow-[0_1px_6px_rgba(199,163,90,0.65)]" />
+        <ConciergeBell className="relative z-10 h-7 w-7 text-amber-950" />
         <span className="sr-only">Open concierge on WhatsApp</span>
       </button>
     </div>

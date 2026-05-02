@@ -42,6 +42,25 @@ export interface CmsBlockDefinition {
   category?: "hero" | "discovery" | "content" | "utility";
 }
 
+export type CmsPageScope =
+  | "global"
+  | "dynamic-city"
+  | "dynamic-category"
+  | "dynamic-city-category"
+  | "dynamic-listing"
+  | "template";
+
+export type CmsPageStatus = "enabled" | "partial" | "planned" | "disabled";
+
+export type CmsPageRegistryGroup =
+  | "Core Pages"
+  | "Directory Pages"
+  | "Dynamic Templates"
+  | "Golf"
+  | "Blog & Events"
+  | "Business & Legal"
+  | "Auth & System";
+
 export interface CmsPageDefinition {
   id: string;
   label: string;
@@ -49,6 +68,22 @@ export interface CmsPageDefinition {
   description?: string;
   blocks: CmsBlockDefinition[];
 }
+
+export interface CmsPageRegistryMeta {
+  scope: CmsPageScope;
+  status: CmsPageStatus;
+  group: CmsPageRegistryGroup;
+  publicRenderer: string;
+  notes?: string;
+}
+
+const DEFAULT_PAGE_REGISTRY_META: CmsPageRegistryMeta = {
+  scope: "global",
+  status: "planned",
+  group: "Core Pages",
+  publicRenderer: "Not connected to the shared page-builder renderer yet.",
+  notes: "Registered for planning only. Public rendering should keep existing fallback content.",
+};
 
 export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
   {
@@ -315,8 +350,8 @@ export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
   },
   {
     id: "live",
-    label: "Residence",
-    path: "/residence",
+    label: "Relocation",
+    path: "/relocation",
     blocks: [
       { id: "hero", label: "Hero" },
       { id: "city-hubs", label: "City Hubs" },
@@ -331,7 +366,7 @@ export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
     id: "legacy-live",
     label: "Legacy Live Redirect",
     path: "/live",
-    description: "Legacy alias route that redirects to /residence.",
+    description: "Legacy alias route that redirects to /relocation.",
     blocks: [
       { id: "redirect", label: "Redirect Behavior" },
       { id: "fallback", label: "Fallback State" },
@@ -531,6 +566,284 @@ export const CMS_PAGE_DEFINITION_MAP: Record<string, CmsPageDefinition> =
     acc[page.id] = page;
     return acc;
   }, {});
+
+export const CMS_PAGE_REGISTRY_META: Record<string, CmsPageRegistryMeta> = {
+  home: {
+    scope: "global",
+    status: "enabled",
+    group: "Core Pages",
+    publicRenderer: "components/Index.tsx + legacy useCmsPageBuilder(\"home\") consumers",
+    notes: "Controls hero title/subtitle/badge/media/CTA labels via CMS text keys, plus block order/enabled state and selected placement fields. Curated listing logic remains code/data driven.",
+  },
+  golf: {
+    scope: "global",
+    status: "enabled",
+    group: "Golf",
+    publicRenderer: "components/golf/GolfPageClient.tsx + CmsPageRenderer fallback",
+    notes: "Hero media, CMS blocks, and fallback golf discovery content are wired safely.",
+  },
+  map: {
+    scope: "global",
+    status: "partial",
+    group: "Core Pages",
+    publicRenderer: "legacy-pages/public/listings/MapExplorer.tsx",
+    notes: "Legacy CMS settings control selected copy/block visibility. Interactive map behaviour remains data driven.",
+  },
+  experiences: {
+    scope: "global",
+    status: "partial",
+    group: "Directory Pages",
+    publicRenderer: "legacy-pages/public/Experiences.tsx / components/experiences/ExperiencesClient.tsx",
+    notes: "Text, hero, and selected section controls are wired through legacy CMS settings.",
+  },
+  beaches: {
+    scope: "global",
+    status: "partial",
+    group: "Directory Pages",
+    publicRenderer: "components/beaches/BeachesClient.tsx",
+    notes: "Runtime settings are preloaded; not every visible section has a dedicated field editor yet.",
+  },
+  stay: {
+    scope: "global",
+    status: "partial",
+    group: "Directory Pages",
+    publicRenderer: "components/directory/DirectoryClient.tsx",
+    notes: "Uses shared directory/listing page data with CMS-driven hero/block controls.",
+  },
+  directory: {
+    scope: "global",
+    status: "partial",
+    group: "Directory Pages",
+    publicRenderer: "legacy-pages/public/listings/Directory.tsx / components/directory/DirectoryClient.tsx",
+    notes: "Legacy CMS controls copy, metadata, and section visibility while listings remain data driven.",
+  },
+  visit: {
+    scope: "global",
+    status: "planned",
+    group: "Directory Pages",
+    publicRenderer: "app/[locale]/visit/page.tsx",
+    notes: "Visit index is registered, but safe public rendering parity still needs a dedicated integration pass.",
+  },
+  "visit-city": {
+    scope: "dynamic-city",
+    status: "planned",
+    group: "Dynamic Templates",
+    publicRenderer: "app/[locale]/visit/[city]/page.tsx",
+    notes: "Template-level editing should be implemented first; do not create per-city CMS documents yet.",
+  },
+  "visit-city-category": {
+    scope: "dynamic-city-category",
+    status: "planned",
+    group: "Dynamic Templates",
+    publicRenderer: "app/[locale]/visit/[city]/[category]/page.tsx",
+    notes: "Template-level editing should preserve city/category database content and SEO fallbacks.",
+  },
+  "category-hub": {
+    scope: "dynamic-category",
+    status: "planned",
+    group: "Dynamic Templates",
+    publicRenderer: "app/[locale]/category/[category]/page.tsx",
+    notes: "Registered as a category template. Public route is not yet fully controlled by Full Page Builder.",
+  },
+  "legacy-city-category": {
+    scope: "dynamic-city-category",
+    status: "disabled",
+    group: "Dynamic Templates",
+    publicRenderer: "app/[locale]/[city]/[category]/page.tsx",
+    notes: "Legacy alias/redirect route. Do not edit as a content page.",
+  },
+  destinations: {
+    scope: "global",
+    status: "partial",
+    group: "Directory Pages",
+    publicRenderer: "components/destinations/DestinationsClient.tsx",
+    notes: "CMS can control selected copy/block state. Destination inventory remains database driven.",
+  },
+  "destination-detail": {
+    scope: "template",
+    status: "partial",
+    group: "Dynamic Templates",
+    publicRenderer: "components/destinations/DestinationDetailClient.tsx",
+    notes: "Template-level block visibility is wired. Entity content still comes from destination data.",
+  },
+  "city-detail": {
+    scope: "dynamic-city",
+    status: "partial",
+    group: "Dynamic Templates",
+    publicRenderer: "components/cities/CityDetailClient.tsx",
+    notes: "Template-level block visibility is wired. City content remains database driven.",
+  },
+  blog: {
+    scope: "global",
+    status: "partial",
+    group: "Blog & Events",
+    publicRenderer: "components/blog/BlogClient.tsx / legacy-pages/public/blog/Blog.tsx",
+    notes: "Blog index settings are partially wired. Post content remains blog-data driven.",
+  },
+  "blog-post": {
+    scope: "template",
+    status: "planned",
+    group: "Blog & Events",
+    publicRenderer: "app/[locale]/blog/[slug]/page.tsx",
+    notes: "Article template editing needs renderer parity before enabling.",
+  },
+  "guide-detail": {
+    scope: "template",
+    status: "planned",
+    group: "Blog & Events",
+    publicRenderer: "app/[locale]/guides/[slug]/page.tsx",
+    notes: "Guide template is planned; guide content must remain source-data driven.",
+  },
+  events: {
+    scope: "global",
+    status: "partial",
+    group: "Blog & Events",
+    publicRenderer: "components/events/EventsClient.tsx / legacy-pages/public/events/Events.tsx",
+    notes: "Events index can read CMS settings for selected fields and visibility.",
+  },
+  "event-detail": {
+    scope: "template",
+    status: "partial",
+    group: "Blog & Events",
+    publicRenderer: "components/events/EventDetailClient.tsx",
+    notes: "Template-level visibility/copy support exists. Event facts remain data driven.",
+  },
+  live: {
+    scope: "global",
+    status: "partial",
+    group: "Core Pages",
+    publicRenderer: "components/live/LiveClient.tsx / legacy-pages/public/Live.tsx",
+    notes: "Relocation page uses legacy CMS settings for selected sections and text.",
+  },
+  "legacy-live": {
+    scope: "global",
+    status: "disabled",
+    group: "Core Pages",
+    publicRenderer: "app/[locale]/live/page.tsx",
+    notes: "Legacy route redirects/aliases to Relocation. Do not edit as canonical content.",
+  },
+  "real-estate": {
+    scope: "global",
+    status: "enabled",
+    group: "Directory Pages",
+    publicRenderer: "legacy-pages/public/RealEstateDirectory.tsx / components/real-estate/RealEstateDirectoryClient.tsx",
+    notes: "Controls hero title/subtitle/badge/media and block state. Property listings, filters, and city hubs remain data driven.",
+  },
+  invest: {
+    scope: "global",
+    status: "enabled",
+    group: "Core Pages",
+    publicRenderer: "components/invest/InvestClient.tsx / legacy-pages/public/Invest.tsx",
+    notes: "Controls hero title/subtitle/badge/media and block state. Investment calculator and city/listing data remain code/data driven.",
+  },
+  properties: {
+    scope: "global",
+    status: "partial",
+    group: "Directory Pages",
+    publicRenderer: "components/properties/PropertiesClient.tsx",
+    notes: "Currently controls the page heading through the shared text map. Hero media and full section parity are planned.",
+  },
+  trips: {
+    scope: "global",
+    status: "planned",
+    group: "Core Pages",
+    publicRenderer: "app/[locale]/trips/page.tsx",
+    notes: "Trips page is registered for future CMS control.",
+  },
+  partner: {
+    scope: "global",
+    status: "partial",
+    group: "Business & Legal",
+    publicRenderer: "app/[locale]/partner/page.tsx / legacy-pages/public/Partner.tsx",
+    notes: "Currently controls hero title/subtitle and FAQ heading through the shared text map. Dedicated partner_settings remains the main fallback source.",
+  },
+  contact: {
+    scope: "global",
+    status: "planned",
+    group: "Business & Legal",
+    publicRenderer: "app/[locale]/contact/page.tsx",
+    notes: "Contact content is better handled by the dedicated contact/content modules until renderer parity is added.",
+  },
+  about: {
+    scope: "global",
+    status: "planned",
+    group: "Business & Legal",
+    publicRenderer: "app/[locale]/about-us/page.tsx",
+    notes: "About page integration is planned.",
+  },
+  "privacy-policy": {
+    scope: "global",
+    status: "planned",
+    group: "Business & Legal",
+    publicRenderer: "app/[locale]/privacy-policy/page.tsx",
+    notes: "Legal pages have dedicated admin modules; avoid accidental Full Page Builder edits until unified.",
+  },
+  terms: {
+    scope: "global",
+    status: "planned",
+    group: "Business & Legal",
+    publicRenderer: "app/[locale]/terms/page.tsx",
+    notes: "Legal pages have dedicated admin modules; avoid accidental Full Page Builder edits until unified.",
+  },
+  "cookie-policy": {
+    scope: "global",
+    status: "planned",
+    group: "Business & Legal",
+    publicRenderer: "app/[locale]/cookie-policy/page.tsx",
+    notes: "Legal pages have dedicated admin modules; avoid accidental Full Page Builder edits until unified.",
+  },
+  "auth-login": {
+    scope: "global",
+    status: "disabled",
+    group: "Auth & System",
+    publicRenderer: "app/[locale]/login/page.tsx",
+    notes: "Auth routes are system flows, not editorial CMS pages.",
+  },
+  "auth-signup": {
+    scope: "global",
+    status: "disabled",
+    group: "Auth & System",
+    publicRenderer: "app/[locale]/signup/page.tsx",
+    notes: "Auth routes are system flows, not editorial CMS pages.",
+  },
+  "auth-forgot-password": {
+    scope: "global",
+    status: "disabled",
+    group: "Auth & System",
+    publicRenderer: "app/[locale]/forgot-password/page.tsx",
+    notes: "Auth routes are system flows, not editorial CMS pages.",
+  },
+  "auth-reset-password": {
+    scope: "global",
+    status: "disabled",
+    group: "Auth & System",
+    publicRenderer: "app/[locale]/auth/reset-password/page.tsx",
+    notes: "Auth routes are system flows, not editorial CMS pages.",
+  },
+  "auth-callback": {
+    scope: "global",
+    status: "disabled",
+    group: "Auth & System",
+    publicRenderer: "app/[locale]/auth/callback/page.tsx",
+    notes: "Auth callback route is not editable content.",
+  },
+  snake: {
+    scope: "global",
+    status: "disabled",
+    group: "Auth & System",
+    publicRenderer: "No current public route found.",
+    notes: "Registry remnant; keep disabled unless the route is restored.",
+  },
+};
+
+export function getCmsPageRegistryMeta(pageId: string): CmsPageRegistryMeta {
+  return CMS_PAGE_REGISTRY_META[pageId] ?? DEFAULT_PAGE_REGISTRY_META;
+}
+
+export function isCmsPageEditableInFullBuilder(pageId: string): boolean {
+  const status = getCmsPageRegistryMeta(pageId).status;
+  return status === "enabled" || status === "partial";
+}
 
 export const CMS_BLOCK_ID_ALIASES_BY_PAGE: Record<string, Record<string, string>> = {
   golf: {

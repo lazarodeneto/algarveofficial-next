@@ -164,7 +164,7 @@ export function TranslationJobsTable({ groups, onRefresh }: Props) {
   // ── Render ─────────────────────────────────────────────────────────────────
   if (groups.length === 0) {
     return (
-      <div className="flex h-48 items-center justify-center rounded-2xl border border-dashed border-border/50 text-sm text-muted-foreground">
+      <div className="flex h-48 items-center justify-center rounded-sm border border-dashed border-border/50 text-sm text-muted-foreground">
         No translation jobs match the current filters.
       </div>
     );
@@ -174,7 +174,7 @@ export function TranslationJobsTable({ groups, onRefresh }: Props) {
     <>
       {/* ── Sticky bulk actions bar ─────────────────────────────────────────── */}
       {selectedJobIds.length > 0 && (
-        <div className="sticky top-4 z-20 flex items-center gap-3 rounded-2xl border border-primary/30 bg-card/95 px-4 py-3 shadow-lg backdrop-blur-sm">
+        <div className="sticky top-4 z-20 flex items-center gap-3 rounded-sm border border-primary/30 bg-card/95 px-4 py-3 shadow-lg backdrop-blur-sm">
           <span className="text-sm font-medium text-foreground">
             <span className="font-bold text-primary">{selectedJobIds.length}</span> selected
           </span>

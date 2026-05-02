@@ -1,8 +1,13 @@
 import { randomUUID } from "node:crypto";
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 import { deepMergeContent } from "@/lib/cms/server-persistence";
+import {
+  CMS_PAGE_DEFINITION_MAP,
+  getCmsPageRegistryMeta,
+  isCmsPageEditableInFullBuilder,
+} from "@/lib/cms/pageBuilderRegistry";
 import {
   adminErrorResponse,
   requireAdminWriteClient,
@@ -136,6 +141,17 @@ function sameId(left: DocumentId | null | undefined, right: DocumentId | null | 
     return false;
   }
   return String(left) === String(right);
+}
+
+function isKnownPageId(pageId: string) {
+  return Boolean(CMS_PAGE_DEFINITION_MAP[pageId]);
+}
+
+function getRevalidatablePath(pageId: string, locale: string) {
+  const path = CMS_PAGE_DEFINITION_MAP[pageId]?.path;
+  if (!path || path.includes(":")) return null;
+  const normalizedPath = path === "/" ? "" : path;
+  return locale && locale !== "default" ? `/${locale}${normalizedPath}` : normalizedPath || "/";
 }
 
 async function fetchPageConfigDocument(client: any, pageId: string, locale: string) {
@@ -442,6 +458,10 @@ export async function GET(request: NextRequest) {
     return adminErrorResponse(400, "INVALID_PAGE_ID", "Missing required page_id.");
   }
 
+  if (!isKnownPageId(pageId)) {
+    return adminErrorResponse(400, "UNKNOWN_PAGE_ID", `Unknown CMS page_id "${pageId}".`);
+  }
+
   const docResult = await fetchPageConfigDocument(auth.writeClient as never, pageId, locale);
   if (docResult.error) {
     console.error("[admin-cms-page-config] document lookup failed", {
@@ -546,6 +566,19 @@ export async function POST(request: NextRequest) {
 
   if (!pageId) {
     return adminErrorResponse(400, "INVALID_PAGE_ID", "Missing required page_id.");
+  }
+
+  if (!isKnownPageId(pageId)) {
+    return adminErrorResponse(400, "UNKNOWN_PAGE_ID", `Unknown CMS page_id "${pageId}".`);
+  }
+
+  if (!isCmsPageEditableInFullBuilder(pageId)) {
+    const meta = getCmsPageRegistryMeta(pageId);
+    return adminErrorResponse(
+      400,
+      "CMS_PAGE_NOT_EDITABLE",
+      `CMS page_id "${pageId}" is ${meta.status} in Full Page Builder. Public renderer: ${meta.publicRenderer}`,
+    );
   }
 
   const docResult = await ensurePageConfigDocument(auth.writeClient as never, pageId, locale, auth.userId);
@@ -680,6 +713,10 @@ export async function POST(request: NextRequest) {
   }
 
   revalidateTag(`cms:${pageId}`, "max");
+  const pathToRevalidate = getRevalidatablePath(pageId, locale);
+  if (pathToRevalidate) {
+    revalidatePath(pathToRevalidate);
+  }
 
   return NextResponse.json({
     ok: true,

@@ -74,7 +74,7 @@ export function StartRoundButton({
 
   return (
     <div className="space-y-3">
-      <div className="relative overflow-hidden rounded-2xl border border-white/30 bg-white/40 p-3 shadow-[0_8px_30px_rgba(0,0,0,0.08)] backdrop-blur-xl">
+      <div className="relative overflow-hidden rounded-sm border border-white/30 bg-white/40 p-3 shadow-[0_8px_30px_rgba(0,0,0,0.08)] backdrop-blur-xl">
         <div className="pointer-events-none absolute left-0 top-0 h-[2px] w-full bg-gradient-to-r from-transparent via-[#C7A35A] to-transparent opacity-70" />
 
         <div className="flex items-center gap-2 rounded-full bg-white/30 p-1 backdrop-blur-md">

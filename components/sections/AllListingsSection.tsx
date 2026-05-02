@@ -30,13 +30,19 @@ import {
   resolveListingOrder,
 } from "@/lib/cms/placement-engine";
 import { trackBlockImpression, trackListingClick } from "@/lib/analytics/platformTracking";
+import { cmsText, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
 
 const ITEMS_PER_PAGE = 12;
 const MAX_HOME_LISTINGS = 24;
 const LOADING_SKELETON_COUNT = ITEMS_PER_PAGE;
 
-export function AllListingsSection() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+interface AllListingsSectionProps {
+  forcedCategorySlug?: string;
+  copy?: HomeSectionCopy;
+}
+
+export function AllListingsSection({ forcedCategorySlug, copy }: AllListingsSectionProps = {}) {
+  const [selectedCategory, setSelectedCategory] = useState<string>(forcedCategorySlug ?? "all");
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
@@ -47,27 +53,53 @@ export function AllListingsSection() {
   const l = useLocalePath();
   const { getBlockData } = useCmsPageBuilder("home");
   const listingBlockData = getBlockData("all-listings");
+  const defaultTitleText = t("sections.listings.titleHighlight");
+  const [defaultTitleFirstWord, ...defaultTitleRest] = defaultTitleText.split(" ");
+  const defaultTitle = (
+    <>
+      <span className="text-foreground italic">{defaultTitleFirstWord}</span>
+      {defaultTitleRest.length > 0 ? (
+        <>
+          {" "}
+          <span className="text-gradient-gold italic">{defaultTitleRest.join(" ")}</span>
+        </>
+      ) : null}
+    </>
+  );
 
-  // Fetch data from Supabase once and filter locally to avoid extra roundtrips
-  const { data: allListings = [], isLoading: listingsLoading, error: listingsError } = usePublishedListings();
   const { data: categories, isLoading: categoriesLoading, error: categoriesError } = useCategories();
   const { data: cities, isLoading: citiesLoading, error: citiesError } = useCities();
   const { data: regions, isLoading: regionsLoading, error: regionsError } = useRegions();
-
-  const isLoading = listingsLoading || categoriesLoading || citiesLoading || regionsLoading;
-  const hasError = Boolean(listingsError || categoriesError || citiesError || regionsError);
 
   const placementSelection = normalizePlacementSelection(listingBlockData.selection);
   const configuredCityId = normalizeListingFilterId(listingBlockData.cityId);
   const configuredCategoryId = normalizeListingFilterId(listingBlockData.categoryId);
   const configuredMaxItems = normalizeListingMaxItems(listingBlockData.maxItems, MAX_HOME_LISTINGS);
   const configuredListingIds = normalizeSelectedListingIds(listingBlockData.selectedListingIds);
-  const { validListingIds } = validateSelectedListingIds(configuredListingIds, allListings);
 
   const mergedCategories = useMemo(
     () => buildMergedCategoryOptions(categories || []),
     [categories]
   );
+
+  const forcedCategoryListingFilter = useMemo(() => {
+    if (!forcedCategorySlug) return {};
+    const forcedCategory = getMergedCategoryBySlug(forcedCategorySlug, mergedCategories);
+    if (forcedCategory?.memberIds.length) {
+      return { categoryIds: forcedCategory.memberIds };
+    }
+
+    // Avoid the expensive "all published listings" query while category metadata is still loading.
+    return { categoryIds: ["__pending-forced-category__"] };
+  }, [forcedCategorySlug, mergedCategories]);
+
+  // Fetch data from Supabase once and filter locally. Forced category pages request only
+  // the matching category ids so pages such as /golf do not download the full directory.
+  const { data: allListings = [], isLoading: listingsLoading, error: listingsError } = usePublishedListings(forcedCategoryListingFilter);
+
+  const isLoading = listingsLoading || categoriesLoading || citiesLoading || regionsLoading;
+  const hasError = Boolean(listingsError || categoriesError || citiesError || regionsError);
+  const { validListingIds } = validateSelectedListingIds(configuredListingIds, allListings);
 
   const resolvedCityId = useMemo(() => {
     if (selectedCity === "all") return "all";
@@ -82,11 +114,12 @@ export function AllListingsSection() {
   }, [selectedRegion, regions]);
 
   const selectedMergedCategory = useMemo(
-    () => getMergedCategoryBySlug(selectedCategory, mergedCategories),
-    [selectedCategory, mergedCategories]
+    () => getMergedCategoryBySlug(forcedCategorySlug ?? selectedCategory, mergedCategories),
+    [forcedCategorySlug, selectedCategory, mergedCategories]
   );
 
-  const categorySelectValue = selectedCategory === "all"
+  const effectiveCategory = forcedCategorySlug ?? selectedCategory;
+  const categorySelectValue = effectiveCategory === "all"
     ? "all"
     : (selectedMergedCategory?.slug ?? "all");
   const citySelectValue = selectedCity === "all" ? "all" : resolvedCityId;
@@ -116,7 +149,7 @@ export function AllListingsSection() {
     () =>
       placedListings.filter((listing) => {
         if (
-          selectedCategory !== "all" &&
+          effectiveCategory !== "all" &&
           (!selectedMergedCategory || !selectedMergedCategory.memberIds.includes(listing.category_id))
         ) {
           return false;
@@ -125,7 +158,7 @@ export function AllListingsSection() {
         if (resolvedRegionId !== "all" && listing.region_id !== resolvedRegionId) return false;
         return true;
       }),
-    [placedListings, selectedCategory, selectedMergedCategory, resolvedCityId, resolvedRegionId]
+    [placedListings, effectiveCategory, selectedMergedCategory, resolvedCityId, resolvedRegionId]
   );
 
   const cappedListings = filteredListings;
@@ -212,7 +245,7 @@ export function AllListingsSection() {
       <section className="bg-background py-12 sm:py-16 lg:py-20">
         <div className="app-container content-max text-center">
           <h2 className="text-title font-serif font-medium mb-3">
-            {t("sections.listings.title")} <span className="text-gradient-gold">{t("sections.listings.titleHighlight")}</span>
+            {defaultTitle}
           </h2>
           <p className="text-body text-muted-foreground max-w-2xl mx-auto readable mb-6">
             We couldn&apos;t load listings right now. Please refresh and try again.
@@ -231,28 +264,32 @@ export function AllListingsSection() {
         {/* Header */}
         <div className="mb-10 text-center sm:mb-16">
           <h2 className="mb-4 font-serif text-2xl font-light tracking-wide text-foreground sm:mb-5 sm:text-4xl lg:text-5xl">
-            {t("sections.listings.title")} <span className="text-gradient-gold italic">{t("sections.listings.titleHighlight")}</span>
+            {copy?.title?.trim()
+              ? cmsText(copy.title, t("sections.listings.title"))
+              : defaultTitle}
           </h2>
           <p className="mx-auto max-w-2xl text-body text-muted-foreground leading-relaxed sm:text-body-lg">
-            {t("sections.listings.subtitle", { count: cappedListings.length })}
+            {cmsText(copy?.subtitle ?? copy?.description, t("sections.listings.subtitle", { count: cappedListings.length }))}
           </p>
         </div>
 
         {/* Filters */}
         <div className="mb-6 flex flex-col items-stretch justify-center gap-3 sm:mb-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-          <Select value={categorySelectValue} onValueChange={(v) => handleFilterChange('category', v)}>
-            <SelectTrigger className="h-12 w-full bg-background border-border transition-colors hover:border-primary/50 sm:w-[180px]">
-              <SelectValue placeholder={t("sections.listings.allCategories")} />
-            </SelectTrigger>
-            <SelectContent className="bg-popover border-border">
-              <SelectItem value="all">{t("sections.listings.allCategories")}</SelectItem>
-              {mergedCategories.map((cat) => (
-                <SelectItem key={cat.id} value={cat.slug}>
-                  {translateCategoryName(t, cat.slug, cat.name)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {!forcedCategorySlug && (
+            <Select value={categorySelectValue} onValueChange={(v) => handleFilterChange('category', v)}>
+              <SelectTrigger className="h-12 w-full bg-background border-border transition-colors hover:border-primary/50 sm:w-[180px]">
+                <SelectValue placeholder={t("sections.listings.allCategories")} />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border-border">
+                <SelectItem value="all">{t("sections.listings.allCategories")}</SelectItem>
+                {mergedCategories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.slug}>
+                    {translateCategoryName(t, cat.slug, cat.name)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
           <Select value={citySelectValue} onValueChange={(v) => handleFilterChange('city', v)}>
             <SelectTrigger className="h-12 w-full bg-background border-border transition-colors hover:border-primary/50 sm:w-[180px]">

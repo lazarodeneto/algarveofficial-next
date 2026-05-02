@@ -11,9 +11,13 @@ export async function GET(req: Request) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const resolvedPath = locale && locale !== "en" 
-    ? `/${locale}${path}` 
-    : path;
+  const pathWithLeadingSlash = path.startsWith("/") ? path : `/${path}`;
+  const pathAlreadyLocalized = pathWithLeadingSlash === `/${locale}` || pathWithLeadingSlash.startsWith(`/${locale}/`);
+  const resolvedPath = locale
+    ? pathAlreadyLocalized
+      ? pathWithLeadingSlash
+      : `/${locale}${pathWithLeadingSlash === "/" ? "" : pathWithLeadingSlash}`
+    : pathWithLeadingSlash;
 
   const draft = await draftMode();
   draft.enable();

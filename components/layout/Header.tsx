@@ -412,7 +412,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                 >
                 <div className="px-4 pt-4 pb-6 space-y-4">
                   <div className="flex items-start gap-2">
-                    <div className="flex-1 rounded-2xl border border-black/10 bg-white/70 p-2.5 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
+                    <div className="flex-1 rounded-sm border border-black/10 bg-white/70 p-2.5 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
                       <div className="flex items-center gap-3">
                         <ThemeToggle className="w-14 shrink-0" />
                         <LanguageSwitcher
@@ -432,7 +432,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                   </div>
                   <div className="flex min-h-full flex-col">
 
-                    <div className="w-full rounded-2xl border border-black/10 bg-white/66 px-2 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
+                    <div className="w-full rounded-sm border border-black/10 bg-white/66 px-2 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
                     <div className="mx-3">
                       <Link
                         href={homePath}
@@ -522,7 +522,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                     </div>
                   </div>
 
-                    <div className="mt-4 rounded-2xl border border-black/10 bg-white/66 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
+                    <div className="mt-4 rounded-sm border border-black/10 bg-white/66 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
                       <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                         {t("nav.yourSpace")}
                       </p>

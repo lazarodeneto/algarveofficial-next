@@ -420,7 +420,7 @@ export function GolfStep({
   ]);
 
   return (
-    <section className="relative space-y-5 rounded-2xl border border-white/30 bg-white/60 p-6 shadow-[0_8px_30px_rgba(0,0,0,0.08)] backdrop-blur-xl">
+    <section className="relative space-y-5 rounded-sm border border-white/30 bg-white/60 p-6 shadow-[0_8px_30px_rgba(0,0,0,0.08)] backdrop-blur-xl">
       <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-[#C7A35A] to-transparent" />
 
       <div className="flex flex-wrap items-center justify-between gap-3">

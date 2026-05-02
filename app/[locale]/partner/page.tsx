@@ -171,9 +171,9 @@ export default async function LocalePartnerPage({
         />
       ) : null}
 
-      <div id="partner-server-shell" className="min-h-screen bg-background text-foreground">
-        <main className="app-container pt-32 pb-20">
-          <section className="rounded-[2rem] border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur md:p-12">
+      <div id="partner-server-shell" className="min-h-screen bg-background text-foreground" suppressHydrationWarning>
+        <main id="main-content" className="app-container pt-32 pb-20" suppressHydrationWarning>
+          <section className="rounded-lg border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur md:p-12">
             <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
               {partnerLabel}
             </p>

@@ -58,10 +58,19 @@ function ensureGoogleTagScript(googleTagId: string) {
   document.head.appendChild(script);
 }
 
+function ensureGoogleTagLayer() {
+  const analyticsWindow = window as AnalyticsWindow;
+  analyticsWindow.dataLayer = analyticsWindow.dataLayer ?? [];
+  analyticsWindow.gtag = analyticsWindow.gtag ?? ((...args: unknown[]) => {
+    (analyticsWindow.dataLayer ??= []).push(args);
+  });
+  return analyticsWindow;
+}
+
 function configureGoogleTag(googleTagId: string) {
   if (!googleTagId) return;
 
-  const analyticsWindow = window as AnalyticsWindow;
+  const analyticsWindow = ensureGoogleTagLayer();
   applyDefaultConsent();
   const savedConsent = loadConsent();
   if (savedConsent) {
@@ -75,9 +84,8 @@ function configureGoogleTag(googleTagId: string) {
     return;
   }
 
-  if (!analyticsWindow.gtag) return;
-  analyticsWindow.gtag("js", new Date());
-  analyticsWindow.gtag("config", googleTagId);
+  analyticsWindow.gtag?.("js", new Date());
+  analyticsWindow.gtag?.("config", googleTagId, { send_page_view: false });
   analyticsWindow.__algarveGtagConfigured.add(googleTagId);
 }
 
@@ -89,8 +97,8 @@ function scheduleGoogleTagInitialization(googleTagId: string) {
   const runtimeWindow = window as IdleCallbackWindow;
 
   const run = () => {
-    configureGoogleTag(googleTagId);
     ensureGoogleTagScript(googleTagId);
+    configureGoogleTag(googleTagId);
   };
 
   if (

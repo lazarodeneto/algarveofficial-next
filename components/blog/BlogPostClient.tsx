@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { applyBlogTranslation, type BlogTranslationRow } from "@/lib/blog/localization";
 
 export type BlogPostAuthor = Pick<Tables<"public_profiles">, "id" | "full_name" | "avatar_url">;
 export type BlogPostRecord = Pick<
@@ -34,16 +35,6 @@ export type BlogPostRecord = Pick<
   | "updated_at"
   | "views"
 >;
-
-type BlogPostTranslationRow = {
-  post_id: string;
-  locale: string;
-  title: string;
-  excerpt: string | null;
-  content: string | null;
-  seo_title: string | null;
-  seo_description: string | null;
-};
 
 export type BlogPostWithAuthor = BlogPostRecord & {
   author?: BlogPostAuthor | null;
@@ -89,15 +80,9 @@ async function fetchBlogPost(slug: string, locale: string): Promise<BlogPostWith
       .maybeSingle();
 
     if (!translationError && translation) {
-      const translated = translation as BlogPostTranslationRow;
-      localizedPost = {
-        ...localizedPost,
-        title: translated.title ?? localizedPost.title,
-        excerpt: translated.excerpt ?? localizedPost.excerpt,
-        content: translated.content ?? localizedPost.content,
-        seo_title: translated.seo_title ?? localizedPost.seo_title,
-        seo_description: translated.seo_description ?? localizedPost.seo_description,
-      };
+      localizedPost = applyBlogTranslation(localizedPost, translation as BlogTranslationRow, locale);
+    } else {
+      localizedPost = applyBlogTranslation(localizedPost, null, locale);
     }
   }
 
@@ -162,7 +147,7 @@ function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClient
         </Button>
       </div>
 
-      <div className="flex flex-col gap-4 rounded-3xl border border-border bg-card p-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 rounded-sm border border-border bg-card p-6 sm:flex-row sm:items-center sm:justify-between">
         <span className="flex items-center gap-2 text-sm text-muted-foreground">
           <Share2 className="h-4 w-4" />
           {t("blog.shareArticle")}

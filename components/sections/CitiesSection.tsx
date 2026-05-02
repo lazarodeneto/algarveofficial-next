@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/Button";
 import { FavoriteButton } from "@/components/ui/favorite-button";
 import { useSavedDestinations } from "@/hooks/useSavedDestinations";
-import { useCities } from "@/hooks/useReferenceData";
+import { useCities, useCityListingCounts } from "@/hooks/useReferenceData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
@@ -27,7 +27,8 @@ import { trackBlockImpression, trackEvent } from "@/lib/analytics/platformTracki
 
 export function CitiesSection() {
   const { isDestinationSaved, toggleCity } = useSavedDestinations();
-  const { data: cities = [], isLoading } = useCities();
+  const { data: cities = [], isLoading: citiesLoading } = useCities();
+  const { data: cityCounts = {}, isLoading: countsLoading } = useCityListingCounts();
   const { t } = useTranslation();
   const l = useLocalePath();
   const { getBlockData } = useCmsPageBuilder("home");
@@ -53,12 +54,14 @@ export function CitiesSection() {
   const curatedCities = validCityIds
     .map((cityId) => citiesById.get(cityId))
     .filter((city): city is NonNullable<typeof city> => Boolean(city));
+  const citiesWithListings = cities.filter((city) => (cityCounts[city.id] ?? 0) > 0);
+  const isLoading = citiesLoading || countsLoading;
   const eligibleCities =
     mode === "curated"
       ? curatedCities.length > 0
-        ? curatedCities
-        : cities
-      : cities;
+        ? curatedCities.filter((city) => (cityCounts[city.id] ?? 0) > 0)
+        : citiesWithListings
+      : citiesWithListings;
 
   const placementResults = resolveCityOrderDetailed({
     selection,

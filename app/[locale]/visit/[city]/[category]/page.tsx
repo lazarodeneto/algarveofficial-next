@@ -244,7 +244,7 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
       />
 
-      <main className="min-h-screen bg-background">
+      <main id="main-content" className="min-h-screen bg-background">
         <Header localeSwitchPaths={localeSwitchPaths} />
         <section className="relative overflow-hidden bg-gradient-to-b from-background to-muted/20">
           {data.city.image_url && (
@@ -339,7 +339,7 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
               ))}
             </div>
           ) : (
-            <div className="rounded-3xl border border-dashed border-border bg-card/40 p-8 text-center">
+            <div className="rounded-xl border border-dashed border-border bg-card/40 p-8 text-center">
               <h2 className="text-xl font-semibold text-foreground">
                 {formatTemplate(
                   tx["guides.listingsForCityCategoryComingSoon"],

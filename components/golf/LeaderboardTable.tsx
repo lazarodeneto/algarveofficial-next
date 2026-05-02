@@ -10,6 +10,12 @@ import {
 
 interface LeaderboardTableProps {
   entries: GolfLeaderboardEntry[];
+  labels?: {
+    rank?: string;
+    player?: string;
+    score?: string;
+    rounds?: string;
+  };
 }
 
 function formatScore(score: number) {
@@ -18,15 +24,15 @@ function formatScore(score: number) {
   return String(score);
 }
 
-export function LeaderboardTable({ entries }: LeaderboardTableProps) {
+export function LeaderboardTable({ entries, labels }: LeaderboardTableProps) {
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-20">Rank</TableHead>
-          <TableHead>Player</TableHead>
-          <TableHead className="w-28 text-right">Score</TableHead>
-          <TableHead className="w-28 text-right">Rounds</TableHead>
+          <TableHead className="w-20">{labels?.rank ?? "Rank"}</TableHead>
+          <TableHead>{labels?.player ?? "Player"}</TableHead>
+          <TableHead className="w-28 text-right">{labels?.score ?? "Score"}</TableHead>
+          <TableHead className="w-28 text-right">{labels?.rounds ?? "Rounds"}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

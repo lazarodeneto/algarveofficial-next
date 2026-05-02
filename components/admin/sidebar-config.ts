@@ -98,6 +98,12 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
         icon: Newspaper,
       },
       {
+        id: "golf-tee-time-requests",
+        label: "Tee Time Requests",
+        href: "/admin/golf/tee-time-requests",
+        icon: CalendarDays,
+      },
+      {
         id: "categories",
         label: "Categories",
         href: "/admin/categories",

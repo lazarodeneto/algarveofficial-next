@@ -21,6 +21,6 @@ export default async function LegacyLiveRootPage({ searchParams }: LegacyLiveRoo
   }
 
   const query = qs.toString();
-  const targetPath = buildLocalizedPath(locale, "/residence");
+  const targetPath = buildLocalizedPath(locale, "/relocation");
   permanentRedirect(`${targetPath}${query ? `?${query}` : ""}`);
 }

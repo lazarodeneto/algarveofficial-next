@@ -9,6 +9,7 @@ import {
 } from "@/lib/golf/rounds";
 import { DEFAULT_LOCALE, isValidLocale, type Locale } from "@/lib/i18n/config";
 import { buildLocalizedPath } from "@/lib/i18n/routing";
+import { getServerTranslations } from "@/lib/i18n/server";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/Button";
@@ -63,6 +64,19 @@ export default async function GolfRoundScorecardPage({ params }: PageProps) {
   const { round, holes, scores } = roundData;
   const frontNine = holes.slice(0, 9);
   const backNine = holes.slice(9, 18);
+  const translations = await getServerTranslations(locale, [
+    "golf.scorecard.back",
+    "golf.scorecard.title",
+    "golf.scorecard.roundFinished",
+    "golf.scorecard.finishRound",
+    "golf.scorecard.frontNine",
+    "golf.scorecard.backNine",
+    "golf.scorecard.diff",
+    "golf.scorecard.total",
+    "golfCourse.hole",
+    "golfCourse.par",
+    "golfCourse.score",
+  ]);
 
   async function finishRoundAction() {
     "use server";
@@ -87,19 +101,52 @@ export default async function GolfRoundScorecardPage({ params }: PageProps) {
       <section className="mx-auto w-full max-w-3xl space-y-5">
         <header className="flex items-center justify-between gap-3">
           <Button asChild variant="outline" size="sm">
-            <Link href={buildLocalizedPath(locale, `/golf/round/${roundId}`)}>Back</Link>
+            <Link href={buildLocalizedPath(locale, `/golf/round/${roundId}`)}>
+              {translations["golf.scorecard.back"] ?? "Back"}
+            </Link>
           </Button>
-          <h1 className="truncate font-serif text-3xl text-foreground">Scorecard</h1>
+          <h1 className="truncate font-serif text-3xl text-foreground">
+            {translations["golf.scorecard.title"] ?? "Scorecard"}
+          </h1>
           <form action={finishRoundAction}>
             <Button variant="gold" size="sm" disabled={Boolean(round.finishedAt)}>
-              {round.finishedAt ? "Round Finished" : "Finish Round"}
+              {round.finishedAt
+                ? translations["golf.scorecard.roundFinished"] ?? "Round Finished"
+                : translations["golf.scorecard.finishRound"] ?? "Finish Round"}
             </Button>
           </form>
         </header>
 
-        <ScorecardTable title="Front Nine" holes={frontNine} scores={scores} />
-        <ScorecardTable title="Back Nine" holes={backNine} scores={scores} />
-        <ScorecardSummary holes={holes} scores={scores} />
+        <ScorecardTable
+          title={translations["golf.scorecard.frontNine"] ?? "Front Nine"}
+          holes={frontNine}
+          scores={scores}
+          labels={{
+            hole: translations["golfCourse.hole"],
+            par: translations["golfCourse.par"],
+            score: translations["golfCourse.score"],
+          }}
+        />
+        <ScorecardTable
+          title={translations["golf.scorecard.backNine"] ?? "Back Nine"}
+          holes={backNine}
+          scores={scores}
+          labels={{
+            hole: translations["golfCourse.hole"],
+            par: translations["golfCourse.par"],
+            score: translations["golfCourse.score"],
+          }}
+        />
+        <ScorecardSummary
+          holes={holes}
+          scores={scores}
+          labels={{
+            frontNine: translations["golf.scorecard.frontNine"],
+            backNine: translations["golf.scorecard.backNine"],
+            diff: translations["golf.scorecard.diff"],
+            total: translations["golf.scorecard.total"],
+          }}
+        />
       </section>
     </main>
   );

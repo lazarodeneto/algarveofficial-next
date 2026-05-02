@@ -26,7 +26,7 @@ export function RealEstateFilters({ filters, onFilterChange, onSearch, onClear }
     const { t } = useTranslation();
 
     return (
-        <div className="bg-card p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] shadow-lg shadow-black/[0.02] border border-border/50 space-y-6">
+        <div className="bg-card p-4 sm:p-6 rounded-sm sm:rounded-lg shadow-lg shadow-black/[0.02] border border-border/50 space-y-6">
             <div className="space-y-2">
                 <h3 className="font-serif text-lg font-medium">{t("categoryLayouts.realEstate.filters.refineSearch")}</h3>
                 <Separator />

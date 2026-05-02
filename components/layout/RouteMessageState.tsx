@@ -31,7 +31,7 @@ export function RouteMessageState({
         className,
       )}
     >
-      <div className="mx-auto max-w-2xl rounded-[1.5rem] border border-border/70 bg-card/70 px-5 py-7 shadow-[0_24px_70px_-50px_rgba(15,23,42,0.45)] backdrop-blur-sm sm:rounded-[2rem] sm:px-8 sm:py-10">
+      <div className="mx-auto max-w-2xl rounded-xl border border-border/70 bg-card/70 px-5 py-7 shadow-[0_24px_70px_-50px_rgba(15,23,42,0.45)] backdrop-blur-sm sm:rounded-lg sm:px-8 sm:py-10">
         {icon ? <div className="mb-5 flex justify-center text-primary">{icon}</div> : null}
         {eyebrow ? (
           <p className="text-xs uppercase tracking-[0.24em] text-primary">{eyebrow}</p>

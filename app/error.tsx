@@ -19,7 +19,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
   }, [error]);
 
   return (
-    <main className="app-container py-20">
+    <main id="main-content" className="app-container py-20">
       <RouteMessageState
         eyebrow={t("errorPage.title")}
         title={t("errorPage.eyebrow")}

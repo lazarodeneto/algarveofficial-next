@@ -131,7 +131,7 @@ export function TranslationListingGroup({
   return (
     <div
       className={cn(
-        "rounded-2xl border transition-all duration-150",
+        "rounded-sm border transition-all duration-150",
         isSignature
           ? "border-amber-500/35 bg-gradient-to-br from-amber-500/8 via-amber-500/4 to-transparent shadow-sm shadow-amber-500/5"
           : "border-border/60 bg-card/60",

@@ -16,9 +16,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return buildLocalizedAliasMetadata({
     locale,
-    canonicalPath: "/residence",
-    title: "Redirecting to Residence",
-    description: "Redirecting to the Residence in Algarve page.",
+    canonicalPath: "/relocation",
+    title: "Redirecting to Relocation",
+    description: "Redirecting to the Relocation to the Algarve page.",
     noIndex: true,
   });
 }
@@ -38,6 +38,6 @@ export default async function LegacyLivePage({ params, searchParams }: PageProps
   }
 
   const query = qs.toString();
-  const targetPath = buildLocalizedPath(locale, "/residence");
+  const targetPath = buildLocalizedPath(locale, "/relocation");
   permanentRedirect(`${targetPath}${query ? `?${query}` : ""}`);
 }

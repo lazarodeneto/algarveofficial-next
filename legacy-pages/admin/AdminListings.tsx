@@ -1,8 +1,8 @@
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAdmin } from "@/lib/api/fetchAdmin";
 import { m } from "framer-motion";
@@ -30,12 +30,15 @@ import {
   Eye,
   Edit,
   Crown,
+  FileJson,
   Check,
   X,
   Trash2,
   Loader2,
   GripVertical,
   Star,
+  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
@@ -87,6 +90,7 @@ export default function AdminListings() {
     return null;
   }
 
+  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [cityFilter, setCityFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
@@ -94,6 +98,8 @@ export default function AdminListings() {
     return searchParams.get("tier") || "all";
   });
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [singleDeleteId, setSingleDeleteId] = useState<string | null>(null);
 
@@ -105,10 +111,27 @@ export default function AdminListings() {
 
   // Parse context
   const [ctxType, ctxValue] = featuredContext.split(":") as ["homepage" | "category" | "city" | "region", string];
+  const sortBy = "created_at";
+  const sortOrder = "desc";
 
   const updateListingStatus = useUpdateListingStatus();
   const deleteListings = useDeleteListings();
   const queryClient = useQueryClient();
+
+  const applySearch = (value: string) => {
+    const nextSearch = value.trim();
+    setSearch((currentSearch) => (currentSearch === nextSearch ? currentSearch : nextSearch));
+    setPage(1);
+    setSelectedIds([]);
+  };
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      applySearch(searchInput);
+    }, 400);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [searchInput]);
 
   // Featured rank update via secure API
   const updateFeaturedRank = useMutation({
@@ -124,7 +147,7 @@ export default function AdminListings() {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["admin-listings", user?.id],
-        exact: true,
+        exact: false,
       });
     },
   });
@@ -134,19 +157,60 @@ export default function AdminListings() {
 // Do NOT use Supabase client here (avoids RLS/session race conditions).
 
 // Fetch listings — via server API with cookie auth
-  const { data: listings = [], isLoading: listingsLoading, error: listingsError } = useQuery({
-    queryKey: ["admin-listings", user?.id],
+  const listingQueryParams = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("page", String(page));
+    params.set("pageSize", String(pageSize));
+    params.set("sortBy", sortBy);
+    params.set("sortOrder", sortOrder);
+    const trimmedSearch = search.trim();
+    if (trimmedSearch) params.set("search", trimmedSearch);
+    if (cityFilter !== "all") params.set("city", cityFilter);
+    if (categoryFilter !== "all") params.set("category", categoryFilter);
+    if (tierFilter !== "all") params.set("tier", tierFilter);
+    if (statusFilter !== "all") params.set("status", statusFilter);
+    const query = params.toString();
+    return query ? `?${query}` : "";
+  }, [page, pageSize, sortBy, sortOrder, search, cityFilter, categoryFilter, tierFilter, statusFilter]);
+
+  useEffect(() => {
+    setPage(1);
+    setSelectedIds([]);
+  }, [cityFilter, categoryFilter, tierFilter, statusFilter, pageSize]);
+
+  const {
+    data: listingsResponse,
+    isLoading: listingsLoading,
+    isFetching: listingsFetching,
+    error: listingsError,
+  } = useQuery({
+    queryKey: ["admin-listings", user?.id, page, pageSize, search, statusFilter, tierFilter, categoryFilter, cityFilter, sortBy, sortOrder],
     enabled: !!user && !authLoading,
+    placeholderData: keepPreviousData,
     retry: 2,
     retryDelay: attempt => Math.min(1000 * 2 ** attempt, 5000),
     queryFn: async () => {
-      const json = await fetchAdmin("/api/admin/listings");
-      if (json.data?.length === 0) {
+      const json = await fetchAdmin(`/api/admin/listings${listingQueryParams}`);
+      if ((json.items ?? json.data)?.length === 0) {
         console.warn("[admin:anomaly]", JSON.stringify({ path: "/api/admin/listings", message: "No listings returned for admin" }));
       }
-      return json.data ?? [];
+      return {
+        items: json.items ?? json.data ?? [],
+        total: json.total ?? (json.data?.length ?? 0),
+        page: json.page ?? page,
+        pageSize: json.pageSize ?? pageSize,
+        totalPages: json.totalPages ?? 1,
+        hasNextPage: json.hasNextPage ?? false,
+        hasPreviousPage: json.hasPreviousPage ?? false,
+      };
     },
   });
+
+  const listings = listingsResponse?.items ?? [];
+  const totalListings = listingsResponse?.total ?? 0;
+  const totalPages = listingsResponse?.totalPages ?? 1;
+  const hasNextPage = listingsResponse?.hasNextPage ?? false;
+  const hasPreviousPage = listingsResponse?.hasPreviousPage ?? false;
 
   const { data: refData } = useQuery({
     queryKey: ["admin-ref-data", user?.id],
@@ -193,15 +257,8 @@ export default function AdminListings() {
   const displayCategories = categoryOptions.length > 0 ? categoryOptions : categories;
 
   const filteredListings = useMemo(() => {
-    return listings.filter((listing: any) => {
-      const matchesSearch = listing.name.toLowerCase().includes(search.toLowerCase());
-      const matchesCity = cityFilter === "all" || listing.city?.id === cityFilter;
-      const matchesCategory = categoryFilter === "all" || listing.category?.id === categoryFilter;
-      const matchesTier = tierFilter === "all" || listing.tier === tierFilter;
-      const matchesStatus = statusFilter === "all" || listing.status === statusFilter;
-      return matchesSearch && matchesCity && matchesCategory && matchesTier && matchesStatus;
-    });
-  }, [listings, search, cityFilter, categoryFilter, tierFilter, statusFilter]);
+    return listings;
+  }, [listings]);
 
   // Featured-only listings (for drag & drop)
   const featuredListings = useMemo(() => {
@@ -402,6 +459,37 @@ export default function AdminListings() {
       render: (listing) => <TierBadge tier={listing.tier} size="sm" />,
     },
     {
+      key: "readiness",
+      label: "Readiness",
+      className: "hidden xl:table-cell w-[10rem] whitespace-nowrap",
+      render: (listing) => {
+        const readiness = getListingReadiness(listing);
+        const isReady = readiness.status === "ready";
+        const isReview = readiness.status === "review";
+
+        return (
+          <div className="flex flex-col gap-1" title={readiness.missing.length > 0 ? `Missing: ${readiness.missing.join(", ")}` : "Listing is ready for stronger visibility"}>
+            <Badge
+              variant="outline"
+              className={
+                isReady
+                  ? "w-fit border-emerald-300 bg-emerald-50 text-emerald-700"
+                  : isReview
+                    ? "w-fit border-amber-300 bg-amber-50 text-amber-700"
+                    : "w-fit border-slate-300 bg-slate-50 text-slate-600"
+              }
+            >
+              {isReady ? <CheckCircle2 className="mr-1 h-3 w-3" /> : <AlertCircle className="mr-1 h-3 w-3" />}
+              {readiness.label}
+            </Badge>
+            <span className="text-[11px] text-muted-foreground">
+              {readiness.score}/{readiness.total} checks
+            </span>
+          </div>
+        );
+      },
+    },
+    {
       key: "curated",
       label: "Selected",
       className: "hidden lg:table-cell w-[7.5rem] whitespace-nowrap",
@@ -479,7 +567,7 @@ export default function AdminListings() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem asChild>
-              <Link href={`/listing/${listing.slug || listing.id}`}>
+              <Link href={l(`/listing/${listing.slug || listing.id}`)}>
                 <Eye className="h-4 w-4 mr-2" />
                 View
               </Link>
@@ -556,7 +644,10 @@ export default function AdminListings() {
   ];
 
   const clearFilters = () => {
+    setSearchInput("");
     setSearch("");
+    setPage(1);
+    setSelectedIds([]);
     setCityFilter("all");
     setCategoryFilter("all");
     setTierFilter("all");
@@ -564,6 +655,7 @@ export default function AdminListings() {
   };
 
   const hasFilters =
+    searchInput ||
     search ||
     cityFilter !== "all" ||
     categoryFilter !== "all" ||
@@ -606,26 +698,40 @@ export default function AdminListings() {
             Manage all business listings
           </p>
         </div>
-        <Button asChild className="w-full sm:w-auto">
-          <Link href={l("/admin/listings/new")}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Listing
-          </Link>
-        </Button>
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          <Button asChild variant="outline" className="w-full sm:w-auto">
+            <Link href={l("/admin/import")}>
+              <FileJson className="h-4 w-4 mr-2" />
+              JSON
+            </Link>
+          </Button>
+          <Button asChild className="w-full sm:w-auto">
+            <Link href={l("/admin/listings/new")}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Listing
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
       <div className="space-y-4">
         <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
-          <div className="relative w-full xl:max-w-lg">
+          <form
+            className="relative w-full xl:max-w-lg"
+            onSubmit={(event) => {
+              event.preventDefault();
+              applySearch(searchInput);
+            }}
+          >
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search listings..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="pl-10"
             />
-          </div>
+          </form>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-5">
             <Select value={cityFilter} onValueChange={setCityFilter}>
               <SelectTrigger className="w-full xl:min-w-[150px]">
@@ -799,9 +905,51 @@ export default function AdminListings() {
       />
 
       {/* Results count */}
-      <p className="text-sm text-muted-foreground">
-        Showing {filteredListings.length} of {listings.length} listings
-      </p>
+      <div className="flex flex-col gap-3 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
+        <p>
+          Showing {filteredListings.length} of {totalListings} listings · Page {page} of {totalPages}
+          {listingsFetching && !listingsLoading ? " · Updating..." : ""}
+        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <Select
+            value={String(pageSize)}
+            onValueChange={(value) => setPageSize(Number(value))}
+          >
+            <SelectTrigger className="h-9 w-[132px]">
+              <SelectValue placeholder="Page size" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="25">25 per page</SelectItem>
+              <SelectItem value="50">50 per page</SelectItem>
+              <SelectItem value="100">100 per page</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={!hasPreviousPage || listingsFetching}
+            onClick={() => {
+              setSelectedIds([]);
+              setPage((current) => Math.max(1, current - 1));
+            }}
+          >
+            Previous
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={!hasNextPage || listingsFetching}
+            onClick={() => {
+              setSelectedIds([]);
+              setPage((current) => current + 1);
+            }}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
@@ -853,6 +1001,42 @@ export default function AdminListings() {
       </Dialog>
     </div>
   );
+}
+
+function hasText(value: unknown, minLength = 1) {
+  return typeof value === "string" && value.trim().length >= minLength;
+}
+
+function hasNumber(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+function getListingReadiness(listing: any) {
+  const checks = [
+    { label: "name", passed: hasText(listing.name) },
+    { label: "city", passed: Boolean(listing.city?.name) },
+    { label: "category", passed: Boolean(listing.category?.name) },
+    { label: "description", passed: hasText(listing.description, 80) },
+    { label: "featured image", passed: hasText(listing.featured_image_url) },
+    {
+      label: "contact",
+      passed: hasText(listing.website_url) || hasText(listing.contact_phone) || hasText(listing.contact_email),
+    },
+    { label: "coordinates", passed: hasNumber(listing.latitude) && hasNumber(listing.longitude) },
+  ];
+  const score = checks.filter((check) => check.passed).length;
+  const missing = checks.filter((check) => !check.passed).map((check) => check.label);
+  const total = checks.length;
+
+  if (score >= 6) {
+    return { status: "ready" as const, label: "Ready", score, total, missing };
+  }
+
+  if (score >= 4) {
+    return { status: "review" as const, label: "Review", score, total, missing };
+  }
+
+  return { status: "needs-work" as const, label: "Needs work", score, total, missing };
 }
 
 // Sortable Listing Item for Featured Section

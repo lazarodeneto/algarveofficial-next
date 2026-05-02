@@ -453,6 +453,30 @@
       "validLabel": "Giltig",
       "verifiedDescription": "Standard betalnivå med verifieringsmärke",
       "verifiedTier": "Verifierad nivå"
+    },
+    "golfTeeTimeRequests": {
+      "title": "Golf tee time-förfrågningar",
+      "subtitle": "Granska tee time-leads från golfbanesidor.",
+      "refresh": "Uppdatera",
+      "dateReceived": "Mottaget datum",
+      "course": "Bana",
+      "name": "Namn",
+      "email": "E-post",
+      "phone": "Telefon",
+      "preferredDateTime": "Önskat datum/tid",
+      "players": "Spelare",
+      "status": "Status",
+      "empty": "Inga tee time-förfrågningar ännu.",
+      "loading": "Laddar tee time-förfrågningar...",
+      "updateSuccess": "Förfrågningsstatus uppdaterad.",
+      "updateError": "Kunde inte uppdatera förfrågningsstatus.",
+      "unknownCourse": "Okänd bana",
+      "statuses": {
+        "new": "Ny",
+        "contacted": "Kontaktad",
+        "sent_to_course": "Skickad till bana",
+        "closed": "Stängd"
+      }
     }
   },
   "auth": {
@@ -559,7 +583,7 @@
     "noPostsFound": "Inga inlägg hittades som matchar dina kriterier.",
     "noPostsSubtext": "Kom tillbaka snart för nya artiklar och berättelser om Algarve.",
     "noPostsTitle": "Inga inlägg hittades",
-    "readTime": "min läst",
+    "readTime": "min läsning",
     "recentPosts": "Senaste inlägg",
     "relatedListings": "Relaterade listor",
     "searchPlaceholder": "Sök artiklar...",
@@ -568,7 +592,12 @@
     "shareLinkedIn": "Dela på LinkedIn",
     "shareTwitter": "Dela på X",
     "subtitle": "Upptäck Algarves livsstil, reseguider och insidertips",
-    "title": "Blogg & Insikter"
+    "title": "Blogg & Insikter",
+    "readMore": "Läs mer",
+    "copyFailed": "Behörighet till urklipp nekades",
+    "notFoundTitle": "Artikeln hittades inte",
+    "notFoundDescription": "Den här artikeln kan ha tagits bort eller är inte tillgänglig.",
+    "views": "visningar"
   },
   "categories": {
     "algarveServices": "Algarve-tjanster",
@@ -1402,7 +1431,7 @@
     "hero": {
       "alt": "Premium Algarve katalog kustlinjevy",
       "ctaPrimary": "Planera med concierge",
-      "ctaSecondary": "Utforska Residence i Algarve"
+      "ctaSecondary": "Utforska flytt till Algarve"
     },
     "heroLabel": "Upptäck vår värld",
     "listings": "listor",
@@ -1636,7 +1665,65 @@
   "golf": {
     "iframeTitle": "AlgarveOfficial Golf",
     "loadingDescription": "Förbereder din runda...",
-    "loadingTitle": "Laddar Golf"
+    "loadingTitle": "Laddar Golf",
+    "hero": {
+      "badge": "Utvald golf",
+      "title": "Spela mästerskapsgolf i Algarve",
+      "subtitle": "Upptäck exklusiva golflistningar, jämför baninformation och planera nästa runda vid Portugals premiumkust.",
+      "alt": "Golf fairways i Algarve",
+      "ctaCourses": "Visa banor",
+      "ctaLeaderboard": "Visa topplista"
+    },
+    "featuredCourses": {
+      "title": "Utvalda banor",
+      "cta": "Visa alla",
+      "emptyTitle": "Inga golflistningar tillgängliga",
+      "emptyDescription": "Golflistningar visas här så snart de publiceras."
+    },
+    "courseTools": {
+      "bookingTitle": "Boka tee time",
+      "bookingSubtitle": "Integrerad bokning blir tillgänglig i nästa fas.",
+      "bookingBody": "Vi kopplar ihop bokningspartners och lediga tider.",
+      "scorecardsTitle": "Scorecards och handicap",
+      "scorecardsSubtitle": "Strukturerad rundspårning kommer i fas 2.",
+      "scorecardsBody": "Snart kan du spara rundor, jämföra resultat och följa handicaputveckling."
+    },
+    "leaderboard": {
+      "title": "Topplista",
+      "cta": "Öppna sida"
+    },
+    "cta": {
+      "title": "Redo att planera nästa runda?",
+      "subtitle": "Jämför banor, spara favoriter och börja följa dina rundor.",
+      "primary": "Visa banor",
+      "secondary": "Visa topplista"
+    },
+    "courseDirectory": {
+      "title": "Golfbanekatalog",
+      "description": "Utforska golfklubbar via AlgarveOfficial-listningar.",
+      "emptyTitle": "Inga golflistningar tillgängliga",
+      "emptyDescription": "Inga publicerade golflistningar matchar dina aktuella filter."
+    },
+    "leaderboardPage": {
+      "title": "Topplista",
+      "description": "Aktuell spelarställning och skillnader mot par.",
+      "topPlayers": "Bästa spelare",
+      "scoreDescription": "Poäng visas i relation till par."
+    },
+    "round": {
+      "unavailableTitle": "Rundan är inte tillgänglig",
+      "unavailableDescription": "Den här banan har ännu ingen komplett hålkonfiguration. Välj en annan golfbana tills vidare."
+    },
+    "scorecard": {
+      "back": "Tillbaka",
+      "title": "Scorekort",
+      "roundFinished": "Rundan avslutad",
+      "finishRound": "Avsluta runda",
+      "frontNine": "Första nio",
+      "backNine": "Sista nio",
+      "diff": "Skillnad",
+      "total": "Totalt"
+    }
   },
   "guides": {
     "breadcrumbLabel": "Brödsmula",
@@ -1860,16 +1947,16 @@
     "relatedPolicies": "Relaterade policyer"
   },
   "listing": {
-    "about": "Om",
-    "backToHome": "Tillbaka till hemmet",
-    "backToListings": "Tillbaka till alla listor",
+    "about": "About",
+    "backToHome": "Back to home",
+    "backToListings": "Back to listings",
     "bathrooms": "Badrum",
     "bedrooms": "Sovrum",
     "bookVisit": "Boka ett besök",
     "builtArea": "Byggt område",
     "certifiedListing": "Certifierad notering",
-    "claimThisListing": "Gör anspråk på den här annonsen",
-    "contact": "Kontakta",
+    "claimThisListing": "Claim this listing",
+    "contact": "Contact",
     "contactForLocation": "Kontakta för platsinformation",
     "experience": "Uppleva",
     "exterior": "Exteriör",
@@ -1932,19 +2019,19 @@
       "yourName": "Ditt namn"
     },
     "interested": "Intresserad?",
-    "isYourBusiness": "Är det här ditt företag?",
+    "isYourBusiness": "Is this your business?",
     "livingArea": "Boyta",
     "location": "Plats",
     "locationHidden": "Plats tillgänglig på begäran",
-    "locationUnavailable": "Platsen är inte tillgänglig för den här annonsen.",
-    "messageWhatsApp": "Meddelande på WhatsApp",
-    "notFound": "Notering hittades inte",
-    "notFoundMessage": "Den här annonsen kan ha tagits bort eller är inte tillgänglig.",
+    "locationUnavailable": "Location unavailable",
+    "messageWhatsApp": "Message on WhatsApp",
+    "notFound": "Listing not found",
+    "notFoundMessage": "This listing is unavailable or has not been published yet.",
     "plotSize": "Tomtstorlek",
     "price": "Pris",
     "priceOnRequest": "Pris på förfrågan",
-    "relatedDestinations": "Utforska fler destinationer",
-    "relatedListings": "Mer i {{category}}",
+    "relatedDestinations": "Related destinations",
+    "relatedListings": "More {{category}} to explore",
     "reviews": {
       "content": "Din recension",
       "contentPlaceholder": "Dela detaljerna om din upplevelse...",
@@ -1960,28 +2047,37 @@
       "write": "Skriv en recension"
     },
     "save": "Spara",
-    "saveToFavorites": "Spara till favoriter",
+    "saveToFavorites": "Save to favorites",
     "scheduleViewing": "Boka en visning",
     "sendInquiry": "Skicka förfrågan",
     "sendMessage": "Skicka meddelande",
-    "share": "Dela",
+    "share": "Share",
     "similarListings": "Liknande listor",
-    "tags": "Taggar",
+    "tags": "Tags",
     "verifiedDocuments": "Verifierade dokument",
     "verifiedPartner": "Verifierad partner",
-    "viewGallery": "Visa Galleri",
+    "viewGallery": "View gallery",
     "viewOnMap": "Visa på kartan",
-    "visitWebsite": "Besök webbplatsen",
-    "relatedDestinationsDescription": "Discover other prestigious regions across the Algarve",
+    "visitWebsite": "Visit website",
+    "relatedDestinationsDescription": "Explore nearby Algarve destinations with curated places and services.",
     "social": {
       "instagram": "Instagram",
       "facebook": "Facebook",
       "googleBusiness": "Google Business",
-      "telegram": "Telegram"
+      "telegram": "Telegram",
+      "whatsapp": "WhatsApp"
     },
     "badge": {
-      "verified": "Verifierad",
+      "verified": "Verified",
       "signature": "Signature"
+    },
+    "bookNow": "Boka nu",
+    "call": "Ring",
+    "trust": {
+      "verifiedTitle": "Verifierad av AlgarveOfficial",
+      "verifiedDescription": "A trust signal for active and legitimate local businesses.",
+      "signatureTitle": "Signature Selection",
+      "signatureDescription": "Premium editorial-style visibility for standout Algarve businesses."
     }
   },
   "live": {
@@ -2011,8 +2107,8 @@
       "badge": "Flyttguide",
       "ctaPrimary": "Planera Min Flytt",
       "ctaSecondary": "Bläddra Lokala Experter",
-      "subtitle": "Strukturerad vägledning för bosättning, boende och vardagsliv så din flytt är smidig, compliant och framtidsredo.",
-      "title": "Bo på Algarve, med tydlighet från dag ett"
+      "subtitle": "Praktiska guider, pålitliga tjänster och utvalda lokala resurser för att flytta till Algarve med trygghet.",
+      "title": "Flytta till Algarve"
     },
     "pillars": {
       "cost": {
@@ -2129,7 +2225,9 @@
       "concierge": "Enad Flyttconcierge",
       "municipalities": "Kommuner att Utforska",
       "sun": "Soliga Dagar / År"
-    }
+    },
+    "seoTitle": "Flytta till Algarve | Flytta, bo och etablera dig i Portugal",
+    "seoDescription": "Praktiska guider, pålitliga tjänster och utvalda lokala resurser för att flytta till Algarve med trygghet."
   },
   "map": {
     "description": "Utforska Algarves listor på en interaktiv karta med klustrade markörer och omedelbar filtrering.",
@@ -2156,9 +2254,9 @@
         "title": "Investera i Algarve"
       },
       "live": {
-        "desc": "Allt du behöver för att göra Algarve till ditt permanenta hem.",
+        "desc": "Praktiska guider, pålitliga tjänster och utvalda lokala resurser för att flytta till Algarve med trygghet.",
         "label": "Läs mer",
-        "title": "Bo i Algarve"
+        "title": "Flytta till Algarve"
       },
       "properties": {
         "desc": "Premiumfastigheter och investeringsmöjligheter.",
@@ -2174,13 +2272,19 @@
         "desc": "Världsklass upplevelser längs Europas vackraste kustlinje.",
         "label": "Utforska allt",
         "title": "Besök Algarve"
+      },
+      "relocation": {
+        "desc": "Praktiska guider, pålitliga tjänster och utvalda lokala resurser för att flytta till Algarve med trygghet.",
+        "label": "Läs mer",
+        "title": "Flytta till Algarve"
       }
     },
     "invest": "Investera",
-    "live": "Bo",
+    "live": "Flytta",
     "properties": "Fastigheter",
     "stay": "Bo",
-    "visit": "Besök"
+    "visit": "Besök",
+    "relocation": "Flytta"
   },
   "nav": {
     "about": "Om oss",
@@ -2200,7 +2304,7 @@
     "golf": "Golf",
     "home": "Hem",
     "invest": "Investera",
-    "live": "Bo",
+    "live": "Flytta",
     "login": "Logga in / Registrera dig",
     "map": "Karta",
     "messages": "Meddelanden",
@@ -2218,7 +2322,8 @@
     "stay": "Bo",
     "terms": "Användarvillkor",
     "visit": "Besök",
-    "yourSpace": "Ditt Utrymme"
+    "yourSpace": "Ditt Utrymme",
+    "relocation": "Flytta"
   },
   "newsletter": {
     "alreadySubscribed": "Du har redan prenumererat på vårt nyhetsbrev!",
@@ -2486,8 +2591,8 @@
     },
     "faq": {
       "a1": "Skicka in din ansökan via formuläret ovan. Vårt team kommer att granska ditt företag och kontakta dig inom 2-3 arbetsdagar.",
-      "a2": "Vi erbjuder tre nivåer: Overifierad (gratis grundläggande notering), Verifierad (förbättrad synlighet med förtroendemärke) och Signatur (premiumplacering med kvalificering för Signaturval).",
-      "a3": "Den första granskningen tar vanligtvis 2–3 arbetsdagar. När den har godkänts publiceras din annons omedelbart.",
+      "a2": "We offer Free, Verified, and Signature levels. Verified adds credibility and a stronger profile. Signature adds premium editorial-style visibility and eligibility for curated placements where relevant.",
+      "a3": "Most reviews are completed within 2-3 business days. Visibility depends on listing quality, tier, relevance, and available placement inventory.",
       "a4": "Grundläggande listor är gratis. Verifierade och Signaturnivåer har månadsavgifter med ytterligare förmåner. Kontakta oss för aktuella priser.",
       "q1": "Hur får jag upp mitt företag?",
       "q2": "Vilka är de olika listningsnivåerna?",
@@ -2510,26 +2615,126 @@
       "submit": "Skicka in förfrågan",
       "submitting": "Skickar...",
       "title": "Kom igång",
-      "validationError": "Vänligen fyll i alla obligatoriska fält."
+      "validationError": "Vänligen fyll i alla obligatoriska fält.",
+      "responseTime": "Share your details and our team will reply within 2-3 business days.",
+      "messagePlaceholder": "Tell us about your business, location, audience, and the kind of visibility you are interested in."
     },
     "newListing": {
       "cta": "Ansök nu",
       "description": "Registrera ditt företag för att bli med i vår utvalda samling av lyxupplevelser.",
       "title": "Ansök om ny notering"
     },
-    "subtitle": "Gå med i Algarves främsta lyxkatalog och få kontakt med kräsna resenärer som söker premiumupplevelser.",
+    "subtitle": "Nå besökare, boende och målgrupper med hög avsikt genom utvald synlighet och pålitlig lokal upptäckt.",
     "success": "Tack! Din begäran har skickats. Vi kontaktar dig inom 2-3 arbetsdagar.",
-    "title": "Bli partner",
+    "title": "Bli partner med AlgarveOfficial",
     "hero": {
       "badge": "Partner Programme",
-      "trustLine": "✓ No long-term contract · ✓ 2–3 day review · ✓ Go live immediately",
-      "applyForPartnership": "Apply for Partnership",
-      "viewPricing": "View Pricing"
+      "trustLine": "No long-term contract · Quality review · Curated visibility",
+      "applyForPartnership": "Begär partnerinformation",
+      "viewPricing": "Visa listningsalternativ"
     },
     "finalCta": {
-      "applyFree": "Apply (Free)",
-      "buySubscription": "Buy Subscription",
-      "trustLine": "✓ No long-term contract · ✓ Cancel anytime · ✓ 2–3 day review"
+      "applyFree": "Claim or upgrade your listing",
+      "buySubscription": "View listing options",
+      "trustLine": "Inget långt avtal · Avsluta när som helst · Granskning på 2-3 dagar"
+    },
+    "forWhom": {
+      "title": "Built for premium Algarve businesses",
+      "subtitle": "AlgarveOfficial is not a mass directory. We curate established operators so visitors, residents, golfers, relocation users, and property buyers can discover trusted local names.",
+      "categories": {
+        "hotels": "Hotels & Accommodation",
+        "restaurants": "Restaurants & Gastronomy",
+        "experiences": "Experiences & Activities",
+        "golf": "Golf & Leisure",
+        "realEstate": "Real Estate & Services"
+      }
+    },
+    "audience": {
+      "badge": "Målgrupp",
+      "title": "Nå rätt Algarve-målgrupper",
+      "subtitle": "Partner visibility is designed for people already researching where to stay, dine, play, move, invest, and spend time in the Algarve.",
+      "items": {
+        "visitors": {
+          "title": "Visitors planning trips",
+          "description": "Travelers comparing trusted places before they arrive."
+        },
+        "residents": {
+          "title": "Residents and relocation users",
+          "description": "People building local routines and choosing reliable services."
+        },
+        "golf": {
+          "title": "Golf travellers",
+          "description": "Players looking for courses, resorts, and premium leisure options."
+        },
+        "property": {
+          "title": "Property buyers and investors",
+          "description": "High-intent audiences exploring areas, services, and lifestyle fit."
+        },
+        "lifestyle": {
+          "title": "Premium lifestyle consumers",
+          "description": "Discerning users looking for quality, credibility, and local confidence."
+        }
+      }
+    },
+    "placement": {
+      "badge": "Placement",
+      "title": "Utvald synlighet, inte trång annonsering",
+      "subtitle": "Paid tiers improve trust and eligibility for stronger placement, while editorial areas remain curated and limited.",
+      "items": {
+        "curated": {
+          "title": "Homepage visibility is limited",
+          "description": "Featured areas are curated so premium placements keep their value and do not feel crowded."
+        },
+        "relevance": {
+          "title": "City and category placement depends on fit",
+          "description": "Visibility is guided by relevance, tier, content quality, and available inventory."
+        },
+        "standards": {
+          "title": "Quality standards remain in place",
+          "description": "Premium placement is subject to review of imagery, description, location, category, and contact quality."
+        }
+      }
+    },
+    "trust": {
+      "title": "Förtroendestandarder skyddar plattformen",
+      "subtitle": "AlgarveOfficial sells visibility, credibility, and qualified discovery. We do not sell guaranteed bookings, traffic, or revenue.",
+      "points": {
+        "review": "Listings may be reviewed before premium placement is approved.",
+        "quality": "Poor-quality, irrelevant, or incomplete businesses may be declined for premium visibility.",
+        "noGuarantees": "Paid placement remains subject to relevance, quality, and availability."
+      }
+    },
+    "hubLinks": {
+      "title": "Where partners can be discovered",
+      "subtitle": "Visibility connects into the public hubs people already use to explore the Algarve.",
+      "links": {
+        "golf": "Golf audience",
+        "properties": "Property and investor audience",
+        "relocation": "Relocation audience",
+        "map": "Map discovery"
+      }
+    },
+    "features": {
+      "directoryListing": "Kataloglistning",
+      "mapVisibility": "Synlighet på karta",
+      "basicProfile": "Grundläggande företagsprofil",
+      "verifiedTrustBadge": "Verified-förtroendemärke",
+      "enhancedProfile": "Förbättrad företagsprofil",
+      "gallery10": "Fotogalleri (upp till 10 bilder)",
+      "gallery20": "Fotogalleri (upp till 20 bilder)",
+      "socialLinks": "Länkar till sociala medier",
+      "socialMentions": "Omnämnanden i sociala medier",
+      "videoInterview": "Videointervju (upp till 3 min)",
+      "videoCommercial": "Reklamvideo (upp till 1 min)",
+      "directContact": "Direktkontakt från resenärer",
+      "mapPriority": "Prioritet på kartan",
+      "ctaButton": "CTA-knapp",
+      "signatureEligibility": "Behörighet till Signature Selection",
+      "whatsapp": "WhatsApp-integration",
+      "priorityVisibility": "Prioriterad synlighet",
+      "homepagePlacement": "Utvald placering på startsidan",
+      "homepageAddOn": "Startsidesplacering som tillval",
+      "everythingVerified": "Allt i Verified"
     }
   },
   "pricing": {
@@ -2565,7 +2770,7 @@
         "q": "Kan jag byta plan senare?"
       },
       "timing": {
-        "a": "De flesta partners upplever ökad synlighet inom 48 timmar efter aktivering. Förfrågningar börjar vanligtvis under den första veckan.",
+        "a": "Applications are normally reviewed within 2-3 business days. Results vary by category, season, listing quality, and audience demand.",
         "q": "Hur snabbt kommer jag att se resultat?"
       },
       "title": "Vanliga Frågor"
@@ -2668,7 +2873,9 @@
         "invest": "Investment Opportunity",
         "other": "Other Inquiry"
       }
-    }
+    },
+    "pageTitle": "Fastigheter i Algarve",
+    "emptyRefinedSearch": "Inga fastigheter matchar din förfinade sökning"
   },
   "reviews": {
     "anonymousUser": "Besökare",
@@ -2896,9 +3103,8 @@
         }
       },
       "categories": {
-        "label": "Vad vi erbjuder",
-        "title": "Premiumkategorier",
-        "subtitle": "Bläddra i premiumkatalogen efter kategori, från boende och restauranger till upplevelser och fastigheter."
+        "title": "Utforska Algarve",
+        "intro": "Upptäck utvalda boenden, restauranger, golf, fastigheter, evenemang och lokala upplevelser."
       },
       "cities": {
         "label": "Städer",
@@ -3080,15 +3286,15 @@
     "title": "Choose your partnership level",
     "subtitle": "Transparent pricing. No hidden fees. Cancel anytime.",
     "annualDiscount": "Annual billing available at 20% discount.",
-    "recommended": "Recommended",
+    "recommended": "Missa inte",
     "verifiedPartner": "Verified Partner",
-    "perMonth": "/month",
-    "verifiedDescription": "Enhanced visibility and trust for established businesses. Less than the cost of a single booking.",
-    "applyAsVerified": "Apply as Verified",
-    "noLongTermContract": "No long-term contract · Cancel anytime",
+    "perMonth": "/månad",
+    "verifiedDescription": "A trust signal for active, legitimate local businesses that want credibility and a stronger listing presence.",
+    "applyAsVerified": "Ansök som Verified",
+    "noLongTermContract": "Inget långt avtal · avsluta när som helst",
     "byInvitation": "By Invitation",
     "signaturePartner": "Signature Partner",
-    "signatureDescription": "Reserved for operators selected by our editorial team based on profile, location, and market fit.",
+    "signatureDescription": "Premium editorial-style visibility for standout Algarve businesses, with eligibility for curated homepage, city, and category placements where relevant.",
     "byInvitationOnly": "By Invitation Only",
     "eligiblePartnersContacted": "Our team contacts eligible Verified partners directly.",
     "interestedInSignature": "Interested in Signature?",
@@ -3096,7 +3302,13 @@
     "reviewEligibilityNote": "— we review all partners for eligibility.",
     "notReady": "Not ready to commit?",
     "startFreeListing": "Start with a free basic listing",
-    "upgradeWhenReady": "and upgrade when ready."
+    "upgradeWhenReady": "and upgrade when ready.",
+    "available": "Begränsat / Exklusivt",
+    "applyAsSignature": "Ansök som Signature",
+    "signatureAvailableNote": "Signature is available for qualified premium listings and remains subject to quality standards.",
+    "wantHomepagePlacement": "Need homepage featured placement as an add-on?",
+    "contactUs": "Contact us",
+    "homepagePlacementNote": "and our team will review the right add-on placement for your category."
   },
   "user": {
     "tripPlanner": {
@@ -3148,7 +3360,10 @@
     "title": "What's included in each tier",
     "subtitle": "Compare features across all three partnership levels.",
     "feature": "Feature",
-    "basic": "Basic"
+    "basic": "Basic",
+    "addOn": "Add-on",
+    "contact": "Contact",
+    "apply": "Ansök"
   },
   "lead": {
     "headline": "Algarve",
@@ -3195,5 +3410,125 @@
   },
   "navigation": {
     "skipToContent": "Skip to main content"
+  },
+  "pages": {
+    "relocation": {
+      "title": "Flytta till Algarve",
+      "subtitle": "Praktiska guider, pålitliga tjänster och utvalda lokala resurser för att flytta till Algarve med trygghet.",
+      "seoTitle": "Flytta till Algarve | Flytta, bo och etablera dig i Portugal",
+      "seoDescription": "Praktiska guider, pålitliga tjänster och utvalda lokala resurser för att flytta till Algarve med trygghet."
+    }
+  },
+  "breadcrumbs": {
+    "relocation": "Flytta"
+  },
+  "golfCourse": {
+    "metaTitleFallback": "Golfbana",
+    "metaDescriptionFallback": "Utforska baninformation, scorekort och plats.",
+    "locationFallback": "Algarve",
+    "regionFallback": "Algarve",
+    "holes": "Hål",
+    "par": "Par",
+    "slope": "Slope",
+    "rating": "Course Rating",
+    "length": "Längd",
+    "designer": "Designer",
+    "meters": "m",
+    "overview": "Banöversikt",
+    "facilities": "Faciliteter",
+    "drivingRange": "Driving range",
+    "clubhouse": "Klubbhus",
+    "restaurant": "Restaurang",
+    "buggy": "Buggy",
+    "academy": "Akademi",
+    "access": "Tillgång",
+    "difficulty": "Svårighet",
+    "bestFor": "Bäst för",
+    "priceRange": "Prisnivå",
+    "public": "Publik",
+    "private": "Privat",
+    "golfers": "Golfare",
+    "casual": "Avslappnade rundor",
+    "confident": "Säkra spelare",
+    "championship": "Championship-spel",
+    "scorecard": "Scorecard",
+    "hole": "Hål",
+    "hcp": "HCP",
+    "white": "Vit",
+    "yellow": "Gul",
+    "red": "Röd",
+    "requestTeeTime": "Begär tee time",
+    "contactClub": "Kontakta klubben",
+    "visitWebsite": "Besök webbplats",
+    "relatedCourses": "Närliggande banor",
+    "leaderboard": "Topplista",
+    "rank": "Placering",
+    "player": "Spelare",
+    "score": "Score",
+    "rounds": "Rundor",
+    "teeTime": {
+      "title": "Begär starttid",
+      "intro": "Dela önskad dag och detaljer. Vi hjälper dig att komma i kontakt med banan eller relevant partner.",
+      "name": "Namn",
+      "email": "E-post",
+      "phone": "Telefon",
+      "preferredDate": "Önskat datum",
+      "preferredTime": "Önskad tid",
+      "morning": "Morgon",
+      "midday": "Mitt på dagen",
+      "afternoon": "Eftermiddag",
+      "flexible": "Flexibel",
+      "players": "Antal spelare",
+      "handicap": "Handicap / spelnivå",
+      "message": "Meddelande",
+      "submit": "Begär starttid",
+      "submitting": "Skickar förfrågan...",
+      "success": "Förfrågan mottagen. Vi hjälper dig att komma i kontakt med banan eller relevant partner.",
+      "error": "Det gick inte att skicka förfrågan. Försök igen."
+    }
+  },
+  "golfDiscovery": {
+    "discoveryTitle": "Find your perfect golf course in the Algarve",
+    "discoverySubtitle": "Choose the kind of round you want and discover curated courses without endless comparison.",
+    "championshipTitle": "Championship Courses",
+    "championshipIntro": "Curated selection of tournament-level courses",
+    "championshipDescription": "18-hole tournament layouts",
+    "coastalTitle": "Scenic Coastal Golf",
+    "coastalIntro": "Ocean light, coastal settings, and memorable Algarve scenery",
+    "coastalDescription": "Views and atmosphere",
+    "luxuryTitle": "Luxury & Private Clubs",
+    "luxuryIntro": "Premium clubs, polished service, and standout golf settings",
+    "luxuryDescription": "Premium golf experiences",
+    "beginnerTitle": "Beginner Friendly",
+    "beginnerIntro": "Welcoming courses for relaxed and confident play",
+    "beginnerDescription": "Easier rounds and learning",
+    "quick9Title": "Quick 9-Hole Rounds",
+    "quick9Intro": "Shorter formats for flexible Algarve golf days",
+    "quick9Description": "Faster rounds",
+    "finderTitle": "Find your course",
+    "skillQuestion": "Skill?",
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "mattersQuestion": "What matters?",
+    "scenery": "Scenery",
+    "challenge": "Challenge",
+    "ease": "Ease",
+    "viewMatches": "View matches",
+    "bestFor": "Best for",
+    "experiencedGolfers": "Experienced golfers",
+    "championshipPlay": "Championship play",
+    "premiumExperience": "Premium experience",
+    "quickRounds": "Quick rounds",
+    "scenicRounds": "Scenic rounds",
+    "relaxedPlay": "Relaxed play",
+    "editorsSelection": "Editor's Selection",
+    "verified": "Verified",
+    "viewCourse": "View Course",
+    "youMightAlsoLike": "You might also like",
+    "noMatchesTitle": "No matching courses yet",
+    "noMatchesDescription": "Explore all golf courses while we expand this discovery collection.",
+    "backToGolf": "Alla golfbanor",
+    "heroLabel": "Upptäck golf"
   }
 }

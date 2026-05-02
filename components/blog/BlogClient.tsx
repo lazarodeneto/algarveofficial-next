@@ -28,6 +28,11 @@ import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-l
 import { resolveHero } from "@/lib/cms/resolve-hero";
 import type { BlogPageConfig } from "@/lib/blog-cms";
 import {
+  applyBlogTranslation,
+  getKnownBlogCategoryLabel,
+  type BlogTranslationRow,
+} from "@/lib/blog/localization";
+import {
   CMS_GLOBAL_SETTING_KEYS,
   normalizeCmsPageConfigs,
   type CmsTextOverrideMap,
@@ -104,31 +109,6 @@ function parseJsonSetting<T>(raw: string | undefined, fallback: T): T {
 
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function getLocalizedValue(value: string | null | undefined): string | null {
-  const trimmed = value?.trim();
-  return trimmed && trimmed.length > 0 ? trimmed : null;
-}
-
-function getLocalizedRequiredValue(
-  translated: string | null | undefined,
-  fallback: string,
-  hasTranslation: boolean,
-): string {
-  const localized = getLocalizedValue(translated);
-  if (localized) return localized;
-  return hasTranslation ? "" : fallback;
-}
-
-function getLocalizedOptionalValue(
-  translated: string | null | undefined,
-  fallback: string | null,
-  hasTranslation: boolean,
-): string | null {
-  const localized = getLocalizedValue(translated);
-  if (localized) return localized;
-  return hasTranslation ? null : fallback;
 }
 
 function normalizeTextOverrides(input: unknown): CmsTextOverrideMap {
@@ -241,15 +221,6 @@ function mergePostsWithAuthors(posts: BlogPostRow[], authors: BlogAuthor[]): Blo
   }));
 }
 
-interface BlogPostTranslationRow {
-  post_id: string;
-  locale: string;
-  title: string;
-  excerpt: string | null;
-  seo_title: string | null;
-  seo_description: string | null;
-}
-
 async function fetchBlogPosts(locale: string, category?: BlogCategory): Promise<BlogPostWithAuthor[]> {
   let query = supabase
     .from("blog_posts")
@@ -282,27 +253,17 @@ async function fetchBlogPosts(locale: string, category?: BlogCategory): Promise<
 
     if (!translationError) {
       const translationMap = new Map(
-        ((translations ?? []) as BlogPostTranslationRow[]).map((translation) => [
+        ((translations ?? []) as BlogTranslationRow[]).map((translation) => [
           translation.post_id,
           translation,
         ]),
       );
 
       localizedPosts = localizedPosts.map((post) => {
-        const translation = translationMap.get(post.id);
-        const hasTranslation = Boolean(translation);
-        return {
-          ...post,
-          title: getLocalizedRequiredValue(translation?.title, post.title, hasTranslation),
-          excerpt: getLocalizedOptionalValue(translation?.excerpt, post.excerpt, hasTranslation),
-          seo_title: getLocalizedOptionalValue(translation?.seo_title, post.seo_title, hasTranslation),
-          seo_description: getLocalizedOptionalValue(
-            translation?.seo_description,
-            post.seo_description,
-            hasTranslation,
-          ),
-        };
+        return applyBlogTranslation(post, translationMap.get(post.id), locale);
       });
+    } else {
+      localizedPosts = localizedPosts.map((post) => applyBlogTranslation(post, null, locale));
     }
   }
 
@@ -371,7 +332,8 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
   const cms = useBlogCmsHelpers(globalSettings);
   const categories = Object.entries(blogCategoryLabels) as [BlogCategory, string][];
 
-  const getCategoryLabel = (category: BlogCategory) =>
+  const getCategoryLabel = (category: BlogCategory, post?: BlogPostRow) =>
+    (post ? getKnownBlogCategoryLabel(post, locale) : null) ??
     t(BLOG_TRANSLATION_KEYS[category] || category, blogCategoryLabels[category]);
 
   const filteredPosts = useMemo(() => {
@@ -492,7 +454,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
                     </div>
                     <CardContent className="p-6 md:p-10 flex flex-col justify-center">
                       <Badge variant="secondary" className="w-fit mb-4">
-                        {getCategoryLabel(featuredPost.category)}
+                        {getCategoryLabel(featuredPost.category, featuredPost)}
                       </Badge>
                       <h2 className="text-2xl md:text-3xl font-serif font-medium mb-4 group-hover:text-primary transition-colors">
                         {featuredPost.title}
@@ -554,7 +516,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
                     className="group"
                   >
                     <Link href={l(`/blog/${post.slug}`)}>
-                      <article className="relative overflow-hidden rounded-2xl bg-card border border-border/50 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-[1.01] transition-all duration-300 ease-out h-full flex flex-col">
+                      <article className="relative overflow-hidden rounded-md bg-card border border-border/50 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-[1.01] transition-all duration-300 ease-out h-full flex flex-col">
                         <div className="relative aspect-[16/10] overflow-hidden">
                           <BlogFeaturedImage
                             src={post.featured_image ?? "/placeholder.svg"}
@@ -567,7 +529,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
                         </div>
                         <div className="p-6 flex flex-col flex-1 bg-card">
                           <Badge variant="outline" className="w-fit mb-4 text-xs tracking-wide border-[#C7A35A]/40 text-[#C7A35A] bg-[#C7A35A]/5">
-                            {getCategoryLabel(post.category)}
+                            {getCategoryLabel(post.category, post)}
                           </Badge>
                           <h3 className="text-lg font-serif font-light leading-snug mb-3 line-clamp-2 group-hover:text-[#C7A35A] transition-colors duration-300 text-foreground">
                             {post.title}
@@ -578,9 +540,11 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
                           <div className="flex items-center justify-between text-xs text-muted-foreground/70 pt-4 border-t border-border/30">
                             <div className="flex items-center gap-1.5">
                               <Clock className="h-3.5 w-3.5 text-[#C7A35A]/60" />
-                              <span>{post.reading_time} min read</span>
+                              <span>{post.reading_time} {t("blog.readTime")}</span>
                             </div>
-                            <span className="text-[#C7A35A] font-medium tracking-wide group-hover:translate-x-0.5 transition-transform duration-200">Read more</span>
+                            <span className="text-[#C7A35A] font-medium tracking-wide group-hover:translate-x-0.5 transition-transform duration-200">
+                              {t("blog.readMore")}
+                            </span>
                           </div>
                         </div>
                       </article>

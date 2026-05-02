@@ -1,38 +1,141 @@
-import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { DEFAULT_LOCALE, isValidLocale, type Locale } from "@/lib/i18n/config";
 import { buildLocalizedPath } from "@/lib/i18n/routing";
-import { getGolfListingBySlug } from "@/lib/golf";
+import { getServerTranslations } from "@/lib/i18n/server";
+import { getGolfListingBySlug, getGolfListings } from "@/lib/golf";
+import { getBestForKeys, inferGolfExperienceTags } from "@/lib/golf/experienceTags";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
+import { BestFor } from "@/components/golf/BestFor";
+import { CourseOverview } from "@/components/golf/CourseOverview";
+import { Facilities } from "@/components/golf/Facilities";
+import { GolfCTA } from "@/components/golf/GolfCTA";
 import { GolfLocationMap } from "@/components/golf/GolfLocationMap";
-import { StartRoundButton } from "@/components/golf/StartRoundButton";
+import { Leaderboard } from "@/components/golf/Leaderboard";
+import { MetricsGrid } from "@/components/golf/MetricsGrid";
+import { QuickFacts } from "@/components/golf/QuickFacts";
+import { RelatedCourses } from "@/components/golf/RelatedCourses";
+import { RequestTeeTimeForm } from "@/components/golf/RequestTeeTimeForm";
+import { Scorecard } from "@/components/golf/Scorecard";
 import { STANDARD_PUBLIC_CONTENT_TOP_CLASS } from "@/components/sections/hero-layout";
-import { Button } from "@/components/ui/Button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
 }
 
+const TRANSLATION_KEYS = [
+  "golfCourse.metaTitleFallback",
+  "golfCourse.metaDescriptionFallback",
+  "golfCourse.locationFallback",
+  "golfCourse.regionFallback",
+  "golfCourse.holes",
+  "golfCourse.par",
+  "golfCourse.slope",
+  "golfCourse.rating",
+  "golfCourse.length",
+  "golfCourse.designer",
+  "golfCourse.meters",
+  "golfCourse.overview",
+  "golfCourse.facilities",
+  "golfCourse.drivingRange",
+  "golfCourse.clubhouse",
+  "golfCourse.restaurant",
+  "golfCourse.buggy",
+  "golfCourse.academy",
+  "golfCourse.access",
+  "golfCourse.difficulty",
+  "golfCourse.bestFor",
+  "golfCourse.priceRange",
+  "golfCourse.public",
+  "golfCourse.private",
+  "golfCourse.golfers",
+  "golfCourse.casual",
+  "golfCourse.confident",
+  "golfCourse.championship",
+  "golfCourse.scorecard",
+  "golfCourse.leaderboard",
+  "golfCourse.rank",
+  "golfCourse.player",
+  "golfCourse.score",
+  "golfCourse.rounds",
+  "golfCourse.hole",
+  "golfCourse.hcp",
+  "golfCourse.white",
+  "golfCourse.yellow",
+  "golfCourse.red",
+  "golfCourse.requestTeeTime",
+  "golfCourse.contactClub",
+  "golfCourse.visitWebsite",
+  "golfCourse.relatedCourses",
+  "golfCourse.teeTime.title",
+  "golfCourse.teeTime.intro",
+  "golfCourse.teeTime.name",
+  "golfCourse.teeTime.email",
+  "golfCourse.teeTime.phone",
+  "golfCourse.teeTime.preferredDate",
+  "golfCourse.teeTime.preferredTime",
+  "golfCourse.teeTime.morning",
+  "golfCourse.teeTime.midday",
+  "golfCourse.teeTime.afternoon",
+  "golfCourse.teeTime.flexible",
+  "golfCourse.teeTime.players",
+  "golfCourse.teeTime.handicap",
+  "golfCourse.teeTime.message",
+  "golfCourse.teeTime.submit",
+  "golfCourse.teeTime.submitting",
+  "golfCourse.teeTime.success",
+  "golfCourse.teeTime.error",
+  "golfDiscovery.bestFor",
+  "golfDiscovery.experiencedGolfers",
+  "golfDiscovery.championshipPlay",
+  "golfDiscovery.premiumExperience",
+  "golfDiscovery.quickRounds",
+  "golfDiscovery.scenicRounds",
+  "golfDiscovery.relaxedPlay",
+  "golfDiscovery.editorsSelection",
+  "golfDiscovery.verified",
+  "golfDiscovery.viewCourse",
+  "golfDiscovery.youMightAlsoLike",
+] as const;
+
+function tx(translations: Record<string, string>, key: string, fallback: string) {
+  return translations[key] ?? fallback;
+}
+
+function formatValue(value: string | null | undefined) {
+  if (!value) return null;
+  return value.replace(/[_-]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function contactHref(phone?: string | null, email?: string | null) {
+  if (phone) return `tel:${phone.replace(/\s+/g, "")}`;
+  if (email) return `mailto:${email}`;
+  return null;
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale: rawLocale, slug } = await params;
   const locale: Locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+  const translations = await getServerTranslations(locale, [
+    "golfCourse.metaTitleFallback",
+    "golfCourse.metaDescriptionFallback",
+  ]);
 
   const listing = await getGolfListingBySlug(slug);
 
-  const title = listing ? `${listing.name} | Golf Course` : "Golf Course";
+  const title = listing
+    ? `${listing.name} | ${tx(translations, "golfCourse.metaTitleFallback", "Golf Course")}`
+    : tx(translations, "golfCourse.metaTitleFallback", "Golf Course");
   const description =
     listing?.shortDescription ??
     listing?.description ??
-    "Explore course details, scorecard resources, and location guidance.";
+    tx(
+      translations,
+      "golfCourse.metaDescriptionFallback",
+      "Explore course details, scorecard resources, and location guidance.",
+    );
 
   return buildLocalizedMetadata({
     locale,
@@ -46,228 +149,234 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function GolfCourseDetailPage({ params }: PageProps) {
   const { locale: rawLocale, slug } = await params;
   const locale: Locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+  const translations = await getServerTranslations(locale, [...TRANSLATION_KEYS]);
 
   const course = await getGolfListingBySlug(slug);
   if (!course || course.categorySlug !== "golf") {
     notFound();
   }
 
-  const holeScorecardRows = course.scorecardHoles;
+  const details = course.details;
+  const metaItems = [
+    details?.holes ? `${details.holes} ${tx(translations, "golfCourse.holes", "Holes")}` : null,
+    details?.par ? `${tx(translations, "golfCourse.par", "Par")} ${details.par}` : null,
+    formatValue(details?.courseType),
+    course.city?.name,
+  ].filter((item): item is string => Boolean(item));
+
+  const locationLine = [
+    course.city?.name ?? tx(translations, "golfCourse.locationFallback", "Algarve"),
+    course.region?.name ?? tx(translations, "golfCourse.regionFallback", "Algarve"),
+  ]
+    .filter(Boolean)
+    .join(" • ");
 
   const hasCoordinates =
     typeof course.latitude === "number" &&
     Number.isFinite(course.latitude) &&
     typeof course.longitude === "number" &&
     Number.isFinite(course.longitude);
-  const hasHoleData = holeScorecardRows.length > 0 || course.holeCount > 0;
+
+  const courseTags = inferGolfExperienceTags(course);
+  const relatedCourses = (await getGolfListings({ limit: 60 }))
+    .filter((item) => {
+      if (item.id === course.id) return false;
+      const sameRegion = Boolean(course.region?.slug && item.region?.slug === course.region.slug);
+      const sharedTag = inferGolfExperienceTags(item).some((tag) => courseTags.includes(tag));
+      return sameRegion || sharedTag;
+    })
+    .slice(0, 3);
+  const bestForLabels = {
+    experiencedGolfers: tx(translations, "golfDiscovery.experiencedGolfers", "Experienced golfers"),
+    championshipPlay: tx(translations, "golfDiscovery.championshipPlay", "Championship play"),
+    premiumExperience: tx(translations, "golfDiscovery.premiumExperience", "Premium experience"),
+    quickRounds: tx(translations, "golfDiscovery.quickRounds", "Quick rounds"),
+    scenicRounds: tx(translations, "golfDiscovery.scenicRounds", "Scenic rounds"),
+    relaxedPlay: tx(translations, "golfDiscovery.relaxedPlay", "Relaxed play"),
+  };
+  const courseCardLabels = {
+    holes: tx(translations, "golfCourse.holes", "Holes"),
+    par: tx(translations, "golfCourse.par", "Par"),
+    slope: tx(translations, "golfCourse.slope", "Slope"),
+    bestFor: tx(translations, "golfDiscovery.bestFor", "Best for"),
+    editorsSelection: tx(translations, "golfDiscovery.editorsSelection", "Editor's Selection"),
+    verified: tx(translations, "golfDiscovery.verified", "Verified"),
+    viewCourse: tx(translations, "golfDiscovery.viewCourse", "View Course"),
+    locationFallback: tx(translations, "golfCourse.locationFallback", "Algarve"),
+    bestForLabels,
+  };
 
   return (
-    <main className={`app-container space-y-8 pb-10 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
-      <section className="relative overflow-hidden rounded-3xl border border-border/60">
-        <div className="relative h-[320px] w-full bg-muted md:h-[420px]">
-          {course.featuredImageUrl ? (
-            <img
-              src={course.featuredImageUrl}
-              alt={course.name}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="h-full w-full bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/10" />
-        </div>
-
-        <div className="absolute inset-x-0 bottom-0 p-6 text-white md:p-8">
-          <p className="text-xs uppercase tracking-[0.2em] text-white/80">Algarve Golf</p>
-          <h1 className="mt-2 font-serif text-3xl leading-tight md:text-5xl">{course.name}</h1>
-          <p className="mt-2 text-sm text-white/90 md:text-base">
-            {course.city?.name ?? "Algarve"}
-            {course.region?.name ? `, ${course.region.name}` : ""}
-          </p>
+    <main className={`bg-background pb-10 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
+      <section className="relative h-[460px] w-full overflow-hidden bg-muted">
+        {course.featuredImageUrl ? (
+          <Image
+            src={course.featuredImageUrl}
+            alt={course.name}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
+        ) : (
+          <div className="h-full w-full bg-gradient-to-br from-slate-950 via-slate-800 to-emerald-950" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+        <div className="absolute bottom-0 left-0 max-w-xl p-6 text-white md:p-10">
+          <h1 className="font-serif text-4xl font-medium leading-tight md:text-6xl">{course.name}</h1>
+          <p className="mt-3 text-base text-white/88">{locationLine}</p>
+          {metaItems.length > 0 ? (
+            <p className="mt-4 text-sm font-medium text-white/90 md:text-base">
+              {metaItems.join(" • ")}
+            </p>
+          ) : null}
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-border/70">
-          <CardHeader>
-            <CardDescription>Holes</CardDescription>
-            <CardTitle>{course.details?.holes ?? "N/A"}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card className="border-border/70">
-          <CardHeader>
-            <CardDescription>Par</CardDescription>
-            <CardTitle>{course.details?.par ?? "N/A"}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card className="border-border/70">
-          <CardHeader>
-            <CardDescription>Slope Rating</CardDescription>
-            <CardTitle>{course.details?.slopeRating ?? "N/A"}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card className="border-border/70">
-          <CardHeader>
-            <CardDescription>Course Rating</CardDescription>
-            <CardTitle>{course.details?.courseRating ?? "N/A"}</CardTitle>
-          </CardHeader>
-        </Card>
-      </section>
+      <QuickFacts
+        accessType={details?.accessType}
+        difficulty={details?.difficulty}
+        courseType={details?.courseType}
+        priceRange={details?.priceRange}
+        labels={{
+          access: tx(translations, "golfCourse.access", "Access"),
+          difficulty: tx(translations, "golfCourse.difficulty", "Difficulty"),
+          bestFor: tx(translations, "golfCourse.bestFor", "Best For"),
+          priceRange: tx(translations, "golfCourse.priceRange", "Price Range"),
+          public: tx(translations, "golfCourse.public", "Public"),
+          private: tx(translations, "golfCourse.private", "Private"),
+          golfers: tx(translations, "golfCourse.golfers", "Golfers"),
+          casual: tx(translations, "golfCourse.casual", "Casual rounds"),
+          confident: tx(translations, "golfCourse.confident", "Confident players"),
+          championship: tx(translations, "golfCourse.championship", "Championship play"),
+        }}
+      />
 
-      <Card className="border-border/70">
-        <CardHeader>
-          <CardTitle>Course Overview</CardTitle>
-          <CardDescription>
-            {course.details?.architect
-              ? `Designed by ${course.details.architect}.`
-              : "Course profile and practical details."}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4 text-sm leading-7 text-muted-foreground md:text-base">
-          <p>{course.description ?? course.shortDescription ?? "Description coming soon."}</p>
-          <div className="grid gap-3 text-sm md:grid-cols-2">
-            <p>
-              <span className="font-semibold text-foreground">Year Opened:</span>{" "}
-              {course.details?.yearOpened ?? "N/A"}
-            </p>
-            <p>
-              <span className="font-semibold text-foreground">Practice Facilities:</span>{" "}
-              {course.details?.practiceFacilities ?? "N/A"}
-            </p>
-            <p>
-              <span className="font-semibold text-foreground">Clubhouse:</span>{" "}
-              {course.details?.clubhouse === null || course.details?.clubhouse === undefined
-                ? "N/A"
-                : course.details?.clubhouse
-                  ? "Yes"
-                  : "No"}
-            </p>
-            <p>
-              <span className="font-semibold text-foreground">Dress Code:</span>{" "}
-              {course.details?.dressCode ?? "N/A"}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <MetricsGrid
+        details={details}
+        labels={{
+          holes: tx(translations, "golfCourse.holes", "Holes"),
+          par: tx(translations, "golfCourse.par", "Par"),
+          slope: tx(translations, "golfCourse.slope", "Slope"),
+          rating: tx(translations, "golfCourse.rating", "Course Rating"),
+          length: tx(translations, "golfCourse.length", "Length"),
+          designer: tx(translations, "golfCourse.designer", "Designer"),
+          meters: tx(translations, "golfCourse.meters", "m"),
+        }}
+      />
 
-      <Card className="border-border/70">
-        <CardHeader>
-          <CardTitle>Scorecard</CardTitle>
-          <CardDescription>Preview or download scorecard resources when available.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {course.details?.scorecardImageUrl ? (
-            <div className="overflow-hidden rounded-xl border border-border/60">
-              <img
-                src={course.details.scorecardImageUrl}
-                alt={`${course.name} scorecard`}
-                className="h-[420px] w-full object-cover"
-                loading="lazy"
-              />
-            </div>
-          ) : course.details?.scorecardPdfUrl ? (
-            <Button asChild variant="outline">
-              <a href={course.details.scorecardPdfUrl} target="_blank" rel="noreferrer">
-                Open Scorecard PDF
-              </a>
-            </Button>
-          ) : holeScorecardRows.length > 0 ? (
-            <div className="space-y-4 rounded-xl border border-border/60 p-4">
-              <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
-                Live Hole Data Preview
-              </p>
-              <div className="overflow-x-auto">
-                <table className="min-w-[560px] w-full text-sm">
-                  <tbody>
-                    <tr className="border-b border-border/60">
-                      <th className="p-2 text-left text-muted-foreground">Hole</th>
-                      {holeScorecardRows.map((row) => (
-                        <td key={`hole-${row.holeNumber}`} className="p-2 text-center font-medium">
-                          {row.holeNumber}
-                        </td>
-                      ))}
-                    </tr>
-                    <tr>
-                      <th className="p-2 text-left text-muted-foreground">Par</th>
-                      {holeScorecardRows.map((row) => (
-                        <td key={`par-${row.holeNumber}`} className="p-2 text-center">
-                          {row.par}
-                        </td>
-                      ))}
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">Scorecard coming soon.</p>
-          )}
-        </CardContent>
-      </Card>
+      <CourseOverview
+        title={tx(translations, "golfCourse.overview", "Course Overview")}
+        description={course.description ?? course.shortDescription}
+      />
 
-      <Card className="overflow-hidden border-border/70">
-        <CardHeader>
-          <CardTitle>Course Map</CardTitle>
-          <CardDescription>
-            {hasCoordinates
-              ? "Interactive location map"
-              : "Map preview will be published shortly."}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="min-h-[320px] w-full">
-            {hasCoordinates ? (
-              <GolfLocationMap
-                listingId={course.id}
-                name={course.name}
-                slug={course.slug}
-                latitude={course.latitude as number}
-                longitude={course.longitude as number}
-                tier={course.tier}
-                featuredImageUrl={course.featuredImageUrl}
-                href={buildLocalizedPath(locale, `/golf/courses/${course.slug}`)}
-              />
-            ) : course.details?.mapImageUrl ? (
-              <img
-                src={course.details.mapImageUrl}
-                alt={`${course.name} map`}
-                className="h-[320px] w-full object-cover"
-                loading="lazy"
-              />
-            ) : (
-              <div className="flex h-[320px] items-center justify-center px-6 text-center text-sm text-muted-foreground">
-                Map coming soon.
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      <Facilities
+        details={details}
+        labels={{
+          title: tx(translations, "golfCourse.facilities", "Facilities"),
+          drivingRange: tx(translations, "golfCourse.drivingRange", "Driving Range"),
+          clubhouse: tx(translations, "golfCourse.clubhouse", "Clubhouse"),
+          restaurant: tx(translations, "golfCourse.restaurant", "Restaurant"),
+          buggy: tx(translations, "golfCourse.buggy", "Buggy"),
+          academy: tx(translations, "golfCourse.academy", "Academy"),
+        }}
+      />
 
-      <section className="flex flex-wrap gap-3">
-        <div className="min-w-[240px] max-w-[340px] flex-1">
-          {hasHoleData ? (
-            <StartRoundButton
+      <BestFor
+        title={tx(translations, "golfDiscovery.bestFor", "Best for")}
+        items={getBestForKeys(course).map((key) => bestForLabels[key])}
+      />
+
+      <Scorecard
+        rows={course.scorecardHoles}
+        labels={{
+          title: tx(translations, "golfCourse.scorecard", "Scorecard"),
+          hole: tx(translations, "golfCourse.hole", "Hole"),
+          par: tx(translations, "golfCourse.par", "Par"),
+          hcp: tx(translations, "golfCourse.hcp", "HCP"),
+          white: tx(translations, "golfCourse.white", "White"),
+          yellow: tx(translations, "golfCourse.yellow", "Yellow"),
+          red: tx(translations, "golfCourse.red", "Red"),
+        }}
+      />
+
+      <Leaderboard
+        courseId={course.id}
+        labels={{
+          title: tx(translations, "golfCourse.leaderboard", "Leaderboard"),
+          rank: tx(translations, "golfCourse.rank", "Rank"),
+          player: tx(translations, "golfCourse.player", "Player"),
+          score: tx(translations, "golfCourse.score", "Score"),
+          rounds: tx(translations, "golfCourse.rounds", "Rounds"),
+        }}
+      />
+
+      {hasCoordinates ? (
+        <section className="mx-auto max-w-6xl py-12">
+          <div className="h-[400px] overflow-hidden rounded-2xl shadow-sm">
+            <GolfLocationMap
               listingId={course.id}
-              courseSlug={course.slug}
-              locale={locale}
+              name={course.name}
+              slug={course.slug}
+              latitude={course.latitude as number}
+              longitude={course.longitude as number}
+              tier={course.tier}
+              featuredImageUrl={course.featuredImageUrl}
+              href={buildLocalizedPath(locale, `/golf/courses/${course.slug}`)}
             />
-          ) : (
-            <div className="rounded-xl border border-border/70 bg-muted/20 p-4 text-sm text-muted-foreground">
-              Scorecard coming soon.
-            </div>
-          )}
-        </div>
-        {course.details?.bookingUrl ? (
-          <Button asChild variant="outline">
-            <a href={course.details.bookingUrl} target="_blank" rel="noreferrer">
-              Visit Booking Partner
-            </a>
-          </Button>
-        ) : null}
-        <Button asChild variant="outline">
-          <Link href={buildLocalizedPath(locale, "/golf/courses")}>Back to Courses</Link>
-        </Button>
-      </section>
+          </div>
+        </section>
+      ) : null}
+
+      <GolfCTA
+        bookingUrl={details?.bookingUrl}
+        contactHref={contactHref(course.contactPhone, course.contactEmail)}
+        websiteUrl={course.websiteUrl}
+        labels={{
+          requestTeeTime: tx(translations, "golfCourse.requestTeeTime", "Request Tee Time"),
+          contactClub: tx(translations, "golfCourse.contactClub", "Contact Club"),
+          visitWebsite: tx(translations, "golfCourse.visitWebsite", "Visit Website"),
+        }}
+      />
+
+      <RequestTeeTimeForm
+        listingId={course.id}
+        labels={{
+          title: tx(translations, "golfCourse.teeTime.title", "Request a tee time"),
+          intro: tx(
+            translations,
+            "golfCourse.teeTime.intro",
+            "Share your preferred day and details. We will help connect you with the course or relevant partner.",
+          ),
+          name: tx(translations, "golfCourse.teeTime.name", "Name"),
+          email: tx(translations, "golfCourse.teeTime.email", "Email"),
+          phone: tx(translations, "golfCourse.teeTime.phone", "Phone"),
+          preferredDate: tx(translations, "golfCourse.teeTime.preferredDate", "Preferred date"),
+          preferredTime: tx(translations, "golfCourse.teeTime.preferredTime", "Preferred time"),
+          morning: tx(translations, "golfCourse.teeTime.morning", "Morning"),
+          midday: tx(translations, "golfCourse.teeTime.midday", "Midday"),
+          afternoon: tx(translations, "golfCourse.teeTime.afternoon", "Afternoon"),
+          flexible: tx(translations, "golfCourse.teeTime.flexible", "Flexible"),
+          players: tx(translations, "golfCourse.teeTime.players", "Number of players"),
+          handicap: tx(translations, "golfCourse.teeTime.handicap", "Handicap / playing level"),
+          message: tx(translations, "golfCourse.teeTime.message", "Message"),
+          submit: tx(translations, "golfCourse.teeTime.submit", "Request Tee Time"),
+          submitting: tx(translations, "golfCourse.teeTime.submitting", "Sending request..."),
+          success: tx(
+            translations,
+            "golfCourse.teeTime.success",
+            "Request received. We'll help connect you with the course or relevant partner.",
+          ),
+          error: tx(translations, "golfCourse.teeTime.error", "We could not send this request. Please try again."),
+        }}
+      />
+
+      <RelatedCourses
+        title={tx(translations, "golfDiscovery.youMightAlsoLike", "You might also like")}
+        courses={relatedCourses}
+        locale={locale}
+        cardLabels={courseCardLabels}
+      />
     </main>
   );
 }

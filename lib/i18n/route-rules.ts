@@ -1,4 +1,5 @@
 import { stripLocaleFromPathname } from "@/lib/i18n/locale-utils";
+export { DEFAULT_LOCALE_USES_PREFIX } from "@/lib/i18n/default-locale-policy";
 
 export const LOCALE_COOKIE_NAME = "NEXT_LOCALE";
 export const LOCALE_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
@@ -11,6 +12,8 @@ export const SYSTEM_UNLOCALIZED_PREFIXES = [
   "/favicon",
   "/robots",
   "/sitemap",
+  "/admin",
+  "/owner",
 ] as const;
 
 export const CANONICAL_UNLOCALIZED_PATHS = new Set([
@@ -28,7 +31,8 @@ export const AUTH_ROUTE_PATHS = [
 const CANONICAL_LOCALIZED_ALIAS_ROUTES = [
   { source: "/directory", target: "/stay" },
   { source: "/visit", target: "/stay" },
-  { source: "/live", target: "/residence" },
+  { source: "/live", target: "/relocation" },
+  { source: "/residence", target: "/relocation" },
 ] as const;
 
 export const PUBLIC_SEO_PAGES = new Set([
@@ -48,7 +52,7 @@ export const PUBLIC_SEO_PAGES = new Set([
   "privacy-policy",
   "properties",
   "real-estate",
-  "residence",
+  "relocation",
   "stay",
   "terms",
 ]);

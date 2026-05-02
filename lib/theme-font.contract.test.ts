@@ -15,6 +15,12 @@ describe("theme font contract", () => {
     expect(source).toContain('variable: "--font-dm-sans"');
   });
 
+  it("loads Fira Sans for homepage quick-link titles", () => {
+    const source = read("app/layout.tsx");
+    expect(source).toContain("Fira_Sans");
+    expect(source).toContain('variable: "--font-fira-sans"');
+  });
+
   it("maps body sans token to DM Sans", () => {
     const source = read("index.css");
     expect(source).toContain("--font-sans: var(--font-dm-sans), 'DM Sans', sans-serif;");

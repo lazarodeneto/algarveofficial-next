@@ -37,13 +37,9 @@ async function fetchBlogPageConfig(locale: string): Promise<BlogPageConfig | nul
 
   const { data: docs, error } = await docsQuery;
 
-  if (error || !docs?.length) {
-    console.log("[BLOG CMS SSR] No docs found for locale:", locale);
-    return null;
-  }
+  if (error || !docs?.length) return null;
 
   const bestDoc = docs.find((d: { locale: string }) => d.locale === locale) ?? docs[0];
-  console.log("[BLOG CMS SSR] Best doc:", { pageId: bestDoc.page_id, locale: bestDoc.locale, versionId: bestDoc.current_version_id, preview: isPreview });
 
   if (!bestDoc?.current_version_id) {
     return null;

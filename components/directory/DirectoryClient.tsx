@@ -43,7 +43,14 @@ import {
   type PublicContentLocale,
 } from "@/lib/publicContentLocale";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
-import { useCityRegionMappings, type CityRow, type RegionRow, type CategoryRow } from "@/hooks/useReferenceData";
+import {
+  useCityListingCounts,
+  useCityRegionMappings,
+  useRegionListingCounts,
+  type CityRow,
+  type RegionRow,
+  type CategoryRow,
+} from "@/hooks/useReferenceData";
 import type { ListingFilters, ListingWithRelations, ListingTier } from "@/hooks/useListings";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
@@ -829,6 +836,17 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     staleTime: 1000 * 60 * 10,
   });
 
+  const { data: cityListingCounts = {} } = useCityListingCounts();
+  const { data: regionListingCounts = {} } = useRegionListingCounts();
+  const citiesWithListings = useMemo(
+    () => cities.filter((city) => (cityListingCounts[city.id] ?? 0) > 0),
+    [cities, cityListingCounts],
+  );
+  const regionsWithListings = useMemo(
+    () => regions.filter((region) => (regionListingCounts[region.id] ?? 0) > 0),
+    [regions, regionListingCounts],
+  );
+
   const mergedCategories = useMemo(() => buildMergedCategoryOptions(categories), [categories]);
   const { data: cityRegionMappings = [] } = useCityRegionMappings();
   const selectedCategoryItem = useMemo(
@@ -969,14 +987,14 @@ function DirectoryClientInner(props: DirectoryClientProps) {
         cityListingCounts: counts,
         cityRegionMappings,
         regions,
-      }).slice(0, 8);
+      }).filter((city) => city.totalCount > 0).slice(0, 8);
     },
     [isStayPage, isExperiencesPage, cities, cityRegionMappings, regions, stayCityListingCounts, experiencesCityListingCounts],
   );
 
   const cityHubsTopCities = useMemo(() => {
     if (isStayPage || isExperiencesPage) return stayCityIndex as VisitCityIndexItem[];
-    return props.visitCityIndex?.slice(0, 8) ?? [];
+    return props.visitCityIndex?.filter((city) => city.totalCount > 0).slice(0, 8) ?? [];
   }, [isStayPage, isExperiencesPage, props.visitCityIndex, stayCityIndex]);
 
   const cityHubsHighlightedCity = useMemo(() => {
@@ -996,14 +1014,14 @@ function DirectoryClientInner(props: DirectoryClientProps) {
       if (!found && props.visitCityIndex) {
         found = props.visitCityIndex.find(
           (city) =>
-            city.id === cmsCityId ||
-            city.municipalityCityIds?.includes(cmsCityId),
+            city.totalCount > 0 &&
+            (city.id === cmsCityId || city.municipalityCityIds?.includes(cmsCityId)),
         );
       }
 
-      // If still not found, try matching in the cities data
-      if (!found && cities.length > 0) {
-        const directMatch = cities.find(city => city.id === cmsCityId);
+      // If still not found, try matching in the cities data, but only for cities with listings.
+      if (!found && citiesWithListings.length > 0) {
+        const directMatch = citiesWithListings.find(city => city.id === cmsCityId);
         if (directMatch) {
           found = {
             id: directMatch.id,
@@ -1012,7 +1030,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
             short_description: directMatch.short_description,
             image_url: directMatch.image_url,
             hero_image_url: directMatch.hero_image_url,
-            totalCount: 0,
+            totalCount: cityListingCounts[directMatch.id] ?? 0,
             municipalityRegionId: undefined,
             municipalityCityIds: [],
           };
@@ -1023,7 +1041,9 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     }
 
     if (isStayPage || isExperiencesPage) {
-      const configured = props.featuredVisitCity;
+      const configured = props.featuredVisitCity && props.featuredVisitCity.totalCount > 0
+        ? props.featuredVisitCity
+        : null;
       const defaultIndex = stayCityIndex;
       if (!configured) return defaultIndex[0] ?? undefined;
 
@@ -1037,8 +1057,8 @@ function DirectoryClientInner(props: DirectoryClientProps) {
         undefined
       );
     }
-    return props.featuredVisitCity ?? undefined;
-  }, [isStayPage, isExperiencesPage, props.featuredVisitCity, stayCityIndex, activeCms, props.visitCityIndex, cities]);
+    return props.featuredVisitCity && props.featuredVisitCity.totalCount > 0 ? props.featuredVisitCity : cityHubsTopCities[0];
+  }, [isStayPage, isExperiencesPage, props.featuredVisitCity, stayCityIndex, activeCms, props.visitCityIndex, citiesWithListings, cityListingCounts, cityHubsTopCities]);
   const stayCityPathBuilder = useCallback((city: CityHubItem) => {
     const params = new URLSearchParams({
       category: "accommodation",
@@ -1279,7 +1299,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
           <>
             <div className={STANDARD_PUBLIC_NO_HERO_SPACER_CLASS} aria-hidden="true" />
             <section className="app-container content-max pt-6 pb-8">
-              <div className="mx-auto w-full max-w-[22rem] rounded-[2rem] border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur sm:max-w-3xl md:p-10">
+              <div className="w-full rounded-lg border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur md:p-10">
                 <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
                   {t("directory.heroLabel")}
                 </p>
@@ -1322,7 +1342,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                       {t("directory.hero.ctaPrimary")}
                     </Button>
                   </Link>
-                  <Link href={l("/residence")}>
+                  <Link href={l("/relocation")}>
                     <Button variant="heroOutline" size="lg">
                       {t("directory.hero.ctaSecondary")}
                     </Button>
@@ -1398,7 +1418,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                             </SelectTrigger>
                             <SelectContent className="bg-popover border-border shadow-lg">
                               <SelectItem value="all">{t("directory.allRegions")}</SelectItem>
-                              {[...regions].sort((a, b) => a.name.localeCompare(b.name)).map((region) => (
+                              {[...regionsWithListings].sort((a, b) => a.name.localeCompare(b.name)).map((region) => (
                                 <SelectItem key={region.id} value={region.id}>
                                   {region.name}
                                 </SelectItem>
@@ -1418,7 +1438,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                             </SelectTrigger>
                             <SelectContent className="bg-popover border-border shadow-lg max-h-[280px]">
                               <SelectItem value="all">{t("directory.allCities")}</SelectItem>
-                              {[...cities].sort((a, b) => a.name.localeCompare(b.name)).map((city) => (
+                              {[...citiesWithListings].sort((a, b) => a.name.localeCompare(b.name)).map((city) => (
                                 <SelectItem key={city.id} value={city.id}>
                                   {city.name}
                                 </SelectItem>

@@ -126,13 +126,17 @@ export default {
       fontFamily: {
         serif: ["var(--font-playfair)", "'Playfair Display'", "Georgia", "serif"],
         sans: ["var(--font-inter)", "'Inter'", "sans-serif"],
+        condensed: ["var(--font-roboto-condensed)", "'Roboto Condensed'", "Arial Narrow", "sans-serif"],
+        fira: ["var(--font-fira-sans)", "'Fira Sans'", "sans-serif"],
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-        xl: "1rem",
+        xs: "0.5rem",
+        sm: "0.75rem",
+        md: "1rem",
+        lg: "1.25rem",
+        xl: "1.5rem",
         "2xl": "1.5rem",
+        pill: "999px",
       },
       keyframes: {
         "accordion-down": {

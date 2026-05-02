@@ -3,6 +3,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import type { Locale } from "@/lib/i18n/config";
 import { buildUniformLocalizedSlugMap } from "@/lib/i18n/localized-routing";
+import { applyBlogTranslation, type BlogTranslationRow } from "@/lib/blog/localization";
 
 export type BlogPostSeoRecord = Pick<
   Tables<"blog_posts">,
@@ -64,14 +65,13 @@ export const getPublishedBlogPostBySlug = cache(async (slug: string, locale: Loc
   const { data: translation } = locale !== "en"
     ? await supabase
         .from("blog_post_translations")
-        .select("title, description, seo_title, seo_description")
-        .eq("blog_post_id", data.id)
-        .eq("language_code", localeCode)
+        .select("post_id, locale, title, excerpt, content, seo_title, seo_description")
+        .eq("post_id", data.id)
+        .eq("locale", localeCode)
         .maybeSingle()
     : { data: null };
 
-  const finalTitle = (translation?.seo_title?.trim() || translation?.title?.trim() || data.seo_title) ?? data.title;
-  const finalDescription = (translation?.seo_description?.trim() || translation?.description?.trim() || data.seo_description) ?? data.excerpt;
+  const localizedPost = applyBlogTranslation(data, translation as BlogTranslationRow | null, localeCode);
   const { data: author } = await supabase
     .from("public_profiles")
     .select("id, full_name, avatar_url")
@@ -79,11 +79,7 @@ export const getPublishedBlogPostBySlug = cache(async (slug: string, locale: Loc
     .maybeSingle();
 
   return {
-    ...data,
-    title: finalTitle,
-    seo_title: finalTitle,
-    excerpt: finalDescription,
-    seo_description: finalDescription,
+    ...localizedPost,
     author: author ?? undefined,
     localizedSlugs: buildUniformLocalizedSlugMap(data.slug),
   } as BlogPostSeoRecord;

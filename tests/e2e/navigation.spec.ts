@@ -4,7 +4,7 @@ const LOCALES = ["en", "pt-pt", "fr", "de", "es", "it", "nl", "sv", "no", "da"] 
 const TEST_LOCALES = ["en", "it", "fr", "de"] as const;
 
 const NAV_ITEMS = [
-  { name: "Residence", path: "/residence" },
+  { name: "Relocation", path: "/relocation" },
   { name: "Directory", path: "/directory" },
   { name: "Blog", path: "/blog" },
   { name: "Events", path: "/events" },
@@ -169,12 +169,12 @@ test.describe("Edge cases", () => {
     expect(response?.status()).toBe(404);
   });
 
-  test("legacy /live path redirects to /residence", async ({ page }) => {
+  test("legacy /live path redirects to /relocation", async ({ page }) => {
     const response = await page.goto("/en/live");
     await page.waitForLoadState("networkidle");
 
     expect(response?.ok()).toBeTruthy();
-    expect(page.url()).toContain("/en/residence");
+    expect(page.url()).toContain("/en/relocation");
   });
 
   test("root path shows default locale content", async ({ page }) => {

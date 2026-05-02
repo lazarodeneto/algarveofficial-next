@@ -21,6 +21,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useHydrated } from "@/hooks/useHydrated";
+import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database, Tables } from "@/integrations/supabase/types";
 import {
@@ -174,6 +175,7 @@ function RealEstateDirectoryClientInner({
   initialListings,
 }: RealEstateDirectoryClientProps) {
   const { t } = useTranslation();
+  const cms = useCmsPageBuilder("real-estate");
   const { user } = useAuth();
   const l = useLocalePath();
   const locale = normalizePublicContentLocale(useCurrentLocale());
@@ -291,18 +293,23 @@ function RealEstateDirectoryClientInner({
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
 
-      <main className="flex-grow">
+      <main id="main-content" className="flex-grow">
         <section className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
           <LiveStyleHero
-            badge={t("realEstate.hero.badge")}
-            title={t("realEstate.hero.title")}
-            subtitle={t(
-              "realEstate.hero.subtitle",
+            badge={cms.getText("hero.badge", t("realEstate.hero.badge"))}
+            title={cms.getText("hero.title", t("realEstate.hero.title"))}
+            subtitle={cms.getText(
+              "hero.subtitle",
+              t("realEstate.hero.subtitle"),
             )}
             media={
               <HeroBackgroundMedia
-                mediaType="image"
-                alt={t("realEstate.hero.alt")}
+                mediaType={cms.getText("hero.mediaType", "image")}
+                imageUrl={cms.getText("hero.imageUrl", "")}
+                videoUrl={cms.getText("hero.videoUrl", "")}
+                youtubeUrl={cms.getText("hero.youtubeUrl", "")}
+                posterUrl={cms.getText("hero.posterUrl", "")}
+                alt={cms.getText("hero.alt", t("realEstate.hero.alt"))}
                 fallback={
                   <PageHeroImage
                     page="real-estate"
@@ -343,7 +350,7 @@ function RealEstateDirectoryClientInner({
                   onClear={clearFilters}
                 />
 
-                <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                <div className="rounded-sm border border-border bg-card p-6 space-y-4">
                   <h3 className="font-serif text-xl">
                     {t("realEstate.conciergeTitle")}
                   </h3>
@@ -377,7 +384,7 @@ function RealEstateDirectoryClientInner({
                   {t("common.loading")}
                 </div>
               ) : !realEstateCategoryId ? (
-                <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-8 text-center">
+                <div className="rounded-sm border border-destructive/30 bg-destructive/5 p-8 text-center">
                   <Building2 className="h-8 w-8 mx-auto mb-3 text-destructive" />
                   <p className="font-medium">
                     {t("realEstate.categoryMissing")}
@@ -389,14 +396,14 @@ function RealEstateDirectoryClientInner({
                   </p>
                 </div>
               ) : error ? (
-                <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-8 text-center">
+                <div className="rounded-sm border border-destructive/30 bg-destructive/5 p-8 text-center">
                   <p className="font-medium">
                     {t("realEstate.loadError")}
                   </p>
                   <p className="text-sm text-muted-foreground mt-2">{(error as Error).message}</p>
                 </div>
               ) : filteredListings.length === 0 ? (
-                <div className="rounded-2xl border border-border bg-card p-10 text-center">
+                <div className="rounded-sm border border-border bg-card p-10 text-center">
                   <Building2 className="h-8 w-8 mx-auto mb-3 text-muted-foreground" />
                   <p className="font-medium">
                     {t("realEstate.emptyState")}

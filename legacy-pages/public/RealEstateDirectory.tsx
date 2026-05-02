@@ -197,10 +197,11 @@ export default function RealEstateDirectory() {
                     <CmsBlock pageId="real-estate" blockId="hero" as="section" className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
                         <LiveStyleHero
                             className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
-                            badge={t("realEstate.hero.badge")}
-                            title={t("realEstate.hero.title")}
-                            subtitle={t(
-                                "realEstate.hero.subtitle",
+                            badge={getText("hero.badge", t("realEstate.hero.badge"))}
+                            title={getText("hero.title", t("realEstate.hero.title"))}
+                            subtitle={getText(
+                                "hero.subtitle",
+                                t("realEstate.hero.subtitle"),
                             )}
                             media={
                                 <HeroBackgroundMedia
@@ -209,7 +210,7 @@ export default function RealEstateDirectory() {
                                     videoUrl={getText("hero.videoUrl", "")}
                                     youtubeUrl={getText("hero.youtubeUrl", "")}
                                     posterUrl={getText("hero.posterUrl", "")}
-                                    alt={t("realEstate.hero.alt")}
+                                    alt={getText("hero.alt", t("realEstate.hero.alt"))}
                                     fallback={<PageHeroImage page="real-estate" alt={t("realEstate.hero.alt")} />}
                                 />
                             }

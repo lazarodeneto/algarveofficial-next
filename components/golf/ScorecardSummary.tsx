@@ -3,13 +3,19 @@ import { formatVsParLabel, type GolfRoundHole } from "@/lib/golf/round-shared";
 interface ScorecardSummaryProps {
   holes: GolfRoundHole[];
   scores: Record<number, number>;
+  labels?: {
+    frontNine?: string;
+    backNine?: string;
+    diff?: string;
+    total?: string;
+  };
 }
 
 function sum(values: number[]) {
   return values.reduce((acc, value) => acc + value, 0);
 }
 
-export default function ScorecardSummary({ holes, scores }: ScorecardSummaryProps) {
+export default function ScorecardSummary({ holes, scores, labels }: ScorecardSummaryProps) {
   const frontNine = holes.slice(0, 9);
   const backNine = holes.slice(9, 18);
 
@@ -26,10 +32,12 @@ export default function ScorecardSummary({ holes, scores }: ScorecardSummaryProp
   const totalVsPar = totalScore - totalPar;
 
   return (
-    <section className="rounded-3xl border border-border/60 bg-white/95 p-6 shadow-[0_10px_30px_rgba(15,23,42,0.06)]">
+    <section className="rounded-sm border border-border/60 bg-white/95 p-6 shadow-[0_10px_30px_rgba(15,23,42,0.06)]">
       <div className="grid grid-cols-2 gap-6 text-center md:grid-cols-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Front 9</p>
+          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+            {labels?.frontNine ?? "Front 9"}
+          </p>
           <p className="mt-2 font-serif text-5xl leading-none text-foreground">{frontTotal}</p>
           <p className="mt-1 text-sm font-semibold text-emerald-600">
             {formatVsParLabel(frontVsPar)}
@@ -37,7 +45,9 @@ export default function ScorecardSummary({ holes, scores }: ScorecardSummaryProp
         </div>
 
         <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Back 9</p>
+          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+            {labels?.backNine ?? "Back 9"}
+          </p>
           <p className="mt-2 font-serif text-5xl leading-none text-foreground">{backTotal}</p>
           <p className="mt-1 text-sm font-semibold text-emerald-600">
             {formatVsParLabel(backVsPar)}
@@ -45,14 +55,18 @@ export default function ScorecardSummary({ holes, scores }: ScorecardSummaryProp
         </div>
 
         <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Diff</p>
+          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+            {labels?.diff ?? "Diff"}
+          </p>
           <p className="mt-2 font-serif text-5xl leading-none text-emerald-600">
             {formatVsParLabel(totalVsPar)}
           </p>
         </div>
 
         <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Total</p>
+          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+            {labels?.total ?? "Total"}
+          </p>
           <div className="mt-2 inline-flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-[#C7A35A] to-[#D4AF37] text-4xl font-semibold leading-none text-black">
             {totalScore}
           </div>

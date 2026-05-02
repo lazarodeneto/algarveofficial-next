@@ -111,7 +111,7 @@ export function TranslationStatusCards({ counts, activeFilter, onFilterClick }: 
             <button
               key={key}
               onClick={() => onFilterClick?.(isActive ? "" : key)}
-              className="text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-2xl"
+              className="text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-sm"
             >
               <Card
                 className={cn(

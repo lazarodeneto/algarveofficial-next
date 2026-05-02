@@ -220,7 +220,7 @@ export default async function CategoryHubPage({ params }: PageProps) {
   return (
     <>
       <Header localeSwitchPaths={localeSwitchPaths} />
-      <main className="min-h-screen pt-20">
+      <main id="main-content" className="min-h-screen pt-20">
         <section className="bg-gradient-to-b from-background/60 to-background py-12">
           <div className="app-container">
             <h1 className="font-serif text-4xl md:text-5xl mb-4">

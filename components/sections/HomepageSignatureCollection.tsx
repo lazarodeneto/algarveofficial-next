@@ -14,6 +14,7 @@ import { translateCategoryName } from "@/lib/translateCategory";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import { cmsText, isSafeHomeCtaHref, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
 
 const DISPLAY_LIMIT = 8;
 type Lang = "en" | "pt-pt" | "fr" | "de" | "es" | "it" | "nl" | "sv" | "no" | "da";
@@ -33,7 +34,7 @@ const normalizeLang = (raw?: string | null): Lang => {
   return "en";
 };
 
-export function HomepageSignatureCollection() {
+export function HomepageSignatureCollection({ copy }: { copy?: HomeSectionCopy } = {}) {
   const l = useLocalePath();
   const { t } = useTranslation();
   const targetLang = normalizeLang(useCurrentLocale());
@@ -84,6 +85,9 @@ export function HomepageSignatureCollection() {
   const title = isFallback
     ? t("sections.homepage.editorsSelection.title")
     : t("sections.homepage.editorsSelection.titleAlt");
+  const ctaHref = isSafeHomeCtaHref(copy?.ctaHref) && copy?.ctaHref?.trim()
+    ? copy.ctaHref.trim()
+    : "/directory?tier=signature";
   const displayListings = translatedListings.slice(0, DISPLAY_LIMIT);
 
   return (
@@ -92,17 +96,17 @@ export function HomepageSignatureCollection() {
         <div className="mb-9 flex flex-col gap-5 sm:mb-12 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              {t("sections.homepage.editorsSelection.badge")}
+              {cmsText(copy?.eyebrow, t("sections.homepage.editorsSelection.badge"))}
             </p>
             <h2 className="mt-3 font-serif text-3xl font-medium tracking-normal text-foreground sm:text-4xl">
-              {title}
+              {cmsText(copy?.title, title)}
             </h2>
             <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
-              {t("sections.homepage.editorsSelection.subtitle")}
+              {cmsText(copy?.subtitle ?? copy?.description, t("sections.homepage.editorsSelection.subtitle"))}
             </p>
           </div>
-          <Link href={l("/directory?tier=signature")} className="hidden text-sm font-semibold text-primary transition-colors hover:text-primary/80 lg:inline-flex">
-            {t("sections.homepage.editorsSelection.cta")} <ArrowRight className="ml-2 h-4 w-4" />
+          <Link href={l(ctaHref)} className="hidden text-sm font-semibold text-primary transition-colors hover:text-primary/80 lg:inline-flex">
+            {cmsText(copy?.ctaLabel, t("sections.homepage.editorsSelection.cta"))} <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </div>
 
@@ -112,7 +116,7 @@ export function HomepageSignatureCollection() {
               <div
                 key={index}
                 className={cn(
-                  "min-h-[200px] rounded-2xl bg-muted/35 animate-pulse",
+                  "min-h-[200px] rounded-md bg-muted/35 animate-pulse",
                   index === 0 && "lg:col-span-2 lg:row-span-2",
                   index === 7 && "lg:col-span-2"
                 )}
@@ -133,6 +137,8 @@ export function HomepageSignatureCollection() {
                 variant={index === 0 ? "featured" : "standard"}
                 isFavorite={isFavorite(listing.id)}
                 onToggleFavorite={() => toggleFavorite(listing.id)}
+                googleRating={listing.google_rating}
+                googleReviewCount={listing.google_review_count}
                 className={cn(
                   index === 0 && "lg:col-span-2 lg:row-span-2",
                   index === 7 && "lg:col-span-2",
@@ -142,16 +148,16 @@ export function HomepageSignatureCollection() {
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-border/70 bg-muted/25 p-8 text-center">
+          <div className="rounded-sm border border-border/70 bg-muted/25 p-8 text-center">
             <p className="text-lg font-medium text-foreground">{t("sections.homepage.editorsSelection.emptyTitle")}</p>
             <p className="mt-2 text-muted-foreground">{t("sections.homepage.editorsSelection.emptySubtitle")}</p>
           </div>
         )}
 
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row lg:hidden">
-          <Link href={l("/directory?tier=signature")} className="w-full sm:w-auto">
+          <Link href={l(ctaHref)} className="w-full sm:w-auto">
             <Button size="lg" variant="gold" className="w-full gap-2">
-              {t("sections.homepage.editorsSelection.ctaMobile")}
+              {cmsText(copy?.ctaLabel, t("sections.homepage.editorsSelection.ctaMobile"))}
               <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>

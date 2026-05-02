@@ -54,7 +54,7 @@ export function AlgarveGuideSection() {
           </header>
 
           <div className="mt-12 grid gap-5 md:grid-cols-3">
-            <article className="rounded-2xl border border-border/70 bg-card/40 p-6">
+            <article className="rounded-sm border border-border/70 bg-card/40 p-6">
               <h3 className="text-2xl font-serif font-medium not-italic text-foreground">
                 {text("sections.algarveGuide.stayTitle", "Where to stay")}
               </h3>
@@ -78,7 +78,7 @@ export function AlgarveGuideSection() {
               </p>
             </article>
 
-            <article className="rounded-2xl border border-border/70 bg-card/40 p-6">
+            <article className="rounded-sm border border-border/70 bg-card/40 p-6">
               <h3 className="text-2xl font-serif font-medium not-italic text-foreground">
                 {text("sections.algarveGuide.destinationsTitle", "Where to go")}
               </h3>
@@ -106,7 +106,7 @@ export function AlgarveGuideSection() {
               </p>
             </article>
 
-            <article className="rounded-2xl border border-border/70 bg-card/40 p-6">
+            <article className="rounded-sm border border-border/70 bg-card/40 p-6">
               <h3 className="text-2xl font-serif font-medium not-italic text-foreground">
                 {text("sections.algarveGuide.doTitle", "What to do")}
               </h3>

@@ -31,6 +31,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   "nav.golf": FlagTriangleRight,
   "nav.events": CalendarDays,
   "nav.live": MapPinHouse,
+  "nav.relocation": MapPinHouse,
   "nav.contact": Mail,
 };
 
@@ -72,7 +73,7 @@ export function SidebarNav({ expanded = false }: SidebarNavProps) {
             href={item.href}
             aria-label={label}
             className={clsx(
-              "group relative flex items-center rounded-2xl border transition-all duration-200",
+              "group relative flex items-center rounded-sm border transition-all duration-200",
               expanded ? "h-12 w-full justify-start gap-3 px-4" : "h-12 w-12 justify-center",
               "border-transparent text-muted-foreground hover:border-primary/25 hover:bg-primary/8 hover:text-primary",
               expanded ? "hover:translate-x-1" : "hover:-translate-y-0.5",

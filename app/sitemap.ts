@@ -41,9 +41,6 @@ function toValidDate(value: string | null | undefined, fallback: Date): Date {
 
 function withLocalePrefix(path: string, locale: string = DEFAULT_LOCALE) {
   const normalized = path === "/" ? "/" : path;
-  if (locale === DEFAULT_LOCALE) {
-    return normalized;
-  }
   if (normalized === "/") {
     return `/${locale}`;
   }
@@ -132,7 +129,7 @@ const STATIC_PATHS = [
   { path: "/partner", priority: 0.7, changefreq: "monthly" as const },
   { path: "/invest", priority: 0.7, changefreq: "monthly" as const },
   { path: "/map", priority: 0.6, changefreq: "weekly" as const },
-  { path: "/residence", priority: 0.6, changefreq: "weekly" as const },
+  { path: "/relocation", priority: 0.6, changefreq: "weekly" as const },
   { path: "/privacy-policy", priority: 0.3, changefreq: "yearly" as const },
   { path: "/terms", priority: 0.3, changefreq: "yearly" as const },
   { path: "/cookie-policy", priority: 0.3, changefreq: "yearly" as const },

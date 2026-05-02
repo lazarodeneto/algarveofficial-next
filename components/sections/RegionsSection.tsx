@@ -14,9 +14,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
 import { FavoriteButton } from "@/components/ui/favorite-button";
 import { cn } from "@/lib/utils";
+import { cmsText, isSafeHomeCtaHref, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
 
 interface RegionsSectionProps {
   imageTimestamp?: number;
+  copy?: HomeSectionCopy;
 }
 
 type RegionCardProps = {
@@ -51,7 +53,7 @@ function EditorialRegionCard({
       prefetch={false}
       href={href}
       className={cn(
-        "group relative isolate block h-full min-h-[338px] overflow-hidden rounded-2xl bg-black shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] motion-reduce:transition-none hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+        "group relative isolate block h-full min-h-[338px] overflow-hidden rounded-md bg-black shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] motion-reduce:transition-none hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
         className,
       )}
     >
@@ -62,7 +64,7 @@ function EditorialRegionCard({
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           quality={72}
-          className="object-cover transition-transform duration-500 ease-out will-change-transform motion-reduce:transition-none group-hover:scale-[1.04]"
+          className="object-cover transition-transform duration-500 ease-out motion-reduce:transition-none group-hover:scale-[1.04]"
         />
       ) : null}
       {/* Consistent overlay — lighter than Signature */}
@@ -95,16 +97,24 @@ function EditorialRegionCard({
   );
 }
 
-export function RegionsSection({ imageTimestamp = 0 }: RegionsSectionProps) {
+export function RegionsSection({ imageTimestamp = 0, copy }: RegionsSectionProps) {
   const { isDestinationSaved, toggleRegion } = useSavedDestinations();
-  const { data: regionCounts } = useRegionListingCounts();
+  const { data: regionCounts, isLoading: countsLoading } = useRegionListingCounts();
   const { data: regions, isLoading: regionsLoading } = useRegions();
   const { t } = useTranslation();
   const l = useLocalePath();
 
-  const displayRegions = (regions?.filter((region) => region.image_url || getRegionImageSet(region.slug)) ?? []).slice(0, 6);
+  const displayRegions = (
+    regions?.filter((region) =>
+      (regionCounts?.[region.id] ?? 0) > 0 &&
+      (region.image_url || getRegionImageSet(region.slug))
+    ) ?? []
+  ).slice(0, 6);
+  const ctaHref = isSafeHomeCtaHref(copy?.ctaHref) && copy?.ctaHref?.trim()
+    ? copy.ctaHref.trim()
+    : "/destinations";
 
-  if (regionsLoading) {
+  if (regionsLoading || countsLoading) {
     return (
       <section id="regions" className="bg-background py-16 sm:py-20 lg:py-24">
         <div className="app-container">
@@ -134,17 +144,17 @@ export function RegionsSection({ imageTimestamp = 0 }: RegionsSectionProps) {
         <div className="mb-9 flex flex-col gap-5 sm:mb-12 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
             <span className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              {t("sections.homepage.regions.label")}
+              {cmsText(copy?.eyebrow, t("sections.homepage.regions.label"))}
             </span>
             <h2 className="mt-3 text-title font-serif font-medium text-foreground">
-              {t("sections.homepage.regions.title")}
+              {cmsText(copy?.title, t("sections.homepage.regions.title"))}
             </h2>
             <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
-              {t("sections.homepage.regions.subtitle")}
+              {cmsText(copy?.subtitle ?? copy?.description, t("sections.homepage.regions.subtitle"))}
             </p>
           </div>
-          <NextLink prefetch={false} href={l("/destinations")} className="hidden text-sm font-semibold text-primary transition-colors hover:text-primary/80 lg:inline-flex">
-            {t("sections.homepage.regions.viewAll")} <ArrowRight className="ml-2 h-4 w-4" />
+          <NextLink prefetch={false} href={l(ctaHref)} className="hidden text-sm font-semibold text-primary transition-colors hover:text-primary/80 lg:inline-flex">
+            {cmsText(copy?.ctaLabel, t("sections.homepage.regions.viewAll"))} <ArrowRight className="ml-2 h-4 w-4" />
           </NextLink>
         </div>
 
@@ -186,12 +196,12 @@ export function RegionsSection({ imageTimestamp = 0 }: RegionsSectionProps) {
         <div className="mt-8 flex justify-center lg:hidden">
           <NextLink
             prefetch={false}
-            href={l("/destinations")}
+            href={l(ctaHref)}
             className="block w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(50%-0.625rem)] lg:w-auto"
           >
             <Button variant="gold" size="lg" className="gap-2 w-full">
               <Compass className="h-5 w-5" />
-              {t("sections.homepage.regions.viewAll")}
+              {cmsText(copy?.ctaLabel, t("sections.homepage.regions.viewAll"))}
               <ArrowRight className="h-4 w-4" />
             </Button>
           </NextLink>

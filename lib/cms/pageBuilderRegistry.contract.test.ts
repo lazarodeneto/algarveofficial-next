@@ -7,6 +7,8 @@ import {
   CMS_CONTRACT_ENFORCED_PAGE_IDS,
   CMS_CONTRACT_PLANNED_BLOCK_IDS,
   CMS_PAGE_DEFINITION_MAP,
+  getCmsPageRegistryMeta,
+  isCmsPageEditableInFullBuilder,
   isKnownCmsPageId,
   resolveCmsBlockId,
 } from "@/lib/cms/pageBuilderRegistry";
@@ -199,5 +201,25 @@ describe("CMS page/block runtime contract", () => {
     });
 
     expect(invalidAliases).toEqual([]);
+  });
+
+  it("only marks pages editable after public renderer parity is intentionally wired", () => {
+    expect(getCmsPageRegistryMeta("home").status).toBe("enabled");
+    expect(getCmsPageRegistryMeta("real-estate").status).toBe("enabled");
+    expect(getCmsPageRegistryMeta("invest").status).toBe("enabled");
+    expect(getCmsPageRegistryMeta("golf").status).toBe("enabled");
+
+    expect(getCmsPageRegistryMeta("partner").status).toBe("partial");
+    expect(getCmsPageRegistryMeta("properties").status).toBe("partial");
+    expect(getCmsPageRegistryMeta("visit").status).toBe("planned");
+    expect(getCmsPageRegistryMeta("auth-login").status).toBe("disabled");
+
+    expect(isCmsPageEditableInFullBuilder("home")).toBe(true);
+    expect(isCmsPageEditableInFullBuilder("real-estate")).toBe(true);
+    expect(isCmsPageEditableInFullBuilder("invest")).toBe(true);
+    expect(isCmsPageEditableInFullBuilder("partner")).toBe(true);
+    expect(isCmsPageEditableInFullBuilder("properties")).toBe(true);
+    expect(isCmsPageEditableInFullBuilder("visit")).toBe(false);
+    expect(isCmsPageEditableInFullBuilder("auth-login")).toBe(false);
   });
 });

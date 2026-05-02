@@ -170,7 +170,7 @@ export function CookieConsentDrawer({
     <>
       {isVisible ? (
         <div className="fixed inset-x-0 bottom-0 z-[80] p-0 sm:p-4">
-          <section className="mx-auto w-full max-w-none max-h-[76svh] overflow-y-auto rounded-none border border-zinc-200 bg-white p-3 shadow-[0_14px_48px_rgba(15,23,42,0.16)] sm:max-w-[1200px] sm:max-h-[86svh] sm:rounded-2xl sm:p-6">
+          <section className="mx-auto w-full max-w-none max-h-[76svh] overflow-y-auto rounded-none border border-zinc-200 bg-white p-3 shadow-[0_14px_48px_rgba(15,23,42,0.16)] sm:max-w-[1200px] sm:max-h-[86svh] sm:rounded-sm sm:p-6">
             <div className="grid gap-3 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
               <div className="space-y-3 sm:space-y-4">
                 <div className="flex items-start gap-3 sm:gap-4">

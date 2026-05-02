@@ -150,7 +150,7 @@ const Invest = () => {
                     <CmsBlock pageId="invest" blockId="hero" className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
                         <LiveStyleHero
                             className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
-                            badge={t("nav.invest")}
+                            badge={getText("hero.badge", t("nav.invest"))}
                             title={getText("hero.title", "Invest in Algarve")}
                             subtitle={getText(
                                 "hero.subtitle",
@@ -163,7 +163,7 @@ const Invest = () => {
                                     videoUrl={getText("hero.videoUrl", "")}
                                     youtubeUrl={getText("hero.youtubeUrl", "")}
                                     posterUrl={getText("hero.posterUrl", "")}
-                                    alt={t("invest.hero.alt")}
+                                    alt={getText("hero.alt", t("invest.hero.alt"))}
                                     fallback={<PageHeroImage page="invest" alt={t("invest.hero.alt")} />}
                                 />
                             }

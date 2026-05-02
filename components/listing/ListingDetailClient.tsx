@@ -309,6 +309,47 @@ function buildWhatsAppUrl(rawValue: string | null | undefined, message: string):
   return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
 }
 
+function toFiniteNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string") {
+    const parsed = Number(value.trim());
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+function formatListingPrice({
+  locale,
+  priceFrom,
+  priceTo,
+  currency,
+  unit,
+}: {
+  locale: string;
+  priceFrom: number;
+  priceTo?: number | null;
+  currency?: string | null;
+  unit?: string | null;
+}) {
+  const formatter = new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: currency || "EUR",
+    maximumFractionDigits: 0,
+  });
+  const formattedFrom = formatter.format(priceFrom);
+  const formattedTo = priceTo ? formatter.format(priceTo) : null;
+  const formatted = formattedTo ? `${formattedFrom} – ${formattedTo}` : formattedFrom;
+
+  switch (unit) {
+    case "per_month":
+      return `${formatted}/month`;
+    case "per_week":
+      return `${formatted}/week`;
+    default:
+      return formatted;
+  }
+}
+
 async function fetchListingByIdOrSlug(idOrSlug: string) {
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
 
@@ -622,12 +663,11 @@ function ListingDetailClientInner({
   const directContactUrl = directWhatsAppUrl ?? directTelegramUrl;
   const hasWhatsAppDirectContact = Boolean(directWhatsAppUrl);
   const directContactLabel = directWhatsAppUrl ? t("listing.messageWhatsApp") : t("listing.social.telegram");
-  const ctaUrl = tierRules.allowCtaButton
-    ? (
-      normalizeExternalUrl(listing.website_url)
-      ?? normalizeExternalUrl(details.booking_url as string | undefined)
-    )
-    : null;
+  const bookingUrl = normalizeExternalUrl(details.booking_url as string | undefined);
+  const websiteUrl = normalizeExternalUrl(listing.website_url);
+  const ctaUrl = tierRules.allowCtaButton ? (bookingUrl ?? websiteUrl) : null;
+  const ctaLabel = bookingUrl ? t("listing.bookNow") : t("listing.visitWebsite");
+  const ctaAriaLabel = bookingUrl ? t("listing.bookNow") : t("listing.visitWebsite");
   const isSignatureOrVerifiedTier = listing.tier === "signature" || listing.tier === "verified";
   const shouldShowMobileConciergeAction = !isSignatureOrVerifiedTier;
   const shouldShowMobileWhatsAppAction = isSignatureOrVerifiedTier && Boolean(directWhatsAppUrl);
@@ -706,6 +746,25 @@ function ListingDetailClientInner({
   const hasPropertySignals = hasRealEstateSignals(details);
   const isRealEstateListing =
     isRealEstateCategorySlug(listing.category?.slug) || (listing.category?.slug === "algarve-services" && hasPropertySignals);
+  const listingPriceFrom = toFiniteNumber(listing.price_from) ?? toFiniteNumber(details.price) ?? toFiniteNumber(details.price_eur);
+  const listingPriceTo = toFiniteNumber(listing.price_to);
+  const listingPriceCurrency =
+    listing.price_currency ||
+    (typeof details.currency === "string" ? details.currency : null) ||
+    "EUR";
+  const listingPriceUnit = typeof details.price_unit === "string" ? details.price_unit : null;
+  const realEstatePriceLabel = listingPriceUnit === "per_month" || listingPriceUnit === "per_week"
+    ? t("categoryLayouts.realEstate.rentalPrice")
+    : t("categoryLayouts.realEstate.askingPrice");
+  const realEstatePrice = isRealEstateListing && listingPriceFrom
+    ? formatListingPrice({
+        locale: routeLocale,
+        priceFrom: listingPriceFrom,
+        priceTo: listingPriceTo,
+        currency: listingPriceCurrency,
+        unit: listingPriceUnit,
+      })
+    : null;
 
   const handleScheduleViewingClick = () => {
     if (!isRealEstateListing) {
@@ -759,7 +818,7 @@ function ListingDetailClientInner({
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <Header localeSwitchPaths={localeSwitchPaths} />
-        <main className="flex-1 flex items-center justify-center">
+        <main id="main-content" className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
         <Footer />
@@ -771,7 +830,7 @@ function ListingDetailClientInner({
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <Header localeSwitchPaths={localeSwitchPaths} />
-        <main className="flex-1 flex items-center justify-center">
+        <main id="main-content" className="flex-1 flex items-center justify-center">
           <RouteMessageState
             title={t("listing.notFound")}
             description={t("listing.notFoundMessage")}
@@ -868,7 +927,7 @@ function ListingDetailClientInner({
     <div className="min-h-screen bg-background flex flex-col">
       <Header localeSwitchPaths={localeSwitchPaths} />
 
-      <main className="flex-1 pt-[10px] pb-44 sm:pb-48 lg:pb-0">
+      <main id="main-content" className="flex-1 pt-[10px] pb-44 sm:pb-48 lg:pb-0">
         <nav className="bg-card border-b border-border" aria-label={t("guides.breadcrumbLabel")}>
           <div className="container mx-auto max-w-7xl px-4 py-3">
             <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
@@ -1127,6 +1186,17 @@ function ListingDetailClientInner({
                       ) : null}
                     </div>
                   ) : null}
+
+                  {realEstatePrice ? (
+                    <div className="mt-5 inline-flex min-w-[220px] flex-col rounded-sm border border-[hsl(43_74%_49%/0.28)] bg-[hsl(43_74%_49%/0.08)] px-5 py-4 shadow-sm">
+                      <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[hsl(43_74%_36%)]">
+                        {realEstatePriceLabel}
+                      </span>
+                      <span className="mt-1 font-serif text-2xl font-medium leading-none text-foreground sm:text-3xl">
+                        {realEstatePrice}
+                      </span>
+                    </div>
+                  ) : null}
                 </div>
 
                 <Separator />
@@ -1175,12 +1245,34 @@ function ListingDetailClientInner({
                   <Separator className="my-6" />
 
                   <h4 className="text-body-sm font-medium text-muted-foreground mb-4">{t("listing.contact")}</h4>
+                  {(listing.tier === "signature" || listing.tier === "verified") ? (
+                    <div className="mb-4 rounded-sm border border-border/70 bg-muted/30 p-3">
+                      <p className="text-sm font-medium text-foreground">
+                        {listing.tier === "signature"
+                          ? t("listing.trust.signatureTitle")
+                          : t("listing.trust.verifiedTitle")}
+                      </p>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        {listing.tier === "signature"
+                          ? t("listing.trust.signatureDescription")
+                          : t("listing.trust.verifiedDescription")}
+                      </p>
+                    </div>
+                  ) : null}
                   {(tierRules.allowDirectContactButton || tierRules.allowCtaButton) ? (
                     <div className="space-y-2 mb-4">
+                      {ctaUrl ? (
+                        <Button variant="gold" asChild className="w-full">
+                          <a href={ctaUrl} target="_blank" rel="noopener noreferrer" aria-label={ctaAriaLabel}>
+                            <Globe className="h-4 w-4 mr-2" />
+                            {ctaLabel}
+                          </a>
+                        </Button>
+                      ) : null}
                       {directContactUrl ? (
                         <Button
                           asChild
-                          variant={hasWhatsAppDirectContact ? "outline" : "default"}
+                          variant={hasWhatsAppDirectContact ? "outline" : ctaUrl ? "outline" : "default"}
                           className={hasWhatsAppDirectContact ? WHATSAPP_CTA_CLASSNAME : "w-full"}
                         >
                           <a href={directContactUrl} target="_blank" rel="noopener noreferrer">
@@ -1193,11 +1285,10 @@ function ListingDetailClientInner({
                           </a>
                         </Button>
                       ) : null}
-                      {ctaUrl ? (
+                      {listing.contact_phone ? (
                         <Button variant="outline" asChild className="w-full">
-                          <a href={ctaUrl} target="_blank" rel="noopener noreferrer">
-                            <Globe className="h-4 w-4 mr-2" />
-                            {t("listing.visitWebsite")}
+                          <a href={`tel:${listing.contact_phone}`}>
+                            {t("listing.call")}
                           </a>
                         </Button>
                       ) : null}
@@ -1496,7 +1587,7 @@ function ListingDetailClientInner({
 
               {shouldShowMobileWebsiteAction ? (
                 <Button variant="outline" size="icon" asChild className="h-11 w-11 shrink-0 rounded-xl p-0 sm:h-12 sm:w-12">
-                  <a href={ctaUrl ?? undefined} target="_blank" rel="noopener noreferrer" aria-label={t("listing.visitWebsite")}>
+                  <a href={ctaUrl ?? undefined} target="_blank" rel="noopener noreferrer" aria-label={ctaAriaLabel}>
                     <Globe className="h-6 w-6" />
                   </a>
                 </Button>

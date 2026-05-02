@@ -4,6 +4,11 @@ interface ScorecardTableProps {
   title: string;
   holes: GolfRoundHole[];
   scores: Record<number, number>;
+  labels?: {
+    hole?: string;
+    par?: string;
+    score?: string;
+  };
 }
 
 function scoreTone(score: number | null, par: number) {
@@ -14,11 +19,11 @@ function scoreTone(score: number | null, par: number) {
   return "text-foreground";
 }
 
-export default function ScorecardTable({ title, holes, scores }: ScorecardTableProps) {
+export default function ScorecardTable({ title, holes, scores, labels }: ScorecardTableProps) {
   const parTotal = holes.reduce((sum, hole) => sum + hole.par, 0);
 
   return (
-    <section className="rounded-3xl border border-border/60 bg-white/95 p-5 shadow-[0_10px_30px_rgba(15,23,42,0.06)]">
+    <section className="rounded-sm border border-border/60 bg-white/95 p-5 shadow-[0_10px_30px_rgba(15,23,42,0.06)]">
       <header className="mb-4 flex items-center justify-between">
         <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           {title}
@@ -29,7 +34,7 @@ export default function ScorecardTable({ title, holes, scores }: ScorecardTableP
       <div className="space-y-2 overflow-x-auto">
         <div className="grid min-w-[620px] grid-cols-[68px_repeat(9,minmax(0,1fr))] items-center gap-x-1 text-center">
           <span className="text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-            Hole
+            {labels?.hole ?? "Hole"}
           </span>
           {holes.map((hole) => (
             <span key={`hole-${hole.holeNumber}`} className="text-xs font-semibold text-muted-foreground">
@@ -40,7 +45,7 @@ export default function ScorecardTable({ title, holes, scores }: ScorecardTableP
 
         <div className="grid min-w-[620px] grid-cols-[68px_repeat(9,minmax(0,1fr))] items-center gap-x-1 text-center">
           <span className="text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-            Par
+            {labels?.par ?? "Par"}
           </span>
           {holes.map((hole) => (
             <span key={`par-${hole.holeNumber}`} className="font-semibold text-foreground/90">
@@ -51,7 +56,7 @@ export default function ScorecardTable({ title, holes, scores }: ScorecardTableP
 
         <div className="grid min-w-[620px] grid-cols-[68px_repeat(9,minmax(0,1fr))] items-center gap-x-1 text-center">
           <span className="text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-            Score
+            {labels?.score ?? "Score"}
           </span>
           {holes.map((hole) => {
             const score = scores[hole.holeNumber];

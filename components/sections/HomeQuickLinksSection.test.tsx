@@ -166,14 +166,17 @@ describe("HomeQuickLinksSection", () => {
 
     const wrappedTitle = screen.getByRole("heading", { name: "Real Estate" });
 
-    expect(wrappedTitle.className).toContain("break-words");
-    expect(wrappedTitle.className).toContain("lg:text-[1.15rem]");
+    expect(wrappedTitle.className).toContain("text-balance");
+    expect(wrappedTitle.className).toContain("font-fira");
+    expect(wrappedTitle.className).toContain("font-black");
+    expect(wrappedTitle.className).toContain("[overflow-wrap:normal]");
+    expect(wrappedTitle.className).toContain("lg:text-[1.13rem]");
   });
 
   it("stacks the cards vertically on mobile widths", () => {
     const { container } = render(<HomeQuickLinksSection />);
 
-    const layout = container.querySelector("#home-quick-links .app-container > div");
+    const layout = container.querySelector("#home-quick-links .app-container > div:last-of-type");
     const firstCard = screen.getAllByRole("link")[0];
 
     expect(layout?.className).toContain("grid");

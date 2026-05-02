@@ -31,25 +31,17 @@ function getRouteFocusTarget(main: HTMLElement): HTMLElement {
 }
 
 function ensureFocusable(target: HTMLElement) {
-  if (target.matches("a,button,input,select,textarea,summary,[tabindex]")) return;
-  target.setAttribute("tabindex", "-1");
+  if (target.matches("a,button,input,select,textarea,summary,[role='button'],[role='link']")) return;
+  if (!target.hasAttribute("tabindex")) {
+    target.setAttribute("tabindex", "-1");
+  }
+  if (target.getAttribute("tabindex") === "-1") {
+    target.setAttribute("data-route-focus-managed", "true");
+  }
 }
 
 function ensureMainTarget(): HTMLElement | null {
-  const main = getVisibleMain();
-  if (!main) return null;
-
-  document.querySelectorAll<HTMLElement>(`#${MAIN_CONTENT_ID}`).forEach((element) => {
-    if (element !== main) {
-      element.removeAttribute("id");
-    }
-  });
-
-  if (main.id !== MAIN_CONTENT_ID) {
-    main.id = MAIN_CONTENT_ID;
-  }
-
-  return main;
+  return document.getElementById(MAIN_CONTENT_ID) ?? getVisibleMain();
 }
 
 function focusRouteContent(preventScroll: boolean) {

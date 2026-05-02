@@ -2,6 +2,7 @@ const NEXT_IMAGE_ALLOWED_HOSTS = [
   "algarveofficial.com",
   "www.algarveofficial.com",
   "images.unsplash.com",
+  "static.wixstatic.com",
   "i.ytimg.com",
   "img.youtube.com",
 ] as const;
@@ -33,6 +34,7 @@ export function canUseNextImage(src?: string | null): boolean {
 
     return (
       matchesWildcardHostname(hostname, "supabase.co") ||
+      matchesWildcardHostname(hostname, "wixstatic.com") ||
       matchesWildcardHostname(hostname, "googleapis.com") ||
       matchesWildcardHostname(hostname, "google.com") ||
       matchesWildcardHostname(hostname, "ggpht.com")

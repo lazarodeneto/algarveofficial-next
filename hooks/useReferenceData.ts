@@ -216,6 +216,37 @@ export function useCityListingCounts() {
 }
 
 /**
+ * Fetch published listing counts grouped by category.
+ * Used to hide empty category navigation/filter surfaces.
+ */
+export function useCategoryListingCounts() {
+  return useQuery({
+    queryKey: ['category-listing-counts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('listings')
+        .select('category_id', { count: 'exact', head: false })
+        .eq('status', 'published')
+        .not('category_id', 'is', null);
+
+      if (error) {
+        console.warn('Error fetching category counts:', error);
+        return {};
+      }
+
+      const counts: Record<string, number> = {};
+      for (const row of data ?? []) {
+        if (row.category_id) {
+          counts[row.category_id] = (counts[row.category_id] || 0) + 1;
+        }
+      }
+      return counts;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+/**
  * Fetch all active categories
  */
 export function useCategories() {

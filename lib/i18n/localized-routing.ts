@@ -82,7 +82,7 @@ export const ROUTE_FAMILY_DEFINITIONS: Record<string, RouteFamilyDefinition> = {
       "privacy-policy",
       "properties",
       "real-estate",
-      "residence",
+      "relocation",
       "stay",
       "terms",
       "trips",

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { DEFAULT_LOCALE, isValidLocale, type Locale } from "@/lib/i18n/config";
+import { getServerTranslations } from "@/lib/i18n/server";
 import { getLeaderboard } from "@/lib/golf";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
 import { LeaderboardTable } from "@/components/golf/LeaderboardTable";
@@ -24,25 +25,51 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
-export default async function GolfLeaderboardPage() {
-  const entries = await getLeaderboard();
+export default async function GolfLeaderboardPage({ params }: PageProps) {
+  const { locale: rawLocale } = await params;
+  const locale: Locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+  const [entries, translations] = await Promise.all([
+    getLeaderboard(),
+    getServerTranslations(locale, [
+      "golf.leaderboardPage.title",
+      "golf.leaderboardPage.description",
+      "golf.leaderboardPage.topPlayers",
+      "golf.leaderboardPage.scoreDescription",
+      "golfCourse.rank",
+      "golfCourse.player",
+      "golfCourse.score",
+      "golfCourse.rounds",
+    ]),
+  ]);
 
   return (
     <main className={`app-container space-y-6 pb-10 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
       <section className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Leaderboard</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          {translations["golf.leaderboardPage.title"] ?? "Leaderboard"}
+        </h1>
         <p className="text-sm text-muted-foreground md:text-base">
-          Current player standings and score differentials.
+          {translations["golf.leaderboardPage.description"] ?? "Current player standings and score differentials."}
         </p>
       </section>
 
       <Card className="min-h-[300px]">
         <CardHeader>
-          <CardTitle>Top Players</CardTitle>
-          <CardDescription>Scores are shown relative to par.</CardDescription>
+          <CardTitle>{translations["golf.leaderboardPage.topPlayers"] ?? "Top Players"}</CardTitle>
+          <CardDescription>
+            {translations["golf.leaderboardPage.scoreDescription"] ?? "Scores are shown relative to par."}
+          </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <LeaderboardTable entries={entries} />
+          <LeaderboardTable
+            entries={entries}
+            labels={{
+              rank: translations["golfCourse.rank"],
+              player: translations["golfCourse.player"],
+              score: translations["golfCourse.score"],
+              rounds: translations["golfCourse.rounds"],
+            }}
+          />
         </CardContent>
       </Card>
     </main>

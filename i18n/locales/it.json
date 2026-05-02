@@ -453,6 +453,30 @@
       "validLabel": "Valido",
       "verifiedDescription": "Livello a pagamento standard con badge di verifica",
       "verifiedTier": "Livello Verificato"
+    },
+    "golfTeeTimeRequests": {
+      "title": "Richieste tee time golf",
+      "subtitle": "Controlla i lead tee time inviati dalle pagine dei campi da golf.",
+      "refresh": "Aggiorna",
+      "dateReceived": "Data ricevuta",
+      "course": "Campo",
+      "name": "Nome",
+      "email": "Email",
+      "phone": "Telefono",
+      "preferredDateTime": "Data/ora preferita",
+      "players": "Giocatori",
+      "status": "Stato",
+      "empty": "Nessuna richiesta tee time ancora.",
+      "loading": "Caricamento richieste tee time...",
+      "updateSuccess": "Stato richiesta aggiornato.",
+      "updateError": "Impossibile aggiornare lo stato della richiesta.",
+      "unknownCourse": "Campo sconosciuto",
+      "statuses": {
+        "new": "Nuova",
+        "contacted": "Contattata",
+        "sent_to_course": "Inviata al campo",
+        "closed": "Chiusa"
+      }
     }
   },
   "auth": {
@@ -568,7 +592,12 @@
     "shareLinkedIn": "Condividi su LinkedIn",
     "shareTwitter": "Condividi su X",
     "subtitle": "Scopri lo stile di vita dell'Algarve, guide di viaggio e consigli da insider",
-    "title": "Blog e Approfondimenti"
+    "title": "Blog e Approfondimenti",
+    "readMore": "Leggi di più",
+    "copyFailed": "Autorizzazione agli appunti negata",
+    "notFoundTitle": "Articolo non trovato",
+    "notFoundDescription": "Questo articolo potrebbe essere stato rimosso o non essere disponibile.",
+    "views": "visualizzazioni"
   },
   "categories": {
     "algarveServices": "Servizi dell'Algarve",
@@ -1402,7 +1431,7 @@
     "hero": {
       "alt": "Visualizzazione della costa della directory Algarve Premium",
       "ctaPrimary": "Pianifica con il concierge",
-      "ctaSecondary": "Esplora la residenza a Algarve"
+      "ctaSecondary": "Esplora il trasferimento in Algarve"
     },
     "heroLabel": "Scopri il Nostro Mondo",
     "listings": "annunci",
@@ -1636,7 +1665,65 @@
   "golf": {
     "iframeTitle": "AlgarveOfficial Golf",
     "loadingDescription": "Preparazione del tuo round…",
-    "loadingTitle": "Caricamento Golf"
+    "loadingTitle": "Caricamento Golf",
+    "hero": {
+      "badge": "Golf selezionato",
+      "title": "Gioca su campi championship in Algarve",
+      "subtitle": "Scopri listing golf d’élite, confronta le caratteristiche dei campi e pianifica il tuo prossimo round sulla costa più prestigiosa del Portogallo.",
+      "alt": "Fairway da golf in Algarve",
+      "ctaCourses": "Vedi campi",
+      "ctaLeaderboard": "Vedi classifica"
+    },
+    "featuredCourses": {
+      "title": "Campi in evidenza",
+      "cta": "Vedi tutti",
+      "emptyTitle": "Nessun listing golf disponibile",
+      "emptyDescription": "I listing golf appariranno qui non appena saranno pubblicati."
+    },
+    "courseTools": {
+      "bookingTitle": "Prenota tee time",
+      "bookingSubtitle": "La prenotazione integrata sarà disponibile nella prossima fase.",
+      "bookingBody": "Stiamo collegando partner di prenotazione e disponibilità degli slot.",
+      "scorecardsTitle": "Scorecard e handicap",
+      "scorecardsSubtitle": "Il tracciamento strutturato dei round arriverà nella fase 2.",
+      "scorecardsBody": "Presto potrai salvare round, confrontare punteggi e monitorare l’handicap."
+    },
+    "leaderboard": {
+      "title": "Classifica",
+      "cta": "Apri pagina"
+    },
+    "cta": {
+      "title": "Pronto a pianificare il prossimo round?",
+      "subtitle": "Confronta i campi, salva i preferiti e inizia a tracciare i round.",
+      "primary": "Vedi campi",
+      "secondary": "Vedi classifica"
+    },
+    "courseDirectory": {
+      "title": "Directory dei campi da golf",
+      "description": "Esplora golf club tramite le schede AlgarveOfficial.",
+      "emptyTitle": "Nessuna scheda golf disponibile",
+      "emptyDescription": "Nessuna scheda golf pubblicata corrisponde ai filtri attuali."
+    },
+    "leaderboardPage": {
+      "title": "Classifica",
+      "description": "Classifica attuale dei giocatori e differenze rispetto al par.",
+      "topPlayers": "Migliori giocatori",
+      "scoreDescription": "I punteggi sono mostrati rispetto al par."
+    },
+    "round": {
+      "unavailableTitle": "Giro non disponibile",
+      "unavailableDescription": "Questo campo non ha ancora una configurazione completa delle buche. Per ora prova un altro campo da golf."
+    },
+    "scorecard": {
+      "back": "Indietro",
+      "title": "Scorecard",
+      "roundFinished": "Giro terminato",
+      "finishRound": "Termina giro",
+      "frontNine": "Prime nove",
+      "backNine": "Seconde nove",
+      "diff": "Differenza",
+      "total": "Totale"
+    }
   },
   "guides": {
     "breadcrumbLabel": "Breadcrumb",
@@ -1860,16 +1947,16 @@
     "relatedPolicies": "Politiche correlate"
   },
   "listing": {
-    "about": "Informazioni",
-    "backToHome": "Torna alla Home",
-    "backToListings": "Torna a Tutti gli Annunci",
+    "about": "About",
+    "backToHome": "Back to home",
+    "backToListings": "Back to listings",
     "bathrooms": "Bagni",
     "bedrooms": "Camere da letto",
     "bookVisit": "Prenota una visita",
     "builtArea": "Superficie abitativa",
     "certifiedListing": "Annuncio certificato",
-    "claimThisListing": "Richiedi questo annuncio",
-    "contact": "Contatto",
+    "claimThisListing": "Claim this listing",
+    "contact": "Contact",
     "contactForLocation": "Contatta per i dettagli sulla posizione",
     "experience": "Esperienza",
     "exterior": "Esterno",
@@ -1932,19 +2019,19 @@
       "yourName": "Il tuo nome"
     },
     "interested": "Interessato?",
-    "isYourBusiness": "È questa la tua attività?",
+    "isYourBusiness": "Is this your business?",
     "livingArea": "Superficie abitabile",
     "location": "Posizione",
     "locationHidden": "Posizione disponibile su richiesta",
-    "locationUnavailable": "Posizione non disponibile per questa scheda.",
-    "messageWhatsApp": "Messaggio su WhatsApp",
-    "notFound": "Annuncio Non Trovato",
-    "notFoundMessage": "Questo annuncio potrebbe essere stato rimosso o non è disponibile.",
+    "locationUnavailable": "Location unavailable",
+    "messageWhatsApp": "Message on WhatsApp",
+    "notFound": "Listing not found",
+    "notFoundMessage": "This listing is unavailable or has not been published yet.",
     "plotSize": "Superficie del terreno",
     "price": "Prezzo",
     "priceOnRequest": "Prezzo su richiesta",
-    "relatedDestinations": "Esplora più destinazioni",
-    "relatedListings": "Maggiori informazioni su {{category}}",
+    "relatedDestinations": "Related destinations",
+    "relatedListings": "More {{category}} to explore",
     "reviews": {
       "content": "La tua recensione",
       "contentPlaceholder": "Condividi la tua esperienza con questo annuncio...",
@@ -1960,28 +2047,37 @@
       "write": "Scrivi una recensione"
     },
     "save": "Salva",
-    "saveToFavorites": "Salva nei preferiti",
+    "saveToFavorites": "Save to favorites",
     "scheduleViewing": "Programma una visita",
     "sendInquiry": "Invia Richiesta",
     "sendMessage": "Invia Messaggio",
-    "share": "Condividi",
+    "share": "Share",
     "similarListings": "Annunci simili",
-    "tags": "Tag",
+    "tags": "Tags",
     "verifiedDocuments": "Documenti verificati",
     "verifiedPartner": "Partner verificato",
-    "viewGallery": "Vedi Galleria",
+    "viewGallery": "View gallery",
     "viewOnMap": "Vedi sulla mappa",
-    "visitWebsite": "Visita il Sito",
-    "relatedDestinationsDescription": "Discover other prestigious regions across the Algarve",
+    "visitWebsite": "Visit website",
+    "relatedDestinationsDescription": "Explore nearby Algarve destinations with curated places and services.",
     "social": {
       "instagram": "Instagram",
       "facebook": "Facebook",
       "googleBusiness": "Google Business",
-      "telegram": "Telegram"
+      "telegram": "Telegram",
+      "whatsapp": "WhatsApp"
     },
     "badge": {
-      "verified": "Verificato",
+      "verified": "Verified",
       "signature": "Signature"
+    },
+    "bookNow": "Prenota ora",
+    "call": "Chiama",
+    "trust": {
+      "verifiedTitle": "Verificato da AlgarveOfficial",
+      "verifiedDescription": "A trust signal for active and legitimate local businesses.",
+      "signatureTitle": "Signature Selection",
+      "signatureDescription": "Premium editorial-style visibility for standout Algarve businesses."
     }
   },
   "live": {
@@ -2011,8 +2107,8 @@
       "badge": "Guida al Trasferimento",
       "ctaPrimary": "Pianifica il Mio Trasferimento",
       "ctaSecondary": "Sfoglia Esperti Locali",
-      "subtitle": "Guida strutturata per residenza, alloggio e vita quotidiana per un trasferimento fluido, conforme e pronto per il futuro.",
-      "title": "Vivi in Algarve, con chiarezza dal primo giorno"
+      "subtitle": "Guide pratiche, servizi affidabili e risorse locali selezionate per trasferirsi in Algarve con sicurezza.",
+      "title": "Trasferirsi in Algarve"
     },
     "pillars": {
       "cost": {
@@ -2129,7 +2225,9 @@
       "concierge": "Servizio di Trasferimento Unificato",
       "municipalities": "Municipi da Esplorare",
       "sun": "Giorni di Sole / Anno"
-    }
+    },
+    "seoTitle": "Trasferirsi in Algarve | Traslocare, vivere e stabilirsi in Portogallo",
+    "seoDescription": "Guide pratiche, servizi affidabili e risorse locali selezionate per trasferirsi in Algarve con sicurezza."
   },
   "map": {
     "description": "Esplora gli annunci dell'Algarve su una mappa interattiva con marcatori raggruppati e filtri istantanei.",
@@ -2156,9 +2254,9 @@
         "title": "Investire in Algarve"
       },
       "live": {
-        "desc": "Tutto ciò di cui hai bisogno per fare dell'Algarve la tua residenza permanente.",
+        "desc": "Guide pratiche, servizi affidabili e risorse locali selezionate per trasferirsi in Algarve con sicurezza.",
         "label": "Scopri di più",
-        "title": "Vivere in Algarve"
+        "title": "Trasferirsi in Algarve"
       },
       "properties": {
         "desc": "Immobiliari premium e opportunità di investimento.",
@@ -2174,13 +2272,19 @@
         "desc": "Esperienze di livello mondiale lungo la costa più bella d'Europa.",
         "label": "Scopri tutto",
         "title": "Visita l'Algarve"
+      },
+      "relocation": {
+        "desc": "Guide pratiche, servizi affidabili e risorse locali selezionate per trasferirsi in Algarve con sicurezza.",
+        "label": "Scopri di più",
+        "title": "Trasferirsi in Algarve"
       }
     },
     "invest": "Investire",
-    "live": "Vivere",
+    "live": "Trasferimento",
     "properties": "Proprietà",
     "stay": "Soggiornare",
-    "visit": "Visitare"
+    "visit": "Visitare",
+    "relocation": "Trasferimento"
   },
   "nav": {
     "about": "Chi Siamo",
@@ -2200,7 +2304,7 @@
     "golf": "Golf",
     "home": "Inizio",
     "invest": "Investire",
-    "live": "Vivere",
+    "live": "Trasferimento",
     "login": "Accedi / Registrati",
     "map": "Mappa",
     "messages": "Messaggi",
@@ -2218,7 +2322,8 @@
     "stay": "Soggiornare",
     "terms": "Termini di Servizio",
     "visit": "Visitare",
-    "yourSpace": "Il Tuo Spazio"
+    "yourSpace": "Il Tuo Spazio",
+    "relocation": "Trasferimento"
   },
   "newsletter": {
     "alreadySubscribed": "Sei già iscritto alla nostra newsletter!",
@@ -2486,8 +2591,8 @@
     },
     "faq": {
       "a1": "Invia la tua candidatura tramite il modulo sopra. Il nostro team esaminerà la tua attività e ti contatterà entro 2-3 giorni lavorativi.",
-      "a2": "Offriamo tre livelli: Non Verificato (annuncio base gratuito), Verificato (maggiore visibilità con badge di fiducia) e Signature (posizionamento premium con idoneità per la Selezione Signature).",
-      "a3": "La revisione iniziale richiede normalmente 2-3 giorni lavorativi. Una volta approvato, il tuo annuncio va online immediatamente.",
+      "a2": "We offer Free, Verified, and Signature levels. Verified adds credibility and a stronger profile. Signature adds premium editorial-style visibility and eligibility for curated placements where relevant.",
+      "a3": "Most reviews are completed within 2-3 business days. Visibility depends on listing quality, tier, relevance, and available placement inventory.",
       "a4": "Gli annunci base sono gratuiti. I livelli Verificato e Signature hanno tariffe mensili con vantaggi aggiuntivi. Contattaci per i prezzi attuali.",
       "q1": "Come posso far inserire la mia attività?",
       "q2": "Quali sono i diversi livelli di annuncio?",
@@ -2510,26 +2615,126 @@
       "submit": "Invia Richiesta",
       "submitting": "Invio in corso...",
       "title": "Inizia",
-      "validationError": "Compila tutti i campi obbligatori."
+      "validationError": "Compila tutti i campi obbligatori.",
+      "responseTime": "Share your details and our team will reply within 2-3 business days.",
+      "messagePlaceholder": "Tell us about your business, location, audience, and the kind of visibility you are interested in."
     },
     "newListing": {
       "cta": "Candidati Ora",
       "description": "Registra la tua attività per essere presente nella nostra collezione selezionata di esperienze di lusso.",
       "title": "Richiedi Nuovo Annuncio"
     },
-    "subtitle": "Unisciti alla principale directory di lusso dell'Algarve e connettiti con viaggiatori esigenti in cerca di esperienze premium.",
+    "subtitle": "Raggiungi visitatori, residenti e pubblici ad alta intenzione con visibilità curata e scoperta locale affidabile.",
     "success": "Grazie! La tua richiesta è stata inviata. Ti contatteremo entro 2-3 giorni lavorativi.",
-    "title": "Diventa Partner",
+    "title": "Diventa partner di AlgarveOfficial",
     "hero": {
       "badge": "Partner Programme",
-      "trustLine": "✓ No long-term contract · ✓ 2–3 day review · ✓ Go live immediately",
-      "applyForPartnership": "Apply for Partnership",
-      "viewPricing": "View Pricing"
+      "trustLine": "No long-term contract · Quality review · Curated visibility",
+      "applyForPartnership": "Richiedi informazioni partner",
+      "viewPricing": "Vedi opzioni di inserzione"
     },
     "finalCta": {
-      "applyFree": "Apply (Free)",
-      "buySubscription": "Buy Subscription",
-      "trustLine": "✓ No long-term contract · ✓ Cancel anytime · ✓ 2–3 day review"
+      "applyFree": "Claim or upgrade your listing",
+      "buySubscription": "View listing options",
+      "trustLine": "Nessun contratto lungo · Cancella quando vuoi · Revisione in 2-3 giorni"
+    },
+    "forWhom": {
+      "title": "Built for premium Algarve businesses",
+      "subtitle": "AlgarveOfficial is not a mass directory. We curate established operators so visitors, residents, golfers, relocation users, and property buyers can discover trusted local names.",
+      "categories": {
+        "hotels": "Hotels & Accommodation",
+        "restaurants": "Restaurants & Gastronomy",
+        "experiences": "Experiences & Activities",
+        "golf": "Golf & Leisure",
+        "realEstate": "Real Estate & Services"
+      }
+    },
+    "audience": {
+      "badge": "Pubblico",
+      "title": "Raggiungi i pubblici giusti in Algarve",
+      "subtitle": "Partner visibility is designed for people already researching where to stay, dine, play, move, invest, and spend time in the Algarve.",
+      "items": {
+        "visitors": {
+          "title": "Visitors planning trips",
+          "description": "Travelers comparing trusted places before they arrive."
+        },
+        "residents": {
+          "title": "Residents and relocation users",
+          "description": "People building local routines and choosing reliable services."
+        },
+        "golf": {
+          "title": "Golf travellers",
+          "description": "Players looking for courses, resorts, and premium leisure options."
+        },
+        "property": {
+          "title": "Property buyers and investors",
+          "description": "High-intent audiences exploring areas, services, and lifestyle fit."
+        },
+        "lifestyle": {
+          "title": "Premium lifestyle consumers",
+          "description": "Discerning users looking for quality, credibility, and local confidence."
+        }
+      }
+    },
+    "placement": {
+      "badge": "Placement",
+      "title": "Visibilità curata, non pubblicità affollata",
+      "subtitle": "Paid tiers improve trust and eligibility for stronger placement, while editorial areas remain curated and limited.",
+      "items": {
+        "curated": {
+          "title": "Homepage visibility is limited",
+          "description": "Featured areas are curated so premium placements keep their value and do not feel crowded."
+        },
+        "relevance": {
+          "title": "City and category placement depends on fit",
+          "description": "Visibility is guided by relevance, tier, content quality, and available inventory."
+        },
+        "standards": {
+          "title": "Quality standards remain in place",
+          "description": "Premium placement is subject to review of imagery, description, location, category, and contact quality."
+        }
+      }
+    },
+    "trust": {
+      "title": "Standard di fiducia proteggono la piattaforma",
+      "subtitle": "AlgarveOfficial sells visibility, credibility, and qualified discovery. We do not sell guaranteed bookings, traffic, or revenue.",
+      "points": {
+        "review": "Listings may be reviewed before premium placement is approved.",
+        "quality": "Poor-quality, irrelevant, or incomplete businesses may be declined for premium visibility.",
+        "noGuarantees": "Paid placement remains subject to relevance, quality, and availability."
+      }
+    },
+    "hubLinks": {
+      "title": "Where partners can be discovered",
+      "subtitle": "Visibility connects into the public hubs people already use to explore the Algarve.",
+      "links": {
+        "golf": "Golf audience",
+        "properties": "Property and investor audience",
+        "relocation": "Relocation audience",
+        "map": "Map discovery"
+      }
+    },
+    "features": {
+      "directoryListing": "Inserzione nella directory",
+      "mapVisibility": "Visibilità sulla mappa",
+      "basicProfile": "Profilo aziendale base",
+      "verifiedTrustBadge": "Badge di fiducia Verified",
+      "enhancedProfile": "Profilo aziendale avanzato",
+      "gallery10": "Galleria foto (fino a 10 immagini)",
+      "gallery20": "Galleria foto (fino a 20 immagini)",
+      "socialLinks": "Link social media",
+      "socialMentions": "Menzioni sui social media",
+      "videoInterview": "Intervista video (fino a 3 min)",
+      "videoCommercial": "Video commerciale (fino a 1 min)",
+      "directContact": "Contatto diretto dai viaggiatori",
+      "mapPriority": "Priorità sulla mappa",
+      "ctaButton": "Pulsante CTA",
+      "signatureEligibility": "Idoneità Signature Selection",
+      "whatsapp": "Integrazione WhatsApp",
+      "priorityVisibility": "Visibilità prioritaria",
+      "homepagePlacement": "Posizionamento in homepage",
+      "homepageAddOn": "Posizionamento in homepage come add-on",
+      "everythingVerified": "Tutto ciò che è incluso in Verified"
     }
   },
   "pricing": {
@@ -2565,7 +2770,7 @@
         "q": "Posso cambiare piano in seguito?"
       },
       "timing": {
-        "a": "La maggior parte dei partner registra un aumento della visibilità entro 48 ore dall'attivazione. Le richieste iniziano di solito nella prima settimana.",
+        "a": "Applications are normally reviewed within 2-3 business days. Results vary by category, season, listing quality, and audience demand.",
         "q": "Quanto velocemente vedrò i risultati?"
       },
       "title": "Domande Frequenti"
@@ -2668,7 +2873,9 @@
         "invest": "Investment Opportunity",
         "other": "Other Inquiry"
       }
-    }
+    },
+    "pageTitle": "Proprietà in Algarve",
+    "emptyRefinedSearch": "Nessuna proprietà corrisponde alla tua ricerca affinata"
   },
   "reviews": {
     "anonymousUser": "Visitatore",
@@ -2896,9 +3103,8 @@
         }
       },
       "categories": {
-        "label": "Cosa offriamo",
-        "title": "Categorie premium",
-        "subtitle": "Sfoglia la directory premium per categoria, dai soggiorni ai ristoranti, esperienze e immobiliare."
+        "title": "Esplora l’Algarve",
+        "intro": "Scopri soggiorni, ristoranti, golf, immobili, eventi ed esperienze locali selezionate."
       },
       "cities": {
         "label": "Città",
@@ -3080,15 +3286,15 @@
     "title": "Choose your partnership level",
     "subtitle": "Transparent pricing. No hidden fees. Cancel anytime.",
     "annualDiscount": "Annual billing available at 20% discount.",
-    "recommended": "Recommended",
+    "recommended": "Da non perdere",
     "verifiedPartner": "Verified Partner",
-    "perMonth": "/month",
-    "verifiedDescription": "Enhanced visibility and trust for established businesses. Less than the cost of a single booking.",
-    "applyAsVerified": "Apply as Verified",
-    "noLongTermContract": "No long-term contract · Cancel anytime",
+    "perMonth": "/mese",
+    "verifiedDescription": "A trust signal for active, legitimate local businesses that want credibility and a stronger listing presence.",
+    "applyAsVerified": "Candidati come Verified",
+    "noLongTermContract": "Nessun contratto lungo · cancella quando vuoi",
     "byInvitation": "By Invitation",
     "signaturePartner": "Signature Partner",
-    "signatureDescription": "Reserved for operators selected by our editorial team based on profile, location, and market fit.",
+    "signatureDescription": "Premium editorial-style visibility for standout Algarve businesses, with eligibility for curated homepage, city, and category placements where relevant.",
     "byInvitationOnly": "By Invitation Only",
     "eligiblePartnersContacted": "Our team contacts eligible Verified partners directly.",
     "interestedInSignature": "Interested in Signature?",
@@ -3096,7 +3302,13 @@
     "reviewEligibilityNote": "— we review all partners for eligibility.",
     "notReady": "Not ready to commit?",
     "startFreeListing": "Start with a free basic listing",
-    "upgradeWhenReady": "and upgrade when ready."
+    "upgradeWhenReady": "and upgrade when ready.",
+    "available": "Limitato / Esclusivo",
+    "applyAsSignature": "Candidati come Signature",
+    "signatureAvailableNote": "Signature is available for qualified premium listings and remains subject to quality standards.",
+    "wantHomepagePlacement": "Need homepage featured placement as an add-on?",
+    "contactUs": "Contact us",
+    "homepagePlacementNote": "and our team will review the right add-on placement for your category."
   },
   "user": {
     "tripPlanner": {
@@ -3148,7 +3360,10 @@
     "title": "What's included in each tier",
     "subtitle": "Compare features across all three partnership levels.",
     "feature": "Feature",
-    "basic": "Basic"
+    "basic": "Basic",
+    "addOn": "Add-on",
+    "contact": "Contact",
+    "apply": "Candidatura"
   },
   "lead": {
     "headline": "L' Algarve",
@@ -3195,5 +3410,125 @@
   },
   "navigation": {
     "skipToContent": "Skip to main content"
+  },
+  "pages": {
+    "relocation": {
+      "title": "Trasferirsi in Algarve",
+      "subtitle": "Guide pratiche, servizi affidabili e risorse locali selezionate per trasferirsi in Algarve con sicurezza.",
+      "seoTitle": "Trasferirsi in Algarve | Traslocare, vivere e stabilirsi in Portogallo",
+      "seoDescription": "Guide pratiche, servizi affidabili e risorse locali selezionate per trasferirsi in Algarve con sicurezza."
+    }
+  },
+  "breadcrumbs": {
+    "relocation": "Trasferimento"
+  },
+  "golfCourse": {
+    "metaTitleFallback": "Campo da golf",
+    "metaDescriptionFallback": "Esplora dettagli del campo, scorecard e posizione.",
+    "locationFallback": "Algarve",
+    "regionFallback": "Algarve",
+    "holes": "Buche",
+    "par": "Par",
+    "slope": "Slope",
+    "rating": "Course Rating",
+    "length": "Lunghezza",
+    "designer": "Designer",
+    "meters": "m",
+    "overview": "Panoramica del campo",
+    "facilities": "Servizi",
+    "drivingRange": "Driving range",
+    "clubhouse": "Clubhouse",
+    "restaurant": "Ristorante",
+    "buggy": "Buggy",
+    "academy": "Accademia",
+    "access": "Accesso",
+    "difficulty": "Difficoltà",
+    "bestFor": "Ideale per",
+    "priceRange": "Fascia prezzo",
+    "public": "Pubblico",
+    "private": "Privato",
+    "golfers": "Golfisti",
+    "casual": "Giri rilassati",
+    "confident": "Giocatori esperti",
+    "championship": "Gioco da campionato",
+    "scorecard": "Scorecard",
+    "hole": "Buca",
+    "hcp": "HCP",
+    "white": "Bianco",
+    "yellow": "Giallo",
+    "red": "Rosso",
+    "requestTeeTime": "Richiedi tee time",
+    "contactClub": "Contatta il club",
+    "visitWebsite": "Visita sito",
+    "relatedCourses": "Campi vicini",
+    "leaderboard": "Classifica",
+    "rank": "Posizione",
+    "player": "Giocatore",
+    "score": "Punteggio",
+    "rounds": "Giri",
+    "teeTime": {
+      "title": "Richiedi tee time",
+      "intro": "Condividi il giorno preferito e i dettagli. Ti aiuteremo a metterti in contatto con il campo o un partner pertinente.",
+      "name": "Nome",
+      "email": "Email",
+      "phone": "Telefono",
+      "preferredDate": "Data preferita",
+      "preferredTime": "Orario preferito",
+      "morning": "Mattina",
+      "midday": "Mezzogiorno",
+      "afternoon": "Pomeriggio",
+      "flexible": "Flessibile",
+      "players": "Numero di giocatori",
+      "handicap": "Handicap / livello di gioco",
+      "message": "Messaggio",
+      "submit": "Richiedi Tee Time",
+      "submitting": "Invio richiesta...",
+      "success": "Richiesta ricevuta. Ti aiuteremo a metterti in contatto con il campo o un partner pertinente.",
+      "error": "Non è stato possibile inviare questa richiesta. Riprova."
+    }
+  },
+  "golfDiscovery": {
+    "discoveryTitle": "Find your perfect golf course in the Algarve",
+    "discoverySubtitle": "Choose the kind of round you want and discover curated courses without endless comparison.",
+    "championshipTitle": "Championship Courses",
+    "championshipIntro": "Curated selection of tournament-level courses",
+    "championshipDescription": "18-hole tournament layouts",
+    "coastalTitle": "Scenic Coastal Golf",
+    "coastalIntro": "Ocean light, coastal settings, and memorable Algarve scenery",
+    "coastalDescription": "Views and atmosphere",
+    "luxuryTitle": "Luxury & Private Clubs",
+    "luxuryIntro": "Premium clubs, polished service, and standout golf settings",
+    "luxuryDescription": "Premium golf experiences",
+    "beginnerTitle": "Beginner Friendly",
+    "beginnerIntro": "Welcoming courses for relaxed and confident play",
+    "beginnerDescription": "Easier rounds and learning",
+    "quick9Title": "Quick 9-Hole Rounds",
+    "quick9Intro": "Shorter formats for flexible Algarve golf days",
+    "quick9Description": "Faster rounds",
+    "finderTitle": "Find your course",
+    "skillQuestion": "Skill?",
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "mattersQuestion": "What matters?",
+    "scenery": "Scenery",
+    "challenge": "Challenge",
+    "ease": "Ease",
+    "viewMatches": "View matches",
+    "bestFor": "Best for",
+    "experiencedGolfers": "Experienced golfers",
+    "championshipPlay": "Championship play",
+    "premiumExperience": "Premium experience",
+    "quickRounds": "Quick rounds",
+    "scenicRounds": "Scenic rounds",
+    "relaxedPlay": "Relaxed play",
+    "editorsSelection": "Editor's Selection",
+    "verified": "Verified",
+    "viewCourse": "View Course",
+    "youMightAlsoLike": "You might also like",
+    "noMatchesTitle": "No matching courses yet",
+    "noMatchesDescription": "Explore all golf courses while we expand this discovery collection.",
+    "backToGolf": "Tutti i campi da golf",
+    "heroLabel": "Scopri il golf"
   }
 }

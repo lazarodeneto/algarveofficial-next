@@ -147,7 +147,7 @@ export function BaseCard({
           {...props}
           href={href}
           className={cn(
-            "group relative isolate block overflow-hidden rounded-2xl bg-muted shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+            "group relative isolate block overflow-hidden rounded-md bg-muted shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
             config.heightClass,
             props.className
           )}
@@ -161,7 +161,7 @@ export function BaseCard({
           onClick={isClickable ? onClick : undefined}
           onKeyDown={isClickable ? handleKeyDown : undefined}
           className={cn(
-            "group relative isolate overflow-hidden rounded-2xl bg-muted shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] hover:-translate-y-0.5 hover:shadow-card-hover",
+            "group relative isolate overflow-hidden rounded-md bg-muted shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] hover:-translate-y-0.5 hover:shadow-card-hover",
             isClickable && "cursor-pointer",
             config.heightClass,
             props.className
@@ -196,7 +196,7 @@ export function BaseCard({
             blurDataURL={blurDataURL}
             onLoad={() => setLoaded(true)}
             className={cn(
-              "rounded-2xl object-cover transition-transform duration-500 ease-out will-change-transform motion-reduce:transition-none",
+              "rounded-md object-cover transition-transform duration-500 ease-out will-change-transform motion-reduce:transition-none",
               "group-hover:scale-[1.05]",
               loaded ? "opacity-100" : "opacity-0"
             )}

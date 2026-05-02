@@ -11,7 +11,7 @@ interface SkeletonCardProps {
 export default function SkeletonCard({ variant = "listing", className }: SkeletonCardProps) {
   if (variant === "category") {
     return (
-      <div className={cn("rounded-2xl p-6 lg:p-8 text-center flex flex-col items-center animate-pulse bg-card border border-border/40 shadow-sm", className)}>
+      <div className={cn("rounded-sm p-6 lg:p-8 text-center flex flex-col items-center animate-pulse bg-card border border-border/40 shadow-sm", className)}>
         <Skeleton className="w-14 h-14 rounded-xl mb-5 bg-gradient-to-br from-[#C7A35A]/10 to-transparent" />
         <Skeleton className="h-6 w-2/3 mb-4 bg-gradient-to-r from-foreground/10 to-transparent" />
         <Skeleton className="h-4 w-1/3 bg-gradient-to-r from-muted-foreground/10 to-transparent" />
@@ -21,7 +21,7 @@ export default function SkeletonCard({ variant = "listing", className }: Skeleto
 
   if (variant === "destination") {
     return (
-      <div className={cn("rounded-2xl overflow-hidden aspect-[4/5] relative animate-pulse bg-card border border-border/40 shadow-sm", className)}>
+      <div className={cn("rounded-sm overflow-hidden aspect-[4/5] relative animate-pulse bg-card border border-border/40 shadow-sm", className)}>
         <Skeleton className="absolute inset-0 rounded-none bg-gradient-to-br from-muted to-background" />
         <div className="absolute inset-0 p-6 flex flex-col justify-end">
           <Skeleton className="h-4 w-24 mb-3 bg-black/20 dark:bg-white/20" />
@@ -34,7 +34,7 @@ export default function SkeletonCard({ variant = "listing", className }: Skeleto
   }
 
   return (
-    <div className={cn("rounded-2xl overflow-hidden flex flex-col h-full animate-pulse bg-card border border-border/40 shadow-sm", className)}>
+    <div className={cn("rounded-sm overflow-hidden flex flex-col h-full animate-pulse bg-card border border-border/40 shadow-sm", className)}>
       <div className="relative aspect-[4/3] bg-gradient-to-br from-muted to-background">
         <div className="absolute top-4 left-4">
           <Skeleton className="h-7 w-24 rounded-full bg-gradient-to-r from-[#C7A35A]/20 to-transparent" />

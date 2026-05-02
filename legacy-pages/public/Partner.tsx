@@ -18,6 +18,7 @@ import { useSubmitListingClaim } from "@/hooks/useListingClaims";
 import { useSubscriptionPricing } from "@/hooks/useSubscriptionPricing";
 import { CountryPhoneInput } from "@/components/ui/country-phone-input";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { normalizeExternalUrlForStorage } from "@/lib/url-input";
 
 import { PartnerHero } from "@/components/partner/PartnerHero";
@@ -26,6 +27,7 @@ import { PricingFeaturesTable } from "@/components/partner/PricingFeaturesTable"
 import { HowItWorksSection } from "@/components/partner/HowItWorksSection";
 import { PricingCardsSection } from "@/components/partner/PricingCardsSection";
 import { FinalCTASection } from "@/components/partner/FinalCTASection";
+import { PartnerCommercialSections } from "@/components/partner/PartnerCommercialSections";
 
 const partnerSchema = z.object({
   requestType: z.enum(["new-listing", "claim-business"]),
@@ -43,6 +45,7 @@ type FAQItem = { question: string; answer: string };
 const Partner = () => {
   const { t } = useTranslation();
   const { settings, isLoading: settingsLoading } = usePartnerSettings();
+  const { getText } = useCmsPageBuilder("partner");
   const { membershipTiers } = useSubscriptionPricing(t);
   const locale = useCurrentLocale();
 
@@ -105,11 +108,11 @@ const Partner = () => {
   }
 
   const content = {
-    heroTitle: localizedSettings?.hero_title || t("partner.title"),
-    heroSubtitle: localizedSettings?.hero_subtitle || t("partner.subtitle"),
+    heroTitle: getText("hero.title", localizedSettings?.hero_title || t("partner.title")),
+    heroSubtitle: getText("hero.subtitle", localizedSettings?.hero_subtitle || t("partner.subtitle")),
     formTitle: localizedSettings?.form_title || t("partner.form.title"),
     successMessage: localizedSettings?.success_message || t("partner.success"),
-    faqTitle: localizedSettings?.faq_title || t("partner.faq.title"),
+    faqTitle: getText("faq.title", localizedSettings?.faq_title || t("partner.faq.title")),
     faqs: allFaqs,
   };
 
@@ -196,9 +199,9 @@ const Partner = () => {
 
   if (locale === "en" && settingsLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <main id="main-content" className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
+      </main>
     );
   }
 
@@ -206,6 +209,7 @@ const Partner = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
+      <main id="main-content">
       {/* 1. Hero */}
       <PartnerHero
         title={content.heroTitle}
@@ -216,27 +220,20 @@ const Partner = () => {
       {/* 2. Who this is for */}
       <ForWhomSection />
 
-      {/* 3. Feature comparison table */}
-      <PricingFeaturesTable verifiedPrice={verifiedPrice} />
+      {/* 3. Commercial clarity */}
+      <PartnerCommercialSections />
 
-      {/* 4. Mid-page CTA */}
-      <section className="py-10 lg:py-12">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
-          <Button
-            variant="default"
-            size="lg"
-            onClick={() => scrollToForm("new-listing")}
-            className="bg-green-600 hover:bg-green-700 text-white border border-green-500 shadow-lg shadow-green-600/20 uppercase tracking-[0.08em]"
-          >
-            Apply as Verified
-          </Button>
-        </div>
-      </section>
+      {/* 4. Feature comparison table */}
+      <PricingFeaturesTable
+        verifiedPrice={verifiedPrice}
+        onSelectVerified={() => scrollToForm("new-listing")}
+        onSelectSignature={() => scrollToForm("new-listing")}
+      />
 
-      {/* 5. How it works */}
+      {/* 6. How it works */}
       <HowItWorksSection />
 
-      {/* 6. Pricing cards */}
+      {/* 7. Pricing cards */}
       <PricingCardsSection
         verifiedPrice={verifiedPrice}
         signaturePrice={signaturePrice}
@@ -244,7 +241,7 @@ const Partner = () => {
         onExpressSignatureInterest={() => scrollToForm("new-listing")}
       />
 
-      {/* 7. FAQ */}
+      {/* 8. FAQ */}
       <section className="py-20 lg:py-24 bg-muted/30">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <m.div
@@ -295,7 +292,7 @@ const Partner = () => {
             <div className="text-center mb-10">
               <h2 className="text-title text-foreground">{content.formTitle}</h2>
               <p className="mt-3 text-sm text-muted-foreground">
-                Fill in your details and our team will be in touch within 2–3 business days.
+                {t("partner.form.responseTime")}
               </p>
             </div>
 
@@ -402,7 +399,7 @@ const Partner = () => {
                     <Textarea
                       id="message"
                       rows={4}
-                      placeholder="E.g. We're a 4-star boutique hotel in Vilamoura. We want to increase direct bookings from UK and German travelers."
+                      placeholder={t("partner.form.messagePlaceholder")}
                       value={formData.message}
                       onChange={(e) => handleInputChange("message", e.target.value)}
                       className={errors.message ? "border-destructive" : ""}
@@ -437,6 +434,7 @@ const Partner = () => {
           </m.div>
         </div>
       </section>
+      </main>
 
       <Footer />
     </div>

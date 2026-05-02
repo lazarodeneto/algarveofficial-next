@@ -224,6 +224,8 @@ const getDestinationPageData = cache(async (slug: string, locale: Locale) => {
   let listings = ((listingsResponse.data ?? []) as DestinationListingRow[]).map(
     normalizeDestinationListing,
   );
+  const cityIdsWithListings = new Set(listings.map((listing) => listing.city?.id).filter(Boolean));
+  cities = cities.filter((city) => cityIdsWithListings.has(city.id));
 
   if (contentLocale !== "en") {
     const [cityTranslations, listingTranslations] = await Promise.all([
@@ -471,7 +473,7 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
                 ))}
               </div>
             ) : (
-              <div className="rounded-3xl border border-border bg-card px-8 py-14 text-center">
+              <div className="rounded-xl border border-border bg-card px-8 py-14 text-center">
                 <h3 className="text-title font-serif text-foreground">{tx["common.noListingsYet"] ?? "No Listings Yet"}</h3>
                 <p className="mt-3 text-body text-muted-foreground">
                   {tx["common.noListingsYetDesc"] ?? "We're selecting the finest experiences for this region."}

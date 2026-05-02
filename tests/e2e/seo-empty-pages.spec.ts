@@ -3,15 +3,15 @@ import { test, expect } from "@playwright/test";
 const baseURL = process.env.BASE_URL ?? "http://localhost:3000";
 
 const emptyPages = [
-  "/visit/lagos/real-estate",
-  "/visit/aljezur/shopping",
-  "/visit/monchique/beach-clubs",
+  "/en/visit/lagos/real-estate",
+  "/en/visit/aljezur/shopping",
+  "/en/visit/monchique/beach-clubs",
 ];
 
 const populatedPages = [
-  "/visit/lagos/restaurants",
-  "/visit/albufeira/beach-clubs",
-  "/visit/vilamoura/golf",
+  "/en/visit/lagos/restaurants",
+  "/en/visit/albufeira/beach-clubs",
+  "/en/visit/vilamoura/golf",
 ];
 
 test.describe("SEO - Empty Pages (noindex validation)", () => {
@@ -79,7 +79,7 @@ test.describe("SEO - Populated Pages (index validation)", () => {
 
 test.describe("SEO - Edge Cases", () => {
   test("page should not have multiple robots tags", async ({ page }) => {
-    await page.goto(`${baseURL}/visit/lagos/restaurants`, {
+    await page.goto(`${baseURL}/en/visit/lagos/restaurants`, {
       waitUntil: "domcontentloaded",
     });
 
@@ -88,7 +88,7 @@ test.describe("SEO - Edge Cases", () => {
   });
 
   test("canonical must not point to wrong category", async ({ page }) => {
-    const route = "/visit/lagos/restaurants";
+    const route = "/en/visit/lagos/restaurants";
 
     await page.goto(`${baseURL}${route}`, {
       waitUntil: "domcontentloaded",

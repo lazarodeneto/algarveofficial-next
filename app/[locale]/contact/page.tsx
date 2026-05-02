@@ -88,7 +88,7 @@ export default async function ContactPage({ params }: PageProps) {
 
       <div id="contact-server-shell" className="min-h-screen bg-background text-foreground">
         <main className="app-container pt-32 pb-20">
-          <section className="rounded-[2rem] border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur md:p-12">
+          <section className="rounded-lg border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur md:p-12">
             <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
               {tx["contact.getInTouch"] ?? "Get in Touch"}
             </p>
@@ -101,17 +101,17 @@ export default async function ContactPage({ params }: PageProps) {
             </p>
 
             <div className="mt-8 grid gap-4 md:grid-cols-3">
-              <div className="rounded-2xl border border-border/60 bg-background/70 p-5">
+              <div className="rounded-sm border border-border/60 bg-background/70 p-5">
                 <p className="text-sm font-semibold text-foreground">
                   {tx["contact.email"] ?? "Email"}
                 </p>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{displayEmail}</p>
               </div>
-              <div className="rounded-2xl border border-border/60 bg-background/70 p-5">
+              <div className="rounded-sm border border-border/60 bg-background/70 p-5">
                 <p className="text-sm font-semibold text-foreground">WhatsApp</p>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{whatsappNumber}</p>
               </div>
-              <div className="rounded-2xl border border-border/60 bg-background/70 p-5">
+              <div className="rounded-sm border border-border/60 bg-background/70 p-5">
                 <p className="text-sm font-semibold text-foreground">
                   {tx["contact.location"] ?? "Location"}
                 </p>

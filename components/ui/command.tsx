@@ -63,7 +63,7 @@ const CommandInput = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div className="px-3 pt-3 pb-2 border-b">
     <div
-      className="flex items-center rounded-2xl border border-border bg-background/95 px-3 shadow-sm"
+      className="flex items-center rounded-sm border border-border bg-background/95 px-3 shadow-sm"
       cmdk-input-wrapper=""
     >
       <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />

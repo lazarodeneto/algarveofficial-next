@@ -6,6 +6,7 @@ import {
   SUPPORTED_LOCALES,
   type Locale,
 } from "@/lib/i18n/locale-definitions";
+import { DEFAULT_LOCALE_USES_PREFIX } from "@/lib/i18n/default-locale-policy";
 
 function normalizePathname(pathname: string): string {
   if (!pathname || pathname === "/") {
@@ -54,7 +55,7 @@ export function addLocaleToPathname(pathname: string, locale: Locale): string {
   const stripped = stripLocaleFromPathname(pathname);
   const normalizedPath = stripped === "/" ? "/" : stripped;
 
-  if (locale === DEFAULT_LOCALE) {
+  if (locale === DEFAULT_LOCALE && !DEFAULT_LOCALE_USES_PREFIX) {
     return normalizedPath;
   }
 

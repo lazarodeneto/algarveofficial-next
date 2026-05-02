@@ -236,7 +236,7 @@ export function HeroTrustSignals({
     >
       <div
         className={cn(
-          "rounded-[2rem] p-4 sm:p-5",
+          "rounded-lg p-4 sm:p-5",
           isSurface
             ? "border border-border/70 bg-card/70 shadow-[0_18px_55px_-38px_rgba(11,31,58,0.18)]"
             : "border border-white/16 bg-white/10 shadow-[0_24px_80px_-44px_rgba(0,0,0,0.6)] backdrop-blur-xl",
@@ -291,7 +291,7 @@ export function HeroTrustSignals({
               <div
                 key={metric.key}
                 className={cn(
-                  "rounded-[1.35rem] px-4 py-3",
+                  "rounded-lg px-4 py-3",
                   isSurface
                     ? "border border-border/70 bg-background/70"
                     : "border border-white/12 bg-black/18",
@@ -345,7 +345,7 @@ export function HeroTrustSignals({
 
       <aside
         className={cn(
-          "rounded-[2rem] p-4 sm:p-5",
+          "rounded-lg p-4 sm:p-5",
           isSurface
             ? "border border-border/70 bg-card/70 shadow-[0_18px_55px_-38px_rgba(11,31,58,0.18)]"
             : "border border-white/16 bg-[linear-gradient(145deg,rgba(255,255,255,0.16),rgba(255,255,255,0.08))] shadow-[0_24px_80px_-44px_rgba(0,0,0,0.6)] backdrop-blur-xl",

@@ -20,7 +20,7 @@ export const STATIC_ROUTE_SEGMENTS: Record<StaticRouteKey, string> = {
   "privacy-policy": "privacy-policy",
   properties: "properties",
   "real-estate": "real-estate",
-  residence: "residence",
+  relocation: "relocation",
   signup: "signup",
   stay: "stay",
   terms: "terms",

@@ -29,7 +29,7 @@ const OwnerSupport = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerSu
 
 function OwnerRouteNotFound({ route }: { route: string }) {
   return (
-    <div className="mx-auto flex min-h-[55vh] w-full max-w-2xl flex-col items-center justify-center rounded-2xl border border-border/70 bg-card/60 px-6 py-10 text-center">
+    <div className="mx-auto flex min-h-[55vh] w-full max-w-2xl flex-col items-center justify-center rounded-sm border border-border/70 bg-card/60 px-6 py-10 text-center">
       <AlertTriangle className="mb-4 h-10 w-10 text-amber-500" />
       <h1 className="text-2xl font-serif font-semibold text-foreground">Page not found</h1>
       <p className="mt-2 text-sm text-muted-foreground">

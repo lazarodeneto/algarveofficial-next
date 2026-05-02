@@ -3,30 +3,30 @@ import { test, expect } from "@playwright/test";
 const baseURL = process.env.BASE_URL ?? "http://localhost:3000";
 
 const canonicalRoutes = [
-  "/visit/lagos/restaurants",
-  "/visit/albufeira/beach-clubs",
-  "/visit/vilamoura/golf",
-  "/visit/faro/architecture-design",
-  "/visit/tavira/real-estate",
-  "/visit/portimao/experiences",
-  "/visit/loule/events",
-  "/visit/carvoeiro/wellness-spas",
-  "/visit/olhao/beaches",
-  "/visit/quarteira/shopping",
+  "/en/visit/lagos/restaurants",
+  "/en/visit/albufeira/beach-clubs",
+  "/en/visit/vilamoura/golf",
+  "/en/visit/faro/architecture-design",
+  "/en/visit/tavira/real-estate",
+  "/en/visit/portimao/experiences",
+  "/en/visit/loule/events",
+  "/en/visit/carvoeiro/wellness-spas",
+  "/en/visit/olhao/beaches",
+  "/en/visit/quarteira/shopping",
 ];
 
 const legacyRedirects: Array<[string, string]> = [
-  ["/visit/lagos/vip-transportation", "/visit/lagos/transportation"],
-  ["/visit/lagos/premier-events", "/visit/lagos/events"],
-  ["/visit/lagos/premium-accommodation", "/visit/lagos/accommodation"],
-  ["/visit/lagos/premium-experiences", "/visit/lagos/experiences"],
-  ["/visit/lagos/architecture-decoration", "/visit/lagos/architecture-design"],
-  ["/visit/lagos/beaches-clubs", "/visit/lagos/beach-clubs"],
-  ["/visit/lagos/vip-concierge", "/visit/lagos/concierge-services"],
-  ["/visit/lagos/family-fun", "/visit/lagos/family-attractions"],
-  ["/visit/lagos/protection-services", "/visit/lagos/security-services"],
-  ["/visit/lagos/shopping-boutiques", "/visit/lagos/shopping"],
-  ["/visit/lagos/private-chefs", "/visit/lagos/restaurants"],
+  ["/en/visit/lagos/vip-transportation", "/en/visit/lagos/transportation"],
+  ["/en/visit/lagos/premier-events", "/en/visit/lagos/events"],
+  ["/en/visit/lagos/premium-accommodation", "/en/visit/lagos/accommodation"],
+  ["/en/visit/lagos/premium-experiences", "/en/visit/lagos/experiences"],
+  ["/en/visit/lagos/architecture-decoration", "/en/visit/lagos/architecture-design"],
+  ["/en/visit/lagos/beaches-clubs", "/en/visit/lagos/beach-clubs"],
+  ["/en/visit/lagos/vip-concierge", "/en/visit/lagos/concierge-services"],
+  ["/en/visit/lagos/family-fun", "/en/visit/lagos/family-attractions"],
+  ["/en/visit/lagos/protection-services", "/en/visit/lagos/security-services"],
+  ["/en/visit/lagos/shopping-boutiques", "/en/visit/lagos/shopping"],
+  ["/en/visit/lagos/private-chefs", "/en/visit/lagos/restaurants"],
 ];
 
 test.describe("Canonical category routes", () => {
@@ -81,16 +81,16 @@ test.describe("Locale persistence", () => {
 });
 
 test.describe("SEO metadata", () => {
-  test("english canonical does not include /en prefix", async ({ page }) => {
-    await page.goto(`${baseURL}/visit/lagos/restaurants`, { waitUntil: "domcontentloaded" });
+  test("english canonical includes /en prefix", async ({ page }) => {
+    await page.goto(`${baseURL}/en/visit/lagos/restaurants`, { waitUntil: "domcontentloaded" });
     const canonical = page.locator('link[rel="canonical"]');
     const href = await canonical.getAttribute("href");
     expect(href).toBeTruthy();
-    expect(href!).not.toContain("/en/");
+    expect(href!).toContain("/en/visit/lagos/restaurants");
   });
 
   test("title and meta description exist", async ({ page }) => {
-    await page.goto(`${baseURL}/visit/lagos/restaurants`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${baseURL}/en/visit/lagos/restaurants`, { waitUntil: "domcontentloaded" });
     await expect(page.locator("title")).not.toHaveText("");
     const description = page.locator('meta[name="description"]');
     await expect(description).toHaveCount(1);

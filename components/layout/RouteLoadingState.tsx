@@ -21,6 +21,7 @@ export async function RouteLoadingState({
 
   return (
     <main
+      id="main-content"
       className={cn(
         "flex items-center justify-center bg-background",
         minHeightClassName,

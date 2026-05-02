@@ -30,7 +30,7 @@ export function FormStepIndicator({
                 type="button"
                 onClick={() => onStepClick?.(index)}
                 className={cn(
-                  "flex items-center gap-3 rounded-2xl px-3 py-2.5 transition-all",
+                  "flex items-center gap-3 rounded-sm px-3 py-2.5 transition-all",
                   "hover:bg-muted/50",
                   isActive && "bg-muted/70"
                 )}

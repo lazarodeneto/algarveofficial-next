@@ -11,7 +11,10 @@ import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -25,9 +28,13 @@ import { fetchAdmin } from "@/lib/api/fetchAdmin";
 import {
   CMS_GLOBAL_SETTING_KEYS,
   CMS_PAGE_DEFINITIONS,
+  getCmsPageRegistryMeta,
+  isCmsPageEditableInFullBuilder,
   normalizeCmsPageConfigs,
   type CmsBlockConfig,
   type CmsBlockDefinition,
+  type CmsPageRegistryGroup,
+  type CmsPageStatus,
   type CmsDesignTokenMap,
   type CmsPageConfigMap,
   type CmsTextOverrideMap,
@@ -73,6 +80,30 @@ const HERO_MEDIA_SUPPORTED_PAGE_IDS = new Set([
   "visit",
 ]);
 
+const CMS_PAGE_GROUP_ORDER: CmsPageRegistryGroup[] = [
+  "Core Pages",
+  "Directory Pages",
+  "Dynamic Templates",
+  "Golf",
+  "Blog & Events",
+  "Business & Legal",
+  "Auth & System",
+];
+
+const CMS_PAGE_STATUS_LABEL: Record<CmsPageStatus, string> = {
+  enabled: "Enabled",
+  partial: "Partial",
+  planned: "Planned",
+  disabled: "Disabled",
+};
+
+const CMS_PAGE_STATUS_BADGE_CLASS: Record<CmsPageStatus, string> = {
+  enabled: "border-emerald-500/40 bg-emerald-50 text-emerald-700",
+  partial: "border-amber-500/40 bg-amber-50 text-amber-700",
+  planned: "border-slate-300 bg-slate-50 text-slate-600",
+  disabled: "border-slate-300 bg-slate-100 text-slate-500",
+};
+
 function parseJson<T>(raw: string | undefined, fallback: T): T {
   if (!raw) return fallback;
   try {
@@ -117,6 +148,31 @@ function fromRows(rows: KeyValueRow[]): Record<string, string> {
     const key = row.key.trim();
     if (!key) return acc;
     acc[key] = row.value;
+    return acc;
+  }, {});
+}
+
+function resolvePreviewPath(path: string): string {
+  return path
+    .replace(":city", "lagos")
+    .replace(":category", "restaurants")
+    .replace(":slug", "sample")
+    .replace(":id", "sample");
+}
+
+function convertVisualBlocksToLegacyMap(config: CmsPageConfig): Record<string, CmsBlockConfig> {
+  return (config.blocks ?? []).reduce<Record<string, CmsBlockConfig>>((acc, block) => {
+    const settings =
+      block.settings && typeof block.settings === "object" && !Array.isArray(block.settings)
+        ? (block.settings as Record<string, unknown>)
+        : {};
+
+    acc[block.id] = {
+      enabled: block.enabled,
+      order: block.order,
+      className: typeof settings.className === "string" ? settings.className : undefined,
+      data: settings as CmsBlockConfig["data"],
+    };
     return acc;
   }, {});
 }
@@ -210,12 +266,12 @@ function AdminPageBuilderContent() {
   const heroPosterInputRef = useRef<HTMLInputElement | null>(null);
 
   const [visualConfig, setVisualConfig] = useState<CmsPageConfig | null>(null);
-  const [golfDocumentId, setGolfDocumentId] = useState<number | null>(null);
-  const [golfLatestDraftVersion, setGolfLatestDraftVersion] = useState<number | null>(null);
-  const [golfLatestPublishedVersion, setGolfLatestPublishedVersion] = useState<number | null>(null);
-  const [isGolfCmsLoading, setIsGolfCmsLoading] = useState(false);
-  const [isGolfSavingDraft, setIsGolfSavingDraft] = useState(false);
-  const [isGolfPublishing, setIsGolfPublishing] = useState(false);
+  const [cmsDocumentId, setCmsDocumentId] = useState<number | null>(null);
+  const [cmsLatestDraftVersion, setCmsLatestDraftVersion] = useState<number | null>(null);
+  const [cmsLatestPublishedVersion, setCmsLatestPublishedVersion] = useState<number | null>(null);
+  const [isCmsDocumentLoading, setIsCmsDocumentLoading] = useState(false);
+  const [isCmsSavingDraft, setIsCmsSavingDraft] = useState(false);
+  const [isCmsPublishing, setIsCmsPublishing] = useState(false);
 
   const { data: cities = [] } = useQuery({
     queryKey: ["admin-cities-for-cms"],
@@ -269,20 +325,20 @@ function AdminPageBuilderContent() {
     router.push(href);
   };
 
-  const fetchGolfCmsConfig = async () => {
+  const fetchSelectedCmsConfig = async (pageId: string) => {
     const json = await fetchAdmin(
-      `/api/admin/cms/page-config?page_id=golf&locale=${encodeURIComponent(locale)}`
+      `/api/admin/cms/page-config?page_id=${encodeURIComponent(pageId)}&locale=${encodeURIComponent(locale)}`
     );
     return json.data;
   };
 
-  const saveGolfDraft = async (content: CmsPageConfig) => {
+  const saveSelectedDraft = async (pageId: string, content: CmsPageConfig | Record<string, unknown>) => {
     const json = await fetchAdmin("/api/admin/cms/page-config", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         action: "save_draft",
-        page_id: "golf",
+        page_id: pageId,
         locale,
         content,
       }),
@@ -290,22 +346,22 @@ function AdminPageBuilderContent() {
     return json.data;
   };
 
-  const publishGolf = async () => {
+  const publishSelectedPage = async (pageId: string) => {
     const json = await fetchAdmin("/api/admin/cms/page-config", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         action: "publish",
-        page_id: "golf",
+        page_id: pageId,
         locale,
       }),
     });
     return json.data;
   };
 
-  const openGolfPreview = async () => {
+  const openSelectedPreview = async (path: string) => {
     const json = await fetchAdmin(
-      `/api/admin/cms/preview-url?path=${encodeURIComponent("/golf")}&locale=${encodeURIComponent(locale)}`
+      `/api/admin/cms/preview-url?path=${encodeURIComponent(path)}&locale=${encodeURIComponent(locale)}`
     );
     window.open(json.data.url, "_blank", "noopener,noreferrer");
   };
@@ -381,46 +437,59 @@ function AdminPageBuilderContent() {
   }, [initialized, pageConfigs, selectedPageId]);
 
   useEffect(() => {
-    if (!initialized || selectedPageId !== "golf") return;
+    if (!initialized || !selectedPageId) return;
 
     let cancelled = false;
 
-    const loadGolfCmsConfig = async () => {
-      setIsGolfCmsLoading(true);
+    const loadSelectedCmsConfig = async () => {
+      setIsCmsDocumentLoading(true);
       try {
-        const data = await fetchGolfCmsConfig();
-        const normalizedContent = normalizePageConfig(data.content ?? {});
+        const data = await fetchSelectedCmsConfig(selectedPageId);
+        const rawContent = isRecord(data.content) ? data.content : {};
+        const normalizedContent = normalizePageConfig(rawContent);
 
         if (cancelled) return;
 
-        setGolfDocumentId(data.document_id);
-        setGolfLatestDraftVersion(data.latest_draft_version);
-        setGolfLatestPublishedVersion(data.latest_published_version);
+        setCmsDocumentId(data.document_id);
+        setCmsLatestDraftVersion(data.latest_draft_version);
+        setCmsLatestPublishedVersion(data.latest_published_version);
         setVisualConfig(normalizedContent);
 
-        setPageConfigs((prev) => ({
-          ...prev,
-          golf: {
-            ...(prev.golf ?? {}),
-            hero: (normalizedContent.hero as Record<string, unknown>) ?? {},
-            meta: normalizedContent.meta,
-            text: {
-              ...((prev.golf?.text as Record<string, string> | undefined) ?? {}),
-              ...buildHeroTextMap(normalizedContent.hero),
+        const hasDocumentContent = Object.keys(rawContent).length > 0;
+        setPageConfigs((prev) => {
+          if (!hasDocumentContent) {
+            return prev;
+          }
+
+          return {
+            ...prev,
+            [selectedPageId]: {
+              ...(prev[selectedPageId] ?? {}),
+              hero: (normalizedContent.hero as Record<string, unknown>) ?? (rawContent.hero as Record<string, unknown> | undefined) ?? {},
+              meta: normalizedContent.meta ?? (rawContent.meta as CmsPageConfig["meta"] | undefined),
+              blocks: {
+                ...((prev[selectedPageId]?.blocks as Record<string, CmsBlockConfig> | undefined) ?? {}),
+                ...convertVisualBlocksToLegacyMap(normalizedContent),
+              },
+              text: {
+                ...((prev[selectedPageId]?.text as Record<string, string> | undefined) ?? {}),
+                ...((rawContent.text as Record<string, string> | undefined) ?? {}),
+                ...buildHeroTextMap(normalizedContent.hero),
+              },
             },
-          },
-        }));
+          };
+        });
       } catch (error) {
         if (cancelled) return;
-        toast.error(`Failed to load Golf page builder config: ${(error as Error).message}`);
+        toast.error(`Failed to load ${selectedPageId} page builder config: ${(error as Error).message}`);
       } finally {
         if (!cancelled) {
-          setIsGolfCmsLoading(false);
+          setIsCmsDocumentLoading(false);
         }
       }
     };
 
-    void loadGolfCmsConfig();
+    void loadSelectedCmsConfig();
 
     return () => {
       cancelled = true;
@@ -431,6 +500,17 @@ function AdminPageBuilderContent() {
     () => CMS_PAGE_DEFINITIONS.find((page) => page.id === selectedPageId) ?? CMS_PAGE_DEFINITIONS[0],
     [selectedPageId],
   );
+  const selectedPageMeta = useMemo(
+    () => getCmsPageRegistryMeta(selectedPageId),
+    [selectedPageId],
+  );
+  const selectedPageCanEdit = isCmsPageEditableInFullBuilder(selectedPageId);
+  const groupedPageDefinitions = useMemo(() => {
+    return CMS_PAGE_GROUP_ORDER.map((group) => ({
+      group,
+      pages: CMS_PAGE_DEFINITIONS.filter((page) => getCmsPageRegistryMeta(page.id).group === group),
+    })).filter((entry) => entry.pages.length > 0);
+  }, []);
   const selectedPageLabelForCopy = selectedPageDefinition?.label ?? "selected";
 
   const selectedPageConfig = useMemo(() => {
@@ -809,41 +889,49 @@ function AdminPageBuilderContent() {
   };
 
   const resetHeroMedia = () => {
+    const clearedHeroMedia = {
+      mediaType: "image" as const,
+      imageUrl: "",
+      videoUrl: "",
+      youtubeUrl: "",
+      posterUrl: "",
+    };
+
     setPageConfigs((prev) => {
       const currentPage = prev[selectedPageId] ?? {};
       const nextText = { ...(currentPage.text ?? {}) };
 
-      nextText["hero.mediaType"] = "image";
-      nextText["hero.imageUrl"] = "";
-      nextText["hero.videoUrl"] = "";
-      nextText["hero.youtubeUrl"] = "";
-      nextText["hero.posterUrl"] = "";
+      nextText["hero.mediaType"] = clearedHeroMedia.mediaType;
+      nextText["hero.imageUrl"] = clearedHeroMedia.imageUrl;
+      nextText["hero.videoUrl"] = clearedHeroMedia.videoUrl;
+      nextText["hero.youtubeUrl"] = clearedHeroMedia.youtubeUrl;
+      nextText["hero.posterUrl"] = clearedHeroMedia.posterUrl;
 
       return {
         ...prev,
         [selectedPageId]: {
           ...currentPage,
+          hero: {
+            ...((currentPage.hero as Record<string, unknown> | undefined) ?? {}),
+            ...clearedHeroMedia,
+          },
           text: nextText,
         },
       };
     });
 
-    if (selectedPageId === "golf") {
-      setVisualConfig((prev) => {
-        if (!prev) return prev;
-        return normalizePageConfig({
-          ...prev,
-          hero: {
-            ...(prev.hero ?? {}),
-            mediaType: "image",
-            imageUrl: "",
-            videoUrl: "",
-            youtubeUrl: "",
-            posterUrl: "",
-          },
-        });
+    setVisualConfig((prev) => {
+      if (!prev) return prev;
+      return normalizePageConfig({
+        ...prev,
+        hero: {
+          ...(prev.hero ?? {}),
+          ...clearedHeroMedia,
+        },
       });
-    }
+    });
+
+    toast.success("Hero media reset.");
   };
 
   const handleHeroMediaUpload = async (
@@ -945,56 +1033,78 @@ function AdminPageBuilderContent() {
     setDesignTokenRows((prev) => prev.filter((row) => row.id !== id));
   };
 
-  const handleGolfSaveDraft = async () => {
-    if (!visualConfig) {
-      toast.error("Golf page config is not loaded yet.");
+  const buildSelectedDraftPayload = (): CmsPageConfig | Record<string, unknown> | null => {
+    if (selectedPageId === "golf" && visualConfig) {
+      return normalizePageConfig({
+        hero: visualConfig.hero ?? {},
+        blocks: visualConfig.blocks ?? [],
+        meta: visualConfig.meta ?? {},
+      });
+    }
+
+    const current = selectedPageConfig;
+    if (!current || Object.keys(current).length === 0) {
+      return visualConfig ? normalizePageConfig(visualConfig) : {};
+    }
+
+    return current as Record<string, unknown>;
+  };
+
+  const handleSaveDraft = async () => {
+    if (!selectedPageCanEdit) {
+      toast.error(`${selectedPageDefinition?.label ?? "Selected"} is ${CMS_PAGE_STATUS_LABEL[selectedPageMeta.status].toLowerCase()} in Full Page Builder.`);
       return;
     }
 
-    const draftPayload = normalizePageConfig({
-      hero: visualConfig.hero ?? {},
-      blocks: visualConfig.blocks ?? [],
-      meta: visualConfig.meta ?? {},
-    });
+    const draftPayload = buildSelectedDraftPayload();
+    if (!draftPayload) {
+      toast.error(`${selectedPageDefinition?.label ?? "Selected"} page config is not loaded yet.`);
+      return;
+    }
 
-    setIsGolfSavingDraft(true);
+    setIsCmsSavingDraft(true);
     try {
-      const data = await saveGolfDraft(draftPayload);
+      const data = await saveSelectedDraft(selectedPageId, draftPayload);
       const normalizedContent = normalizePageConfig(data.content ?? draftPayload);
-      setGolfDocumentId(data.document_id);
-      setGolfLatestDraftVersion(data.latest_draft_version);
-      setGolfLatestPublishedVersion(data.latest_published_version);
+      setCmsDocumentId(data.document_id);
+      setCmsLatestDraftVersion(data.latest_draft_version);
+      setCmsLatestPublishedVersion(data.latest_published_version);
       setVisualConfig(normalizedContent);
-      toast.success("Golf draft saved.");
+      toast.success(`${selectedPageDefinition?.label ?? "Page"} draft saved.`);
     } catch (error) {
-      toast.error(`Failed to save Golf draft: ${(error as Error).message}`);
+      toast.error(`Failed to save ${selectedPageDefinition?.label ?? "page"} draft: ${(error as Error).message}`);
     } finally {
-      setIsGolfSavingDraft(false);
+      setIsCmsSavingDraft(false);
     }
   };
 
-  const handleGolfPublish = async () => {
-    setIsGolfPublishing(true);
+  const handlePublish = async () => {
+    if (!selectedPageCanEdit) {
+      toast.error(`${selectedPageDefinition?.label ?? "Selected"} is ${CMS_PAGE_STATUS_LABEL[selectedPageMeta.status].toLowerCase()} in Full Page Builder.`);
+      return;
+    }
+
+    setIsCmsPublishing(true);
     try {
-      const data = await publishGolf();
+      const data = await publishSelectedPage(selectedPageId);
       const normalizedContent = normalizePageConfig(data.content ?? {});
-      setGolfDocumentId(data.document_id);
-      setGolfLatestDraftVersion(data.latest_draft_version);
-      setGolfLatestPublishedVersion(data.latest_published_version);
+      setCmsDocumentId(data.document_id);
+      setCmsLatestDraftVersion(data.latest_draft_version);
+      setCmsLatestPublishedVersion(data.latest_published_version);
       setVisualConfig(normalizedContent);
-      toast.success("Golf page published.");
+      toast.success(`${selectedPageDefinition?.label ?? "Page"} published.`);
     } catch (error) {
-      toast.error(`Failed to publish Golf page: ${(error as Error).message}`);
+      toast.error(`Failed to publish ${selectedPageDefinition?.label ?? "page"}: ${(error as Error).message}`);
     } finally {
-      setIsGolfPublishing(false);
+      setIsCmsPublishing(false);
     }
   };
 
-  const handleGolfPreview = async () => {
+  const handlePreview = async () => {
     try {
-      await openGolfPreview();
+      await openSelectedPreview(resolvePreviewPath(selectedPageDefinition?.path ?? "/"));
     } catch (error) {
-      toast.error(`Failed to open Golf preview: ${(error as Error).message}`);
+      toast.error(`Failed to open ${selectedPageDefinition?.label ?? "page"} preview: ${(error as Error).message}`);
     }
   };
 
@@ -1036,10 +1146,6 @@ function AdminPageBuilderContent() {
         }
       }
 
-      console.log("[admin-page-builder] Full pageConfigs state:", JSON.stringify(pageConfigs, null, 2).slice(0, 3000));
-      console.log("[admin-page-builder] Selected pageId:", selectedPageId);
-      console.log("[admin-page-builder] Selected page config:", JSON.stringify(pageConfigs[selectedPageId], null, 2));
-      console.log("[admin-page-builder] ENRICHED CONFIGS:", JSON.stringify(enrichedConfigs[selectedPageId]?.hero, null, 2));
       const payload = [
         {
           key: CMS_GLOBAL_SETTING_KEYS.pageConfigs,
@@ -1088,52 +1194,49 @@ function AdminPageBuilderContent() {
             Control every page section, copy block, and design token from one CMS workspace.
           </p>
         </div>
-        {isGolfPage ? (
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={handleGolfPreview}
-              disabled={isGolfCmsLoading || isGolfSavingDraft || isGolfPublishing}
-            >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Preview
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleGolfSaveDraft}
-              disabled={isGolfCmsLoading || isGolfSavingDraft || isGolfPublishing}
-            >
-              {isGolfSavingDraft ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Save className="h-4 w-4 mr-2" />
-              )}
-              Save Draft
-            </Button>
-            <Button
-              onClick={handleGolfPublish}
-              disabled={isGolfCmsLoading || isGolfSavingDraft || isGolfPublishing}
-            >
-              {isGolfPublishing ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Save className="h-4 w-4 mr-2" />
-              )}
-              Publish
-            </Button>
-          </div>
-        ) : (
-          <Button onClick={handleSaveAll} disabled={isSaving}>
-            {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-            Save All
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={handlePreview}
+            disabled={isCmsDocumentLoading || isCmsSavingDraft || isCmsPublishing || selectedPageMeta.status === "disabled"}
+          >
+            <ExternalLink className="h-4 w-4 mr-2" />
+            Preview
           </Button>
-        )}
+          <Button
+            variant="outline"
+            onClick={handleSaveDraft}
+            disabled={isCmsDocumentLoading || isCmsSavingDraft || isCmsPublishing || !selectedPageCanEdit}
+          >
+            {isCmsSavingDraft ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4 mr-2" />
+            )}
+            Save Draft
+          </Button>
+          <Button
+            onClick={handlePublish}
+            disabled={isCmsDocumentLoading || isCmsSavingDraft || isCmsPublishing || !selectedPageCanEdit}
+          >
+            {isCmsPublishing ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4 mr-2" />
+            )}
+            Publish
+          </Button>
+          <Button onClick={handleSaveAll} disabled={isSaving || isCmsSavingDraft || isCmsPublishing} variant="ghost">
+            {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+            Save Legacy Globals
+          </Button>
+        </div>
       </div>
 
       <Card className="border-border bg-card/50">
         <CardHeader>
           <CardTitle>Select Page</CardTitle>
-          <CardDescription>Choose which page schema to edit</CardDescription>
+          <CardDescription>Choose which page schema to edit. Planned and disabled pages are inventoried but not writable yet.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-[1fr_auto]">
@@ -1142,17 +1245,34 @@ function AdminPageBuilderContent() {
                 <SelectValue placeholder="Select page" />
               </SelectTrigger>
               <SelectContent>
-                {CMS_PAGE_DEFINITIONS.map((page) => (
-                  <SelectItem key={page.id} value={page.id}>
-                    {page.label} ({page.path})
-                  </SelectItem>
+                {groupedPageDefinitions.map(({ group, pages }, groupIndex) => (
+                  <SelectGroup key={group}>
+                    {groupIndex > 0 ? <SelectSeparator /> : null}
+                    <SelectLabel>{group}</SelectLabel>
+                    {pages.map((page) => {
+                      const pageMeta = getCmsPageRegistryMeta(page.id);
+                      const pageEditable = isCmsPageEditableInFullBuilder(page.id);
+                      return (
+                        <SelectItem key={page.id} value={page.id} disabled={!pageEditable}>
+                          <span className="flex w-full items-center justify-between gap-3">
+                            <span className="min-w-0 truncate">
+                              {page.label} ({page.path})
+                            </span>
+                            <span className="shrink-0 text-xs text-muted-foreground">
+                              {CMS_PAGE_STATUS_LABEL[pageMeta.status]}
+                            </span>
+                          </span>
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectGroup>
                 ))}
               </SelectContent>
             </Select>
             {selectedPageDefinition?.path && (
               <Button
                 variant="outline"
-                onClick={() => window.open(selectedPageDefinition.path, "_blank", "noopener,noreferrer")}
+                onClick={() => window.open(resolvePreviewPath(selectedPageDefinition.path), "_blank", "noopener,noreferrer")}
               >
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Open Page
@@ -1162,13 +1282,38 @@ function AdminPageBuilderContent() {
           {selectedPageDefinition?.description && (
             <p className="text-sm text-muted-foreground">{selectedPageDefinition.description}</p>
           )}
-          {isGolfPage && (
-            <p className="text-xs text-muted-foreground">
-              {isGolfCmsLoading
-                ? "Loading Golf CMS document..."
-                : `Document #${golfDocumentId ?? "new"} · Draft v${golfLatestDraftVersion ?? "-"} · Published v${golfLatestPublishedVersion ?? "-"}`}
-            </p>
-          )}
+          <div className="rounded-lg border border-border bg-background p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline" className={CMS_PAGE_STATUS_BADGE_CLASS[selectedPageMeta.status]}>
+                {CMS_PAGE_STATUS_LABEL[selectedPageMeta.status]}
+              </Badge>
+              <Badge variant="outline">{selectedPageMeta.scope}</Badge>
+              <Badge variant="outline">{selectedPageMeta.group}</Badge>
+              <span className="text-sm text-muted-foreground">{selectedPageDefinition?.path}</span>
+            </div>
+            <div className="mt-3 grid gap-3 text-sm md:grid-cols-2">
+              <div>
+                <p className="font-medium text-foreground">Public renderer</p>
+                <p className="text-muted-foreground">{selectedPageMeta.publicRenderer}</p>
+              </div>
+              <div>
+                <p className="font-medium text-foreground">CMS contract</p>
+                <p className="text-muted-foreground">
+                  {selectedPageCanEdit
+                    ? "Draft, publish, hero media, block state, and text overrides are enabled for this registry item."
+                    : "This page is inventoried only. Save and publish are disabled until public renderer parity is implemented."}
+                </p>
+              </div>
+            </div>
+            {selectedPageMeta.notes ? (
+              <p className="mt-3 text-xs text-muted-foreground">{selectedPageMeta.notes}</p>
+            ) : null}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {isCmsDocumentLoading
+              ? `Loading ${selectedPageDefinition?.label ?? "selected"} CMS document...`
+              : `Document #${cmsDocumentId ?? "new"} · Draft v${cmsLatestDraftVersion ?? "-"} · Published v${cmsLatestPublishedVersion ?? "-"}`}
+          </p>
         </CardContent>
       </Card>
 

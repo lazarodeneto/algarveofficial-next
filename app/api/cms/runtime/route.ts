@@ -5,6 +5,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import { resolveLocaleFromAcceptLanguage } from "@/lib/i18n/config";
 import { buildCmsSettingsFromDocuments } from "@/lib/cms/runtime-resolver";
+import { safeJsonParse } from "@/lib/cms/safe-json";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 
@@ -15,6 +16,11 @@ interface RuntimeSettingRow {
 }
 
 const CMS_RUNTIME_KEYS = new Set<string>(Object.values(CMS_GLOBAL_SETTING_KEYS));
+const JSON_RUNTIME_KEYS = new Set<string>([
+  CMS_GLOBAL_SETTING_KEYS.pageConfigs,
+  CMS_GLOBAL_SETTING_KEYS.textOverrides,
+  CMS_GLOBAL_SETTING_KEYS.designTokens,
+]);
 const CMS_VERSION_BATCH_SIZE = 100;
 
 function isMissingCmsDocumentsColumnError(error: unknown, column: string) {
@@ -61,6 +67,17 @@ function mergeSettings(
   const rows = [...byKey.values()].sort((a, b) => a.key.localeCompare(b.key));
   if (!requestedKeys.length) return rows;
   return rows.filter((row) => requestedKeys.includes(row.key));
+}
+
+function sanitizeRuntimeRows(rows: RuntimeSettingRow[]) {
+  return rows.map((row) => {
+    if (!JSON_RUNTIME_KEYS.has(row.key)) return row;
+    const parsed = safeJsonParse<Record<string, unknown>>(row.value, {}, row.key);
+    return {
+      ...row,
+      value: JSON.stringify(parsed),
+    };
+  });
 }
 
 async function fetchCmsDocumentVersionsInBatches(
@@ -123,7 +140,7 @@ export async function GET(request: NextRequest) {
   if (!needsCmsRuntime) {
     return NextResponse.json({
       ok: true,
-      data: (globalRows ?? []) as RuntimeSettingRow[],
+      data: sanitizeRuntimeRows((globalRows ?? []) as RuntimeSettingRow[]),
     });
   }
 
@@ -154,7 +171,7 @@ export async function GET(request: NextRequest) {
   if (docsError) {
     return NextResponse.json({
       ok: true,
-      data: (globalRows ?? []) as RuntimeSettingRow[],
+      data: sanitizeRuntimeRows((globalRows ?? []) as RuntimeSettingRow[]),
     });
   }
 
@@ -167,7 +184,7 @@ export async function GET(request: NextRequest) {
   if (!currentVersionIds.length) {
     return NextResponse.json({
       ok: true,
-      data: (globalRows ?? []) as RuntimeSettingRow[],
+      data: sanitizeRuntimeRows((globalRows ?? []) as RuntimeSettingRow[]),
     });
   }
 
@@ -179,7 +196,7 @@ export async function GET(request: NextRequest) {
   if (versionsError) {
     return NextResponse.json({
       ok: true,
-      data: (globalRows ?? []) as RuntimeSettingRow[],
+      data: sanitizeRuntimeRows((globalRows ?? []) as RuntimeSettingRow[]),
     });
   }
 
@@ -202,6 +219,6 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     ok: true,
-    data: merged,
+    data: sanitizeRuntimeRows(merged),
   });
 }

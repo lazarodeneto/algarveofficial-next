@@ -6,6 +6,7 @@ import {
   getStatusCounts,
   getTranslationJobsGrouped,
 } from "@/lib/admin/translations/queries";
+import { guardDashboardRoute } from "@/lib/server/dashboard-access";
 import { TranslationsDashboard } from "@/components/admin/translations/TranslationsDashboard";
 import type { TranslationFilters, TranslationStatus } from "@/lib/admin/translations/types";
 
@@ -41,7 +42,15 @@ function parseFilters(sp: Record<string, string | string[] | undefined>): Transl
   };
 }
 
-export default async function TranslationsPage({ searchParams }: PageProps) {
+export default async function TranslationsPage({ params, searchParams }: PageProps) {
+  const { locale } = await params;
+  await guardDashboardRoute({
+    locale,
+    basePath: "/admin",
+    slug: ["translations"],
+    allowedRoles: ["admin", "editor"],
+  });
+
   const sp = await searchParams;
   const filters = parseFilters(sp);
 

@@ -5,6 +5,7 @@ import { ArrowRight, MapPin, Search } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/Button";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { useCities, useCityListingCounts } from "@/hooks/useReferenceData";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
@@ -29,11 +30,20 @@ const CITIES = [
 export function HomeSmartSearchSection() {
   const l = useLocalePath();
   const { t } = useTranslation();
+  const { data: cities = [] } = useCities();
+  const { data: cityCounts = {} } = useCityListingCounts();
+  const cityBySlug = new Map(cities.map((city) => [city.slug, city]));
+  const popularCities = CITIES.filter((city) => {
+    const slug = city.href.split("/").filter(Boolean).at(-1);
+    if (!slug) return false;
+    const matchingCity = cityBySlug.get(slug);
+    return matchingCity ? (cityCounts[matchingCity.id] ?? 0) > 0 : true;
+  });
 
   return (
     <section id="home-smart-search" className="bg-background pb-12 pt-2 sm:pb-14 lg:pb-16">
       <div className="app-container content-max">
-        <div className="grid gap-5 rounded-2xl border border-border/70 bg-card p-5 shadow-soft-surface sm:p-6 lg:grid-cols-[1fr_1.15fr_auto] lg:items-center lg:gap-7 lg:p-7">
+        <div className="grid gap-5 rounded-sm border border-border/70 bg-card p-5 text-center shadow-soft-surface sm:p-6 lg:grid-cols-[1fr_1.15fr_auto] lg:items-center lg:gap-7 lg:p-7 lg:text-left">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
               {t("sections.homepage.smartSearch.label")}
@@ -41,13 +51,13 @@ export function HomeSmartSearchSection() {
             <h2 className="mt-2 font-serif text-2xl font-medium leading-tight tracking-normal text-foreground sm:text-3xl">
               {t("sections.homepage.smartSearch.title")}
             </h2>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            <p className="mx-auto mt-2 max-w-[28rem] text-sm leading-6 text-muted-foreground lg:mx-0">
               {t("sections.homepage.smartSearch.subtitle")}
             </p>
           </div>
 
           <div className="space-y-4">
-            <nav aria-label={t("sections.homepage.smartSearch.intentLabel")} className="flex flex-wrap gap-2">
+            <nav aria-label={t("sections.homepage.smartSearch.intentLabel")} className="flex flex-wrap justify-center gap-2 lg:justify-start">
               {INTENTS.map((intent) => (
                 <Link
                   key={intent.key}
@@ -58,12 +68,12 @@ export function HomeSmartSearchSection() {
                 </Link>
               ))}
             </nav>
-            <nav aria-label={t("sections.homepage.smartSearch.cityLabel")} className="flex flex-wrap items-center gap-2 text-sm">
-              <span className="inline-flex items-center gap-1.5 font-semibold text-muted-foreground">
+            <nav aria-label={t("sections.homepage.smartSearch.cityLabel")} className="flex flex-wrap items-center justify-center gap-2 text-sm lg:justify-start">
+              <span className="inline-flex w-full items-center justify-center gap-1.5 font-semibold text-muted-foreground sm:w-auto lg:justify-start">
                 <MapPin className="h-4 w-4 text-primary" />
                 {t("sections.homepage.smartSearch.popularCities")}
               </span>
-              {CITIES.map((city) => (
+              {popularCities.map((city) => (
                 <Link
                   key={city.key}
                   href={l(city.href)}
@@ -77,7 +87,7 @@ export function HomeSmartSearchSection() {
 
           <Link
             href={l("/directory")}
-            className={cn(buttonVariants({ variant: "gold", size: "lg" }), "w-full gap-2 lg:w-auto")}
+            className={cn(buttonVariants({ variant: "gold", size: "lg" }), "mx-auto w-full gap-2 sm:w-auto lg:mx-0")}
           >
             <Search className="h-4 w-4" />
             {t("sections.homepage.smartSearch.cta")}

@@ -453,6 +453,30 @@
       "validLabel": "Geldig",
       "verifiedDescription": "Standaard betaald niveau met verificatiebadge",
       "verifiedTier": "Geverifieerd niveau"
+    },
+    "golfTeeTimeRequests": {
+      "title": "Golf tee-time aanvragen",
+      "subtitle": "Bekijk lichte tee-time leads die via golfbaanpagina’s zijn ingestuurd.",
+      "refresh": "Vernieuwen",
+      "dateReceived": "Ontvangen op",
+      "course": "Baan",
+      "name": "Naam",
+      "email": "E-mail",
+      "phone": "Telefoon",
+      "preferredDateTime": "Voorkeursdatum/tijd",
+      "players": "Spelers",
+      "status": "Status",
+      "empty": "Nog geen tee-time aanvragen.",
+      "loading": "Tee-time aanvragen laden...",
+      "updateSuccess": "Aanvraagstatus bijgewerkt.",
+      "updateError": "Kan aanvraagstatus niet bijwerken.",
+      "unknownCourse": "Onbekende baan",
+      "statuses": {
+        "new": "Nieuw",
+        "contacted": "Gecontacteerd",
+        "sent_to_course": "Naar baan gestuurd",
+        "closed": "Gesloten"
+      }
     }
   },
   "auth": {
@@ -559,7 +583,7 @@
     "noPostsFound": "Er zijn geen berichten gevonden die aan uw criteria voldoen.",
     "noPostsSubtext": "Kom snel terug voor nieuwe artikelen en verhalen over de Algarve.",
     "noPostsTitle": "Geen berichten gevonden",
-    "readTime": "min gelezen",
+    "readTime": "min leestijd",
     "recentPosts": "Recente berichten",
     "relatedListings": "Gerelateerde vermeldingen",
     "searchPlaceholder": "Artikelen zoeken...",
@@ -568,7 +592,12 @@
     "shareLinkedIn": "Deel op LinkedIn",
     "shareTwitter": "Deel op X",
     "subtitle": "Ontdek de levensstijl van de Algarve, reisgidsen en insidertips",
-    "title": "Blog en inzichten"
+    "title": "Blog en inzichten",
+    "readMore": "Lees meer",
+    "copyFailed": "Toegang tot klembord geweigerd",
+    "notFoundTitle": "Artikel niet gevonden",
+    "notFoundDescription": "Dit artikel is mogelijk verwijderd of niet beschikbaar.",
+    "views": "weergaven"
   },
   "categories": {
     "algarveServices": "Algarve-diensten",
@@ -1402,7 +1431,7 @@
     "hero": {
       "alt": "Premium Algarve directory kustlijnweergave",
       "ctaPrimary": "Plan met conciërge",
-      "ctaSecondary": "Ontdek residentie in Algarve"
+      "ctaSecondary": "Verhuizen naar de Algarve ontdekken"
     },
     "heroLabel": "Ontdek onze wereld",
     "listings": "vermeldingen",
@@ -1636,7 +1665,65 @@
   "golf": {
     "iframeTitle": "AlgarveOfficial Golf",
     "loadingDescription": "Je ronde voorbereiden...",
-    "loadingTitle": "Golf laden"
+    "loadingTitle": "Golf laden",
+    "hero": {
+      "badge": "Geselecteerde golf",
+      "title": "Speel kampioenschapsgolf in de Algarve",
+      "subtitle": "Ontdek exclusieve golfvermeldingen, vergelijk baanspecificaties en plan je volgende ronde aan Portugals premium kust.",
+      "alt": "Golf fairways in de Algarve",
+      "ctaCourses": "Bekijk banen",
+      "ctaLeaderboard": "Bekijk klassement"
+    },
+    "featuredCourses": {
+      "title": "Uitgelichte banen",
+      "cta": "Alles bekijken",
+      "emptyTitle": "Geen golfvermeldingen beschikbaar",
+      "emptyDescription": "Golfvermeldingen verschijnen hier zodra ze zijn gepubliceerd."
+    },
+    "courseTools": {
+      "bookingTitle": "Tee time boeken",
+      "bookingSubtitle": "Geïntegreerd boeken is beschikbaar in de volgende fase.",
+      "bookingBody": "We koppelen partnerboekingen en beschikbare starttijden.",
+      "scorecardsTitle": "Scorecards & handicap",
+      "scorecardsSubtitle": "Gestructureerde rondetracking komt in fase 2.",
+      "scorecardsBody": "Binnenkort kun je rondes opslaan, scores vergelijken en je handicap volgen."
+    },
+    "leaderboard": {
+      "title": "Klassement",
+      "cta": "Pagina openen"
+    },
+    "cta": {
+      "title": "Klaar om je volgende ronde te plannen?",
+      "subtitle": "Vergelijk banen, bewaar favorieten en start met rondetracking.",
+      "primary": "Bekijk banen",
+      "secondary": "Bekijk klassement"
+    },
+    "courseDirectory": {
+      "title": "Golfbaanoverzicht",
+      "description": "Ontdek golfclubs via AlgarveOfficial-vermeldingen.",
+      "emptyTitle": "Geen golfvermeldingen beschikbaar",
+      "emptyDescription": "Geen gepubliceerde golfvermeldingen passen bij je huidige filters."
+    },
+    "leaderboardPage": {
+      "title": "Klassement",
+      "description": "Actuele spelersstanden en verschillen ten opzichte van par.",
+      "topPlayers": "Topspelers",
+      "scoreDescription": "Scores worden weergegeven ten opzichte van par."
+    },
+    "round": {
+      "unavailableTitle": "Ronde niet beschikbaar",
+      "unavailableDescription": "Deze baan heeft nog geen volledige hole-instelling. Probeer voorlopig een andere golfvermelding."
+    },
+    "scorecard": {
+      "back": "Terug",
+      "title": "Scorekaart",
+      "roundFinished": "Ronde voltooid",
+      "finishRound": "Ronde afronden",
+      "frontNine": "Eerste negen",
+      "backNine": "Tweede negen",
+      "diff": "Verschil",
+      "total": "Totaal"
+    }
   },
   "guides": {
     "breadcrumbLabel": "Broodkruimel",
@@ -1860,15 +1947,15 @@
     "relatedPolicies": "Gerelateerd beleid"
   },
   "listing": {
-    "about": "Over",
-    "backToHome": "Terug naar Thuis",
-    "backToListings": "Terug naar alle aanbiedingen",
+    "about": "About",
+    "backToHome": "Back to home",
+    "backToListings": "Back to listings",
     "bathrooms": "Badkamers",
     "bedrooms": "Slaapkamers",
     "bookVisit": "Boek een bezoek",
     "builtArea": "Bebouwde oppervlakte",
     "certifiedListing": "Gecertificeerde vermelding",
-    "claimThisListing": "Claim deze vermelding",
+    "claimThisListing": "Claim this listing",
     "contact": "Contact",
     "contactForLocation": "Neem contact op voor locatiegegevens",
     "experience": "Ervaring",
@@ -1932,19 +2019,19 @@
       "yourName": "Jouw naam"
     },
     "interested": "Geïnteresseerd?",
-    "isYourBusiness": "Is dit jouw bedrijf?",
+    "isYourBusiness": "Is this your business?",
     "livingArea": "Woonoppervlak",
     "location": "Locatie",
     "locationHidden": "Locatie op aanvraag beschikbaar",
-    "locationUnavailable": "Locatie niet beschikbaar voor deze vermelding.",
-    "messageWhatsApp": "Bericht op WhatsApp",
-    "notFound": "Advertentie niet gevonden",
-    "notFoundMessage": "Deze vermelding is mogelijk verwijderd of is niet beschikbaar.",
+    "locationUnavailable": "Location unavailable",
+    "messageWhatsApp": "Message on WhatsApp",
+    "notFound": "Listing not found",
+    "notFoundMessage": "This listing is unavailable or has not been published yet.",
     "plotSize": "Perceelgrootte",
     "price": "Prijs",
     "priceOnRequest": "Prijs op aanvraag",
-    "relatedDestinations": "Ontdek meer bestemmingen",
-    "relatedListings": "Meer in {{category}}",
+    "relatedDestinations": "Related destinations",
+    "relatedListings": "More {{category}} to explore",
     "reviews": {
       "content": "Jouw recensie",
       "contentPlaceholder": "Deel de details van uw ervaring...",
@@ -1960,28 +2047,37 @@
       "write": "Schrijf een recensie"
     },
     "save": "Redden",
-    "saveToFavorites": "Opslaan in favorieten",
+    "saveToFavorites": "Save to favorites",
     "scheduleViewing": "Plan een bezichtiging",
     "sendInquiry": "Onderzoek verzenden",
     "sendMessage": "Bericht verzenden",
-    "share": "Deel",
+    "share": "Share",
     "similarListings": "Soortgelijke vermeldingen",
-    "tags": "Labels",
+    "tags": "Tags",
     "verifiedDocuments": "Geverifieerde documenten",
     "verifiedPartner": "Geverifieerde partner",
-    "viewGallery": "Galerij bekijken",
+    "viewGallery": "View gallery",
     "viewOnMap": "Bekijk op kaart",
-    "visitWebsite": "Bezoek website",
-    "relatedDestinationsDescription": "Discover other prestigious regions across the Algarve",
+    "visitWebsite": "Visit website",
+    "relatedDestinationsDescription": "Explore nearby Algarve destinations with curated places and services.",
     "social": {
       "instagram": "Instagram",
       "facebook": "Facebook",
       "googleBusiness": "Google Business",
-      "telegram": "Telegram"
+      "telegram": "Telegram",
+      "whatsapp": "WhatsApp"
     },
     "badge": {
-      "verified": "Geverifieerd",
+      "verified": "Verified",
       "signature": "Signature"
+    },
+    "bookNow": "Nu boeken",
+    "call": "Bellen",
+    "trust": {
+      "verifiedTitle": "Geverifieerd door AlgarveOfficial",
+      "verifiedDescription": "A trust signal for active and legitimate local businesses.",
+      "signatureTitle": "Signature Selection",
+      "signatureDescription": "Premium editorial-style visibility for standout Algarve businesses."
     }
   },
   "live": {
@@ -2011,8 +2107,8 @@
       "badge": "Verhuisgids",
       "ctaPrimary": "Plan Mijn Verhuizing",
       "ctaSecondary": "Blader Lokale Experts",
-      "subtitle": "Gestructureerde begeleiding voor verblijf, huisvesting en dagelijks leven voor een soepele, conforme en toekomstgerichte verhuizing.",
-      "title": "Woon in de Algarve, met duidelijkheid vanaf dag één"
+      "subtitle": "Praktische gidsen, betrouwbare diensten en zorgvuldig geselecteerde lokale bronnen om met vertrouwen naar de Algarve te verhuizen.",
+      "title": "Verhuizen naar de Algarve"
     },
     "pillars": {
       "cost": {
@@ -2129,7 +2225,9 @@
       "concierge": "Uniforme Verhuisconciërge",
       "municipalities": "Gemeentes te Ontdekken",
       "sun": "Zonnige Dagen / Jaar"
-    }
+    },
+    "seoTitle": "Verhuizen naar de Algarve | Verhuizen, wonen en settelen in Portugal",
+    "seoDescription": "Praktische gidsen, betrouwbare diensten en zorgvuldig geselecteerde lokale bronnen om met vertrouwen naar de Algarve te verhuizen."
   },
   "map": {
     "description": "Verken Algarve-vermeldingen op een interactieve kaart met geclusterde markeringen en directe filtering.",
@@ -2156,9 +2254,9 @@
         "title": "Investeer in de Algarve"
       },
       "live": {
-        "desc": "Alles wat u nodig heeft om van de Algarve uw permanente thuis te maken.",
+        "desc": "Praktische gidsen, betrouwbare diensten en zorgvuldig geselecteerde lokale bronnen om met vertrouwen naar de Algarve te verhuizen.",
         "label": "Meer informatie",
-        "title": "Wonen in de Algarve"
+        "title": "Verhuizen naar de Algarve"
       },
       "properties": {
         "desc": "Premium vastgoed en investeringsmogelijkheden.",
@@ -2174,13 +2272,19 @@
         "desc": "Wereldklas ervaringen langs Europas mooiste kustlijn.",
         "label": "Alles ontdekken",
         "title": "Bezoek de Algarve"
+      },
+      "relocation": {
+        "desc": "Praktische gidsen, betrouwbare diensten en zorgvuldig geselecteerde lokale bronnen om met vertrouwen naar de Algarve te verhuizen.",
+        "label": "Meer informatie",
+        "title": "Verhuizen naar de Algarve"
       }
     },
     "invest": "Investeer",
-    "live": "Woon",
+    "live": "Verhuizen",
     "properties": "Vastgoed",
     "stay": "Verblijven",
-    "visit": "Bezoek"
+    "visit": "Bezoek",
+    "relocation": "Verhuizen"
   },
   "nav": {
     "about": "Over ons",
@@ -2200,7 +2304,7 @@
     "golf": "Golf",
     "home": "Thuis",
     "invest": "Investeren",
-    "live": "Live",
+    "live": "Verhuizen",
     "login": "Inloggen / Registreren",
     "map": "Kaart",
     "messages": "Berichten",
@@ -2218,7 +2322,8 @@
     "stay": "Verblijven",
     "terms": "Servicevoorwaarden",
     "visit": "Bezoek",
-    "yourSpace": "Jouw Ruimte"
+    "yourSpace": "Jouw Ruimte",
+    "relocation": "Verhuizen"
   },
   "newsletter": {
     "alreadySubscribed": "Je bent al geabonneerd op onze nieuwsbrief!",
@@ -2486,8 +2591,8 @@
     },
     "faq": {
       "a1": "Dien uw aanvraag in via het bovenstaande formulier. Ons team beoordeelt uw bedrijf en neemt binnen 2-3 werkdagen contact met u op.",
-      "a2": "We bieden drie niveaus: Unverified (gratis basisvermelding), Verified (verbeterde zichtbaarheid met trustbadge) en Signature (premiumplaatsing waarbij u in aanmerking komt voor Signature Selection).",
-      "a3": "De eerste beoordeling duurt doorgaans twee tot drie werkdagen. Na goedkeuring gaat uw vermelding onmiddellijk live.",
+      "a2": "We offer Free, Verified, and Signature levels. Verified adds credibility and a stronger profile. Signature adds premium editorial-style visibility and eligibility for curated placements where relevant.",
+      "a3": "Most reviews are completed within 2-3 business days. Visibility depends on listing quality, tier, relevance, and available placement inventory.",
       "a4": "Basisvermeldingen zijn gratis. Voor de niveaus Geverifieerd en Handtekening gelden maandelijkse kosten met extra voordelen. Neem contact met ons op voor de huidige prijzen.",
       "q1": "Hoe zorg ik ervoor dat mijn bedrijf vermeld wordt?",
       "q2": "Wat zijn de verschillende vermeldingsniveaus?",
@@ -2510,26 +2615,126 @@
       "submit": "Verzoek indienen",
       "submitting": "Verzenden...",
       "title": "Aan de slag",
-      "validationError": "Vul alle verplichte velden in."
+      "validationError": "Vul alle verplichte velden in.",
+      "responseTime": "Share your details and our team will reply within 2-3 business days.",
+      "messagePlaceholder": "Tell us about your business, location, audience, and the kind of visibility you are interested in."
     },
     "newListing": {
       "cta": "Solliciteer nu",
       "description": "Registreer uw bedrijf om te worden opgenomen in onze geselecteerde collectie luxe ervaringen.",
       "title": "Vraag nieuwe vermelding aan"
     },
-    "subtitle": "Sluit u aan bij de belangrijkste luxegids van de Algarve en kom in contact met veeleisende reizigers die op zoek zijn naar eersteklas ervaringen.",
+    "subtitle": "Bereik bezoekers, bewoners en doelgroepen met hoge intentie via gecureerde zichtbaarheid en betrouwbare lokale ontdekking.",
     "success": "Bedankt! Uw aanvraag is ingediend. Wij nemen binnen 2-3 werkdagen contact met u op.",
-    "title": "Word partner",
+    "title": "Partner worden van AlgarveOfficial",
     "hero": {
       "badge": "Partner Programme",
-      "trustLine": "✓ No long-term contract · ✓ 2–3 day review · ✓ Go live immediately",
-      "applyForPartnership": "Apply for Partnership",
-      "viewPricing": "View Pricing"
+      "trustLine": "No long-term contract · Quality review · Curated visibility",
+      "applyForPartnership": "Partnerinformatie aanvragen",
+      "viewPricing": "Bekijk vermeldingsopties"
     },
     "finalCta": {
-      "applyFree": "Apply (Free)",
-      "buySubscription": "Buy Subscription",
-      "trustLine": "✓ No long-term contract · ✓ Cancel anytime · ✓ 2–3 day review"
+      "applyFree": "Claim or upgrade your listing",
+      "buySubscription": "View listing options",
+      "trustLine": "Geen lang contract · Altijd opzegbaar · Review binnen 2-3 dagen"
+    },
+    "forWhom": {
+      "title": "Built for premium Algarve businesses",
+      "subtitle": "AlgarveOfficial is not a mass directory. We curate established operators so visitors, residents, golfers, relocation users, and property buyers can discover trusted local names.",
+      "categories": {
+        "hotels": "Hotels & Accommodation",
+        "restaurants": "Restaurants & Gastronomy",
+        "experiences": "Experiences & Activities",
+        "golf": "Golf & Leisure",
+        "realEstate": "Real Estate & Services"
+      }
+    },
+    "audience": {
+      "badge": "Doelgroep",
+      "title": "Bereik de juiste Algarve-doelgroepen",
+      "subtitle": "Partner visibility is designed for people already researching where to stay, dine, play, move, invest, and spend time in the Algarve.",
+      "items": {
+        "visitors": {
+          "title": "Visitors planning trips",
+          "description": "Travelers comparing trusted places before they arrive."
+        },
+        "residents": {
+          "title": "Residents and relocation users",
+          "description": "People building local routines and choosing reliable services."
+        },
+        "golf": {
+          "title": "Golf travellers",
+          "description": "Players looking for courses, resorts, and premium leisure options."
+        },
+        "property": {
+          "title": "Property buyers and investors",
+          "description": "High-intent audiences exploring areas, services, and lifestyle fit."
+        },
+        "lifestyle": {
+          "title": "Premium lifestyle consumers",
+          "description": "Discerning users looking for quality, credibility, and local confidence."
+        }
+      }
+    },
+    "placement": {
+      "badge": "Placement",
+      "title": "Gecureerde zichtbaarheid, geen overvolle advertenties",
+      "subtitle": "Paid tiers improve trust and eligibility for stronger placement, while editorial areas remain curated and limited.",
+      "items": {
+        "curated": {
+          "title": "Homepage visibility is limited",
+          "description": "Featured areas are curated so premium placements keep their value and do not feel crowded."
+        },
+        "relevance": {
+          "title": "City and category placement depends on fit",
+          "description": "Visibility is guided by relevance, tier, content quality, and available inventory."
+        },
+        "standards": {
+          "title": "Quality standards remain in place",
+          "description": "Premium placement is subject to review of imagery, description, location, category, and contact quality."
+        }
+      }
+    },
+    "trust": {
+      "title": "Vertrouwensstandaarden beschermen het platform",
+      "subtitle": "AlgarveOfficial sells visibility, credibility, and qualified discovery. We do not sell guaranteed bookings, traffic, or revenue.",
+      "points": {
+        "review": "Listings may be reviewed before premium placement is approved.",
+        "quality": "Poor-quality, irrelevant, or incomplete businesses may be declined for premium visibility.",
+        "noGuarantees": "Paid placement remains subject to relevance, quality, and availability."
+      }
+    },
+    "hubLinks": {
+      "title": "Where partners can be discovered",
+      "subtitle": "Visibility connects into the public hubs people already use to explore the Algarve.",
+      "links": {
+        "golf": "Golf audience",
+        "properties": "Property and investor audience",
+        "relocation": "Relocation audience",
+        "map": "Map discovery"
+      }
+    },
+    "features": {
+      "directoryListing": "Vermelding in directory",
+      "mapVisibility": "Zichtbaarheid op kaart",
+      "basicProfile": "Basis bedrijfsprofiel",
+      "verifiedTrustBadge": "Verified vertrouwensbadge",
+      "enhancedProfile": "Uitgebreid bedrijfsprofiel",
+      "gallery10": "Fotogalerij (tot 10 beelden)",
+      "gallery20": "Fotogalerij (tot 20 beelden)",
+      "socialLinks": "Socialmedia-links",
+      "socialMentions": "Socialmedia-vermeldingen",
+      "videoInterview": "Video-interview (tot 3 min)",
+      "videoCommercial": "Commerciële video (tot 1 min)",
+      "directContact": "Direct contact van reizigers",
+      "mapPriority": "Prioriteit op de kaart",
+      "ctaButton": "CTA-knop",
+      "signatureEligibility": "Geschikt voor Signature Selection",
+      "whatsapp": "WhatsApp-integratie",
+      "priorityVisibility": "Prioritaire zichtbaarheid",
+      "homepagePlacement": "Uitgelicht op homepage",
+      "homepageAddOn": "Homepageplaatsing als add-on",
+      "everythingVerified": "Alles in Verified"
     }
   },
   "pricing": {
@@ -2565,7 +2770,7 @@
         "q": "Kan ik later van plan wisselen?"
       },
       "timing": {
-        "a": "De meeste partners zien een toename in zichtbaarheid binnen 48 uur na activering. Aanvragen beginnen doorgaans in de eerste week.",
+        "a": "Applications are normally reviewed within 2-3 business days. Results vary by category, season, listing quality, and audience demand.",
         "q": "Hoe snel zal ik resultaten zien?"
       },
       "title": "Veelgestelde Vragen"
@@ -2668,7 +2873,9 @@
         "invest": "Investment Opportunity",
         "other": "Other Inquiry"
       }
-    }
+    },
+    "pageTitle": "Woningen in de Algarve",
+    "emptyRefinedSearch": "Geen woningen passen bij je verfijnde zoekopdracht"
   },
   "reviews": {
     "anonymousUser": "Bezoeker",
@@ -2896,9 +3103,8 @@
         }
       },
       "categories": {
-        "label": "Wat wij bieden",
-        "title": "Premium categorieën",
-        "subtitle": "Blader door de premium directory per categorie, van verblijf en restaurants tot ervaringen en vastgoed."
+        "title": "Ontdek de Algarve",
+        "intro": "Ontdek geselecteerde verblijven, restaurants, golf, vastgoed, evenementen en lokale ervaringen."
       },
       "cities": {
         "label": "Steden",
@@ -3080,15 +3286,15 @@
     "title": "Choose your partnership level",
     "subtitle": "Transparent pricing. No hidden fees. Cancel anytime.",
     "annualDiscount": "Annual billing available at 20% discount.",
-    "recommended": "Recommended",
+    "recommended": "Niet missen",
     "verifiedPartner": "Verified Partner",
-    "perMonth": "/month",
-    "verifiedDescription": "Enhanced visibility and trust for established businesses. Less than the cost of a single booking.",
-    "applyAsVerified": "Apply as Verified",
-    "noLongTermContract": "No long-term contract · Cancel anytime",
+    "perMonth": "/maand",
+    "verifiedDescription": "A trust signal for active, legitimate local businesses that want credibility and a stronger listing presence.",
+    "applyAsVerified": "Aanmelden als Verified",
+    "noLongTermContract": "Geen lang contract · altijd opzegbaar",
     "byInvitation": "By Invitation",
     "signaturePartner": "Signature Partner",
-    "signatureDescription": "Reserved for operators selected by our editorial team based on profile, location, and market fit.",
+    "signatureDescription": "Premium editorial-style visibility for standout Algarve businesses, with eligibility for curated homepage, city, and category placements where relevant.",
     "byInvitationOnly": "By Invitation Only",
     "eligiblePartnersContacted": "Our team contacts eligible Verified partners directly.",
     "interestedInSignature": "Interested in Signature?",
@@ -3096,7 +3302,13 @@
     "reviewEligibilityNote": "— we review all partners for eligibility.",
     "notReady": "Not ready to commit?",
     "startFreeListing": "Start with a free basic listing",
-    "upgradeWhenReady": "and upgrade when ready."
+    "upgradeWhenReady": "and upgrade when ready.",
+    "available": "Beperkt / Exclusief",
+    "applyAsSignature": "Aanmelden als Signature",
+    "signatureAvailableNote": "Signature is available for qualified premium listings and remains subject to quality standards.",
+    "wantHomepagePlacement": "Need homepage featured placement as an add-on?",
+    "contactUs": "Contact us",
+    "homepagePlacementNote": "and our team will review the right add-on placement for your category."
   },
   "user": {
     "tripPlanner": {
@@ -3148,7 +3360,10 @@
     "title": "What's included in each tier",
     "subtitle": "Compare features across all three partnership levels.",
     "feature": "Feature",
-    "basic": "Basic"
+    "basic": "Basic",
+    "addOn": "Add-on",
+    "contact": "Contact",
+    "apply": "Aanmelden"
   },
   "lead": {
     "headline": "De Algarve",
@@ -3195,5 +3410,125 @@
   },
   "navigation": {
     "skipToContent": "Skip to main content"
+  },
+  "pages": {
+    "relocation": {
+      "title": "Verhuizen naar de Algarve",
+      "subtitle": "Praktische gidsen, betrouwbare diensten en zorgvuldig geselecteerde lokale bronnen om met vertrouwen naar de Algarve te verhuizen.",
+      "seoTitle": "Verhuizen naar de Algarve | Verhuizen, wonen en settelen in Portugal",
+      "seoDescription": "Praktische gidsen, betrouwbare diensten en zorgvuldig geselecteerde lokale bronnen om met vertrouwen naar de Algarve te verhuizen."
+    }
+  },
+  "breadcrumbs": {
+    "relocation": "Verhuizen"
+  },
+  "golfCourse": {
+    "metaTitleFallback": "Golfbaan",
+    "metaDescriptionFallback": "Bekijk baaninformatie, scorecard en locatie.",
+    "locationFallback": "Algarve",
+    "regionFallback": "Algarve",
+    "holes": "Holes",
+    "par": "Par",
+    "slope": "Slope",
+    "rating": "Course Rating",
+    "length": "Lengte",
+    "designer": "Ontwerper",
+    "meters": "m",
+    "overview": "Baanoverzicht",
+    "facilities": "Faciliteiten",
+    "drivingRange": "Driving range",
+    "clubhouse": "Clubhuis",
+    "restaurant": "Restaurant",
+    "buggy": "Buggy",
+    "academy": "Academie",
+    "access": "Toegang",
+    "difficulty": "Moeilijkheid",
+    "bestFor": "Beste voor",
+    "priceRange": "Prijsklasse",
+    "public": "Openbaar",
+    "private": "Privé",
+    "golfers": "Golfers",
+    "casual": "Ontspannen rondes",
+    "confident": "Zelfverzekerde spelers",
+    "championship": "Championship spel",
+    "scorecard": "Scorecard",
+    "hole": "Hole",
+    "hcp": "HCP",
+    "white": "Wit",
+    "yellow": "Geel",
+    "red": "Rood",
+    "requestTeeTime": "Tee time aanvragen",
+    "contactClub": "Club contacteren",
+    "visitWebsite": "Website bezoeken",
+    "relatedCourses": "Banen in de buurt",
+    "leaderboard": "Ranglijst",
+    "rank": "Rang",
+    "player": "Speler",
+    "score": "Score",
+    "rounds": "Rondes",
+    "teeTime": {
+      "title": "Tee time aanvragen",
+      "intro": "Deel je voorkeursdag en gegevens. We helpen je contact te leggen met de baan of een relevante partner.",
+      "name": "Naam",
+      "email": "E-mail",
+      "phone": "Telefoon",
+      "preferredDate": "Voorkeursdatum",
+      "preferredTime": "Voorkeurstijd",
+      "morning": "Ochtend",
+      "midday": "Middag",
+      "afternoon": "Namiddag",
+      "flexible": "Flexibel",
+      "players": "Aantal spelers",
+      "handicap": "Handicap / speelniveau",
+      "message": "Bericht",
+      "submit": "Tee Time aanvragen",
+      "submitting": "Aanvraag verzenden...",
+      "success": "Aanvraag ontvangen. We helpen je contact te leggen met de baan of een relevante partner.",
+      "error": "We konden deze aanvraag niet verzenden. Probeer het opnieuw."
+    }
+  },
+  "golfDiscovery": {
+    "discoveryTitle": "Find your perfect golf course in the Algarve",
+    "discoverySubtitle": "Choose the kind of round you want and discover curated courses without endless comparison.",
+    "championshipTitle": "Championship Courses",
+    "championshipIntro": "Curated selection of tournament-level courses",
+    "championshipDescription": "18-hole tournament layouts",
+    "coastalTitle": "Scenic Coastal Golf",
+    "coastalIntro": "Ocean light, coastal settings, and memorable Algarve scenery",
+    "coastalDescription": "Views and atmosphere",
+    "luxuryTitle": "Luxury & Private Clubs",
+    "luxuryIntro": "Premium clubs, polished service, and standout golf settings",
+    "luxuryDescription": "Premium golf experiences",
+    "beginnerTitle": "Beginner Friendly",
+    "beginnerIntro": "Welcoming courses for relaxed and confident play",
+    "beginnerDescription": "Easier rounds and learning",
+    "quick9Title": "Quick 9-Hole Rounds",
+    "quick9Intro": "Shorter formats for flexible Algarve golf days",
+    "quick9Description": "Faster rounds",
+    "finderTitle": "Find your course",
+    "skillQuestion": "Skill?",
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "mattersQuestion": "What matters?",
+    "scenery": "Scenery",
+    "challenge": "Challenge",
+    "ease": "Ease",
+    "viewMatches": "View matches",
+    "bestFor": "Best for",
+    "experiencedGolfers": "Experienced golfers",
+    "championshipPlay": "Championship play",
+    "premiumExperience": "Premium experience",
+    "quickRounds": "Quick rounds",
+    "scenicRounds": "Scenic rounds",
+    "relaxedPlay": "Relaxed play",
+    "editorsSelection": "Editor's Selection",
+    "verified": "Verified",
+    "viewCourse": "View Course",
+    "youMightAlsoLike": "You might also like",
+    "noMatchesTitle": "No matching courses yet",
+    "noMatchesDescription": "Explore all golf courses while we expand this discovery collection.",
+    "backToGolf": "Alle golfbanen",
+    "heroLabel": "Ontdek golf"
   }
 }

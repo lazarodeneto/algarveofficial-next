@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES, type AppLocale } from "@/lib/i18n/locales";
-import { isValidLocale, resolveLocaleFromAcceptLanguage } from "@/lib/i18n/locale-utils";
-import { REQUEST_LOCALE_HEADER_NAME } from "@/lib/i18n/route-rules";
+import { isValidLocale } from "@/lib/i18n/locale-utils";
+import { REQUEST_LOCALE_HEADER_NAME, isSystemBypassPath } from "@/lib/i18n/route-rules";
 import { isMaintenanceIpWhitelisted } from "@/lib/maintenance";
 
 const PUBLIC_LOCALES: readonly AppLocale[] = SUPPORTED_LOCALES;
@@ -75,23 +75,6 @@ function isPublicLocale(locale: string | null | undefined): locale is AppLocale 
   return PUBLIC_LOCALE_SET.has(locale.toLowerCase());
 }
 
-function getPreferredLocale(request: NextRequest): AppLocale {
-  const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value?.toLowerCase();
-  if (isPublicLocale(cookieLocale)) {
-    return cookieLocale;
-  }
-
-  const preferredFromHeader = resolveLocaleFromAcceptLanguage(
-    request.headers.get("accept-language"),
-  );
-
-  if (isPublicLocale(preferredFromHeader)) {
-    return preferredFromHeader;
-  }
-
-  return DEFAULT_LOCALE;
-}
-
 function nextWithRequestLocale(request: NextRequest, locale: AppLocale) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set(REQUEST_LOCALE_HEADER_NAME, locale);
@@ -103,30 +86,8 @@ function nextWithRequestLocale(request: NextRequest, locale: AppLocale) {
   });
 }
 
-function rewriteWithRequestLocale(
-  request: NextRequest,
-  rewritePathname: string,
-  locale: AppLocale,
-) {
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set(REQUEST_LOCALE_HEADER_NAME, locale);
-
-  const rewriteUrl = new URL(rewritePathname, request.url);
-  rewriteUrl.search = request.nextUrl.search;
-
-  return NextResponse.rewrite(rewriteUrl, {
-    request: {
-      headers: requestHeaders,
-    },
-  });
-}
-
 function withLocalePrefix(pathname: string, locale: AppLocale): string {
   const normalized = normalizePathname(pathname);
-
-  if (locale === DEFAULT_LOCALE) {
-    return normalized;
-  }
 
   if (normalized === "/") {
     return `/${locale}`;
@@ -135,11 +96,28 @@ function withLocalePrefix(pathname: string, locale: AppLocale): string {
   return `/${locale}${normalized}`;
 }
 
+function hasSupabaseAuthCookie(request: NextRequest): boolean {
+  return request.cookies
+    .getAll()
+    .some((cookie) => cookie.name.startsWith("sb-") && cookie.name.includes("auth-token"));
+}
+
+function redirectAnonymousAdminRequest(request: NextRequest, locale: AppLocale) {
+  const loginUrl = new URL(withLocalePrefix("/login", locale), request.url);
+  const requestedPath = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+  loginUrl.searchParams.set("next", requestedPath);
+  return NextResponse.redirect(loginUrl, 307);
+}
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const normalizedPathname = normalizePathname(pathname);
   const strippedPathname = stripLocalePrefix(normalizedPathname);
+
+  if (isSystemBypassPath(normalizedPathname)) {
+    return NextResponse.next();
+  }
 
   if (MAINTENANCE_ENABLED && !isMaintenanceBypassPath(normalizedPathname)) {
     const requesterIp = getClientIp(request);
@@ -157,6 +135,9 @@ export function proxy(request: NextRequest) {
 
     return NextResponse.redirect(new URL("/maintenance", request.url), 308);
   }
+
+  const relocationAliasPath =
+    strippedPathname === "/residence" || strippedPathname === "/live";
 
   const segments = normalizedPathname.split("/").filter(Boolean);
   const firstSegment = segments[0]?.toLowerCase();
@@ -182,42 +163,37 @@ export function proxy(request: NextRequest) {
       return NextResponse.redirect(redirectUrl, 308);
     }
 
-    // Default locale não deve aparecer com prefixo
-    if (localeFromPath === DEFAULT_LOCALE) {
-      const redirectUrl = new URL(strippedPathname, request.url);
+    if (relocationAliasPath) {
+      const redirectUrl = new URL(withLocalePrefix("/relocation", localeFromPath), request.url);
       redirectUrl.search = request.nextUrl.search;
       return NextResponse.redirect(redirectUrl, 308);
+    }
+
+    if (strippedPathname.startsWith("/admin") && !hasSupabaseAuthCookie(request)) {
+      return redirectAnonymousAdminRequest(request, localeFromPath);
     }
 
     return nextWithRequestLocale(request, localeFromPath);
   }
 
-  // /pricing sem locale -> /partner com locale preferido
+  // /pricing without locale is a legacy English URL.
   if (strippedPathname === "/pricing") {
-    const locale = getPreferredLocale(request);
-    const redirectUrl = new URL(withLocalePrefix("/partner", locale), request.url);
+    const redirectUrl = new URL(withLocalePrefix("/partner", DEFAULT_LOCALE), request.url);
     redirectUrl.search = request.nextUrl.search;
     return NextResponse.redirect(redirectUrl, 308);
   }
 
-  // Paths sem locale explícito
-  const locale = getPreferredLocale(request);
-
-  // Default locale sem prefixo: reescreve internamente
-  if (locale === DEFAULT_LOCALE) {
-    const rewritePath =
-      normalizedPathname === "/"
-        ? `/${DEFAULT_LOCALE}`
-        : `/${DEFAULT_LOCALE}${normalizedPathname}`;
-
-    return rewriteWithRequestLocale(request, rewritePath, locale);
+  if (relocationAliasPath) {
+    const redirectUrl = new URL(withLocalePrefix("/relocation", DEFAULT_LOCALE), request.url);
+    redirectUrl.search = request.nextUrl.search;
+    return NextResponse.redirect(redirectUrl, 308);
   }
 
-  // Outros locales: redirect para path prefixado
-  return NextResponse.redirect(
-    new URL(withLocalePrefix(normalizedPathname, locale), request.url),
-    307,
-  );
+  // Public paths without an explicit locale are legacy English URLs.
+  // They permanently redirect to the canonical /en/... equivalent.
+  const redirectUrl = new URL(withLocalePrefix(normalizedPathname, DEFAULT_LOCALE), request.url);
+  redirectUrl.search = request.nextUrl.search;
+  return NextResponse.redirect(redirectUrl, 308);
 }
 
 export const config = {

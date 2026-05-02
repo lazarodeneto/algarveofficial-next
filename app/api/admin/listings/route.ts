@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
 
 import type { Database } from "@/integrations/supabase/types";
 import { logAdminMutation } from "@/lib/server/admin-audit-log";
@@ -7,6 +6,7 @@ import { adminErrorResponse, requireAdminSession, requireAdminWriteClient } from
 import { logAdminRequest, logAdminError, createRequestId } from "@/lib/server/observability";
 import { listingFormSchema } from "@/lib/forms/schema";
 import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
+import { createServiceRoleClient } from "@/lib/supabase/service";
 
 type ListingImageInput = {
   url: string;
@@ -18,6 +18,101 @@ type ListingImageInput = {
 interface CreateListingBody {
   listing?: unknown;
   images?: unknown;
+}
+
+const DEFAULT_ADMIN_LISTINGS_PAGE_SIZE = 50;
+const MIN_ADMIN_LISTINGS_PAGE_SIZE = 10;
+const MAX_ADMIN_LISTINGS_PAGE_SIZE = 100;
+const ADMIN_LISTINGS_SELECT = `
+  id, name, tier, status, is_curated, description, slug, featured_rank,
+  city_id, category_id, region_id,
+  featured_image_url, website_url, contact_phone, contact_email, address, latitude, longitude,
+  city:cities(id, name),
+  category:categories(id, name),
+  region:regions(id, name)
+`;
+
+interface AdminListingsFilters {
+  search?: string;
+  cityId?: string;
+  categoryId?: string;
+  tier?: string;
+  status?: string;
+}
+
+interface AdminListingsPagination {
+  page: number;
+  pageSize: number;
+  sortBy: "created_at" | "name" | "tier" | "status" | "featured_rank";
+  sortOrder: "asc" | "desc";
+}
+
+interface AdminListingsQuery {
+  ilike(column: string, pattern: string): AdminListingsQuery;
+  eq(column: string, value: string): AdminListingsQuery;
+  order(
+    column: string,
+    options: { ascending: boolean; nullsFirst?: boolean },
+  ): AdminListingsQuery;
+  range(
+    from: number,
+    to: number,
+  ): Promise<{ data: unknown[] | null; count: number | null; error: { message: string } | null }>;
+}
+
+function normalizeAdminFilter(value: string | null) {
+  const trimmed = value?.trim();
+  return trimmed && trimmed !== "all" ? trimmed : undefined;
+}
+
+function applyAdminListingFilters(query: AdminListingsQuery, filters: AdminListingsFilters) {
+  let nextQuery = query;
+  if (filters.search) {
+    nextQuery = nextQuery.ilike("name", `%${filters.search}%`);
+  }
+  if (filters.cityId) {
+    nextQuery = nextQuery.eq("city_id", filters.cityId);
+  }
+  if (filters.categoryId) {
+    nextQuery = nextQuery.eq("category_id", filters.categoryId);
+  }
+  if (filters.tier) {
+    nextQuery = nextQuery.eq("tier", filters.tier);
+  }
+  if (filters.status) {
+    nextQuery = nextQuery.eq("status", filters.status);
+  }
+  return nextQuery;
+}
+
+function parsePositiveInteger(value: string | null, fallback: number) {
+  if (!value) return fallback;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Math.floor(parsed) : fallback;
+}
+
+function parseAdminListingsPagination(searchParams: URLSearchParams): AdminListingsPagination {
+  const page = Math.max(1, parsePositiveInteger(searchParams.get("page"), 1));
+  const requestedPageSize = parsePositiveInteger(
+    searchParams.get("pageSize"),
+    DEFAULT_ADMIN_LISTINGS_PAGE_SIZE,
+  );
+  const pageSize = Math.min(
+    MAX_ADMIN_LISTINGS_PAGE_SIZE,
+    Math.max(MIN_ADMIN_LISTINGS_PAGE_SIZE, requestedPageSize),
+  );
+
+  const requestedSortBy = searchParams.get("sortBy");
+  const sortBy =
+    requestedSortBy === "name" ||
+    requestedSortBy === "tier" ||
+    requestedSortBy === "status" ||
+    requestedSortBy === "featured_rank"
+      ? requestedSortBy
+      : "created_at";
+  const sortOrder = searchParams.get("sortOrder") === "asc" ? "asc" : "desc";
+
+  return { page, pageSize, sortBy, sortOrder };
 }
 
 function parseListingImages(raw: unknown): ListingImageInput[] {
@@ -38,6 +133,27 @@ function parseListingImages(raw: unknown): ListingImageInput[] {
   return rows;
 }
 
+async function fetchAdminListingsPage(
+  client: NonNullable<ReturnType<typeof createServiceRoleClient>>,
+  filters: AdminListingsFilters = {},
+  pagination: AdminListingsPagination,
+) {
+  const from = (pagination.page - 1) * pagination.pageSize;
+  const to = from + pagination.pageSize - 1;
+  const query = client
+    .from("listings")
+    .select(ADMIN_LISTINGS_SELECT, { count: "exact" }) as unknown as AdminListingsQuery;
+
+  const { data, count, error } = await applyAdminListingFilters(query, filters)
+    .order(pagination.sortBy, { ascending: pagination.sortOrder === "asc", nullsFirst: false })
+    .order("id", { ascending: pagination.sortOrder === "asc" })
+    .range(from, to);
+
+  if (error) return { items: null, total: 0, error };
+
+  return { items: data ?? [], total: count ?? 0, error: null };
+}
+
 export async function GET(request: NextRequest) {
   logAdminRequest(request);
   const requestId = createRequestId();
@@ -45,12 +161,21 @@ export async function GET(request: NextRequest) {
   const auth = await requireAdminSession(request);
   if ("error" in auth) return auth.error;
 
+  const adminClient = createServiceRoleClient();
+  if (!adminClient) {
+    return adminErrorResponse(
+      500,
+      "SERVER_MISCONFIGURED",
+      "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin listings reads.",
+    );
+  }
+
   const includeRefData = request.nextUrl.searchParams.get("include_ref_data") === "true";
 
   if (includeRefData) {
     const [{ data: cities, error: citiesErr }, { data: categories, error: catsErr }] = await Promise.all([
-      auth.userClient.from("cities").select("id, name").order("name"),
-      auth.userClient.from("categories").select("id, name").order("name"),
+      adminClient.from("cities").select("id, name").order("name"),
+      adminClient.from("categories").select("id, name").order("name"),
     ]);
 
     if (citiesErr || catsErr) {
@@ -64,23 +189,37 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: true, data: [], cities, categories });
   }
 
-  const { data, error } = await auth.userClient
-    .from("listings")
-    .select(`
-      id, name, tier, status, is_curated, description, slug, featured_rank,
-      city:cities(id, name),
-      category:categories(id, name),
-      region:regions(id, name)
-    `)
-    .order("created_at", { ascending: false })
-    .order("id", { ascending: false });
+  const filters: AdminListingsFilters = {
+    search: normalizeAdminFilter(request.nextUrl.searchParams.get("search")),
+    cityId: normalizeAdminFilter(request.nextUrl.searchParams.get("city") ?? request.nextUrl.searchParams.get("city_id")),
+    categoryId: normalizeAdminFilter(
+      request.nextUrl.searchParams.get("category") ?? request.nextUrl.searchParams.get("category_id"),
+    ),
+    tier: normalizeAdminFilter(request.nextUrl.searchParams.get("tier")),
+    status: normalizeAdminFilter(request.nextUrl.searchParams.get("status")),
+  };
+  const pagination = parseAdminListingsPagination(request.nextUrl.searchParams);
+
+  const { items, total, error } = await fetchAdminListingsPage(adminClient, filters, pagination);
 
   if (error) {
     logAdminError("LISTINGS_FETCH_FAILED", error, { requestId });
     return NextResponse.json({ ok: false, error: { message: error.message, requestId } }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true, data });
+  const totalPages = Math.max(1, Math.ceil(total / pagination.pageSize));
+
+  return NextResponse.json({
+    ok: true,
+    data: items,
+    items,
+    total,
+    page: pagination.page,
+    pageSize: pagination.pageSize,
+    totalPages,
+    hasNextPage: pagination.page < totalPages,
+    hasPreviousPage: pagination.page > 1,
+  });
 }
 
 export async function POST(request: NextRequest) {

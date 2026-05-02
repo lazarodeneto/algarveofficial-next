@@ -41,7 +41,7 @@ export function PublicSiteSidebar() {
           href="/"
           aria-label="AlgarveOfficial homepage"
           className={clsx(
-            "flex h-12 items-center overflow-hidden rounded-2xl border border-border/70 bg-white/80 shadow-[0_12px_24px_-18px_rgba(15,23,42,0.45)] dark:bg-white/10",
+            "flex h-12 items-center overflow-hidden rounded-sm border border-border/70 bg-white/80 shadow-[0_12px_24px_-18px_rgba(15,23,42,0.45)] dark:bg-white/10",
             "transition-[width,padding,gap,transform,border-color,box-shadow] duration-300 ease-out hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_16px_30px_-22px_rgba(15,23,42,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
             expanded ? "w-full gap-3 px-4" : "w-12 justify-center",
           )}

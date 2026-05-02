@@ -34,10 +34,9 @@ export function CategoriesSection() {
     return (
       <section id="categories" className="py-24 bg-background lg:py-[40px]">
         <div className="app-container">
-          <div className="text-center mb-16">
-            <Skeleton className="h-4 w-32 mx-auto mb-4" />
-            <Skeleton className="h-10 w-64 mx-auto mb-4" />
-            <Skeleton className="h-6 w-96 max-w-full mx-auto" />
+          <div className="text-center mb-10 md:mb-12">
+            <Skeleton className="h-10 w-64 mx-auto mb-3" />
+            <Skeleton className="h-5 w-[42rem] max-w-full mx-auto" />
           </div>
           <div
             className="grid gap-4 md:gap-5 lg:gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr))]"
@@ -71,16 +70,13 @@ export function CategoriesSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="mx-auto mb-10 max-w-[720px] text-center md:mb-12"
         >
-          <span className="text-sm font-medium text-primary tracking-[0.2em] uppercase">
-            {t("sections.homepage.categories.label")}
-          </span>
-          <h2 className="mt-4 text-title font-serif font-medium text-foreground">
+          <h2 className="text-title font-serif font-medium text-foreground">
             {t("sections.homepage.categories.title")}
           </h2>
-          <p className="mt-4 text-body text-muted-foreground dark:text-white/80 max-w-2xl mx-auto">
-            {t("sections.homepage.categories.subtitle")}
+          <p className="mx-auto mt-3 max-w-[720px] text-body text-muted-foreground dark:text-white/80">
+            {t("sections.homepage.categories.intro")}
           </p>
         </m.div>
 

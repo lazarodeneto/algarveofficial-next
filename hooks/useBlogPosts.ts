@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import { applyBlogTranslation } from "@/lib/blog/localization";
 
 export type BlogPost = Database['public']['Tables']['blog_posts']['Row'];
 export type BlogPostInsert = Database['public']['Tables']['blog_posts']['Insert'];
@@ -20,10 +21,11 @@ export interface BlogPostWithAuthor extends BlogPost {
 }
 
 interface BlogPostTranslationRow {
-  blog_post_id: string;
-  language_code: string;
-  title: string;
-  description: string | null;
+  post_id: string;
+  locale: string;
+  title: string | null;
+  excerpt: string | null;
+  content?: string | null;
   seo_title: string | null;
   seo_description: string | null;
 }
@@ -33,21 +35,6 @@ function normalizeBlogLocale(language: string | undefined): string {
   if (!normalized || normalized === 'en') return 'en';
   if (normalized === 'pt' || normalized.startsWith('pt-pt')) return 'pt-pt';
   return normalized;
-}
-
-function applyBlogTranslation<T extends BlogPost>(
-  post: T,
-  translation: BlogPostTranslationRow | null | undefined
-): T {
-  if (!translation) return post;
-
-  return {
-    ...post,
-    title: translation.title ?? post.title,
-    excerpt: translation.description ?? post.excerpt,
-    seo_title: translation.seo_title ?? post.seo_title,
-    seo_description: translation.seo_description ?? post.seo_description,
-  };
 }
 
 // Fetch all published blog posts for public view
@@ -91,18 +78,20 @@ export function usePublishedBlogPosts(category?: BlogCategory) {
         const postIds = publishedPosts.map((post) => post.id);
         const { data: translations, error: translationsError } = await supabase
           .from('blog_post_translations' as never)
-          .select('blog_post_id, language_code, title, description, seo_title, seo_description')
-          .eq('language_code', locale)
-          .in('blog_post_id', postIds);
+          .select('post_id, locale, title, excerpt, content, seo_title, seo_description')
+          .eq('locale', locale)
+          .in('post_id', postIds);
 
         if (translationsError) {
           console.warn(`Falling back to English blog posts for locale ${locale}:`, translationsError.message);
         } else {
           const translationMap = new Map(
-            ((translations ?? []) as BlogPostTranslationRow[]).map((translation) => [translation.blog_post_id, translation])
+            ((translations ?? []) as BlogPostTranslationRow[]).map((translation) => [translation.post_id, translation])
           );
-          localizedPosts = publishedPosts.map((post) => applyBlogTranslation(post, translationMap.get(post.id)));
+          localizedPosts = publishedPosts.map((post) => applyBlogTranslation(post, translationMap.get(post.id), locale));
         }
+      } else if (locale !== 'en') {
+        localizedPosts = publishedPosts.map((post) => applyBlogTranslation(post, null, locale));
       }
 
       // Fetch authors separately
@@ -155,16 +144,18 @@ export function usePublishedBlogPost(
       if (locale !== 'en') {
         const { data: translation, error: translationError } = await supabase
           .from('blog_post_translations' as never)
-          .select('blog_post_id, language_code, title, description, seo_title, seo_description')
-          .eq('blog_post_id', post.id)
-          .eq('language_code', locale)
+          .select('post_id, locale, title, excerpt, content, seo_title, seo_description')
+          .eq('post_id', post.id)
+          .eq('locale', locale)
           .maybeSingle();
 
         if (translationError) {
           console.warn(`Falling back to English blog post for locale ${locale}:`, translationError.message);
         } else {
-          localizedPost = applyBlogTranslation(post, translation as BlogPostTranslationRow | null);
+          localizedPost = applyBlogTranslation(post, translation as BlogPostTranslationRow | null, locale);
         }
+      } else if (locale !== 'en') {
+        localizedPost = applyBlogTranslation(post, null, locale);
       }
 
       // Fetch author separately

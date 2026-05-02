@@ -138,6 +138,8 @@ x-cron-secret: <CRON_SECRET>
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Dashboard → Developers → API keys |
 | `STRIPE_WEBHOOK_SECRET` | Dashboard → Developers → Webhooks → endpoint signing secret |
 | `CRON_SECRET` | Generate: `openssl rand -hex 32` |
+| `REVALIDATE_SECRET` | Generate: `openssl rand -hex 32`; protects `/api/revalidate` |
+| `PREVIEW_SECRET` | Generate: `openssl rand -hex 32`; protects CMS preview mode |
 
 Use `sk_test_` / `pk_test_` on Preview; `sk_live_` / `pk_live_` on Production only.
 

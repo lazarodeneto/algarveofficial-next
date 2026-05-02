@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { DM_Sans, Playfair_Display, Archivo_Narrow } from "next/font/google";
+import { DM_Sans, Playfair_Display, Archivo_Narrow, Roboto_Condensed, Fira_Sans } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { unstable_cache } from "next/cache";
@@ -39,7 +39,21 @@ const archivoNarrow = Archivo_Narrow({
   display: "swap",
 });
 
-const fontVariables = `${playfair.variable} ${dmSans.variable} ${archivoNarrow.variable}`;
+const robotoCondensed = Roboto_Condensed({
+  subsets: ["latin"],
+  weight: ["700"],
+  variable: "--font-roboto-condensed",
+  display: "swap",
+});
+
+const firaSans = Fira_Sans({
+  subsets: ["latin"],
+  weight: ["500", "700", "900"],
+  variable: "--font-fira-sans",
+  display: "swap",
+});
+
+const fontVariables = `${playfair.variable} ${dmSans.variable} ${archivoNarrow.variable} ${robotoCondensed.variable} ${firaSans.variable}`;
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim()?.replace(/\/+$/, "") ?? "https://algarveofficial.com";
 const supabaseOrigin = (() => {
   try {

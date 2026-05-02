@@ -3,6 +3,7 @@ export interface PartnerFeatureRow {
   free: boolean;
   verified: boolean;
   signature: boolean;
+  addOn?: boolean;
 }
 
 export const VERIFIED_PARTNER_FEATURES: string[] = [
@@ -19,12 +20,12 @@ export const VERIFIED_PARTNER_FEATURES: string[] = [
 export const SIGNATURE_PARTNER_FEATURES: string[] = [
   "Everything in Verified",
   "Photo gallery (up to 20 images)",
-  "Homepage featured placement",
   "Signature Selection eligibility",
   "Video interview (up to 3 min)",
   "Video commercial (up to 1 min)",
   "Social media mentions",
   "Priority visibility",
+  "Homepage featured placement add-on",
 ];
 
 export const PARTNER_FEATURE_ROWS: PartnerFeatureRow[] = [
@@ -42,13 +43,14 @@ export const PARTNER_FEATURE_ROWS: PartnerFeatureRow[] = [
   { label: "Direct contact from travelers", free: false, verified: true, signature: true },
   { label: "Map priority placement", free: false, verified: true, signature: true },
   { label: "CTA (Call-To-Action) button", free: false, verified: true, signature: true },
-  { label: "Homepage featured placement", free: false, verified: false, signature: true },
   { label: "Signature Selection eligibility", free: false, verified: false, signature: true },
   { label: "WhatsApp integration", free: false, verified: true, signature: true },
   { label: "Priority visibility", free: false, verified: false, signature: true },
+  { label: "Homepage featured placement", free: false, verified: false, signature: false, addOn: true },
 ];
 
 export const ORDERED_PARTNER_FEATURE_ROWS: PartnerFeatureRow[] = [
-  ...PARTNER_FEATURE_ROWS.filter((feature) => !(feature.signature && !feature.verified)),
-  ...PARTNER_FEATURE_ROWS.filter((feature) => feature.signature && !feature.verified),
+  ...PARTNER_FEATURE_ROWS.filter((feature) => !feature.addOn && !(feature.signature && !feature.verified)),
+  ...PARTNER_FEATURE_ROWS.filter((feature) => !feature.addOn && feature.signature && !feature.verified),
+  ...PARTNER_FEATURE_ROWS.filter((feature) => feature.addOn),
 ];

@@ -13,11 +13,12 @@ import { HomeTrustSection } from "@/components/sections/HomeTrustSection";
 import { useHomepageSettings } from "@/hooks/useHomepageSettings";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { CmsBlock } from "@/components/cms/CmsBlock";
+import { getHomeSectionCopy, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
 
 function HomeSectionFallback() {
   return (
     <div className="py-8" aria-hidden="true">
-      <div className="h-64 rounded-[1.75rem] border border-border/50 bg-muted/35 animate-pulse" />
+      <div className="h-64 rounded-xl border border-border/50 bg-muted/35 animate-pulse" />
     </div>
   );
 }
@@ -29,10 +30,10 @@ function VipSectionFallback() {
         <div className="h-10 w-72 rounded-md bg-muted/35 animate-pulse" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="h-72 rounded-2xl border border-border/50 bg-muted/35 animate-pulse" />
+            <div key={index} className="h-72 rounded-sm border border-border/50 bg-muted/35 animate-pulse" />
           ))}
         </div>
-        <div className="h-[460px] rounded-2xl border border-border/50 bg-muted/35 animate-pulse" />
+        <div className="h-[460px] rounded-sm border border-border/50 bg-muted/35 animate-pulse" />
       </div>
     </div>
   );
@@ -63,21 +64,46 @@ const CTASection = withHomeSectionLoading(
   () => import("@/components/sections/CTASection"),
   (mod) => mod.CTASection,
 );
+const AllListingsSection = withHomeSectionLoading(
+  () => import("@/components/sections/AllListingsSection"),
+  (mod) => mod.AllListingsSection,
+);
 
 // Section ID to component mapping
-const SECTION_COMPONENTS: Record<string, ComponentType<unknown>> = {
+type HomeSectionComponentProps = {
+  copy?: HomeSectionCopy;
+};
+
+const SECTION_COMPONENTS: Record<string, ComponentType<HomeSectionComponentProps>> = {
+  categories: HomeQuickLinksSection,
   regions: RegionsSection,
+  curated: HomepageSignatureCollection,
+  cities: HomeAllCitiesSection,
   vip: SignatureMapSection,
+  "all-listings": AllListingsSection,
+  cta: CTASection,
+};
+
+const PUBLIC_BLOCK_ID_BY_HOME_SECTION: Record<string, string> = {
+  categories: "quick-links",
+  cities: "all-cities",
 };
 
 // Default section order if none in database
 const DEFAULT_SECTION_ORDER = [
+  "categories",
   "regions",
+  "curated",
+  "cities",
+  "vip",
+  "all-listings",
+  "cta",
 ];
 
 const Index = () => {
   const { settings, isLoading } = useHomepageSettings();
   const { getBlockOrder, isBlockEnabled } = useCmsPageBuilder("home");
+  const allCitiesBlockEnabled = isBlockEnabled("all-cities", true);
 
   // Compute which sections to render and in what order
   const sectionsToRender = useMemo(() => {
@@ -89,7 +115,7 @@ const Index = () => {
     const sectionOrderFromSettings = (settings.section_order as string[] | null) ?? DEFAULT_SECTION_ORDER;
     const sectionOrder = [...sectionOrderFromSettings];
 
-    // Ensure newly introduced sections (e.g. "vip") appear even if older DB rows lack them.
+    // Ensure known homepage sections appear even if older DB rows lack them.
     DEFAULT_SECTION_ORDER.forEach((sectionId) => {
       if (!sectionOrder.includes(sectionId)) {
         sectionOrder.push(sectionId);
@@ -101,15 +127,24 @@ const Index = () => {
       regions: settings.show_regions_section ?? true,
       categories: settings.show_categories_section ?? true,
       curated: settings.show_curated_section ?? true,
+      cities: settings.show_cities_section ?? true,
       vip: settings.show_vip_section ?? true,
+      "all-listings": settings.show_all_listings_section ?? true,
+      cta: settings.show_cta_section ?? true,
     };
 
-    const normalizedOrder = sectionOrder.filter((id) => id in SECTION_COMPONENTS && id !== "vip");
+    const normalizedOrder = sectionOrder.filter((id) => id in SECTION_COMPONENTS);
     const cmsOrdered = getBlockOrder(normalizedOrder);
 
     return cmsOrdered
       .map(id => ({ id, enabled: visibilityMap[id] ?? true }));
   }, [settings, isLoading, getBlockOrder]);
+
+  const quickLinksSection = sectionsToRender.find(({ id }) => id === "categories");
+  const remainingSections = sectionsToRender.filter(({ id }) => id !== "categories");
+  const quickLinksEnabled =
+    Boolean(quickLinksSection?.enabled) &&
+    isBlockEnabled(PUBLIC_BLOCK_ID_BY_HOME_SECTION.categories, true);
 
   return (
     <div className="min-h-screen bg-background">
@@ -119,9 +154,14 @@ const Index = () => {
         <CmsBlock pageId="home" blockId="hero" as="section">
           <HeroSection />
         </CmsBlock>
-        {isBlockEnabled("quick-links", true) && (
-          <CmsBlock pageId="home" blockId="quick-links" as="section">
-            <HomeQuickLinksSection />
+        {quickLinksEnabled && (
+          <CmsBlock
+            pageId="home"
+            blockId={PUBLIC_BLOCK_ID_BY_HOME_SECTION.categories}
+            as="section"
+            defaultEnabled
+          >
+            <HomeQuickLinksSection copy={getHomeSectionCopy(settings?.section_copy, "categories")} />
           </CmsBlock>
         )}
         {isBlockEnabled("smart-search", true) && (
@@ -129,15 +169,12 @@ const Index = () => {
             <HomeSmartSearchSection />
           </CmsBlock>
         )}
-        {(settings?.show_curated_section ?? true) && isBlockEnabled("curated", true) && (
-          <CmsBlock pageId="home" blockId="curated" as="section">
-            <HomepageSignatureCollection />
-          </CmsBlock>
-        )}
         <div className="mx-auto w-full content-max density">
-          {sectionsToRender.map(({ id, enabled }) => {
+          {remainingSections.map(({ id, enabled }) => {
+            const blockId = PUBLIC_BLOCK_ID_BY_HOME_SECTION[id] ?? id;
             const defaultEnabled = true;
-            if (!enabled || !isBlockEnabled(id, defaultEnabled)) return null;
+            if (id === "cities" && !allCitiesBlockEnabled) return null;
+            if (!enabled || !isBlockEnabled(blockId, defaultEnabled)) return null;
 
             const SectionComponent = SECTION_COMPONENTS[id];
             if (!SectionComponent) return null;
@@ -145,32 +182,21 @@ const Index = () => {
             return (
               <CmsBlock
                 pageId="home"
-                blockId={id}
+                blockId={blockId}
                 key={id}
                 as="section"
                 defaultEnabled={defaultEnabled}
               >
-                <SectionComponent />
+                <SectionComponent copy={getHomeSectionCopy(settings?.section_copy, id)} />
               </CmsBlock>
             );
           })}
         </div>
-        {isBlockEnabled("all-cities", true) && (
-          <CmsBlock pageId="home" blockId="all-cities" as="section">
-            <HomeAllCitiesSection />
-          </CmsBlock>
-        )}
-        {(settings?.show_vip_section ?? true) && isBlockEnabled("vip", true) && (
-          <CmsBlock pageId="home" blockId="vip" as="section">
-            <SignatureMapSection />
-          </CmsBlock>
-        )}
         {isBlockEnabled("trust", true) && (
           <CmsBlock pageId="home" blockId="trust" as="section">
             <HomeTrustSection />
           </CmsBlock>
         )}
-        <CTASection />
       </main>
       <Footer />
     </div>

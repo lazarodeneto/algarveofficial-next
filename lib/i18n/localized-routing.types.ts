@@ -20,7 +20,7 @@ export type StaticRouteKey =
   | "privacy-policy"
   | "properties"
   | "real-estate"
-  | "residence"
+  | "relocation"
   | "signup"
   | "stay"
   | "terms"

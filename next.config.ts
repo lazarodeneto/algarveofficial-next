@@ -1,6 +1,21 @@
 import type { NextConfig } from "next";
 import bundleAnalyzer from "@next/bundle-analyzer";
 
+const isProduction = process.env.NODE_ENV === "production";
+const scriptSrc = [
+  "'self'",
+  ...(!isProduction ? ["'unsafe-eval'"] : []),
+  // JSON-LD and Next bootstrap scripts still require inline script support.
+  // Keep this exception explicit while production removes unsafe-eval.
+  "'unsafe-inline'",
+  "https://www.googletagmanager.com",
+  "https://www.google-analytics.com",
+  "https://tagmanager.google.com",
+  "https://www.google.com",
+  "https://accounts.google.com",
+  "https://apis.google.com",
+].join(" ");
+
 const cspDirectives = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -8,7 +23,7 @@ const cspDirectives = [
   "object-src 'none'",
   "worker-src 'self' blob:",
   "child-src 'self' blob:",
-  `script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://tagmanager.google.com https://www.google.com https://accounts.google.com https://apis.google.com`,
+  `script-src ${scriptSrc}`,
   `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
   `font-src 'self' data: https://fonts.gstatic.com`,
   `img-src 'self' data: blob: https: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.ggpht.com https://*.ytimg.com https://*.unsplash.com`,
@@ -102,6 +117,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "**.supabase.storage.supabase.co", pathname: "/**" },
       { protocol: "https", hostname: "storage.googleapis.com", pathname: "/**" },
       { protocol: "https", hostname: "images.unsplash.com", pathname: "/**" },
+      { protocol: "https", hostname: "static.wixstatic.com", pathname: "/**" },
+      { protocol: "https", hostname: "**.wixstatic.com", pathname: "/**" },
       { protocol: "https", hostname: "i.ytimg.com", pathname: "/**" },
       { protocol: "https", hostname: "img.youtube.com", pathname: "/**" },
       { protocol: "https", hostname: "**.googleapis.com", pathname: "/**" },

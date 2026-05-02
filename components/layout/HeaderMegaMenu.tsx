@@ -181,7 +181,7 @@ function useHeaderRuntimeSections(): HeaderRuntimeSection[] {
             live: normalizedItems.find((item) => {
                 const key = normalize(item.translation_key);
                 const name = normalize(item.name);
-                return key === "nav.live" || name === "live" || name === "residence";
+                return key === "nav.relocation" || key === "nav.live" || name === "relocation" || name === "live";
             }),
             experiences: normalizedItems.find((item) => {
                 const key = normalize(item.translation_key);
@@ -361,7 +361,7 @@ function MegaPanel({ section }: { section: HeaderRuntimeSection }) {
     const heroLabel = (section as any).heroLabelI18n ? t(section.heroLabel) : section.heroLabel;
 
     return (
-        <div className="header-mega-panel flex w-[min(820px,calc(100vw-8rem))] overflow-hidden rounded-2xl border border-border shadow-[0_24px_64px_-12px_rgba(0,0,0,0.22)] bg-background">
+        <div className="header-mega-panel flex w-[min(820px,calc(100vw-8rem))] overflow-hidden rounded-sm border border-border shadow-[0_24px_64px_-12px_rgba(0,0,0,0.22)] bg-background">
 
             {/* ── Left: full-bleed photo + hero text ── */}
             <div className="relative w-[34%] min-w-[240px] max-w-[300px] flex-shrink-0 overflow-hidden">

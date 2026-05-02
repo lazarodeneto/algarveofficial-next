@@ -26,6 +26,10 @@ import {
 } from "@/lib/publicContentLocale";
 import { createAppQueryClient } from "@/lib/react-query";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
+import {
+  mergeHomeSectionCopyMaps,
+  type HomeSectionCopyMap,
+} from "@/lib/cms/home-section-copy";
 
 const PUBLIC_LISTING_FIELDS =
   "id, slug, name, short_description, description, tier, status, latitude, longitude, featured_image_url, google_rating, google_review_count, created_at";
@@ -199,7 +203,9 @@ type HomepageSettingsLike = Pick<
   | "show_cta_section"
   | "section_order"
   | "updated_at"
->;
+> & {
+  section_copy?: HomeSectionCopyMap | null;
+};
 
 interface HomePageTranslations {
   locale: string;
@@ -208,6 +214,17 @@ interface HomePageTranslations {
   hero_subtitle: string | null;
   hero_cta_primary_text: string | null;
   hero_cta_secondary_text: string | null;
+  section_copy?: HomeSectionCopyMap | null;
+}
+
+function isMissingHomepageSectionCopyColumn(error: unknown) {
+  if (!error || typeof error !== "object") return false;
+  const message =
+    "message" in error ? String((error as { message?: unknown }).message ?? "").toLowerCase() : "";
+  return (
+    message.includes("homepage_settings_translations.section_copy") ||
+    message.includes("could not find the 'section_copy' column")
+  );
 }
 
 export interface HomePageData {
@@ -239,14 +256,25 @@ async function fetchHomepageSettingsWithTranslation(
   if (error || !data) return null;
 
   if (locale !== "en") {
-    const { data: translation } = await supabase
+    let translationResult = await supabase
       .from("homepage_settings_translations")
       .select(
-        "locale, status, hero_title, hero_subtitle, hero_cta_primary_text, hero_cta_secondary_text",
+        "locale, status, hero_title, hero_subtitle, hero_cta_primary_text, hero_cta_secondary_text, section_copy",
       )
       .eq("settings_id", data.id)
       .eq("locale", locale)
       .maybeSingle();
+
+    if (translationResult.error && isMissingHomepageSectionCopyColumn(translationResult.error)) {
+      translationResult = await supabase
+        .from("homepage_settings_translations")
+        .select("locale, status, hero_title, hero_subtitle, hero_cta_primary_text, hero_cta_secondary_text")
+        .eq("settings_id", data.id)
+        .eq("locale", locale)
+        .maybeSingle();
+    }
+
+    const translation = translationResult.data;
 
     if (translation) {
       const t = translation as HomePageTranslations;
@@ -256,6 +284,10 @@ async function fetchHomepageSettingsWithTranslation(
         hero_subtitle: getLocalizedValue(t.hero_subtitle),
         hero_cta_primary_text: getLocalizedValue(t.hero_cta_primary_text),
         hero_cta_secondary_text: getLocalizedValue(t.hero_cta_secondary_text),
+        section_copy: mergeHomeSectionCopyMaps(
+          (data as HomepageSettingsLike).section_copy,
+          t.section_copy,
+        ),
       } satisfies HomepageSettingsLike;
     }
   }

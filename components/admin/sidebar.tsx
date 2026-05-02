@@ -139,7 +139,7 @@ export function Sidebar() {
           href="/admin"
           aria-label="Admin Dashboard"
           className={cn(
-            "flex h-12 items-center overflow-hidden rounded-2xl border border-border/70 bg-white/80 shadow-[0_12px_24px_-18px_rgba(15,23,42,0.45)] transition-[width,padding,gap,transform,border-color,box-shadow] duration-300 ease-out hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_16px_30px_-22px_rgba(15,23,42,0.45)] dark:bg-white/10",
+            "flex h-12 items-center overflow-hidden rounded-sm border border-border/70 bg-white/80 shadow-[0_12px_24px_-18px_rgba(15,23,42,0.45)] transition-[width,padding,gap,transform,border-color,box-shadow] duration-300 ease-out hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_16px_30px_-22px_rgba(15,23,42,0.45)] dark:bg-white/10",
             expanded ? "w-full gap-3 px-4" : "w-12 justify-center",
           )}
         >
@@ -187,7 +187,7 @@ export function Sidebar() {
                         href={item.href}
                         tabIndex={expanded ? 0 : -1}
                         className={cn(
-                          "group relative flex h-12 w-full items-center gap-3 rounded-2xl border px-4 text-sm transition-all duration-200",
+                          "group relative flex h-12 w-full items-center gap-3 rounded-sm border px-4 text-sm transition-all duration-200",
                           "hover:translate-x-1 hover:border-primary/25 hover:bg-primary/10 hover:text-primary",
                           active
                             ? "border-primary/20 bg-primary/10 text-foreground shadow-[0_16px_32px_-24px_rgba(201,163,90,0.65)]"
@@ -266,7 +266,7 @@ export function Sidebar() {
                           aria-label={item.label}
                           title={item.label}
                           className={cn(
-                            "group relative flex h-12 w-12 items-center justify-center rounded-2xl border transition-all duration-200",
+                            "group relative flex h-12 w-12 items-center justify-center rounded-sm border transition-all duration-200",
                             "hover:-translate-y-0.5 hover:border-primary/25 hover:bg-primary/8 hover:text-primary",
                             active
                               ? "border-primary/30 bg-primary/12 text-primary shadow-[0_14px_24px_-18px_rgba(201,163,90,0.75)]"

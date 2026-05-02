@@ -10,6 +10,7 @@ import {
   type CmsPageConfigMap,
   type CmsTextOverrideMap,
 } from "@/lib/cms/pageBuilderRegistry";
+import { safeJsonParse } from "@/lib/cms/safe-json";
 
 interface CmsPageBuilderContextValue {
   isLoading: boolean;
@@ -26,16 +27,6 @@ const CmsPageBuilderContext = createContext<CmsPageBuilderContextValue>({
   designTokens: {},
   customCss: "",
 });
-
-function parseJsonSetting<T>(raw: string | undefined, fallback: T): T {
-  if (!raw) return fallback;
-  try {
-    const parsed = JSON.parse(raw);
-    return parsed ?? fallback;
-  } catch {
-    return fallback;
-  }
-}
 
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -119,13 +110,16 @@ export function CmsPageBuilderProvider({ children }: { children: ReactNode }) {
   );
 
   const textOverrides = useMemo(
-    () => normalizeTextOverrides(parseJsonSetting(settingMap[CMS_GLOBAL_SETTING_KEYS.textOverrides], {})),
+    () =>
+      normalizeTextOverrides(
+        safeJsonParse(settingMap[CMS_GLOBAL_SETTING_KEYS.textOverrides], {}, CMS_GLOBAL_SETTING_KEYS.textOverrides),
+      ),
     [settingMap],
   );
 
   const pageConfigs = useMemo(
     () =>
-      normalizeCmsPageConfigs(parseJsonSetting(settingMap[CMS_GLOBAL_SETTING_KEYS.pageConfigs], {}), {
+      normalizeCmsPageConfigs(safeJsonParse(settingMap[CMS_GLOBAL_SETTING_KEYS.pageConfigs], {}, CMS_GLOBAL_SETTING_KEYS.pageConfigs), {
         onIssue: (issue) => {
           if (process.env.NODE_ENV === "production") return;
           const label =
@@ -139,7 +133,9 @@ export function CmsPageBuilderProvider({ children }: { children: ReactNode }) {
   );
 
   const designTokens = useMemo(() => {
-    const parsed = normalizeDesignTokens(parseJsonSetting(settingMap[CMS_GLOBAL_SETTING_KEYS.designTokens], {}));
+    const parsed = normalizeDesignTokens(
+      safeJsonParse(settingMap[CMS_GLOBAL_SETTING_KEYS.designTokens], {}, CMS_GLOBAL_SETTING_KEYS.designTokens),
+    );
     return { ...CMS_DEFAULT_DESIGN_TOKENS, ...parsed };
   }, [settingMap]);
 

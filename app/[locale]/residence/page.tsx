@@ -1,10 +1,9 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
+import { permanentRedirect } from "next/navigation";
 
-import LiveClient from "@/components/live/LiveClient";
-import { RouteLoadingState } from "@/components/layout/RouteLoadingState";
-import { isValidLocale, type Locale } from "@/lib/i18n/config";
-import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
+import { DEFAULT_LOCALE, isValidLocale } from "@/lib/i18n/config";
+import { buildLocalizedPath } from "@/lib/i18n/routing";
+import { buildLocalizedAliasMetadata } from "@/lib/seo/metadata-builders";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -12,25 +11,18 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale: rawLocale } = await params;
-
-  if (!isValidLocale(rawLocale)) {
-    return {};
-  }
-
-  const locale = rawLocale as Locale;
-  return buildLocalizedMetadata({
+  const locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+  return buildLocalizedAliasMetadata({
     locale,
-    path: "/residence",
-    title: "Residence in the Algarve",
-    description: "Practical guidance to relocate and build your life in the Algarve: residency pathways, neighborhoods, healthcare, education, and vetted local services.",
-    keywords: ["residence in Algarve", "relocate to Portugal", "Algarve residency", "Algarve neighborhoods"],
+    canonicalPath: "/relocation",
+    title: "Redirecting to Relocation",
+    description: "Redirecting to the Relocation to the Algarve page.",
+    noIndex: true,
   });
 }
 
-export default function ResidencePage() {
-  return (
-    <Suspense fallback={<RouteLoadingState />}>
-      <LiveClient initialGlobalSettings={[]} />
-    </Suspense>
-  );
+export default async function ResidencePage({ params }: PageProps) {
+  const { locale: rawLocale } = await params;
+  const locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+  permanentRedirect(buildLocalizedPath(locale, "/relocation"));
 }

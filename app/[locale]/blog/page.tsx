@@ -6,6 +6,7 @@ import { getBlogPageConfig } from "@/lib/blog-cms";
 import { BlogClient } from "@/components/blog/BlogClient";
 import { RouteLoadingState } from "@/components/layout/RouteLoadingState";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
+import { applyBlogTranslation, type BlogTranslationRow } from "@/lib/blog/localization";
 
 export const revalidate = 60;
 
@@ -94,7 +95,29 @@ async function fetchBlogData(locale: string) {
     return [];
   }
 
-  return posts ?? [];
+  let localizedPosts = posts ?? [];
+  if (locale !== "en" && localizedPosts.length > 0) {
+    const { data: translations, error: translationError } = await supabase
+      .from("blog_post_translations")
+      .select("post_id, locale, title, excerpt, seo_title, seo_description")
+      .eq("locale", locale)
+      .in(
+        "post_id",
+        localizedPosts.map((post) => post.id),
+      );
+
+    if (!translationError) {
+      const translationMap = new Map(
+        ((translations ?? []) as BlogTranslationRow[]).map((translation) => [translation.post_id, translation]),
+      );
+
+      localizedPosts = localizedPosts.map((post) => applyBlogTranslation(post, translationMap.get(post.id), locale));
+    } else {
+      localizedPosts = localizedPosts.map((post) => applyBlogTranslation(post, null, locale));
+    }
+  }
+
+  return localizedPosts;
 }
 
 async function fetchBlogAuthors() {

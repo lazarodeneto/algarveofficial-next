@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { Upload, FileJson, AlertCircle, CheckCircle2, Loader2, Download, Eye, ClipboardPaste, RefreshCw } from "lucide-react";
+import { useState, useCallback, useMemo } from "react";
+import { Upload, FileJson, AlertCircle, CheckCircle2, Loader2, Download, Eye, ClipboardPaste, RefreshCw, Info } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -16,20 +16,51 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
 import { useCategories } from "@/hooks/useReferenceData";
 import { useCities } from "@/hooks/useRegions";
+import { fetchAdmin } from "@/lib/api/fetchAdmin";
+import { parseListingImportInput } from "@/lib/admin/parse-listing-import-input";
 import { toast } from "sonner";
 
 interface ImportResult {
   total: number;
   valid: number;
   invalid: number;
+  created?: number;
   inserted: number;
   updated: number;
   skipped: number;
-  errors: { name: string; error: string }[];
-  processed: { name: string; slug: string; action: string }[];
+  golf_created?: number;
+  golf_updated?: number;
+  property_created?: number;
+  property_updated?: number;
+  service_created?: number;
+  service_updated?: number;
+  scorecard_rows_processed?: number;
+  golfRecords?: number;
+  propertyRecords?: number;
+  serviceRecords?: number;
+  warnings?: { index: number; name: string; message?: string; warnings: string[] }[];
+  errors: { index?: number; name: string; error: string }[];
+  processed: { name: string; slug: string; action: string; vertical?: string }[];
+  preview?: ImportPreviewRow[];
+}
+
+interface ImportPreviewRow {
+  index: number;
+  name: string;
+  slug: string;
+  city: string;
+  normalizedCategory: string;
+  vertical: "none" | "golf" | "property" | "service";
+  estimatedAction: "create" | "update" | "invalid";
+  holes?: number;
+  par?: number;
+  tier?: string;
+  subcategory?: string;
+  scorecardRows?: number;
+  warnings: string[];
+  errors: string[];
 }
 
 interface ParsedListing {
@@ -53,6 +84,25 @@ export default function AdminImport() {
   const [result, setResult] = useState<ImportResult | null>(null);
   const [inputMode, setInputMode] = useState<"file" | "paste">("paste");
 
+  const parsedSummary = useMemo(() => {
+    if (!parsedData) return null;
+
+    const golf = parsedData.filter((listing) => Boolean(listing.golf)).length;
+    const property = parsedData.filter((listing) => Boolean(listing.property)).length;
+    const missingName = parsedData.filter((listing) => typeof listing.Nome !== "string" || listing.Nome.trim().length === 0).length;
+    const missingCity = parsedData.filter((listing) => typeof listing.City !== "string" || listing.City.trim().length === 0).length;
+    const normal = parsedData.length - golf - property;
+
+    return {
+      total: parsedData.length,
+      normal,
+      golf,
+      property,
+      missingName,
+      missingCity,
+    };
+  }, [parsedData]);
+
   const parseJsonData = useCallback((jsonString: string) => {
     setParseError(null);
     setParsedData(null);
@@ -62,15 +112,14 @@ export default function AdminImport() {
       return;
     }
 
-    try {
-      const json = JSON.parse(jsonString);
-      if (!Array.isArray(json)) {
-        setParseError("JSON must be an array of listings");
-        return;
-      }
-      setParsedData(json);
-    } catch {
-      setParseError("Invalid JSON format");
+    const parsed = parseListingImportInput(jsonString);
+    if (parsed.error) {
+      setParseError(parsed.error);
+      return;
+    }
+
+    if (parsed.listings) {
+      setParsedData(parsed.listings as ParsedListing[]);
     }
   }, []);
 
@@ -98,8 +147,8 @@ export default function AdminImport() {
   }, [parseJsonData]);
 
   const handleImport = async () => {
-    if (!parsedData || !selectedCategory) {
-      toast.error("Please select a file and category");
+    if (!parsedData) {
+      toast.error("Please paste or upload listing JSON");
       return;
     }
 
@@ -107,35 +156,26 @@ export default function AdminImport() {
     setResult(null);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error("You must be logged in");
-        return;
-      }
-
-      const response = await supabase.functions.invoke('import-listings', {
-        body: {
+      const response = await fetchAdmin("/api/admin/listings/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           listings: parsedData,
           category_slug: selectedCategory,
           dry_run: dryRun
-        }
+        }),
       });
 
-      if (response.error) {
-        toast.error(response.error.message);
-        return;
-      }
-
-      const data = response.data;
-      if (data.success) {
-        setResult(data.results);
+      const data = response.data as ImportResult;
+      setResult(data);
+      if (data.invalid === 0) {
         if (dryRun) {
-          toast.success(`Dry run complete: ${data.results.valid} valid listings`);
+          toast.success(`Dry run complete: ${data.valid} valid listings`);
         } else {
-          toast.success(`Import complete: ${data.results.inserted} inserted, ${data.results.updated} updated`);
+          toast.success(`Import complete: ${data.inserted} inserted, ${data.updated} updated`);
         }
       } else {
-        toast.error(data.error || "Import failed");
+        toast.error(`${data.invalid} listing(s) need attention before import`);
       }
     } catch (error) {
       console.error("Import error:", error);
@@ -168,6 +208,90 @@ export default function AdminImport() {
         "Longitude": "-8.1208",
         "Instagram URL": "https://instagram.com/grandpremium",
         "Facebook URL": "https://facebook.com/grandpremium"
+      },
+      {
+        "Nome": "The Els Club Vilamoura",
+        "URL_slug": "the-els-club-vilamoura",
+        "City": "Vilamoura",
+        "Region": "Vilamoura Prestige",
+        "Country": "Portugal",
+        "location": {
+          "address": "Vilamoura, Loulé",
+          "latitude": 37.095,
+          "longitude": -8.118
+        },
+        "golf": {
+          "course_type": "championship",
+          "holes": 18,
+          "par": 72,
+          "slope": { "white": 138, "yellow": 134, "red": 130 },
+          "course_rating": { "white": 74.5, "yellow": 72.8, "red": 70.2 },
+          "length_meters": { "white": 6651, "yellow": 6200, "red": 5400 },
+          "designer": "Ernie Els",
+          "year_opened": 2004,
+          "last_renovation": 2024,
+          "layout_type": "parkland",
+          "difficulty": "high",
+          "is_tournament_course": true,
+          "is_signature": true
+        },
+        "facilities": {
+          "driving_range": true,
+          "short_game_area": true,
+          "putting_green": true,
+          "academy": true,
+          "clubhouse": true,
+          "restaurant": true,
+          "pro_shop": true,
+          "buggy": true,
+          "caddie": false,
+          "locker_room": true
+        },
+        "access": {
+          "type": "private",
+          "allows_visitors": true,
+          "membership_required": false
+        },
+        "positioning": {
+          "tier": "signature",
+          "target": "luxury",
+          "price_range": "high"
+        },
+        "media": {
+          "featured_image": "https://your-domain.com/images/els-vilamoura.webp",
+          "gallery": []
+        },
+        "seo": {
+          "meta_title": "The Els Club Vilamoura Golf Course",
+          "meta_description": "Championship golf course in Vilamoura designed by Ernie Els."
+        },
+        "scorecard": [
+          { "hole": 1, "par": 4, "hcp": 9, "white": 380, "yellow": 360, "red": 310 }
+        ]
+      },
+      {
+        "Nome": "Luxury Villa in Vale do Lobo",
+        "URL_slug": "luxury-villa-vale-do-lobo",
+        "City": "Vale do Lobo",
+        "category": "properties",
+        "Description": "Detached villa near the resort and beach.",
+        "Featured_Image_URL": "https://example.com/villa.webp",
+        "property": {
+          "property_type": "villa",
+          "transaction_type": "sale",
+          "price": 2450000,
+          "currency": "EUR",
+          "bedrooms": 5,
+          "bathrooms": 6,
+          "built_area_m2": 420,
+          "plot_area_m2": 1200,
+          "pool": true,
+          "garden": true,
+          "garage": true,
+          "agent_name": "Example Agency",
+          "agent_email": "info@example.com",
+          "property_url": "https://example.com/property"
+        }
       }
     ];
 
@@ -221,17 +345,21 @@ export default function AdminImport() {
               
               <TabsContent value="paste" className="mt-4">
                 <div className="space-y-2">
-                  <Label>Paste your JSON array here</Label>
+                  <Label>Paste your JSON object or array here</Label>
                   <Textarea
-                    placeholder={`[\n  {\n    "Nome": "Hotel Name",\n    "City": "Vilamoura",\n    ...\n  }\n]`}
+                    placeholder={`{\n  "Nome": "Hotel Name",\n  "City": "Vilamoura"\n}\n\nor\n\n[\n  {\n    "Nome": "Hotel Name",\n    "City": "Vilamoura"\n  }\n]`}
                     value={jsonText}
                     onChange={(e) => handleJsonTextChange(e.target.value)}
                     className="min-h-[200px] font-mono text-xs"
                   />
                   {parsedData && (
-                    <Badge variant="secondary">
-                      {parsedData.length} listings found
-                    </Badge>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="secondary">
+                        {parsedData.length} listings found
+                      </Badge>
+                      {parsedSummary && parsedSummary.golf > 0 && <Badge variant="outline">{parsedSummary.golf} golf</Badge>}
+                      {parsedSummary && parsedSummary.property > 0 && <Badge variant="outline">{parsedSummary.property} property</Badge>}
+                    </div>
                   )}
                 </div>
               </TabsContent>
@@ -268,6 +396,30 @@ export default function AdminImport() {
               </Alert>
             )}
 
+            {parsedSummary && !parseError && (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertTitle>Local parse summary</AlertTitle>
+                <AlertDescription>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Badge variant="secondary">{parsedSummary.total} total</Badge>
+                    <Badge variant="outline">{parsedSummary.normal} standard</Badge>
+                    <Badge variant="outline">{parsedSummary.golf} golf</Badge>
+                    <Badge variant="outline">{parsedSummary.property} property</Badge>
+                    {parsedSummary.missingName > 0 && (
+                      <Badge variant="destructive">{parsedSummary.missingName} missing Nome</Badge>
+                    )}
+                    {parsedSummary.missingCity > 0 && (
+                      <Badge variant="destructive">{parsedSummary.missingCity} missing City</Badge>
+                    )}
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Use dry run to get category normalization, create/update estimates, and row-level warnings before importing.
+                  </p>
+                </AlertDescription>
+              </Alert>
+            )}
+
             {/* Category Selection */}
             <div className="space-y-2">
               <Label>Target Category</Label>
@@ -301,7 +453,7 @@ export default function AdminImport() {
             <div className="flex gap-2">
               <Button
                 onClick={handleImport}
-                disabled={!parsedData || !selectedCategory || isImporting || loadingRef}
+                disabled={!parsedData || isImporting || loadingRef}
                 className="flex-1"
               >
                 {isImporting ? (
@@ -389,6 +541,87 @@ export default function AdminImport() {
               </div>
             </div>
 
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center p-3 bg-muted rounded-lg">
+                <div className="text-xl font-bold">{result.skipped}</div>
+                <div className="text-xs text-muted-foreground">Skipped</div>
+              </div>
+              <div className="text-center p-3 bg-muted rounded-lg">
+                <div className="text-xl font-bold">{result.golfRecords ?? 0}</div>
+                <div className="text-xs text-muted-foreground">Golf records</div>
+              </div>
+              <div className="text-center p-3 bg-muted rounded-lg">
+                <div className="text-xl font-bold">{result.propertyRecords ?? 0}</div>
+                <div className="text-xs text-muted-foreground">Property records</div>
+              </div>
+              <div className="text-center p-3 bg-muted rounded-lg">
+                <div className="text-xl font-bold">{result.serviceRecords ?? 0}</div>
+                <div className="text-xs text-muted-foreground">Service records</div>
+              </div>
+              <div className="text-center p-3 bg-muted rounded-lg">
+                <div className="text-xl font-bold">{result.warnings?.length ?? 0}</div>
+                <div className="text-xs text-muted-foreground">Rows with warnings</div>
+              </div>
+            </div>
+
+            {result.preview && result.preview.length > 0 && (
+              <div>
+                <h4 className="font-medium mb-2">Category-aware preview ({result.preview.length})</h4>
+                <ScrollArea className="h-64 rounded-md border p-3">
+                  <div className="space-y-2">
+                    {result.preview.map((item) => (
+                      <div key={`${item.index}-${item.slug}`} className="rounded-md border border-border p-3 text-sm">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge variant="outline">#{item.index + 1}</Badge>
+                          <span className="font-medium">{item.name || "Unnamed listing"}</span>
+                          <span className="text-muted-foreground">({item.slug || "no slug"})</span>
+                          <Badge variant={item.estimatedAction === "invalid" ? "destructive" : "secondary"}>
+                            {item.estimatedAction}
+                          </Badge>
+                          <Badge variant={item.vertical === "none" ? "outline" : "default"}>
+                            {item.vertical === "none" ? "no vertical data" : item.vertical}
+                          </Badge>
+                          {item.subcategory ? (
+                            <Badge variant="outline">
+                              {item.subcategory}
+                            </Badge>
+                          ) : null}
+                        </div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          {item.city || "No city"} · {item.normalizedCategory || "No category"}
+                          {item.vertical === "golf" ? ` · ${item.holes ?? "?"} holes · par ${item.par ?? "?"} · ${item.tier ?? "tier pending"} · ${item.scorecardRows ?? 0} scorecard rows` : ""}
+                        </div>
+                        {item.warnings.length > 0 && (
+                          <div className="mt-2 text-xs text-amber-700">
+                            {item.warnings.join(" ")}
+                          </div>
+                        )}
+                        {item.errors.length > 0 && (
+                          <div className="mt-2 text-xs text-destructive">
+                            {item.errors.join(" ")}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
+            )}
+
+            {result.warnings && result.warnings.length > 0 && (
+              <div>
+                <h4 className="font-medium mb-2 text-amber-700">Warnings ({result.warnings.length})</h4>
+                <ScrollArea className="h-40 rounded-md border p-3">
+                  {result.warnings.map((warning, i) => (
+                    <div key={i} className="text-sm py-1 border-b border-border last:border-0">
+                      <span className="font-medium">#{warning.index + 1} {warning.name}:</span>{" "}
+                      <span className="text-muted-foreground">{warning.warnings.join(" ")}</span>
+                    </div>
+                  ))}
+                </ScrollArea>
+              </div>
+            )}
+
             {/* Errors */}
             {result.errors.length > 0 && (
               <div>
@@ -438,7 +671,26 @@ export default function AdminImport() {
         </CardHeader>
         <CardContent>
           <pre className="bg-muted p-4 rounded-lg text-xs overflow-x-auto">
-{`[
+{`{
+  "Nome": "Hotel Name",
+  "URL_slug": "hotel-name",
+  "Short Description": "Brief description (max 160 chars)",
+  "Full Description": "Complete description...",
+  "City": "Vilamoura",
+  "Premium Region": "Vilamoura Prestige",
+  "Tags": ["5-star", "premium"],
+  "Photos": ["https://..."],
+  "Phone": "+351...",
+  "Email": "info@...",
+  "Website": "https://...",
+  "Full Address": "Street, City",
+  "Latitude": "37.0774",
+  "Longitude": "-8.1208"
+}
+
+or
+
+[
   {
     "Nome": "Hotel Name",
     "URL_slug": "hotel-name",
@@ -456,6 +708,82 @@ export default function AdminImport() {
     "Longitude": "-8.1208",
     "Instagram URL": "https://instagram.com/...",
     "Facebook URL": "https://facebook.com/..."
+  },
+  {
+    "Nome": "The Els Club Vilamoura",
+    "URL_slug": "the-els-club-vilamoura",
+    "City": "Vilamoura",
+    "Region": "Vilamoura Prestige",
+    "Country": "Portugal",
+    "location": {
+      "address": "Vilamoura, Loulé",
+      "latitude": 37.095,
+      "longitude": -8.118
+    },
+    "golf": {
+      "course_type": "championship",
+      "holes": 18,
+      "par": 72,
+      "slope": { "white": 138, "yellow": 134, "red": 130 },
+      "course_rating": { "white": 74.5, "yellow": 72.8, "red": 70.2 },
+      "length_meters": { "white": 6651, "yellow": 6200, "red": 5400 },
+      "designer": "Ernie Els",
+      "year_opened": 2004,
+      "last_renovation": 2024,
+      "layout_type": "parkland",
+      "difficulty": "high",
+      "is_tournament_course": true,
+      "is_signature": true
+    },
+    "facilities": {
+      "driving_range": true,
+      "short_game_area": true,
+      "putting_green": true,
+      "academy": true,
+      "clubhouse": true,
+      "restaurant": true,
+      "pro_shop": true,
+      "buggy": true,
+      "caddie": false,
+      "locker_room": true
+    },
+    "access": {
+      "type": "private",
+      "allows_visitors": true,
+      "membership_required": false
+    },
+    "positioning": {
+      "tier": "signature",
+      "target": "luxury",
+      "price_range": "high"
+    },
+    "media": {
+      "featured_image": "https://your-domain.com/images/els-vilamoura.webp",
+      "gallery": []
+    },
+    "seo": {
+      "meta_title": "The Els Club Vilamoura Golf Course",
+      "meta_description": "Championship golf course in Vilamoura designed by Ernie Els."
+    },
+    "scorecard": [
+      { "hole": 1, "par": 4, "hcp": 9, "white": 380, "yellow": 360, "red": 310 }
+    ]
+  },
+  {
+    "Nome": "Luxury Villa in Vale do Lobo",
+    "URL_slug": "luxury-villa-vale-do-lobo",
+    "City": "Vale do Lobo",
+    "category": "properties",
+    "Description": "Detached villa near the beach.",
+    "property": {
+      "property_type": "villa",
+      "transaction_type": "sale",
+      "price": 2450000,
+      "bedrooms": 5,
+      "bathrooms": 6,
+      "pool": true,
+      "agent_email": "info@example.com"
+    }
   }
 ]`}
           </pre>

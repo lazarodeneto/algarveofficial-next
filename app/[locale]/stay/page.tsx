@@ -152,7 +152,7 @@ export default async function StayPage({ params, searchParams }: PageProps) {
     <>
       <div id="directory-server-shell" className="min-h-screen bg-background text-foreground">
         <main className="app-container pt-32 pb-16">
-          <section className="rounded-[2rem] border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur md:p-12">
+          <section className="rounded-lg border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur md:p-12">
             <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
               {tx["directory.heroLabel"] ?? "Discover Our World"}
             </p>
@@ -169,7 +169,7 @@ export default async function StayPage({ params, searchParams }: PageProps) {
                   <Link
                     key={city.id}
                     href={buildLocalizedPath(data.locale, `/visit/${city.slug}`)}
-                    className="rounded-2xl border border-border/60 bg-background/70 p-4 transition-colors hover:border-primary/40"
+                    className="rounded-sm border border-border/60 bg-background/70 p-4 transition-colors hover:border-primary/40"
                   >
                     <p className="text-sm font-semibold text-foreground">{city.name}</p>
                     <p className="mt-1 text-sm text-muted-foreground">
@@ -186,7 +186,7 @@ export default async function StayPage({ params, searchParams }: PageProps) {
                   <Link
                     key={listing.id}
                     href={buildLocalizedPath(data.locale, `/listing/${listing.slug}`)}
-                    className="rounded-2xl border border-border/60 bg-background/70 p-4 transition-colors hover:border-primary/40"
+                    className="rounded-sm border border-border/60 bg-background/70 p-4 transition-colors hover:border-primary/40"
                   >
                     <p className="text-sm font-semibold text-foreground">{listing.name}</p>
                     <p className="mt-1 text-sm text-muted-foreground">

@@ -22,6 +22,7 @@ const CMS_TAG_MAP: Record<string, string> = {
   blog: "cms:blog",
   destinations: "cms:destinations",
   experiences: "cms:experiences",
+  relocation: "cms:live",
   live: "cms:live",
   "real-estate": "cms:real-estate",
   directory: "cms:directory",

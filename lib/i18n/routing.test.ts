@@ -10,20 +10,20 @@ import {
 
 describe("routing locale helpers", () => {
   it("creates localized hrefs for app routes", () => {
-    expect(buildLocalizedPath("en", "/visit")).toBe("/stay");
+    expect(buildLocalizedPath("en", "/visit")).toBe("/en/stay");
     expect(buildLocalizedPath("pt-pt", "visit")).toBe("/pt-pt/stay");
     expect(buildLocalizedPath("fr", "/")).toBe("/fr");
   });
 
   it("leaves localized, unlocalized, and file paths untouched", () => {
-    expect(buildLocalizedPath("fr", "/en/visit")).toBe("/stay");
+    expect(buildLocalizedPath("fr", "/en/visit")).toBe("/en/stay");
     expect(buildLocalizedPath("en", "/api/contact")).toBe("/api/contact");
     expect(buildLocalizedPath("en", "/favicon.ico")).toBe("/favicon.ico");
     expect(buildLocalizedPath("en", "/maintenance")).toBe("/maintenance");
   });
 
   it("creates localized hrefs while preserving query strings and hashes", () => {
-    expect(buildLocalizedPath("en", "/visit?tab=guide#map")).toBe("/stay?tab=guide#map");
+    expect(buildLocalizedPath("en", "/visit?tab=guide#map")).toBe("/en/stay?tab=guide#map");
     expect(buildLocalizedPath("pt-pt", "/#cities")).toBe("/pt-pt#cities");
   });
 
@@ -45,7 +45,7 @@ describe("routing locale helpers", () => {
     expect(hasLocalePrefix("/map")).toBe(false);
     expect(isPassthroughHref("tel:+351123456789")).toBe(true);
     expect(isPassthroughHref("/visit")).toBe(false);
-    expect(buildLocalizedPath("en", "/auth/reset-password")).toBe("/auth/reset-password");
+    expect(buildLocalizedPath("en", "/auth/reset-password")).toBe("/en/auth/reset-password");
     expect(buildLocalizedPath("fr", "/signup")).toBe("/fr/signup");
     expect(shouldBypassLocalePrefix("/auth/reset-password")).toBe(false);
     expect(shouldBypassLocalePrefix("/hero-image.webp")).toBe(true);
@@ -54,14 +54,15 @@ describe("routing locale helpers", () => {
 
   it("canonicalizes known localized alias routes before returning hrefs", () => {
     expect(buildLocalizedPath("en", "/directory?category=restaurants")).toBe(
-      "/stay?category=restaurants",
+      "/en/stay?category=restaurants",
     );
-    expect(buildLocalizedPath("fr", "/live")).toBe("/fr/residence");
+    expect(buildLocalizedPath("fr", "/live")).toBe("/fr/relocation");
+    expect(buildLocalizedPath("pt-pt", "/residence")).toBe("/pt-pt/relocation");
     expect(buildLocalizedPath("en", "/real-estate/sample-listing")).toBe(
-      "/listing/sample-listing",
+      "/en/listing/sample-listing",
     );
     expect(buildLocalizedPath("pt-pt", "/en/directory?category=golf")).toBe(
-      "/stay?category=golf",
+      "/en/stay?category=golf",
     );
   });
 });

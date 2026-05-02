@@ -62,7 +62,7 @@ export function CommandModeBar({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-2xl border transition-all",
+        "relative overflow-hidden rounded-sm border transition-all",
         isSlaMode
           ? "border-red-500/50 bg-red-500/10 shadow-lg shadow-red-500/10"
           : isOutdatedMode
@@ -72,7 +72,7 @@ export function CommandModeBar({
           : "border-red-500/25 bg-gradient-to-br from-red-500/10 via-orange-500/5 to-amber-500/5",
       )}
     >
-      <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-r from-red-500/5 via-transparent to-transparent" />
+      <div className="pointer-events-none absolute inset-0 rounded-sm bg-gradient-to-r from-red-500/5 via-transparent to-transparent" />
 
       <div className="relative space-y-3 px-5 py-4">
 

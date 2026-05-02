@@ -21,7 +21,7 @@ export function AdminEditorHeader({
   actions,
 }: AdminEditorHeaderProps) {
   return (
-    <div className="flex flex-col gap-3 rounded-[28px] border border-border/70 bg-card/90 px-5 py-4 shadow-sm lg:flex-row lg:items-end lg:justify-between lg:px-6">
+    <div className="flex flex-col gap-3 rounded-sm border border-border/70 bg-card/90 px-5 py-4 shadow-sm lg:flex-row lg:items-end lg:justify-between lg:px-6">
       <div className="space-y-2">
         <Button variant="ghost" size="sm" asChild className="h-8 rounded-full px-2.5 text-muted-foreground">
           <Link href={backTo}>
@@ -62,7 +62,7 @@ export function AdminEditorCard({
   headerActions,
 }: AdminEditorCardProps) {
   return (
-    <Card className={cn("rounded-[24px] border-border/70 bg-card/95 shadow-sm", className)}>
+    <Card className={cn("rounded-sm border-border/70 bg-card/95 shadow-sm", className)}>
       <CardHeader className="space-y-2 pb-4">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1">

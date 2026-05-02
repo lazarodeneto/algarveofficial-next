@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from "next/navigation";
 import { m } from 'framer-motion';
-import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { getSessionId } from '@/lib/sessionId';
 import { 
@@ -43,8 +42,29 @@ import {
   usePublishedBlogPost, 
   useIncrementBlogViews,
   blogCategoryLabels,
+  type BlogCategory,
   type BlogPostWithAuthor,
 } from '@/hooks/useBlogPosts';
+
+const BLOG_TRANSLATION_KEYS: Record<BlogCategory, string> = {
+  lifestyle: "blog.blogCategories.lifestyle",
+  "travel-guides": "blog.blogCategories.travelGuides",
+  "food-wine": "blog.blogCategories.foodWine",
+  golf: "blog.blogCategories.golf",
+  "real-estate": "blog.blogCategories.realEstate",
+  events: "blog.blogCategories.events",
+  wellness: "blog.blogCategories.wellness",
+  "insider-tips": "blog.blogCategories.insiderTips",
+};
+
+function formatPublishedDate(value: string | null | undefined, locale: string) {
+  const date = value ? new Date(value) : new Date();
+  return new Intl.DateTimeFormat(locale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(date);
+}
 
 interface BlogPostProps {
   localeSwitchPaths?: Partial<Record<Locale, string>>;
@@ -89,8 +109,8 @@ export default function BlogPost({
     if (platform === 'copy') {
       void navigator.clipboard
         .writeText(url)
-        .then(() => toast.success('Link copied to clipboard'))
-        .catch(() => toast.error('Clipboard permission denied'));
+        .then(() => toast.success(t("blog.linkCopied")))
+        .catch(() => toast.error(t("blog.copyFailed")));
       return;
     }
 
@@ -117,12 +137,12 @@ export default function BlogPost({
           <div className="container max-w-4xl mx-auto px-4">
             <RouteMessageState
               eyebrow={t('blog.label')}
-              title="Article Not Found"
-              description="This article may have been removed or is not available."
+              title={t("blog.notFoundTitle")}
+              description={t("blog.notFoundDescription")}
               actions={(
                 <Button onClick={() => router.push(l('/blog'))}>
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Blog
+                  {t("blog.backToBlog")}
                 </Button>
               )}
             />
@@ -171,7 +191,7 @@ export default function BlogPost({
             <Button variant="ghost" size="sm" asChild className="mb-6">
               <Link href={l("/blog")}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Blog
+                {t("blog.backToBlog")}
               </Link>
             </Button>
 
@@ -179,7 +199,7 @@ export default function BlogPost({
             <Card className="bg-card border-border mb-8">
               <CardContent className="p-6 md:p-10">
                 <Badge variant="secondary" className="mb-4">
-                  {blogCategoryLabels[post.category]}
+                  {t(BLOG_TRANSLATION_KEYS[post.category], blogCategoryLabels[post.category])}
                 </Badge>
                 
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-medium mb-6">
@@ -212,7 +232,7 @@ export default function BlogPost({
                   <span className="hidden sm:block">•</span>
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
-                    <span>{format(new Date(post.published_at || post.created_at), 'MMMM d, yyyy')}</span>
+                    <span>{formatPublishedDate(post.published_at || post.created_at, locale)}</span>
                   </div>
                   <span className="hidden sm:block">•</span>
                   <div className="flex items-center gap-1">
@@ -222,7 +242,7 @@ export default function BlogPost({
                   <span className="hidden sm:block">•</span>
                   <div className="flex items-center gap-1">
                     <Eye className="h-4 w-4" />
-                    <span>{post.views.toLocaleString()} views</span>
+                    <span>{post.views.toLocaleString()} {t("blog.views")}</span>
                   </div>
                 </div>
               </CardContent>

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { DEFAULT_LOCALE, isValidLocale, type Locale } from "@/lib/i18n/config";
 import { getGolfListings, getLeaderboard } from "@/lib/golf";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
-import { getGolfCmsPageConfig, type GolfCmsPageConfig } from "@/lib/golf-cms";
+import { getGolfCmsPageConfig } from "@/lib/golf-cms";
 import { GolfPageClient } from "@/components/golf/GolfPageClient";
 
 export const revalidate = 60;

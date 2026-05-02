@@ -40,9 +40,9 @@ export function HomeTrustSection() {
             return (
               <div
                 key={item.titleKey}
-                className="rounded-2xl border border-black/5 bg-white p-5 shadow-soft-surface transition-all duration-300 ease-out motion-reduce:transition-none hover:-translate-y-0.5 hover:shadow-card-hover"
+                className="rounded-sm border border-black/5 bg-white p-5 text-center shadow-soft-surface transition-all duration-300 ease-out motion-reduce:transition-none hover:-translate-y-0.5 hover:shadow-card-hover sm:text-left"
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
+                <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 sm:mx-0">
                   <Icon className="h-5 w-5 text-primary" strokeWidth={1.8} />
                 </div>
                 <h3 className="mt-4 text-base font-semibold not-italic text-foreground">

@@ -55,6 +55,10 @@
     padding-top: env(safe-area-inset-top);
   }
 
+  [data-route-focus-managed="true"]:focus {
+    outline: none;
+  }
+
   :root {
     /* Core premium dark palette */
     --background: 240 10% 4%;
@@ -88,6 +92,12 @@
     --ring: 43 74% 49%;
 
     --radius: 1rem;
+    --radius-xs: 8px;
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 20px;
+    --radius-xl: 24px;
+    --radius-pill: 999px;
 
     /* Glassmorphism design tokens */
     --glass-bg: 0 0% 100% / 0.05;
@@ -1095,11 +1105,6 @@
     animation: card-shimmer 8.8s linear infinite;
   }
 
-  .glass-box:focus-visible::after {
-    opacity: 0.14;
-    animation: card-shimmer 8.8s linear infinite;
-  }
-
   .glass-box:hover {
     border-color: hsla(var(--glass-specular) / 0.36);
     box-shadow:
@@ -1235,8 +1240,7 @@
 
   /* Listing cards: restore shimmer sweep without hover-triggered animation */
   .glass-box.glass-box-listing-shimmer::after,
-  .glass-box.glass-box-listing-shimmer:hover::after,
-  .glass-box.glass-box-listing-shimmer:focus-visible::after {
+  .glass-box.glass-box-listing-shimmer:hover::after {
     opacity: 0.14;
     animation: card-shimmer 6.2s linear infinite;
   }
@@ -1272,8 +1276,7 @@
 
   /* Category cards: keep liquid glass look with persistent shimmer */
   .glass-box.glass-box-silver-liquid::after,
-  .glass-box.glass-box-silver-liquid:hover::after,
-  .glass-box.glass-box-silver-liquid:focus-visible::after {
+  .glass-box.glass-box-silver-liquid:hover::after {
     opacity: 0.12 !important;
     animation: card-shimmer 9.2s linear infinite !important;
   }

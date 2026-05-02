@@ -141,7 +141,7 @@ export function NewsletterSignupPopup() {
         role="dialog"
         aria-modal="true"
         aria-labelledby="newsletter-popup-title"
-        className="relative mx-auto mt-12 w-full max-w-xl rounded-2xl border border-white/20 bg-background/95 p-6 shadow-2xl backdrop-blur-xl sm:mt-20 sm:p-7"
+        className="relative mx-auto mt-12 w-full max-w-xl rounded-sm border border-white/20 bg-background/95 p-6 shadow-2xl backdrop-blur-xl sm:mt-20 sm:p-7"
       >
         <button
           type="button"

@@ -128,7 +128,7 @@ function SkeletonCard({ variant = "standard" }: { variant?: CardVariant }) {
   const aspect = variant === "hero" ? "aspect-[4/5]" : variant === "compact" ? "aspect-[3/4]" : "aspect-[3/4]";
   return (
     <div className="mb-5 break-inside-avoid">
-      <div className={cn("relative overflow-hidden rounded-2xl bg-muted", aspect)}>
+      <div className={cn("relative overflow-hidden rounded-md bg-muted", aspect)}>
         <div className="absolute inset-0 animate-pulse bg-muted" />
       </div>
     </div>
@@ -212,7 +212,7 @@ function MasonryCard({
           href={item.href}
           ref={cardRef as React.Ref<HTMLAnchorElement>}
           className={cn(
-            "group relative mb-5 block break-inside-avoid overflow-hidden rounded-2xl bg-muted shadow-sm transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+            "group relative mb-5 block break-inside-avoid overflow-hidden rounded-md bg-muted shadow-sm transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
             props.className
           )}
         />
@@ -226,7 +226,7 @@ function MasonryCard({
           onClick={isClickable ? () => onItemClick?.(item) : undefined}
           onKeyDown={isClickable ? handleKeyDown : undefined}
           className={cn(
-            "group relative mb-5 break-inside-avoid overflow-hidden rounded-2xl bg-muted shadow-sm transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-xl",
+            "group relative mb-5 break-inside-avoid overflow-hidden rounded-md bg-muted shadow-sm transition-shadow duration-300 [backface-visibility:hidden] hover:shadow-xl",
             isClickable && "cursor-pointer",
             props.className
           )}

@@ -7,26 +7,34 @@ import { POST as postNavigationRoute, PUT as putNavigationRoute } from "@/app/ap
 import { POST as postTaxonomyRoute, PUT as putTaxonomyRoute } from "@/app/api/admin/taxonomy/[entity]/route";
 import { POST as postFooterRoute, PUT as putFooterRoute } from "@/app/api/admin/footer/[entity]/route";
 import { GET as getCmsDocumentsRoute } from "@/app/api/admin/cms/documents/route";
-import { PATCH as patchListingsRoute } from "@/app/api/admin/listings/route";
+import { GET as getListingsRoute, PATCH as patchListingsRoute } from "@/app/api/admin/listings/route";
 import { PATCH as patchListingRoute } from "@/app/api/admin/listings/[listingId]/route";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
-import { requireAdminReadClient, requireAdminWriteClient } from "@/lib/server/admin-auth";
+import { requireAdminReadClient, requireAdminSession, requireAdminWriteClient } from "@/lib/server/admin-auth";
 import { syncCmsDocumentsFromGlobalSettings } from "@/lib/cms/server-persistence";
+import { createServiceRoleClient } from "@/lib/supabase/service";
 
 vi.mock("@/lib/server/admin-auth", () => ({
+  requireAdminSession: vi.fn(),
   requireAdminWriteClient: vi.fn(),
   requireAdminReadClient: vi.fn(),
   adminErrorResponse: (status: number, code: string, message: string) =>
     NextResponse.json({ ok: false, error: { code, message } }, { status }),
 }));
 
+vi.mock("@/lib/supabase/service", () => ({
+  createServiceRoleClient: vi.fn(),
+}));
+
 vi.mock("@/lib/cms/server-persistence", () => ({
   syncCmsDocumentsFromGlobalSettings: vi.fn(),
 }));
 
+const mockedRequireAdminSession = vi.mocked(requireAdminSession);
 const mockedRequireAdminWriteClient = vi.mocked(requireAdminWriteClient);
 const mockedRequireAdminReadClient = vi.mocked(requireAdminReadClient);
 const mockedSyncCmsDocuments = vi.mocked(syncCmsDocumentsFromGlobalSettings);
+const mockedCreateServiceRoleClient = vi.mocked(createServiceRoleClient);
 
 function jsonRequest(body: unknown, method = "POST") {
   return new Request("http://localhost/api/test", {
@@ -648,6 +656,141 @@ describe("admin cms documents route runtime", () => {
 });
 
 describe("admin listings route runtime", () => {
+  it("rejects non-admin listing reads before creating a service-role client", async () => {
+    mockedRequireAdminSession.mockResolvedValueOnce({
+      error: NextResponse.json({ ok: false, error: { message: "Forbidden" } }, { status: 403 }),
+    });
+
+    const response = await getListingsRoute(
+      getRequest("/api/admin/listings") as unknown as Parameters<typeof getListingsRoute>[0],
+    );
+
+    expect(response.status).toBe(403);
+    expect(mockedCreateServiceRoleClient).not.toHaveBeenCalled();
+  });
+
+  it("uses service-role visibility for admin listing reads", async () => {
+    const defaultOwnerListing = {
+      id: "1ac08644-4707-48d3-8cb8-32e0f5237ec5",
+      name: "Golf Clubs Rental Algarve",
+      slug: "golf-clubs-rental-algarve-lagos",
+      tier: "unverified",
+      status: "published",
+      is_curated: false,
+      featured_rank: null,
+      city: { id: "city-lagos", name: "Lagos" },
+      category: { id: "cat-golf", name: "Golf" },
+      region: null,
+    };
+    const range = vi.fn().mockResolvedValue({ data: [defaultOwnerListing], count: 1201, error: null });
+    const secondOrder = vi.fn(() => ({ range }));
+    const firstOrder = vi.fn(() => ({ order: secondOrder }));
+    const select = vi.fn(() => ({ order: firstOrder }));
+    const serviceFrom = vi.fn(() => ({ select }));
+    const userFrom = vi.fn();
+
+    mockedRequireAdminSession.mockResolvedValueOnce({
+      userId: "admin-1",
+      userClient: { from: userFrom } as never,
+    });
+    mockedCreateServiceRoleClient.mockReturnValueOnce({ from: serviceFrom } as never);
+
+    const response = await getListingsRoute(
+      getRequest("/api/admin/listings") as unknown as Parameters<typeof getListingsRoute>[0],
+    );
+    const payload = (await response.json()) as { ok?: boolean; data?: Array<{ name?: string }> };
+
+    expect(response.status).toBe(200);
+    expect(payload.ok).toBe(true);
+    expect(payload.data?.[0]?.name).toBe("Golf Clubs Rental Algarve");
+    expect(serviceFrom).toHaveBeenCalledWith("listings");
+    expect(userFrom).not.toHaveBeenCalled();
+    expect(select).toHaveBeenCalledWith(
+      expect.stringContaining("category:categories(id, name)"),
+      { count: "exact" },
+    );
+    expect(select).toHaveBeenCalledWith(expect.stringContaining("featured_image_url"), { count: "exact" });
+    expect(select).toHaveBeenCalledWith(expect.stringContaining("website_url"), { count: "exact" });
+    expect(select).toHaveBeenCalledWith(expect.stringContaining("latitude"), { count: "exact" });
+    expect(payload).toEqual(expect.objectContaining({ total: 1201, page: 1, pageSize: 50, totalPages: 25 }));
+    expect(range).toHaveBeenCalledWith(0, 49);
+  });
+
+  it("reads later admin listing pages with exact totals instead of loading every row", async () => {
+    const laterPageListing = {
+      id: "1ac08644-4707-48d3-8cb8-32e0f5237ec5",
+      name: "Golf Clubs Rental Algarve",
+    };
+    const range = vi.fn().mockResolvedValue({ data: [laterPageListing], count: 1201, error: null });
+    const secondOrder = vi.fn(() => ({ range }));
+    const firstOrder = vi.fn(() => ({ order: secondOrder }));
+    const select = vi.fn(() => ({ order: firstOrder }));
+    const serviceFrom = vi.fn(() => ({ select }));
+
+    mockedRequireAdminSession.mockResolvedValueOnce({
+      userId: "admin-1",
+      userClient: { from: vi.fn() } as never,
+    });
+    mockedCreateServiceRoleClient.mockReturnValueOnce({ from: serviceFrom } as never);
+
+    const response = await getListingsRoute(
+      getRequest("/api/admin/listings?page=21&pageSize=50") as unknown as Parameters<typeof getListingsRoute>[0],
+    );
+    const payload = (await response.json()) as {
+      ok?: boolean;
+      data?: Array<{ name?: string }>;
+      total?: number;
+      page?: number;
+      pageSize?: number;
+      totalPages?: number;
+      hasNextPage?: boolean;
+      hasPreviousPage?: boolean;
+    };
+
+    expect(response.status).toBe(200);
+    expect(payload.ok).toBe(true);
+    expect(payload.data).toHaveLength(1);
+    expect(payload.data?.[0]?.name).toBe("Golf Clubs Rental Algarve");
+    expect(payload.total).toBe(1201);
+    expect(payload.page).toBe(21);
+    expect(payload.pageSize).toBe(50);
+    expect(payload.totalPages).toBe(25);
+    expect(payload.hasNextPage).toBe(true);
+    expect(payload.hasPreviousPage).toBe(true);
+    expect(range).toHaveBeenCalledTimes(1);
+    expect(range).toHaveBeenCalledWith(1000, 1049);
+  });
+
+  it("applies admin listing search on the service-role query", async () => {
+    const elsListing = {
+      id: "1ac08644-4707-48d3-8cb8-32e0f5237ec5",
+      name: "The Els Club Vilamoura",
+      slug: "the-els-club-vilamoura",
+    };
+    const range = vi.fn().mockResolvedValue({ data: [elsListing], count: 1, error: null });
+    const secondOrder = vi.fn(() => ({ range }));
+    const firstOrder = vi.fn(() => ({ order: secondOrder }));
+    const ilike = vi.fn(() => ({ order: firstOrder }));
+    const select = vi.fn(() => ({ ilike, order: firstOrder }));
+    const serviceFrom = vi.fn(() => ({ select }));
+
+    mockedRequireAdminSession.mockResolvedValueOnce({
+      userId: "admin-1",
+      userClient: { from: vi.fn() } as never,
+    });
+    mockedCreateServiceRoleClient.mockReturnValueOnce({ from: serviceFrom } as never);
+
+    const response = await getListingsRoute(
+      getRequest("/api/admin/listings?search=ELS") as unknown as Parameters<typeof getListingsRoute>[0],
+    );
+    const payload = (await response.json()) as { ok?: boolean; data?: Array<{ name?: string }> };
+
+    expect(response.status).toBe(200);
+    expect(payload.ok).toBe(true);
+    expect(payload.data?.[0]?.name).toBe("The Els Club Vilamoura");
+    expect(ilike).toHaveBeenCalledWith("name", "%ELS%");
+  });
+
   it("uses requester-scoped client for bulk publish updates", async () => {
     const bulkIn = vi.fn().mockResolvedValue({ error: null });
     const bulkUpdate = vi.fn(() => ({ in: bulkIn }));

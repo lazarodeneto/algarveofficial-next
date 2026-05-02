@@ -155,7 +155,7 @@ export function CookiePreferencesModal({
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
         tabIndex={-1}
-        className="mx-auto mt-0 max-h-[100vh] w-full max-w-none overflow-auto rounded-none border border-zinc-200 bg-white p-4 shadow-2xl sm:mt-4 sm:max-h-[90vh] sm:max-w-3xl sm:rounded-2xl sm:p-6"
+        className="mx-auto mt-0 max-h-[100vh] w-full max-w-none overflow-auto rounded-none border border-zinc-200 bg-white p-4 shadow-2xl sm:mt-4 sm:max-h-[90vh] sm:max-w-3xl sm:rounded-sm sm:p-6"
       >
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>

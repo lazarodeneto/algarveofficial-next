@@ -19,7 +19,7 @@ export function PremiumCard({
   return (
     <div
       className={cn(
-        "group overflow-hidden rounded-2xl bg-white shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+        "group overflow-hidden rounded-2xl bg-white shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] hover:-translate-y-0.5 hover:shadow-card-hover",
         className
       )}
     >

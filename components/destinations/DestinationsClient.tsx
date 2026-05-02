@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { m } from "framer-motion";
@@ -17,11 +17,9 @@ import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { getRegionImageSet } from "@/lib/regionImages";
 
-import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
-import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
-import { PageHeroImage } from "@/components/sections/PageHeroImage";
-import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS, STANDARD_PUBLIC_NO_HERO_SPACER_CLASS } from "@/components/sections/hero-layout";
+import { STANDARD_PUBLIC_NO_HERO_SPACER_CLASS } from "@/components/sections/hero-layout";
 import { useHydrated } from "@/hooks/useHydrated";
+import { useCityListingCounts, useRegionListingCounts } from "@/hooks/useReferenceData";
 
 export type RegionRow = Tables<"regions">;
 export type CityRow = Tables<"cities">;
@@ -81,16 +79,20 @@ function DestinationsClientInner({ initialRegions, imageTimestamp: propImageTime
     staleTime: 1000 * 60 * 10,
   });
 
-  const featuredRegions = regions.filter((region) => region.is_featured);
-  const otherRegions = regions.filter((region) => !region.is_featured);
-  const featuredCities = cities.filter((city) => city.is_featured);
+  const { data: cityCounts = {}, isLoading: cityCountsLoading } = useCityListingCounts();
+  const { data: regionCounts = {}, isLoading: regionCountsLoading } = useRegionListingCounts();
+  const citiesWithListings = cities.filter((city) => (cityCounts[city.id] ?? 0) > 0);
+  const regionsWithListings = regions.filter((region) => (regionCounts[region.id] ?? 0) > 0);
+  const featuredRegions = regionsWithListings.filter((region) => region.is_featured);
+  const otherRegions = regionsWithListings.filter((region) => !region.is_featured);
+  const featuredCities = citiesWithListings.filter((city) => city.is_featured);
 
   const featuredCityHubData = cms.getBlockData("featured-city-hub");
   const highlightedCityId = typeof featuredCityHubData.cityId === "string" ? featuredCityHubData.cityId : null;
-  const highlightedCity = highlightedCityId ? cities.find((c) => c.id === highlightedCityId) ?? featuredCities[0] : featuredCities[0];
+  const highlightedCity = highlightedCityId ? citiesWithListings.find((c) => c.id === highlightedCityId) ?? featuredCities[0] : featuredCities[0];
   const showFeaturedCityHub = Boolean(highlightedCity && highlightedCity.hero_image_url);
 
-  const isLoading = regionsLoading ?? citiesLoading;
+  const isLoading = regionsLoading || citiesLoading || cityCountsLoading || regionCountsLoading;
 
   if (isLoading && !regions.length) {
     return (
@@ -106,7 +108,7 @@ function DestinationsClientInner({ initialRegions, imageTimestamp: propImageTime
       <div className={STANDARD_PUBLIC_NO_HERO_SPACER_CLASS} aria-hidden="true" />
 
       <section className="app-container content-max py-8 lg:py-12">
-        <div className="rounded-[2rem] border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur md:p-10">
+        <div className="rounded-lg border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur md:p-10">
           <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
             {t("sections.regions.featured")}
           </p>
@@ -124,9 +126,9 @@ function DestinationsClientInner({ initialRegions, imageTimestamp: propImageTime
           <div className="app-container content-max">
             <LocaleLink
               href={`/destinations/${highlightedCity.slug}`}
-              className="group relative block rounded-[32px] min-h-[20rem] lg:min-h-[32rem]"
+              className="group relative block rounded-xl min-h-[20rem] lg:min-h-[32rem]"
             >
-              <div className="absolute inset-0 overflow-hidden rounded-[32px]">
+              <div className="absolute inset-0 overflow-hidden rounded-xl">
                 <Image
                   src={`${highlightedCity.hero_image_url ?? highlightedCity.image_url}?_t=${imageTimestamp}`}
                   alt={highlightedCity.name}
@@ -175,7 +177,7 @@ function DestinationsClientInner({ initialRegions, imageTimestamp: propImageTime
             </p>
           </m.div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {cities.map((city, index) => (
+            {citiesWithListings.map((city, index) => (
               <m.div
                 key={city.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -185,7 +187,7 @@ function DestinationsClientInner({ initialRegions, imageTimestamp: propImageTime
               >
                 <LocaleLink
                   href={`/destinations/${city.slug}`}
-                  className="group block p-4 rounded-xl bg-background border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-elevated"
+                  className="group block rounded-sm bg-background p-4 border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-elevated"
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors">
@@ -222,7 +224,7 @@ function DestinationsClientInner({ initialRegions, imageTimestamp: propImageTime
             </p>
           </m.div>
           <div className="flex-grid-centered">
-            {cities.filter((c) => c.is_featured).map((city, index) => {
+            {featuredCities.map((city, index) => {
               return (
                 <m.div
                   key={city.id}
@@ -233,7 +235,7 @@ function DestinationsClientInner({ initialRegions, imageTimestamp: propImageTime
                 >
                   <LocaleLink
                     href={`/destinations/${city.slug}`}
-                    className="glass-box group relative overflow-hidden rounded-xl aspect-[4/5] premium-card cursor-pointer block"
+                    className="glass-box group relative overflow-hidden rounded-md aspect-[4/5] premium-card cursor-pointer block"
                   >
                     <div className="absolute inset-0">
                       {city.hero_image_url || city.image_url ? (
@@ -300,7 +302,7 @@ function DestinationsClientInner({ initialRegions, imageTimestamp: propImageTime
                 >
                   <LocaleLink
                     href={`/destinations/${region.slug}`}
-                    className="glass-box group relative overflow-hidden rounded-xl aspect-[4/5] premium-card cursor-pointer block"
+                    className="glass-box group relative overflow-hidden rounded-md aspect-[4/5] premium-card cursor-pointer block"
                   >
                     <div className="absolute inset-0">
                       {image ? (
@@ -374,7 +376,7 @@ function DestinationsClientInner({ initialRegions, imageTimestamp: propImageTime
                 >
 <LocaleLink
                     href={`/destinations/${region.slug}`}
-                    className="group block p-4 rounded-xl bg-background border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-elevated"
+                    className="group block rounded-sm bg-background p-4 border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-elevated"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors">

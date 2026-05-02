@@ -112,8 +112,7 @@ export function SharedListingCard({
               alt={listing.name}
               isRepresentative={!listing.featured_image_url}
               fill
-              priority={index < 3}
-              className="transition-transform duration-500 ease-out will-change-transform group-hover:scale-110"
+              className="transition-transform duration-500 ease-out group-hover:scale-110"
             />
 
             <div className="absolute top-3 left-3 flex flex-wrap gap-2">

@@ -6,6 +6,11 @@ import {
   homepageSettingsQueryKey,
   homepageSettingsTranslationQueryKey,
 } from "@/lib/query-keys";
+import {
+  HomeSectionCopyMap,
+  mergeHomeSectionCopyMaps,
+  normalizeHomeSectionCopyMap,
+} from "@/lib/cms/home-section-copy";
 
 export interface HomepageSettings {
   id: string;
@@ -31,6 +36,7 @@ export interface HomepageSettings {
   show_all_listings_section: boolean;
   show_cta_section: boolean;
   section_order: string[] | null;
+  section_copy: HomeSectionCopyMap | null;
   updated_at: string;
 }
 
@@ -42,16 +48,18 @@ interface HomepageSettingsTranslation {
   hero_subtitle: string | null;
   hero_cta_primary_text: string | null;
   hero_cta_secondary_text: string | null;
+  section_copy?: HomeSectionCopyMap | null;
 }
 
 const HOMEPAGE_TRANSLATION_FIELDS =
-  "settings_id, locale, status, hero_title, hero_subtitle, hero_cta_primary_text, hero_cta_secondary_text";
+  "settings_id, locale, status, hero_title, hero_subtitle, hero_cta_primary_text, hero_cta_secondary_text, section_copy";
 
 const HOMEPAGE_TRANSLATABLE_FIELDS = new Set<keyof HomepageSettings>([
   "hero_title",
   "hero_subtitle",
   "hero_cta_primary_text",
   "hero_cta_secondary_text",
+  "section_copy",
 ]);
 
 const homepageTranslationClient = supabase as typeof supabase & {
@@ -95,6 +103,11 @@ const normalizeTranslatableText = (value: unknown): string | null => {
   return trimmed.length > 0 ? value : null;
 };
 
+const normalizeTranslatableValue = (key: string, value: unknown) => {
+  if (key === "section_copy") return normalizeHomeSectionCopyMap(value);
+  return normalizeTranslatableText(value);
+};
+
 const mergeHomepageTranslation = (
   settings: HomepageSettings | null,
   translation: HomepageSettingsTranslation | null,
@@ -115,6 +128,7 @@ const mergeHomepageTranslation = (
       translation.hero_cta_secondary_text,
       settings.hero_cta_secondary_text,
     ),
+    section_copy: mergeHomeSectionCopyMaps(settings.section_copy, translation.section_copy),
   } satisfies HomepageSettings;
 };
 
@@ -177,7 +191,7 @@ export function useHomepageSettings() {
       const translatableUpdates = Object.fromEntries(
         Object.entries(newSettings)
           .filter(([key, value]) => value !== undefined && HOMEPAGE_TRANSLATABLE_FIELDS.has(key as keyof HomepageSettings))
-          .map(([key, value]) => [key, normalizeTranslatableText(value)]),
+          .map(([key, value]) => [key, normalizeTranslatableValue(key, value)]),
       );
 
       const baseUpdates = Object.fromEntries(

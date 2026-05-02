@@ -213,9 +213,10 @@ const Live = () => {
             <LiveStyleHero
               className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
               badge={t("live.hero.badge")}
-              title={t("live.hero.title")}
+              title={t("pages.relocation.title", t("live.hero.title"))}
               subtitle={t(
-                "live.hero.subtitle",
+                "pages.relocation.subtitle",
+                t("live.hero.subtitle"),
               )}
               media={
                 <HeroBackgroundMedia
@@ -230,14 +231,14 @@ const Live = () => {
               }
               ctas={
                 <>
-                  <Link href={l("/contact")}>
-                    <Button variant="gold" size="lg">
+                  <Link href={l("/contact")} className="block w-full sm:w-auto">
+                    <Button variant="gold" size="lg" className="w-full whitespace-normal text-center sm:w-auto">
                       {t("live.hero.ctaPrimary")}
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   </Link>
-                  <Link href={l("/stay")}>
-                    <Button variant="heroOutline" size="lg">
+                  <Link href={l("/stay")} className="block w-full sm:w-auto">
+                    <Button variant="heroOutline" size="lg" className="w-full whitespace-normal text-center sm:w-auto">
                       {t("live.hero.ctaSecondary")}
                     </Button>
                   </Link>
@@ -511,15 +512,15 @@ const Live = () => {
                 </ul>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-1">
-                <Link href={relocationContactHref}>
-                  <Button variant="gold" size="lg">
+              <div className="flex min-w-0 flex-col gap-3 pt-1 xl:flex-row">
+                <Link href={relocationContactHref} className="block min-w-0 w-full xl:w-auto">
+                  <Button variant="gold" size="lg" className="w-full whitespace-normal text-center xl:w-auto">
                     {t("live.planner.handoff.primary")}
                     <ArrowRight className="h-4 w-4 ml-1" />
                   </Button>
                 </Link>
-                <Link href={l("/stay")}>
-                  <Button variant="outline" size="lg">
+                <Link href={l("/stay")} className="block min-w-0 w-full xl:w-auto">
+                  <Button variant="outline" size="lg" className="w-full whitespace-normal text-center xl:w-auto">
                     {t("live.planner.handoff.secondary")}
                   </Button>
                 </Link>
@@ -578,8 +579,8 @@ const Live = () => {
                 {t("live.destinations.title")}
               </h2>
             </div>
-            <Link href={l("/destinations")}>
-              <Button variant="premium">
+            <Link href={l("/destinations")} className="w-full sm:w-auto">
+              <Button variant="premium" className="w-full whitespace-normal text-center sm:w-auto">
                 {t("live.destinations.viewAll")}
                 <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
@@ -647,14 +648,14 @@ const Live = () => {
                 "live.final.description",
               )}
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">
-              <Link href={l("/contact")}>
-                <Button variant="gold" size="lg">
+            <div className="mx-auto mt-6 flex w-full max-w-xl flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+              <Link href={l("/contact")} className="block w-full sm:w-auto">
+                <Button variant="gold" size="lg" className="w-full whitespace-normal text-center sm:w-auto">
                   {t("live.final.primary")}
                 </Button>
               </Link>
-              <Link href={l("/partner")}>
-                <Button variant="outline" size="lg">
+              <Link href={l("/partner")} className="block w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="w-full whitespace-normal text-center sm:w-auto">
                   {t("live.final.secondary")}
                 </Button>
               </Link>

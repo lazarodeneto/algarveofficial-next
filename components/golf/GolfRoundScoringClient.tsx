@@ -211,14 +211,14 @@ export function GolfRoundScoringClient({
 
   if (!currentHole) {
     return (
-      <div className="rounded-2xl border border-border/70 bg-card p-6">
+      <div className="rounded-sm border border-border/70 bg-card p-6">
         <p className="text-sm text-muted-foreground">No hole data is available for this round.</p>
       </div>
     );
   }
 
   return (
-    <section className="mx-auto w-full max-w-md overflow-hidden rounded-2xl border border-border/70 bg-card shadow-[0_10px_30px_-25px_rgba(15,23,42,0.65)]">
+    <section className="mx-auto w-full max-w-md overflow-hidden rounded-sm border border-border/70 bg-card shadow-[0_10px_30px_-25px_rgba(15,23,42,0.65)]">
       <header className="border-b border-border/70 p-4">
         <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
           <Button asChild variant="outline" size="sm">
@@ -312,7 +312,7 @@ export function GolfRoundScoringClient({
           <button
             type="button"
             onClick={() => handleAdjustStroke(-1)}
-            className="inline-flex h-[82px] w-[82px] items-center justify-center rounded-2xl border border-border/70 text-5xl text-foreground transition-colors hover:bg-muted/30"
+            className="inline-flex h-[82px] w-[82px] items-center justify-center rounded-sm border border-border/70 text-5xl text-foreground transition-colors hover:bg-muted/30"
             aria-label="Decrease strokes"
           >
             -
@@ -331,7 +331,7 @@ export function GolfRoundScoringClient({
           <button
             type="button"
             onClick={() => handleAdjustStroke(1)}
-            className="inline-flex h-[82px] w-[82px] items-center justify-center rounded-2xl border border-[#C7A35A]/60 text-5xl text-[#C7A35A] transition-colors hover:bg-[#C7A35A]/10"
+            className="inline-flex h-[82px] w-[82px] items-center justify-center rounded-sm border border-[#C7A35A]/60 text-5xl text-[#C7A35A] transition-colors hover:bg-[#C7A35A]/10"
             aria-label="Increase strokes"
           >
             +

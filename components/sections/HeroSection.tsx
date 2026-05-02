@@ -16,114 +16,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { HERO_OVERLAY_INTENSITY_SETTING_KEY, normalizeHeroOverlayIntensity } from "@/lib/heroOverlay";
 import { useLocalePath } from "@/hooks/useLocalePath";
-import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { buildSupabaseImageUrl } from "@/lib/imageUrls";
 import { heroAssets } from "@/lib/assetUrls";
 import { STANDARD_PUBLIC_HERO_SURFACE_CLASS, STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
-
-const parseYouTubeTimeToSeconds = (value: string | null): number | null => {
-  if (!value) return null;
-  const normalized = value.trim().toLowerCase();
-  if (!normalized) return null;
-
-  if (/^\d+$/.test(normalized)) {
-    return Number.parseInt(normalized, 10);
-  }
-
-  if (/^\d+:\d{1,2}(:\d{1,2})?$/.test(normalized)) {
-    const parts = normalized.split(":").map((part) => Number.parseInt(part, 10));
-    if (parts.some((part) => Number.isNaN(part))) return null;
-    if (parts.length === 2) {
-      return parts[0] * 60 + parts[1];
-    }
-    return parts[0] * 3600 + parts[1] * 60 + parts[2];
-  }
-
-  const match = normalized.match(/^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$/);
-  if (!match) return null;
-
-  const hours = match[1] ? Number.parseInt(match[1], 10) : 0;
-  const minutes = match[2] ? Number.parseInt(match[2], 10) : 0;
-  const seconds = match[3] ? Number.parseInt(match[3], 10) : 0;
-  const total = hours * 3600 + minutes * 60 + seconds;
-  return total > 0 ? total : null;
-};
-
-const extractYouTubeMeta = (url: string): { videoId: string | null; startSeconds: number | null } => {
-  try {
-    const parsed = new URL(url);
-    const host = parsed.hostname.replace(/^www\./, "");
-    const segments = parsed.pathname.split("/").filter(Boolean);
-
-    let videoId: string | null = null;
-
-    if (host === "youtu.be") {
-      videoId = segments[0] ?? null;
-    } else if (host.endsWith("youtube.com")) {
-      if (segments[0] === "watch") {
-        videoId = parsed.searchParams.get("v");
-      } else if (["embed", "shorts", "live"].includes(segments[0])) {
-        videoId = segments[1] ?? null;
-      }
-    }
-
-    const searchStart =
-      parseYouTubeTimeToSeconds(parsed.searchParams.get("t")) ??
-      parseYouTubeTimeToSeconds(parsed.searchParams.get("start"));
-
-    let hashStart: number | null = null;
-    if (parsed.hash) {
-      const hash = parsed.hash.slice(1);
-      const hashParams = new URLSearchParams(hash);
-      hashStart =
-        parseYouTubeTimeToSeconds(hashParams.get("t")) ??
-        parseYouTubeTimeToSeconds(hashParams.get("start")) ??
-        (hash.startsWith("t=") ? parseYouTubeTimeToSeconds(hash.slice(2)) : null);
-    }
-
-    const startSeconds = searchStart ?? hashStart;
-
-    if (videoId && videoId.length === 11) {
-      return { videoId, startSeconds };
-    }
-
-    return { videoId: null, startSeconds };
-  } catch {
-    const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*)/;
-    const match = url.match(regExp);
-    const videoId = match && match[2].length === 11 ? match[2] : null;
-    const timeMatch = url.match(/[?&#](?:t|start)=([^&#]+)/);
-    const startSeconds = parseYouTubeTimeToSeconds(timeMatch?.[1] ?? null);
-    return { videoId, startSeconds };
-  }
-};
-
-// YouTube embed helper
-const getYouTubeEmbedUrl = (url: string): string => {
-  if (!url) return "";
-
-  const { videoId, startSeconds } = extractYouTubeMeta(url);
-  if (!videoId) return url;
-
-  const params = new URLSearchParams({
-    autoplay: "1",
-    mute: "1",
-    loop: "1",
-    playlist: videoId,
-    controls: "0",
-    modestbranding: "1",
-    playsinline: "1",
-    rel: "0",
-  });
-
-  if (startSeconds && startSeconds > 0) {
-    params.set("start", String(startSeconds));
-  }
-
-  return `https://www.youtube-nocookie.com/embed/${videoId}?${params.toString()}`;
-};
 
 const CreateTripDialog = dynamic(
   () => import("@/components/trip-planner/CreateTripDialog").then((m) => m.CreateTripDialog),
@@ -178,38 +75,6 @@ function HeroPosterImage({
   );
 }
 
-const YouTubeEmbedPlayer = ({
-  youtubeUrl,
-  youtubeTitle,
-}: {
-  youtubeUrl: string;
-  youtubeTitle: string;
-}) => {
-  return (
-    <iframe
-      src={getYouTubeEmbedUrl(youtubeUrl)}
-      className="pointer-events-none"
-      style={{
-        position: "absolute",
-        top: "50%",
-        left: "50%",
-        width: "177.77777778vh",
-        height: "56.25vw",
-        minWidth: "100%",
-        minHeight: "100%",
-        transform: "translate(-50%, -50%)",
-      }}
-      allow="autoplay; encrypted-media"
-      allowFullScreen
-      title={youtubeTitle}
-    />
-  );
-};
-
-const YouTubeEmbed = ({ youtubeUrl, youtubeTitle }: { youtubeUrl: string; youtubeTitle: string }) => (
-  <YouTubeEmbedPlayer key={youtubeUrl} youtubeUrl={youtubeUrl} youtubeTitle={youtubeTitle} />
-);
-
 const HeroVideoPlayer = ({
   videoUrl,
   posterUrl,
@@ -220,13 +85,19 @@ const HeroVideoPlayer = ({
   return (
     <video
       autoPlay
+      controls={false}
+      controlsList="nodownload nofullscreen noplaybackrate noremoteplayback"
+      disablePictureInPicture
+      disableRemotePlayback
       loop
       muted
       playsInline
       preload="metadata"
       poster={posterUrl ?? undefined}
       crossOrigin="anonymous"
-      className="absolute inset-0 h-full w-full object-cover"
+      tabIndex={-1}
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 h-full w-full object-cover"
     >
       <source src={videoUrl} type="video/mp4" />
     </video>
@@ -254,8 +125,6 @@ export function HeroSection() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
   const l = useLocalePath();
-  const { canUseCategory, isLoaded: isCookieConsentLoaded, openPreferences } = useCookieConsent();
-  const hasFunctionalConsent = canUseCategory("functional");
 
   // CMS SOURCE OF TRUTH:
   // 1. cms_page_configs_v1 text overrides (primary)
@@ -300,14 +169,17 @@ export function HeroSection() {
     router.push(`${l("/dashboard/trips")}?trip=${encodeURIComponent(newTrip.id)}`);
   };
 
-  // Use only admin-configured media (no local fallback assets).
-  const mediaType = settings?.hero_media_type ?? 'video';
-  const videoUrl = settings?.hero_video_url?.trim() ?? "";
-  const posterUrl = settings?.hero_poster_url?.trim() ?? "";
-  const youtubeUrl = settings?.hero_youtube_url?.trim() ?? "";
+  const cmsMediaType = getText("hero.mediaType", "").trim();
+  const cmsImageUrl = getText("hero.imageUrl", "").trim();
+  const cmsVideoUrl = getText("hero.videoUrl", "").trim();
+  const cmsPosterUrl = getText("hero.posterUrl", "").trim();
+
+  // Full Page Builder media wins when provided; homepage_settings remains fallback.
+  const mediaType = cmsMediaType || settings?.hero_media_type || (cmsImageUrl ? "poster" : "video");
+  const videoUrl = cmsVideoUrl || settings?.hero_video_url?.trim() || "";
+  const posterUrl = cmsPosterUrl || cmsImageUrl || settings?.hero_poster_url?.trim() || "";
   const hasVideoUrl = videoUrl.length > 0;
   const hasPosterUrl = posterUrl.length > 0;
-  const hasYoutubeUrl = youtubeUrl.length > 0;
   const heroVideoPosterSrc =
     buildSupabaseImageUrl(posterUrl, {
       width: 1600,
@@ -322,70 +194,81 @@ export function HeroSection() {
     (settings as { hero_overlay_intensity?: unknown } | undefined)?.hero_overlay_intensity ?? overlayBackup,
     50,
   );
-  const englishCmsHeroTitle =
-    locale === "en"
-      ? getText("home.hero.title", "") || settings?.hero_title?.trim()
-      : "";
-  const englishCmsHeroSubtitle =
-    locale === "en"
-      ? getText("home.hero.subtitle", "") || settings?.hero_subtitle?.trim()
-      : "";
-  const englishCmsPrimaryCta =
-    locale === "en"
-      ? getText("home.hero.cta.primary", "") || settings?.hero_cta_primary_text?.trim()
-      : "";
-  const heroTitleLead = englishCmsHeroTitle
-    ? englishCmsHeroTitle.replace(/\s*,?\s*Curated\s*$/i, "").trim()
+  const cmsHeroTitle =
+    getText("hero.title", "") ||
+    getText("home.hero.title", "") ||
+    (locale === "en" ? settings?.hero_title?.trim() : "");
+  const cmsHeroSubtitle =
+    getText("hero.subtitle", "") ||
+    getText("home.hero.subtitle", "") ||
+    (locale === "en" ? settings?.hero_subtitle?.trim() : "");
+  const cmsPrimaryCta =
+    getText("hero.cta.primary", "") ||
+    getText("home.hero.cta.primary", "") ||
+    (locale === "en" ? settings?.hero_cta_primary_text?.trim() : "");
+  const cmsPrimaryCtaHref = getText("hero.cta.primary.href", "").trim();
+  const cmsSecondaryCta = getText("hero.cta.secondary", "") || getText("home.hero.cta.secondary", "");
+  const cmsSecondaryCtaHref = getText("hero.cta.secondary.href", "").trim();
+  const heroTitleLead = cmsHeroTitle
+    ? cmsHeroTitle.replace(/\s*,?\s*Curated\s*$/i, "").trim()
     : t("sections.homepage.hero.titleLead");
   const heroTitleHighlight =
-    englishCmsHeroTitle?.match(/\bCurated\b/i)?.[0] ?? t("sections.homepage.hero.titleHighlight");
-  const heroSubtitle = englishCmsHeroSubtitle || t("sections.homepage.hero.subtitle");
-  const primaryCtaLabel = englishCmsPrimaryCta || t("sections.homepage.hero.primaryCta");
-  const secondaryCtaLabel = t("sections.homepage.hero.secondaryCta");
-  const youtubeTitle = t("sections.homepage.hero.videoTitle");
+    cmsHeroTitle?.match(/\bCurated\b/i)?.[0] ?? t("sections.homepage.hero.titleHighlight");
+  const heroSubtitle = cmsHeroSubtitle || t("sections.homepage.hero.subtitle");
+  const heroBadge = getText("hero.badge", t("sections.homepage.hero.label"));
+  const primaryCtaLabel = cmsPrimaryCta || t("sections.homepage.hero.primaryCta");
+  const secondaryCtaLabel = cmsSecondaryCta || t("sections.homepage.hero.secondaryCta");
+  const primaryCtaTarget = cmsPrimaryCtaHref || "#signature-collection";
+  const secondaryCtaTarget = cmsSecondaryCtaHref || "/map";
+  const resolveCtaHref = (href: string) => {
+    if (/^(#|https?:\/\/|mailto:|tel:)/i.test(href)) {
+      return href;
+    }
+    return l(href);
+  };
 
-  const mediaMode = useMemo<"youtube" | "video" | "poster" | "none" | "loading">(() => {
+  const navigateToCta = (href: string) => {
+    if (href.startsWith("#")) {
+      scrollToSection(href.slice(1));
+      return;
+    }
+    if (/^https?:\/\//i.test(href)) {
+      window.open(href, "_blank", "noopener,noreferrer");
+      return;
+    }
+    if (/^(mailto:|tel:)/i.test(href)) {
+      window.location.href = href;
+      return;
+    }
+    router.push(l(href));
+  };
+  const mediaMode = useMemo<"video" | "poster" | "none" | "loading">(() => {
     if (isHeroSettingsLoading) return "loading";
 
     if (shouldSkipVideo) {
       return hasPosterUrl ? "poster" : "none";
     }
 
-    if (mediaType === "youtube" && hasYoutubeUrl) {
-      return hasFunctionalConsent ? "youtube" : hasPosterUrl ? "poster" : "none";
-    }
     if (mediaType === "video" && hasVideoUrl) return "video";
     if (mediaType === "poster" && hasPosterUrl) return "poster";
+    if (mediaType === "youtube") return hasPosterUrl ? "poster" : hasVideoUrl ? "video" : "none";
 
-    if (hasYoutubeUrl && hasFunctionalConsent) return "youtube";
     if (hasVideoUrl) return "video";
     if (hasPosterUrl) return "poster";
     return "none";
-  }, [hasFunctionalConsent, hasPosterUrl, hasVideoUrl, hasYoutubeUrl, isHeroSettingsLoading, mediaType, shouldSkipVideo]);
-
-  const showMediaConsentPrompt =
-    isCookieConsentLoaded &&
-    !hasFunctionalConsent &&
-    !shouldSkipVideo &&
-    hasYoutubeUrl &&
-    mediaMode === "poster";
+  }, [hasPosterUrl, hasVideoUrl, isHeroSettingsLoading, mediaType, shouldSkipVideo]);
 
   return (
     <div className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
       <section className={STANDARD_PUBLIC_HERO_SURFACE_CLASS}>
         {/* Video Background */}
         <div className="absolute inset-0">
-          {mediaMode === "loading" || mediaMode === "poster" || mediaMode === "none" ? (
-            <HeroPosterImage
-              hasPosterUrl={hasPosterUrl}
-              posterUrl={posterUrl}
-              className="absolute inset-0 w-full h-full object-cover"
-              priority={true}
-            />
-          ) : (
-            <div className="absolute inset-0 bg-black" aria-hidden="true" />
-          )}
-          {mediaMode === "youtube" && <YouTubeEmbed youtubeUrl={youtubeUrl} youtubeTitle={youtubeTitle} />}
+          <HeroPosterImage
+            hasPosterUrl={hasPosterUrl}
+            posterUrl={posterUrl}
+            className="absolute inset-0 w-full h-full object-cover"
+            priority={true}
+          />
           {mediaMode === "video" && <HeroVideo videoUrl={videoUrl} posterUrl={hasPosterUrl ? heroVideoPosterSrc : undefined} />}
 
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.68)_0%,rgba(0,0,0,0.46)_42%,rgba(0,0,0,0.18)_72%,rgba(0,0,0,0.32)_100%)]" />
@@ -393,23 +276,12 @@ export function HeroSection() {
             className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.12)_0%,rgba(0,0,0,0.16)_48%,rgba(0,0,0,0.66)_100%)]"
             style={{ opacity: Math.max(0.68, overlayIntensity / 125) }}
           />
-          {showMediaConsentPrompt ? (
-            <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center px-4">
-              <button
-                type="button"
-                onClick={openPreferences}
-                className="pointer-events-auto inline-flex items-center justify-center rounded-full border border-white/35 bg-black/30 px-5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-md transition hover:bg-black/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
-              >
-                {t("sections.homepage.hero.enableMediaCookies")}
-              </button>
-            </div>
-          ) : null}
         </div>
 
-        <div className="relative z-10 mx-auto flex min-h-[inherit] w-full max-w-7xl items-center px-5 pb-10 pt-28 sm:px-8 sm:pb-14 sm:pt-32 lg:px-16 lg:pb-16 lg:pt-40">
-          <div className="max-w-3xl space-y-5 text-left text-white">
+        <div className="relative z-10 mx-auto flex min-h-[inherit] w-full max-w-7xl items-center px-5 py-16 sm:px-8 sm:py-24 lg:px-16 lg:py-24">
+          <div className="max-w-3xl space-y-4 text-left text-white sm:space-y-5">
             <p className="inline-flex rounded-full border border-white/20 bg-white/12 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/82 backdrop-blur-md sm:text-xs">
-              {t("sections.homepage.hero.label")}
+              {heroBadge}
             </p>
 
             <h1 className="font-serif text-[clamp(2.75rem,10vw,6.75rem)] font-semibold leading-[0.92] tracking-normal text-white">
@@ -421,32 +293,36 @@ export function HeroSection() {
               {heroSubtitle}
             </p>
 
-            <div className="flex w-full flex-col gap-3 pt-3 sm:max-w-[42rem] sm:flex-row sm:items-center sm:gap-4">
+            <div className="flex w-full flex-col gap-3 pt-1 sm:max-w-[42rem] sm:flex-row sm:items-center sm:gap-4 sm:pt-3">
               <Button
                 variant="gold"
                 size="lg"
-                onClick={() => scrollToSection("signature-collection")}
-                className="min-h-12 w-full gap-2 px-7 sm:w-auto"
+                onClick={() => navigateToCta(primaryCtaTarget)}
+                className="min-h-12 w-full max-w-full whitespace-normal px-5 text-center leading-tight sm:w-auto sm:whitespace-nowrap sm:px-7"
               >
-                {primaryCtaLabel}
-                <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+                <span className="min-w-0 flex-1 break-words sm:flex-none">
+                  {primaryCtaLabel}
+                </span>
+                <ArrowRight className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" />
               </Button>
               <Button
                 variant="heroOutline"
                 size="lg"
-                onClick={() => router.push(l("/map"))}
+                onClick={() => navigateToCta(secondaryCtaTarget)}
                 className="hidden min-h-12 w-full px-7 sm:inline-flex sm:w-auto"
               >
                 {secondaryCtaLabel}
               </Button>
             </div>
             <Link
-              href={l("/map")}
+              href={resolveCtaHref(secondaryCtaTarget)}
               className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-white/75 underline underline-offset-4 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:hidden"
+              target={/^https?:\/\//i.test(secondaryCtaTarget) ? "_blank" : undefined}
+              rel={/^https?:\/\//i.test(secondaryCtaTarget) ? "noopener noreferrer" : undefined}
             >
               {secondaryCtaLabel} <ArrowRight className="h-3.5 w-3.5" />
             </Link>
-            <div className="flex max-w-2xl flex-wrap items-center gap-x-5 gap-y-2 pt-4 text-xs font-semibold text-white/78">
+            <div className="flex max-w-2xl flex-wrap items-center gap-x-5 gap-y-2 pt-3 text-xs font-semibold text-white/78 sm:pt-4">
               <span>{t("sections.homepage.hero.proof.curated")}</span>
               <span>{t("sections.homepage.hero.proof.verified")}</span>
               <span>{t("sections.homepage.hero.proof.intent")}</span>

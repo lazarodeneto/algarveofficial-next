@@ -10,6 +10,7 @@ import {
 } from "@/lib/homeQuickLinks";
 import { buildSupabaseImageUrl } from "@/lib/imageUrls";
 import { useTranslation } from "react-i18next";
+import { cmsText, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
 
 function Link(props: ComponentProps<typeof NextLink>) {
   return <NextLink prefetch={false} {...props} />;
@@ -24,7 +25,7 @@ const CARD_ICONS: Record<"stay" | "eat-drink" | "see-do" | "golf" | "real-estate
   "real-estate": Building2,
 };
 
-export function HomeQuickLinksSection() {
+export function HomeQuickLinksSection({ copy }: { copy?: HomeSectionCopy } = {}) {
   const l = useLocalePath();
   const { t } = useTranslation();
   const { settings, isLoading } = useGlobalSettings({ keys: HOME_QUICK_LINK_SETTING_KEYS });
@@ -69,11 +70,15 @@ export function HomeQuickLinksSection() {
     return (
       <section id="home-quick-links" className="relative z-10 bg-background pb-10 pt-8 sm:pb-12 sm:pt-10 lg:pb-14 lg:pt-12" aria-hidden="true">
         <div className="app-container">
+          <div className="mx-auto mb-6 max-w-[720px] text-center sm:mb-8">
+            <div className="mx-auto mb-3 h-8 w-56 rounded-md bg-muted/45" />
+            <div className="mx-auto h-5 w-[42rem] max-w-full rounded-md bg-muted/35" />
+          </div>
           <div className="mx-auto grid w-full grid-cols-2 gap-3 px-1 sm:max-w-[1120px] sm:gap-5 sm:px-0 lg:grid-cols-6 lg:gap-4">
             {HOME_QUICK_LINK_CARDS.map((card) => (
               <div
                 key={card.id}
-                className="relative isolate aspect-[4/3] overflow-hidden rounded-2xl bg-muted/35 shadow-sm"
+                className="relative isolate aspect-[4/3] overflow-hidden rounded-md bg-muted/35 shadow-sm"
               >
                 <div className="absolute inset-0 animate-pulse bg-muted/45" />
                 <div className="absolute bottom-5 left-5 h-7 w-28 rounded-md bg-background/35" />
@@ -86,8 +91,16 @@ export function HomeQuickLinksSection() {
   }
 
   return (
-    <section id="home-quick-links" className="relative z-10 bg-background pb-10 pt-8 sm:pb-12 sm:pt-10 lg:pb-14 lg:pt-12">
+    <section id="home-quick-links" className="relative z-10 bg-background pb-10 pt-3 sm:pb-12 sm:pt-4 lg:pb-14 lg:pt-5">
       <div className="app-container content-max">
+        <div className="mx-auto mb-6 max-w-[720px] text-center sm:mb-8">
+          <h2 className="font-serif text-[clamp(2rem,4vw,3.25rem)] font-medium leading-[0.98] tracking-normal text-foreground">
+            {cmsText(copy?.title, t("sections.homepage.categories.title"))}
+          </h2>
+          <p className="mx-auto mt-3 max-w-[720px] text-base leading-relaxed text-muted-foreground dark:text-white/80 sm:text-lg">
+            {cmsText(copy?.subtitle ?? copy?.description, t("sections.homepage.categories.intro"))}
+          </p>
+        </div>
         <div className="mx-auto grid w-full grid-cols-2 gap-3 px-1 sm:grid-cols-3 sm:gap-5 sm:px-0 lg:grid-cols-6 lg:gap-4">
           {quickLinkCards.map((card) => {
             const Icon = CARD_ICONS[card.id];
@@ -124,7 +137,7 @@ export function HomeQuickLinksSection() {
               <Link
                 key={card.id}
                 href={card.customHref ? l(card.customHref) : l(`/stay?category=${card.categorySlug}`)}
-                className="group relative isolate aspect-[4/3] overflow-hidden rounded-2xl border-[8px] border-gray-200 bg-black font-sans shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] motion-reduce:transition-none hover:-translate-y-1 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary lg:aspect-[5/6]"
+                className="group relative isolate aspect-[0.86/1] min-w-0 overflow-hidden rounded-md border-0 bg-black font-sans shadow-none outline-0 ring-0 transition-all duration-300 ease-out [backface-visibility:hidden] [box-shadow:none] motion-reduce:transition-none hover:-translate-y-1 hover:shadow-none hover:[box-shadow:none] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:aspect-[4/3] sm:shadow-none lg:aspect-[5/6]"
               >
                     {showVideo ? (
                       <video
@@ -140,7 +153,7 @@ export function HomeQuickLinksSection() {
                         onPlay={(event) => enforceMutedPlayback(event.currentTarget)}
                         onError={() => markVideoAsFailed(card.id)}
                         style={{ objectPosition: card.imagePosition ?? "center" }}
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out will-change-transform motion-reduce:transition-none group-hover:scale-[1.05]"
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out motion-reduce:transition-none group-hover:scale-[1.05]"
                       />
                     ) : showImage ? (
                       <Image
@@ -155,20 +168,20 @@ export function HomeQuickLinksSection() {
                         decoding="async"
                         onError={() => markImageAsFailed(card.id)}
                         style={{ objectPosition: card.imagePosition ?? "center" }}
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out will-change-transform motion-reduce:transition-none group-hover:scale-[1.05]"
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out motion-reduce:transition-none group-hover:scale-[1.05]"
                       />
                     ) : (
                       <div className="absolute inset-0 bg-black" aria-hidden="true" />
                     )}
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-4 text-white text-shadow-card sm:p-5">
-                    <h3 className="max-w-full text-balance font-sans text-[1.02rem] font-black uppercase not-italic leading-[1.08] tracking-normal min-[480px]:text-[1.14rem] sm:text-[1.26rem] lg:text-[0.98rem] xl:text-[1.08rem] [overflow-wrap:normal] [word-break:normal] hyphens-none">
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/78 via-black/25 to-transparent sm:from-black/70" />
+                  <div className="absolute inset-x-0 bottom-0 flex min-w-0 flex-col p-3 text-white text-shadow-card sm:p-5">
+                    <h3 className="max-w-full text-balance font-fira text-[0.99rem] font-black uppercase not-italic leading-[1.02] tracking-normal min-[380px]:text-[1.06rem] sm:text-[1.45rem] lg:text-[1.13rem] xl:text-[1.24rem] [overflow-wrap:normal] [word-break:normal] hyphens-none">
                       {displayTitle}
                     </h3>
-                    <span className="mt-1.5 inline-flex items-center gap-1 text-sm font-medium text-white/85 sm:mt-2 sm:gap-1.5">
-                      <Icon className="h-7 w-7" strokeWidth={1.8} />
+                    <span className="mt-2 inline-flex min-w-0 items-center gap-1 text-xs font-semibold leading-none text-white/90 sm:mt-2 sm:gap-1.5 sm:text-sm">
+                      <Icon className="h-5 w-5 shrink-0 sm:h-7 sm:w-7" strokeWidth={1.8} />
                       {t("sections.homepage.common.explore")}
-                      <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                      <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
                     </span>
                   </div>
               </Link>

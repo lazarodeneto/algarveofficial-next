@@ -82,7 +82,7 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                 key: "bedrooms",
                 value: formatMetricValue(beds),
                 unit: null,
-                label: t("listing.bedrooms"),
+                label: t("categoryLayouts.realEstate.bedrooms"),
                 icon: Building2,
             }]
             : []),
@@ -91,7 +91,7 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                 key: "bathrooms",
                 value: formatMetricValue(baths),
                 unit: null,
-                label: t("listing.bathrooms"),
+                label: t("categoryLayouts.realEstate.bathrooms"),
                 icon: Bath,
             }]
             : []),
@@ -100,7 +100,7 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                 key: "living-area",
                 value: formatMetricValue(area),
                 unit: "m²",
-                label: t("listing.livingArea"),
+                label: t("categoryLayouts.realEstate.livingArea"),
                 icon: Maximize,
             }]
             : []),
@@ -109,7 +109,7 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                 key: "plot-size",
                 value: formatMetricValue(plotSize),
                 unit: "m²",
-                label: t("listing.plotSize"),
+                label: t("categoryLayouts.realEstate.plotSize"),
                 icon: MapPin,
             }]
             : []),
@@ -232,14 +232,14 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                             "border-t",
                             isPremium ? "pt-4 sm:pt-5 border-[#C7A35A]/20" : "pt-4 sm:pt-5 border-border/40"
                         )}>
-                            <div className="grid grid-cols-4 gap-2">
+                            <div className="grid grid-cols-2 gap-2 min-[420px]:grid-cols-4">
                                 {propertyMetrics.map((metric) => {
                                     const Icon = metric.icon;
 
                                     return (
                                         <div
                                             key={metric.key}
-                                            className="flex flex-col items-center text-center gap-1.5 py-2"
+                                            className="flex min-w-0 flex-col items-center text-center gap-1.5 py-2"
                                         >
                                             <div className={cn(
                                                 "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
@@ -249,7 +249,7 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                                             )}>
                                                 <Icon className="h-3.5 w-3.5" />
                                             </div>
-                                            <div>
+                                            <div className="min-w-0 max-w-full">
                                                 <p className="text-[0.95rem] sm:text-[1.05rem] font-semibold text-foreground leading-none">
                                                     {metric.value}
                                                     {metric.unit ? (
@@ -258,7 +258,7 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                                                         </span>
                                                     ) : null}
                                                 </p>
-                                                <p className="mt-1 text-[0.6rem] sm:text-[0.65rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground leading-tight">
+                                                <p className="mt-1 max-w-full break-words text-[0.58rem] font-semibold uppercase tracking-[0.04em] text-muted-foreground leading-tight sm:text-[0.65rem] sm:tracking-[0.08em]">
                                                     {metric.label}
                                                 </p>
                                             </div>

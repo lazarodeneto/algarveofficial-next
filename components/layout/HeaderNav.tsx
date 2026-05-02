@@ -20,15 +20,16 @@ const HEADER_NAV_ITEMS = PRIMARY_NAV_ITEMS.filter(
     item.href !== "/contact" &&
     item.href !== "/map" &&
     item.href !== "/blog" &&
-    item.href !== "/residence" &&
     item.href !== "/invest" &&
-    item.href !== "/events",
+    item.href !== "/events" &&
+    item.href !== "/relocation",
 );
 
 const HEADER_NAV_ICONS: Record<string, LucideIcon> = {
   "nav.visit": Binoculars,
   "nav.stay": BedDouble,
   "nav.live": Home,
+  "nav.relocation": Home,
   "nav.invest": HouseHeart,
   "nav.properties": HouseHeart,
   "nav.experiences": Binoculars,
@@ -45,7 +46,7 @@ export function HeaderNav() {
   return (
     <nav
       aria-label={ariaLabel}
-      className="font-['Archivo_Narrow'] flex items-center gap-2.5 text-[0.82rem] font-medium uppercase tracking-[0.04em] text-foreground/86 lg:text-[0.88rem] lg:tracking-[0.05em] xl:gap-4 xl:text-[0.95rem] xl:tracking-[0.065em] 2xl:gap-5 2xl:text-[1.22rem] 2xl:tracking-[0.08em]"
+      className="flex items-center gap-2.5 font-fira text-[0.82rem] font-bold uppercase tracking-[0.04em] text-foreground/86 lg:text-[0.88rem] lg:tracking-[0.05em] xl:gap-4 xl:text-[0.95rem] xl:tracking-[0.065em] 2xl:gap-5 2xl:text-[1.22rem] 2xl:tracking-[0.08em]"
     >
       {HEADER_NAV_ITEMS.map((item) => {
         const itemPath = item.href.split("?")[0];
@@ -60,7 +61,7 @@ export function HeaderNav() {
             href={item.href}
             className={clsx(
               "relative inline-flex items-center gap-1.5 whitespace-nowrap py-1.5 transition-colors duration-200 hover:text-foreground xl:gap-2 after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:origin-left after:scale-x-0 after:rounded-full after:bg-primary after:transition-transform after:duration-200 hover:after:scale-x-100",
-              isActive ? "font-semibold text-foreground after:scale-x-100" : ""
+              isActive ? "text-foreground after:scale-x-100" : ""
             )}
           >
             {Icon ? <Icon aria-hidden="true" className="h-[0.95rem] w-[0.95rem] shrink-0 text-current/80" /> : null}

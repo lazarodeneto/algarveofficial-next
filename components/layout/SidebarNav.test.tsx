@@ -38,7 +38,7 @@ describe("SidebarNav", () => {
     expect(screen.getByRole("link", { name: "Stay" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Experiences" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Properties" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Residence" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Relocation" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Blog" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Golf" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Map" })).toBeInTheDocument();
@@ -56,7 +56,7 @@ describe("SidebarNav", () => {
     expect(screen.getByText("Stay")).toBeInTheDocument();
     expect(screen.getByText("Experiences")).toBeInTheDocument();
     expect(screen.getByText("Properties")).toBeInTheDocument();
-    expect(screen.getByText("Residence")).toBeInTheDocument();
+    expect(screen.getByText("Relocation")).toBeInTheDocument();
     expect(screen.getByText("Blog")).toBeInTheDocument();
     expect(screen.getByText("Golf")).toBeInTheDocument();
     expect(screen.getByText("Map")).toBeInTheDocument();

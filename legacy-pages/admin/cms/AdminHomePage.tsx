@@ -51,10 +51,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { convertToWebP } from "@/lib/imageUtils";
 import { normalizePublicImageUrl, resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
 import {
+  HomeSectionCopy,
+  HomeSectionCopyMap,
+  isSafeHomeCtaHref,
+  normalizeHomeSectionCopyMap,
+} from "@/lib/cms/home-section-copy";
+import {
   HOME_QUICK_LINK_CARDS,
   HOME_QUICK_LINK_SETTING_KEYS,
   HOME_QUICK_LINKS_CATEGORY,
 } from "@/lib/homeQuickLinks";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 interface HeroContent {
   videoUrl: string;
@@ -78,6 +85,10 @@ interface HomeSection {
   type: string;
   enabled: boolean;
   order: number;
+  copy?: HomeSectionCopy;
+  connectionNote?: string;
+  canToggle?: boolean;
+  canReorder?: boolean;
 }
 
 const DEFAULT_OVERLAY_INTENSITY = 50;
@@ -98,15 +109,76 @@ const DEFAULT_HERO_CONTENT: HeroContent = {
 };
 
 const defaultSections: HomeSection[] = [
-  { id: 'hero', title: 'Hero Section', type: 'hero', enabled: true, order: 1 },
-  { id: 'regions', title: 'Premium Regions', type: 'regions', enabled: true, order: 2 },
-  { id: 'categories', title: 'Categories', type: 'categories', enabled: true, order: 3 },
-  { id: 'curated', title: 'Signature Selection', type: 'curated', enabled: true, order: 4 },
-  { id: 'cities', title: 'Cities', type: 'cities', enabled: true, order: 5 },
-  { id: 'vip', title: 'VIP Section', type: 'vip', enabled: true, order: 6 },
-  { id: 'all-listings', title: 'All Listings', type: 'listings', enabled: true, order: 7 },
-  { id: 'cta', title: 'Call to Action', type: 'cta', enabled: true, order: 8 },
+  {
+    id: 'hero',
+    title: 'Hero Section',
+    type: 'hero',
+    enabled: true,
+    order: 1,
+    connectionNote: 'Publicly connected. Locked as the first homepage section.',
+    canToggle: false,
+    canReorder: false,
+  },
+  { id: 'categories', title: 'Home Quick Link Cards', type: 'quick-links', enabled: true, order: 2, connectionNote: 'Publicly connected directly below the hero.' },
+  { id: 'regions', title: 'Premium Regions', type: 'regions', enabled: true, order: 3, connectionNote: 'Publicly connected: toggle and order are honored.' },
+  { id: 'curated', title: 'Signature Selection', type: 'curated', enabled: true, order: 4, connectionNote: 'Publicly connected. Listing selection remains data driven.' },
+  { id: 'cities', title: 'Cities', type: 'cities', enabled: true, order: 5, connectionNote: 'Publicly connected to the city grid.' },
+  { id: 'vip', title: 'VIP Section', type: 'vip', enabled: true, order: 6, connectionNote: 'Publicly connected to the map gateway section.' },
+  { id: 'all-listings', title: 'All Listings', type: 'listings', enabled: true, order: 7, connectionNote: 'Publicly connected. Listings remain data driven.' },
+  { id: 'cta', title: 'Call to Action', type: 'cta', enabled: true, order: 8, connectionNote: 'Publicly connected.' },
 ];
+
+type SectionCopyField = keyof HomeSectionCopy;
+
+const SECTION_COPY_FIELDS: Record<string, Array<{ key: SectionCopyField; label: string; placeholder?: string }>> = {
+  regions: [
+    { key: "eyebrow", label: "Eyebrow" },
+    { key: "title", label: "Title" },
+    { key: "subtitle", label: "Subtitle" },
+    { key: "ctaLabel", label: "CTA label" },
+    { key: "ctaHref", label: "CTA URL", placeholder: "/destinations" },
+  ],
+  categories: [
+    { key: "title", label: "Title" },
+    { key: "subtitle", label: "Subtitle" },
+  ],
+  curated: [
+    { key: "eyebrow", label: "Eyebrow" },
+    { key: "title", label: "Title" },
+    { key: "subtitle", label: "Subtitle" },
+    { key: "ctaLabel", label: "CTA label" },
+    { key: "ctaHref", label: "CTA URL", placeholder: "/directory?tier=signature" },
+  ],
+  cities: [
+    { key: "eyebrow", label: "Eyebrow" },
+    { key: "title", label: "Title" },
+    { key: "subtitle", label: "Subtitle" },
+    { key: "ctaLabel", label: "CTA label" },
+    { key: "ctaHref", label: "CTA URL", placeholder: "/destinations" },
+  ],
+  vip: [
+    { key: "eyebrow", label: "Eyebrow" },
+    { key: "title", label: "Title" },
+    { key: "subtitle", label: "Subtitle" },
+    { key: "ctaLabel", label: "CTA label" },
+    { key: "ctaHref", label: "CTA URL", placeholder: "/map" },
+  ],
+  "all-listings": [
+    { key: "title", label: "Title" },
+    { key: "subtitle", label: "Subtitle" },
+  ],
+  cta: [
+    { key: "eyebrow", label: "Eyebrow" },
+    { key: "title", label: "Title" },
+    { key: "subtitle", label: "Subtitle" },
+    { key: "ctaLabel", label: "Primary CTA label" },
+    { key: "ctaHref", label: "Primary CTA URL", placeholder: "/directory" },
+    { key: "secondaryCtaLabel", label: "Secondary CTA label" },
+    { key: "secondaryCtaHref", label: "Secondary CTA URL", placeholder: "/partner" },
+  ],
+};
+
+const sectionSupportsCopy = (sectionId: string) => (SECTION_COPY_FIELDS[sectionId]?.length ?? 0) > 0;
 
 const areStringRecordValuesEqual = (
   a: Record<string, string>,
@@ -158,10 +230,15 @@ const resolveMediaAssetUrl = (value?: string | null) =>
 interface SortableSectionItemProps {
   section: HomeSection;
   onToggle: (id: string) => void;
+  onCopyChange: (id: string, key: SectionCopyField, value: string) => void;
+  onRestoreCopy: (id: string) => void;
 }
 
 const SortableSectionItem = forwardRef<HTMLDivElement, SortableSectionItemProps>(
-  function SortableSectionItem({ section, onToggle }, _ref) {
+  function SortableSectionItem({ section, onToggle, onCopyChange, onRestoreCopy }, _ref) {
+    const canReorder = section.canReorder !== false;
+    const canToggle = section.canToggle !== false;
+    const copyFields = SECTION_COPY_FIELDS[section.id] ?? [];
     const {
       attributes,
       listeners,
@@ -169,7 +246,7 @@ const SortableSectionItem = forwardRef<HTMLDivElement, SortableSectionItemProps>
       transform,
       transition,
       isDragging,
-    } = useSortable({ id: section.id });
+    } = useSortable({ id: section.id, disabled: !canReorder });
 
     const style = {
       transform: CSS.Transform.toString(transform),
@@ -181,45 +258,122 @@ const SortableSectionItem = forwardRef<HTMLDivElement, SortableSectionItemProps>
         ref={setNodeRef}
         style={style}
         className={cn(
-          "flex items-center gap-3 p-3 rounded-lg border transition-colors",
+          "rounded-lg border p-3 transition-colors",
           section.enabled
             ? "bg-background border-border"
             : "bg-muted/30 border-border/50 opacity-60",
           isDragging && "z-50 shadow-lg shadow-primary/20 opacity-90"
         )}
       >
-        <button
-          {...attributes}
-          {...listeners}
-          className="touch-none p-1 rounded hover:bg-muted transition-colors cursor-grab active:cursor-grabbing"
-        >
-          <GripVertical className="h-5 w-5 text-muted-foreground" />
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            {...attributes}
+            {...listeners}
+            disabled={!canReorder}
+            className={cn(
+              "touch-none p-1 rounded transition-colors",
+              canReorder
+                ? "cursor-grab hover:bg-muted active:cursor-grabbing"
+                : "cursor-not-allowed opacity-35",
+            )}
+            aria-label={canReorder ? `Reorder ${section.title}` : `${section.title} order is locked`}
+          >
+            <GripVertical className="h-5 w-5 text-muted-foreground" />
+          </button>
 
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <span className="font-medium text-foreground">{section.title}</span>
-            <Badge variant="outline" className="text-xs capitalize">
-              {section.type}
-            </Badge>
+          <div className="flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-medium text-foreground">{section.title}</span>
+              <Badge variant="outline" className="text-xs capitalize">
+                {section.type}
+              </Badge>
+              {sectionSupportsCopy(section.id) ? (
+                <Badge variant="secondary" className="text-[10px] uppercase tracking-[0.12em]">
+                  Copy editable
+                </Badge>
+              ) : null}
+              {section.id !== "hero" ? (
+                <Badge variant="outline" className="text-[10px] uppercase tracking-[0.12em]">
+                  Dynamic data preserved
+                </Badge>
+              ) : null}
+            </div>
+            {section.subtitle && (
+              <p className="text-sm text-muted-foreground">{section.subtitle}</p>
+            )}
+            {section.connectionNote && (
+              <p className="mt-1 text-xs text-muted-foreground">{section.connectionNote}</p>
+            )}
           </div>
-          {section.subtitle && (
-            <p className="text-sm text-muted-foreground">{section.subtitle}</p>
-          )}
+
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-[10px] uppercase tracking-[0.12em]">
+              Connected
+            </Badge>
+            <Switch
+              checked={section.enabled}
+              onCheckedChange={() => onToggle(section.id)}
+              disabled={!canToggle}
+              aria-label={canToggle ? `Toggle ${section.title}` : `${section.title} toggle is locked`}
+            />
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Switch
-            checked={section.enabled}
-            onCheckedChange={() => onToggle(section.id)}
-          />
-        </div>
+        {copyFields.length > 0 ? (
+          <details className="mt-3 rounded-md border border-border/70 bg-muted/20 p-3">
+            <summary className="cursor-pointer text-sm font-medium text-foreground">
+              Edit public copy
+            </summary>
+            <p className="mt-2 text-xs text-muted-foreground">
+              CMS edits copy, visibility, and order. Cards/listings still come from live data.
+            </p>
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              {copyFields.map((field) => {
+                const value = section.copy?.[field.key] ?? "";
+                const isLongText = field.key === "subtitle" || field.key === "description";
+                return (
+                  <div key={field.key} className={isLongText ? "md:col-span-2" : undefined}>
+                    <Label htmlFor={`${section.id}-${field.key}`}>{field.label}</Label>
+                    {isLongText ? (
+                      <Textarea
+                        id={`${section.id}-${field.key}`}
+                        value={value ?? ""}
+                        placeholder="Leave empty to use translated fallback"
+                        onChange={(event) => onCopyChange(section.id, field.key, event.target.value)}
+                        className="mt-1 min-h-20"
+                      />
+                    ) : (
+                      <Input
+                        id={`${section.id}-${field.key}`}
+                        value={value ?? ""}
+                        placeholder={field.placeholder ?? "Leave empty to use fallback"}
+                        onChange={(event) => onCopyChange(section.id, field.key, event.target.value)}
+                        className="mt-1"
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-4"
+              onClick={() => onRestoreCopy(section.id)}
+            >
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Restore section copy defaults
+            </Button>
+          </details>
+        ) : null}
       </div>
     );
   }
 );
 
 export default function AdminHomePage() {
+  const l = useLocalePath();
   const { settings, isLoading, updateSettingsAsync } = useHomepageSettings();
   const {
     settings: quickLinkSettings,
@@ -254,7 +408,9 @@ export default function AdminHomePage() {
         videoUrl: settings.hero_video_url || '',
         posterUrl: settings.hero_poster_url || '',
         youtubeUrl: settings.hero_youtube_url || '',
-        mediaType: (settings as any).hero_media_type || 'video',
+        mediaType: (settings as any).hero_media_type === "youtube"
+          ? "poster"
+          : (settings as any).hero_media_type || 'video',
         overlayIntensity:
           (settings as any).hero_overlay_intensity ??
           prev.overlayIntensity ??
@@ -276,21 +432,31 @@ export default function AdminHomePage() {
 
       // Sync sections order and visibility from database
       const dbSectionOrder = settings.section_order as string[] | null;
+      const sectionCopy = normalizeHomeSectionCopyMap((settings as any).section_copy);
 
       setSections(prev => {
-        const updatedSections = prev.map(section => {
+        const updatedSections = defaultSections.map(section => {
+          const currentSection = prev.find((item) => item.id === section.id);
           // Hero is always visible - skip visibility lookup
           if (section.id === 'hero') {
-            return { ...section, enabled: true };
+            return {
+              ...section,
+              enabled: true,
+              copy: sectionCopy[section.id] ?? currentSection?.copy ?? section.copy,
+            };
           }
 
           // Map section ID to database visibility column
           const visibilityKey = `show_${section.id.replace('-', '_')}_section` as keyof typeof settings;
           const isEnabled = settings[visibilityKey] !== undefined
             ? Boolean(settings[visibilityKey])
-            : section.enabled;
+            : (currentSection?.enabled ?? section.enabled);
 
-          return { ...section, enabled: isEnabled };
+          return {
+            ...section,
+            enabled: isEnabled,
+            copy: sectionCopy[section.id] ?? currentSection?.copy ?? section.copy,
+          };
         });
 
         // Apply order from database if available (filter out hero as it's always first)
@@ -552,13 +718,47 @@ export default function AdminHomePage() {
     }
   };
 
+  const isValidCtaHref = (value: string) => isSafeHomeCtaHref(value);
+
+  const validateCtaPair = (label: string, link: string, name: string) => {
+    const hasLabel = label.trim().length > 0;
+    const hasLink = link.trim().length > 0;
+
+    if (hasLabel && !hasLink) {
+      return `${name} needs a link when a label is set.`;
+    }
+    if (!hasLabel && hasLink) {
+      return `${name} needs a label when a link is set.`;
+    }
+    if (!isValidCtaHref(link)) {
+      return `${name} link must start with /, #, https://, mailto:, or tel:.`;
+    }
+    return null;
+  };
+
   const handleSaveHero = async () => {
+    const primaryCtaError = validateCtaPair(
+      heroContent.primaryCta.label,
+      heroContent.primaryCta.link,
+      "Primary CTA",
+    );
+    const secondaryCtaError = validateCtaPair(
+      heroContent.secondaryCta.label,
+      heroContent.secondaryCta.link,
+      "Secondary CTA",
+    );
+
+    if (primaryCtaError || secondaryCtaError) {
+      toast.error(primaryCtaError ?? secondaryCtaError);
+      return;
+    }
+
     setIsSaving(true);
     try {
       await updateSettingsAsync({
-        hero_video_url: heroContent.mediaType === 'video' ? heroContent.videoUrl : (heroContent.videoUrl || null),
-        hero_youtube_url: heroContent.mediaType === 'youtube' ? heroContent.youtubeUrl : null,
-        hero_poster_url: heroContent.posterUrl,
+        hero_video_url: heroContent.mediaType === 'video' ? heroContent.videoUrl || null : null,
+        hero_youtube_url: null,
+        hero_poster_url: heroContent.posterUrl || null,
         hero_media_type: heroContent.mediaType,
         hero_overlay_intensity: overlayIntensity,
         hero_autoplay: heroContent.autoplay,
@@ -625,6 +825,21 @@ export default function AdminHomePage() {
   };
 
   const handleSaveSections = async () => {
+    for (const section of sections) {
+      const copy = section.copy ?? {};
+      const ctaFields: Array<[SectionCopyField, string]> = [
+        ["ctaHref", "CTA URL"],
+        ["secondaryCtaHref", "Secondary CTA URL"],
+      ];
+      for (const [field, label] of ctaFields) {
+        const value = copy[field];
+        if (typeof value === "string" && !isSafeHomeCtaHref(value)) {
+          toast.error(`${section.title} ${label} must start with /, #, http(s), mailto:, or tel:.`);
+          return;
+        }
+      }
+    }
+
     setIsSaving(true);
     try {
       // Build section order array from current sorted order (exclude hero - it's always first)
@@ -640,9 +855,15 @@ export default function AdminHomePage() {
         const columnName = `show_${section.id.replace('-', '_')}_section`;
         visibilitySettings[columnName] = section.enabled;
       });
+      const sectionCopy = sections.reduce<HomeSectionCopyMap>((acc, section) => {
+        if (!sectionSupportsCopy(section.id)) return acc;
+        acc[section.id] = normalizeHomeSectionCopyMap({ [section.id]: section.copy ?? {} })[section.id] ?? {};
+        return acc;
+      }, {});
 
       await updateSettingsAsync({
         section_order: sectionOrder,
+        section_copy: sectionCopy,
         ...visibilitySettings,
       } as Partial<HomepageSettings>);
 
@@ -657,6 +878,37 @@ export default function AdminHomePage() {
   const toggleSection = (id: string) => {
     setSections(prev =>
       prev.map(s => s.id === id ? { ...s, enabled: !s.enabled } : s)
+    );
+  };
+
+  const handleSectionCopyChange = (id: string, key: SectionCopyField, value: string) => {
+    setSections(prev =>
+      prev.map(section =>
+        section.id === id
+          ? {
+              ...section,
+              copy: {
+                ...(section.copy ?? {}),
+                [key]: value,
+              },
+            }
+          : section
+      )
+    );
+  };
+
+  const handleRestoreSectionCopy = (id: string) => {
+    setSections(prev =>
+      prev.map(section =>
+        section.id === id
+          ? {
+              ...section,
+              copy: Object.fromEntries(
+                Object.keys(section.copy ?? {}).map((key) => [key, null]),
+              ) as HomeSectionCopy,
+            }
+          : section
+      )
     );
   };
 
@@ -695,9 +947,9 @@ export default function AdminHomePage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" asChild>
-            <a href="/" target="_blank" rel="noopener noreferrer">
+            <a href={l("/")} target="_blank" rel="noopener noreferrer">
               <Eye className="h-4 w-4 mr-2" />
-              Preview
+              Open Public Home
             </a>
           </Button>
         </div>
@@ -769,14 +1021,17 @@ export default function AdminHomePage() {
                         Poster Only
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="youtube" id="media-youtube" />
-                      <Label htmlFor="media-youtube" className="cursor-pointer flex items-center gap-1.5">
+                    <div className="flex items-center space-x-2 opacity-50">
+                      <RadioGroupItem value="youtube" id="media-youtube" disabled />
+                      <Label htmlFor="media-youtube" className="cursor-not-allowed flex items-center gap-1.5">
                         <Youtube className="h-4 w-4 text-red-500" />
                         YouTube
                       </Label>
                     </div>
                   </RadioGroup>
+                  <p className="text-xs text-muted-foreground">
+                    YouTube hero backgrounds are disabled because the public homepage no longer embeds YouTube media.
+                  </p>
                 </div>
 
                 {/* Media Preview */}
@@ -1241,6 +1496,8 @@ export default function AdminHomePage() {
                       key={section.id}
                       section={section}
                       onToggle={toggleSection}
+                      onCopyChange={handleSectionCopyChange}
+                      onRestoreCopy={handleRestoreSectionCopy}
                     />
                   ))}
                 </SortableContext>
@@ -1250,6 +1507,158 @@ export default function AdminHomePage() {
                 <Save className="h-4 w-4 mr-2" />
                 {isSaving ? "Saving..." : "Save Section Order"}
               </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border bg-card/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Image className="h-5 w-5 text-primary" />
+                Home Quick Link Cards
+              </CardTitle>
+              <CardDescription>
+                Upload the images and videos used by the homepage category cards.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                {HOME_QUICK_LINK_CARDS.map((card) => {
+                  const customImageUrl = quickLinkImages[card.imageSettingKey]?.trim() ?? "";
+                  const imageUrl = resolveMediaAssetUrl(customImageUrl);
+                  const videoUrl = resolveMediaAssetUrl(quickLinkVideos[card.videoSettingKey]?.trim());
+                  const hasCustomImage = Boolean(customImageUrl);
+                  const hasCustomVideo = Boolean(videoUrl);
+                  const isCardBusy = isSaving || isSavingQuickLinks;
+                  return (
+                    <div key={card.id} className="rounded-lg border border-border bg-background/40 p-3">
+                      <p className="text-sm font-medium text-foreground">{card.title}</p>
+                      <p className="mb-3 text-xs text-muted-foreground">
+                        /stay?category={card.categorySlug}
+                      </p>
+
+                      <div className="relative mb-3 aspect-[4/3] overflow-hidden rounded-md border border-border bg-muted/40">
+                        {hasCustomVideo ? (
+                          <video
+                            src={videoUrl ?? undefined}
+                            poster={imageUrl ?? undefined}
+                            className="h-full w-full object-cover"
+                            controls
+                            muted
+                            playsInline
+                          />
+                        ) : hasCustomImage && imageUrl ? (
+                          <img
+                            src={imageUrl}
+                            alt={`${card.title} card preview`}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="h-full w-full bg-black" aria-label={`${card.title} empty preview`} />
+                        )}
+                      </div>
+                      <p className="mb-3 text-[11px] text-muted-foreground">
+                        {hasCustomVideo
+                          ? "Custom video uploaded"
+                          : hasCustomImage
+                            ? "Custom image uploaded"
+                            : "No custom media (black fallback)"}
+                      </p>
+
+                      <input
+                        ref={(element) => {
+                          quickLinkImageInputRefs.current[card.id] = element;
+                        }}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(event) => {
+                          handleQuickLinkUpload(
+                            event,
+                            card.imageSettingKey,
+                            card.videoSettingKey,
+                            card.id,
+                            card.title,
+                          );
+                        }}
+                      />
+
+                      <input
+                        ref={(element) => {
+                          quickLinkVideoInputRefs.current[card.id] = element;
+                        }}
+                        type="file"
+                        accept="video/mp4,video/webm,video/ogg"
+                        className="hidden"
+                        onChange={(event) => {
+                          handleQuickLinkVideoUpload(
+                            event,
+                            card.imageSettingKey,
+                            card.videoSettingKey,
+                            card.id,
+                            card.title,
+                          );
+                        }}
+                      />
+
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => quickLinkImageInputRefs.current[card.id]?.click()}
+                          disabled={isCardBusy}
+                        >
+                          {isCardBusy ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                            <Upload className="mr-2 h-4 w-4" />
+                          )}
+                          {hasCustomImage ? "Change Image" : "Upload Image"}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => quickLinkVideoInputRefs.current[card.id]?.click()}
+                          disabled={isCardBusy}
+                        >
+                          {isCardBusy ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                            <Video className="mr-2 h-4 w-4" />
+                          )}
+                          {hasCustomVideo ? "Change Video" : "Upload Video"}
+                        </Button>
+                      </div>
+
+                      <div className="mt-2 flex gap-2">
+                        {hasCustomImage && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveQuickLinkImage(card.imageSettingKey, card.title)}
+                            disabled={isCardBusy}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            Remove Image
+                          </Button>
+                        )}
+                        {hasCustomVideo && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveQuickLinkVideo(card.videoSettingKey, card.title)}
+                            disabled={isCardBusy}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            Remove Video
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

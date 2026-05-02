@@ -19,7 +19,7 @@ export default function LocaleError({ error, reset }: LocaleErrorProps) {
   }, [error]);
 
   return (
-    <main className="app-container py-20">
+    <main id="main-content" className="app-container py-20">
       <RouteMessageState
         eyebrow={t("errorPage.eyebrow")}
         title={t("errorPage.title")}
