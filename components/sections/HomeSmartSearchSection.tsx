@@ -14,6 +14,7 @@ const INTENTS = [
   { key: "thingsToDo", href: "/directory?category=things-to-do" },
   { key: "golf", href: "/visit/vilamoura/golf" },
   { key: "realEstate", href: "/real-estate" },
+  { key: "relocation", href: "/relocation", labelKey: "nav.relocation" },
   { key: "events", href: "/events" },
 ] as const;
 
@@ -54,7 +55,7 @@ export function HomeSmartSearchSection() {
                   href={l(intent.href)}
                   className="rounded-full border border-border/70 bg-background px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:border-primary/45 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
-                  {t(`sections.homepage.smartSearch.intents.${intent.key}`)}
+                  {t("labelKey" in intent ? intent.labelKey : `sections.homepage.smartSearch.intents.${intent.key}`)}
                 </Link>
               ))}
             </nav>
