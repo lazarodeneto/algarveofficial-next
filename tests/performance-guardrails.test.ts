@@ -33,6 +33,24 @@ describe("performance guardrails", () => {
     expect(source).not.toMatch(/rel=["']preload["'][^>]+supabase\.co/i);
   });
 
+  it("keeps homepage media payload progressive and optimized", () => {
+    const heroSource = readFileSync(join(repoRoot, "components/sections/HeroSection.tsx"), "utf8");
+    const ctaSource = readFileSync(join(repoRoot, "components/sections/CTASection.tsx"), "utf8");
+
+    expect(heroSource).toContain('preload="none"');
+    expect(heroSource).toContain("canEnhanceHeroVideo");
+    expect(heroSource).toContain("getPrefersReducedData");
+    expect(heroSource).toContain('window.matchMedia("(max-width: 1023px)")');
+    expect(heroSource).toContain("prefers-reduced-motion: reduce");
+    expect(ctaSource).toContain('src="/images/home/algarveofficial-join.webp"');
+    expect(ctaSource).toContain('alt=""');
+    expect(ctaSource).toContain('aria-hidden="true"');
+    expect(ctaSource).toContain('sizes="(max-width: 1024px) 100vw, 42vw"');
+    expect(ctaSource).toContain("quality={56}");
+    expect(ctaSource).not.toContain("algarveofficial-join.jpg");
+    expect(ctaSource).not.toContain("priority={true}");
+  });
+
   it("keeps locale JSON imports isolated to the dynamic locale loader", () => {
     const offenders = walk(repoRoot)
       .filter((file) => /\.(ts|tsx|js|jsx|mjs|cjs)$/.test(file))
