@@ -15,9 +15,17 @@ import { translateCategoryValue } from "@/lib/translateCategoryValue";
 
 interface GolfLayoutProps {
   details: Record<string, unknown>;
+  bookingUrl?: string | null;
 }
 
-export function GolfLayout({ details }: GolfLayoutProps) {
+function normalizeBookingUrl(value?: string | null) {
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}
+
+export function GolfLayout({ details, bookingUrl }: GolfLayoutProps) {
   const { t } = useTranslation();
   const golfType = details.golf_type as string;
   const holes = details.holes as number;
@@ -27,6 +35,7 @@ export function GolfLayout({ details }: GolfLayoutProps) {
   const handicapRequired = details.handicap_required as boolean;
   const lessonsAvailable = details.lessons_available as boolean;
   const equipmentRental = details.equipment_rental as boolean;
+  const teeTimeBookingUrl = normalizeBookingUrl(bookingUrl ?? (details.booking_url as string | undefined));
 
   return (
     <div className="space-y-8">
@@ -97,10 +106,19 @@ export function GolfLayout({ details }: GolfLayoutProps) {
             <h3 className="text-lg font-serif font-medium">{t("categoryLayouts.golf.readyToPlay")}</h3>
             <p className="text-sm text-muted-foreground">{t("categoryLayouts.golf.bookTeeTimeSubtext")}</p>
           </div>
-          <Button size="lg" className="bg-green-600 hover:bg-green-700">
-            <Calendar className="h-4 w-4 mr-2" />
-            {t("categoryLayouts.golf.bookTeeTime")}
-          </Button>
+          {teeTimeBookingUrl ? (
+            <Button asChild size="lg" className="bg-green-600 text-black hover:bg-green-700">
+              <a href={teeTimeBookingUrl} target="_blank" rel="sponsored noopener noreferrer">
+                <Calendar className="h-4 w-4 mr-2" />
+                {t("categoryLayouts.golf.bookTeeTime")}
+              </a>
+            </Button>
+          ) : (
+            <Button size="lg" className="bg-green-600 text-black hover:bg-green-700">
+              <Calendar className="h-4 w-4 mr-2" />
+              {t("categoryLayouts.golf.bookTeeTime")}
+            </Button>
+          )}
         </div>
       </div>
     </div>

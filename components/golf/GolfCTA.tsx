@@ -1,6 +1,10 @@
+import { Calendar } from "lucide-react";
+
 import { Button } from "@/components/ui/Button";
 
 interface GolfCTALabels {
+  readyToPlay: string;
+  bookTeeTimeSubtext: string;
   bookTeeTime: string;
   bookTeeTimeAria: string;
   contactClub: string;
@@ -18,33 +22,58 @@ export function GolfCTA({ bookingUrl, contactHref, websiteUrl, labels }: GolfCTA
   const hasAnyAction = bookingUrl || contactHref || websiteUrl;
   if (!hasAnyAction) return null;
 
+  const primaryAction = bookingUrl
+    ? {
+        href: bookingUrl,
+        label: labels.bookTeeTime,
+        ariaLabel: labels.bookTeeTimeAria,
+        target: "_blank",
+        rel: "sponsored noopener noreferrer",
+      }
+    : websiteUrl
+      ? {
+          href: websiteUrl,
+          label: labels.visitWebsite,
+          ariaLabel: labels.visitWebsite,
+          target: "_blank",
+          rel: "noopener noreferrer",
+        }
+      : contactHref
+        ? {
+            href: contactHref,
+            label: labels.contactClub,
+            ariaLabel: labels.contactClub,
+            target: undefined,
+            rel: undefined,
+          }
+        : null;
+
+  if (!primaryAction) return null;
+
   return (
-    <section className="mx-auto flex max-w-6xl justify-center py-12">
-      <div className="flex flex-wrap justify-center gap-3 rounded-2xl border border-border/70 p-4 shadow-sm">
-        {bookingUrl ? (
-          <Button asChild className="bg-black text-white hover:bg-black/90">
+    <section className="mx-auto max-w-6xl py-12">
+      <div className="rounded-[1.4rem] border border-slate-300/80 bg-[#d2ddd6] px-7 py-7 shadow-sm">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="font-serif text-xl font-medium text-foreground">{labels.readyToPlay}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{labels.bookTeeTimeSubtext}</p>
+          </div>
+          <Button
+            asChild
+            size="lg"
+            className="w-full bg-[#14a84b] px-8 text-base text-black hover:bg-[#119743] sm:w-auto sm:min-w-[230px]"
+          >
             <a
-              href={bookingUrl}
-              target="_blank"
-              rel="sponsored noopener noreferrer"
-              aria-label={labels.bookTeeTimeAria}
+              href={primaryAction.href}
+              target={primaryAction.target}
+              rel={primaryAction.rel}
+              aria-label={primaryAction.ariaLabel}
             >
-              {labels.bookTeeTime}
+              <Calendar className="h-4 w-4" />
+              {primaryAction.label}
             </a>
           </Button>
-        ) : null}
-        {contactHref ? (
-          <Button asChild variant="outline">
-            <a href={contactHref}>{labels.contactClub}</a>
-          </Button>
-        ) : null}
-        {websiteUrl ? (
-          <Button asChild variant="outline">
-            <a href={websiteUrl} target="_blank" rel="noopener noreferrer">
-              {labels.visitWebsite}
-            </a>
-          </Button>
-        ) : null}
+        </div>
       </div>
     </section>
   );

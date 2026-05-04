@@ -47,6 +47,9 @@ describe("GolfStep tee time booking URL", () => {
     );
 
     const input = screen.getByLabelText("Tee time booking URL");
+    expect(screen.getByText("Ready to Play?")).toBeInTheDocument();
+    expect(screen.getByText("Book your tee time today")).toBeInTheDocument();
+    expect(screen.getByText("Book Tee Time")).toBeInTheDocument();
     expect(input).toHaveAttribute("placeholder", "https://...");
     expect(input).toHaveValue("https://partner.example/book?course=els&aff=ao");
     expect(

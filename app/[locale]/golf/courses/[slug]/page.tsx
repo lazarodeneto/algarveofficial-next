@@ -72,6 +72,8 @@ const TRANSLATION_KEYS = [
   "golfCourse.bookTeeTimeAria",
   "golfCourse.contactClub",
   "golfCourse.visitWebsite",
+  "categoryLayouts.golf.readyToPlay",
+  "categoryLayouts.golf.bookTeeTimeSubtext",
   "golfCourse.relatedCourses",
   "golfDiscovery.bestFor",
   "golfDiscovery.experiencedGolfers",
@@ -194,7 +196,7 @@ export default async function GolfCourseDetailPage({ params }: PageProps) {
   };
 
   return (
-    <main className={`bg-background pb-10 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
+    <main className={`bg-background px-4 pb-10 sm:px-6 lg:px-8 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
       <section className="relative h-[460px] w-full overflow-hidden bg-muted">
         {course.featuredImageUrl ? (
           <Image
@@ -344,6 +346,12 @@ export default async function GolfCourseDetailPage({ params }: PageProps) {
         contactHref={contactHref(course.contactPhone, course.contactEmail)}
         websiteUrl={course.websiteUrl}
         labels={{
+          readyToPlay: tx(translations, "categoryLayouts.golf.readyToPlay", "Ready to Play?"),
+          bookTeeTimeSubtext: tx(
+            translations,
+            "categoryLayouts.golf.bookTeeTimeSubtext",
+            "Book your tee time today",
+          ),
           bookTeeTime: tx(translations, "golfCourse.bookTeeTime", "Book Tee Time"),
           bookTeeTimeAria: tx(
             translations,

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Calendar } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
@@ -707,7 +708,19 @@ export function GolfStep({
           />
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-3 sm:col-span-2">
+          <div className="rounded-[1.35rem] border border-slate-300/80 bg-[#d2ddd6] p-4 shadow-sm">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="font-serif text-lg font-medium text-foreground">Ready to Play?</p>
+                <p className="text-sm text-muted-foreground">Book your tee time today</p>
+              </div>
+              <div className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#14a84b] px-5 text-sm font-semibold text-black shadow-sm">
+                <Calendar className="h-4 w-4" />
+                <span>Book Tee Time</span>
+              </div>
+            </div>
+          </div>
           <Label htmlFor="golf-booking-url">Tee time booking URL</Label>
           <Input
             id="golf-booking-url"

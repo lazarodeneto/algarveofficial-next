@@ -215,7 +215,7 @@ const getCategoryLayout = (
     case "fine-dining":
       return <FineDiningLayout {...props} />;
     case "golf":
-      return <GolfLayout details={details} />;
+      return <GolfLayout details={details} bookingUrl={bookingUrl} />;
     case "beaches-clubs":
     case "beaches":
       return <BeachClubLayout {...props} />;

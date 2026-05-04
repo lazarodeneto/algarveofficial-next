@@ -4,6 +4,8 @@ import { describe, expect, it } from "vitest";
 import { GolfCTA } from "./GolfCTA";
 
 const labels = {
+  readyToPlay: "Ready to Play?",
+  bookTeeTimeSubtext: "Book your tee time today",
   bookTeeTime: "Book Tee Time",
   bookTeeTimeAria: "Book tee time with external partner",
   contactClub: "Contact Club",
@@ -17,6 +19,8 @@ describe("GolfCTA", () => {
     render(<GolfCTA bookingUrl={bookingUrl} labels={labels} />);
 
     const link = screen.getByRole("link", { name: labels.bookTeeTimeAria });
+    expect(screen.getByText(labels.readyToPlay)).toBeInTheDocument();
+    expect(screen.getByText(labels.bookTeeTimeSubtext)).toBeInTheDocument();
     expect(link).toHaveTextContent(labels.bookTeeTime);
     expect(link).toHaveAttribute("href", bookingUrl);
     expect(link).toHaveAttribute("target", "_blank");
