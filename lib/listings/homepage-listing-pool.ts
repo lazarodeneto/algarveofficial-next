@@ -1,8 +1,8 @@
 import type { ListingWithRelations } from "@/hooks/useListings";
 
-export const HOMEPAGE_LISTING_LIMIT = 23;
+export const HOMEPAGE_LISTING_LIMIT = 24;
 export const HOMEPAGE_EDITORS_LIMIT = 8;
-export const HOMEPAGE_PREMIUM_LIMIT = 15;
+export const HOMEPAGE_PREMIUM_LIMIT = 16;
 
 const LISBON_TIME_ZONE = "Europe/Lisbon";
 
@@ -136,17 +136,10 @@ export function buildHomepageListingPool(
       ),
     ),
   );
-  const remainingPublishedListings = deterministicDailyShuffle(
-    publishedListings.filter(
-      (listing) => !isSignature(listing) && !isVerified(listing),
-    ),
-    `remaining:${seed}`,
-  );
 
   addListings(signatureListings);
   addListings(verifiedListings);
   addListings(googleFallbackListings);
-  addListings(remainingPublishedListings);
 
   return selected;
 }

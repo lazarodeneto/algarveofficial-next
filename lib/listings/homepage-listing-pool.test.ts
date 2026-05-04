@@ -71,7 +71,7 @@ describe("homepage listing pool", () => {
 
     const result = buildHomepageListingPool(listings, "2026-05-04");
 
-    expect(result).toHaveLength(23);
+    expect(result).toHaveLength(24);
     expect(result.every((item) => item.tier === "signature")).toBe(true);
   });
 
@@ -84,9 +84,9 @@ describe("homepage listing pool", () => {
 
     const result = buildHomepageListingPool(listings, "2026-05-04");
 
-    expect(result).toHaveLength(23);
+    expect(result).toHaveLength(24);
     expect(result.filter((item) => item.tier === "signature")).toHaveLength(10);
-    expect(result.filter((item) => item.tier === "verified")).toHaveLength(13);
+    expect(result.filter((item) => item.tier === "verified")).toHaveLength(14);
     expect(result.some((item) => item.id === "fallback")).toBe(false);
   });
 
@@ -108,7 +108,7 @@ describe("homepage listing pool", () => {
     expect(ids(result.slice(19))).toEqual(["fallback-1", "fallback-2", "fallback-3", "fallback-4"]);
   });
 
-  it("uses maximum one Google-rated fallback per category before final published fill", () => {
+  it("uses maximum one Google-rated fallback per category", () => {
     const result = buildHomepageListingPool([
       listing("fallback-a", { category_id: "restaurants", google_rating: 5, google_review_count: 50 }),
       listing("fallback-b", { category_id: "restaurants", google_rating: 4.9, google_review_count: 1000 }),
@@ -116,10 +116,10 @@ describe("homepage listing pool", () => {
     ], "2026-05-04");
 
     expect(ids(result).slice(0, 2)).toEqual(["fallback-a", "fallback-c"]);
-    expect(ids(result)).toContain("fallback-b");
+    expect(ids(result)).not.toContain("fallback-b");
   });
 
-  it("fills remaining homepage slots from published unpaid listings after strict fallback balancing", () => {
+  it("does not fill remaining homepage slots with unrated unpaid listings", () => {
     const listings = [
       ...Array.from({ length: 8 }, (_, index) => listing(`signature-${index}`, { tier: "signature" })),
       ...Array.from({ length: 6 }, (_, index) => listing(`verified-${index}`, { tier: "verified" })),
@@ -134,9 +134,11 @@ describe("homepage listing pool", () => {
 
     const result = buildHomepageListingPool(listings, "2026-05-04");
 
-    expect(result).toHaveLength(23);
+    expect(result).toHaveLength(15);
     expect(result.slice(0, 8).every((item) => item.tier === "signature")).toBe(true);
     expect(result.slice(8, 14).every((item) => item.tier === "verified")).toBe(true);
+    expect(ids(result)).toContain("unpaid-0");
+    expect(ids(result)).not.toContain("unpaid-1");
   });
 
   it("keeps daily ordering deterministic and changes on a different seed", () => {
@@ -167,7 +169,7 @@ describe("homepage listing pool", () => {
     );
   });
 
-  it("splits the final homepage list into 8 editor and 15 premium listings", () => {
+  it("splits the final homepage list into 8 editor and 16 premium listings", () => {
     const pool = buildHomepageListingPool(
       Array.from({ length: 30 }, (_, index) => listing(`signature-${index}`, { tier: "signature" })),
       "2026-05-04",
@@ -175,8 +177,8 @@ describe("homepage listing pool", () => {
     const split = splitHomepageListings(pool);
 
     expect(split.editorsSelection).toHaveLength(8);
-    expect(split.premiumListings).toHaveLength(15);
-    expect(split.editorsSelection.length + split.premiumListings.length).toBe(23);
+    expect(split.premiumListings).toHaveLength(16);
+    expect(split.editorsSelection.length + split.premiumListings.length).toBe(24);
   });
 
   it("never selects unpublished or duplicate listings and returns fewer than 24 when inventory is limited", () => {
@@ -190,7 +192,7 @@ describe("homepage listing pool", () => {
       listing("unrated", { google_rating: null }),
     ], "2026-05-04");
 
-    expect(ids(result)).toEqual(["shared", "verified", "fallback", "unrated"]);
+    expect(ids(result)).toEqual(["shared", "verified", "fallback"]);
     expect(new Set(ids(result)).size).toBe(result.length);
   });
 
