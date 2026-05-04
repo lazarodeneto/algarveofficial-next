@@ -216,9 +216,9 @@ export function HeroSection() {
     cmsHeroTitle?.match(/\bCurated\b/i)?.[0] ?? t("sections.homepage.hero.titleHighlight");
   const heroSubtitle = cmsHeroSubtitle || t("sections.homepage.hero.subtitle");
   const heroBadge = getText("hero.badge", t("sections.homepage.hero.label"));
-  const primaryCtaLabel = cmsPrimaryCta || t("sections.homepage.hero.primaryCta");
+  const primaryCtaLabel = cmsPrimaryCta || t("sections.homepage.smartSearch.cta");
   const secondaryCtaLabel = cmsSecondaryCta || t("sections.homepage.hero.secondaryCta");
-  const primaryCtaTarget = cmsPrimaryCtaHref || "#signature-collection";
+  const primaryCtaTarget = cmsPrimaryCtaHref || "/directory";
   const secondaryCtaTarget = cmsSecondaryCtaHref || "/map";
   const resolveCtaHref = (href: string) => {
     if (/^(#|https?:\/\/|mailto:|tel:)/i.test(href)) {
@@ -227,21 +227,10 @@ export function HeroSection() {
     return l(href);
   };
 
-  const navigateToCta = (href: string) => {
-    if (href.startsWith("#")) {
-      scrollToSection(href.slice(1));
-      return;
-    }
-    if (/^https?:\/\//i.test(href)) {
-      window.open(href, "_blank", "noopener,noreferrer");
-      return;
-    }
-    if (/^(mailto:|tel:)/i.test(href)) {
-      window.location.href = href;
-      return;
-    }
-    router.push(l(href));
-  };
+  const primaryCtaHref = resolveCtaHref(primaryCtaTarget);
+  const secondaryCtaHref = resolveCtaHref(secondaryCtaTarget);
+  const primaryCtaIsExternal = /^https?:\/\//i.test(primaryCtaTarget);
+  const secondaryCtaIsExternal = /^https?:\/\//i.test(secondaryCtaTarget);
   const mediaMode = useMemo<"video" | "poster" | "none" | "loading">(() => {
     if (isHeroSettingsLoading) return "loading";
 
@@ -297,28 +286,40 @@ export function HeroSection() {
               <Button
                 variant="gold"
                 size="lg"
-                onClick={() => navigateToCta(primaryCtaTarget)}
                 className="min-h-12 w-full max-w-full whitespace-normal px-5 text-center leading-tight sm:w-auto sm:whitespace-nowrap sm:px-7"
+                asChild
               >
-                <span className="min-w-0 flex-1 break-words sm:flex-none">
-                  {primaryCtaLabel}
-                </span>
-                <ArrowRight className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" />
+                <Link
+                  href={primaryCtaHref}
+                  target={primaryCtaIsExternal ? "_blank" : undefined}
+                  rel={primaryCtaIsExternal ? "noopener noreferrer" : undefined}
+                >
+                  <span className="min-w-0 flex-1 break-words sm:flex-none">
+                    {primaryCtaLabel}
+                  </span>
+                  <ArrowRight className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" />
+                </Link>
               </Button>
               <Button
                 variant="heroOutline"
                 size="lg"
-                onClick={() => navigateToCta(secondaryCtaTarget)}
                 className="hidden min-h-12 w-full px-7 sm:inline-flex sm:w-auto"
+                asChild
               >
-                {secondaryCtaLabel}
+                <Link
+                  href={secondaryCtaHref}
+                  target={secondaryCtaIsExternal ? "_blank" : undefined}
+                  rel={secondaryCtaIsExternal ? "noopener noreferrer" : undefined}
+                >
+                  {secondaryCtaLabel}
+                </Link>
               </Button>
             </div>
             <Link
-              href={resolveCtaHref(secondaryCtaTarget)}
+              href={secondaryCtaHref}
               className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-white/75 underline underline-offset-4 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:hidden"
-              target={/^https?:\/\//i.test(secondaryCtaTarget) ? "_blank" : undefined}
-              rel={/^https?:\/\//i.test(secondaryCtaTarget) ? "noopener noreferrer" : undefined}
+              target={secondaryCtaIsExternal ? "_blank" : undefined}
+              rel={secondaryCtaIsExternal ? "noopener noreferrer" : undefined}
             >
               {secondaryCtaLabel} <ArrowRight className="h-3.5 w-3.5" />
             </Link>

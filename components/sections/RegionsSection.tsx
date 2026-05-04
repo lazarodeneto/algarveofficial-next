@@ -49,14 +49,20 @@ function EditorialRegionCard({
   className,
 }: RegionCardProps) {
   return (
-    <NextLink
-      prefetch={false}
-      href={href}
+    <div
       className={cn(
-        "group relative isolate block h-full min-h-[338px] overflow-hidden rounded-md bg-black shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] motion-reduce:transition-none hover:-translate-y-0.5 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+        "group relative isolate block h-full min-h-[338px] overflow-hidden rounded-md bg-black shadow-card transition-all duration-300 ease-out [backface-visibility:hidden] motion-reduce:transition-none hover:-translate-y-0.5 hover:shadow-card-hover",
         className,
       )}
     >
+      <NextLink
+        prefetch={false}
+        href={href}
+        aria-label={title}
+        className="absolute inset-0 z-20 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      >
+        <span className="sr-only">{title}</span>
+      </NextLink>
       {image ? (
         <Image
           src={image}
@@ -69,7 +75,7 @@ function EditorialRegionCard({
       ) : null}
       {/* Consistent overlay — lighter than Signature */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
-      <div className="absolute right-3 top-3 z-10" onClick={(event) => event.preventDefault()}>
+      <div className="absolute right-3 top-3 z-30">
         <FavoriteButton
           isFavorite={isFavorite}
           onToggle={onToggleFavorite}
@@ -93,7 +99,7 @@ function EditorialRegionCard({
           {exploreLabel} <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
         </span>
       </div>
-    </NextLink>
+    </div>
   );
 }
 

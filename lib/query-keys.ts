@@ -54,3 +54,10 @@ export function publishedListingsQueryKey(
 export function signatureListingsQueryKey(locale: string) {
   return ["listings", "signature", locale] as const;
 }
+
+export function homepageListingSplitQueryKey(
+  segment: "editors" | "premium",
+  locale: string,
+) {
+  return ["homepage-listings", segment, locale] as const;
+}
