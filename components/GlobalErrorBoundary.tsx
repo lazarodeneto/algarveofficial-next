@@ -12,6 +12,101 @@ interface State {
   error: Error | null;
 }
 
+const CHUNK_RECOVERY_SESSION_KEY = "algarveofficial:chunk-error-recovered";
+const SUPPORTED_LOCALE_PATTERN = /^(en|pt-pt|fr|de|es|it|nl|sv|no|da)$/;
+const SENSITIVE_QUERY_PATTERN = /(token|code|session|secret|key|password|auth|email|phone)/i;
+
+function redactSensitiveText(value: string | null | undefined) {
+  if (!value) return undefined;
+
+  return value
+    .replace(/https?:\/\/[^\s)]+/gi, (match) => {
+      try {
+        const url = new URL(match);
+        return `${url.origin}${url.pathname}`;
+      } catch {
+        return "[redacted-url]";
+      }
+    })
+    .replace(/(access_token|refresh_token|id_token|token|code|secret|key|password|email|phone)=([^&\s]+)/gi, "$1=[redacted]")
+    .slice(0, 4000);
+}
+
+function getSafeLocationDetails() {
+  if (typeof window === "undefined") {
+    return {
+      href: "unavailable",
+      pathname: "unavailable",
+      queryKeys: [] as string[],
+      locale: "unknown",
+    };
+  }
+
+  const { origin, pathname, searchParams } = new URL(window.location.href);
+  const queryKeys = Array.from(searchParams.keys())
+    .filter((key) => !SENSITIVE_QUERY_PATTERN.test(key))
+    .sort();
+  const [, firstSegment] = pathname.split("/");
+
+  return {
+    href: `${origin}${pathname}`,
+    pathname,
+    queryKeys,
+    locale: SUPPORTED_LOCALE_PATTERN.test(firstSegment) ? firstSegment : "unknown",
+  };
+}
+
+function getDeploymentId() {
+  if (typeof document === "undefined") return "unknown";
+  return document.documentElement.getAttribute("data-dpl-id") ?? "unknown";
+}
+
+function isChunkLoadError(error: Error) {
+  const haystack = `${error.name} ${error.message}`.toLowerCase();
+  return (
+    haystack.includes("chunkloaderror") ||
+    haystack.includes("loading chunk") ||
+    haystack.includes("failed to fetch dynamically imported module") ||
+    haystack.includes("importing a module script failed") ||
+    haystack.includes("error loading dynamically imported module")
+  );
+}
+
+function buildErrorDiagnostics(error: Error, errorInfo: ErrorInfo) {
+  const locationDetails = getSafeLocationDetails();
+
+  return {
+    timestamp: new Date().toISOString(),
+    errorName: redactSensitiveText(error.name) ?? "Error",
+    errorMessage: redactSensitiveText(error.message) ?? "No error message",
+    isChunkLoadError: isChunkLoadError(error),
+    location: locationDetails,
+    deploymentId: getDeploymentId(),
+    userAgent: typeof navigator === "undefined" ? "unavailable" : navigator.userAgent,
+    componentStack: redactSensitiveText(errorInfo.componentStack) ?? "unavailable",
+    stack:
+      process.env.NODE_ENV === "production"
+        ? redactSensitiveText(error.stack?.split("\n").slice(0, 4).join("\n"))
+        : redactSensitiveText(error.stack),
+  };
+}
+
+function recoverFromStaleChunkOnce(error: Error) {
+  if (typeof window === "undefined" || !isChunkLoadError(error)) return;
+
+  try {
+    const locationKey = `${CHUNK_RECOVERY_SESSION_KEY}:${window.location.pathname}`;
+    if (window.sessionStorage.getItem(locationKey) === "1") return;
+
+    window.sessionStorage.setItem(locationKey, "1");
+    window.setTimeout(() => {
+      window.location.reload();
+    }, 100);
+  } catch {
+    // If sessionStorage is unavailable, keep the existing manual refresh fallback.
+  }
+}
+
 function GlobalErrorFallback({ error }: { error: Error | null }) {
   const { t } = useTranslation();
 
@@ -49,7 +144,9 @@ export class GlobalErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("GlobalErrorBoundary caught an error:", error, errorInfo);
+    const diagnostics = buildErrorDiagnostics(error, errorInfo);
+    console.error("GlobalErrorBoundary caught an error:", diagnostics);
+    recoverFromStaleChunkOnce(error);
   }
 
   public render() {
