@@ -23,9 +23,6 @@ const AdminCities = withAdminLoading(() => import("@/legacy-pages/admin/AdminCit
 const AdminClaims = withAdminLoading(() => import("@/legacy-pages/admin/AdminClaims"));
 const AdminCurated = withAdminLoading(() => import("@/legacy-pages/admin/AdminCurated"));
 const AdminImport = withAdminLoading(() => import("@/legacy-pages/admin/AdminImport"));
-const AdminGolfTeeTimeRequests = withAdminLoading(
-  () => import("@/legacy-pages/admin/AdminGolfTeeTimeRequests"),
-);
 const AdminListings = withAdminLoading(() => import("@/legacy-pages/admin/AdminListings"));
 const AdminMessages = withAdminLoading(() => import("@/legacy-pages/admin/AdminMessages"));
 const AdminModeration = withAdminLoading(() => import("@/legacy-pages/admin/AdminModeration"));
@@ -149,7 +146,6 @@ const staticRouteMap: Record<string, ComponentType> = {
   subscriptions: AdminSubscriptions,
   claims: AdminClaims,
   import: AdminImport,
-  "golf/tee-time-requests": AdminGolfTeeTimeRequests,
   "content/home": AdminHomePage,
   "content/partner": AdminPartnerPage,
   "content/support": AdminSupportPage,

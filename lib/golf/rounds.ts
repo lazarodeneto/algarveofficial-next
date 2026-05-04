@@ -771,10 +771,10 @@ export async function updateHoleScore(input: {
   validateUuidInput(input.roundId, "roundId");
   validateUuidInput(input.userId, "userId");
 
-  if (!Number.isInteger(input.holeNumber) || input.holeNumber < 1 || input.holeNumber > 18) {
+  if (!Number.isInteger(input.holeNumber) || input.holeNumber < 1 || input.holeNumber > 36) {
     throw new GolfRoundsError(
       "INVALID_INPUT",
-      "holeNumber must be an integer between 1 and 18.",
+      "holeNumber must be an integer between 1 and 36.",
       400,
     );
   }

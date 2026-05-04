@@ -453,30 +453,6 @@
       "validLabel": "Gyldig",
       "verifiedDescription": "Standard betalt nivå med bekreftelsesmerke",
       "verifiedTier": "Verifisert nivå"
-    },
-    "golfTeeTimeRequests": {
-      "title": "Golf tee time-forespørsler",
-      "subtitle": "Se gjennom tee time-leads sendt inn fra golfbanesider.",
-      "refresh": "Oppdater",
-      "dateReceived": "Mottatt dato",
-      "course": "Bane",
-      "name": "Navn",
-      "email": "E-post",
-      "phone": "Telefon",
-      "preferredDateTime": "Ønsket dato/tid",
-      "players": "Spillere",
-      "status": "Status",
-      "empty": "Ingen tee time-forespørsler ennå.",
-      "loading": "Laster tee time-forespørsler...",
-      "updateSuccess": "Forespørselsstatus oppdatert.",
-      "updateError": "Kunne ikke oppdatere forespørselsstatus.",
-      "unknownCourse": "Ukjent bane",
-      "statuses": {
-        "new": "Ny",
-        "contacted": "Kontaktet",
-        "sent_to_course": "Sendt til bane",
-        "closed": "Lukket"
-      }
     }
   },
   "auth": {
@@ -1712,7 +1688,27 @@
     },
     "round": {
       "unavailableTitle": "Runden er ikke tilgjengelig",
-      "unavailableDescription": "Denne banen har ikke komplett hulloppsett ennå. Prøv en annen golfoppføring inntil videre."
+      "unavailableDescription": "Denne banen har ikke komplett hulloppsett ennå. Prøv en annen golfoppføring inntil videre.",
+      "startRound": "Start runde",
+      "starting": "Starter...",
+      "unableToStart": "Kan ikke starte en runde akkurat na.",
+      "back": "Tilbake",
+      "scorecard": "Scorekort",
+      "holesEntered": "{{entered}} av {{total}} hull registrert",
+      "noHoleData": "Ingen hulldata er tilgjengelig for denne runden.",
+      "yards": "Yards",
+      "strokeIndex": "S.I.",
+      "strokes": "Slag",
+      "decreaseStrokes": "Reduser slag",
+      "increaseStrokes": "Ok slag",
+      "saveFailed": "Lagring mislyktes",
+      "saving": "Lagrer...",
+      "saved": "Lagret",
+      "previousHole": "Forrige hull",
+      "nextHole": "Neste hull {{hole}}",
+      "openScorecard": "Apne scorekort",
+      "unableToSaveScore": "Kunne ikke lagre score.",
+      "unableToUpdateTee": "Kunne ikke oppdatere tee-farge."
     },
     "scorecard": {
       "back": "Tilbake",
@@ -1722,7 +1718,8 @@
       "frontNine": "Første ni",
       "backNine": "Siste ni",
       "diff": "Forskjell",
-      "total": "Totalt"
+      "total": "Totalt",
+      "holesRange": "Hull {{start}}-{{end}}"
     }
   },
   "guides": {
@@ -3457,7 +3454,8 @@
     "white": "Hvit",
     "yellow": "Gul",
     "red": "Rød",
-    "requestTeeTime": "Be om tee time",
+    "bookTeeTime": "Book tee time",
+    "bookTeeTimeAria": "Book tee time hos ekstern partner",
     "contactClub": "Kontakt klubben",
     "visitWebsite": "Besøk nettside",
     "relatedCourses": "Baner i nærheten",
@@ -3465,27 +3463,7 @@
     "rank": "Plassering",
     "player": "Spiller",
     "score": "Score",
-    "rounds": "Runder",
-    "teeTime": {
-      "title": "Be om starttid",
-      "intro": "Del ønsket dag og detaljer. Vi hjelper deg med å komme i kontakt med banen eller en relevant partner.",
-      "name": "Navn",
-      "email": "E-post",
-      "phone": "Telefon",
-      "preferredDate": "Ønsket dato",
-      "preferredTime": "Ønsket tid",
-      "morning": "Morgen",
-      "midday": "Midt på dagen",
-      "afternoon": "Ettermiddag",
-      "flexible": "Fleksibel",
-      "players": "Antall spillere",
-      "handicap": "Handicap / spillenivå",
-      "message": "Melding",
-      "submit": "Be om starttid",
-      "submitting": "Sender forespørsel...",
-      "success": "Forespørsel mottatt. Vi hjelper deg med å komme i kontakt med banen eller en relevant partner.",
-      "error": "Kunne ikke sende forespørselen. Prøv igjen."
-    }
+    "rounds": "Runder"
   },
   "golfDiscovery": {
     "discoveryTitle": "Find your perfect golf course in the Algarve",

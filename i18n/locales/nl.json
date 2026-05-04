@@ -453,30 +453,6 @@
       "validLabel": "Geldig",
       "verifiedDescription": "Standaard betaald niveau met verificatiebadge",
       "verifiedTier": "Geverifieerd niveau"
-    },
-    "golfTeeTimeRequests": {
-      "title": "Golf tee-time aanvragen",
-      "subtitle": "Bekijk lichte tee-time leads die via golfbaanpagina’s zijn ingestuurd.",
-      "refresh": "Vernieuwen",
-      "dateReceived": "Ontvangen op",
-      "course": "Baan",
-      "name": "Naam",
-      "email": "E-mail",
-      "phone": "Telefoon",
-      "preferredDateTime": "Voorkeursdatum/tijd",
-      "players": "Spelers",
-      "status": "Status",
-      "empty": "Nog geen tee-time aanvragen.",
-      "loading": "Tee-time aanvragen laden...",
-      "updateSuccess": "Aanvraagstatus bijgewerkt.",
-      "updateError": "Kan aanvraagstatus niet bijwerken.",
-      "unknownCourse": "Onbekende baan",
-      "statuses": {
-        "new": "Nieuw",
-        "contacted": "Gecontacteerd",
-        "sent_to_course": "Naar baan gestuurd",
-        "closed": "Gesloten"
-      }
     }
   },
   "auth": {
@@ -1712,7 +1688,27 @@
     },
     "round": {
       "unavailableTitle": "Ronde niet beschikbaar",
-      "unavailableDescription": "Deze baan heeft nog geen volledige hole-instelling. Probeer voorlopig een andere golfvermelding."
+      "unavailableDescription": "Deze baan heeft nog geen volledige hole-instelling. Probeer voorlopig een andere golfvermelding.",
+      "startRound": "Ronde starten",
+      "starting": "Starten...",
+      "unableToStart": "Kan nu geen ronde starten.",
+      "back": "Terug",
+      "scorecard": "Scorekaart",
+      "holesEntered": "{{entered}} van {{total}} holes ingevoerd",
+      "noHoleData": "Er zijn geen holegegevens beschikbaar voor deze ronde.",
+      "yards": "Yards",
+      "strokeIndex": "S.I.",
+      "strokes": "Slagen",
+      "decreaseStrokes": "Slagen verminderen",
+      "increaseStrokes": "Slagen verhogen",
+      "saveFailed": "Opslaan mislukt",
+      "saving": "Opslaan...",
+      "saved": "Opgeslagen",
+      "previousHole": "Vorige hole",
+      "nextHole": "Volgende hole {{hole}}",
+      "openScorecard": "Scorekaart openen",
+      "unableToSaveScore": "Score kon niet worden opgeslagen.",
+      "unableToUpdateTee": "Tee-kleur kon niet worden bijgewerkt."
     },
     "scorecard": {
       "back": "Terug",
@@ -1722,7 +1718,8 @@
       "frontNine": "Eerste negen",
       "backNine": "Tweede negen",
       "diff": "Verschil",
-      "total": "Totaal"
+      "total": "Totaal",
+      "holesRange": "Holes {{start}}-{{end}}"
     }
   },
   "guides": {
@@ -3457,7 +3454,8 @@
     "white": "Wit",
     "yellow": "Geel",
     "red": "Rood",
-    "requestTeeTime": "Tee time aanvragen",
+    "bookTeeTime": "Boek tee time",
+    "bookTeeTimeAria": "Boek tee time bij externe partner",
     "contactClub": "Club contacteren",
     "visitWebsite": "Website bezoeken",
     "relatedCourses": "Banen in de buurt",
@@ -3465,27 +3463,7 @@
     "rank": "Rang",
     "player": "Speler",
     "score": "Score",
-    "rounds": "Rondes",
-    "teeTime": {
-      "title": "Tee time aanvragen",
-      "intro": "Deel je voorkeursdag en gegevens. We helpen je contact te leggen met de baan of een relevante partner.",
-      "name": "Naam",
-      "email": "E-mail",
-      "phone": "Telefoon",
-      "preferredDate": "Voorkeursdatum",
-      "preferredTime": "Voorkeurstijd",
-      "morning": "Ochtend",
-      "midday": "Middag",
-      "afternoon": "Namiddag",
-      "flexible": "Flexibel",
-      "players": "Aantal spelers",
-      "handicap": "Handicap / speelniveau",
-      "message": "Bericht",
-      "submit": "Tee Time aanvragen",
-      "submitting": "Aanvraag verzenden...",
-      "success": "Aanvraag ontvangen. We helpen je contact te leggen met de baan of een relevante partner.",
-      "error": "We konden deze aanvraag niet verzenden. Probeer het opnieuw."
-    }
+    "rounds": "Rondes"
   },
   "golfDiscovery": {
     "discoveryTitle": "Find your perfect golf course in the Algarve",

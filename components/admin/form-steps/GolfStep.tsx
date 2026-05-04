@@ -708,9 +708,11 @@ export function GolfStep({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="golf-booking-url">Booking URL</Label>
+          <Label htmlFor="golf-booking-url">Tee time booking URL</Label>
           <Input
             id="golf-booking-url"
+            type="url"
+            placeholder="https://..."
             value={golf.details.booking_url}
             disabled={isDisabled}
             onChange={(event) =>
@@ -721,6 +723,9 @@ export function GolfStep({
             }
             className="h-9 rounded-md border border-border/80 bg-white/80 backdrop-blur"
           />
+          <p className="text-xs leading-5 text-muted-foreground">
+            External affiliate or partner link used for the public Book Tee Time button.
+          </p>
         </div>
 
         <div className="space-y-2">

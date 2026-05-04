@@ -6,6 +6,7 @@ interface ScorecardSummaryProps {
   labels?: {
     frontNine?: string;
     backNine?: string;
+    holesRange?: string;
     diff?: string;
     total?: string;
   };
@@ -16,58 +17,66 @@ function sum(values: number[]) {
 }
 
 export default function ScorecardSummary({ holes, scores, labels }: ScorecardSummaryProps) {
-  const frontNine = holes.slice(0, 9);
-  const backNine = holes.slice(9, 18);
+  const groups = Array.from({ length: Math.ceil(holes.length / 9) }, (_, index) =>
+    holes.slice(index * 9, index * 9 + 9),
+  ).filter((group) => group.length > 0);
 
   // Keep summary stable with scorecard "dash" rows by defaulting display totals to par.
-  const frontTotal = sum(frontNine.map((hole) => scores[hole.holeNumber] ?? hole.par));
-  const backTotal = sum(backNine.map((hole) => scores[hole.holeNumber] ?? hole.par));
-  const totalScore = frontTotal + backTotal;
+  const groupSummaries = groups.map((group, index) => {
+    const score = sum(group.map((hole) => scores[hole.holeNumber] ?? hole.par));
+    const par = sum(group.map((hole) => hole.par));
+    const firstHole = group[0]?.holeNumber ?? index * 9 + 1;
+    const lastHole = group[group.length - 1]?.holeNumber ?? firstHole;
+    const label =
+      index === 0
+        ? labels?.frontNine ?? "Front 9"
+        : index === 1
+          ? labels?.backNine ?? "Back 9"
+          : (labels?.holesRange ?? "Holes {{start}}-{{end}}")
+              .replace("{{start}}", String(firstHole))
+              .replace("{{end}}", String(lastHole));
 
-  const frontParTotal = sum(frontNine.map((hole) => hole.par));
-  const backParTotal = sum(backNine.map((hole) => hole.par));
+    return {
+      label,
+      score,
+      vsPar: score - par,
+    };
+  });
+
+  const totalScore = sum(groupSummaries.map((group) => group.score));
+
   const totalPar = sum(holes.map((hole) => hole.par));
-  const frontVsPar = frontTotal - frontParTotal;
-  const backVsPar = backTotal - backParTotal;
   const totalVsPar = totalScore - totalPar;
 
   return (
-    <section className="rounded-sm border border-border/60 bg-white/95 p-6 shadow-[0_10px_30px_rgba(15,23,42,0.06)]">
-      <div className="grid grid-cols-2 gap-6 text-center md:grid-cols-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-            {labels?.frontNine ?? "Front 9"}
-          </p>
-          <p className="mt-2 font-serif text-5xl leading-none text-foreground">{frontTotal}</p>
-          <p className="mt-1 text-sm font-semibold text-emerald-600">
-            {formatVsParLabel(frontVsPar)}
-          </p>
-        </div>
+    <section className="w-full max-w-full overflow-hidden rounded-sm border border-border/60 bg-white/95 p-4 shadow-[0_10px_30px_rgba(15,23,42,0.06)] sm:p-6">
+      <div className="grid grid-cols-2 gap-4 text-center sm:gap-6 md:grid-cols-4">
+        {groupSummaries.map((group) => (
+          <div key={group.label} className="min-w-0">
+            <p className="truncate text-[11px] uppercase tracking-[0.12em] text-muted-foreground sm:text-xs sm:tracking-[0.16em]">
+              {group.label}
+            </p>
+            <p className="mt-2 font-serif text-4xl leading-none text-foreground sm:text-5xl">{group.score}</p>
+            <p className="mt-1 text-sm font-semibold text-emerald-600">
+              {formatVsParLabel(group.vsPar)}
+            </p>
+          </div>
+        ))}
 
-        <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-            {labels?.backNine ?? "Back 9"}
-          </p>
-          <p className="mt-2 font-serif text-5xl leading-none text-foreground">{backTotal}</p>
-          <p className="mt-1 text-sm font-semibold text-emerald-600">
-            {formatVsParLabel(backVsPar)}
-          </p>
-        </div>
-
-        <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+        <div className="min-w-0">
+          <p className="truncate text-[11px] uppercase tracking-[0.12em] text-muted-foreground sm:text-xs sm:tracking-[0.16em]">
             {labels?.diff ?? "Diff"}
           </p>
-          <p className="mt-2 font-serif text-5xl leading-none text-emerald-600">
+          <p className="mt-2 font-serif text-4xl leading-none text-emerald-600 sm:text-5xl">
             {formatVsParLabel(totalVsPar)}
           </p>
         </div>
 
-        <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+        <div className="min-w-0">
+          <p className="truncate text-[11px] uppercase tracking-[0.12em] text-muted-foreground sm:text-xs sm:tracking-[0.16em]">
             {labels?.total ?? "Total"}
           </p>
-          <div className="mt-2 inline-flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-[#C7A35A] to-[#D4AF37] text-4xl font-semibold leading-none text-black">
+          <div className="mt-2 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-[#C7A35A] to-[#D4AF37] text-3xl font-semibold leading-none text-black sm:h-20 sm:w-20 sm:text-4xl">
             {totalScore}
           </div>
         </div>

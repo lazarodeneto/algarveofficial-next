@@ -453,30 +453,6 @@
       "validLabel": "Valid",
       "verifiedDescription": "Standard paid tier with verification badge",
       "verifiedTier": "Verified Tier"
-    },
-    "golfTeeTimeRequests": {
-      "title": "Golf tee time requests",
-      "subtitle": "Review lightweight tee-time leads submitted from golf course pages.",
-      "refresh": "Refresh",
-      "dateReceived": "Date received",
-      "course": "Course",
-      "name": "Name",
-      "email": "Email",
-      "phone": "Phone",
-      "preferredDateTime": "Preferred date/time",
-      "players": "Players",
-      "status": "Status",
-      "empty": "No tee-time requests yet.",
-      "loading": "Loading tee-time requests...",
-      "updateSuccess": "Request status updated.",
-      "updateError": "Could not update request status.",
-      "unknownCourse": "Unknown course",
-      "statuses": {
-        "new": "New",
-        "contacted": "Contacted",
-        "sent_to_course": "Sent to course",
-        "closed": "Closed"
-      }
     }
   },
   "auth": {
@@ -1712,7 +1688,27 @@
     },
     "round": {
       "unavailableTitle": "Round unavailable",
-      "unavailableDescription": "This course does not have a complete hole setup yet. Please try another golf listing for now."
+      "unavailableDescription": "This course does not have a complete hole setup yet. Please try another golf listing for now.",
+      "startRound": "Start Round",
+      "starting": "Starting...",
+      "unableToStart": "Unable to start a round right now.",
+      "back": "Back",
+      "scorecard": "Scorecard",
+      "holesEntered": "{{entered}} of {{total}} holes entered",
+      "noHoleData": "No hole data is available for this round.",
+      "yards": "Yards",
+      "strokeIndex": "S.I.",
+      "strokes": "Strokes",
+      "decreaseStrokes": "Decrease strokes",
+      "increaseStrokes": "Increase strokes",
+      "saveFailed": "Save failed",
+      "saving": "Saving...",
+      "saved": "Saved",
+      "previousHole": "Previous hole",
+      "nextHole": "Next Hole {{hole}}",
+      "openScorecard": "Open Scorecard",
+      "unableToSaveScore": "Unable to save score.",
+      "unableToUpdateTee": "Unable to update tee color."
     },
     "scorecard": {
       "back": "Back",
@@ -1722,7 +1718,8 @@
       "frontNine": "Front Nine",
       "backNine": "Back Nine",
       "diff": "Diff",
-      "total": "Total"
+      "total": "Total",
+      "holesRange": "Holes {{start}}-{{end}}"
     }
   },
   "guides": {
@@ -3340,7 +3337,8 @@
     "white": "White",
     "yellow": "Yellow",
     "red": "Red",
-    "requestTeeTime": "Request Tee Time",
+    "bookTeeTime": "Book Tee Time",
+    "bookTeeTimeAria": "Book tee time with external partner",
     "contactClub": "Contact Club",
     "visitWebsite": "Visit Website",
     "relatedCourses": "Nearby Courses",
@@ -3348,27 +3346,7 @@
     "rank": "Rank",
     "player": "Player",
     "score": "Score",
-    "rounds": "Rounds",
-    "teeTime": {
-      "title": "Request a tee time",
-      "intro": "Share your preferred day and details. We will help connect you with the course or relevant partner.",
-      "name": "Name",
-      "email": "Email",
-      "phone": "Phone",
-      "preferredDate": "Preferred date",
-      "preferredTime": "Preferred time",
-      "morning": "Morning",
-      "midday": "Midday",
-      "afternoon": "Afternoon",
-      "flexible": "Flexible",
-      "players": "Number of players",
-      "handicap": "Handicap / playing level",
-      "message": "Message",
-      "submit": "Request Tee Time",
-      "submitting": "Sending request...",
-      "success": "Request received. We'll help connect you with the course or relevant partner.",
-      "error": "We could not send this request. Please try again."
-    }
+    "rounds": "Rounds"
   },
   "golfDiscovery": {
     "discoveryTitle": "Find your perfect golf course in the Algarve",

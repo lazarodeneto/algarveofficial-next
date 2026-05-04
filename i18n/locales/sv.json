@@ -453,30 +453,6 @@
       "validLabel": "Giltig",
       "verifiedDescription": "Standard betalnivå med verifieringsmärke",
       "verifiedTier": "Verifierad nivå"
-    },
-    "golfTeeTimeRequests": {
-      "title": "Golf tee time-förfrågningar",
-      "subtitle": "Granska tee time-leads från golfbanesidor.",
-      "refresh": "Uppdatera",
-      "dateReceived": "Mottaget datum",
-      "course": "Bana",
-      "name": "Namn",
-      "email": "E-post",
-      "phone": "Telefon",
-      "preferredDateTime": "Önskat datum/tid",
-      "players": "Spelare",
-      "status": "Status",
-      "empty": "Inga tee time-förfrågningar ännu.",
-      "loading": "Laddar tee time-förfrågningar...",
-      "updateSuccess": "Förfrågningsstatus uppdaterad.",
-      "updateError": "Kunde inte uppdatera förfrågningsstatus.",
-      "unknownCourse": "Okänd bana",
-      "statuses": {
-        "new": "Ny",
-        "contacted": "Kontaktad",
-        "sent_to_course": "Skickad till bana",
-        "closed": "Stängd"
-      }
     }
   },
   "auth": {
@@ -1712,7 +1688,27 @@
     },
     "round": {
       "unavailableTitle": "Rundan är inte tillgänglig",
-      "unavailableDescription": "Den här banan har ännu ingen komplett hålkonfiguration. Välj en annan golfbana tills vidare."
+      "unavailableDescription": "Den här banan har ännu ingen komplett hålkonfiguration. Välj en annan golfbana tills vidare.",
+      "startRound": "Starta runda",
+      "starting": "Startar...",
+      "unableToStart": "Det gar inte att starta en runda just nu.",
+      "back": "Tillbaka",
+      "scorecard": "Scorekort",
+      "holesEntered": "{{entered}} av {{total}} hal registrerade",
+      "noHoleData": "Ingen haldata finns for denna runda.",
+      "yards": "Yards",
+      "strokeIndex": "S.I.",
+      "strokes": "Slag",
+      "decreaseStrokes": "Minska slag",
+      "increaseStrokes": "Oka slag",
+      "saveFailed": "Kunde inte spara",
+      "saving": "Sparar...",
+      "saved": "Sparat",
+      "previousHole": "Foregaende hal",
+      "nextHole": "Nasta hal {{hole}}",
+      "openScorecard": "Oppna scorekort",
+      "unableToSaveScore": "Kunde inte spara score.",
+      "unableToUpdateTee": "Kunde inte uppdatera tee-farg."
     },
     "scorecard": {
       "back": "Tillbaka",
@@ -1722,7 +1718,8 @@
       "frontNine": "Första nio",
       "backNine": "Sista nio",
       "diff": "Skillnad",
-      "total": "Totalt"
+      "total": "Totalt",
+      "holesRange": "Hal {{start}}-{{end}}"
     }
   },
   "guides": {
@@ -3457,7 +3454,8 @@
     "white": "Vit",
     "yellow": "Gul",
     "red": "Röd",
-    "requestTeeTime": "Begär tee time",
+    "bookTeeTime": "Boka tee time",
+    "bookTeeTimeAria": "Boka tee time hos extern partner",
     "contactClub": "Kontakta klubben",
     "visitWebsite": "Besök webbplats",
     "relatedCourses": "Närliggande banor",
@@ -3465,27 +3463,7 @@
     "rank": "Placering",
     "player": "Spelare",
     "score": "Score",
-    "rounds": "Rundor",
-    "teeTime": {
-      "title": "Begär starttid",
-      "intro": "Dela önskad dag och detaljer. Vi hjälper dig att komma i kontakt med banan eller relevant partner.",
-      "name": "Namn",
-      "email": "E-post",
-      "phone": "Telefon",
-      "preferredDate": "Önskat datum",
-      "preferredTime": "Önskad tid",
-      "morning": "Morgon",
-      "midday": "Mitt på dagen",
-      "afternoon": "Eftermiddag",
-      "flexible": "Flexibel",
-      "players": "Antal spelare",
-      "handicap": "Handicap / spelnivå",
-      "message": "Meddelande",
-      "submit": "Begär starttid",
-      "submitting": "Skickar förfrågan...",
-      "success": "Förfrågan mottagen. Vi hjälper dig att komma i kontakt med banan eller relevant partner.",
-      "error": "Det gick inte att skicka förfrågan. Försök igen."
-    }
+    "rounds": "Rundor"
   },
   "golfDiscovery": {
     "discoveryTitle": "Find your perfect golf course in the Algarve",
