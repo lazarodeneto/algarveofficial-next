@@ -2,6 +2,7 @@ import { ArrowRight, Building2, Search, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
+import Image from "next/image";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { usePublishedListings } from "@/hooks/useListings";
 import { cmsText, isSafeHomeCtaHref, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
@@ -93,14 +94,15 @@ export function CTASection({ copy }: { copy?: HomeSectionCopy } = {}) {
           </div>
 
           {/* Right: image panel */}
-          <div
-            className="relative min-h-[240px] bg-cover bg-center sm:min-h-[300px] lg:min-h-full"
-            style={{
-              backgroundImage:
-                "url('/images/home/algarveofficial-join.jpg')",
-            }}
-            aria-hidden="true"
-          >
+          <div className="relative min-h-[240px] overflow-hidden sm:min-h-[300px] lg:min-h-full" aria-hidden="true">
+            <Image
+              src="/images/home/algarveofficial-join.webp"
+              alt=""
+              fill
+              sizes="(max-width: 1024px) 100vw, 42vw"
+              quality={56}
+              className="object-cover"
+            />
             <div className="absolute inset-0 bg-gradient-to-r from-white/60 via-white/20 to-transparent lg:from-white/40" />
             <div className="absolute inset-0 bg-gradient-to-t from-white/40 to-transparent lg:hidden" />
           </div>
