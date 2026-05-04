@@ -27,6 +27,109 @@ type AnalyticsWindow = Window & {
 
 const GOOGLE_TAG_SCRIPT_ID = "google-tag-manager-script";
 const THEME_STORAGE_KEY = "algarve-theme";
+const CACHE_RECOVERY_EPOCH = "2026-05-04-main-cache-refresh-1";
+const CACHE_RECOVERY_STORAGE_KEY = "algarveofficial:cache-recovery-epoch";
+const CACHE_RECOVERY_SESSION_KEY = "algarveofficial:cache-recovery-reloaded";
+
+function isStaleAssetError(value: unknown) {
+  const text = (() => {
+    if (value instanceof Error) return `${value.name} ${value.message}`;
+    if (typeof value === "string") return value;
+    if (value && typeof value === "object") {
+      const candidate = value as { message?: unknown; reason?: unknown; type?: unknown };
+      return [candidate.type, candidate.message, candidate.reason]
+        .filter((part) => typeof part === "string")
+        .join(" ");
+    }
+    return "";
+  })().toLowerCase();
+
+  return (
+    text.includes("chunkloaderror") ||
+    text.includes("loading chunk") ||
+    text.includes("failed to fetch dynamically imported module") ||
+    text.includes("importing a module script failed") ||
+    text.includes("error loading dynamically imported module")
+  );
+}
+
+async function clearBrowserControlledCaches() {
+  const tasks: Array<Promise<unknown>> = [];
+
+  if ("caches" in window) {
+    tasks.push(
+      caches
+        .keys()
+        .then((keys) => Promise.all(keys.map((key) => caches.delete(key)))),
+    );
+  }
+
+  if ("serviceWorker" in navigator) {
+    tasks.push(
+      navigator.serviceWorker
+        .getRegistrations()
+        .then((registrations) =>
+          Promise.all(
+            registrations.map((registration) => registration.unregister()),
+          ),
+        ),
+    );
+  }
+
+  await Promise.allSettled(tasks);
+}
+
+function hardReloadOnce(reason: string) {
+  try {
+    const sessionKey = `${CACHE_RECOVERY_SESSION_KEY}:${CACHE_RECOVERY_EPOCH}:${reason}`;
+    if (window.sessionStorage.getItem(sessionKey) === "1") return;
+
+    window.sessionStorage.setItem(sessionKey, "1");
+    window.setTimeout(() => {
+      window.location.reload();
+    }, 50);
+  } catch {
+    window.location.reload();
+  }
+}
+
+function scheduleCacheRecovery(reason: string) {
+  void clearBrowserControlledCaches().finally(() => hardReloadOnce(reason));
+}
+
+function recoverOutdatedBrowserCache() {
+  try {
+    const currentEpoch = window.localStorage.getItem(CACHE_RECOVERY_STORAGE_KEY);
+    if (currentEpoch === CACHE_RECOVERY_EPOCH) return;
+
+    window.localStorage.setItem(CACHE_RECOVERY_STORAGE_KEY, CACHE_RECOVERY_EPOCH);
+    scheduleCacheRecovery("epoch");
+  } catch {
+    scheduleCacheRecovery("epoch-storage-unavailable");
+  }
+}
+
+function installStaleAssetRecoveryListeners() {
+  const onError = (event: ErrorEvent) => {
+    if (isStaleAssetError(event.error) || isStaleAssetError(event.message)) {
+      scheduleCacheRecovery("asset-error");
+    }
+  };
+
+  const onUnhandledRejection = (event: PromiseRejectionEvent) => {
+    if (isStaleAssetError(event.reason)) {
+      scheduleCacheRecovery("asset-rejection");
+    }
+  };
+
+  window.addEventListener("error", onError);
+  window.addEventListener("unhandledrejection", onUnhandledRejection);
+
+  return () => {
+    window.removeEventListener("error", onError);
+    window.removeEventListener("unhandledrejection", onUnhandledRejection);
+  };
+}
 
 function applyThemeFromStorage() {
   try {
@@ -114,6 +217,11 @@ function scheduleGoogleTagInitialization(googleTagId: string) {
 }
 
 export function ClientRuntimeScripts({ googleTagId }: ClientRuntimeScriptsProps) {
+  useEffect(() => {
+    recoverOutdatedBrowserCache();
+    return installStaleAssetRecoveryListeners();
+  }, []);
+
   useEffect(() => {
     applyThemeFromStorage();
   }, []);
