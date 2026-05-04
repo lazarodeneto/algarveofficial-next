@@ -38,6 +38,24 @@ function getInitialReducedMotionPreference() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+function getPrefersReducedData() {
+  if (typeof window === "undefined") return false;
+
+  if (
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-data: reduce)").matches
+  ) {
+    return true;
+  }
+
+  const connection =
+    navigator.connection ||
+    navigator.mozConnection ||
+    navigator.webkitConnection;
+
+  return Boolean(connection?.saveData);
+}
+
 function HeroPosterImage({
   hasPosterUrl,
   posterUrl,
@@ -92,7 +110,7 @@ const HeroVideoPlayer = ({
       loop
       muted
       playsInline
-      preload="metadata"
+      preload="none"
       poster={posterUrl ?? undefined}
       crossOrigin="anonymous"
       tabIndex={-1}
@@ -114,13 +132,14 @@ export function HeroSection() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(
     getInitialReducedMotionPreference,
   );
+  const [canEnhanceHeroVideo, setCanEnhanceHeroVideo] = useState(false);
   const { settings, isLoading: isHeroSettingsLoading } = useHeroSettings();
   const { settings: runtimeSettings } = useGlobalSettings({
     keys: [HERO_OVERLAY_INTENSITY_SETTING_KEY],
   });
   const locale = useCurrentLocale();
   const { t } = useTranslation();
-  const { isSlow } = useConnectionQuality();
+  const { isSlow, isMobile } = useConnectionQuality();
   const { createTrip } = useTripPlanner();
   const { isAuthenticated } = useAuth();
   const router = useRouter();
@@ -187,6 +206,41 @@ export function HeroSection() {
       format: "webp",
       resize: "cover",
     }) ?? posterUrl;
+
+  useEffect(() => {
+    setCanEnhanceHeroVideo(false);
+
+    if (
+      !hydrated ||
+      !hasVideoUrl ||
+      shouldSkipVideo ||
+      isMobile ||
+      getPrefersReducedData() ||
+      (typeof window.matchMedia === "function" &&
+        window.matchMedia("(max-width: 1023px)").matches)
+    ) {
+      return undefined;
+    }
+
+    let cancelled = false;
+    const enableVideo = () => {
+      if (!cancelled) {
+        setCanEnhanceHeroVideo(true);
+      }
+    };
+
+    const interactionEvents = ["pointerdown", "keydown", "touchstart", "wheel", "scroll"] as const;
+    for (const eventName of interactionEvents) {
+      window.addEventListener(eventName, enableVideo, { once: true, passive: true });
+    }
+
+    return () => {
+      cancelled = true;
+      for (const eventName of interactionEvents) {
+        window.removeEventListener(eventName, enableVideo);
+      }
+    };
+  }, [hasVideoUrl, hydrated, isMobile, shouldSkipVideo, videoUrl]);
   const overlayBackup = runtimeSettings.find(
     (setting) => setting.key === HERO_OVERLAY_INTENSITY_SETTING_KEY,
   )?.value;
@@ -258,7 +312,9 @@ export function HeroSection() {
             className="absolute inset-0 w-full h-full object-cover"
             priority={true}
           />
-          {mediaMode === "video" && <HeroVideo videoUrl={videoUrl} posterUrl={hasPosterUrl ? heroVideoPosterSrc : undefined} />}
+          {mediaMode === "video" && canEnhanceHeroVideo ? (
+            <HeroVideo videoUrl={videoUrl} posterUrl={hasPosterUrl ? heroVideoPosterSrc : undefined} />
+          ) : null}
 
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.68)_0%,rgba(0,0,0,0.46)_42%,rgba(0,0,0,0.18)_72%,rgba(0,0,0,0.32)_100%)]" />
           <div
