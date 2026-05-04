@@ -15,6 +15,13 @@ declare global {
 
 const GOOGLE_ANALYTICS_SCRIPT_ID = "google-analytics-script";
 
+function isGoogleAnalyticsScript(element: HTMLElement | null): element is HTMLScriptElement {
+  return (
+    element instanceof HTMLScriptElement &&
+    element.src.includes("googletagmanager.com/gtag/js")
+  );
+}
+
 function expireCookie(name: string, domain?: string) {
   const domainPart = domain ? `; domain=${domain}` : "";
   document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/${domainPart}; SameSite=Lax`;
@@ -51,7 +58,9 @@ function teardownGoogleAnalytics(measurementId?: string) {
   }
 
   const existingScript = document.getElementById(GOOGLE_ANALYTICS_SCRIPT_ID);
-  existingScript?.remove();
+  if (isGoogleAnalyticsScript(existingScript) && existingScript.parentNode) {
+    existingScript.parentNode.removeChild(existingScript);
+  }
   clearGoogleAnalyticsCookies();
 }
 
@@ -101,12 +110,14 @@ export function GoogleAnalytics() {
       anonymize_ip: true,
     });
 
-    // Inject the script
-    const script = document.createElement("script");
-    script.id = GOOGLE_ANALYTICS_SCRIPT_ID;
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-    script.async = true;
-    document.head.appendChild(script);
+    // Inject the script once across Fast Refresh remounts.
+    if (!document.getElementById(GOOGLE_ANALYTICS_SCRIPT_ID)) {
+      const script = document.createElement("script");
+      script.id = GOOGLE_ANALYTICS_SCRIPT_ID;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+      script.async = true;
+      document.head.appendChild(script);
+    }
     scriptLoaded.current = true;
   }, [hasAnalyticsConsent, GA_MEASUREMENT_ID]); // Re-run if ID changes (though usually static per session)
 

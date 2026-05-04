@@ -9,16 +9,27 @@ interface StructuredDataProps {
 
 export function StructuredData({ data, id }: StructuredDataProps) {
   useEffect(() => {
+    const scriptId = id || `sd-${Math.random().toString(36).substr(2, 9)}`;
+    const existing = document.getElementById(scriptId);
+
+    if (existing && existing.getAttribute("data-algarveofficial-structured-data") !== "true") {
+      return () => {};
+    }
+
+    if (existing?.parentNode) {
+      existing.parentNode.removeChild(existing);
+    }
+
     const script = document.createElement("script");
     script.type = "application/ld+json";
-    script.id = id || `sd-${Math.random().toString(36).substr(2, 9)}`;
-    script.innerHTML = JSON.stringify(data);
+    script.id = scriptId;
+    script.setAttribute("data-algarveofficial-structured-data", "true");
+    script.textContent = JSON.stringify(data);
     document.head.appendChild(script);
 
     return () => {
-      const existing = document.getElementById(script.id);
-      if (existing) {
-        document.head.removeChild(existing);
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
       }
     };
   }, [data, id]);
