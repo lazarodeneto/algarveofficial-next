@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
 import { useHydrated } from "@/hooks/useHydrated";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
+import { hideServerShell } from "@/lib/dom/server-shell";
 
 const BeachesPage = dynamic(() => import("@/legacy-pages/public/Beaches"), {
   loading: () => <div className="min-h-screen bg-background" aria-hidden="true" />,
@@ -29,10 +30,7 @@ export default function BeachesClient({ initialGlobalSettings }: BeachesClientPr
 
   useEffect(() => {
     queryClient.setQueryData(["global-settings", BEACHES_CMS_KEYS], initialGlobalSettings);
-    const serverShell = document.getElementById("beaches-server-shell");
-    if (serverShell) {
-      serverShell.remove();
-    }
+    return hideServerShell("beaches-server-shell");
   }, [initialGlobalSettings, queryClient]);
 
   if (!mounted) {

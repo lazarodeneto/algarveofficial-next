@@ -20,6 +20,7 @@ import { getRegionImageSet } from "@/lib/regionImages";
 import { STANDARD_PUBLIC_NO_HERO_SPACER_CLASS } from "@/components/sections/hero-layout";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useCityListingCounts, useRegionListingCounts } from "@/hooks/useReferenceData";
+import { hideServerShell } from "@/lib/dom/server-shell";
 
 export type RegionRow = Tables<"regions">;
 export type CityRow = Tables<"cities">;
@@ -429,10 +430,7 @@ export function DestinationsClient(props: DestinationsClientProps) {
   const mounted = useHydrated();
 
   useEffect(() => {
-    const serverShell = document.getElementById("destinations-server-shell");
-    if (serverShell) {
-      serverShell.remove();
-    }
+    return hideServerShell("destinations-server-shell");
   }, []);
 
   if (!mounted) {

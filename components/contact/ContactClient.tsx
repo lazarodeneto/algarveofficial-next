@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import type { ContactSettings } from "@/hooks/useContactSettings";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useHydrated } from "@/hooks/useHydrated";
+import { hideServerShell } from "@/lib/dom/server-shell";
 
 const ContactPage = dynamic(() => import("@/legacy-pages/public/Contact"), {
   loading: () => <div className="min-h-screen bg-background" aria-hidden="true" />,
@@ -25,10 +26,7 @@ export default function ContactClient({
 
   useEffect(() => {
     queryClient.setQueryData(["contact-settings", locale], initialContactSettings);
-    const serverShell = document.getElementById("contact-server-shell");
-    if (serverShell) {
-      serverShell.remove();
-    }
+    return hideServerShell("contact-server-shell");
   }, [initialContactSettings, locale, queryClient]);
 
   if (!mounted) {

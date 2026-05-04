@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import ListingImage from "@/components/ListingImage";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
+import { useHydrated } from "@/hooks/useHydrated";
 import "leaflet/dist/leaflet.css";
 
 // Fix Leaflet marker icon issue
@@ -95,6 +96,7 @@ function getDeterministicOffset(listingId: string, axis: "lat" | "lng"): number 
 }
 
 export function DirectoryMapView({ filteredListingIds }: DirectoryMapViewProps) {
+  const hydrated = useHydrated();
   const { data: listings = [] } = usePublishedListings();
   const { data: cities = [] } = useCities();
   const { data: categories = [] } = useCategories();
@@ -141,6 +143,10 @@ export function DirectoryMapView({ filteredListingIds }: DirectoryMapViewProps) 
       lng: sumLng / listingsWithCoords.length,
     };
   }, [listingsWithCoords]);
+  const mapKey = useMemo(
+    () => listingsWithCoords.map((listing) => listing?.id).filter(Boolean).join("|"),
+    [listingsWithCoords],
+  );
 
   const getMarkerIcon = (tier: string) => {
     switch (tier) {
@@ -155,55 +161,60 @@ export function DirectoryMapView({ filteredListingIds }: DirectoryMapViewProps) 
 
   return (
     <div className="h-[360px] rounded-xl overflow-hidden border border-border sm:h-[460px] lg:h-[600px]">
-      <MapContainer
-        center={[center.lat, center.lng]}
-        zoom={10}
-        scrollWheelZoom={true}
-        className="h-full w-full"
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        
-        {listingsWithCoords.map((listing) => listing && (
-          <Marker
-            key={listing.id}
-            position={[listing.lat, listing.lng]}
-            icon={getMarkerIcon(listing.tier ?? 'unverified')}
-          >
-            <Popup className="custom-popup">
-              <div className="w-[min(220px,calc(100vw-7rem))] p-1">
-                <ListingImage
-                  src={listing.featured_image_url}
-                  category={listing.categorySlug}
-                  categoryImageUrl={listing.categoryImageUrl}
-                  listingId={listing.id}
-                  alt={listing.name ?? ''}
-                  fill
-                  className="h-24 rounded-md mb-2"
-                />
-                <div className="space-y-1">
-                  {listing.tier !== "unverified" && (
-                    <ListingTierBadge tier={listing.tier} size="sm" />
-                  )}
-                  <h3 className="font-medium text-foreground line-clamp-1">{listing.name}</h3>
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    {listing.cityName}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{listing.categoryName}</p>
-                  <LocaleLink href={`/listing/${listing.slug}`}>
-                    <Button size="sm" className="w-full mt-2">
-                      View Details
-                    </Button>
-                  </LocaleLink>
+      {hydrated ? (
+        <MapContainer
+          key={mapKey}
+          center={[center.lat, center.lng]}
+          zoom={10}
+          scrollWheelZoom={true}
+          className="h-full w-full"
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+
+          {listingsWithCoords.map((listing) => listing && (
+            <Marker
+              key={listing.id}
+              position={[listing.lat, listing.lng]}
+              icon={getMarkerIcon(listing.tier ?? "unverified")}
+            >
+              <Popup className="custom-popup">
+                <div className="w-[min(220px,calc(100vw-7rem))] p-1">
+                  <ListingImage
+                    src={listing.featured_image_url}
+                    category={listing.categorySlug}
+                    categoryImageUrl={listing.categoryImageUrl}
+                    listingId={listing.id}
+                    alt={listing.name ?? ""}
+                    fill
+                    className="h-24 rounded-md mb-2"
+                  />
+                  <div className="space-y-1">
+                    {listing.tier !== "unverified" && (
+                      <ListingTierBadge tier={listing.tier} size="sm" />
+                    )}
+                    <h3 className="font-medium text-foreground line-clamp-1">{listing.name}</h3>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      {listing.cityName}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{listing.categoryName}</p>
+                    <LocaleLink href={`/listing/${listing.slug}`}>
+                      <Button size="sm" className="w-full mt-2">
+                        View Details
+                      </Button>
+                    </LocaleLink>
+                  </div>
                 </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
+              </Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+      ) : (
+        <div className="h-full w-full bg-muted" aria-hidden="true" />
+      )}
     </div>
   );
 }

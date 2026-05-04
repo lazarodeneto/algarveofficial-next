@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Tables } from "@/integrations/supabase/types";
 import { useHydrated } from "@/hooks/useHydrated";
+import { hideServerShell } from "@/lib/dom/server-shell";
 
 import dynamic from "next/dynamic";
 const MapExplorerPage = dynamic(() => import("@/legacy-pages/public/listings/MapExplorer"), { 
@@ -53,10 +54,7 @@ export default function MapClient({
       initialListings,
     );
 
-    const serverShell = document.getElementById("map-server-shell");
-    if (serverShell) {
-      serverShell.style.display = "none";
-    }
+    return hideServerShell("map-server-shell");
   }, [initialCategories, initialCities, initialListings, initialRegions, locale, queryClient]);
 
   if (!mounted) {

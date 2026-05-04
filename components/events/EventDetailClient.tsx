@@ -37,6 +37,7 @@ import {
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import { hideServerShell } from "@/lib/dom/server-shell";
 
 export type EventCitySummary = Pick<Tables<"cities">, "id" | "name" | "slug">;
 export type EventGlobalSetting = Pick<Tables<"global_settings">, "key" | "value" | "category">;
@@ -662,10 +663,7 @@ export function EventDetailClient(props: EventDetailClientProps) {
   const mounted = useHydrated();
 
   useEffect(() => {
-    const serverShell = document.getElementById("event-detail-server-shell");
-    if (serverShell) {
-      serverShell.style.display = "none";
-    }
+    return hideServerShell("event-detail-server-shell");
   }, []);
 
   if (!mounted) {

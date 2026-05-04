@@ -17,6 +17,7 @@ import "leaflet/dist/leaflet.css";
 
 const ALGARVE_DEFAULT_CENTER: [number, number] = [37.08, -8.15];
 const ALGARVE_DEFAULT_ZOOM = 9.5;
+const ENABLE_LEAFLET_CLUSTERING = process.env.NODE_ENV !== "development";
 
 const TILE_LAYERS = {
   dark: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?language=en",
@@ -309,7 +310,7 @@ function ClusteredMarkers({
     </>
   );
 
-  if (!enableClustering) {
+  if (!enableClustering || !ENABLE_LEAFLET_CLUSTERING) {
     return markers;
   }
 
@@ -391,6 +392,16 @@ export function ListingsLeafletMap({
   const tileUrl = isDark ? TILE_LAYERS.dark : TILE_LAYERS.light;
   const syncedActiveListingId = activeListingId ?? focusListingId ?? mapSync?.activeId ?? null;
   const handleListingSelect = onListingSelect ?? mapSync?.setActiveId;
+  const mapInstanceKey = useMemo(
+    () => [
+      defaultCenter.join(","),
+      defaultZoom,
+      minZoom,
+      tileUrl,
+      validPoints.map((point) => point.id).join("|"),
+    ].join("::"),
+    [defaultCenter, defaultZoom, minZoom, tileUrl, validPoints],
+  );
 
   if (!hydrated) {
     return (
@@ -418,6 +429,7 @@ export function ListingsLeafletMap({
         <div className="absolute inset-0 z-[400] pointer-events-none bg-black/25 mix-blend-multiply" />
       ) : null}
       <MapContainer
+        key={mapInstanceKey}
         center={defaultCenter}
         zoom={defaultZoom}
         minZoom={minZoom}

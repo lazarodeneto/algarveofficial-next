@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
 import { useHydrated } from "@/hooks/useHydrated";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
+import { hideServerShell } from "@/lib/dom/server-shell";
 
 const InvestPage = dynamic(() => import("@/legacy-pages/public/Invest"), {
   loading: () => <div className="min-h-screen bg-background" aria-hidden="true" />,
@@ -32,10 +33,7 @@ export default function InvestClient({
   useEffect(() => {
     // Seed the same cache key used by useGlobalSettings inside the CMS provider.
     queryClient.setQueryData(["global-settings", INVEST_CMS_KEYS], initialGlobalSettings);
-    const serverShell = document.getElementById("invest-server-shell");
-    if (serverShell) {
-      serverShell.style.display = "none";
-    }
+    return hideServerShell("invest-server-shell");
   }, [initialGlobalSettings, queryClient]);
 
   if (!mounted) {

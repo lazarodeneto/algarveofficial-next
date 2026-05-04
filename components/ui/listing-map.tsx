@@ -76,6 +76,7 @@ export function ListingMap({ lat, lng, name, address, className = "" }: ListingM
   return (
     <div className={`rounded-xl overflow-hidden border border-border relative z-0 ${className}`}>
       <MapContainer
+        key={`${lat}:${lng}:${tileUrl}`}
         center={[lat, lng]}
         zoom={15}
         scrollWheelZoom={false}
