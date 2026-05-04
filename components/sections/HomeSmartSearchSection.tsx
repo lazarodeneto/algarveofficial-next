@@ -5,7 +5,6 @@ import { ArrowRight, MapPin, Search } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/Button";
 import { useLocalePath } from "@/hooks/useLocalePath";
-import { useCities, useCityListingCounts } from "@/hooks/useReferenceData";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
@@ -15,6 +14,7 @@ const INTENTS = [
   { key: "thingsToDo", href: "/directory?category=things-to-do" },
   { key: "golf", href: "/visit/vilamoura/golf" },
   { key: "realEstate", href: "/real-estate" },
+  { key: "relocation", href: "/relocation", labelKey: "nav.relocation" },
   { key: "events", href: "/events" },
 ] as const;
 
@@ -30,20 +30,11 @@ const CITIES = [
 export function HomeSmartSearchSection() {
   const l = useLocalePath();
   const { t } = useTranslation();
-  const { data: cities = [] } = useCities();
-  const { data: cityCounts = {} } = useCityListingCounts();
-  const cityBySlug = new Map(cities.map((city) => [city.slug, city]));
-  const popularCities = CITIES.filter((city) => {
-    const slug = city.href.split("/").filter(Boolean).at(-1);
-    if (!slug) return false;
-    const matchingCity = cityBySlug.get(slug);
-    return matchingCity ? (cityCounts[matchingCity.id] ?? 0) > 0 : true;
-  });
 
   return (
-    <section id="home-smart-search" className="bg-background pb-12 pt-2 sm:pb-14 lg:pb-16">
+    <section id="home-smart-search" className="relative z-20 bg-background pb-8 pt-5 sm:pb-10 lg:pb-12">
       <div className="app-container content-max">
-        <div className="grid gap-5 rounded-sm border border-border/70 bg-card p-5 text-center shadow-soft-surface sm:p-6 lg:grid-cols-[1fr_1.15fr_auto] lg:items-center lg:gap-7 lg:p-7 lg:text-left">
+        <div className="grid gap-5 rounded-sm border border-primary/20 bg-card p-5 text-center shadow-[0_18px_60px_rgba(17,24,39,0.10)] sm:p-6 lg:grid-cols-[1fr_1.15fr_auto] lg:items-center lg:gap-7 lg:p-7 lg:text-left">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
               {t("sections.homepage.smartSearch.label")}
@@ -64,7 +55,7 @@ export function HomeSmartSearchSection() {
                   href={l(intent.href)}
                   className="rounded-full border border-border/70 bg-background px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:border-primary/45 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
-                  {t(`sections.homepage.smartSearch.intents.${intent.key}`)}
+                  {t("labelKey" in intent ? intent.labelKey : `sections.homepage.smartSearch.intents.${intent.key}`)}
                 </Link>
               ))}
             </nav>
@@ -73,7 +64,7 @@ export function HomeSmartSearchSection() {
                 <MapPin className="h-4 w-4 text-primary" />
                 {t("sections.homepage.smartSearch.popularCities")}
               </span>
-              {popularCities.map((city) => (
+              {CITIES.map((city) => (
                 <Link
                   key={city.key}
                   href={l(city.href)}

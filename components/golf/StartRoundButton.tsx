@@ -11,19 +11,30 @@ interface StartRoundButtonProps {
   listingId: string;
   courseSlug: string;
   locale: string;
+  labels: {
+    white: string;
+    yellow: string;
+    red: string;
+    startRound: string;
+    starting: string;
+    unableToStart: string;
+  };
 }
 
 const TEE_COLORS: GolfTeeColor[] = ["white", "yellow", "red"];
 
-function toTeeLabel(teeColor: GolfTeeColor) {
+function toTeeLabel(
+  teeColor: GolfTeeColor,
+  labels: StartRoundButtonProps["labels"],
+) {
   switch (teeColor) {
     case "white":
-      return "White";
+      return labels.white;
     case "red":
-      return "Red";
+      return labels.red;
     case "yellow":
     default:
-      return "Yellow";
+      return labels.yellow;
   }
 }
 
@@ -31,6 +42,7 @@ export function StartRoundButton({
   listingId,
   courseSlug,
   locale,
+  labels,
 }: StartRoundButtonProps) {
   const router = useRouter();
   const [teeColor, setTeeColor] = useState<GolfTeeColor>("yellow");
@@ -60,13 +72,13 @@ export function StartRoundButton({
       }
 
       if (!response.ok || !payload?.data?.roundId) {
-        setErrorMessage(payload?.error?.message ?? "Unable to start a round right now.");
+        setErrorMessage(payload?.error?.message ?? labels.unableToStart);
         return;
       }
 
       router.push(buildLocalizedPath(locale, `/golf/round/${payload.data.roundId}`));
     } catch {
-      setErrorMessage("Unable to start a round right now.");
+      setErrorMessage(labels.unableToStart);
     } finally {
       setIsSubmitting(false);
     }
@@ -100,7 +112,7 @@ export function StartRoundButton({
                 )}
                 aria-pressed={isActive}
               >
-                {toTeeLabel(option)}
+                {toTeeLabel(option, labels)}
               </button>
             );
           })}
@@ -115,7 +127,7 @@ export function StartRoundButton({
           "mt-4 w-full rounded-full bg-gradient-to-r from-emerald-600 via-green-500 to-emerald-500 py-3 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(16,185,129,0.35)] transition-all duration-200 hover:shadow-[0_12px_30px_rgba(16,185,129,0.45)] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-70",
         )}
       >
-        {isSubmitting ? "Starting..." : "Start Round"}
+        {isSubmitting ? labels.starting : labels.startRound}
       </button>
 
       {errorMessage ? <p className="text-xs text-destructive">{errorMessage}</p> : null}

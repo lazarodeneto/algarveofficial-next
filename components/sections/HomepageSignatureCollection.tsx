@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/Button";
 import { SignatureCard } from "@/components/ui/cards/SignatureCard";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { useLocalePath } from "@/hooks/useLocalePath";
-import { supabase } from "@/integrations/supabase/client";
-import { getHomepageSignatureSelection } from "@/lib/listings/getHomepageSignatureSelection";
+import type { ListingWithRelations } from "@/hooks/useListings";
+import { homepageListingSplitQueryKey } from "@/lib/query-keys";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
@@ -39,56 +39,17 @@ export function HomepageSignatureCollection({ copy }: { copy?: HomeSectionCopy }
   const { t } = useTranslation();
   const targetLang = normalizeLang(useCurrentLocale());
   const { isFavorite, toggleFavorite } = useFavoriteListings();
-  const { data, isLoading } = useQuery({
-    queryKey: ["homepage-signature-selection"],
-    queryFn: () => getHomepageSignatureSelection(supabase),
-    staleTime: 1000 * 60 * 5,
+  const { data: listings = [], isLoading } = useQuery<ListingWithRelations[]>({
+    queryKey: homepageListingSplitQueryKey("editors", targetLang),
+    queryFn: async () => [],
+    staleTime: Number.POSITIVE_INFINITY,
   });
 
-  const listings = data?.listings ?? [];
-  const listingIds = listings.map((listing) => listing.id);
-  const { data: translationRows } = useQuery({
-    queryKey: ["homepage-signature-selection-translations", targetLang, listingIds],
-    queryFn: async () => {
-      if (targetLang === "en" || listingIds.length === 0) return [];
-      const { data: translations, error } = await supabase
-        .from("listing_translations")
-        .select("listing_id, title, short_description")
-        .in("listing_id", listingIds)
-        .eq("language_code", targetLang);
-
-      if (error) throw error;
-      return translations ?? [];
-    },
-    enabled: targetLang !== "en" && listingIds.length > 0,
-    staleTime: 1000 * 60 * 5,
-  });
-  const translationMap = new Map(
-    (translationRows ?? []).map((translation) => [
-      translation.listing_id,
-      {
-        title: translation.title?.trim(),
-        shortDescription: translation.short_description?.trim(),
-      },
-    ]),
-  );
-  const translatedListings = listings.map((listing) => {
-    const translation = translationMap.get(listing.id);
-    if (!translation) return listing;
-    return {
-      ...listing,
-      name: translation.title || listing.name,
-      short_description: translation.shortDescription || listing.short_description,
-    };
-  });
-  const isFallback = data?.isFallback ?? true;
-  const title = isFallback
-    ? t("sections.homepage.editorsSelection.title")
-    : t("sections.homepage.editorsSelection.titleAlt");
+  const title = t("sections.homepage.editorsSelection.title");
   const ctaHref = isSafeHomeCtaHref(copy?.ctaHref) && copy?.ctaHref?.trim()
     ? copy.ctaHref.trim()
     : "/directory?tier=signature";
-  const displayListings = translatedListings.slice(0, DISPLAY_LIMIT);
+  const displayListings = listings.slice(0, DISPLAY_LIMIT);
 
   return (
     <section id="signature-collection" className="bg-background py-16 sm:py-20 lg:py-24">

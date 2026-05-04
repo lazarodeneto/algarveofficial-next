@@ -31,6 +31,7 @@ import {
 import { buildUniformLocalizedSlugMap } from "@/lib/i18n/localized-routing";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { hideServerShell } from "@/lib/dom/server-shell";
 
 export type DestinationRegion = Tables<"regions">;
 export type DestinationCity = Tables<"cities">;
@@ -860,16 +861,7 @@ function DestinationDetailClientInner({
 
 export function DestinationDetailClient(props: DestinationDetailClientProps) {
   useEffect(() => {
-    const serverShell = document.getElementById("destination-detail-server-shell");
-    if (serverShell) {
-      serverShell.style.display = "none";
-    }
-
-    return () => {
-      if (serverShell) {
-        serverShell.style.display = "";
-      }
-    };
+    return hideServerShell("destination-detail-server-shell");
   }, []);
 
   return <DestinationDetailClientInner {...props} />;

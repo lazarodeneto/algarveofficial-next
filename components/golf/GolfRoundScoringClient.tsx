@@ -17,6 +17,31 @@ import { Button } from "@/components/ui/Button";
 interface GolfRoundScoringClientProps {
   initialRound: GolfRound;
   locale: string;
+  labels: {
+    back: string;
+    scorecard: string;
+    holesEntered: string;
+    noHoleData: string;
+    white: string;
+    yellow: string;
+    red: string;
+    hole: string;
+    par: string;
+    yards: string;
+    metres: string;
+    strokeIndex: string;
+    strokes: string;
+    decreaseStrokes: string;
+    increaseStrokes: string;
+    saveFailed: string;
+    saving: string;
+    saved: string;
+    previousHole: string;
+    nextHole: string;
+    openScorecard: string;
+    unableToSaveScore: string;
+    unableToUpdateTee: string;
+  };
 }
 
 type SaveState = "idle" | "saving" | "error";
@@ -43,10 +68,10 @@ function toMeters(distanceYards: number | null) {
   return Math.round(distanceYards * 0.9144);
 }
 
-function teeLabel(teeColor: GolfTeeColor) {
-  if (teeColor === "white") return "White";
-  if (teeColor === "red") return "Red";
-  return "Yellow";
+function teeLabel(teeColor: GolfTeeColor, labels: GolfRoundScoringClientProps["labels"]) {
+  if (teeColor === "white") return labels.white;
+  if (teeColor === "red") return labels.red;
+  return labels.yellow;
 }
 
 function teeActiveButtonClass(teeColor: GolfTeeColor) {
@@ -79,6 +104,7 @@ const TEE_COLORS: GolfTeeColor[] = ["white", "yellow", "red"];
 export function GolfRoundScoringClient({
   initialRound,
   locale,
+  labels,
 }: GolfRoundScoringClientProps) {
   const [teeColor, setTeeColor] = useState<GolfTeeColor>(initialRound.teeColor);
   const [scores, setScores] = useState<Record<number, number | null>>(() =>
@@ -137,13 +163,13 @@ export function GolfRoundScoringClient({
         const payload = (await response.json().catch(() => null)) as
           | { error?: { message?: string } }
           | null;
-        throw new Error(payload?.error?.message ?? "Unable to save score.");
+        throw new Error(payload?.error?.message ?? labels.unableToSaveScore);
       }
 
       setSaveState("idle");
     } catch (error) {
       setSaveState("error");
-      setErrorMessage(error instanceof Error ? error.message : "Unable to save score.");
+      setErrorMessage(error instanceof Error ? error.message : labels.unableToSaveScore);
     }
   }
 
@@ -162,12 +188,12 @@ export function GolfRoundScoringClient({
         const payload = (await response.json().catch(() => null)) as
           | { error?: { message?: string } }
           | null;
-        throw new Error(payload?.error?.message ?? "Unable to update tee color.");
+        throw new Error(payload?.error?.message ?? labels.unableToUpdateTee);
       }
       return true;
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "Unable to update tee color.",
+        error instanceof Error ? error.message : labels.unableToUpdateTee,
       );
       return false;
     } finally {
@@ -212,40 +238,42 @@ export function GolfRoundScoringClient({
   if (!currentHole) {
     return (
       <div className="rounded-sm border border-border/70 bg-card p-6">
-        <p className="text-sm text-muted-foreground">No hole data is available for this round.</p>
+        <p className="text-sm text-muted-foreground">{labels.noHoleData}</p>
       </div>
     );
   }
 
   return (
-    <section className="mx-auto w-full max-w-md overflow-hidden rounded-sm border border-border/70 bg-card shadow-[0_10px_30px_-25px_rgba(15,23,42,0.65)]">
-      <header className="border-b border-border/70 p-4">
-        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
+    <section className="mx-auto w-full max-w-md max-w-[min(100%,28rem)] overflow-hidden rounded-sm border border-border/70 bg-card shadow-[0_10px_30px_-25px_rgba(15,23,42,0.65)]">
+      <header className="border-b border-border/70 p-3 sm:p-4">
+        <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 sm:gap-3">
           <Button asChild variant="outline" size="sm">
-            <Link href={courseHref}>
-              <ArrowLeft className="h-4 w-4" />
-              Back
+            <Link href={courseHref} className="min-h-11 px-3 text-xs sm:px-4 sm:text-sm">
+              <ArrowLeft className="h-4 w-4 shrink-0" />
+              <span>{labels.back}</span>
             </Link>
           </Button>
 
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold">{initialRound.course.name}</p>
-            <p className="text-xs text-muted-foreground">
-              {enteredHoles} of {initialRound.holes.length} holes entered
+            <p className="truncate text-xs text-muted-foreground">
+              {labels.holesEntered
+                .replace("{{entered}}", String(enteredHoles))
+                .replace("{{total}}", String(initialRound.holes.length))}
             </p>
           </div>
 
           <Button asChild variant="outline" size="sm">
-            <Link href={scorecardHref}>
-              <ListChecks className="h-4 w-4" />
-              Score
+            <Link href={scorecardHref} className="min-h-11 px-3 text-xs sm:px-4 sm:text-sm">
+              <ListChecks className="h-4 w-4 shrink-0" />
+              <span className="truncate">{labels.scorecard}</span>
             </Link>
           </Button>
         </div>
       </header>
 
-      <div className="space-y-5 p-4">
-        <div className="grid grid-cols-3 gap-2 rounded-xl border border-border/60 bg-muted/20 p-1">
+      <div className="space-y-4 p-3 sm:space-y-5 sm:p-4">
+        <div className="grid grid-cols-3 gap-1 rounded-xl border border-border/60 bg-muted/20 p-1 sm:gap-2">
           {TEE_COLORS.map((option) => {
             const isActive = option === teeColor;
             return (
@@ -256,71 +284,71 @@ export function GolfRoundScoringClient({
                 disabled={isUpdatingTee}
                 aria-pressed={isActive}
                 className={cn(
-                  "rounded-lg px-2 py-2 text-sm font-semibold transition-all duration-200",
+                  "min-h-11 min-w-0 rounded-lg px-1.5 py-2 text-sm font-semibold transition-all duration-200 sm:px-2",
                   isActive
                     ? teeActiveButtonClass(option)
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                {teeLabel(option)}
+                {teeLabel(option, labels)}
               </button>
             );
           })}
         </div>
 
-        <div className="space-y-2 text-center">
+        <div className="space-y-1.5 text-center sm:space-y-2">
           <p className="mx-auto inline-flex rounded-full border border-border/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Hole {currentHole.holeNumber} / {initialRound.holes.length}
+            {labels.hole} {currentHole.holeNumber} / {initialRound.holes.length}
           </p>
-          <p className="font-serif text-7xl leading-none text-foreground">
+          <p className="font-serif text-[clamp(3.75rem,19vw,4.5rem)] leading-none text-foreground">
             {String(currentHole.holeNumber).padStart(2, "0")}
           </p>
         </div>
 
-        <div className="grid grid-cols-4 gap-2 rounded-xl border border-border/60 bg-muted/10 p-3 text-center">
-          <div className="space-y-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              Par
+        <div className="grid grid-cols-4 gap-1.5 rounded-xl border border-border/60 bg-muted/10 p-2.5 text-center sm:gap-2 sm:p-3">
+          <div className="min-w-0 space-y-1">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.16em]">
+              {labels.par}
             </p>
-            <p className="text-3xl font-serif">{currentHole.par}</p>
+            <p className="font-serif text-[clamp(1.5rem,8vw,1.875rem)]">{currentHole.par}</p>
           </div>
-          <div className="space-y-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              Yards
+          <div className="min-w-0 space-y-1">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.16em]">
+              {labels.yards}
             </p>
-            <p className={cn("text-3xl font-serif transition-colors", teeStatValueClass(teeColor))}>
+            <p className={cn("font-serif text-[clamp(1.5rem,8vw,1.875rem)] transition-colors", teeStatValueClass(teeColor))}>
               {currentHoleDistanceYards ?? "—"}
             </p>
           </div>
-          <div className="space-y-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              Metres
+          <div className="min-w-0 space-y-1">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.16em]">
+              {labels.metres}
             </p>
-            <p className={cn("text-3xl font-serif transition-colors", teeStatValueClass(teeColor))}>
+            <p className={cn("font-serif text-[clamp(1.5rem,8vw,1.875rem)] transition-colors", teeStatValueClass(teeColor))}>
               {currentHoleDistanceMeters ?? "—"}
             </p>
           </div>
-          <div className="space-y-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              S.I.
+          <div className="min-w-0 space-y-1">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:text-[11px] sm:tracking-[0.16em]">
+              {labels.strokeIndex}
             </p>
-            <p className="text-3xl font-serif">{currentHole.strokeIndex ?? "—"}</p>
+            <p className="font-serif text-[clamp(1.5rem,8vw,1.875rem)]">{currentHole.strokeIndex ?? "—"}</p>
           </div>
         </div>
 
-        <div className="grid min-h-[146px] grid-cols-[90px_1fr_90px] items-center gap-4">
+        <div className="grid min-h-[118px] grid-cols-[minmax(64px,82px)_minmax(0,1fr)_minmax(64px,82px)] items-center gap-2 sm:min-h-[146px] sm:gap-4">
           <button
             type="button"
             onClick={() => handleAdjustStroke(-1)}
-            className="inline-flex h-[82px] w-[82px] items-center justify-center rounded-sm border border-border/70 text-5xl text-foreground transition-colors hover:bg-muted/30"
-            aria-label="Decrease strokes"
+            className="inline-flex h-[clamp(4rem,22vw,5.125rem)] w-full min-w-0 items-center justify-center rounded-sm border border-border/70 text-[clamp(2.5rem,13vw,3rem)] text-foreground transition-colors hover:bg-muted/30"
+            aria-label={labels.decreaseStrokes}
           >
             -
           </button>
 
           <div className="space-y-1 text-center">
-            <p className="font-serif text-7xl leading-none">{displayedStrokes}</p>
-            <p className="text-sm font-semibold text-foreground">Strokes</p>
+            <p className="font-serif text-[clamp(3.75rem,18vw,4.5rem)] leading-none">{displayedStrokes}</p>
+            <p className="text-sm font-semibold text-foreground">{labels.strokes}</p>
             <p
               className={cn("text-sm font-semibold", vsParColorClass(displayedVsPar))}
             >
@@ -331,17 +359,17 @@ export function GolfRoundScoringClient({
           <button
             type="button"
             onClick={() => handleAdjustStroke(1)}
-            className="inline-flex h-[82px] w-[82px] items-center justify-center rounded-sm border border-[#C7A35A]/60 text-5xl text-[#C7A35A] transition-colors hover:bg-[#C7A35A]/10"
-            aria-label="Increase strokes"
+            className="inline-flex h-[clamp(4rem,22vw,5.125rem)] w-full min-w-0 items-center justify-center rounded-sm border border-[#C7A35A]/60 text-[clamp(2.5rem,13vw,3rem)] text-[#C7A35A] transition-colors hover:bg-[#C7A35A]/10"
+            aria-label={labels.increaseStrokes}
           >
             +
           </button>
         </div>
 
-        <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/10 p-3">
-          <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-            <MapPinned className="h-4 w-4" />
-            Hole {currentHole.holeNumber}
+        <div className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-border/60 bg-muted/10 p-3">
+          <span className="inline-flex min-w-0 items-center gap-1 truncate text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            <MapPinned className="h-4 w-4 shrink-0" />
+            {labels.hole} {currentHole.holeNumber}
           </span>
           <span
             className={cn(
@@ -354,39 +382,41 @@ export function GolfRoundScoringClient({
             )}
           >
             {saveState === "error"
-              ? "Save failed"
+              ? labels.saveFailed
               : saveState === "saving"
-                ? "Saving..."
-                : "Saved"}
+                ? labels.saving
+                : labels.saved}
           </span>
         </div>
 
-        <div className="grid grid-cols-[44px_1fr] items-center gap-3">
+        <div className="grid grid-cols-[44px_minmax(0,1fr)] items-center gap-2 pb-[env(safe-area-inset-bottom)] sm:gap-3">
           <button
             type="button"
             onClick={goToPreviousHole}
             disabled={currentHoleIndex === 0}
             className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border/60 text-muted-foreground transition-colors hover:bg-muted/30 disabled:opacity-50"
-            aria-label="Previous hole"
+            aria-label={labels.previousHole}
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           {currentHoleIndex >= initialRound.holes.length - 1 ? (
             <Link
               href={scorecardHref}
-              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-700 px-4 text-sm font-semibold text-white transition-colors hover:brightness-110"
+              className="inline-flex h-11 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-700 px-3 text-sm font-semibold text-white transition-colors hover:brightness-110 sm:px-4"
             >
-              Open Scorecard
-              <ChevronRight className="h-4 w-4" />
+              <span className="truncate">{labels.openScorecard}</span>
+              <ChevronRight className="h-4 w-4 shrink-0" />
             </Link>
           ) : (
             <button
               type="button"
               onClick={goToNextHole}
-              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-700 px-4 text-sm font-semibold text-white transition-colors hover:brightness-110"
+              className="inline-flex h-11 w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-700 px-3 text-sm font-semibold text-white transition-colors hover:brightness-110 sm:px-4"
             >
-              {`Next Hole ${currentHole.holeNumber + 1}`}
-              <ChevronRight className="h-4 w-4" />
+              <span className="truncate">
+                {labels.nextHole.replace("{{hole}}", String(currentHole.holeNumber + 1))}
+              </span>
+              <ChevronRight className="h-4 w-4 shrink-0" />
             </button>
           )}
         </div>

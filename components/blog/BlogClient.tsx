@@ -38,6 +38,7 @@ import {
   type CmsTextOverrideMap,
 } from "@/lib/cms/pageBuilderRegistry";
 import { blogCategoryLabels, type BlogCategory } from "@/hooks/useBlogPosts";
+import { hideServerShell } from "@/lib/dom/server-shell";
 
 const BLOG_AUTHOR_NAME = "AlgarveOfficial";
 
@@ -566,10 +567,7 @@ export function BlogClient(props: BlogClientProps) {
   const mounted = useHydrated();
 
   useEffect(() => {
-    const serverShell = document.getElementById("blog-server-shell");
-    if (serverShell) {
-      serverShell.style.display = "none";
-    }
+    return hideServerShell("blog-server-shell");
   }, []);
 
   if (!mounted) {

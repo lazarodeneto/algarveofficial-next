@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/Button";
 
 interface GolfCTALabels {
-  requestTeeTime: string;
+  bookTeeTime: string;
+  bookTeeTimeAria: string;
   contactClub: string;
   visitWebsite: string;
 }
@@ -14,17 +15,21 @@ interface GolfCTAProps {
 }
 
 export function GolfCTA({ bookingUrl, contactHref, websiteUrl, labels }: GolfCTAProps) {
-  const primaryHref = bookingUrl ?? websiteUrl;
-  const hasAnyAction = primaryHref || contactHref || websiteUrl;
+  const hasAnyAction = bookingUrl || contactHref || websiteUrl;
   if (!hasAnyAction) return null;
 
   return (
     <section className="mx-auto flex max-w-6xl justify-center py-12">
       <div className="flex flex-wrap justify-center gap-3 rounded-2xl border border-border/70 p-4 shadow-sm">
-        {primaryHref ? (
+        {bookingUrl ? (
           <Button asChild className="bg-black text-white hover:bg-black/90">
-            <a href={primaryHref} target="_blank" rel="noopener noreferrer">
-              {labels.requestTeeTime}
+            <a
+              href={bookingUrl}
+              target="_blank"
+              rel="sponsored noopener noreferrer"
+              aria-label={labels.bookTeeTimeAria}
+            >
+              {labels.bookTeeTime}
             </a>
           </Button>
         ) : null}

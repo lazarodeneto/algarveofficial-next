@@ -65,6 +65,24 @@ export function SignatureCard({
   const isStandard = variant === "standard";
   const isExternalImage = typeof image === "string" && /^https?:\/\//i.test(image);
 
+  const favoriteButton = onToggleFavorite ? (
+    <button
+      type="button"
+      aria-label={isFavorite ? t("sections.homepage.common.removeFromSaved") : t("sections.homepage.common.saveListing")}
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onToggleFavorite();
+      }}
+      className={cn(
+        "absolute right-4 z-30 rounded-full bg-white/18 p-2 text-white backdrop-blur transition-all duration-300 ease-out hover:bg-white/28 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
+        googleRating ? "top-14" : "top-4"
+      )}
+    >
+      <Heart className={cn("h-4 w-4", isFavorite && "fill-white")} />
+    </button>
+  ) : null;
+
   const content = (
     <>
       {image ? (
@@ -109,24 +127,6 @@ export function SignatureCard({
         ) : null}
       </div>
 
-      {onToggleFavorite ? (
-        <button
-          type="button"
-          aria-label={isFavorite ? t("sections.homepage.common.removeFromSaved") : t("sections.homepage.common.saveListing")}
-          onClick={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            onToggleFavorite();
-          }}
-          className={cn(
-            "absolute right-4 z-10 rounded-full bg-white/18 p-2 text-white backdrop-blur transition-all duration-300 ease-out hover:bg-white/28 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
-            googleRating ? "top-14" : "top-4"
-          )}
-        >
-          <Heart className={cn("h-4 w-4", isFavorite && "fill-white")} />
-        </button>
-      ) : null}
-
       <div
         className={cn(
           "absolute bottom-0 left-0 right-0 z-10 text-white text-shadow-card",
@@ -164,13 +164,26 @@ export function SignatureCard({
 
   if (href) {
     return (
-      <Link href={href} className={className}>
+      <div className={className}>
         {content}
-      </Link>
+        <Link
+          href={href}
+          aria-label={title}
+          className="absolute inset-0 z-20 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          <span className="sr-only">{title}</span>
+        </Link>
+        {favoriteButton}
+      </div>
     );
   }
 
-  return <div className={className}>{content}</div>;
+  return (
+    <div className={className}>
+      {content}
+      {favoriteButton}
+    </div>
+  );
 }
 
 export default SignatureCard;

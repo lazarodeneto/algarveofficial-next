@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-import { filterGolfListings, type GolfLeaderboardEntry, type GolfListing } from "@/lib/golf";
+import { filterPublicGolfListings, type GolfLeaderboardEntry, type GolfListing } from "@/lib/golf";
 import {
   filterGolfCoursesByExperienceTag,
   GOLF_EXPERIENCE_TAGS,
@@ -52,7 +52,7 @@ const DISCOVERY_IMAGE_FALLBACKS: Record<GolfExperienceTag, string> = {
 export function GolfPageClient({ locale, courses, leaderboard, pageConfig }: GolfPageClientProps) {
   const { t } = useTranslation();
   const cms = useCmsPageBuilder("golf");
-  const golfCourses = useMemo(() => filterGolfListings(courses), [courses]);
+  const golfCourses = useMemo(() => filterPublicGolfListings(courses), [courses]);
 
   const normalizedPageConfig = useMemo(
     () => normalizePageConfig(pageConfig ?? {}),

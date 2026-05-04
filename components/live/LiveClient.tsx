@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
 import { useHydrated } from "@/hooks/useHydrated";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
+import { hideServerShell } from "@/lib/dom/server-shell";
 
 const LivePage = dynamic(() => import("@/legacy-pages/public/Live"), {
   loading: () => <div className="min-h-screen bg-background" aria-hidden="true" />,
@@ -29,10 +30,7 @@ export default function LiveClient({ initialGlobalSettings }: LiveClientProps) {
 
   useEffect(() => {
     queryClient.setQueryData(["global-settings", LIVE_CMS_KEYS], initialGlobalSettings);
-    const serverShell = document.getElementById("live-server-shell");
-    if (serverShell) {
-      serverShell.style.display = "none";
-    }
+    return hideServerShell("live-server-shell");
   }, [initialGlobalSettings, queryClient]);
 
   if (!mounted) {

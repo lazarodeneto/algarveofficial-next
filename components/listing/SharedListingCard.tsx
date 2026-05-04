@@ -87,8 +87,15 @@ export function SharedListingCard({
       transition={{ delay: Math.min(index * 0.05, 0.5) }}
       className={cn("h-full", className)}
     >
-      <Link href={href} className="group block h-full" onClick={onCardClick}>
-        <article className="relative z-0 isolate glass-box glass-box-listing-shimmer overflow-hidden flex flex-col h-full [backface-visibility:hidden]">
+        <article className="group relative z-0 isolate glass-box glass-box-listing-shimmer overflow-hidden flex flex-col h-full [backface-visibility:hidden]">
+          <Link
+            href={href}
+            className="absolute inset-0 z-20 rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            onClick={onCardClick}
+            aria-label={listing.name}
+          >
+            <span className="sr-only">{listing.name}</span>
+          </Link>
           {isSignature ? (
             <span
               aria-hidden
@@ -129,10 +136,7 @@ export function SharedListingCard({
               />
             ) : null}
 
-            <div
-              className="absolute bottom-3 left-3 right-3 flex items-center justify-between"
-              onClick={onToggleFavorite ? (event) => event.preventDefault() : undefined}
-            >
+            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
               <Badge
                 variant="secondary"
                 className="text-xs bg-black/60 backdrop-blur-sm text-white flex items-center gap-1"
@@ -142,12 +146,14 @@ export function SharedListingCard({
               </Badge>
 
               {onToggleFavorite ? (
+                <div className="relative z-30">
                 <FavoriteButton
                   isFavorite={isFavorite}
                   onToggle={onToggleFavorite}
                   size="sm"
                   variant="glassmorphism"
                 />
+                </div>
               ) : shouldShowCuratedBadge ? (
                 <span className="rounded-full bg-primary/90 px-2.5 py-0.5 text-[11px] font-semibold text-white">
                   {curatedLabel}
@@ -177,7 +183,6 @@ export function SharedListingCard({
             </div>
           </div>
         </article>
-      </Link>
     </m.div>
   );
 }

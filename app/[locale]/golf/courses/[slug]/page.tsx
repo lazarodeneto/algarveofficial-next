@@ -17,8 +17,8 @@ import { Leaderboard } from "@/components/golf/Leaderboard";
 import { MetricsGrid } from "@/components/golf/MetricsGrid";
 import { QuickFacts } from "@/components/golf/QuickFacts";
 import { RelatedCourses } from "@/components/golf/RelatedCourses";
-import { RequestTeeTimeForm } from "@/components/golf/RequestTeeTimeForm";
 import { Scorecard } from "@/components/golf/Scorecard";
+import { StartRoundButton } from "@/components/golf/StartRoundButton";
 import { STANDARD_PUBLIC_CONTENT_TOP_CLASS } from "@/components/sections/hero-layout";
 
 interface PageProps {
@@ -65,28 +65,14 @@ const TRANSLATION_KEYS = [
   "golfCourse.white",
   "golfCourse.yellow",
   "golfCourse.red",
-  "golfCourse.requestTeeTime",
+  "golf.round.startRound",
+  "golf.round.starting",
+  "golf.round.unableToStart",
+  "golfCourse.bookTeeTime",
+  "golfCourse.bookTeeTimeAria",
   "golfCourse.contactClub",
   "golfCourse.visitWebsite",
   "golfCourse.relatedCourses",
-  "golfCourse.teeTime.title",
-  "golfCourse.teeTime.intro",
-  "golfCourse.teeTime.name",
-  "golfCourse.teeTime.email",
-  "golfCourse.teeTime.phone",
-  "golfCourse.teeTime.preferredDate",
-  "golfCourse.teeTime.preferredTime",
-  "golfCourse.teeTime.morning",
-  "golfCourse.teeTime.midday",
-  "golfCourse.teeTime.afternoon",
-  "golfCourse.teeTime.flexible",
-  "golfCourse.teeTime.players",
-  "golfCourse.teeTime.handicap",
-  "golfCourse.teeTime.message",
-  "golfCourse.teeTime.submit",
-  "golfCourse.teeTime.submitting",
-  "golfCourse.teeTime.success",
-  "golfCourse.teeTime.error",
   "golfDiscovery.bestFor",
   "golfDiscovery.experiencedGolfers",
   "golfDiscovery.championshipPlay",
@@ -176,6 +162,7 @@ export default async function GolfCourseDetailPage({ params }: PageProps) {
     Number.isFinite(course.latitude) &&
     typeof course.longitude === "number" &&
     Number.isFinite(course.longitude);
+  const canStartRound = course.holeCount > 0 || course.scorecardHoles.length > 0;
 
   const courseTags = inferGolfExperienceTags(course);
   const relatedCourses = (await getGolfListings({ limit: 60 }))
@@ -300,6 +287,30 @@ export default async function GolfCourseDetailPage({ params }: PageProps) {
         }}
       />
 
+      {canStartRound ? (
+        <section className="mx-auto max-w-6xl pb-12">
+          <div className="max-w-sm">
+            <StartRoundButton
+              listingId={course.id}
+              courseSlug={course.slug}
+              locale={locale}
+              labels={{
+                white: tx(translations, "golfCourse.white", "White"),
+                yellow: tx(translations, "golfCourse.yellow", "Yellow"),
+                red: tx(translations, "golfCourse.red", "Red"),
+                startRound: tx(translations, "golf.round.startRound", "Start Round"),
+                starting: tx(translations, "golf.round.starting", "Starting..."),
+                unableToStart: tx(
+                  translations,
+                  "golf.round.unableToStart",
+                  "Unable to start a round right now.",
+                ),
+              }}
+            />
+          </div>
+        </section>
+      ) : null}
+
       <Leaderboard
         courseId={course.id}
         labels={{
@@ -333,41 +344,14 @@ export default async function GolfCourseDetailPage({ params }: PageProps) {
         contactHref={contactHref(course.contactPhone, course.contactEmail)}
         websiteUrl={course.websiteUrl}
         labels={{
-          requestTeeTime: tx(translations, "golfCourse.requestTeeTime", "Request Tee Time"),
+          bookTeeTime: tx(translations, "golfCourse.bookTeeTime", "Book Tee Time"),
+          bookTeeTimeAria: tx(
+            translations,
+            "golfCourse.bookTeeTimeAria",
+            "Book tee time with external partner",
+          ),
           contactClub: tx(translations, "golfCourse.contactClub", "Contact Club"),
           visitWebsite: tx(translations, "golfCourse.visitWebsite", "Visit Website"),
-        }}
-      />
-
-      <RequestTeeTimeForm
-        listingId={course.id}
-        labels={{
-          title: tx(translations, "golfCourse.teeTime.title", "Request a tee time"),
-          intro: tx(
-            translations,
-            "golfCourse.teeTime.intro",
-            "Share your preferred day and details. We will help connect you with the course or relevant partner.",
-          ),
-          name: tx(translations, "golfCourse.teeTime.name", "Name"),
-          email: tx(translations, "golfCourse.teeTime.email", "Email"),
-          phone: tx(translations, "golfCourse.teeTime.phone", "Phone"),
-          preferredDate: tx(translations, "golfCourse.teeTime.preferredDate", "Preferred date"),
-          preferredTime: tx(translations, "golfCourse.teeTime.preferredTime", "Preferred time"),
-          morning: tx(translations, "golfCourse.teeTime.morning", "Morning"),
-          midday: tx(translations, "golfCourse.teeTime.midday", "Midday"),
-          afternoon: tx(translations, "golfCourse.teeTime.afternoon", "Afternoon"),
-          flexible: tx(translations, "golfCourse.teeTime.flexible", "Flexible"),
-          players: tx(translations, "golfCourse.teeTime.players", "Number of players"),
-          handicap: tx(translations, "golfCourse.teeTime.handicap", "Handicap / playing level"),
-          message: tx(translations, "golfCourse.teeTime.message", "Message"),
-          submit: tx(translations, "golfCourse.teeTime.submit", "Request Tee Time"),
-          submitting: tx(translations, "golfCourse.teeTime.submitting", "Sending request..."),
-          success: tx(
-            translations,
-            "golfCourse.teeTime.success",
-            "Request received. We'll help connect you with the course or relevant partner.",
-          ),
-          error: tx(translations, "golfCourse.teeTime.error", "We could not send this request. Please try again."),
         }}
       />
 

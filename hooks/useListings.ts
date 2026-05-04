@@ -477,7 +477,10 @@ const ADMIN_LISTING_IMAGE_FIELDS = "id, listing_id, image_url, alt_text, display
  * Fetch all published listings with optional filters
  * Uses explicit field selection to prevent PII exposure
  */
-export function usePublishedListings(filters: ListingFilters = {}) {
+export function usePublishedListings(
+  filters: ListingFilters = {},
+  options: { enabled?: boolean } = {},
+) {
   const locale = normalizePublicContentLocale(useCurrentLocale());
   const normalizedFilters = normalizeListingFilters(filters);
   
@@ -556,6 +559,7 @@ export function usePublishedListings(filters: ListingFilters = {}) {
     },
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes — listings rarely change
     gcTime: 1000 * 60 * 15,
+    enabled: options.enabled ?? true,
   });
 }
 

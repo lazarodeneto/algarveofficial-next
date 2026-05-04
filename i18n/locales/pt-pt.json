@@ -453,30 +453,6 @@
       "validLabel": "Válido",
       "verifiedDescription": "Nível pago standard com selo de verificação",
       "verifiedTier": "Nível Verificado"
-    },
-    "golfTeeTimeRequests": {
-      "title": "Pedidos de tee time de golfe",
-      "subtitle": "Reveja leads leves de tee time enviados a partir das páginas dos campos de golfe.",
-      "refresh": "Atualizar",
-      "dateReceived": "Data recebida",
-      "course": "Campo",
-      "name": "Nome",
-      "email": "Email",
-      "phone": "Telefone",
-      "preferredDateTime": "Data/hora preferida",
-      "players": "Jogadores",
-      "status": "Estado",
-      "empty": "Ainda não há pedidos de tee time.",
-      "loading": "A carregar pedidos de tee time...",
-      "updateSuccess": "Estado do pedido atualizado.",
-      "updateError": "Não foi possível atualizar o estado do pedido.",
-      "unknownCourse": "Campo desconhecido",
-      "statuses": {
-        "new": "Novo",
-        "contacted": "Contactado",
-        "sent_to_course": "Enviado ao campo",
-        "closed": "Fechado"
-      }
     }
   },
   "auth": {
@@ -1712,7 +1688,27 @@
     },
     "round": {
       "unavailableTitle": "Volta indisponível",
-      "unavailableDescription": "Este campo ainda não tem uma configuração completa dos buracos. Por agora, escolha outro campo de golfe."
+      "unavailableDescription": "Este campo ainda não tem uma configuração completa dos buracos. Por agora, escolha outro campo de golfe.",
+      "startRound": "Iniciar volta",
+      "starting": "A iniciar...",
+      "unableToStart": "Nao foi possivel iniciar uma volta neste momento.",
+      "back": "Voltar",
+      "scorecard": "Cartao de jogo",
+      "holesEntered": "{{entered}} de {{total}} buracos registados",
+      "noHoleData": "Nao ha dados de buracos disponiveis para esta volta.",
+      "yards": "Jardas",
+      "strokeIndex": "S.I.",
+      "strokes": "Pancadas",
+      "decreaseStrokes": "Diminuir pancadas",
+      "increaseStrokes": "Aumentar pancadas",
+      "saveFailed": "Falha ao guardar",
+      "saving": "A guardar...",
+      "saved": "Guardado",
+      "previousHole": "Buraco anterior",
+      "nextHole": "Proximo buraco {{hole}}",
+      "openScorecard": "Abrir cartao",
+      "unableToSaveScore": "Nao foi possivel guardar a pontuacao.",
+      "unableToUpdateTee": "Nao foi possivel atualizar a cor do tee."
     },
     "scorecard": {
       "back": "Voltar",
@@ -1722,7 +1718,8 @@
       "frontNine": "Primeiros nove",
       "backNine": "Segundos nove",
       "diff": "Diferença",
-      "total": "Total"
+      "total": "Total",
+      "holesRange": "Buracos {{start}}-{{end}}"
     }
   },
   "guides": {
@@ -3359,7 +3356,8 @@
     "white": "Branco",
     "yellow": "Amarelo",
     "red": "Vermelho",
-    "requestTeeTime": "Pedir tee time",
+    "bookTeeTime": "Reservar tee time",
+    "bookTeeTimeAria": "Reservar tee time com parceiro externo",
     "contactClub": "Contactar clube",
     "visitWebsite": "Visitar website",
     "relatedCourses": "Campos próximos",
@@ -3367,27 +3365,7 @@
     "rank": "Posição",
     "player": "Jogador",
     "score": "Pontuação",
-    "rounds": "Voltas",
-    "teeTime": {
-      "title": "Pedir tee time",
-      "intro": "Partilhe o dia preferido e os detalhes. Ajudaremos a ligá-lo ao campo ou a um parceiro relevante.",
-      "name": "Nome",
-      "email": "Email",
-      "phone": "Telefone",
-      "preferredDate": "Data preferida",
-      "preferredTime": "Hora preferida",
-      "morning": "Manhã",
-      "midday": "Meio-dia",
-      "afternoon": "Tarde",
-      "flexible": "Flexível",
-      "players": "Número de jogadores",
-      "handicap": "Handicap / nível de jogo",
-      "message": "Mensagem",
-      "submit": "Pedir Tee Time",
-      "submitting": "A enviar pedido...",
-      "success": "Pedido recebido. Ajudaremos a ligá-lo ao campo ou a um parceiro relevante.",
-      "error": "Não foi possível enviar este pedido. Tente novamente."
-    }
+    "rounds": "Voltas"
   },
   "golfDiscovery": {
     "discoveryTitle": "Encontre o campo de golfe perfeito no Algarve",

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   CANONICAL_GOLF_CATEGORY_SLUG,
   filterGolfListings,
+  filterPublicGolfListings,
   isGolfCategoryValue,
 } from "@/lib/golf";
 
@@ -48,5 +49,36 @@ describe("golf category filtering", () => {
 
   it("documents the canonical normalized Golf slug used by the module", () => {
     expect(CANONICAL_GOLF_CATEGORY_SLUG).toBe("golf");
+  });
+
+  it("filters public golf listings through the approved course allowlist", () => {
+    const listings = [
+      {
+        slug: "the-els-club-vilamoura",
+        name: "The Els Club Vilamoura",
+        categorySlug: "golf",
+        categoryName: "Golf",
+      },
+      {
+        slug: "vilamoura-golf-shop",
+        name: "Vilamoura Golf Shop",
+        categorySlug: "golf",
+        categoryName: "Golf",
+      },
+      {
+        slug: "dom-pedro-laguna",
+        name: "Dom Pedro Laguna",
+        categorySlug: "golf-courses",
+        categoryName: "Golf Courses",
+      },
+      {
+        slug: "espiche-golf",
+        name: "Espiche Golf",
+        categorySlug: "restaurants",
+        categoryName: "Restaurants",
+      },
+    ];
+
+    expect(filterPublicGolfListings(listings)).toEqual([listings[0], listings[2]]);
   });
 });

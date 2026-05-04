@@ -4,14 +4,17 @@ import { useTranslation } from "react-i18next";
 import Link from "next/link";
 import Image from "next/image";
 import { useLocalePath } from "@/hooks/useLocalePath";
-import { usePublishedListings } from "@/hooks/useListings";
 import { cmsText, isSafeHomeCtaHref, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
 
-export function CTASection({ copy }: { copy?: HomeSectionCopy } = {}) {
+export function CTASection({
+  copy,
+  listingCount,
+}: {
+  copy?: HomeSectionCopy;
+  listingCount?: number;
+} = {}) {
   const { t } = useTranslation();
   const l = useLocalePath();
-  const { data: listings } = usePublishedListings();
-  const listingCount = listings?.length ?? 0;
   const primaryHref = isSafeHomeCtaHref(copy?.ctaHref) && copy?.ctaHref?.trim()
     ? copy.ctaHref.trim()
     : "/directory";
@@ -87,7 +90,7 @@ export function CTASection({ copy }: { copy?: HomeSectionCopy } = {}) {
 
             {/* Micro trust line */}
             <p className="mt-6 text-sm text-muted-foreground">
-              {listingCount > 0
+              {typeof listingCount === "number" && listingCount > 0
                 ? t("sections.homepage.cta.stats", { count: listingCount })
                 : t("sections.homepage.cta.emptyStats")}
             </p>

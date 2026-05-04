@@ -32,6 +32,7 @@ import {
 } from "@/lib/publicContentLocale";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { hideServerShell } from "@/lib/dom/server-shell";
 
 export type CityDetailCity = Tables<"cities">;
 export type CityDetailRegion = Pick<
@@ -768,16 +769,7 @@ function CityDetailClientInner({
 
 export function CityDetailClient(props: CityDetailClientProps) {
   useEffect(() => {
-    const serverShell = document.getElementById("city-detail-server-shell");
-    if (serverShell) {
-      serverShell.style.display = "none";
-    }
-
-    return () => {
-      if (serverShell) {
-        serverShell.style.display = "";
-      }
-    };
+    return hideServerShell("city-detail-server-shell");
   }, []);
 
   return <CityDetailClientInner {...props} />;

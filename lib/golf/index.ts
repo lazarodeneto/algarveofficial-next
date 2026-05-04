@@ -1,5 +1,12 @@
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
+import { isApprovedGolfCourse } from "@/lib/golf/allowed-courses";
+
+export {
+  approvedGolfCourses,
+  approvedGolfCourseSlugs,
+  isApprovedGolfCourse,
+} from "@/lib/golf/allowed-courses";
 
 export interface GolfLocationRef {
   id: string;
@@ -473,6 +480,12 @@ export function filterGolfListings<T extends Pick<GolfListing, "categorySlug" | 
   return listings.filter(isGolfListingCategory);
 }
 
+export function filterPublicGolfListings<
+  T extends Pick<GolfListing, "categorySlug" | "categoryName" | "slug" | "name">,
+>(listings: T[]): T[] {
+  return filterGolfListings(listings).filter(isApprovedGolfCourse);
+}
+
 function matchesFilter(
   filter: string | null | undefined,
   candidates: Array<string | null | undefined>,
@@ -566,7 +579,7 @@ export async function getGolfListings(options?: {
 
   if (categoryIds.length === 0) return [] as GolfListing[];
 
-  let query = supabase
+  const query = supabase
     .from("listings")
     .select(GOLF_LISTING_FIELDS)
     .eq("status", "published")
@@ -574,10 +587,6 @@ export async function getGolfListings(options?: {
     .order("is_curated", { ascending: false })
     .order("google_rating", { ascending: false, nullsFirst: false })
     .order("name", { ascending: true });
-
-  if (options?.limit && Number.isFinite(options.limit) && options.limit > 0) {
-    query = query.limit(options.limit);
-  }
 
   const { data, error } = await query;
   if (error || !data) return [] as GolfListing[];
@@ -590,11 +599,11 @@ export async function getGolfListings(options?: {
   const detailsByListingId = await getGolfDetailsByListingId(supabase, listingIds);
   const holeCountsByListingId = await getGolfHoleCountsByListingId(supabase, listingIds);
 
-  const mapped = filterGolfListings(listingRows
+  const mapped = filterPublicGolfListings(listingRows
     .map((row) => mapGolfListing(row, detailsByListingId, holeCountsByListingId))
     .filter((row): row is GolfListing => row !== null));
 
-  return mapped.filter((listing) => {
+  const filtered = mapped.filter((listing) => {
     const regionMatches = matchesFilter(options?.region, [
       listing.region?.slug,
       listing.region?.name,
@@ -605,6 +614,12 @@ export async function getGolfListings(options?: {
     ]);
     return regionMatches && cityMatches;
   });
+
+  if (options?.limit && Number.isFinite(options.limit) && options.limit > 0) {
+    return filtered.slice(0, options.limit);
+  }
+
+  return filtered;
 }
 
 export async function getGolfListingBySlug(slug: string) {
@@ -637,7 +652,9 @@ export async function getGolfListingBySlug(slug: string) {
   );
 
   const listing = mapGolfListing(listingRow, detailsByListingId, holeCountsByListingId);
-  return listing && isGolfListingCategory(listing) ? listing : null;
+  return listing && isGolfListingCategory(listing) && isApprovedGolfCourse(listing)
+    ? listing
+    : null;
 }
 
 export async function getCourses(options?: {

@@ -62,7 +62,7 @@ export default async function GolfRoundPage({ params }: PageProps) {
     ]);
 
     return (
-      <main className={`app-container pb-10 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
+      <main className={`app-container overflow-x-hidden pb-10 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
         <div className="mx-auto max-w-lg rounded-2xl border border-border/70 bg-card p-6">
           <h1 className="font-serif text-3xl text-foreground">
             {translations["golf.round.unavailableTitle"] ?? "Round unavailable"}
@@ -77,10 +77,74 @@ export default async function GolfRoundPage({ params }: PageProps) {
   }
 
   if (!roundResult) notFound();
+  const translations = await getServerTranslations(locale, [
+    "golf.round.back",
+    "golf.round.scorecard",
+    "golf.round.holesEntered",
+    "golf.round.noHoleData",
+    "golf.round.yards",
+    "golf.round.strokeIndex",
+    "golf.round.strokes",
+    "golf.round.decreaseStrokes",
+    "golf.round.increaseStrokes",
+    "golf.round.saveFailed",
+    "golf.round.saving",
+    "golf.round.saved",
+    "golf.round.previousHole",
+    "golf.round.nextHole",
+    "golf.round.openScorecard",
+    "golf.round.unableToSaveScore",
+    "golf.round.unableToUpdateTee",
+    "golfCourse.white",
+    "golfCourse.yellow",
+    "golfCourse.red",
+    "golfCourse.hole",
+    "golfCourse.par",
+    "golfCourse.meters",
+    "golfCourse.scorecard",
+    "golfCourse.score",
+  ]);
 
   return (
-    <main className={`app-container pb-10 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
-      <GolfRoundScoringClient initialRound={roundResult} locale={locale} />
+    <main className={`app-container overflow-x-hidden pb-10 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
+      <GolfRoundScoringClient
+        initialRound={roundResult}
+        locale={locale}
+        labels={{
+          back: translations["golf.round.back"] ?? "Back",
+          scorecard:
+            translations["golf.round.scorecard"] ??
+            translations["golfCourse.scorecard"] ??
+            "Scorecard",
+          holesEntered:
+            translations["golf.round.holesEntered"] ??
+            "{{entered}} of {{total}} holes entered",
+          noHoleData:
+            translations["golf.round.noHoleData"] ??
+            "No hole data is available for this round.",
+          white: translations["golfCourse.white"] ?? "White",
+          yellow: translations["golfCourse.yellow"] ?? "Yellow",
+          red: translations["golfCourse.red"] ?? "Red",
+          hole: translations["golfCourse.hole"] ?? "Hole",
+          par: translations["golfCourse.par"] ?? "Par",
+          yards: translations["golf.round.yards"] ?? "Yards",
+          metres: translations["golfCourse.meters"] ?? "Metres",
+          strokeIndex: translations["golf.round.strokeIndex"] ?? "S.I.",
+          strokes: translations["golf.round.strokes"] ?? "Strokes",
+          decreaseStrokes: translations["golf.round.decreaseStrokes"] ?? "Decrease strokes",
+          increaseStrokes: translations["golf.round.increaseStrokes"] ?? "Increase strokes",
+          saveFailed: translations["golf.round.saveFailed"] ?? "Save failed",
+          saving: translations["golf.round.saving"] ?? "Saving...",
+          saved: translations["golf.round.saved"] ?? "Saved",
+          previousHole: translations["golf.round.previousHole"] ?? "Previous hole",
+          nextHole: translations["golf.round.nextHole"] ?? "Next Hole {{hole}}",
+          openScorecard: translations["golf.round.openScorecard"] ?? "Open Scorecard",
+          unableToSaveScore:
+            translations["golf.round.unableToSaveScore"] ?? "Unable to save score.",
+          unableToUpdateTee:
+            translations["golf.round.unableToUpdateTee"] ?? "Unable to update tee color.",
+        }}
+      />
     </main>
   );
 }

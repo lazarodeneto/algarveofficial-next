@@ -12,6 +12,7 @@ import {
   citiesQueryKey,
   curatedAssignmentsQueryKey,
   globalSettingsQueryKey,
+  homepageListingSplitQueryKey,
   homepageSettingsQueryKey,
   publishedListingsQueryKey,
   regionListingCountsQueryKey,
@@ -30,6 +31,11 @@ import {
   mergeHomeSectionCopyMaps,
   type HomeSectionCopyMap,
 } from "@/lib/cms/home-section-copy";
+import {
+  buildHomepageListingPool,
+  getLisbonDateSeed,
+  splitHomepageListings,
+} from "@/lib/listings/homepage-listing-pool";
 
 const PUBLIC_LISTING_FIELDS =
   "id, slug, name, short_description, description, tier, status, latitude, longitude, featured_image_url, google_rating, google_review_count, created_at";
@@ -462,6 +468,8 @@ export async function getDehydratedHomePageState(locale?: string): Promise<{
 }> {
   const data = await getHomePageData(locale);
   const queryClient = createAppQueryClient();
+  const homepageListingPool = buildHomepageListingPool(data.listings, getLisbonDateSeed());
+  const homepageListingSplit = splitHomepageListings(homepageListingPool);
 
   queryClient.setQueryData(homepageSettingsQueryKey(data.locale), data.homepageSettings);
   queryClient.setQueryData(regionsQueryKey(data.locale), data.regions);
@@ -471,6 +479,14 @@ export async function getDehydratedHomePageState(locale?: string): Promise<{
   queryClient.setQueryData(
     publishedListingsQueryKey({}, data.locale),
     data.listings,
+  );
+  queryClient.setQueryData(
+    homepageListingSplitQueryKey("editors", data.locale),
+    homepageListingSplit.editorsSelection,
+  );
+  queryClient.setQueryData(
+    homepageListingSplitQueryKey("premium", data.locale),
+    homepageListingSplit.premiumListings,
   );
   queryClient.setQueryData(
     curatedAssignmentsQueryKey("homepage", null, 4),
@@ -496,14 +512,25 @@ export async function getDehydratedHomeCriticalState(locale?: string): Promise<{
   const resolvedLocale = normalizeHomepageLocale(locale ?? "en");
   const supabase = getServerSupabase();
 
-  const [homepageSettings, globalSettings] = await Promise.all([
+  const [homepageSettings, globalSettings, publishedListings] = await Promise.all([
     fetchHomepageSettingsWithTranslation(supabase, resolvedLocale),
     fetchGlobalSettings(supabase),
+    fetchPublishedListings(supabase, resolvedLocale),
   ]);
+  const homepageListingPool = buildHomepageListingPool(publishedListings, getLisbonDateSeed());
+  const homepageListingSplit = splitHomepageListings(homepageListingPool);
 
   const queryClient = createAppQueryClient();
 
   queryClient.setQueryData(homepageSettingsQueryKey(resolvedLocale), homepageSettings);
+  queryClient.setQueryData(
+    homepageListingSplitQueryKey("editors", resolvedLocale),
+    homepageListingSplit.editorsSelection,
+  );
+  queryClient.setQueryData(
+    homepageListingSplitQueryKey("premium", resolvedLocale),
+    homepageListingSplit.premiumListings,
+  );
   queryClient.setQueryData(
     globalSettingsQueryKey(HOME_QUICK_LINK_SETTING_KEYS, "default"),
     globalSettings.filter((setting) => HOME_QUICK_LINK_SETTING_KEYS.includes(setting.key)),

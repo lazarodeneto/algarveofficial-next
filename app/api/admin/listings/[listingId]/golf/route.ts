@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { AdminWriteAuth } from "@/lib/server/admin-auth";
 import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
 import { logAdminMutation } from "@/lib/server/admin-audit-log";
+import { isEmptyOrValidUrl } from "@/lib/golf/booking-url";
 import type {
   GolfCourseStructure,
   GolfHoleDataStatus,
@@ -38,7 +39,11 @@ const golfDetailsSchema = z.object({
   architect: z.string().max(255).optional(),
   course_rating: z.number().min(0).nullable().optional(),
   slope_rating: z.number().min(0).nullable().optional(),
-  booking_url: z.string().max(2048).optional(),
+  booking_url: z
+    .string()
+    .max(2048)
+    .refine(isEmptyOrValidUrl, "booking_url must be empty or a valid URL.")
+    .optional(),
   scorecard_image_url: z.string().max(2048).optional(),
   scorecard_pdf_url: z.string().max(2048).optional(),
   map_image_url: z.string().max(2048).optional(),

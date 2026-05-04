@@ -23,6 +23,7 @@ import { useLocalePath } from "@/hooks/useLocalePath";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { supabase } from "@/integrations/supabase/client";
+import { hideServerShell } from "@/lib/dom/server-shell";
 import type { Database, Tables } from "@/integrations/supabase/types";
 import {
   fetchCategoryTranslations,
@@ -433,10 +434,7 @@ export function RealEstateDirectoryClient(props: RealEstateDirectoryClientProps)
   const mounted = useHydrated();
 
   useEffect(() => {
-    const serverShell = document.getElementById("real-estate-server-shell");
-    if (serverShell) {
-      serverShell.style.display = "none";
-    }
+    return hideServerShell("real-estate-server-shell");
   }, []);
 
   if (!mounted) {

@@ -453,30 +453,6 @@
       "validLabel": "Gültig",
       "verifiedDescription": "Standard bezahlte Stufe mit Verifizierungsabzeichen",
       "verifiedTier": "Verified Tier"
-    },
-    "golfTeeTimeRequests": {
-      "title": "Golf-Tee-Time-Anfragen",
-      "subtitle": "Prüfen Sie Tee-Time-Leads, die über Golfplatzseiten eingereicht wurden.",
-      "refresh": "Aktualisieren",
-      "dateReceived": "Eingangsdatum",
-      "course": "Golfplatz",
-      "name": "Name",
-      "email": "E-Mail",
-      "phone": "Telefon",
-      "preferredDateTime": "Gewünschtes Datum/Uhrzeit",
-      "players": "Spieler",
-      "status": "Status",
-      "empty": "Noch keine Tee-Time-Anfragen.",
-      "loading": "Tee-Time-Anfragen werden geladen...",
-      "updateSuccess": "Anfragestatus aktualisiert.",
-      "updateError": "Anfragestatus konnte nicht aktualisiert werden.",
-      "unknownCourse": "Unbekannter Golfplatz",
-      "statuses": {
-        "new": "Neu",
-        "contacted": "Kontaktiert",
-        "sent_to_course": "An Golfplatz gesendet",
-        "closed": "Geschlossen"
-      }
     }
   },
   "auth": {
@@ -1712,7 +1688,27 @@
     },
     "round": {
       "unavailableTitle": "Runde nicht verfügbar",
-      "unavailableDescription": "Für diesen Platz ist noch keine vollständige Loch-Konfiguration vorhanden. Bitte wählen Sie vorerst einen anderen Golf-Eintrag."
+      "unavailableDescription": "Für diesen Platz ist noch keine vollständige Loch-Konfiguration vorhanden. Bitte wählen Sie vorerst einen anderen Golf-Eintrag.",
+      "startRound": "Runde starten",
+      "starting": "Startet...",
+      "unableToStart": "Die Runde kann momentan nicht gestartet werden.",
+      "back": "Zurueck",
+      "scorecard": "Scorekarte",
+      "holesEntered": "{{entered}} von {{total}} Loechern erfasst",
+      "noHoleData": "Fuer diese Runde sind keine Lochdaten verfuegbar.",
+      "yards": "Yards",
+      "strokeIndex": "S.I.",
+      "strokes": "Schlaege",
+      "decreaseStrokes": "Schlaege verringern",
+      "increaseStrokes": "Schlaege erhoehen",
+      "saveFailed": "Speichern fehlgeschlagen",
+      "saving": "Speichern...",
+      "saved": "Gespeichert",
+      "previousHole": "Vorheriges Loch",
+      "nextHole": "Naechstes Loch {{hole}}",
+      "openScorecard": "Scorekarte oeffnen",
+      "unableToSaveScore": "Score konnte nicht gespeichert werden.",
+      "unableToUpdateTee": "Tee-Farbe konnte nicht aktualisiert werden."
     },
     "scorecard": {
       "back": "Zurück",
@@ -1722,7 +1718,8 @@
       "frontNine": "Front Nine",
       "backNine": "Back Nine",
       "diff": "Differenz",
-      "total": "Gesamt"
+      "total": "Gesamt",
+      "holesRange": "Loecher {{start}}-{{end}}"
     }
   },
   "guides": {
@@ -3419,7 +3416,8 @@
     "white": "Weiß",
     "yellow": "Gelb",
     "red": "Rot",
-    "requestTeeTime": "Tee Time anfragen",
+    "bookTeeTime": "Tee Time buchen",
+    "bookTeeTimeAria": "Tee Time bei externem Partner buchen",
     "contactClub": "Club kontaktieren",
     "visitWebsite": "Website besuchen",
     "relatedCourses": "Nahe gelegene Plätze",
@@ -3427,27 +3425,7 @@
     "rank": "Rang",
     "player": "Spieler",
     "score": "Score",
-    "rounds": "Runden",
-    "teeTime": {
-      "title": "Startzeit anfragen",
-      "intro": "Teilen Sie Ihren Wunschtag und Details mit. Wir helfen, Sie mit dem Golfplatz oder einem passenden Partner zu verbinden.",
-      "name": "Name",
-      "email": "E-Mail",
-      "phone": "Telefon",
-      "preferredDate": "Wunschdatum",
-      "preferredTime": "Wunschzeit",
-      "morning": "Vormittag",
-      "midday": "Mittag",
-      "afternoon": "Nachmittag",
-      "flexible": "Flexibel",
-      "players": "Anzahl Spieler",
-      "handicap": "Handicap / Spielniveau",
-      "message": "Nachricht",
-      "submit": "Startzeit anfragen",
-      "submitting": "Anfrage wird gesendet...",
-      "success": "Anfrage erhalten. Wir helfen, Sie mit dem Golfplatz oder einem passenden Partner zu verbinden.",
-      "error": "Diese Anfrage konnte nicht gesendet werden. Bitte versuchen Sie es erneut."
-    }
+    "rounds": "Runden"
   },
   "golfDiscovery": {
     "discoveryTitle": "Find your perfect golf course in the Algarve",

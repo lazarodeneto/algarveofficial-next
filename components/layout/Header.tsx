@@ -76,10 +76,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const messagesPath = isAuthenticated ? l("/dashboard/messages") : loginPath;
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim();
   const userInitial = (fullName.charAt(0) || user?.email?.trim().charAt(0) || "U").toUpperCase();
-  const accountAccentButtonClass =
-    "rounded-full border border-primary/25 bg-primary/12 text-primary hover:bg-primary/18 dark:border-primary/30 dark:bg-primary/18";
-  const accountInitialButtonClass =
-    "rounded-full border border-primary bg-primary text-primary-foreground shadow-[0_10px_24px_-18px_hsla(43,74%,49%,0.8)] hover:bg-primary/90 dark:border-primary dark:bg-primary dark:text-primary-foreground";
+  const accountGoldButtonClass = "rounded-full";
 
   // Search modal state (local to Header)
   const [searchOpen, setSearchOpen] = useState(false);
@@ -245,9 +242,9 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
               {isAuthenticated && user ? (
                 <Link href={getDashboardPath(user.role)}>
                   <Button
-                    variant="ghost"
+                    variant="gold"
                     size="icon"
-                    className={`h-8 w-8 transition-colors ${accountInitialButtonClass}`}
+                    className={`h-8 w-8 ${accountGoldButtonClass}`}
                     aria-label={t("nav.account")}
                   >
                     <span className="text-xs font-semibold leading-none">{userInitial}</span>
@@ -257,9 +254,9 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
               ) : (
                 <Link href={loginPath}>
                   <Button
-                    variant="ghost"
+                    variant="gold"
                     size="icon"
-                    className={`h-8 w-8 transition-colors ${accountAccentButtonClass}`}
+                    className={`h-8 w-8 ${accountGoldButtonClass}`}
                     aria-label={t("nav.account")}
                   >
                     <User className="h-4 w-4" />
@@ -318,9 +315,9 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
 
                     <Link href={getDashboardPath(user.role)}>
                       <Button
-                        variant="ghost"
+                        variant="gold"
                         size="icon"
-                        className={`h-9 w-9 transition-colors ${accountInitialButtonClass}`}
+                        className={`h-9 w-9 ${accountGoldButtonClass}`}
                         aria-label={t("nav.account")}
                       >
                         <span className="text-sm font-semibold leading-none">{userInitial}</span>
@@ -331,9 +328,9 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                 ) : (
                   <Link href={loginPath}>
                     <Button
-                      variant="ghost"
+                      variant="gold"
                       size="icon"
-                      className={`h-9 w-9 transition-colors ${accountAccentButtonClass}`}
+                      className={`h-9 w-9 ${accountGoldButtonClass}`}
                       aria-label={t("nav.account")}
                     >
                       <User className="h-4.5 w-4.5" />

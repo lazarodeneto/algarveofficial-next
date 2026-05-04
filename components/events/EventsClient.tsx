@@ -37,6 +37,7 @@ import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-l
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
+import { hideServerShell } from "@/lib/dom/server-shell";
 
 type EventGlobalSetting = Pick<Tables<"global_settings">, "key" | "value" | "category">;
 
@@ -371,10 +372,7 @@ export function EventsClient(props: EventsClientProps) {
   const mounted = useHydrated();
 
   useEffect(() => {
-    const serverShell = document.getElementById("events-server-shell");
-    if (serverShell) {
-      serverShell.style.display = "none";
-    }
+    return hideServerShell("events-server-shell");
   }, []);
 
   if (!mounted) {

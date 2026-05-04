@@ -21,41 +21,44 @@ function scoreTone(score: number | null, par: number) {
 
 export default function ScorecardTable({ title, holes, scores, labels }: ScorecardTableProps) {
   const parTotal = holes.reduce((sum, hole) => sum + hole.par, 0);
+  const rowGridStyle = {
+    gridTemplateColumns: `minmax(42px, 0.95fr) repeat(${holes.length}, minmax(0, 1fr))`,
+  };
 
   return (
-    <section className="rounded-sm border border-border/60 bg-white/95 p-5 shadow-[0_10px_30px_rgba(15,23,42,0.06)]">
-      <header className="mb-4 flex items-center justify-between">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+    <section className="w-full max-w-full overflow-hidden rounded-sm border border-border/60 bg-white/95 p-3 shadow-[0_10px_30px_rgba(15,23,42,0.06)] sm:p-5">
+      <header className="mb-3 flex min-w-0 items-center justify-between gap-3 sm:mb-4">
+        <h2 className="min-w-0 truncate text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground sm:text-xs sm:tracking-[0.18em]">
           {title}
         </h2>
-        <span className="font-serif text-3xl leading-none text-emerald-600">{parTotal}</span>
+        <span className="shrink-0 font-serif text-2xl leading-none text-emerald-600 sm:text-3xl">{parTotal}</span>
       </header>
 
-      <div className="space-y-2 overflow-x-auto">
-        <div className="grid min-w-[620px] grid-cols-[68px_repeat(9,minmax(0,1fr))] items-center gap-x-1 text-center">
-          <span className="text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+      <div className="w-full max-w-full space-y-2 overflow-hidden">
+        <div className="grid w-full items-center gap-x-0.5 text-center sm:gap-x-1" style={rowGridStyle}>
+          <span className="min-w-0 truncate text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground sm:text-[11px] sm:tracking-[0.12em]">
             {labels?.hole ?? "Hole"}
           </span>
           {holes.map((hole) => (
-            <span key={`hole-${hole.holeNumber}`} className="text-xs font-semibold text-muted-foreground">
+            <span key={`hole-${hole.holeNumber}`} className="min-w-0 text-[11px] font-semibold text-muted-foreground sm:text-xs">
               {hole.holeNumber}
             </span>
           ))}
         </div>
 
-        <div className="grid min-w-[620px] grid-cols-[68px_repeat(9,minmax(0,1fr))] items-center gap-x-1 text-center">
-          <span className="text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+        <div className="grid w-full items-center gap-x-0.5 text-center sm:gap-x-1" style={rowGridStyle}>
+          <span className="min-w-0 truncate text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground sm:text-[11px] sm:tracking-[0.12em]">
             {labels?.par ?? "Par"}
           </span>
           {holes.map((hole) => (
-            <span key={`par-${hole.holeNumber}`} className="font-semibold text-foreground/90">
+            <span key={`par-${hole.holeNumber}`} className="min-w-0 text-sm font-semibold text-foreground/90 sm:text-base">
               {hole.par}
             </span>
           ))}
         </div>
 
-        <div className="grid min-w-[620px] grid-cols-[68px_repeat(9,minmax(0,1fr))] items-center gap-x-1 text-center">
-          <span className="text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+        <div className="grid w-full items-center gap-x-0.5 text-center sm:gap-x-1" style={rowGridStyle}>
+          <span className="min-w-0 truncate text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground sm:text-[11px] sm:tracking-[0.12em]">
             {labels?.score ?? "Score"}
           </span>
           {holes.map((hole) => {
@@ -63,7 +66,7 @@ export default function ScorecardTable({ title, holes, scores, labels }: Scoreca
             return (
               <span
                 key={`score-${hole.holeNumber}`}
-                className={`font-semibold ${scoreTone(score ?? null, hole.par)}`}
+                className={`min-w-0 text-sm font-semibold sm:text-base ${scoreTone(score ?? null, hole.par)}`}
               >
                 {score ?? "—"}
               </span>

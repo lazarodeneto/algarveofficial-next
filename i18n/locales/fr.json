@@ -453,30 +453,6 @@
       "validLabel": "Valide",
       "verifiedDescription": "Niveau payant standard avec badge de vérification",
       "verifiedTier": "Niveau Vérifié"
-    },
-    "golfTeeTimeRequests": {
-      "title": "Demandes de tee time golf",
-      "subtitle": "Consultez les leads de tee time envoyés depuis les pages des parcours de golf.",
-      "refresh": "Actualiser",
-      "dateReceived": "Date reçue",
-      "course": "Parcours",
-      "name": "Nom",
-      "email": "E-mail",
-      "phone": "Téléphone",
-      "preferredDateTime": "Date/heure souhaitée",
-      "players": "Joueurs",
-      "status": "Statut",
-      "empty": "Aucune demande de tee time pour le moment.",
-      "loading": "Chargement des demandes de tee time...",
-      "updateSuccess": "Statut de la demande mis à jour.",
-      "updateError": "Impossible de mettre à jour le statut de la demande.",
-      "unknownCourse": "Parcours inconnu",
-      "statuses": {
-        "new": "Nouvelle",
-        "contacted": "Contacté",
-        "sent_to_course": "Envoyée au parcours",
-        "closed": "Clôturée"
-      }
     }
   },
   "auth": {
@@ -1712,7 +1688,27 @@
     },
     "round": {
       "unavailableTitle": "Partie indisponible",
-      "unavailableDescription": "Ce parcours ne dispose pas encore d’une configuration complète des trous. Essayez un autre parcours de golf pour le moment."
+      "unavailableDescription": "Ce parcours ne dispose pas encore d’une configuration complète des trous. Essayez un autre parcours de golf pour le moment.",
+      "startRound": "Commencer le parcours",
+      "starting": "Demarrage...",
+      "unableToStart": "Impossible de commencer un parcours pour le moment.",
+      "back": "Retour",
+      "scorecard": "Carte de score",
+      "holesEntered": "{{entered}} sur {{total}} trous saisis",
+      "noHoleData": "Aucune donnee de trou nest disponible pour ce parcours.",
+      "yards": "Yards",
+      "strokeIndex": "S.I.",
+      "strokes": "Coups",
+      "decreaseStrokes": "Reduire les coups",
+      "increaseStrokes": "Ajouter un coup",
+      "saveFailed": "Echec de lenregistrement",
+      "saving": "Enregistrement...",
+      "saved": "Enregistre",
+      "previousHole": "Trou precedent",
+      "nextHole": "Trou suivant {{hole}}",
+      "openScorecard": "Ouvrir la carte",
+      "unableToSaveScore": "Impossible denregistrer le score.",
+      "unableToUpdateTee": "Impossible de modifier la couleur du tee."
     },
     "scorecard": {
       "back": "Retour",
@@ -1722,7 +1718,8 @@
       "frontNine": "Aller",
       "backNine": "Retour",
       "diff": "Écart",
-      "total": "Total"
+      "total": "Total",
+      "holesRange": "Trous {{start}}-{{end}}"
     }
   },
   "guides": {
@@ -3457,7 +3454,8 @@
     "white": "Blanc",
     "yellow": "Jaune",
     "red": "Rouge",
-    "requestTeeTime": "Demander un tee time",
+    "bookTeeTime": "Réserver un tee time",
+    "bookTeeTimeAria": "Réserver un tee time avec un partenaire externe",
     "contactClub": "Contacter le club",
     "visitWebsite": "Visiter le site",
     "relatedCourses": "Parcours à proximité",
@@ -3465,27 +3463,7 @@
     "rank": "Rang",
     "player": "Joueur",
     "score": "Score",
-    "rounds": "Parties",
-    "teeTime": {
-      "title": "Demander un départ",
-      "intro": "Indiquez votre date préférée et vos détails. Nous vous aiderons à contacter le parcours ou un partenaire pertinent.",
-      "name": "Nom",
-      "email": "E-mail",
-      "phone": "Téléphone",
-      "preferredDate": "Date préférée",
-      "preferredTime": "Moment préféré",
-      "morning": "Matin",
-      "midday": "Midi",
-      "afternoon": "Après-midi",
-      "flexible": "Flexible",
-      "players": "Nombre de joueurs",
-      "handicap": "Handicap / niveau de jeu",
-      "message": "Message",
-      "submit": "Demander un départ",
-      "submitting": "Envoi de la demande...",
-      "success": "Demande reçue. Nous vous aiderons à contacter le parcours ou un partenaire pertinent.",
-      "error": "Impossible d’envoyer cette demande. Veuillez réessayer."
-    }
+    "rounds": "Parties"
   },
   "golfDiscovery": {
     "discoveryTitle": "Find your perfect golf course in the Algarve",

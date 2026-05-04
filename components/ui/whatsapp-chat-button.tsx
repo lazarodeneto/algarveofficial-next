@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ConciergeBell } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 import { toWhatsAppDigits } from "@/lib/contactPhone";
@@ -52,16 +53,18 @@ export function WhatsAppChatButton({
           "translate-y-[calc(100%+env(safe-area-inset-bottom)+4.5rem+1rem)] lg:translate-y-0",
       )}
     >
-      <button
+      <Button
         type="button"
+        variant="gold"
+        size="icon"
         onClick={handleOpenWhatsApp}
-        className="pointer-events-auto relative flex h-14 w-14 items-center justify-center rounded-full border border-[#C7A35A] bg-[#C7A35A] text-amber-950 shadow-lg shadow-amber-700/15 transition-all hover:scale-[1.03] hover:bg-[#B79245] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="pointer-events-auto h-14 w-14 rounded-full [&_svg]:size-7"
         aria-label="Open concierge on WhatsApp"
         title="Open concierge on WhatsApp"
       >
-        <ConciergeBell className="relative z-10 h-7 w-7 text-amber-950" />
+        <ConciergeBell className="relative z-10" />
         <span className="sr-only">Open concierge on WhatsApp</span>
-      </button>
+      </Button>
     </div>
   );
 }

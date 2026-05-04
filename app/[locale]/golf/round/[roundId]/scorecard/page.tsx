@@ -62,8 +62,9 @@ export default async function GolfRoundScorecardPage({ params }: PageProps) {
 
   if (!roundData) notFound();
   const { round, holes, scores } = roundData;
-  const frontNine = holes.slice(0, 9);
-  const backNine = holes.slice(9, 18);
+  const holeGroups = Array.from({ length: Math.ceil(holes.length / 9) }, (_, index) =>
+    holes.slice(index * 9, index * 9 + 9),
+  ).filter((group) => group.length > 0);
   const translations = await getServerTranslations(locale, [
     "golf.scorecard.back",
     "golf.scorecard.title",
@@ -71,6 +72,7 @@ export default async function GolfRoundScorecardPage({ params }: PageProps) {
     "golf.scorecard.finishRound",
     "golf.scorecard.frontNine",
     "golf.scorecard.backNine",
+    "golf.scorecard.holesRange",
     "golf.scorecard.diff",
     "golf.scorecard.total",
     "golfCourse.hole",
@@ -97,19 +99,27 @@ export default async function GolfRoundScorecardPage({ params }: PageProps) {
   }
 
   return (
-    <main className={`app-container pb-10 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
-      <section className="mx-auto w-full max-w-3xl space-y-5">
-        <header className="flex items-center justify-between gap-3">
+    <main className={`app-container overflow-x-hidden pb-10 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
+      <section className="mx-auto w-full max-w-3xl space-y-4 sm:space-y-5">
+        <header className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 sm:gap-3">
           <Button asChild variant="outline" size="sm">
-            <Link href={buildLocalizedPath(locale, `/golf/round/${roundId}`)}>
+            <Link
+              href={buildLocalizedPath(locale, `/golf/round/${roundId}`)}
+              className="min-h-11 px-3 text-xs sm:px-4 sm:text-sm"
+            >
               {translations["golf.scorecard.back"] ?? "Back"}
             </Link>
           </Button>
-          <h1 className="truncate font-serif text-3xl text-foreground">
+          <h1 className="min-w-0 truncate text-center font-serif text-2xl text-foreground sm:text-3xl">
             {translations["golf.scorecard.title"] ?? "Scorecard"}
           </h1>
           <form action={finishRoundAction}>
-            <Button variant="gold" size="sm" disabled={Boolean(round.finishedAt)}>
+            <Button
+              variant="gold"
+              size="sm"
+              disabled={Boolean(round.finishedAt)}
+              className="min-h-11 px-3 text-xs sm:px-4 sm:text-sm"
+            >
               {round.finishedAt
                 ? translations["golf.scorecard.roundFinished"] ?? "Round Finished"
                 : translations["golf.scorecard.finishRound"] ?? "Finish Round"}
@@ -117,32 +127,39 @@ export default async function GolfRoundScorecardPage({ params }: PageProps) {
           </form>
         </header>
 
-        <ScorecardTable
-          title={translations["golf.scorecard.frontNine"] ?? "Front Nine"}
-          holes={frontNine}
-          scores={scores}
-          labels={{
-            hole: translations["golfCourse.hole"],
-            par: translations["golfCourse.par"],
-            score: translations["golfCourse.score"],
-          }}
-        />
-        <ScorecardTable
-          title={translations["golf.scorecard.backNine"] ?? "Back Nine"}
-          holes={backNine}
-          scores={scores}
-          labels={{
-            hole: translations["golfCourse.hole"],
-            par: translations["golfCourse.par"],
-            score: translations["golfCourse.score"],
-          }}
-        />
+        {holeGroups.map((group, index) => {
+          const firstHole = group[0]?.holeNumber ?? index * 9 + 1;
+          const lastHole = group[group.length - 1]?.holeNumber ?? firstHole;
+          const title =
+            index === 0
+              ? translations["golf.scorecard.frontNine"] ?? "Front Nine"
+              : index === 1
+                ? translations["golf.scorecard.backNine"] ?? "Back Nine"
+                : (translations["golf.scorecard.holesRange"] ?? "Holes {{start}}-{{end}}")
+                    .replace("{{start}}", String(firstHole))
+                    .replace("{{end}}", String(lastHole));
+
+          return (
+            <ScorecardTable
+              key={`${firstHole}-${lastHole}`}
+              title={title}
+              holes={group}
+              scores={scores}
+              labels={{
+                hole: translations["golfCourse.hole"],
+                par: translations["golfCourse.par"],
+                score: translations["golfCourse.score"],
+              }}
+            />
+          );
+        })}
         <ScorecardSummary
           holes={holes}
           scores={scores}
           labels={{
             frontNine: translations["golf.scorecard.frontNine"],
             backNine: translations["golf.scorecard.backNine"],
+            holesRange: translations["golf.scorecard.holesRange"],
             diff: translations["golf.scorecard.diff"],
             total: translations["golf.scorecard.total"],
           }}

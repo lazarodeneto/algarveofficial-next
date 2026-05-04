@@ -77,6 +77,7 @@ import {
 } from "@/components/sections/hero-layout";
 import type { VisitCityIndexItem } from "@/lib/directory-data";
 import { buildMunicipalityCityIndex } from "@/lib/cities/municipalityIndex";
+import { hideServerShell } from "@/lib/dom/server-shell";
 
 const EMPTY_CATEGORY_IDS: string[] = [];
 const DIRECTORY_CMS_KEYS = [
@@ -1284,10 +1285,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   const heroEnabled = activeCms.isBlockEnabled("hero", true);
 
   useEffect(() => {
-    const serverShell = document.getElementById("directory-server-shell");
-    if (serverShell) {
-      serverShell.remove();
-    }
+    return hideServerShell("directory-server-shell");
   }, []);
 
   return (

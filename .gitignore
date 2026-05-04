@@ -12,6 +12,15 @@
 
 # testing
 /coverage
+.playwright-cli/
+.playwright-mcp/
+playwright-report/
+test-results/
+lint-warnings.txt
+home-admin-check.png
+
+# local tool state
+supabase/.temp/
 
 # next.js
 /.next/

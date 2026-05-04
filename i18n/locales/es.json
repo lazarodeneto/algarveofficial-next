@@ -453,30 +453,6 @@
       "validLabel": "Válido",
       "verifiedDescription": "Nivel estándar de pago con insignia de verificación",
       "verifiedTier": "Nivel Verificado"
-    },
-    "golfTeeTimeRequests": {
-      "title": "Solicitudes de tee time de golf",
-      "subtitle": "Revisa los contactos de tee time enviados desde las páginas de campos de golf.",
-      "refresh": "Actualizar",
-      "dateReceived": "Fecha recibida",
-      "course": "Campo",
-      "name": "Nombre",
-      "email": "Email",
-      "phone": "Teléfono",
-      "preferredDateTime": "Fecha/hora preferida",
-      "players": "Jugadores",
-      "status": "Estado",
-      "empty": "Aún no hay solicitudes de tee time.",
-      "loading": "Cargando solicitudes de tee time...",
-      "updateSuccess": "Estado de la solicitud actualizado.",
-      "updateError": "No se pudo actualizar el estado de la solicitud.",
-      "unknownCourse": "Campo desconocido",
-      "statuses": {
-        "new": "Nueva",
-        "contacted": "Contactada",
-        "sent_to_course": "Enviada al campo",
-        "closed": "Cerrada"
-      }
     }
   },
   "auth": {
@@ -1712,7 +1688,27 @@
     },
     "round": {
       "unavailableTitle": "Ronda no disponible",
-      "unavailableDescription": "Este campo aún no tiene una configuración completa de hoyos. Prueba con otro campo de golf por ahora."
+      "unavailableDescription": "Este campo aún no tiene una configuración completa de hoyos. Prueba con otro campo de golf por ahora.",
+      "startRound": "Iniciar ronda",
+      "starting": "Iniciando...",
+      "unableToStart": "No se puede iniciar una ronda ahora.",
+      "back": "Volver",
+      "scorecard": "Tarjeta de puntuacion",
+      "holesEntered": "{{entered}} de {{total}} hoyos introducidos",
+      "noHoleData": "No hay datos de hoyos disponibles para esta ronda.",
+      "yards": "Yardas",
+      "strokeIndex": "S.I.",
+      "strokes": "Golpes",
+      "decreaseStrokes": "Reducir golpes",
+      "increaseStrokes": "Aumentar golpes",
+      "saveFailed": "Error al guardar",
+      "saving": "Guardando...",
+      "saved": "Guardado",
+      "previousHole": "Hoyo anterior",
+      "nextHole": "Siguiente hoyo {{hole}}",
+      "openScorecard": "Abrir tarjeta",
+      "unableToSaveScore": "No se pudo guardar la puntuacion.",
+      "unableToUpdateTee": "No se pudo actualizar el color del tee."
     },
     "scorecard": {
       "back": "Volver",
@@ -1722,7 +1718,8 @@
       "frontNine": "Primeros nueve",
       "backNine": "Segundos nueve",
       "diff": "Diferencia",
-      "total": "Total"
+      "total": "Total",
+      "holesRange": "Hoyos {{start}}-{{end}}"
     }
   },
   "guides": {
@@ -3419,7 +3416,8 @@
     "white": "Blanco",
     "yellow": "Amarillo",
     "red": "Rojo",
-    "requestTeeTime": "Solicitar tee time",
+    "bookTeeTime": "Reservar tee time",
+    "bookTeeTimeAria": "Reservar tee time con un socio externo",
     "contactClub": "Contactar club",
     "visitWebsite": "Visitar web",
     "relatedCourses": "Campos cercanos",
@@ -3427,27 +3425,7 @@
     "rank": "Posición",
     "player": "Jugador",
     "score": "Resultado",
-    "rounds": "Rondas",
-    "teeTime": {
-      "title": "Solicitar tee time",
-      "intro": "Comparte tu día preferido y los detalles. Te ayudaremos a conectar con el campo o un socio relevante.",
-      "name": "Nombre",
-      "email": "Email",
-      "phone": "Teléfono",
-      "preferredDate": "Fecha preferida",
-      "preferredTime": "Hora preferida",
-      "morning": "Mañana",
-      "midday": "Mediodía",
-      "afternoon": "Tarde",
-      "flexible": "Flexible",
-      "players": "Número de jugadores",
-      "handicap": "Hándicap / nivel de juego",
-      "message": "Mensaje",
-      "submit": "Solicitar Tee Time",
-      "submitting": "Enviando solicitud...",
-      "success": "Solicitud recibida. Te ayudaremos a conectar con el campo o un socio relevante.",
-      "error": "No se pudo enviar esta solicitud. Inténtalo de nuevo."
-    }
+    "rounds": "Rondas"
   },
   "golfDiscovery": {
     "discoveryTitle": "Find your perfect golf course in the Algarve",
