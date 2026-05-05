@@ -46,6 +46,9 @@ jobs:
       - name: Pull Vercel environment
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
+      - name: Prepare Next.js environment
+        run: cp .vercel/.env.production.local .env.production.local
+
       - name: Build app
         run: npm run build
 

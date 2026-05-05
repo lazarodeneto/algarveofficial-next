@@ -179,7 +179,11 @@ const nextConfig: NextConfig = {
   // ✅ Experimental features (modern Next.js 16)
   experimental: {
     scrollRestoration: true,
+    staticGenerationMaxConcurrency: 2,
+    staticGenerationMinPagesPerWorker: 120,
   },
+
+  staticPageGenerationTimeout: 180,
 
   webpack(config) {
     config.resolve = config.resolve ?? {};
