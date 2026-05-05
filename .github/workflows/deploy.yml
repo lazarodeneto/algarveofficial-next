@@ -12,7 +12,7 @@ concurrency:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   VERCEL_ORG_ID: team_dsBGpJMjHaB42UhTImoSOJeS
-  VERCEL_PROJECT_ID: prj_ZMnxYCWwXxMbvx8qIMkkOn4ePFXd
+  VERCEL_PROJECT_ID: prj_6jlrYgh6yewyeTDXS5eP72QZMNUF
 
 jobs:
   deploy:
