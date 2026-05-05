@@ -19,6 +19,7 @@ import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { usePageLoadListingShuffle } from "@/hooks/usePageLoadListingShuffle";
 import { usePublishedListings, type ListingWithRelations } from "@/hooks/useListings";
 import { useCategories, useCities, useRegions } from "@/hooks/useReferenceData";
 import { trackBlockImpression, trackListingClick } from "@/lib/analytics/platformTracking";
@@ -82,7 +83,14 @@ function HomepagePremiumListingsSection({ copy }: { copy?: HomeSectionCopy }) {
     staleTime: Number.POSITIVE_INFINITY,
   });
 
-  const visibleListings = homepagePremiumListings.slice(0, HOMEPAGE_PREMIUM_LIMIT);
+  const selectedListings = useMemo(
+    () => homepagePremiumListings.slice(0, HOMEPAGE_PREMIUM_LIMIT),
+    [homepagePremiumListings],
+  );
+  const visibleListings = usePageLoadListingShuffle(
+    selectedListings,
+    `algarveofficial.home.premium.${locale}`,
+  );
 
   useEffect(() => {
     void trackBlockImpression({

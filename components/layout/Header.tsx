@@ -5,7 +5,6 @@ import NextLink from "next/link";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { useLocalePath } from "@/hooks/useLocalePath";
-import { AnimatePresence, m } from "framer-motion";
 import {
   AlignJustify,
   X,
@@ -388,31 +387,23 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
         </nav>
 
         {/* Mobile menu */}
-          <AnimatePresence>
-            {mobileMenuOpen && (
-              <>
-                {/* Backdrop overlay */}
-                <m.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="xl:hidden fixed inset-0 lg:left-20 z-[130] bg-black/50 backdrop-blur-sm"
-                  onClick={() => setMobileMenuOpen(false)}
-                  aria-hidden="true"
-                />
+          {mobileMenuOpen && (
+            <>
+              {/* Backdrop overlay */}
+              <div
+                className="xl:hidden fixed inset-0 lg:left-20 z-[130] bg-black/50 backdrop-blur-sm animate-in fade-in duration-150"
+                onClick={() => setMobileMenuOpen(false)}
+                aria-hidden="true"
+              />
 
-                {/* Mobile menu panel */}
-                <m.div
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  data-mobile-menu-expanded="true"
-                  className="xl:hidden fixed top-0 right-0 bottom-0 left-0 lg:left-20 z-[140] overflow-y-auto bg-background/95 text-foreground backdrop-blur-2xl dark:bg-background/70 touch-pan-y"
-                  onTouchStart={handleTouchStart}
-                  onTouchMove={handleTouchMove}
-                  onTouchEnd={handleTouchEnd}
-                >
+              {/* Mobile menu panel */}
+              <div
+                data-mobile-menu-expanded="true"
+                className="xl:hidden fixed top-0 right-0 bottom-0 left-0 lg:left-20 z-[140] overflow-y-auto bg-background/95 text-foreground backdrop-blur-2xl dark:bg-background/70 touch-pan-y animate-in fade-in slide-in-from-top-3 duration-200"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
                 <div className="px-4 pt-4 pb-6 space-y-4">
                   <div className="flex items-start gap-2">
                     <div className="flex-1 rounded-sm border border-black/10 bg-white/70 p-2.5 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
@@ -571,10 +562,9 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                     </div>
                   </div>
                 </div>
-                </m.div>
-              </>
-            )}
-          </AnimatePresence>
+              </div>
+            </>
+          )}
       </header>
       <MobileBottomNav />
     </>

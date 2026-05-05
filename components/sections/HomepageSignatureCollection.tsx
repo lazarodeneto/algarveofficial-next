@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -9,6 +10,7 @@ import { SignatureCard } from "@/components/ui/cards/SignatureCard";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import type { ListingWithRelations } from "@/hooks/useListings";
+import { usePageLoadListingShuffle } from "@/hooks/usePageLoadListingShuffle";
 import { homepageListingSplitQueryKey } from "@/lib/query-keys";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { cn } from "@/lib/utils";
@@ -49,7 +51,11 @@ export function HomepageSignatureCollection({ copy }: { copy?: HomeSectionCopy }
   const ctaHref = isSafeHomeCtaHref(copy?.ctaHref) && copy?.ctaHref?.trim()
     ? copy.ctaHref.trim()
     : "/directory?tier=signature";
-  const displayListings = listings.slice(0, DISPLAY_LIMIT);
+  const selectedListings = useMemo(() => listings.slice(0, DISPLAY_LIMIT), [listings]);
+  const displayListings = usePageLoadListingShuffle(
+    selectedListings,
+    `algarveofficial.home.editors.${targetLang}`,
+  );
 
   return (
     <section id="signature-collection" className="bg-background py-16 sm:py-20 lg:py-24">

@@ -4,11 +4,10 @@ import { notFound } from "next/navigation";
 
 import { AppProviders } from "@/components/providers/AppProviders";
 import { PublicSiteFrame } from "@/components/layout/PublicSiteFrame";
+import { DeferredPublicWidgets } from "@/components/layout/DeferredPublicWidgets";
 import { loadInitialLocaleMessages } from "@/i18n/server-locale";
 import { LocaleProvider } from "@/lib/i18n/locale-context";
 import { CookieConsentBannerWrapper } from "@/components/gdpr/CookieConsentBannerWrapper";
-import { FloatingCookieSettingsButton } from "@/components/gdpr/FloatingCookieSettingsButton";
-import { WhatsAppChatButtonWrapper } from "@/components/ui/WhatsAppChatButtonWrapper";
 import {
   LOCALE_CONFIGS,
   isValidLocale,
@@ -99,8 +98,7 @@ export default async function LocaleLayout({
         locale={locale}
       >
         <PublicSiteFrame>{children}</PublicSiteFrame>
-        <WhatsAppChatButtonWrapper />
-        <FloatingCookieSettingsButton />
+        <DeferredPublicWidgets />
         <CookieConsentBannerWrapper />
       </AppProviders>
     </LocaleProvider>

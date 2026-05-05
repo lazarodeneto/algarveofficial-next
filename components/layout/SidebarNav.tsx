@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import clsx from "clsx";
 import {
@@ -13,6 +13,7 @@ import {
   Mail,
   Map,
   MapPinHouse,
+  Sparkles,
   Waves,
   type LucideIcon,
 } from "lucide-react";
@@ -33,14 +34,27 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   "nav.live": MapPinHouse,
   "nav.relocation": MapPinHouse,
   "nav.contact": Mail,
+  "categories.wellnessSpas": Sparkles,
 };
 
 interface SidebarNavProps {
   expanded?: boolean;
 }
 
+function insertAfter(items: typeof PRIMARY_NAV_ITEMS, afterLabelKey: string, itemToInsert: (typeof PRIMARY_NAV_ITEMS)[number]) {
+  if (items.some((item) => item.labelKey === itemToInsert.labelKey)) return;
+
+  const afterIndex = items.findIndex((item) => item.labelKey === afterLabelKey);
+  if (afterIndex >= 0) {
+    items.splice(afterIndex + 1, 0, itemToInsert);
+  } else {
+    items.push(itemToInsert);
+  }
+}
+
 export function SidebarNav({ expanded = false }: SidebarNavProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { t } = useTranslation();
 
   const currentPath = stripLocaleFromPathname(pathname || "/");
@@ -54,12 +68,22 @@ export function SidebarNav({ expanded = false }: SidebarNavProps) {
       sidebarItems.push(beachesItem);
     }
   }
+  insertAfter(sidebarItems, "nav.beaches", {
+    labelKey: "categories.wellnessSpas",
+    fallbackLabel: "Wellness & Spa",
+    href: "/stay?category=wellness-spas",
+  });
 
   return (
     <nav className={clsx("flex flex-col gap-2", expanded ? "items-stretch" : "items-center")}>
       {sidebarItems.map((item) => {
+        const [itemPath, itemQuery = ""] = item.href.split("?");
+        const itemParams = new URLSearchParams(itemQuery);
         const isActive =
-          currentPath === item.href || (item.href !== "/" && currentPath.startsWith(`${item.href}/`));
+          itemParams.size > 0
+            ? currentPath === itemPath &&
+              [...itemParams.entries()].every(([key, value]) => searchParams.get(key) === value)
+            : currentPath === itemPath || (itemPath !== "/" && currentPath.startsWith(`${itemPath}/`));
         const Icon = NAV_ICONS[item.labelKey];
         const label = t(item.labelKey, item.fallbackLabel);
 

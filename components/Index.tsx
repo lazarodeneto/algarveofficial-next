@@ -4,14 +4,7 @@ import { useMemo, type ComponentType } from "react";
 import dynamic from "next/dynamic";
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { HomepageSignatureCollection } from "@/components/sections/HomepageSignatureCollection";
 import { HeroSection } from "@/components/sections/HeroSection";
-import { HomeAllCitiesSection } from "@/components/sections/HomeAllCitiesSection";
-import { HomeQuickLinksSection } from "@/components/sections/HomeQuickLinksSection";
-import { HomeFinalEndcap } from "@/components/sections/HomeFinalEndcap";
-import { HomeSmartSearchSection } from "@/components/sections/HomeSmartSearchSection";
-import { HomeTrustSection } from "@/components/sections/HomeTrustSection";
 import { useHomepageSettings } from "@/hooks/useHomepageSettings";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
@@ -45,6 +38,11 @@ function VipSectionFallback() {
   );
 }
 
+type HomeSectionComponentProps = {
+  copy?: HomeSectionCopy;
+  listingCount?: number;
+};
+
 const withHomeSectionLoading = <T extends ComponentType<any>>(
   loader: () => Promise<{ [key: string]: T } | { default: T }>,
   select?: (module: any) => T,
@@ -61,6 +59,20 @@ const RegionsSection = withHomeSectionLoading(
   () => import("@/components/sections/RegionsSection"),
   (mod) => mod.RegionsSection,
 );
+const HomeQuickLinksSection = dynamic<HomeSectionComponentProps>(
+  () =>
+    import("@/components/sections/HomeQuickLinksSection").then(
+      (mod) => mod.HomeQuickLinksSection as ComponentType<HomeSectionComponentProps>,
+    ),
+);
+const HomeSmartSearchSection = dynamic(
+  () => import("@/components/sections/HomeSmartSearchSection").then((mod) => mod.HomeSmartSearchSection),
+);
+const HomepageSignatureCollection = withHomeSectionLoading(
+  () => import("@/components/sections/HomepageSignatureCollection"),
+  (mod) => mod.HomepageSignatureCollection,
+  () => <VipSectionFallback />,
+);
 const SignatureMapSection = withHomeSectionLoading(
   () => import("@/components/sections/SignatureMapSection"),
   (mod) => mod.SignatureMapSection,
@@ -74,13 +86,29 @@ const AllListingsSection = withHomeSectionLoading(
   () => import("@/components/sections/AllListingsSection"),
   (mod) => mod.AllListingsSection,
 );
+const HomeAllCitiesSection = withHomeSectionLoading(
+  () => import("@/components/sections/HomeAllCitiesSection"),
+  (mod) => mod.HomeAllCitiesSection,
+);
+const HomeTrustSection = withHomeSectionLoading(
+  () => import("@/components/sections/HomeTrustSection"),
+  (mod) => mod.HomeTrustSection,
+);
+const HomeFinalEndcap = dynamic(
+  () => import("@/components/sections/HomeFinalEndcap").then((mod) => mod.HomeFinalEndcap),
+  {
+    loading: () => (
+      <div className="bg-background pb-14 pt-4 sm:pb-18 lg:pb-20" aria-hidden="true">
+        <div className="app-container content-max">
+          <div className="h-44 rounded-sm border border-border/50 bg-muted/35 animate-pulse sm:h-48" />
+        </div>
+      </div>
+    ),
+  },
+);
+const Footer = dynamic(() => import("@/components/layout/Footer").then((mod) => mod.Footer));
 
 // Section ID to component mapping
-type HomeSectionComponentProps = {
-  copy?: HomeSectionCopy;
-  listingCount?: number;
-};
-
 const SECTION_COMPONENTS: Record<string, ComponentType<HomeSectionComponentProps>> = {
   categories: HomeQuickLinksSection,
   regions: RegionsSection,
