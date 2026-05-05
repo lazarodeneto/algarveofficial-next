@@ -66,6 +66,52 @@ function formatPublishedDate(value: string | null | undefined, locale: string) {
   }).format(date);
 }
 
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function isMajorArticleHeading(line: string, title: string) {
+  if (line === title) return true;
+  return [
+    /^contents$/i,
+    /^top beaches/i,
+    /^best (algarve )?beaches by category$/i,
+    /^when to visit/i,
+    /^practical tips/i,
+    /^frequently asked questions$/i,
+    /^plan your/i,
+  ].some((pattern) => pattern.test(line));
+}
+
+function isQuestionHeading(line: string) {
+  return /\?$/.test(line) && /^(what|which|where|when|how|qual|quais|quelle|quelles|wo|welche|waar|vilken|hvilken|hvilke)/i.test(line);
+}
+
+function formatArticleContent(content: string | null | undefined, title: string) {
+  const rawContent = content?.trim() ?? "";
+  if (!rawContent) return "";
+  if (/<(h[1-6]|p|ul|ol|li|blockquote)\b/i.test(rawContent)) {
+    return rawContent;
+  }
+
+  return rawContent
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const escaped = escapeHtml(line);
+      if (isMajorArticleHeading(line, title)) return `<h2>${escaped}</h2>`;
+      if (/^\d+\.\s+/.test(line) || isQuestionHeading(line)) return `<h3>${escaped}</h3>`;
+      return `<p>${escaped}</p>`;
+    })
+    .join("");
+}
+
 interface BlogPostProps {
   localeSwitchPaths?: Partial<Record<Locale, string>>;
   localizedRoute?: BlogPostRouteData;
@@ -114,7 +160,7 @@ export default function BlogPost({
       return;
     }
 
-    window.open(urls[platform], '_blank', 'width=600,height=400');
+    window.open(urls[platform], '_blank', 'noopener,noreferrer,width=600,height=400');
   };
 
   if (isLoading || (!isBrowser && !post && !error)) {
@@ -182,7 +228,7 @@ export default function BlogPost({
         </div>
 
         {/* Article Content */}
-        <article className="container max-w-4xl mx-auto px-4 -mt-32 relative z-10">
+        <article className="container max-w-5xl mx-auto px-4 -mt-32 relative z-10">
           <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -202,7 +248,7 @@ export default function BlogPost({
                   {t(BLOG_TRANSLATION_KEYS[post.category], blogCategoryLabels[post.category])}
                 </Badge>
                 
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-medium mb-6">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-medium leading-tight mb-6">
                   {post.title}
                 </h1>
 
@@ -252,16 +298,18 @@ export default function BlogPost({
             <Card className="bg-card border-border mb-8">
               <CardContent className="p-6 md:p-10">
                 <div 
-                  className="prose prose-lg prose-invert max-w-none
-                    prose-headings:font-serif prose-headings:font-semibold
-                    prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
-                    prose-p:text-muted-foreground prose-p:leading-relaxed
+                  className="prose prose-xl prose-invert max-w-none
+                    prose-headings:font-serif prose-headings:font-semibold prose-headings:tracking-normal
+                    prose-h1:text-4xl prose-h1:md:text-5xl
+                    prose-h2:mt-16 prose-h2:text-4xl prose-h2:md:text-5xl
+                    prose-h3:mt-10 prose-h3:text-2xl prose-h3:md:text-3xl
+                    prose-p:text-muted-foreground prose-p:leading-8
                     prose-a:text-primary prose-a:no-underline hover:prose-a:underline
                     prose-strong:text-foreground
                     prose-ul:text-muted-foreground prose-ol:text-muted-foreground
                     prose-li:marker:text-primary"
                   dangerouslySetInnerHTML={{ 
-                    __html: sanitizeHtmlString((post.content || '').replace(/\n/g, '<br/>'))
+                    __html: sanitizeHtmlString(formatArticleContent(post.content, post.title))
                   }}
                 />
 

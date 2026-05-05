@@ -346,7 +346,7 @@ export default function AdminMediaLibrary() {
                         <Copy className="h-4 w-4 mr-2" />
                         Copy URL
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); window.open(item.file_url, '_blank'); }}>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); window.open(item.file_url, '_blank', 'noopener,noreferrer'); }}>
                         <Download className="h-4 w-4 mr-2" />
                         Download
                       </DropdownMenuItem>
@@ -531,7 +531,7 @@ export default function AdminMediaLibrary() {
             </Button>
             {selectedMedia && (
               <>
-                <Button variant="outline" onClick={() => window.open(selectedMedia.file_url, '_blank')}>
+                <Button variant="outline" onClick={() => window.open(selectedMedia.file_url, '_blank', 'noopener,noreferrer')}>
                   <Download className="h-4 w-4 mr-2" />
                   Download
                 </Button>

@@ -4,6 +4,7 @@ import { DEFAULT_LOCALE, SUPPORTED_LOCALES, type AppLocale } from "@/lib/i18n/lo
 import { isValidLocale } from "@/lib/i18n/locale-utils";
 import { REQUEST_LOCALE_HEADER_NAME, isSystemBypassPath } from "@/lib/i18n/route-rules";
 import { isMaintenanceIpWhitelisted } from "@/lib/maintenance";
+import { getCanonicalFromUrlSlug, getCategoryUrlSlug } from "@/lib/seo/programmatic/category-slugs";
 
 const PUBLIC_LOCALES: readonly AppLocale[] = SUPPORTED_LOCALES;
 const PUBLIC_LOCALE_SET = new Set<string>(PUBLIC_LOCALES);
@@ -21,6 +22,40 @@ const MAINTENANCE_WHITELIST = process.env.MAINTENANCE_IP_WHITELIST
   ?.split(",")
   .map((value) => value.trim())
   .filter(Boolean) ?? null;
+const RESERVED_ROUTE_SEGMENTS = new Set([
+  "about-us",
+  "admin",
+  "auth",
+  "blog",
+  "contact",
+  "cookie-policy",
+  "dashboard",
+  "destinations",
+  "directory",
+  "events",
+  "golf",
+  "invest",
+  "listing",
+  "live",
+  "login",
+  "map",
+  "owner",
+  "partner",
+  "pricing",
+  "privacy-policy",
+  "properties",
+  "real-estate",
+  "relocation",
+  "residence",
+  "signup",
+  "stay",
+  "terms",
+  "trips",
+  "visit",
+]);
+const LEGACY_CATEGORY_ALIASES: Record<string, string> = {
+  activities: "experiences",
+};
 
 function normalizePathname(pathname: string): string {
   if (!pathname) return "/";
@@ -102,6 +137,49 @@ function hasSupabaseAuthCookie(request: NextRequest): boolean {
     .some((cookie) => cookie.name.startsWith("sb-") && cookie.name.includes("auth-token"));
 }
 
+function isSlugLikeSegment(segment: string): boolean {
+  return /^[a-z0-9][a-z0-9-]{0,58}[a-z0-9]$/.test(segment);
+}
+
+function resolveLegacyCategoryCityRequest(
+  locale: AppLocale,
+  pathSegments: string[],
+): { kind: "none" } | { kind: "not-found" } | { kind: "redirect"; pathname: string } {
+  if (pathSegments.length !== 3) return { kind: "none" };
+
+  const legacyCategorySegment = pathSegments[1]?.toLowerCase() ?? "";
+  const legacyCitySegment = pathSegments[2]?.toLowerCase() ?? "";
+  if (RESERVED_ROUTE_SEGMENTS.has(legacyCategorySegment)) return { kind: "none" };
+
+  const canonicalCategory = getCanonicalFromUrlSlug(
+    LEGACY_CATEGORY_ALIASES[legacyCategorySegment] ?? legacyCategorySegment,
+    locale,
+  );
+
+  if (
+    !canonicalCategory ||
+    !isSlugLikeSegment(legacyCitySegment) ||
+    RESERVED_ROUTE_SEGMENTS.has(legacyCitySegment)
+  ) {
+    return { kind: "not-found" };
+  }
+
+  return {
+    kind: "redirect",
+    pathname: withLocalePrefix(`/visit/${legacyCitySegment}/${getCategoryUrlSlug(canonicalCategory, locale)}`, locale),
+  };
+}
+
+function notFoundResponse() {
+  return new NextResponse("Not Found", {
+    status: 404,
+    headers: {
+      "content-type": "text/plain; charset=utf-8",
+      "x-robots-tag": "noindex, nofollow",
+    },
+  });
+}
+
 function redirectAnonymousAdminRequest(request: NextRequest, locale: AppLocale) {
   const loginUrl = new URL(withLocalePrefix("/login", locale), request.url);
   const requestedPath = `${request.nextUrl.pathname}${request.nextUrl.search}`;
@@ -165,6 +243,16 @@ export function proxy(request: NextRequest) {
 
     if (relocationAliasPath) {
       const redirectUrl = new URL(withLocalePrefix("/relocation", localeFromPath), request.url);
+      redirectUrl.search = request.nextUrl.search;
+      return NextResponse.redirect(redirectUrl, 308);
+    }
+
+    const legacyCategoryCityRequest = resolveLegacyCategoryCityRequest(localeFromPath, segments);
+    if (legacyCategoryCityRequest.kind === "not-found") {
+      return notFoundResponse();
+    }
+    if (legacyCategoryCityRequest.kind === "redirect") {
+      const redirectUrl = new URL(legacyCategoryCityRequest.pathname, request.url);
       redirectUrl.search = request.nextUrl.search;
       return NextResponse.redirect(redirectUrl, 308);
     }

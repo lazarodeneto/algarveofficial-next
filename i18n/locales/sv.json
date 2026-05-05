@@ -1208,7 +1208,8 @@
     "preferencesTitle": "Cookieinställningar",
     "savePreferences": "Spara preferenser",
     "saveSettings": "Spara inställningar",
-    "title": "Din integritet är viktig"
+    "title": "Din integritet är viktig",
+    "managePreferences": "Hantera inställningar"
   },
   "cookiePolicy": {
     "footer": {
@@ -1678,7 +1679,11 @@
       "title": "Golfbanekatalog",
       "description": "Utforska golfklubbar via AlgarveOfficial-listningar.",
       "emptyTitle": "Inga golflistningar tillgängliga",
-      "emptyDescription": "Inga publicerade golflistningar matchar dina aktuella filter."
+      "emptyDescription": "Inga publicerade golflistningar matchar dina aktuella filter.",
+      "metadataTitle": "Golfbanor i Algarve",
+      "metadataDescription": "Utforska championship-golflistor i Algarve med bandata, platser och scorecard-åtkomst.",
+      "regionFilter": "Region: {{region}}.",
+      "cityFilter": "Stad: {{city}}."
     },
     "leaderboardPage": {
       "title": "Topplista",
@@ -1720,6 +1725,10 @@
       "diff": "Skillnad",
       "total": "Totalt",
       "holesRange": "Hal {{start}}-{{end}}"
+    },
+    "metadata": {
+      "title": "Golf i Algarve",
+      "description": "Upptäck Algarves bästa golfbanor, premiumklubbar och resurser för golfplanering."
     }
   },
   "guides": {
@@ -1807,7 +1816,7 @@
     "headlineHighlight": "Algarves finaste",
     "listYourBusiness": "Lägg Till Ditt Företag",
     "location": "Distriktet Faro, Portugal",
-    "loginRequired": "Logga in eller skapa ett konto för att skapa och spara din resa.",
+    "loginRequired": "Logga in för att skapa en resa.",
     "planTripCta": "Planera din resa",
     "popular": "Populär",
     "primaryCta": "Utforska regioner",
@@ -1819,7 +1828,7 @@
     "tagGoldenVisa": "Gyllene visum",
     "tagMichelinDining": "Michelin middag",
     "tagPrivateAviation": "Privatflyg",
-    "tripCreated": "Resan skapades framgångsrikt.",
+    "tripCreated": "Resan har skapats.",
     "trust": {
       "anonymousVisitor": "Verifierad besökare",
       "approvedReview": "Godkänd recension",
@@ -1950,12 +1959,12 @@
     "bathrooms": "Badrum",
     "bedrooms": "Sovrum",
     "bookVisit": "Boka ett besök",
-    "builtArea": "Byggt område",
+    "builtArea": "Byggyta",
     "certifiedListing": "Certifierad notering",
     "claimThisListing": "Claim this listing",
     "contact": "Contact",
-    "contactForLocation": "Kontakta för platsinformation",
-    "experience": "Uppleva",
+    "contactForLocation": "Kontakta för plats",
+    "experience": "Upplevelse",
     "exterior": "Exteriör",
     "features": "Drag",
     "follow": "Följa",
@@ -1963,7 +1972,7 @@
       "consent": "Jag samtycker till att bli kontaktad angående denna fastighet",
       "email": "E-post",
       "emailWarning": "Ditt meddelande sparades, men e-postavisering misslyckades. Administratören kan fortfarande se den i inkorgen.",
-      "errorToast": "Det gick inte att skicka förfrågan. Försök igen.",
+      "errorToast": "Det gick inte att skicka din förfrågan. Försök igen.",
       "fullName": "Fullständigt namn",
       "inboxWarning": "Ditt meddelande togs emot, men administratörsinkorgen måste konfigureras.",
       "inPerson": "Personbesök",
@@ -1974,14 +1983,14 @@
       "scheduleVisit": "Schemalägg besök",
       "selectVisitType": "Välj besökstyp",
       "send": "Skicka förfrågan",
-      "sending": "Sändning...",
-      "successToast": "Din förfrågan har skickats!",
+      "sending": "Skickar...",
+      "successToast": "Din förfrågan har skickats.",
       "telephone": "Telefon",
       "videoCall": "Videosamtal",
       "visitType": "Typ av besök"
     },
-    "freehold": "Freehold",
-    "golfFront": "Golf Front",
+    "freehold": "Full äganderätt",
+    "golfFront": "Vid golfbana",
     "handpickedSelection": "Handplockat urval",
     "inquiry": {
       "back": "Tillbaka",
@@ -2019,7 +2028,7 @@
     "isYourBusiness": "Is this your business?",
     "livingArea": "Boyta",
     "location": "Plats",
-    "locationHidden": "Plats tillgänglig på begäran",
+    "locationHidden": "Exakt plats dold",
     "locationUnavailable": "Location unavailable",
     "messageWhatsApp": "Message on WhatsApp",
     "notFound": "Listing not found",
@@ -2030,18 +2039,18 @@
     "relatedDestinations": "Related destinations",
     "relatedListings": "More {{category}} to explore",
     "reviews": {
-      "content": "Din recension",
-      "contentPlaceholder": "Dela detaljerna om din upplevelse...",
-      "errorContent": "Skriv din recension",
-      "errorRating": "Välj ett betyg",
-      "errorTitle": "Vänligen lägg till en titel",
-      "rating": "Ditt betyg",
-      "submit": "Skicka recension",
+      "content": "Omdöme",
+      "contentPlaceholder": "Berätta vad som utmärkte ditt besök...",
+      "errorContent": "Skriv ditt omdöme.",
+      "errorRating": "Välj ett betyg.",
+      "errorTitle": "Lägg till en rubrik för omdömet.",
+      "rating": "Betyg",
+      "submit": "Skicka omdöme",
       "submitting": "Skickar...",
-      "success": "Tack för din recension!",
-      "title": "Titel",
+      "success": "Tack. Ditt omdöme har skickats.",
+      "title": "Rubrik",
       "titlePlaceholder": "Sammanfatta din upplevelse",
-      "write": "Skriv en recension"
+      "write": "Skriv omdöme"
     },
     "save": "Spara",
     "saveToFavorites": "Save to favorites",
@@ -2049,7 +2058,7 @@
     "sendInquiry": "Skicka förfrågan",
     "sendMessage": "Skicka meddelande",
     "share": "Share",
-    "similarListings": "Liknande listor",
+    "similarListings": "Liknande objekt",
     "tags": "Tags",
     "verifiedDocuments": "Verifierade dokument",
     "verifiedPartner": "Verifierad partner",
@@ -3346,7 +3355,13 @@
         "estimatedCostEuro": "Estimated Cost (€)",
         "notes": "Notes",
         "notesPlaceholder": "Add any notes or reminders..."
-      }
+      },
+      "createNewTrip": "Skapa ny resa",
+      "tripTitlePlaceholder": "Resans titel",
+      "startDate": "Startdatum",
+      "endDate": "Slutdatum",
+      "createTrip": "Skapa resa",
+      "saveChanges": "Spara ändringar"
     }
   },
   "beachesPage": {

@@ -394,16 +394,12 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
     data.listing.name,
     Boolean(currentTranslation),
   );
-  const description = buildListingDescription({ listing: data.listing, translation: currentTranslation });
   const categoryName = data.listing.category?.name ?? "Directory";
   const categorySlug = getCanonicalCategorySlug(data.listing.category?.slug);
   const programmaticCategorySlug = ALL_CANONICAL_SLUGS.includes(categorySlug as ProgrammaticCategorySlug)
     ? (categorySlug as ProgrammaticCategorySlug)
     : null;
   const citySlug = data.listing.city?.slug?.trim() ?? null;
-  const localeCategorySlug = programmaticCategorySlug
-    ? getCategoryUrlSlug(programmaticCategorySlug, resolvedLocale)
-    : null;
   const routeData = buildListingRouteData(data);
   const canonicalUrl = buildAbsoluteRouteUrl(resolvedLocale, routeData);
   const listingPathByLocale = buildLocaleSwitchPathsForEntity(routeData, SUPPORTED_LOCALES);

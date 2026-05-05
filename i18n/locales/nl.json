@@ -1208,7 +1208,8 @@
     "preferencesTitle": "Cookievoorkeuren",
     "savePreferences": "Voorkeuren opslaan",
     "saveSettings": "Instellingen opslaan",
-    "title": "Uw privacy is belangrijk"
+    "title": "Uw privacy is belangrijk",
+    "managePreferences": "Voorkeuren beheren"
   },
   "cookiePolicy": {
     "footer": {
@@ -1678,7 +1679,11 @@
       "title": "Golfbaanoverzicht",
       "description": "Ontdek golfclubs via AlgarveOfficial-vermeldingen.",
       "emptyTitle": "Geen golfvermeldingen beschikbaar",
-      "emptyDescription": "Geen gepubliceerde golfvermeldingen passen bij je huidige filters."
+      "emptyDescription": "Geen gepubliceerde golfvermeldingen passen bij je huidige filters.",
+      "metadataTitle": "Golfbanen in de Algarve",
+      "metadataDescription": "Bekijk championship-golflocaties in de Algarve met baangegevens, locaties en toegang tot scorecards.",
+      "regionFilter": "Regio: {{region}}.",
+      "cityFilter": "Stad: {{city}}."
     },
     "leaderboardPage": {
       "title": "Klassement",
@@ -1720,6 +1725,10 @@
       "diff": "Verschil",
       "total": "Totaal",
       "holesRange": "Holes {{start}}-{{end}}"
+    },
+    "metadata": {
+      "title": "Golf in de Algarve",
+      "description": "Ontdek de beste golfbanen, premium clubs en planningsbronnen in de Algarve."
     }
   },
   "guides": {
@@ -1807,7 +1816,7 @@
     "headlineHighlight": "Het beste van de Algarve",
     "listYourBusiness": "Uw Bedrijf Aanmelden",
     "location": "District Faro, Portugal",
-    "loginRequired": "Meld je aan of maak een account aan om een reis te maken en op te slaan.",
+    "loginRequired": "Log in om een reis te maken.",
     "planTripCta": "Plan je reis",
     "popular": "Populair",
     "primaryCta": "Verken regio's",
@@ -1819,7 +1828,7 @@
     "tagGoldenVisa": "Gouden visum",
     "tagMichelinDining": "Michelin-dineren",
     "tagPrivateAviation": "Particuliere luchtvaart",
-    "tripCreated": "Reis succesvol aangemaakt.",
+    "tripCreated": "Reis aangemaakt.",
     "trust": {
       "anonymousVisitor": "Geverifieerde bezoeker",
       "approvedReview": "Goedgekeurde beoordeling",
@@ -1954,16 +1963,16 @@
     "certifiedListing": "Gecertificeerde vermelding",
     "claimThisListing": "Claim this listing",
     "contact": "Contact",
-    "contactForLocation": "Neem contact op voor locatiegegevens",
+    "contactForLocation": "Neem contact op voor de locatie",
     "experience": "Ervaring",
-    "exterior": "Buitenkant",
+    "exterior": "Buitenruimte",
     "features": "Functies",
     "follow": "Volgen",
     "form": {
       "consent": "Ik ga ermee akkoord dat er contact met mij wordt opgenomen over deze woning",
       "email": "E-mail",
       "emailWarning": "Uw bericht is opgeslagen, maar de e-mailmelding is mislukt. De beheerder kan het nog steeds in de inbox bekijken.",
-      "errorToast": "Het verzenden van de aanvraag is mislukt. Probeer het opnieuw.",
+      "errorToast": "Je aanvraag kon niet worden verzonden. Probeer het opnieuw.",
       "fullName": "Volledige naam",
       "inboxWarning": "Uw bericht is ontvangen, maar de bezorging van de beheerdersinbox moet worden geconfigureerd.",
       "inPerson": "Persoonlijk bezoek",
@@ -1975,14 +1984,14 @@
       "selectVisitType": "Selecteer bezoektype",
       "send": "Onderzoek verzenden",
       "sending": "Verzenden...",
-      "successToast": "Uw aanvraag is verzonden!",
+      "successToast": "Je aanvraag is verzonden.",
       "telephone": "Telefoon",
       "videoCall": "Videogesprek",
       "visitType": "Soort bezoek"
     },
-    "freehold": "Eigendom",
-    "golfFront": "Golfvoorzijde",
-    "handpickedSelection": "Uitgezochte selectie",
+    "freehold": "Vol eigendom",
+    "golfFront": "Aan de golfbaan",
+    "handpickedSelection": "Zorgvuldig gekozen selectie",
     "inquiry": {
       "back": "Rug",
       "checkIn": "Inchecken",
@@ -2019,7 +2028,7 @@
     "isYourBusiness": "Is this your business?",
     "livingArea": "Woonoppervlak",
     "location": "Locatie",
-    "locationHidden": "Locatie op aanvraag beschikbaar",
+    "locationHidden": "Exacte locatie verborgen",
     "locationUnavailable": "Location unavailable",
     "messageWhatsApp": "Message on WhatsApp",
     "notFound": "Listing not found",
@@ -2030,18 +2039,18 @@
     "relatedDestinations": "Related destinations",
     "relatedListings": "More {{category}} to explore",
     "reviews": {
-      "content": "Jouw recensie",
-      "contentPlaceholder": "Deel de details van uw ervaring...",
-      "errorContent": "Schrijf alstublieft uw recensie",
-      "errorRating": "Selecteer een beoordeling",
-      "errorTitle": "Voeg een titel toe",
-      "rating": "Jouw beoordeling",
-      "submit": "Beoordeling indienen",
+      "content": "Review",
+      "contentPlaceholder": "Deel wat opviel tijdens je bezoek...",
+      "errorContent": "Schrijf je review.",
+      "errorRating": "Kies een beoordeling.",
+      "errorTitle": "Voeg een titel toe aan je review.",
+      "rating": "Beoordeling",
+      "submit": "Review verzenden",
       "submitting": "Verzenden...",
-      "success": "Bedankt voor uw recensie!",
+      "success": "Dank je. Je review is verzonden.",
       "title": "Titel",
-      "titlePlaceholder": "Vat uw ervaring samen",
-      "write": "Schrijf een recensie"
+      "titlePlaceholder": "Vat je ervaring samen",
+      "write": "Review schrijven"
     },
     "save": "Redden",
     "saveToFavorites": "Save to favorites",
@@ -2049,7 +2058,7 @@
     "sendInquiry": "Onderzoek verzenden",
     "sendMessage": "Bericht verzenden",
     "share": "Share",
-    "similarListings": "Soortgelijke vermeldingen",
+    "similarListings": "Vergelijkbare woningen",
     "tags": "Tags",
     "verifiedDocuments": "Geverifieerde documenten",
     "verifiedPartner": "Geverifieerde partner",
@@ -3346,7 +3355,13 @@
         "estimatedCostEuro": "Estimated Cost (€)",
         "notes": "Notes",
         "notesPlaceholder": "Add any notes or reminders..."
-      }
+      },
+      "createNewTrip": "Nieuwe reis maken",
+      "tripTitlePlaceholder": "Reistitel",
+      "startDate": "Startdatum",
+      "endDate": "Einddatum",
+      "createTrip": "Reis maken",
+      "saveChanges": "Wijzigingen opslaan"
     }
   },
   "beachesPage": {

@@ -6,6 +6,7 @@ import {
   loadConsent,
   updateGoogleConsent,
 } from "@/lib/consent/consent-mode";
+import { COOKIE_CONSENT_CHANGE_EVENT } from "@/lib/cookieConsent";
 
 interface ClientRuntimeScriptsProps {
   googleTagId: string;
@@ -216,6 +217,10 @@ function scheduleGoogleTagInitialization(googleTagId: string) {
   return () => window.clearTimeout(timeoutId);
 }
 
+function hasGrantedAnalyticsConsent() {
+  return loadConsent()?.analytics_storage === "granted";
+}
+
 export function ClientRuntimeScripts({ googleTagId }: ClientRuntimeScriptsProps) {
   useEffect(() => {
     recoverOutdatedBrowserCache();
@@ -229,11 +234,32 @@ export function ClientRuntimeScripts({ googleTagId }: ClientRuntimeScriptsProps)
   useEffect(() => {
     if (!googleTagId) return;
     applyDefaultConsent();
-    const savedConsent = loadConsent();
-    if (savedConsent) {
-      updateGoogleConsent(savedConsent);
-    }
-    return scheduleGoogleTagInitialization(googleTagId);
+    let scheduled = false;
+    let cancelScheduledLoad = () => {};
+
+    const syncConsentAndMaybeLoadTag = () => {
+      const savedConsent = loadConsent();
+      if (savedConsent) {
+        updateGoogleConsent(savedConsent);
+      }
+
+      if (!hasGrantedAnalyticsConsent() || scheduled) {
+        return;
+      }
+
+      scheduled = true;
+      cancelScheduledLoad = scheduleGoogleTagInitialization(googleTagId);
+    };
+
+    syncConsentAndMaybeLoadTag();
+    window.addEventListener(COOKIE_CONSENT_CHANGE_EVENT, syncConsentAndMaybeLoadTag);
+    window.addEventListener("storage", syncConsentAndMaybeLoadTag);
+
+    return () => {
+      window.removeEventListener(COOKIE_CONSENT_CHANGE_EVENT, syncConsentAndMaybeLoadTag);
+      window.removeEventListener("storage", syncConsentAndMaybeLoadTag);
+      cancelScheduledLoad();
+    };
   }, [googleTagId]);
 
   return null;

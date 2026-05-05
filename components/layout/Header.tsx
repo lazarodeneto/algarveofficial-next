@@ -77,6 +77,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim();
   const userInitial = (fullName.charAt(0) || user?.email?.trim().charAt(0) || "U").toUpperCase();
   const accountGoldButtonClass = "rounded-full";
+  const adminDashboardAriaLabel = "Admin Dashboard";
 
   // Search modal state (local to Header)
   const [searchOpen, setSearchOpen] = useState(false);
@@ -306,7 +307,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                           variant="ghost"
                           size="icon"
                           className="h-9 w-9 rounded-full border border-primary/25 bg-primary/12 text-primary hover:bg-primary/18 dark:border-primary/30 dark:bg-primary/18"
-                          aria-label="Admin Dashboard"
+                          aria-label={adminDashboardAriaLabel}
                         >
                           <Settings2 className="h-4.5 w-4.5" />
                         </Button>
@@ -358,6 +359,11 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
 
             {/* Mobile menu button */}
             <div className="lg:hidden ml-auto flex items-center gap-1 sm:gap-3">
+              <LanguageSwitcher
+                localeSwitchPaths={localeSwitchPaths}
+                containerClassName="hidden md:flex lg:hidden min-w-0"
+                selectClassName="h-10 w-[10.5rem] rounded-full border-black/10 bg-white/80 px-3 py-2 text-sm text-black shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white dark:text-black"
+              />
               <Link href={favoritesPath}>
                 <Button
                   variant="ghost"

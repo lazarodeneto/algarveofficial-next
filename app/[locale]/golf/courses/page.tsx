@@ -16,13 +16,18 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale: rawLocale } = await params;
   const locale: Locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+  const tx = await getServerTranslations(locale, [
+    "golf.courseDirectory.metadataTitle",
+    "golf.courseDirectory.metadataDescription",
+  ]);
 
   return buildLocalizedMetadata({
     locale,
     path: "/golf/courses",
-    title: "Golf Courses in the Algarve",
+    title: tx["golf.courseDirectory.metadataTitle"] ?? "AlgarveOfficial",
     description:
-      "Browse championship golf listings in the Algarve with course specs, locations, and scorecard access.",
+      tx["golf.courseDirectory.metadataDescription"] ??
+      "AlgarveOfficial",
     keywords: ["Algarve golf courses", "Golf clubs Algarve", "Golf listings Portugal"],
   });
 }
@@ -48,6 +53,8 @@ export default async function GolfCoursesPage({ params, searchParams }: PageProp
     "golf.courseDirectory.description",
     "golf.courseDirectory.emptyTitle",
     "golf.courseDirectory.emptyDescription",
+    "golf.courseDirectory.regionFilter",
+    "golf.courseDirectory.cityFilter",
     "golfDiscovery.bestFor",
     "golfDiscovery.experiencedGolfers",
     "golfDiscovery.championshipPlay",
@@ -59,23 +66,29 @@ export default async function GolfCoursesPage({ params, searchParams }: PageProp
     "golfDiscovery.verified",
     "golfDiscovery.viewCourse",
   ]);
-  const t = (key: string, fallback: string) => translations[key] ?? fallback;
+  const t = (key: string, values?: Record<string, string>) => {
+    const template = translations[key] ?? key;
+    return Object.entries(values ?? {}).reduce(
+      (next, [name, value]) => next.replaceAll(`{{${name}}}`, value),
+      template,
+    );
+  };
   const cardLabels = {
-    holes: t("golfCourse.holes", "Holes"),
-    par: t("golfCourse.par", "Par"),
-    slope: t("golfCourse.slope", "Slope"),
-    bestFor: t("golfDiscovery.bestFor", "Best for"),
-    editorsSelection: t("golfDiscovery.editorsSelection", "Editor's Selection"),
-    verified: t("golfDiscovery.verified", "Verified"),
-    viewCourse: t("golfDiscovery.viewCourse", "View Course"),
-    locationFallback: t("golfCourse.locationFallback", "Algarve"),
+    holes: t("golfCourse.holes"),
+    par: t("golfCourse.par"),
+    slope: t("golfCourse.slope"),
+    bestFor: t("golfDiscovery.bestFor"),
+    editorsSelection: t("golfDiscovery.editorsSelection"),
+    verified: t("golfDiscovery.verified"),
+    viewCourse: t("golfDiscovery.viewCourse"),
+    locationFallback: t("golfCourse.locationFallback"),
     bestForLabels: {
-      experiencedGolfers: t("golfDiscovery.experiencedGolfers", "Experienced golfers"),
-      championshipPlay: t("golfDiscovery.championshipPlay", "Championship play"),
-      premiumExperience: t("golfDiscovery.premiumExperience", "Premium experience"),
-      quickRounds: t("golfDiscovery.quickRounds", "Quick rounds"),
-      scenicRounds: t("golfDiscovery.scenicRounds", "Scenic rounds"),
-      relaxedPlay: t("golfDiscovery.relaxedPlay", "Relaxed play"),
+      experiencedGolfers: t("golfDiscovery.experiencedGolfers"),
+      championshipPlay: t("golfDiscovery.championshipPlay"),
+      premiumExperience: t("golfDiscovery.premiumExperience"),
+      quickRounds: t("golfDiscovery.quickRounds"),
+      scenicRounds: t("golfDiscovery.scenicRounds"),
+      relaxedPlay: t("golfDiscovery.relaxedPlay"),
     },
   };
 
@@ -83,12 +96,12 @@ export default async function GolfCoursesPage({ params, searchParams }: PageProp
     <main className={`app-container space-y-8 pb-10 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
       <section className="space-y-2">
         <h1 className="font-serif text-4xl text-foreground md:text-5xl">
-          {t("golf.courseDirectory.title", "Golf Course Directory")}
+          {t("golf.courseDirectory.title")}
         </h1>
         <p className="max-w-3xl text-sm leading-7 text-muted-foreground md:text-base">
-          {t("golf.courseDirectory.description", "Explore golf clubs powered by AlgarveOfficial listings.")}
-          {region ? ` Region: ${region}.` : ""}
-          {city ? ` City: ${city}.` : ""}
+          {t("golf.courseDirectory.description")}
+          {region ? ` ${t("golf.courseDirectory.regionFilter", { region })}` : ""}
+          {city ? ` ${t("golf.courseDirectory.cityFilter", { city })}` : ""}
         </p>
       </section>
 
@@ -101,9 +114,9 @@ export default async function GolfCoursesPage({ params, searchParams }: PageProp
       ) : (
         <Card className="min-h-[220px] border-border/70">
           <CardHeader>
-            <CardTitle>{t("golf.courseDirectory.emptyTitle", "No golf listings available")}</CardTitle>
+            <CardTitle>{t("golf.courseDirectory.emptyTitle")}</CardTitle>
             <CardDescription>
-              {t("golf.courseDirectory.emptyDescription", "No published golf listings matched your current filters.")}
+              {t("golf.courseDirectory.emptyDescription")}
             </CardDescription>
           </CardHeader>
         </Card>

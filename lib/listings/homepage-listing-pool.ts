@@ -1,8 +1,8 @@
 import type { ListingWithRelations } from "@/hooks/useListings";
 
-export const HOMEPAGE_LISTING_LIMIT = 24;
 export const HOMEPAGE_EDITORS_LIMIT = 8;
-export const HOMEPAGE_PREMIUM_LIMIT = 16;
+export const HOMEPAGE_PREMIUM_LIMIT = 15;
+export const HOMEPAGE_LISTING_LIMIT = HOMEPAGE_EDITORS_LIMIT + HOMEPAGE_PREMIUM_LIMIT;
 
 const LISBON_TIME_ZONE = "Europe/Lisbon";
 
@@ -90,14 +90,31 @@ function balanceFallbackByCategory(
   listings: readonly ListingWithRelations[],
 ): ListingWithRelations[] {
   const selected: ListingWithRelations[] = [];
-  const selectedCategories = new Set<string>();
+  const groupedListings = new Map<string, ListingWithRelations[]>();
 
   for (const listing of listings) {
     const categoryKey = getCategoryKey(listing);
-    if (selectedCategories.has(categoryKey)) continue;
+    const group = groupedListings.get(categoryKey);
+    if (group) {
+      group.push(listing);
+    } else {
+      groupedListings.set(categoryKey, [listing]);
+    }
+  }
 
-    selected.push(listing);
-    selectedCategories.add(categoryKey);
+  const categoryGroups = [...groupedListings.values()];
+  let hasRemainingListings = true;
+
+  while (hasRemainingListings) {
+    hasRemainingListings = false;
+
+    for (const categoryGroup of categoryGroups) {
+      const listing = categoryGroup.shift();
+      if (!listing) continue;
+
+      selected.push(listing);
+      hasRemainingListings = true;
+    }
   }
 
   return selected;

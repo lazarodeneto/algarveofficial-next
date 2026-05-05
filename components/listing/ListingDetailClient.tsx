@@ -55,7 +55,7 @@ import { getListingCategoryLanding } from "@/lib/listingCategoryLanding";
 import { hasRealEstateSignals, isRealEstateCategorySlug } from "@/lib/realEstateDetection";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { buildUniformLocalizedSlugMap } from "@/lib/i18n/localized-routing";
-import { normalizePublicContentLocale, type PublicContentLocale } from "@/lib/publicContentLocale";
+import { normalizePublicContentLocale } from "@/lib/publicContentLocale";
 import ListingImage from "@/components/ListingImage";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import { ListingReviews } from "@/components/listing-details/ListingReviews";
@@ -448,7 +448,7 @@ async function fetchOwnerWhatsAppStatus(ownerId: string | null) {
 }
 
 function ListingDetailClientInner({
-  locale: initialLocaleProp,
+  locale: _initialLocaleProp,
   localeSwitchPaths,
   listing: initialListing,
   initialTranslation,
@@ -689,7 +689,7 @@ function ListingDetailClientInner({
 
     if (waStatus?.phone) {
       const message = `Hi! I'm interested in "${effectiveTitle || listing.name}" in ${listing.city?.name || "Algarve"}.`;
-      window.open(`https://wa.me/${waStatus.phone.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`, "_blank");
+      window.open(`https://wa.me/${waStatus.phone.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
       return;
     }
 
@@ -1536,7 +1536,7 @@ function ListingDetailClientInner({
       {!mobileMenuOpen ? (
         <div
           className={cn(
-            "fixed z-40 border-t border-border bg-background/92 px-1.5 pt-2 pb-0 backdrop-blur-md transition-transform duration-200 ease-out lg:hidden",
+            "fixed z-40 border-t border-border bg-background/92 px-1.5 py-2 backdrop-blur-md transition-transform duration-200 ease-out lg:hidden",
             isUserScrolling && "translate-y-[calc(100%+var(--listing-mobile-actions-offset))]",
           )}
           style={{
@@ -1546,7 +1546,7 @@ function ListingDetailClientInner({
             ["--listing-mobile-actions-offset" as string]: `${mobileBottomNavHeight}px`,
           }}
         >
-          <div className="mx-auto flex w-full max-w-[34rem] items-center justify-center gap-2 py-1">
+          <div className="mx-auto flex w-full max-w-[34rem] items-center justify-center gap-2">
             <div className="flex items-center justify-center gap-2 px-0.5">
               {shouldShowMobileConciergeAction ? (
                 <Button

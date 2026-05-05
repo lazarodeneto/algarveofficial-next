@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
-import { SUPPORTED_LOCALES, isValidLocale, DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config";
+import { SUPPORTED_LOCALES, isValidLocale, DEFAULT_LOCALE } from "@/lib/i18n/config";
 import {
   buildLocaleSwitchPathsForEntity,
   buildStaticRouteData,
@@ -13,7 +14,6 @@ import { getCategoryDisplayName, getCategoryUrlSlug, getCanonicalFromUrlSlug, AL
 import { getServerTranslations } from "@/lib/i18n/server";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { ListingCard } from "@/components/seo/programmatic/ListingCard";
-import { generateSeoContentBlock } from "@/lib/seo/programmatic/content-blocks";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
@@ -141,11 +141,6 @@ export default async function CategoryHubPage({ params }: PageProps) {
   
   if (!catData) notFound();
   
-  const { data: cityData } = await supabase
-    .from("cities")
-    .select("id, slug, name")
-    .eq("is_active", true);
-  
   const { data: listingData } = await supabase
     .from("listings")
     .select("id, slug, name, short_description, featured_image_url, tier, is_curated, google_rating, google_review_count, price_from, price_currency, website_url, city_id, cities(slug, name)")
@@ -164,8 +159,6 @@ export default async function CategoryHubPage({ params }: PageProps) {
           // Hide body copy on localized routes rather than leaking English text.
           short_description: null,
         }));
-  
-  const cityMap = new Map(cityData?.map(c => [c.id, c]) || []);
   
   const cityAggs = new Map<string, { slug: string; name: string; count: number }>();
   for (const listing of safeListingsForLocale) {

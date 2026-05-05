@@ -18,13 +18,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { locale: rawLocale, city: legacyCategory, category: legacyCity } = await params;
 
   if (!isValidLocale(rawLocale)) {
-    return {};
+    notFound();
   }
 
   const locale = rawLocale as Locale;
   const match = resolveLegacyCategoryCityRoute(locale, legacyCategory, legacyCity);
   if (!match) {
-    return {};
+    notFound();
   }
 
   return buildLocalizedAliasMetadata({

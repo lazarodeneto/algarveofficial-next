@@ -1,5 +1,7 @@
 export const runtime = "nodejs";
 
+/* eslint-disable no-console */
+
 import { NextRequest, NextResponse } from "next/server";
 
 import { getStripeServerClient, getStripeWebhookSecret } from "@/lib/stripe/server";

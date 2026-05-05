@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { NextRequest, NextResponse } from "next/server";
 import { verifyServerSecret } from "@/lib/server/secret-auth";
 import { createServiceRoleClient } from "@/lib/supabase/service";

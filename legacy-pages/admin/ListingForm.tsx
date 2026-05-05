@@ -900,7 +900,7 @@ export default function ListingForm() {
         onPublish={() => handleSave()}
         onPreview={() => {
           if (isEditMode && id) {
-            window.open(`/listing/${formData.slug || id}`, '_blank');
+            window.open(`/listing/${formData.slug || id}`, '_blank', 'noopener,noreferrer');
           } else {
             toast.info("Save the listing first to preview");
           }

@@ -14,6 +14,7 @@ import {
   globalSettingsQueryKey,
   homepageListingSplitQueryKey,
   homepageSettingsQueryKey,
+  homepageSettingsTranslationQueryKey,
   publishedListingsQueryKey,
   regionListingCountsQueryKey,
   regionsQueryKey,
@@ -36,6 +37,11 @@ import {
   getLisbonDateSeed,
   splitHomepageListings,
 } from "@/lib/listings/homepage-listing-pool";
+import { CMS_PAGE_BUILDER_RUNTIME_KEYS } from "@/lib/cms/pageBuilderRegistry";
+import {
+  fetchCmsRuntimeSettings,
+  type RuntimeSettingRow,
+} from "@/lib/cms/runtime-settings";
 
 const PUBLIC_LISTING_FIELDS =
   "id, slug, name, short_description, description, tier, status, latitude, longitude, featured_image_url, google_rating, google_review_count, created_at";
@@ -404,6 +410,17 @@ async function fetchGlobalSettings(
   return (data ?? []) as GlobalSetting[];
 }
 
+async function fetchPageBuilderRuntimeSettings(locale: Locale): Promise<RuntimeSettingRow[]> {
+  try {
+    return await fetchCmsRuntimeSettings({
+      requestedKeys: CMS_PAGE_BUILDER_RUNTIME_KEYS,
+      locale,
+    });
+  } catch {
+    return [];
+  }
+}
+
 async function fetchRegionListingCounts(
   supabase: ReturnType<typeof getServerSupabase>,
 ): Promise<Record<string, number>> {
@@ -497,9 +514,27 @@ export async function getDehydratedHomePageState(locale?: string): Promise<{
     data.globalSettings.filter((setting) => HOME_QUICK_LINK_SETTING_KEYS.includes(setting.key)),
   );
   queryClient.setQueryData(
+    globalSettingsQueryKey(HOME_QUICK_LINK_SETTING_KEYS, data.locale),
+    data.globalSettings.filter((setting) => HOME_QUICK_LINK_SETTING_KEYS.includes(setting.key)),
+  );
+  queryClient.setQueryData(
     globalSettingsQueryKey([HERO_OVERLAY_INTENSITY_SETTING_KEY], "default"),
     data.globalSettings.filter((setting) => setting.key === HERO_OVERLAY_INTENSITY_SETTING_KEY),
   );
+  queryClient.setQueryData(
+    globalSettingsQueryKey([HERO_OVERLAY_INTENSITY_SETTING_KEY], data.locale),
+    data.globalSettings.filter((setting) => setting.key === HERO_OVERLAY_INTENSITY_SETTING_KEY),
+  );
+  queryClient.setQueryData(
+    globalSettingsQueryKey(CMS_PAGE_BUILDER_RUNTIME_KEYS, data.locale),
+    await fetchPageBuilderRuntimeSettings(data.locale),
+  );
+  if (data.locale !== "en" && data.homepageSettings?.id) {
+    queryClient.setQueryData(
+      homepageSettingsTranslationQueryKey(data.homepageSettings.id, data.locale),
+      null,
+    );
+  }
 
   const dehydratedState = dehydrate(queryClient);
   return { dehydratedState, queryClient };
@@ -512,10 +547,11 @@ export async function getDehydratedHomeCriticalState(locale?: string): Promise<{
   const resolvedLocale = normalizeHomepageLocale(locale ?? "en");
   const supabase = getServerSupabase();
 
-  const [homepageSettings, globalSettings, publishedListings] = await Promise.all([
+  const [homepageSettings, globalSettings, publishedListings, cmsRuntimeSettings] = await Promise.all([
     fetchHomepageSettingsWithTranslation(supabase, resolvedLocale),
     fetchGlobalSettings(supabase),
     fetchPublishedListings(supabase, resolvedLocale),
+    fetchPageBuilderRuntimeSettings(resolvedLocale),
   ]);
   const homepageListingPool = buildHomepageListingPool(publishedListings, getLisbonDateSeed());
   const homepageListingSplit = splitHomepageListings(homepageListingPool);
@@ -536,9 +572,27 @@ export async function getDehydratedHomeCriticalState(locale?: string): Promise<{
     globalSettings.filter((setting) => HOME_QUICK_LINK_SETTING_KEYS.includes(setting.key)),
   );
   queryClient.setQueryData(
+    globalSettingsQueryKey(HOME_QUICK_LINK_SETTING_KEYS, resolvedLocale),
+    globalSettings.filter((setting) => HOME_QUICK_LINK_SETTING_KEYS.includes(setting.key)),
+  );
+  queryClient.setQueryData(
     globalSettingsQueryKey([HERO_OVERLAY_INTENSITY_SETTING_KEY], "default"),
     globalSettings.filter((setting) => setting.key === HERO_OVERLAY_INTENSITY_SETTING_KEY),
   );
+  queryClient.setQueryData(
+    globalSettingsQueryKey([HERO_OVERLAY_INTENSITY_SETTING_KEY], resolvedLocale),
+    globalSettings.filter((setting) => setting.key === HERO_OVERLAY_INTENSITY_SETTING_KEY),
+  );
+  queryClient.setQueryData(
+    globalSettingsQueryKey(CMS_PAGE_BUILDER_RUNTIME_KEYS, resolvedLocale),
+    cmsRuntimeSettings,
+  );
+  if (resolvedLocale !== "en" && homepageSettings?.id) {
+    queryClient.setQueryData(
+      homepageSettingsTranslationQueryKey(homepageSettings.id, resolvedLocale),
+      null,
+    );
+  }
 
   const dehydratedState = dehydrate(queryClient);
   return { dehydratedState, queryClient };

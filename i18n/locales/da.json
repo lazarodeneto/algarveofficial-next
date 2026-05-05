@@ -1208,7 +1208,8 @@
     "preferencesTitle": "Cookieindstillinger",
     "savePreferences": "Gem præferencer",
     "saveSettings": "Gem indstillinger",
-    "title": "Dit privatliv er vigtigt"
+    "title": "Dit privatliv er vigtigt",
+    "managePreferences": "Administrer indstillinger"
   },
   "cookiePolicy": {
     "footer": {
@@ -1678,7 +1679,11 @@
       "title": "Golfbanekatalog",
       "description": "Udforsk golfklubber via AlgarveOfficial-fortegnelser.",
       "emptyTitle": "Ingen golffortegnelser tilgængelige",
-      "emptyDescription": "Ingen publicerede golffortegnelser matcher dine aktuelle filtre."
+      "emptyDescription": "Ingen publicerede golffortegnelser matcher dine aktuelle filtre.",
+      "metadataTitle": "Golfbaner i Algarve",
+      "metadataDescription": "Udforsk championship-golflister i Algarve med banedata, placeringer og adgang til scorecards.",
+      "regionFilter": "Region: {{region}}.",
+      "cityFilter": "By: {{city}}."
     },
     "leaderboardPage": {
       "title": "Rangliste",
@@ -1720,6 +1725,10 @@
       "diff": "Forskel",
       "total": "Total",
       "holesRange": "Huller {{start}}-{{end}}"
+    },
+    "metadata": {
+      "title": "Golf i Algarve",
+      "description": "Oplev Algarves bedste golfbaner, premiumklubber og ressourcer til golfplanlægning."
     }
   },
   "guides": {
@@ -1807,7 +1816,7 @@
     "headlineHighlight": "Algarves fineste",
     "listYourBusiness": "Tilføj Din Virksomhed",
     "location": "Distriktet Faro, Portugal",
-    "loginRequired": "Log ind eller opret en konto for at oprette og gemme din tur.",
+    "loginRequired": "Log ind for at oprette en rejse.",
     "planTripCta": "Planlæg dit rejseeventyr",
     "popular": "Populær",
     "primaryCta": "Udforsk regioner",
@@ -1819,7 +1828,7 @@
     "tagGoldenVisa": "Gyldent visum",
     "tagMichelinDining": "Michelin spisning",
     "tagPrivateAviation": "Privat luftfart",
-    "tripCreated": "Tur oprettet med succes.",
+    "tripCreated": "Rejse oprettet.",
     "trust": {
       "anonymousVisitor": "Bekræftet besøgende",
       "approvedReview": "Godkendt anmeldelse",
@@ -1950,20 +1959,20 @@
     "bathrooms": "Badeværelser",
     "bedrooms": "Soveværelser",
     "bookVisit": "Book et besøg",
-    "builtArea": "Bebygget område",
+    "builtArea": "Bebygget areal",
     "certifiedListing": "Certificeret notering",
     "claimThisListing": "Claim this listing",
     "contact": "Contact",
-    "contactForLocation": "Kontakt for placeringsoplysninger",
-    "experience": "Erfaring",
-    "exterior": "Ydre",
+    "contactForLocation": "Kontakt for placering",
+    "experience": "Oplevelse",
+    "exterior": "Udendørsareal",
     "features": "Funktioner",
     "follow": "Følge",
     "form": {
       "consent": "Jeg accepterer at blive kontaktet om denne ejendom",
       "email": "E-mail",
       "emailWarning": "Din besked blev gemt, men e-mailmeddelelse mislykkedes. Administratoren kan stadig se det i indbakken.",
-      "errorToast": "Kunne ikke sende forespørgsel. Prøv venligst igen.",
+      "errorToast": "Din forespørgsel kunne ikke sendes. Prøv igen.",
       "fullName": "Fuldt navn",
       "inboxWarning": "Din besked blev modtaget, men levering af admin-indbakke skal konfigureres.",
       "inPerson": "Personligt besøg",
@@ -1975,13 +1984,13 @@
       "selectVisitType": "Vælg besøgstype",
       "send": "Send forespørgsel",
       "sending": "Sender...",
-      "successToast": "Din forespørgsel er blevet sendt!",
+      "successToast": "Din forespørgsel er sendt.",
       "telephone": "Telefon",
       "videoCall": "Videoopkald",
       "visitType": "Type af besøg"
     },
-    "freehold": "Frieje",
-    "golfFront": "Golf Front",
+    "freehold": "Fuld ejendomsret",
+    "golfFront": "Ved golfbane",
     "handpickedSelection": "Håndplukket udvalg",
     "inquiry": {
       "back": "Tilbage",
@@ -2018,8 +2027,8 @@
     "interested": "Interesseret?",
     "isYourBusiness": "Is this your business?",
     "livingArea": "Boligareal",
-    "location": "Beliggenhed",
-    "locationHidden": "Placering tilgængelig efter anmodning",
+    "location": "Placering",
+    "locationHidden": "Præcis placering skjult",
     "locationUnavailable": "Location unavailable",
     "messageWhatsApp": "Message on WhatsApp",
     "notFound": "Listing not found",
@@ -2030,18 +2039,18 @@
     "relatedDestinations": "Related destinations",
     "relatedListings": "More {{category}} to explore",
     "reviews": {
-      "content": "Din anmeldelse",
-      "contentPlaceholder": "Del detaljerne om din oplevelse...",
-      "errorContent": "Skriv venligst din anmeldelse",
-      "errorRating": "Vælg venligst en bedømmelse",
-      "errorTitle": "Tilføj venligst en titel",
-      "rating": "Din vurdering",
+      "content": "Anmeldelse",
+      "contentPlaceholder": "Del hvad der skilte sig ud ved dit besøg...",
+      "errorContent": "Skriv din anmeldelse.",
+      "errorRating": "Vælg en bedømmelse.",
+      "errorTitle": "Tilføj en titel til anmeldelsen.",
+      "rating": "Bedømmelse",
       "submit": "Send anmeldelse",
-      "submitting": "Indsender...",
-      "success": "Tak for din anmeldelse!",
+      "submitting": "Sender...",
+      "success": "Tak. Din anmeldelse er sendt.",
       "title": "Titel",
-      "titlePlaceholder": "Opsummer din oplevelse",
-      "write": "Skriv en anmeldelse"
+      "titlePlaceholder": "Opsummér din oplevelse",
+      "write": "Skriv anmeldelse"
     },
     "save": "Spare",
     "saveToFavorites": "Save to favorites",
@@ -2049,7 +2058,7 @@
     "sendInquiry": "Send forespørgsel",
     "sendMessage": "Send besked",
     "share": "Share",
-    "similarListings": "Lignende lister",
+    "similarListings": "Lignende ejendomme",
     "tags": "Tags",
     "verifiedDocuments": "Verificerede dokumenter",
     "verifiedPartner": "Verificeret partner",
@@ -3346,7 +3355,13 @@
         "estimatedCostEuro": "Estimated Cost (€)",
         "notes": "Notes",
         "notesPlaceholder": "Add any notes or reminders..."
-      }
+      },
+      "createNewTrip": "Opret ny rejse",
+      "tripTitlePlaceholder": "Rejsetitel",
+      "startDate": "Startdato",
+      "endDate": "Slutdato",
+      "createTrip": "Opret rejse",
+      "saveChanges": "Gem ændringer"
     }
   },
   "beachesPage": {

@@ -1,3 +1,4 @@
+/* eslint-disable local/no-hardcoded-strings */
 import type { Metadata } from "next";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import {

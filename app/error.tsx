@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable no-console */
+
 import { useEffect } from "react";
 import { AlertTriangle } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -11,11 +13,20 @@ interface GlobalErrorProps {
   reset: () => void;
 }
 
+function getErrorDiagnostics(error: Error & { digest?: string }) {
+  return {
+    name: error.name,
+    message: error.message,
+    digest: error.digest,
+    stack: typeof error.stack === "string" ? error.stack.split("\n").slice(0, 4).join("\n") : undefined,
+  };
+}
+
 export default function GlobalError({ error, reset }: GlobalErrorProps) {
   const { t } = useTranslation();
 
   useEffect(() => {
-    console.error("App route error boundary caught an error:", error);
+    console.error("App route error boundary caught an error:", getErrorDiagnostics(error));
   }, [error]);
 
   return (

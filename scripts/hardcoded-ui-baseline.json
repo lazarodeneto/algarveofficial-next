@@ -1,0 +1,1913 @@
+[
+  {
+    "file": "app/[locale]/contact/page.tsx",
+    "line": 112,
+    "type": "text-node",
+    "text": "WhatsApp",
+    "id": "app/[locale]/contact/page.tsx:text-node:WhatsApp"
+  },
+  {
+    "file": "app/api/partner/claims/route.ts",
+    "line": 111,
+    "type": "text-node",
+    "text": "Business details from submitter:",
+    "id": "app/api/partner/claims/route.ts:text-node:Business details from submitter:"
+  },
+  {
+    "file": "app/api/partner/claims/route.ts",
+    "line": 98,
+    "type": "text-node",
+    "text": "Immediate alert from AlgarveOfficial partner intake",
+    "id": "app/api/partner/claims/route.ts:text-node:Immediate alert from AlgarveOfficial partner intake"
+  },
+  {
+    "file": "app/api/partner/claims/route.ts",
+    "line": 97,
+    "type": "text-node",
+    "text": "New Partner Claim Submitted",
+    "id": "app/api/partner/claims/route.ts:text-node:New Partner Claim Submitted"
+  },
+  {
+    "file": "components/admin/admin-shell.tsx",
+    "line": 45,
+    "type": "text-node",
+    "text": "Access Restricted",
+    "id": "components/admin/admin-shell.tsx:text-node:Access Restricted"
+  },
+  {
+    "file": "components/admin/admin-shell.tsx",
+    "line": 50,
+    "type": "text-node",
+    "text": "If you believe this is an error, please contact the site administrator.",
+    "id": "components/admin/admin-shell.tsx:text-node:If you believe this is an error, please contact the site administrator."
+  },
+  {
+    "file": "components/admin/admin-shell.tsx",
+    "line": 46,
+    "type": "text-node",
+    "text": "The admin panel is restricted to Portugal-based access only. Your current location does not match the allowed region.",
+    "id": "components/admin/admin-shell.tsx:text-node:The admin panel is restricted to Portugal-based access only. Your current location does not match the allowed region."
+  },
+  {
+    "file": "components/admin/AdminLayout.tsx",
+    "line": 34,
+    "type": "text-node",
+    "text": "Access Restricted",
+    "id": "components/admin/AdminLayout.tsx:text-node:Access Restricted"
+  },
+  {
+    "file": "components/admin/AdminLayout.tsx",
+    "line": 41,
+    "type": "text-node",
+    "text": "If you believe this is an error, please contact the site administrator.",
+    "id": "components/admin/AdminLayout.tsx:text-node:If you believe this is an error, please contact the site administrator."
+  },
+  {
+    "file": "components/admin/AdminLayout.tsx",
+    "line": 37,
+    "type": "text-node",
+    "text": "The admin panel is restricted to Portugal-based access only. Your current location does not match the allowed region.",
+    "id": "components/admin/AdminLayout.tsx:text-node:The admin panel is restricted to Portugal-based access only. Your current location does not match the allowed region."
+  },
+  {
+    "file": "components/admin/analytics/AnalyticsOverviewSection.tsx",
+    "line": 63,
+    "type": "attribute:title",
+    "text": "Avg Session Duration",
+    "id": "components/admin/analytics/AnalyticsOverviewSection.tsx:attribute:title:Avg Session Duration"
+  },
+  {
+    "file": "components/admin/analytics/AnalyticsOverviewSection.tsx",
+    "line": 56,
+    "type": "attribute:title",
+    "text": "Page Views",
+    "id": "components/admin/analytics/AnalyticsOverviewSection.tsx:attribute:title:Page Views"
+  },
+  {
+    "file": "components/admin/analytics/AnalyticsOverviewSection.tsx",
+    "line": 49,
+    "type": "attribute:title",
+    "text": "Sessions",
+    "id": "components/admin/analytics/AnalyticsOverviewSection.tsx:attribute:title:Sessions"
+  },
+  {
+    "file": "components/admin/analytics/AnalyticsOverviewSection.tsx",
+    "line": 113,
+    "type": "attribute:title",
+    "text": "Top Categories",
+    "id": "components/admin/analytics/AnalyticsOverviewSection.tsx:attribute:title:Top Categories"
+  },
+  {
+    "file": "components/admin/analytics/AnalyticsOverviewSection.tsx",
+    "line": 103,
+    "type": "attribute:title",
+    "text": "Top Cities",
+    "id": "components/admin/analytics/AnalyticsOverviewSection.tsx:attribute:title:Top Cities"
+  },
+  {
+    "file": "components/admin/analytics/AnalyticsOverviewSection.tsx",
+    "line": 93,
+    "type": "attribute:title",
+    "text": "Top Pages",
+    "id": "components/admin/analytics/AnalyticsOverviewSection.tsx:attribute:title:Top Pages"
+  },
+  {
+    "file": "components/admin/analytics/AnalyticsOverviewSection.tsx",
+    "line": 42,
+    "type": "attribute:title",
+    "text": "Total Users",
+    "id": "components/admin/analytics/AnalyticsOverviewSection.tsx:attribute:title:Total Users"
+  },
+  {
+    "file": "components/admin/analytics/ContentPerformanceSection.tsx",
+    "line": 134,
+    "type": "attribute:title",
+    "text": "Top Categories",
+    "id": "components/admin/analytics/ContentPerformanceSection.tsx:attribute:title:Top Categories"
+  },
+  {
+    "file": "components/admin/analytics/ContentPerformanceSection.tsx",
+    "line": 157,
+    "type": "attribute:title",
+    "text": "Top Categories Table",
+    "id": "components/admin/analytics/ContentPerformanceSection.tsx:attribute:title:Top Categories Table"
+  },
+  {
+    "file": "components/admin/analytics/ContentPerformanceSection.tsx",
+    "line": 124,
+    "type": "attribute:title",
+    "text": "Top Cities",
+    "id": "components/admin/analytics/ContentPerformanceSection.tsx:attribute:title:Top Cities"
+  },
+  {
+    "file": "components/admin/analytics/ContentPerformanceSection.tsx",
+    "line": 156,
+    "type": "attribute:title",
+    "text": "Top Cities Table",
+    "id": "components/admin/analytics/ContentPerformanceSection.tsx:attribute:title:Top Cities Table"
+  },
+  {
+    "file": "components/admin/analytics/ContentPerformanceSection.tsx",
+    "line": 144,
+    "type": "attribute:title",
+    "text": "Top Listings",
+    "id": "components/admin/analytics/ContentPerformanceSection.tsx:attribute:title:Top Listings"
+  },
+  {
+    "file": "components/admin/analytics/ContentPerformanceSection.tsx",
+    "line": 158,
+    "type": "attribute:title",
+    "text": "Top Listings Table",
+    "id": "components/admin/analytics/ContentPerformanceSection.tsx:attribute:title:Top Listings Table"
+  },
+  {
+    "file": "components/admin/analytics/MonetizationInsightsSection.tsx",
+    "line": 41,
+    "type": "attribute:title",
+    "text": "Click Share",
+    "id": "components/admin/analytics/MonetizationInsightsSection.tsx:attribute:title:Click Share"
+  },
+  {
+    "file": "components/admin/analytics/MonetizationInsightsSection.tsx",
+    "line": 52,
+    "type": "attribute:title",
+    "text": "Tier Efficiency (CTR)",
+    "id": "components/admin/analytics/MonetizationInsightsSection.tsx:attribute:title:Tier Efficiency (CTR)"
+  },
+  {
+    "file": "components/admin/analytics/MonetizationInsightsSection.tsx",
+    "line": 30,
+    "type": "attribute:title",
+    "text": "Visibility Share",
+    "id": "components/admin/analytics/MonetizationInsightsSection.tsx:attribute:title:Visibility Share"
+  },
+  {
+    "file": "components/admin/analytics/PlacementPerformanceSection.tsx",
+    "line": 43,
+    "type": "attribute:title",
+    "text": "Block Performance",
+    "id": "components/admin/analytics/PlacementPerformanceSection.tsx:attribute:title:Block Performance"
+  },
+  {
+    "file": "components/admin/analytics/PlacementPerformanceSection.tsx",
+    "line": 61,
+    "type": "attribute:title",
+    "text": "Position CTR",
+    "id": "components/admin/analytics/PlacementPerformanceSection.tsx:attribute:title:Position CTR"
+  },
+  {
+    "file": "components/admin/analytics/PlacementPerformanceSection.tsx",
+    "line": 72,
+    "type": "attribute:title",
+    "text": "Selection Mode",
+    "id": "components/admin/analytics/PlacementPerformanceSection.tsx:attribute:title:Selection Mode"
+  },
+  {
+    "file": "components/admin/ApproveAssignDialog.tsx",
+    "line": 104,
+    "type": "attribute:placeholder",
+    "text": "Search published listings...",
+    "id": "components/admin/ApproveAssignDialog.tsx:attribute:placeholder:Search published listings..."
+  },
+  {
+    "file": "components/admin/ApproveAssignDialog.tsx",
+    "line": 78,
+    "type": "text-node",
+    "text": "No registered account",
+    "id": "components/admin/ApproveAssignDialog.tsx:text-node:No registered account"
+  },
+  {
+    "file": "components/admin/ColorPicker.tsx",
+    "line": 275,
+    "type": "attribute:placeholder",
+    "text": "rgba(196, 155, 55, 1)",
+    "id": "components/admin/ColorPicker.tsx:attribute:placeholder:rgba(196, 155, 55, 1)"
+  },
+  {
+    "file": "components/admin/ColorPicker.tsx",
+    "line": 139,
+    "type": "text-node",
+    "text": "Color Preview",
+    "id": "components/admin/ColorPicker.tsx:text-node:Color Preview"
+  },
+  {
+    "file": "components/admin/ColorPicker.tsx",
+    "line": 100,
+    "type": "text-node",
+    "text": "Pick color",
+    "id": "components/admin/ColorPicker.tsx:text-node:Pick color"
+  },
+  {
+    "file": "components/admin/ColorPicker.tsx",
+    "line": 278,
+    "type": "text-node",
+    "text": "Use RGBA format: rgba(red, green, blue, alpha)",
+    "id": "components/admin/ColorPicker.tsx:text-node:Use RGBA format: rgba(red, green, blue, alpha)"
+  },
+  {
+    "file": "components/admin/form-steps/BasicsStep.tsx",
+    "line": 113,
+    "type": "attribute:placeholder",
+    "text": "A brief, compelling summary (2-3 sentences)",
+    "id": "components/admin/form-steps/BasicsStep.tsx:attribute:placeholder:A brief, compelling summary (2-3 sentences)"
+  },
+  {
+    "file": "components/admin/form-steps/BasicsStep.tsx",
+    "line": 255,
+    "type": "attribute:placeholder",
+    "text": "Add tags for better searchability...",
+    "id": "components/admin/form-steps/BasicsStep.tsx:attribute:placeholder:Add tags for better searchability..."
+  },
+  {
+    "file": "components/admin/form-steps/BasicsStep.tsx",
+    "line": 70,
+    "type": "attribute:placeholder",
+    "text": "e.g., Villa Azure Ocean",
+    "id": "components/admin/form-steps/BasicsStep.tsx:attribute:placeholder:e.g., Villa Azure Ocean"
+  },
+  {
+    "file": "components/admin/form-steps/BasicsStep.tsx",
+    "line": 155,
+    "type": "attribute:placeholder",
+    "text": "Select category...",
+    "id": "components/admin/form-steps/BasicsStep.tsx:attribute:placeholder:Select category..."
+  },
+  {
+    "file": "components/admin/form-steps/BasicsStep.tsx",
+    "line": 187,
+    "type": "attribute:placeholder",
+    "text": "Select city...",
+    "id": "components/admin/form-steps/BasicsStep.tsx:attribute:placeholder:Select city..."
+  },
+  {
+    "file": "components/admin/form-steps/BasicsStep.tsx",
+    "line": 223,
+    "type": "attribute:placeholder",
+    "text": "Select region (optional)...",
+    "id": "components/admin/form-steps/BasicsStep.tsx:attribute:placeholder:Select region (optional)..."
+  },
+  {
+    "file": "components/admin/form-steps/BasicsStep.tsx",
+    "line": 92,
+    "type": "attribute:placeholder",
+    "text": "villa-azure-ocean",
+    "id": "components/admin/form-steps/BasicsStep.tsx:attribute:placeholder:villa-azure-ocean"
+  },
+  {
+    "file": "components/admin/form-steps/BasicsStep.tsx",
+    "line": 83,
+    "type": "text-node",
+    "text": "(auto-generated)",
+    "id": "components/admin/form-steps/BasicsStep.tsx:text-node:(auto-generated)"
+  },
+  {
+    "file": "components/admin/form-steps/BasicsStep.tsx",
+    "line": 166,
+    "type": "text-node",
+    "text": "(inactive)",
+    "id": "components/admin/form-steps/BasicsStep.tsx:text-node:(inactive)"
+  },
+  {
+    "file": "components/admin/form-steps/BasicsStep.tsx",
+    "line": 203,
+    "type": "text-node",
+    "text": "(inactive)",
+    "id": "components/admin/form-steps/BasicsStep.tsx:text-node:(inactive)"
+  },
+  {
+    "file": "components/admin/form-steps/BasicsStep.tsx",
+    "line": 237,
+    "type": "text-node",
+    "text": "(inactive)",
+    "id": "components/admin/form-steps/BasicsStep.tsx:text-node:(inactive)"
+  },
+  {
+    "file": "components/admin/form-steps/BasicsStep.tsx",
+    "line": 54,
+    "type": "text-node",
+    "text": "Basic Information",
+    "id": "components/admin/form-steps/BasicsStep.tsx:text-node:Basic Information"
+  },
+  {
+    "file": "components/admin/form-steps/BasicsStep.tsx",
+    "line": 55,
+    "type": "text-node",
+    "text": "Enter the essential details for this listing",
+    "id": "components/admin/form-steps/BasicsStep.tsx:text-node:Enter the essential details for this listing"
+  },
+  {
+    "file": "components/admin/form-steps/BasicsStep.tsx",
+    "line": 244,
+    "type": "text-node",
+    "text": "Recommended for premium navigation and VIP area visibility",
+    "id": "components/admin/form-steps/BasicsStep.tsx:text-node:Recommended for premium navigation and VIP area visibility"
+  },
+  {
+    "file": "components/admin/form-steps/ContactStep.tsx",
+    "line": 273,
+    "type": "attribute:placeholder",
+    "text": "123 Avenida da Liberdade, Almancil",
+    "id": "components/admin/form-steps/ContactStep.tsx:attribute:placeholder:123 Avenida da Liberdade, Almancil"
+  },
+  {
+    "file": "components/admin/form-steps/ContactStep.tsx",
+    "line": 224,
+    "type": "attribute:placeholder",
+    "text": "contact@example.com",
+    "id": "components/admin/form-steps/ContactStep.tsx:attribute:placeholder:contact@example.com"
+  },
+  {
+    "file": "components/admin/form-steps/ContactStep.tsx",
+    "line": 540,
+    "type": "text-node",
+    "text": "Add your Google Business Profile URL to display ratings and reviews",
+    "id": "components/admin/form-steps/ContactStep.tsx:text-node:Add your Google Business Profile URL to display ratings and reviews"
+  },
+  {
+    "file": "components/admin/form-steps/ContactStep.tsx",
+    "line": 185,
+    "type": "text-node",
+    "text": "At least one contact method is required for publishing",
+    "id": "components/admin/form-steps/ContactStep.tsx:text-node:At least one contact method is required for publishing"
+  },
+  {
+    "file": "components/admin/form-steps/ContactStep.tsx",
+    "line": 192,
+    "type": "text-node",
+    "text": "Contact Details",
+    "id": "components/admin/form-steps/ContactStep.tsx:text-node:Contact Details"
+  },
+  {
+    "file": "components/admin/form-steps/ContactStep.tsx",
+    "line": 184,
+    "type": "text-node",
+    "text": "Contact Information",
+    "id": "components/admin/form-steps/ContactStep.tsx:text-node:Contact Information"
+  },
+  {
+    "file": "components/admin/form-steps/ContactStep.tsx",
+    "line": 534,
+    "type": "text-node",
+    "text": "Fetch Ratings",
+    "id": "components/admin/form-steps/ContactStep.tsx:text-node:Fetch Ratings"
+  },
+  {
+    "file": "components/admin/form-steps/ContactStep.tsx",
+    "line": 440,
+    "type": "text-node",
+    "text": "Format: https://wa.me/[country code][number] (no spaces or symbols)",
+    "id": "components/admin/form-steps/ContactStep.tsx:text-node:Format: https://wa.me/[country code][number] (no spaces or symbols)"
+  },
+  {
+    "file": "components/admin/form-steps/ContactStep.tsx",
+    "line": 263,
+    "type": "text-node",
+    "text": "Location (Optional)",
+    "id": "components/admin/form-steps/ContactStep.tsx:text-node:Location (Optional)"
+  },
+  {
+    "file": "components/admin/form-steps/ContactStep.tsx",
+    "line": 313,
+    "type": "text-node",
+    "text": "Social Media (Optional)",
+    "id": "components/admin/form-steps/ContactStep.tsx:text-node:Social Media (Optional)"
+  },
+  {
+    "file": "components/admin/form-steps/DetailsStep.tsx",
+    "line": 136,
+    "type": "text-node",
+    "text": "Additional Information (Optional)",
+    "id": "components/admin/form-steps/DetailsStep.tsx:text-node:Additional Information (Optional)"
+  },
+  {
+    "file": "components/admin/form-steps/DetailsStep.tsx",
+    "line": 45,
+    "type": "text-node",
+    "text": "Category Details",
+    "id": "components/admin/form-steps/DetailsStep.tsx:text-node:Category Details"
+  },
+  {
+    "file": "components/admin/form-steps/DetailsStep.tsx",
+    "line": 70,
+    "type": "text-node",
+    "text": "Category Details",
+    "id": "components/admin/form-steps/DetailsStep.tsx:text-node:Category Details"
+  },
+  {
+    "file": "components/admin/form-steps/DetailsStep.tsx",
+    "line": 46,
+    "type": "text-node",
+    "text": "Category-specific information for this listing",
+    "id": "components/admin/form-steps/DetailsStep.tsx:text-node:Category-specific information for this listing"
+  },
+  {
+    "file": "components/admin/form-steps/DetailsStep.tsx",
+    "line": 71,
+    "type": "text-node",
+    "text": "Category-specific information for this listing",
+    "id": "components/admin/form-steps/DetailsStep.tsx:text-node:Category-specific information for this listing"
+  },
+  {
+    "file": "components/admin/form-steps/DetailsStep.tsx",
+    "line": 57,
+    "type": "text-node",
+    "text": "Go back to the Basics step and select a category to see the relevant fields.",
+    "id": "components/admin/form-steps/DetailsStep.tsx:text-node:Go back to the Basics step and select a category to see the relevant fields."
+  },
+  {
+    "file": "components/admin/form-steps/DetailsStep.tsx",
+    "line": 82,
+    "type": "text-node",
+    "text": "No template is configured for this category. Contact admin.",
+    "id": "components/admin/form-steps/DetailsStep.tsx:text-node:No template is configured for this category. Contact admin."
+  },
+  {
+    "file": "components/admin/form-steps/DetailsStep.tsx",
+    "line": 54,
+    "type": "text-node",
+    "text": "Please select a category first",
+    "id": "components/admin/form-steps/DetailsStep.tsx:text-node:Please select a category first"
+  },
+  {
+    "file": "components/admin/form-steps/DetailsStep.tsx",
+    "line": 108,
+    "type": "text-node",
+    "text": "Required Information",
+    "id": "components/admin/form-steps/DetailsStep.tsx:text-node:Required Information"
+  },
+  {
+    "file": "components/admin/form-steps/DetailsStep.tsx",
+    "line": 79,
+    "type": "text-node",
+    "text": "Template not found",
+    "id": "components/admin/form-steps/DetailsStep.tsx:text-node:Template not found"
+  },
+  {
+    "file": "components/admin/form-steps/GolfStep.tsx",
+    "line": 720,
+    "type": "text-node",
+    "text": "Book Tee Time",
+    "id": "components/admin/form-steps/GolfStep.tsx:text-node:Book Tee Time"
+  },
+  {
+    "file": "components/admin/form-steps/GolfStep.tsx",
+    "line": 716,
+    "type": "text-node",
+    "text": "Book your tee time today",
+    "id": "components/admin/form-steps/GolfStep.tsx:text-node:Book your tee time today"
+  },
+  {
+    "file": "components/admin/form-steps/GolfStep.tsx",
+    "line": 430,
+    "type": "text-node",
+    "text": "Configure course structure and hole-by-hole data for scorecards and rounds.",
+    "id": "components/admin/form-steps/GolfStep.tsx:text-node:Configure course structure and hole-by-hole data for scorecards and rounds."
+  },
+  {
+    "file": "components/admin/form-steps/GolfStep.tsx",
+    "line": 739,
+    "type": "text-node",
+    "text": "External affiliate or partner link used for the public Book Tee Time button.",
+    "id": "components/admin/form-steps/GolfStep.tsx:text-node:External affiliate or partner link used for the public Book Tee Time button."
+  },
+  {
+    "file": "components/admin/form-steps/GolfStep.tsx",
+    "line": 429,
+    "type": "text-node",
+    "text": "Golf Course Setup",
+    "id": "components/admin/form-steps/GolfStep.tsx:text-node:Golf Course Setup"
+  },
+  {
+    "file": "components/admin/form-steps/GolfStep.tsx",
+    "line": 536,
+    "type": "text-node",
+    "text": "Hole counts above 18 require Multi-Course Resort mode.",
+    "id": "components/admin/form-steps/GolfStep.tsx:text-node:Hole counts above 18 require Multi-Course Resort mode."
+  },
+  {
+    "file": "components/admin/form-steps/GolfStep.tsx",
+    "line": 715,
+    "type": "text-node",
+    "text": "Ready to Play?",
+    "id": "components/admin/form-steps/GolfStep.tsx:text-node:Ready to Play?"
+  },
+  {
+    "file": "components/admin/form-steps/GolfStep.tsx",
+    "line": 514,
+    "type": "text-node",
+    "text": "Save the listing once before configuring course data.",
+    "id": "components/admin/form-steps/GolfStep.tsx:text-node:Save the listing once before configuring course data."
+  },
+  {
+    "file": "components/admin/form-steps/MediaStep.tsx",
+    "line": 40,
+    "type": "text-node",
+    "text": "• Best resolution: 1920×1080 or higher",
+    "id": "components/admin/form-steps/MediaStep.tsx:text-node:• Best resolution: 1920×1080 or higher"
+  },
+  {
+    "file": "components/admin/form-steps/MediaStep.tsx",
+    "line": 43,
+    "type": "text-node",
+    "text": "• Drag images to reorder; click star to set featured image",
+    "id": "components/admin/form-steps/MediaStep.tsx:text-node:• Drag images to reorder; click star to set featured image"
+  },
+  {
+    "file": "components/admin/form-steps/MediaStep.tsx",
+    "line": 42,
+    "type": "text-node",
+    "text": "• Maximum file size: 10MB per image",
+    "id": "components/admin/form-steps/MediaStep.tsx:text-node:• Maximum file size: 10MB per image"
+  },
+  {
+    "file": "components/admin/form-steps/MediaStep.tsx",
+    "line": 37,
+    "type": "text-node",
+    "text": "• Minimum 1 image required for publishing",
+    "id": "components/admin/form-steps/MediaStep.tsx:text-node:• Minimum 1 image required for publishing"
+  },
+  {
+    "file": "components/admin/form-steps/MediaStep.tsx",
+    "line": 38,
+    "type": "text-node",
+    "text": "• Recommended: 5-10 high-quality images (when tier allows)",
+    "id": "components/admin/form-steps/MediaStep.tsx:text-node:• Recommended: 5-10 high-quality images (when tier allows)"
+  },
+  {
+    "file": "components/admin/form-steps/MediaStep.tsx",
+    "line": 41,
+    "type": "text-node",
+    "text": "• Supported formats: PNG, JPG, WebP",
+    "id": "components/admin/form-steps/MediaStep.tsx:text-node:• Supported formats: PNG, JPG, WebP"
+  },
+  {
+    "file": "components/admin/form-steps/MediaStep.tsx",
+    "line": 35,
+    "type": "text-node",
+    "text": "Image Guidelines",
+    "id": "components/admin/form-steps/MediaStep.tsx:text-node:Image Guidelines"
+  },
+  {
+    "file": "components/admin/form-steps/MediaStep.tsx",
+    "line": 17,
+    "type": "text-node",
+    "text": "Media Gallery",
+    "id": "components/admin/form-steps/MediaStep.tsx:text-node:Media Gallery"
+  },
+  {
+    "file": "components/admin/form-steps/PublishingStep.tsx",
+    "line": 249,
+    "type": "attribute:placeholder",
+    "text": "Select owner...",
+    "id": "components/admin/form-steps/PublishingStep.tsx:attribute:placeholder:Select owner..."
+  },
+  {
+    "file": "components/admin/form-steps/PublishingStep.tsx",
+    "line": 175,
+    "type": "text-node",
+    "text": "(Free)",
+    "id": "components/admin/form-steps/PublishingStep.tsx:text-node:(Free)"
+  },
+  {
+    "file": "components/admin/form-steps/PublishingStep.tsx",
+    "line": 181,
+    "type": "text-node",
+    "text": "(Paid)",
+    "id": "components/admin/form-steps/PublishingStep.tsx:text-node:(Paid)"
+  },
+  {
+    "file": "components/admin/form-steps/PublishingStep.tsx",
+    "line": 187,
+    "type": "text-node",
+    "text": "(Premium)",
+    "id": "components/admin/form-steps/PublishingStep.tsx:text-node:(Premium)"
+  },
+  {
+    "file": "components/admin/form-steps/PublishingStep.tsx",
+    "line": 265,
+    "type": "text-node",
+    "text": "Assigning a listing will automatically grant the owner role if needed. Owners can edit their listings but cannot change tier or curation.",
+    "id": "components/admin/form-steps/PublishingStep.tsx:text-node:Assigning a listing will automatically grant the owner role if needed. Owners can edit their listings but cannot change tier or curation."
+  },
+  {
+    "file": "components/admin/form-steps/PublishingStep.tsx",
+    "line": 128,
+    "type": "text-node",
+    "text": "Control tier, curation, and publication status",
+    "id": "components/admin/form-steps/PublishingStep.tsx:text-node:Control tier, curation, and publication status"
+  },
+  {
+    "file": "components/admin/form-steps/PublishingStep.tsx",
+    "line": 138,
+    "type": "text-node",
+    "text": "Limited Access",
+    "id": "components/admin/form-steps/PublishingStep.tsx:text-node:Limited Access"
+  },
+  {
+    "file": "components/admin/form-steps/PublishingStep.tsx",
+    "line": 149,
+    "type": "text-node",
+    "text": "Listing Tier (Monetization)",
+    "id": "components/admin/form-steps/PublishingStep.tsx:text-node:Listing Tier (Monetization)"
+  },
+  {
+    "file": "components/admin/form-steps/PublishingStep.tsx",
+    "line": 192,
+    "type": "text-node",
+    "text": "Only admins can modify listing tiers. Higher tiers unlock more visibility.",
+    "id": "components/admin/form-steps/PublishingStep.tsx:text-node:Only admins can modify listing tiers. Higher tiers unlock more visibility."
+  },
+  {
+    "file": "components/admin/form-steps/PublishingStep.tsx",
+    "line": 226,
+    "type": "text-node",
+    "text": "Only published listings are visible on the public site.",
+    "id": "components/admin/form-steps/PublishingStep.tsx:text-node:Only published listings are visible on the public site."
+  },
+  {
+    "file": "components/admin/form-steps/PublishingStep.tsx",
+    "line": 203,
+    "type": "text-node",
+    "text": "Publication Status",
+    "id": "components/admin/form-steps/PublishingStep.tsx:text-node:Publication Status"
+  },
+  {
+    "file": "components/admin/form-steps/PublishingStep.tsx",
+    "line": 127,
+    "type": "text-node",
+    "text": "Publishing Settings",
+    "id": "components/admin/form-steps/PublishingStep.tsx:text-node:Publishing Settings"
+  },
+  {
+    "file": "components/admin/form-steps/PublishingStep.tsx",
+    "line": 186,
+    "type": "text-node",
+    "text": "Signature",
+    "id": "components/admin/form-steps/PublishingStep.tsx:text-node:Signature"
+  },
+  {
+    "file": "components/admin/form-steps/PublishingStep.tsx",
+    "line": 139,
+    "type": "text-node",
+    "text": "Tier and curation settings are admin-only. You can manage publication status.",
+    "id": "components/admin/form-steps/PublishingStep.tsx:text-node:Tier and curation settings are admin-only. You can manage publication status."
+  },
+  {
+    "file": "components/admin/form-steps/PublishingStep.tsx",
+    "line": 174,
+    "type": "text-node",
+    "text": "Unverified",
+    "id": "components/admin/form-steps/PublishingStep.tsx:text-node:Unverified"
+  },
+  {
+    "file": "components/admin/form-steps/PublishingStep.tsx",
+    "line": 180,
+    "type": "text-node",
+    "text": "Verified",
+    "id": "components/admin/form-steps/PublishingStep.tsx:text-node:Verified"
+  },
+  {
+    "file": "components/admin/ImageUrlUploadField.tsx",
+    "line": 137,
+    "type": "attribute:aria-label",
+    "text": "Clear image URL",
+    "id": "components/admin/ImageUrlUploadField.tsx:attribute:aria-label:Clear image URL"
+  },
+  {
+    "file": "components/admin/inbox-filters.tsx",
+    "line": 77,
+    "type": "text-node",
+    "text": "Inbox Filters",
+    "id": "components/admin/inbox-filters.tsx:text-node:Inbox Filters"
+  },
+  {
+    "file": "components/admin/inbox/InboxDetail.tsx",
+    "line": 207,
+    "type": "attribute:placeholder",
+    "text": "Rejection reason",
+    "id": "components/admin/inbox/InboxDetail.tsx:attribute:placeholder:Rejection reason"
+  },
+  {
+    "file": "components/admin/inbox/InboxDetail.tsx",
+    "line": 255,
+    "type": "attribute:placeholder",
+    "text": "UUID of assignee",
+    "id": "components/admin/inbox/InboxDetail.tsx:attribute:placeholder:UUID of assignee"
+  },
+  {
+    "file": "components/admin/inbox/InboxDetail.tsx",
+    "line": 248,
+    "type": "text-node",
+    "text": "Assign to user ID",
+    "id": "components/admin/inbox/InboxDetail.tsx:text-node:Assign to user ID"
+  },
+  {
+    "file": "components/admin/inbox/InboxDetail.tsx",
+    "line": 181,
+    "type": "text-node",
+    "text": "Assigned to",
+    "id": "components/admin/inbox/InboxDetail.tsx:text-node:Assigned to"
+  },
+  {
+    "file": "components/admin/inbox/InboxDetail.tsx",
+    "line": 166,
+    "type": "text-node",
+    "text": "Created",
+    "id": "components/admin/inbox/InboxDetail.tsx:text-node:Created"
+  },
+  {
+    "file": "components/admin/inbox/InboxDetail.tsx",
+    "line": 172,
+    "type": "text-node",
+    "text": "Link",
+    "id": "components/admin/inbox/InboxDetail.tsx:text-node:Link"
+  },
+  {
+    "file": "components/admin/inbox/InboxDetail.tsx",
+    "line": 152,
+    "type": "text-node",
+    "text": "Submitter",
+    "id": "components/admin/inbox/InboxDetail.tsx:text-node:Submitter"
+  },
+  {
+    "file": "components/admin/inbox/InboxDetail.tsx",
+    "line": 159,
+    "type": "text-node",
+    "text": "Summary",
+    "id": "components/admin/inbox/InboxDetail.tsx:text-node:Summary"
+  },
+  {
+    "file": "components/admin/inbox/InboxList.tsx",
+    "line": 56,
+    "type": "text-node",
+    "text": "Assign items to yourself from the detail panel.",
+    "id": "components/admin/inbox/InboxList.tsx:text-node:Assign items to yourself from the detail panel."
+  },
+  {
+    "file": "components/admin/inbox/InboxList.tsx",
+    "line": 79,
+    "type": "text-node",
+    "text": "Inbox clear — nothing pending.",
+    "id": "components/admin/inbox/InboxList.tsx:text-node:Inbox clear — nothing pending."
+  },
+  {
+    "file": "components/admin/inbox/InboxList.tsx",
+    "line": 69,
+    "type": "text-node",
+    "text": "No items match these filters.",
+    "id": "components/admin/inbox/InboxList.tsx:text-node:No items match these filters."
+  },
+  {
+    "file": "components/admin/inbox/InboxList.tsx",
+    "line": 55,
+    "type": "text-node",
+    "text": "Nothing assigned to you yet.",
+    "id": "components/admin/inbox/InboxList.tsx:text-node:Nothing assigned to you yet."
+  },
+  {
+    "file": "components/admin/listings/DynamicFormField.tsx",
+    "line": 100,
+    "type": "text-node",
+    "text": "Click options below to select...",
+    "id": "components/admin/listings/DynamicFormField.tsx:text-node:Click options below to select..."
+  },
+  {
+    "file": "components/admin/listings/DynamicFormField.tsx",
+    "line": 152,
+    "type": "text-node",
+    "text": "Enable this option",
+    "id": "components/admin/listings/DynamicFormField.tsx:text-node:Enable this option"
+  },
+  {
+    "file": "components/admin/listings/FormActionBar.tsx",
+    "line": 53,
+    "type": "text-node",
+    "text": "• Unsaved changes",
+    "id": "components/admin/listings/FormActionBar.tsx:text-node:• Unsaved changes"
+  },
+  {
+    "file": "components/admin/listings/ImageUploader.tsx",
+    "line": 241,
+    "type": "attribute:aria-label",
+    "text": "Remove image",
+    "id": "components/admin/listings/ImageUploader.tsx:attribute:aria-label:Remove image"
+  },
+  {
+    "file": "components/admin/listings/ImageUploader.tsx",
+    "line": 225,
+    "type": "attribute:aria-label",
+    "text": "Set as featured image",
+    "id": "components/admin/listings/ImageUploader.tsx:attribute:aria-label:Set as featured image"
+  },
+  {
+    "file": "components/admin/listings/ImageUploader.tsx",
+    "line": 240,
+    "type": "attribute:title",
+    "text": "Remove image",
+    "id": "components/admin/listings/ImageUploader.tsx:attribute:title:Remove image"
+  },
+  {
+    "file": "components/admin/listings/ImageUploader.tsx",
+    "line": 224,
+    "type": "attribute:title",
+    "text": "Set as featured",
+    "id": "components/admin/listings/ImageUploader.tsx:attribute:title:Set as featured"
+  },
+  {
+    "file": "components/admin/listings/ImageUploader.tsx",
+    "line": 271,
+    "type": "text-node",
+    "text": "At least 1 image is required before publishing",
+    "id": "components/admin/listings/ImageUploader.tsx:text-node:At least 1 image is required before publishing"
+  },
+  {
+    "file": "components/admin/listings/ImageUploader.tsx",
+    "line": 268,
+    "type": "text-node",
+    "text": "No images uploaded",
+    "id": "components/admin/listings/ImageUploader.tsx:text-node:No images uploaded"
+  },
+  {
+    "file": "components/admin/listings/SingleImageUploadField.tsx",
+    "line": 73,
+    "type": "attribute:alt",
+    "text": "Uploaded content",
+    "id": "components/admin/listings/SingleImageUploadField.tsx:attribute:alt:Uploaded content"
+  },
+  {
+    "file": "components/admin/listings/SingleImageUploadField.tsx",
+    "line": 87,
+    "type": "attribute:aria-label",
+    "text": "Remove image",
+    "id": "components/admin/listings/SingleImageUploadField.tsx:attribute:aria-label:Remove image"
+  },
+  {
+    "file": "components/admin/listings/SingleImageUploadField.tsx",
+    "line": 118,
+    "type": "text-node",
+    "text": "JPG, PNG, WebP",
+    "id": "components/admin/listings/SingleImageUploadField.tsx:text-node:JPG, PNG, WebP"
+  },
+  {
+    "file": "components/admin/listings/TagInput.tsx",
+    "line": 21,
+    "type": "attribute:placeholder",
+    "text": "Type and press Enter...",
+    "id": "components/admin/listings/TagInput.tsx:attribute:placeholder:Type and press Enter..."
+  },
+  {
+    "file": "components/admin/messages/ThreadDetailDialog.tsx",
+    "line": 106,
+    "type": "attribute:aria-label",
+    "text": "Delete conversation",
+    "id": "components/admin/messages/ThreadDetailDialog.tsx:attribute:aria-label:Delete conversation"
+  },
+  {
+    "file": "components/admin/messages/ThreadDetailDialog.tsx",
+    "line": 332,
+    "type": "attribute:aria-label",
+    "text": "Delete message",
+    "id": "components/admin/messages/ThreadDetailDialog.tsx:attribute:aria-label:Delete message"
+  },
+  {
+    "file": "components/admin/messages/ThreadDetailDialog.tsx",
+    "line": 221,
+    "type": "attribute:aria-label",
+    "text": "Send admin reply",
+    "id": "components/admin/messages/ThreadDetailDialog.tsx:attribute:aria-label:Send admin reply"
+  },
+  {
+    "file": "components/admin/messages/ThreadDetailDialog.tsx",
+    "line": 212,
+    "type": "attribute:placeholder",
+    "text": "Type your message... (Enter to send, Shift+Enter for new line)",
+    "id": "components/admin/messages/ThreadDetailDialog.tsx:attribute:placeholder:Type your message... (Enter to send, Shift+Enter for new line)"
+  },
+  {
+    "file": "components/admin/messages/ThreadDetailDialog.tsx",
+    "line": 261,
+    "type": "attribute:title",
+    "text": "Delete message",
+    "id": "components/admin/messages/ThreadDetailDialog.tsx:attribute:title:Delete message"
+  },
+  {
+    "file": "components/admin/messages/ThreadDetailDialog.tsx",
+    "line": 243,
+    "type": "attribute:title",
+    "text": "Delete thread",
+    "id": "components/admin/messages/ThreadDetailDialog.tsx:attribute:title:Delete thread"
+  },
+  {
+    "file": "components/admin/messages/ThreadDetailDialog.tsx",
+    "line": 164,
+    "type": "text-node",
+    "text": "Created",
+    "id": "components/admin/messages/ThreadDetailDialog.tsx:text-node:Created"
+  },
+  {
+    "file": "components/admin/messages/ThreadDetailDialog.tsx",
+    "line": 147,
+    "type": "text-node",
+    "text": "General Inquiry",
+    "id": "components/admin/messages/ThreadDetailDialog.tsx:text-node:General Inquiry"
+  },
+  {
+    "file": "components/admin/messages/ThreadDetailDialog.tsx",
+    "line": 135,
+    "type": "text-node",
+    "text": "Listing",
+    "id": "components/admin/messages/ThreadDetailDialog.tsx:text-node:Listing"
+  },
+  {
+    "file": "components/admin/messages/ThreadDetailDialog.tsx",
+    "line": 128,
+    "type": "text-node",
+    "text": "Owner",
+    "id": "components/admin/messages/ThreadDetailDialog.tsx:text-node:Owner"
+  },
+  {
+    "file": "components/admin/messages/ThreadDetailDialog.tsx",
+    "line": 205,
+    "type": "text-node",
+    "text": "Replying as Platform Admin",
+    "id": "components/admin/messages/ThreadDetailDialog.tsx:text-node:Replying as Platform Admin"
+  },
+  {
+    "file": "components/admin/messages/ThreadDetailDialog.tsx",
+    "line": 151,
+    "type": "text-node",
+    "text": "Status",
+    "id": "components/admin/messages/ThreadDetailDialog.tsx:text-node:Status"
+  },
+  {
+    "file": "components/admin/messages/ThreadDetailDialog.tsx",
+    "line": 118,
+    "type": "text-node",
+    "text": "Viewer",
+    "id": "components/admin/messages/ThreadDetailDialog.tsx:text-node:Viewer"
+  },
+  {
+    "file": "components/admin/messages/ThreadFilters.tsx",
+    "line": 58,
+    "type": "attribute:placeholder",
+    "text": "All",
+    "id": "components/admin/messages/ThreadFilters.tsx:attribute:placeholder:All"
+  },
+  {
+    "file": "components/admin/messages/ThreadFilters.tsx",
+    "line": 77,
+    "type": "attribute:placeholder",
+    "text": "All Owners",
+    "id": "components/admin/messages/ThreadFilters.tsx:attribute:placeholder:All Owners"
+  },
+  {
+    "file": "components/admin/messages/ThreadFilters.tsx",
+    "line": 92,
+    "type": "text-node",
+    "text": "From",
+    "id": "components/admin/messages/ThreadFilters.tsx:text-node:From"
+  },
+  {
+    "file": "components/admin/messages/ThreadFilters.tsx",
+    "line": 71,
+    "type": "text-node",
+    "text": "Owner",
+    "id": "components/admin/messages/ThreadFilters.tsx:text-node:Owner"
+  },
+  {
+    "file": "components/admin/messages/ThreadFilters.tsx",
+    "line": 55,
+    "type": "text-node",
+    "text": "Status",
+    "id": "components/admin/messages/ThreadFilters.tsx:text-node:Status"
+  },
+  {
+    "file": "components/admin/messages/ThreadFilters.tsx",
+    "line": 119,
+    "type": "text-node",
+    "text": "To",
+    "id": "components/admin/messages/ThreadFilters.tsx:text-node:To"
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 222,
+    "type": "attribute:alt",
+    "text": "OG Preview",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:attribute:alt:OG Preview"
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 256,
+    "type": "attribute:alt",
+    "text": "Social preview",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:attribute:alt:Social preview"
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 131,
+    "type": "attribute:placeholder",
+    "text": "Brief description for search engines...",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:attribute:placeholder:Brief description for search engines..."
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 211,
+    "type": "attribute:placeholder",
+    "text": "Leave empty to use meta description",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:attribute:placeholder:Leave empty to use meta description"
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 199,
+    "type": "attribute:placeholder",
+    "text": "Leave empty to use SEO title",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:attribute:placeholder:Leave empty to use SEO title"
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 145,
+    "type": "attribute:placeholder",
+    "text": "premium, algarve, travel, portugal...",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:attribute:placeholder:premium, algarve, travel, portugal..."
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 288,
+    "type": "text-node",
+    "text": "Advanced Settings",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:text-node:Advanced Settings"
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 267,
+    "type": "text-node",
+    "text": "algarveofficial.com",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:text-node:algarveofficial.com"
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 325,
+    "type": "text-node",
+    "text": "Allow crawlers to follow links",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:text-node:Allow crawlers to follow links"
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 315,
+    "type": "text-node",
+    "text": "Allow search engines to index",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:text-node:Allow search engines to index"
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 147,
+    "type": "text-node",
+    "text": "Comma-separated keywords to target for this page.",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:text-node:Comma-separated keywords to target for this page."
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 133,
+    "type": "text-node",
+    "text": "Displayed under the title in search results. Aim for 150-160 characters.",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:text-node:Displayed under the title in search results. Aim for 150-160 characters."
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 250,
+    "type": "text-node",
+    "text": "Facebook/LinkedIn Preview",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:text-node:Facebook/LinkedIn Preview"
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 324,
+    "type": "text-node",
+    "text": "Follow links",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:text-node:Follow links"
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 314,
+    "type": "text-node",
+    "text": "Index this page",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:text-node:Index this page"
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 307,
+    "type": "text-node",
+    "text": "Override the canonical URL to prevent duplicate content issues.",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:text-node:Override the canonical URL to prevent duplicate content issues."
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 241,
+    "type": "text-node",
+    "text": "Recommended: 1200×630px for best display on social platforms",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:text-node:Recommended: 1200×630px for best display on social platforms"
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 84,
+    "type": "text-node",
+    "text": "Search Engine Optimization",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:text-node:Search Engine Optimization"
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 159,
+    "type": "text-node",
+    "text": "Search Preview",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:text-node:Search Preview"
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 182,
+    "type": "text-node",
+    "text": "Social Sharing (Open Graph)",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:text-node:Social Sharing (Open Graph)"
+  },
+  {
+    "file": "components/admin/seo/SeoFieldsPanel.tsx",
+    "line": 107,
+    "type": "text-node",
+    "text": "The title tag shown in search results. Keep under 60 characters.",
+    "id": "components/admin/seo/SeoFieldsPanel.tsx:text-node:The title tag shown in search results. Keep under 60 characters."
+  },
+  {
+    "file": "components/admin/sidebar.tsx",
+    "line": 140,
+    "type": "attribute:aria-label",
+    "text": "Admin Dashboard",
+    "id": "components/admin/sidebar.tsx:attribute:aria-label:Admin Dashboard"
+  },
+  {
+    "file": "components/admin/sidebar.tsx",
+    "line": 161,
+    "type": "text-node",
+    "text": "Algarve",
+    "id": "components/admin/sidebar.tsx:text-node:Algarve"
+  },
+  {
+    "file": "components/admin/sidebar.tsx",
+    "line": 300,
+    "type": "text-node",
+    "text": "AlgarveOfficial Admin",
+    "id": "components/admin/sidebar.tsx:text-node:AlgarveOfficial Admin"
+  },
+  {
+    "file": "components/admin/sidebar.tsx",
+    "line": 162,
+    "type": "text-node",
+    "text": "Official",
+    "id": "components/admin/sidebar.tsx:text-node:Official"
+  },
+  {
+    "file": "components/admin/translations/TranslationEditorDrawer.tsx",
+    "line": 135,
+    "type": "attribute:placeholder",
+    "text": "Enter translation content...",
+    "id": "components/admin/translations/TranslationEditorDrawer.tsx:attribute:placeholder:Enter translation content..."
+  },
+  {
+    "file": "components/admin/translations/TranslationEditorDrawer.tsx",
+    "line": 116,
+    "type": "text-node",
+    "text": "Last error:",
+    "id": "components/admin/translations/TranslationEditorDrawer.tsx:text-node:Last error:"
+  },
+  {
+    "file": "components/admin/translations/TranslationEditorDrawer.tsx",
+    "line": 124,
+    "type": "text-node",
+    "text": "Translation Content",
+    "id": "components/admin/translations/TranslationEditorDrawer.tsx:text-node:Translation Content"
+  },
+  {
+    "file": "components/admin/translations/TranslationFilters.tsx",
+    "line": 196,
+    "type": "attribute:placeholder",
+    "text": "Category",
+    "id": "components/admin/translations/TranslationFilters.tsx:attribute:placeholder:Category"
+  },
+  {
+    "file": "components/admin/translations/TranslationFilters.tsx",
+    "line": 178,
+    "type": "attribute:placeholder",
+    "text": "City",
+    "id": "components/admin/translations/TranslationFilters.tsx:attribute:placeholder:City"
+  },
+  {
+    "file": "components/admin/translations/TranslationFilters.tsx",
+    "line": 160,
+    "type": "attribute:placeholder",
+    "text": "Language",
+    "id": "components/admin/translations/TranslationFilters.tsx:attribute:placeholder:Language"
+  },
+  {
+    "file": "components/admin/translations/TranslationFilters.tsx",
+    "line": 128,
+    "type": "attribute:placeholder",
+    "text": "Status",
+    "id": "components/admin/translations/TranslationFilters.tsx:attribute:placeholder:Status"
+  },
+  {
+    "file": "components/admin/translations/TranslationFilters.tsx",
+    "line": 144,
+    "type": "attribute:placeholder",
+    "text": "Tier",
+    "id": "components/admin/translations/TranslationFilters.tsx:attribute:placeholder:Tier"
+  },
+  {
+    "file": "components/admin/translations/TranslationFilters.tsx",
+    "line": 82,
+    "type": "text-node",
+    "text": "Quick",
+    "id": "components/admin/translations/TranslationFilters.tsx:text-node:Quick"
+  },
+  {
+    "file": "components/admin/translations/TranslationListingGroup.tsx",
+    "line": 212,
+    "type": "text-node",
+    "text": "🌐 SEO Coverage",
+    "id": "components/admin/translations/TranslationListingGroup.tsx:text-node:🌐 SEO Coverage"
+  },
+  {
+    "file": "components/admin/translations/TranslationListingGroup.tsx",
+    "line": 302,
+    "type": "text-node",
+    "text": "Priority processing",
+    "id": "components/admin/translations/TranslationListingGroup.tsx:text-node:Priority processing"
+  },
+  {
+    "file": "components/admin/translations/TranslationListingGroup.tsx",
+    "line": 492,
+    "type": "text-node",
+    "text": "SLA ⚠",
+    "id": "components/admin/translations/TranslationListingGroup.tsx:text-node:SLA ⚠"
+  },
+  {
+    "file": "components/admin/translations/TranslationListingGroup.tsx",
+    "line": 298,
+    "type": "text-node",
+    "text": "Upgrade to Signature",
+    "id": "components/admin/translations/TranslationListingGroup.tsx:text-node:Upgrade to Signature"
+  },
+  {
+    "file": "components/admin/translations/TranslationsDashboard.tsx",
+    "line": 172,
+    "type": "text-node",
+    "text": "Monitor and manage listing translations across all locales",
+    "id": "components/admin/translations/TranslationsDashboard.tsx:text-node:Monitor and manage listing translations across all locales"
+  },
+  {
+    "file": "components/admin/translations/TranslationsDashboard.tsx",
+    "line": 169,
+    "type": "text-node",
+    "text": "Translation Management",
+    "id": "components/admin/translations/TranslationsDashboard.tsx:text-node:Translation Management"
+  },
+  {
+    "file": "components/admin/translations/TranslationStatusCards.tsx",
+    "line": 91,
+    "type": "text-node",
+    "text": "Translation Health",
+    "id": "components/admin/translations/TranslationStatusCards.tsx:text-node:Translation Health"
+  },
+  {
+    "file": "components/auth/ProtectedRoute.tsx",
+    "line": 19,
+    "type": "text-node",
+    "text": "Loading...",
+    "id": "components/auth/ProtectedRoute.tsx:text-node:Loading..."
+  },
+  {
+    "file": "components/cms/blocks/golf/GolfLeaderboardBlock.tsx",
+    "line": 16,
+    "type": "text-node",
+    "text": "Golf Leaderboard",
+    "id": "components/cms/blocks/golf/GolfLeaderboardBlock.tsx:text-node:Golf Leaderboard"
+  },
+  {
+    "file": "components/cms/blocks/golf/GolfLeaderboardBlock.tsx",
+    "line": 17,
+    "type": "text-node",
+    "text": "No leaderboard data available.",
+    "id": "components/cms/blocks/golf/GolfLeaderboardBlock.tsx:text-node:No leaderboard data available."
+  },
+  {
+    "file": "components/cms/builder/AddBlockDialog.tsx",
+    "line": 118,
+    "type": "text-node",
+    "text": "All block types have been added.",
+    "id": "components/cms/builder/AddBlockDialog.tsx:text-node:All block types have been added."
+  },
+  {
+    "file": "components/cms/builder/BlockEditor.tsx",
+    "line": 37,
+    "type": "text-node",
+    "text": "Select a block to edit",
+    "id": "components/cms/builder/BlockEditor.tsx:text-node:Select a block to edit"
+  },
+  {
+    "file": "components/cms/builder/BlockEditor.tsx",
+    "line": 26,
+    "type": "text-node",
+    "text": "This block type is not yet supported in the visual editor.",
+    "id": "components/cms/builder/BlockEditor.tsx:text-node:This block type is not yet supported in the visual editor."
+  },
+  {
+    "file": "components/cms/builder/BlockList.tsx",
+    "line": 100,
+    "type": "text-node",
+    "text": "Click &quot;Add Block&quot; to get started.",
+    "id": "components/cms/builder/BlockList.tsx:text-node:Click &quot;Add Block&quot; to get started."
+  },
+  {
+    "file": "components/cms/builder/BlockList.tsx",
+    "line": 99,
+    "type": "text-node",
+    "text": "No blocks yet.",
+    "id": "components/cms/builder/BlockList.tsx:text-node:No blocks yet."
+  },
+  {
+    "file": "components/cms/builder/editors/HeroBlockEditor.tsx",
+    "line": 105,
+    "type": "attribute:placeholder",
+    "text": "Descriptive alt text",
+    "id": "components/cms/builder/editors/HeroBlockEditor.tsx:attribute:placeholder:Descriptive alt text"
+  },
+  {
+    "file": "components/cms/builder/editors/HeroBlockEditor.tsx",
+    "line": 51,
+    "type": "attribute:placeholder",
+    "text": "e.g., Featured",
+    "id": "components/cms/builder/editors/HeroBlockEditor.tsx:attribute:placeholder:e.g., Featured"
+  },
+  {
+    "file": "components/cms/builder/editors/HeroBlockEditor.tsx",
+    "line": 114,
+    "type": "attribute:placeholder",
+    "text": "Get Started",
+    "id": "components/cms/builder/editors/HeroBlockEditor.tsx:attribute:placeholder:Get Started"
+  },
+  {
+    "file": "components/cms/builder/editors/HeroBlockEditor.tsx",
+    "line": 123,
+    "type": "attribute:placeholder",
+    "text": "Learn More",
+    "id": "components/cms/builder/editors/HeroBlockEditor.tsx:attribute:placeholder:Learn More"
+  },
+  {
+    "file": "components/cms/builder/editors/HeroBlockEditor.tsx",
+    "line": 69,
+    "type": "attribute:placeholder",
+    "text": "Section subtitle",
+    "id": "components/cms/builder/editors/HeroBlockEditor.tsx:attribute:placeholder:Section subtitle"
+  },
+  {
+    "file": "components/cms/builder/editors/HeroBlockEditor.tsx",
+    "line": 60,
+    "type": "attribute:placeholder",
+    "text": "Section title",
+    "id": "components/cms/builder/editors/HeroBlockEditor.tsx:attribute:placeholder:Section title"
+  },
+  {
+    "file": "components/dev/I18nDebugPanel.tsx",
+    "line": 231,
+    "type": "attribute:aria-label",
+    "text": "Close panel",
+    "id": "components/dev/I18nDebugPanel.tsx:attribute:aria-label:Close panel"
+  },
+  {
+    "file": "components/dev/I18nDebugPanel.tsx",
+    "line": 170,
+    "type": "attribute:aria-label",
+    "text": "Toggle i18n debug panel",
+    "id": "components/dev/I18nDebugPanel.tsx:attribute:aria-label:Toggle i18n debug panel"
+  },
+  {
+    "file": "components/dev/I18nDebugPanel.tsx",
+    "line": 169,
+    "type": "attribute:title",
+    "text": "Toggle i18n debug panel (Alt+Shift+I)",
+    "id": "components/dev/I18nDebugPanel.tsx:attribute:title:Toggle i18n debug panel (Alt+Shift+I)"
+  },
+  {
+    "file": "components/dev/I18nDebugPanel.tsx",
+    "line": 218,
+    "type": "text-node",
+    "text": "🌐 i18n Debug Panel",
+    "id": "components/dev/I18nDebugPanel.tsx:text-node:🌐 i18n Debug Panel"
+  },
+  {
+    "file": "components/dev/I18nDebugPanel.tsx",
+    "line": 297,
+    "type": "text-node",
+    "text": "Alt+Shift+I to toggle",
+    "id": "components/dev/I18nDebugPanel.tsx:text-node:Alt+Shift+I to toggle"
+  },
+  {
+    "file": "components/dev/I18nDebugPanel.tsx",
+    "line": 300,
+    "type": "text-node",
+    "text": "Clear",
+    "id": "components/dev/I18nDebugPanel.tsx:text-node:Clear"
+  },
+  {
+    "file": "components/directory/DirectoryMapView.tsx",
+    "line": 173,
+    "type": "text-node",
+    "text": "OpenStreetMap",
+    "id": "components/directory/DirectoryMapView.tsx:text-node:OpenStreetMap"
+  },
+  {
+    "file": "components/events/EventsClient.tsx",
+    "line": 201,
+    "type": "attribute:placeholder",
+    "text": "All Categories",
+    "id": "components/events/EventsClient.tsx:attribute:placeholder:All Categories"
+  },
+  {
+    "file": "components/gdpr/CookieConsentDrawer.tsx",
+    "line": 207,
+    "type": "text-node",
+    "text": "Reject All",
+    "id": "components/gdpr/CookieConsentDrawer.tsx:text-node:Reject All"
+  },
+  {
+    "file": "components/gdpr/CookiePreferencesModal.tsx",
+    "line": 250,
+    "type": "text-node",
+    "text": "Reject All",
+    "id": "components/gdpr/CookiePreferencesModal.tsx:text-node:Reject All"
+  },
+  {
+    "file": "components/layout/PublicSiteSidebar.tsx",
+    "line": 42,
+    "type": "attribute:aria-label",
+    "text": "AlgarveOfficial homepage",
+    "id": "components/layout/PublicSiteSidebar.tsx:attribute:aria-label:AlgarveOfficial homepage"
+  },
+  {
+    "file": "components/layout/PublicSiteSidebar.tsx",
+    "line": 52,
+    "type": "text-node",
+    "text": "Algarve",
+    "id": "components/layout/PublicSiteSidebar.tsx:text-node:Algarve"
+  },
+  {
+    "file": "components/layout/PublicSiteSidebar.tsx",
+    "line": 53,
+    "type": "text-node",
+    "text": "Official",
+    "id": "components/layout/PublicSiteSidebar.tsx:text-node:Official"
+  },
+  {
+    "file": "components/listing-details/InquiryDialog.tsx",
+    "line": 323,
+    "type": "attribute:placeholder",
+    "text": "Full name",
+    "id": "components/listing-details/InquiryDialog.tsx:attribute:placeholder:Full name"
+  },
+  {
+    "file": "components/listing-details/InquiryDialog.tsx",
+    "line": 283,
+    "type": "attribute:placeholder",
+    "text": "Select number of guests",
+    "id": "components/listing-details/InquiryDialog.tsx:attribute:placeholder:Select number of guests"
+  },
+  {
+    "file": "components/listing-details/InquiryDialog.tsx",
+    "line": 344,
+    "type": "attribute:placeholder",
+    "text": "your@email.com",
+    "id": "components/listing-details/InquiryDialog.tsx:attribute:placeholder:your@email.com"
+  },
+  {
+    "file": "components/listing-details/InquiryDialog.tsx",
+    "line": 267,
+    "type": "text-node",
+    "text": "Select your preferred travel dates. These are not final and can be discussed with the owner.",
+    "id": "components/listing-details/InquiryDialog.tsx:text-node:Select your preferred travel dates. These are not final and can be discussed with the owner."
+  },
+  {
+    "file": "components/ListingImage.tsx",
+    "line": 128,
+    "type": "text-node",
+    "text": "Representative",
+    "id": "components/ListingImage.tsx:text-node:Representative"
+  },
+  {
+    "file": "components/ListingImage.tsx",
+    "line": 157,
+    "type": "text-node",
+    "text": "Representative",
+    "id": "components/ListingImage.tsx:text-node:Representative"
+  },
+  {
+    "file": "components/ListingImage.tsx",
+    "line": 183,
+    "type": "text-node",
+    "text": "Representative",
+    "id": "components/ListingImage.tsx:text-node:Representative"
+  },
+  {
+    "file": "components/map/ListingsLeafletMap.tsx",
+    "line": 410,
+    "type": "text-node",
+    "text": "Loading map...",
+    "id": "components/map/ListingsLeafletMap.tsx:text-node:Loading map..."
+  },
+  {
+    "file": "components/map/ListingsLeafletMap.tsx",
+    "line": 446,
+    "type": "text-node",
+    "text": "OpenStreetMap",
+    "id": "components/map/ListingsLeafletMap.tsx:text-node:OpenStreetMap"
+  },
+  {
+    "file": "components/marketing/NewsletterSignupPopup.tsx",
+    "line": 135,
+    "type": "attribute:aria-label",
+    "text": "Close newsletter popup",
+    "id": "components/marketing/NewsletterSignupPopup.tsx:attribute:aria-label:Close newsletter popup"
+  },
+  {
+    "file": "components/owner/ExitIntentModal.tsx",
+    "line": 31,
+    "type": "text-node",
+    "text": "Verified Partner",
+    "id": "components/owner/ExitIntentModal.tsx:text-node:Verified Partner"
+  },
+  {
+    "file": "components/owner/ExitIntentModal.tsx",
+    "line": 35,
+    "type": "text-node",
+    "text": "Your profile isn't live yet",
+    "id": "components/owner/ExitIntentModal.tsx:text-node:Your profile isn't live yet"
+  },
+  {
+    "file": "components/partner/HowItWorksSection.tsx",
+    "line": 37,
+    "type": "text-node",
+    "text": "How it works",
+    "id": "components/partner/HowItWorksSection.tsx:text-node:How it works"
+  },
+  {
+    "file": "components/partner/HowItWorksSection.tsx",
+    "line": 38,
+    "type": "text-node",
+    "text": "Simple. Fast. No surprises.",
+    "id": "components/partner/HowItWorksSection.tsx:text-node:Simple. Fast. No surprises."
+  },
+  {
+    "file": "components/partner/TestimonialsSection.tsx",
+    "line": 51,
+    "type": "text-node",
+    "text": "Results from verified AlgarveOfficial partners.",
+    "id": "components/partner/TestimonialsSection.tsx:text-node:Results from verified AlgarveOfficial partners."
+  },
+  {
+    "file": "components/partner/TestimonialsSection.tsx",
+    "line": 50,
+    "type": "text-node",
+    "text": "What partners say",
+    "id": "components/partner/TestimonialsSection.tsx:text-node:What partners say"
+  },
+  {
+    "file": "components/real-estate/ConciergeContactDialog.tsx",
+    "line": 206,
+    "type": "attribute:placeholder",
+    "text": "name@example.com",
+    "id": "components/real-estate/ConciergeContactDialog.tsx:attribute:placeholder:name@example.com"
+  },
+  {
+    "file": "components/real-estate/RealEstateAgentContactCard.tsx",
+    "line": 254,
+    "type": "attribute:placeholder",
+    "text": "name@example.com",
+    "id": "components/real-estate/RealEstateAgentContactCard.tsx:attribute:placeholder:name@example.com"
+  },
+  {
+    "file": "components/routes/AdminDashboardPage.tsx",
+    "line": 117,
+    "type": "text-node",
+    "text": "Page not found",
+    "id": "components/routes/AdminDashboardPage.tsx:text-node:Page not found"
+  },
+  {
+    "file": "components/routes/OwnerDashboardPage.tsx",
+    "line": 34,
+    "type": "text-node",
+    "text": "Page not found",
+    "id": "components/routes/OwnerDashboardPage.tsx:text-node:Page not found"
+  },
+  {
+    "file": "components/routes/UserDashboardPage.tsx",
+    "line": 30,
+    "type": "text-node",
+    "text": "Page not found",
+    "id": "components/routes/UserDashboardPage.tsx:text-node:Page not found"
+  },
+  {
+    "file": "components/sections/AlgarveGuideSection.tsx",
+    "line": 27,
+    "type": "text-node",
+    "text": "Guide",
+    "id": "components/sections/AlgarveGuideSection.tsx:text-node:Guide"
+  },
+  {
+    "file": "components/sections/AllListingsSection.tsx",
+    "line": 422,
+    "type": "text-node",
+    "text": "We couldn&apos;t load listings right now. Please refresh and try again.",
+    "id": "components/sections/AllListingsSection.tsx:text-node:We couldn&apos;t load listings right now. Please refresh and try again."
+  },
+  {
+    "file": "components/sections/HomeEditorialStorySection.tsx",
+    "line": 9,
+    "type": "text-node",
+    "text": "Coastline, cuisine and slow-premium living, selected with intent.",
+    "id": "components/sections/HomeEditorialStorySection.tsx:text-node:Coastline, cuisine and slow-premium living, selected with intent."
+  },
+  {
+    "file": "components/sections/HomeEditorialStorySection.tsx",
+    "line": 12,
+    "type": "text-node",
+    "text": "From cliffside stays and beach restaurants to private experiences and standout property, AlgarveOfficial highlights places worth planning a trip around.",
+    "id": "components/sections/HomeEditorialStorySection.tsx:text-node:From cliffside stays and beach restaurants to private experiences and standout property, AlgarveOfficial highlights places worth planning a trip around."
+  },
+  {
+    "file": "components/sections/HomeEditorialStorySection.tsx",
+    "line": 8,
+    "type": "text-node",
+    "text": "Why the Algarve?",
+    "id": "components/sections/HomeEditorialStorySection.tsx:text-node:Why the Algarve?"
+  },
+  {
+    "file": "components/seo/InternalLinks.tsx",
+    "line": 143,
+    "type": "attribute:aria-label",
+    "text": "Internal navigation",
+    "id": "components/seo/InternalLinks.tsx:attribute:aria-label:Internal navigation"
+  },
+  {
+    "file": "components/shared/premium-card-example.tsx",
+    "line": 15,
+    "type": "attribute:title",
+    "text": "Championship Golf Course",
+    "id": "components/shared/premium-card-example.tsx:attribute:title:Championship Golf Course"
+  },
+  {
+    "file": "components/shared/premium-card-example.tsx",
+    "line": 10,
+    "type": "attribute:title",
+    "text": "Oceanfront Restaurant",
+    "id": "components/shared/premium-card-example.tsx:attribute:title:Oceanfront Restaurant"
+  },
+  {
+    "file": "components/shared/premium-card-example.tsx",
+    "line": 20,
+    "type": "attribute:title",
+    "text": "Premium Villa",
+    "id": "components/shared/premium-card-example.tsx:attribute:title:Premium Villa"
+  },
+  {
+    "file": "components/trip-planner/TripCalendar.tsx",
+    "line": 168,
+    "type": "attribute:aria-label",
+    "text": "Add activity",
+    "id": "components/trip-planner/TripCalendar.tsx:attribute:aria-label:Add activity"
+  },
+  {
+    "file": "components/trip-planner/TripCalendar.tsx",
+    "line": 246,
+    "type": "attribute:aria-label",
+    "text": "Delete activity",
+    "id": "components/trip-planner/TripCalendar.tsx:attribute:aria-label:Delete activity"
+  },
+  {
+    "file": "components/trip-planner/TripCalendar.tsx",
+    "line": 237,
+    "type": "attribute:aria-label",
+    "text": "Edit activity",
+    "id": "components/trip-planner/TripCalendar.tsx:attribute:aria-label:Edit activity"
+  },
+  {
+    "file": "components/trip-planner/TripCalendar.tsx",
+    "line": 90,
+    "type": "attribute:aria-label",
+    "text": "Next period",
+    "id": "components/trip-planner/TripCalendar.tsx:attribute:aria-label:Next period"
+  },
+  {
+    "file": "components/trip-planner/TripCalendar.tsx",
+    "line": 87,
+    "type": "attribute:aria-label",
+    "text": "Previous period",
+    "id": "components/trip-planner/TripCalendar.tsx:attribute:aria-label:Previous period"
+  },
+  {
+    "file": "components/ui/breadcrumb.tsx",
+    "line": 12,
+    "type": "attribute:aria-label",
+    "text": "breadcrumb",
+    "id": "components/ui/breadcrumb.tsx:attribute:aria-label:breadcrumb"
+  },
+  {
+    "file": "components/ui/breadcrumb.tsx",
+    "line": 77,
+    "type": "text-node",
+    "text": "More",
+    "id": "components/ui/breadcrumb.tsx:text-node:More"
+  },
+  {
+    "file": "components/ui/carousel.tsx",
+    "line": 217,
+    "type": "text-node",
+    "text": "Next slide",
+    "id": "components/ui/carousel.tsx:text-node:Next slide"
+  },
+  {
+    "file": "components/ui/carousel.tsx",
+    "line": 189,
+    "type": "text-node",
+    "text": "Previous slide",
+    "id": "components/ui/carousel.tsx:text-node:Previous slide"
+  },
+  {
+    "file": "components/ui/command.tsx",
+    "line": 37,
+    "type": "attribute:aria-label",
+    "text": "Close search",
+    "id": "components/ui/command.tsx:attribute:aria-label:Close search"
+  },
+  {
+    "file": "components/ui/command.tsx",
+    "line": 47,
+    "type": "attribute:aria-label",
+    "text": "Close search",
+    "id": "components/ui/command.tsx:attribute:aria-label:Close search"
+  },
+  {
+    "file": "components/ui/dashboard-breadcrumb.tsx",
+    "line": 164,
+    "type": "attribute:aria-label",
+    "text": "Breadcrumb",
+    "id": "components/ui/dashboard-breadcrumb.tsx:attribute:aria-label:Breadcrumb"
+  },
+  {
+    "file": "components/ui/dialog.tsx",
+    "line": 47,
+    "type": "text-node",
+    "text": "Close",
+    "id": "components/ui/dialog.tsx:text-node:Close"
+  },
+  {
+    "file": "components/ui/image-lightbox.tsx",
+    "line": 77,
+    "type": "attribute:aria-label",
+    "text": "Close lightbox",
+    "id": "components/ui/image-lightbox.tsx:attribute:aria-label:Close lightbox"
+  },
+  {
+    "file": "components/ui/image-lightbox.tsx",
+    "line": 125,
+    "type": "attribute:aria-label",
+    "text": "Next image",
+    "id": "components/ui/image-lightbox.tsx:attribute:aria-label:Next image"
+  },
+  {
+    "file": "components/ui/image-lightbox.tsx",
+    "line": 115,
+    "type": "attribute:aria-label",
+    "text": "Previous image",
+    "id": "components/ui/image-lightbox.tsx:attribute:aria-label:Previous image"
+  },
+  {
+    "file": "components/ui/listing-map.tsx",
+    "line": 70,
+    "type": "text-node",
+    "text": "Loading map...",
+    "id": "components/ui/listing-map.tsx:text-node:Loading map..."
+  },
+  {
+    "file": "components/ui/listing-map.tsx",
+    "line": 88,
+    "type": "text-node",
+    "text": "OpenStreetMap",
+    "id": "components/ui/listing-map.tsx:text-node:OpenStreetMap"
+  },
+  {
+    "file": "components/ui/login-modal.tsx",
+    "line": 85,
+    "type": "attribute:placeholder",
+    "text": "your@email.com",
+    "id": "components/ui/login-modal.tsx:attribute:placeholder:your@email.com"
+  },
+  {
+    "file": "components/ui/OptimizedImage.tsx",
+    "line": 155,
+    "type": "attribute:alt",
+    "text": "Hero image",
+    "id": "components/ui/OptimizedImage.tsx:attribute:alt:Hero image"
+  },
+  {
+    "file": "components/ui/sheet.tsx",
+    "line": 62,
+    "type": "text-node",
+    "text": "Close",
+    "id": "components/ui/sheet.tsx:text-node:Close"
+  },
+  {
+    "file": "components/ui/sidebar.tsx",
+    "line": 233,
+    "type": "attribute:aria-label",
+    "text": "Toggle sidebar",
+    "id": "components/ui/sidebar.tsx:attribute:aria-label:Toggle sidebar"
+  },
+  {
+    "file": "components/ui/sidebar.tsx",
+    "line": 256,
+    "type": "attribute:aria-label",
+    "text": "Toggle Sidebar",
+    "id": "components/ui/sidebar.tsx:attribute:aria-label:Toggle Sidebar"
+  },
+  {
+    "file": "components/ui/sidebar.tsx",
+    "line": 259,
+    "type": "attribute:title",
+    "text": "Toggle Sidebar",
+    "id": "components/ui/sidebar.tsx:attribute:title:Toggle Sidebar"
+  },
+  {
+    "file": "components/ui/sidebar.tsx",
+    "line": 241,
+    "type": "text-node",
+    "text": "Toggle Sidebar",
+    "id": "components/ui/sidebar.tsx:text-node:Toggle Sidebar"
+  },
+  {
+    "file": "components/ui/whatsapp-chat-button.tsx",
+    "line": 62,
+    "type": "attribute:aria-label",
+    "text": "Open concierge on WhatsApp",
+    "id": "components/ui/whatsapp-chat-button.tsx:attribute:aria-label:Open concierge on WhatsApp"
+  },
+  {
+    "file": "components/ui/whatsapp-chat-button.tsx",
+    "line": 63,
+    "type": "attribute:title",
+    "text": "Open concierge on WhatsApp",
+    "id": "components/ui/whatsapp-chat-button.tsx:attribute:title:Open concierge on WhatsApp"
+  },
+  {
+    "file": "components/ui/whatsapp-chat-button.tsx",
+    "line": 66,
+    "type": "text-node",
+    "text": "Open concierge on WhatsApp",
+    "id": "components/ui/whatsapp-chat-button.tsx:text-node:Open concierge on WhatsApp"
+  }
+]

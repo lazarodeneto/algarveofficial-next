@@ -258,7 +258,7 @@ export async function POST(request: NextRequest) {
 
   // ✅ FIX: remove full_description before insert
   const {
-    full_description, // removed (not in DB)
+    full_description: _full_description, // removed (not in DB)
     published_status,
     ...safeValidated
   } = validated;

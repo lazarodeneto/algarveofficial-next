@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
+import { canUseNextImage } from "@/lib/nextImageSafety";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
@@ -63,7 +64,7 @@ export function SignatureCard({
   const isHero = variant === "hero";
   const isFeatured = variant === "featured";
   const isStandard = variant === "standard";
-  const isExternalImage = typeof image === "string" && /^https?:\/\//i.test(image);
+  const canOptimizeImage = canUseNextImage(image);
 
   const favoriteButton = onToggleFavorite ? (
     <button
@@ -90,7 +91,7 @@ export function SignatureCard({
           src={image}
           alt={title}
           fill
-          unoptimized={isExternalImage}
+          unoptimized={!canOptimizeImage}
           sizes={
             isHero
               ? "(max-width: 1024px) 100vw, 50vw"

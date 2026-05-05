@@ -46,7 +46,7 @@ export function HeaderNav() {
   return (
     <nav
       aria-label={ariaLabel}
-      className="flex items-center gap-2.5 font-fira text-[0.82rem] font-bold uppercase tracking-[0.04em] text-foreground/86 lg:text-[0.88rem] lg:tracking-[0.05em] xl:gap-4 xl:text-[0.95rem] xl:tracking-[0.065em] 2xl:gap-5 2xl:text-[1.22rem] 2xl:tracking-[0.08em]"
+      className="flex items-center gap-2.5 font-fira text-[0.94rem] font-bold uppercase tracking-[0.04em] text-foreground/86 lg:text-[1.01rem] lg:tracking-[0.05em] xl:gap-4 xl:text-[1.09rem] xl:tracking-[0.065em] 2xl:gap-5 2xl:text-[1.4rem] 2xl:tracking-[0.08em]"
     >
       {HEADER_NAV_ITEMS.map((item) => {
         const itemPath = item.href.split("?")[0];

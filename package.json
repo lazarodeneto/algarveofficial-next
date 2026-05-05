@@ -24,6 +24,7 @@
     "strip:i18n-defaults": "node scripts/removeTranslationDefaults.mjs",
     "sync:i18n": "node scripts/syncMissingTranslations.mjs",
     "i18n:check": "node scripts/check-missing-translations.mjs",
+    "i18n:hardcoded": "node scripts/check-hardcoded-ui-strings.mjs",
     "i18n:strict": "npm run typecheck && npm run i18n:check",
     "validate": "npm run lint && npm run typecheck && npm run i18n:check",
     "test:e2e": "playwright test",

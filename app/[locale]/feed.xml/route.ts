@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { SUPPORTED_LOCALES } from "@/lib/i18n/config";
 

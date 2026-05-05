@@ -16,6 +16,9 @@ import {
   type Locale,
 } from "@/lib/i18n/config";
 import { buildMetadata } from "@/lib/metadata";
+import { getServerTranslations } from "@/lib/i18n/server";
+import { CMS_PAGE_BUILDER_RUNTIME_KEYS } from "@/lib/cms/pageBuilderRegistry";
+import { fetchCmsRuntimeSettings } from "@/lib/cms/runtime-settings";
 
 interface LocaleLayoutProps {
   children: ReactNode;
@@ -35,11 +38,14 @@ export async function generateMetadata({
 
   const locale = localeParam as Locale;
   const localeConfig = LOCALE_CONFIGS[locale] ?? LOCALE_CONFIGS.en;
+  const tx = await getServerTranslations(locale, [
+    "seo.home.title",
+    "seo.home.description",
+  ]);
 
   return buildMetadata({
-    title: "AlgarveOfficial | Premium Villas, Golf & Restaurants",
-    description:
-      "Discover the Algarve's finest villas, restaurants and golf courses — curated by experts who know every corner of Portugal's most prestigious coast.",
+    title: tx["seo.home.title"] ?? "AlgarveOfficial",
+    description: tx["seo.home.description"] ?? "AlgarveOfficial",
     path: "/",
     localeCode: locale,
     locale: localeConfig.dateLocale,
@@ -51,6 +57,17 @@ export async function generateStaticParams() {
   return SUPPORTED_LOCALES.map((locale) => ({
     locale,
   }));
+}
+
+async function loadInitialCmsRuntimeSettings(locale: Locale) {
+  try {
+    return await fetchCmsRuntimeSettings({
+      requestedKeys: CMS_PAGE_BUILDER_RUNTIME_KEYS,
+      locale,
+    });
+  } catch {
+    return [];
+  }
 }
 
 export default async function LocaleLayout({
@@ -69,11 +86,18 @@ export default async function LocaleLayout({
   // ✅ Get locale config
   const localeConfig = LOCALE_CONFIGS[locale] ?? LOCALE_CONFIGS.en;
   void localeConfig;
-  const messages = await loadInitialLocaleMessages(locale);
+  const [messages, initialCmsRuntimeSettings] = await Promise.all([
+    loadInitialLocaleMessages(locale),
+    loadInitialCmsRuntimeSettings(locale),
+  ]);
 
   return (
     <LocaleProvider locale={locale}>
-      <AppProviders initialMessages={messages}>
+      <AppProviders
+        initialMessages={messages}
+        initialCmsRuntimeSettings={initialCmsRuntimeSettings}
+        locale={locale}
+      >
         <PublicSiteFrame>{children}</PublicSiteFrame>
         <WhatsAppChatButtonWrapper />
         <FloatingCookieSettingsButton />

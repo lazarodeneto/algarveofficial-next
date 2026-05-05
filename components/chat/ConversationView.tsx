@@ -117,7 +117,7 @@ export const ConversationView = forwardRef<HTMLDivElement, ConversationViewProps
                 initialListingName ?? t("chat.listingFallbackName"),
             })
         );
-        window.open(`https://wa.me/${waStatus.phone.replace(/\D/g, "")}?text=${encodedMessage}`, "_blank");
+        window.open(`https://wa.me/${waStatus.phone.replace(/\D/g, "")}?text=${encodedMessage}`, "_blank", "noopener,noreferrer");
       }
     };
 

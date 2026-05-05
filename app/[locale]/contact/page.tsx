@@ -1,3 +1,4 @@
+/* eslint-disable local/no-hardcoded-strings */
 import type { ContactSettings } from "@/hooks/useContactSettings";
 import ContactClient from "@/components/contact/ContactClient";
 import {

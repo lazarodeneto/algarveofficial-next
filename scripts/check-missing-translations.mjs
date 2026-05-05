@@ -1,118 +1,110 @@
 #!/usr/bin/env node
-import fs from 'fs'
-import path from 'path'
+import fs from "node:fs";
+import path from "node:path";
 
-const LOCALES_DIR = path.join(process.cwd(), 'i18n', 'locales')
-const LOCALES = ['en', 'pt-pt', 'fr', 'de', 'es', 'it', 'nl', 'sv', 'no', 'da']
+const LOCALES_DIR = path.join(process.cwd(), "i18n", "locales");
+const LOCALES = ["en", "pt-pt", "fr", "de", "es", "it", "nl", "sv", "no", "da"];
+const BASE_LOCALE = "en";
 
-function flattenKeys(obj, prefix = '') {
-  const keys = []
+function flattenValues(obj, prefix = "", out = new Map()) {
   for (const [key, value] of Object.entries(obj)) {
-    const fullKey = prefix ? `${prefix}.${key}` : key
-    if (typeof value === 'object' && value !== null) {
-      keys.push(...flattenKeys(value, fullKey))
+    const fullKey = prefix ? `${prefix}.${key}` : key;
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      flattenValues(value, fullKey, out);
     } else {
-      keys.push(fullKey)
+      out.set(fullKey, String(value ?? ""));
     }
   }
-  return keys
-}
-
-function getAllKeys(translations) {
-  return flattenKeys(translations)
+  return out;
 }
 
 function loadLocale(locale) {
-  const filePath = path.join(LOCALES_DIR, `${locale}.json`)
+  const filePath = path.join(LOCALES_DIR, `${locale}.json`);
   if (!fs.existsSync(filePath)) {
-    console.error(`Locale file not found: ${filePath}`)
-    process.exit(1)
+    throw new Error(`Locale file not found: ${filePath}`);
   }
-  return JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+  return flattenValues(JSON.parse(fs.readFileSync(filePath, "utf8")));
 }
 
-function findMissingKeys(baseKeys, compareKeys, locale) {
-  const missing = []
-  for (const key of baseKeys) {
-    if (!compareKeys.has(key)) {
-      missing.push(key)
-    }
-  }
-  return missing
+function interpolationTokens(value) {
+  return new Set([...value.matchAll(/\{\{\s*([\w.-]+)\s*\}\}|\{\s*([\w.-]+)\s*\}/g)].map((m) => m[1] ?? m[2]));
 }
 
-function findEmptyValues(translations, prefix = '') {
-  const empty = []
-  for (const [key, value] of Object.entries(translations)) {
-    const fullKey = prefix ? `${prefix}.${key}` : key
-    if (typeof value === 'object' && value !== null) {
-      empty.push(...findEmptyValues(value, fullKey))
-    } else if (value === '' || value === null) {
-      empty.push(fullKey)
-    }
-  }
-  return empty
+function pluralTokens(value) {
+  return new Set([...value.matchAll(/\b(one|two|few|many|other|zero)\s*\{/g)].map((m) => m[1]));
 }
 
-async function main() {
-  console.log('🔍 Checking i18n translation coverage...\n')
-  
-  const baseLocale = loadLocale('en')
-  const baseKeys = new Set(getAllKeys(baseLocale))
-  
-  let allPassed = true
-  const results = []
-  
+function diffSets(a, b) {
+  return [...a].filter((item) => !b.has(item));
+}
+
+function main() {
+  console.log("Checking i18n translation coverage...\n");
+
+  const locales = Object.fromEntries(LOCALES.map((locale) => [locale, loadLocale(locale)]));
+  const base = locales[BASE_LOCALE];
+  let failed = false;
+  let warned = false;
+
   for (const locale of LOCALES) {
-    if (locale === 'en') continue
-    
-    const localeTranslations = loadLocale(locale)
-    const localeKeys = new Set(getAllKeys(localeTranslations))
-    
-    const missingInLocale = findMissingKeys(baseKeys, localeKeys, locale)
-    const emptyValues = findEmptyValues(localeTranslations)
-    
-    if (missingInLocale.length > 0 || emptyValues.length > 0) {
-      allPassed = false
-      results.push(`❌ ${locale}:`)
-      
-      if (missingInLocale.length > 0) {
-        results.push(`   Missing keys (${missingInLocale.length}):`)
-        missingInLocale.slice(0, 10).forEach(key => {
-          results.push(`     - ${key}`)
-        })
-        if (missingInLocale.length > 10) {
-          results.push(`     ... and ${missingInLocale.length - 10} more`)
-        }
+    if (locale === BASE_LOCALE) continue;
+
+    const current = locales[locale];
+    const missing = diffSets(new Set(base.keys()), new Set(current.keys()));
+    const extra = diffSets(new Set(current.keys()), new Set(base.keys()));
+    const empty = [...current.entries()]
+      .filter(([, value]) => value.trim().length === 0)
+      .map(([key]) => key);
+    const sameAsEnglish = [...base.entries()]
+      .filter(([key, value]) => current.has(key) && value.trim() && current.get(key)?.trim() === value.trim())
+      .map(([key]) => key);
+
+    const interpolationMismatches = [];
+    const pluralMismatches = [];
+    for (const [key, enValue] of base.entries()) {
+      if (!current.has(key)) continue;
+      const localeValue = current.get(key) ?? "";
+      const missingInterpolation = diffSets(interpolationTokens(enValue), interpolationTokens(localeValue));
+      const extraInterpolation = diffSets(interpolationTokens(localeValue), interpolationTokens(enValue));
+      if (missingInterpolation.length || extraInterpolation.length) {
+        interpolationMismatches.push({ key, missingInterpolation, extraInterpolation });
       }
-      
-      if (emptyValues.length > 0) {
-        results.push(`   Empty values (${emptyValues.length}):`)
-        emptyValues.slice(0, 5).forEach(key => {
-          results.push(`     - ${key}`)
-        })
-        if (emptyValues.length > 5) {
-          results.push(`     ... and ${emptyValues.length - 5} more`)
-        }
+
+      const missingPlural = diffSets(pluralTokens(enValue), pluralTokens(localeValue));
+      const extraPlural = diffSets(pluralTokens(localeValue), pluralTokens(enValue));
+      if (missingPlural.length || extraPlural.length) {
+        pluralMismatches.push({ key, missingPlural, extraPlural });
       }
-    } else {
-      results.push(`✅ ${locale}: All keys present`)
     }
+
+    if (missing.length || empty.length || interpolationMismatches.length || pluralMismatches.length) {
+      failed = true;
+    }
+    if (extra.length || sameAsEnglish.length) {
+      warned = true;
+    }
+
+    const status = missing.length || empty.length || interpolationMismatches.length || pluralMismatches.length ? "FAIL" : "OK";
+    console.log(`${status} ${locale}`);
+    if (missing.length) console.log(`  Missing keys: ${missing.slice(0, 12).join(", ")}${missing.length > 12 ? ` (+${missing.length - 12})` : ""}`);
+    if (empty.length) console.log(`  Empty values: ${empty.slice(0, 12).join(", ")}${empty.length > 12 ? ` (+${empty.length - 12})` : ""}`);
+    if (interpolationMismatches.length) console.log(`  Interpolation mismatches: ${interpolationMismatches.slice(0, 8).map((m) => m.key).join(", ")}`);
+    if (pluralMismatches.length) console.log(`  ICU/plural mismatches: ${pluralMismatches.slice(0, 8).map((m) => m.key).join(", ")}`);
+    if (extra.length) console.log(`  Warning extra/orphan keys: ${extra.slice(0, 8).join(", ")}${extra.length > 8 ? ` (+${extra.length - 8})` : ""}`);
+    if (sameAsEnglish.length) console.log(`  Warning same as English: ${sameAsEnglish.slice(0, 8).join(", ")}${sameAsEnglish.length > 8 ? ` (+${sameAsEnglish.length - 8})` : ""}`);
   }
-  
-  console.log(results.join('\n'))
-  console.log('')
-  
-  if (!allPassed) {
-    console.error('❌ Translation check FAILED')
-    process.exit(1)
-  } else {
-    console.log('✅ All translations complete')
-    process.exit(0)
+
+  if (failed) {
+    console.error("\nTranslation check failed.");
+    process.exit(1);
   }
+
+  console.log(warned ? "\nTranslation check passed with warnings." : "\nAll translations complete.");
 }
 
-main().catch(error => {
-  console.error('Error:', error)
-  process.exit(1)
-})
+try {
+  main();
+} catch (error) {
+  console.error(error);
+  process.exit(1);
+}

@@ -184,7 +184,7 @@ export default function AdminBlog() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem onClick={() => window.open(`/blog/${post.slug}`, "_blank")}>
+            <DropdownMenuItem onClick={() => window.open(`/blog/${post.slug}`, "_blank", "noopener,noreferrer")}>
               <Eye className="h-4 w-4 mr-2" />
               View
             </DropdownMenuItem>

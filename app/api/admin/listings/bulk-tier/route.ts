@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import type { Database, TablesUpdate } from "@/integrations/supabase/types";
+import type { TablesUpdate } from "@/integrations/supabase/types";
 import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
 import { validatePayload, jsonErrorResponse } from "@/lib/api/api-validation";
 import { bulkTierUpdateSchema } from "@/lib/forms/admin-schemas";

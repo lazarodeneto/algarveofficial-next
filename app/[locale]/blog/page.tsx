@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { DEFAULT_LOCALE, isValidLocale, type Locale } from "@/lib/i18n/config";

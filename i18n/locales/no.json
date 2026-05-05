@@ -1208,7 +1208,8 @@
     "preferencesTitle": "Informasjonskapselinnstillinger",
     "savePreferences": "Lagre preferanser",
     "saveSettings": "Lagre innstillinger",
-    "title": "Personvernet ditt er viktig"
+    "title": "Personvernet ditt er viktig",
+    "managePreferences": "Administrer innstillinger"
   },
   "cookiePolicy": {
     "footer": {
@@ -1678,7 +1679,11 @@
       "title": "Golfbanekatalog",
       "description": "Utforsk golfklubber via AlgarveOfficial-oppføringer.",
       "emptyTitle": "Ingen golfoppføringer tilgjengelig",
-      "emptyDescription": "Ingen publiserte golfoppføringer samsvarer med gjeldende filtre."
+      "emptyDescription": "Ingen publiserte golfoppføringer samsvarer med gjeldende filtre.",
+      "metadataTitle": "Golfbaner i Algarve",
+      "metadataDescription": "Utforsk championship-golflister i Algarve med banedata, beliggenhet og scorecard-tilgang.",
+      "regionFilter": "Region: {{region}}.",
+      "cityFilter": "By: {{city}}."
     },
     "leaderboardPage": {
       "title": "Resultatliste",
@@ -1720,6 +1725,10 @@
       "diff": "Forskjell",
       "total": "Totalt",
       "holesRange": "Hull {{start}}-{{end}}"
+    },
+    "metadata": {
+      "title": "Golf i Algarve",
+      "description": "Oppdag Algarves beste golfbaner, premiumklubber og ressurser for golfplanlegging."
     }
   },
   "guides": {
@@ -1807,7 +1816,7 @@
     "headlineHighlight": "Algarves fineste",
     "listYourBusiness": "Legg Til Bedriften Din",
     "location": "Distriktet Faro, Portugal",
-    "loginRequired": "Logg inn eller lag en konto for å lage og lagre reisen din.",
+    "loginRequired": "Logg inn for å opprette en reise.",
     "planTripCta": "Planlegg reisen din",
     "popular": "Populær",
     "primaryCta": "Utforsk regioner",
@@ -1819,7 +1828,7 @@
     "tagGoldenVisa": "Gyldent visum",
     "tagMichelinDining": "Michelin-servering",
     "tagPrivateAviation": "Privat luftfart",
-    "tripCreated": "Reise opprettet vellykket.",
+    "tripCreated": "Reisen er opprettet.",
     "trust": {
       "anonymousVisitor": "Verifisert besøkende",
       "approvedReview": "Godkjent anmeldelse",
@@ -1950,20 +1959,20 @@
     "bathrooms": "Bad",
     "bedrooms": "Soverom",
     "bookVisit": "Bestill et besøk",
-    "builtArea": "Bygget område",
+    "builtArea": "Bruksareal",
     "certifiedListing": "Sertifisert oppføring",
     "claimThisListing": "Claim this listing",
     "contact": "Contact",
-    "contactForLocation": "Ta kontakt for lokasjonsdetaljer",
-    "experience": "Erfaring",
-    "exterior": "Ytre",
+    "contactForLocation": "Kontakt for beliggenhet",
+    "experience": "Opplevelse",
+    "exterior": "Uteområde",
     "features": "Funksjoner",
     "follow": "Følge",
     "form": {
       "consent": "Jeg godtar å bli kontaktet om denne eiendommen",
       "email": "E-post",
       "emailWarning": "Meldingen din ble lagret, men e-postvarsling mislyktes. Administratoren kan fortsatt se den i innboksen.",
-      "errorToast": "Kunne ikke sende forespørsel. Vennligst prøv igjen.",
+      "errorToast": "Kunne ikke sende forespørselen. Prøv igjen.",
       "fullName": "Fullt navn",
       "inboxWarning": "Meldingen din ble mottatt, men levering av admin innboks må konfigureres.",
       "inPerson": "Personlig besøk",
@@ -1975,13 +1984,13 @@
       "selectVisitType": "Velg besøkstype",
       "send": "Send forespørsel",
       "sending": "Sender...",
-      "successToast": "Din forespørsel er sendt!",
+      "successToast": "Forespørselen din er sendt.",
       "telephone": "Telefon",
       "videoCall": "Videosamtale",
       "visitType": "Type besøk"
     },
     "freehold": "Selveier",
-    "golfFront": "Golf foran",
+    "golfFront": "Ved golfbane",
     "handpickedSelection": "Håndplukket utvalg",
     "inquiry": {
       "back": "Tilbake",
@@ -2018,8 +2027,8 @@
     "interested": "Interessert?",
     "isYourBusiness": "Is this your business?",
     "livingArea": "Boareal",
-    "location": "Sted",
-    "locationHidden": "Plassering tilgjengelig på forespørsel",
+    "location": "Beliggenhet",
+    "locationHidden": "Nøyaktig beliggenhet skjult",
     "locationUnavailable": "Location unavailable",
     "messageWhatsApp": "Message on WhatsApp",
     "notFound": "Listing not found",
@@ -2030,18 +2039,18 @@
     "relatedDestinations": "Related destinations",
     "relatedListings": "More {{category}} to explore",
     "reviews": {
-      "content": "Din anmeldelse",
-      "contentPlaceholder": "Del detaljene om opplevelsen din...",
-      "errorContent": "Skriv din anmeldelse",
-      "errorRating": "Velg en vurdering",
-      "errorTitle": "Vennligst legg til en tittel",
-      "rating": "Din vurdering",
-      "submit": "Send inn anmeldelse",
-      "submitting": "Sender inn...",
-      "success": "Takk for din anmeldelse!",
+      "content": "Anmeldelse",
+      "contentPlaceholder": "Del hva som skilte seg ut under besøket...",
+      "errorContent": "Skriv anmeldelsen din.",
+      "errorRating": "Velg en vurdering.",
+      "errorTitle": "Legg til en tittel på anmeldelsen.",
+      "rating": "Vurdering",
+      "submit": "Send anmeldelse",
+      "submitting": "Sender...",
+      "success": "Takk. Anmeldelsen din er sendt.",
       "title": "Tittel",
       "titlePlaceholder": "Oppsummer opplevelsen din",
-      "write": "Skriv en anmeldelse"
+      "write": "Skriv anmeldelse"
     },
     "save": "Spare",
     "saveToFavorites": "Save to favorites",
@@ -2049,7 +2058,7 @@
     "sendInquiry": "Send forespørsel",
     "sendMessage": "Send melding",
     "share": "Share",
-    "similarListings": "Lignende oppføringer",
+    "similarListings": "Lignende eiendommer",
     "tags": "Tags",
     "verifiedDocuments": "Verifiserte dokumenter",
     "verifiedPartner": "Verifisert partner",
@@ -3346,7 +3355,13 @@
         "estimatedCostEuro": "Estimated Cost (€)",
         "notes": "Notes",
         "notesPlaceholder": "Add any notes or reminders..."
-      }
+      },
+      "createNewTrip": "Opprett ny reise",
+      "tripTitlePlaceholder": "Reisetittel",
+      "startDate": "Startdato",
+      "endDate": "Sluttdato",
+      "createTrip": "Opprett reise",
+      "saveChanges": "Lagre endringer"
     }
   },
   "beachesPage": {

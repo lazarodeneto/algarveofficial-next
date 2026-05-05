@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-11T20:24:11.601Z",
+  "generatedAt": "2026-05-05T06:28:19.151Z",
   "localeFiles": [
     "da",
     "de",
@@ -13,18 +13,11 @@
     "sv"
   ],
   "summary": {
-    "hardcodedCount": 1022,
+    "hardcodedCount": 1072,
     "missingKeyCount": 0,
-    "fallbackPatternCount": 10
+    "fallbackPatternCount": 14
   },
   "hardcoded": [
-    {
-      "file": "app/[locale]/category/[category]/page.tsx",
-      "line": 221,
-      "string": "Get More Visibility in the Algarve",
-      "suggestedKey": "common.get-more-visibility-in-the",
-      "type": "text-node"
-    },
     {
       "file": "app/[locale]/contact/page.tsx",
       "line": 111,
@@ -33,43 +26,43 @@
       "type": "text-node"
     },
     {
-      "file": "app/[locale]/visit/[city]/[category]/page.tsx",
-      "line": 250,
-      "string": "Breadcrumb",
-      "suggestedKey": "common.breadcrumb",
-      "type": "attribute"
+      "file": "app/api/partner/claims/route.ts",
+      "line": 96,
+      "string": "New Partner Claim Submitted",
+      "suggestedKey": "common.new-partner-claim-submitted",
+      "type": "text-node"
     },
     {
-      "file": "app/[locale]/visit/[city]/page.tsx",
-      "line": 221,
-      "string": "Breadcrumb",
-      "suggestedKey": "common.breadcrumb",
-      "type": "attribute"
+      "file": "app/api/partner/claims/route.ts",
+      "line": 97,
+      "string": "Immediate alert from AlgarveOfficial partner intake",
+      "suggestedKey": "common.immediate-alert-from-algarveofficial-partner",
+      "type": "text-node"
     },
     {
-      "file": "app/[locale]/visit/[city]/page.tsx",
-      "line": 355,
-      "string": "Related Algarve cities",
-      "suggestedKey": "common.related-algarve-cities",
+      "file": "app/api/partner/claims/route.ts",
+      "line": 110,
+      "string": "Business details from submitter:",
+      "suggestedKey": "common.business-details-from-submitter",
       "type": "text-node"
     },
     {
       "file": "components/ListingImage.tsx",
-      "line": 132,
+      "line": 128,
       "string": "Representative",
       "suggestedKey": "ListingImage.tsx.representative",
       "type": "text-node"
     },
     {
       "file": "components/ListingImage.tsx",
-      "line": 160,
+      "line": 157,
       "string": "Representative",
       "suggestedKey": "ListingImage.tsx.representative",
       "type": "text-node"
     },
     {
       "file": "components/ListingImage.tsx",
-      "line": 186,
+      "line": 183,
       "string": "Representative",
       "suggestedKey": "ListingImage.tsx.representative",
       "type": "text-node"
@@ -138,92 +131,127 @@
       "type": "text-node"
     },
     {
+      "file": "components/admin/ImageUrlUploadField.tsx",
+      "line": 38,
+      "string": "https://...",
+      "suggestedKey": "admin.https",
+      "type": "attribute"
+    },
+    {
+      "file": "components/admin/ImageUrlUploadField.tsx",
+      "line": 137,
+      "string": "Clear image URL",
+      "suggestedKey": "admin.clear-image-url",
+      "type": "attribute"
+    },
+    {
+      "file": "components/admin/admin-shell.tsx",
+      "line": 45,
+      "string": "Access Restricted",
+      "suggestedKey": "admin.access-restricted",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/admin-shell.tsx",
+      "line": 46,
+      "string": "The admin panel is restricted to Portugal-based access only. Your current location does not match the allowed region.",
+      "suggestedKey": "admin.the-admin-panel-is-restricted",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/admin-shell.tsx",
+      "line": 50,
+      "string": "If you believe this is an error, please contact the site administrator.",
+      "suggestedKey": "admin.if-you-believe-this-is",
+      "type": "text-node"
+    },
+    {
       "file": "components/admin/analytics/AnalyticsOverviewSection.tsx",
-      "line": 35,
+      "line": 42,
       "string": "Total Users",
       "suggestedKey": "admin.total-users",
       "type": "attribute"
     },
     {
       "file": "components/admin/analytics/AnalyticsOverviewSection.tsx",
-      "line": 42,
+      "line": 49,
       "string": "Sessions",
       "suggestedKey": "admin.sessions",
       "type": "attribute"
     },
     {
       "file": "components/admin/analytics/AnalyticsOverviewSection.tsx",
-      "line": 49,
+      "line": 56,
       "string": "Page Views",
       "suggestedKey": "admin.page-views",
       "type": "attribute"
     },
     {
       "file": "components/admin/analytics/AnalyticsOverviewSection.tsx",
-      "line": 56,
+      "line": 63,
       "string": "Avg Session Duration",
       "suggestedKey": "admin.avg-session-duration",
       "type": "attribute"
     },
     {
       "file": "components/admin/analytics/AnalyticsOverviewSection.tsx",
-      "line": 82,
+      "line": 93,
       "string": "Top Pages",
       "suggestedKey": "admin.top-pages",
       "type": "attribute"
     },
     {
       "file": "components/admin/analytics/AnalyticsOverviewSection.tsx",
-      "line": 92,
+      "line": 103,
       "string": "Top Cities",
       "suggestedKey": "admin.top-cities",
       "type": "attribute"
     },
     {
       "file": "components/admin/analytics/AnalyticsOverviewSection.tsx",
-      "line": 102,
+      "line": 113,
       "string": "Top Categories",
       "suggestedKey": "admin.top-categories",
       "type": "attribute"
     },
     {
       "file": "components/admin/analytics/ContentPerformanceSection.tsx",
-      "line": 97,
+      "line": 124,
       "string": "Top Cities",
       "suggestedKey": "admin.top-cities",
       "type": "attribute"
     },
     {
       "file": "components/admin/analytics/ContentPerformanceSection.tsx",
-      "line": 107,
+      "line": 134,
       "string": "Top Categories",
       "suggestedKey": "admin.top-categories",
       "type": "attribute"
     },
     {
       "file": "components/admin/analytics/ContentPerformanceSection.tsx",
-      "line": 117,
+      "line": 144,
       "string": "Top Listings",
       "suggestedKey": "admin.top-listings",
       "type": "attribute"
     },
     {
       "file": "components/admin/analytics/ContentPerformanceSection.tsx",
-      "line": 129,
+      "line": 156,
       "string": "Top Cities Table",
       "suggestedKey": "admin.top-cities-table",
       "type": "attribute"
     },
     {
       "file": "components/admin/analytics/ContentPerformanceSection.tsx",
-      "line": 130,
+      "line": 157,
       "string": "Top Categories Table",
       "suggestedKey": "admin.top-categories-table",
       "type": "attribute"
     },
     {
       "file": "components/admin/analytics/ContentPerformanceSection.tsx",
-      "line": 131,
+      "line": 158,
       "string": "Top Listings Table",
       "suggestedKey": "admin.top-listings-table",
       "type": "attribute"
@@ -272,497 +300,644 @@
     },
     {
       "file": "components/admin/form-steps/BasicsStep.tsx",
-      "line": 69,
+      "line": 70,
       "string": "e.g., Villa Azure Ocean",
       "suggestedKey": "admin.e-g-villa-azure-ocean",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/BasicsStep.tsx",
-      "line": 91,
+      "line": 92,
       "string": "villa-azure-ocean",
       "suggestedKey": "admin.villa-azure-ocean",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/BasicsStep.tsx",
-      "line": 112,
+      "line": 113,
       "string": "A brief, compelling summary (2-3 sentences)",
       "suggestedKey": "admin.a-brief-compelling-summary-2",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/BasicsStep.tsx",
-      "line": 154,
+      "line": 155,
       "string": "Select category...",
       "suggestedKey": "admin.select-category",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/BasicsStep.tsx",
-      "line": 186,
+      "line": 187,
       "string": "Select city...",
       "suggestedKey": "admin.select-city",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/BasicsStep.tsx",
-      "line": 224,
+      "line": 223,
       "string": "Select region (optional)...",
       "suggestedKey": "admin.select-region-optional",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/BasicsStep.tsx",
-      "line": 256,
+      "line": 255,
       "string": "Add tags for better searchability...",
       "suggestedKey": "admin.add-tags-for-better-searchability",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/BasicsStep.tsx",
-      "line": 53,
+      "line": 54,
       "string": "Basic Information",
       "suggestedKey": "admin.basic-information",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/BasicsStep.tsx",
-      "line": 54,
+      "line": 55,
       "string": "Enter the essential details for this listing",
       "suggestedKey": "admin.enter-the-essential-details-for",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/BasicsStep.tsx",
-      "line": 82,
+      "line": 83,
       "string": "(auto-generated)",
       "suggestedKey": "admin.auto-generated",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/BasicsStep.tsx",
-      "line": 165,
+      "line": 166,
       "string": "(inactive)",
       "suggestedKey": "admin.inactive",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/BasicsStep.tsx",
-      "line": 202,
+      "line": 203,
       "string": "(inactive)",
       "suggestedKey": "admin.inactive",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/BasicsStep.tsx",
-      "line": 238,
+      "line": 237,
       "string": "(inactive)",
       "suggestedKey": "admin.inactive",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/BasicsStep.tsx",
-      "line": 245,
+      "line": 244,
       "string": "Recommended for premium navigation and VIP area visibility",
       "suggestedKey": "admin.recommended-for-premium-navigation-and",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 220,
+      "line": 224,
       "string": "contact@example.com",
       "suggestedKey": "admin.contact-example-com",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 238,
+      "line": 242,
       "string": "https://www.example.com",
       "suggestedKey": "admin.https-www-example-com",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 269,
+      "line": 273,
       "string": "123 Avenida da Liberdade, Almancil",
       "suggestedKey": "admin.123-avenida-da-liberdade-almancil",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 326,
+      "line": 332,
       "string": "https://instagram.com/username",
       "suggestedKey": "admin.https-instagram-com-username",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 343,
+      "line": 349,
       "string": "https://facebook.com/page",
       "suggestedKey": "admin.https-facebook-com-page",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 360,
+      "line": 366,
       "string": "https://linkedin.com/company/name",
       "suggestedKey": "admin.https-linkedin-com-company-name",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 377,
+      "line": 383,
       "string": "https://youtube.com/@channel",
       "suggestedKey": "admin.https-youtube-com-channel",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 394,
+      "line": 400,
       "string": "https://x.com/username",
       "suggestedKey": "admin.https-x-com-username",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 411,
+      "line": 417,
       "string": "https://tiktok.com/@username",
       "suggestedKey": "admin.https-tiktok-com-username",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 428,
+      "line": 434,
       "string": "https://wa.me/351912345678",
       "suggestedKey": "admin.https-wa-me-351912345678",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 448,
+      "line": 454,
       "string": "https://t.me/username",
       "suggestedKey": "admin.https-t-me-username",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 466,
+      "line": 472,
       "string": "https://maps.google.com/...",
       "suggestedKey": "admin.https-maps-google-com",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 180,
+      "line": 184,
       "string": "Contact Information",
       "suggestedKey": "admin.contact-information",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 181,
+      "line": 185,
       "string": "At least one contact method is required for publishing",
       "suggestedKey": "admin.at-least-one-contact-method",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 188,
+      "line": 192,
       "string": "Contact Details",
       "suggestedKey": "admin.contact-details",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 259,
+      "line": 263,
       "string": "Location (Optional)",
       "suggestedKey": "admin.location-optional",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 307,
+      "line": 313,
       "string": "Social Media (Optional)",
       "suggestedKey": "admin.social-media-optional",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 434,
+      "line": 440,
       "string": "Format: https://wa.me/[country code][number] (no spaces or symbols)",
       "suggestedKey": "admin.format-https-wa-me-country",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 524,
+      "line": 534,
       "string": "Fetch Ratings",
       "suggestedKey": "admin.fetch-ratings",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/ContactStep.tsx",
-      "line": 530,
+      "line": 540,
       "string": "Add your Google Business Profile URL to display ratings and reviews",
       "suggestedKey": "admin.add-your-google-business-profile",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/DetailsStep.tsx",
-      "line": 37,
+      "line": 45,
       "string": "Category Details",
       "suggestedKey": "admin.category-details",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/DetailsStep.tsx",
-      "line": 38,
+      "line": 46,
       "string": "Category-specific information for this listing",
       "suggestedKey": "admin.category-specific-information-for-this",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/DetailsStep.tsx",
-      "line": 46,
+      "line": 54,
       "string": "Please select a category first",
       "suggestedKey": "admin.please-select-a-category-first",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/DetailsStep.tsx",
-      "line": 49,
+      "line": 57,
       "string": "Go back to the Basics step and select a category to see the relevant fields.",
       "suggestedKey": "admin.go-back-to-the-basics",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/DetailsStep.tsx",
-      "line": 62,
+      "line": 70,
       "string": "Category Details",
       "suggestedKey": "admin.category-details",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/DetailsStep.tsx",
-      "line": 63,
+      "line": 71,
       "string": "Category-specific information for this listing",
       "suggestedKey": "admin.category-specific-information-for-this",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/DetailsStep.tsx",
-      "line": 71,
+      "line": 79,
       "string": "Template not found",
       "suggestedKey": "admin.template-not-found",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/DetailsStep.tsx",
-      "line": 74,
+      "line": 82,
       "string": "No template is configured for this category. Contact admin.",
       "suggestedKey": "admin.no-template-is-configured-for",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/DetailsStep.tsx",
-      "line": 97,
+      "line": 108,
       "string": "Required Information",
       "suggestedKey": "admin.required-information",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/DetailsStep.tsx",
-      "line": 125,
+      "line": 136,
       "string": "Additional Information (Optional)",
       "suggestedKey": "admin.additional-information-optional",
       "type": "text-node"
     },
     {
+      "file": "components/admin/form-steps/GolfStep.tsx",
+      "line": 728,
+      "string": "https://...",
+      "suggestedKey": "admin.https",
+      "type": "attribute"
+    },
+    {
+      "file": "components/admin/form-steps/GolfStep.tsx",
+      "line": 429,
+      "string": "Golf Course Setup",
+      "suggestedKey": "admin.golf-course-setup",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/form-steps/GolfStep.tsx",
+      "line": 430,
+      "string": "Configure course structure and hole-by-hole data for scorecards and rounds.",
+      "suggestedKey": "admin.configure-course-structure-and-hole",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/form-steps/GolfStep.tsx",
+      "line": 514,
+      "string": "Save the listing once before configuring course data.",
+      "suggestedKey": "admin.save-the-listing-once-before",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/form-steps/GolfStep.tsx",
+      "line": 536,
+      "string": "Hole counts above 18 require Multi-Course Resort mode.",
+      "suggestedKey": "admin.hole-counts-above-18-require",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/form-steps/GolfStep.tsx",
+      "line": 715,
+      "string": "Ready to Play?",
+      "suggestedKey": "admin.ready-to-play",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/form-steps/GolfStep.tsx",
+      "line": 716,
+      "string": "Book your tee time today",
+      "suggestedKey": "admin.book-your-tee-time-today",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/form-steps/GolfStep.tsx",
+      "line": 720,
+      "string": "Book Tee Time",
+      "suggestedKey": "admin.book-tee-time",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/form-steps/GolfStep.tsx",
+      "line": 739,
+      "string": "External affiliate or partner link used for the public Book Tee Time button.",
+      "suggestedKey": "admin.external-affiliate-or-partner-link",
+      "type": "text-node"
+    },
+    {
       "file": "components/admin/form-steps/MediaStep.tsx",
-      "line": 14,
+      "line": 17,
       "string": "Media Gallery",
       "suggestedKey": "admin.media-gallery",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/MediaStep.tsx",
-      "line": 15,
-      "string": "Upload high-quality images. The first image will be the featured/cover image.",
-      "suggestedKey": "admin.upload-high-quality-images-the",
-      "type": "text-node"
-    },
-    {
-      "file": "components/admin/form-steps/MediaStep.tsx",
-      "line": 31,
+      "line": 35,
       "string": "Image Guidelines",
       "suggestedKey": "admin.image-guidelines",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/MediaStep.tsx",
-      "line": 33,
+      "line": 37,
       "string": "• Minimum 1 image required for publishing",
       "suggestedKey": "admin.minimum-1-image-required-for",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/MediaStep.tsx",
-      "line": 34,
-      "string": "• Recommended: 5-10 high-quality images",
+      "line": 38,
+      "string": "• Recommended: 5-10 high-quality images (when tier allows)",
       "suggestedKey": "admin.recommended-5-10-high-quality",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/MediaStep.tsx",
-      "line": 35,
+      "line": 40,
       "string": "• Best resolution: 1920×1080 or higher",
       "suggestedKey": "admin.best-resolution-1920-1080-or",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/MediaStep.tsx",
-      "line": 36,
+      "line": 41,
       "string": "• Supported formats: PNG, JPG, WebP",
       "suggestedKey": "admin.supported-formats-png-jpg-webp",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/MediaStep.tsx",
-      "line": 37,
+      "line": 42,
       "string": "• Maximum file size: 10MB per image",
       "suggestedKey": "admin.maximum-file-size-10mb-per",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/MediaStep.tsx",
-      "line": 38,
+      "line": 43,
       "string": "• Drag images to reorder; click star to set featured image",
       "suggestedKey": "admin.drag-images-to-reorder-click",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/PublishingStep.tsx",
-      "line": 250,
+      "line": 249,
       "string": "Select owner...",
       "suggestedKey": "admin.select-owner",
       "type": "attribute"
     },
     {
       "file": "components/admin/form-steps/PublishingStep.tsx",
-      "line": 126,
+      "line": 127,
       "string": "Publishing Settings",
       "suggestedKey": "admin.publishing-settings",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/PublishingStep.tsx",
-      "line": 127,
+      "line": 128,
       "string": "Control tier, curation, and publication status",
       "suggestedKey": "admin.control-tier-curation-and-publication",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/PublishingStep.tsx",
-      "line": 137,
+      "line": 138,
       "string": "Limited Access",
       "suggestedKey": "admin.limited-access",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/PublishingStep.tsx",
-      "line": 138,
+      "line": 139,
       "string": "Tier and curation settings are admin-only. You can manage publication status.",
       "suggestedKey": "admin.tier-and-curation-settings-are",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/PublishingStep.tsx",
-      "line": 148,
+      "line": 149,
       "string": "Listing Tier (Monetization)",
       "suggestedKey": "admin.listing-tier-monetization",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/PublishingStep.tsx",
-      "line": 173,
+      "line": 174,
       "string": "Unverified",
       "suggestedKey": "admin.unverified",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/PublishingStep.tsx",
-      "line": 174,
+      "line": 175,
       "string": "(Free)",
       "suggestedKey": "admin.free",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/PublishingStep.tsx",
-      "line": 179,
+      "line": 180,
       "string": "Verified",
       "suggestedKey": "admin.verified",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/PublishingStep.tsx",
-      "line": 180,
+      "line": 181,
       "string": "(Paid)",
       "suggestedKey": "admin.paid",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/PublishingStep.tsx",
-      "line": 185,
+      "line": 186,
       "string": "Signature",
       "suggestedKey": "admin.signature",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/PublishingStep.tsx",
-      "line": 186,
+      "line": 187,
       "string": "(Premium)",
       "suggestedKey": "admin.premium",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/PublishingStep.tsx",
-      "line": 191,
+      "line": 192,
       "string": "Only admins can modify listing tiers. Higher tiers unlock more visibility.",
       "suggestedKey": "admin.only-admins-can-modify-listing",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/PublishingStep.tsx",
-      "line": 202,
+      "line": 203,
       "string": "Publication Status",
       "suggestedKey": "admin.publication-status",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/PublishingStep.tsx",
-      "line": 225,
+      "line": 226,
       "string": "Only published listings are visible on the public site.",
       "suggestedKey": "admin.only-published-listings-are-visible",
       "type": "text-node"
     },
     {
       "file": "components/admin/form-steps/PublishingStep.tsx",
-      "line": 266,
+      "line": 265,
       "string": "Assigning a listing will automatically grant the owner role if needed. Owners can edit their listings but cannot change tier or curation.",
       "suggestedKey": "admin.assigning-a-listing-will-automatically",
       "type": "text-node"
     },
     {
+      "file": "components/admin/inbox/InboxDetail.tsx",
+      "line": 207,
+      "string": "Rejection reason",
+      "suggestedKey": "admin.rejection-reason",
+      "type": "attribute"
+    },
+    {
+      "file": "components/admin/inbox/InboxDetail.tsx",
+      "line": 255,
+      "string": "UUID of assignee",
+      "suggestedKey": "admin.uuid-of-assignee",
+      "type": "attribute"
+    },
+    {
+      "file": "components/admin/inbox/InboxDetail.tsx",
+      "line": 152,
+      "string": "Submitter",
+      "suggestedKey": "admin.submitter",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/inbox/InboxDetail.tsx",
+      "line": 159,
+      "string": "Summary",
+      "suggestedKey": "admin.summary",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/inbox/InboxDetail.tsx",
+      "line": 166,
+      "string": "Created",
+      "suggestedKey": "admin.created",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/inbox/InboxDetail.tsx",
+      "line": 172,
+      "string": "Link",
+      "suggestedKey": "admin.link",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/inbox/InboxDetail.tsx",
+      "line": 181,
+      "string": "Assigned to",
+      "suggestedKey": "admin.assigned-to",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/inbox/InboxDetail.tsx",
+      "line": 248,
+      "string": "Assign to user ID",
+      "suggestedKey": "admin.assign-to-user-id",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/inbox/InboxList.tsx",
+      "line": 55,
+      "string": "Nothing assigned to you yet.",
+      "suggestedKey": "admin.nothing-assigned-to-you-yet",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/inbox/InboxList.tsx",
+      "line": 56,
+      "string": "Assign items to yourself from the detail panel.",
+      "suggestedKey": "admin.assign-items-to-yourself-from",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/inbox/InboxList.tsx",
+      "line": 69,
+      "string": "No items match these filters.",
+      "suggestedKey": "admin.no-items-match-these-filters",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/inbox/InboxList.tsx",
+      "line": 79,
+      "string": "Inbox clear — nothing pending.",
+      "suggestedKey": "admin.inbox-clear-nothing-pending",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/inbox-filters.tsx",
+      "line": 77,
+      "string": "Inbox Filters",
+      "suggestedKey": "admin.inbox-filters",
+      "type": "text-node"
+    },
+    {
       "file": "components/admin/listings/DynamicFormField.tsx",
-      "line": 99,
+      "line": 100,
       "string": "Click options below to select...",
       "suggestedKey": "admin.click-options-below-to-select",
       "type": "text-node"
     },
     {
       "file": "components/admin/listings/DynamicFormField.tsx",
-      "line": 151,
+      "line": 152,
       "string": "Enable this option",
       "suggestedKey": "admin.enable-this-option",
       "type": "text-node"
@@ -783,28 +958,49 @@
     },
     {
       "file": "components/admin/listings/ImageUploader.tsx",
-      "line": 239,
+      "line": 225,
+      "string": "Set as featured image",
+      "suggestedKey": "admin.set-as-featured-image",
+      "type": "attribute"
+    },
+    {
+      "file": "components/admin/listings/ImageUploader.tsx",
+      "line": 240,
       "string": "Remove image",
       "suggestedKey": "admin.remove-image",
       "type": "attribute"
     },
     {
       "file": "components/admin/listings/ImageUploader.tsx",
-      "line": 266,
+      "line": 241,
+      "string": "Remove image",
+      "suggestedKey": "admin.remove-image",
+      "type": "attribute"
+    },
+    {
+      "file": "components/admin/listings/ImageUploader.tsx",
+      "line": 268,
       "string": "No images uploaded",
       "suggestedKey": "admin.no-images-uploaded",
       "type": "text-node"
     },
     {
       "file": "components/admin/listings/ImageUploader.tsx",
-      "line": 269,
+      "line": 271,
       "string": "At least 1 image is required before publishing",
       "suggestedKey": "admin.at-least-1-image-is",
       "type": "text-node"
     },
     {
       "file": "components/admin/listings/SingleImageUploadField.tsx",
-      "line": 117,
+      "line": 87,
+      "string": "Remove image",
+      "suggestedKey": "admin.remove-image",
+      "type": "attribute"
+    },
+    {
+      "file": "components/admin/listings/SingleImageUploadField.tsx",
+      "line": 118,
       "string": "JPG, PNG, WebP",
       "suggestedKey": "admin.jpg-png-webp",
       "type": "text-node"
@@ -847,6 +1043,13 @@
     {
       "file": "components/admin/messages/ThreadDetailDialog.tsx",
       "line": 261,
+      "string": "Delete message",
+      "suggestedKey": "admin.delete-message",
+      "type": "attribute"
+    },
+    {
+      "file": "components/admin/messages/ThreadDetailDialog.tsx",
+      "line": 332,
       "string": "Delete message",
       "suggestedKey": "admin.delete-message",
       "type": "attribute"
@@ -909,7 +1112,7 @@
     },
     {
       "file": "components/admin/messages/ThreadFilters.tsx",
-      "line": 74,
+      "line": 77,
       "string": "All Owners",
       "suggestedKey": "admin.all-owners",
       "type": "attribute"
@@ -930,42 +1133,42 @@
     },
     {
       "file": "components/admin/messages/ThreadFilters.tsx",
-      "line": 89,
+      "line": 92,
       "string": "From",
       "suggestedKey": "admin.from",
       "type": "text-node"
     },
     {
       "file": "components/admin/messages/ThreadFilters.tsx",
-      "line": 116,
+      "line": 119,
       "string": "To",
       "suggestedKey": "admin.to",
       "type": "text-node"
     },
     {
       "file": "components/admin/seo/SeoFieldsPanel.tsx",
-      "line": 130,
+      "line": 131,
       "string": "Brief description for search engines...",
       "suggestedKey": "admin.brief-description-for-search-engines",
       "type": "attribute"
     },
     {
       "file": "components/admin/seo/SeoFieldsPanel.tsx",
-      "line": 144,
+      "line": 145,
       "string": "premium, algarve, travel, portugal...",
       "suggestedKey": "admin.premium-algarve-travel-portugal",
       "type": "attribute"
     },
     {
       "file": "components/admin/seo/SeoFieldsPanel.tsx",
-      "line": 198,
+      "line": 199,
       "string": "Leave empty to use SEO title",
       "suggestedKey": "admin.leave-empty-to-use-seo",
       "type": "attribute"
     },
     {
       "file": "components/admin/seo/SeoFieldsPanel.tsx",
-      "line": 210,
+      "line": 211,
       "string": "Leave empty to use meta description",
       "suggestedKey": "admin.leave-empty-to-use-meta",
       "type": "attribute"
@@ -979,107 +1182,247 @@
     },
     {
       "file": "components/admin/seo/SeoFieldsPanel.tsx",
-      "line": 83,
+      "line": 84,
       "string": "Search Engine Optimization",
       "suggestedKey": "admin.search-engine-optimization",
       "type": "text-node"
     },
     {
       "file": "components/admin/seo/SeoFieldsPanel.tsx",
-      "line": 106,
+      "line": 107,
       "string": "The title tag shown in search results. Keep under 60 characters.",
       "suggestedKey": "admin.the-title-tag-shown-in",
       "type": "text-node"
     },
     {
       "file": "components/admin/seo/SeoFieldsPanel.tsx",
-      "line": 132,
+      "line": 133,
       "string": "Displayed under the title in search results. Aim for 150-160 characters.",
       "suggestedKey": "admin.displayed-under-the-title-in",
       "type": "text-node"
     },
     {
       "file": "components/admin/seo/SeoFieldsPanel.tsx",
-      "line": 146,
+      "line": 147,
       "string": "Comma-separated keywords to target for this page.",
       "suggestedKey": "admin.comma-separated-keywords-to-target",
       "type": "text-node"
     },
     {
       "file": "components/admin/seo/SeoFieldsPanel.tsx",
-      "line": 158,
+      "line": 159,
       "string": "Search Preview",
       "suggestedKey": "admin.search-preview",
       "type": "text-node"
     },
     {
       "file": "components/admin/seo/SeoFieldsPanel.tsx",
-      "line": 181,
+      "line": 182,
       "string": "Social Sharing (Open Graph)",
       "suggestedKey": "admin.social-sharing-open-graph",
       "type": "text-node"
     },
     {
       "file": "components/admin/seo/SeoFieldsPanel.tsx",
-      "line": 237,
+      "line": 241,
       "string": "Recommended: 1200×630px for best display on social platforms",
       "suggestedKey": "admin.recommended-1200-630px-for-best",
       "type": "text-node"
     },
     {
       "file": "components/admin/seo/SeoFieldsPanel.tsx",
-      "line": 246,
+      "line": 250,
       "string": "Facebook/LinkedIn Preview",
       "suggestedKey": "admin.facebook-linkedin-preview",
       "type": "text-node"
     },
     {
       "file": "components/admin/seo/SeoFieldsPanel.tsx",
-      "line": 263,
+      "line": 267,
       "string": "algarveofficial.com",
       "suggestedKey": "admin.algarveofficial-com",
       "type": "text-node"
     },
     {
       "file": "components/admin/seo/SeoFieldsPanel.tsx",
-      "line": 284,
+      "line": 288,
       "string": "Advanced Settings",
       "suggestedKey": "admin.advanced-settings",
       "type": "text-node"
     },
     {
       "file": "components/admin/seo/SeoFieldsPanel.tsx",
-      "line": 303,
+      "line": 307,
       "string": "Override the canonical URL to prevent duplicate content issues.",
       "suggestedKey": "admin.override-the-canonical-url-to",
       "type": "text-node"
     },
     {
       "file": "components/admin/seo/SeoFieldsPanel.tsx",
-      "line": 310,
+      "line": 314,
       "string": "Index this page",
       "suggestedKey": "admin.index-this-page",
       "type": "text-node"
     },
     {
       "file": "components/admin/seo/SeoFieldsPanel.tsx",
-      "line": 311,
+      "line": 315,
       "string": "Allow search engines to index",
       "suggestedKey": "admin.allow-search-engines-to-index",
       "type": "text-node"
     },
     {
       "file": "components/admin/seo/SeoFieldsPanel.tsx",
-      "line": 320,
+      "line": 324,
       "string": "Follow links",
       "suggestedKey": "admin.follow-links",
       "type": "text-node"
     },
     {
       "file": "components/admin/seo/SeoFieldsPanel.tsx",
-      "line": 321,
+      "line": 325,
       "string": "Allow crawlers to follow links",
       "suggestedKey": "admin.allow-crawlers-to-follow-links",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/sidebar.tsx",
+      "line": 140,
+      "string": "Admin Dashboard",
+      "suggestedKey": "admin.admin-dashboard",
+      "type": "attribute"
+    },
+    {
+      "file": "components/admin/sidebar.tsx",
+      "line": 161,
+      "string": "Algarve",
+      "suggestedKey": "admin.algarve",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/sidebar.tsx",
+      "line": 162,
+      "string": "Official",
+      "suggestedKey": "admin.official",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/sidebar.tsx",
+      "line": 300,
+      "string": "AlgarveOfficial Admin",
+      "suggestedKey": "admin.algarveofficial-admin",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/translations/TranslationEditorDrawer.tsx",
+      "line": 135,
+      "string": "Enter translation content...",
+      "suggestedKey": "admin.enter-translation-content",
+      "type": "attribute"
+    },
+    {
+      "file": "components/admin/translations/TranslationEditorDrawer.tsx",
+      "line": 116,
+      "string": "Last error:",
+      "suggestedKey": "admin.last-error",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/translations/TranslationEditorDrawer.tsx",
+      "line": 124,
+      "string": "Translation Content",
+      "suggestedKey": "admin.translation-content",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/translations/TranslationFilters.tsx",
+      "line": 128,
+      "string": "Status",
+      "suggestedKey": "admin.status",
+      "type": "attribute"
+    },
+    {
+      "file": "components/admin/translations/TranslationFilters.tsx",
+      "line": 144,
+      "string": "Tier",
+      "suggestedKey": "admin.tier",
+      "type": "attribute"
+    },
+    {
+      "file": "components/admin/translations/TranslationFilters.tsx",
+      "line": 160,
+      "string": "Language",
+      "suggestedKey": "admin.language",
+      "type": "attribute"
+    },
+    {
+      "file": "components/admin/translations/TranslationFilters.tsx",
+      "line": 178,
+      "string": "City",
+      "suggestedKey": "admin.city",
+      "type": "attribute"
+    },
+    {
+      "file": "components/admin/translations/TranslationFilters.tsx",
+      "line": 196,
+      "string": "Category",
+      "suggestedKey": "admin.category",
+      "type": "attribute"
+    },
+    {
+      "file": "components/admin/translations/TranslationFilters.tsx",
+      "line": 82,
+      "string": "Quick",
+      "suggestedKey": "admin.quick",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/translations/TranslationListingGroup.tsx",
+      "line": 212,
+      "string": "🌐 SEO Coverage",
+      "suggestedKey": "admin.seo-coverage",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/translations/TranslationListingGroup.tsx",
+      "line": 298,
+      "string": "Upgrade to Signature",
+      "suggestedKey": "admin.upgrade-to-signature",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/translations/TranslationListingGroup.tsx",
+      "line": 302,
+      "string": "Priority processing",
+      "suggestedKey": "admin.priority-processing",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/translations/TranslationListingGroup.tsx",
+      "line": 492,
+      "string": "SLA ⚠",
+      "suggestedKey": "admin.sla",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/translations/TranslationStatusCards.tsx",
+      "line": 91,
+      "string": "Translation Health",
+      "suggestedKey": "admin.translation-health",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/translations/TranslationsDashboard.tsx",
+      "line": 169,
+      "string": "Translation Management",
+      "suggestedKey": "admin.translation-management",
+      "type": "text-node"
+    },
+    {
+      "file": "components/admin/translations/TranslationsDashboard.tsx",
+      "line": 172,
+      "string": "Monitor and manage listing translations across all locales",
+      "suggestedKey": "admin.monitor-and-manage-listing-translations",
       "type": "text-node"
     },
     {
@@ -1090,11 +1433,109 @@
       "type": "text-node"
     },
     {
-      "file": "components/blog/BlogClient.tsx",
-      "line": 578,
-      "string": "Read more",
-      "suggestedKey": "blog.read-more",
+      "file": "components/cms/blocks/golf/GolfLeaderboardBlock.tsx",
+      "line": 16,
+      "string": "Golf Leaderboard",
+      "suggestedKey": "cms.golf-leaderboard",
       "type": "text-node"
+    },
+    {
+      "file": "components/cms/blocks/golf/GolfLeaderboardBlock.tsx",
+      "line": 17,
+      "string": "No leaderboard data available.",
+      "suggestedKey": "cms.no-leaderboard-data-available",
+      "type": "text-node"
+    },
+    {
+      "file": "components/cms/builder/AddBlockDialog.tsx",
+      "line": 118,
+      "string": "All block types have been added.",
+      "suggestedKey": "cms.all-block-types-have-been",
+      "type": "text-node"
+    },
+    {
+      "file": "components/cms/builder/BlockEditor.tsx",
+      "line": 26,
+      "string": "This block type is not yet supported in the visual editor.",
+      "suggestedKey": "cms.this-block-type-is-not",
+      "type": "text-node"
+    },
+    {
+      "file": "components/cms/builder/BlockEditor.tsx",
+      "line": 37,
+      "string": "Select a block to edit",
+      "suggestedKey": "cms.select-a-block-to-edit",
+      "type": "text-node"
+    },
+    {
+      "file": "components/cms/builder/BlockList.tsx",
+      "line": 99,
+      "string": "No blocks yet.",
+      "suggestedKey": "cms.no-blocks-yet",
+      "type": "text-node"
+    },
+    {
+      "file": "components/cms/builder/BlockList.tsx",
+      "line": 100,
+      "string": "Click &quot;Add Block&quot; to get started.",
+      "suggestedKey": "cms.click-quot-add-block-quot",
+      "type": "text-node"
+    },
+    {
+      "file": "components/cms/builder/editors/HeroBlockEditor.tsx",
+      "line": 51,
+      "string": "e.g., Featured",
+      "suggestedKey": "cms.e-g-featured",
+      "type": "attribute"
+    },
+    {
+      "file": "components/cms/builder/editors/HeroBlockEditor.tsx",
+      "line": 60,
+      "string": "Section title",
+      "suggestedKey": "cms.section-title",
+      "type": "attribute"
+    },
+    {
+      "file": "components/cms/builder/editors/HeroBlockEditor.tsx",
+      "line": 69,
+      "string": "Section subtitle",
+      "suggestedKey": "cms.section-subtitle",
+      "type": "attribute"
+    },
+    {
+      "file": "components/cms/builder/editors/HeroBlockEditor.tsx",
+      "line": 84,
+      "string": "https://...",
+      "suggestedKey": "cms.https",
+      "type": "attribute"
+    },
+    {
+      "file": "components/cms/builder/editors/HeroBlockEditor.tsx",
+      "line": 95,
+      "string": "https://youtube.com/watch?v=...",
+      "suggestedKey": "cms.https-youtube-com-watch-v",
+      "type": "attribute"
+    },
+    {
+      "file": "components/cms/builder/editors/HeroBlockEditor.tsx",
+      "line": 105,
+      "string": "Descriptive alt text",
+      "suggestedKey": "cms.descriptive-alt-text",
+      "type": "attribute"
+    },
+    {
+      "file": "components/cms/builder/editors/HeroBlockEditor.tsx",
+      "line": 114,
+      "string": "Get Started",
+      "suggestedKey": "cms.get-started",
+      "type": "attribute"
+    },
+    {
+      "file": "components/cms/builder/editors/HeroBlockEditor.tsx",
+      "line": 123,
+      "string": "Learn More",
+      "suggestedKey": "cms.learn-more",
+      "type": "attribute"
     },
     {
       "file": "components/dev/I18nDebugPanel.tsx",
@@ -1140,28 +1581,35 @@
     },
     {
       "file": "components/directory/DirectoryMapView.tsx",
-      "line": 165,
+      "line": 173,
       "string": "OpenStreetMap",
       "suggestedKey": "directory.openstreetmap",
       "type": "text-node"
     },
     {
       "file": "components/events/EventsClient.tsx",
-      "line": 200,
+      "line": 201,
       "string": "All Categories",
       "suggestedKey": "events.all-categories",
       "type": "attribute"
     },
     {
-      "file": "components/gdpr/CookieConsentBanner.tsx",
-      "line": 96,
-      "string": "🇪🇺",
-      "suggestedKey": "gdpr.text",
+      "file": "components/gdpr/CookieConsentDrawer.tsx",
+      "line": 207,
+      "string": "Reject All",
+      "suggestedKey": "gdpr.reject-all",
+      "type": "text-node"
+    },
+    {
+      "file": "components/gdpr/CookiePreferencesModal.tsx",
+      "line": 250,
+      "string": "Reject All",
+      "suggestedKey": "gdpr.reject-all",
       "type": "text-node"
     },
     {
       "file": "components/layout/Header.tsx",
-      "line": 277,
+      "line": 309,
       "string": "Admin Dashboard",
       "suggestedKey": "layout.admin-dashboard",
       "type": "attribute"
@@ -1186,34 +1634,6 @@
       "string": "Official",
       "suggestedKey": "layout.official",
       "type": "text-node"
-    },
-    {
-      "file": "components/listing/ListingDetailClient.tsx",
-      "line": 703,
-      "string": "Breadcrumb",
-      "suggestedKey": "listing.breadcrumb",
-      "type": "attribute"
-    },
-    {
-      "file": "components/listing/ListingDetailClient.tsx",
-      "line": 1035,
-      "string": "Instagram",
-      "suggestedKey": "listing.instagram",
-      "type": "attribute"
-    },
-    {
-      "file": "components/listing/ListingDetailClient.tsx",
-      "line": 1046,
-      "string": "Facebook",
-      "suggestedKey": "listing.facebook",
-      "type": "attribute"
-    },
-    {
-      "file": "components/listing/ListingDetailClient.tsx",
-      "line": 1057,
-      "string": "Google Business",
-      "suggestedKey": "listing.google-business",
-      "type": "attribute"
     },
     {
       "file": "components/listing-details/InquiryDialog.tsx",
@@ -1244,43 +1664,15 @@
       "type": "text-node"
     },
     {
-      "file": "components/listing-details/ReviewSection.tsx",
-      "line": 128,
-      "string": "Reviews & Ratings",
-      "suggestedKey": "listing-details.reviews-ratings",
-      "type": "text-node"
-    },
-    {
-      "file": "components/listing-details/ReviewSection.tsx",
-      "line": 130,
-      "string": "Sort by:",
-      "suggestedKey": "listing-details.sort-by",
-      "type": "text-node"
-    },
-    {
-      "file": "components/listing-details/ReviewSection.tsx",
-      "line": 136,
-      "string": "Most Recent",
-      "suggestedKey": "listing-details.most-recent",
-      "type": "text-node"
-    },
-    {
-      "file": "components/listing-details/ReviewSection.tsx",
-      "line": 137,
-      "string": "Most Helpful",
-      "suggestedKey": "listing-details.most-helpful",
-      "type": "text-node"
-    },
-    {
       "file": "components/map/ListingsLeafletMap.tsx",
-      "line": 510,
+      "line": 410,
       "string": "Loading map...",
       "suggestedKey": "map.loading-map",
       "type": "text-node"
     },
     {
       "file": "components/map/ListingsLeafletMap.tsx",
-      "line": 545,
+      "line": 446,
       "string": "OpenStreetMap",
       "suggestedKey": "map.openstreetmap",
       "type": "text-node"
@@ -1293,74 +1685,53 @@
       "type": "attribute"
     },
     {
-      "file": "components/owner/OwnerListingImageManager.tsx",
-      "line": 232,
-      "string": "Uploading...",
-      "suggestedKey": "owner.uploading",
+      "file": "components/owner/ExitIntentModal.tsx",
+      "line": 31,
+      "string": "Verified Partner",
+      "suggestedKey": "owner.verified-partner",
       "type": "text-node"
     },
     {
-      "file": "components/owner/OwnerListingImageManager.tsx",
-      "line": 238,
-      "string": "Click to upload",
-      "suggestedKey": "owner.click-to-upload",
+      "file": "components/owner/ExitIntentModal.tsx",
+      "line": 35,
+      "string": "Your profile isn't live yet",
+      "suggestedKey": "owner.your-profile-isn-t-live",
       "type": "text-node"
     },
     {
-      "file": "components/owner/OwnerListingImageManager.tsx",
-      "line": 240,
-      "string": "JPG, PNG, WebP (auto-optimized)",
-      "suggestedKey": "owner.jpg-png-webp-auto-optimized",
+      "file": "components/partner/HowItWorksSection.tsx",
+      "line": 37,
+      "string": "How it works",
+      "suggestedKey": "partner.how-it-works",
       "type": "text-node"
     },
     {
-      "file": "components/owner/OwnerListingImageManager.tsx",
-      "line": 264,
-      "string": "No photos yet. Upload your first image above.",
-      "suggestedKey": "owner.no-photos-yet-upload-your",
+      "file": "components/partner/HowItWorksSection.tsx",
+      "line": 38,
+      "string": "Simple. Fast. No surprises.",
+      "suggestedKey": "partner.simple-fast-no-surprises",
       "type": "text-node"
     },
     {
-      "file": "components/properties/PropertiesClient.tsx",
-      "line": 245,
-      "string": "No properties match your refined search",
-      "suggestedKey": "properties.no-properties-match-your-refined",
+      "file": "components/partner/TestimonialsSection.tsx",
+      "line": 50,
+      "string": "What partners say",
+      "suggestedKey": "partner.what-partners-say",
+      "type": "text-node"
+    },
+    {
+      "file": "components/partner/TestimonialsSection.tsx",
+      "line": 51,
+      "string": "Results from verified AlgarveOfficial partners.",
+      "suggestedKey": "partner.results-from-verified-algarveofficial-partners",
       "type": "text-node"
     },
     {
       "file": "components/real-estate/ConciergeContactDialog.tsx",
-      "line": 157,
-      "string": "Select interest",
-      "suggestedKey": "real-estate.select-interest",
-      "type": "attribute"
-    },
-    {
-      "file": "components/real-estate/ConciergeContactDialog.tsx",
-      "line": 178,
-      "string": "Full Name",
-      "suggestedKey": "real-estate.full-name",
-      "type": "attribute"
-    },
-    {
-      "file": "components/real-estate/ConciergeContactDialog.tsx",
-      "line": 204,
+      "line": 206,
       "string": "name@example.com",
       "suggestedKey": "real-estate.name-example-com",
       "type": "attribute"
-    },
-    {
-      "file": "components/real-estate/ConciergeContactDialog.tsx",
-      "line": 216,
-      "string": "Tell us about your requirements (location, budget, style)...",
-      "suggestedKey": "real-estate.tell-us-about-your-requirements",
-      "type": "attribute"
-    },
-    {
-      "file": "components/real-estate/ConciergeContactDialog.tsx",
-      "line": 109,
-      "string": "Request Sent Successfully",
-      "suggestedKey": "real-estate.request-sent-successfully",
-      "type": "text-node"
     },
     {
       "file": "components/real-estate/RealEstateAgentContactCard.tsx",
@@ -1371,7 +1742,7 @@
     },
     {
       "file": "components/routes/AdminDashboardPage.tsx",
-      "line": 124,
+      "line": 117,
       "string": "Page not found",
       "suggestedKey": "routes.page-not-found",
       "type": "text-node"
@@ -1391,31 +1762,38 @@
       "type": "text-node"
     },
     {
+      "file": "components/sections/AlgarveGuideSection.tsx",
+      "line": 27,
+      "string": "Guide",
+      "suggestedKey": "sections.guide",
+      "type": "text-node"
+    },
+    {
       "file": "components/sections/AllListingsSection.tsx",
-      "line": 255,
+      "line": 422,
       "string": "We couldn&apos;t load listings right now. Please refresh and try again.",
       "suggestedKey": "sections.we-couldn-apos-t-load",
       "type": "text-node"
     },
     {
-      "file": "components/sections/HeroSection.tsx",
-      "line": 222,
-      "string": "Hero background video",
-      "suggestedKey": "sections.hero-background-video",
-      "type": "attribute"
-    },
-    {
-      "file": "components/sections/HeroSection.tsx",
-      "line": 465,
-      "string": "Enable Media Cookies",
-      "suggestedKey": "sections.enable-media-cookies",
+      "file": "components/sections/HomeEditorialStorySection.tsx",
+      "line": 8,
+      "string": "Why the Algarve?",
+      "suggestedKey": "sections.why-the-algarve",
       "type": "text-node"
     },
     {
-      "file": "components/sections/SignatureMapSection.tsx",
-      "line": 136,
-      "string": "Map",
-      "suggestedKey": "sections.map",
+      "file": "components/sections/HomeEditorialStorySection.tsx",
+      "line": 9,
+      "string": "Coastline, cuisine and slow-premium living, selected with intent.",
+      "suggestedKey": "sections.coastline-cuisine-and-slow-premium",
+      "type": "text-node"
+    },
+    {
+      "file": "components/sections/HomeEditorialStorySection.tsx",
+      "line": 12,
+      "string": "From cliffside stays and beach restaurants to private experiences and standout property, AlgarveOfficial highlights places worth planning a trip around.",
+      "suggestedKey": "sections.from-cliffside-stays-and-beach",
       "type": "text-node"
     },
     {
@@ -1426,60 +1804,60 @@
       "type": "attribute"
     },
     {
-      "file": "components/trip-planner/TripEventDialog.tsx",
-      "line": 177,
-      "string": "Search listings...",
-      "suggestedKey": "trip-planner.search-listings",
+      "file": "components/shared/premium-card-example.tsx",
+      "line": 10,
+      "string": "Oceanfront Restaurant",
+      "suggestedKey": "shared.oceanfront-restaurant",
       "type": "attribute"
     },
     {
-      "file": "components/trip-planner/TripEventDialog.tsx",
-      "line": 261,
-      "string": "Select time",
-      "suggestedKey": "trip-planner.select-time",
+      "file": "components/shared/premium-card-example.tsx",
+      "line": 15,
+      "string": "Championship Golf Course",
+      "suggestedKey": "shared.championship-golf-course",
       "type": "attribute"
     },
     {
-      "file": "components/trip-planner/TripEventDialog.tsx",
-      "line": 290,
-      "string": "Add any notes or reminders...",
-      "suggestedKey": "trip-planner.add-any-notes-or-reminders",
+      "file": "components/shared/premium-card-example.tsx",
+      "line": 20,
+      "string": "Premium Villa",
+      "suggestedKey": "shared.premium-villa",
       "type": "attribute"
     },
     {
-      "file": "components/ui/add-to-trip-button.tsx",
-      "line": 173,
-      "string": "Choose a trip",
-      "suggestedKey": "ui.choose-a-trip",
+      "file": "components/trip-planner/TripCalendar.tsx",
+      "line": 87,
+      "string": "Previous period",
+      "suggestedKey": "trip-planner.previous-period",
       "type": "attribute"
     },
     {
-      "file": "components/ui/add-to-trip-button.tsx",
-      "line": 205,
-      "string": "Trip title (e.g., Algarve Summer 2024)",
-      "suggestedKey": "ui.trip-title-e-g-algarve",
+      "file": "components/trip-planner/TripCalendar.tsx",
+      "line": 90,
+      "string": "Next period",
+      "suggestedKey": "trip-planner.next-period",
       "type": "attribute"
     },
     {
-      "file": "components/ui/add-to-trip-button.tsx",
-      "line": 251,
-      "string": "Select a date",
-      "suggestedKey": "ui.select-a-date",
+      "file": "components/trip-planner/TripCalendar.tsx",
+      "line": 168,
+      "string": "Add activity",
+      "suggestedKey": "trip-planner.add-activity",
       "type": "attribute"
     },
     {
-      "file": "components/ui/add-to-trip-button.tsx",
-      "line": 301,
-      "string": "Any notes for this activity...",
-      "suggestedKey": "ui.any-notes-for-this-activity",
+      "file": "components/trip-planner/TripCalendar.tsx",
+      "line": 237,
+      "string": "Edit activity",
+      "suggestedKey": "trip-planner.edit-activity",
       "type": "attribute"
     },
     {
-      "file": "components/ui/add-to-trip-button.tsx",
-      "line": 189,
-      "string": "No trips yet. Create one below.",
-      "suggestedKey": "ui.no-trips-yet-create-one",
-      "type": "text-node"
+      "file": "components/trip-planner/TripCalendar.tsx",
+      "line": 246,
+      "string": "Delete activity",
+      "suggestedKey": "trip-planner.delete-activity",
+      "type": "attribute"
     },
     {
       "file": "components/ui/breadcrumb.tsx",
@@ -1510,62 +1888,6 @@
       "type": "text-node"
     },
     {
-      "file": "components/ui/command-search.tsx",
-      "line": 63,
-      "string": "Ask AI Agent Algarve Planner...",
-      "suggestedKey": "ui.ask-ai-agent-algarve-planner",
-      "type": "attribute"
-    },
-    {
-      "file": "components/ui/command-search.tsx",
-      "line": 71,
-      "string": "No results found.",
-      "suggestedKey": "ui.no-results-found",
-      "type": "text-node"
-    },
-    {
-      "file": "components/ui/command-search.tsx",
-      "line": 72,
-      "string": "Try searching for something else.",
-      "suggestedKey": "ui.try-searching-for-something-else",
-      "type": "text-node"
-    },
-    {
-      "file": "components/ui/command-search.tsx",
-      "line": 156,
-      "string": "Browse All Listings",
-      "suggestedKey": "ui.browse-all-listings",
-      "type": "text-node"
-    },
-    {
-      "file": "components/ui/command-search.tsx",
-      "line": 167,
-      "string": "Explore Regions",
-      "suggestedKey": "ui.explore-regions",
-      "type": "text-node"
-    },
-    {
-      "file": "components/ui/command-search.tsx",
-      "line": 178,
-      "string": "Open Map Explorer",
-      "suggestedKey": "ui.open-map-explorer",
-      "type": "text-node"
-    },
-    {
-      "file": "components/ui/command-search.tsx",
-      "line": 189,
-      "string": "Investment Insights",
-      "suggestedKey": "ui.investment-insights",
-      "type": "text-node"
-    },
-    {
-      "file": "components/ui/command-search.tsx",
-      "line": 234,
-      "string": "Search",
-      "suggestedKey": "ui.search",
-      "type": "text-node"
-    },
-    {
       "file": "components/ui/command.tsx",
       "line": 37,
       "string": "Close search",
@@ -1581,7 +1903,7 @@
     },
     {
       "file": "components/ui/dashboard-breadcrumb.tsx",
-      "line": 163,
+      "line": 164,
       "string": "Breadcrumb",
       "suggestedKey": "ui.breadcrumb",
       "type": "attribute"
@@ -1623,7 +1945,7 @@
     },
     {
       "file": "components/ui/listing-map.tsx",
-      "line": 87,
+      "line": 88,
       "string": "OpenStreetMap",
       "suggestedKey": "ui.openstreetmap",
       "type": "text-node"
@@ -1643,48 +1965,6 @@
       "type": "attribute"
     },
     {
-      "file": "components/ui/pagination.tsx",
-      "line": 10,
-      "string": "pagination",
-      "suggestedKey": "ui.pagination",
-      "type": "attribute"
-    },
-    {
-      "file": "components/ui/pagination.tsx",
-      "line": 50,
-      "string": "Go to previous page",
-      "suggestedKey": "ui.go-to-previous-page",
-      "type": "attribute"
-    },
-    {
-      "file": "components/ui/pagination.tsx",
-      "line": 58,
-      "string": "Go to next page",
-      "suggestedKey": "ui.go-to-next-page",
-      "type": "attribute"
-    },
-    {
-      "file": "components/ui/pagination.tsx",
-      "line": 52,
-      "string": "Previous",
-      "suggestedKey": "ui.previous",
-      "type": "text-node"
-    },
-    {
-      "file": "components/ui/pagination.tsx",
-      "line": 59,
-      "string": "Next",
-      "suggestedKey": "ui.next",
-      "type": "text-node"
-    },
-    {
-      "file": "components/ui/pagination.tsx",
-      "line": 68,
-      "string": "More pages",
-      "suggestedKey": "ui.more-pages",
-      "type": "text-node"
-    },
-    {
       "file": "components/ui/sheet.tsx",
       "line": 62,
       "string": "Close",
@@ -1693,35 +1973,35 @@
     },
     {
       "file": "components/ui/sidebar.tsx",
-      "line": 255,
+      "line": 233,
+      "string": "Toggle sidebar",
+      "suggestedKey": "ui.toggle-sidebar",
+      "type": "attribute"
+    },
+    {
+      "file": "components/ui/sidebar.tsx",
+      "line": 256,
       "string": "Toggle Sidebar",
       "suggestedKey": "ui.toggle-sidebar",
       "type": "attribute"
     },
     {
       "file": "components/ui/sidebar.tsx",
-      "line": 258,
+      "line": 259,
       "string": "Toggle Sidebar",
       "suggestedKey": "ui.toggle-sidebar",
       "type": "attribute"
     },
     {
       "file": "components/ui/sidebar.tsx",
-      "line": 240,
+      "line": 241,
       "string": "Toggle Sidebar",
       "suggestedKey": "ui.toggle-sidebar",
       "type": "text-node"
     },
     {
       "file": "components/ui/whatsapp-chat-button.tsx",
-      "line": 59,
-      "string": "Open concierge on WhatsApp",
-      "suggestedKey": "ui.open-concierge-on-whatsapp",
-      "type": "attribute"
-    },
-    {
-      "file": "components/ui/whatsapp-chat-button.tsx",
-      "line": 60,
+      "line": 62,
       "string": "Open concierge on WhatsApp",
       "suggestedKey": "ui.open-concierge-on-whatsapp",
       "type": "attribute"
@@ -1729,6 +2009,13 @@
     {
       "file": "components/ui/whatsapp-chat-button.tsx",
       "line": 63,
+      "string": "Open concierge on WhatsApp",
+      "suggestedKey": "ui.open-concierge-on-whatsapp",
+      "type": "attribute"
+    },
+    {
+      "file": "components/ui/whatsapp-chat-button.tsx",
+      "line": 66,
       "string": "Open concierge on WhatsApp",
       "suggestedKey": "ui.open-concierge-on-whatsapp",
       "type": "text-node"
@@ -1749,112 +2036,112 @@
     },
     {
       "file": "legacy-pages/admin/AdminAnalytics.tsx",
-      "line": 130,
+      "line": 131,
       "string": "All cities",
       "suggestedKey": "admin.all-cities",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminAnalytics.tsx",
-      "line": 147,
+      "line": 148,
       "string": "All categories",
       "suggestedKey": "admin.all-categories",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminAnalytics.tsx",
-      "line": 173,
+      "line": 174,
       "string": "All tiers",
       "suggestedKey": "admin.all-tiers",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminAnalytics.tsx",
-      "line": 107,
+      "line": 108,
       "string": "Platform Analytics",
       "suggestedKey": "admin.platform-analytics",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminAnalytics.tsx",
-      "line": 108,
+      "line": 109,
       "string": "Visibility, engagement, and monetization intelligence powered by CMS block behavior and tier-driven placement.",
       "suggestedKey": "admin.visibility-engagement-and-monetization-intelligence",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminAnalytics.tsx",
-      "line": 127,
+      "line": 128,
       "string": "City",
       "suggestedKey": "admin.city",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminAnalytics.tsx",
-      "line": 144,
+      "line": 145,
       "string": "Category",
       "suggestedKey": "admin.category",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminAnalytics.tsx",
-      "line": 161,
+      "line": 162,
       "string": "Tier",
       "suggestedKey": "admin.tier",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminCategories.tsx",
-      "line": 202,
+      "line": 253,
       "string": "e.g., Fine Dining",
       "suggestedKey": "admin.e-g-fine-dining",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminCategories.tsx",
-      "line": 211,
+      "line": 262,
       "string": "e.g., fine-dining",
       "suggestedKey": "admin.e-g-fine-dining",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminCategories.tsx",
-      "line": 220,
+      "line": 271,
       "string": "Brief tagline...",
       "suggestedKey": "admin.brief-tagline",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminCategories.tsx",
-      "line": 229,
+      "line": 280,
       "string": "Detailed description...",
       "suggestedKey": "admin.detailed-description",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminCategories.tsx",
-      "line": 264,
+      "line": 324,
       "string": "Search categories...",
       "suggestedKey": "admin.search-categories",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminCategories.tsx",
-      "line": 329,
+      "line": 449,
       "string": "Delete Category",
       "suggestedKey": "admin.delete-category",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminCategories.tsx",
-      "line": 163,
+      "line": 214,
       "string": "Categories",
       "suggestedKey": "admin.categories",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminCategories.tsx",
-      "line": 166,
+      "line": 217,
       "string": "Manage service and product categories",
       "suggestedKey": "admin.manage-service-and-product-categories",
       "type": "text-node"
@@ -1903,7 +2190,7 @@
     },
     {
       "file": "legacy-pages/admin/AdminClaims.tsx",
-      "line": 270,
+      "line": 273,
       "string": "Reason for rejection (optional)",
       "suggestedKey": "admin.reason-for-rejection-optional",
       "type": "attribute"
@@ -1938,205 +2225,205 @@
     },
     {
       "file": "legacy-pages/admin/AdminClaims.tsx",
-      "line": 311,
+      "line": 314,
       "string": "Contact Name",
       "suggestedKey": "admin.contact-name",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminClaims.tsx",
-      "line": 315,
+      "line": 318,
       "string": "Submitted",
       "suggestedKey": "admin.submitted",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminClaims.tsx",
-      "line": 364,
+      "line": 367,
       "string": "Rejection Reason",
       "suggestedKey": "admin.rejection-reason",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminCurated.tsx",
-      "line": 462,
+      "line": 451,
       "string": "Homepage",
       "suggestedKey": "admin.homepage",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminCurated.tsx",
-      "line": 352,
+      "line": 341,
       "string": "Fallback:",
       "suggestedKey": "admin.fallback",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminCurated.tsx",
-      "line": 370,
+      "line": 359,
       "string": "Add Signature listing...",
       "suggestedKey": "admin.add-signature-listing",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminCurated.tsx",
-      "line": 421,
+      "line": 410,
       "string": "Assign Signature listings to display on each page — one Signature Selection block per page",
       "suggestedKey": "admin.assign-signature-listings-to-display",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminCurated.tsx",
-      "line": 432,
+      "line": 421,
       "string": "Signature Selection Rules",
       "suggestedKey": "admin.signature-selection-rules",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminCurated.tsx",
-      "line": 450,
+      "line": 439,
       "string": "No Selected Listings Available",
       "suggestedKey": "admin.no-selected-listings-available",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminCurated.tsx",
-      "line": 451,
+      "line": 440,
       "string": "To enable Signature Selection, first mark listings as \"Signature\" tier and enable \"is_selected\" in the listings management.",
       "suggestedKey": "admin.to-enable-signature-selection-first",
       "type": "text-node"
     },
     {
-      "file": "legacy-pages/admin/AdminImageGeneration.tsx",
-      "line": 582,
-      "string": "Filter by category",
-      "suggestedKey": "admin.filter-by-category",
-      "type": "attribute"
-    },
-    {
-      "file": "legacy-pages/admin/AdminImageGeneration.tsx",
-      "line": 369,
-      "string": "AI Image Generation",
-      "suggestedKey": "admin.ai-image-generation",
-      "type": "text-node"
-    },
-    {
-      "file": "legacy-pages/admin/AdminImageGeneration.tsx",
-      "line": 370,
-      "string": "Generate featured images for cities and listings using AI",
-      "suggestedKey": "admin.generate-featured-images-for-cities",
-      "type": "text-node"
-    },
-    {
-      "file": "legacy-pages/admin/AdminImageGeneration.tsx",
-      "line": 460,
-      "string": "Ready for generation",
-      "suggestedKey": "admin.ready-for-generation",
-      "type": "text-node"
-    },
-    {
-      "file": "legacy-pages/admin/AdminImageGeneration.tsx",
-      "line": 472,
-      "string": "Ready for generation",
-      "suggestedKey": "admin.ready-for-generation",
-      "type": "text-node"
-    },
-    {
-      "file": "legacy-pages/admin/AdminImageGeneration.tsx",
-      "line": 506,
-      "string": "Progress",
-      "suggestedKey": "admin.progress",
-      "type": "text-node"
-    },
-    {
-      "file": "legacy-pages/admin/AdminImageGeneration.tsx",
-      "line": 602,
-      "string": "Progress",
-      "suggestedKey": "admin.progress",
-      "type": "text-node"
-    },
-    {
       "file": "legacy-pages/admin/AdminImport.tsx",
-      "line": 276,
+      "line": 428,
       "string": "Select category",
       "suggestedKey": "admin.select-category",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminImport.tsx",
-      "line": 189,
+      "line": 313,
       "string": "Import Listings",
       "suggestedKey": "admin.import-listings",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminImport.tsx",
-      "line": 192,
+      "line": 316,
       "string": "Bulk import listings from JSON files",
       "suggestedKey": "admin.bulk-import-listings-from-json",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminImport.tsx",
-      "line": 331,
+      "line": 416,
+      "string": "Use dry run to get category normalization, create/update estimates, and row-level warnings before importing.",
+      "suggestedKey": "admin.use-dry-run-to-get",
+      "type": "text-node"
+    },
+    {
+      "file": "legacy-pages/admin/AdminImport.tsx",
+      "line": 483,
       "string": "Valid Algarve Cities",
       "suggestedKey": "admin.valid-algarve-cities",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminListings.tsx",
-      "line": 373,
+      "line": 729,
       "string": "Search listings...",
       "suggestedKey": "admin.search-listings",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminListings.tsx",
-      "line": 382,
+      "line": 738,
       "string": "City",
       "suggestedKey": "admin.city",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminListings.tsx",
-      "line": 395,
+      "line": 751,
       "string": "Category",
       "suggestedKey": "admin.category",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminListings.tsx",
-      "line": 408,
+      "line": 764,
       "string": "Tier",
       "suggestedKey": "admin.tier",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminListings.tsx",
-      "line": 419,
+      "line": 775,
       "string": "Status",
       "suggestedKey": "admin.status",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminListings.tsx",
-      "line": 507,
+      "line": 919,
+      "string": "Page size",
+      "suggestedKey": "admin.page-size",
+      "type": "attribute"
+    },
+    {
+      "file": "legacy-pages/admin/AdminListings.tsx",
+      "line": 961,
       "string": "Delete Listing(s)",
       "suggestedKey": "admin.delete-listing-s",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminListings.tsx",
-      "line": 352,
+      "line": 510,
+      "string": "Rank",
+      "suggestedKey": "admin.rank",
+      "type": "text-node"
+    },
+    {
+      "file": "legacy-pages/admin/AdminListings.tsx",
+      "line": 511,
+      "string": "1 = top",
+      "suggestedKey": "admin.1-top",
+      "type": "text-node"
+    },
+    {
+      "file": "legacy-pages/admin/AdminListings.tsx",
+      "line": 543,
+      "string": "#1",
+      "suggestedKey": "admin.1",
+      "type": "text-node"
+    },
+    {
+      "file": "legacy-pages/admin/AdminListings.tsx",
+      "line": 676,
+      "string": "Failed to load listings",
+      "suggestedKey": "admin.failed-to-load-listings",
+      "type": "text-node"
+    },
+    {
+      "file": "legacy-pages/admin/AdminListings.tsx",
+      "line": 694,
       "string": "Listings",
       "suggestedKey": "admin.listings",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminListings.tsx",
-      "line": 355,
+      "line": 697,
       "string": "Manage all business listings",
       "suggestedKey": "admin.manage-all-business-listings",
+      "type": "text-node"
+    },
+    {
+      "file": "legacy-pages/admin/AdminListings.tsx",
+      "line": 844,
+      "string": "Featured Listings",
+      "suggestedKey": "admin.featured-listings",
       "type": "text-node"
     },
     {
@@ -2197,126 +2484,133 @@
     },
     {
       "file": "legacy-pages/admin/AdminModeration.tsx",
-      "line": 286,
+      "line": 303,
       "string": "Enter rejection reason...",
       "suggestedKey": "admin.enter-rejection-reason",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminModeration.tsx",
-      "line": 318,
+      "line": 335,
       "string": "Enter your note...",
       "suggestedKey": "admin.enter-your-note",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminModeration.tsx",
-      "line": 177,
+      "line": 174,
       "string": "Review and approve pending listings",
       "suggestedKey": "admin.review-and-approve-pending-listings",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminModeration.tsx",
-      "line": 193,
+      "line": 190,
       "string": "listings awaiting review",
       "suggestedKey": "admin.listings-awaiting-review",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminModeration.tsx",
-      "line": 206,
+      "line": 205,
+      "string": "Listing moderation can be all caught up while events still need review.",
+      "suggestedKey": "admin.listing-moderation-can-be-all",
+      "type": "text-node"
+    },
+    {
+      "file": "legacy-pages/admin/AdminModeration.tsx",
+      "line": 223,
       "string": "All caught up!",
       "suggestedKey": "admin.all-caught-up",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminModeration.tsx",
-      "line": 207,
+      "line": 224,
       "string": "There are no listings pending review.",
       "suggestedKey": "admin.there-are-no-listings-pending",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminModeration.tsx",
-      "line": 388,
+      "line": 405,
       "string": "Short Description",
       "suggestedKey": "admin.short-description",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminModeration.tsx",
-      "line": 396,
+      "line": 413,
       "string": "Description",
       "suggestedKey": "admin.description",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminModeration.tsx",
-      "line": 403,
+      "line": 420,
       "string": "Contact Details",
       "suggestedKey": "admin.contact-details",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminModeration.tsx",
-      "line": 437,
+      "line": 454,
       "string": "Tags",
       "suggestedKey": "admin.tags",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminModeration.tsx",
-      "line": 471,
+      "line": 488,
       "string": "Admin Notes",
       "suggestedKey": "admin.admin-notes",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminOverview.tsx",
-      "line": 136,
+      "line": 135,
       "string": "Total Listings",
       "suggestedKey": "admin.total-listings",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminOverview.tsx",
-      "line": 142,
+      "line": 141,
       "string": "Published",
       "suggestedKey": "admin.published",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminOverview.tsx",
-      "line": 148,
+      "line": 147,
       "string": "Pending Review",
       "suggestedKey": "admin.pending-review",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminOverview.tsx",
-      "line": 116,
+      "line": 115,
       "string": "Dashboard",
       "suggestedKey": "admin.dashboard",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminOverview.tsx",
-      "line": 119,
+      "line": 118,
       "string": "Welcome to AlgarveOfficial CMS",
       "suggestedKey": "admin.welcome-to-algarveofficial-cms",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminOverview.tsx",
-      "line": 253,
+      "line": 252,
       "string": "Auto-refresh: Mondays at 3:00 AM UTC",
       "suggestedKey": "admin.auto-refresh-mondays-at-3",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminOverview.tsx",
-      "line": 355,
+      "line": 360,
       "string": "No listings yet",
       "suggestedKey": "admin.no-listings-yet",
       "type": "text-node"
@@ -2771,70 +3065,70 @@
     },
     {
       "file": "legacy-pages/admin/AdminUsers.tsx",
-      "line": 369,
+      "line": 336,
       "string": "Search users...",
       "suggestedKey": "admin.search-users",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminUsers.tsx",
-      "line": 377,
+      "line": 344,
       "string": "Role",
       "suggestedKey": "admin.role",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminUsers.tsx",
-      "line": 431,
+      "line": 398,
       "string": "Select role",
       "suggestedKey": "admin.select-role",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminUsers.tsx",
-      "line": 469,
+      "line": 436,
       "string": "Full name",
       "suggestedKey": "admin.full-name",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminUsers.tsx",
-      "line": 482,
+      "line": 449,
       "string": "name@example.com",
       "suggestedKey": "admin.name-example-com",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminUsers.tsx",
-      "line": 519,
+      "line": 486,
       "string": "Confirm Role Change",
       "suggestedKey": "admin.confirm-role-change",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminUsers.tsx",
-      "line": 528,
+      "line": 495,
       "string": "Permanently Delete User",
       "suggestedKey": "admin.permanently-delete-user",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/AdminUsers.tsx",
-      "line": 356,
+      "line": 323,
       "string": "Users & Roles",
       "suggestedKey": "admin.users-roles",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminUsers.tsx",
-      "line": 359,
+      "line": 326,
       "string": "Manage user accounts and permissions",
       "suggestedKey": "admin.manage-user-accounts-and-permissions",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/AdminUsers.tsx",
-      "line": 392,
+      "line": 359,
       "string": "Roles:",
       "suggestedKey": "admin.roles",
       "type": "text-node"
@@ -3051,70 +3345,70 @@
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsCategories.tsx",
-      "line": 298,
+      "line": 299,
       "string": "Search categories...",
       "suggestedKey": "admin.search-categories",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsCategories.tsx",
-      "line": 473,
+      "line": 474,
       "string": "House, Hotel, UtensilsCrossed...",
       "suggestedKey": "admin.house-hotel-utensilscrossed",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsCategories.tsx",
-      "line": 484,
+      "line": 485,
       "string": "Brief tagline for the category...",
       "suggestedKey": "admin.brief-tagline-for-the-category",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsCategories.tsx",
-      "line": 496,
+      "line": 497,
       "string": "Editorial description of this category...",
       "suggestedKey": "admin.editorial-description-of-this-category",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsCategories.tsx",
-      "line": 515,
+      "line": 516,
       "string": "https://...",
       "suggestedKey": "admin.https",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsCategories.tsx",
-      "line": 275,
+      "line": 276,
       "string": "Categories",
       "suggestedKey": "admin.categories",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsCategories.tsx",
-      "line": 408,
+      "line": 409,
       "string": "Homepage",
       "suggestedKey": "admin.homepage",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsCategories.tsx",
-      "line": 426,
+      "line": 427,
       "string": "No categories found",
       "suggestedKey": "admin.no-categories-found",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsCategories.tsx",
-      "line": 427,
+      "line": 428,
       "string": "Try a different search term",
       "suggestedKey": "admin.try-a-different-search-term",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsCategories.tsx",
-      "line": 517,
+      "line": 522,
       "string": "Recommended: 800x600px",
       "suggestedKey": "admin.recommended-800x600px",
       "type": "text-node"
@@ -3169,127 +3463,99 @@
       "type": "text-node"
     },
     {
-      "file": "legacy-pages/admin/cms/AdminCmsDestinations.tsx",
-      "line": 267,
-      "string": "Search regions...",
-      "suggestedKey": "admin.search-regions",
-      "type": "attribute"
-    },
-    {
-      "file": "legacy-pages/admin/cms/AdminCmsDestinations.tsx",
-      "line": 251,
-      "string": "Destinations",
-      "suggestedKey": "admin.destinations",
-      "type": "text-node"
-    },
-    {
-      "file": "legacy-pages/admin/cms/AdminCmsDestinations.tsx",
-      "line": 252,
-      "string": "Manage which premium regions appear on the Destinations page",
-      "suggestedKey": "admin.manage-which-premium-regions-appear",
-      "type": "text-node"
-    },
-    {
-      "file": "legacy-pages/admin/cms/AdminCmsDestinations.tsx",
-      "line": 299,
-      "string": "No regions available",
-      "suggestedKey": "admin.no-regions-available",
-      "type": "text-node"
-    },
-    {
-      "file": "legacy-pages/admin/cms/AdminCmsDestinations.tsx",
-      "line": 300,
-      "string": "Create regions in the Regions management page",
-      "suggestedKey": "admin.create-regions-in-the-regions",
-      "type": "text-node"
-    },
-    {
       "file": "legacy-pages/admin/cms/AdminCmsRegions.tsx",
-      "line": 365,
+      "line": 366,
       "string": "Search regions...",
       "suggestedKey": "admin.search-regions",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsRegions.tsx",
-      "line": 450,
+      "line": 451,
       "string": "Brief tagline for cards...",
       "suggestedKey": "admin.brief-tagline-for-cards",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsRegions.tsx",
-      "line": 462,
+      "line": 463,
       "string": "Editorial description of this region...",
       "suggestedKey": "admin.editorial-description-of-this-region",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsRegions.tsx",
-      "line": 570,
+      "line": 579,
       "string": "https://...",
       "suggestedKey": "admin.https",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsRegions.tsx",
-      "line": 659,
+      "line": 668,
       "string": "https://...",
       "suggestedKey": "admin.https",
       "type": "attribute"
-    },
-    {
-      "file": "legacy-pages/admin/cms/AdminCmsRegions.tsx",
-      "line": 352,
-      "string": "Premium Regions",
-      "suggestedKey": "admin.premium-regions",
-      "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsRegions.tsx",
       "line": 353,
-      "string": "Drag to reorder, manage editorial regions",
-      "suggestedKey": "admin.drag-to-reorder-manage-editorial",
+      "string": "Destinations & Regions",
+      "suggestedKey": "admin.destinations-regions",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsRegions.tsx",
-      "line": 399,
+      "line": 354,
+      "string": "Manage all destination regions. Drag to reorder, toggle visibility on destinations page",
+      "suggestedKey": "admin.manage-all-destination-regions-drag",
+      "type": "text-node"
+    },
+    {
+      "file": "legacy-pages/admin/cms/AdminCmsRegions.tsx",
+      "line": 400,
       "string": "No regions found",
       "suggestedKey": "admin.no-regions-found",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsRegions.tsx",
-      "line": 400,
+      "line": 401,
       "string": "Create your first premium region",
       "suggestedKey": "admin.create-your-first-premium-region",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsRegions.tsx",
-      "line": 470,
-      "string": "Show this region in the homepage carousel",
-      "suggestedKey": "admin.show-this-region-in-the",
+      "line": 471,
+      "string": "Control where this region appears",
+      "suggestedKey": "admin.control-where-this-region-appears",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsRegions.tsx",
-      "line": 482,
-      "string": "Show this region on the destinations page",
-      "suggestedKey": "admin.show-this-region-on-the",
+      "line": 478,
+      "string": "Show in homepage carousel",
+      "suggestedKey": "admin.show-in-homepage-carousel",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsRegions.tsx",
-      "line": 573,
+      "line": 489,
+      "string": "Include in destinations page",
+      "suggestedKey": "admin.include-in-destinations-page",
+      "type": "text-node"
+    },
+    {
+      "file": "legacy-pages/admin/cms/AdminCmsRegions.tsx",
+      "line": 582,
       "string": "Recommended: 800x600px. Uploads are auto-converted to WebP.",
       "suggestedKey": "admin.recommended-800x600px-uploads-are-auto",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminCmsRegions.tsx",
-      "line": 662,
+      "line": 671,
       "string": "Full-width hero banner. Recommended: 1920x600px.",
       "suggestedKey": "admin.full-width-hero-banner-recommended",
       "type": "text-node"
@@ -3513,707 +3779,707 @@
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1015,
+      "line": 1032,
       "string": "We are currently performing scheduled maintenance. Please check back soon.",
       "suggestedKey": "admin.we-are-currently-performing-scheduled",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1053,
+      "line": 1070,
       "string": "Enter IP (e.g., 192.168.1.10, 192.168.1, or 203.0.113.0/24)",
       "suggestedKey": "admin.enter-ip-e-g-192",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1168,
+      "line": 1185,
       "string": "Your site name",
       "suggestedKey": "admin.your-site-name",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1178,
+      "line": 1195,
       "string": "Short tagline",
       "suggestedKey": "admin.short-tagline",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1399,
+      "line": 1416,
       "string": "https://analytics.google.com/...",
       "suggestedKey": "admin.https-analytics-google-com",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1416,
+      "line": 1433,
       "string": "AlgarveOfficial | Premium Experiences in Portugal",
       "suggestedKey": "admin.algarveofficial-premium-experiences-in-portugal",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1441,
+      "line": 1458,
       "string": "Discover premium accommodations, fine dining, golf, wellness, and exclusive experiences across the Algarve, Portugal.",
       "suggestedKey": "admin.discover-premium-accommodations-fine-dining",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1466,
+      "line": 1483,
       "string": "https://algarveofficial.com",
       "suggestedKey": "admin.https-algarveofficial-com",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1477,
+      "line": 1494,
       "string": "algarve, premium, portugal, golf, villas",
       "suggestedKey": "admin.algarve-premium-portugal-golf-villas",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1503,
+      "line": 1520,
       "string": "AlgarveOfficial — Premium Portal",
       "suggestedKey": "admin.algarveofficial-premium-portal",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1533,
+      "line": 1550,
       "string": "Your premier gateway to premium experiences in the Algarve...",
       "suggestedKey": "admin.your-premier-gateway-to-premium",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1555,
+      "line": 1572,
       "string": "https://algarveofficial.com/og-image.png",
       "suggestedKey": "admin.https-algarveofficial-com-og-image",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1591,
+      "line": 1612,
       "string": "AlgarveOfficial",
       "suggestedKey": "admin.algarveofficial",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1633,
+      "line": 1654,
       "string": "@algarveofficial",
       "suggestedKey": "admin.algarveofficial",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1645,
+      "line": 1666,
       "string": "Override for Twitter (leave blank to use OG title)",
       "suggestedKey": "admin.override-for-twitter-leave-blank",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1657,
+      "line": 1678,
       "string": "Override for Twitter (leave blank to use OG description)",
       "suggestedKey": "admin.override-for-twitter-leave-blank",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1697,
+      "line": 1718,
       "string": "AlgarveOfficial",
       "suggestedKey": "admin.algarveofficial",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1707,
+      "line": 1728,
       "string": "AlgarveOfficial Lda.",
       "suggestedKey": "admin.algarveofficial-lda",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1719,
+      "line": 1739,
       "string": "https://algarveofficial.com/logo.png",
       "suggestedKey": "admin.https-algarveofficial-com-logo-png",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1800,
+      "line": 1824,
       "string": "https://algarveofficial.com/sitemap.xml",
       "suggestedKey": "admin.https-algarveofficial-com-sitemap-xml",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1856,
+      "line": 1880,
       "string": "Explore Regions",
       "suggestedKey": "admin.explore-regions",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1866,
+      "line": 1890,
       "string": "Signature Selection",
       "suggestedKey": "admin.signature-selection",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1914,
+      "line": 1938,
       "string": "https://instagram.com/yourhandle",
       "suggestedKey": "admin.https-instagram-com-yourhandle",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1924,
+      "line": 1948,
       "string": "https://facebook.com/yourpage",
       "suggestedKey": "admin.https-facebook-com-yourpage",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1934,
+      "line": 1958,
       "string": "https://linkedin.com/company/yourcompany",
       "suggestedKey": "admin.https-linkedin-com-company-yourcompany",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1944,
+      "line": 1968,
       "string": "https://x.com/yourhandle",
       "suggestedKey": "admin.https-x-com-yourhandle",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1954,
+      "line": 1978,
       "string": "https://youtube.com/@yourchannel",
       "suggestedKey": "admin.https-youtube-com-yourchannel",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1964,
+      "line": 1988,
       "string": "https://tiktok.com/@yourhandle",
       "suggestedKey": "admin.https-tiktok-com-yourhandle",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1990,
+      "line": 2014,
       "string": "info@example.com",
       "suggestedKey": "admin.info-example-com",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2012,
+      "line": 2036,
       "string": "Your business address",
       "suggestedKey": "admin.your-business-address",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2087,
+      "line": 2111,
       "string": "Get in Touch",
       "suggestedKey": "admin.get-in-touch",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2130,
+      "line": 2154,
       "string": "Connect with Us",
       "suggestedKey": "admin.connect-with-us",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2141,
+      "line": 2165,
       "string": "info@algarveofficial.com",
       "suggestedKey": "admin.info-algarveofficial-com",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2153,
+      "line": 2177,
       "string": "Whether you have a question about our services…",
       "suggestedKey": "admin.whether-you-have-a-question",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2175,
+      "line": 2199,
       "string": "Vilamoura, Algarve, Portugal",
       "suggestedKey": "admin.vilamoura-algarve-portugal",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2208,
+      "line": 2232,
       "string": "Send us a Message",
       "suggestedKey": "admin.send-us-a-message",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2219,
+      "line": 2243,
       "string": "info@algarveofficial.com",
       "suggestedKey": "admin.info-algarveofficial-com",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2232,
+      "line": 2256,
       "string": "Fill out the form below and our team will get back to you shortly.",
       "suggestedKey": "admin.fill-out-the-form-below",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2285,
+      "line": 2309,
       "string": "Your Privacy Matters",
       "suggestedKey": "admin.your-privacy-matters",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2295,
+      "line": 2319,
       "string": "Learn more",
       "suggestedKey": "admin.learn-more",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2307,
+      "line": 2331,
       "string": "We use cookies and similar technologies...",
       "suggestedKey": "admin.we-use-cookies-and-similar",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2317,
+      "line": 2341,
       "string": "/privacy-policy",
       "suggestedKey": "admin.privacy-policy",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2333,
+      "line": 2357,
       "string": "Decline",
       "suggestedKey": "admin.decline",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2343,
+      "line": 2367,
       "string": "Accept Analytics",
       "suggestedKey": "admin.accept-analytics",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2362,
+      "line": 2386,
       "string": "GDPR Compliant",
       "suggestedKey": "admin.gdpr-compliant",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2379,
+      "line": 2403,
       "string": "Data retained for 90 days",
       "suggestedKey": "admin.data-retained-for-90-days",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 855,
+      "line": 872,
       "string": "Global Settings",
       "suggestedKey": "admin.global-settings",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 856,
+      "line": 873,
       "string": "Configure site-wide content and branding",
       "suggestedKey": "admin.configure-site-wide-content-and",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 973,
+      "line": 990,
       "string": "Maintenance Mode",
       "suggestedKey": "admin.maintenance-mode",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 999,
+      "line": 1016,
       "string": "All visitors will see a maintenance page. Admins, editors, and whitelisted IPs can still access the site. Don't forget to click \"Save All\" to apply changes.",
       "suggestedKey": "admin.all-visitors-will-see-a",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1017,
+      "line": 1034,
       "string": "This message will be displayed to visitors when maintenance mode is enabled.",
       "suggestedKey": "admin.this-message-will-be-displayed",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1028,
+      "line": 1045,
       "string": "Allow specific IP addresses to bypass maintenance mode. Useful for testing or allowing specific clients access.",
       "suggestedKey": "admin.allow-specific-ip-addresses-to",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1035,
+      "line": 1052,
       "string": "Detecting your current public IP...",
       "suggestedKey": "admin.detecting-your-current-public-ip",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1040,
+      "line": 1057,
       "string": "(whitelisted: this browser bypasses maintenance)",
       "suggestedKey": "admin.whitelisted-this-browser-bypasses-maintenance",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1042,
+      "line": 1059,
       "string": "(not whitelisted)",
       "suggestedKey": "admin.not-whitelisted",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1087,
+      "line": 1104,
       "string": "No IP addresses whitelisted. Only admins/editors can access the site during maintenance.",
       "suggestedKey": "admin.no-ip-addresses-whitelisted-only",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1106,
+      "line": 1123,
       "string": "Restrict Admin to Portugal",
       "suggestedKey": "admin.restrict-admin-to-portugal",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1205,
+      "line": 1222,
       "string": "No logo uploaded",
       "suggestedKey": "admin.no-logo-uploaded",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1240,
+      "line": 1257,
       "string": "Recommended: Highly optimized SVG or transparent PNG. Max 2MB.",
       "suggestedKey": "admin.recommended-highly-optimized-svg-or",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1256,
+      "line": 1273,
       "string": "No dark logo uploaded",
       "suggestedKey": "admin.no-dark-logo-uploaded",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1291,
+      "line": 1308,
       "string": "Displayed on dark backgrounds. Transparent PNG/SVG recommended.",
       "suggestedKey": "admin.displayed-on-dark-backgrounds-transparent",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1309,
+      "line": 1326,
       "string": "No favicon uploaded",
       "suggestedKey": "admin.no-favicon-uploaded",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1344,
+      "line": 1361,
       "string": "Recommended: 32x32px .ico or .png. Max 512KB.",
       "suggestedKey": "admin.recommended-32x32px-ico-or-png",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1364,
+      "line": 1381,
       "string": "Analytics",
       "suggestedKey": "admin.analytics",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1378,
+      "line": 1395,
       "string": "Connect your Google Analytics 4 property to track visitor behavior.",
       "suggestedKey": "admin.connect-your-google-analytics-4",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1404,
+      "line": 1421,
       "string": "Enables \"Open Live Analytics\" button in dashboard",
       "suggestedKey": "admin.enables-open-live-analytics-button",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1468,
+      "line": 1485,
       "string": "Primary domain for canonical tags",
       "suggestedKey": "admin.primary-domain-for-canonical-tags",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1479,
+      "line": 1496,
       "string": "Comma-separated keywords",
       "suggestedKey": "admin.comma-separated-keywords",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1546,
+      "line": 1563,
       "string": "1200 × 630px",
       "suggestedKey": "admin.1200-630px",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1557,
+      "line": 1578,
       "string": "Recommended: 1200×630px for optimal display on social platforms",
       "suggestedKey": "admin.recommended-1200-630px-for-optimal",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1680,
+      "line": 1701,
       "string": "Organization Schema",
       "suggestedKey": "admin.organization-schema",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1681,
+      "line": 1702,
       "string": "Include business information in search results",
       "suggestedKey": "admin.include-business-information-in-search",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1721,
+      "line": 1745,
       "string": "Minimum 112×112px, square or 16:9",
       "suggestedKey": "admin.minimum-112-112px-square-or",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1731,
+      "line": 1755,
       "string": "LocalBusiness Schema",
       "suggestedKey": "admin.localbusiness-schema",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1732,
+      "line": 1756,
       "string": "Enable for local search visibility",
       "suggestedKey": "admin.enable-for-local-search-visibility",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1744,
+      "line": 1768,
       "string": "Breadcrumb Schema",
       "suggestedKey": "admin.breadcrumb-schema",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1745,
+      "line": 1769,
       "string": "Show navigation path in search results",
       "suggestedKey": "admin.show-navigation-path-in-search",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1773,
+      "line": 1797,
       "string": "Allow Indexing",
       "suggestedKey": "admin.allow-indexing",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1774,
+      "line": 1798,
       "string": "Let search engines index pages",
       "suggestedKey": "admin.let-search-engines-index-pages",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1786,
+      "line": 1810,
       "string": "Allow Following Links",
       "suggestedKey": "admin.allow-following-links",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1787,
+      "line": 1811,
       "string": "Let crawlers follow links",
       "suggestedKey": "admin.let-crawlers-follow-links",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1814,
+      "line": 1838,
       "string": "Additional rules appended to robots.txt",
       "suggestedKey": "admin.additional-rules-appended-to-robots",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1872,
+      "line": 1896,
       "string": "Section Titles",
       "suggestedKey": "admin.section-titles",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1875,
+      "line": 1899,
       "string": "Regions Section",
       "suggestedKey": "admin.regions-section",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1876,
+      "line": 1900,
       "string": "Selected Destinations",
       "suggestedKey": "admin.selected-destinations",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1879,
+      "line": 1903,
       "string": "Categories Section",
       "suggestedKey": "admin.categories-section",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1880,
+      "line": 1904,
       "string": "Premium Categories",
       "suggestedKey": "admin.premium-categories",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1883,
+      "line": 1907,
       "string": "VIP Section",
       "suggestedKey": "admin.vip-section",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1884,
+      "line": 1908,
       "string": "Signature Selection",
       "suggestedKey": "admin.signature-selection",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1887,
+      "line": 1911,
       "string": "Real Estate Category",
       "suggestedKey": "admin.real-estate-category",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 1888,
+      "line": 1912,
       "string": "Algarve Services",
       "suggestedKey": "admin.algarve-services",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2040,
+      "line": 2064,
       "string": "International format without + or spaces (e.g. 351927071708)",
       "suggestedKey": "admin.international-format-without-or-spaces",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2054,
+      "line": 2078,
       "string": "Pre-filled message when visitors open WhatsApp from the concierge bell",
       "suggestedKey": "admin.pre-filled-message-when-visitors",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2166,
+      "line": 2190,
       "string": "Shown in sidebar + used for WhatsApp link",
       "suggestedKey": "admin.shown-in-sidebar-used-for",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2221,
+      "line": 2245,
       "string": "Submissions are forwarded here",
       "suggestedKey": "admin.submissions-are-forwarded-here",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2245,
+      "line": 2269,
       "string": "Displayed after a visitor submits the contact form",
       "suggestedKey": "admin.displayed-after-a-visitor-submits",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2276,
+      "line": 2300,
       "string": "Content",
       "suggestedKey": "admin.content",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2324,
+      "line": 2348,
       "string": "Buttons",
       "suggestedKey": "admin.buttons",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2351,
+      "line": 2375,
       "string": "Footer Badges",
       "suggestedKey": "admin.footer-badges",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2388,
+      "line": 2412,
       "string": "Preview",
       "suggestedKey": "admin.preview",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminGlobalSettings.tsx",
-      "line": 2416,
+      "line": 2440,
       "string": "🇪🇺",
       "suggestedKey": "admin.text",
       "type": "text-node"
@@ -4283,42 +4549,70 @@
     },
     {
       "file": "legacy-pages/admin/cms/AdminHomePage.tsx",
-      "line": 888,
+      "line": 341,
+      "string": "Leave empty to use translated fallback",
+      "suggestedKey": "admin.leave-empty-to-use-translated",
+      "type": "attribute"
+    },
+    {
+      "file": "legacy-pages/admin/cms/AdminHomePage.tsx",
+      "line": 1065,
+      "string": "Empty hero media preview",
+      "suggestedKey": "admin.empty-hero-media-preview",
+      "type": "attribute"
+    },
+    {
+      "file": "legacy-pages/admin/cms/AdminHomePage.tsx",
+      "line": 1162,
       "string": "https://www.youtube.com/watch?v=...",
       "suggestedKey": "admin.https-www-youtube-com-watch",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminHomePage.tsx",
-      "line": 953,
+      "line": 1232,
       "string": "Enter headline...",
       "suggestedKey": "admin.enter-headline",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminHomePage.tsx",
-      "line": 964,
+      "line": 1243,
       "string": "Enter subtitle...",
       "suggestedKey": "admin.enter-subtitle",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminHomePage.tsx",
-      "line": 680,
+      "line": 327,
+      "string": "CMS edits copy, visibility, and order. Cards/listings still come from live data.",
+      "suggestedKey": "admin.cms-edits-copy-visibility-and",
+      "type": "text-node"
+    },
+    {
+      "file": "legacy-pages/admin/cms/AdminHomePage.tsx",
+      "line": 945,
       "string": "Home Page Editor",
       "suggestedKey": "admin.home-page-editor",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminHomePage.tsx",
-      "line": 681,
+      "line": 946,
       "string": "Manage hero content, sections, and page structure",
       "suggestedKey": "admin.manage-hero-content-sections-and",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminHomePage.tsx",
-      "line": 890,
+      "line": 1032,
+      "string": "YouTube hero backgrounds are disabled because the public homepage no longer embeds YouTube media.",
+      "suggestedKey": "admin.youtube-hero-backgrounds-are-disabled",
+      "type": "text-node"
+    },
+    {
+      "file": "legacy-pages/admin/cms/AdminHomePage.tsx",
+      "line": 1164,
       "string": "Paste a YouTube video URL (e.g., https://www.youtube.com/watch?v=xxxxx)",
       "suggestedKey": "admin.paste-a-youtube-video-url",
       "type": "text-node"
@@ -4486,308 +4780,322 @@
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 602,
+      "line": 1245,
       "string": "Select page",
       "suggestedKey": "admin.select-page",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 650,
+      "line": 1348,
       "string": "Choose hero media type",
       "suggestedKey": "admin.choose-hero-media-type",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 668,
+      "line": 1366,
       "string": "https://...",
       "suggestedKey": "admin.https",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 677,
+      "line": 1375,
       "string": "https://...",
       "suggestedKey": "admin.https",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 686,
+      "line": 1384,
       "string": "https://...",
       "suggestedKey": "admin.https",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 695,
+      "line": 1393,
       "string": "https://www.youtube.com/watch?v=...",
       "suggestedKey": "admin.https-www-youtube-com-watch",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 892,
+      "line": 1624,
       "string": "Optional",
       "suggestedKey": "admin.optional",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 903,
+      "line": 1635,
       "string": "e.g. py-24 bg-card",
       "suggestedKey": "admin.e-g-py-24-bg",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 921,
+      "line": 1653,
       "string": "Select a city to highlight",
       "suggestedKey": "admin.select-a-city-to-highlight",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 944,
+      "line": 1676,
       "string": "Search cities...",
       "suggestedKey": "admin.search-cities",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 956,
+      "line": 1688,
       "string": "Select a city to feature",
       "suggestedKey": "admin.select-a-city-to-feature",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 984,
+      "line": 1716,
       "string": "Select strategy",
       "suggestedKey": "admin.select-strategy",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1008,
+      "line": 1740,
       "string": "Select mode",
       "suggestedKey": "admin.select-mode",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1025,
+      "line": 1757,
       "string": "Search cities...",
       "suggestedKey": "admin.search-cities",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1135,
+      "line": 1867,
       "string": "Select strategy",
       "suggestedKey": "admin.select-strategy",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1164,
+      "line": 1896,
       "string": "Select strategy",
       "suggestedKey": "admin.select-strategy",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1187,
+      "line": 1919,
       "string": "All cities",
       "suggestedKey": "admin.all-cities",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1209,
+      "line": 1941,
       "string": "All categories",
       "suggestedKey": "admin.all-categories",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1249,
+      "line": 1981,
       "string": "No manual featured listing",
       "suggestedKey": "admin.no-manual-featured-listing",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1268,
+      "line": 2000,
       "string": "Search listings...",
       "suggestedKey": "admin.search-listings",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1380,
+      "line": 2112,
       "string": "Optional page meta title",
       "suggestedKey": "admin.optional-page-meta-title",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1390,
+      "line": 2122,
       "string": "Optional page meta description",
       "suggestedKey": "admin.optional-page-meta-description",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1418,
+      "line": 2150,
       "string": "key",
       "suggestedKey": "admin.key",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1424,
+      "line": 2156,
       "string": "value",
       "suggestedKey": "admin.value",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1462,
+      "line": 2194,
       "string": "e.g. sections.regions.title",
       "suggestedKey": "admin.e-g-sections-regions-title",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1468,
+      "line": 2200,
       "string": "Override text",
       "suggestedKey": "admin.override-text",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1504,
+      "line": 2236,
       "string": "--cms-card-radius",
       "suggestedKey": "admin.cms-card-radius",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1510,
+      "line": 2242,
       "string": "0.75rem",
       "suggestedKey": "admin.0-75rem",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 582,
+      "line": 1192,
       "string": "Full Page Builder",
       "suggestedKey": "admin.full-page-builder",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 583,
+      "line": 1193,
       "string": "Control every page section, copy block, and design token from one CMS workspace.",
       "suggestedKey": "admin.control-every-page-section-copy",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 786,
+      "line": 1296,
+      "string": "Public renderer",
+      "suggestedKey": "admin.public-renderer",
+      "type": "text-node"
+    },
+    {
+      "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
+      "line": 1300,
+      "string": "CMS contract",
+      "suggestedKey": "admin.cms-contract",
+      "type": "text-node"
+    },
+    {
+      "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
+      "line": 1517,
       "string": "Preview",
       "suggestedKey": "admin.preview",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 790,
+      "line": 1522,
       "string": "Image uploads are auto-converted to WebP. Video uploads keep their original format.",
       "suggestedKey": "admin.image-uploads-are-auto-converted",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 966,
+      "line": 1698,
       "string": "Select one city for the dedicated Featured City block.",
       "suggestedKey": "admin.select-one-city-for-the",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 992,
+      "line": 1724,
       "string": "Hybrid ranks by tier score, using the selected city as an optional candidate hint.",
       "suggestedKey": "admin.hybrid-ranks-by-tier-score",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1041,
+      "line": 1773,
       "string": "No matching cities.",
       "suggestedKey": "admin.no-matching-cities",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1108,
+      "line": 1840,
       "string": "No cities selected. Frontend falls back to all cities.",
       "suggestedKey": "admin.no-cities-selected-frontend-falls",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1116,
+      "line": 1848,
       "string": "All active cities are shown when mode is set to all.",
       "suggestedKey": "admin.all-active-cities-are-shown",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1143,
+      "line": 1875,
       "string": "Hybrid uses curated cities as the candidate pool, then ranks them by tier score.",
       "suggestedKey": "admin.hybrid-uses-curated-cities-as",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1172,
+      "line": 1904,
       "string": "Hybrid uses the manual pool when present, then ranks that pool by tier score.",
       "suggestedKey": "admin.hybrid-uses-the-manual-pool",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1284,
+      "line": 2016,
       "string": "No matching listings.",
       "suggestedKey": "admin.no-matching-listings",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1351,
+      "line": 2083,
       "string": "No listings selected. Manual/hybrid mode will fallback deterministically.",
       "suggestedKey": "admin.no-listings-selected-manual-hybrid",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1410,
+      "line": 2142,
       "string": "No page-local text overrides yet.",
       "suggestedKey": "admin.no-page-local-text-overrides",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1454,
+      "line": 2186,
       "string": "No global text overrides yet.",
       "suggestedKey": "admin.no-global-text-overrides-yet",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminPageBuilder.tsx",
-      "line": 1518,
+      "line": 2250,
       "string": "No custom design tokens yet.",
       "suggestedKey": "admin.no-custom-design-tokens-yet",
       "type": "text-node"
@@ -5081,35 +5389,35 @@
     },
     {
       "file": "legacy-pages/admin/cms/AdminTranslations.tsx",
-      "line": 678,
+      "line": 690,
       "string": "UI Locale Sync",
       "suggestedKey": "admin.ui-locale-sync",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminTranslations.tsx",
-      "line": 722,
+      "line": 734,
       "string": "English keys",
       "suggestedKey": "admin.english-keys",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminTranslations.tsx",
-      "line": 728,
+      "line": 740,
       "string": "Locales synced",
       "suggestedKey": "admin.locales-synced",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminTranslations.tsx",
-      "line": 737,
+      "line": 749,
       "string": "Keys missing",
       "suggestedKey": "admin.keys-missing",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/cms/AdminTranslations.tsx",
-      "line": 858,
+      "line": 870,
       "string": "Recommended: 10-50 per run (cost-controlled).",
       "suggestedKey": "admin.recommended-10-50-per-run",
       "type": "text-node"
@@ -5165,7 +5473,7 @@
     },
     {
       "file": "legacy-pages/admin/email/EmailTemplates.tsx",
-      "line": 173,
+      "line": 176,
       "string": "Filter by category",
       "suggestedKey": "admin.filter-by-category",
       "type": "attribute"
@@ -5186,175 +5494,189 @@
     },
     {
       "file": "legacy-pages/admin/email/EmailTemplates.tsx",
-      "line": 254,
+      "line": 257,
       "string": "No templates yet",
       "suggestedKey": "admin.no-templates-yet",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/email/EmailTemplates.tsx",
-      "line": 255,
+      "line": 258,
       "string": "Create your first email template to get started",
       "suggestedKey": "admin.create-your-first-email-template",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventForm.tsx",
-      "line": 188,
+      "line": 189,
       "string": "Event title",
       "suggestedKey": "admin.event-title",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventForm.tsx",
-      "line": 197,
+      "line": 198,
       "string": "event-slug",
       "suggestedKey": "admin.event-slug",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventForm.tsx",
-      "line": 207,
+      "line": 208,
       "string": "Select category",
       "suggestedKey": "admin.select-category",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventForm.tsx",
-      "line": 222,
+      "line": 223,
       "string": "Brief summary for cards",
       "suggestedKey": "admin.brief-summary-for-cards",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventForm.tsx",
-      "line": 232,
+      "line": 233,
       "string": "Detailed event description (supports markdown)",
       "suggestedKey": "admin.detailed-event-description-supports-markdown",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventForm.tsx",
-      "line": 307,
+      "line": 308,
       "string": "Select pattern",
       "suggestedKey": "admin.select-pattern",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventForm.tsx",
-      "line": 336,
+      "line": 337,
       "string": "Select city",
       "suggestedKey": "admin.select-city",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventForm.tsx",
-      "line": 351,
+      "line": 352,
       "string": "Venue name",
       "suggestedKey": "admin.venue-name",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventForm.tsx",
-      "line": 360,
+      "line": 361,
       "string": "Full address or location description",
       "suggestedKey": "admin.full-address-or-location-description",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventForm.tsx",
-      "line": 381,
+      "line": 382,
       "string": "https://...",
       "suggestedKey": "admin.https",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventForm.tsx",
-      "line": 409,
+      "line": 415,
       "string": "e.g., Free, €20-50",
       "suggestedKey": "admin.e-g-free-20-50",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventForm.tsx",
-      "line": 418,
+      "line": 424,
       "string": "https://...",
       "suggestedKey": "admin.https",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventForm.tsx",
-      "line": 427,
+      "line": 433,
       "string": "Add tags...",
       "suggestedKey": "admin.add-tags",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventForm.tsx",
-      "line": 445,
+      "line": 451,
       "string": "SEO title (max 60 chars)",
       "suggestedKey": "admin.seo-title-max-60-chars",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventForm.tsx",
-      "line": 455,
+      "line": 461,
       "string": "SEO description (max 160 chars)",
       "suggestedKey": "admin.seo-description-max-160-chars",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventForm.tsx",
-      "line": 482,
+      "line": 488,
       "string": "Select status",
       "suggestedKey": "admin.select-status",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventForm.tsx",
-      "line": 291,
+      "line": 292,
       "string": "This event repeats on a schedule",
       "suggestedKey": "admin.this-event-repeats-on-a",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventForm.tsx",
-      "line": 494,
+      "line": 500,
       "string": "Show in featured section",
       "suggestedKey": "admin.show-in-featured-section",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventModeration.tsx",
-      "line": 201,
+      "line": 216,
       "string": "Explain why this event is being rejected...",
       "suggestedKey": "admin.explain-why-this-event-is",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventModeration.tsx",
-      "line": 73,
+      "line": 75,
       "string": "Event Moderation",
       "suggestedKey": "admin.event-moderation",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventModeration.tsx",
-      "line": 74,
+      "line": 76,
       "string": "Review and approve submitted events",
       "suggestedKey": "admin.review-and-approve-submitted-events",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventModeration.tsx",
-      "line": 92,
+      "line": 94,
+      "string": "Could not load pending events",
+      "suggestedKey": "admin.could-not-load-pending-events",
+      "type": "text-node"
+    },
+    {
+      "file": "legacy-pages/admin/events/AdminEventModeration.tsx",
+      "line": 95,
+      "string": "We hit an error while loading moderation items. Please retry.",
+      "suggestedKey": "admin.we-hit-an-error-while",
+      "type": "text-node"
+    },
+    {
+      "file": "legacy-pages/admin/events/AdminEventModeration.tsx",
+      "line": 107,
       "string": "All caught up!",
       "suggestedKey": "admin.all-caught-up",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/admin/events/AdminEventModeration.tsx",
-      "line": 93,
+      "line": 108,
       "string": "There are no events pending review at the moment.",
       "suggestedKey": "admin.there-are-no-events-pending",
       "type": "text-node"
@@ -5417,7 +5739,7 @@
     },
     {
       "file": "legacy-pages/auth/AuthCallback.tsx",
-      "line": 102,
+      "line": 147,
       "string": "Completing sign in...",
       "suggestedKey": "auth.completing-sign-in",
       "type": "text-node"
@@ -5431,21 +5753,21 @@
     },
     {
       "file": "legacy-pages/auth/Login.tsx",
-      "line": 187,
+      "line": 188,
       "string": "••••••••",
       "suggestedKey": "auth.text",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/auth/Login.tsx",
-      "line": 86,
+      "line": 87,
       "string": "AlgarveOfficial",
       "suggestedKey": "auth.algarveofficial",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/auth/Login.tsx",
-      "line": 133,
+      "line": 134,
       "string": "AlgarveOfficial",
       "suggestedKey": "auth.algarveofficial",
       "type": "text-node"
@@ -6677,98 +6999,98 @@
     },
     {
       "file": "legacy-pages/owner/OwnerEventSubmit.tsx",
-      "line": 199,
+      "line": 200,
       "string": "Enter event title",
       "suggestedKey": "owner.enter-event-title",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/owner/OwnerEventSubmit.tsx",
-      "line": 209,
+      "line": 210,
       "string": "Select category",
       "suggestedKey": "owner.select-category",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/owner/OwnerEventSubmit.tsx",
-      "line": 224,
+      "line": 225,
       "string": "Brief summary (shown on cards)",
       "suggestedKey": "owner.brief-summary-shown-on-cards",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/owner/OwnerEventSubmit.tsx",
-      "line": 234,
+      "line": 235,
       "string": "Detailed description of your event",
       "suggestedKey": "owner.detailed-description-of-your-event",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/owner/OwnerEventSubmit.tsx",
-      "line": 309,
+      "line": 310,
       "string": "Select pattern",
       "suggestedKey": "owner.select-pattern",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/owner/OwnerEventSubmit.tsx",
-      "line": 338,
+      "line": 339,
       "string": "Select city",
       "suggestedKey": "owner.select-city",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/owner/OwnerEventSubmit.tsx",
-      "line": 353,
+      "line": 354,
       "string": "e.g., Praia da Rocha Beach Club",
       "suggestedKey": "owner.e-g-praia-da-rocha",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/owner/OwnerEventSubmit.tsx",
-      "line": 362,
+      "line": 363,
       "string": "Full address or how to find the venue",
       "suggestedKey": "owner.full-address-or-how-to",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/owner/OwnerEventSubmit.tsx",
-      "line": 383,
+      "line": 384,
       "string": "https://...",
       "suggestedKey": "owner.https",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/owner/OwnerEventSubmit.tsx",
-      "line": 402,
+      "line": 408,
       "string": "e.g., Free, €20-50",
       "suggestedKey": "owner.e-g-free-20-50",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/owner/OwnerEventSubmit.tsx",
-      "line": 411,
+      "line": 417,
       "string": "https://...",
       "suggestedKey": "owner.https",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/owner/OwnerEventSubmit.tsx",
-      "line": 420,
+      "line": 426,
       "string": "Add tags to help people find your event...",
       "suggestedKey": "owner.add-tags-to-help-people",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/owner/OwnerEventSubmit.tsx",
-      "line": 293,
+      "line": 294,
       "string": "This event repeats regularly",
       "suggestedKey": "owner.this-event-repeats-regularly",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/owner/OwnerEventSubmit.tsx",
-      "line": 435,
+      "line": 441,
       "string": "Once submitted, your event will be reviewed by our team. You'll be notified when it's published.",
       "suggestedKey": "owner.once-submitted-your-event-will",
       "type": "text-node"
@@ -6921,6 +7243,41 @@
       "type": "text-node"
     },
     {
+      "file": "legacy-pages/owner/OwnerMembership.tsx",
+      "line": 377,
+      "string": "Recommended",
+      "suggestedKey": "owner.recommended",
+      "type": "text-node"
+    },
+    {
+      "file": "legacy-pages/owner/OwnerMembership.tsx",
+      "line": 417,
+      "string": "Verified Partner",
+      "suggestedKey": "owner.verified-partner",
+      "type": "text-node"
+    },
+    {
+      "file": "legacy-pages/owner/OwnerMembership.tsx",
+      "line": 424,
+      "string": "Signature Partner",
+      "suggestedKey": "owner.signature-partner",
+      "type": "text-node"
+    },
+    {
+      "file": "legacy-pages/owner/OwnerMembership.tsx",
+      "line": 464,
+      "string": "Enhanced visibility and trust for established businesses. Less than the cost of a single booking.",
+      "suggestedKey": "owner.enhanced-visibility-and-trust-for",
+      "type": "text-node"
+    },
+    {
+      "file": "legacy-pages/owner/OwnerMembership.tsx",
+      "line": 470,
+      "string": "Reserved for operators selected by our editorial team based on profile, location, and market fit.",
+      "suggestedKey": "owner.reserved-for-operators-selected-by",
+      "type": "text-node"
+    },
+    {
       "file": "legacy-pages/public/Contact.tsx",
       "line": 218,
       "string": "WhatsApp",
@@ -6957,52 +7314,45 @@
     },
     {
       "file": "legacy-pages/public/Partner.tsx",
-      "line": 295,
+      "line": 345,
       "string": "https://",
       "suggestedKey": "public.https",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/public/RealEstateDetail.tsx",
-      "line": 210,
+      "line": 211,
       "string": "Listing Not Found",
       "suggestedKey": "public.listing-not-found",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/public/RealEstateDetail.tsx",
-      "line": 211,
+      "line": 212,
       "string": "The property you are looking for might have been removed or renamed.",
       "suggestedKey": "public.the-property-you-are-looking",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/public/RealEstateDetail.tsx",
-      "line": 487,
+      "line": 488,
       "string": "Designed for the consummate entertainer, the ground floor flows seamlessly from indoors to out. The state-of-the-art kitchen, featuring professional-grade appliances, opens directly onto the expansive pool deck. Here, long summer lunches turn into evening soirées under the stars, facilitated by the integrated outdoor kitchen and lounge area.",
       "suggestedKey": "public.designed-for-the-consummate-entertainer",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/public/RealEstateDetail.tsx",
-      "line": 491,
+      "line": 492,
       "string": "Beyond the aesthetic beauty, the villa offers a lifestyle of unparalleled convenience. Located just moments from the Quinta do Lago North Course and the pristine beaches of the Ria Formosa, every day presents a new opportunity for adventure or relaxation. This is not just a home; it is a sanctuary for those who demand the very best.",
       "suggestedKey": "public.beyond-the-aesthetic-beauty-the",
       "type": "text-node"
     },
     {
       "file": "legacy-pages/public/RealEstateDirectory.tsx",
-      "line": 386,
+      "line": 387,
       "string": "No properties match your refined search",
       "suggestedKey": "public.no-properties-match-your-refined",
       "type": "text-node"
-    },
-    {
-      "file": "legacy-pages/public/blog/BlogPost.tsx",
-      "line": 114,
-      "string": "Article Not Found",
-      "suggestedKey": "public.article-not-found",
-      "type": "attribute"
     },
     {
       "file": "legacy-pages/public/destinations/CityDetail.tsx",
@@ -7118,7 +7468,7 @@
     },
     {
       "file": "legacy-pages/public/events/EventDetail.tsx",
-      "line": 431,
+      "line": 433,
       "string": "Related Events",
       "suggestedKey": "public.related-events",
       "type": "text-node"
@@ -7132,28 +7482,28 @@
     },
     {
       "file": "legacy-pages/public/listings/ListingDetail.tsx",
-      "line": 526,
+      "line": 534,
       "string": "Breadcrumb",
       "suggestedKey": "public.breadcrumb",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/public/listings/ListingDetail.tsx",
-      "line": 852,
+      "line": 860,
       "string": "Instagram",
       "suggestedKey": "public.instagram",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/public/listings/ListingDetail.tsx",
-      "line": 863,
+      "line": 871,
       "string": "Facebook",
       "suggestedKey": "public.facebook",
       "type": "attribute"
     },
     {
       "file": "legacy-pages/public/listings/ListingDetail.tsx",
-      "line": 874,
+      "line": 882,
       "string": "Google Business",
       "suggestedKey": "public.google-business",
       "type": "attribute"
@@ -7178,20 +7528,42 @@
     {
       "type": "logical-or-fallback",
       "file": "components/admin/AdminHeader.tsx",
-      "line": 53,
+      "line": 51,
       "value": "A"
+    },
+    {
+      "type": "translation-default",
+      "file": "components/blog/BlogPostClient.tsx",
+      "line": 122,
+      "key": "blog.copyFailed",
+      "value": "Clipboard permission denied"
+    },
+    {
+      "type": "translation-default",
+      "file": "components/gdpr/CookieConsentDrawer.tsx",
+      "line": 219,
+      "key": "cookie.managePreferences",
+      "value": "Manage Preferences"
+    },
+    {
+      "type": "translation-default",
+      "file": "components/layout/HeaderNav.tsx",
+      "line": 44,
+      "key": "nav.primaryNavigation",
+      "value": "Primary navigation"
+    },
+    {
+      "type": "translation-default",
+      "file": "components/listing/ListingDetailClient.tsx",
+      "line": 1607,
+      "key": "listing.social.whatsapp",
+      "value": "WhatsApp"
     },
     {
       "type": "logical-or-fallback",
       "file": "components/listing/ListingDetailClient.tsx",
-      "line": 607,
-      "value": ""
-    },
-    {
-      "type": "logical-or-fallback",
-      "file": "components/listing-details/PremiumAccommodationLayout.tsx",
-      "line": 53,
-      "value": "N/A"
+      "line": 665,
+      "value": "EUR"
     },
     {
       "type": "logical-or-fallback",
@@ -7202,7 +7574,7 @@
     {
       "type": "logical-or-fallback",
       "file": "components/sections/HeroSection.tsx",
-      "line": 372,
+      "line": 181,
       "value": ""
     },
     {
@@ -7213,6 +7585,12 @@
     },
     {
       "type": "logical-or-fallback",
+      "file": "legacy-pages/owner/OwnerMedia.tsx",
+      "line": 113,
+      "value": "webp"
+    },
+    {
+      "type": "logical-or-fallback",
       "file": "legacy-pages/owner/OwnerSupport.tsx",
       "line": 58,
       "value": "Listing Owner"
@@ -7220,13 +7598,13 @@
     {
       "type": "logical-or-fallback",
       "file": "legacy-pages/public/RealEstateDetail.tsx",
-      "line": 304,
+      "line": 305,
       "value": "+351926488494"
     },
     {
       "type": "logical-or-fallback",
       "file": "legacy-pages/public/listings/ListingDetail.tsx",
-      "line": 414,
+      "line": 422,
       "value": ""
     },
     {

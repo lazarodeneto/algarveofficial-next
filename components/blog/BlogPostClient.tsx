@@ -129,7 +129,7 @@ function BlogPostInteractiveInner({ initialPost, initialAuthor }: BlogPostClient
       linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
     };
 
-    window.open(urls[platform], "_blank", "width=600,height=400");
+    window.open(urls[platform], "_blank", "noopener,noreferrer,width=600,height=400");
   };
 
   return (

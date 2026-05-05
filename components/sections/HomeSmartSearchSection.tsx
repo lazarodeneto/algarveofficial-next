@@ -50,13 +50,22 @@ export function HomeSmartSearchSection() {
           <div className="space-y-4">
             <nav aria-label={t("sections.homepage.smartSearch.intentLabel")} className="flex flex-wrap justify-center gap-2 lg:justify-start">
               {INTENTS.map((intent) => (
-                <Link
-                  key={intent.key}
-                  href={l(intent.href)}
-                  className="rounded-full border border-border/70 bg-background px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:border-primary/45 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                >
-                  {t("labelKey" in intent ? intent.labelKey : `sections.homepage.smartSearch.intents.${intent.key}`)}
-                </Link>
+                (() => {
+                  const labelKey =
+                    "labelKey" in intent
+                      ? intent.labelKey
+                      : `sections.homepage.smartSearch.intents.${intent.key}`;
+
+                  return (
+                    <Link
+                      key={intent.key}
+                      href={l(intent.href)}
+                      className="rounded-full border border-border/70 bg-background px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:border-primary/45 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    >
+                      {t(labelKey)}
+                    </Link>
+                  );
+                })()
               ))}
             </nav>
             <nav aria-label={t("sections.homepage.smartSearch.cityLabel")} className="flex flex-wrap items-center justify-center gap-2 text-sm lg:justify-start">

@@ -427,7 +427,6 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
             <div className="flex flex-wrap gap-2">
               {programmaticRelatedCategories.map((category) => {
                 const categoryCanonical = category.slug as CanonicalCategorySlug;
-                const localizedCategorySlug = getCategoryUrlSlug(categoryCanonical, locale);
 
                 return (
                   <LocaleLink

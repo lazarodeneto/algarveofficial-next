@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { NextRequest, NextResponse } from "next/server";
 
 import type { Database } from "@/integrations/supabase/types";
@@ -123,7 +124,6 @@ export async function POST(request: NextRequest) {
   }
 
   const { settings, locale } = normalized;
-  const cmsSettings = settings.filter((setting) => CMS_SETTING_KEYS.has(setting.key));
   const nonCmsSettings = settings.filter((setting) => !CMS_SETTING_KEYS.has(setting.key));
   const dbSettings = locale === "default" ? settings : nonCmsSettings;
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { SUPPORTED_LOCALES } from "@/lib/i18n/config";

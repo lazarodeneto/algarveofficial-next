@@ -1208,7 +1208,8 @@
     "preferencesTitle": "Cookie Preferences",
     "savePreferences": "Save Preferences",
     "saveSettings": "Save Settings",
-    "title": "Your Privacy Matters"
+    "title": "Your Privacy Matters",
+    "managePreferences": "Manage Preferences"
   },
   "cookiePolicy": {
     "footer": {
@@ -1678,7 +1679,11 @@
       "title": "Golf Course Directory",
       "description": "Explore golf clubs powered by AlgarveOfficial listings.",
       "emptyTitle": "No golf listings available",
-      "emptyDescription": "No published golf listings matched your current filters."
+      "emptyDescription": "No published golf listings matched your current filters.",
+      "metadataTitle": "Golf Courses in the Algarve",
+      "metadataDescription": "Browse championship golf listings in the Algarve with course specs, locations, and scorecard access.",
+      "regionFilter": "Region: {{region}}.",
+      "cityFilter": "City: {{city}}."
     },
     "leaderboardPage": {
       "title": "Leaderboard",
@@ -1720,6 +1725,10 @@
       "diff": "Diff",
       "total": "Total",
       "holesRange": "Holes {{start}}-{{end}}"
+    },
+    "metadata": {
+      "title": "Golf in the Algarve",
+      "description": "Discover the Algarve's finest golf courses, premium clubs, and golf travel planning resources."
     }
   },
   "guides": {
@@ -1826,7 +1835,9 @@
       "signatureLabel": "signature venues",
       "subtitle": "Visible social proof from real listings, real review volume, and curated venue names right at the point of first impression.",
       "title": "Proof that the shortlist is worth your time"
-    }
+    },
+    "loginRequired": "Please sign in to create a trip.",
+    "tripCreated": "Trip created."
   },
   "invest": {
     "allActiveCityHubs": "All Active City Hubs",
@@ -1967,7 +1978,10 @@
       "selectVisitType": "Select visit type",
       "send": "Send inquiry",
       "telephone": "Telephone",
-      "videoCall": "Video call"
+      "videoCall": "Video call",
+      "errorToast": "Could not send your enquiry. Please try again.",
+      "sending": "Sending...",
+      "successToast": "Your enquiry has been sent."
     },
     "inquiry": {
       "back": "Back",
@@ -2011,6 +2025,36 @@
       "verifiedDescription": "A trust signal for active and legitimate local businesses.",
       "signatureTitle": "Signature Selection",
       "signatureDescription": "Premium editorial-style visibility for standout Algarve businesses."
+    },
+    "bedrooms": "Bedrooms",
+    "bathrooms": "Bathrooms",
+    "builtArea": "Built area",
+    "contactForLocation": "Contact for location",
+    "experience": "Experience",
+    "exterior": "Exterior",
+    "freehold": "Freehold",
+    "golfFront": "Golf-front",
+    "handpickedSelection": "Handpicked selection",
+    "location": "Location",
+    "locationHidden": "Exact location hidden",
+    "price": "Price",
+    "priceOnRequest": "Price on request",
+    "similarListings": "Similar listings",
+    "verifiedDocuments": "Verified documents",
+    "verifiedPartner": "Verified partner",
+    "reviews": {
+      "errorRating": "Please choose a rating.",
+      "errorTitle": "Please add a review title.",
+      "errorContent": "Please write your review.",
+      "success": "Thank you. Your review has been submitted.",
+      "write": "Write a review",
+      "rating": "Rating",
+      "title": "Title",
+      "titlePlaceholder": "Summarise your experience",
+      "content": "Review",
+      "contentPlaceholder": "Share what stood out about your visit...",
+      "submitting": "Submitting...",
+      "submit": "Submit review"
     }
   },
   "live": {
@@ -3282,7 +3326,13 @@
         "estimatedCostEuro": "Estimated Cost (€)",
         "notes": "Notes",
         "notesPlaceholder": "Add any notes or reminders..."
-      }
+      },
+      "createNewTrip": "Create new trip",
+      "tripTitlePlaceholder": "Trip title",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "createTrip": "Create trip",
+      "saveChanges": "Save changes"
     }
   },
   "beachesPage": {

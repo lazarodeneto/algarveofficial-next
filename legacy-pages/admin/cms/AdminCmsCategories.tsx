@@ -364,7 +364,7 @@ export default function AdminCmsCategories() {
                       <Edit className="h-4 w-4 mr-2" />
                       Edit Details
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => window.open(`/stay?category=${category.slug}`, '_blank')}>
+                    <DropdownMenuItem onClick={() => window.open(`/stay?category=${category.slug}`, '_blank', 'noopener,noreferrer')}>
                       <Eye className="h-4 w-4 mr-2" />
                       View Listings
                     </DropdownMenuItem>

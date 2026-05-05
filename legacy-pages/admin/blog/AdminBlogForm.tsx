@@ -226,7 +226,7 @@ export default function AdminBlogForm() {
             variant="outline"
             onClick={() => {
               if (isEditing && formData.slug) {
-                window.open(`/blog/${formData.slug}`, '_blank');
+                window.open(`/blog/${formData.slug}`, '_blank', 'noopener,noreferrer');
               } else if (formData.slug) {
                 toast.info("Save the post first to preview");
               } else {

@@ -172,7 +172,7 @@ export function InquiryDialog({ listingId, listingName, ownerPhone, agentName, a
       `${message || "I'd like more information about this listing."}`
     );
 
-    window.open(`https://wa.me/${ownerPhone.replace(/\D/g, "")}?text=${whatsappMessage}`, "_blank");
+    window.open(`https://wa.me/${ownerPhone.replace(/\D/g, "")}?text=${whatsappMessage}`, "_blank", "noopener,noreferrer");
   };
 
   const specialRequestOptions = [

@@ -34,6 +34,8 @@ export function canUseNextImage(src?: string | null): boolean {
 
     return (
       matchesWildcardHostname(hostname, "supabase.co") ||
+      matchesWildcardHostname(hostname, "cdn-files-a.com") ||
+      matchesWildcardHostname(hostname, "setimaondaboattrips.com") ||
       matchesWildcardHostname(hostname, "wixstatic.com") ||
       matchesWildcardHostname(hostname, "googleapis.com") ||
       matchesWildcardHostname(hostname, "google.com") ||

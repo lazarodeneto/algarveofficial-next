@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -944,7 +945,7 @@ export async function PATCH(
     "single",
   );
 
-  let details: ListingGolfDetailsForm = {
+  const details: ListingGolfDetailsForm = {
     ...currentDetails,
     ...payload.details,
   };

@@ -1208,7 +1208,8 @@
     "preferencesTitle": "Preferências de Cookies",
     "savePreferences": "Guardar Preferências",
     "saveSettings": "Guardar Definições",
-    "title": "A Sua Privacidade é Importante"
+    "title": "A Sua Privacidade é Importante",
+    "managePreferences": "Gerir preferências"
   },
   "cookiePolicy": {
     "footer": {
@@ -1678,7 +1679,11 @@
       "title": "Diretório de Campos de Golfe",
       "description": "Explore clubes de golfe através das listagens AlgarveOfficial.",
       "emptyTitle": "Não há listagens de golfe disponíveis",
-      "emptyDescription": "Nenhuma listagem de golfe publicada corresponde aos filtros atuais."
+      "emptyDescription": "Nenhuma listagem de golfe publicada corresponde aos filtros atuais.",
+      "metadataTitle": "Campos de golfe no Algarve",
+      "metadataDescription": "Explore listagens de golfe de campeonato no Algarve com detalhes do campo, localizações e acesso ao cartão de jogo.",
+      "regionFilter": "Região: {{region}}.",
+      "cityFilter": "Cidade: {{city}}."
     },
     "leaderboardPage": {
       "title": "Classificação",
@@ -1720,6 +1725,10 @@
       "diff": "Diferença",
       "total": "Total",
       "holesRange": "Buracos {{start}}-{{end}}"
+    },
+    "metadata": {
+      "title": "Golfe no Algarve",
+      "description": "Descubra os melhores campos de golfe, clubes premium e recursos para planear golfe no Algarve."
     }
   },
   "guides": {
@@ -1810,7 +1819,7 @@
     "homepageSubtitle": "Hotéis, restaurantes, experiências, golf e imobiliário — numa plataforma de confiança.",
     "listYourBusiness": "Anuncie o Seu Negócio",
     "location": "Distrito de Faro, Portugal",
-    "loginRequired": "Faça login ou crie uma conta para criar e guardar sua viagem.",
+    "loginRequired": "Inicie sessão para criar uma viagem.",
     "planTripCta": "Planeie sua Viagem",
     "popular": "Popular",
     "primaryCta": "Explorar Regiões",
@@ -1822,7 +1831,7 @@
     "tagGoldenVisa": "Golden Visa",
     "tagMichelinDining": "Restaurantes Michelin",
     "tagPrivateAviation": "Aviação Privada",
-    "tripCreated": "Viagem criada com sucesso.",
+    "tripCreated": "Viagem criada.",
     "label": "Curado para si",
     "curated": "Curado por locais",
     "verified": "Verificado e confiável",
@@ -1986,7 +1995,10 @@
       "selectVisitType": "Selecionar tipo de visita",
       "send": "Enviar pedido",
       "telephone": "Telefone",
-      "videoCall": "Videochamada"
+      "videoCall": "Videochamada",
+      "errorToast": "Não foi possível enviar o pedido. Tente novamente.",
+      "sending": "A enviar...",
+      "successToast": "O seu pedido foi enviado."
     },
     "inquiry": {
       "back": "Voltar",
@@ -2030,6 +2042,36 @@
       "verifiedDescription": "Um sinal de confiança para negócios locais ativos e legítimos.",
       "signatureTitle": "Signature Selection",
       "signatureDescription": "Visibilidade premium de estilo editorial para negócios de destaque no Algarve."
+    },
+    "bedrooms": "Quartos",
+    "bathrooms": "Casas de banho",
+    "builtArea": "Área construída",
+    "contactForLocation": "Contacte para saber a localização",
+    "experience": "Experiência",
+    "exterior": "Exterior",
+    "freehold": "Propriedade plena",
+    "golfFront": "Frente de golfe",
+    "handpickedSelection": "Seleção escolhida a dedo",
+    "location": "Localização",
+    "locationHidden": "Localização exata oculta",
+    "price": "Preço",
+    "priceOnRequest": "Preço sob consulta",
+    "similarListings": "Imóveis semelhantes",
+    "verifiedDocuments": "Documentos verificados",
+    "verifiedPartner": "Parceiro verificado",
+    "reviews": {
+      "errorRating": "Escolha uma classificação.",
+      "errorTitle": "Adicione um título à avaliação.",
+      "errorContent": "Escreva a sua avaliação.",
+      "success": "Obrigado. A sua avaliação foi enviada.",
+      "write": "Escrever avaliação",
+      "rating": "Classificação",
+      "title": "Título",
+      "titlePlaceholder": "Resuma a sua experiência",
+      "content": "Avaliação",
+      "contentPlaceholder": "Partilhe o que mais se destacou na sua visita...",
+      "submitting": "A enviar...",
+      "submit": "Enviar avaliação"
     }
   },
   "live": {
@@ -3301,7 +3343,13 @@
         "estimatedCostEuro": "Estimated Cost (€)",
         "notes": "Notes",
         "notesPlaceholder": "Add any notes or reminders..."
-      }
+      },
+      "createNewTrip": "Criar nova viagem",
+      "tripTitlePlaceholder": "Título da viagem",
+      "startDate": "Data de início",
+      "endDate": "Data de fim",
+      "createTrip": "Criar viagem",
+      "saveChanges": "Guardar alterações"
     }
   },
   "beachesPage": {

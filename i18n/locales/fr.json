@@ -1208,7 +1208,8 @@
     "preferencesTitle": "Préférences des cookies",
     "savePreferences": "Enregistrer les préférences",
     "saveSettings": "Enregistrer les paramètres",
-    "title": "Votre Vie Privée Compte"
+    "title": "Votre Vie Privée Compte",
+    "managePreferences": "Gérer les préférences"
   },
   "cookiePolicy": {
     "footer": {
@@ -1678,7 +1679,11 @@
       "title": "Annuaire des parcours de golf",
       "description": "Explorez les clubs de golf avec les fiches AlgarveOfficial.",
       "emptyTitle": "Aucune fiche golf disponible",
-      "emptyDescription": "Aucune fiche golf publiée ne correspond à vos filtres actuels."
+      "emptyDescription": "Aucune fiche golf publiée ne correspond à vos filtres actuels.",
+      "metadataTitle": "Parcours de golf en Algarve",
+      "metadataDescription": "Parcourez les offres de golf de championnat en Algarve avec caractéristiques, localisations et accès aux cartes de score.",
+      "regionFilter": "Région : {{region}}.",
+      "cityFilter": "Ville : {{city}}."
     },
     "leaderboardPage": {
       "title": "Classement",
@@ -1720,6 +1725,10 @@
       "diff": "Écart",
       "total": "Total",
       "holesRange": "Trous {{start}}-{{end}}"
+    },
+    "metadata": {
+      "title": "Golf en Algarve",
+      "description": "Découvrez les meilleurs parcours de golf, clubs premium et ressources de planification en Algarve."
     }
   },
   "guides": {
@@ -1807,7 +1816,7 @@
     "headlineHighlight": "Meilleur de l'Algarve",
     "listYourBusiness": "Référencer Votre Établissement",
     "location": "District de Faro, Portugal",
-    "loginRequired": "Connectez-vous ou créez un compte pour créer et enregistrer votre voyage.",
+    "loginRequired": "Connectez-vous pour créer un voyage.",
     "planTripCta": "Planifiez votre voyage",
     "popular": "Populaire",
     "primaryCta": "Explorer les Régions",
@@ -1819,7 +1828,7 @@
     "tagGoldenVisa": "Golden Visa",
     "tagMichelinDining": "Restaurants Michelin",
     "tagPrivateAviation": "Aviation Privée",
-    "tripCreated": "Voyage créé avec succès.",
+    "tripCreated": "Voyage créé.",
     "trust": {
       "anonymousVisitor": "Visiteur vérifié",
       "approvedReview": "Avis approuvé",
@@ -1950,11 +1959,11 @@
     "bathrooms": "Salles de bain",
     "bedrooms": "Chambres",
     "bookVisit": "Réserver une visite",
-    "builtArea": "Surface habitable",
+    "builtArea": "Surface construite",
     "certifiedListing": "Annonce certifiée",
     "claimThisListing": "Claim this listing",
     "contact": "Contact",
-    "contactForLocation": "Contactez pour les détails de localisation",
+    "contactForLocation": "Contactez-nous pour la localisation",
     "experience": "Expérience",
     "exterior": "Extérieur",
     "features": "Caractéristiques",
@@ -1963,7 +1972,7 @@
       "consent": "J'accepte d'être contacté(e) au sujet de ce bien",
       "email": "Adresse e-mail",
       "emailWarning": "Votre message a été enregistré, mais la notification par e-mail a échoué. L'administrateur peut toujours le consulter dans la boîte de réception.",
-      "errorToast": "Échec de l'envoi de la demande. Veuillez réessayer.",
+      "errorToast": "Impossible d’envoyer votre demande. Veuillez réessayer.",
       "fullName": "Nom complet",
       "inboxWarning": "Votre message a été reçu, mais la livraison dans la boîte de réception de l'administrateur doit être configurée.",
       "inPerson": "Visite en personne",
@@ -1975,14 +1984,14 @@
       "selectVisitType": "Sélectionner le type de visite",
       "send": "Envoyer la demande",
       "sending": "Envoi...",
-      "successToast": "Votre demande a été envoyée !",
+      "successToast": "Votre demande a été envoyée.",
       "telephone": "Téléphone",
       "videoCall": "Appel vidéo",
       "visitType": "Type de visite"
     },
     "freehold": "Pleine propriété",
-    "golfFront": "Face au golf",
-    "handpickedSelection": "Sélection exclusive",
+    "golfFront": "En bord de golf",
+    "handpickedSelection": "Sélection choisie avec soin",
     "inquiry": {
       "back": "Retour",
       "checkIn": "Arrivée",
@@ -2018,8 +2027,8 @@
     "interested": "Intéressé ?",
     "isYourBusiness": "Is this your business?",
     "livingArea": "Surface habitable",
-    "location": "Emplacement",
-    "locationHidden": "Emplacement disponible sur demande",
+    "location": "Localisation",
+    "locationHidden": "Localisation exacte masquée",
     "locationUnavailable": "Location unavailable",
     "messageWhatsApp": "Message on WhatsApp",
     "notFound": "Listing not found",
@@ -2030,18 +2039,18 @@
     "relatedDestinations": "Related destinations",
     "relatedListings": "More {{category}} to explore",
     "reviews": {
-      "content": "Votre avis",
-      "contentPlaceholder": "Partagez votre expérience avec cette annonce...",
-      "errorContent": "Veuillez écrire un avis",
-      "errorRating": "Veuillez sélectionner une note",
-      "errorTitle": "Veuillez saisir un titre",
+      "content": "Avis",
+      "contentPlaceholder": "Partagez ce qui vous a marqué lors de votre visite...",
+      "errorContent": "Rédigez votre avis.",
+      "errorRating": "Veuillez choisir une note.",
+      "errorTitle": "Ajoutez un titre à votre avis.",
       "rating": "Note",
-      "submit": "Soumettre l'avis",
-      "submitting": "Envoi en cours...",
-      "success": "Avis soumis avec succès !",
+      "submit": "Envoyer l’avis",
+      "submitting": "Envoi...",
+      "success": "Merci. Votre avis a été envoyé.",
       "title": "Titre",
       "titlePlaceholder": "Résumez votre expérience",
-      "write": "Écrire un avis"
+      "write": "Rédiger un avis"
     },
     "save": "Sauvegarder",
     "saveToFavorites": "Save to favorites",
@@ -2049,7 +2058,7 @@
     "sendInquiry": "Envoyer une Demande",
     "sendMessage": "Envoyer un Message",
     "share": "Share",
-    "similarListings": "Annonces similaires",
+    "similarListings": "Biens similaires",
     "tags": "Tags",
     "verifiedDocuments": "Documents vérifiés",
     "verifiedPartner": "Partenaire vérifié",
@@ -3346,7 +3355,13 @@
         "estimatedCostEuro": "Estimated Cost (€)",
         "notes": "Notes",
         "notesPlaceholder": "Add any notes or reminders..."
-      }
+      },
+      "createNewTrip": "Créer un voyage",
+      "tripTitlePlaceholder": "Titre du voyage",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "createTrip": "Créer le voyage",
+      "saveChanges": "Enregistrer les modifications"
     }
   },
   "beachesPage": {

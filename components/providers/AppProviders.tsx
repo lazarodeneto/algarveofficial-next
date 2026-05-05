@@ -17,18 +17,37 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { CMS_PAGE_BUILDER_RUNTIME_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import { CmsPageBuilderProvider } from "@/contexts/CmsPageBuilderContext";
 import { MobileMenuProvider } from "@/contexts/MobileMenuContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { createAppQueryClient } from "@/lib/react-query";
+import { globalSettingsQueryKey } from "@/lib/query-keys";
+import type { RuntimeSettingRow } from "@/lib/cms/runtime-settings";
 
 interface AppProvidersProps {
   children: ReactNode;
   initialMessages?: LocaleMessages;
+  initialCmsRuntimeSettings?: RuntimeSettingRow[];
+  locale?: string;
 }
 
-export function AppProviders({ children, initialMessages }: AppProvidersProps) {
-  const [queryClient] = useState(() => createAppQueryClient());
+export function AppProviders({
+  children,
+  initialMessages,
+  initialCmsRuntimeSettings,
+  locale,
+}: AppProvidersProps) {
+  const [queryClient] = useState(() => {
+    const client = createAppQueryClient();
+    if (locale && initialCmsRuntimeSettings) {
+      client.setQueryData(
+        globalSettingsQueryKey(CMS_PAGE_BUILDER_RUNTIME_KEYS, locale),
+        initialCmsRuntimeSettings,
+      );
+    }
+    return client;
+  });
 
   return (
     <QueryClientProvider client={queryClient}>

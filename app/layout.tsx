@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { DM_Sans, Playfair_Display, Archivo_Narrow, Roboto_Condensed, Fira_Sans } from "next/font/google";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Analytics } from "@vercel/analytics/next";
 import { unstable_cache } from "next/cache";
 
 import "../index.css";
 import { AppLazyMotion } from "@/components/providers/AppLazyMotion";
 import { ClientRuntimeScripts } from "@/components/providers/ClientRuntimeScripts";
 import { RootProviders } from "@/components/providers/RootProviders";
+import { VercelTelemetry } from "@/components/providers/VercelTelemetry";
 import { resolveGaMeasurementId } from "@/lib/analytics/ga-config";
 import { toHtmlLang } from "@/lib/i18n/config";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
@@ -143,12 +142,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         <AppLazyMotion>
           <RootProviders>{children}</RootProviders>
         </AppLazyMotion>
-        {enableVercelTelemetry ? (
-          <>
-            <Analytics />
-            <SpeedInsights />
-          </>
-        ) : null}
+        {enableVercelTelemetry ? <VercelTelemetry /> : null}
       </body>
     </html>
   );

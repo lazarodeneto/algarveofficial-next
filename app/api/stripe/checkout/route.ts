@@ -1,5 +1,7 @@
 export const runtime = "nodejs";
 
+/* eslint-disable @typescript-eslint/no-explicit-any, no-console */
+
 import { NextRequest, NextResponse } from "next/server";
 import { normalizePricingBillingPeriod, normalizePricingTier } from "@/lib/pricing/pricing-resolver";
 import { createServiceRoleClient } from "@/lib/supabase/service";

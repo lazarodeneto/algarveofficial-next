@@ -112,7 +112,7 @@ function scanTranslations(files, localeMaps) {
   const fallbackPatterns = [];
   const hardcoded = [];
 
-  const keyRegex = /\b(?:t|tSafe)\(\s*(["'`])([^"'`]+)\1/g;
+  const keyRegex = /\b(?:t|tSafe)\(\s*(["'`])([^"'`$]+)\1/g;
   const directDefaultRegex =
     /\b(?:t|tSafe)\(\s*(["'`])([^"'`]+)\1\s*,\s*(["'`])((?:\\.|(?!\3)[\s\S])*?)\3/g;
   const objectDefaultRegex =

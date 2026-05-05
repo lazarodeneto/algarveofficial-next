@@ -156,7 +156,7 @@ function SortableRegionItem({ region, onToggle, onEdit, onDelete }: SortableRegi
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Region
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => window.open(`/destinations/${region.slug}`, '_blank')}>
+                <DropdownMenuItem onClick={() => window.open(`/destinations/${region.slug}`, '_blank', 'noopener,noreferrer')}>
                   <Eye className="h-4 w-4 mr-2" />
                   View Page
                 </DropdownMenuItem>

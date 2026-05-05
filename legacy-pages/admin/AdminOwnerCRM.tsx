@@ -450,7 +450,7 @@ export default function AdminOwnerCRM() {
 
       const invoiceUrl = result?.invoice?.hosted_invoice_url;
       if (invoiceUrl) {
-        window.open(invoiceUrl, "_blank");
+        window.open(invoiceUrl, "_blank", "noopener,noreferrer");
       }
     },
     onError: (error) => {
@@ -1147,7 +1147,7 @@ export default function AdminOwnerCRM() {
                       <Button
                         variant="outline"
                         size={compactMode ? "sm" : "default"}
-                        onClick={() => window.open(`mailto:${ownerDetail.profile.email}`, "_blank")}
+                        onClick={() => window.open(`mailto:${ownerDetail.profile.email}`, "_blank", "noopener,noreferrer")}
                         className="justify-start"
                       >
                         <Send className="h-4 w-4 mr-2" />
@@ -1524,7 +1524,7 @@ export default function AdminOwnerCRM() {
                                       <Button
                                         variant="outline"
                                         size="sm"
-                                        onClick={() => window.open(invoice.hosted_invoice_url!, "_blank")}
+                                        onClick={() => window.open(invoice.hosted_invoice_url!, "_blank", "noopener,noreferrer")}
                                       >
                                         Open
                                         <ExternalLink className="h-3 w-3 ml-1" />
@@ -1534,7 +1534,7 @@ export default function AdminOwnerCRM() {
                                       <Button
                                         variant="outline"
                                         size="sm"
-                                        onClick={() => window.open(invoice.invoice_pdf!, "_blank")}
+                                        onClick={() => window.open(invoice.invoice_pdf!, "_blank", "noopener,noreferrer")}
                                       >
                                         PDF
                                       </Button>
@@ -1628,7 +1628,7 @@ export default function AdminOwnerCRM() {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => window.open(payment.receipt_url!, "_blank")}
+                                  onClick={() => window.open(payment.receipt_url!, "_blank", "noopener,noreferrer")}
                                 >
                                   Receipt
                                   <ExternalLink className="h-3 w-3 ml-1" />

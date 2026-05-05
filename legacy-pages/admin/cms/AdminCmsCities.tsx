@@ -357,7 +357,7 @@ export default function AdminCmsCities() {
                       <Edit className="h-4 w-4 mr-2" />
                       Edit Details
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => window.open(`/visit/${city.slug}`, '_blank')}>
+                    <DropdownMenuItem onClick={() => window.open(`/visit/${city.slug}`, '_blank', 'noopener,noreferrer')}>
                       <Eye className="h-4 w-4 mr-2" />
                       View Page
                     </DropdownMenuItem>

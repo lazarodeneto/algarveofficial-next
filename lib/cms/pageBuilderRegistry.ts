@@ -5,6 +5,8 @@ export const CMS_GLOBAL_SETTING_KEYS = {
   customCss: "cms_custom_css_v1",
 } as const;
 
+export const CMS_PAGE_BUILDER_RUNTIME_KEYS = Object.values(CMS_GLOBAL_SETTING_KEYS);
+
 export type CmsTextOverrideMap = Record<string, string>;
 
 export interface CmsBlockConfig {

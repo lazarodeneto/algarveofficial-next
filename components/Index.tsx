@@ -101,13 +101,43 @@ const DEFAULT_SECTION_ORDER = [
   "curated",
   "categories",
   "regions",
-  "cities",
   "vip",
+  "cities",
   "all-listings",
   "cta",
 ];
 
 const EARLY_SECTION_IDS = new Set(["curated"]);
+
+function moveSectionBefore(order: string[], sectionId: string, beforeSectionId: string) {
+  const sectionIndex = order.indexOf(sectionId);
+  const beforeIndex = order.indexOf(beforeSectionId);
+  if (sectionIndex === -1 || beforeIndex === -1 || sectionIndex < beforeIndex) return order;
+
+  const nextOrder = [...order];
+  nextOrder.splice(sectionIndex, 1);
+  nextOrder.splice(beforeIndex, 0, sectionId);
+  return nextOrder;
+}
+
+function moveSectionAfter(order: string[], sectionId: string, afterSectionId: string) {
+  const sectionIndex = order.indexOf(sectionId);
+  const afterIndex = order.indexOf(afterSectionId);
+  if (sectionIndex === -1 || afterIndex === -1 || sectionIndex > afterIndex) return order;
+
+  const nextOrder = [...order];
+  nextOrder.splice(sectionIndex, 1);
+  nextOrder.splice(afterIndex, 0, sectionId);
+  return nextOrder;
+}
+
+function applyHomepageHierarchy(order: string[]) {
+  return moveSectionAfter(
+    moveSectionBefore(order, "vip", "cities"),
+    "cta",
+    "all-listings",
+  );
+}
 
 const Index = () => {
   const { settings, isLoading } = useHomepageSettings();
@@ -155,7 +185,7 @@ const Index = () => {
     };
 
     const normalizedOrder = sectionOrder.filter((id) => id in SECTION_COMPONENTS);
-    const cmsOrdered = getBlockOrder(normalizedOrder);
+    const cmsOrdered = applyHomepageHierarchy(getBlockOrder(normalizedOrder));
 
     return cmsOrdered
       .map(id => ({ id, enabled: visibilityMap[id] ?? true }));
