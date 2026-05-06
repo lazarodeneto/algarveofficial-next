@@ -65,7 +65,6 @@ const AdminGlobalSettings = withAdminLoading(
 const AdminHeaderMenu = withAdminLoading(
   () => import("@/legacy-pages/admin/cms/AdminHeaderMenu"),
 );
-const AdminHomePage = withAdminLoading(() => import("@/legacy-pages/admin/cms/AdminHomePage"));
 const AdminLeftMenu = withAdminLoading(() => import("@/legacy-pages/admin/cms/AdminLeftMenu"));
 const AdminMediaLibrary = withAdminLoading(
   () => import("@/legacy-pages/admin/cms/AdminMediaLibrary"),
@@ -146,7 +145,7 @@ const staticRouteMap: Record<string, ComponentType> = {
   subscriptions: AdminSubscriptions,
   claims: AdminClaims,
   import: AdminImport,
-  "content/home": AdminHomePage,
+  "content/home": AdminPageBuilder,
   "content/partner": AdminPartnerPage,
   "content/support": AdminSupportPage,
   "content/contact": AdminContactPage,

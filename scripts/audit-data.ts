@@ -1,7 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://niylxpvafywjonrphddp.supabase.co';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5NDM1MTI5OTZ9.CRXP1am7Eh14ZT0L86g-Ct6wD4a1O1h0VJ5M1M1yX6AQ';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.SUPABASE_ANON_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error(
+    "Missing Supabase configuration. Set NEXT_PUBLIC_SUPABASE_URL and either SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ANON_KEY.",
+  );
+  process.exit(1);
+}
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -12,7 +22,7 @@ async function runAudit() {
   console.log('=== LISTINGS ===');
   const { data: listings, error: listingsError } = await supabase
     .from('listings')
-    .select('id, name, category_id, city_id, tier, image_url, hero_image_url, created_at')
+    .select('id, name, category_id, city_id, tier, featured_image_url, created_at')
     .order('created_at', { ascending: false });
 
   if (listingsError) {
@@ -58,7 +68,7 @@ async function runAudit() {
 
   // 5. Missing images
   console.log('=== MISSING IMAGES ===');
-  const missingImages = listings?.filter(l => !l.image_url || l.image_url === '') || [];
+  const missingImages = listings?.filter(l => !l.featured_image_url || l.featured_image_url === '') || [];
   console.log(`Missing: ${missingImages.length}`);
   missingImages.forEach(l => console.log(`  - ${l.name}`));
   console.log();

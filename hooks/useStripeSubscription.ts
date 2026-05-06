@@ -253,7 +253,7 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
       );
 
       if (!data?.url) throw new Error('No portal URL returned');
-      window.open(data.url, '_blank');
+      window.open(data.url, "_blank", "noopener,noreferrer");
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to open customer portal';
       setError(message);

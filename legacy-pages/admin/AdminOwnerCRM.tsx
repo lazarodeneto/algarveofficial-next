@@ -24,7 +24,6 @@ import {
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/Button";
@@ -37,6 +36,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { invokeFunctionWithAuthRetry } from "@/lib/supabaseFunctionInvoke";
 import { useAdminChatThreads, useAdminSendMessage } from "@/hooks/useAdminChat";
 import {
   type OwnerCrmSummary,
@@ -72,6 +72,21 @@ interface BillingPayment {
   receipt_url: string | null;
   description: string | null;
   invoice_id: string | null;
+}
+
+interface BillingInvoicesResponse {
+  error?: string;
+  invoices?: BillingInvoice[];
+}
+
+interface BillingPaymentsResponse {
+  error?: string;
+  payments?: BillingPayment[];
+}
+
+interface BillingCreateInvoiceResponse {
+  error?: string;
+  invoice?: BillingInvoice;
 }
 
 type OwnerSort = OwnerCrmSummarySort;
@@ -135,6 +150,7 @@ function ownerNeedsAttention(owner: OwnerCrmSummary) {
   const normalized = (owner.subscriptionStatus || "").toLowerCase();
   return (
     owner.unreadAlertsCount > 0 ||
+    !owner.hasEmailContact ||
     normalized === "past_due" ||
     normalized === "canceled" ||
     normalized === "inactive"
@@ -163,9 +179,32 @@ function getOwnerSubscriptionBadge(status: string | null) {
   return { label: "Inactive", className: "bg-muted text-muted-foreground border-border" };
 }
 
-function getInvoiceStatusBadge(status: string | null, dueDate: number | null) {
+function getOwnerTypeBadge(owner: OwnerCrmSummary) {
+  const role = owner.role;
+  const subscriptionStatus = (owner.subscriptionStatus || "").toLowerCase();
+  const hasPaidSubscription =
+    owner.subscriptionTier &&
+    owner.subscriptionTier !== "unverified" &&
+    (subscriptionStatus === "active" || subscriptionStatus === "trialing");
+
+  if ((role === "admin" || role === "editor") && owner.listingCount > 0) {
+    return { label: "Admin-managed", className: "bg-slate-500/10 text-slate-600 border-slate-500/25" };
+  }
+
+  if (hasPaidSubscription) {
+    return { label: "Paid owner", className: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" };
+  }
+
+  if (owner.listingCount > 0) {
+    return { label: "Claimed owner", className: "bg-blue-500/15 text-blue-600 border-blue-500/30" };
+  }
+
+  return { label: "Inactive owner", className: "bg-muted text-muted-foreground border-border" };
+}
+
+function getInvoiceStatusBadge(status: string | null, dueDate: number | null, nowMs: number) {
   const normalized = (status || "unknown").toLowerCase();
-  const isOverdue = normalized === "open" && !!dueDate && dueDate * 1000 < Date.now();
+  const isOverdue = normalized === "open" && !!dueDate && dueDate * 1000 < nowMs;
 
   if (normalized === "paid") {
     return { label: "paid", className: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" };
@@ -193,6 +232,8 @@ function MetricTile({
   icon,
   tone = "default",
   compact = false,
+  active = false,
+  onClick,
 }: {
   title: string;
   value: string | number;
@@ -200,6 +241,8 @@ function MetricTile({
   icon: ReactNode;
   tone?: "default" | "success" | "warning" | "danger";
   compact?: boolean;
+  active?: boolean;
+  onClick?: () => void;
 }) {
   const toneClasses =
     tone === "success"
@@ -210,14 +253,16 @@ function MetricTile({
           ? "border-destructive/30 bg-destructive/5"
           : "border-border bg-muted/25";
 
-  return (
-    <div
-      className={cn(
-        "rounded-xl border transition-[background-color,border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-sm",
-        compact ? "p-2.5" : "p-3.5",
-        toneClasses,
-      )}
-    >
+  const className = cn(
+    "rounded-xl border transition-[background-color,border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-sm",
+    compact ? "p-2.5" : "p-3.5",
+    onClick && "cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2",
+    toneClasses,
+    active && "border-primary/50 ring-1 ring-primary/30",
+  );
+
+  const content = (
+    <>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/90">{title}</p>
@@ -228,6 +273,26 @@ function MetricTile({
           {icon}
         </div>
       </div>
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <button type="button" className={className} onClick={onClick} aria-pressed={active}>
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <div
+      className={cn(
+        "rounded-xl border transition-[background-color,border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-sm",
+        compact ? "p-2.5" : "p-3.5",
+        toneClasses,
+      )}
+    >
+      {content}
     </div>
   );
 }
@@ -254,6 +319,7 @@ export default function AdminOwnerCRM() {
   const ownerListRef = useRef<HTMLDivElement | null>(null);
   const [ownerListScrollTop, setOwnerListScrollTop] = useState(0);
   const [ownerListViewportHeight, setOwnerListViewportHeight] = useState(0);
+  const [nowMs] = useState(() => Date.now());
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -265,14 +331,12 @@ export default function AdminOwnerCRM() {
     return () => window.clearTimeout(timeoutId);
   }, [search]);
 
-  useEffect(() => {
-    setOwnerPage(1);
-  }, [debouncedSearch, ownerSort, ownerStatusFilter, ownerPageSize]);
-
   const {
     data: ownerSummariesPage,
     isLoading: ownersLoading,
     isFetching: ownersFetching,
+    error: ownersError,
+    refetch: refetchOwners,
   } = useAdminOwnerCrmSummaries({
     page: ownerPage,
     pageSize: ownerPageSize,
@@ -299,49 +363,40 @@ export default function AdminOwnerCRM() {
   const ownerTotalCount = ownerSummariesPage?.totalCount || 0;
   const ownerTotalPages = Math.max(ownerSummariesPage?.totalPages || 1, 1);
 
-  useEffect(() => {
-    if (ownerPage > ownerTotalPages) {
-      setOwnerPage(ownerTotalPages);
+  const activeOwnerPage = Math.min(ownerPage, ownerTotalPages);
+  const activeSelectedOwnerId = useMemo(() => {
+    if (ownerSummaries.length === 0) return null;
+    if (selectedOwnerId && ownerSummaries.some((owner) => owner.ownerId === selectedOwnerId)) {
+      return selectedOwnerId;
     }
-  }, [ownerPage, ownerTotalPages]);
-
-  useEffect(() => {
-    if (ownerSummaries.length === 0) {
-      setSelectedOwnerId(null);
-      return;
-    }
-
-    const selectedStillExists = ownerSummaries.some((owner) => owner.ownerId === selectedOwnerId);
-    if (!selectedStillExists) {
-      setSelectedOwnerId(ownerSummaries[0].ownerId);
-    }
+    return ownerSummaries[0].ownerId;
   }, [ownerSummaries, selectedOwnerId]);
 
   const selectedOwnerSummary = useMemo(
-    () => ownerSummaries.find((owner) => owner.ownerId === selectedOwnerId) || null,
-    [ownerSummaries, selectedOwnerId],
+    () => ownerSummaries.find((owner) => owner.ownerId === activeSelectedOwnerId) || null,
+    [activeSelectedOwnerId, ownerSummaries],
   );
 
-  const { data: ownerDetail, isLoading: detailLoading } = useAdminOwnerCrmDetail(selectedOwnerId);
+  const {
+    data: ownerDetail,
+    isLoading: detailLoading,
+    error: detailError,
+  } = useAdminOwnerCrmDetail(activeSelectedOwnerId);
 
   const { data: ownerThreads = [], isLoading: threadsLoading } = useAdminChatThreads({
-    ownerId: selectedOwnerId || undefined,
+    ownerId: activeSelectedOwnerId || undefined,
   });
 
-  useEffect(() => {
-    if (ownerThreads.length === 0) {
-      setThreadIdToMessage("");
-      return;
+  const activeThreadIdToMessage = useMemo(() => {
+    if (ownerThreads.length === 0) return "";
+    if (threadIdToMessage && ownerThreads.some((thread) => thread.id === threadIdToMessage)) {
+      return threadIdToMessage;
     }
-
-    const threadExists = ownerThreads.some((thread) => thread.id === threadIdToMessage);
-    if (!threadExists) {
-      const activeThread = ownerThreads.find((thread) => thread.status === "active");
-      setThreadIdToMessage(activeThread?.id || ownerThreads[0].id);
-    }
+    const activeThread = ownerThreads.find((thread) => thread.status === "active");
+    return activeThread?.id || ownerThreads[0].id;
   }, [ownerThreads, threadIdToMessage]);
 
-  const selectedThread = ownerThreads.find((thread) => thread.id === threadIdToMessage) || null;
+  const selectedThread = ownerThreads.find((thread) => thread.id === activeThreadIdToMessage) || null;
 
   const sendMessage = useAdminSendMessage();
   const ensureEmailContact = useEnsureOwnerEmailContact();
@@ -352,13 +407,13 @@ export default function AdminOwnerCRM() {
     refetch: refetchInvoices,
     error: invoicesError,
   } = useQuery({
-    queryKey: ["admin-owner-crm-invoices", selectedOwnerId],
-    enabled: !!selectedOwnerId,
+    queryKey: ["admin-owner-crm-invoices", activeSelectedOwnerId],
+    enabled: !!activeSelectedOwnerId,
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke("admin-owner-billing", {
+      const { data, error } = await invokeFunctionWithAuthRetry<BillingInvoicesResponse>("admin-owner-billing", {
         body: {
           action: "list_invoices",
-          owner_id: selectedOwnerId,
+          owner_id: activeSelectedOwnerId,
           limit: 30,
         },
       });
@@ -381,13 +436,13 @@ export default function AdminOwnerCRM() {
     refetch: refetchPayments,
     error: paymentsError,
   } = useQuery({
-    queryKey: ["admin-owner-crm-payments", selectedOwnerId],
-    enabled: !!selectedOwnerId,
+    queryKey: ["admin-owner-crm-payments", activeSelectedOwnerId],
+    enabled: !!activeSelectedOwnerId,
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke("admin-owner-billing", {
+      const { data, error } = await invokeFunctionWithAuthRetry<BillingPaymentsResponse>("admin-owner-billing", {
         body: {
           action: "list_payments",
-          owner_id: selectedOwnerId,
+          owner_id: activeSelectedOwnerId,
           limit: 30,
         },
       });
@@ -406,7 +461,7 @@ export default function AdminOwnerCRM() {
 
   const createInvoice = useMutation({
     mutationFn: async () => {
-      if (!selectedOwnerId) throw new Error("Select an owner first");
+      if (!activeSelectedOwnerId) throw new Error("Select an owner first");
       const amount = Number(invoiceAmount);
       const dueInDays = Number(invoiceDueDays);
 
@@ -422,10 +477,10 @@ export default function AdminOwnerCRM() {
         throw new Error("Due days must be between 1 and 30");
       }
 
-      const { data, error } = await supabase.functions.invoke("admin-owner-billing", {
+      const { data, error } = await invokeFunctionWithAuthRetry<BillingCreateInvoiceResponse>("admin-owner-billing", {
         body: {
           action: "create_invoice",
-          owner_id: selectedOwnerId,
+          owner_id: activeSelectedOwnerId,
           amount_eur: amount,
           description: invoiceDescription.trim(),
           due_in_days: dueInDays,
@@ -460,10 +515,10 @@ export default function AdminOwnerCRM() {
   });
 
   const handleSendMessage = () => {
-    if (!threadIdToMessage || !messageBody.trim()) return;
+    if (!activeThreadIdToMessage || !messageBody.trim()) return;
 
     sendMessage.mutate(
-      { threadId: threadIdToMessage, messageText: messageBody.trim() },
+      { threadId: activeThreadIdToMessage, messageText: messageBody.trim() },
       {
         onSuccess: () => {
           setMessageBody("");
@@ -482,7 +537,7 @@ export default function AdminOwnerCRM() {
       fullName: ownerDetail.profile.full_name,
     });
 
-    toast.success("Owner added to email contacts");
+    toast.success("Owner linked to CRM email contacts");
   };
 
   const totalListingsAcrossOwners = ownerSummaryMetrics.totalListings;
@@ -491,7 +546,7 @@ export default function AdminOwnerCRM() {
   const ownersWithMessagesCount = ownerSummaryMetrics.ownersWithMessages;
 
   const overdueInvoices = invoices.filter((invoice) => {
-    const overdueOpen = invoice.status === "open" && !!invoice.due_date && invoice.due_date * 1000 < Date.now();
+    const overdueOpen = invoice.status === "open" && !!invoice.due_date && invoice.due_date * 1000 < nowMs;
     return overdueOpen || invoice.status === "uncollectible";
   }).length;
   const openInvoices = invoices.filter((invoice) => invoice.status === "open").length;
@@ -518,13 +573,26 @@ export default function AdminOwnerCRM() {
   const ownerSubscriptionBadge = selectedOwnerSummary
     ? getOwnerSubscriptionBadge(selectedOwnerSummary.subscriptionStatus)
     : getOwnerSubscriptionBadge(null);
+  const selectedOwnerTypeBadge = selectedOwnerSummary ? getOwnerTypeBadge(selectedOwnerSummary) : null;
 
-  const isMainLoading = ownersLoading || (selectedOwnerId ? detailLoading : false);
+  const isMainLoading = ownersLoading || (activeSelectedOwnerId ? detailLoading : false);
   const metaLabelClass = "text-[10px] uppercase tracking-[0.08em] text-muted-foreground";
-  const ownerPageStart = ownerTotalCount > 0 ? Math.min((ownerPage - 1) * ownerPageSize + 1, ownerTotalCount) : 0;
-  const ownerPageEnd = Math.min(ownerPage * ownerPageSize, ownerTotalCount);
+  const ownerPageStart = ownerTotalCount > 0 ? Math.min((activeOwnerPage - 1) * ownerPageSize + 1, ownerTotalCount) : 0;
+  const ownerPageEnd = Math.min(activeOwnerPage * ownerPageSize, ownerTotalCount);
   const ownerRowHeight = compactMode ? 126 : 138;
   const ownerOverscan = 4;
+
+  const resetOwnerListScroll = () => {
+    setOwnerListScrollTop(0);
+    if (ownerListRef.current) {
+      ownerListRef.current.scrollTop = 0;
+    }
+  };
+
+  const resetOwnerPage = () => {
+    setOwnerPage(1);
+    resetOwnerListScroll();
+  };
 
   useEffect(() => {
     const el = ownerListRef.current;
@@ -535,13 +603,6 @@ export default function AdminOwnerCRM() {
     window.addEventListener("resize", syncViewport);
     return () => window.removeEventListener("resize", syncViewport);
   }, [ownerSummaries.length, compactMode]);
-
-  useEffect(() => {
-    setOwnerListScrollTop(0);
-    if (ownerListRef.current) {
-      ownerListRef.current.scrollTop = 0;
-    }
-  }, [ownerPage, compactMode]);
 
   const ownerVisibleCount = Math.max(
     1,
@@ -575,7 +636,10 @@ export default function AdminOwnerCRM() {
               <Button
                 variant="outline"
                 size={compactMode ? "sm" : "default"}
-                onClick={() => setCompactMode((prev) => !prev)}
+                onClick={() => {
+                  setCompactMode((prev) => !prev);
+                  resetOwnerListScroll();
+                }}
                 className={cn(
                   "transition-colors",
                   compactMode && "border-primary/40 bg-primary/10 text-primary hover:bg-primary/15",
@@ -606,6 +670,11 @@ export default function AdminOwnerCRM() {
               caption={`${ownersWithMessagesCount} with conversations`}
               icon={<Users className="h-5 w-5" />}
               compact={compactMode}
+              active={ownerStatusFilter === "all"}
+              onClick={() => {
+                setOwnerStatusFilter("all");
+                resetOwnerPage();
+              }}
             />
             <MetricTile
               title="Subscribed Owners"
@@ -614,14 +683,24 @@ export default function AdminOwnerCRM() {
               icon={<CheckCircle2 className="h-5 w-5" />}
               tone="success"
               compact={compactMode}
+              active={ownerStatusFilter === "subscribed"}
+              onClick={() => {
+                setOwnerStatusFilter("subscribed");
+                resetOwnerPage();
+              }}
             />
             <MetricTile
               title="Needs Attention"
               value={attentionOwnersCount}
-              caption="Billing issues or unread alerts"
+              caption="Billing issues, unread alerts, or contact gaps"
               icon={<AlertCircle className="h-5 w-5" />}
               tone={attentionOwnersCount > 0 ? "warning" : "default"}
               compact={compactMode}
+              active={ownerStatusFilter === "attention"}
+              onClick={() => {
+                setOwnerStatusFilter("attention");
+                resetOwnerPage();
+              }}
             />
             <MetricTile
               title="Listings Managed"
@@ -629,6 +708,11 @@ export default function AdminOwnerCRM() {
               caption="Across all owners"
               icon={<Building2 className="h-5 w-5" />}
               compact={compactMode}
+              active={ownerSort === "listings"}
+              onClick={() => {
+                setOwnerSort("listings");
+                resetOwnerPage();
+              }}
             />
           </div>
         </CardContent>
@@ -649,14 +733,23 @@ export default function AdminOwnerCRM() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 value={search}
-                onChange={(event) => setSearch(event.target.value)}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  resetOwnerPage();
+                }}
                 placeholder="Search by owner name or email..."
                 className="pl-9"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-              <Select value={ownerStatusFilter} onValueChange={(value) => setOwnerStatusFilter(value as OwnerStatusFilter)}>
+              <Select
+                value={ownerStatusFilter}
+                onValueChange={(value) => {
+                  setOwnerStatusFilter(value as OwnerStatusFilter);
+                  resetOwnerPage();
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
@@ -667,7 +760,13 @@ export default function AdminOwnerCRM() {
                   <SelectItem value="attention">Needs attention</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={ownerSort} onValueChange={(value) => setOwnerSort(value as OwnerSort)}>
+              <Select
+                value={ownerSort}
+                onValueChange={(value) => {
+                  setOwnerSort(value as OwnerSort);
+                  resetOwnerPage();
+                }}
+              >
                 <SelectTrigger>
                   <ArrowDownUp className="h-4 w-4 mr-2 text-muted-foreground" />
                   <SelectValue placeholder="Sort" />
@@ -682,7 +781,23 @@ export default function AdminOwnerCRM() {
           </CardHeader>
 
           <CardContent>
-            {ownersLoading ? (
+            {ownersError ? (
+              <div className={cn("rounded-lg border border-destructive/30 bg-destructive/5 text-center", compactMode ? "p-5" : "p-6")}>
+                <p className="text-sm font-medium text-destructive">Owner CRM data could not load.</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {(ownersError as Error).message || "Check the admin owner CRM summaries RPC and database access."}
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mt-3"
+                  onClick={() => refetchOwners()}
+                >
+                  Retry
+                </Button>
+              </div>
+            ) : ownersLoading ? (
               <div className={cn("flex items-center justify-center", compactMode ? "py-8" : "py-10")}>
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
@@ -699,8 +814,9 @@ export default function AdminOwnerCRM() {
                 >
                   <div style={{ paddingTop: ownerVirtualPaddingTop, paddingBottom: ownerVirtualPaddingBottom }} className={cn(compactMode ? "space-y-1.5" : "space-y-2")}>
                     {ownerVisibleRows.map((owner) => {
-                    const isSelected = owner.ownerId === selectedOwnerId;
+                    const isSelected = owner.ownerId === activeSelectedOwnerId;
                     const subBadge = getOwnerSubscriptionBadge(owner.subscriptionStatus);
+                    const ownerTypeBadge = getOwnerTypeBadge(owner);
                     const needsAttention = ownerNeedsAttention(owner);
 
                     return (
@@ -738,6 +854,9 @@ export default function AdminOwnerCRM() {
                             </div>
 
                             <div className={cn("flex items-center gap-2 flex-wrap", compactMode ? "mt-1.5" : "mt-2")}>
+                              <Badge variant="outline" className={cn("capitalize", ownerTypeBadge.className)}>
+                                {ownerTypeBadge.label}
+                              </Badge>
                               <Badge variant="outline">{owner.listingCount} listings</Badge>
                               <Badge variant="outline">{owner.activeThreadCount} active chats</Badge>
                               {owner.subscriptionTier && (
@@ -764,11 +883,17 @@ export default function AdminOwnerCRM() {
                 </div>
                 <div className="mt-3 flex items-center justify-between gap-2">
                   <div className="text-xs text-muted-foreground flex items-center gap-2">
-                    <span>Page {ownerPage} of {ownerTotalPages}</span>
+                    <span>Page {activeOwnerPage} of {ownerTotalPages}</span>
                     {ownersFetching && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                   </div>
                   <div className="flex items-center gap-2">
-                    <Select value={String(ownerPageSize)} onValueChange={(value) => setOwnerPageSize(Number(value))}>
+                    <Select
+                      value={String(ownerPageSize)}
+                      onValueChange={(value) => {
+                        setOwnerPageSize(Number(value));
+                        resetOwnerPage();
+                      }}
+                    >
                       <SelectTrigger className="w-[88px] h-8">
                         <SelectValue placeholder="Size" />
                       </SelectTrigger>
@@ -781,16 +906,22 @@ export default function AdminOwnerCRM() {
                     <Button
                       size="sm"
                       variant="outline"
-                      disabled={ownerPage <= 1 || ownersFetching}
-                      onClick={() => setOwnerPage((prev) => Math.max(1, prev - 1))}
+                      disabled={activeOwnerPage <= 1 || ownersFetching}
+                      onClick={() => {
+                        setOwnerPage((prev) => Math.max(1, prev - 1));
+                        resetOwnerListScroll();
+                      }}
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
-                      disabled={ownerPage >= ownerTotalPages || ownersFetching}
-                      onClick={() => setOwnerPage((prev) => Math.min(ownerTotalPages, prev + 1))}
+                      disabled={activeOwnerPage >= ownerTotalPages || ownersFetching}
+                      onClick={() => {
+                        setOwnerPage((prev) => Math.min(ownerTotalPages, prev + 1));
+                        resetOwnerListScroll();
+                      }}
                     >
                       <ChevronRight className="h-4 w-4" />
                     </Button>
@@ -807,7 +938,19 @@ export default function AdminOwnerCRM() {
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </CardContent>
           </Card>
-        ) : !selectedOwnerId || !ownerDetail || !selectedOwnerSummary ? (
+        ) : detailError ? (
+          <Card>
+            <CardContent className="flex min-h-[420px] flex-col items-center justify-center gap-3 text-center">
+              <AlertCircle className="h-8 w-8 text-destructive" />
+              <div>
+                <p className="font-medium text-destructive">Owner detail could not load.</p>
+                <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+                  {(detailError as Error).message || "Check profile, listing, subscription, notification, and email contact access."}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : !activeSelectedOwnerId || !ownerDetail || !selectedOwnerSummary ? (
           <Card>
             <CardContent className="flex items-center justify-center min-h-[420px]">
               <p className="text-muted-foreground">Select an owner to view CRM details.</p>
@@ -840,6 +983,11 @@ export default function AdminOwnerCRM() {
                         <Badge variant="outline" className={cn("capitalize", ownerSubscriptionBadge.className)}>
                           {ownerSubscriptionBadge.label}
                         </Badge>
+                        {selectedOwnerTypeBadge && (
+                          <Badge variant="outline" className={cn("capitalize", selectedOwnerTypeBadge.className)}>
+                            {selectedOwnerTypeBadge.label}
+                          </Badge>
+                        )}
                         <Badge variant="outline">{selectedOwnerSummary.listingCount} listings</Badge>
                         <Badge variant="outline">{selectedOwnerSummary.totalThreadCount} conversations</Badge>
                       </div>
@@ -1108,7 +1256,7 @@ export default function AdminOwnerCRM() {
                               </div>
                               <div className="flex gap-2 shrink-0">
                                 <Button asChild variant="outline" size="sm">
-                                  <Link href={`/listing/${listing.slug}`} target="_blank">
+                                  <Link href={l(`/listing/${listing.slug}`)} target="_blank">
                                     Public
                                     <ExternalLink className="h-3 w-3 ml-1" />
                                   </Link>
@@ -1165,7 +1313,7 @@ export default function AdminOwnerCRM() {
                         ) : (
                           <Mail className="h-4 w-4 mr-2" />
                         )}
-                        Ensure Email Contact
+                        Link CRM Contact
                       </Button>
                       <Button
                         variant="outline"
@@ -1180,8 +1328,10 @@ export default function AdminOwnerCRM() {
                         <p className="font-medium">Email contact status</p>
                         <p className="text-muted-foreground mt-1">
                           {ownerDetail.emailContact
-                            ? `Connected (${ownerDetail.emailContact.status})`
-                            : "Not connected. Click “Ensure Email Contact” to link this owner."}
+                            ? ownerDetail.emailContact.status === "subscribed"
+                              ? "Connected with recorded marketing consent."
+                              : `Connected for CRM only (${ownerDetail.emailContact.status}). Marketing remains disabled until consent exists.`
+                            : "Not connected. Link this owner to Email Contacts without adding marketing consent."}
                         </p>
                       </div>
                     </CardContent>
@@ -1191,7 +1341,7 @@ export default function AdminOwnerCRM() {
                     <CardHeader className={cn(compactMode && "pb-4")}>
                       <CardTitle className="text-lg">Quick Message Reply</CardTitle>
                       <CardDescription>
-                        Send a direct admin reply into the owner's conversation thread.
+                        Send a direct admin reply into the owner&apos;s conversation thread.
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
@@ -1205,7 +1355,7 @@ export default function AdminOwnerCRM() {
                         </div>
                       ) : (
                         <>
-                          <Select value={threadIdToMessage} onValueChange={setThreadIdToMessage}>
+                          <Select value={activeThreadIdToMessage} onValueChange={setThreadIdToMessage}>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a thread" />
                             </SelectTrigger>
@@ -1238,7 +1388,7 @@ export default function AdminOwnerCRM() {
                             </span>
                             <Button
                               onClick={handleSendMessage}
-                              disabled={!threadIdToMessage || !messageBody.trim() || sendMessage.isPending}
+                              disabled={!activeThreadIdToMessage || !messageBody.trim() || sendMessage.isPending}
                             >
                               {sendMessage.isPending ? (
                                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -1499,7 +1649,7 @@ export default function AdminOwnerCRM() {
                       <ScrollArea className="h-[360px] pr-3">
                         <div className={cn(compactMode ? "space-y-1.5" : "space-y-2")}>
                           {invoices.map((invoice) => {
-                            const statusBadge = getInvoiceStatusBadge(invoice.status, invoice.due_date);
+                            const statusBadge = getInvoiceStatusBadge(invoice.status, invoice.due_date, nowMs);
                             return (
                               <div
                                 key={invoice.id}

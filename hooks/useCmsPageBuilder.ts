@@ -84,16 +84,7 @@ export function useCmsPageBuilder(pageId: string) {
       return style as CSSProperties;
     };
 
-    const getBlockData = (
-      blockId: string,
-    ): Record<
-      string,
-      | string
-      | number
-      | boolean
-      | string[]
-      | Record<string, string | number | boolean>
-    > => {
+    const getBlockData = (blockId: string): Record<string, unknown> => {
       const resolvedBlockId = resolveBlockId(blockId);
       if (!resolvedBlockId) return {};
       const data = blocks[resolvedBlockId]?.data;

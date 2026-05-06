@@ -14,6 +14,7 @@ import { useContactForm } from "@/hooks/useContactForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { useContactSettings } from "@/hooks/useContactSettings";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { PRIMARY_CONTACT_EMAIL, normalizePublicContactEmail } from "@/lib/contactEmail";
 import { PRIMARY_WHATSAPP_NUMBER, toWhatsAppDigits } from "@/lib/contactPhone";
 
@@ -64,6 +65,10 @@ export default function Contact() {
     const searchParams = useSearchParams();
     const contactMutation = useContactForm();
     const { settings, isLoading } = useContactSettings();
+    const cms = useCmsPageBuilder("contact");
+    const heroEnabled = cms.isBlockEnabled("hero", true);
+    const sidebarEnabled = cms.isBlockEnabled("sidebar", true);
+    const formEnabled = cms.isBlockEnabled("form", true);
 
     const [formData, setFormData] = useState(() => ({
         name: user?.firstName ? `${user.firstName} ${user.lastName}` : "",
@@ -94,42 +99,42 @@ export default function Contact() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const heroTitle = resolveLocalizedContactCopy(
+    const heroTitle = cms.getText("hero.title", resolveLocalizedContactCopy(
         locale,
         settings?.hero_title,
         t('contact.title'),
         ENGLISH_CONTACT_FALLBACKS.heroTitle,
-    );
-    const heroSubtitle = resolveLocalizedContactCopy(
+    ));
+    const heroSubtitle = cms.getText("hero.subtitle", resolveLocalizedContactCopy(
         locale,
         settings?.hero_subtitle,
         t('contact.subtitle'),
         ENGLISH_CONTACT_FALLBACKS.heroSubtitle,
-    );
-    const getInTouchTitle = resolveLocalizedContactCopy(
+    ));
+    const getInTouchTitle = cms.getText("contactCard.title", resolveLocalizedContactCopy(
         locale,
         settings?.get_in_touch_title,
         t('contact.getInTouch'),
         ENGLISH_CONTACT_FALLBACKS.getInTouchTitle,
-    );
-    const getInTouchDescription = resolveLocalizedContactCopy(
+    ));
+    const getInTouchDescription = cms.getText("contactCard.description", resolveLocalizedContactCopy(
         locale,
         settings?.get_in_touch_description,
         t('contact.touchDesc'),
         ENGLISH_CONTACT_FALLBACKS.getInTouchDescription,
-    );
-    const formTitle = resolveLocalizedContactCopy(
+    ));
+    const formTitle = cms.getText("form.title", resolveLocalizedContactCopy(
         locale,
         settings?.form_title,
         t('contact.formTitle'),
         ENGLISH_CONTACT_FALLBACKS.formTitle,
-    );
-    const formDescription = resolveLocalizedContactCopy(
+    ));
+    const formDescription = cms.getText("form.description", resolveLocalizedContactCopy(
         locale,
         settings?.form_description,
         t('contact.formDesc'),
         ENGLISH_CONTACT_FALLBACKS.formDescription,
-    );
+    ));
     const displayEmail = normalizePublicContactEmail(settings?.display_email) || PRIMARY_CONTACT_EMAIL;
     const whatsappDigits = toWhatsAppDigits(settings?.whatsapp_number || PRIMARY_WHATSAPP_NUMBER);
 
@@ -150,6 +155,7 @@ export default function Contact() {
             <Header />
 
             {/* Hero Section */}
+            {heroEnabled ? (
             <section className="relative overflow-hidden pt-20 pb-6 lg:pt-32 lg:pb-12">
                 <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
                 <div className="absolute top-1/4 left-1/4 w-px h-32 bg-gradient-to-b from-transparent via-primary/30 to-transparent" />
@@ -170,12 +176,14 @@ export default function Contact() {
                     </m.div>
                 </div>
             </section>
+            ) : <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
 
             <section className="pt-6 pb-12 lg:pt-10 lg:pb-20">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="grid items-start gap-8 sm:gap-10 lg:grid-cols-5 lg:gap-16">
 
                         {/* Contact Info Sidebar */}
+                        {sidebarEnabled ? (
                         <div className="lg:col-span-2 space-y-6">
                             <m.div
                                 initial={{ opacity: 0, x: -20 }}
@@ -199,7 +207,7 @@ export default function Contact() {
                                                 <Mail className="h-5 w-5 sm:w-5 sm:h-5 text-primary" />
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <h4 className="font-semibold text-foreground text-base">{t('contact.email')}</h4>
+                                                <h4 className="font-semibold text-foreground text-base">{cms.getText("contactCard.emailLabel", t('contact.email'))}</h4>
                                                 <p className="break-all text-muted-foreground leading-relaxed">{displayEmail}</p>
                                                 <a
                                                     href={`mailto:${displayEmail}`}
@@ -215,7 +223,7 @@ export default function Contact() {
                                                 <MessageSquare className="h-5 w-5 sm:w-5 sm:h-5 text-primary" />
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <h4 className="font-semibold text-foreground text-base">WhatsApp</h4>
+                                                <h4 className="font-semibold text-foreground text-base">{cms.getText("contactCard.whatsappLabel", "WhatsApp")}</h4>
                                                 <p className="text-muted-foreground leading-relaxed">{t('contact.waDesc')}</p>
                                                 <a href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block break-words text-sm font-medium text-primary hover:underline">
                                                     {t('contact.startChat')}
@@ -228,7 +236,7 @@ export default function Contact() {
                                                 <MapPin className="h-5 w-5 sm:w-5 sm:h-5 text-primary" />
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <h4 className="font-semibold text-foreground text-base">{t('contact.location')}</h4>
+                                                <h4 className="font-semibold text-foreground text-base">{cms.getText("contactCard.locationLabel", t('contact.location'))}</h4>
                                                 <p className="break-words text-muted-foreground leading-relaxed">{settings?.office_location || 'Vilamoura, Algarve, Portugal'}</p>
                                             </div>
                                         </div>
@@ -237,9 +245,11 @@ export default function Contact() {
                                 </Card>
                             </m.div>
                         </div>
+                        ) : null}
 
                         {/* Contact Form */}
-                        <div className="lg:col-span-3">
+                        {formEnabled ? (
+                        <div className={sidebarEnabled ? "lg:col-span-3" : "lg:col-span-5"}>
                             <m.div
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
@@ -328,6 +338,7 @@ export default function Contact() {
                                 </Card>
                             </m.div>
                         </div>
+                        ) : null}
 
                     </div>
                 </div>

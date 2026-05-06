@@ -150,13 +150,20 @@ export function buildLocalBusinessSchema(listing: ListingSchemaInput) {
   const url = listing.url ?? `${SITE_URL}/listing/${listing.slug}`;
   
   const categoryTypes: Record<string, string[]> = {
+    "accommodation": ["LodgingBusiness", "Hotel", "Resort"],
     "places-to-stay": ["LodgingBusiness", "Hotel", "Resort"],
     "restaurants": ["Restaurant", "FoodEstablishment"],
     "golf": ["GolfCourse", "SportsActivityLocation"],
-    "beaches": ["BeachResort", "TouristAttraction"],
-    "things-to-do": ["TouristAttraction", "ActivityLocation"],
+    "beach-clubs": ["BeachResort", "TouristAttraction"],
+    "experiences": ["TouristAttraction", "ActivityLocation"],
+    "family-attractions": ["TouristAttraction", "ActivityLocation"],
+    "wellness-spas": ["HealthAndBeautyBusiness", "LocalBusiness"],
     "real-estate": ["RealEstateAgent", "ProfessionalService"],
     "events": ["EventVenue", "EntertainmentBusiness"],
+    "shopping": ["Store", "LocalBusiness"],
+    "transportation": ["LocalBusiness"],
+    "concierge-services": ["ProfessionalService"],
+    "architecture-design": ["ProfessionalService"],
   };
 
   const inferredTypes: string[] = [];

@@ -80,6 +80,19 @@ const EmailCampaigns = () => {
     });
   };
 
+  const handleSendNow = (campaign: { id: string; name: string }) => {
+    const confirmed = window.confirm(
+      t("admin.emailCampaigns.confirmSendNow", {
+        name: campaign.name,
+        defaultValue: `Send "${campaign.name}" now to its selected audience? This cannot be undone.`,
+      }),
+    );
+
+    if (confirmed) {
+      sendCampaign.mutate(campaign.id);
+    }
+  };
+
   const getStatusLabel = (status: string) => {
     switch (status) {
       case "draft":
@@ -306,7 +319,7 @@ const EmailCampaigns = () => {
                                 {t("common.edit")}
                               </DropdownMenuItem>
                               <DropdownMenuItem 
-                                onClick={() => sendCampaign.mutate(campaign.id)}
+                                onClick={() => handleSendNow(campaign)}
                                 disabled={sendCampaign.isPending}
                               >
                                 <Play className="h-4 w-4 mr-2" />

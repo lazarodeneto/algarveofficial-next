@@ -592,7 +592,10 @@ function ActionButton({
 
 // ─── Tier Badge ───────────────────────────────────────────────────────────────
 
-function TierBadge({ tier }: { tier: "signature" | "verified" }) {
+function TierBadge({ tier }: { tier: string }) {
+  const label =
+    tier === "signature" ? "Signature" : tier === "verified" ? "Verified" : "Unverified";
+
   return (
     <Badge
       variant="outline"
@@ -603,7 +606,7 @@ function TierBadge({ tier }: { tier: "signature" | "verified" }) {
           : "border-blue-500/30 bg-blue-500/10 text-blue-400",
       )}
     >
-      {tier === "signature" ? "Signature" : "Verified"}
+      {label}
     </Badge>
   );
 }

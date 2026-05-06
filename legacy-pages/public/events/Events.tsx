@@ -90,9 +90,9 @@ export default function Events() {
         {heroEnabled ? (
           <CmsBlock pageId="events" blockId="hero" as="section" className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
             <LiveStyleHero
-              badge={t('sections.events.label')}
-              title={t('sections.events.title')}
-              subtitle={t('sections.events.subtitle')}
+              badge={getText("hero.badge", t("sections.events.label"))}
+              title={getText("hero.title", t("sections.events.title"))}
+              subtitle={getText("hero.subtitle", t("sections.events.subtitle"))}
               media={
                 <HeroBackgroundMedia
                   mediaType={getText("hero.mediaType", "image")}
@@ -100,20 +100,20 @@ export default function Events() {
                   videoUrl={getText("hero.videoUrl", "")}
                   youtubeUrl={getText("hero.youtubeUrl", "")}
                   posterUrl={getText("hero.posterUrl", "")}
-                  alt={t("events.hero.alt")}
-                  fallback={<PageHeroImage page="events" alt={t("events.hero.alt")} />}
+                  alt={getText("hero.alt", t("events.hero.alt"))}
+                  fallback={<PageHeroImage page="events" alt={getText("hero.alt", t("events.hero.alt"))} />}
                 />
               }
               ctas={
                 <>
                   <Link href={l("/experiences")}>
                     <Button variant="gold" size="lg">
-                      {t("events.hero.ctaPrimary")}
+                      {getText("hero.cta.primary", t("events.hero.ctaPrimary"))}
                     </Button>
                   </Link>
                   <Link href={l("/contact")}>
                     <Button variant="heroOutline" size="lg">
-                      {t("events.hero.ctaSecondary")}
+                      {getText("hero.cta.secondary", t("events.hero.ctaSecondary"))}
                     </Button>
                   </Link>
                 </>
@@ -129,7 +129,7 @@ export default function Events() {
                     <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
                   <SelectContent className="bg-card border-border">
-                    <SelectItem value="all">{t('sections.events.allCategories')}</SelectItem>
+                    <SelectItem value="all">{getText("filters.allCategories", t("sections.events.allCategories"))}</SelectItem>
                     {[...categories]
                       .map(([key]) => ({ key, label: getEventCategoryLabel(key) }))
                       .sort((a, b) => a.label.localeCompare(b.label))
@@ -144,11 +144,11 @@ export default function Events() {
         ) : null}
 
         {/* Featured Events */}
-        {featuredEvents.length > 0 && (
+        {isBlockEnabled("featured", true) && featuredEvents.length > 0 && (
           <section className={`${heroEnabled ? "py-12" : "pb-12"} app-container content-max`}>
             <h2 className="text-title font-serif font-semibold mb-8 flex items-center gap-2">
               <Star className="h-6 w-6 text-primary" />
-              {t('sections.events.featured')}
+              {getText("featured.title", t("sections.events.featured"))}
             </h2>
             <div className="grid-adaptive">
               {featuredEvents.map((event: any, index: number) => (
@@ -186,7 +186,7 @@ export default function Events() {
                         </div>
                         <div className="absolute top-3 right-3">
                           <Badge className="bg-primary text-primary-foreground">
-                            {t('sections.events.featuredBadge')}
+                            {getText("featured.badge", t("sections.events.featuredBadge"))}
                           </Badge>
                         </div>
                       </div>
@@ -226,18 +226,19 @@ export default function Events() {
         )}
 
         {/* All Events by Month */}
+        {isBlockEnabled("timeline", true) ? (
         <section
           className={`${featuredEvents.length > 0 || heroEnabled ? "py-12" : "pb-12"} app-container content-max`}
         >
           <h2 className="text-title font-serif font-semibold mb-8">
-            {t('common.upcomingEvents')}
+            {getText("timeline.title", t("common.upcomingEvents"))}
           </h2>
           
           {Object.entries(eventsByMonth).length === 0 ? (
             <RouteMessageState
-              eyebrow={t('sections.events.label')}
-              title={t('sections.events.noUpcoming')}
-              description={t('sections.events.noUpcomingHint')}
+              eyebrow={getText("hero.badge", t("sections.events.label"))}
+              title={getText("timeline.emptyTitle", t("sections.events.noUpcoming"))}
+              description={getText("timeline.emptyDescription", t("sections.events.noUpcomingHint"))}
               icon={<Calendar className="h-16 w-16" />}
               minHeightClassName="min-h-[22rem]"
             />
@@ -290,6 +291,7 @@ export default function Events() {
             </div>
           )}
         </section>
+        ) : null}
       </main>
 
       <Footer />

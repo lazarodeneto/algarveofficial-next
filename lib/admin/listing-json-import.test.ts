@@ -404,10 +404,63 @@ describe("listing JSON import normalization", () => {
   });
 
   it("normalizes category aliases", () => {
+    expect(normalizeImportCategory("accommodation")).toBe("accommodation");
+    expect(normalizeImportCategory("places-to-stay")).toBe("accommodation");
+    expect(normalizeImportCategory("stay")).toBe("accommodation");
+    expect(normalizeImportCategory("stays")).toBe("accommodation");
+    expect(normalizeImportCategory("hotels")).toBe("accommodation");
+    expect(normalizeImportCategory("villa")).toBe("accommodation");
+    expect(normalizeImportCategory("apartments")).toBe("accommodation");
     expect(normalizeImportCategory("golf-course")).toBe("golf");
     expect(normalizeImportCategory("luxury properties")).toBe("real-estate");
     expect(normalizeImportCategory("beach clubs")).toBe("beach-clubs");
     expect(normalizeImportCategory("concierge services")).toBe("concierge-services");
     expect(normalizeImportCategory("services")).toBe("concierge-services");
+  });
+
+  it("uses top-level category before category_slug fallback", () => {
+    const listing = normalizeImportListing(
+      {
+        Nome: "Current Category Wins",
+        City: "Lagos",
+        category: "accommodation",
+        category_slug: "places-to-stay",
+      },
+      0,
+    );
+
+    expect(listing.normalizedCategory).toBe("accommodation");
+    expect(JSON.stringify(listing)).not.toContain("places-to-stay");
+  });
+
+  it("uses category_slug only when category is missing", () => {
+    const listing = normalizeImportListing(
+      {
+        Nome: "Legacy Category Slug",
+        City: "Lagos",
+        category_slug: "places-to-stay",
+      },
+      0,
+    );
+
+    expect(listing.normalizedCategory).toBe("accommodation");
+    expect(listing.base.categorySlug).toBe("accommodation");
+  });
+
+  it("accepts category_data.vertical accommodation when category fields are missing", () => {
+    const listing = normalizeImportListing(
+      {
+        Nome: "Category Data Accommodation",
+        City: "Lagos",
+        category_data: {
+          vertical: "accommodation",
+        },
+      },
+      0,
+    );
+
+    expect(listing.normalizedCategory).toBe("accommodation");
+    expect(listing.base.categorySlug).toBe("accommodation");
+    expect(JSON.stringify(listing)).not.toContain("places-to-stay");
   });
 });

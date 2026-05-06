@@ -120,4 +120,28 @@ describe("relocation route rename", () => {
     expect(metadata.alternates?.canonical).toContain("/en/relocation");
     expect(JSON.stringify(metadata.alternates?.languages)).toContain("/pt-pt/relocation");
   });
+
+  it("keeps relocation planner copy cautious across supported locales", () => {
+    for (const locale of ["en", "pt-pt", "fr", "de", "es", "it", "nl", "sv", "no", "da"]) {
+      const messages = JSON.parse(
+        readFileSync(join(REPO_ROOT, "i18n", "locales", `${locale}.json`), "utf8"),
+      );
+
+      expect(messages.live.planner.disclaimer).toBeTruthy();
+      expect(messages.live.planner.disclaimer.toLowerCase()).not.toContain("guaranteed");
+      expect(messages.live.planner.disclaimer.toLowerCase()).not.toContain("save tax");
+      expect(messages.live.planner.focus.family).not.toContain("Loulé");
+      expect(messages.live.planner.output.whyPriority).toBeTruthy();
+      expect(messages.live.planner.services.accommodation.title).toBeTruthy();
+    }
+  });
+
+  it("uses canonical relocation service category links", () => {
+    const source = readFileSync(join(REPO_ROOT, "legacy-pages", "public", "Live.tsx"), "utf8");
+
+    expect(source).toContain("/directory?category=accommodation");
+    expect(source).toContain("/directory?category=concierge-services");
+    expect(source).toContain("/directory?category=transportation");
+    expect(source).not.toContain("places-to-stay");
+  });
 });

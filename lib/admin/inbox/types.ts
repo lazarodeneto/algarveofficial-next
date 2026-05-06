@@ -2,16 +2,28 @@
 // Fields are non-optional by design — if a source can't supply all three,
 // it does not belong in the Inbox.
 
-export type InboxDomain = "listings" | "reviews" | "events";
+export type InboxDomain =
+  | "listings"
+  | "reviews"
+  | "events"
+  | "billing"
+  | "translations"
+  | "system";
 
 export type InboxSource =
+  | "billing_subscription"
+  | "external_outbox_alert"
+  | "listing_claim"
   | "listing_moderation"
   | "review_moderation"
-  | "event_moderation";
+  | "event_moderation"
+  | "translation_job";
 
 export type InboxUrgency = "urgent" | "soon" | "normal";
 
 export type InboxAction = "approve" | "reject" | "assign" | "archive";
+
+export const INBOX_CACHE_TAG = "admin-inbox";
 
 export interface InboxOwner {
   id: string;
@@ -27,7 +39,7 @@ export interface InboxSla {
 
 export interface InboxResolution {
   // Primary resolution action the admin will take.
-  primary: Exclude<InboxAction, "assign" | "archive">;
+  primary: InboxAction;
   // All actions available on this item type.
   available: InboxAction[];
 }
@@ -63,6 +75,17 @@ export interface ListingModerationItem extends InboxItemBase {
   };
 }
 
+export interface ListingClaimItem extends InboxItemBase {
+  domain: "listings";
+  source: "listing_claim";
+  meta: {
+    claimId: string;
+    listingId: string | null;
+    requestType: "claim-business" | "new-listing";
+    contactEmail: string;
+  };
+}
+
 export interface ReviewModerationItem extends InboxItemBase {
   domain: "reviews";
   source: "review_moderation";
@@ -85,10 +108,49 @@ export interface EventModerationItem extends InboxItemBase {
   };
 }
 
+export interface BillingSubscriptionItem extends InboxItemBase {
+  domain: "billing";
+  source: "billing_subscription";
+  meta: {
+    subscriptionId: string;
+    ownerId: string;
+    tier: string;
+    status: string;
+    currentPeriodEnd: string | null;
+  };
+}
+
+export interface TranslationJobItem extends InboxItemBase {
+  domain: "translations";
+  source: "translation_job";
+  meta: {
+    jobId: string;
+    listingId: string;
+    targetLang: string;
+    status: string;
+    attempts: number;
+  };
+}
+
+export interface ExternalOutboxAlertItem extends InboxItemBase {
+  domain: "system";
+  source: "external_outbox_alert";
+  meta: {
+    alertId: string;
+    alertKey: string;
+    severity: string;
+    details: unknown;
+  };
+}
+
 export type InboxItem =
+  | BillingSubscriptionItem
+  | ExternalOutboxAlertItem
+  | ListingClaimItem
   | ListingModerationItem
   | ReviewModerationItem
-  | EventModerationItem;
+  | EventModerationItem
+  | TranslationJobItem;
 
 export interface InboxFilters {
   domain: InboxDomain | "all";
@@ -102,16 +164,27 @@ export interface InboxSnapshot {
     total: number;
     urgent: number;
     soon: number;
+    normal: number;
     byDomain: Record<InboxDomain, number>;
   };
+  errors: InboxDataSourceError[];
   generatedAt: string;
+}
+
+export interface InboxDataSourceError {
+  source: InboxSource | "side_tables";
+  message: string;
 }
 
 // SLA windows (minutes). Used by adapters to compute dueAt + urgency.
 export const SLA_MINUTES: Record<InboxSource, number> = {
+  billing_subscription: 6 * 60,
+  external_outbox_alert: 30,
+  listing_claim: 24 * 60,
   listing_moderation: 24 * 60,
   review_moderation: 48 * 60,
   event_moderation: 24 * 60,
+  translation_job: 4 * 60,
 };
 
 export function computeUrgency(minutesRemaining: number): InboxUrgency {

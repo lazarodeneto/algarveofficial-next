@@ -209,6 +209,7 @@ describe("partner claim route runtime", () => {
         idempotency_key: "partner-claim-alert:claim-1",
         payload: expect.objectContaining({
           to: ["alerts@algarveofficial.com"],
+          from: "AlgarveOfficial <info@algarveofficial.com>",
           subject: expect.stringContaining("Golden Beach Resort"),
           reply_to: "maria@golden-beach.example",
         }),

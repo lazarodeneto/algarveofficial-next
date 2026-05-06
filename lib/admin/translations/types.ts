@@ -30,8 +30,8 @@ export interface ListingRow {
   name:               string;
   city:               string;
   category:           string;
-  tier:               "signature" | "verified";
-  status:             "published" | "draft";
+  tier:               string;
+  status:             string;
   is_homepage_visible?: boolean;
   is_top_category?:    boolean;
   // Content-version tracking (migration 019)
@@ -100,8 +100,26 @@ export const SEO_REQUIRED_LOCALES  = ["pt-pt", "fr", "de", "es"] as const;
 export const HIGH_TRAFFIC_LOCALES  = ["pt-pt", "fr", "de"] as const;
 
 export const HIGH_PRIORITY_CITIES = [
-  "Lisbon", "Porto", "Faro", "Albufeira", "Tavira",
-  "Lagos", "Portimão", "Vilamoura", "Cascais", "Sintra",
+  "Almancil",
+  "Quinta do Lago",
+  "Vale do Lobo",
+  "Vilamoura",
+  "Quarteira",
+  "Albufeira",
+  "Lagoa",
+  "Carvoeiro",
+  "Ferragudo",
+  "Portimão",
+  "Praia da Rocha",
+  "Alvor",
+  "Lagos",
+  "Sagres",
+  "Vila do Bispo",
+  "Tavira",
+  "Santa Luzia",
+  "Olhão",
+  "Fuseta",
+  "Monchique",
 ];
 
 export const STALE_DAYS = 30;

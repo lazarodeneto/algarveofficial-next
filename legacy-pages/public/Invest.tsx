@@ -276,10 +276,10 @@ const Invest = () => {
                     <div className="grid gap-10 lg:gap-14">
                         <div className="text-center max-w-4xl mx-auto">
                             <Badge variant="gold" className="uppercase tracking-[0.2em] text-[11px] px-4 py-1.5">
-                                {t("invest.intelligence.label")}
+                                {getText("market.label", t("invest.intelligence.label"))}
                             </Badge>
                             <h2 className="text-3xl font-serif font-semibold mt-4 mb-6">
-                                {t("invest.intelligence.title")}
+                                {getText("market.title", t("invest.intelligence.title"))}
                             </h2>
                             <p className="text-muted-foreground text-lg leading-relaxed">
                                 {t(
@@ -324,7 +324,7 @@ const Invest = () => {
                         <div className="rounded-2xl border border-border bg-card p-5 sm:p-7 lg:p-8">
                             <div className="mb-6">
                                 <h3 className="text-2xl font-serif font-semibold">
-                                    {t("invest.planner.title")}
+                                    {getText("planner.title", t("invest.planner.title"))}
                                 </h3>
                                 <p className="text-muted-foreground mt-2">
                                     {t(
@@ -426,24 +426,22 @@ const Invest = () => {
 
                         <div className="rounded-2xl border border-border bg-card p-6 md:p-8 text-center">
                             <h2 className="text-3xl font-serif font-semibold mb-3">
-                                {t("invest.cta.title")}
+                                {getText("cta.title", t("invest.cta.title"))}
                             </h2>
                             <p className="text-muted-foreground max-w-3xl mx-auto">
-                                {t(
-                                    "invest.cta.description",
-                                )}
+                                {getText("cta.description", t("invest.cta.description"))}
                             </p>
                             <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
                                 <Link href={l("/contact")}>
                                     <Button variant="gold" size="lg">
                                         <BadgeEuro className="h-4 w-4" />
-                                        {t("invest.cta.primary")}
+                                        {getText("cta.primary", t("invest.cta.primary"))}
                                     </Button>
                                 </Link>
                                 <Link href={l("/stay?category=algarve-services")}>
                                     <Button variant="outline" size="lg">
                                         <CheckCircle2 className="h-4 w-4" />
-                                        {t("invest.cta.secondary")}
+                                        {getText("cta.secondary", t("invest.cta.secondary"))}
                                         <ArrowRight className="h-4 w-4 ml-1" />
                                     </Button>
                                 </Link>

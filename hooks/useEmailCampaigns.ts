@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { callAdminEmailApi } from "@/lib/admin/email-client";
+import { invokeFunctionWithAuthRetry } from "@/lib/supabaseFunctionInvoke";
 import { toast } from "@/hooks/use-toast";
 
 export interface EmailCampaign {
@@ -202,7 +203,7 @@ export function useSendEmailCampaign() {
   return useMutation({
     mutationFn: async (campaignId: string) => {
       if (!isBrowser) return null;
-      const { data, error } = await supabase.functions.invoke("send-campaign", {
+      const { data, error } = await invokeFunctionWithAuthRetry<{ error?: string; sent?: number }>("send-campaign", {
         body: { campaign_id: campaignId },
       });
 

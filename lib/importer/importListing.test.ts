@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildGolfCoursePersistencePayload, importListing } from "./importListing";
+import { buildGolfCoursePersistencePayload, importListing, type ImporterSupabaseClient } from "./importListing";
 
 const baseGolf = {
   Nome: "The Els Club Vilamoura",
@@ -26,7 +26,235 @@ const baseGolf = {
   },
 };
 
+const categoryDataGolf = {
+  Nome: "Category Data Golf",
+  URL_slug: "category-data-golf",
+  City: "Lagos",
+  Country: "Portugal",
+  category: "golf",
+  category_data: {
+    vertical: "golf",
+    holes_count: 18,
+    par: 72,
+    course_type: "championship",
+    designer: "Example Designer",
+    year_opened: 2004,
+    is_signature: true,
+  },
+};
+
+function createImporterReferenceClient() {
+  const insertedListings: Array<Record<string, unknown>> = [];
+  const client = {
+    from(table: string) {
+      if (table === "categories") {
+        return {
+          select: async () => ({
+            data: [
+              { id: "cat-accommodation", slug: "accommodation" },
+              { id: "cat-golf", slug: "golf" },
+              { id: "cat-real-estate", slug: "real-estate" },
+              { id: "cat-concierge-services", slug: "concierge-services" },
+            ],
+            error: null,
+          }),
+        };
+      }
+
+      if (table === "cities") {
+        return {
+          select: async () => ({
+            data: [{ id: "city-lagos", name: "Lagos", slug: "lagos" }],
+            error: null,
+          }),
+        };
+      }
+
+      if (table === "regions") {
+        return {
+          select: async () => ({
+            data: [],
+            error: null,
+          }),
+        };
+      }
+
+      if (table === "listings") {
+        return {
+          select: () => ({
+            eq: () => ({
+              maybeSingle: async () => ({ data: null, error: null }),
+            }),
+          }),
+          insert: (payload: Record<string, unknown>) => {
+            insertedListings.push(payload);
+            return {
+              select: () => ({
+                single: async () => ({
+                  data: { id: "listing-1", slug: payload.slug, name: payload.name },
+                  error: null,
+                }),
+              }),
+            };
+          },
+        };
+      }
+
+      return {
+        delete: () => ({
+          eq: async () => ({ data: null, error: null }),
+        }),
+      };
+    },
+  } as unknown as ImporterSupabaseClient;
+
+  return { client, insertedListings };
+}
+
 describe("unified listing importer", () => {
+  it("passes top-level golf object imports", async () => {
+    const result = await importListing(baseGolf, { dryRun: true });
+
+    expect(result.ok).toBe(true);
+    expect(result.type).toBe("golf");
+    expect(result.preview.holes).toBe(18);
+    expect(result.preview.par).toBe(72);
+  });
+
+  it("normalizes golf.holes_count to golf.holes", async () => {
+    const result = await importListing({
+      ...baseGolf,
+      golf: {
+        ...baseGolf.golf,
+        holes: undefined,
+        holes_count: 18,
+      },
+    }, { dryRun: true });
+
+    expect(result.ok).toBe(true);
+    expect(result.preview.holes).toBe(18);
+    expect(result.preview.par).toBe(72);
+    expect(result.normalized?.categoryDataPatch.golf).toMatchObject({
+      holes: 18,
+      par: 72,
+    });
+  });
+
+  it("normalizes category_data.holes_count to golf.holes when top-level golf needs a fallback", async () => {
+    const result = await importListing({
+      ...baseGolf,
+      golf: {
+        par: 72,
+      },
+      category_data: {
+        vertical: "golf",
+        holes_count: 18,
+      },
+    }, { dryRun: true });
+
+    expect(result.ok).toBe(true);
+    expect(result.preview.holes).toBe(18);
+    expect(result.preview.par).toBe(72);
+    expect(result.normalized?.categoryDataPatch.golf).toMatchObject({
+      holes: 18,
+      par: 72,
+    });
+  });
+
+  it("passes category_data vertical golf imports without a top-level golf object", async () => {
+    const result = await importListing(categoryDataGolf, { dryRun: true });
+
+    expect(result.ok).toBe(true);
+    expect(result.type).toBe("golf");
+    expect(result.preview.holes).toBe(18);
+    expect(result.preview.par).toBe(72);
+    expect(result.normalized?.categoryDataPatch.golf).toMatchObject({
+      holes: 18,
+      par: 72,
+      course_type: "championship",
+      designer: "Example Designer",
+      year_opened: 2004,
+      is_signature: true,
+    });
+    expect(result.errors).not.toContainEqual(expect.objectContaining({
+      message: "golf object is required for golf imports.",
+    }));
+  });
+
+  it("fails category golf imports when both golf and category_data vertical golf are missing", async () => {
+    const result = await importListing({
+      Nome: "Missing Golf Data",
+      URL_slug: "missing-golf-data",
+      City: "Lagos",
+      category: "golf",
+    }, { dryRun: true });
+
+    expect(result.ok).toBe(false);
+    expect(result.errors).toContainEqual(expect.objectContaining({
+      path: "golf",
+      message: "golf object is required for golf imports.",
+    }));
+  });
+
+  it("passes The Els Club Vilamoura when golf data is inside category_data", async () => {
+    const result = await importListing({
+      Nome: "The Els Club Vilamoura",
+      URL_slug: "the-els-club-vilamoura",
+      City: "Vilamoura",
+      Region: "Vilamoura Prestige",
+      Country: "Portugal",
+      category: "golf",
+      category_data: {
+        vertical: "golf",
+        course_type: "championship",
+        holes_count: 18,
+        par: 72,
+        slope: null,
+        course_rating: null,
+        length_meters: null,
+        designer: "Ernie Els",
+        year_opened: 2004,
+        last_renovation: null,
+        layout_type: null,
+        difficulty: null,
+        is_tournament_course: true,
+        is_signature: true,
+      },
+    }, { dryRun: true });
+
+    expect(result.ok).toBe(true);
+    expect(result.preview.holes).toBe(18);
+    expect(result.preview.par).toBe(72);
+    expect(result.normalized?.categoryDataPatch.golf).toMatchObject({
+      holes: 18,
+      par: 72,
+      designer: "Ernie Els",
+      year_opened: 2004,
+    });
+  });
+
+  it("fails golf imports with missing par after holes_count normalization", async () => {
+    const result = await importListing({
+      Nome: "Missing Par Golf",
+      URL_slug: "missing-par-golf",
+      City: "Lagos",
+      category: "golf",
+      golf: {
+        holes_count: 18,
+        par: null,
+      },
+    }, { dryRun: true });
+
+    expect(result.ok).toBe(false);
+    expect(result.preview.holes).toBe(18);
+    expect(result.preview.par).toBeUndefined();
+    expect(result.errors).toContainEqual({
+      path: "golf.par",
+      message: "golf.par must be a positive number.",
+    });
+    expect(result.preview.errors).toContain("golf.par: golf.par must be a positive number.");
+  });
+
   it("accepts golf optional nullable numeric fields in dry run", async () => {
     const result = await importListing(baseGolf, { dryRun: true });
 
@@ -143,5 +371,52 @@ describe("unified listing importer", () => {
     expect(result.ok).toBe(true);
     expect(result.type).toBe("concierge-services");
     expect(result.preview.vertical).toBe("service");
+  });
+
+  it("keeps accommodation as accommodation in dry-run preview", async () => {
+    const result = await importListing({
+      Nome: "Boutique Stay",
+      URL_slug: "boutique-stay",
+      City: "Lagos",
+      category: "accommodation",
+    }, { dryRun: true });
+
+    expect(result.ok).toBe(true);
+    expect(result.preview.normalizedCategory).toBe("accommodation");
+    expect(result.normalized?.base.categorySlug).toBe("accommodation");
+    expect(JSON.stringify(result)).not.toContain("places-to-stay");
+  });
+
+  it("normalizes legacy places-to-stay to accommodation during dry-run reference validation", async () => {
+    const { client } = createImporterReferenceClient();
+
+    const result = await importListing({
+      Nome: "Legacy Stay",
+      URL_slug: "legacy-stay",
+      City: "Lagos",
+      category: "places-to-stay",
+    }, { dryRun: true, writeClient: client });
+
+    expect(result.ok).toBe(true);
+    expect(result.preview.normalizedCategory).toBe("accommodation");
+    expect(JSON.stringify(result)).not.toContain("places-to-stay");
+  });
+
+  it("resolves imported accommodation listings against categories.slug accommodation", async () => {
+    const { client, insertedListings } = createImporterReferenceClient();
+
+    const result = await importListing({
+      Nome: "Imported Accommodation",
+      URL_slug: "imported-accommodation",
+      City: "Lagos",
+      category: "accommodation",
+    }, { writeClient: client });
+
+    expect(result.ok).toBe(true);
+    expect(result.normalized?.base.categorySlug).toBe("accommodation");
+    expect(insertedListings[0]).toMatchObject({
+      category_id: "cat-accommodation",
+      city_id: "city-lagos",
+    });
   });
 });

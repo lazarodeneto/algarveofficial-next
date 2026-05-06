@@ -18,8 +18,9 @@ async function fetchInboxCounts(): Promise<InboxCounts> {
     headers: { Authorization: `Bearer ${token}` },
     cache: "no-store",
   });
-  if (!response.ok) return { urgentCount: 0, soonCount: 0 };
+  if (!response.ok) throw new Error("Failed to load inbox counts.");
   const body = (await response.json()) as { ok: boolean; urgentCount?: number; soonCount?: number };
+  if (!body.ok) throw new Error("Failed to load inbox counts.");
   return {
     urgentCount: body.urgentCount ?? 0,
     soonCount: body.soonCount ?? 0,

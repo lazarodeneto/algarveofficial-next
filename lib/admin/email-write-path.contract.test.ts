@@ -31,4 +31,10 @@ describe("email admin write path contract", () => {
     expect(source).not.toMatch(/from\("email_automations"\)\s*\.\s*update\(/);
     expect(source).not.toMatch(/from\("email_automations"\)\s*\.\s*delete\(/);
   });
+
+  it("sends campaigns through the authenticated function retry helper", () => {
+    const source = read("hooks/useEmailCampaigns.ts");
+    expect(source).toMatch(/invokeFunctionWithAuthRetry(?:<[^>]+>)?\("send-campaign"/);
+    expect(source).not.toContain('supabase.functions.invoke("send-campaign"');
+  });
 });

@@ -129,6 +129,63 @@ describe("subscription webhook handlers", () => {
     );
   });
 
+  it("activates fixed 2026 access from a paid checkout payment session", async () => {
+    const supabase = createPricingSupabase({
+      pricingById: {
+        "pricing-verified-promo": {
+          id: "pricing-verified-promo",
+          tier: "verified",
+          billing_period: "promo",
+          stripe_price_id: "price_verified_promo",
+          price_cents: 12000,
+          currency: "EUR",
+          valid_to: "2026-12-31",
+        },
+      },
+    });
+
+    const event = {
+      created: 1710000000,
+      data: {
+        object: {
+          id: "cs_test_promo",
+          mode: "payment",
+          payment_status: "paid",
+          customer: "cus_test_1",
+          subscription: null,
+          payment_intent: "pi_test_1",
+          metadata: {
+            owner_id: "owner-1",
+            pricing_id: "pricing-verified-promo",
+            tier: "verified",
+            billing_period: "promo",
+          },
+        },
+      },
+    } as unknown as Stripe.Event;
+
+    await handleCheckoutCompleted({} as Stripe, supabase, event);
+
+    expect(mocks.upsertSubscription).toHaveBeenCalledWith(
+      supabase,
+      "owner-1",
+      expect.objectContaining({
+        tier: "verified",
+        plan_type: "fixed_2026",
+        billing_period: "promo",
+        status: "active",
+        stripe_customer_id: "cus_test_1",
+        stripe_checkout_session_id: "cs_test_promo",
+        stripe_payment_intent_id: "pi_test_1",
+        stripe_price_id: "price_verified_promo",
+        price_cents: 12000,
+        currency: "EUR",
+        end_date: "2026-12-31",
+      }),
+      { eventCreatedAt: 1710000000 },
+    );
+  });
+
   it("returns explicit skipped result when checkout metadata is missing tier/billing", async () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const supabase = createPricingSupabase({});

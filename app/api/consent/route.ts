@@ -5,21 +5,33 @@ import { createClient } from "@/lib/supabase/server";
 interface ConsentRecord {
   id?: string;
   user_id?: string;
-  consent_type: "cookies" | "marketing" | "analytics" | "functional";
+  consent_type: "cookies" | "marketing" | "analytics" | "functional" | "essential";
   consent_given: boolean;
   ip_address?: string;
   user_agent?: string;
   created_at?: string;
 }
 
+const CONSENT_TYPES = new Set([
+  "cookies",
+  "marketing",
+  "analytics",
+  "functional",
+  "essential",
+]);
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { consent_type, consent_given } = body;
 
-    if (!consent_type || typeof consent_given !== "boolean") {
+    if (
+      typeof consent_type !== "string" ||
+      !CONSENT_TYPES.has(consent_type) ||
+      typeof consent_given !== "boolean"
+    ) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Invalid consent payload" },
         { status: 400 }
       );
     }
@@ -33,16 +45,16 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient();
 
     const consentRecord: ConsentRecord = {
-      consent_type,
+      consent_type: consent_type as ConsentRecord["consent_type"],
       consent_given,
       ip_address: ipAddress,
       user_agent: userAgent,
     };
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("consent_records")
       .insert(consentRecord)
-      .select()
+      .select("id")
       .single();
 
     if (error) {
@@ -53,7 +65,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ success: true, data });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error("[Consent API] Error:", error);
     return NextResponse.json(

@@ -37,6 +37,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { PRIMARY_CONTACT_EMAIL } from "@/lib/contactEmail";
 
 export function AdminHeader() {
   const { t } = useTranslation();
@@ -70,7 +71,7 @@ export function AdminHeader() {
       { label: t("admin.sidebar.messages"), value: l("/admin/messages") },
       { label: t("admin.sidebar.translations"), value: l("/admin/content/translations") },
       { label: t("admin.sidebar.pageBuilder"), value: l("/admin/content/page-builder") },
-      { label: t("admin.sidebar.homePage"), value: l("/admin/content/home") },
+      { label: t("admin.sidebar.homePage"), value: l("/admin/content/page-builder?page=home") },
       { label: t("admin.sidebar.events"), value: l("/admin/content/events") },
       { label: t("admin.sidebar.mediaLibrary"), value: l("/admin/content/media") },
       { label: t("admin.sidebar.settings"), value: l("/admin/settings") },
@@ -257,7 +258,7 @@ export function AdminHeader() {
                 <div className="flex flex-col">
                   <span className="font-medium">{t("common.adminUser")}</span>
                   <span className="text-xs font-normal text-muted-foreground">
-                    {user?.email ?? "admin@algarveofficial.com"}
+                    {user?.email ?? PRIMARY_CONTACT_EMAIL}
                   </span>
                 </div>
               </DropdownMenuLabel>

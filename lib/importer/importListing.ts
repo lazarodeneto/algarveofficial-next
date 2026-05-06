@@ -1,6 +1,6 @@
 import type { Database, Json } from "@/integrations/supabase/types";
 import type { ImportPreviewRow, NormalizedImportListing, GolfHoleImport } from "@/lib/admin/listing-json-import";
-import { normalizeImportCategory } from "@/lib/admin/listing-json-import";
+import { normalizeImportCategory, resolveImportGolfObject } from "@/lib/admin/listing-json-import";
 import { detectImporterType, type ImporterType } from "./detectType";
 import { normalizeImportObject } from "./normalize";
 import { conciergeImportSchema } from "./schemas/concierge";
@@ -46,6 +46,12 @@ export type ImporterSupabaseClient = {
 };
 
 const DEFAULT_IMPORT_OWNER_ID = "280be9b4-c0fe-48f3-b371-f490d8cccfd5";
+
+type ImportReferenceData = {
+  categoryBySlug: Map<string, string>;
+  cityByNameOrSlug: Map<string, string>;
+  regionByNameOrSlug: Map<string, string>;
+};
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
@@ -104,6 +110,9 @@ function buildInvalidPreview(
   const name = typeof raw.Nome === "string" ? raw.Nome : typeof raw.name === "string" ? raw.name : "";
   const slug = typeof raw.URL_slug === "string" ? raw.URL_slug : typeof raw.slug === "string" ? raw.slug : "";
   const city = typeof raw.City === "string" ? raw.City : typeof raw.city === "string" ? raw.city : "";
+  const golf = type === "golf" ? resolveImportGolfObject(raw) : {};
+  const holes = typeof golf.holes === "number" ? golf.holes : undefined;
+  const par = typeof golf.par === "number" ? golf.par : undefined;
   return {
     index,
     name,
@@ -112,6 +121,8 @@ function buildInvalidPreview(
     normalizedCategory: category,
     vertical: type === "concierge-services" ? "service" : type === "standard" ? "none" : type,
     estimatedAction: "invalid",
+    holes,
+    par,
     warnings: [],
     errors: errors.map((error) => error.path ? `${error.path}: ${error.message}` : error.message),
   };
@@ -122,6 +133,32 @@ function schemaForType(type: ImporterType) {
   if (type === "property") return propertyImportSchema;
   if (type === "concierge-services") return conciergeImportSchema;
   return null;
+}
+
+function buildSchemaCandidate(raw: Record<string, unknown>, type: ImporterType, category: string) {
+  const candidate: Record<string, unknown> = { ...raw, category };
+  if (type === "golf") {
+    const golf = resolveImportGolfObject(raw);
+    if (Object.keys(golf).length > 0) candidate.golf = golf;
+  }
+  return candidate;
+}
+
+function normalizeSchemaErrors(
+  errors: Array<{ path: string; message: string }>,
+  type: ImporterType,
+) {
+  if (type !== "golf") return errors;
+
+  return errors.map((error) => {
+    if (error.path === "golf.holes") {
+      return { ...error, message: "golf.holes must be a positive number." };
+    }
+    if (error.path === "golf.par") {
+      return { ...error, message: "golf.par must be a positive number." };
+    }
+    return error;
+  });
 }
 
 function toLegacyType(type: ImporterType): ImportListingType {
@@ -176,7 +213,7 @@ function mergeCategoryData(
   return next;
 }
 
-async function loadReferenceData(writeClient: ImporterSupabaseClient) {
+async function loadReferenceData(writeClient: ImporterSupabaseClient): Promise<ImportReferenceData | { error: string }> {
   const [categoriesResult, citiesResult, regionsResult] = await Promise.all([
     writeClient.from("categories").select("id, slug"),
     writeClient.from("cities").select("id, name, slug"),
@@ -204,6 +241,24 @@ async function loadReferenceData(writeClient: ImporterSupabaseClient) {
   }
 
   return { categoryBySlug, cityByNameOrSlug, regionByNameOrSlug };
+}
+
+function validateListingReferences(
+  listing: NormalizedImportListing,
+  refs: ImportReferenceData,
+): Array<{ path: string; message: string }> {
+  const categoryId = refs.categoryBySlug.get(listing.base.categorySlug);
+  const cityId = refs.cityByNameOrSlug.get(listing.base.cityName.trim().toLowerCase());
+
+  if (!categoryId) {
+    return [{ path: "category", message: `Category "${listing.base.categorySlug}" was not found.` }];
+  }
+
+  if (!cityId) {
+    return [{ path: "city", message: `City "${listing.base.cityName}" was not found.` }];
+  }
+
+  return [];
 }
 
 async function cleanupStaleVerticalRows(writeClient: ImporterSupabaseClient, listingId: string, nextType: ImportListingType) {
@@ -297,9 +352,9 @@ export async function importListing(
   const category = detected.category || normalizeImportCategory(options.fallbackCategory);
   const schema = schemaForType(detected.type);
   const schemaErrors = schema ? (() => {
-    const candidate = { ...normalizedRaw, category };
+    const candidate = buildSchemaCandidate(normalizedRaw, detected.type, category);
     const parsed = schema.safeParse(candidate);
-    return parsed.success ? [] : flattenZodErrors(parsed.error);
+    return parsed.success ? [] : normalizeSchemaErrors(flattenZodErrors(parsed.error), detected.type);
   })() : [];
   const validationErrors = [...detected.errors, ...schemaErrors];
 
@@ -333,6 +388,36 @@ export async function importListing(
     };
   }
 
+  let refs: ImportReferenceData | null = null;
+  if (options.writeClient) {
+    const referenceData = await loadReferenceData(options.writeClient);
+    if ("error" in referenceData) {
+      return {
+        ok: false,
+        type,
+        preview: row,
+        normalized: row,
+        warnings: row.warnings,
+        errors: [{ path: "reference_data", message: referenceData.error }],
+        changed: { listing: "unchanged", vertical: "skipped", children: 0 },
+      };
+    }
+
+    refs = referenceData;
+    const referenceErrors = validateListingReferences(row, refs);
+    if (referenceErrors.length > 0) {
+      return {
+        ok: false,
+        type,
+        preview: row,
+        normalized: row,
+        warnings: row.warnings,
+        errors: referenceErrors,
+        changed: { listing: "unchanged", vertical: "skipped", children: 0 },
+      };
+    }
+  }
+
   if (options.dryRun || !options.writeClient) {
     return {
       ok: true,
@@ -345,37 +430,20 @@ export async function importListing(
     };
   }
 
-  const refs = await loadReferenceData(options.writeClient);
-  if ("error" in refs) {
+  if (!refs) {
     return {
       ok: false,
       type,
       preview: row,
       normalized: row,
       warnings: row.warnings,
-      errors: [{ path: "reference_data", message: refs.error ?? "Reference data read failed." }],
+      errors: [{ path: "reference_data", message: "Reference data read failed." }],
       changed: { listing: "unchanged", vertical: "skipped", children: 0 },
     };
   }
 
   const categoryId = refs.categoryBySlug.get(row.base.categorySlug);
   const cityId = refs.cityByNameOrSlug.get(row.base.cityName.trim().toLowerCase());
-  if (!categoryId || !cityId) {
-    return {
-      ok: false,
-      type,
-      preview: row,
-      normalized: row,
-      warnings: row.warnings,
-      errors: [{
-        path: !categoryId ? "category" : "city",
-        message: !categoryId
-          ? `Category "${row.base.categorySlug}" was not found.`
-          : `City "${row.base.cityName}" was not found.`,
-      }],
-      changed: { listing: "unchanged", vertical: "skipped", children: 0 },
-    };
-  }
 
   const existingResult = await options.writeClient
     .from("listings")

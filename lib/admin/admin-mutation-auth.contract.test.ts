@@ -27,6 +27,10 @@ const ADMIN_MUTATION_ROUTE_CONTRACTS: AdminRouteContract[] = [
     requiredSnippets: ['requireAdminWriteClient'],
   },
   {
+    path: "app/api/admin/cms/page-config/route.ts",
+    requiredSnippets: ['requireAdminWriteClient', 'Server is missing SUPABASE_SERVICE_ROLE_KEY for CMS page config writes.'],
+  },
+  {
     path: "app/api/admin/navigation/[menu]/route.ts",
     requiredSnippets: ['requireAdminWriteClient'],
   },
@@ -59,6 +63,46 @@ const ADMIN_MUTATION_ROUTE_CONTRACTS: AdminRouteContract[] = [
     requiredSnippets: ['requireAdminWriteClient', 'Only admins can manage listings.'],
   },
   {
+    path: "app/api/admin/listings/[listingId]/golf/route.ts",
+    requiredSnippets: ['requireAdminWriteClient', 'Only admins can manage golf setup.'],
+  },
+  {
+    path: "app/api/admin/listings/featured/reorder/route.ts",
+    requiredSnippets: ['requireAdminWriteClient', 'Only admins or editors can reorder featured listings.'],
+  },
+  {
+    path: "app/api/admin/listings/import/route.ts",
+    requiredSnippets: ['requireAdminWriteClient', 'Only admins can import listings.'],
+  },
+  {
+    path: "app/api/admin/json-upsert/route.ts",
+    requiredSnippets: ['@/app/api/admin/listings/import/route'],
+  },
+  {
+    path: "app/api/admin/pin-listing/route.ts",
+    requiredSnippets: ['requireAdminWriteClient', 'Only admins can pin listings.'],
+  },
+  {
+    path: "app/api/admin/upload-category-fallback/route.ts",
+    requiredSnippets: ['requireAdminWriteClient', 'Only admins can upload category fallbacks.'],
+  },
+  {
+    path: "app/api/admin/chat/read/route.ts",
+    requiredSnippets: ['requireAdminWriteClient', 'Only admins or editors can mark admin chat threads as read.'],
+  },
+  {
+    path: "app/api/admin/chat/message/route.ts",
+    requiredSnippets: [
+      'requireAdminWriteClient',
+      'Only admins or editors can send admin chat messages.',
+      'Only admins or editors can delete admin chat messages.',
+    ],
+  },
+  {
+    path: "app/api/admin/chat/threads/route.ts",
+    requiredSnippets: ['requireAdminWriteClient', 'Only admins or editors can update admin chat threads.'],
+  },
+  {
     path: "app/api/admin/curated-assignments/route.ts",
     requiredSnippets: ['requireAdminWriteClient', 'Only admins can manage curated assignments.'],
   },
@@ -69,6 +113,14 @@ const ADMIN_MUTATION_ROUTE_CONTRACTS: AdminRouteContract[] = [
   {
     path: "app/api/admin/i18n/sync/route.ts",
     requiredSnippets: ['get_user_role', 'role !== "admin" && role !== "editor"'],
+  },
+  {
+    path: "app/api/admin/translations/jobs/route.ts",
+    requiredSnippets: ['requireAdminWriteClient', 'Only admins or editors can manage translation jobs.'],
+  },
+  {
+    path: "app/api/admin/subscriptions/override/route.ts",
+    requiredSnippets: ['requireAdminWriteClient', 'Only admins can set subscription tier overrides.'],
   },
 ];
 

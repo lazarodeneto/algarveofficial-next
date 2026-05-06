@@ -1,6 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdminSession } from "@/lib/server/admin-auth";
+import { adminErrorResponse, requireAdminSession, requireAdminWriteClient } from "@/lib/server/admin-auth";
+import { THREAD_STATUS_VALUES, type ThreadStatus } from "@/lib/chatThreadStatus";
+
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const THREAD_STATUS_SET = new Set<string>(THREAD_STATUS_VALUES);
+
+function isValidUuid(value: string) {
+  return UUID_PATTERN.test(value);
+}
+
+function isValidDateParam(value: string) {
+  return !Number.isNaN(Date.parse(value));
+}
 
 export async function GET(request: NextRequest) {
   const auth = await requireAdminSession(request);
@@ -10,13 +23,18 @@ export async function GET(request: NextRequest) {
   const threadId = searchParams.get("threadId") ?? undefined;
 
   if (threadId) {
+    if (!isValidUuid(threadId)) {
+      return adminErrorResponse(400, "INVALID_THREAD_ID", "threadId must be a valid UUID.");
+    }
+
     const { data, error } = await auth.userClient
       .from("chat_messages")
       .select("*")
       .eq("thread_id", threadId)
       .order("created_at", { ascending: true });
 
-    return NextResponse.json({ ok: true, data, error: error?.message ?? null });
+    if (error) return adminErrorResponse(500, "CHAT_MESSAGES_LOOKUP_FAILED", error.message);
+    return NextResponse.json({ ok: true, data: data ?? [], error: null });
   }
 
   let query = auth.userClient
@@ -30,15 +48,27 @@ export async function GET(request: NextRequest) {
   const dateTo = searchParams.get("dateTo");
 
   if (status && status !== "all") {
+    if (!THREAD_STATUS_SET.has(status)) {
+      return adminErrorResponse(400, "INVALID_STATUS", "status must be one of: active, closed, blocked.");
+    }
     query = query.eq("status", status);
   }
   if (ownerId) {
+    if (!isValidUuid(ownerId)) {
+      return adminErrorResponse(400, "INVALID_OWNER_ID", "ownerId must be a valid UUID.");
+    }
     query = query.eq("owner_id", ownerId);
   }
   if (dateFrom) {
+    if (!isValidDateParam(dateFrom)) {
+      return adminErrorResponse(400, "INVALID_DATE_FROM", "dateFrom must be a valid date/time value.");
+    }
     query = query.gte("created_at", dateFrom);
   }
   if (dateTo) {
+    if (!isValidDateParam(dateTo)) {
+      return adminErrorResponse(400, "INVALID_DATE_TO", "dateTo must be a valid date/time value.");
+    }
     const endOfDay = new Date(dateTo);
     endOfDay.setHours(23, 59, 59, 999);
     query = query.lte("created_at", endOfDay.toISOString());
@@ -59,6 +89,12 @@ export async function GET(request: NextRequest) {
     listingIds.length ? auth.userClient.from("listings").select("id, name, slug").in("id", listingIds) : Promise.resolve({ data: [] as any[], error: null }),
     ids.length ? auth.userClient.from("chat_messages").select("thread_id").in("thread_id", ids) : Promise.resolve({ data: [] as any[], error: null }),
   ]);
+
+  const enrichmentError =
+    viewersResult.error || ownersResult.error || listingsResult.error || messagesResult.error;
+  if (enrichmentError) {
+    return adminErrorResponse(500, "CHAT_THREAD_ENRICHMENT_FAILED", enrichmentError.message);
+  }
 
   const viewerMap = new Map((viewersResult.data ?? []).map((v) => [v.id, v]));
   const ownerMap = new Map((ownersResult.data ?? []).map((o) => [o.id, o]));
@@ -81,37 +117,61 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const auth = await requireAdminSession(request);
+  const auth = await requireAdminWriteClient(
+    request,
+    "Only admins or editors can update admin chat threads.",
+    {
+      auditAction: "admin.chat.update-thread",
+    },
+  );
   if ("error" in auth) return auth.error;
 
   let body: { threadId: string; status: string };
   try {
     body = await request.json() as { threadId: string; status: string };
   } catch {
-    return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
+    return adminErrorResponse(400, "INVALID_JSON", "Request body must be valid JSON.");
+  }
+
+  if (!body.threadId || typeof body.threadId !== "string" || !isValidUuid(body.threadId)) {
+    return adminErrorResponse(400, "INVALID_THREAD_ID", "threadId must be a valid UUID.");
+  }
+
+  if (!body.status || typeof body.status !== "string" || !THREAD_STATUS_SET.has(body.status)) {
+    return adminErrorResponse(400, "INVALID_STATUS", "status must be one of: active, closed, blocked.");
   }
 
   const { error } = await auth.userClient
     .from("chat_threads")
-    .update({ status: body.status })
+    .update({ status: body.status as ThreadStatus })
     .eq("id", body.threadId);
 
-  if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+  if (error) return adminErrorResponse(500, "CHAT_THREAD_UPDATE_FAILED", error.message);
   return NextResponse.json({ ok: true });
 }
 
 export async function DELETE(request: NextRequest) {
-  const auth = await requireAdminSession(request);
+  const auth = await requireAdminWriteClient(
+    request,
+    "Only admins or editors can delete admin chat threads.",
+    {
+      auditAction: "admin.chat.delete-thread",
+    },
+  );
   if ("error" in auth) return auth.error;
 
   let body: { threadId: string };
   try {
     body = await request.json() as { threadId: string };
   } catch {
-    return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
+    return adminErrorResponse(400, "INVALID_JSON", "Request body must be valid JSON.");
+  }
+
+  if (!body.threadId || typeof body.threadId !== "string" || !isValidUuid(body.threadId)) {
+    return adminErrorResponse(400, "INVALID_THREAD_ID", "threadId must be a valid UUID.");
   }
 
   const { error } = await auth.userClient.rpc("admin_delete_chat_thread" as any, { p_thread_id: body.threadId });
-  if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+  if (error) return adminErrorResponse(500, "CHAT_THREAD_DELETE_FAILED", error.message);
   return NextResponse.json({ ok: true });
 }

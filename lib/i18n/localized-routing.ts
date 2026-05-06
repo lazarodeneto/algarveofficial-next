@@ -256,6 +256,15 @@ function isStaticRouteKey(value: string): value is StaticRouteKey {
   return value in STATIC_ROUTE_SEGMENTS;
 }
 
+function isDashboardRoutePath(pathname: string): boolean {
+  return pathname === "/admin" ||
+    pathname.startsWith("/admin/") ||
+    pathname === "/owner" ||
+    pathname.startsWith("/owner/") ||
+    pathname === "/dashboard" ||
+    pathname.startsWith("/dashboard/");
+}
+
 export function isPassthroughHref(href: string): boolean {
   return (
     !href ||
@@ -342,6 +351,10 @@ export function buildLocalizedPath(
 
   if (currentLocale) {
     return `${addLocaleToPathname(canonicalBarePath, currentLocale)}${suffix}`;
+  }
+
+  if (isDashboardRoutePath(canonicalBarePath)) {
+    return `${addLocaleToPathname(canonicalBarePath, safeLocale)}${suffix}`;
   }
 
   if (shouldBypassLocalePrefix(canonicalBarePath)) {

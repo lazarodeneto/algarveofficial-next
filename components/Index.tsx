@@ -42,22 +42,27 @@ type HomeSectionComponentProps = {
   copy?: HomeSectionCopy;
   listingCount?: number;
 };
+type HomeSectionRenderable = ComponentType<HomeSectionComponentProps>;
 
-const withHomeSectionLoading = <T extends ComponentType<any>>(
-  loader: () => Promise<{ [key: string]: T } | { default: T }>,
-  select?: (module: any) => T,
+function selectHomeSection(module: unknown, exportName: string): HomeSectionRenderable {
+  return (module as Record<string, HomeSectionRenderable>)[exportName];
+}
+
+const withHomeSectionLoading = (
+  loader: () => Promise<unknown>,
+  select?: (module: unknown) => HomeSectionRenderable,
   loading: () => ReturnType<typeof HomeSectionFallback> = () => <HomeSectionFallback />,
 ) =>
-  dynamic(async () => {
+  dynamic<HomeSectionComponentProps>(async () => {
     const mod = await loader();
-    return select ? select(mod) : (mod as { default: T }).default;
+    return select ? select(mod) : (mod as { default: HomeSectionRenderable }).default;
   }, {
     loading,
   });
 
 const RegionsSection = withHomeSectionLoading(
   () => import("@/components/sections/RegionsSection"),
-  (mod) => mod.RegionsSection,
+  (mod) => selectHomeSection(mod, "RegionsSection"),
 );
 const HomeQuickLinksSection = dynamic<HomeSectionComponentProps>(
   () =>
@@ -68,31 +73,51 @@ const HomeQuickLinksSection = dynamic<HomeSectionComponentProps>(
 const HomeSmartSearchSection = dynamic(
   () => import("@/components/sections/HomeSmartSearchSection").then((mod) => mod.HomeSmartSearchSection),
 );
+const CategoriesSection = withHomeSectionLoading(
+  () => import("@/components/sections/CategoriesSection"),
+  (mod) => selectHomeSection(mod, "CategoriesSection"),
+);
+const CitiesSection = withHomeSectionLoading(
+  () => import("@/components/sections/CitiesSection"),
+  (mod) => selectHomeSection(mod, "CitiesSection"),
+);
 const HomepageSignatureCollection = withHomeSectionLoading(
   () => import("@/components/sections/HomepageSignatureCollection"),
-  (mod) => mod.HomepageSignatureCollection,
+  (mod) => selectHomeSection(mod, "HomepageSignatureCollection"),
   () => <VipSectionFallback />,
 );
 const SignatureMapSection = withHomeSectionLoading(
   () => import("@/components/sections/SignatureMapSection"),
-  (mod) => mod.SignatureMapSection,
+  (mod) => selectHomeSection(mod, "SignatureMapSection"),
   () => <VipSectionFallback />,
 );
 const CTASection = withHomeSectionLoading(
   () => import("@/components/sections/CTASection"),
-  (mod) => mod.CTASection,
+  (mod) => selectHomeSection(mod, "CTASection"),
 );
 const AllListingsSection = withHomeSectionLoading(
   () => import("@/components/sections/AllListingsSection"),
-  (mod) => mod.AllListingsSection,
+  (mod) => selectHomeSection(mod, "AllListingsSection"),
+);
+const FeaturedCitySection = withHomeSectionLoading(
+  () => import("@/components/sections/FeaturedCitySection"),
+  (mod) => selectHomeSection(mod, "FeaturedCitySection"),
 );
 const HomeAllCitiesSection = withHomeSectionLoading(
   () => import("@/components/sections/HomeAllCitiesSection"),
-  (mod) => mod.HomeAllCitiesSection,
+  (mod) => selectHomeSection(mod, "HomeAllCitiesSection"),
+);
+const AlgarveGuideSection = withHomeSectionLoading(
+  () => import("@/components/sections/AlgarveGuideSection"),
+  (mod) => selectHomeSection(mod, "AlgarveGuideSection"),
+);
+const NewsletterSection = withHomeSectionLoading(
+  () => import("@/components/sections/NewsletterSection"),
+  (mod) => selectHomeSection(mod, "NewsletterSection"),
 );
 const HomeTrustSection = withHomeSectionLoading(
   () => import("@/components/sections/HomeTrustSection"),
-  (mod) => mod.HomeTrustSection,
+  (mod) => selectHomeSection(mod, "HomeTrustSection"),
 );
 const HomeFinalEndcap = dynamic(
   () => import("@/components/sections/HomeFinalEndcap").then((mod) => mod.HomeFinalEndcap),
@@ -110,32 +135,45 @@ const Footer = dynamic(() => import("@/components/layout/Footer").then((mod) => 
 
 // Section ID to component mapping
 const SECTION_COMPONENTS: Record<string, ComponentType<HomeSectionComponentProps>> = {
-  categories: HomeQuickLinksSection,
+  "quick-links": HomeQuickLinksSection,
+  "smart-search": HomeSmartSearchSection,
   regions: RegionsSection,
+  categories: CategoriesSection,
   curated: HomepageSignatureCollection,
-  cities: HomeAllCitiesSection,
+  cities: CitiesSection,
+  "all-cities": HomeAllCitiesSection,
+  "featured-city": FeaturedCitySection,
   vip: SignatureMapSection,
   "all-listings": AllListingsSection,
+  "algarve-guide": AlgarveGuideSection,
+  newsletter: NewsletterSection,
   cta: CTASection,
+  trust: HomeTrustSection,
 };
 
-const PUBLIC_BLOCK_ID_BY_HOME_SECTION: Record<string, string> = {
+const LEGACY_SECTION_ID_BY_HOME_SECTION: Record<string, string> = {
   categories: "quick-links",
-  cities: "all-cities",
 };
 
 // Default section order if none in database
 const DEFAULT_SECTION_ORDER = [
+  "quick-links",
+  "smart-search",
   "curated",
-  "categories",
   "regions",
+  "categories",
+  "featured-city",
   "vip",
   "cities",
+  "all-cities",
   "all-listings",
+  "algarve-guide",
+  "newsletter",
   "cta",
+  "trust",
 ];
 
-const EARLY_SECTION_IDS = new Set(["curated"]);
+const DEFAULT_DISABLED_BLOCK_IDS = new Set(["featured-city"]);
 
 function moveSectionBefore(order: string[], sectionId: string, beforeSectionId: string) {
   const sectionIndex = order.indexOf(sectionId);
@@ -161,17 +199,41 @@ function moveSectionAfter(order: string[], sectionId: string, afterSectionId: st
 
 function applyHomepageHierarchy(order: string[]) {
   return moveSectionAfter(
-    moveSectionBefore(order, "vip", "cities"),
+    moveSectionBefore(order, "vip", "all-cities"),
     "cta",
     "all-listings",
   );
+}
+
+function normalizeHomeSectionOrder(sectionOrder: string[]) {
+  const normalized: string[] = [];
+
+  sectionOrder.forEach((sectionId) => {
+    const normalizedId = LEGACY_SECTION_ID_BY_HOME_SECTION[sectionId] ?? sectionId;
+    if (normalizedId in SECTION_COMPONENTS && !normalized.includes(normalizedId)) {
+      normalized.push(normalizedId);
+    }
+  });
+
+  const pinnedTopSectionIds = ["quick-links", "smart-search"];
+  const orderedBodySections = normalized.filter((sectionId) => !pinnedTopSectionIds.includes(sectionId));
+  normalized.length = 0;
+  pinnedTopSectionIds.forEach((sectionId) => normalized.push(sectionId));
+  orderedBodySections.forEach((sectionId) => normalized.push(sectionId));
+
+  DEFAULT_SECTION_ORDER.forEach((sectionId) => {
+    if (!normalized.includes(sectionId)) {
+      normalized.push(sectionId);
+    }
+  });
+
+  return normalized;
 }
 
 const Index = () => {
   const { settings, isLoading } = useHomepageSettings();
   const { getBlockOrder, isBlockEnabled } = useCmsPageBuilder("home");
   const locale = normalizePublicContentLocale(useCurrentLocale());
-  const allCitiesBlockEnabled = isBlockEnabled("all-cities", true);
   const { data: editorListings = [] } = useQuery<ListingWithRelations[]>({
     queryKey: homepageListingSplitQueryKey("editors", locale),
     queryFn: async () => [],
@@ -192,39 +254,49 @@ const Index = () => {
     }
 
     const sectionOrderFromSettings = (settings.section_order as string[] | null) ?? DEFAULT_SECTION_ORDER;
-    const sectionOrder = [...sectionOrderFromSettings];
-
-    // Ensure known homepage sections appear even if older DB rows lack them.
-    DEFAULT_SECTION_ORDER.forEach((sectionId) => {
-      if (!sectionOrder.includes(sectionId)) {
-        sectionOrder.push(sectionId);
-      }
-    });
+    const sectionOrder = normalizeHomeSectionOrder([...sectionOrderFromSettings]);
     
     // Map section IDs to their visibility settings
     const visibilityMap: Record<string, boolean> = {
+      "quick-links": settings.show_categories_section ?? true,
       regions: settings.show_regions_section ?? true,
       categories: settings.show_categories_section ?? true,
       curated: settings.show_curated_section ?? true,
       cities: settings.show_cities_section ?? true,
+      "all-cities": settings.show_cities_section ?? true,
       vip: settings.show_vip_section ?? true,
       "all-listings": settings.show_all_listings_section ?? true,
       cta: settings.show_cta_section ?? true,
     };
 
-    const normalizedOrder = sectionOrder.filter((id) => id in SECTION_COMPONENTS);
-    const cmsOrdered = applyHomepageHierarchy(getBlockOrder(normalizedOrder));
+    const cmsOrdered = applyHomepageHierarchy(getBlockOrder(sectionOrder));
 
     return cmsOrdered
       .map(id => ({ id, enabled: visibilityMap[id] ?? true }));
   }, [settings, isLoading, getBlockOrder]);
 
-  const quickLinksSection = sectionsToRender.find(({ id }) => id === "categories");
-  const earlySections = sectionsToRender.filter(({ id }) => EARLY_SECTION_IDS.has(id));
-  const remainingSections = sectionsToRender.filter(({ id }) => id !== "categories" && !EARLY_SECTION_IDS.has(id));
-  const quickLinksEnabled =
-    Boolean(quickLinksSection?.enabled) &&
-    isBlockEnabled(PUBLIC_BLOCK_ID_BY_HOME_SECTION.categories, true);
+  const renderSection = ({ id, enabled }: { id: string; enabled: boolean }) => {
+    const defaultEnabled = !DEFAULT_DISABLED_BLOCK_IDS.has(id);
+    if (!enabled || !isBlockEnabled(id, defaultEnabled)) return null;
+
+    const SectionComponent = SECTION_COMPONENTS[id];
+    if (!SectionComponent) return null;
+
+    return (
+      <CmsBlock
+        pageId="home"
+        blockId={id}
+        key={id}
+        as="section"
+        defaultEnabled={defaultEnabled}
+      >
+        <SectionComponent
+          copy={getHomeSectionCopy(settings?.section_copy, id === "quick-links" ? "categories" : id)}
+          listingCount={id === "cta" && homepageListingCount > 0 ? homepageListingCount : undefined}
+        />
+      </CmsBlock>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -234,75 +306,10 @@ const Index = () => {
         <CmsBlock pageId="home" blockId="hero" as="section">
           <HeroSection />
         </CmsBlock>
-        {quickLinksEnabled && (
-          <CmsBlock
-            pageId="home"
-            blockId={PUBLIC_BLOCK_ID_BY_HOME_SECTION.categories}
-            as="section"
-            defaultEnabled
-          >
-            <HomeQuickLinksSection copy={getHomeSectionCopy(settings?.section_copy, "categories")} />
-          </CmsBlock>
-        )}
-        {isBlockEnabled("smart-search", true) && (
-          <CmsBlock pageId="home" blockId="smart-search" as="section">
-            <HomeSmartSearchSection />
-          </CmsBlock>
-        )}
         <div className="mx-auto w-full content-max density">
-          {earlySections.map(({ id, enabled }) => {
-            const blockId = PUBLIC_BLOCK_ID_BY_HOME_SECTION[id] ?? id;
-            const defaultEnabled = true;
-            if (!enabled || !isBlockEnabled(blockId, defaultEnabled)) return null;
-
-            const SectionComponent = SECTION_COMPONENTS[id];
-            if (!SectionComponent) return null;
-
-            return (
-              <CmsBlock
-                pageId="home"
-                blockId={blockId}
-                key={id}
-                as="section"
-                defaultEnabled={defaultEnabled}
-              >
-                <SectionComponent copy={getHomeSectionCopy(settings?.section_copy, id)} />
-              </CmsBlock>
-            );
-          })}
-        </div>
-        <div className="mx-auto w-full content-max density">
-          {remainingSections.map(({ id, enabled }) => {
-            const blockId = PUBLIC_BLOCK_ID_BY_HOME_SECTION[id] ?? id;
-            const defaultEnabled = true;
-            if (id === "cities" && !allCitiesBlockEnabled) return null;
-            if (!enabled || !isBlockEnabled(blockId, defaultEnabled)) return null;
-
-            const SectionComponent = SECTION_COMPONENTS[id];
-            if (!SectionComponent) return null;
-
-            return (
-              <CmsBlock
-                pageId="home"
-                blockId={blockId}
-                key={id}
-                as="section"
-                defaultEnabled={defaultEnabled}
-              >
-                <SectionComponent
-                  copy={getHomeSectionCopy(settings?.section_copy, id)}
-                  listingCount={id === "cta" && homepageListingCount > 0 ? homepageListingCount : undefined}
-                />
-              </CmsBlock>
-            );
-          })}
+          {sectionsToRender.map(renderSection)}
         </div>
         <HomeFinalEndcap />
-        {isBlockEnabled("trust", true) && (
-          <CmsBlock pageId="home" blockId="trust" as="section">
-            <HomeTrustSection />
-          </CmsBlock>
-        )}
       </main>
       <Footer />
     </div>

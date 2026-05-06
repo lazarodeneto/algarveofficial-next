@@ -99,7 +99,7 @@ export function SignatureCard({
                 ? "(max-width: 1024px) 100vw, 50vw"
                 : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           }
-          quality={72}
+          quality={64}
           className="object-cover transition-transform duration-500 ease-out will-change-transform motion-reduce:transition-none group-hover:scale-[1.05]"
         />
       ) : (
@@ -136,7 +136,7 @@ export function SignatureCard({
       >
         <h3
           className={cn(
-            "line-clamp-2 font-fira font-black not-italic leading-tight tracking-[-0.01em]",
+            "line-clamp-2 font-fira font-bold not-italic leading-tight tracking-[-0.01em]",
             isFeatured ? "text-xl sm:text-2xl" : "text-lg sm:text-xl"
           )}
         >

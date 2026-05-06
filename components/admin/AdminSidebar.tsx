@@ -77,8 +77,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
   ];
 
   const contentChildren: SidebarNavItem[] = [
-    { label: t("admin.sidebar.pageBuilder"), href: "/admin/content/page-builder", icon: Layers },
-    { label: t("admin.sidebar.homePage"), href: "/admin/content/home", icon: Home },
+    { label: t("admin.sidebar.pageBuilder"), href: "/admin/content/page-builder?page=home", icon: Layers },
     { label: t("admin.sidebar.partnerPage"), href: "/admin/content/partner", icon: Users },
     { label: t("admin.sidebar.supportPage"), href: "/admin/content/support", icon: HelpCircle },
     { label: t("admin.sidebar.contactPage"), href: "/admin/content/contact", icon: Mail },

@@ -19,6 +19,9 @@ const DOMAIN_OPTIONS: Array<{ id: InboxFilters["domain"]; label: string }> = [
   { id: "listings", label: "Listings" },
   { id: "reviews", label: "Reviews" },
   { id: "events", label: "Events" },
+  { id: "billing", label: "Billing" },
+  { id: "translations", label: "Translations" },
+  { id: "system", label: "System" },
 ];
 
 const URGENCY_OPTIONS: Array<{ id: InboxUrgency | "all"; label: string }> = [
@@ -119,11 +122,27 @@ export function InboxFilters({ value, onChange, counts }: InboxFiltersProps) {
         <ul className="space-y-1">
           {URGENCY_OPTIONS.map((option) => {
             const active = value.urgency === option.id;
+            const count =
+              option.id === "all"
+                ? counts.total
+                : option.id === "urgent"
+                  ? counts.urgent
+                  : option.id === "soon"
+                    ? counts.soon
+                    : counts.normal;
             return (
               <li key={option.id}>
                 <OptionButton
                   active={active}
                   onClick={() => onChange({ ...value, urgency: option.id })}
+                  right={
+                    <Badge
+                      variant={active ? "secondary" : "outline"}
+                      className="ml-2 border-border/60 bg-background/80"
+                    >
+                      {count}
+                    </Badge>
+                  }
                 >
                   {option.label}
                 </OptionButton>
@@ -138,11 +157,20 @@ export function InboxFilters({ value, onChange, counts }: InboxFiltersProps) {
         <ul className="space-y-1">
           {ASSIGNEE_OPTIONS.map((option) => {
             const active = value.assignee === option.id;
+            const count = option.id === "all" ? counts.total : counts.assignedToMe;
             return (
               <li key={option.id}>
                 <OptionButton
                   active={active}
                   onClick={() => onChange({ ...value, assignee: option.id })}
+                  right={
+                    <Badge
+                      variant={active ? "secondary" : "outline"}
+                      className="ml-2 border-border/60 bg-background/80"
+                    >
+                      {count}
+                    </Badge>
+                  }
                 >
                   {option.label}
                 </OptionButton>

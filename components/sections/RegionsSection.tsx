@@ -69,7 +69,7 @@ function EditorialRegionCard({
           alt={imageAlt}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          quality={72}
+          quality={64}
           className="object-cover transition-transform duration-500 ease-out motion-reduce:transition-none group-hover:scale-[1.04]"
         />
       ) : null}
@@ -87,7 +87,7 @@ function EditorialRegionCard({
         <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70">
           {subtitle}
         </p>
-        <h3 className="line-clamp-2 font-fira text-xl font-black not-italic leading-tight tracking-[-0.01em] text-white sm:text-2xl">
+        <h3 className="line-clamp-2 font-fira text-xl font-bold not-italic leading-tight tracking-[-0.01em] text-white sm:text-2xl">
           {title}
         </h3>
         {description ? (

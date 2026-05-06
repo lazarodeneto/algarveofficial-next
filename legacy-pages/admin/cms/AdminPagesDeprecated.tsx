@@ -27,7 +27,7 @@ export default function AdminPagesDeprecated() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Use the Full Page Builder and dedicated CMS modules (Home, Partner, Legal, Menus, etc.) as the runtime-backed source of truth.
+            Use the Full Page Builder and dedicated CMS modules (Partner, Legal, Menus, etc.) as the runtime-backed source of truth.
           </p>
           <div className="flex flex-wrap gap-2">
             <Button asChild>
@@ -37,8 +37,8 @@ export default function AdminPagesDeprecated() {
               </LocaleLink>
             </Button>
             <Button asChild variant="outline">
-              <LocaleLink href="/admin/content/home">
-                Open Home CMS
+              <LocaleLink href="/admin/content/page-builder?page=home">
+                Open Home Editor
                 <ArrowRight className="h-4 w-4 ml-2" />
               </LocaleLink>
             </Button>

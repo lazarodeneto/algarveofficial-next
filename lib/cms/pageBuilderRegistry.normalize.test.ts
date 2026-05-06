@@ -102,4 +102,53 @@ describe("normalizeCmsPageConfigs", () => {
     expect(normalized.home?.blocks?.["not-a-real-block"]).toBeUndefined();
     expect(normalized.home?.blocks?.hero).toEqual({ enabled: false });
   });
+
+  it("preserves hero settings and nested JSON-safe block data", () => {
+    const normalized = normalizeCmsPageConfigs({
+      golf: {
+        hero: {
+          mediaType: "image",
+          imageUrl: "https://example.com/hero.webp",
+          title: "Golf Hero",
+        },
+        blocks: {
+          discovery: {
+            enabled: true,
+            data: {
+              title: "Find golf",
+              cards: [
+                {
+                  tag: "championship",
+                  title: "Championship",
+                  enabled: true,
+                  meta: {
+                    imageUrl: "https://example.com/card.webp",
+                  },
+                },
+              ],
+            },
+          },
+        },
+      },
+    });
+
+    expect(normalized.golf?.hero).toEqual({
+      mediaType: "image",
+      imageUrl: "https://example.com/hero.webp",
+      title: "Golf Hero",
+    });
+    expect(normalized.golf?.blocks?.discovery?.data).toEqual({
+      title: "Find golf",
+      cards: [
+        {
+          tag: "championship",
+          title: "Championship",
+          enabled: true,
+          meta: {
+            imageUrl: "https://example.com/card.webp",
+          },
+        },
+      ],
+    });
+  });
 });

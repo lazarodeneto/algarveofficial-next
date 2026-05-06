@@ -37,7 +37,7 @@ function resolveListingImageUrl(src: string | null | undefined): string | null {
   if (!url) return null;
   return getOptimizedImageUrl(url, {
     width: 800,
-    quality: 80,
+    quality: 68,
     format: "webp",
     resize: "cover",
   });
@@ -49,7 +49,7 @@ function resolveCategoryImageUrl(src: string | null | undefined): string | null 
   if (!url) return null;
   return getOptimizedImageUrl(url, {
     width: 800,
-    quality: 80,
+    quality: 68,
     format: "webp",
     resize: "cover",
   });
@@ -114,7 +114,7 @@ export default function ListingImage({
             src={currentUrl}
             alt={showRepresentativeBadge ? `Representative image of ${alt}` : resolvedAlt}
             fill
-            quality={80}
+            quality={68}
             className="object-cover"
             sizes={sizes ?? SIZES.card}
             priority={priority}
@@ -170,7 +170,7 @@ export default function ListingImage({
         alt={showRepresentativeBadge ? `Representative image of ${alt}` : resolvedAlt}
         width={displayWidth}
         height={displayHeight}
-        quality={80}
+        quality={68}
         className="w-full h-auto"
         sizes={sizes ?? SIZES.card}
         priority={priority}

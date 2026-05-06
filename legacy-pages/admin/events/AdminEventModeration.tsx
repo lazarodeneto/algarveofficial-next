@@ -27,8 +27,10 @@ import {
 import { useAdminEvents, useApproveEvent, useRejectEvent } from '@/hooks/useEvents';
 import { eventCategoryLabels, eventCategoryColors, type CalendarEvent } from '@/types/events';
 import { toast } from '@/hooks/use-toast';
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function AdminEventModeration() {
+  const l = useLocalePath();
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
 
@@ -170,7 +172,7 @@ export default function AdminEventModeration() {
                 {/* Actions */}
                 <div className="flex items-center gap-2 pt-2">
                   <Button variant="outline" size="sm" className="flex-1" asChild>
-                    <Link href={`/admin/content/events/${event.id}/edit`}>
+                    <Link href={l(`/admin/content/events/${event.id}/edit`)}>
                       <Eye className="h-4 w-4 mr-1" />
                       Preview
                     </Link>

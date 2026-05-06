@@ -372,7 +372,11 @@ const SortableSectionItem = forwardRef<HTMLDivElement, SortableSectionItemProps>
   }
 );
 
-export default function AdminHomePage() {
+interface AdminHomePageProps {
+  embedded?: boolean;
+}
+
+export default function AdminHomePage({ embedded = false }: AdminHomePageProps) {
   const l = useLocalePath();
   const { settings, isLoading, updateSettingsAsync } = useHomepageSettings();
   const {
@@ -931,29 +935,31 @@ export default function AdminHomePage() {
 
   if (isLoading || isQuickLinksLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className={cn("flex items-center justify-center", embedded ? "min-h-[240px]" : "min-h-[400px]")}>
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <DashboardBreadcrumb />
-          <h1 className="text-2xl font-serif font-medium text-foreground mt-2">Home Page Editor</h1>
-          <p className="text-muted-foreground">Manage hero content, sections, and page structure</p>
+    <div className={cn("space-y-6", embedded && "min-w-0")}>
+      {!embedded ? (
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <DashboardBreadcrumb />
+            <h1 className="text-2xl font-serif font-medium text-foreground mt-2">Home Page Editor</h1>
+            <p className="text-muted-foreground">Manage hero content, sections, and page structure</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <a href={l("/")} target="_blank" rel="noopener noreferrer">
+                <Eye className="h-4 w-4 mr-2" />
+                Open Public Home
+              </a>
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <a href={l("/")} target="_blank" rel="noopener noreferrer">
-              <Eye className="h-4 w-4 mr-2" />
-              Open Public Home
-            </a>
-          </Button>
-        </div>
-      </div>
+      ) : null}
 
       <Tabs defaultValue="hero" className="space-y-6">
         <TabsList className="bg-card border border-border">

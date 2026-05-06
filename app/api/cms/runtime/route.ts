@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { draftMode } from "next/headers";
 
 import {
   CmsRuntimeGlobalSettingsError,
@@ -19,9 +20,11 @@ function parseRequestedKeys(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    const draft = await draftMode();
     const data = await fetchCmsRuntimeSettings({
       requestedKeys: parseRequestedKeys(request),
       locale: normalizeCmsRuntimeLocale(request.nextUrl.searchParams.get("locale")),
+      includeDraft: draft.isEnabled,
     });
 
     return NextResponse.json({

@@ -100,8 +100,12 @@ export function resolvePageContent(content: CmsPageContent | null | undefined): 
       badge: content.hero.badge,
       title: content.hero.title,
       subtitle: content.hero.subtitle,
-      ctaCourses: content.hero.ctaCourses,
-      ctaLeaderboard: content.hero.ctaLeaderboard,
+      ctaCourses:
+        content.hero.ctaCourses ??
+        (content.hero as { ctaPrimary?: string | null }).ctaPrimary,
+      ctaLeaderboard:
+        content.hero.ctaLeaderboard ??
+        (content.hero as { ctaSecondary?: string | null }).ctaSecondary,
       alt: content.hero.alt,
     };
   }

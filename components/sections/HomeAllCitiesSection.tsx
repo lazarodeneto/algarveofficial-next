@@ -37,7 +37,7 @@ function FeaturedCityCard({
           alt={name}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          quality={72}
+          quality={64}
           className="object-cover transition-transform duration-500 ease-out motion-reduce:transition-none group-hover:scale-[1.04]"
         />
       ) : (
@@ -45,7 +45,7 @@ function FeaturedCityCard({
       )}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
       <div className="absolute inset-x-0 bottom-0 z-10 p-4 text-white text-shadow-card sm:p-5">
-        <h3 className="font-fira text-xl font-black not-italic leading-tight tracking-[-0.01em] sm:text-2xl">
+        <h3 className="font-fira text-xl font-bold not-italic leading-tight tracking-[-0.01em] sm:text-2xl">
           {name}
         </h3>
         <p className="mt-1 text-xs font-medium uppercase tracking-wide text-white/70">
@@ -80,7 +80,7 @@ function CompactCityCard({
           <MapPin className="h-5 w-5" />
         </span>
         <div className="min-w-0">
-          <h3 className="font-fira text-lg font-black not-italic leading-tight tracking-[-0.01em] text-foreground transition-colors group-hover:text-primary">
+          <h3 className="font-fira text-lg font-bold not-italic leading-tight tracking-[-0.01em] text-foreground transition-colors group-hover:text-primary">
             {name}
           </h3>
           <p className="mt-0.5 text-xs uppercase tracking-wide text-muted-foreground">

@@ -31,5 +31,8 @@ export async function GET(req: Request) {
   const draft = await draftMode();
   draft.enable();
 
-  return NextResponse.redirect(new URL(resolvedPath, req.url));
+  const redirectUrl = new URL(resolvedPath, req.url);
+  redirectUrl.searchParams.set("cms_preview", "1");
+
+  return NextResponse.redirect(redirectUrl);
 }

@@ -20,11 +20,16 @@ import {
   assignInboxItem,
   rejectInboxItem,
 } from "@/lib/admin/inbox/actions";
+import { useLocalePath } from "@/hooks/useLocalePath";
 import type {
+  BillingSubscriptionItem,
   EventModerationItem,
+  ExternalOutboxAlertItem,
   InboxItem,
+  ListingClaimItem,
   ListingModerationItem,
   ReviewModerationItem,
+  TranslationJobItem,
 } from "@/lib/admin/inbox/types";
 
 interface InboxDetailProps {
@@ -43,11 +48,69 @@ function formatDue(iso: string, minutes: number): string {
 }
 
 function EntityLink({ item }: { item: InboxItem }) {
-  if (item.domain === "listings") {
-    const { slug } = (item as ListingModerationItem).meta;
+  const l = useLocalePath();
+
+  if (item.source === "listing_claim") {
+    const { requestType } = (item as ListingClaimItem).meta;
     return (
       <Link
-        href={`/admin/listings/${slug}`}
+        href={l("/admin/claims")}
+        className="text-sm text-primary underline-offset-2 hover:underline"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {requestType === "claim-business" ? "Open partner claims ↗" : "Open new listing requests ↗"}
+      </Link>
+    );
+  }
+
+  if (item.source === "billing_subscription") {
+    const { ownerId } = (item as BillingSubscriptionItem).meta;
+    return (
+      <Link
+        href={`${l("/admin/subscriptions")}?owner=${ownerId}`}
+        className="text-sm text-primary underline-offset-2 hover:underline"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Open subscriptions ↗
+      </Link>
+    );
+  }
+
+  if (item.source === "translation_job") {
+    const { listingId } = (item as TranslationJobItem).meta;
+    return (
+      <Link
+        href={`${l("/admin/content/translations")}?listing=${listingId}`}
+        className="text-sm text-primary underline-offset-2 hover:underline"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Open translations ↗
+      </Link>
+    );
+  }
+
+  if (item.source === "external_outbox_alert") {
+    const { alertKey } = (item as ExternalOutboxAlertItem).meta;
+    return (
+      <Link
+        href={l("/admin/email")}
+        className="text-sm text-primary underline-offset-2 hover:underline"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {alertKey.includes("outbox") ? "Open email/outbox dashboard ↗" : "Open admin dashboard ↗"}
+      </Link>
+    );
+  }
+
+  if (item.domain === "listings") {
+    const { listingId } = (item as ListingModerationItem).meta;
+    return (
+      <Link
+        href={l(`/admin/listings/${listingId}/edit`)}
         className="text-sm text-primary underline-offset-2 hover:underline"
         target="_blank"
         rel="noopener noreferrer"
@@ -60,7 +123,7 @@ function EntityLink({ item }: { item: InboxItem }) {
     const { eventId } = (item as EventModerationItem).meta;
     return (
       <Link
-        href={`/admin/content/events/${eventId}`}
+        href={l(`/admin/content/events/${eventId}/edit`)}
         className="text-sm text-primary underline-offset-2 hover:underline"
         target="_blank"
         rel="noopener noreferrer"
@@ -73,7 +136,7 @@ function EntityLink({ item }: { item: InboxItem }) {
     const { listingId, listingName } = (item as ReviewModerationItem).meta;
     return (
       <Link
-        href={`/admin/reviews?listing=${listingId}`}
+        href={`${l("/admin/reviews")}?listing=${listingId}`}
         className="text-sm text-primary underline-offset-2 hover:underline"
         target="_blank"
         rel="noopener noreferrer"
@@ -125,6 +188,10 @@ export function InboxDetail({
 
   const base = { source: item.source, sourceRowId: item.sourceRowId };
   const canAssignToMe = currentUserId && currentUserId !== item.assignee?.id;
+  const canApprove = item.resolution.available.includes("approve");
+  const canReject = item.resolution.available.includes("reject");
+  const canArchive = item.resolution.available.includes("archive");
+  const canAssign = item.resolution.available.includes("assign");
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -191,45 +258,51 @@ export function InboxDetail({
         <div className="mt-6 space-y-4 border-t border-border pt-6">
           {/* Primary actions */}
           <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              disabled={pending}
-              onClick={() => run(() => approveInboxItem(base))}
-            >
-              Approve
-            </Button>
+            {canApprove ? (
+              <Button
+                type="button"
+                disabled={pending}
+                onClick={() => run(() => approveInboxItem(base))}
+              >
+                Approve
+              </Button>
+            ) : null}
 
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                <Input
-                  value={rejectReason}
-                  onChange={(e) => setRejectReason(e.target.value)}
-                  placeholder="Rejection reason"
-                  className="w-52"
-                />
-                <Button
-                  type="button"
-                  variant="destructive"
-                  disabled={pending || !rejectReason.trim()}
-                  onClick={() => run(() => rejectInboxItem({ ...base, reason: rejectReason }))}
-                >
-                  Reject
-                </Button>
+            {canReject ? (
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                    placeholder="Rejection reason"
+                    className="w-52"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    disabled={pending || !rejectReason.trim()}
+                    onClick={() => run(() => rejectInboxItem({ ...base, reason: rejectReason }))}
+                  >
+                    Reject
+                  </Button>
+                </div>
               </div>
-            </div>
+            ) : null}
           </div>
 
           {/* Secondary actions */}
           <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={pending}
-              onClick={() => run(() => archiveInboxItem({ ...base }))}
-            >
-              Archive
-            </Button>
-            {canAssignToMe ? (
+            {canArchive ? (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={pending}
+                onClick={() => run(() => archiveInboxItem({ ...base }))}
+              >
+                Archive
+              </Button>
+            ) : null}
+            {canAssign && canAssignToMe ? (
               <Button
                 type="button"
                 variant="outline"
@@ -244,28 +317,30 @@ export function InboxDetail({
           </div>
 
           {/* Manual assign */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Assign to user ID
-            </label>
-            <div className="flex gap-2">
-              <Input
-                value={assigneeId}
-                onChange={(e) => setAssigneeId(e.target.value)}
-                placeholder="UUID of assignee"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                disabled={pending || !assigneeId.trim()}
-                onClick={() =>
-                  run(() => assignInboxItem({ ...base, assigneeId: assigneeId.trim() }))
-                }
-              >
-                Assign
-              </Button>
+          {canAssign ? (
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Assign to user ID
+              </label>
+              <div className="flex gap-2">
+                <Input
+                  value={assigneeId}
+                  onChange={(e) => setAssigneeId(e.target.value)}
+                  placeholder="UUID of assignee"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={pending || !assigneeId.trim()}
+                  onClick={() =>
+                    run(() => assignInboxItem({ ...base, assigneeId: assigneeId.trim() }))
+                  }
+                >
+                  Assign
+                </Button>
+              </div>
             </div>
-          </div>
+          ) : null}
 
           {/* Error + retry */}
           {error ? (

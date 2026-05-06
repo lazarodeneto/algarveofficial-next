@@ -46,16 +46,6 @@ import { useGlobalSettings, GlobalSetting } from "@/hooks/useGlobalSettings";
 import { useContactSettings, ContactSettings } from "@/hooks/useContactSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
-import { invokeFunctionWithAuthRetry } from "@/lib/supabaseFunctionInvoke";
-import {
-  getSupabaseFunctionErrorMessage,
-  isSupabaseFunctionAuthError,
-  isSupabaseFunctionTransportError,
-} from "@/lib/supabaseFunctionError";
-import {
-  LISTING_TRANSLATION_TARGET_LANGS,
-  queueListingTranslationJobs,
-} from "@/lib/listingTranslationQueue";
 import {
   isMaintenanceIpWhitelisted,
   isValidMaintenanceWhitelistEntry,
@@ -150,117 +140,6 @@ export default function AdminGlobalSettings() {
   const [localGlobalSettings, setLocalGlobalSettings] = useState<Record<string, string>>({});
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Local state - Translation Runner (manual batches)
-  // ─────────────────────────────────────────────────────────────────────────────
-  const [translateBatch, setTranslateBatch] = useState(10);
-  const [translateLoading, setTranslateLoading] = useState(false);
-  const [translateResult, setTranslateResult] = useState<any>(null);
-  const [translateError, setTranslateError] = useState<string | null>(null);
-
-  const TARGET_LANGS = [...LISTING_TRANSLATION_TARGET_LANGS];
-
-  // Missing translations list
-  const [missingTranslations, setMissingTranslations] = useState<{ id: string; name: string; slug: string; city: string; status: string; missingLangs: string[] }[]>([]);
-  const [missingLoading, setMissingLoading] = useState(false);
-  const [translatingId, setTranslatingId] = useState<string | null>(null);
-
-  async function fetchMissingTranslations() {
-    setMissingLoading(true);
-    try {
-      // Step 1: fetch all existing translations (listing_id + language_code)
-      const { data: translated, error: tErr } = await supabase
-        .from("listing_translations")
-        .select("listing_id, language_code");
-      if (tErr) throw tErr;
-
-      // Build map: listing_id -> Set of translated language codes
-      const translatedMap = new Map<string, Set<string>>();
-      for (const t of (translated || []) as any[]) {
-        if (!translatedMap.has(t.listing_id)) {
-          translatedMap.set(t.listing_id, new Set());
-        }
-        const set = translatedMap.get(t.listing_id);
-        if (set) set.add(t.language_code);
-      }
-
-      // IDs that already have ALL target languages
-      const fullyTranslatedIds = [...translatedMap.entries()]
-        .filter(([, langs]) => TARGET_LANGS.every((l) => langs.has(l)))
-        .map(([id]) => id);
-
-      // Step 2: fetch published listings, exclude fully-translated ones
-      let query = supabase
-        .from("listings")
-        .select("id, name, slug, status, cities(name)")
-        .eq("status", "published")
-        .order("name", { ascending: true })
-        .limit(200);
-
-      if (fullyTranslatedIds.length > 0) {
-        query = query.not("id", "in", `(${fullyTranslatedIds.map((id) => `"${id}"`).join(",")})`);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-
-      // Annotate each listing with which languages are missing
-      setMissingTranslations(
-        (data || []).map((l: any) => {
-          const existing = translatedMap.get(l.id) || new Set<string>();
-          const missingLangs = TARGET_LANGS.filter((lang) => !existing.has(lang));
-          return {
-            id: l.id,
-            name: l.name,
-            slug: l.slug,
-            city: l.cities?.name || "—",
-            status: l.status,
-            missingLangs,
-          };
-        })
-      );
-    } catch (e: any) {
-      toast.error("Failed to load missing translations: " + e.message);
-    } finally {
-      setMissingLoading(false);
-    }
-  }
-
-  async function translateSingle(listingId: string) {
-    setTranslatingId(listingId);
-    try {
-      const { data, error } = await invokeFunctionWithAuthRetry<{ ok?: boolean; error?: string }>("translate-listing", {
-        body: { listing_id: listingId },
-      });
-      if (error) {
-        const isAuthError = await isSupabaseFunctionAuthError(error);
-        const isTransportError = await isSupabaseFunctionTransportError(error);
-
-        if (isAuthError || isTransportError) {
-          const queueResult = await queueListingTranslationJobs(listingId, TARGET_LANGS);
-          if (queueResult.queued > 0) {
-            toast.warning(
-              `Direct translation endpoint is unavailable. Queued ${queueResult.queued} language job${queueResult.queued !== 1 ? "s" : ""} for background processing.`,
-            );
-          } else {
-            toast.info("No new translation jobs were queued. Languages are already translated or queued.");
-          }
-          await fetchMissingTranslations();
-          return;
-        }
-
-        throw new Error(await getSupabaseFunctionErrorMessage(error, "Translation request failed"));
-      }
-      if (data?.ok === false) throw new Error(data?.error || "Translation request failed");
-      toast.success("Translation queued successfully.");
-      await fetchMissingTranslations();
-    } catch (e: any) {
-      toast.error("Translation failed: " + e.message);
-    } finally {
-      setTranslatingId(null);
-    }
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────────
   // LOCAL STATE - Contact Form Settings (from contact_settings table)
   // ─────────────────────────────────────────────────────────────────────────────
   const [cfHeroTitle, setCfHeroTitle] = useState("Get in Touch");
@@ -275,134 +154,6 @@ export default function AdminGlobalSettings() {
   const [cfSuccessMessage, setCfSuccessMessage] = useState("");
   const [cfForwardingEmail, setCfForwardingEmail] = useState("info@algarveofficial.com");
   const [activeTab, setActiveTab] = useState("status");
-
-  async function runTranslationsNow() {
-    setTranslateLoading(true);
-    setTranslateError(null);
-    setTranslateResult(null);
-
-    try {
-      // Step 1: fetch all existing translations to find fully-translated listings
-      const { data: translated, error: tErr } = await supabase
-        .from("listing_translations")
-        .select("listing_id, language_code");
-      if (tErr) throw new Error(`Failed to fetch translations: ${tErr.message}`);
-
-      const translatedMap = new Map<string, Set<string>>();
-      for (const t of (translated || []) as any[]) {
-        if (!translatedMap.has(t.listing_id)) {
-          translatedMap.set(t.listing_id, new Set());
-        }
-        const set = translatedMap.get(t.listing_id);
-        if (set) set.add(t.language_code);
-      }
-      const fullyTranslatedIds = [...translatedMap.entries()]
-        .filter(([, langs]) => TARGET_LANGS.every((l) => langs.has(l)))
-        .map(([id]) => id);
-
-      // Step 2: fetch published listings not yet fully translated
-      let batchQuery = supabase
-        .from("listings")
-        .select("id, name")
-        .eq("status", "published")
-        .limit(translateBatch);
-      if (fullyTranslatedIds.length > 0) {
-        batchQuery = batchQuery.not("id", "in", `(${fullyTranslatedIds.map((id: string) => `"${id}"`).join(",")})`);
-      }
-      const { data: listings, error: fetchError } = await batchQuery;
-
-      if (fetchError) {
-        throw new Error(`Failed to fetch listings: ${fetchError.message}`);
-      }
-
-      if (!listings || listings.length === 0) {
-        setTranslateResult({ message: "No listings require translation", processed: 0 });
-        toast.success("All listings are already translated.");
-        await fetchMissingTranslations();
-        return;
-      }
-
-      const results: { id: string; name: string; status: string; error?: string }[] = [];
-
-      for (const listing of listings) {
-        try {
-          const { data, error } = await invokeFunctionWithAuthRetry<{ ok?: boolean; error?: string }>("translate-listing", {
-            body: { listing_id: listing.id },
-          });
-          if (error) {
-            const isAuthError = await isSupabaseFunctionAuthError(error);
-            const isTransportError = await isSupabaseFunctionTransportError(error);
-
-            if (isAuthError || isTransportError) {
-              const queueResult = await queueListingTranslationJobs(listing.id, TARGET_LANGS);
-              if (queueResult.queued > 0) {
-                results.push({
-                  id: listing.id,
-                  name: listing.name,
-                  status: "queued",
-                  error: `Queued ${queueResult.queued} language jobs for background processing.`,
-                });
-              } else {
-                results.push({
-                  id: listing.id,
-                  name: listing.name,
-                  status: "ok",
-                  error: "No new jobs queued (already translated or queued).",
-                });
-              }
-              continue;
-            }
-
-            const functionErrorMessage = await getSupabaseFunctionErrorMessage(error, "Translation request failed");
-            if (/session expired/i.test(functionErrorMessage)) {
-              throw new Error(functionErrorMessage);
-            }
-            results.push({
-              id: listing.id,
-              name: listing.name,
-              status: "failed",
-              error: functionErrorMessage,
-            });
-          } else if (data?.ok === false) {
-            const functionErrorMessage = data?.error || "Translation request failed";
-            results.push({
-              id: listing.id,
-              name: listing.name,
-              status: "failed",
-              error: functionErrorMessage,
-            });
-          } else {
-            results.push({ id: listing.id, name: listing.name, status: "ok" });
-          }
-        } catch (err: any) {
-          results.push({ id: listing.id, name: listing.name, status: "failed", error: err?.message });
-        }
-      }
-
-      const succeeded = results.filter((r) => r.status === "ok").length;
-      const queued = results.filter((r) => r.status === "queued").length;
-      const failed = results.filter((r) => r.status === "failed").length;
-      setTranslateResult({ processed: results.length, succeeded, queued, failed, results });
-      if (failed === 0 && queued === 0) {
-        toast.success(`Translation batch complete: ${succeeded} listing(s) translated.`);
-      } else if (failed === 0) {
-        toast.warning(
-          `Batch done: ${succeeded} translated, ${queued} queued for background processing.`,
-        );
-      } else {
-        toast.warning(
-          `Batch done: ${succeeded} translated, ${queued} queued, ${failed} failed. Check results below.`,
-        );
-      }
-      await fetchMissingTranslations();
-    } catch (e: any) {
-      const msg = e?.message || String(e);
-      setTranslateError(msg);
-      toast.error(`Translation failed: ${msg}`);
-    } finally {
-      setTranslateLoading(false);
-    }
-  }
 
   // ─────────────────────────────────────────────────────────────────────────────
   // SYNC DATABASE → LOCAL STATE
@@ -511,11 +262,6 @@ export default function AdminGlobalSettings() {
       setCfForwardingEmail(contactFormSettings.forwarding_email ?? "info@algarveofficial.com");
     }
   }, [contactFormSettings]);
-
-  useEffect(() => {
-    if (activeTab !== "translations") return;
-    void fetchMissingTranslations();
-  }, [activeTab]);
 
   // ─────────────────────────────────────────────────────────────────────────────
   // HELPERS for Global Settings key-value
@@ -819,11 +565,6 @@ export default function AdminGlobalSettings() {
     // Clear all global settings (SEO, Labels, Social, Contact extras)
     setLocalGlobalSettings({});
 
-    // Clear translation runner UI
-    setTranslateBatch(10);
-    setTranslateResult(null);
-    setTranslateError(null);
-
     toast.info("All fields cleared. Click 'Save All' to persist changes.");
   };
 
@@ -1015,7 +756,7 @@ export default function AdminGlobalSettings() {
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
                         All visitors will see a maintenance page. Admins, editors, and whitelisted IPs can still access
-                        the site. Don't forget to click "Save All" to apply changes.
+                        the site. Don&apos;t forget to click &quot;Save All&quot; to apply changes.
                       </p>
                     </div>
                   )}
@@ -1418,7 +1159,7 @@ export default function AdminGlobalSettings() {
                       onChange={(e) => setGaDashboardUrl(e.target.value)}
                       className="bg-background"
                     />
-                    <p className="text-[10px] text-muted-foreground">Enables "Open Live Analytics" button in dashboard</p>
+                    <p className="text-[10px] text-muted-foreground">Enables &quot;Open Live Analytics&quot; button in dashboard</p>
                   </div>
                 </div>
               </div>
@@ -2134,7 +1875,7 @@ export default function AdminGlobalSettings() {
                 <Mail className="h-5 w-5 text-primary" />
                 Contact Page — Sidebar Info
               </CardTitle>
-              <CardDescription>Details shown in the left-hand "Connect with Us" card</CardDescription>
+              <CardDescription>Details shown in the left-hand &quot;Connect with Us&quot; card</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {isContactFormLoading ? (
@@ -2453,27 +2194,26 @@ export default function AdminGlobalSettings() {
           </Card>
         </TabsContent>
 
-        {/* New: Translations */}
+        {/* Translations */}
         <TabsContent value="translations">
           <Card className="border-border bg-card/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <RefreshCw className="h-5 w-5 text-primary" />
-                Translations Moved
+                Translations
               </CardTitle>
               <CardDescription>
-                Translation management has been consolidated into one place in the Admin dashboard.
+                Manage UI locale sync and listing content translation jobs from one place.
               </CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-4">
               <div className="rounded-lg border border-primary/20 bg-primary/10 p-4 text-sm text-muted-foreground">
                 <Info className="mr-2 inline-block h-4 w-4 text-primary" />
-                Use <strong className="text-foreground">Content &rarr; Translations</strong> for both:
-                UI locale sync and listing content translation jobs.
+                Use <strong className="text-foreground">Content &rarr; Translations</strong> to manage both translation workflows.
               </div>
               <Button type="button" onClick={() => window.location.assign(l("/admin/content/translations"))}>
-                Open Unified Translations Area
+                Open Translations
               </Button>
             </CardContent>
           </Card>

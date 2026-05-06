@@ -94,13 +94,17 @@ const Experiences = ({
   pagePath = "/experiences",
 }: ExperiencesProps) => {
   const { t } = useTranslation();
+  const experiencesCms = useCmsPageBuilder("experiences");
+  const beachesCms = useCmsPageBuilder("beaches");
+  const pageCmsId = defaultCategorySlug === "beaches" ? "beaches" : "experiences";
+  const cms = pageCmsId === "beaches" ? beachesCms : experiencesCms;
   const {
     getMetaDescription,
     getMetaTitle,
     getText,
     isBlockEnabled,
     getBlockData,
-  } = useCmsPageBuilder("experiences");
+  } = cms;
   const l = useLocalePath();
   const locale = normalizePublicContentLocale(useCurrentLocale());
   const { data: cities = [] } = useCities();
@@ -282,6 +286,26 @@ const Experiences = ({
 
   const topCities = useMemo(() => municipalityCities.slice(0, 8), [municipalityCities]);
   const heroEnabled = isBlockEnabled("hero", true);
+  const heroFallbacks = defaultCategorySlug === "beaches"
+    ? {
+        badge: t("nav.beaches", "Beaches"),
+        title: t("beachesPage.heroTitle", "Beaches in the Algarve"),
+        subtitle: t(
+          "beachesPage.heroDescription",
+          "Discover golden sands, turquoise water, and premium beach clubs curated for AlgarveOfficial visitors.",
+        ),
+        ctaPrimary: t("experiences.hero.ctaPrimary"),
+        ctaSecondary: t("experiences.hero.ctaSecondary"),
+        alt: t("beachesPage.heroTitle", "Beaches in the Algarve"),
+      }
+    : {
+        badge: t("experiences.hero.badge"),
+        title: t("experiences.hero.title"),
+        subtitle: t("experiences.hero.subtitle"),
+        ctaPrimary: t("experiences.hero.ctaPrimary"),
+        ctaSecondary: t("experiences.hero.ctaSecondary"),
+        alt: t("experiences.hero.alt"),
+      };
 
   // Featured city from CMS data or first top city
   const featuredCityHubData = getBlockData("featured-city-hub");
@@ -479,59 +503,47 @@ const Experiences = ({
     {
       icon: Sparkles,
       value: "200+",
-      label: t("experiences.stats.curated"),
+      label: getText("stats.curated", t("experiences.stats.curated")),
     },
     {
       icon: Compass,
       value: "15+",
-      label: t("experiences.stats.categories"),
+      label: getText("stats.categories", t("experiences.stats.categories")),
     },
     {
       icon: Sun,
       value: "300+",
-      label: t("experiences.stats.sunDays"),
+      label: getText("stats.sunDays", t("experiences.stats.sunDays")),
     },
   ];
 
   const experiencePillars = [
     {
       icon: Sun,
-      title: t("experiences.pillars.outdoor.title"),
-      description: t(
-        "experiences.pillars.outdoor.description",
-      ),
+      title: getText("pillars.outdoor.title", t("experiences.pillars.outdoor.title")),
+      description: getText("pillars.outdoor.description", t("experiences.pillars.outdoor.description")),
     },
     {
       icon: Sparkles,
-      title: t(
-        "experiences.pillars.gastronomy.title",
-      ),
-      description: t(
-        "experiences.pillars.gastronomy.description",
-      ),
+      title: getText("pillars.gastronomy.title", t("experiences.pillars.gastronomy.title")),
+      description: getText("pillars.gastronomy.description", t("experiences.pillars.gastronomy.description")),
     },
     {
       icon: Compass,
-      title: t("experiences.pillars.culture.title"),
-      description: t(
-        "experiences.pillars.culture.description",
-      ),
+      title: getText("pillars.culture.title", t("experiences.pillars.culture.title")),
+      description: getText("pillars.culture.description", t("experiences.pillars.culture.description")),
     },
     {
       icon: Star,
-      title: t(
-        "experiences.pillars.wellness.title",
-      ),
-      description: t(
-        "experiences.pillars.wellness.description",
-      ),
+      title: getText("pillars.wellness.title", t("experiences.pillars.wellness.title")),
+      description: getText("pillars.wellness.description", t("experiences.pillars.wellness.description")),
     },
   ];
 
   return (
     <div
       className="min-h-screen bg-background text-foreground"
-      data-cms-page="experiences"
+      data-cms-page={pageCmsId}
     >
 
       <Header />
@@ -540,19 +552,15 @@ const Experiences = ({
       <main className="flex-grow">
         {heroEnabled && (
           <CmsBlock
-            pageId="experiences"
+            pageId={pageCmsId}
             blockId="hero"
             className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}
           >
             <LiveStyleHero
               className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
-              badge={t("experiences.hero.badge")}
-              title={t(
-                "experiences.hero.title",
-              )}
-              subtitle={t(
-                "experiences.hero.subtitle",
-              )}
+              badge={getText("hero.badge", heroFallbacks.badge)}
+              title={getText("hero.title", heroFallbacks.title)}
+              subtitle={getText("hero.subtitle", heroFallbacks.subtitle)}
               media={
                 <HeroBackgroundMedia
                   mediaType={getText("hero.mediaType", "image")}
@@ -560,13 +568,11 @@ const Experiences = ({
                   videoUrl={getText("hero.videoUrl", "")}
                   youtubeUrl={getText("hero.youtubeUrl", "")}
                   posterUrl={getText("hero.posterUrl", "")}
-                  alt={t("experiences.hero.alt")}
+                  alt={getText("hero.alt", heroFallbacks.alt)}
                   fallback={
                     <PageHeroImage
                       page="directory"
-                      alt={t(
-                        "experiences.hero.alt",
-                      )}
+                      alt={getText("hero.alt", heroFallbacks.alt)}
                     />
                   }
                 />
@@ -575,17 +581,13 @@ const Experiences = ({
                 <>
                   <Link href={l("/stay?category=things-to-do")}>
                     <Button variant="gold" size="lg">
-                      {t(
-                        "experiences.hero.ctaPrimary",
-                      )}
+                      {getText("hero.cta.primary", heroFallbacks.ctaPrimary)}
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   </Link>
                   <Link href={l("/contact")}>
                     <Button variant="heroOutline" size="lg">
-                      {t(
-                        "experiences.hero.ctaSecondary",
-                      )}
+                      {getText("hero.cta.secondary", heroFallbacks.ctaSecondary)}
                     </Button>
                   </Link>
                 </>
@@ -626,7 +628,7 @@ const Experiences = ({
 
           {isBlockEnabled("filters", true) ? (
             <CmsBlock
-              pageId="experiences"
+              pageId={pageCmsId}
               blockId="filters"
               className="relative z-30 isolate mb-8"
             >
@@ -866,7 +868,7 @@ const Experiences = ({
 
           {isBlockEnabled("results", true) ? (
             <CmsBlock
-              pageId="experiences"
+              pageId={pageCmsId}
               blockId="results"
               className="relative z-0 isolate scroll-mt-28 sm:scroll-mt-32"
             >
@@ -946,7 +948,7 @@ const Experiences = ({
 
         {isBlockEnabled("stats", true) && (
           <CmsBlock
-            pageId="experiences"
+            pageId={pageCmsId}
             blockId="stats"
             as="section"
             className="max-w-7xl mx-auto px-4 md:px-8 py-8 lg:py-12"
@@ -976,19 +978,17 @@ const Experiences = ({
 
         {isBlockEnabled("pillars", true) && (
           <CmsBlock
-            pageId="experiences"
+            pageId={pageCmsId}
             blockId="pillars"
             as="section"
             className="max-w-7xl mx-auto px-4 md:px-8 py-10 lg:py-14"
           >
             <div className="mb-8 text-center">
               <span className="text-sm font-medium text-primary tracking-[0.2em] uppercase">
-                {t("experiences.pillars.label")}
+                {getText("pillars.label", t("experiences.pillars.label"))}
               </span>
               <h2 className="mt-3 text-3xl md:text-4xl font-serif font-medium">
-                {t(
-                  "experiences.pillars.title",
-                )}
+                {getText("pillars.title", t("experiences.pillars.title"))}
               </h2>
             </div>
             <div className="grid md:grid-cols-2 gap-4">
@@ -1012,36 +1012,28 @@ const Experiences = ({
 
         {isBlockEnabled("cta", true) && (
           <CmsBlock
-            pageId="experiences"
+            pageId={pageCmsId}
             blockId="cta"
             as="section"
             className="max-w-7xl mx-auto px-4 md:px-8 pt-4 pb-20"
           >
             <div className="glass-box p-8 md:p-10 text-center">
               <h2 className="text-3xl font-serif font-medium mb-3">
-                {t(
-                  "experiences.cta.title",
-                )}
+                {getText("cta.title", t("experiences.cta.title"))}
               </h2>
               <p className="text-muted-foreground max-w-3xl mx-auto">
-                {t(
-                  "experiences.cta.description",
-                )}
+                {getText("cta.description", t("experiences.cta.description"))}
               </p>
               <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
                 <Link href={l("/contact")}>
                   <Button variant="gold" size="lg">
-                    {t(
-                      "experiences.cta.primary",
-                    )}
+                    {getText("cta.primary", t("experiences.cta.primary"))}
                     <ArrowRight className="h-4 w-4 ml-1" />
                   </Button>
                 </Link>
                 <Link href={l("/stay?category=things-to-do")}>
                   <Button variant="outline" size="lg">
-                    {t(
-                      "experiences.cta.secondary",
-                    )}
+                    {getText("cta.secondary", t("experiences.cta.secondary"))}
                   </Button>
                 </Link>
               </div>

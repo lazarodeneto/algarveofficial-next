@@ -3,7 +3,12 @@ export const runtime = "nodejs";
 /* eslint-disable @typescript-eslint/no-explicit-any, no-console */
 
 import { NextRequest, NextResponse } from "next/server";
-import { normalizePricingBillingPeriod, normalizePricingTier } from "@/lib/pricing/pricing-resolver";
+import {
+  getActivePrice,
+  normalizePricingBillingPeriod,
+  normalizePricingTier,
+  type SubscriptionPricingRow,
+} from "@/lib/pricing/pricing-resolver";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { getStripeServerClient } from "@/lib/stripe/server";
 import { requireAuthenticatedOwner } from "@/lib/server/owner-auth";
@@ -60,7 +65,32 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid pricing selection." }, { status: 400 });
   }
 
-  const planType = planTypeFromBillingPeriod(billingPeriod);
+  const { data: pricingRows, error: pricingError } = await supabase
+    .from("subscription_pricing")
+    .select("*")
+    .eq("tier", tier)
+    .eq("is_active", true)
+    .limit(20);
+
+  if (pricingError || !pricingRows?.length) {
+    return NextResponse.json({ error: "Pricing not found." }, { status: 400 });
+  }
+
+  let resolvedPricing;
+  try {
+    resolvedPricing = getActivePrice(pricingRows as SubscriptionPricingRow[], {
+      tier,
+      billingPeriod,
+    });
+  } catch {
+    return NextResponse.json({ error: "Pricing not found." }, { status: 400 });
+  }
+
+  const pricing = (pricingRows as SubscriptionPricingRow[]).find(
+    (row) => row.id === resolvedPricing.id,
+  );
+  const resolvedBillingPeriod = resolvedPricing.billingPeriod;
+  const planType = planTypeFromBillingPeriod(resolvedBillingPeriod);
 
   let overlap;
   try {
@@ -73,20 +103,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: overlap.reason, code: "PLAN_OVERLAP" }, { status: 409 });
   }
 
-  const { data: pricingRows, error: pricingError } = await supabase
-    .from("subscription_pricing")
-    .select("*")
-    .eq("tier", tier)
-    .eq("billing_period", billingPeriod)
-    .eq("is_active", true)
-    .limit(1);
-
-  if (pricingError || !pricingRows?.length) {
-    return NextResponse.json({ error: "Pricing not found." }, { status: 400 });
-  }
-
-  const pricing = pricingRows[0];
-  const stripePriceId = pricing.stripe_price_id;
+  const stripePriceId = pricing?.stripe_price_id;
   if (!stripePriceId) {
     return NextResponse.json({ error: "Pricing configuration error." }, { status: 500 });
   }
@@ -107,20 +124,24 @@ export async function POST(request: NextRequest) {
     owner_id: auth.userId,
     userId: auth.userId,
     tier,
-    billing_period: billingPeriod,
-    pricing_id: pricing.id,
+    billing_period: resolvedBillingPeriod,
+    requested_billing_period: billingPeriod,
+    pricing_id: resolvedPricing.id,
   };
 
   const buildSessionParams = (customerId: string | null) => ({
-    mode: "subscription" as const,
+    mode: planType === "fixed_2026" ? ("payment" as const) : ("subscription" as const),
     ...(customerId
       ? { customer: customerId }
       : { customer_email: auth.email ?? undefined }),
+    ...(planType === "fixed_2026" && !customerId ? { customer_creation: "always" as const } : {}),
     client_reference_id: auth.userId,
     line_items: [{ price: stripePriceId, quantity: 1 }],
     // Propagate metadata to the subscription object so webhook handlers can
     // resolve owner_id from sub.metadata without a DB fallback.
-    subscription_data: { metadata: sessionMeta },
+    ...(planType === "fixed_2026"
+      ? { payment_intent_data: { metadata: sessionMeta } }
+      : { subscription_data: { metadata: sessionMeta } }),
     success_url: `${resolveSiteUrl(request)}/owner/membership?success=1`,
     cancel_url: `${resolveSiteUrl(request)}/owner/membership?canceled=1`,
     metadata: sessionMeta,

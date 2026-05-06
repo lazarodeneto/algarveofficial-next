@@ -3,6 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyServerSecret } from "@/lib/server/secret-auth";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 
+export const runtime = "nodejs";
+
+const TRANSLATION_PROCESSOR_UNAVAILABLE =
+  "Translation processor is not configured. Job was not marked complete and no translated content was written.";
+
 function verifyCronSecret(request: NextRequest) {
   return verifyServerSecret(request, {
     envName: "CRON_SECRET",
@@ -31,7 +36,7 @@ async function handleTranslateCron(request: NextRequest) {
 
   const { data: jobs, error } = await supabase
     .from("translation_jobs")
-    .select("*")
+    .select("id, attempts")
     .eq("status", "queued")
     .limit(20);
 
@@ -43,15 +48,45 @@ async function handleTranslateCron(request: NextRequest) {
     return NextResponse.json({ message: "No jobs" });
   }
 
+  let failedUpdates = 0;
+  const now = new Date().toISOString();
+
   for (const job of jobs) {
-    await supabase
+    const attempts = typeof job.attempts === "number" ? job.attempts : 0;
+    const { error: updateError } = await supabase
       .from("translation_jobs")
-      .update({ status: "auto" })
+      .update({
+        status: "failed",
+        attempts: attempts + 1,
+        last_error: TRANSLATION_PROCESSOR_UNAVAILABLE,
+        locked_at: null,
+        updated_at: now,
+      })
       .eq("id", job.id);
+
+    if (updateError) {
+      failedUpdates += 1;
+      console.error("[translate-cron] Failed to mark translation job as failed.", {
+        jobId: job.id,
+        error: updateError.message,
+      });
+    }
+  }
+
+  if (failedUpdates > 0) {
+    return NextResponse.json(
+      {
+        error: "Failed to update one or more queued translation jobs.",
+        failedUpdates,
+      },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({
-    processed: jobs.length,
+    processed: 0,
+    failed: jobs.length,
+    message: TRANSLATION_PROCESSOR_UNAVAILABLE,
   });
 }
 

@@ -64,11 +64,18 @@ export type GolfHoleImport = {
 };
 
 const CATEGORY_ALIASES: Record<string, string> = {
-  accommodation: "places-to-stay",
-  accommodations: "places-to-stay",
-  hotel: "places-to-stay",
-  hotels: "places-to-stay",
-  stay: "places-to-stay",
+  accommodation: "accommodation",
+  accommodations: "accommodation",
+  "places-to-stay": "accommodation",
+  "places to stay": "accommodation",
+  stay: "accommodation",
+  stays: "accommodation",
+  hotel: "accommodation",
+  hotels: "accommodation",
+  villa: "accommodation",
+  villas: "accommodation",
+  apartment: "accommodation",
+  apartments: "accommodation",
   restaurant: "restaurants",
   restaurants: "restaurants",
   "eat-drink": "restaurants",
@@ -96,8 +103,8 @@ const CATEGORY_ALIASES: Record<string, string> = {
   "beach clubs": "beach-clubs",
   "beach-club": "beach-clubs",
   "beach-clubs": "beach-clubs",
-  transport: "transport",
-  transportation: "transport",
+  transport: "transportation",
+  transportation: "transportation",
   golf: "golf",
   "golf course": "golf",
   "golf-course": "golf",
@@ -108,13 +115,14 @@ const CATEGORY_ALIASES: Record<string, string> = {
   "real estate": "real-estate",
   "real-estate": "real-estate",
   "luxury properties": "real-estate",
-  villas: "real-estate",
-  villa: "real-estate",
 };
 
 const GOLF_ALIAS_MAP: Record<string, string> = {
   Golf_Course_Type: "course_type",
   Holes: "holes",
+  Holes_Count: "holes",
+  holes_count: "holes",
+  holesCount: "holes",
   Par: "par",
   Length_Meters: "length_meters",
   Length_Yards: "length_yards",
@@ -368,10 +376,28 @@ function normalizeKey(value: string): string {
 }
 
 export function normalizeImportCategory(value: unknown, fallback?: string) {
-  const raw = asString(value) ?? fallback ?? "";
+  const raw = asString(value) ?? asString(fallback) ?? "";
   const key = raw.trim().toLowerCase().replace(/_/g, "-");
   const spaced = raw.trim().toLowerCase().replace(/[_-]+/g, " ");
   return CATEGORY_ALIASES[key] ?? CATEGORY_ALIASES[spaced] ?? slugify(raw);
+}
+
+export function getImportCategoryInput(row: Record<string, unknown>, fallback?: string) {
+  const categoryData = asRecord(row.category_data ?? row.categoryData);
+  return (
+    asString(row.category) ??
+    asString(row.Category) ??
+    asString(row.category_slug) ??
+    asString(row.categorySlug) ??
+    asString(categoryData.vertical) ??
+    asString(categoryData.category) ??
+    asString(categoryData.category_slug) ??
+    asString(fallback)
+  );
+}
+
+export function normalizeImportCategoryForRow(row: Record<string, unknown>, fallback?: string) {
+  return normalizeImportCategory(getImportCategoryInput(row, fallback));
 }
 
 function normalizeTransactionType(value: unknown) {
@@ -463,6 +489,61 @@ function collectVerticalObject(
     if (row[alias] !== undefined) collected[target] = row[alias];
   }
   return collected;
+}
+
+function categoryDataIsGolf(categoryData: Record<string, unknown>) {
+  return normalizeImportCategory(categoryData.vertical) === "golf";
+}
+
+function categoryDataHasGolfFields(categoryData: Record<string, unknown>) {
+  return (
+    categoryData.holes !== undefined ||
+    categoryData.holes_count !== undefined ||
+    categoryData.holesCount !== undefined ||
+    categoryData.par !== undefined ||
+    Object.keys(asRecord(categoryData.golf)).length > 0
+  );
+}
+
+function normalizeGolfImportObject(raw: Record<string, unknown>) {
+  const normalized: Record<string, unknown> = { ...raw };
+  normalized.holes ??= raw.holes_count ?? raw.holesCount ?? raw.Holes_Count ?? raw.Holes;
+  normalized.par ??= raw.Par;
+  normalized.length_meters ??= raw.Length_Meters;
+  normalized.length_yards ??= raw.Length_Yards;
+  normalized.designer ??= raw.Designer;
+  normalized.opened_year ??= raw.Opened_Year;
+  normalized.year_opened ??= raw.Year_Opened;
+  normalized.green_fee_from ??= raw.Green_Fee_From;
+  normalized.booking_url ??= raw.Booking_URL;
+  normalized.hole_data ??= raw.Hole_Data ?? raw.scorecard;
+  return normalized;
+}
+
+export function resolveImportGolfObject(row: Record<string, unknown>) {
+  const topLevelGolf = collectVerticalObject(row, "golf", GOLF_ALIAS_MAP);
+  const categoryData = asRecord(row.category_data ?? row.categoryData);
+  const nestedCategoryDataGolf = asRecord(categoryData.golf);
+  const categoryDataGolf =
+    categoryDataIsGolf(categoryData) || normalizeImportCategoryForRow(row) === "golf" || categoryDataHasGolfFields(categoryData)
+      ? Object.keys(nestedCategoryDataGolf).length > 0
+        ? nestedCategoryDataGolf
+        : categoryData
+      : {};
+
+  if (Object.keys(topLevelGolf).length > 0) {
+    return normalizeGolfImportObject({ ...categoryDataGolf, ...topLevelGolf });
+  }
+
+  if (Object.keys(categoryDataGolf).length === 0) {
+    return {};
+  }
+
+  return normalizeGolfImportObject(categoryDataGolf);
+}
+
+export function hasImportGolfObject(row: Record<string, unknown>) {
+  return Object.keys(resolveImportGolfObject(row)).length > 0;
 }
 
 function normalizeVerticalFields(
@@ -573,7 +654,9 @@ export function normalizeImportListing(
   const location = asRecord(row.location);
   const cityName = asString(row.City ?? row.city) ?? asString(location.city) ?? "";
   const hasTopLevelGolf = Object.keys(asRecord(row.golf)).length > 0;
-  const categorySlug = hasTopLevelGolf ? "golf" : normalizeImportCategory(row.category ?? row.Category, options.fallbackCategory);
+  const golfRaw = resolveImportGolfObject(row);
+  const hasResolvedGolf = Object.keys(golfRaw).length > 0;
+  const categorySlug = hasResolvedGolf ? "golf" : normalizeImportCategoryForRow(row, options.fallbackCategory);
   const media = asRecord(row.media);
   const seo = asRecord(row.seo);
   const positioningRaw = asRecord(row.positioning);
@@ -588,7 +671,6 @@ export function normalizeImportListing(
   if (!categorySlug) errors.push("Category is required.");
   if (!asString(row.Country ?? row.country)) warnings.push("Country missing; defaulting to Portugal.");
 
-  const golfRaw = collectVerticalObject(row, "golf", GOLF_ALIAS_MAP);
   const propertyRaw = collectVerticalObject(row, "property", PROPERTY_ALIAS_MAP);
   const hasServiceStructuredData =
     Object.keys(serviceListingRaw).length > 0 ||
@@ -615,6 +697,7 @@ export function normalizeImportListing(
 
   if (vertical === "golf") {
     if (hasTopLevelGolf) warnings.push("Golf schema detected from top-level golf object.");
+    if (!hasTopLevelGolf && hasResolvedGolf) warnings.push("Golf schema detected from category_data.");
     const holes = toNumber(golfRaw.holes);
     const par = toNumber(golfRaw.par);
     previewHoles = holes;
@@ -688,8 +771,8 @@ export function normalizeImportListing(
       meta_title: asString(seo.meta_title),
       meta_description: asString(seo.meta_description),
     });
-    scorecardProvided = row.scorecard !== undefined || golfRaw.hole_data !== undefined;
-    golfHoles = normalizeGolfHoles(row.scorecard ?? golfRaw.hole_data, holes, warnings, errors);
+    scorecardProvided = row.scorecard !== undefined || golfRaw.hole_data !== undefined || golfRaw.scorecard !== undefined;
+    golfHoles = normalizeGolfHoles(row.scorecard ?? golfRaw.hole_data ?? golfRaw.scorecard, holes, warnings, errors);
     if (golfHoles.length > 0) {
       categoryDataPatch.scorecard = golfHoles.map((hole) => ({
         hole: hole.hole_number,

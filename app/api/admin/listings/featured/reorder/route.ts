@@ -1,21 +1,27 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdminSession } from "@/lib/server/admin-auth";
+import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
 
 export async function POST(request: NextRequest) {
-  const auth = await requireAdminSession(request);
+  const auth = await requireAdminWriteClient(
+    request,
+    "Only admins or editors can reorder featured listings.",
+    {
+      auditAction: "admin.listings.featured-reorder",
+    },
+  );
   if ("error" in auth) return auth.error;
 
   let body: { items: { id: string; rank: number }[] };
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
+    return adminErrorResponse(400, "INVALID_JSON", "Request body must be valid JSON.");
   }
 
   const { items } = body;
   if (!Array.isArray(items) || items.length === 0) {
-    return NextResponse.json({ ok: false, error: "Items array required" }, { status: 400 });
+    return adminErrorResponse(400, "INVALID_ITEMS", "items must be a non-empty array.");
   }
 
   const { error } = await auth.userClient.rpc("set_featured_ranks" as any, {
@@ -23,7 +29,7 @@ export async function POST(request: NextRequest) {
   });
 
   if (error) {
-    return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+    return adminErrorResponse(500, "FEATURED_REORDER_FAILED", error.message);
   }
 
   return NextResponse.json({ ok: true });

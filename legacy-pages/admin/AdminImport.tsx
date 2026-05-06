@@ -147,11 +147,23 @@ export default function AdminImport() {
   }, [parseJsonData]);
 
   const handleImport = async () => {
-    if (!parsedData) {
+    const parsed = parseListingImportInput(jsonText);
+    if (parsed.error) {
+      setParseError(parsed.error);
+      setParsedData(null);
+      setResult(null);
+      toast.error(parsed.error);
+      return;
+    }
+
+    const currentListings = parsed.listings as ParsedListing[] | null;
+    if (!currentListings || currentListings.length === 0) {
       toast.error("Please paste or upload listing JSON");
       return;
     }
 
+    setParseError(null);
+    setParsedData(currentListings);
     setIsImporting(true);
     setResult(null);
 
@@ -160,8 +172,8 @@ export default function AdminImport() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          listings: parsedData,
-          category_slug: selectedCategory,
+          listings: currentListings,
+          category_slug: selectedCategory || undefined,
           dry_run: dryRun
         }),
       });

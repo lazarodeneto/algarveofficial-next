@@ -318,9 +318,8 @@ function MapExplorerContent() {
   }, [pendingBounds, searchParams, setActiveId, setSearchParams]);
   const localizedHeroTitle = t("map.title");
   const localizedHeroSubtitle = t("map.subtitle");
-  const heroTitle = locale === "en" ? getText("hero.title", localizedHeroTitle) : localizedHeroTitle;
-  const heroSubtitle =
-    locale === "en" ? getText("hero.subtitle", localizedHeroSubtitle) : localizedHeroSubtitle;
+  const heroTitle = getText("hero.title", localizedHeroTitle);
+  const heroSubtitle = getText("hero.subtitle", localizedHeroSubtitle);
 
   return (
     <div className="min-h-screen bg-background">
@@ -349,7 +348,7 @@ function MapExplorerContent() {
                   <Link href={l("/stay")}>
                     <Button variant="gold" size="lg">
                       <ArrowLeft className="h-4 w-4 mr-2" />
-                      {t("nav.directory")}
+                      {getText("hero.cta.primary", t("nav.directory"))}
                     </Button>
                   </Link>
                 }
@@ -361,13 +360,13 @@ function MapExplorerContent() {
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <div className="flex min-w-0 items-center gap-2 pr-1 text-sm font-semibold text-foreground sm:shrink-0">
                 <Filter className="h-4 w-4 text-primary" />
-                <span className="truncate">{t("directory.advancedFilters")}</span>
+                <span className="truncate">{getText("filters.title", t("directory.advancedFilters"))}</span>
               </div>
 
               <div className="relative min-w-0 flex-1 sm:min-w-[240px] lg:max-w-sm">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder={t("directory.searchPlaceholder")}
+                  placeholder={getText("filters.searchPlaceholder", t("directory.searchPlaceholder"))}
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   className="h-10 pl-10"
@@ -469,7 +468,7 @@ function MapExplorerContent() {
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
                   <h2 className="font-serif text-2xl font-medium text-foreground">
-                    {t("map.visibleOnMap")}
+                    {getText("map.visibleOnMap", t("map.visibleOnMap"))}
                   </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {t("map.totalResults", { count: listings.length })}
@@ -616,7 +615,7 @@ function MapExplorerContent() {
                       onListingSelect={setActiveId}
                       onBoundsChange={handleBoundsChange}
                       mapClassName="h-[calc(100vh-13rem)] min-h-[560px]"
-                      emptyMessage={t("map.emptyCoordinates")}
+                      emptyMessage={getText("map.emptyCoordinates", t("map.emptyCoordinates"))}
                     />
                   </div>
                 )}

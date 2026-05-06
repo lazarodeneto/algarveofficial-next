@@ -2103,7 +2103,7 @@
     "featuredCityHub": "Centre urbain en vedette",
     "featuredCityHubDescription": "Explorez des listes organisées et des guides de la ville dans {{name}}, Algarve.",
     "final": {
-      "description": "Dites-nous votre calendrier, priorités et profil familial. Nous mapperons les prochaines étapes avec des partenaires locaux.",
+      "description": "Utilisez ce brief pour lancer une conversation pratique sur les zones, le logement et les soutiens locaux de confiance.",
       "primary": "Démarrer la Planification de Déménagement",
       "secondary": "Demander une Introduction de Partenaire",
       "title": "Prêt à établir votre base en Algarve?"
@@ -2118,20 +2118,20 @@
     },
     "pillars": {
       "cost": {
-        "description": "Conseils transparents sur les coûts de la vie, scénarios achat vs location et transmission de planification fiscale.",
+        "description": "Cadrez les questions de coût de vie et de location-versus-achat avant de consulter des conseillers financiers ou fiscaux.",
         "title": "Clarté des Coûts et Fiscaux"
       },
       "education": {
-        "description": "Écoles internationales, parcours linguistiques et alignement pour le démontagement familial.",
+        "description": "Présélectionnez écoles, parcours linguistiques et questions de trajet à vérifier directement avec les admissions.",
         "title": "Éducation"
       },
       "health": {
-        "description": "Options d'accès privé et public, cliniques anglophones et soutien médical conciergerie.",
+        "description": "Comparez les questions de santé publique et privée, cliniques proches et assurance avec des professionnels qualifiés.",
         "title": "Santé"
       },
       "label": "Essentiels de la Vie",
       "security": {
-        "description": "Contexte de quartier, fournisseurs de sécurité domestique et réseaux d'entretien vérifiés.",
+        "description": "Examinez le contexte des quartiers, la sécurité du domicile et les réseaux de maintenance avant de choisir une base.",
         "title": "Sécurité et Services"
       },
       "title": "Ce qui compte une fois arrivé"
@@ -2144,22 +2144,22 @@
       },
       "budgetLabel": "Budget Mensuel de Vie",
       "checklist": {
-        "buy": "Démarrer le filtrage d'achat avec due diligence juridique dès le premier jour.",
-        "family": "Mapper les routines familiales: école, activités et services domestiques de confiance.",
-        "household": "Mapper le soutien aux routines domestiques: transport, bien-être et flux de conciergerie.",
-        "legal": "Définir la séquence d'onboarding juridique/fiscal avec des advisors locaux.",
+        "buy": "Lancez la sélection d’achat avec une étape indépendante de due diligence juridique avant tout engagement.",
+        "family": "Cartographiez les routines familiales : écoles, activités, trajets et soutien domestique fiable.",
+        "household": "Cartographiez les besoins quotidiens : transport, bien-être, maintenance et services locaux.",
+        "legal": "Préparez une liste de documents à revoir avec des conseillers juridiques et fiscaux qualifiés.",
         "rent": "Sécuriser une base de location courte durée avant l'engagement à long terme.",
-        "school": "Shortlister les écoles internationales et aligner le rayon de trajet avant la sélection de maison.",
-        "service": "Prioriser santé + configuration mobilité pour fiabilité quotidienne."
+        "school": "Présélectionnez les écoles et confirmez admissions, frais et trajets directement avec chacune.",
+        "service": "Priorisez les questions de santé, la mobilité et les services quotidiens fiables."
       },
       "focus": {
         "coastal": "Lagos, Tavira et zones côtières sélectionnées équilibre accès, calme et commodité quotidienne.",
-        "family": "Loulé, environs de Lagos et zones résidentielles proches des écoles avec全年vivabilité.",
+        "family": "Almancil, Vilamoura et les zones de Lagos avec routines familiales, questions scolaires et services à l’année à comparer.",
         "marina": "Vilamoura, Quinta do Lago et quartiers adjacents à la marina avec forte densité de services."
       },
       "handoff": {
-        "primary": "Envoyer Ce Plan à la Conciergerie",
-        "secondary": "Voir les Partenaires Locaux de Confiance",
+        "primary": "Envoyer le plan pour avis",
+        "secondary": "Explorer les services relocation",
         "subject": "Demande de Planification de Déménagement"
       },
       "household": {
@@ -2188,12 +2188,15 @@
         "neighborhood": "Focus Quartier",
         "priority": "Priorité de Résidence",
         "schooling": "Scolarité",
-        "timeline": "Calendrier"
+        "timeline": "Calendrier",
+        "whyPriority": "Pourquoi : calendrier et stratégie logement structurent la préparation.",
+        "whyNeighborhood": "Pourquoi : style de vie et profil du foyer guident la shortlist de zones.",
+        "whyFirst90": "Pourquoi : les premières étapes doivent réduire l’incertitude avant les engagements longs."
       },
       "residency": {
-        "fast": "Séquençage juridique immédiat: NIF, banque, conformité location/achat et voie de résidence.",
-        "progressive": "Préparation progressive: optimiser structure fiscale/juridique d'abord, puis exécuter logement.",
-        "standard": "Configuration parallèle: préparation documentaire tout en filtrant localisations et fournisseurs."
+        "fast": "Pour un délai court, préparez tôt documents et questions afin que des professionnels qualifiés confirment la bonne voie.",
+        "progressive": "Utilisez le temps disponible pour comparer zones, logements et questions juridiques ou fiscales avec des conseillers.",
+        "standard": "Menez la recherche de lieux en parallèle de la préparation des documents, puis faites confirmer délais et exigences par des professionnels qualifiés."
       },
       "schooling": {
         "no": "Non",
@@ -2209,7 +2212,29 @@
         "6_12": "6-12 mois"
       },
       "timelineLabel": "Calendrier",
-      "title": "Construisez votre plan de déplacement en moins de 2 minutes"
+      "title": "Construisez votre plan de déplacement en moins de 2 minutes",
+      "disclaimer": "Ce planificateur fournit une orientation générale. Il ne remplace pas un conseil professionnel juridique, fiscal, d’immigration, financier, médical, scolaire ou immobilier.",
+      "services": {
+        "label": "Liens de services",
+        "title": "Explorer les ressources AlgarveOfficial pertinentes",
+        "description": "Ces liens utilisent les catégories actives d’AlgarveOfficial et ne créent aucun lead avant votre contact.",
+        "properties": {
+          "title": "Biens immobiliers",
+          "description": "Comparer les options immobilières et l’adéquation des zones."
+        },
+        "concierge": {
+          "title": "Services conciergerie",
+          "description": "Trouver des catégories de soutien local pour s’installer."
+        },
+        "transport": {
+          "title": "Transport",
+          "description": "Planifier aéroport, voiture et mobilité."
+        },
+        "accommodation": {
+          "title": "Hébergement",
+          "description": "Utiliser des courts séjours pour tester les zones."
+        }
+      }
     },
     "roadmap": {
       "home": {
@@ -2218,19 +2243,19 @@
       },
       "label": "Feuille de Route",
       "legal": {
-        "description": "Tracez votre voie de résidence, enregistrement fiscal, NIF, banque et documentation conforme avec des experts locaux.",
+        "description": "Préparez une liste de documents et de questions sur résidence, NIF, banque et fiscalité. Confiez les décisions et dépôts à des professionnels qualifiés.",
         "title": "Configuration Juridique et Résidence"
       },
       "move": {
-        "description": "Liste pratique du premier trimestre: services publics, inscription santé, écoles, mobilité et services locaux de confiance.",
+        "description": "Une liste pratique pour le premier trimestre : services, questions de santé, écoles, mobilité et prestataires locaux de confiance.",
         "title": "Plan d'Atterrissage de 90 Jours"
       },
       "title": "Votre déménagement, divisé en étapes pratiques"
     },
     "stats": {
-      "concierge": "Conciergerie de Déménagement Unifiée",
+      "concierge": "Demande guidée",
       "municipalities": "Municipalités à Explorer",
-      "sun": "Jours de Soleil / An"
+      "sun": "Axes de planification"
     },
     "seoTitle": "S’installer en Algarve | Déménager, vivre et s’établir au Portugal",
     "seoDescription": "Des guides pratiques, des services de confiance et des ressources locales sélectionnées pour s’installer en Algarve en toute confiance."

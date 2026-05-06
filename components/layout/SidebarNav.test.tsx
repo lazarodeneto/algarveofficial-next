@@ -5,6 +5,7 @@ import { SidebarNav } from "./SidebarNav";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/stay",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("react-i18next", () => ({

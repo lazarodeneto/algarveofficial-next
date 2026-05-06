@@ -12,12 +12,14 @@ type UserRole = Database["public"]["Enums"]["app_role"];
 
 export interface AdminWriteAuth {
   userId: string;
+  role?: UserRole;
   userClient: SupabaseClient<Database>;
   writeClient: SupabaseClient<Database>;
 }
 
 export interface AdminReadAuth {
   userId: string;
+  role?: UserRole;
   readClient: SupabaseClient<Database>;
 }
 
@@ -27,6 +29,7 @@ interface AdminAuthError {
 
 interface AdminBaseAuth {
   userId: string;
+  role?: UserRole;
   userClient: SupabaseClient<Database>;
 }
 
@@ -111,6 +114,7 @@ async function requireRoleBase(
 
   return {
     userId: userData.user.id,
+    role: requesterRole as UserRole,
     userClient,
   } satisfies AdminBaseAuth;
 }
@@ -156,6 +160,7 @@ export async function requireAdminWriteClient(
 
   return {
     userId: cookieAuth.userId,
+    role: cookieAuth.role,
     userClient: cookieAuth.userClient,
     writeClient: (serviceClient ?? cookieAuth.userClient) as SupabaseClient<Database>,
   };
@@ -170,6 +175,7 @@ export async function requireAdminReadClient(
 
   return {
     userId: cookieAuth.userId,
+    role: cookieAuth.role,
     readClient: cookieAuth.userClient,
   };
 }
@@ -226,6 +232,7 @@ export async function requireAdminSession(
 
   return {
     userId: user.id,
+    role: role as UserRole,
     userClient: supabase,
   };
 }

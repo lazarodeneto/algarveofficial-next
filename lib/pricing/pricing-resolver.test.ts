@@ -85,7 +85,7 @@ describe("pricing resolver", () => {
     expect(result?.priceCents).toBe(18000);
   });
 
-  it("returns promo as the active price when promo is live", () => {
+  it("keeps monthly pricing on monthly checkout even when promo is live", () => {
     const rows = [
       makeRow({
         id: "monthly",
@@ -111,9 +111,40 @@ describe("pricing resolver", () => {
       date: "2026-06-10",
     });
 
+    expect(result.id).toBe("monthly");
+    expect(result.billingPeriod).toBe("monthly");
+    expect(result.requestedBillingPeriod).toBe("monthly");
+  });
+
+  it("returns promo as the active yearly price when promo is live", () => {
+    const rows = [
+      makeRow({
+        id: "yearly",
+        billing_period: "yearly",
+        price: 19000,
+        price_cents: 19000,
+        display_price: "€190",
+      }),
+      makeRow({
+        id: "promo",
+        billing_period: "promo",
+        price: 12000,
+        price_cents: 12000,
+        display_price: "€120",
+        valid_from: "2026-05-01",
+        valid_to: "2026-12-31",
+      }),
+    ];
+
+    const result = getActivePrice(rows, {
+      tier: "verified",
+      billingPeriod: "yearly",
+      date: "2026-06-10",
+    });
+
     expect(result.id).toBe("promo");
     expect(result.billingPeriod).toBe("promo");
-    expect(result.requestedBillingPeriod).toBe("monthly");
+    expect(result.requestedBillingPeriod).toBe("yearly");
   });
 
   it("falls back to the standard row when no promo is active", () => {

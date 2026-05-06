@@ -4,10 +4,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { POST as postEmailRoute, PATCH as patchEmailRoute } from "@/app/api/admin/email/[entity]/route";
 import { POST as postGlobalSettingsRoute } from "@/app/api/admin/global-settings/route";
 import { POST as postNavigationRoute, PUT as putNavigationRoute } from "@/app/api/admin/navigation/[menu]/route";
-import { POST as postTaxonomyRoute, PUT as putTaxonomyRoute } from "@/app/api/admin/taxonomy/[entity]/route";
+import {
+  PATCH as patchTaxonomyRoute,
+  POST as postTaxonomyRoute,
+  PUT as putTaxonomyRoute,
+} from "@/app/api/admin/taxonomy/[entity]/route";
 import { POST as postFooterRoute, PUT as putFooterRoute } from "@/app/api/admin/footer/[entity]/route";
 import { GET as getCmsDocumentsRoute } from "@/app/api/admin/cms/documents/route";
-import { GET as getListingsRoute, PATCH as patchListingsRoute } from "@/app/api/admin/listings/route";
+import {
+  GET as getListingsRoute,
+  PATCH as patchListingsRoute,
+  POST as postListingsRoute,
+} from "@/app/api/admin/listings/route";
 import { PATCH as patchListingRoute } from "@/app/api/admin/listings/[listingId]/route";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import { requireAdminReadClient, requireAdminSession, requireAdminWriteClient } from "@/lib/server/admin-auth";
@@ -94,6 +102,135 @@ describe("admin email route runtime", () => {
     expect(insert).toHaveBeenCalledWith(
       expect.objectContaining({ name: "Template A", created_by: "admin-1" }),
     );
+  });
+
+  it("normalizes contact emails and requires consent timestamps for subscribed contacts", async () => {
+    const single = vi.fn().mockResolvedValue({
+      data: { id: "contact-1", email: "maria@example.com", status: "subscribed" },
+      error: null,
+    });
+    const select = vi.fn(() => ({ single }));
+    const insert = vi.fn(() => ({ select }));
+    const from = vi.fn(() => ({ insert }));
+
+    mockedRequireAdminWriteClient.mockResolvedValueOnce({
+      userId: "admin-1",
+      writeClient: { from } as never,
+    });
+
+    const response = await postEmailRoute(
+      jsonRequest({
+        email: "  MARIA@EXAMPLE.COM ",
+        status: "subscribed",
+        tags: ["vip"],
+        source: "manual",
+        consent_given_at: "2026-05-06T10:00:00.000Z",
+      }),
+      { params: Promise.resolve({ entity: "contacts" }) },
+    );
+    const payload = (await response.json()) as { ok?: boolean };
+
+    expect(response.status).toBe(200);
+    expect(payload.ok).toBe(true);
+    expect(insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: "maria@example.com",
+        status: "subscribed",
+        consent_given_at: "2026-05-06T10:00:00.000Z",
+      }),
+    );
+  });
+
+  it("rejects subscribed contact creates without recorded consent", async () => {
+    const from = vi.fn();
+
+    mockedRequireAdminWriteClient.mockResolvedValueOnce({
+      userId: "admin-1",
+      writeClient: { from } as never,
+    });
+
+    const response = await postEmailRoute(
+      jsonRequest({ email: "lead@example.com", status: "subscribed" }),
+      { params: Promise.resolve({ entity: "contacts" }) },
+    );
+    const payload = (await response.json()) as { error?: { code?: string; message?: string } };
+
+    expect(response.status).toBe(400);
+    expect(payload.error?.code).toBe("EMAIL_PAYLOAD_VALIDATION_ERROR");
+    expect(payload.error?.message).toContain("consent timestamp");
+    expect(from).not.toHaveBeenCalled();
+  });
+
+  it("rejects marketing templates without unsubscribe handling", async () => {
+    const from = vi.fn();
+
+    mockedRequireAdminWriteClient.mockResolvedValueOnce({
+      userId: "admin-1",
+      writeClient: { from } as never,
+    });
+
+    const response = await postEmailRoute(
+      jsonRequest({
+        name: "Newsletter",
+        subject: "May updates",
+        category: "newsletter",
+        html_content: "<p>Hello</p>",
+      }),
+      { params: Promise.resolve({ entity: "templates" }) },
+    );
+    const payload = (await response.json()) as { error?: { message?: string } };
+
+    expect(response.status).toBe(400);
+    expect(payload.error?.message).toContain("unsubscribe");
+    expect(from).not.toHaveBeenCalled();
+  });
+
+  it("rejects unsafe email template HTML", async () => {
+    const from = vi.fn();
+
+    mockedRequireAdminWriteClient.mockResolvedValueOnce({
+      userId: "admin-1",
+      writeClient: { from } as never,
+    });
+
+    const response = await postEmailRoute(
+      jsonRequest({
+        name: "Unsafe",
+        subject: "Hello",
+        category: "general",
+        html_content: '<p onclick="alert(1)">Hello</p>',
+      }),
+      { params: Promise.resolve({ entity: "templates" }) },
+    );
+    const payload = (await response.json()) as { error?: { message?: string } };
+
+    expect(response.status).toBe(400);
+    expect(payload.error?.message).toContain("event handlers");
+    expect(from).not.toHaveBeenCalled();
+  });
+
+  it("rejects campaign senders outside the verified sending domain", async () => {
+    const from = vi.fn();
+
+    mockedRequireAdminWriteClient.mockResolvedValueOnce({
+      userId: "admin-1",
+      writeClient: { from } as never,
+    });
+
+    const response = await postEmailRoute(
+      jsonRequest({
+        name: "Promo",
+        subject: "Hello",
+        from_name: "AlgarveOfficial",
+        from_email: "team@gmail.com",
+      }),
+      { params: Promise.resolve({ entity: "campaigns" }) },
+    );
+    const payload = (await response.json()) as { error?: { message?: string } };
+
+    expect(response.status).toBe(400);
+    expect(payload.error?.message).toContain("verified AlgarveOfficial sending domain");
+    expect(from).not.toHaveBeenCalled();
   });
 
   it("returns 400 for patch requests missing id", async () => {
@@ -380,6 +517,91 @@ describe("admin taxonomy route runtime", () => {
     expect(insert).toHaveBeenCalledWith(
       expect.objectContaining({ name: "Lagos", slug: "lagos", display_order: 8 }),
     );
+  });
+
+  it("persists writable category fields and strips fields from other taxonomy tables", async () => {
+    const select = vi.fn(() => ({
+      order: vi.fn(() => ({
+        limit: vi.fn().mockResolvedValue({
+          data: [{ display_order: 2 }],
+          error: null,
+        }),
+      })),
+    }));
+    const single = vi.fn().mockResolvedValue({
+      data: { id: "cat-1", name: "Accommodation", display_order: 3 },
+      error: null,
+    });
+    const insert = vi.fn(() => ({ select: vi.fn(() => ({ single })) }));
+    const from = vi.fn(() => ({ select, insert }));
+
+    mockedRequireAdminWriteClient.mockResolvedValueOnce({
+      userId: "admin-1",
+      writeClient: { from } as never,
+    });
+
+    const response = await postTaxonomyRoute(
+      jsonRequest({
+        name: "Accommodation",
+        slug: "accommodation",
+        short_description: "Places to stay",
+        is_featured: true,
+        icon: "BedDouble",
+        meta_title: "Accommodation in the Algarve",
+        hero_image_url: "https://example.com/hero.jpg",
+        is_visible_destinations: true,
+      }),
+      { params: Promise.resolve({ entity: "categories" }) },
+    );
+
+    expect(response.status).toBe(200);
+    expect(insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "Accommodation",
+        slug: "accommodation",
+        short_description: "Places to stay",
+        is_featured: true,
+        icon: "BedDouble",
+        meta_title: "Accommodation in the Algarve",
+      }),
+    );
+    expect(insert).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        hero_image_url: expect.anything(),
+        is_visible_destinations: expect.anything(),
+      }),
+    );
+  });
+
+  it("updates taxonomy toggles and descriptions instead of stripping them", async () => {
+    const single = vi.fn().mockResolvedValue({
+      data: { id: "city-1", is_featured: true, short_description: "Marina town" },
+      error: null,
+    });
+    const select = vi.fn(() => ({ single }));
+    const eq = vi.fn(() => ({ select }));
+    const update = vi.fn(() => ({ eq }));
+    const from = vi.fn(() => ({ update }));
+
+    mockedRequireAdminWriteClient.mockResolvedValueOnce({
+      userId: "admin-1",
+      writeClient: { from } as never,
+    });
+
+    const response = await patchTaxonomyRoute(
+      jsonRequest({
+        id: "city-1",
+        is_featured: true,
+        short_description: "Marina town",
+      }, "PATCH"),
+      { params: Promise.resolve({ entity: "cities" }) },
+    );
+
+    expect(response.status).toBe(200);
+    expect(update).toHaveBeenCalledWith({
+      is_featured: true,
+      short_description: "Marina town",
+    });
   });
 
   it("returns 400 for invalid reorder payload", async () => {
@@ -789,6 +1011,73 @@ describe("admin listings route runtime", () => {
     expect(payload.ok).toBe(true);
     expect(payload.data?.[0]?.name).toBe("The Els Club Vilamoura");
     expect(ilike).toHaveBeenCalledWith("name", "%ELS%");
+  });
+
+  it("creates listings from current admin DB-column payloads without dropping editable fields", async () => {
+    const created = {
+      id: "listing-1",
+      name: "The Els Club Vilamoura",
+      slug: "the-els-club-vilamoura",
+      tier: "signature",
+      status: "published",
+    };
+    const single = vi.fn().mockResolvedValue({ data: created, error: null });
+    const select = vi.fn(() => ({ single }));
+    const insert = vi.fn(() => ({ select }));
+    const from = vi.fn(() => ({ insert }));
+
+    mockedRequireAdminWriteClient.mockResolvedValueOnce({
+      userId: "admin-1",
+      role: "admin",
+      userClient: { from: vi.fn() } as never,
+      writeClient: { from } as never,
+    });
+
+    const response = await postListingsRoute(
+      jsonRequest({
+        listing: {
+          name: "The Els Club Vilamoura",
+          slug: "the-els-club-vilamoura",
+          short_description: "Championship golf in Vilamoura.",
+          description: "A full course description.",
+          category_id: "cat-golf",
+          city_id: "city-vilamoura",
+          region_id: "region-central",
+          owner_id: "owner-1",
+          contact_phone: "+351 123 456 789",
+          website_url: "example.com",
+          instagram_url: "instagram.com/elsclub",
+          category_data: { holes_count: 18, par: 72 },
+          meta_title: "The Els Club Vilamoura",
+          status: "published",
+          tier: "signature",
+          is_curated: true,
+        },
+        images: [],
+      }),
+    );
+    const payload = (await response.json()) as { ok?: boolean; data?: { id?: string } };
+
+    expect(response.status).toBe(200);
+    expect(payload.ok).toBe(true);
+    expect(payload.data?.id).toBe("listing-1");
+    expect(from).toHaveBeenCalledWith("listings");
+    expect(insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "The Els Club Vilamoura",
+        description: "A full course description.",
+        region_id: "region-central",
+        owner_id: "owner-1",
+        contact_phone: "+351 123 456 789",
+        website_url: "https://example.com/",
+        instagram_url: "https://instagram.com/elsclub",
+        category_data: { holes_count: 18, par: 72 },
+        meta_title: "The Els Club Vilamoura",
+        status: "published",
+        tier: "signature",
+        is_curated: true,
+      }),
+    );
   });
 
   it("uses requester-scoped client for bulk publish updates", async () => {

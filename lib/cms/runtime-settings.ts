@@ -20,6 +20,7 @@ export interface RuntimeSettingRow {
 interface FetchCmsRuntimeSettingsOptions {
   requestedKeys?: string[];
   locale?: string;
+  includeDraft?: boolean;
 }
 
 export class CmsRuntimeGlobalSettingsError extends Error {
@@ -38,6 +39,20 @@ const JSON_RUNTIME_KEYS = new Set<string>([
   CMS_GLOBAL_SETTING_KEYS.designTokens,
 ]);
 const CMS_VERSION_BATCH_SIZE = 100;
+
+interface CmsRuntimeDocumentRow {
+  id?: number | null;
+  page_id: string;
+  locale: string;
+  doc_type: "page_config" | "text_overrides" | "design_tokens" | "custom_css";
+  current_version_id: number | null;
+}
+
+interface CmsRuntimeVersionRow {
+  id: number;
+  document_id?: number | null;
+  content: unknown;
+}
 
 function isMissingCmsDocumentsColumnError(error: unknown, column: string) {
   if (!error || typeof error !== "object") return false;
@@ -89,7 +104,7 @@ async function fetchCmsDocumentVersionsInBatches(
   readClient: SupabaseClient<Database>,
   versionIds: number[],
 ) {
-  const versions: Array<{ id: number; content: unknown }> = [];
+  const versions: CmsRuntimeVersionRow[] = [];
 
   for (let index = 0; index < versionIds.length; index += CMS_VERSION_BATCH_SIZE) {
     const batch = versionIds.slice(index, index + CMS_VERSION_BATCH_SIZE);
@@ -108,9 +123,37 @@ async function fetchCmsDocumentVersionsInBatches(
   return { data: versions, error: null };
 }
 
+async function fetchLatestCmsDocumentVersions(
+  readClient: SupabaseClient<Database>,
+  documentIds: number[],
+) {
+  const versions: CmsRuntimeVersionRow[] = [];
+
+  for (const documentId of documentIds) {
+    const { data, error } = await readClient
+      .from("cms_document_versions" as never)
+      .select("id, document_id, content")
+      .eq("document_id", documentId as never)
+      .order("version", { ascending: false })
+      .limit(1);
+
+    if (error) {
+      return { data: null, error };
+    }
+
+    const latest = ((data as CmsRuntimeVersionRow[] | null) ?? [])[0];
+    if (latest) {
+      versions.push(latest);
+    }
+  }
+
+  return { data: versions, error: null };
+}
+
 export async function fetchCmsRuntimeSettings({
   requestedKeys = [],
   locale: rawLocale,
+  includeDraft = false,
 }: FetchCmsRuntimeSettingsOptions = {}): Promise<RuntimeSettingRow[]> {
   const locale = normalizeCmsRuntimeLocale(rawLocale);
   const serviceClient = createServiceRoleClient();
@@ -148,11 +191,11 @@ export async function fetchCmsRuntimeSettings({
   const queryCmsDocuments = (includeStatusFilter: boolean) => {
     let query = readClient
       .from("cms_documents" as never)
-      .select("page_id, locale, doc_type, current_version_id")
+      .select("id, page_id, locale, doc_type, current_version_id")
       .in("doc_type", cmsDocTypes as never)
       .in("locale", localeCandidates as never);
 
-    if (includeStatusFilter) {
+    if (includeStatusFilter && !includeDraft) {
       query = query.eq("status", "published");
     }
 
@@ -169,35 +212,68 @@ export async function fetchCmsRuntimeSettings({
     return sanitizeRuntimeRows(baseRows);
   }
 
+  const documentRows = ((docs as CmsRuntimeDocumentRow[] | null) ?? []);
   const currentVersionIds = [
     ...new Set(
-      ((docs as Array<{ current_version_id?: number | null }> | null) ?? [])
+      documentRows
         .map((doc) => doc.current_version_id ?? null)
         .filter((value): value is number => typeof value === "number"),
     ),
   ];
 
-  if (!currentVersionIds.length) {
+  if (!includeDraft && !currentVersionIds.length) {
     return sanitizeRuntimeRows(baseRows);
   }
 
-  const { data: versions, error: versionsError } = await fetchCmsDocumentVersionsInBatches(
-    readClient,
-    currentVersionIds,
-  );
+  const latestDraftVersionResult = includeDraft
+    ? await fetchLatestCmsDocumentVersions(
+        readClient,
+        [
+          ...new Set(
+            documentRows
+              .map((doc) => doc.id ?? null)
+              .filter((value): value is number => typeof value === "number"),
+          ),
+        ],
+      )
+    : null;
 
-  if (versionsError) {
+  const currentVersionResult = includeDraft
+    ? { data: null, error: null }
+    : await fetchCmsDocumentVersionsInBatches(readClient, currentVersionIds);
+
+  if (latestDraftVersionResult?.error || currentVersionResult.error) {
+    return sanitizeRuntimeRows(baseRows);
+  }
+
+  const draftVersions = latestDraftVersionResult?.data ?? [];
+  const draftVersionByDocumentId = new Map(
+    draftVersions
+      .filter((version) => typeof version.document_id === "number")
+      .map((version) => [version.document_id as number, version]),
+  );
+  const docsForResolver = includeDraft
+    ? documentRows.map((doc) => ({
+        ...doc,
+        current_version_id:
+          (typeof doc.id === "number" ? draftVersionByDocumentId.get(doc.id)?.id : null) ??
+          doc.current_version_id,
+      }))
+    : documentRows;
+  const versions = includeDraft ? draftVersions : currentVersionResult.data ?? [];
+
+  if (!versions.length) {
     return sanitizeRuntimeRows(baseRows);
   }
 
   const cmsOverrides = buildCmsSettingsFromDocuments(
-    (docs as Array<{
+    (docsForResolver as Array<{
       page_id: string;
       locale: string;
       doc_type: "page_config" | "text_overrides" | "design_tokens" | "custom_css";
       current_version_id: number | null;
     }>) ?? [],
-    (versions as Array<{ id: number; content: unknown }>) ?? [],
+    versions,
     locale,
   );
 

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 import { requireAdminWriteClient } from "@/lib/server/admin-auth";
 import { validatePayload, jsonErrorResponse } from "@/lib/api/api-validation";
-import { promotionSchema } from "@/lib/forms/admin-schemas";
 
 interface PromotionPayload {
   id?: string;
@@ -23,6 +23,80 @@ interface PromotionPayload {
 function errorResponse(status: number, code: string, message: string) {
   return NextResponse.json({ ok: false, error: { code, message } }, { status });
 }
+
+const applicableTierSchema = z.enum(["verified", "signature"]);
+const applicableBillingSchema = z.enum(["monthly", "annual", "yearly", "period", "promo"]);
+
+const promotionBaseSchema = z.object({
+  name: z.string().trim().min(1, "Name is required"),
+  code: z.string().trim().min(1, "Code is required").max(50),
+  discount_type: z.enum(["percentage", "fixed"]),
+  discount_value: z.number().finite().positive("Discount value must be greater than 0"),
+  applicable_tiers: z.array(applicableTierSchema).min(1, "At least one tier is required"),
+  applicable_billing: z.array(applicableBillingSchema).min(1, "At least one billing period is required"),
+  start_date: z.string().trim().min(1, "Start date is required"),
+  end_date: z.string().trim().min(1, "End date is required"),
+  is_active: z.boolean().optional(),
+  max_uses: z.number().int().positive().nullable().optional(),
+  period_length: z.number().int().positive().nullable().optional(),
+  period_unit: z.enum(["days", "months"]).nullable().optional(),
+});
+
+function validatePromotionShape(
+  payload: {
+    discount_type?: "percentage" | "fixed";
+    discount_value?: number;
+    start_date?: string;
+    end_date?: string;
+    applicable_billing?: string[];
+    period_length?: number | null;
+    period_unit?: "days" | "months" | null;
+  },
+  ctx: z.RefinementCtx,
+) {
+  if (payload.discount_type === "percentage" && typeof payload.discount_value === "number" && payload.discount_value > 100) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["discount_value"],
+      message: "Percentage discount cannot exceed 100.",
+    });
+  }
+
+  if (payload.start_date && payload.end_date) {
+    const start = new Date(payload.start_date);
+    const end = new Date(payload.end_date);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["start_date"],
+        message: "Promotion dates must be valid dates.",
+      });
+    } else if (start > end) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["end_date"],
+        message: "End date must be after start date.",
+      });
+    }
+  }
+
+  if (
+    payload.applicable_billing?.some((period) => period === "period" || period === "promo") &&
+    (!payload.period_length || !payload.period_unit)
+  ) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["period_length"],
+      message: "Period promotions require a period length and unit.",
+    });
+  }
+}
+
+const promotionCreateSchema = promotionBaseSchema.superRefine(validatePromotionShape);
+const promotionPatchSchema = promotionBaseSchema
+  .partial()
+  .extend({ id: z.string().trim().min(1, "Promotion id is required") })
+  .superRefine(validatePromotionShape);
 
 function normalizePayload(raw: unknown): PromotionPayload | null {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
@@ -86,7 +160,7 @@ export async function POST(request: NextRequest) {
     return errorResponse(400, "INVALID_JSON", "Request body must be valid JSON.");
   }
 
-  const validation = validatePayload(promotionSchema, body, "PROMOTION");
+  const validation = validatePayload(promotionCreateSchema, body, "PROMOTION");
   if (!validation.success) {
     return jsonErrorResponse(400, validation.error.code, validation.error.message);
   }
@@ -152,6 +226,11 @@ export async function PATCH(request: NextRequest) {
     body = await request.json();
   } catch {
     return errorResponse(400, "INVALID_JSON", "Request body must be valid JSON.");
+  }
+
+  const validation = validatePayload(promotionPatchSchema, body, "PROMOTION");
+  if (!validation.success) {
+    return jsonErrorResponse(400, validation.error.code, validation.error.message);
   }
 
   const payload = normalizePayload(body);

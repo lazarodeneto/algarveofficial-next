@@ -2103,7 +2103,7 @@
     "featuredCityHub": "Utvald City Hub",
     "featuredCityHubDescription": "Utforska kurerade listor och stadsguider i {{name}}, Algarve.",
     "final": {
-      "description": "Berätta din tidsram, prioriteringar och hushållsprofil. Vi kartlägger rätt nästa steg med betrodda lokala partner.",
+      "description": "Använd denna brief för att starta ett praktiskt samtal om områden, boende och pålitligt lokalt stöd.",
       "primary": "Starta Flyttplanering",
       "secondary": "Begär Partnerintroduktion",
       "title": "Redo att etablera din bas på Algarve?"
@@ -2118,20 +2118,20 @@
     },
     "pillars": {
       "cost": {
-        "description": "Transparent vägledning om levnadskostnader, köp vs hyr-scenarier och skatteplanering.",
+        "description": "Rama in frågor om levnadskostnad och hyra-versus-köpa innan samtal med finans- eller skatterådgivare.",
         "title": "Kostnad & Skatteklarhet"
       },
       "education": {
-        "description": "Internationella skolor, språkvägar och familjeflyttjustering.",
+        "description": "Välj ut skolor, språkvägar och pendling att bekräfta direkt med antagningsteamen.",
         "title": "Utbildning"
       },
       "health": {
-        "description": "Privata och offentliga tillgångsalternativ, engelsktalande kliniker och concierge medicinskt stöd.",
+        "description": "Jämför frågor om offentlig och privat vård, närliggande kliniker och försäkring med kvalificerade leverantörer.",
         "title": "Hälsa"
       },
       "label": "Livsväsentligheter",
       "security": {
-        "description": "Grannskapskontext, hemleverantörer för säkerhet och verifierade underhållsnätverk.",
+        "description": "Granska områdeskontext, hemsäkerhet och underhållsnätverk innan du väljer bas.",
         "title": "Säkerhet & Tjänster"
       },
       "title": "Vad som betyder något när du har kommit fram"
@@ -2144,22 +2144,22 @@
       },
       "budgetLabel": "Månatlig Levnadsbudget",
       "checklist": {
-        "buy": "Starta köpscreening med juridisk due diligence från dag ett.",
-        "family": "Kartlägg familjerutiner: skola, aktiviteter och betrodda hushållstjänster.",
-        "household": "Kartlägg hushållsstödrutiner: transport, välbefinnande och concierge-arbetsflöden.",
-        "legal": "Fastställ juridisk/skattemässig onboarding-sekvens med lokala rådgivare.",
+        "buy": "Starta köpscreening med oberoende juridisk due diligence innan du förbinder dig.",
+        "family": "Kartlägg familjerutiner: skolor, aktiviteter, pendling och pålitligt stöd hemma.",
+        "household": "Kartlägg vardagsstöd: transport, välmående, underhåll och lokala tjänster.",
+        "legal": "Förbered en dokumentlista att gå igenom med kvalificerade juridiska och skattemässiga rådgivare.",
         "rent": "Säkra kortsiktig hyresbasis före långsiktigt åtagande.",
-        "school": "Shortlista internationella skolor och justera pendlingsradie före hemval.",
-        "service": "Prioritera hälsa + mobilitetssetup för daglig pålitlighet."
+        "school": "Välj ut skolor och bekräfta antagning, avgifter och pendling direkt med varje skola.",
+        "service": "Prioritera hälsofrågor, mobilitet och pålitliga vardagstjänster."
       },
       "focus": {
         "coastal": "Lagos, Tavira och utvalda kustfickor med balans mellan tillgång, lugn och daglig bekvämlighet.",
-        "family": "Loulé, Lagos-utkanten och skolanslutna bostadsområden med året-runt boende.",
+        "family": "Almancil, Vilamoura och områden runt Lagos med familjerutiner, skolfrågor och året-runt-tjänster att jämföra.",
         "marina": "Vilamoura, Quinta do Lago och marina-nära grannskap med stark tjänstetäthet."
       },
       "handoff": {
-        "primary": "Skicka Detta Plan till Concierge",
-        "secondary": "Visa Betrodda Lokala Partner",
+        "primary": "Skicka plan för granskning",
+        "secondary": "Utforska flyttjänster",
         "subject": "Flyttplaneringsbegäran"
       },
       "household": {
@@ -2188,12 +2188,15 @@
         "neighborhood": "Grannskapsfokus",
         "priority": "Bosättningsprioritet",
         "schooling": "Skola",
-        "timeline": "Tidsram"
+        "timeline": "Tidsram",
+        "whyPriority": "Varför: tidslinje och bostadsstrategi formar förberedelseordningen.",
+        "whyNeighborhood": "Varför: livsstil och hushållsprofil styr områdeslistan.",
+        "whyFirst90": "Varför: första steg bör minska osäkerhet före långsiktiga åtaganden."
       },
       "residency": {
-        "fast": "Omedelbar juridisk sekvensering: NIF, bank, hyr/köp-compliance och bosättningsfil.",
-        "progressive": "Stegvis förberedelse: optimera skatt/juridisk struktur först, utför sedan boende.",
-        "standard": "Parallell setup: dokumentationsberedskap samtidigt som platser och tjänsteleverantörer filtreras."
+        "fast": "Vid kort tidslinje: förbered dokument och frågor tidigt så kvalificerade yrkespersoner kan bekräfta rätt väg.",
+        "progressive": "Använd extra tid för att jämföra områden, boendealternativ och juridiska eller skattemässiga frågor med rådgivare.",
+        "standard": "Kombinera områdesresearch med dokumentberedskap och låt kvalificerade yrkespersoner bekräfta tid och krav."
       },
       "schooling": {
         "no": "Nej",
@@ -2209,7 +2212,29 @@
         "6_12": "6-12 månader"
       },
       "timelineLabel": "Tidsram",
-      "title": "Bygg ditt flyttplan på mindre än 2 minuter"
+      "title": "Bygg ditt flyttplan på mindre än 2 minuter",
+      "disclaimer": "Denna planerare ger endast allmän vägledning. Den ersätter inte professionell juridisk, skattemässig, immigrations-, finansiell, medicinsk, skol- eller fastighetsrådgivning.",
+      "services": {
+        "label": "Servicelänkar",
+        "title": "Utforska relevanta AlgarveOfficial-resurser",
+        "description": "Dessa länkar använder aktiva AlgarveOfficial-kategorier och skapar ingen lead förrän du kontaktar oss.",
+        "properties": {
+          "title": "Fastigheter",
+          "description": "Jämför fastighetsalternativ och områdespassning."
+        },
+        "concierge": {
+          "title": "Conciergetjänster",
+          "description": "Hitta lokala stödkategorier för att etablera dig."
+        },
+        "transport": {
+          "title": "Transport",
+          "description": "Planera flygplats, bil och mobilitet."
+        },
+        "accommodation": {
+          "title": "Boende",
+          "description": "Använd korta vistelser medan du testar områden."
+        }
+      }
     },
     "roadmap": {
       "home": {
@@ -2218,19 +2243,19 @@
       },
       "label": "Flyttkarta",
       "legal": {
-        "description": "Kartlägg bosättningsväg, skatteregistrering, NIF, bank och compliant dokumentation med lokala experter.",
+        "description": "Förbered dokument och frågor om uppehåll, NIF, bank och skatt. Låt kvalificerade yrkespersoner hantera beslut och ansökningar.",
         "title": "Juridisk & Bosättningssetup"
       },
       "move": {
-        "description": "Praktisk checklista för första kvartalet: el, vatten, hälsoregistrering, skolor, mobilitet och betrodda lokala tjänster.",
+        "description": "En praktisk checklista för första kvartalet: tjänster, hälsofrågor, skolor, mobilitet och lokala leverantörer.",
         "title": "90-Dagars Landningsplan"
       },
       "title": "Din flytt, uppdelad i praktiska steg"
     },
     "stats": {
-      "concierge": "Enad Flyttconcierge",
+      "concierge": "Guidad förfrågan",
       "municipalities": "Kommuner att Utforska",
-      "sun": "Soliga Dagar / År"
+      "sun": "Planeringsspår"
     },
     "seoTitle": "Flytta till Algarve | Flytta, bo och etablera dig i Portugal",
     "seoDescription": "Praktiska guider, pålitliga tjänster och utvalda lokala resurser för att flytta till Algarve med trygghet."

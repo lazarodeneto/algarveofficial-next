@@ -22,6 +22,14 @@ describe("routing locale helpers", () => {
     expect(buildLocalizedPath("en", "/maintenance")).toBe("/maintenance");
   });
 
+  it("keeps dashboard routes locale-prefixed for URL-locale source of truth", () => {
+    expect(buildLocalizedPath("pt-pt", "/admin/content/page-builder")).toBe(
+      "/pt-pt/admin/content/page-builder",
+    );
+    expect(buildLocalizedPath("fr", "/owner/listings")).toBe("/fr/owner/listings");
+    expect(buildLocalizedPath("de", "/dashboard")).toBe("/de/dashboard");
+  });
+
   it("creates localized hrefs while preserving query strings and hashes", () => {
     expect(buildLocalizedPath("en", "/visit?tab=guide#map")).toBe("/en/stay?tab=guide#map");
     expect(buildLocalizedPath("pt-pt", "/#cities")).toBe("/pt-pt#cities");

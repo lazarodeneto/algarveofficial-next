@@ -4,9 +4,9 @@ import type { Database } from "@/integrations/supabase/types";
 import { logAdminMutation } from "@/lib/server/admin-audit-log";
 import { adminErrorResponse, requireAdminSession, requireAdminWriteClient } from "@/lib/server/admin-auth";
 import { logAdminRequest, logAdminError, createRequestId } from "@/lib/server/observability";
-import { listingFormSchema } from "@/lib/forms/schema";
 import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
 import { createServiceRoleClient } from "@/lib/supabase/service";
+import { normalizeExternalUrlForStorage } from "@/lib/url-input";
 
 type ListingImageInput = {
   url: string;
@@ -19,6 +19,84 @@ interface CreateListingBody {
   listing?: unknown;
   images?: unknown;
 }
+
+type ListingInsert = Database["public"]["Tables"]["listings"]["Insert"];
+
+const LISTING_MUTATION_COLUMNS = new Set<string>([
+  "name",
+  "slug",
+  "short_description",
+  "description",
+  "category_id",
+  "city_id",
+  "region_id",
+  "owner_id",
+  "tags",
+  "contact_phone",
+  "contact_email",
+  "website_url",
+  "address",
+  "latitude",
+  "longitude",
+  "instagram_url",
+  "facebook_url",
+  "google_business_url",
+  "twitter_url",
+  "linkedin_url",
+  "youtube_url",
+  "tiktok_url",
+  "telegram_url",
+  "whatsapp_number",
+  "featured_image_url",
+  "category_data",
+  "tier",
+  "is_curated",
+  "status",
+  "published_at",
+  "price_from",
+  "price_to",
+  "price_currency",
+  "meta_title",
+  "meta_description",
+  "admin_notes",
+  "google_rating",
+  "google_review_count",
+]);
+
+const LISTING_FIELD_ALIASES: Record<string, string> = {
+  full_description: "description",
+  premium_region_id: "region_id",
+  phone: "contact_phone",
+  email: "contact_email",
+  website: "website_url",
+  instagram: "instagram_url",
+  facebook: "facebook_url",
+  google_business: "google_business_url",
+  twitter: "twitter_url",
+  linkedin: "linkedin_url",
+  youtube: "youtube_url",
+  tiktok: "tiktok_url",
+  telegram: "telegram_url",
+  whatsapp: "whatsapp_number",
+  lat: "latitude",
+  lng: "longitude",
+  published_status: "status",
+};
+
+const LISTING_URL_COLUMNS = new Set([
+  "website_url",
+  "instagram_url",
+  "facebook_url",
+  "google_business_url",
+  "twitter_url",
+  "linkedin_url",
+  "youtube_url",
+  "tiktok_url",
+  "telegram_url",
+]);
+
+const LISTING_TIERS = new Set(["unverified", "verified", "signature"]);
+const LISTING_STATUSES = new Set(["draft", "pending_review", "published", "rejected", "archived"]);
 
 const DEFAULT_ADMIN_LISTINGS_PAGE_SIZE = 50;
 const MIN_ADMIN_LISTINGS_PAGE_SIZE = 10;
@@ -133,6 +211,58 @@ function parseListingImages(raw: unknown): ListingImageInput[] {
   return rows;
 }
 
+function normalizeListingMutationPayload(raw: unknown): Record<string, unknown> {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+
+  const normalized: Record<string, unknown> = {};
+  for (const [rawKey, rawValue] of Object.entries(raw as Record<string, unknown>)) {
+    if (rawValue === undefined) continue;
+    if (rawKey === "id" || rawKey === "created_at" || rawKey === "updated_at") continue;
+
+    const key = LISTING_FIELD_ALIASES[rawKey] ?? rawKey;
+    if (!LISTING_MUTATION_COLUMNS.has(key)) continue;
+
+    if (LISTING_URL_COLUMNS.has(key) && typeof rawValue === "string") {
+      normalized[key] = normalizeExternalUrlForStorage(rawValue);
+      continue;
+    }
+
+    normalized[key] = rawValue;
+  }
+
+  return normalized;
+}
+
+function validateListingCreatePayload(payload: Record<string, unknown>) {
+  const requiredStrings = ["name", "slug", "short_description", "category_id", "city_id"];
+  for (const field of requiredStrings) {
+    if (typeof payload[field] !== "string" || !payload[field].trim()) {
+      return `${field} is required.`;
+    }
+  }
+
+  if (payload.tier !== undefined && typeof payload.tier === "string" && !LISTING_TIERS.has(payload.tier)) {
+    return "tier must be unverified, verified, or signature.";
+  }
+
+  if (payload.status !== undefined && typeof payload.status === "string" && !LISTING_STATUSES.has(payload.status)) {
+    return "status must be draft, pending_review, published, rejected, or archived.";
+  }
+
+  if (payload.tags !== undefined && !Array.isArray(payload.tags)) {
+    return "tags must be an array.";
+  }
+
+  for (const numericField of ["latitude", "longitude", "price_from", "price_to", "google_rating", "google_review_count"]) {
+    const value = payload[numericField];
+    if (value !== undefined && value !== null && typeof value !== "number") {
+      return `${numericField} must be a number or null.`;
+    }
+  }
+
+  return null;
+}
+
 async function fetchAdminListingsPage(
   client: NonNullable<ReturnType<typeof createServiceRoleClient>>,
   filters: AdminListingsFilters = {},
@@ -243,31 +373,38 @@ export async function POST(request: NextRequest) {
 
   const images = parseListingImages(body.images);
 
-  const parsed = listingFormSchema.safeParse(body.listing);
-  if (!parsed.success) {
-    return adminErrorResponse(
-      400,
-      "VALIDATION_ERROR",
-      JSON.stringify(parsed.error.flatten().fieldErrors),
-    );
+  const normalizedListing = normalizeListingMutationPayload(body.listing);
+  const validationError = validateListingCreatePayload(normalizedListing);
+  if (validationError) {
+    return adminErrorResponse(400, "VALIDATION_ERROR", validationError);
   }
 
-  const validated = parsed.data;
-  const maxTierImages = getListingTierMaxGalleryImages(validated.tier);
+  const maxTierImages = getListingTierMaxGalleryImages(
+    typeof normalizedListing.tier === "string" ? normalizedListing.tier : "unverified",
+  );
   const tierScopedImages = images.slice(0, maxTierImages);
-
-  // ✅ FIX: remove full_description before insert
-  const {
-    full_description: _full_description, // removed (not in DB)
-    published_status,
-    ...safeValidated
-  } = validated;
+  const requestedOwnerId =
+    typeof normalizedListing.owner_id === "string" && normalizedListing.owner_id.trim()
+      ? normalizedListing.owner_id.trim()
+      : "";
 
   const insertData = {
-    ...safeValidated,
-    status: published_status,
-    owner_id: auth.userId,
-  } as Database["public"]["Tables"]["listings"]["Insert"];
+    ...normalizedListing,
+    status:
+      typeof normalizedListing.status === "string"
+        ? normalizedListing.status
+        : "draft",
+    tier:
+      typeof normalizedListing.tier === "string"
+        ? normalizedListing.tier
+        : "unverified",
+    is_curated:
+      typeof normalizedListing.is_curated === "boolean"
+        ? normalizedListing.is_curated
+        : false,
+    tags: Array.isArray(normalizedListing.tags) ? normalizedListing.tags : [],
+    owner_id: auth.role === "admin" && requestedOwnerId ? requestedOwnerId : auth.userId,
+  } as ListingInsert;
 
   const { data: created, error: createError } = await auth.writeClient
     .from("listings")

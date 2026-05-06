@@ -2,6 +2,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import { callAdminEmailApi } from "@/lib/admin/email-client";
+import { useAuth } from "@/contexts/AuthContext";
 
 type ProfileRow = Pick<Tables<"profiles">, "id" | "full_name" | "email" | "phone" | "created_at" | "updated_at">;
 type OwnerRole = Tables<"user_roles">["role"];
@@ -13,7 +15,18 @@ type SubscriptionRow = Pick<
 type NotificationRow = Pick<Tables<"admin_notifications">, "id" | "owner_id" | "type" | "is_read" | "created_at" | "data">;
 type EmailContactRow = Pick<
   Tables<"email_contacts">,
-  "id" | "email" | "full_name" | "status" | "user_id" | "emails_sent" | "emails_opened" | "last_email_sent_at" | "last_email_opened_at"
+  | "id"
+  | "email"
+  | "full_name"
+  | "status"
+  | "user_id"
+  | "emails_sent"
+  | "emails_opened"
+  | "last_email_sent_at"
+  | "last_email_opened_at"
+  | "tags"
+  | "source"
+  | "consent_given_at"
 >;
 
 export interface OwnerCrmSummary {
@@ -121,16 +134,23 @@ const DEFAULT_OWNER_CRM_METRICS: OwnerCrmSummaryMetrics = {
   ownersWithMessages: 0,
 };
 
+const EMAIL_CONTACT_SELECT =
+  "id, email, full_name, status, user_id, emails_sent, emails_opened, last_email_sent_at, last_email_opened_at, tags, source, consent_given_at";
+
 export function useAdminOwnerCrmSummaries(params: OwnerCrmSummariesParams) {
+  const { user, isLoading: authLoading } = useAuth();
+
   return useQuery({
     queryKey: [
       "admin-owner-crm-summaries",
+      user?.id,
       params.page,
       params.pageSize,
       params.search,
       params.sort,
       params.statusFilter,
     ],
+    enabled: !!user && !authLoading,
     queryFn: async () => {
       const normalizedPage = Math.max(1, Math.floor(params.page || 1));
       const normalizedPageSize = Math.min(200, Math.max(10, Math.floor(params.pageSize || 100)));
@@ -180,9 +200,11 @@ export function useAdminOwnerCrmSummaries(params: OwnerCrmSummariesParams) {
 }
 
 export function useAdminOwnerCrmDetail(ownerId: string | null) {
+  const { user, isLoading: authLoading } = useAuth();
+
   return useQuery({
-    queryKey: ["admin-owner-crm-detail", ownerId],
-    enabled: !!ownerId,
+    queryKey: ["admin-owner-crm-detail", user?.id, ownerId],
+    enabled: !!user && !authLoading && !!ownerId,
     queryFn: async () => {
       if (!ownerId) throw new Error("ownerId is required");
 
@@ -226,7 +248,7 @@ export function useAdminOwnerCrmDetail(ownerId: string | null) {
           .limit(30),
         supabase
           .from("email_contacts")
-          .select("id, email, full_name, status, user_id, emails_sent, emails_opened, last_email_sent_at, last_email_opened_at")
+          .select(EMAIL_CONTACT_SELECT)
           .eq("user_id", ownerId)
           .order("updated_at", { ascending: false })
           .limit(1),
@@ -242,7 +264,7 @@ export function useAdminOwnerCrmDetail(ownerId: string | null) {
       if (!emailContact && profile.email) {
         const fallbackContactResult = await supabase
           .from("email_contacts")
-          .select("id, email, full_name, status, user_id, emails_sent, emails_opened, last_email_sent_at, last_email_opened_at")
+          .select(EMAIL_CONTACT_SELECT)
           .eq("email", profile.email)
           .order("updated_at", { ascending: false })
           .limit(1);
@@ -276,7 +298,7 @@ export function useEnsureOwnerEmailContact() {
 
       const { data: existingByUser, error: existingByUserError } = await supabase
         .from("email_contacts")
-        .select("id, email, user_id")
+        .select(EMAIL_CONTACT_SELECT)
         .eq("user_id", ownerId)
         .limit(1);
 
@@ -287,7 +309,7 @@ export function useEnsureOwnerEmailContact() {
 
       const { data: existingByEmail, error: existingByEmailError } = await supabase
         .from("email_contacts")
-        .select("id, email, user_id")
+        .select(EMAIL_CONTACT_SELECT)
         .eq("email", cleanEmail)
         .limit(1);
 
@@ -295,42 +317,35 @@ export function useEnsureOwnerEmailContact() {
 
       if (existingByEmail && existingByEmail.length > 0) {
         const existing = existingByEmail[0];
-        const { data: updated, error: updateError } = await supabase
-          .from("email_contacts")
-          .update({
-            user_id: existing.user_id ?? ownerId,
-            full_name: fullName,
-            tags: ["owner"],
-            source: "owner_crm",
-          })
-          .eq("id", existing.id)
-          .select("id, email, user_id")
-          .single();
+        const mergedTags = Array.from(new Set([...(existing.tags ?? []), "owner"]));
 
-        if (updateError) throw updateError;
-        return updated;
+        return callAdminEmailApi<EmailContactRow>("contacts", "PATCH", {
+          id: existing.id,
+          user_id: existing.user_id ?? ownerId,
+          full_name: fullName || existing.full_name,
+          tags: mergedTags,
+          source: existing.source ?? "owner_crm",
+        });
       }
 
-      const { data: inserted, error: insertError } = await supabase
-        .from("email_contacts")
-        .insert({
-          email: cleanEmail,
-          full_name: fullName,
-          status: "subscribed",
-          user_id: ownerId,
-          source: "owner_crm",
-          consent_given_at: new Date().toISOString(),
-          tags: ["owner"],
-        })
-        .select("id, email, user_id")
-        .single();
-
-      if (insertError) throw insertError;
-      return inserted;
+      return callAdminEmailApi<EmailContactRow>("contacts", "POST", {
+        email: cleanEmail,
+        full_name: fullName,
+        status: "unsubscribed",
+        user_id: ownerId,
+        source: "owner_crm",
+        tags: ["owner"],
+        preferences: {
+          crm_only: true,
+          marketing_consent: false,
+        },
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-owner-crm-summaries"] });
       queryClient.invalidateQueries({ queryKey: ["admin-owner-crm-detail"] });
+      queryClient.invalidateQueries({ queryKey: ["email-contacts"] });
+      queryClient.invalidateQueries({ queryKey: ["email-contact-stats"] });
     },
   });
 }

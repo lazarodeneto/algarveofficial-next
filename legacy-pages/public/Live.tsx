@@ -14,7 +14,6 @@ import {
   MapPin,
   School,
   ShieldCheck,
-  Sun,
   Wallet2,
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
@@ -124,10 +123,36 @@ const Live = () => {
   ];
 
   const liveStats = [
-    { icon: Sun, value: "300+", label: t("live.stats.sun") },
+    { icon: FileCheck2, value: "4", label: t("live.stats.sun") },
     { icon: MapPin, value: "16", label: t("live.stats.municipalities") },
     { icon: Home, value: "1", label: t("live.stats.concierge") },
   ];
+
+  const relocationServiceLinks = useMemo(
+    () => [
+      {
+        href: l("/properties"),
+        title: t("live.planner.services.properties.title"),
+        description: t("live.planner.services.properties.description"),
+      },
+      {
+        href: l("/directory?category=concierge-services"),
+        title: t("live.planner.services.concierge.title"),
+        description: t("live.planner.services.concierge.description"),
+      },
+      {
+        href: l("/directory?category=transportation"),
+        title: t("live.planner.services.transport.title"),
+        description: t("live.planner.services.transport.description"),
+      },
+      {
+        href: l("/directory?category=accommodation"),
+        title: t("live.planner.services.accommodation.title"),
+        description: t("live.planner.services.accommodation.description"),
+      },
+    ],
+    [l, t],
+  );
 
   const budgetTier = useMemo(() => {
     if (monthlyBudget < 3000) return t("live.planner.budget.lean");
@@ -212,11 +237,11 @@ const Live = () => {
           <CmsBlock pageId="live" blockId="hero" className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
             <LiveStyleHero
               className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
-              badge={t("live.hero.badge")}
-              title={t("pages.relocation.title", t("live.hero.title"))}
-              subtitle={t(
-                "pages.relocation.subtitle",
-                t("live.hero.subtitle"),
+              badge={getText("hero.badge", t("live.hero.badge"))}
+              title={getText("hero.title", t("pages.relocation.title", t("live.hero.title")))}
+              subtitle={getText(
+                "hero.subtitle",
+                t("pages.relocation.subtitle", t("live.hero.subtitle")),
               )}
               media={
                 <HeroBackgroundMedia
@@ -225,21 +250,21 @@ const Live = () => {
                   videoUrl={getText("hero.videoUrl", "")}
                   youtubeUrl={getText("hero.youtubeUrl", "")}
                   posterUrl={getText("hero.posterUrl", "")}
-                  alt={t("live.hero.alt")}
-                  fallback={<PageHeroImage page="live" alt={t("live.hero.alt")} />}
+                  alt={getText("hero.alt", t("live.hero.alt"))}
+                  fallback={<PageHeroImage page="live" alt={getText("hero.alt", t("live.hero.alt"))} />}
                 />
               }
               ctas={
                 <>
                   <Link href={l("/contact")} className="block w-full sm:w-auto">
                     <Button variant="gold" size="lg" className="w-full whitespace-normal text-center sm:w-auto">
-                      {t("live.hero.ctaPrimary")}
+                      {getText("hero.cta.primary", t("live.hero.ctaPrimary"))}
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   </Link>
-                  <Link href={l("/stay")} className="block w-full sm:w-auto">
+                  <Link href={l("/directory?category=concierge-services")} className="block w-full sm:w-auto">
                     <Button variant="heroOutline" size="lg" className="w-full whitespace-normal text-center sm:w-auto">
-                      {t("live.hero.ctaSecondary")}
+                      {getText("hero.cta.secondary", t("live.hero.ctaSecondary"))}
                     </Button>
                   </Link>
                 </>
@@ -368,11 +393,17 @@ const Live = () => {
         {plannerEnabled && <CmsBlock pageId="live" blockId="planner" as="section" className="max-w-7xl mx-auto px-4 md:px-8 py-10 lg:py-14">
           <div className="mb-8 text-center">
             <span className="text-sm font-medium text-primary tracking-[0.2em] uppercase">
-              {t("live.planner.label")}
+              {getText("planner.label", t("live.planner.label"))}
             </span>
             <h2 className="mt-3 text-3xl md:text-4xl font-serif font-medium">
-              {t("live.planner.title")}
+              {getText("planner.title", t("live.planner.title"))}
             </h2>
+            <p
+              role="note"
+              className="mx-auto mt-4 max-w-3xl rounded-2xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm leading-relaxed text-muted-foreground"
+            >
+              {t("live.planner.disclaimer")}
+            </p>
           </div>
 
           <div className="grid gap-4 lg:grid-cols-5">
@@ -493,11 +524,17 @@ const Live = () => {
               <div className="rounded-xl border border-border bg-background p-4">
                 <h3 className="text-lg font-medium mb-2">{t("live.planner.output.priority")}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{residencyPriority}</p>
+                <p className="mt-3 text-xs font-medium uppercase tracking-[0.14em] text-primary">
+                  {t("live.planner.output.whyPriority")}
+                </p>
               </div>
 
               <div className="rounded-xl border border-border bg-background p-4">
                 <h3 className="text-lg font-medium mb-2">{t("live.planner.output.neighborhood")}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{neighborhoodFocus}</p>
+                <p className="mt-3 text-xs font-medium uppercase tracking-[0.14em] text-primary">
+                  {t("live.planner.output.whyNeighborhood")}
+                </p>
               </div>
 
               <div className="rounded-xl border border-border bg-background p-4">
@@ -510,6 +547,38 @@ const Live = () => {
                     </li>
                   ))}
                 </ul>
+                <p className="mt-4 text-xs font-medium uppercase tracking-[0.14em] text-primary">
+                  {t("live.planner.output.whyFirst90")}
+                </p>
+              </div>
+
+              <div
+                id="relocation-service-links"
+                className="rounded-xl border border-border bg-background p-4"
+              >
+                <div className="mb-4">
+                  <p className="text-xs font-medium uppercase tracking-[0.14em] text-primary">
+                    {t("live.planner.services.label")}
+                  </p>
+                  <h3 className="mt-1 text-lg font-medium">{t("live.planner.services.title")}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {t("live.planner.services.description")}
+                  </p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {relocationServiceLinks.map((service) => (
+                    <Link
+                      key={service.href}
+                      href={service.href}
+                      className="rounded-xl border border-border px-4 py-3 transition-colors hover:border-primary/40 hover:bg-muted/40"
+                    >
+                      <span className="block text-sm font-medium text-foreground">{service.title}</span>
+                      <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
+                        {service.description}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
               </div>
 
               <div className="flex min-w-0 flex-col gap-3 pt-1 xl:flex-row">
@@ -519,7 +588,7 @@ const Live = () => {
                     <ArrowRight className="h-4 w-4 ml-1" />
                   </Button>
                 </Link>
-                <Link href={l("/stay")} className="block min-w-0 w-full xl:w-auto">
+                <Link href="#relocation-service-links" className="block min-w-0 w-full xl:w-auto">
                   <Button variant="outline" size="lg" className="w-full whitespace-normal text-center xl:w-auto">
                     {t("live.planner.handoff.secondary")}
                   </Button>
@@ -535,7 +604,7 @@ const Live = () => {
               {t("live.roadmap.label")}
             </span>
             <h2 className="mt-3 text-3xl md:text-4xl font-serif font-medium">
-              {t("live.roadmap.title")}
+              {getText("segments.roadmapTitle", t("live.roadmap.title"))}
             </h2>
           </div>
           <div className="grid gap-4 lg:grid-cols-3">
@@ -555,7 +624,7 @@ const Live = () => {
               {t("live.pillars.label")}
             </span>
             <h2 className="mt-3 text-3xl md:text-4xl font-serif font-medium">
-              {t("live.pillars.title")}
+              {getText("segments.pillarsTitle", t("live.pillars.title"))}
             </h2>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
@@ -641,7 +710,7 @@ const Live = () => {
         {ctaEnabled && <CmsBlock pageId="live" blockId="cta" as="section" className="max-w-7xl mx-auto px-4 md:px-8 pt-4 pb-20">
           <div className="glass-box p-8 md:p-10 text-center">
             <h2 className="text-3xl font-serif font-medium mb-3">
-              {t("live.final.title")}
+              {getText("final.title", t("live.final.title"))}
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               {t(
@@ -651,12 +720,12 @@ const Live = () => {
             <div className="mx-auto mt-6 flex w-full max-w-xl flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
               <Link href={l("/contact")} className="block w-full sm:w-auto">
                 <Button variant="gold" size="lg" className="w-full whitespace-normal text-center sm:w-auto">
-                  {t("live.final.primary")}
+                  {getText("final.primary", t("live.final.primary"))}
                 </Button>
               </Link>
               <Link href={l("/partner")} className="block w-full sm:w-auto">
                 <Button variant="outline" size="lg" className="w-full whitespace-normal text-center sm:w-auto">
-                  {t("live.final.secondary")}
+                  {getText("final.secondary", t("live.final.secondary"))}
                 </Button>
               </Link>
             </div>

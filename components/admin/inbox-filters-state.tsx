@@ -16,16 +16,25 @@ import type { InboxDomain, InboxFilters } from "@/lib/admin/inbox/types";
 export interface InboxFilterCounts {
   total: number;
   urgent: number;
+  soon: number;
+  normal: number;
+  assignedToMe: number;
   byDomain: Record<InboxDomain, number>;
 }
 
 const EMPTY_COUNTS: InboxFilterCounts = {
   total: 0,
   urgent: 0,
+  soon: 0,
+  normal: 0,
+  assignedToMe: 0,
   byDomain: {
     listings: 0,
     reviews: 0,
     events: 0,
+    billing: 0,
+    translations: 0,
+    system: 0,
   },
 };
 

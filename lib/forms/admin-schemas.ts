@@ -8,12 +8,21 @@ export const taxonomyItemSchema = z.object({
   name: z.string().min(1, "Name is required"),
   slug: z.string().min(1, "Slug is required"),
   description: z.string().nullable().optional(),
+  short_description: z.string().nullable().optional(),
   image_url: z.string().nullable().optional(),
+  fallback_image_url: z.string().nullable().optional(),
   hero_image_url: z.string().nullable().optional(),
+  icon: z.string().nullable().optional(),
   display_order: z.number().int().optional(),
+  is_featured: z.boolean().optional(),
   is_visible_destinations: z.boolean().optional(),
   is_visible_directory: z.boolean().optional(),
   is_active: z.boolean().optional(),
+  latitude: z.number().nullable().optional(),
+  longitude: z.number().nullable().optional(),
+  meta_title: z.string().nullable().optional(),
+  meta_description: z.string().nullable().optional(),
+  template_fields: z.unknown().nullable().optional(),
 });
 
 export const taxonomyUpdateSchema = taxonomyItemSchema.partial();

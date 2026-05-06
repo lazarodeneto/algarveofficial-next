@@ -1,4 +1,4 @@
-import { normalizeImportCategory } from "@/lib/admin/listing-json-import";
+import { hasImportGolfObject, normalizeImportCategoryForRow } from "@/lib/admin/listing-json-import";
 
 export type ImporterType = "standard" | "golf" | "property" | "concierge-services";
 
@@ -11,8 +11,8 @@ export function detectImporterType(raw: Record<string, unknown>): {
   category: string;
   errors: Array<{ path: string; message: string }>;
 } {
-  const category = normalizeImportCategory(raw.category ?? raw.Category);
-  const hasGolf = hasObject(raw.golf);
+  const category = normalizeImportCategoryForRow(raw);
+  const hasGolf = hasImportGolfObject(raw);
   const hasProperty = hasObject(raw.property);
   const hasConcierge =
     category === "concierge-services" &&

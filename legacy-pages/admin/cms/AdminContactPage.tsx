@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useContactSettings } from "@/hooks/useContactSettings";
+import { PRIMARY_CONTACT_EMAIL } from "@/lib/contactEmail";
 import Link from "next/link";
 
 export default function AdminContactPage() {
@@ -18,13 +19,13 @@ export default function AdminContactPage() {
     const [heroSubtitle, setHeroSubtitle] = useState("");
     const [getInTouchTitle, setGetInTouchTitle] = useState("");
     const [getInTouchDescription, setGetInTouchDescription] = useState("");
-    const [displayEmail, setDisplayEmail] = useState("");
+    const [displayEmail, setDisplayEmail] = useState(PRIMARY_CONTACT_EMAIL);
     const [whatsappNumber, setWhatsappNumber] = useState("");
     const [officeLocation, setOfficeLocation] = useState("");
     const [formTitle, setFormTitle] = useState("");
     const [formDescription, setFormDescription] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
-    const [forwardingEmail, setForwardingEmail] = useState("");
+    const [forwardingEmail, setForwardingEmail] = useState(PRIMARY_CONTACT_EMAIL);
 
     // Sync with database
     useEffect(() => {
@@ -33,13 +34,13 @@ export default function AdminContactPage() {
             setHeroSubtitle(settings.hero_subtitle || "");
             setGetInTouchTitle(settings.get_in_touch_title || "");
             setGetInTouchDescription(settings.get_in_touch_description || "");
-            setDisplayEmail(settings.display_email || "");
+            setDisplayEmail(settings.display_email || PRIMARY_CONTACT_EMAIL);
             setWhatsappNumber(settings.whatsapp_number || "");
             setOfficeLocation(settings.office_location || "");
             setFormTitle(settings.form_title || "");
             setFormDescription(settings.form_description || "");
             setSuccessMessage(settings.success_message || "");
-            setForwardingEmail(settings.forwarding_email || "");
+            setForwardingEmail(settings.forwarding_email || PRIMARY_CONTACT_EMAIL);
         }
     }, [settings]);
 

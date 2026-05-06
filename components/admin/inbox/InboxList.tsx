@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
-import type { InboxItem, InboxUrgency } from "@/lib/admin/inbox/types";
+import type { InboxDataSourceError, InboxItem, InboxUrgency } from "@/lib/admin/inbox/types";
 
 interface InboxListProps {
   items: InboxItem[];
@@ -11,6 +11,7 @@ interface InboxListProps {
   hasActiveFilters: boolean;
   isAssigneeFiltered: boolean;
   onClearFilters: () => void;
+  sourceErrors: InboxDataSourceError[];
 }
 
 const URGENCY_TONE: Record<InboxUrgency, string> = {
@@ -29,6 +30,9 @@ const DOMAIN_LABEL: Record<InboxItem["domain"], string> = {
   listings: "Listing",
   reviews: "Review",
   events: "Event",
+  billing: "Billing",
+  translations: "Translation",
+  system: "System",
 };
 
 function formatRelative(minutes: number): string {
@@ -47,8 +51,30 @@ export function InboxList({
   hasActiveFilters,
   isAssigneeFiltered,
   onClearFilters,
+  sourceErrors,
 }: InboxListProps) {
   if (items.length === 0) {
+    if (sourceErrors.length > 0 && !hasActiveFilters && !isAssigneeFiltered) {
+      return (
+        <div className="flex h-full flex-1 flex-col items-center justify-center gap-3 border-r border-border bg-background px-6 text-center">
+          <div className="max-w-md rounded-lg border border-amber-400/40 bg-amber-500/10 p-4 text-left">
+            <p className="text-sm font-semibold text-foreground">Inbox data source unavailable</p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              The inbox could not verify every operational queue, so it will not show a false
+              “clear” state. Fix the source issue and refresh.
+            </p>
+            <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
+              {sourceErrors.slice(0, 3).map((error) => (
+                <li key={`${error.source}:${error.message}`}>
+                  <span className="font-medium text-foreground">{error.source}</span>: {error.message}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      );
+    }
+
     if (isAssigneeFiltered) {
       return (
         <div className="flex h-full flex-1 flex-col items-center justify-center gap-3 border-r border-border bg-background px-6 text-center">
@@ -75,8 +101,12 @@ export function InboxList({
     }
 
     return (
-      <div className="flex h-full flex-1 items-center justify-center border-r border-border bg-background">
-        <p className="text-sm text-muted-foreground">Inbox clear — nothing pending.</p>
+      <div className="flex h-full flex-1 flex-col items-center justify-center gap-2 border-r border-border bg-background px-6 text-center">
+        <p className="text-sm font-medium text-foreground">Inbox clear — nothing pending.</p>
+        <p className="max-w-sm text-xs leading-5 text-muted-foreground">
+          Listings, partner requests, reviews, events, billing, translations, system alerts,
+          assignments, and archives were checked successfully.
+        </p>
       </div>
     );
   }

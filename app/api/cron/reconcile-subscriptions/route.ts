@@ -7,11 +7,10 @@
 //
 // Set CRON_SECRET to a strong random string and add it to Vercel env vars.
 
-import { timingSafeEqual } from "node:crypto";
-
 import { NextRequest, NextResponse } from "next/server";
 
 import { getStripeServerClient } from "@/lib/stripe/server";
+import { verifyServerSecret } from "@/lib/server/secret-auth";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import {
   expireFixed2026,
@@ -22,19 +21,13 @@ import {
 export const runtime = "nodejs";
 
 function verifyCronSecret(request: NextRequest): boolean {
-  const cronSecret = process.env.CRON_SECRET?.trim();
-  if (!cronSecret) return false;
-  const incoming = request.headers.get("x-cron-secret");
-  if (!incoming) return false;
-  try {
-    return timingSafeEqual(Buffer.from(incoming), Buffer.from(cronSecret));
-  } catch {
-    // timingSafeEqual throws when buffer lengths differ — treat as mismatch.
-    return false;
-  }
+  return verifyServerSecret(request, {
+    envName: "CRON_SECRET",
+    headerNames: ["x-cron-secret"],
+  }) === "authorized";
 }
 
-export async function POST(request: NextRequest) {
+async function handleReconcileSubscriptions(request: NextRequest) {
   if (!verifyCronSecret(request)) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
@@ -71,4 +64,12 @@ export async function POST(request: NextRequest) {
     { ok: true, results: report },
     { status: hasErrors ? 207 : 200 },
   );
+}
+
+export async function GET(request: NextRequest) {
+  return handleReconcileSubscriptions(request);
+}
+
+export async function POST(request: NextRequest) {
+  return handleReconcileSubscriptions(request);
 }

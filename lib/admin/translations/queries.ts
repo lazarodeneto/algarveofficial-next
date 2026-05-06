@@ -17,12 +17,24 @@ import {
   HIGH_TRAFFIC_LOCALES,
   PAGE_SIZE,
   SEO_REQUIRED_LOCALES,
-  SLA_HOURS,
-  SLA_PRIORITY,
   STALE_DAYS,
 } from "./types";
 
 type Supabase = SupabaseClient;
+
+type EmbeddedName = { name?: string | null } | Array<{ name?: string | null }> | string | null | undefined;
+
+interface EmbeddedListingRow {
+  id?: string | null;
+  name?: string | null;
+  city?: EmbeddedName;
+  category?: EmbeddedName;
+  tier?: string | null;
+  status?: string | null;
+  is_homepage_visible?: boolean | null;
+  is_top_category?: boolean | null;
+  content_updated_at?: string | null;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -36,10 +48,6 @@ function isSlaBreached(job: Pick<TranslationJob, "sla_deadline" | "status">): bo
     (ATTENTION_STATUSES as TranslationStatus[]).includes(job.status) &&
     new Date(job.sla_deadline) < new Date()
   );
-}
-
-function slaDeadlineFor(tier: "signature" | "verified"): string {
-  return new Date(Date.now() + SLA_HOURS[tier] * 3_600_000).toISOString();
 }
 
 /**
@@ -71,6 +79,29 @@ function isOutdated(job: TranslationJob, listing: ListingRow): boolean {
     !!listing.content_updated_at &&
     new Date(job.source_updated_at) < new Date(listing.content_updated_at)
   );
+}
+
+function embeddedName(value: EmbeddedName): string {
+  if (typeof value === "string") return value;
+  const row = Array.isArray(value) ? value[0] : value;
+  return row?.name ?? "";
+}
+
+function normalizeEmbeddedListing(raw: unknown): ListingRow | null {
+  const row = (Array.isArray(raw) ? raw[0] : raw) as EmbeddedListingRow | null;
+  if (!row?.id) return null;
+
+  return {
+    id: row.id,
+    name: row.name ?? "Untitled listing",
+    city: embeddedName(row.city),
+    category: embeddedName(row.category),
+    tier: row.tier ?? "unverified",
+    status: row.status ?? "draft",
+    is_homepage_visible: row.is_homepage_visible ?? false,
+    is_top_category: row.is_top_category ?? false,
+    content_updated_at: row.content_updated_at ?? "",
+  };
 }
 
 // ─── Priority Score ────────────────────────────────────────────────────────────
@@ -160,17 +191,21 @@ function enrichGroup(listing: ListingRow, jobs: TranslationJob[]): ListingJobGro
 // ─── Status Counts ────────────────────────────────────────────────────────────
 
 export async function getStatusCounts(supabase: Supabase): Promise<StatusCounts> {
-  const { data, error } = await supabase.from("translation_jobs").select("status");
-  if (error) throw error;
-
   const counts: StatusCounts = {
     missing: 0, queued: 0, auto: 0, reviewed: 0, edited: 0, failed: 0,
   };
 
-  for (const row of data ?? []) {
-    const s = row.status as TranslationStatus;
-    if (s in counts) counts[s]++;
-  }
+  await Promise.all(
+    (Object.keys(counts) as TranslationStatus[]).map(async (status) => {
+      const { count, error } = await supabase
+        .from("translation_jobs")
+        .select("id", { count: "exact", head: true })
+        .eq("status", status);
+
+      if (error) throw error;
+      counts[status] = count ?? 0;
+    }),
+  );
 
   return counts;
 }
@@ -298,8 +333,9 @@ export async function getTranslationJobsGrouped(
       id, listing_id, source_lang, target_lang, status, attempts, last_error,
       created_at, updated_at, sla_deadline, sla_priority, source_updated_at,
       listing:listings!inner(
-        id, name, city, category, tier, status,
-        is_homepage_visible, is_top_category, content_updated_at
+        id, name, tier, status, content_updated_at,
+        city:cities!inner(name),
+        category:categories!inner(name)
       )
       `,
       { count: "exact" },
@@ -308,8 +344,8 @@ export async function getTranslationJobsGrouped(
   if (filters.status)          query = query.eq("status", filters.status);
   if (filters.target_lang)     query = query.eq("target_lang", filters.target_lang);
   if (filters.tier)            query = query.eq("listings.tier", filters.tier);
-  if (filters.city)            query = query.eq("listings.city", filters.city);
-  if (filters.category)        query = query.eq("listings.category", filters.category);
+  if (filters.city)            query = query.eq("listing.city.name", filters.city);
+  if (filters.category)        query = query.eq("listing.category.name", filters.category);
   if (attentionListingIds)     query = query.in("listing_id", attentionListingIds);
   if (outdatedListingIds)      query = query.in("listing_id", outdatedListingIds);
 
@@ -332,9 +368,7 @@ export async function getTranslationJobsGrouped(
   const map = new Map<string, { listing: ListingRow; jobs: TranslationJob[] }>();
 
   for (const row of data ?? []) {
-    const listing = (
-      Array.isArray(row.listing) ? row.listing[0] : row.listing
-    ) as ListingRow | null;
+    const listing = normalizeEmbeddedListing(row.listing);
     if (!listing) continue;
 
     const job: TranslationJob = {
@@ -444,7 +478,7 @@ export async function enqueueTranslationJob(
 export async function requeueOutdatedJobs(
   supabase: Supabase,
   listing_id: string,
-  tier: "signature" | "verified",
+  tier: string,
 ): Promise<number> {
   // Fetch current content version
   const { data: listing, error: lstError } = await supabase
@@ -472,14 +506,15 @@ export async function requeueOutdatedJobs(
   if (!staleJobs?.length) return 0;
 
   const ids = staleJobs.map((j) => j.id as string);
+  const sla = slaForTier(tier);
 
   const { error: updateError } = await supabase
     .from("translation_jobs")
     .update({
       status:            "queued" as TranslationStatus,
       source_updated_at: content_updated_at,
-      sla_deadline:      slaDeadlineFor(tier),
-      sla_priority:      SLA_PRIORITY[tier],
+      sla_deadline:      sla.sla_deadline,
+      sla_priority:      sla.sla_priority,
       updated_at:        new Date().toISOString(),
     })
     .in("id", ids);
@@ -504,16 +539,16 @@ export async function saveTranslationEdit(
 
 export async function getFilterOptions(supabase: Supabase): Promise<FilterOptions> {
   const [citiesRes, catsRes, langsRes] = await Promise.all([
-    supabase.from("listings").select("city").not("city", "is", null),
-    supabase.from("listings").select("category").not("category", "is", null),
+    supabase.from("listings").select("city:cities!inner(name)"),
+    supabase.from("listings").select("category:categories!inner(name)"),
     supabase.from("translation_jobs").select("target_lang").not("target_lang", "is", null),
   ]);
 
   const uniq = <T>(arr: T[]) => [...new Set(arr)].sort();
 
   return {
-    cities:     uniq((citiesRes.data ?? []).map((r) => r.city).filter(Boolean) as string[]),
-    categories: uniq((catsRes.data ?? []).map((r) => r.category).filter(Boolean) as string[]),
+    cities:     uniq((citiesRes.data ?? []).map((r) => embeddedName(r.city)).filter(Boolean)),
+    categories: uniq((catsRes.data ?? []).map((r) => embeddedName(r.category)).filter(Boolean)),
     languages:  uniq((langsRes.data ?? []).map((r) => r.target_lang).filter(Boolean) as string[]),
   };
 }

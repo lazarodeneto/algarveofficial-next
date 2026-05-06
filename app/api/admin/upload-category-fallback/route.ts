@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { requireAdminWriteClient } from "@/lib/server/admin-auth";
+import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
 
 export const runtime = "nodejs";
 
@@ -12,43 +11,43 @@ const MIME_EXTENSION_MAP: Record<string, string> = {
 };
 
 export async function POST(request: NextRequest) {
-  const auth = await requireAdminWriteClient(request, "Only admins can upload category fallbacks.");
+  const auth = await requireAdminWriteClient(request, "Only admins can upload category fallbacks.", {
+    requireServiceRole: true,
+    missingServiceRoleMessage:
+      "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin category fallback uploads.",
+    auditAction: "admin.categories.upload-fallback",
+  });
   if ("error" in auth) return auth.error;
 
   let formData: FormData;
   try {
     formData = await request.formData();
   } catch {
-    return NextResponse.json({ ok: false, error: "Invalid form data" }, { status: 400 });
+    return adminErrorResponse(400, "INVALID_FORM_DATA", "Request body must be valid form data.");
   }
 
   const file = formData.get("file") as File | null;
   const categoryId = formData.get("categoryId") as string | null;
 
   if (!file || !categoryId) {
-    return NextResponse.json({ ok: false, error: "Missing file or categoryId" }, { status: 400 });
+    return adminErrorResponse(400, "MISSING_FIELDS", "file and categoryId are required.");
   }
 
   if (!file.type.startsWith("image/")) {
-    return NextResponse.json({ ok: false, error: "File must be an image" }, { status: 400 });
+    return adminErrorResponse(400, "INVALID_FILE_TYPE", "File must be an image.");
   }
 
   if (file.size > 2 * 1024 * 1024) {
-    return NextResponse.json({ ok: false, error: "File must be less than 2MB" }, { status: 400 });
+    return adminErrorResponse(400, "FILE_TOO_LARGE", "File must be less than 2MB.");
   }
 
   const normalizedMimeType = file.type.toLowerCase();
   const extension = MIME_EXTENSION_MAP[normalizedMimeType];
   if (!extension) {
-    return NextResponse.json({ ok: false, error: "Unsupported image type" }, { status: 400 });
+    return adminErrorResponse(400, "UNSUPPORTED_IMAGE_TYPE", "Unsupported image type.");
   }
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY ?? "";
-  if (!key) {
-    return NextResponse.json({ ok: false, error: "Server misconfigured" }, { status: 500 });
-  }
-  const writeClient = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
+  const writeClient = auth.writeClient;
 
   const fileBuffer = Buffer.from(await file.arrayBuffer());
   const fileName = `category-fallbacks/${categoryId}.${extension}`;
@@ -61,7 +60,7 @@ export async function POST(request: NextRequest) {
     });
 
   if (uploadError) {
-    return NextResponse.json({ ok: false, error: uploadError.message }, { status: 500 });
+    return adminErrorResponse(500, "UPLOAD_FAILED", uploadError.message);
   }
 
   const { data: publicData } = writeClient.storage.from("listing-images").getPublicUrl(fileName);
@@ -69,19 +68,15 @@ export async function POST(request: NextRequest) {
 
   const { error: updateError } = await writeClient
     .from("categories")
-    .update({ fallback_image_url: publicUrl })
+    .update({ fallback_image_url: publicUrl } as never)
     .eq("id", categoryId);
 
   if (updateError) {
     const columnMissing = updateError.message.toLowerCase().includes("fallback_image_url");
-    return NextResponse.json(
-      {
-        ok: false,
-        error: columnMissing
-          ? "Database column missing"
-          : updateError.message,
-      },
-      { status: 500 }
+    return adminErrorResponse(
+      500,
+      columnMissing ? "CATEGORY_FALLBACK_COLUMN_MISSING" : "CATEGORY_FALLBACK_UPDATE_FAILED",
+      columnMissing ? "Database column fallback_image_url is missing." : updateError.message,
     );
   }
 

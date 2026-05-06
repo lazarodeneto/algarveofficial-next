@@ -258,7 +258,11 @@ export function getActivePrice(
     return buildFreeResolvedPrice(requestedBillingPeriod === "promo" ? "yearly" : requestedBillingPeriod);
   }
 
-  const promoRow = getLatestMatchingRow(rows, tier, "promo", args.date);
+  const shouldUsePromo =
+    requestedBillingPeriod === "yearly" || requestedBillingPeriod === "promo";
+  const promoRow = shouldUsePromo
+    ? getLatestMatchingRow(rows, tier, "promo", args.date)
+    : null;
   if (promoRow) {
     return buildResolvedPriceFromRow(promoRow, requestedBillingPeriod);
   }

@@ -14,14 +14,7 @@ export interface CmsBlockConfig {
   order?: number;
   className?: string;
   style?: Record<string, string | number>;
-  data?: Record<
-    string,
-    | string
-    | number
-    | boolean
-    | string[]
-    | Record<string, string | number | boolean>
-  >;
+  data?: Record<string, unknown>;
 }
 
 export interface CmsPageConfig {
@@ -150,6 +143,21 @@ export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
     label: "Stay",
     path: "/stay",
     description: "Places to stay across the Algarve — hotels, resorts, and accommodation.",
+    blocks: [
+      { id: "hero", label: "Hero" },
+      { id: "city-hubs", label: "City Hubs" },
+      { id: "featured-city-hub", label: "Featured City Hub", description: "Highlight a single city with a large hero card." },
+      { id: "city-index", label: "City Index", description: "Grid of top cities by listing count." },
+      { id: "filters", label: "Advanced Filters" },
+      { id: "results", label: "Results Grid" },
+      { id: "pagination", label: "Pagination / Load More" },
+    ],
+  },
+  {
+    id: "wellness-spas",
+    label: "Wellness & Spas",
+    path: "/stay?category=wellness-spas",
+    description: "Wellness, spa, retreat, and relaxation listings.",
     blocks: [
       { id: "hero", label: "Hero" },
       { id: "city-hubs", label: "City Hubs" },
@@ -410,6 +418,7 @@ export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
     blocks: [
       { id: "hero", label: "Hero" },
       { id: "filters", label: "Advanced Filters" },
+      { id: "assistance", label: "Search Assistance" },
       { id: "results", label: "Results Grid" },
     ],
   },
@@ -420,9 +429,11 @@ export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
     description: "Golf courses and experiences in the Algarve.",
     blocks: [
       { id: "hero", label: "Hero" },
+      { id: "discovery", label: "Discovery Intro + Cards", category: "discovery" },
       { id: "featured-courses", label: "Featured Courses", category: "content" },
       { id: "course-tools", label: "Course Tools", category: "utility" },
       { id: "leaderboard", label: "Leaderboard", category: "content" },
+      { id: "faq", label: "FAQ", category: "content" },
       { id: "cta", label: "Call to Action", category: "utility" },
     ],
   },
@@ -582,35 +593,42 @@ export const CMS_PAGE_REGISTRY_META: Record<string, CmsPageRegistryMeta> = {
     status: "enabled",
     group: "Golf",
     publicRenderer: "components/golf/GolfPageClient.tsx + CmsPageRenderer fallback",
-    notes: "Hero media, CMS blocks, and fallback golf discovery content are wired safely.",
+    notes: "Hero media, discovery intro/cards, CMS blocks, and fallback golf content are wired safely.",
   },
   map: {
     scope: "global",
-    status: "partial",
+    status: "enabled",
     group: "Core Pages",
     publicRenderer: "legacy-pages/public/listings/MapExplorer.tsx",
-    notes: "Legacy CMS settings control selected copy/block visibility. Interactive map behaviour remains data driven.",
+    notes: "Full Page Builder controls hero media/copy and section visibility. Interactive map behaviour remains data driven.",
   },
   experiences: {
     scope: "global",
-    status: "partial",
+    status: "enabled",
     group: "Directory Pages",
     publicRenderer: "legacy-pages/public/Experiences.tsx / components/experiences/ExperiencesClient.tsx",
-    notes: "Text, hero, and selected section controls are wired through legacy CMS settings.",
+    notes: "Full Page Builder controls hero media/copy, discovery boxes, section copy, and block visibility. Listings remain data driven.",
   },
   beaches: {
     scope: "global",
-    status: "partial",
+    status: "enabled",
     group: "Directory Pages",
     publicRenderer: "components/beaches/BeachesClient.tsx",
-    notes: "Runtime settings are preloaded; not every visible section has a dedicated field editor yet.",
+    notes: "Full Page Builder controls beach page hero/media, section copy, and block visibility. Beach listings remain data driven.",
   },
   stay: {
     scope: "global",
-    status: "partial",
+    status: "enabled",
     group: "Directory Pages",
     publicRenderer: "components/directory/DirectoryClient.tsx",
-    notes: "Uses shared directory/listing page data with CMS-driven hero/block controls.",
+    notes: "Full Page Builder controls stay hero/media, city-hub selection, filters/results visibility, and section copy. Listings remain data driven.",
+  },
+  "wellness-spas": {
+    scope: "global",
+    status: "enabled",
+    group: "Directory Pages",
+    publicRenderer: "components/directory/DirectoryClient.tsx with /stay?category=wellness-spas",
+    notes: "Full Page Builder controls the Wellness & Spas navigation route while listings remain data driven.",
   },
   directory: {
     scope: "global",
@@ -677,10 +695,10 @@ export const CMS_PAGE_REGISTRY_META: Record<string, CmsPageRegistryMeta> = {
   },
   blog: {
     scope: "global",
-    status: "partial",
+    status: "enabled",
     group: "Blog & Events",
     publicRenderer: "components/blog/BlogClient.tsx / legacy-pages/public/blog/Blog.tsx",
-    notes: "Blog index settings are partially wired. Post content remains blog-data driven.",
+    notes: "Full Page Builder controls blog index hero/media, search/category copy, featured/post grid visibility, and page copy. Post content remains blog-data driven.",
   },
   "blog-post": {
     scope: "template",
@@ -698,10 +716,10 @@ export const CMS_PAGE_REGISTRY_META: Record<string, CmsPageRegistryMeta> = {
   },
   events: {
     scope: "global",
-    status: "partial",
+    status: "enabled",
     group: "Blog & Events",
     publicRenderer: "components/events/EventsClient.tsx / legacy-pages/public/events/Events.tsx",
-    notes: "Events index can read CMS settings for selected fields and visibility.",
+    notes: "Full Page Builder controls events index hero/media, section copy, and block visibility. Event cards remain event-data driven.",
   },
   "event-detail": {
     scope: "template",
@@ -712,10 +730,10 @@ export const CMS_PAGE_REGISTRY_META: Record<string, CmsPageRegistryMeta> = {
   },
   live: {
     scope: "global",
-    status: "partial",
+    status: "enabled",
     group: "Core Pages",
     publicRenderer: "components/live/LiveClient.tsx / legacy-pages/public/Live.tsx",
-    notes: "Relocation page uses legacy CMS settings for selected sections and text.",
+    notes: "Full Page Builder controls relocation hero/media, city hubs, planner/segment/CTA visibility, and page copy.",
   },
   "legacy-live": {
     scope: "global",
@@ -740,10 +758,10 @@ export const CMS_PAGE_REGISTRY_META: Record<string, CmsPageRegistryMeta> = {
   },
   properties: {
     scope: "global",
-    status: "partial",
+    status: "enabled",
     group: "Directory Pages",
     publicRenderer: "components/properties/PropertiesClient.tsx",
-    notes: "Currently controls the page heading through the shared text map. Hero media and full section parity are planned.",
+    notes: "Full Page Builder controls properties page headings, assistance copy, block visibility, and text overrides. Property listings remain data driven.",
   },
   trips: {
     scope: "global",
@@ -761,10 +779,10 @@ export const CMS_PAGE_REGISTRY_META: Record<string, CmsPageRegistryMeta> = {
   },
   contact: {
     scope: "global",
-    status: "planned",
+    status: "enabled",
     group: "Business & Legal",
     publicRenderer: "app/[locale]/contact/page.tsx",
-    notes: "Contact content is better handled by the dedicated contact/content modules until renderer parity is added.",
+    notes: "Full Page Builder controls contact hero and contact card/form headings while operational email/phone settings remain in contact settings.",
   },
   about: {
     scope: "global",
@@ -844,7 +862,7 @@ export function getCmsPageRegistryMeta(pageId: string): CmsPageRegistryMeta {
 
 export function isCmsPageEditableInFullBuilder(pageId: string): boolean {
   const status = getCmsPageRegistryMeta(pageId).status;
-  return status === "enabled" || status === "partial";
+  return status === "enabled";
 }
 
 export const CMS_BLOCK_ID_ALIASES_BY_PAGE: Record<string, Record<string, string>> = {
@@ -918,9 +936,12 @@ function isPrimitiveCmsDataValue(value: unknown): value is string | number | boo
   );
 }
 
-function isFlatCmsDataObject(value: unknown): value is Record<string, string | number | boolean> {
+function isCmsDataValue(value: unknown): boolean {
+  if (value === null) return true;
+  if (isPrimitiveCmsDataValue(value)) return true;
+  if (Array.isArray(value)) return value.every(isCmsDataValue);
   if (!isPlainRecord(value)) return false;
-  return Object.values(value).every((item) => isPrimitiveCmsDataValue(item));
+  return Object.values(value).every(isCmsDataValue);
 }
 
 export function isKnownCmsPageId(pageId: string): boolean {
@@ -961,28 +982,10 @@ function normalizeCmsBlockConfig(input: unknown): CmsBlockConfig {
   }
 
   if (isPlainRecord(input.data)) {
-    const data: Record<
-      string,
-      | string
-      | number
-      | boolean
-      | string[]
-      | Record<string, string | number | boolean>
-    > = {};
+    const data: Record<string, unknown> = {};
     Object.entries(input.data).forEach(([dataKey, dataValue]) => {
-      if (
-        typeof dataValue === "string" ||
-        typeof dataValue === "number" ||
-        typeof dataValue === "boolean" ||
-        Array.isArray(dataValue) ||
-        isFlatCmsDataObject(dataValue)
-      ) {
-        data[dataKey] = dataValue as
-          | string
-          | number
-          | boolean
-          | string[]
-          | Record<string, string | number | boolean>;
+      if (isCmsDataValue(dataValue)) {
+        data[dataKey] = dataValue;
       }
     });
     block.data = data;
@@ -1043,6 +1046,10 @@ export function normalizeCmsPageConfigs(
       });
 
       normalizedPage.blocks = blocks;
+    }
+
+    if (isPlainRecord(rawPage.hero)) {
+      normalizedPage.hero = rawPage.hero;
     }
 
     if (isPlainRecord(rawPage.text)) {

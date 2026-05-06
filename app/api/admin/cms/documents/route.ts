@@ -2,7 +2,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 
+import { isValidLocale } from "@/lib/i18n/config";
 import { requireAdminReadClient } from "@/lib/server/admin-auth";
+import { createServiceRoleClient } from "@/lib/supabase/service";
 
 type CmsDocType = "page_config" | "text_overrides" | "design_tokens" | "custom_css";
 const VALID_DOC_TYPES = new Set<CmsDocType>([
@@ -30,19 +32,71 @@ function parseBoolean(value: string | null) {
   return normalized === "1" || normalized === "true" || normalized === "yes";
 }
 
+function getErrorMessage(error: unknown) {
+  if (!error || typeof error !== "object") return "";
+  return "message" in error ? String((error as { message?: unknown }).message ?? "") : "";
+}
+
+function isMissingColumnError(error: unknown, table: string, column: string) {
+  const message = getErrorMessage(error).toLowerCase();
+  const normalizedTable = table.toLowerCase();
+  const normalizedColumn = column.toLowerCase();
+  return (
+    message.includes(`column ${normalizedTable}.${normalizedColumn} does not exist`) ||
+    message.includes(`could not find the '${normalizedColumn}' column of '${normalizedTable}'`)
+  );
+}
+
 function parseBoundedInt(value: string | null, fallback: number, min: number, max: number) {
   const raw = Number.parseInt(value ?? "", 10);
   if (!Number.isFinite(raw)) return fallback;
   return Math.min(Math.max(raw, min), max);
 }
 
+function normalizeCmsLocaleFilter(value: string | null) {
+  const locale = value?.trim().toLowerCase() ?? "";
+  if (!locale) return "";
+  if (locale === "default") return "default";
+  return isValidLocale(locale) ? locale : null;
+}
+
+async function fetchCmsDocumentVersions(
+  readClient: ReturnType<typeof createServiceRoleClient>,
+  documentId: number,
+  versionLimit: number,
+) {
+  if (!readClient) {
+    return { data: null, error: new Error("Missing CMS read client.") };
+  }
+
+  const withCreatedBy = await readClient
+    .from("cms_document_versions" as never)
+    .select("id, document_id, version, content, created_at, created_by")
+    .eq("document_id", documentId as never)
+    .order("version", { ascending: false })
+    .limit(versionLimit);
+
+  if (!withCreatedBy.error) return withCreatedBy;
+  if (!isMissingColumnError(withCreatedBy.error, "cms_document_versions", "created_by")) {
+    return withCreatedBy;
+  }
+
+  return readClient
+    .from("cms_document_versions" as never)
+    .select("id, document_id, version, content, created_at")
+    .eq("document_id", documentId as never)
+    .order("version", { ascending: false })
+    .limit(versionLimit);
+}
+
 export async function GET(request: NextRequest) {
   const requestId = randomUUID();
   const auth = await requireAdminReadClient(request);
   if ("error" in auth) return auth.error;
+  const readClient = createServiceRoleClient() ?? auth.readClient;
 
   const pageId = request.nextUrl.searchParams.get("page_id")?.trim() ?? "";
-  const locale = request.nextUrl.searchParams.get("locale")?.trim() ?? "";
+  const locale = normalizeCmsLocaleFilter(request.nextUrl.searchParams.get("locale"));
   const docTypeRaw = request.nextUrl.searchParams.get("doc_type")?.trim() ?? "";
   const includeVersions = parseBoolean(request.nextUrl.searchParams.get("include_versions"));
   const limit = parseBoundedInt(request.nextUrl.searchParams.get("limit"), 50, 1, 200);
@@ -58,10 +112,14 @@ export async function GET(request: NextRequest) {
     return errorResponse(400, "INVALID_DOC_TYPE", "Unsupported cms doc_type.", requestId);
   }
 
-  let query = auth.readClient
+  if (locale === null) {
+    return errorResponse(400, "INVALID_LOCALE", "Unsupported CMS locale.", requestId);
+  }
+
+  let query = readClient
     .from("cms_documents" as never)
-    .select("id, page_id, locale, doc_type, status, current_version_id, created_at, updated_at")
-    .order("updated_at", { ascending: false })
+    .select("id, page_id, locale, doc_type")
+    .order("id", { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (pageId) query = query.eq("page_id", pageId);
@@ -94,10 +152,10 @@ export async function GET(request: NextRequest) {
     page_id: string;
     locale: string;
     doc_type: CmsDocType;
-    status: string;
-    current_version_id: number | null;
-    created_at: string;
-    updated_at: string;
+    status?: string | null;
+    current_version_id?: number | null;
+    created_at?: string | null;
+    updated_at?: string | null;
   }>;
 
   if (!includeVersions || docs.length === 0) {
@@ -116,12 +174,11 @@ export async function GET(request: NextRequest) {
 
   const versionsByDoc = new Map<number, unknown[]>();
   for (const doc of docs) {
-    const { data: versionRows, error: versionsError } = await auth.readClient
-      .from("cms_document_versions" as never)
-      .select("id, document_id, version, content, created_at, created_by")
-      .eq("document_id", doc.id as never)
-      .order("version", { ascending: false })
-      .limit(versionLimit);
+    const { data: versionRows, error: versionsError } = await fetchCmsDocumentVersions(
+      readClient,
+      doc.id,
+      versionLimit,
+    );
 
     if (versionsError) {
       console.error("[admin-cms-documents] version read failed", {

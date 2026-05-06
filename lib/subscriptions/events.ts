@@ -22,6 +22,15 @@ export interface RecordedEvent {
   previousResult: EventResult | null;
 }
 
+function isUniqueViolation(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: unknown }).code === "23505"
+  );
+}
+
 function hashPayload(event: Stripe.Event): string {
   const json = JSON.stringify(event);
   return createHash("sha256").update(json).digest("hex");
@@ -46,6 +55,10 @@ export async function recordStripeEvent(
 
   if (!insertError) {
     return { alreadyProcessed: false, previousResult: null };
+  }
+
+  if (!isUniqueViolation(insertError)) {
+    throw insertError;
   }
 
   // Unique violation: row exists. Read it.

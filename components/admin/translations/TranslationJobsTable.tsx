@@ -98,7 +98,7 @@ export function TranslationJobsTable({ groups, onRefresh }: Props) {
 
   // ── Group-level requeue (outdated jobs) ───────────────────────────────────
   const handleGroupRequeue = useCallback(
-    async (listingId: string, tier: "signature" | "verified") => {
+    async (listingId: string, tier: string) => {
       setGroupActionLoading(true);
       try {
         const count = await requeueOutdatedJobs(supabase, listingId, tier);

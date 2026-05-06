@@ -3,12 +3,13 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
-import { deepMergeContent } from "@/lib/cms/server-persistence";
 import {
   CMS_PAGE_DEFINITION_MAP,
   getCmsPageRegistryMeta,
   isCmsPageEditableInFullBuilder,
 } from "@/lib/cms/pageBuilderRegistry";
+import { validateCmsPageBuilderDraft } from "@/lib/cms/page-builder-validation";
+import { isValidLocale } from "@/lib/i18n/config";
 import {
   adminErrorResponse,
   requireAdminWriteClient,
@@ -148,11 +149,28 @@ function isKnownPageId(pageId: string) {
   return Boolean(CMS_PAGE_DEFINITION_MAP[pageId]);
 }
 
+function normalizeCmsLocale(value: string, fallback = "default") {
+  const locale = value.trim().toLowerCase();
+  if (!locale) return fallback;
+  if (locale === "default") return "default";
+  return isValidLocale(locale) ? locale : null;
+}
+
 function getRevalidatablePath(pageId: string, locale: string) {
   const path = CMS_PAGE_DEFINITION_MAP[pageId]?.path;
   if (!path || path.includes(":")) return null;
   const normalizedPath = path === "/" ? "" : path;
   return locale && locale !== "default" ? `/${locale}${normalizedPath}` : normalizedPath || "/";
+}
+
+function getValidationErrorMessage(action: PageConfigAction, errors: { message: string; path?: string }[]) {
+  const actionLabel = action === "publish" ? "publish" : "save draft";
+  const details = errors
+    .slice(0, 4)
+    .map((issue) => `${issue.path ? `${issue.path}: ` : ""}${issue.message}`)
+    .join(" ");
+  const suffix = errors.length > 4 ? ` ${errors.length - 4} more validation errors hidden.` : "";
+  return `Cannot ${actionLabel} invalid page config. ${details}${suffix}`.trim();
 }
 
 async function fetchPageConfigDocument(client: any, pageId: string, locale: string) {
@@ -453,10 +471,14 @@ export async function GET(request: NextRequest) {
   if ("error" in auth) return auth.error;
 
   const pageId = request.nextUrl.searchParams.get("page_id")?.trim() ?? "";
-  const locale = request.nextUrl.searchParams.get("locale")?.trim() ?? "default";
+  const locale = normalizeCmsLocale(request.nextUrl.searchParams.get("locale") ?? "");
 
   if (!pageId) {
     return adminErrorResponse(400, "INVALID_PAGE_ID", "Missing required page_id.");
+  }
+
+  if (!locale) {
+    return adminErrorResponse(400, "INVALID_LOCALE", "Unsupported CMS locale.");
   }
 
   if (!isKnownPageId(pageId)) {
@@ -555,7 +577,7 @@ export async function POST(request: NextRequest) {
 
   const action = (body.action as string | undefined)?.trim() as PageConfigAction | undefined;
   const pageId = (body.page_id as string | undefined)?.trim() ?? "";
-  const locale = (body.locale as string | undefined)?.trim() ?? "default";
+  const locale = normalizeCmsLocale((body.locale as string | undefined) ?? "");
 
   if (!action || (action !== "save_draft" && action !== "publish")) {
     return adminErrorResponse(
@@ -567,6 +589,10 @@ export async function POST(request: NextRequest) {
 
   if (!pageId) {
     return adminErrorResponse(400, "INVALID_PAGE_ID", "Missing required page_id.");
+  }
+
+  if (!locale) {
+    return adminErrorResponse(400, "INVALID_LOCALE", "Unsupported CMS locale.");
   }
 
   if (!isKnownPageId(pageId)) {
@@ -613,7 +639,22 @@ export async function POST(request: NextRequest) {
 
   if (action === "save_draft") {
     const incomingContent = isRecord(body.content) ? body.content : {};
-    const mergedContent = deepMergeContent(latestVersion?.content ?? {}, incomingContent);
+    const validation = validateCmsPageBuilderDraft({
+      pageId,
+      locale,
+      pageDefinition: CMS_PAGE_DEFINITION_MAP[pageId],
+      pageConfig: incomingContent,
+    });
+
+    if (!validation.valid) {
+      return adminErrorResponse(
+        400,
+        "CMS_PAGE_CONFIG_INVALID",
+        getValidationErrorMessage(action, validation.errors),
+      );
+    }
+
+    const mergedContent = incomingContent;
     const nextVersion = (latestVersion?.version ?? 0) + 1;
 
     const insertedVersionResult = await insertDocumentVersion({
@@ -676,6 +717,21 @@ export async function POST(request: NextRequest) {
       400,
       "CMS_PUBLISH_MISSING_DRAFT",
       "Cannot publish because no draft version exists yet.",
+    );
+  }
+
+  const publishValidation = validateCmsPageBuilderDraft({
+    pageId,
+    locale,
+    pageDefinition: CMS_PAGE_DEFINITION_MAP[pageId],
+    pageConfig: latestVersion.content,
+  });
+
+  if (!publishValidation.valid) {
+    return adminErrorResponse(
+      400,
+      "CMS_PAGE_CONFIG_INVALID",
+      getValidationErrorMessage(action, publishValidation.errors),
     );
   }
 

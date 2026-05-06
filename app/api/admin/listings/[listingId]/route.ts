@@ -28,6 +28,79 @@ interface UpdateListingBody {
   images?: unknown;
 }
 
+const LISTING_MUTATION_COLUMNS = new Set<string>([
+  "name",
+  "slug",
+  "short_description",
+  "description",
+  "category_id",
+  "city_id",
+  "region_id",
+  "owner_id",
+  "tags",
+  "contact_phone",
+  "contact_email",
+  "website_url",
+  "address",
+  "latitude",
+  "longitude",
+  "instagram_url",
+  "facebook_url",
+  "google_business_url",
+  "twitter_url",
+  "linkedin_url",
+  "youtube_url",
+  "tiktok_url",
+  "telegram_url",
+  "whatsapp_number",
+  "featured_image_url",
+  "category_data",
+  "tier",
+  "is_curated",
+  "status",
+  "published_at",
+  "price_from",
+  "price_to",
+  "price_currency",
+  "meta_title",
+  "meta_description",
+  "admin_notes",
+  "google_rating",
+  "google_review_count",
+]);
+
+const LISTING_FIELD_ALIASES: Record<string, string> = {
+  full_description: "description",
+  premium_region_id: "region_id",
+  phone: "contact_phone",
+  email: "contact_email",
+  website: "website_url",
+  instagram: "instagram_url",
+  facebook: "facebook_url",
+  google_business: "google_business_url",
+  twitter: "twitter_url",
+  linkedin: "linkedin_url",
+  youtube: "youtube_url",
+  tiktok: "tiktok_url",
+  telegram: "telegram_url",
+  whatsapp: "whatsapp_number",
+  lat: "latitude",
+  lng: "longitude",
+  published_status: "status",
+};
+
+const LISTING_URL_COLUMNS = new Set([
+  "website_url",
+  "instagram_url",
+  "facebook_url",
+  "google_business_url",
+  "twitter_url",
+  "linkedin_url",
+  "youtube_url",
+  "tiktok_url",
+  "telegram_url",
+]);
+
 function parseListingImages(raw: unknown): ListingImageInput[] | undefined {
   if (raw === undefined) return undefined;
   if (!Array.isArray(raw)) return [];
@@ -49,42 +122,24 @@ function parseListingImages(raw: unknown): ListingImageInput[] | undefined {
 
 function parseListingUpdate(raw: unknown): ListingUpdate {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
-  const updates = { ...(raw as Record<string, unknown>) } as ListingUpdate;
-  delete (updates as Record<string, unknown>).id;
-  delete (updates as Record<string, unknown>).created_at;
-  delete (updates as Record<string, unknown>).updated_at;
 
-  const urlFields = [
-    "website_url",
-    "instagram_url",
-    "facebook_url",
-    "google_business_url",
-    "twitter_url",
-    "linkedin_url",
-    "youtube_url",
-    "tiktok_url",
-    "telegram_url",
-    // Accept legacy payload aliases too.
-    "website",
-    "instagram",
-    "facebook",
-    "google_business",
-    "twitter",
-    "linkedin",
-    "youtube",
-    "tiktok",
-    "telegram",
-  ] as const;
+  const updates: ListingUpdateRecord = {};
+  for (const [rawKey, rawValue] of Object.entries(raw as Record<string, unknown>)) {
+    if (rawValue === undefined) continue;
+    if (rawKey === "id" || rawKey === "created_at" || rawKey === "updated_at") continue;
 
-  for (const field of urlFields) {
-    const value = (updates as ListingUpdateRecord)[field];
-    if (typeof value === "string") {
-      const normalized = normalizeExternalUrlForStorage(value);
-      (updates as ListingUpdateRecord)[field] = normalized;
+    const key = LISTING_FIELD_ALIASES[rawKey] ?? rawKey;
+    if (!LISTING_MUTATION_COLUMNS.has(key)) continue;
+
+    if (LISTING_URL_COLUMNS.has(key) && typeof rawValue === "string") {
+      updates[key] = normalizeExternalUrlForStorage(rawValue);
+      continue;
     }
+
+    updates[key] = rawValue;
   }
 
-  return updates;
+  return updates as ListingUpdate;
 }
 
 export async function PATCH(

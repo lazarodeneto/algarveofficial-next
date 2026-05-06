@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
       dryRun,
       fallbackCategory,
       existingSlugs,
-      writeClient: dryRun ? undefined : auth.writeClient as unknown as ImporterSupabaseClient,
+      writeClient: auth.writeClient as unknown as ImporterSupabaseClient,
     }),
   ));
 

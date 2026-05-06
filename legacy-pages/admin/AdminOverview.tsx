@@ -317,9 +317,9 @@ export default function AdminOverview() {
               </Link>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
-              <Link href={l("/admin/content/home")}>
+              <Link href={l("/admin/content/page-builder?page=home")}>
                 <Home className="h-4 w-4 mr-2" />
-                Edit Home CMS
+                Edit Home in Page Builder
               </Link>
             </Button>
           </CardContent>

@@ -9,7 +9,7 @@ export interface OptimizedImageOptions extends SupabaseImageTransformOptions {
   categoryImageUrl?: string | null;
 }
 
-const DEFAULT_QUALITY = 80;
+const DEFAULT_QUALITY = 68;
 const HIGH_QUALITY = 85;
 const LOW_QUALITY = 60;
 

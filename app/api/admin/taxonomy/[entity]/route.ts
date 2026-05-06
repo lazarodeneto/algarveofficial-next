@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import {
+  type AdminTaxonomyEntity,
   isAdminTaxonomyEntity,
   resolveAdminTaxonomyTable,
 } from "@/lib/admin/taxonomy-contract";
@@ -26,6 +27,60 @@ function sanitizeUpdates(input: Record<string, unknown>) {
   delete updates.created_at;
   delete updates.updated_at;
   return updates;
+}
+
+const TAXONOMY_WRITABLE_FIELDS: Record<AdminTaxonomyEntity, Set<string>> = {
+  categories: new Set([
+    "name",
+    "slug",
+    "description",
+    "short_description",
+    "image_url",
+    "fallback_image_url",
+    "icon",
+    "display_order",
+    "is_active",
+    "is_featured",
+    "meta_title",
+    "meta_description",
+    "template_fields",
+  ]),
+  cities: new Set([
+    "name",
+    "slug",
+    "description",
+    "short_description",
+    "image_url",
+    "hero_image_url",
+    "display_order",
+    "is_active",
+    "is_featured",
+    "latitude",
+    "longitude",
+    "meta_title",
+    "meta_description",
+  ]),
+  regions: new Set([
+    "name",
+    "slug",
+    "description",
+    "short_description",
+    "image_url",
+    "hero_image_url",
+    "display_order",
+    "is_active",
+    "is_featured",
+    "is_visible_destinations",
+    "meta_title",
+    "meta_description",
+  ]),
+};
+
+function filterWritableFields(entity: AdminTaxonomyEntity, input: Record<string, unknown>) {
+  const allowedFields = TAXONOMY_WRITABLE_FIELDS[entity];
+  return Object.fromEntries(
+    Object.entries(input).filter(([key]) => allowedFields.has(key)),
+  );
 }
 
 export async function POST(
@@ -58,8 +113,6 @@ export async function POST(
     return jsonErrorResponse(400, validation.error.code, validation.error.message);
   }
 
-  const { name, slug, description, image_url, hero_image_url, display_order, is_visible_destinations, is_visible_directory, is_active } = validation.data;
-
   const { data: existing, error: existingError } = await auth.writeClient
     .from(resolved.table)
     .select("display_order")
@@ -77,21 +130,22 @@ export async function POST(
   const maxOrder =
     ((existing as Array<{ display_order?: number | null }> | null)?.[0]?.display_order ?? 0);
 
-  const insertPayload = {
-    name,
-    slug,
-    description,
-    image_url: image_url ?? null,
-    hero_image_url: hero_image_url ?? null,
-    display_order: display_order ?? maxOrder + 1,
-    is_visible_destinations: is_visible_destinations ?? true,
-    is_visible_directory: is_visible_directory ?? true,
-    is_active: is_active ?? true,
-  };
+  const insertPayload = filterWritableFields(
+    resolved.entity,
+    sanitizeUpdates(validation.data as Record<string, unknown>),
+  );
+
+  if (!("display_order" in insertPayload)) {
+    insertPayload.display_order = maxOrder + 1;
+  }
+
+  if (!("is_active" in insertPayload)) {
+    insertPayload.is_active = true;
+  }
 
   const { data, error } = await auth.writeClient
     .from(resolved.table)
-    .insert(insertPayload)
+    .insert(insertPayload as never)
     .select("*")
     .single();
 
@@ -142,7 +196,15 @@ export async function PATCH(
     return jsonErrorResponse(400, validation.error.code, validation.error.message);
   }
 
-  const updates = sanitizeUpdates({ ...validation.data, id });
+  const updates = filterWritableFields(
+    resolved.entity,
+    sanitizeUpdates({ ...validation.data, id }),
+  );
+
+  if (Object.keys(updates).length === 0) {
+    return errorResponse(400, "INVALID_PAYLOAD", "No writable taxonomy fields were provided.");
+  }
+
   const { data, error } = await auth.writeClient
     .from(resolved.table)
     .update(updates)

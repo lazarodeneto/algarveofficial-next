@@ -1,16 +1,43 @@
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { SITE_CONFIG } from "./seo-config";
 
+function unwrapRelation<T extends Record<string, unknown>>(value: unknown): T | null {
+  if (Array.isArray(value)) return (value[0] as T | undefined) ?? null;
+  return value && typeof value === "object" ? (value as T) : null;
+}
+
+type ListingSeoRow = {
+  category?: unknown;
+  city_ref?: unknown;
+  region_ref?: unknown;
+  listing_translations?: unknown;
+  listing_tags?: unknown;
+  contact_phone?: string | null;
+  contact_email?: string | null;
+  website_url?: string | null;
+  featured_image_url?: string | null;
+  price_from?: number | null;
+  price_to?: number | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  short_description?: string | null;
+  description?: string | null;
+  name?: string | null;
+};
+
 export async function getListingWithSeo(listingSlug: string, locale = "en") {
   const supabase = createPublicServerClient();
   
   const { data: listing, error } = await supabase
     .from("listings")
     .select(`
-      id, slug, name, description, short_description, category_slug, category_name,
-      city, region, address, latitude, longitude, telephone, email, website,
-      price_range, image_url, logo_url, google_rating, google_review_count,
+      id, slug, name, description, short_description,
+      address, latitude, longitude, contact_phone, contact_email, website_url,
+      price_from, price_to, featured_image_url, google_rating, google_review_count,
       meta_title, meta_description, status, published_at, updated_at,
+      category:categories(slug, name),
+      city_ref:cities(name),
+      region_ref:regions(name),
       listing_tags(tags:tag_id(name)),
       listing_translations!left(locale, seo_title, seo_description, short_description, description)
     `)
@@ -20,16 +47,31 @@ export async function getListingWithSeo(listingSlug: string, locale = "en") {
 
   if (error || !listing) return null;
 
-  const translations = listing.listing_translations as unknown as { locale: string; seo_title?: string; seo_description?: string }[] | null;
+  const listingRow = listing as ListingSeoRow;
+  const category = unwrapRelation<{ slug?: string; name?: string }>(listingRow.category);
+  const city = unwrapRelation<{ name?: string }>(listingRow.city_ref);
+  const region = unwrapRelation<{ name?: string }>(listingRow.region_ref);
+  const translations = listingRow.listing_translations as { locale: string; seo_title?: string; seo_description?: string }[] | null;
   const translation = translations?.find((t) => t.locale === locale);
 
-  const tagsData = listing.listing_tags as unknown as { tags: { name: string } }[] | null;
+  const tagsData = listingRow.listing_tags as { tags: { name: string } }[] | null;
   const tags = tagsData?.map((t) => t.tags.name) ?? [];
 
   return {
     ...listing,
-    seo_title: (translation?.seo_title || listing.meta_title) ?? listing.name,
-    seo_description: (translation?.seo_description || listing.meta_description || listing.short_description) ?? listing.description,
+    category_slug: category?.slug ?? "",
+    category_name: category?.name ?? null,
+    city: city?.name ?? null,
+    region: region?.name ?? null,
+    telephone: listingRow.contact_phone ?? null,
+    email: listingRow.contact_email ?? null,
+    website: listingRow.website_url ?? null,
+    image_url: listingRow.featured_image_url ?? null,
+    price_range: listingRow.price_from
+      ? `€${listingRow.price_from}${listingRow.price_to ? ` - €${listingRow.price_to}` : "+"}`
+      : null,
+    seo_title: (translation?.seo_title || listingRow.meta_title) ?? listingRow.name,
+    seo_description: (translation?.seo_description || listingRow.meta_description || listingRow.short_description) ?? listingRow.description,
     tags,
   };
 }
@@ -196,7 +238,7 @@ export async function getSitemapData() {
   const [listingsRes, regionsRes, citiesRes, blogRes, eventsRes, categoriesRes] = await Promise.all([
     supabase
       .from("listings")
-      .select("slug, updated_at, published_at, category_slug, image_url, meta_description")
+      .select("slug, updated_at, published_at, featured_image_url, meta_description, category:categories(slug)")
       .eq("status", "published")
       .limit(50000),
     supabase
@@ -225,7 +267,15 @@ export async function getSitemapData() {
   ]);
 
   return {
-    listings: listingsRes.data ?? [],
+    listings: (listingsRes.data ?? []).map((listing) => {
+      const listingRow = listing as { category?: unknown; featured_image_url?: string | null };
+      const category = unwrapRelation<{ slug?: string }>(listingRow.category);
+      return {
+        ...listing,
+        category_slug: category?.slug ?? null,
+        image_url: listingRow.featured_image_url ?? null,
+      };
+    }),
     regions: regionsRes.data ?? [],
     cities: citiesRes.data ?? [],
     blogPosts: blogRes.data ?? [],

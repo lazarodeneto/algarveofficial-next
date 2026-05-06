@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { RefreshCw } from "lucide-react";
+import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -54,6 +54,7 @@ export function TranslationsDashboard({
   const [attentionCounts, setAttentionCounts] = useState<AttentionCounts>(initialAttentionCounts);
   const [loading,         setLoading]         = useState(false);
   const [lastRefreshed,   setLastRefreshed]   = useState<Date>(new Date());
+  const [errorMessage,    setErrorMessage]    = useState<string | null>(null);
   const refreshRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ── Fetch all data client-side ─────────────────────────────────────────────
@@ -71,8 +72,10 @@ export function TranslationsDashboard({
         setTotal(jobsResult.total);
         setAttentionCounts(attentionResult);
         setLastRefreshed(new Date());
+        setErrorMessage(null);
       } catch (err) {
         console.error("[TranslationsDashboard] fetchData error:", err);
+        setErrorMessage(err instanceof Error ? err.message : "Translation data could not be refreshed.");
       } finally {
         setLoading(false);
       }
@@ -190,6 +193,16 @@ export function TranslationsDashboard({
           </Button>
         </div>
       </div>
+
+      {errorMessage ? (
+        <div className="flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-300" />
+          <div className="min-w-0">
+            <p className="font-medium text-red-100">Translation data refresh failed</p>
+            <p className="mt-0.5 break-words text-red-100/80">{errorMessage}</p>
+          </div>
+        </div>
+      ) : null}
 
       {/* ── Command Mode bar ──────────────────────────────────────────────── */}
       <CommandModeBar

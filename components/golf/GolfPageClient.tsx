@@ -49,6 +49,24 @@ const DISCOVERY_IMAGE_FALLBACKS: Record<GolfExperienceTag, string> = {
   "quick-9": "/images/region-carvoeiro-800w-CVkjcyBE.webp",
 };
 
+const GOLF_DISCOVERY_BLOCK_ID = "discovery";
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function readString(settings: Record<string, unknown>, key: string, fallback: string) {
+  return typeof settings[key] === "string" ? settings[key] : fallback;
+}
+
+function readBoolean(settings: Record<string, unknown>, key: string, fallback: boolean) {
+  return typeof settings[key] === "boolean" ? settings[key] : fallback;
+}
+
+function readNonEmptyString(settings: Record<string, unknown>, key: string, fallback: string) {
+  return typeof settings[key] === "string" && settings[key].trim() ? settings[key] : fallback;
+}
+
 export function GolfPageClient({ locale, courses, leaderboard, pageConfig }: GolfPageClientProps) {
   const { t } = useTranslation();
   const cms = useCmsPageBuilder("golf");
@@ -123,6 +141,34 @@ export function GolfPageClient({ locale, courses, leaderboard, pageConfig }: Gol
       imageUrl: matchingCourse?.featuredImageUrl ?? DISCOVERY_IMAGE_FALLBACKS[tag],
     };
   });
+  const discoveryBlock = normalizedPageConfig.blocks?.find(
+    (block) => block.id === GOLF_DISCOVERY_BLOCK_ID || block.type === GOLF_DISCOVERY_BLOCK_ID,
+  );
+  const discoverySettings = isRecord(discoveryBlock?.settings) ? discoveryBlock.settings : {};
+  const discoveryCardOverrides = Array.isArray(discoverySettings.cards)
+    ? discoverySettings.cards.filter(isRecord)
+    : [];
+  const discoveryCards = discoveryOptions
+    .map((option) => {
+      const override = discoveryCardOverrides.find((card) => card.tag === option.tag) ?? {};
+      return {
+        ...option,
+        enabled: readBoolean(override, "enabled", true),
+        title: readString(override, "title", option.title),
+        description: readString(override, "description", option.description),
+        imageUrl: readNonEmptyString(override, "imageUrl", option.imageUrl),
+        href: readNonEmptyString(override, "href", option.href),
+      };
+    })
+    .filter((option) => option.enabled);
+  const isDiscoveryEnabled = discoveryBlock ? discoveryBlock.enabled !== false : true;
+  const showDiscoveryLabel = readBoolean(discoverySettings, "showLabel", true);
+  const showDiscoveryTitle = readBoolean(discoverySettings, "showTitle", true);
+  const showDiscoverySubtitle = readBoolean(discoverySettings, "showSubtitle", true);
+  const showDiscoveryCards = readBoolean(discoverySettings, "showCards", true);
+  const discoveryLabel = readString(discoverySettings, "label", t("golfDiscovery.heroLabel"));
+  const discoveryTitle = readString(discoverySettings, "title", t("golfDiscovery.discoveryTitle"));
+  const discoverySubtitle = readString(discoverySettings, "subtitle", t("golfDiscovery.discoverySubtitle"));
 
   const orderedContentBlocks = useMemo(
     () => cms.getBlockOrder([...GOLF_CONTENT_BLOCK_ORDER]),
@@ -182,41 +228,53 @@ export function GolfPageClient({ locale, courses, leaderboard, pageConfig }: Gol
       ) : null}
 
       <main id="main-content" className="app-container pb-20 pt-12 md:pt-16">
-        <section className="mx-auto max-w-6xl py-12">
-          <div className="rounded-lg border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur md:p-12">
-            <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
-              {t("golfDiscovery.heroLabel")}
-            </p>
-            <h1 className="mt-4 font-serif text-4xl font-medium leading-tight text-foreground md:text-6xl">
-              {t("golfDiscovery.discoveryTitle")}
-            </h1>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground md:text-lg">
-              {t("golfDiscovery.discoverySubtitle")}
-            </p>
-          </div>
+        {isDiscoveryEnabled ? (
+          <section className="mx-auto max-w-6xl py-12">
+            {(showDiscoveryLabel && discoveryLabel) || (showDiscoveryTitle && discoveryTitle) || (showDiscoverySubtitle && discoverySubtitle) ? (
+              <div className="rounded-lg border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur md:p-12">
+                {showDiscoveryLabel && discoveryLabel ? (
+                  <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
+                    {discoveryLabel}
+                  </p>
+                ) : null}
+                {showDiscoveryTitle && discoveryTitle ? (
+                  <h1 className="mt-4 font-serif text-4xl font-medium leading-tight text-foreground md:text-6xl">
+                    {discoveryTitle}
+                  </h1>
+                ) : null}
+                {showDiscoverySubtitle && discoverySubtitle ? (
+                  <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground md:text-lg">
+                    {discoverySubtitle}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
 
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
-            {discoveryOptions.map((option) => (
-              <Link
-                key={option.tag}
-                href={option.href}
-                className="group relative h-[180px] overflow-hidden rounded-2xl shadow-sm transition-transform duration-200 hover:scale-[1.03]"
-              >
-                <img
-                  src={option.imageUrl}
-                  alt={option.title}
-                  loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-4 text-white">
-                  <h2 className="text-lg font-semibold leading-tight">{option.title}</h2>
-                  <p className="mt-1 text-sm text-white/82">{option.description}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+            {showDiscoveryCards && discoveryCards.length > 0 ? (
+              <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
+                {discoveryCards.map((option) => (
+                  <Link
+                    key={option.tag}
+                    href={option.href}
+                    className="group relative h-[180px] overflow-hidden rounded-2xl shadow-sm transition-transform duration-200 hover:scale-[1.03]"
+                  >
+                    <img
+                      src={option.imageUrl}
+                      alt={option.title}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+                      {option.title ? <h2 className="font-fira text-lg font-bold leading-tight">{option.title}</h2> : null}
+                      {option.description ? <p className="mt-1 text-sm text-white/82">{option.description}</p> : null}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : null}
+          </section>
+        ) : null}
 
         <GolfFinder locale={locale} labels={finderLabels} />
       </main>

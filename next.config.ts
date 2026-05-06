@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import bundleAnalyzer from "@next/bundle-analyzer";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const isProduction = process.env.NODE_ENV === "production";
 const scriptSrc = [
@@ -103,7 +104,7 @@ const nextConfig: NextConfig = {
 
   images: {
     formats: ["image/avif", "image/webp"],
-    qualities: [50, 52, 54, 56, 72, 80],
+    qualities: [50, 52, 54, 56, 64, 68, 72, 80],
     deviceSizes: [360, 420, 640, 768, 960, 1200, 1600, 1920],
     imageSizes: [32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60 * 60 * 24 * 7,
@@ -197,4 +198,13 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withBundleAnalyzer(nextConfig);
+export default withSentryConfig(withBundleAnalyzer(nextConfig), {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: true,
+  telemetry: false,
+  sourcemaps: {
+    disable: true,
+  },
+});

@@ -109,12 +109,40 @@ function readRuntimeUsage(): RuntimeCmsUsage {
     const inferPageId = pageCandidates.size === 1 && !hasDynamicCmsPageId
       ? Array.from(pageCandidates)[0]
       : null;
+    const inferredPageIds =
+      inferPageId
+        ? [inferPageId]
+        : pageCandidates.size > 1
+          ? Array.from(pageCandidates)
+          : [];
 
-    if (inferPageId) {
+    if (inferredPageIds.length > 0) {
       const blockMethodRe =
         /(?:isBlockEnabled|getBlockClassName|getBlockStyle|getBlockData)\(\s*"([a-z0-9-]+)"/g;
       while ((match = blockMethodRe.exec(source))) {
-        addBlock(inferPageId, match[1]);
+        inferredPageIds.forEach((pageId) => addBlock(pageId, match[1]));
+      }
+
+      const defaultSectionOrderRe = /const\s+DEFAULT_SECTION_ORDER\s*=\s*\[([\s\S]*?)\];/g;
+      while ((match = defaultSectionOrderRe.exec(source))) {
+        const sectionOrderBody = match[1];
+        const blockIdRe = /["']([a-z0-9-]+)["']/g;
+        let blockMatch: RegExpExecArray | null;
+        while ((blockMatch = blockIdRe.exec(sectionOrderBody))) {
+          inferredPageIds.forEach((pageId) => addBlock(pageId, blockMatch![1]));
+        }
+      }
+    }
+
+    if (pageCandidates.size > 0) {
+      const dynamicCmsBlockRe = /<CmsBlock[^>]*pageId=\{[a-zA-Z0-9_]+\}[^>]*blockId="([a-z0-9-]+)"/g;
+      while ((match = dynamicCmsBlockRe.exec(source))) {
+        pageCandidates.forEach((pageId) => addBlock(pageId, match![1]));
+      }
+
+      const dynamicCmsBlockInverseRe = /<CmsBlock[^>]*blockId="([a-z0-9-]+)"[^>]*pageId=\{[a-zA-Z0-9_]+\}/g;
+      while ((match = dynamicCmsBlockInverseRe.exec(source))) {
+        pageCandidates.forEach((pageId) => addBlock(pageId, match![1]));
       }
     }
   });
@@ -208,17 +236,34 @@ describe("CMS page/block runtime contract", () => {
     expect(getCmsPageRegistryMeta("real-estate").status).toBe("enabled");
     expect(getCmsPageRegistryMeta("invest").status).toBe("enabled");
     expect(getCmsPageRegistryMeta("golf").status).toBe("enabled");
-
+    expect(getCmsPageRegistryMeta("stay").status).toBe("enabled");
+    expect(getCmsPageRegistryMeta("wellness-spas").status).toBe("enabled");
+    expect(getCmsPageRegistryMeta("experiences").status).toBe("enabled");
+    expect(getCmsPageRegistryMeta("beaches").status).toBe("enabled");
+    expect(getCmsPageRegistryMeta("map").status).toBe("enabled");
+    expect(getCmsPageRegistryMeta("blog").status).toBe("enabled");
+    expect(getCmsPageRegistryMeta("events").status).toBe("enabled");
+    expect(getCmsPageRegistryMeta("live").status).toBe("enabled");
+    expect(getCmsPageRegistryMeta("properties").status).toBe("enabled");
+    expect(getCmsPageRegistryMeta("contact").status).toBe("enabled");
     expect(getCmsPageRegistryMeta("partner").status).toBe("partial");
-    expect(getCmsPageRegistryMeta("properties").status).toBe("partial");
     expect(getCmsPageRegistryMeta("visit").status).toBe("planned");
     expect(getCmsPageRegistryMeta("auth-login").status).toBe("disabled");
 
     expect(isCmsPageEditableInFullBuilder("home")).toBe(true);
     expect(isCmsPageEditableInFullBuilder("real-estate")).toBe(true);
     expect(isCmsPageEditableInFullBuilder("invest")).toBe(true);
-    expect(isCmsPageEditableInFullBuilder("partner")).toBe(true);
+    expect(isCmsPageEditableInFullBuilder("stay")).toBe(true);
+    expect(isCmsPageEditableInFullBuilder("wellness-spas")).toBe(true);
+    expect(isCmsPageEditableInFullBuilder("experiences")).toBe(true);
+    expect(isCmsPageEditableInFullBuilder("beaches")).toBe(true);
+    expect(isCmsPageEditableInFullBuilder("map")).toBe(true);
+    expect(isCmsPageEditableInFullBuilder("blog")).toBe(true);
+    expect(isCmsPageEditableInFullBuilder("events")).toBe(true);
+    expect(isCmsPageEditableInFullBuilder("live")).toBe(true);
     expect(isCmsPageEditableInFullBuilder("properties")).toBe(true);
+    expect(isCmsPageEditableInFullBuilder("contact")).toBe(true);
+    expect(isCmsPageEditableInFullBuilder("partner")).toBe(false);
     expect(isCmsPageEditableInFullBuilder("visit")).toBe(false);
     expect(isCmsPageEditableInFullBuilder("auth-login")).toBe(false);
   });

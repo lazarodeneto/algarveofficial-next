@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeLocale } from "@/lib/i18n/config";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
@@ -22,6 +23,7 @@ const EMPTY_GLOBAL_SETTINGS: GlobalSetting[] = [];
 export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
   const queryClient = useQueryClient();
   const routeLocale = useCurrentLocale();
+  const [isCmsPreviewRuntime, setIsCmsPreviewRuntime] = useState(false);
   const rawLocale = options.locale?.trim().toLowerCase().replaceAll("_", "-") ?? "";
   const locale = rawLocale === "default" ? "default" : normalizeLocale(rawLocale || routeLocale);
   const normalizedKeys = options.keys?.length
@@ -30,9 +32,25 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
   const cmsKeys = new Set<string>(Object.values(CMS_GLOBAL_SETTING_KEYS));
   const shouldUseCmsRuntime =
     !normalizedKeys || normalizedKeys.some((key) => cmsKeys.has(key));
+  const baseQueryKey = useMemo(
+    () => globalSettingsQueryKey(normalizedKeys, locale),
+    [locale, normalizedKeys],
+  );
+  const queryKey = useMemo(
+    () =>
+      isCmsPreviewRuntime && shouldUseCmsRuntime
+        ? [...baseQueryKey, "draft-preview"]
+        : baseQueryKey,
+    [baseQueryKey, isCmsPreviewRuntime, shouldUseCmsRuntime],
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setIsCmsPreviewRuntime(new URLSearchParams(window.location.search).get("cms_preview") === "1");
+  }, []);
 
   const query = useQuery({
-    queryKey: globalSettingsQueryKey(normalizedKeys, locale),
+    queryKey,
     queryFn: async (): Promise<GlobalSetting[]> => {
       if (shouldUseCmsRuntime) {
         const params = new URLSearchParams();
@@ -65,7 +83,8 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
       if (error) throw error;
       return (data ?? []) as GlobalSetting[];
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: isCmsPreviewRuntime ? 0 : 1000 * 60 * 5,
+    refetchOnMount: isCmsPreviewRuntime ? "always" : undefined,
   });
 
   const saveMutation = useMutation({

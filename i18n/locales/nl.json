@@ -2103,7 +2103,7 @@
     "featuredCityHub": "Uitgelichte stadshub",
     "featuredCityHubDescription": "Ontdek samengestelde lijsten en stadsgidsen in {{name}}, Algarve.",
     "final": {
-      "description": "Vertel ons je tijdlijn, prioriteiten en huishoudprofiel. We plannen de juiste volgende stappen met vertrouwde lokale partners.",
+      "description": "Gebruik deze briefing om een praktisch gesprek te starten over gebieden, wonen en betrouwbare lokale ondersteuning.",
       "primary": "Start Verhuisplanning",
       "secondary": "Partnerintroductie Aanvragen",
       "title": "Klaar om je basis te vestigen in de Algarve?"
@@ -2118,20 +2118,20 @@
     },
     "pillars": {
       "cost": {
-        "description": "Transparante begeleiding over levenskosten, koop vs huur scenario's en belastingplanning overdracht.",
+        "description": "Formuleer vragen over levensonderhoud en huren-versus-kopen voordat u met financiële of fiscale adviseurs spreekt.",
         "title": "Kosten & Belastinghelderheid"
       },
       "education": {
-        "description": "Internationale scholen, taalroutes en afstemming voor gezinsverhuizing.",
+        "description": "Maak een shortlist van scholen, taalroutes en reistijden om direct met admissions te bevestigen.",
         "title": "Onderwijs"
       },
       "health": {
-        "description": "Private en openbare toegangsopties, Engelssprekende klinieken en medische conciërge-ondersteuning.",
+        "description": "Vergelijk vragen over publieke en private zorg, nabijgelegen klinieken en verzekering met gekwalificeerde aanbieders.",
         "title": "Gezondheid"
       },
       "label": "Levensessenties",
       "security": {
-        "description": "Buurtcontext, huissicherheidsaanbieders en geverifieerde onderhoudsnetwerken.",
+        "description": "Bekijk buurtcontext, woningbeveiliging en onderhoudsnetwerken voordat u een basis kiest.",
         "title": "Veiligheid & Diensten"
       },
       "title": "Wat telt als je eenmaal bent aangekomen"
@@ -2144,22 +2144,22 @@
       },
       "budgetLabel": "Maandelijks Levensbudget",
       "checklist": {
-        "buy": "Start koopscreening met juridische due diligence vanaf dag één.",
-        "family": "Map gezinsroutines: school, activiteiten en vertrouwde huishoudelijke diensten.",
-        "household": "Map huishoudelijke routine-ondersteuning: transport, welzijn en conciërge workflows.",
-        "legal": "Stel juridische/fiscale onboarding volgorde vast met lokale adviseurs.",
+        "buy": "Start woningscreening met onafhankelijke juridische due diligence voordat u zich vastlegt.",
+        "family": "Breng gezinsroutines in kaart: scholen, activiteiten, reistijden en betrouwbare thuishulp.",
+        "household": "Breng dagelijkse ondersteuning in kaart: vervoer, welzijn, onderhoud en lokale diensten.",
+        "legal": "Bereid een documentenlijst voor om met gekwalificeerde juridische en fiscale adviseurs te bespreken.",
         "rent": "Beveilig korte-termijn huurbasis voor langetermijncommitment.",
-        "school": "Shortlist internationale scholen en stem woon-werk afstand af voor huis selectie.",
-        "service": "Prioriteer gezondheid + mobiliteitsopzet voor dag betrouwbaarheid."
+        "school": "Maak een schoolshortlist en bevestig toelating, kosten en reistijd direct met elke school.",
+        "service": "Geef prioriteit aan gezondheidsvragen, mobiliteit en betrouwbare dagelijkse diensten."
       },
       "focus": {
         "coastal": "Lagos, Tavira en geselecteerde kustgebieden met balans tussen toegang, rust en dagelijks gemak.",
-        "family": "Loulé, Lagos-buitenwijken en school-verbonden woonzones met jaarlijkse bewoonbaarheid.",
+        "family": "Almancil, Vilamoura en gebieden rond Lagos met gezinsroutines, schoolvragen en jaarrond diensten om te vergelijken.",
         "marina": "Vilamoura, Quinta do Lago en marina-aangrenzende buurten met sterke dienstdichtheid."
       },
       "handoff": {
-        "primary": "Stuur Dit Plan Naar Conciërge",
-        "secondary": "Bekijk Vertrouwde Lokale Partners",
+        "primary": "Plan ter beoordeling sturen",
+        "secondary": "Relocatiediensten bekijken",
         "subject": "Verhuisplanningsverzoek"
       },
       "household": {
@@ -2188,12 +2188,15 @@
         "neighborhood": "Buurtfocus",
         "priority": "Verblijfsprioriteit",
         "schooling": "Onderwijs",
-        "timeline": "Tijdlijn"
+        "timeline": "Tijdlijn",
+        "whyPriority": "Waarom: tijdlijn en woonstrategie bepalen de voorbereidingsvolgorde.",
+        "whyNeighborhood": "Waarom: levensstijl en huishouden sturen de gebiedsselectie.",
+        "whyFirst90": "Waarom: eerste stappen moeten onzekerheid verminderen vóór lange verplichtingen."
       },
       "residency": {
-        "fast": "Onmiddellijke juridische volgorde: NIF, banken, huur/koop-conformiteit en verblijfsroute.",
-        "progressive": "Gefaseerde voorbereiding: optimaliseer fiscaal/juridische structuur eerst, voer dan huisvesting uit.",
-        "standard": "Parallelle opzet: documentatiegereedheid terwijl locaties en dienstverleners gefilterd worden."
+        "fast": "Bij een korte planning: bereid documenten en vragen vroeg voor zodat gekwalificeerde professionals de juiste route kunnen bevestigen.",
+        "progressive": "Gebruik de extra tijd om gebieden, woonopties en juridische of fiscale vragen met adviseurs te vergelijken.",
+        "standard": "Combineer gebiedsonderzoek met documentvoorbereiding en laat tijdlijn en vereisten door professionals bevestigen."
       },
       "schooling": {
         "no": "Nee",
@@ -2209,7 +2212,29 @@
         "6_12": "6-12 maanden"
       },
       "timelineLabel": "Tijdlijn",
-      "title": "Bouw je verhuisplan in minder dan 2 minuten"
+      "title": "Bouw je verhuisplan in minder dan 2 minuten",
+      "disclaimer": "Deze planner geeft alleen algemene richting. Hij vervangt geen professioneel juridisch, fiscaal, immigratie-, financieel, medisch, school- of vastgoedadvies.",
+      "services": {
+        "label": "Servicelinks",
+        "title": "Verken relevante AlgarveOfficial-bronnen",
+        "description": "Deze links gebruiken actieve AlgarveOfficial-categorieën en maken pas een lead wanneer u contact opneemt.",
+        "properties": {
+          "title": "Vastgoed",
+          "description": "Vergelijk vastgoedopties en gebiedsfit."
+        },
+        "concierge": {
+          "title": "Conciergediensten",
+          "description": "Vind lokale ondersteuning om te settelen."
+        },
+        "transport": {
+          "title": "Vervoer",
+          "description": "Plan luchthaven, auto en mobiliteit."
+        },
+        "accommodation": {
+          "title": "Accommodatie",
+          "description": "Gebruik korte verblijven terwijl u gebieden test."
+        }
+      }
     },
     "roadmap": {
       "home": {
@@ -2218,19 +2243,19 @@
       },
       "label": "Verhuisroutekaart",
       "legal": {
-        "description": "Traceer je verblijfsroute, belastingregistratie, NIF, banken en conforme documentatie met lokale experts.",
+        "description": "Bereid documenten en vragen voor over verblijf, NIF, bankzaken en belasting. Laat beslissingen en aanvragen aan gekwalificeerde professionals over.",
         "title": "Juridische & Verblijfsopzet"
       },
       "move": {
-        "description": "Praktische checklist voor het eerste kwartaal: nutsvoorzieningen, gezondheidsinschrijving, scholen, mobiliteit en vertrouwde lokale diensten.",
+        "description": "Een praktische checklist voor de eerste drie maanden: nutsvoorzieningen, gezondheidsvragen, scholen, mobiliteit en lokale diensten.",
         "title": "90-Dagen Landingsplan"
       },
       "title": "Je verhuizing, opgedeeld in praktische stappen"
     },
     "stats": {
-      "concierge": "Uniforme Verhuisconciërge",
+      "concierge": "Begeleide aanvraag",
       "municipalities": "Gemeentes te Ontdekken",
-      "sun": "Zonnige Dagen / Jaar"
+      "sun": "Planningslijnen"
     },
     "seoTitle": "Verhuizen naar de Algarve | Verhuizen, wonen en settelen in Portugal",
     "seoDescription": "Praktische gidsen, betrouwbare diensten en zorgvuldig geselecteerde lokale bronnen om met vertrouwen naar de Algarve te verhuizen."

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useSupportSettings, FAQ } from "@/hooks/useSupportSettings";
+import { PRIMARY_CONTACT_EMAIL } from "@/lib/contactEmail";
 import Link from "next/link";
 import { useLocalePath } from "@/hooks/useLocalePath";
 
@@ -16,7 +17,7 @@ export default function AdminSupportPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   // Form state
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(PRIMARY_CONTACT_EMAIL);
   const [phone, setPhone] = useState("");
   const [phoneHours, setPhoneHours] = useState("");
   const [helpCenterUrl, setHelpCenterUrl] = useState("");
@@ -33,7 +34,7 @@ export default function AdminSupportPage() {
   // Sync with database
   useEffect(() => {
     if (settings) {
-      setEmail(settings.email || "");
+      setEmail(settings.email || PRIMARY_CONTACT_EMAIL);
       setPhone(settings.phone || "");
       setPhoneHours(settings.phone_hours || "");
       setHelpCenterUrl(settings.help_center_url || "");

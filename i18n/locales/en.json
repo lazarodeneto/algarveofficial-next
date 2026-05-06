@@ -2074,7 +2074,7 @@
     "featuredCityHub": "Featured City Hub",
     "featuredCityHubDescription": "Explore curated listings and city guides in {{name}}, Algarve.",
     "final": {
-      "description": "Tell us your timeline, priorities, and household profile. We will map the right next steps with vetted local partners.",
+      "description": "Use this brief to start a practical conversation about areas, housing, and trusted local support.",
       "primary": "Start Relocation Planning",
       "secondary": "Request Partner Introduction",
       "title": "Ready to establish your base in the Algarve?"
@@ -2089,20 +2089,20 @@
     },
     "pillars": {
       "cost": {
-        "description": "Transparent guidance on living costs, ownership vs rent scenarios, and tax planning handoff.",
+        "description": "Frame cost-of-living questions and rent-versus-buy scenarios before speaking with financial or tax advisors.",
         "title": "Cost & Tax Clarity"
       },
       "education": {
-        "description": "International schools, language pathways, and family relocation alignment.",
+        "description": "Shortlist schools, language pathways, and commute questions to review directly with admissions teams.",
         "title": "Education"
       },
       "health": {
-        "description": "Private and public access options, English-speaking clinics, and concierge medical support.",
+        "description": "Compare public and private healthcare questions, nearby clinics, and insurance topics with qualified providers.",
         "title": "Healthcare"
       },
       "label": "Life Essentials",
       "security": {
-        "description": "Neighborhood context, home security providers, and vetted maintenance networks.",
+        "description": "Review neighborhood context, home-security providers, and maintenance networks before choosing a base.",
         "title": "Safety & Services"
       },
       "title": "What matters once you have arrived"
@@ -2115,22 +2115,22 @@
       },
       "budgetLabel": "Monthly Living Budget (after-tax)",
       "checklist": {
-        "buy": "Start purchase screening with legal due-diligence gate from day one.",
-        "family": "Map family routines: school, activities, and trusted domestic services.",
-        "household": "Map household routine support: transport, wellness, and concierge workflows.",
-        "legal": "Set legal/tax onboarding sequence with local advisors.",
+        "buy": "Start purchase screening with an independent legal due-diligence gate before committing.",
+        "family": "Map family routines: school questions, activities, commute rhythm, and trusted home support.",
+        "household": "Map household routine support: transport, wellness, maintenance, and local-service needs.",
+        "legal": "Prepare a document checklist to review with qualified legal and tax advisors.",
         "rent": "Secure short-term rental base before long-term commitment.",
-        "school": "Shortlist international schools and align commute radius before home selection.",
-        "service": "Prioritize healthcare + mobility setup for daily reliability."
+        "school": "Shortlist schools and confirm admissions, fees, and commute radius directly with each school.",
+        "service": "Prioritize healthcare questions, mobility setup, and reliable daily services."
       },
       "focus": {
         "coastal": "Lagos, Tavira, and selected coastal pockets balancing access, calm, and daily convenience.",
-        "family": "Loulé, Lagos outskirts, and school-connected residential zones with year-round livability.",
+        "family": "Almancil, Vilamoura, and Lagos areas with family routines, school questions, and year-round services to compare.",
         "marina": "Vilamoura, Quinta do Lago, and marina-adjacent neighborhoods with strong service density."
       },
       "handoff": {
-        "primary": "Send This Plan to Concierge",
-        "secondary": "View Trusted Local Partners",
+        "primary": "Send This Plan for Review",
+        "secondary": "Explore Relocation Services",
         "subject": "Relocation Planning Request"
       },
       "household": {
@@ -2159,12 +2159,15 @@
         "neighborhood": "Neighborhood Focus",
         "priority": "Residency Priority",
         "schooling": "Schooling",
-        "timeline": "Timeline"
+        "timeline": "Timeline",
+        "whyPriority": "Why: timeline and housing strategy shape the preparation sequence.",
+        "whyNeighborhood": "Why: lifestyle focus and household profile guide the area shortlist.",
+        "whyFirst90": "Why: first steps should reduce uncertainty before long-term commitments."
       },
       "residency": {
-        "fast": "Immediate legal sequencing: NIF, banking, lease/purchase compliance, and residency filing path.",
-        "progressive": "Staged preparation: optimize tax/legal structure first, then execute housing and move timeline.",
-        "standard": "Parallel track setup: documentation readiness while filtering locations and service providers."
+        "fast": "For a short timeline, prepare documents and advisor questions early so qualified professionals can confirm the right route.",
+        "progressive": "Use the extra runway to compare areas, housing options, and advisor-led legal or tax questions before committing.",
+        "standard": "Run location research in parallel with document readiness, then let qualified advisors confirm timing and requirements."
       },
       "schooling": {
         "no": "No",
@@ -2180,7 +2183,29 @@
         "6_12": "6-12 months"
       },
       "timelineLabel": "Timeline",
-      "title": "Build your move blueprint in under 2 minutes"
+      "title": "Build your move blueprint in under 2 minutes",
+      "disclaimer": "This planner is general guidance only. It does not replace professional legal, tax, immigration, financial, medical, schooling, or property advice.",
+      "services": {
+        "label": "Service Links",
+        "title": "Explore relevant AlgarveOfficial resources",
+        "description": "These links use live AlgarveOfficial categories and do not create a lead until you contact us.",
+        "properties": {
+          "title": "Properties",
+          "description": "Compare real-estate options and area fit."
+        },
+        "concierge": {
+          "title": "Concierge services",
+          "description": "Find local support categories for settling in."
+        },
+        "transport": {
+          "title": "Transportation",
+          "description": "Plan airport, car, and mobility needs."
+        },
+        "accommodation": {
+          "title": "Accommodation",
+          "description": "Use short stays while testing areas."
+        }
+      }
     },
     "roadmap": {
       "home": {
@@ -2189,19 +2214,19 @@
       },
       "label": "Relocation Roadmap",
       "legal": {
-        "description": "Map residency route, tax registration, NIF, banking, and compliant documentation with local experts.",
+        "description": "Prepare a document and advisor checklist for residency, NIF, banking, and tax questions. Use qualified professionals for decisions and filings.",
         "title": "Legal & Residency Setup"
       },
       "move": {
-        "description": "A practical first-quarter checklist for utilities, healthcare enrollment, schools, mobility, and trusted local services.",
+        "description": "A practical first-quarter checklist for utilities, healthcare questions, schools, mobility, and trusted local services.",
         "title": "90-Day Landing Plan"
       },
       "title": "Your move, broken into practical steps"
     },
     "stats": {
-      "concierge": "Unified Relocation Concierge",
+      "concierge": "Guided Request Flow",
       "municipalities": "Municipalities to Explore",
-      "sun": "Sunny Days / Year"
+      "sun": "Planning Tracks"
     },
     "seoTitle": "Relocation to the Algarve | Move, Live & Settle in Portugal",
     "seoDescription": "Practical guidance, trusted services, and curated local resources for moving to the Algarve with confidence."

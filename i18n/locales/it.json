@@ -2103,7 +2103,7 @@
     "featuredCityHub": "Centro cittadino in primo piano",
     "featuredCityHubDescription": "Esplora elenchi selezionati e guide delle città in {{name}}, Algarve.",
     "final": {
-      "description": "Raccontaci la tua cronologia, priorità e profilo familiare. Mappiamo i prossimi passi con partner locali di fiducia.",
+      "description": "Usa questo brief per avviare una conversazione pratica su zone, casa e supporto locale affidabile.",
       "primary": "Avvia Pianificazione del Trasferimento",
       "secondary": "Richiedi Introduzione del Partner",
       "title": "Pronto a stabilire la tua base in Algarve?"
@@ -2118,20 +2118,20 @@
     },
     "pillars": {
       "cost": {
-        "description": "Guida trasparente sui costi di vita, scenari acquisto vs affitto e passaggio di pianificazione fiscale.",
+        "description": "Inquadra domande su costo della vita e scenari affitto-versus-acquisto prima di parlare con consulenti finanziari o fiscali.",
         "title": "Chiarrezza su Costi e Tasse"
       },
       "education": {
-        "description": "Scuole internazionali, percorsi linguistici e allineamento per trasferimenti familiari.",
+        "description": "Seleziona scuole, percorsi linguistici e tempi di spostamento da confermare direttamente con le ammissioni.",
         "title": "Istruzione"
       },
       "health": {
-        "description": "Opzioni di accesso privato e pubblico, cliniche anglofone e supporto medico di portineria.",
+        "description": "Confronta domande su sanità pubblica e privata, cliniche vicine e assicurazioni con fornitori qualificati.",
         "title": "Sanità"
       },
       "label": "Essenziali della Vita",
       "security": {
-        "description": "Contesto del quartiere, fornitori di sicurezza domestica e reti di manutenzione verificate.",
+        "description": "Valuta contesto del quartiere, sicurezza domestica e reti di manutenzione prima di scegliere una base.",
         "title": "Sicurezza e Servizi"
       },
       "title": "Ciò che conta quando sei arrivato"
@@ -2144,22 +2144,22 @@
       },
       "budgetLabel": "Budget Mensile di Vita",
       "checklist": {
-        "buy": "Avviare screening acquisto con due diligence legale dal primo giorno.",
-        "family": "Mappare routine familiari: scuola, attività e servizi domestici di fiducia.",
-        "household": "Mappare supporto alle routine domestiche: trasporto, benessere e flussi di portineria.",
-        "legal": "Definire sequenza di onboarding legale/fiscale con consulenti locali.",
+        "buy": "Avvia la selezione d’acquisto con una fase indipendente di due diligence legale prima di impegnarti.",
+        "family": "Mappa le routine familiari: scuole, attività, spostamenti e supporto domestico affidabile.",
+        "household": "Mappa il supporto quotidiano: trasporti, benessere, manutenzione e servizi locali.",
+        "legal": "Prepara una lista di documenti da rivedere con consulenti legali e fiscali qualificati.",
         "rent": "Assicurare base di affitto a breve termine prima dell'impegno a lungo termine.",
-        "school": "Elencare scuole internazionali e allineare raggio di pendolarismo prima della selezione della casa.",
-        "service": "Prioritizzare salute + configurazione mobilità per affidabilità quotidiana."
+        "school": "Seleziona scuole e conferma ammissioni, rette e distanze direttamente con ciascuna scuola.",
+        "service": "Dai priorità a domande sanitarie, mobilità e servizi quotidiani affidabili."
       },
       "focus": {
         "coastal": "Lagos, Tavira e tasche costiere selezionate che bilanciano accesso, calma e comodità quotidiana.",
-        "family": "Loulé, dintorni di Lagos e zone residenziali vicine alle scuole con vivibilità annuale.",
+        "family": "Almancil, Vilamoura e aree di Lagos con routine familiari, domande scolastiche e servizi annuali da confrontare.",
         "marina": "Vilamoura, Quinta do Lago e quartieri adiacenti alla marina con alta densità di servizi."
       },
       "handoff": {
-        "primary": "Invia Questo Piano alla Portineria",
-        "secondary": "Visualizza Partner Locali di Fiducia",
+        "primary": "Invia il piano per revisione",
+        "secondary": "Esplora servizi relocation",
         "subject": "Richiesta di Pianificazione del Trasferimento"
       },
       "household": {
@@ -2188,12 +2188,15 @@
         "neighborhood": "Focus Quartiere",
         "priority": "Priorità di Residenza",
         "schooling": "Istruzione",
-        "timeline": "Cronologia"
+        "timeline": "Cronologia",
+        "whyPriority": "Perché: tempi e strategia abitativa definiscono la sequenza di preparazione.",
+        "whyNeighborhood": "Perché: stile di vita e nucleo familiare guidano la shortlist delle zone.",
+        "whyFirst90": "Perché: i primi passi dovrebbero ridurre l’incertezza prima di impegni lunghi."
       },
       "residency": {
-        "fast": "Sequenziamento legale immediato: NIF, banche, conformità affitto/acquisto e percorso di residenza.",
-        "progressive": "Preparazione graduale: ottimizzare struttura fiscale/legal prima, poi eseguire alloggio.",
-        "standard": "Configurazione parallela: preparazione documentale mentre filtra località e fornitori."
+        "fast": "Con tempi brevi, prepara presto documenti e domande affinché professionisti qualificati confermino il percorso adatto.",
+        "progressive": "Usa il margine extra per confrontare zone, casa e domande legali o fiscali con consulenti.",
+        "standard": "Affianca ricerca delle zone e preparazione documentale, poi fai confermare tempi e requisiti da professionisti qualificati."
       },
       "schooling": {
         "no": "No",
@@ -2209,7 +2212,29 @@
         "6_12": "6-12 mesi"
       },
       "timelineLabel": "Cronologia",
-      "title": "Costruisci il tuo piano di trasferimento in meno di 2 minuti"
+      "title": "Costruisci il tuo piano di trasferimento in meno di 2 minuti",
+      "disclaimer": "Questo planner offre orientamento generale. Non sostituisce consulenza professionale legale, fiscale, migratoria, finanziaria, medica, scolastica o immobiliare.",
+      "services": {
+        "label": "Link servizi",
+        "title": "Esplora risorse AlgarveOfficial rilevanti",
+        "description": "Questi link usano categorie attive AlgarveOfficial e non creano un lead finché non ci contatti.",
+        "properties": {
+          "title": "Immobili",
+          "description": "Confronta opzioni immobiliari e fit delle zone."
+        },
+        "concierge": {
+          "title": "Servizi concierge",
+          "description": "Trova categorie di supporto locale per stabilirti."
+        },
+        "transport": {
+          "title": "Trasporti",
+          "description": "Pianifica aeroporto, auto e mobilità."
+        },
+        "accommodation": {
+          "title": "Alloggi",
+          "description": "Usa soggiorni brevi mentre testi le zone."
+        }
+      }
     },
     "roadmap": {
       "home": {
@@ -2218,19 +2243,19 @@
       },
       "label": "Tabella di Marcia",
       "legal": {
-        "description": "Traccia il percorso di residenza, registrazione fiscale, NIF, banche e documentazione conforme con esperti locali.",
+        "description": "Prepara documenti e domande su residenza, NIF, banca e temi fiscali. Affida decisioni e pratiche a professionisti qualificati.",
         "title": "Configurazione Legale e di Residenza"
       },
       "move": {
-        "description": "Lista pratica del primo trimestre: utenze, iscrizione sanitaria, scuole, mobilità e servizi locali di fiducia.",
+        "description": "Una checklist pratica per il primo trimestre: utenze, domande sanitarie, scuole, mobilità e servizi locali affidabili.",
         "title": "Piano di Atterraggio di 90 Giorni"
       },
       "title": "Il tuo trasferimento, diviso in passi pratici"
     },
     "stats": {
-      "concierge": "Servizio di Trasferimento Unificato",
+      "concierge": "Richiesta guidata",
       "municipalities": "Municipi da Esplorare",
-      "sun": "Giorni di Sole / Anno"
+      "sun": "Aree di pianificazione"
     },
     "seoTitle": "Trasferirsi in Algarve | Traslocare, vivere e stabilirsi in Portogallo",
     "seoDescription": "Guide pratiche, servizi affidabili e risorse locali selezionate per trasferirsi in Algarve con sicurezza."

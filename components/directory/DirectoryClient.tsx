@@ -699,6 +699,7 @@ function useDirectoryCmsHelpers(globalSettings: GlobalSetting[], cmsPageId: stri
 }
 
 function DirectoryCmsBlock({
+  pageId,
   blockId,
   children,
   className,
@@ -707,6 +708,7 @@ function DirectoryCmsBlock({
   defaultEnabled = true,
   cms,
 }: {
+  pageId: string;
   blockId: string;
   children: ReactNode;
   className?: string;
@@ -721,7 +723,7 @@ function DirectoryCmsBlock({
 
   return (
     <Component
-      data-cms-page="directory"
+      data-cms-page={pageId}
       data-cms-block={blockId}
       className={[className, cms.getBlockClassName(blockId)].filter(Boolean).join(" ")}
       style={{ ...style, ...cms.getBlockStyle(blockId) }}
@@ -787,6 +789,11 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   const [selectedTier, setSelectedTier] = useState<string>(props.initialFilters.tier);
   const [filtersOpen, setFiltersOpen] = useState(true);
   const { isFavorite, toggleFavorite } = useFavoriteListings();
+  const requestedCategory = searchParams.get("category") ?? props.initialFilters.category;
+  const activeCmsPageId =
+    cmsPageId === "stay" && requestedCategory === "wellness-spas"
+      ? "wellness-spas"
+      : cmsPageId;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -807,7 +814,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     initialData: initialCmsSettings,
     staleTime: 1000 * 60 * 5,
   });
-  const activeCms = useDirectoryCmsHelpers(globalSettings, cmsPageId);
+  const activeCms = useDirectoryCmsHelpers(globalSettings, activeCmsPageId);
 
   const { data: cities = props.initialCities, isLoading: citiesLoading } = useQuery({
     queryKey: ["cities", locale],
@@ -867,7 +874,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     [selectedCategoryItem],
   );
 
-  const isStayPage = cmsPageId === "stay" || pathname.includes("/stay");
+  const isStayPage = cmsPageId === "stay" || activeCmsPageId === "wellness-spas" || pathname.includes("/stay");
   const isExperiencesPage = cmsPageId === "experiences" || pathname.includes("/experiences");
   const isVisitPage = cmsPageId === "visit" || pathname.includes("/visit");
   const resolveFilterEntityId = useCallback(
@@ -1289,7 +1296,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background" data-cms-page="directory">
+    <div className="min-h-screen bg-background" data-cms-page={activeCmsPageId}>
       <Header />
       <main>
         {/* Hero: enabled with matching top padding, disabled with minimal placeholder */}
@@ -1312,6 +1319,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
           </>
         ) : (
           <DirectoryCmsBlock
+            pageId={activeCmsPageId}
             blockId="hero"
             as="section"
             cms={activeCms}
@@ -1319,9 +1327,9 @@ function DirectoryClientInner(props: DirectoryClientProps) {
           >
             <LiveStyleHero
               className="min-h-[19rem] sm:min-h-[20rem] md:min-h-[22rem] rounded-none shadow-sm"
-              badge={t("directory.heroLabel")}
-              title={t("directory.title")}
-              subtitle={t("directory.subtitle")}
+              badge={activeCms.getText("hero.badge", t("directory.heroLabel"))}
+              title={activeCms.getText("hero.title", t("directory.title"))}
+              subtitle={activeCms.getText("hero.subtitle", t("directory.subtitle"))}
               media={
                 <HeroBackgroundMedia
                   mediaType={activeCms.getText("hero.mediaType", "image")}
@@ -1329,20 +1337,20 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                   videoUrl={activeCms.getText("hero.videoUrl", "")}
                   youtubeUrl={activeCms.getText("hero.youtubeUrl", "")}
                   posterUrl={activeCms.getText("hero.posterUrl", "")}
-                  alt={t("directory.hero.alt")}
-                  fallback={<PageHeroImage page="directory" alt={t("directory.hero.alt")} />}
+                  alt={activeCms.getText("hero.alt", t("directory.hero.alt"))}
+                  fallback={<PageHeroImage page="directory" alt={activeCms.getText("hero.alt", t("directory.hero.alt"))} />}
                 />
               }
               ctas={
                 <>
                   <Link href={l("/contact")}>
                     <Button variant="gold" size="lg">
-                      {t("directory.hero.ctaPrimary")}
+                      {activeCms.getText("hero.cta.primary", t("directory.hero.ctaPrimary"))}
                     </Button>
                   </Link>
                   <Link href={l("/relocation")}>
                     <Button variant="heroOutline" size="lg">
-                      {t("directory.hero.ctaSecondary")}
+                      {activeCms.getText("hero.cta.secondary", t("directory.hero.ctaSecondary"))}
                     </Button>
                   </Link>
                 </>
@@ -1367,6 +1375,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
 
           {activeCms.isBlockEnabled("filters", true) ? (
             <DirectoryCmsBlock
+              pageId={activeCmsPageId}
               blockId="filters"
               cms={activeCms}
               as={m.div}
@@ -1379,7 +1388,9 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                     <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors rounded-t-[var(--glass-radius)]">
                       <div className="flex items-center gap-3">
                         <Filter className="h-5 w-5 text-primary" />
-                        <span className="font-medium text-foreground">{t("directory.advancedFilters")}</span>
+                        <span className="font-medium text-foreground">
+                          {activeCms.getText("filters.title", t("directory.advancedFilters"))}
+                        </span>
                         {hasActiveFilters ? (
                           <Badge variant="secondary" className="bg-primary/20 text-primary">
                             {t("directory.active")}
@@ -1397,7 +1408,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                       <div className="relative">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                         <Input
-                          placeholder={t("directory.searchPlaceholder")}
+                          placeholder={activeCms.getText("filters.searchPlaceholder", t("directory.searchPlaceholder"))}
                           value={search}
                           onChange={(event) => setSearch(event.target.value)}
                           className="h-12 border-border bg-muted/30 pl-12 text-base focus:bg-background sm:text-lg"
@@ -1504,7 +1515,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                             className="text-muted-foreground hover:text-foreground"
                           >
                             <X className="h-4 w-4 mr-2" />
-                            {t("directory.clearAllFilters")}
+                            {activeCms.getText("filters.clearAll", t("directory.clearAllFilters"))}
                           </Button>
                         </div>
                       ) : null}
@@ -1517,6 +1528,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
 
           {activeCms.isBlockEnabled("results", true) ? (
             <DirectoryCmsBlock
+              pageId={activeCmsPageId}
               blockId="results"
               cms={activeCms}
               className="relative z-0 isolate scroll-mt-28 sm:scroll-mt-32"
@@ -1532,13 +1544,15 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                       {t("directory.loading")}
                     </span>
                   ) : (
-                    t("directory.showingResults", { count: totalListingsCount })
+                    activeCms
+                      .getText("results.countLabel", t("directory.showingResults", { count: totalListingsCount }))
+                      .replace("{{count}}", String(totalListingsCount))
                   )}
                 </p>
                 <Link href={mapHref}>
                   <Button variant="outline" size="sm" className="w-full sm:w-auto">
                     <MapPin className="h-4 w-4 mr-2" />
-                    {t("directory.mapView")}
+                    {activeCms.getText("results.mapView", t("directory.mapView"))}
                   </Button>
                 </Link>
               </div>
@@ -1567,10 +1581,14 @@ function DirectoryClientInner(props: DirectoryClientProps) {
               {!showGridSkeleton && !error && listings.length === 0 ? (
                 <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
                   <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-xl font-medium text-foreground mb-2">{t("directory.noListingsTitle")}</h3>
-                  <p className="text-muted-foreground mb-6">{t("directory.noListingsSubtitle")}</p>
+                  <h3 className="text-xl font-medium text-foreground mb-2">
+                    {activeCms.getText("results.emptyTitle", t("directory.noListingsTitle"))}
+                  </h3>
+                  <p className="text-muted-foreground mb-6">
+                    {activeCms.getText("results.emptyDescription", t("directory.noListingsSubtitle"))}
+                  </p>
                   <Button variant="outline" onClick={clearFilters}>
-                    {t("directory.clearAllFilters")}
+                    {activeCms.getText("filters.clearAll", t("directory.clearAllFilters"))}
                   </Button>
                 </m.div>
               ) : null}

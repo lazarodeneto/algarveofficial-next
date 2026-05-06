@@ -47,7 +47,14 @@ const pricingRow: {
   stripe_price_id: string | null;
   is_active: boolean;
   price_cents: number;
+  price: number;
   currency: string;
+  display_price: string;
+  note: string;
+  valid_from: string | null;
+  valid_to: string | null;
+  created_at: string;
+  updated_at: string;
 } = {
   id: "pricing-verified-monthly",
   tier: "verified",
@@ -55,19 +62,25 @@ const pricingRow: {
   stripe_price_id: "price_verified_monthly",
   is_active: true,
   price_cents: 1900,
+  price: 1900,
   currency: "EUR",
+  display_price: "€19",
+  note: "per month",
+  valid_from: null,
+  valid_to: null,
+  created_at: "2026-04-01T00:00:00.000Z",
+  updated_at: "2026-04-01T00:00:00.000Z",
 };
 
 function makeSupabaseMock(pricingData: typeof pricingRow[] = [pricingRow]) {
   const limit = vi.fn().mockResolvedValue({ data: pricingData, error: null });
   const eqIsActive = vi.fn(() => ({ limit }));
-  const eqBillingPeriod = vi.fn(() => ({ eq: eqIsActive }));
-  const eqTier = vi.fn(() => ({ eq: eqBillingPeriod }));
+  const eqTier = vi.fn(() => ({ eq: eqIsActive }));
   const selectStar = vi.fn(() => ({ eq: eqTier }));
   return {
     from: vi.fn(() => ({ select: selectStar })),
     __spies: {
-      eqBillingPeriod,
+      eqTier,
       eqIsActive,
       limit,
     },
@@ -76,6 +89,7 @@ function makeSupabaseMock(pricingData: typeof pricingRow[] = [pricingRow]) {
 
 afterEach(() => {
   vi.clearAllMocks();
+  vi.useRealTimers();
 });
 
 describe("stripe checkout route runtime", () => {
@@ -302,12 +316,83 @@ describe("stripe checkout route runtime", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(supabase.__spies.eqBillingPeriod).toHaveBeenCalledWith("billing_period", "yearly");
+    expect(supabase.__spies.eqTier).toHaveBeenCalledWith("tier", "verified");
+    expect(supabase.__spies.eqIsActive).toHaveBeenCalledWith("is_active", true);
     expect(mocks.sessionsCreate).toHaveBeenCalledWith(
       expect.objectContaining({
-        metadata: expect.objectContaining({ billing_period: "yearly" }),
+        metadata: expect.objectContaining({
+          billing_period: "yearly",
+          requested_billing_period: "yearly",
+        }),
         subscription_data: expect.objectContaining({
-          metadata: expect.objectContaining({ billing_period: "yearly" }),
+          metadata: expect.objectContaining({
+            billing_period: "yearly",
+            requested_billing_period: "yearly",
+          }),
+        }),
+      }),
+    );
+  });
+
+  it("uses the active promo pricing row server-side when a promo is live", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-10T12:00:00.000Z"));
+
+    const promoPricingRow = {
+      ...pricingRow,
+      id: "pricing-verified-promo",
+      billing_period: "promo",
+      stripe_price_id: "price_verified_promo",
+      price_cents: 12000,
+      price: 12000,
+      display_price: "€120",
+      note: "2026 promo",
+      valid_from: "2026-05-01",
+      valid_to: "2026-12-31",
+      updated_at: "2026-05-01T00:00:00.000Z",
+    };
+
+    mocks.getStripeServerClient.mockReturnValue({
+      checkout: {
+        sessions: {
+          create: mocks.sessionsCreate.mockResolvedValue({ url: "https://checkout.stripe.test/session" }),
+        },
+      },
+    });
+    mocks.requireAuthenticatedOwner.mockResolvedValue({
+      userId: "owner-123",
+      email: "owner@test.com",
+    });
+    mocks.createServiceRoleClient.mockReturnValue(makeSupabaseMock([pricingRow, promoPricingRow]));
+    mocks.findOverlappingActive.mockResolvedValue(null);
+    mocks.findByOwner.mockResolvedValue(null);
+
+    const response = await postCheckoutRoute(
+      jsonRequest({ tier: "verified", billing_period: "annual" }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(mocks.findOverlappingActive).toHaveBeenCalledWith(
+      expect.anything(),
+      "owner-123",
+      "fixed_2026",
+    );
+    expect(mocks.sessionsCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mode: "payment",
+        customer_creation: "always",
+        line_items: [{ price: "price_verified_promo", quantity: 1 }],
+        metadata: expect.objectContaining({
+          billing_period: "promo",
+          requested_billing_period: "yearly",
+          pricing_id: "pricing-verified-promo",
+        }),
+        payment_intent_data: expect.objectContaining({
+          metadata: expect.objectContaining({
+            billing_period: "promo",
+            requested_billing_period: "yearly",
+            pricing_id: "pricing-verified-promo",
+          }),
         }),
       }),
     );

@@ -257,8 +257,8 @@ function RealEstateDirectoryClientInner({
   const isLoading = categoryLoading || (Boolean(realEstateCategoryId) && listingsLoading);
 
   const addListingHref = useMemo(() => {
-    if (user?.role === "admin" || user?.role === "editor") return "/admin/listings/new";
-    if (user?.role === "owner") return "/owner/support";
+    if (user?.role === "admin" || user?.role === "editor") return l("/admin/listings/new");
+    if (user?.role === "owner") return l("/owner/support");
     return l("/partner");
   }, [l, user?.role]);
 

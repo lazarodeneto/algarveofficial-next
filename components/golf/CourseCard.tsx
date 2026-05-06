@@ -6,7 +6,7 @@ import { buildLocalizedPath } from "@/lib/i18n/routing";
 import { cn } from "@/lib/utils";
 import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/Button";
+import { buttonVariants } from "@/components/ui/Button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 export interface CourseCardLabels {
@@ -55,87 +55,97 @@ export function CourseCard({ course, locale, labels, featured = false, className
     course.googleRating > 0;
 
   return (
-    <Card
-      className={cn(
-        "group flex h-full min-h-[360px] w-full min-w-0 flex-col overflow-hidden rounded-2xl border-border/70 shadow-sm transition-transform duration-200 hover:scale-[1.03]",
-        featured && "md:min-h-[420px]",
-        className,
-      )}
+    <Link
+      href={courseHref}
+      prefetch={false}
+      aria-label={`${labels.viewCourse}: ${course.name}`}
+      className="group block h-full rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A62A]/55 focus-visible:ring-offset-2"
     >
-      <div className={cn("relative h-48 w-full overflow-hidden bg-muted", featured && "md:h-60")}>
-        {course.featuredImageUrl ? (
-          <img
-            src={course.featuredImageUrl}
-            alt={course.name}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-          />
-        ) : (
-          <div className="h-full w-full bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900" />
-        )}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-        {tierBadge ? (
-          <Badge
-            variant={course.tier === "signature" ? "gold" : "secondary"}
-            className="absolute left-4 top-4 border-white/20 uppercase tracking-[0.16em]"
-          >
-            {tierBadge}
-          </Badge>
-        ) : null}
-        {hasGoogleRating ? (
-          <GoogleRatingBadge
-            rating={course.googleRating!}
-            reviewCount={course.googleReviewCount}
-            variant="overlay"
-            size="sm"
-            className="absolute right-4 top-4"
-          />
-        ) : null}
-      </div>
-
-      <CardHeader className="min-h-[10.75rem] p-5 sm:min-h-[11.25rem] sm:p-6">
-        <CardTitle className="line-clamp-2 text-lg leading-tight sm:text-xl">{course.name}</CardTitle>
-        <CardDescription className="line-clamp-2 break-words">
-          {course.city?.name ?? labels.locationFallback}
-          {course.region?.name ? `, ${course.region.name}` : ""}
-        </CardDescription>
-        {metaItems.length > 0 ? (
-          <p className="text-sm font-medium leading-6 text-foreground/75">{metaItems.join(" • ")}</p>
-        ) : null}
-        {bestForKey ? (
-          <p className="break-words text-[11px] font-semibold uppercase leading-snug tracking-[0.12em] text-primary sm:text-xs sm:tracking-[0.16em]">
-            {labels.bestFor}: {labels.bestForLabels[bestForKey]}
-          </p>
-        ) : null}
-      </CardHeader>
-
-      <CardContent
+      <Card
         className={cn(
-          "grid min-h-[7rem] flex-1 gap-3 px-5 pb-5 pt-0 text-sm sm:min-h-[7.5rem] sm:px-6 sm:pb-6",
-          metricGridClass,
+          "flex h-full min-h-[360px] w-full min-w-0 flex-col overflow-hidden rounded-2xl border-border/70 shadow-sm transition-transform duration-200 group-hover:scale-[1.03]",
+          featured && "md:min-h-[420px]",
+          className,
         )}
       >
-        {metrics.length > 0 ? (
-          metrics.map((metric) => (
-            <div key={metric.label} className="min-w-0 rounded-xl border bg-muted/30 p-3 sm:p-4">
-              <p className="break-words text-[10px] uppercase leading-tight tracking-[0.08em] text-muted-foreground sm:text-xs sm:tracking-wide">
-                {metric.label}
-              </p>
-              <p className="mt-1 text-sm font-semibold sm:text-base">{metric.value}</p>
-            </div>
-          ))
-        ) : (
-          <div aria-hidden="true" />
-        )}
-      </CardContent>
+        <div className={cn("relative h-48 w-full overflow-hidden bg-muted", featured && "md:h-60")}>
+          {course.featuredImageUrl ? (
+            <img
+              src={course.featuredImageUrl}
+              alt={course.name}
+              loading="lazy"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            />
+          ) : (
+            <div className="h-full w-full bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900" />
+          )}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+          {tierBadge ? (
+            <Badge
+              variant={course.tier === "signature" ? "gold" : "secondary"}
+              className="absolute left-4 top-4 border-white/20 uppercase tracking-[0.16em]"
+            >
+              {tierBadge}
+            </Badge>
+          ) : null}
+          {hasGoogleRating ? (
+            <GoogleRatingBadge
+              rating={course.googleRating!}
+              reviewCount={course.googleReviewCount}
+              variant="overlay"
+              size="sm"
+              className="absolute right-4 top-4"
+            />
+          ) : null}
+        </div>
 
-      <CardFooter className="mt-auto px-5 pb-5 pt-0 sm:px-6 sm:pb-6">
-        <Button asChild variant="outline" className="min-h-12 w-full whitespace-normal text-center leading-tight">
-          <Link href={courseHref} prefetch={false}>
+        <CardHeader className="min-h-[10.75rem] p-5 sm:min-h-[11.25rem] sm:p-6">
+          <CardTitle className="line-clamp-2 text-lg leading-tight sm:text-xl">{course.name}</CardTitle>
+          <CardDescription className="line-clamp-2 break-words">
+            {course.city?.name ?? labels.locationFallback}
+            {course.region?.name ? `, ${course.region.name}` : ""}
+          </CardDescription>
+          {metaItems.length > 0 ? (
+            <p className="text-sm font-medium leading-6 text-foreground/75">{metaItems.join(" • ")}</p>
+          ) : null}
+          {bestForKey ? (
+            <p className="break-words text-[11px] font-semibold uppercase leading-snug tracking-[0.12em] text-primary sm:text-xs sm:tracking-[0.16em]">
+              {labels.bestFor}: {labels.bestForLabels[bestForKey]}
+            </p>
+          ) : null}
+        </CardHeader>
+
+        <CardContent
+          className={cn(
+            "grid min-h-[7rem] flex-1 gap-3 px-5 pb-5 pt-0 text-sm sm:min-h-[7.5rem] sm:px-6 sm:pb-6",
+            metricGridClass,
+          )}
+        >
+          {metrics.length > 0 ? (
+            metrics.map((metric) => (
+              <div key={metric.label} className="min-w-0 rounded-xl border bg-muted/30 p-3 sm:p-4">
+                <p className="break-words text-[10px] uppercase leading-tight tracking-[0.08em] text-muted-foreground sm:text-xs sm:tracking-wide">
+                  {metric.label}
+                </p>
+                <p className="mt-1 text-sm font-semibold sm:text-base">{metric.value}</p>
+              </div>
+            ))
+          ) : (
+            <div aria-hidden="true" />
+          )}
+        </CardContent>
+
+        <CardFooter className="mt-auto px-5 pb-5 pt-0 sm:px-6 sm:pb-6">
+          <span
+            className={buttonVariants({
+              variant: "outline",
+              className: "min-h-12 w-full whitespace-normal text-center leading-tight",
+            })}
+          >
             {labels.viewCourse}
-          </Link>
-        </Button>
-      </CardFooter>
-    </Card>
+          </span>
+        </CardFooter>
+      </Card>
+    </Link>
   );
 }

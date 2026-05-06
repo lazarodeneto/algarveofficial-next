@@ -304,8 +304,6 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<BlogCategory | "all">("all");
 
-  const hero = resolveHero(pageConfig as Parameters<typeof resolveHero>[0] ?? null);
-
   const mergedInitialPosts = useMemo(
     () => mergePostsWithAuthors(initialPosts, initialAuthors),
     [initialAuthors, initialPosts],
@@ -331,6 +329,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
   });
 
   const cms = useBlogCmsHelpers(globalSettings);
+  const serverHero = resolveHero(pageConfig as Parameters<typeof resolveHero>[0] ?? null);
   const categories = Object.entries(blogCategoryLabels) as [BlogCategory, string][];
 
   const getCategoryLabel = (category: BlogCategory, post?: BlogPostRow) =>
@@ -365,30 +364,30 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
             className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}
           >
             <LiveStyleHero
-              badge={t("blog.label")}
-              title={t("blog.title")}
-              subtitle={t("blog.subtitle")}
+              badge={cms.getText("hero.badge", t("blog.label"))}
+              title={cms.getText("hero.title", t("blog.title"))}
+              subtitle={cms.getText("hero.subtitle", t("blog.subtitle"))}
               media={
                 <HeroBackgroundMedia
-                  mediaType={hero.mediaType}
-                  imageUrl={hero.imageUrl ?? undefined}
-                  videoUrl={hero.videoUrl ?? undefined}
-                  youtubeUrl={hero.youtubeUrl ?? undefined}
-                  posterUrl={hero.posterUrl ?? undefined}
-                  alt={t("blog.hero.alt")}
-                  fallback={<PageHeroImage page="blog" alt={t("blog.hero.alt")} />}
+                  mediaType={cms.getText("hero.mediaType", serverHero.mediaType ?? "image")}
+                  imageUrl={cms.getText("hero.imageUrl", serverHero.imageUrl ?? "") || undefined}
+                  videoUrl={cms.getText("hero.videoUrl", serverHero.videoUrl ?? "") || undefined}
+                  youtubeUrl={cms.getText("hero.youtubeUrl", serverHero.youtubeUrl ?? "") || undefined}
+                  posterUrl={cms.getText("hero.posterUrl", serverHero.posterUrl ?? "") || undefined}
+                  alt={cms.getText("hero.alt", t("blog.hero.alt"))}
+                  fallback={<PageHeroImage page="blog" alt={cms.getText("hero.alt", t("blog.hero.alt"))} />}
                 />
               }
               ctas={
                 <>
                   <Link href={l("/stay")}>
                     <Button variant="gold" size="lg">
-                      {t("blog.hero.ctaPrimary")}
+                      {cms.getText("hero.cta.primary", t("blog.hero.ctaPrimary"))}
                     </Button>
                   </Link>
                   <Link href={l("/contact")}>
                     <Button variant="heroOutline" size="lg">
-                      {t("blog.hero.ctaSecondary")}
+                      {cms.getText("hero.cta.secondary", t("blog.hero.ctaSecondary"))}
                     </Button>
                   </Link>
                 </>
@@ -398,7 +397,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   type="text"
-                  placeholder={t("blog.searchPlaceholder")}
+                  placeholder={cms.getText("search.placeholder", t("blog.searchPlaceholder"))}
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
                   className="h-12 border-border bg-card pl-12 text-base text-foreground sm:text-lg"
@@ -411,7 +410,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
                   size="sm"
                   onClick={() => setSelectedCategory("all")}
                 >
-                  {t("blog.allPosts")}
+                  {cms.getText("search.allPosts", t("blog.allPosts"))}
                 </Button>
                 {categories.map(([key]) => (
                   <Button
@@ -474,12 +473,12 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
                               iconClassName="h-4 w-4"
                             />
                           </div>
-                          <span>{t("blog.by")} {BLOG_AUTHOR_NAME}</span>
+                          <span>{cms.getText("posts.by", t("blog.by"))} {BLOG_AUTHOR_NAME}</span>
                         </div>
                         <span>•</span>
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
-                          <span>{featuredPost.reading_time} {t("blog.readTime")}</span>
+                          <span>{featuredPost.reading_time} {cms.getText("posts.readTime", t("blog.readTime"))}</span>
                         </div>
                       </div>
                     </CardContent>
@@ -495,10 +494,10 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
             {remainingPosts.length === 0 && !featuredPost ? (
               <div className="text-center py-16">
                 <h2 className="text-2xl font-serif font-medium text-foreground mb-4">
-                  {t("blog.noPostsTitle")}
+                  {cms.getText("posts.emptyTitle", t("blog.noPostsTitle"))}
                 </h2>
                 <p className="text-muted-foreground text-lg mb-2">
-                  {t("blog.noPostsFound")}
+                  {cms.getText("posts.emptyDescription", t("blog.noPostsFound"))}
                 </p>
                 <p className="text-muted-foreground">
                   {t(
@@ -541,10 +540,10 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
                           <div className="flex items-center justify-between text-xs text-muted-foreground/70 pt-4 border-t border-border/30">
                             <div className="flex items-center gap-1.5">
                               <Clock className="h-3.5 w-3.5 text-[#C7A35A]/60" />
-                              <span>{post.reading_time} {t("blog.readTime")}</span>
+                              <span>{post.reading_time} {cms.getText("posts.readTime", t("blog.readTime"))}</span>
                             </div>
                             <span className="text-[#C7A35A] font-medium tracking-wide group-hover:translate-x-0.5 transition-transform duration-200">
-                              {t("blog.readMore")}
+                              {cms.getText("posts.readMore", t("blog.readMore"))}
                             </span>
                           </div>
                         </div>

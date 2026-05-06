@@ -146,7 +146,9 @@ export async function handleCheckoutCompleted(
   event: Stripe.Event,
 ): Promise<HandlerResult> {
   const session = event.data.object as Stripe.Checkout.Session;
-  if (session.mode !== "subscription") return { ownerId: null, skipped: true };
+  if (session.mode !== "subscription" && session.mode !== "payment") {
+    return { ownerId: null, skipped: true, reason: "unsupported_mode" };
+  }
   const ownerId = getMetadataOwnerId(session.metadata);
   if (!ownerId) return { ownerId: null };
 
@@ -175,6 +177,10 @@ export async function handleCheckoutCompleted(
 
   // fixed_2026: one-shot payment, immediately active. End date from pricing valid_to.
   if (planType === "fixed_2026") {
+    if (session.mode === "payment" && session.payment_status !== "paid") {
+      return { ownerId, skipped: true, reason: "payment_not_paid" };
+    }
+
     const endDate = pricing?.valid_to ?? "2026-12-31";
     await upsertSubscription(
       supabase,
@@ -197,6 +203,10 @@ export async function handleCheckoutCompleted(
       { eventCreatedAt: event.created },
     );
     return { ownerId };
+  }
+
+  if (session.mode !== "subscription") {
+    return { ownerId, skipped: true, reason: "unsupported_recurring_mode" };
   }
 
   // Recurring: write a `pending` placeholder + IDs. customer.subscription.created

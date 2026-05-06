@@ -25,7 +25,7 @@ const partnerClaimSchema = z.object({
 const RESEND_OUTBOX_PROVIDER = "resend";
 const RESEND_OUTBOX_OPERATION = "resend.send_email";
 const RESEND_OUTBOX_SOURCE = "partner-claim-alert";
-const RESEND_FROM = "AlgarveOfficial <onboarding@resend.dev>";
+const DEFAULT_TRANSACTIONAL_FROM = "AlgarveOfficial <info@algarveofficial.com>";
 const OUTBOX_WARNING_ENQUEUE_FAILED = "partner_claim_alert_enqueue_failed";
 const OUTBOX_WARNING_TRIGGER_FAILED = "partner_claim_alert_trigger_failed";
 const OUTBOX_WARNING_WORKER_UNHEALTHY = "partner_claim_alert_outbox_worker_unhealthy";
@@ -75,6 +75,12 @@ function toDisplayValue(value: string | null | undefined) {
 function toMultilineHtml(value: string | null | undefined) {
   const normalized = toDisplayValue(value);
   return escapeHtml(normalized).replace(/\n/g, "<br />");
+}
+
+function getTransactionalFromAddress() {
+  return process.env.RESEND_TRANSACTIONAL_FROM?.trim()
+    || process.env.EMAIL_FROM?.trim()
+    || DEFAULT_TRANSACTIONAL_FROM;
 }
 
 function buildPartnerClaimAlertEmail(args: {
@@ -132,7 +138,7 @@ function buildPartnerClaimAlertEmail(args: {
 
   return {
     to: [recipient],
-    from: RESEND_FROM,
+    from: getTransactionalFromAddress(),
     subject,
     html,
     text,
