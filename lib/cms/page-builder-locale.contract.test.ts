@@ -19,4 +19,14 @@ describe("cms page builder locale contract", () => {
     expect(source).toContain("useGlobalSettings({");
     expect(source).toContain("locale,");
   });
+
+  it("keeps page selection and the page query param in one guarded transition", () => {
+    const source = readFileSync(ADMIN_PAGE_BUILDER_PATH, "utf8");
+
+    expect(source).toContain("pendingSelectedPageIdRef");
+    expect(source).toContain("const handlePageSelection = (nextPageId: string) => {");
+    expect(source).toContain('next.set("page", nextPageId);');
+    expect(source).toContain('next.delete("mode");');
+    expect(source).toContain("onClick={() => handlePageSelection(page.id)}");
+  });
 });

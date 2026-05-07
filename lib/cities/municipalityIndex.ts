@@ -4,6 +4,8 @@ type CityRow = Tables<"cities">;
 type RegionRow = Tables<"regions">;
 type CityRegionMappingRow = Tables<"city_region_mapping">;
 
+import { slugifyEntityName } from "@/lib/slugify";
+
 export interface MunicipalityCityIndexItem {
   id: string;
   slug: string;
@@ -86,7 +88,7 @@ function normalizeKey(value: string | null | undefined): string {
 }
 
 function toSlug(value: string): string {
-  return normalizeKey(value).replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  return slugifyEntityName(value, { entityType: "taxonomy" });
 }
 
 function buildMunicipalityCatalog() {

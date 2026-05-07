@@ -4,6 +4,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import type { CalendarEvent, EventStatus, EventCategory, EventFormData } from '@/types/events';
 import type { Json } from '@/integrations/supabase/types';
+import {
+  getDisallowedSlugInputError,
+  getSlugValidationError,
+  normalizeSlug,
+  slugifyEntityName,
+} from '@/lib/slugify';
 
 type AdminEventsFilters = {
   status?: EventStatus;
@@ -15,6 +21,18 @@ const PENDING_EVENTS_MODERATION_FILTERS: Readonly<AdminEventsFilters> = {
   status: 'pending_review',
   time: 'all',
 };
+
+function normalizeEventSlug(value: string | undefined): string {
+  const raw = value ?? "";
+  const disallowedError = getDisallowedSlugInputError(raw);
+  if (disallowedError) throw new Error(disallowedError);
+
+  const slug = normalizeSlug(raw, { entityType: "content" });
+  const slugError = getSlugValidationError(slug, { entityType: "content" });
+  if (slugError) throw new Error(slugError);
+
+  return slug;
+}
 
 async function fetchAdminEvents(filters?: AdminEventsFilters): Promise<CalendarEvent[]> {
   const today = new Date().toISOString().split('T')[0];
@@ -286,7 +304,7 @@ export function useCreateEvent() {
 
       const insertData = {
         title: data.title!,
-        slug: data.slug!,
+        slug: normalizeEventSlug(data.slug),
         category: data.category!,
         start_date: data.start_date!,
         end_date: data.end_date!,
@@ -335,6 +353,9 @@ export function useUpdateEvent() {
       // Prepare update object, casting event_data and converting empty strings to null for nullable fields
       const { event_data, ...rest } = data;
       const cleaned: Record<string, unknown> = { ...rest };
+      if (typeof cleaned.slug === "string") {
+        cleaned.slug = normalizeEventSlug(cleaned.slug);
+      }
       const nullableStringFields = ['start_time', 'end_time', 'location', 'venue', 'description', 'short_description', 'image', 'ticket_url', 'price_range', 'meta_title', 'meta_description', 'rejection_reason', 'recurrence_pattern'];
       for (const key of nullableStringFields) {
         if (key in cleaned && cleaned[key] === '') {
@@ -434,10 +455,5 @@ export function useDeleteEvent() {
 
 // Helper to generate slug from title
 export function generateEventSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .trim();
+  return slugifyEntityName(title, { entityType: "content" });
 }

@@ -28,11 +28,11 @@ export function Facilities({ details, labels }: FacilitiesProps) {
   if (facilities.length === 0) return null;
 
   return (
-    <section className="mx-auto max-w-6xl py-12">
+    <section className="py-0">
       <h2 className="font-serif text-3xl font-medium text-foreground">{labels.title}</h2>
       <div className="mt-6 grid grid-cols-2 gap-6 md:grid-cols-4">
         {facilities.map(({ label, Icon }) => (
-          <div key={label} className="flex items-center gap-3 rounded-2xl border border-border/70 p-4 shadow-sm">
+          <div key={label} className="flex items-center gap-3 rounded-lg border border-border/70 bg-background p-4 shadow-sm">
             <Icon className="h-5 w-5 text-primary" />
             <span className="text-sm font-medium text-foreground">{label}</span>
           </div>

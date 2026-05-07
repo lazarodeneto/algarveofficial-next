@@ -52,6 +52,7 @@ import { sanitizeHtmlString } from "@/lib/sanitizeHtml";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 import { getCategoryUrlSlug } from "@/lib/seo/programmatic/category-slugs";
 import { getListingCategoryLanding } from "@/lib/listingCategoryLanding";
+import { resolveListingDetailLayoutKey } from "@/lib/listingDetailLayout";
 import { hasRealEstateSignals, isRealEstateCategorySlug } from "@/lib/realEstateDetection";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { buildUniformLocalizedSlugMap } from "@/lib/i18n/localized-routing";
@@ -206,53 +207,49 @@ const getCategoryLayout = (
 ) => {
   const props = { details, bookingUrl, onInquire };
   const hasPropertySignals = hasRealEstateSignals(details);
+  const normalizedCategorySlug = categorySlug.trim().toLowerCase();
 
-  switch (categorySlug) {
-    case "places-to-stay":
-    case "premium-accommodation":
+  if (normalizedCategorySlug === "algarve-services") {
+    return hasPropertySignals ? (
+      <RealEstateLayout details={details} onInquire={onInquire} />
+    ) : (
+      <VIPConciergeLayout {...props} />
+    );
+  }
+
+  switch (resolveListingDetailLayoutKey(normalizedCategorySlug)) {
+    case "accommodation":
       return <PremiumAccommodationLayout {...props} />;
     case "restaurants":
-    case "fine-dining":
       return <FineDiningLayout {...props} />;
     case "golf":
       return <GolfLayout details={details} bookingUrl={bookingUrl} />;
-    case "beaches-clubs":
     case "beaches":
       return <BeachClubLayout {...props} />;
     case "wellness-spas":
       return <WellnessLayout {...props} />;
-    case "shopping-boutiques":
+    case "shopping":
       return <ShoppingLayout {...props} />;
     case "private-chefs":
       return <PrivateChefLayout {...props} />;
-    case "vip-concierge":
+    case "concierge-services":
       return <VIPConciergeLayout {...props} />;
-    case "things-to-do":
-    case "premium-experiences":
+    case "experiences":
       return <PremiumExperienceLayout {...props} />;
-    case "family-fun":
+    case "family-attractions":
       return <FamilyFunLayout {...props} />;
-    case "vip-transportation":
+    case "transportation":
       return <VIPTransportationLayout {...props} />;
     case "real-estate":
-    case "prime-real-estate":
       return <RealEstateLayout details={details} onInquire={onInquire} />;
-    case "algarve-services":
-      return hasPropertySignals ? (
-        <RealEstateLayout details={details} onInquire={onInquire} />
-      ) : (
-        <VIPConciergeLayout {...props} />
-      );
-    case "whats-on":
-    case "premier-events":
     case "events":
       return <PremierEventsLayout details={details} />;
-    case "architecture-decoration":
+    case "architecture-design":
       return <ArchitectureDecorationLayout {...props} />;
-    case "protection-services":
+    case "security-services":
       return <ProtectionServicesLayout {...props} />;
     default:
-      return <ShoppingLayout {...props} />;
+      return null;
   }
 };
 

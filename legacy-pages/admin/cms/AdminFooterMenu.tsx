@@ -64,6 +64,7 @@ import {
   FooterSection,
   FooterLink,
 } from "@/hooks/useFooterMenu";
+import { normalizeSlug, slugifyEntityName } from "@/lib/slugify";
 
 // Sortable Section Item
 function SortableSectionItem({
@@ -549,7 +550,7 @@ export default function AdminFooterMenu() {
                     ...sectionForm,
                     title: e.target.value,
                     slug: sectionDialog.mode === "create" 
-                      ? e.target.value.toLowerCase().replace(/\s+/g, "-")
+                      ? slugifyEntityName(e.target.value, { entityType: "footer-section" })
                       : sectionForm.slug,
                   });
                 }}
@@ -561,7 +562,7 @@ export default function AdminFooterMenu() {
               <Input
                 id="section-slug"
                 value={sectionForm.slug}
-                onChange={(e) => setSectionForm({ ...sectionForm, slug: e.target.value })}
+                onChange={(e) => setSectionForm({ ...sectionForm, slug: normalizeSlug(e.target.value, { entityType: "footer-section" }) })}
                 placeholder="e.g., resources"
               />
             </div>

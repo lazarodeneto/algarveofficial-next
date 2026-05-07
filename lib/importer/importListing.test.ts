@@ -43,8 +43,37 @@ const categoryDataGolf = {
   },
 };
 
-function createImporterReferenceClient() {
+type MockImportListing = {
+  id: string;
+  slug: string;
+  name: string;
+  city_id?: string | null;
+  address?: string | null;
+  category_data?: unknown;
+};
+
+function createImporterReferenceClient(options: {
+  listings?: MockImportListing[];
+  slugAliases?: Array<{ slug: string; listing_id: string }>;
+} = {}) {
   const insertedListings: Array<Record<string, unknown>> = [];
+  const updatedListings: Array<{ id: string; payload: Record<string, unknown> }> = [];
+  const listings = [...(options.listings ?? [])];
+  const slugAliases = [...(options.slugAliases ?? [])];
+
+  const findListing = (filters: Array<[string, string]>) => {
+    if (filters.length === 0) return null;
+    return listings.find((listing) =>
+      filters.every(([column, value]) => {
+        if (column === "id") return listing.id === value;
+        if (column === "slug") return listing.slug === value;
+        if (column === "name") return listing.name === value;
+        if (column === "city_id") return listing.city_id === value;
+        return false;
+      }),
+    ) ?? null;
+  };
+
   const client = {
     from(table: string) {
       if (table === "categories") {
@@ -80,12 +109,19 @@ function createImporterReferenceClient() {
       }
 
       if (table === "listings") {
+        const createListingReadQuery = () => {
+          const filters: Array<[string, string]> = [];
+          return {
+            eq(column: string, value: string) {
+              filters.push([column, value]);
+              return this;
+            },
+            maybeSingle: async () => ({ data: findListing(filters), error: null }),
+          };
+        };
+
         return {
-          select: () => ({
-            eq: () => ({
-              maybeSingle: async () => ({ data: null, error: null }),
-            }),
-          }),
+          select: createListingReadQuery,
           insert: (payload: Record<string, unknown>) => {
             insertedListings.push(payload);
             return {
@@ -94,6 +130,54 @@ function createImporterReferenceClient() {
                   data: { id: "listing-1", slug: payload.slug, name: payload.name },
                   error: null,
                 }),
+              }),
+            };
+          },
+          update: (payload: Record<string, unknown>) => {
+            let listingId = "";
+            return {
+              eq(column: string, value: string) {
+                if (column === "id") listingId = value;
+                return this;
+              },
+              select() {
+                return this;
+              },
+              single: async () => {
+                updatedListings.push({ id: listingId, payload });
+                const existing = listings.find((listing) => listing.id === listingId);
+                return {
+                  data: {
+                    id: listingId,
+                    slug: String(payload.slug ?? existing?.slug ?? ""),
+                    name: String(payload.name ?? existing?.name ?? ""),
+                  },
+                  error: null,
+                };
+              },
+            };
+          },
+        };
+      }
+
+      if (table === "listing_slugs") {
+        return {
+          select: () => {
+            const filters: Array<[string, string]> = [];
+            return {
+              eq(column: string, value: string) {
+                filters.push([column, value]);
+                return this;
+              },
+              maybeSingle: async () => ({
+                data: slugAliases.find((alias) =>
+                  filters.every(([column, value]) => {
+                    if (column === "slug") return alias.slug === value;
+                    if (column === "listing_id") return alias.listing_id === value;
+                    return false;
+                  }),
+                ) ?? null,
+                error: null,
               }),
             };
           },
@@ -108,7 +192,7 @@ function createImporterReferenceClient() {
     },
   } as unknown as ImporterSupabaseClient;
 
-  return { client, insertedListings };
+  return { client, insertedListings, updatedListings };
 }
 
 describe("unified listing importer", () => {
@@ -418,5 +502,129 @@ describe("unified listing importer", () => {
       category_id: "cat-accommodation",
       city_id: "city-lagos",
     });
+  });
+
+  it("updates an existing listing when URL_slug matches a stable name and city", async () => {
+    const { client, updatedListings } = createImporterReferenceClient({
+      listings: [{
+        id: "listing-existing",
+        slug: "imported-accommodation",
+        name: "Imported Accommodation",
+        city_id: "city-lagos",
+        category_data: { existing: true },
+      }],
+    });
+
+    const result = await importListing({
+      Nome: "Imported Accommodation",
+      URL_slug: "imported-accommodation",
+      City: "Lagos",
+      category: "accommodation",
+      Description: "Updated description.",
+    }, { writeClient: client });
+
+    expect(result.ok).toBe(true);
+    expect(result.changed.listing).toBe("updated");
+    expect(result.listingId).toBe("listing-existing");
+    expect(updatedListings).toEqual([
+      expect.objectContaining({
+        id: "listing-existing",
+        payload: expect.objectContaining({
+          slug: "imported-accommodation",
+          name: "Imported Accommodation",
+          description: "Updated description.",
+        }),
+      }),
+    ]);
+  });
+
+  it("updates an existing listing by stable listing id even when the slug changes", async () => {
+    const { client, updatedListings } = createImporterReferenceClient({
+      listings: [{
+        id: "listing-stable",
+        slug: "old-imported-accommodation",
+        name: "Old Imported Accommodation",
+        city_id: "city-lagos",
+      }],
+    });
+
+    const result = await importListing({
+      id: "listing-stable",
+      Nome: "Imported Accommodation",
+      URL_slug: "imported-accommodation",
+      City: "Lagos",
+      category: "accommodation",
+    }, { writeClient: client });
+
+    expect(result.ok).toBe(true);
+    expect(result.changed.listing).toBe("updated");
+    expect(result.warnings).toContain(
+      'Existing listing "old-imported-accommodation" will be updated to canonical slug "imported-accommodation".',
+    );
+    expect(updatedListings[0]).toMatchObject({
+      id: "listing-stable",
+      payload: expect.objectContaining({ slug: "imported-accommodation" }),
+    });
+  });
+
+  it("fails safely when URL_slug and stable id resolve to different existing listings", async () => {
+    const { client } = createImporterReferenceClient({
+      listings: [
+        {
+          id: "listing-by-id",
+          slug: "old-imported-accommodation",
+          name: "Imported Accommodation",
+          city_id: "city-lagos",
+        },
+        {
+          id: "listing-by-slug",
+          slug: "imported-accommodation",
+          name: "Imported Accommodation",
+          city_id: "city-lagos",
+        },
+      ],
+    });
+
+    const result = await importListing({
+      id: "listing-by-id",
+      Nome: "Imported Accommodation",
+      URL_slug: "imported-accommodation",
+      City: "Lagos",
+      category: "accommodation",
+    }, { writeClient: client });
+
+    expect(result.ok).toBe(false);
+    expect(result.changed.listing).toBe("unchanged");
+    expect(result.errors).toContainEqual(expect.objectContaining({
+      path: "URL_slug",
+      message: expect.stringContaining("resolves to multiple existing listings"),
+    }));
+  });
+
+  it("fails safely when a duplicate URL_slug belongs to a different listing", async () => {
+    const { client, updatedListings, insertedListings } = createImporterReferenceClient({
+      listings: [{
+        id: "listing-other",
+        slug: "imported-accommodation",
+        name: "Different Accommodation",
+        city_id: "city-lagos",
+      }],
+    });
+
+    const result = await importListing({
+      Nome: "Imported Accommodation",
+      URL_slug: "imported-accommodation",
+      City: "Lagos",
+      category: "accommodation",
+    }, { writeClient: client });
+
+    expect(result.ok).toBe(false);
+    expect(result.changed.listing).toBe("unchanged");
+    expect(result.errors).toContainEqual(expect.objectContaining({
+      path: "URL_slug",
+      message: expect.stringContaining("already associated with an existing listing"),
+    }));
+    expect(updatedListings).toHaveLength(0);
+    expect(insertedListings).toHaveLength(0);
   });
 });

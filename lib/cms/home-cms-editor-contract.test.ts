@@ -30,9 +30,9 @@ describe("home CMS editor public rendering contract", () => {
 
     expect(source).toContain('categories: "quick-links"');
     expect(source).toContain('cities: "all-cities"');
-    expect(source).toContain("getHomeSectionCopy(settings?.section_copy, id)");
-    expect(source).toContain("quickLinksSection");
-    expect(source).toContain("remainingSections");
+    expect(source).toContain("getHomeSectionCopy(settings?.section_copy, getHomeSectionCopySourceId(id))");
+    expect(source).toContain("pinnedTopSectionIds");
+    expect(source).toContain("orderedBodySections");
   });
 
   it("hydrates localized Home section copy on the public homepage", () => {

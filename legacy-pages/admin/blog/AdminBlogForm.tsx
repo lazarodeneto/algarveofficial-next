@@ -37,6 +37,7 @@ import {
 } from "@/hooks/useBlogPosts";
 import { extractIdParam } from "@/lib/routeParams";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { normalizeSlug, slugifyEntityName } from "@/lib/slugify";
 
 interface FormData {
   title: string;
@@ -106,11 +107,10 @@ export default function AdminBlogForm() {
 
     // Auto-generate slug from title
     if (field === "title" && !isEditing) {
-      const slug = (value as string)
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "");
-      setFormData((prev) => ({ ...prev, slug }));
+      setFormData((prev) => ({
+        ...prev,
+        slug: slugifyEntityName(value as string, { entityType: "content" }),
+      }));
     }
   };
 
@@ -262,7 +262,7 @@ export default function AdminBlogForm() {
                 <Input
                   id="slug"
                   value={formData.slug}
-                  onChange={(e) => handleChange("slug", e.target.value)}
+                  onChange={(e) => handleChange("slug", normalizeSlug(e.target.value, { entityType: "content" }))}
                   placeholder="post-url-slug"
                 />
               </div>

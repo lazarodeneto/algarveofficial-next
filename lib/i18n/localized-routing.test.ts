@@ -14,7 +14,7 @@ import {
 describe("localized routing contract", () => {
   it("builds static route paths from route keys", () => {
     expect(buildStaticRoutePath("blog", "fr")).toBe("/fr/blog");
-    expect(buildLocalizedPath("en", buildStaticRouteData("home"))).toBe("/en");
+    expect(buildLocalizedPath("en", buildStaticRouteData("home"))).toBe("/");
   });
 
   it("builds entity paths from structured localized slugs", () => {
@@ -80,7 +80,7 @@ describe("localized routing contract", () => {
     ]);
 
     expect(switchPaths).toEqual({
-      en: "/en/visit/lagos/restaurants",
+      en: "/visit/lagos/restaurants",
       "pt-pt": "/pt-pt/visit/lagos/restaurantes",
       fr: "/fr/visit/lagos/restaurants",
     });
@@ -90,7 +90,7 @@ describe("localized routing contract", () => {
       "https://algarveofficial.com/pt-pt/visit/lagos/restaurantes",
     );
     expect(alternates?.languages?.["x-default"]).toBe(
-      "https://algarveofficial.com/en/visit/lagos/restaurants",
+      "https://algarveofficial.com/visit/lagos/restaurants",
     );
   });
 });

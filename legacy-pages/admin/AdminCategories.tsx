@@ -33,6 +33,7 @@ import Image from "next/image";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { canUseNextImage } from "@/lib/nextImageSafety";
 import { getCategoryFallbackImageUrl } from "@/lib/fallback-images";
+import { normalizeSlug, slugifyEntityName } from "@/lib/slugify";
 
 type Category = Tables<"categories">;
 
@@ -189,14 +190,7 @@ export default function AdminCategories() {
     setFormData({ name: "", slug: "", description: "", short_description: "", is_active: true, is_featured: false, image_url: "" });
   };
 
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-  };
+  const generateSlug = (name: string) => slugifyEntityName(name, { entityType: "taxonomy" });
 
   if (isLoading) {
     return (
@@ -258,7 +252,7 @@ export default function AdminCategories() {
                 <Input
                   id="slug"
                   value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, slug: normalizeSlug(e.target.value, { entityType: "taxonomy" }) })}
                   placeholder="e.g., fine-dining"
                 />
               </div>

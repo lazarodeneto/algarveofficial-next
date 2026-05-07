@@ -21,16 +21,17 @@ describe("GolfCTA", () => {
     const link = screen.getByRole("link", { name: labels.bookTeeTimeAria });
     expect(screen.getByText(labels.readyToPlay)).toBeInTheDocument();
     expect(screen.getByText(labels.bookTeeTimeSubtext)).toBeInTheDocument();
-    expect(link).toHaveTextContent(labels.bookTeeTime);
+    expect(link).toHaveTextContent("BOOK TEE TIME");
     expect(link).toHaveAttribute("href", bookingUrl);
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "sponsored noopener noreferrer");
   });
 
-  it("does not show the booking button when the booking URL is empty", () => {
+  it("uses the tee-time label when falling back to a course website", () => {
     render(<GolfCTA bookingUrl={null} websiteUrl="https://course.example" labels={labels} />);
 
-    expect(screen.queryByRole("link", { name: labels.bookTeeTimeAria })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: labels.visitWebsite })).toHaveAttribute("href", "https://course.example");
+    const link = screen.getByRole("link", { name: labels.bookTeeTimeAria });
+    expect(link).toHaveTextContent("BOOK TEE TIME");
+    expect(link).toHaveAttribute("href", "https://course.example");
   });
 });

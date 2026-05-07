@@ -58,6 +58,10 @@ interface ArchiveInput extends ActionInput {
   reason?: string;
 }
 
+interface MarkReadInput extends ActionInput {
+  reason?: string;
+}
+
 const INBOX_SOURCES = new Set<InboxSource>([
   "billing_subscription",
   "external_outbox_alert",
@@ -297,5 +301,33 @@ export async function archiveInboxItem(input: ArchiveInput): Promise<InboxAction
     return { ok: true };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Archive failed." };
+  }
+}
+
+export async function markInboxItemRead(input: MarkReadInput): Promise<InboxActionResult> {
+  const auth = await requireAdmin();
+  if ("error" in auth) return { ok: false, error: auth.error };
+  const invalid = validateActionInput(input);
+  if (invalid) return invalid;
+
+  const client = writeClient();
+  try {
+    const { error } = await client
+      .from("admin_inbox_archives" as never)
+      .upsert(
+        {
+          source: input.source,
+          source_row_id: input.sourceRowId,
+          archived_by: auth.userId,
+          archived_at: new Date().toISOString(),
+          reason: input.reason ?? "marked_read",
+        } as never,
+        { onConflict: "source,source_row_id" } as never,
+      );
+    if (error) return { ok: false, error: error.message };
+    invalidate();
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Mark as read failed." };
   }
 }

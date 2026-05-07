@@ -37,6 +37,7 @@ import { toast } from '@/hooks/use-toast';
 import { extractIdParam } from "@/lib/routeParams";
 import { ImageUrlUploadField } from "@/components/admin/ImageUrlUploadField";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { normalizeSlug } from "@/lib/slugify";
 
 export default function AdminEventForm() {
   const router = useRouter();
@@ -196,7 +197,7 @@ export default function AdminEventForm() {
                   <Input
                     id="slug"
                     value={formData.slug}
-                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, slug: normalizeSlug(e.target.value, { entityType: "content" }) })}
                     placeholder="event-slug"
                   />
                 </div>

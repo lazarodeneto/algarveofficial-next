@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
+import { formatInboxSlaRelative } from "@/lib/admin/inbox/format";
 import type { InboxDataSourceError, InboxItem, InboxUrgency } from "@/lib/admin/inbox/types";
 
 interface InboxListProps {
@@ -34,15 +35,6 @@ const DOMAIN_LABEL: Record<InboxItem["domain"], string> = {
   translations: "Translation",
   system: "System",
 };
-
-function formatRelative(minutes: number): string {
-  if (minutes <= 0) return `${Math.abs(minutes)}m overdue`;
-  if (minutes < 60) return `${minutes}m left`;
-  const hours = Math.round(minutes / 60);
-  if (hours < 48) return `${hours}h left`;
-  const days = Math.round(hours / 24);
-  return `${days}d left`;
-}
 
 export function InboxList({
   items,
@@ -111,14 +103,10 @@ export function InboxList({
     );
   }
 
-  // Build list with sticky tier dividers
-  let lastUrgency: InboxUrgency | null = null;
-
   return (
     <ul className="flex h-full flex-1 flex-col overflow-y-auto border-r border-border bg-background">
-      {items.map((item) => {
-        const showDivider = item.urgency !== lastUrgency;
-        lastUrgency = item.urgency;
+      {items.map((item, index) => {
+        const showDivider = index === 0 || item.urgency !== items[index - 1]?.urgency;
         const active = item.id === selectedId;
 
         return (
@@ -147,7 +135,7 @@ export function InboxList({
                   {DOMAIN_LABEL[item.domain]}
                 </span>
                 <span className="ml-auto text-xs text-muted-foreground">
-                  {formatRelative(item.sla.minutesRemaining)}
+                  {formatInboxSlaRelative(item.sla.minutesRemaining)}
                 </span>
               </div>
               <h3 className="mt-1 truncate text-sm font-semibold text-foreground">

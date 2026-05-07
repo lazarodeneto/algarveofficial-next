@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
+import { BellOff, CheckCheck } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
@@ -18,9 +19,11 @@ import {
   approveInboxItem,
   archiveInboxItem,
   assignInboxItem,
+  markInboxItemRead,
   rejectInboxItem,
 } from "@/lib/admin/inbox/actions";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { formatInboxDueStatus } from "@/lib/admin/inbox/format";
 import type {
   BillingSubscriptionItem,
   EventModerationItem,
@@ -38,13 +41,6 @@ interface InboxDetailProps {
   onOpenChange: (open: boolean) => void;
   onResolved: () => void;
   currentUserId: string | null;
-}
-
-function formatDue(iso: string, minutes: number): string {
-  const due = new Date(iso);
-  const label = due.toLocaleString();
-  if (minutes <= 0) return `Overdue since ${label}`;
-  return `Due by ${label}`;
 }
 
 function EntityLink({ item }: { item: InboxItem }) {
@@ -192,6 +188,14 @@ export function InboxDetail({
   const canReject = item.resolution.available.includes("reject");
   const canArchive = item.resolution.available.includes("archive");
   const canAssign = item.resolution.available.includes("assign");
+  const readActionLabel =
+    item.source === "external_outbox_alert"
+      ? "Clear alert"
+      : item.source === "billing_subscription" || item.source === "translation_job"
+        ? "Clear notification"
+        : "Mark as read";
+  const readActionReason = readActionLabel.toLowerCase().replace(/\s+/g, "_");
+  const ReadActionIcon = item.source === "external_outbox_alert" ? BellOff : CheckCheck;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -209,7 +213,7 @@ export function InboxDetail({
               {item.urgency}
             </Badge>
             <span className="text-xs text-muted-foreground">
-              {formatDue(item.sla.dueAt, item.sla.minutesRemaining)}
+              {formatInboxDueStatus(item.sla.dueAt, item.sla.minutesRemaining)}
             </span>
           </div>
         </SheetHeader>
@@ -292,6 +296,16 @@ export function InboxDetail({
 
           {/* Secondary actions */}
           <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={pending}
+              onClick={() => run(() => markInboxItemRead({ ...base, reason: readActionReason }))}
+              aria-label={`${readActionLabel} and clear this inbox notification`}
+            >
+              <ReadActionIcon className="mr-2 h-4 w-4" />
+              {readActionLabel}
+            </Button>
             {canArchive ? (
               <Button
                 type="button"

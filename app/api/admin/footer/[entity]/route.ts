@@ -5,6 +5,7 @@ import {
   resolveAdminFooterTable,
 } from "@/lib/admin/footer-contract";
 import { requireAdminWriteClient } from "@/lib/server/admin-auth";
+import { getDisallowedSlugInputError, getSlugValidationError, normalizeSlug } from "@/lib/slugify";
 
 function errorResponse(status: number, code: string, message: string) {
   return NextResponse.json({ ok: false, error: { code, message } }, { status });
@@ -52,6 +53,8 @@ export async function POST(
     if (typeof payload.title !== "string" || typeof payload.slug !== "string") {
       return errorResponse(400, "INVALID_SECTION", "title and slug are required.");
     }
+    const disallowedSlugError = getDisallowedSlugInputError(payload.slug);
+    if (disallowedSlugError) return errorResponse(400, "INVALID_SECTION_SLUG", disallowedSlugError);
   } else if (resolved.entity === "links") {
     if (
       typeof payload.section_id !== "string" ||
@@ -86,11 +89,19 @@ export async function POST(
 
   const insertPayload = {
     ...payload,
+    ...(resolved.entity === "sections" && typeof payload.slug === "string"
+      ? { slug: normalizeSlug(payload.slug, { entityType: "footer-section" }) }
+      : {}),
     display_order: maxOrder + 1,
     ...(resolved.entity === "links"
       ? { icon: typeof payload.icon === "string" ? payload.icon : "Link" }
-      : {}),
+    : {}),
   };
+
+  if (resolved.entity === "sections" && typeof insertPayload.slug === "string") {
+    const slugError = getSlugValidationError(insertPayload.slug, { entityType: "footer-section" });
+    if (slugError) return errorResponse(400, "INVALID_SECTION_SLUG", slugError);
+  }
 
   const { data, error } = await auth.writeClient
     .from(resolved.table as never)
@@ -143,6 +154,15 @@ export async function PATCH(
   const updates = { ...payload };
   delete updates.id;
   delete updates.created_at;
+
+  if (resolved.entity === "sections" && typeof updates.slug === "string") {
+    const disallowedSlugError = getDisallowedSlugInputError(updates.slug);
+    if (disallowedSlugError) return errorResponse(400, "INVALID_SECTION_SLUG", disallowedSlugError);
+    const normalizedSlug = normalizeSlug(updates.slug, { entityType: "footer-section" });
+    const slugError = getSlugValidationError(normalizedSlug, { entityType: "footer-section" });
+    if (slugError) return errorResponse(400, "INVALID_SECTION_SLUG", slugError);
+    updates.slug = normalizedSlug;
+  }
 
   const { data, error } = await auth.writeClient
     .from(resolved.table as never)

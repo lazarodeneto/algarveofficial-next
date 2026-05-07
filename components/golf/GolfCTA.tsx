@@ -25,7 +25,7 @@ export function GolfCTA({ bookingUrl, contactHref, websiteUrl, labels }: GolfCTA
   const primaryAction = bookingUrl
     ? {
         href: bookingUrl,
-        label: labels.bookTeeTime,
+        label: labels.bookTeeTime.toLocaleUpperCase(),
         ariaLabel: labels.bookTeeTimeAria,
         target: "_blank",
         rel: "sponsored noopener noreferrer",
@@ -33,8 +33,8 @@ export function GolfCTA({ bookingUrl, contactHref, websiteUrl, labels }: GolfCTA
     : websiteUrl
       ? {
           href: websiteUrl,
-          label: labels.visitWebsite,
-          ariaLabel: labels.visitWebsite,
+          label: labels.bookTeeTime.toLocaleUpperCase(),
+          ariaLabel: labels.bookTeeTimeAria,
           target: "_blank",
           rel: "noopener noreferrer",
         }

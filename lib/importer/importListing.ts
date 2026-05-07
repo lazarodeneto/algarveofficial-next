@@ -8,6 +8,7 @@ import { golfImportSchema } from "./schemas/golf";
 import { propertyImportSchema } from "./schemas/property";
 import { flattenZodErrors } from "./schemas/shared";
 import { transformImportListing } from "./transform";
+import { getDisallowedSlugInputError, normalizeSlug, slugifyEntityName } from "@/lib/slugify";
 
 export type ImportListingType = "golf" | "property" | "concierge-services" | "standard";
 
@@ -53,6 +54,15 @@ type ImportReferenceData = {
   regionByNameOrSlug: Map<string, string>;
 };
 
+type ExistingImportListing = {
+  id?: string;
+  slug?: string | null;
+  name?: string | null;
+  address?: string | null;
+  city_id?: string | null;
+  category_data?: unknown;
+};
+
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
@@ -67,6 +77,155 @@ function asBooleanOrFalse(value: unknown): boolean {
 
 function asStringOrNull(value: unknown): string | null {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
+}
+
+function normalizeStableText(value: unknown): string {
+  return typeof value === "string"
+    ? value
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, " ")
+    : "";
+}
+
+function isStableListingMatch(
+  existing: ExistingImportListing,
+  listing: NormalizedImportListing,
+  cityId: string | undefined,
+) {
+  if (listing.base.id && existing.id === listing.base.id) return true;
+
+  const namesMatch = normalizeStableText(existing.name) === normalizeStableText(listing.base.name);
+  if (!namesMatch) return false;
+
+  const existingAddress = normalizeStableText(existing.address);
+  const nextAddress = normalizeStableText(listing.base.address);
+  const addressMatches = Boolean(existingAddress && nextAddress && existingAddress === nextAddress);
+  const cityMatches = Boolean(cityId && existing.city_id === cityId);
+
+  return cityMatches || addressMatches;
+}
+
+async function readImportListingById(
+  writeClient: ImporterSupabaseClient,
+  listingId: string,
+): Promise<{ existing: ExistingImportListing | null; error?: string }> {
+  const result = await writeClient
+    .from("listings")
+    .select("id, slug, name, address, city_id, category_data")
+    .eq("id", listingId)
+    .maybeSingle();
+
+  if (result.error) return { existing: null, error: result.error.message };
+  return { existing: asRecord(result.data) as ExistingImportListing };
+}
+
+async function resolveExistingImportListing(
+  writeClient: ImporterSupabaseClient,
+  listing: NormalizedImportListing,
+  cityId: string | undefined,
+): Promise<{ existing: ExistingImportListing | null; warnings: string[]; errors: Array<{ path: string; message: string }> }> {
+  const warnings: string[] = [];
+  const errors: Array<{ path: string; message: string }> = [];
+  const candidates = new Map<string, ExistingImportListing>();
+
+  const addCandidate = (candidate: ExistingImportListing | null) => {
+    if (candidate?.id) candidates.set(candidate.id, candidate);
+  };
+
+  if (listing.base.id) {
+    const byId = await readImportListingById(writeClient, listing.base.id);
+    if (byId.error) {
+      errors.push({ path: "listing.id", message: byId.error });
+    } else {
+      addCandidate(byId.existing);
+    }
+  }
+
+  const bySlug = await writeClient
+    .from("listings")
+    .select("id, slug, name, address, city_id, category_data")
+    .eq("slug", listing.base.slug)
+    .maybeSingle();
+
+  if (bySlug.error) {
+    errors.push({ path: "URL_slug", message: bySlug.error.message });
+  } else {
+    addCandidate(asRecord(bySlug.data) as ExistingImportListing);
+  }
+
+  const slugAliasesTable = writeClient.from("listing_slugs") as Partial<LooseSupabaseQuery>;
+  if (typeof slugAliasesTable.select === "function") {
+    const aliasResult = await slugAliasesTable
+      .select("listing_id")
+      .eq("slug", listing.base.slug)
+      .maybeSingle();
+
+    if (aliasResult.error) {
+      errors.push({ path: "URL_slug", message: aliasResult.error.message });
+    } else {
+      const aliasListingId = asStringOrNull(asRecord(aliasResult.data)?.listing_id);
+      if (aliasListingId) {
+        const byAlias = await readImportListingById(writeClient, aliasListingId);
+        if (byAlias.error) {
+          errors.push({ path: "URL_slug", message: byAlias.error });
+        } else {
+          addCandidate(byAlias.existing);
+        }
+      }
+    }
+  }
+
+  if (candidates.size === 0 && listing.base.name && cityId) {
+    const byStableFields = await writeClient
+      .from("listings")
+      .select("id, slug, name, address, city_id, category_data")
+      .eq("name", listing.base.name)
+      .maybeSingle();
+
+    if (byStableFields.error) {
+      errors.push({ path: "name", message: byStableFields.error.message });
+    } else {
+      addCandidate(asRecord(byStableFields.data) as ExistingImportListing);
+    }
+  }
+
+  if (errors.length > 0) return { existing: null, warnings, errors };
+  if (candidates.size === 0) return { existing: null, warnings, errors };
+
+  const candidateList = Array.from(candidates.values());
+  if (candidateList.length > 1) {
+    return {
+      existing: null,
+      warnings,
+      errors: [{
+        path: "URL_slug",
+        message: `URL_slug "${listing.base.slug}" resolves to multiple existing listings; import aborted to avoid changing the wrong listing.`,
+      }],
+    };
+  }
+
+  const existing = candidateList[0];
+  if (!existing?.id) return { existing: null, warnings, errors };
+
+  if (!isStableListingMatch(existing, listing, cityId)) {
+    return {
+      existing: null,
+      warnings,
+      errors: [{
+        path: "URL_slug",
+        message: `URL_slug "${listing.base.slug}" is already associated with an existing listing, but name/address/city do not match. Include a stable listing id or correct the source data.`,
+      }],
+    };
+  }
+
+  if (existing.slug && existing.slug !== listing.base.slug) {
+    warnings.push(`Existing listing "${existing.slug}" will be updated to canonical slug "${listing.base.slug}".`);
+  }
+
+  return { existing, warnings, errors };
 }
 
 function asJsonOrNull(value: unknown): Json | null {
@@ -108,7 +267,12 @@ function buildInvalidPreview(
   errors: Array<{ path: string; message: string }>,
 ): ImportPreviewRow {
   const name = typeof raw.Nome === "string" ? raw.Nome : typeof raw.name === "string" ? raw.name : "";
-  const slug = typeof raw.URL_slug === "string" ? raw.URL_slug : typeof raw.slug === "string" ? raw.slug : "";
+  const rawSlug = typeof raw.URL_slug === "string" ? raw.URL_slug : typeof raw.slug === "string" ? raw.slug : "";
+  const slug = rawSlug && !getDisallowedSlugInputError(rawSlug)
+    ? normalizeSlug(rawSlug, { entityType: "listing" })
+    : name
+      ? slugifyEntityName(name, { entityType: "listing" })
+      : "";
   const city = typeof raw.City === "string" ? raw.City : typeof raw.city === "string" ? raw.city : "";
   const golf = type === "golf" ? resolveImportGolfObject(raw) : {};
   const holes = typeof golf.holes === "number" ? golf.holes : undefined;
@@ -445,25 +609,20 @@ export async function importListing(
   const categoryId = refs.categoryBySlug.get(row.base.categorySlug);
   const cityId = refs.cityByNameOrSlug.get(row.base.cityName.trim().toLowerCase());
 
-  const existingResult = await options.writeClient
-    .from("listings")
-    .select("id, category_data")
-    .eq(row.base.id ? "id" : "slug", row.base.id ?? row.base.slug)
-    .maybeSingle();
-
-  if (existingResult.error) {
+  const existingResolution = await resolveExistingImportListing(options.writeClient, row, cityId);
+  if (existingResolution.errors.length > 0) {
     return {
       ok: false,
       type,
       preview: row,
       normalized: row,
       warnings: row.warnings,
-      errors: [{ path: "listing", message: existingResult.error.message }],
+      errors: existingResolution.errors,
       changed: { listing: "unchanged", vertical: "skipped", children: 0 },
     };
   }
 
-  const existing = asRecord(existingResult.data);
+  const existing = existingResolution.existing ?? {};
   const regionId = row.base.regionName ? refs.regionByNameOrSlug.get(row.base.regionName.trim().toLowerCase()) : undefined;
   const categoryData = mergeCategoryData(existing.category_data, row.categoryDataPatch, type);
   const basePayload = {
@@ -526,7 +685,7 @@ export async function importListing(
   await cleanupStaleVerticalRows(options.writeClient, listingId, type);
 
   let children = 0;
-  const warnings = [...row.warnings];
+  const warnings = [...row.warnings, ...existingResolution.warnings];
   if (type === "golf") {
     const golfResult = await persistGolfData(options.writeClient, listingId, row);
     warnings.push(...golfResult.warnings);

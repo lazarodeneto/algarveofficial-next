@@ -4,6 +4,7 @@ import { Database } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { applyBlogTranslation } from "@/lib/blog/localization";
+import { getDisallowedSlugInputError, getSlugValidationError, normalizeSlug } from "@/lib/slugify";
 
 export type BlogPost = Database['public']['Tables']['blog_posts']['Row'];
 export type BlogPostInsert = Database['public']['Tables']['blog_posts']['Insert'];
@@ -28,6 +29,19 @@ interface BlogPostTranslationRow {
   content?: string | null;
   seo_title: string | null;
   seo_description: string | null;
+}
+
+function normalizeBlogPostSlug<T extends { slug?: string }>(post: T): T {
+  if (typeof post.slug !== "string") return post;
+
+  const disallowedError = getDisallowedSlugInputError(post.slug);
+  if (disallowedError) throw new Error(disallowedError);
+
+  const slug = normalizeSlug(post.slug, { entityType: "content" });
+  const slugError = getSlugValidationError(slug, { entityType: "content" });
+  if (slugError) throw new Error(slugError);
+
+  return { ...post, slug };
 }
 
 function normalizeBlogLocale(language: string | undefined): string {
@@ -255,9 +269,10 @@ export function useCreateBlogPost() {
 
   return useMutation({
     mutationFn: async (post: BlogPostInsert) => {
+      const normalizedPost = normalizeBlogPostSlug(post);
       const { data, error } = await supabase
         .from('blog_posts')
-        .insert(post)
+        .insert(normalizedPost)
         .select()
         .single();
 
@@ -280,9 +295,10 @@ export function useUpdateBlogPost() {
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: BlogPostUpdate }) => {
+      const normalizedUpdates = normalizeBlogPostSlug(updates);
       const { data, error } = await supabase
         .from('blog_posts')
-        .update(updates)
+        .update(normalizedUpdates)
         .eq('id', id)
         .select()
         .single();

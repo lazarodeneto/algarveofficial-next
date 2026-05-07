@@ -57,6 +57,8 @@ import { formatRichTextDescription } from "@/lib/formatRichText";
 import { sanitizeHtmlString } from "@/lib/sanitizeHtml";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 import { getListingCategoryLanding } from "@/lib/listingCategoryLanding";
+import { resolveListingDetailLayoutKey } from "@/lib/listingDetailLayout";
+import { hasRealEstateSignals } from "@/lib/realEstateDetection";
 import ListingImage from "@/components/ListingImage";
 
 // Category-specific detail renderers
@@ -102,41 +104,49 @@ const getCategoryLayout = (
   onInquire?: () => void,
 ) => {
   const props = { details, bookingUrl, onInquire };
-  switch (categorySlug) {
-    case "premium-accommodation":
+  const normalizedCategorySlug = categorySlug.trim().toLowerCase();
+
+  if (normalizedCategorySlug === "algarve-services") {
+    return hasRealEstateSignals(details) ? (
+      <RealEstateLayout details={details} onInquire={onInquire} />
+    ) : (
+      <VIPConciergeLayout {...props} />
+    );
+  }
+
+  switch (resolveListingDetailLayoutKey(normalizedCategorySlug)) {
+    case "accommodation":
       return <PremiumAccommodationLayout {...props} />;
-    case "fine-dining":
+    case "restaurants":
       return <FineDiningLayout {...props} />;
     case "golf":
       return <GolfLayout details={details} />;
-    case "beaches-clubs":
     case "beaches":
       return <BeachClubLayout {...props} />;
     case "wellness-spas":
       return <WellnessLayout {...props} />;
-    case "shopping-boutiques":
+    case "shopping":
       return <ShoppingLayout {...props} />;
     case "private-chefs":
       return <PrivateChefLayout {...props} />;
-    case "vip-concierge":
+    case "concierge-services":
       return <VIPConciergeLayout {...props} />;
-    case "premium-experiences":
+    case "experiences":
       return <PremiumExperienceLayout {...props} />;
-    case "family-fun":
+    case "family-attractions":
       return <FamilyFunLayout {...props} />;
-    case "vip-transportation":
+    case "transportation":
       return <VIPTransportationLayout {...props} />;
     case "real-estate":
       return <RealEstateLayout details={details} onInquire={onInquire} />;
-    case "premier-events":
-    case "events": // legacy slug — merged into premier-events
+    case "events":
       return <PremierEventsLayout details={details} />;
-    case "architecture-decoration":
+    case "architecture-design":
       return <ArchitectureDecorationLayout {...props} />;
-    case "protection-services":
+    case "security-services":
       return <ProtectionServicesLayout {...props} />;
     default:
-      return <ShoppingLayout {...props} />;
+      return null;
   }
 };
 

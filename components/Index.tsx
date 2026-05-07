@@ -151,8 +151,20 @@ const SECTION_COMPONENTS: Record<string, ComponentType<HomeSectionComponentProps
   trust: HomeTrustSection,
 };
 
-const LEGACY_SECTION_ID_BY_HOME_SECTION: Record<string, string> = {
+const PUBLIC_HOME_SECTION_ID_BY_ADMIN_SECTION_ID: Record<string, string> = {
   categories: "quick-links",
+  cities: "all-cities",
+};
+
+const HOME_SECTION_COPY_SOURCE_ID_BY_PUBLIC_SECTION_ID = Object.fromEntries(
+  Object.entries(PUBLIC_HOME_SECTION_ID_BY_ADMIN_SECTION_ID).map(([adminSectionId, publicSectionId]) => [
+    publicSectionId,
+    adminSectionId,
+  ]),
+);
+
+const LEGACY_SECTION_ID_BY_HOME_SECTION: Record<string, string> = {
+  categories: PUBLIC_HOME_SECTION_ID_BY_ADMIN_SECTION_ID.categories,
 };
 
 // Default section order if none in database
@@ -230,6 +242,10 @@ function normalizeHomeSectionOrder(sectionOrder: string[]) {
   return normalized;
 }
 
+function getHomeSectionCopySourceId(sectionId: string) {
+  return HOME_SECTION_COPY_SOURCE_ID_BY_PUBLIC_SECTION_ID[sectionId] ?? sectionId;
+}
+
 const Index = () => {
   const { settings, isLoading } = useHomepageSettings();
   const { getBlockOrder, isBlockEnabled } = useCmsPageBuilder("home");
@@ -291,7 +307,7 @@ const Index = () => {
         defaultEnabled={defaultEnabled}
       >
         <SectionComponent
-          copy={getHomeSectionCopy(settings?.section_copy, id === "quick-links" ? "categories" : id)}
+          copy={getHomeSectionCopy(settings?.section_copy, getHomeSectionCopySourceId(id))}
           listingCount={id === "cta" && homepageListingCount > 0 ? homepageListingCount : undefined}
         />
       </CmsBlock>

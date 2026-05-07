@@ -1,4 +1,29 @@
 import { z } from "zod";
+import {
+  getDisallowedSlugInputError,
+  getSlugValidationError,
+  normalizeSlug,
+  type SlugEntityType,
+} from "@/lib/slugify";
+
+export function slugSchema(entityType: SlugEntityType) {
+  return z
+    .string()
+    .trim()
+    .superRefine((value, ctx) => {
+      const disallowedError = getDisallowedSlugInputError(value);
+      if (disallowedError) {
+        ctx.addIssue({ code: "custom", message: disallowedError });
+      }
+    })
+    .transform((value) => normalizeSlug(value, { entityType }))
+    .superRefine((value, ctx) => {
+      const error = getSlugValidationError(value, { entityType });
+      if (error) {
+        ctx.addIssue({ code: "custom", message: error });
+      }
+    });
+}
 
 // ──────────────────────────────────────────────────────────────────────────────
 // TAXONOMY (cities, categories, regions)
@@ -6,7 +31,7 @@ import { z } from "zod";
 
 export const taxonomyItemSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  slug: z.string().min(1, "Slug is required"),
+  slug: slugSchema("taxonomy"),
   description: z.string().nullable().optional(),
   short_description: z.string().nullable().optional(),
   image_url: z.string().nullable().optional(),
@@ -76,7 +101,7 @@ export type FooterItem = z.infer<typeof footerItemSchema>;
 
 export const pricingTierSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  slug: z.string().min(1, "Slug is required"),
+  slug: slugSchema("default"),
   description: z.string().nullable().optional(),
   monthly_price_cents: z.number().int().min(0),
   yearly_price_cents: z.number().int().min(0),
@@ -133,7 +158,7 @@ export type Setting = z.infer<typeof settingSchema>;
 
 export const cmsDocumentSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  slug: z.string().min(1, "Slug is required"),
+  slug: slugSchema("content"),
   content: z.string().nullable().optional(),
   doc_type: z.enum(["page", "post", "faq", "legal"]),
   is_published: z.boolean().optional(),
@@ -157,7 +182,7 @@ export const curatedAssignmentSchema = z.object({
 
 export const curatedSectionSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  slug: z.string().min(1, "Slug is required"),
+  slug: slugSchema("default"),
   description: z.string().nullable().optional(),
   display_order: z.number().int().optional(),
   is_active: z.boolean().optional(),
@@ -205,7 +230,7 @@ export type UserUpdate = z.infer<typeof userUpdateSchema>;
 
 export const listingUpdateSchema = z.object({
   name: z.string().min(1).optional(),
-  slug: z.string().min(1).optional(),
+  slug: slugSchema("listing").optional(),
   short_description: z.string().min(1).optional(),
   full_description: z.string().nullable().optional(),
   category_id: z.string().min(1).optional(),

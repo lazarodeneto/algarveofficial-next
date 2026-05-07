@@ -7,6 +7,7 @@ import { logAdminRequest, logAdminError, createRequestId } from "@/lib/server/ob
 import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { normalizeExternalUrlForStorage } from "@/lib/url-input";
+import { getDisallowedSlugInputError, getSlugValidationError, normalizeSlug } from "@/lib/slugify";
 
 type ListingImageInput = {
   url: string;
@@ -21,6 +22,11 @@ interface CreateListingBody {
 }
 
 type ListingInsert = Database["public"]["Tables"]["listings"]["Insert"];
+type AdminWriteContext = Extract<
+  Awaited<ReturnType<typeof requireAdminWriteClient>>,
+  { writeClient: unknown }
+>;
+type AdminWriteClient = AdminWriteContext["writeClient"];
 
 const LISTING_MUTATION_COLUMNS = new Set<string>([
   "name",
@@ -222,6 +228,13 @@ function normalizeListingMutationPayload(raw: unknown): Record<string, unknown> 
     const key = LISTING_FIELD_ALIASES[rawKey] ?? rawKey;
     if (!LISTING_MUTATION_COLUMNS.has(key)) continue;
 
+    if (key === "slug" && typeof rawValue === "string") {
+      normalized[key] = getDisallowedSlugInputError(rawValue)
+        ? rawValue.trim()
+        : normalizeSlug(rawValue, { entityType: "listing" });
+      continue;
+    }
+
     if (LISTING_URL_COLUMNS.has(key) && typeof rawValue === "string") {
       normalized[key] = normalizeExternalUrlForStorage(rawValue);
       continue;
@@ -240,6 +253,9 @@ function validateListingCreatePayload(payload: Record<string, unknown>) {
       return `${field} is required.`;
     }
   }
+
+  const slugError = getSlugValidationError(String(payload.slug), { entityType: "listing" });
+  if (slugError) return slugError;
 
   if (payload.tier !== undefined && typeof payload.tier === "string" && !LISTING_TIERS.has(payload.tier)) {
     return "tier must be unverified, verified, or signature.";
@@ -261,6 +277,64 @@ function validateListingCreatePayload(payload: Record<string, unknown>) {
   }
 
   return null;
+}
+
+function isUniqueViolation(error: { code?: string; message?: string } | null | undefined) {
+  return error?.code === "23505" || /duplicate key|unique constraint/i.test(error?.message ?? "");
+}
+
+async function findListingSlugConflict(
+  client: AdminWriteClient,
+  slug: string,
+  currentListingId?: string,
+): Promise<string | null> {
+  const listingsTable = client.from("listings");
+  const aliasesTable = client.from("listing_slugs");
+
+  if (typeof listingsTable.select !== "function" || typeof aliasesTable.select !== "function") {
+    return null;
+  }
+
+  const [{ data: listing, error: listingError }, { data: alias, error: aliasError }] = await Promise.all([
+    listingsTable
+      .select("id, name")
+      .eq("slug", slug)
+      .maybeSingle(),
+    aliasesTable
+      .select("listing_id")
+      .eq("slug", slug)
+      .maybeSingle(),
+  ]);
+
+  if (listingError) throw listingError;
+  if (aliasError) throw aliasError;
+
+  if (listing?.id && listing.id !== currentListingId) {
+    return `Slug "${slug}" is already used by "${listing.name ?? "another listing"}".`;
+  }
+
+  if (alias?.listing_id && alias.listing_id !== currentListingId) {
+    return `Slug "${slug}" is already reserved as a current or previous listing URL.`;
+  }
+
+  return null;
+}
+
+async function ensureCurrentListingSlugAlias(client: AdminWriteClient, listingId: string, slug: string) {
+  const aliasesTable = client.from("listing_slugs");
+  if (typeof aliasesTable.upsert !== "function") return null;
+
+  const { error } = await aliasesTable
+    .upsert(
+      {
+        listing_id: listingId,
+        slug,
+        is_current: true,
+      },
+      { onConflict: "slug" },
+    );
+
+  return error;
 }
 
 async function fetchAdminListingsPage(
@@ -379,6 +453,19 @@ export async function POST(request: NextRequest) {
     return adminErrorResponse(400, "VALIDATION_ERROR", validationError);
   }
 
+  try {
+    const slugConflict = await findListingSlugConflict(auth.writeClient, String(normalizedListing.slug));
+    if (slugConflict) {
+      return adminErrorResponse(409, "DUPLICATE_SLUG", slugConflict);
+    }
+  } catch (error) {
+    return adminErrorResponse(
+      400,
+      "SLUG_CONFLICT_CHECK_FAILED",
+      error instanceof Error ? error.message : "Unable to validate slug uniqueness.",
+    );
+  }
+
   const maxTierImages = getListingTierMaxGalleryImages(
     typeof normalizedListing.tier === "string" ? normalizedListing.tier : "unverified",
   );
@@ -413,11 +500,33 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (createError || !created) {
+    if (isUniqueViolation(createError)) {
+      return adminErrorResponse(
+        409,
+        "DUPLICATE_SLUG",
+        `Slug "${String(normalizedListing.slug)}" is already used or reserved.`,
+      );
+    }
+
     return adminErrorResponse(
       400,
       "LISTING_CREATE_FAILED",
       createError?.message || "Failed to create listing.",
     );
+  }
+
+  if (created.slug) {
+    const aliasError = await ensureCurrentListingSlugAlias(auth.writeClient, created.id, created.slug);
+    if (aliasError) {
+      if (isUniqueViolation(aliasError)) {
+        return adminErrorResponse(
+          409,
+          "DUPLICATE_SLUG",
+          `Slug "${created.slug}" is already used or reserved.`,
+        );
+      }
+      return adminErrorResponse(400, "LISTING_SLUG_ALIAS_CREATE_FAILED", aliasError.message);
+    }
   }
 
   if (tierScopedImages.length > 0) {

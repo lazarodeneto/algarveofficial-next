@@ -4,6 +4,7 @@ import {
   approveInboxItem,
   archiveInboxItem,
   assignInboxItem,
+  markInboxItemRead,
   rejectInboxItem,
 } from "@/lib/admin/inbox/actions";
 import { createClient as createCookieClient } from "@/lib/supabase/server";
@@ -126,5 +127,29 @@ describe("admin inbox actions", () => {
       error: "This inbox item must be resolved in its source system.",
     });
     expect(mockedCreateServiceRoleClient).not.toHaveBeenCalled();
+  });
+
+  it("marks derived system alerts as read through the inbox side table", async () => {
+    const upsert = vi.fn().mockResolvedValue({ error: null });
+    const from = vi.fn(() => ({ upsert }));
+    mockedCreateServiceRoleClient.mockReturnValue({ from } as never);
+
+    const result = await markInboxItemRead({
+      source: "external_outbox_alert",
+      sourceRowId: "22222222-2222-4222-8222-222222222222",
+      reason: "clear_alert",
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(from).toHaveBeenCalledWith("admin_inbox_archives");
+    expect(upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        source: "external_outbox_alert",
+        source_row_id: "22222222-2222-4222-8222-222222222222",
+        archived_by: "11111111-1111-4111-8111-111111111111",
+        reason: "clear_alert",
+      }),
+      { onConflict: "source,source_row_id" },
+    );
   });
 });

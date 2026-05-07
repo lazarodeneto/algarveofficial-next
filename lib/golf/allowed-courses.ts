@@ -29,10 +29,17 @@ export const approvedGolfCourses: ApprovedGolfCourse[] = [
   },
   {
     canonicalName: "Boavista Golf & Spa Resort",
-    canonicalSlug: "boavista-golf-spa-resort",
+    canonicalSlug: "boavista-golf-spa-resort-lagos",
     area: LAGOS_PORTIMAO,
     city: "Lagos",
-    aliases: ["Boavista Golf", "Boavista Golf Course", "Boavista Golf Resort"],
+    aliases: [
+      "Boavista Golf",
+      "Boavista Golf Course",
+      "Boavista Golf Resort",
+      "Boavista Golf & Spa",
+      "boavista-golf-spa-resort",
+      "boavista-golf-spa-resort-quinta-do-lago",
+    ],
   },
   {
     canonicalName: "Palmares Ocean Living & Golf",

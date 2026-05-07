@@ -2,6 +2,7 @@
 import type { MetadataRoute } from "next";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { SUPPORTED_LOCALES, LOCALE_CONFIGS, DEFAULT_LOCALE } from "@/lib/i18n/config";
+import { DEFAULT_LOCALE_USES_PREFIX } from "@/lib/i18n/default-locale-policy";
 import {
   getProgrammaticCategoryCityIndexEntries,
   getProgrammaticCityIndexEntries,
@@ -41,7 +42,12 @@ function toValidDate(value: string | null | undefined, fallback: Date): Date {
 }
 
 function withLocalePrefix(path: string, locale: string = DEFAULT_LOCALE) {
-  const normalized = path === "/" ? "/" : path;
+  const normalized = !path || path === "/" ? "/" : path.startsWith("/") ? path : `/${path}`;
+
+  if (locale === DEFAULT_LOCALE && !DEFAULT_LOCALE_USES_PREFIX) {
+    return normalized;
+  }
+
   if (normalized === "/") {
     return `/${locale}`;
   }
@@ -112,6 +118,19 @@ function makeLocalizedEntry(
     alternates: { languages },
     images: sanitizedImageUrl ? [sanitizedImageUrl] : undefined,
   };
+}
+
+function dedupeSitemapEntries(entries: MetadataRoute.Sitemap): MetadataRoute.Sitemap {
+  const seen = new Set<string>();
+  const deduped: MetadataRoute.Sitemap = [];
+
+  for (const entry of entries) {
+    if (seen.has(entry.url)) continue;
+    seen.add(entry.url);
+    deduped.push(entry);
+  }
+
+  return deduped;
 }
 
 const STATIC_PATHS = [
@@ -210,7 +229,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Cities
     for (const city of citiesResponse.data ?? []) {
       if (!city.slug) continue;
-      const path = `/destinations/${city.slug}`;
+      const path = `/visit/${city.slug}`;
       entries.push(makeEntry(path, toValidDate(city.updated_at, now), "weekly", 0.75, city.image_url ?? undefined));
     }
 
@@ -307,9 +326,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       entries.push(makeEntry(`/guides/${guideSlug}`, now, "weekly", 0.75));
     }
 
-    return entries;
+    return dedupeSitemapEntries(entries);
   } catch (error) {
     console.error("[sitemap] Failed to fetch dynamic URLs, returning static sitemap only", error);
-    return entries;
+    return dedupeSitemapEntries(entries);
   }
 }

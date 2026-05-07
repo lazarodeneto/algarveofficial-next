@@ -28,9 +28,9 @@ export function MetricsGrid({ details, labels }: MetricsGridProps) {
   if (metrics.length === 0) return null;
 
   return (
-    <section className="mx-auto grid max-w-6xl grid-cols-2 gap-4 py-12 md:grid-cols-3">
+    <section className="grid grid-cols-2 gap-3 md:grid-cols-3">
       {metrics.map((metric) => (
-        <div key={metric.label} className="rounded-xl border border-border/70 p-4 shadow-sm">
+        <div key={metric.label} className="rounded-lg border border-border/70 bg-background p-4 shadow-sm">
           <p className="text-xl font-semibold text-foreground">{metric.value}</p>
           <p className="mt-1 text-xs text-muted-foreground">{metric.label}</p>
         </div>

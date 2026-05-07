@@ -18,9 +18,9 @@ describe("public route builders", () => {
   });
 
   it("keeps generated public paths locale-aware through the central router", () => {
-    expect(buildLocalizedPath("en", buildCityHref("lagos"))).toBe("/en/visit/lagos");
+    expect(buildLocalizedPath("en", buildCityHref("lagos"))).toBe("/visit/lagos");
     expect(buildLocalizedPath("en", buildListingHref({ slug: "seafront-villa", id: "listing-1" }))).toBe(
-      "/en/listing/seafront-villa",
+      "/listing/seafront-villa",
     );
     expect(buildLocalizedPath("pt-pt", buildCityHref("lagos"))).toBe("/pt-pt/visit/lagos");
     expect(buildLocalizedPath("fr", buildCategoryHref("restaurants"))).toBe(

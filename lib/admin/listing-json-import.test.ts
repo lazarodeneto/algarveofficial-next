@@ -88,6 +88,91 @@ describe("listing JSON import normalization", () => {
     });
   });
 
+  it("preserves valid URL_slug values and marks known slugs as updates", () => {
+    const listing = normalizeImportListing(
+      {
+        Nome: "Boavista Golf & Spa",
+        URL_slug: "boavista-golf-spa-resort-lagos",
+        City: "Lagos",
+        category: "golf",
+        golf: { holes: 18, par: 71 },
+      },
+      0,
+      { existingSlugs: new Set(["boavista-golf-spa-resort-lagos"]) },
+    );
+
+    expect(listing.slug).toBe("boavista-golf-spa-resort-lagos");
+    expect(listing.estimatedAction).toBe("update");
+    expect(listing.errors).toHaveLength(0);
+    expect(listing.warnings).not.toEqual(
+      expect.arrayContaining([expect.stringContaining("URL_slug normalized")]),
+    );
+  });
+
+  it("generates a slug from the name when URL_slug is missing", () => {
+    const listing = normalizeImportListing(
+      {
+        Nome: "Quinta do Lago South Course",
+        City: "Almancil",
+        category: "golf",
+        golf: { holes: 18, par: 72 },
+      },
+      0,
+    );
+
+    expect(listing.slug).toBe("quinta-do-lago-south-course");
+    expect(listing.estimatedAction).toBe("create");
+    expect(listing.warnings).toContain("URL_slug missing; slug will be generated from Nome.");
+    expect(listing.errors).toHaveLength(0);
+  });
+
+  it("normalizes non-canonical URL_slug punctuation without inventing random suffixes", () => {
+    const listing = normalizeImportListing(
+      {
+        Nome: "Boavista Golf & Spa",
+        URL_slug: " Boavista Golf & Spa Resort Lagos ",
+        City: "Lagos",
+        category: "golf",
+        golf: { holes: 18, par: 71 },
+      },
+      0,
+    );
+
+    expect(listing.slug).toBe("boavista-golf-spa-resort-lagos");
+    expect(listing.warnings).toContain(
+      'URL_slug normalized from "Boavista Golf & Spa Resort Lagos" to "boavista-golf-spa-resort-lagos".',
+    );
+    expect(listing.errors).toHaveLength(0);
+  });
+
+  it("rejects full URL and locale-prefixed URL_slug values", () => {
+    const fullUrlListing = normalizeImportListing(
+      {
+        Nome: "Bad URL Golf",
+        URL_slug: "https://example.com/golf/bad-url-golf",
+        City: "Lagos",
+        category: "golf",
+        golf: { holes: 18, par: 72 },
+      },
+      0,
+    );
+    const localizedListing = normalizeImportListing(
+      {
+        Nome: "Localized Slug Golf",
+        URL_slug: "pt-pt/localized-slug-golf",
+        City: "Lagos",
+        category: "golf",
+        golf: { holes: 18, par: 72 },
+      },
+      1,
+    );
+
+    expect(fullUrlListing.estimatedAction).toBe("invalid");
+    expect(fullUrlListing.errors).toContain("URL_slug is invalid: Slug must not be a full URL.");
+    expect(localizedListing.estimatedAction).toBe("invalid");
+    expect(localizedListing.errors).toContain("URL_slug is invalid: Slug must not include a locale prefix.");
+  });
+
   it("returns field-level validation errors for invalid final golf numeric fields", () => {
     const listing = normalizeImportListing(
       {

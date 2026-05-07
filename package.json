@@ -21,6 +21,8 @@
     "check:i18n:warn": "tsx scripts/checkTranslations.ts --warn-only",
     "check:i18n:report": "tsx scripts/checkTranslations.ts --report",
     "audit:i18n": "node scripts/auditTranslations.mjs",
+    "audit:slugs": "tsx scripts/audit-slugs.ts",
+    "smoke:routes": "tsx scripts/smoke-routes.ts",
     "strip:i18n-defaults": "node scripts/removeTranslationDefaults.mjs",
     "sync:i18n": "node scripts/syncMissingTranslations.mjs",
     "i18n:check": "node scripts/check-missing-translations.mjs",
@@ -126,6 +128,7 @@
     "sharp": "^0.33.5",
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.21.0",
     "typescript": "^5",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.0"

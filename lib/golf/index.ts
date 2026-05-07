@@ -59,11 +59,18 @@ export interface GolfListing {
   featuredImageUrl: string | null;
   tier: string | null;
   status: string | null;
+  address: string | null;
   latitude: number | null;
   longitude: number | null;
   websiteUrl: string | null;
   contactPhone: string | null;
   contactEmail: string | null;
+  socialLinks: {
+    instagram: string | null;
+    facebook: string | null;
+    linkedin: string | null;
+    twitter: string | null;
+  };
   googleRating: number | null;
   googleReviewCount: number | null;
   city: GolfLocationRef | null;
@@ -73,6 +80,13 @@ export interface GolfListing {
   details: GolfCourseDetails | null;
   holeCount: number;
   scorecardHoles: GolfScorecardHole[];
+}
+
+export interface GolfListingSlugResolution {
+  listing: GolfListing;
+  requestedSlug: string;
+  canonicalSlug: string;
+  isCanonical: boolean;
 }
 
 export interface GolfLeaderboardEntry {
@@ -91,11 +105,16 @@ const GOLF_LISTING_FIELDS = `
   featured_image_url,
   tier,
   status,
+  address,
   latitude,
   longitude,
   website_url,
   contact_phone,
   contact_email,
+  instagram_url,
+  facebook_url,
+  linkedin_url,
+  twitter_url,
   google_rating,
   google_review_count,
   category_data,
@@ -552,11 +571,18 @@ function mapGolfListing(
     featuredImageUrl: normalizePublicImageUrl(toNullableString(row.featured_image_url)),
     tier: toNullableString(row.tier),
     status: toNullableString(row.status),
+    address: toNullableString(row.address),
     latitude: toNullableNumber(row.latitude),
     longitude: toNullableNumber(row.longitude),
     websiteUrl: toNullableString(row.website_url),
     contactPhone: toNullableString(row.contact_phone),
     contactEmail: toNullableString(row.contact_email),
+    socialLinks: {
+      instagram: toNullableString(row.instagram_url),
+      facebook: toNullableString(row.facebook_url),
+      linkedin: toNullableString(row.linkedin_url),
+      twitter: toNullableString(row.twitter_url),
+    },
     googleRating: toNullableNumber(row.google_rating),
     googleReviewCount: toInteger(row.google_review_count),
     city,
@@ -623,14 +649,20 @@ export async function getGolfListings(options?: {
 }
 
 export async function getGolfListingBySlug(slug: string) {
-  const normalizedSlug = slug.trim().toLowerCase();
+  const resolved = await resolveGolfListingBySlug(slug);
+  return resolved?.listing ?? null;
+}
+
+export async function resolveGolfListingBySlug(slug: string): Promise<GolfListingSlugResolution | null> {
+  const requestedSlug = slug.trim();
+  const normalizedSlug = requestedSlug.toLowerCase();
   if (!normalizedSlug) return null;
 
   const supabase = createPublicServerClient();
   const categoryIds = await getGolfCategoryIds(supabase);
   if (categoryIds.length === 0) return null;
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("listings")
     .select(GOLF_LISTING_FIELDS)
     .eq("status", "published")
@@ -638,7 +670,28 @@ export async function getGolfListingBySlug(slug: string) {
     .in("category_id", categoryIds)
     .maybeSingle();
 
-  if (error || !data) return null;
+  if (error) return null;
+
+  if (!data) {
+    const { data: slugRow, error: slugError } = await supabase
+      .from("listing_slugs")
+      .select("listing_id")
+      .eq("slug", normalizedSlug)
+      .maybeSingle();
+
+    if (slugError || !slugRow?.listing_id) return null;
+
+    const listingResult = await supabase
+      .from("listings")
+      .select(GOLF_LISTING_FIELDS)
+      .eq("status", "published")
+      .eq("id", slugRow.listing_id)
+      .in("category_id", categoryIds)
+      .maybeSingle();
+
+    if (listingResult.error || !listingResult.data) return null;
+    data = listingResult.data;
+  }
 
   const listingRow = data as Record<string, unknown>;
   const listingId = toNullableString(listingRow.id);
@@ -652,9 +705,16 @@ export async function getGolfListingBySlug(slug: string) {
   );
 
   const listing = mapGolfListing(listingRow, detailsByListingId, holeCountsByListingId);
-  return listing && isGolfListingCategory(listing) && isApprovedGolfCourse(listing)
-    ? listing
-    : null;
+  if (!listing || !isGolfListingCategory(listing) || !isApprovedGolfCourse(listing)) {
+    return null;
+  }
+
+  return {
+    listing,
+    requestedSlug,
+    canonicalSlug: listing.slug,
+    isCanonical: requestedSlug === listing.slug,
+  };
 }
 
 export async function getCourses(options?: {

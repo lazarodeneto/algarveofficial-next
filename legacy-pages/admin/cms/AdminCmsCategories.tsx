@@ -44,18 +44,11 @@ import { ImageUrlUploadField } from "@/components/admin/ImageUrlUploadField";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { getCategoryIconComponent } from "@/lib/categoryIcons";
 import { callAdminTaxonomyApi } from "@/lib/admin/taxonomy-client";
+import { normalizeSlug } from "@/lib/slugify";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 
 type CategoryRow = Tables<"categories">;
 type CategoryFormState = Partial<CategoryRow> & { id?: string };
-
-const slugify = (value: string) =>
-  value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
 
 export default function AdminCmsCategories() {
   const queryClient = useQueryClient();
@@ -141,7 +134,7 @@ export default function AdminCmsCategories() {
       const maxOrder = categories.reduce((acc, item) => Math.max(acc, item.display_order ?? 0), 0);
       const payload: TablesInsert<"categories"> = {
         name: (category.name || "").trim(),
-        slug: slugify(category.slug || category.name || ""),
+        slug: normalizeSlug(category.slug || category.name || "", { entityType: "taxonomy" }),
         short_description: category.short_description || null,
         description: category.description || null,
         image_url: category.image_url || null,
@@ -458,7 +451,7 @@ export default function AdminCmsCategories() {
                   <Input
                     id="slug"
                     value={editingCategory.slug}
-                    onChange={(e) => setEditingCategory({ ...editingCategory, slug: e.target.value })}
+                    onChange={(e) => setEditingCategory({ ...editingCategory, slug: normalizeSlug(e.target.value, { entityType: "taxonomy" }) })}
                     className="bg-background"
                   />
                 </div>

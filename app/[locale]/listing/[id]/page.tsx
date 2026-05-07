@@ -1,6 +1,6 @@
 import { cache } from "react";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 
 import type { Locale } from "@/lib/i18n/config";
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/lib/i18n/config";
@@ -10,6 +10,7 @@ import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 import {
   buildAbsoluteRouteUrl,
+  buildLocalizedPath,
   buildStaticRouteData,
   buildLocaleSwitchPathsForEntity,
   buildUniformLocalizedSlugMap,
@@ -213,20 +214,16 @@ async function fetchLocalizedSlugs(listingId: string) {
   const supabase = createPublicServerClient();
   const { data, error } = await supabase
     .from("listing_slugs")
-    .select("slug, language_code, is_current")
+    .select("slug, is_current")
     .eq("listing_id", listingId);
 
   if (error) return {};
 
   const slugs: Partial<Record<Locale, string>> = {};
+  const currentSlug = (data ?? []).find((row) => row.is_current)?.slug;
 
-  for (const row of data ?? []) {
-    const locale = row.language_code as Locale;
-    if (SUPPORTED_LOCALES.includes(locale)) {
-      if (row.is_current || !slugs[locale]) {
-        slugs[locale] = row.slug;
-      }
-    }
+  if (currentSlug) {
+    slugs[DEFAULT_LOCALE] = currentSlug;
   }
 
   return slugs;
@@ -357,6 +354,10 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
     });
   }
 
+  if (id.trim() !== data.canonicalSlug) {
+    permanentRedirect(buildLocalizedPath(resolvedLocale, `/listing/${data.canonicalSlug}`));
+  }
+
   const { listing, translations } = data;
   const currentTranslation = translations[resolvedLocale];
   const title = getLocalizedRequiredValue(
@@ -387,6 +388,10 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
   const data = await getListingPageData(resolvedLocale, id);
 
   if (!data) notFound();
+
+  if (id.trim() !== data.canonicalSlug) {
+    permanentRedirect(buildLocalizedPath(resolvedLocale, `/listing/${data.canonicalSlug}`));
+  }
 
   const currentTranslation = data.translations[resolvedLocale];
   const title = getLocalizedRequiredValue(
@@ -503,7 +508,7 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
         initialReviews={data.reviews}
         initialRelatedListings={data.relatedListings}
         initialWhatsAppStatus={data.whatsappStatus}
-        initialLookupValue={id}
+        initialLookupValue={data.canonicalSlug}
         initialOtherRegions={data.otherRegions}
       />
     </>

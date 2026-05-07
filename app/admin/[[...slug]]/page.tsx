@@ -1,5 +1,6 @@
-import { permanentRedirect } from "next/navigation";
+import { AdminDashboardPage } from "@/components/routes/AdminDashboardPage";
 import { DEFAULT_LOCALE } from "@/lib/i18n/config";
+import { guardDashboardRoute } from "@/lib/server/dashboard-access";
 
 export default async function AdminPage({
   params,
@@ -7,6 +8,14 @@ export default async function AdminPage({
   params: Promise<{ slug?: string[] }>;
 }) {
   const { slug } = await params;
-  const path = slug?.length ? `/${slug.join("/")}` : "";
-  permanentRedirect(`/${DEFAULT_LOCALE}/admin${path}`);
+  const route = Array.isArray(slug) ? slug.join("/") : slug ?? "";
+
+  await guardDashboardRoute({
+    locale: DEFAULT_LOCALE,
+    slug,
+    basePath: "/admin",
+    allowedRoles: ["admin", "editor"],
+  });
+
+  return <AdminDashboardPage route={route} />;
 }

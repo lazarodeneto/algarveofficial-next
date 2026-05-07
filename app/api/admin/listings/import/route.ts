@@ -5,6 +5,7 @@ import { importListing, type ImporterSupabaseClient } from "@/lib/importer/impor
 import { normalizeImportObject } from "@/lib/importer/normalize";
 import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
 import { logAdminMutation } from "@/lib/server/admin-audit-log";
+import { getDisallowedSlugInputError, normalizeSlug, slugifyEntityName } from "@/lib/slugify";
 
 export const runtime = "nodejs";
 
@@ -47,7 +48,11 @@ function getImportItems(value: unknown): unknown[] | null {
 function getCandidateSlug(item: unknown) {
   const row = normalizeImportObject(item);
   const name = typeof row.Nome === "string" ? row.Nome : typeof row.name === "string" ? row.name : "";
-  return typeof row.URL_slug === "string" ? row.URL_slug : typeof row.slug === "string" ? row.slug : name;
+  const rawSlug = typeof row.URL_slug === "string" ? row.URL_slug : typeof row.slug === "string" ? row.slug : "";
+  if (rawSlug && !getDisallowedSlugInputError(rawSlug)) {
+    return normalizeSlug(rawSlug, { entityType: "listing" });
+  }
+  return name ? slugifyEntityName(name, { entityType: "listing" }) : "";
 }
 
 export async function POST(request: NextRequest) {
@@ -73,10 +78,19 @@ export async function POST(request: NextRequest) {
   const fallbackCategory = typeof body.category_slug === "string" ? body.category_slug : undefined;
   const dryRun = body.dry_run === true;
   const candidateSlugs = items.map(getCandidateSlug).filter((slug): slug is string => Boolean(slug));
-  const { data: existingRows } = candidateSlugs.length > 0
-    ? await auth.writeClient.from("listings").select("slug").in("slug", candidateSlugs)
-    : { data: [] as Array<{ slug: string }> };
-  const existingSlugs = new Set((existingRows ?? []).map((row) => row.slug));
+  const [existingListings, existingAliases] = candidateSlugs.length > 0
+    ? await Promise.all([
+        auth.writeClient.from("listings").select("slug").in("slug", candidateSlugs),
+        auth.writeClient.from("listing_slugs").select("slug").in("slug", candidateSlugs),
+      ])
+    : [
+        { data: [] as Array<{ slug: string }> },
+        { data: [] as Array<{ slug: string }> },
+      ];
+  const existingSlugs = new Set([
+    ...(existingListings.data ?? []).map((row) => row.slug),
+    ...(existingAliases.data ?? []).map((row) => row.slug),
+  ]);
 
   const rows = await Promise.all(items.map((item, index) =>
     importListing(item, {

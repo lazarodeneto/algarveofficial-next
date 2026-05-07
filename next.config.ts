@@ -40,7 +40,7 @@ const cspHeaderValue = cspDirectives.join("; ");
 const cspReportOnlyValue = cspDirectives
   .filter((directive) => directive !== "upgrade-insecure-requests")
   .map((directive) => (directive === "default-src 'self'" ? "default-src 'none'" : directive))
-  .concat("report-uri https://algarveofficial.com/api/csp-report")
+  .concat("report-uri /api/csp-report")
   .join("; ");
 
 const securityHeaders = [
@@ -122,6 +122,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "**.setimaondaboattrips.com", pathname: "/**" },
       { protocol: "https", hostname: "images.cdn-files-a.com", pathname: "/**" },
       { protocol: "https", hostname: "**.cdn-files-a.com", pathname: "/**" },
+      { protocol: "https", hostname: "boavistaresort.pt", pathname: "/**" },
+      { protocol: "https", hostname: "www.boavistaresort.pt", pathname: "/**" },
       { protocol: "https", hostname: "static.wixstatic.com", pathname: "/**" },
       { protocol: "https", hostname: "**.wixstatic.com", pathname: "/**" },
       { protocol: "https", hostname: "i.ytimg.com", pathname: "/**" },

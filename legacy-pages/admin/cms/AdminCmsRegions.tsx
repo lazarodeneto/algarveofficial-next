@@ -61,6 +61,7 @@ import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { callAdminTaxonomyApi } from "@/lib/admin/taxonomy-client";
 import { Tables } from "@/integrations/supabase/types";
 import { convertToWebP } from "@/lib/imageUtils";
+import { normalizeSlug } from "@/lib/slugify";
 
 type Region = Tables<"regions">;
 
@@ -435,7 +436,7 @@ export default function AdminCmsRegions() {
                   <Input
                     id="slug"
                     value={editingRegion.slug}
-                    onChange={(e) => setEditingRegion({ ...editingRegion, slug: e.target.value })}
+                    onChange={(e) => setEditingRegion({ ...editingRegion, slug: normalizeSlug(e.target.value, { entityType: "taxonomy" }) })}
                     className="bg-background"
                   />
                 </div>

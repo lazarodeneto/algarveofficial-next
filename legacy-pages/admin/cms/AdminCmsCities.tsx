@@ -43,18 +43,11 @@ import { SeoFieldsPanel } from "@/components/admin/seo/SeoFieldsPanel";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { SingleImageUploadField } from "@/components/admin/listings/SingleImageUploadField";
 import { callAdminTaxonomyApi } from "@/lib/admin/taxonomy-client";
+import { normalizeSlug } from "@/lib/slugify";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 
 type CityRow = Tables<"cities">;
 type CityFormState = Partial<CityRow> & { id?: string };
-
-const slugify = (value: string) =>
-  value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
 
 export default function AdminCmsCities() {
   const queryClient = useQueryClient();
@@ -136,7 +129,7 @@ export default function AdminCmsCities() {
       const maxOrder = cities.reduce((acc, item) => Math.max(acc, item.display_order ?? 0), 0);
       const payload: TablesInsert<"cities"> = {
         name: (city.name || "").trim(),
-        slug: slugify(city.slug || city.name || ""),
+        slug: normalizeSlug(city.slug || city.name || "", { entityType: "taxonomy" }),
         short_description: city.short_description || null,
         description: city.description || null,
         hero_image_url: city.hero_image_url || null,
@@ -450,7 +443,7 @@ export default function AdminCmsCities() {
                   <Input
                     id="slug"
                     value={editingCity.slug}
-                    onChange={(e) => setEditingCity({ ...editingCity, slug: e.target.value })}
+                    onChange={(e) => setEditingCity({ ...editingCity, slug: normalizeSlug(e.target.value, { entityType: "taxonomy" }) })}
                     className="bg-background"
                   />
                 </div>

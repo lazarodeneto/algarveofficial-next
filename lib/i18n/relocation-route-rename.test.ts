@@ -10,13 +10,13 @@ const REPO_ROOT = process.cwd();
 
 describe("relocation route rename", () => {
   it("preserves locale when building relocation links", () => {
-    expect(buildLocalizedPath("en", "/relocation")).toBe("/en/relocation");
+    expect(buildLocalizedPath("en", "/relocation")).toBe("/relocation");
     expect(buildLocalizedPath("pt-pt", "/relocation")).toBe("/pt-pt/relocation");
     expect(buildLocalizedPath("fr", "/relocation")).toBe("/fr/relocation");
   });
 
   it("redirect aliases canonicalize to relocation", () => {
-    expect(buildLocalizedPath("en", "/residence")).toBe("/en/relocation");
+    expect(buildLocalizedPath("en", "/residence")).toBe("/relocation");
     expect(buildLocalizedPath("pt-pt", "/residence")).toBe("/pt-pt/relocation");
     expect(buildLocalizedPath("de", "/live")).toBe("/de/relocation");
   });
@@ -117,7 +117,7 @@ describe("relocation route rename", () => {
 
   it("relocation metadata canonicalizes to relocation", async () => {
     const metadata = await generateMetadata({ params: Promise.resolve({ locale: "en" }) });
-    expect(metadata.alternates?.canonical).toContain("/en/relocation");
+    expect(metadata.alternates?.canonical).toBe("https://algarveofficial.com/relocation");
     expect(JSON.stringify(metadata.alternates?.languages)).toContain("/pt-pt/relocation");
   });
 

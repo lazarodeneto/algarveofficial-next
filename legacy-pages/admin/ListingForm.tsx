@@ -36,6 +36,38 @@ import { useLocalePath } from "@/hooks/useLocalePath";
 import { resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
 import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
 import { normalizeExternalUrlForStorage } from "@/lib/url-input";
+import { getSlugValidationError, normalizeSlug } from "@/lib/slugify";
+
+async function getListingSlugConflict(slug: string, currentListingId?: string) {
+  const normalized = normalizeSlug(slug, { entityType: "listing" });
+  if (!normalized) return null;
+
+  const [{ data: listing, error: listingError }, { data: slugAlias, error: aliasError }] = await Promise.all([
+    supabase
+      .from("listings")
+      .select("id, name")
+      .eq("slug", normalized)
+      .maybeSingle(),
+    supabase
+      .from("listing_slugs")
+      .select("listing_id, slug")
+      .eq("slug", normalized)
+      .maybeSingle(),
+  ]);
+
+  if (listingError) throw listingError;
+  if (aliasError) throw aliasError;
+
+  if (listing?.id && listing.id !== currentListingId) {
+    return `Slug is already used by "${listing.name ?? "another listing"}".`;
+  }
+
+  if (slugAlias?.listing_id && slugAlias.listing_id !== currentListingId) {
+    return "Slug is already reserved as a current or previous listing URL.";
+  }
+
+  return null;
+}
 
 const getEmptyFormData = (): ListingFormData => ({
   name: "",
@@ -159,6 +191,21 @@ export default function ListingForm() {
   const updateListing = useUpdateListing();
 
   const isSaving = createListing.isPending || updateListing.isPending;
+  const canonicalSlug = useMemo(
+    () => normalizeSlug(formData.slug, { entityType: "listing" }),
+    [formData.slug],
+  );
+  const slugValidationError = useMemo(
+    () => getSlugValidationError(formData.slug, { entityType: "listing" }),
+    [formData.slug],
+  );
+  const slugAvailability = useQuery({
+    queryKey: ["admin-listing-slug-availability", canonicalSlug, id ?? null],
+    queryFn: () => getListingSlugConflict(canonicalSlug, id),
+    enabled: Boolean(canonicalSlug) && !slugValidationError,
+    staleTime: 10_000,
+  });
+  const slugAvailabilityError = slugAvailability.data ?? null;
 
   // Load existing listing data for edit mode
   useEffect(() => {
@@ -562,7 +609,14 @@ export default function ListingForm() {
 
     if (stepId === "basics") {
       if (!formData.name.trim()) newErrors.name = "Name is required";
-      if (!formData.slug.trim()) newErrors.slug = "Slug is required";
+      const slugError = slugValidationError;
+      if (slugError) newErrors.slug = slugError;
+      if (!slugError && slugAvailability.isFetching) {
+        newErrors.slug = "Checking slug availability...";
+      }
+      if (!slugError && slugAvailabilityError) {
+        newErrors.slug = slugAvailabilityError;
+      }
       if (!formData.short_description.trim()) newErrors.short_description = "Short description is required";
       if (!formData.category_id) newErrors.category_id = "Category is required";
       if (!formData.city_id) newErrors.city_id = "City is required";
@@ -591,7 +645,9 @@ export default function ListingForm() {
   const isFormValid = (): boolean => {
     return Boolean(
       formData.name.trim() &&
-      formData.slug.trim() &&
+      !slugValidationError &&
+      !slugAvailabilityError &&
+      !slugAvailability.isFetching &&
       formData.short_description.trim() &&
       formData.category_id &&
       formData.city_id &&
@@ -606,6 +662,29 @@ export default function ListingForm() {
     }
 
     const finalStatus = status || formData.published_status;
+    const slugError = slugValidationError;
+    if (slugError) {
+      setErrors((prev) => ({ ...prev, slug: slugError }));
+      toast.error(slugError);
+      return;
+    }
+
+    let duplicateSlugError = slugAvailabilityError;
+    if (!duplicateSlugError) {
+      try {
+        const availability = await slugAvailability.refetch();
+        duplicateSlugError = availability.data ?? null;
+      } catch (error) {
+        duplicateSlugError = error instanceof Error ? error.message : "Unable to validate slug availability.";
+      }
+    }
+
+    if (duplicateSlugError) {
+      setErrors((prev) => ({ ...prev, slug: duplicateSlugError }));
+      toast.error(duplicateSlugError);
+      return;
+    }
+
     const maxTierImages = getListingTierMaxGalleryImages(formData.tier);
     const normalizedImages = [...formData.images]
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
@@ -622,7 +701,7 @@ export default function ListingForm() {
     // Prepare listing data for Supabase
     const listingData: Record<string, unknown> = {
       name: formData.name.trim(),
-      slug: formData.slug.trim(),
+      slug: canonicalSlug,
       short_description: formData.short_description.trim(),
       description: formData.full_description?.trim() || null,
       category_id: formData.category_id,
@@ -671,7 +750,7 @@ export default function ListingForm() {
           listing: listingData,
           images: imagesData,
         });
-        const updatedData = { ...formData, images: normalizedImages, published_status: finalStatus };
+        const updatedData = { ...formData, slug: canonicalSlug, images: normalizedImages, published_status: finalStatus };
         setFormData(updatedData);
         setInitialData(updatedData);
       } else {
@@ -766,6 +845,15 @@ export default function ListingForm() {
   }
 
   const renderStep = () => {
+    const liveSlugError = slugValidationError ?? slugAvailabilityError;
+    const displayErrors =
+      currentStepId === "basics" && liveSlugError
+        ? {
+            ...errors,
+            slug: errors.slug ?? liveSlugError,
+          }
+        : errors;
+
     switch (currentStepId) {
       case "basics":
         return (
@@ -775,8 +863,9 @@ export default function ListingForm() {
             cities={formCities}
             regions={formRegions}
             categories={formCategories}
-            errors={errors}
+            errors={displayErrors}
             isAdmin={isAdmin}
+            isEditMode={isEditMode}
           />
         );
       case "media":

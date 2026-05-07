@@ -7,9 +7,15 @@ import { validatePayload, jsonErrorResponse } from "@/lib/api/api-validation";
 import { listingUpdateSchema } from "@/lib/forms/admin-schemas";
 import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
 import { normalizeExternalUrlForStorage } from "@/lib/url-input";
+import { getDisallowedSlugInputError, getSlugValidationError, normalizeSlug } from "@/lib/slugify";
 
 type ListingUpdate = Database["public"]["Tables"]["listings"]["Update"];
 type ListingUpdateRecord = Record<string, unknown>;
+type AdminWriteContext = Extract<
+  Awaited<ReturnType<typeof requireAdminWriteClient>>,
+  { writeClient: unknown; userClient: unknown }
+>;
+type AdminWriteClient = AdminWriteContext["userClient"];
 
 type ListingImageInput = {
   url: string;
@@ -131,6 +137,13 @@ function parseListingUpdate(raw: unknown): ListingUpdate {
     const key = LISTING_FIELD_ALIASES[rawKey] ?? rawKey;
     if (!LISTING_MUTATION_COLUMNS.has(key)) continue;
 
+    if (key === "slug" && typeof rawValue === "string") {
+      updates[key] = getDisallowedSlugInputError(rawValue)
+        ? rawValue.trim()
+        : normalizeSlug(rawValue, { entityType: "listing" });
+      continue;
+    }
+
     if (LISTING_URL_COLUMNS.has(key) && typeof rawValue === "string") {
       updates[key] = normalizeExternalUrlForStorage(rawValue);
       continue;
@@ -140,6 +153,93 @@ function parseListingUpdate(raw: unknown): ListingUpdate {
   }
 
   return updates as ListingUpdate;
+}
+
+function isUniqueViolation(error: { code?: string; message?: string } | null | undefined) {
+  return error?.code === "23505" || /duplicate key|unique constraint/i.test(error?.message ?? "");
+}
+
+async function findListingSlugConflict(
+  client: AdminWriteClient,
+  slug: string,
+  currentListingId: string,
+): Promise<string | null> {
+  const listingsTable = client.from("listings");
+  const aliasesTable = client.from("listing_slugs");
+
+  if (typeof listingsTable.select !== "function" || typeof aliasesTable.select !== "function") {
+    return null;
+  }
+
+  const [{ data: listing, error: listingError }, { data: alias, error: aliasError }] = await Promise.all([
+    listingsTable
+      .select("id, name")
+      .eq("slug", slug)
+      .maybeSingle(),
+    aliasesTable
+      .select("listing_id")
+      .eq("slug", slug)
+      .maybeSingle(),
+  ]);
+
+  if (listingError) throw listingError;
+  if (aliasError) throw aliasError;
+
+  if (listing?.id && listing.id !== currentListingId) {
+    return `Slug "${slug}" is already used by "${listing.name ?? "another listing"}".`;
+  }
+
+  if (alias?.listing_id && alias.listing_id !== currentListingId) {
+    return `Slug "${slug}" is already reserved as a current or previous listing URL.`;
+  }
+
+  return null;
+}
+
+async function ensureListingSlugAliases(
+  client: AdminWriteClient,
+  listingId: string,
+  oldSlug: string | null | undefined,
+  newSlug: string,
+) {
+  const aliasesTable = client.from("listing_slugs");
+  if (typeof aliasesTable.update !== "function" || typeof aliasesTable.insert !== "function" || typeof aliasesTable.upsert !== "function") {
+    return null;
+  }
+
+  if (oldSlug && oldSlug !== newSlug) {
+    await aliasesTable
+      .update({ is_current: false })
+      .eq("listing_id", listingId)
+      .eq("slug", oldSlug);
+
+    const { error: oldAliasError } = await aliasesTable
+      .insert({
+        listing_id: listingId,
+        slug: oldSlug,
+        is_current: false,
+      });
+
+    if (oldAliasError && !isUniqueViolation(oldAliasError)) {
+      return oldAliasError;
+    }
+  }
+
+  await aliasesTable
+    .update({ is_current: false })
+    .eq("listing_id", listingId);
+
+  const { error: newAliasError } = await aliasesTable
+    .upsert(
+      {
+        listing_id: listingId,
+        slug: newSlug,
+        is_current: true,
+      },
+      { onConflict: "slug" },
+    );
+
+  return newAliasError;
 }
 
 export async function PATCH(
@@ -194,6 +294,45 @@ export async function PATCH(
     updates.is_curated = body.is_curated;
   }
 
+  if (typeof updates.slug === "string") {
+    const slugValidationError = getSlugValidationError(updates.slug, { entityType: "listing" });
+    if (slugValidationError) {
+      return adminErrorResponse(400, "VALIDATION_ERROR", slugValidationError);
+    }
+  }
+
+  let oldSlug: string | null = null;
+  if (typeof updates.slug === "string") {
+    const { data: currentListing, error: currentListingError } = await auth.userClient
+      .from("listings")
+      .select("id, slug")
+      .eq("id", listingId)
+      .maybeSingle();
+
+    if (currentListingError) {
+      return adminErrorResponse(400, "LISTING_READ_FAILED", currentListingError.message);
+    }
+
+    if (!currentListing?.id) {
+      return adminErrorResponse(404, "LISTING_NOT_FOUND", "Listing was not found.");
+    }
+
+    oldSlug = currentListing.slug ?? null;
+
+    try {
+      const slugConflict = await findListingSlugConflict(auth.userClient, updates.slug, listingId);
+      if (slugConflict) {
+        return adminErrorResponse(409, "DUPLICATE_SLUG", slugConflict);
+      }
+    } catch (error) {
+      return adminErrorResponse(
+        400,
+        "SLUG_CONFLICT_CHECK_FAILED",
+        error instanceof Error ? error.message : "Unable to validate slug uniqueness.",
+      );
+    }
+  }
+
   if (Object.keys(updates).length > 0) {
     // Use requester-scoped client so DB triggers relying on auth.uid()
     // correctly detect the acting admin user.
@@ -203,7 +342,30 @@ export async function PATCH(
       .eq("id", listingId);
 
     if (updateError) {
+      if (isUniqueViolation(updateError)) {
+        return adminErrorResponse(
+          409,
+          "DUPLICATE_SLUG",
+          typeof updates.slug === "string"
+            ? `Slug "${updates.slug}" is already used or reserved.`
+            : "Listing update would violate a unique constraint.",
+        );
+      }
       return adminErrorResponse(400, "LISTING_UPDATE_FAILED", updateError.message);
+    }
+
+    if (typeof updates.slug === "string") {
+      const aliasError = await ensureListingSlugAliases(auth.userClient, listingId, oldSlug, updates.slug);
+      if (aliasError) {
+        if (isUniqueViolation(aliasError)) {
+          return adminErrorResponse(
+            409,
+            "DUPLICATE_SLUG",
+            `Slug "${updates.slug}" is already used or reserved.`,
+          );
+        }
+        return adminErrorResponse(400, "LISTING_SLUG_ALIAS_UPDATE_FAILED", aliasError.message);
+      }
     }
   }
 

@@ -22,4 +22,13 @@ describe("imageUrls", () => {
       resolveSupabaseBucketImageUrl("https://cdn.example.com/image.webp", "listing-images"),
     ).toBe("https://cdn.example.com/image.webp");
   });
+
+  it("blocks known broken public image hosts so listing cards can use fallbacks", () => {
+    expect(
+      normalizePublicImageUrl("https://lemonzest-foodcontent.com/wp-content/uploads/demo.png"),
+    ).toBeNull();
+    expect(
+      normalizePublicImageUrl("https://www.pinecliffs.com/wp-content/uploads/2025/02/DJI_0067-scaled.jpg"),
+    ).toBeNull();
+  });
 });

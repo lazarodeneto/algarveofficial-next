@@ -9,6 +9,7 @@
 
 import { z } from "zod";
 import { isValidExternalUrlInput, normalizeExternalUrlForStorage } from "@/lib/url-input";
+import { slugSchema } from "@/lib/forms/admin-schemas";
 
 // ─── Shared primitives ────────────────────────────────────────────────────────
 
@@ -25,7 +26,7 @@ const optionalUrl = z
 
 export const listingFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  slug: z.string().min(1, "Slug is required"),
+  slug: slugSchema("listing"),
   short_description: z
     .string()
     .min(1, "Short description is required")

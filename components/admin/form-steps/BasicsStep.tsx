@@ -12,6 +12,7 @@ import { TagInput } from "../listings/TagInput";
 import type { ListingFormData } from "@/types/listing";
 import type { City, PremiumRegion, Category } from "@/types/admin";
 import { normalizeSelect, denormalizeSelect } from "@/lib/forms/normalize";
+import { getDisallowedSlugInputError, normalizeSlug, slugifyEntityName } from "@/lib/slugify";
 
 interface BasicsStepProps {
   data: ListingFormData;
@@ -21,6 +22,7 @@ interface BasicsStepProps {
   categories: Category[];
   errors: Record<string, string>;
   isAdmin?: boolean;
+  isEditMode?: boolean;
 }
 
 export function BasicsStep({
@@ -31,21 +33,24 @@ export function BasicsStep({
   categories,
   errors,
   isAdmin = false,
+  isEditMode = false,
 }: BasicsStepProps) {
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-      .trim();
-  };
+  const generateSlug = (name: string) => slugifyEntityName(name, { entityType: "listing" });
 
   const handleNameChange = (name: string) => {
     onChange("name", name);
-    if (!data.slug || data.slug === generateSlug(data.name)) {
+    if (!isEditMode && (!data.slug || data.slug === generateSlug(data.name))) {
       onChange("slug", generateSlug(name));
     }
+  };
+
+  const handleSlugChange = (value: string) => {
+    onChange(
+      "slug",
+      getDisallowedSlugInputError(value)
+        ? value.trim()
+        : normalizeSlug(value, { entityType: "listing" }),
+    );
   };
 
   return (
@@ -88,7 +93,7 @@ export function BasicsStep({
           <Input
             id="slug"
             value={data.slug}
-            onChange={(e) => onChange("slug", generateSlug(e.target.value))}
+            onChange={(e) => handleSlugChange(e.target.value)}
             placeholder="villa-azure-ocean"
             disabled={!isAdmin}
             className={errors.slug ? "border-destructive" : ""}
@@ -97,7 +102,7 @@ export function BasicsStep({
             <p className="text-xs text-destructive">{errors.slug}</p>
           )}
           <p className="text-xs text-muted-foreground">
-            algarveofficial.com/listings/{data.slug ?? "your-slug"}
+            algarveofficial.com/listing/{data.slug ?? "your-slug"}
           </p>
         </div>
 

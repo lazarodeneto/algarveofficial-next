@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES, type AppLocale } from "@/lib/i18n/locales";
 import { isValidLocale } from "@/lib/i18n/locale-utils";
+import { DEFAULT_LOCALE_USES_PREFIX } from "@/lib/i18n/default-locale-policy";
 import { REQUEST_LOCALE_HEADER_NAME, isSystemBypassPath } from "@/lib/i18n/route-rules";
 import { isMaintenanceIpWhitelisted } from "@/lib/maintenance";
 import { getCanonicalFromUrlSlug, getCategoryUrlSlug } from "@/lib/seo/programmatic/category-slugs";
@@ -27,6 +28,7 @@ const RESERVED_ROUTE_SEGMENTS = new Set([
   "admin",
   "auth",
   "blog",
+  "category",
   "contact",
   "cookie-policy",
   "dashboard",
@@ -41,6 +43,7 @@ const RESERVED_ROUTE_SEGMENTS = new Set([
   "map",
   "owner",
   "partner",
+  "partners",
   "pricing",
   "privacy-policy",
   "properties",
@@ -124,6 +127,20 @@ function nextWithRequestLocale(request: NextRequest, locale: AppLocale) {
 function withLocalePrefix(pathname: string, locale: AppLocale): string {
   const normalized = normalizePathname(pathname);
 
+  if (locale === DEFAULT_LOCALE && !DEFAULT_LOCALE_USES_PREFIX) {
+    return normalized;
+  }
+
+  if (normalized === "/") {
+    return `/${locale}`;
+  }
+
+  return `/${locale}${normalized}`;
+}
+
+function withInternalLocalePrefix(pathname: string, locale: AppLocale): string {
+  const normalized = normalizePathname(pathname);
+
   if (normalized === "/") {
     return `/${locale}`;
   }
@@ -145,10 +162,12 @@ function resolveLegacyCategoryCityRequest(
   locale: AppLocale,
   pathSegments: string[],
 ): { kind: "none" } | { kind: "not-found" } | { kind: "redirect"; pathname: string } {
-  if (pathSegments.length !== 3) return { kind: "none" };
+  if (pathSegments.length !== 2 && pathSegments.length !== 3) return { kind: "none" };
 
-  const legacyCategorySegment = pathSegments[1]?.toLowerCase() ?? "";
-  const legacyCitySegment = pathSegments[2]?.toLowerCase() ?? "";
+  const categoryIndex = pathSegments.length === 3 ? 1 : 0;
+  const cityIndex = pathSegments.length === 3 ? 2 : 1;
+  const legacyCategorySegment = pathSegments[categoryIndex]?.toLowerCase() ?? "";
+  const legacyCitySegment = pathSegments[cityIndex]?.toLowerCase() ?? "";
   if (RESERVED_ROUTE_SEGMENTS.has(legacyCategorySegment)) return { kind: "none" };
 
   const canonicalCategory = getCanonicalFromUrlSlug(
@@ -187,11 +206,181 @@ function redirectAnonymousAdminRequest(request: NextRequest, locale: AppLocale) 
   return NextResponse.redirect(loginUrl, 307);
 }
 
-export function proxy(request: NextRequest) {
+function redirectRouteAlias(request: NextRequest, locale: AppLocale, targetPathname: string) {
+  const redirectUrl = new URL(withLocalePrefix(targetPathname, locale), request.url);
+  redirectUrl.search = request.nextUrl.search;
+  return NextResponse.redirect(redirectUrl, 308);
+}
+
+function getListingSlugFromPath(pathname: string): string | null {
+  const match = pathname.match(/^\/listing\/([^/]+)$/);
+  return match?.[1] ?? null;
+}
+
+function getGolfCourseSlugFromPath(pathname: string): string | null {
+  const match = pathname.match(/^\/golf\/courses\/([^/]+)$/);
+  return match?.[1] ?? null;
+}
+
+interface ListingSlugRedirectRow {
+  listing?: { slug?: string | null; status?: string | null } | null;
+}
+
+interface GolfCourseSlugRow {
+  slug?: string | null;
+  status?: string | null;
+  category?: { slug?: string | null } | null;
+  category_data?: Record<string, unknown> | null;
+}
+
+interface GolfCourseSlugAliasRow {
+  listing?: GolfCourseSlugRow | null;
+}
+
+interface GolfCourseSlugResolution {
+  exists: boolean;
+  canonicalSlug: string | null;
+}
+
+function isPublishedGolfCourseRow(row: GolfCourseSlugRow | null | undefined): boolean {
+  if (!row?.slug) return false;
+  if (row.status && row.status !== "published") return false;
+
+  const categorySlug = row.category?.slug?.trim().toLowerCase();
+  const vertical = typeof row.category_data?.vertical === "string"
+    ? row.category_data.vertical.trim().toLowerCase()
+    : null;
+  return categorySlug === "golf" || vertical === "golf";
+}
+
+async function resolveListingSlugRedirect(slug: string): Promise<string | null> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim().replace(/\/+$/, "");
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  if (!supabaseUrl || !supabaseKey) return null;
+
+  const endpoint = new URL(`${supabaseUrl}/rest/v1/listing_slugs`);
+  endpoint.searchParams.set("select", "listing:listings(slug,status)");
+  endpoint.searchParams.set("slug", `eq.${slug}`);
+  endpoint.searchParams.set("is_current", "eq.false");
+  endpoint.searchParams.set("limit", "1");
+
+  try {
+    const response = await fetch(endpoint, {
+      headers: {
+        apikey: supabaseKey,
+        authorization: `Bearer ${supabaseKey}`,
+      },
+      cache: "no-store",
+    });
+
+    if (!response.ok) return null;
+    const rows = (await response.json()) as ListingSlugRedirectRow[];
+    const listing = rows[0]?.listing ?? null;
+    const canonicalSlug = listing?.status === "published" ? listing.slug?.trim() : null;
+    return canonicalSlug && canonicalSlug !== slug ? canonicalSlug : null;
+  } catch {
+    return null;
+  }
+}
+
+async function resolvePublishedGolfCourseSlug(slug: string): Promise<GolfCourseSlugResolution | null> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim().replace(/\/+$/, "");
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  if (!supabaseUrl || !supabaseKey) return null;
+
+  const endpoint = new URL(`${supabaseUrl}/rest/v1/listings`);
+  endpoint.searchParams.set("select", "slug,category:categories(slug),category_data");
+  endpoint.searchParams.set("slug", `eq.${slug}`);
+  endpoint.searchParams.set("status", "eq.published");
+  endpoint.searchParams.set("limit", "1");
+
+  try {
+    const response = await fetch(endpoint, {
+      headers: {
+        apikey: supabaseKey,
+        authorization: `Bearer ${supabaseKey}`,
+      },
+      cache: "no-store",
+    });
+
+    if (!response.ok) return null;
+    const rows = (await response.json()) as GolfCourseSlugRow[];
+    const row = rows[0];
+    if (row?.slug) {
+      const exists = isPublishedGolfCourseRow(row);
+      return { exists, canonicalSlug: exists ? row.slug : null };
+    }
+
+    const aliasEndpoint = new URL(`${supabaseUrl}/rest/v1/listing_slugs`);
+    aliasEndpoint.searchParams.set(
+      "select",
+      "listing:listings(slug,status,category:categories(slug),category_data)",
+    );
+    aliasEndpoint.searchParams.set("slug", `eq.${slug}`);
+    aliasEndpoint.searchParams.set("limit", "1");
+
+    const aliasResponse = await fetch(aliasEndpoint, {
+      headers: {
+        apikey: supabaseKey,
+        authorization: `Bearer ${supabaseKey}`,
+      },
+      cache: "no-store",
+    });
+
+    if (!aliasResponse.ok) return null;
+    const aliasRows = (await aliasResponse.json()) as GolfCourseSlugAliasRow[];
+    const listing = aliasRows[0]?.listing ?? null;
+    const exists = isPublishedGolfCourseRow(listing);
+    return { exists, canonicalSlug: exists ? listing?.slug?.trim() ?? null : null };
+  } catch {
+    return null;
+  }
+}
+
+function redirectGolfCourseAliasIfNeeded(
+  request: NextRequest,
+  locale: AppLocale,
+  slug: string,
+  resolution: GolfCourseSlugResolution | null,
+) {
+  if (!resolution) return null;
+  if (!resolution.exists) return notFoundResponse();
+
+  const canonicalSlug = resolution.canonicalSlug?.trim();
+  if (canonicalSlug && canonicalSlug !== slug) {
+    return redirectRouteAlias(request, locale, `/golf/courses/${canonicalSlug}`);
+  }
+
+  return null;
+}
+
+function rewriteUnprefixedDefaultLocaleRequest(request: NextRequest) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set(REQUEST_LOCALE_HEADER_NAME, DEFAULT_LOCALE);
+
+  const rewriteUrl = new URL(withInternalLocalePrefix(request.nextUrl.pathname, DEFAULT_LOCALE), request.url);
+  rewriteUrl.search = request.nextUrl.search;
+
+  return NextResponse.rewrite(rewriteUrl, {
+    request: {
+      headers: requestHeaders,
+    },
+  });
+}
+
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const normalizedPathname = normalizePathname(pathname);
   const strippedPathname = stripLocalePrefix(normalizedPathname);
+  const segments = normalizedPathname.split("/").filter(Boolean);
+  const firstSegment = segments[0]?.toLowerCase();
+  const localeFromPath =
+    firstSegment && isValidLocale(firstSegment) ? (firstSegment as AppLocale) : null;
+
+  if (strippedPathname.startsWith("/admin") && !hasSupabaseAuthCookie(request)) {
+    return redirectAnonymousAdminRequest(request, localeFromPath ?? DEFAULT_LOCALE);
+  }
 
   if (isSystemBypassPath(normalizedPathname)) {
     return NextResponse.next();
@@ -217,11 +406,6 @@ export function proxy(request: NextRequest) {
   const relocationAliasPath =
     strippedPathname === "/residence" || strippedPathname === "/live";
 
-  const segments = normalizedPathname.split("/").filter(Boolean);
-  const firstSegment = segments[0]?.toLowerCase();
-  const localeFromPath =
-    firstSegment && isValidLocale(firstSegment) ? (firstSegment as AppLocale) : null;
-
   // Requests com locale explícito no path
   if (localeFromPath) {
     // Locale inválido ou não público -> fallback para default
@@ -241,13 +425,51 @@ export function proxy(request: NextRequest) {
       return NextResponse.redirect(redirectUrl, 308);
     }
 
-    if (relocationAliasPath) {
-      const redirectUrl = new URL(withLocalePrefix("/relocation", localeFromPath), request.url);
-      redirectUrl.search = request.nextUrl.search;
-      return NextResponse.redirect(redirectUrl, 308);
+    if (strippedPathname === "/partners") {
+      return redirectRouteAlias(request, localeFromPath, "/partner");
     }
 
-    const legacyCategoryCityRequest = resolveLegacyCategoryCityRequest(localeFromPath, segments);
+    if (relocationAliasPath) {
+      return redirectRouteAlias(request, localeFromPath, "/relocation");
+    }
+
+    if (strippedPathname === "/restaurants") {
+      return redirectRouteAlias(
+        request,
+        localeFromPath,
+        `/category/${getCategoryUrlSlug("restaurants", localeFromPath)}`,
+      );
+    }
+
+    const propertyAliasMatch = strippedPathname.match(/^\/properties\/([^/]+)$/);
+    if (propertyAliasMatch?.[1]) {
+      return redirectRouteAlias(request, localeFromPath, `/listing/${propertyAliasMatch[1]}`);
+    }
+
+    const golfCourseSlug = getGolfCourseSlugFromPath(strippedPathname);
+    if (golfCourseSlug) {
+      const resolution = await resolvePublishedGolfCourseSlug(golfCourseSlug);
+      const response = redirectGolfCourseAliasIfNeeded(
+        request,
+        localeFromPath,
+        golfCourseSlug,
+        resolution,
+      );
+      if (response) return response;
+    }
+
+    const listingAliasSlug = getListingSlugFromPath(strippedPathname);
+    if (listingAliasSlug) {
+      const canonicalSlug = await resolveListingSlugRedirect(listingAliasSlug);
+      if (canonicalSlug) {
+        return redirectRouteAlias(request, localeFromPath, `/listing/${canonicalSlug}`);
+      }
+    }
+
+    const legacyCategoryCityRequest =
+      segments.length === 3
+        ? resolveLegacyCategoryCityRequest(localeFromPath, segments)
+        : { kind: "none" as const };
     if (legacyCategoryCityRequest.kind === "not-found") {
       return notFoundResponse();
     }
@@ -257,6 +479,11 @@ export function proxy(request: NextRequest) {
       return NextResponse.redirect(redirectUrl, 308);
     }
 
+    // Serve legacy /en/... URLs instead of redirecting them back to the
+    // unprefixed route. Some browsers may still have an older permanent
+    // redirect cached in the opposite direction (/... -> /en/...), and
+    // redirecting /en/... -> /... would create an unrecoverable loop.
+
     if (strippedPathname.startsWith("/admin") && !hasSupabaseAuthCookie(request)) {
       return redirectAnonymousAdminRequest(request, localeFromPath);
     }
@@ -264,24 +491,71 @@ export function proxy(request: NextRequest) {
     return nextWithRequestLocale(request, localeFromPath);
   }
 
-  // /pricing without locale is a legacy English URL.
   if (strippedPathname === "/pricing") {
     const redirectUrl = new URL(withLocalePrefix("/partner", DEFAULT_LOCALE), request.url);
     redirectUrl.search = request.nextUrl.search;
     return NextResponse.redirect(redirectUrl, 308);
   }
 
+  if (strippedPathname === "/partners") {
+    return redirectRouteAlias(request, DEFAULT_LOCALE, "/partner");
+  }
+
   if (relocationAliasPath) {
-    const redirectUrl = new URL(withLocalePrefix("/relocation", DEFAULT_LOCALE), request.url);
+    return redirectRouteAlias(request, DEFAULT_LOCALE, "/relocation");
+  }
+
+  if (strippedPathname === "/restaurants") {
+    return redirectRouteAlias(
+      request,
+      DEFAULT_LOCALE,
+      `/category/${getCategoryUrlSlug("restaurants", DEFAULT_LOCALE)}`,
+    );
+  }
+
+  const propertyAliasMatch = strippedPathname.match(/^\/properties\/([^/]+)$/);
+  if (propertyAliasMatch?.[1]) {
+    return redirectRouteAlias(request, DEFAULT_LOCALE, `/listing/${propertyAliasMatch[1]}`);
+  }
+
+  const golfCourseSlug = getGolfCourseSlugFromPath(strippedPathname);
+  if (golfCourseSlug) {
+    const resolution = await resolvePublishedGolfCourseSlug(golfCourseSlug);
+    const response = redirectGolfCourseAliasIfNeeded(
+      request,
+      DEFAULT_LOCALE,
+      golfCourseSlug,
+      resolution,
+    );
+    if (response) return response;
+  }
+
+  const listingAliasSlug = getListingSlugFromPath(strippedPathname);
+  if (listingAliasSlug) {
+    const canonicalSlug = await resolveListingSlugRedirect(listingAliasSlug);
+    if (canonicalSlug) {
+      return redirectRouteAlias(request, DEFAULT_LOCALE, `/listing/${canonicalSlug}`);
+    }
+  }
+
+  if (strippedPathname.startsWith("/admin") && !hasSupabaseAuthCookie(request)) {
+    return redirectAnonymousAdminRequest(request, DEFAULT_LOCALE);
+  }
+
+  const legacyCategoryCityRequest =
+    segments.length === 2
+      ? resolveLegacyCategoryCityRequest(DEFAULT_LOCALE, segments)
+      : { kind: "none" as const };
+  if (legacyCategoryCityRequest.kind === "not-found") {
+    return notFoundResponse();
+  }
+  if (legacyCategoryCityRequest.kind === "redirect") {
+    const redirectUrl = new URL(legacyCategoryCityRequest.pathname, request.url);
     redirectUrl.search = request.nextUrl.search;
     return NextResponse.redirect(redirectUrl, 308);
   }
 
-  // Public paths without an explicit locale are legacy English URLs.
-  // They permanently redirect to the canonical /en/... equivalent.
-  const redirectUrl = new URL(withLocalePrefix(normalizedPathname, DEFAULT_LOCALE), request.url);
-  redirectUrl.search = request.nextUrl.search;
-  return NextResponse.redirect(redirectUrl, 308);
+  return rewriteUnprefixedDefaultLocaleRequest(request);
 }
 
 export const config = {

@@ -5,9 +5,9 @@ import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 
 describe("i18n SEO helpers", () => {
-  it("canonicalizes English URLs with a locale prefix", () => {
+  it("canonicalizes English URLs without a locale prefix", () => {
     expect(buildCanonicalUrl("en", "/directory")).toBe(
-      "https://algarveofficial.com/en/directory",
+      "https://algarveofficial.com/directory",
     );
   });
 
@@ -20,7 +20,7 @@ describe("i18n SEO helpers", () => {
     });
 
     expect(alternates.canonical).toBe(
-      "https://algarveofficial.com/en/directory",
+      "https://algarveofficial.com/directory",
     );
     expect(metadata.alternates?.canonical).toBe(alternates.canonical);
     expect(metadata.openGraph?.url).toBe(alternates.canonical);
@@ -45,10 +45,10 @@ describe("i18n SEO helpers", () => {
       xDefault: enStay.alternates?.languages?.["x-default"],
     }).toMatchInlineSnapshot(`
       {
-        "canonical": "https://algarveofficial.com/en/stay",
-        "en": "https://algarveofficial.com/en/stay",
+        "canonical": "https://algarveofficial.com/stay",
+        "en": "https://algarveofficial.com/stay",
         "pt": "https://algarveofficial.com/pt-pt/stay",
-        "xDefault": "https://algarveofficial.com/en/stay",
+        "xDefault": "https://algarveofficial.com/stay",
       }
     `);
     expect({
@@ -59,9 +59,9 @@ describe("i18n SEO helpers", () => {
     }).toMatchInlineSnapshot(`
       {
         "canonical": "https://algarveofficial.com/pt-pt/stay",
-        "en": "https://algarveofficial.com/en/stay",
+        "en": "https://algarveofficial.com/stay",
         "pt": "https://algarveofficial.com/pt-pt/stay",
-        "xDefault": "https://algarveofficial.com/en/stay",
+        "xDefault": "https://algarveofficial.com/stay",
       }
     `);
   });

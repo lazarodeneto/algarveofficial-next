@@ -6,6 +6,10 @@ export function isBlockedPublicImageUrl(value?: string | null): boolean {
     const hostname = url.hostname.toLowerCase();
     const pathname = url.pathname.toLowerCase();
 
+    if (BROKEN_PUBLIC_IMAGE_HOSTS.has(hostname)) {
+      return true;
+    }
+
     if (
       hostname.endsWith("googleapis.com")
       && pathname.includes("/maps/api/place/photo")
@@ -25,6 +29,16 @@ export function isBlockedPublicImageUrl(value?: string | null): boolean {
 
   return false;
 }
+
+const BROKEN_PUBLIC_IMAGE_HOSTS = new Set([
+  // This host currently fails TLS negotiation in Chromium and surfaces as a
+  // console error on category pages before ListingImage can fall back.
+  "lemonzest-foodcontent.com",
+  // Pine Cliffs blocks hotlinked image requests by Referer, returning a 403
+  // text response that Chromium blocks as ORB. Let cards use their fallback.
+  "pinecliffs.com",
+  "www.pinecliffs.com",
+]);
 
 function joinSupabaseBaseUrl(pathname: string): string | null {
   const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim().replace(/\/+$/, "");

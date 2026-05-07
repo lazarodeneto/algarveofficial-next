@@ -8,7 +8,7 @@ import {
 
 const EXPECTED_APPROVED_SLUGS = [
   "espiche-golf",
-  "boavista-golf-spa-resort",
+  "boavista-golf-spa-resort-lagos",
   "palmares-ocean-living-golf",
   "alto-golf-course",
   "morgado-golf-course",
@@ -53,6 +53,8 @@ describe("approved Algarve golf course allowlist", () => {
   });
 
   it("approves only explicit safe aliases and punctuation variants", () => {
+    expect(isApprovedGolfCourse({ slug: "boavista-golf-spa-resort-quinta-do-lago" })).toBe(true);
+    expect(isApprovedGolfCourse({ slug: "boavista-golf-spa-resort", name: "Boavista Golf & Spa Resort" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Álamos Golf Course" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Amendoeira O’Connor Jnr." })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Amendoeira OConnor Jnr" })).toBe(true);

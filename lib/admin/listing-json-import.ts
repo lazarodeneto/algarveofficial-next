@@ -1,4 +1,10 @@
 import type { Json } from "@/integrations/supabase/types";
+import {
+  getDisallowedSlugInputError,
+  getSlugValidationError,
+  normalizeSlug,
+  slugifyEntityName,
+} from "@/lib/slugify";
 import { optionalNullableNumber } from "@/lib/validation/helpers";
 
 export type ImportVertical = "none" | "golf" | "property" | "service";
@@ -322,15 +328,6 @@ function asString(value: unknown): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
-function slugify(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 function toNumber(value: unknown): number | undefined {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   if (typeof value === "string" && value.trim().length > 0) {
@@ -379,7 +376,7 @@ export function normalizeImportCategory(value: unknown, fallback?: string) {
   const raw = asString(value) ?? asString(fallback) ?? "";
   const key = raw.trim().toLowerCase().replace(/_/g, "-");
   const spaced = raw.trim().toLowerCase().replace(/[_-]+/g, " ");
-  return CATEGORY_ALIASES[key] ?? CATEGORY_ALIASES[spaced] ?? slugify(raw);
+  return CATEGORY_ALIASES[key] ?? CATEGORY_ALIASES[spaced] ?? slugifyEntityName(raw, { entityType: "taxonomy" });
 }
 
 export function getImportCategoryInput(row: Record<string, unknown>, fallback?: string) {
@@ -650,7 +647,12 @@ export function normalizeImportListing(
   const errors: string[] = [];
   const name = asString(row.Nome ?? row.Name ?? row.name) ?? "";
   const explicitSlug = asString(row.URL_slug ?? row.slug ?? row.Slug);
-  const slug = explicitSlug ?? (name ? slugify(name) : "");
+  const explicitSlugInputError = explicitSlug ? getDisallowedSlugInputError(explicitSlug) : null;
+  const slug = explicitSlug
+    ? normalizeSlug(explicitSlug, { entityType: "listing" })
+    : name
+      ? slugifyEntityName(name, { entityType: "listing" })
+      : "";
   const location = asRecord(row.location);
   const cityName = asString(row.City ?? row.city) ?? asString(location.city) ?? "";
   const hasTopLevelGolf = Object.keys(asRecord(row.golf)).length > 0;
@@ -667,6 +669,12 @@ export function normalizeImportListing(
 
   if (!name) errors.push("Name is required.");
   if (!explicitSlug && name) warnings.push("URL_slug missing; slug will be generated from Nome.");
+  if (explicitSlug && explicitSlugInputError) errors.push(`URL_slug is invalid: ${explicitSlugInputError}`);
+  if (explicitSlug && !explicitSlugInputError && explicitSlug !== slug) {
+    warnings.push(`URL_slug normalized from "${explicitSlug}" to "${slug}".`);
+  }
+  const slugValidationError = getSlugValidationError(slug, { entityType: "listing" });
+  if (slugValidationError) errors.push(`URL_slug is invalid: ${slugValidationError}`);
   if (!cityName) errors.push("City is required.");
   if (!categorySlug) errors.push("Category is required.");
   if (!asString(row.Country ?? row.country)) warnings.push("Country missing; defaulting to Portugal.");

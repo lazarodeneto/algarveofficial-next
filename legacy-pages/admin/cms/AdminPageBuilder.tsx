@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, Suspense } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { DashboardBreadcrumb } from "@/components/ui/dashboard-breadcrumb";
@@ -430,12 +430,9 @@ function AdminImageCardPreview({
   fallbackLabel?: string;
 }) {
   const trimmedImageUrl = imageUrl.trim();
-  const [hasImageError, setHasImageError] = useState(false);
+  const [erroredImageUrl, setErroredImageUrl] = useState<string | null>(null);
+  const hasImageError = Boolean(trimmedImageUrl) && erroredImageUrl === trimmedImageUrl;
   const canPreviewImage = Boolean(trimmedImageUrl) && !hasImageError;
-
-  useEffect(() => {
-    setHasImageError(false);
-  }, [trimmedImageUrl]);
 
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-muted">
@@ -447,7 +444,7 @@ function AdminImageCardPreview({
             aria-hidden="true"
             loading="lazy"
             className="absolute inset-0 h-full w-full object-cover"
-            onError={() => setHasImageError(true)}
+            onError={() => setErroredImageUrl(trimmedImageUrl)}
           />
         ) : null}
         {canPreviewImage ? <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" /> : null}
@@ -596,6 +593,7 @@ function AdminPageBuilderContent() {
   const [citySearchQuery, setCitySearchQuery] = useState("");
   const [featuredCitySearchQuery, setFeaturedCitySearchQuery] = useState("");
   const [listingSearchQuery, setListingSearchQuery] = useState("");
+  const pendingSelectedPageIdRef = useRef<string | null>(null);
   const heroImageInputRef = useRef<HTMLInputElement | null>(null);
   const heroVideoInputRef = useRef<HTMLInputElement | null>(null);
   const heroPosterInputRef = useRef<HTMLInputElement | null>(null);
@@ -654,7 +652,7 @@ function AdminPageBuilderContent() {
     staleTime: 1000 * 60 * 5,
   });
 
-  const setSearchParams = (nextParams: URLSearchParams, options?: { replace?: boolean }) => {
+  const setSearchParams = useCallback((nextParams: URLSearchParams, options?: { replace?: boolean }) => {
     const query = nextParams.toString();
     const href = query ? `${pathname}?${query}` : pathname;
     if (options?.replace) {
@@ -662,7 +660,7 @@ function AdminPageBuilderContent() {
       return;
     }
     router.push(href);
-  };
+  }, [pathname, router]);
 
   const setHomeWorkspaceMode = (mode: "home-editor" | "builder") => {
     const next = new URLSearchParams(searchParams);
@@ -801,8 +799,19 @@ function AdminPageBuilderContent() {
   useEffect(() => {
     if (!requestedPageId) return;
     const isValidRequested = FUNCTIONAL_PAGE_DEFINITIONS.some((page) => page.id === requestedPageId);
+    if (!isValidRequested) return;
+
+    const pendingPageId = pendingSelectedPageIdRef.current;
+    if (pendingPageId) {
+      if (requestedPageId === pendingPageId) {
+        pendingSelectedPageIdRef.current = null;
+      } else {
+        return;
+      }
+    }
+
     if (isCmsDirty) return;
-    if (isValidRequested && requestedPageId !== selectedPageId) {
+    if (requestedPageId !== selectedPageId) {
       setSelectedPageId(requestedPageId);
     }
   }, [isCmsDirty, requestedPageId, selectedPageId]);
@@ -827,7 +836,12 @@ function AdminPageBuilderContent() {
 
   useEffect(() => {
     if (!selectedPageId || !initialized) return;
-    if (requestedPageId === selectedPageId) return;
+    if (requestedPageId === selectedPageId) {
+      if (pendingSelectedPageIdRef.current === selectedPageId) {
+        pendingSelectedPageIdRef.current = null;
+      }
+      return;
+    }
     const next = new URLSearchParams(searchParams);
     next.set("page", selectedPageId);
     setSearchParams(next, { replace: true });
@@ -1165,6 +1179,28 @@ function AdminPageBuilderContent() {
 
     return Array.from(groups.entries()).map(([group, blocks]) => ({ group, blocks }));
   }, [blockControlsDefinitions]);
+
+  const handlePageSelection = (nextPageId: string) => {
+    if (nextPageId === selectedPageId) return;
+    if (!FUNCTIONAL_PAGE_DEFINITIONS.some((page) => page.id === nextPageId)) return;
+    if (
+      isCmsDirty &&
+      !window.confirm(`Discard unsaved changes to ${selectedPageDefinition?.label ?? "this page"} before switching pages?`)
+    ) {
+      return;
+    }
+
+    pendingSelectedPageIdRef.current = nextPageId;
+    setSelectedPageId(nextPageId);
+    setSelectedInspectorBlockId(null);
+
+    const next = new URLSearchParams(searchParams);
+    next.set("page", nextPageId);
+    if (nextPageId !== "home") {
+      next.delete("mode");
+    }
+    setSearchParams(next, { replace: true });
+  };
 
   const handleLocaleChange = (nextLocale: string) => {
     if (!SUPPORTED_LOCALES.includes(nextLocale as Locale)) return;
@@ -2186,16 +2222,7 @@ function AdminPageBuilderContent() {
                           <button
                             key={page.id}
                             type="button"
-                            onClick={() => {
-                              if (page.id === selectedPageId) return;
-                              if (
-                                isCmsDirty &&
-                                !window.confirm(`Discard unsaved changes to ${selectedPageDefinition?.label ?? "this page"} before switching pages?`)
-                              ) {
-                                return;
-                              }
-                              setSelectedPageId(page.id);
-                            }}
+                            onClick={() => handlePageSelection(page.id)}
                             className={[
                               "w-full rounded-md border px-3 py-2 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
                               isSelected
