@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
+import { normalizeCmsImageFieldsInValue } from "@/lib/cms/image-source";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 
 interface GlobalSettingWriteItem {
@@ -104,10 +105,11 @@ export function buildCmsWritesFromGlobalSettings(settings: GlobalSettingWriteIte
           blockId: null,
           locale,
           docType: "page_config",
-          content:
+          content: normalizeCmsImageFieldsInValue(
             content && typeof content === "object" && !Array.isArray(content)
               ? (content as Record<string, unknown>)
               : {},
+          ),
         });
       });
     }

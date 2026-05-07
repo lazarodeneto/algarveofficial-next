@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
+import { getSafeCmsImageSrc, normalizeCmsImageSrc } from "@/lib/cms/image-source";
 import { convertToWebP, trimWhiteBorders } from "@/lib/imageUtils";
 import { cn } from "@/lib/utils";
 
@@ -53,6 +54,26 @@ export function ImageUrlUploadField({
   const uploadInputId = useId();
   const hasValue = Boolean(value && value.trim().length > 0);
 
+  const normalizeAndCommitValue = (rawValue: string) => {
+    const normalized = normalizeCmsImageSrc(rawValue, { bucket });
+
+    if (normalized.kind === "empty") {
+      onChange("");
+      return;
+    }
+
+    if (!normalized.src) {
+      toast.error(normalized.reason ?? "Invalid image URL or unsupported domain.");
+      onChange("");
+      return;
+    }
+
+    if (normalized.src !== rawValue) {
+      onChange(normalized.src);
+      toast.success("Image path saved.");
+    }
+  };
+
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file || disabled) return;
@@ -80,8 +101,9 @@ export function ImageUrlUploadField({
         .from(bucket)
         .getPublicUrl(filePath);
 
-      onChange(urlData.publicUrl);
-      onUploadComplete?.(urlData.publicUrl);
+      const publicUrl = getSafeCmsImageSrc(urlData.publicUrl, { bucket }) ?? urlData.publicUrl;
+      onChange(publicUrl);
+      onUploadComplete?.(publicUrl);
       toast.success(`${assetLabel} uploaded successfully`);
     } catch (error) {
       console.error("[image-url-upload] upload failed", error);
@@ -98,6 +120,7 @@ export function ImageUrlUploadField({
         id={id}
         value={value ?? ""}
         onChange={(event) => onChange(event.target.value)}
+        onBlur={(event) => normalizeAndCommitValue(event.target.value)}
         placeholder={placeholder}
         className={cn("bg-background", inputClassName)}
         disabled={disabled}

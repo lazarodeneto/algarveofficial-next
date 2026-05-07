@@ -76,10 +76,11 @@ import {
   normalizeSelectedListingIds,
   validateSelectedListingIds,
 } from "@/lib/cms/listing-block-config";
+import { getSafeCmsImageSrc, normalizeCmsImageFieldsInValue } from "@/lib/cms/image-source";
 import { convertToWebP } from "@/lib/imageUtils";
+import { ImageUrlUploadField } from "@/components/admin/ImageUrlUploadField";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
-import { PageHeroImage } from "@/components/sections/PageHeroImage";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import {
   addLocaleToPathname,
@@ -353,14 +354,6 @@ const GOLF_DISCOVERY_CARD_DEFAULTS: Record<(typeof GOLF_DISCOVERY_CARDS)[number]
   "quick-9": { title: "Quick 9-Hole Rounds", description: "Faster rounds" },
 };
 
-const GOLF_DISCOVERY_IMAGE_FALLBACKS: Record<(typeof GOLF_DISCOVERY_CARDS)[number]["tag"], string> = {
-  championship: "/images/region-vilamoura-800w-Ck2-Nx2h.webp",
-  coastal: "/images/region-lagos-800w-C_edT6EI.webp",
-  luxury: "/images/region-golden-triangle-800w-D-7A6jep.webp",
-  beginner: "/images/region-tavira-800w-BTeay4E1.webp",
-  "quick-9": "/images/region-carvoeiro-800w-CVkjcyBE.webp",
-};
-
 const CMS_PAGE_GROUP_ORDER: CmsPageRegistryGroup[] = [
   "Core Pages",
   "Directory Pages",
@@ -429,14 +422,14 @@ function AdminImageCardPreview({
   imageUrl: string;
   fallbackLabel?: string;
 }) {
-  const trimmedImageUrl = imageUrl.trim();
+  const trimmedImageUrl = getSafeCmsImageSrc(imageUrl) ?? "";
   const [erroredImageUrl, setErroredImageUrl] = useState<string | null>(null);
   const hasImageError = Boolean(trimmedImageUrl) && erroredImageUrl === trimmedImageUrl;
   const canPreviewImage = Boolean(trimmedImageUrl) && !hasImageError;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-muted">
-      <div className="relative flex aspect-[4/3] min-h-[150px] flex-col justify-end overflow-hidden bg-muted p-4 text-white">
+    <div className="overflow-hidden rounded-xl border border-border bg-black">
+      <div className="relative flex aspect-[4/3] min-h-[150px] flex-col justify-end overflow-hidden bg-black p-4 text-white">
         {canPreviewImage ? (
           <img
             src={trimmedImageUrl}
@@ -449,7 +442,7 @@ function AdminImageCardPreview({
         ) : null}
         {canPreviewImage ? <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" /> : null}
         {!canPreviewImage ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-muted text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+          <div className="absolute inset-0 flex items-center justify-center bg-black text-xs font-medium uppercase tracking-[0.16em] text-white/70">
             {hasImageError ? "Image unavailable" : fallbackLabel}
           </div>
         ) : null}
@@ -1438,10 +1431,7 @@ function AdminPageBuilderContent() {
         title: typeof existing.title === "string" ? existing.title : defaults.title,
         description: typeof existing.description === "string" ? existing.description : defaults.description,
         imageUrl: typeof existing.imageUrl === "string" ? existing.imageUrl : "",
-        previewImageUrl:
-          typeof existing.imageUrl === "string" && existing.imageUrl.trim()
-            ? existing.imageUrl
-            : GOLF_DISCOVERY_IMAGE_FALLBACKS[card.tag],
+        previewImageUrl: typeof existing.imageUrl === "string" ? getSafeCmsImageSrc(existing.imageUrl) ?? "" : "",
         href: typeof existing.href === "string" ? existing.href : "",
       };
     });
@@ -1612,6 +1602,8 @@ function AdminPageBuilderContent() {
       posterUrl: "",
     };
 
+    setIsCmsDirty(true);
+
     setPageConfigs((prev) => {
       const currentPage = prev[selectedPageId] ?? {};
       const nextText = { ...(currentPage.text ?? {}) };
@@ -1757,18 +1749,18 @@ function AdminPageBuilderContent() {
       });
       const text = selectedPageConfig.text ?? {};
 
-      return {
+      return normalizeCmsImageFieldsInValue({
         ...normalizedGolfConfig,
         ...(Object.keys(text).length > 0 ? { text } : {}),
-      };
+      });
     }
 
     const current = selectedPageConfig;
     if (!current || Object.keys(current).length === 0) {
-      return visualConfig ? normalizePageConfig(visualConfig) : {};
+      return normalizeCmsImageFieldsInValue(visualConfig ? normalizePageConfig(visualConfig) : {});
     }
 
-    return current as Record<string, unknown>;
+    return normalizeCmsImageFieldsInValue(current as Record<string, unknown>);
   };
 
   const handleSaveDraft = async () => {
@@ -1923,25 +1915,34 @@ function AdminPageBuilderContent() {
         const textMap = pageConfig.text ?? {};
         const heroMediaSupported = HERO_MEDIA_SUPPORTED_PAGE_IDS.has(pageId);
 
-        if (heroMediaSupported && (textMap["hero.mediaType"] || textMap["hero.imageUrl"] || textMap["hero.videoUrl"])) {
+        const hasHeroMediaKey = [
+          "hero.mediaType",
+          "hero.imageUrl",
+          "hero.videoUrl",
+          "hero.youtubeUrl",
+          "hero.posterUrl",
+          "hero.alt",
+        ].some((key) => Object.prototype.hasOwnProperty.call(textMap, key));
+
+        if (heroMediaSupported && hasHeroMediaKey) {
           const heroData: Record<string, unknown> = {
             enabled: true,
             mediaType: textMap["hero.mediaType"] || "image",
           };
 
-          if (textMap["hero.imageUrl"]) {
+          if (Object.prototype.hasOwnProperty.call(textMap, "hero.imageUrl")) {
             heroData.imageUrl = textMap["hero.imageUrl"];
           }
-          if (textMap["hero.videoUrl"]) {
+          if (Object.prototype.hasOwnProperty.call(textMap, "hero.videoUrl")) {
             heroData.videoUrl = textMap["hero.videoUrl"];
           }
-          if (textMap["hero.youtubeUrl"]) {
+          if (Object.prototype.hasOwnProperty.call(textMap, "hero.youtubeUrl")) {
             heroData.youtubeUrl = textMap["hero.youtubeUrl"];
           }
-          if (textMap["hero.posterUrl"]) {
+          if (Object.prototype.hasOwnProperty.call(textMap, "hero.posterUrl")) {
             heroData.posterUrl = textMap["hero.posterUrl"];
           }
-          if (textMap["hero.alt"]) {
+          if (Object.prototype.hasOwnProperty.call(textMap, "hero.alt")) {
             heroData.alt = textMap["hero.alt"];
           }
 
@@ -1952,10 +1953,12 @@ function AdminPageBuilderContent() {
         }
       }
 
+      const normalizedEnrichedConfigs = normalizeCmsImageFieldsInValue(enrichedConfigs);
+
       const payload = [
         {
           key: CMS_GLOBAL_SETTING_KEYS.pageConfigs,
-          value: JSON.stringify(enrichedConfigs, null, 2),
+          value: JSON.stringify(normalizedEnrichedConfigs, null, 2),
           category: "cms",
         },
         {
@@ -2848,7 +2851,6 @@ function AdminPageBuilderContent() {
                                 youtubeUrl={resolvedHeroMedia.youtubeUrl ?? heroYoutubeUrl}
                                 posterUrl={resolvedHeroMedia.posterUrl ?? heroPosterUrl}
                                 alt={resolvedHeroContent.alt ?? GOLF_DEFAULT_ALT}
-                                fallback={<PageHeroImage page="golf" alt={GOLF_DEFAULT_ALT} />}
                                 className="object-cover"
                               />
                             )}
@@ -2875,7 +2877,7 @@ function AdminPageBuilderContent() {
                             youtubeUrl={heroYoutubeUrl}
                             posterUrl={heroPosterUrl}
                             alt={`${selectedPageDefinition.label} hero preview`}
-                            fallback={<div className="h-full w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950" />}
+                            fallback={<div className="h-full w-full bg-black" aria-label="Empty hero media preview" />}
                           />
                           <div className="absolute inset-0 bg-black/35" />
                           <div className="absolute inset-x-0 bottom-0 p-4 text-white">
@@ -3144,7 +3146,7 @@ function AdminPageBuilderContent() {
                         <div>
                           <p className="text-sm font-medium text-foreground">Top Cards</p>
                           <p className="text-xs text-muted-foreground">
-                            Edit card titles, descriptions, image URLs, links, and visibility for the row at the top of /golf.
+                            Edit card titles, descriptions, uploaded images, links, and visibility for the row at the top of /golf.
                           </p>
                         </div>
                         {golfDiscoveryCards.map((card) => (
@@ -3169,7 +3171,7 @@ function AdminPageBuilderContent() {
                                   fallbackLabel="No card image"
                                 />
                                 <p className="text-xs text-muted-foreground">
-                                  {card.imageUrl.trim() ? "Using custom image URL." : "Using frontend fallback image."}
+                                  {getSafeCmsImageSrc(card.imageUrl) ? "Using custom image URL." : "No valid card image. Frontend will render black."}
                                 </p>
                               </div>
                               <div className="grid gap-3 md:grid-cols-2">
@@ -3191,11 +3193,18 @@ function AdminPageBuilderContent() {
                                 </div>
                                 <div className="space-y-2">
                                   <Label>Image URL</Label>
-                                  <Input
+                                  <ImageUrlUploadField
+                                    id={`golf-discovery-${block.id}-${card.tag}-image-url`}
                                     value={card.imageUrl}
-                                    onChange={(e) => setGolfDiscoveryCardValue(block.id, card.tag, "imageUrl", e.target.value)}
-                                    className="bg-card"
-                                    placeholder="Leave blank to use course/fallback image"
+                                    onChange={(value) => setGolfDiscoveryCardValue(block.id, card.tag, "imageUrl", value)}
+                                    placeholder="Leave blank to render black"
+                                    bucket="media"
+                                    folder={`page-builder/golf/top-cards/${card.tag}`}
+                                    assetLabel={`${card.label} card image`}
+                                    uploadButtonLabel="Upload card image"
+                                    changeButtonLabel="Change card image"
+                                    buttonSize="sm"
+                                    inputClassName="bg-card"
                                   />
                                 </div>
                                 <div className="space-y-2">

@@ -99,6 +99,22 @@ const normalizeTranslatableText = (value: unknown): string | null => {
   return trimmed.length > 0 ? value : null;
 };
 
+async function revalidateHomepageAfterAdminWrite() {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const accessToken = session?.access_token;
+  if (!accessToken) return;
+
+  await fetch("/api/admin/homepage/revalidate", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  }).catch(() => undefined);
+}
+
 const mergeHomepageTranslation = (
   settings: HomepageSettings | null,
   translation: HomepageSettingsTranslation | null,
@@ -321,6 +337,7 @@ export function useHomepageSettings() {
       // Force cache refresh so the public homepage gets fresh data immediately
       queryClient.invalidateQueries({ queryKey: homepageSettingsQueryKey(locale) });
       queryClient.invalidateQueries({ queryKey: homepageSettingsTranslationQueryKey(data?.id ?? null, locale) });
+      void revalidateHomepageAfterAdminWrite();
     },
   });
 

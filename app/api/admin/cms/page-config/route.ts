@@ -8,12 +8,14 @@ import {
   getCmsPageRegistryMeta,
   isCmsPageEditableInFullBuilder,
 } from "@/lib/cms/pageBuilderRegistry";
+import { normalizeCmsImageFieldsInValue } from "@/lib/cms/image-source";
 import { validateCmsPageBuilderDraft } from "@/lib/cms/page-builder-validation";
-import { isValidLocale } from "@/lib/i18n/config";
+import { addLocaleToPathname, DEFAULT_LOCALE, isValidLocale, SUPPORTED_LOCALES, type Locale } from "@/lib/i18n/config";
 import {
   adminErrorResponse,
   requireAdminWriteClient,
 } from "@/lib/server/admin-auth";
+import { revalidateHomepageRoutes } from "@/lib/server/revalidate-homepage";
 
 type DocumentId = string | number;
 
@@ -156,11 +158,23 @@ function normalizeCmsLocale(value: string, fallback = "default") {
   return isValidLocale(locale) ? locale : null;
 }
 
-function getRevalidatablePath(pageId: string, locale: string) {
+function getRevalidatablePaths(pageId: string, locale: string) {
   const path = CMS_PAGE_DEFINITION_MAP[pageId]?.path;
-  if (!path || path.includes(":")) return null;
-  const normalizedPath = path === "/" ? "" : path;
-  return locale && locale !== "default" ? `/${locale}${normalizedPath}` : normalizedPath || "/";
+  if (!path || path.includes(":")) return [];
+
+  const normalizedLocale: Locale = isValidLocale(locale) ? locale : DEFAULT_LOCALE;
+  const paths = new Set<string>([addLocaleToPathname(path, normalizedLocale)]);
+
+  if (normalizedLocale === DEFAULT_LOCALE) {
+    const normalizedPath = path === "/" ? "" : path;
+    paths.add(normalizedPath || "/");
+    paths.add(`/${DEFAULT_LOCALE}${normalizedPath}`);
+    for (const supportedLocale of SUPPORTED_LOCALES) {
+      paths.add(addLocaleToPathname(path, supportedLocale as Locale));
+    }
+  }
+
+  return Array.from(paths);
 }
 
 function getValidationErrorMessage(action: PageConfigAction, errors: { message: string; path?: string }[]) {
@@ -638,12 +652,12 @@ export async function POST(request: NextRequest) {
   const latestVersion = versions[0] ?? null;
 
   if (action === "save_draft") {
-    const incomingContent = isRecord(body.content) ? body.content : {};
+    const rawIncomingContent = isRecord(body.content) ? body.content : {};
     const validation = validateCmsPageBuilderDraft({
       pageId,
       locale,
       pageDefinition: CMS_PAGE_DEFINITION_MAP[pageId],
-      pageConfig: incomingContent,
+      pageConfig: rawIncomingContent,
     });
 
     if (!validation.valid) {
@@ -654,7 +668,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const mergedContent = incomingContent;
+    const mergedContent = normalizeCmsImageFieldsInValue(rawIncomingContent);
     const nextVersion = (latestVersion?.version ?? 0) + 1;
 
     const insertedVersionResult = await insertDocumentVersion({
@@ -770,9 +784,12 @@ export async function POST(request: NextRequest) {
   }
 
   revalidateTag(`cms:${pageId}`, "max");
-  const pathToRevalidate = getRevalidatablePath(pageId, locale);
-  if (pathToRevalidate) {
+  const pathsToRevalidate = getRevalidatablePaths(pageId, locale);
+  for (const pathToRevalidate of pathsToRevalidate) {
     revalidatePath(pathToRevalidate);
+  }
+  if (pageId === "home") {
+    revalidateHomepageRoutes();
   }
 
   return NextResponse.json({

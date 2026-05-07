@@ -73,6 +73,49 @@ describe("validateCmsPageBuilderDraft", () => {
     );
   });
 
+  it("accepts normalized CMS image paths and rejects unsupported image hosts", () => {
+    const valid = validateCmsPageBuilderDraft({
+      pageId: "golf",
+      locale: "en",
+      pageDefinition: CMS_PAGE_DEFINITION_MAP.golf,
+      pageConfig: {
+        hero: {
+          imageUrl: "images/golf-hero.webp",
+          posterUrl: "public/images/golf-poster.webp",
+        },
+        blocks: {
+          discovery: {
+            enabled: true,
+            data: {
+              cards: [{ tag: "coastal", imageUrl: "https://images.unsplash.com/golf.webp" }],
+            },
+          },
+        },
+      },
+    });
+
+    expect(valid.valid).toBe(true);
+
+    const invalid = validateCmsPageBuilderDraft({
+      pageId: "golf",
+      locale: "en",
+      pageDefinition: CMS_PAGE_DEFINITION_MAP.golf,
+      pageConfig: {
+        blocks: {
+          discovery: {
+            enabled: true,
+            data: {
+              cards: [{ tag: "coastal", imageUrl: "https://unsupported.example/golf.webp" }],
+            },
+          },
+        },
+      },
+    });
+
+    expect(invalid.valid).toBe(false);
+    expect(invalid.errors.map((issue) => issue.code)).toContain("INVALID_IMAGE_SRC");
+  });
+
   it("rejects missing referenced listing, city, and category ids when datasets are supplied", () => {
     const report = validateCmsPageBuilderDraft({
       pageId: "home",

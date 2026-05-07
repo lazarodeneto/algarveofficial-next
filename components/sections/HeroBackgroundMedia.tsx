@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
-import { useRef } from "react";
 
+import { getSafeCmsImageSrc } from "@/lib/cms/image-source";
 import { cn } from "@/lib/utils";
 
 function addCacheBust(url: string, timestamp?: number): string {
@@ -46,9 +46,9 @@ export function HeroBackgroundMedia({
   timestamp,
 }: HeroBackgroundMediaProps) {
   const resolvedMediaType = normalizeMediaType(mediaType);
-  const trimmedImageUrl = addCacheBust(imageUrl?.trim() ?? "", timestamp);
+  const trimmedImageUrl = addCacheBust(getSafeCmsImageSrc(imageUrl) ?? "", timestamp);
   const trimmedVideoUrl = videoUrl?.trim() ?? "";
-  const trimmedPosterUrl = addCacheBust(posterUrl?.trim() ?? "", timestamp);
+  const trimmedPosterUrl = addCacheBust(getSafeCmsImageSrc(posterUrl) ?? "", timestamp);
   const hasImage = trimmedImageUrl.length > 0;
   const hasVideo = trimmedVideoUrl.length > 0;
   const hasPoster = trimmedPosterUrl.length > 0;

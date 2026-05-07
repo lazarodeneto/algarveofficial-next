@@ -13,6 +13,8 @@ interface SingleImageUploadFieldProps {
     onChange: (value: string | null) => void;
     disabled?: boolean;
     folder?: string;
+    emptyPreview?: boolean;
+    emptyPreviewLabel?: string;
 }
 
 export function SingleImageUploadField({
@@ -20,6 +22,8 @@ export function SingleImageUploadField({
     onChange,
     disabled = false,
     folder = "agents",
+    emptyPreview = false,
+    emptyPreviewLabel = "Empty image preview",
 }: SingleImageUploadFieldProps) {
     const [isUploading, setIsUploading] = useState(false);
     const resolvedValue =
@@ -90,7 +94,10 @@ export function SingleImageUploadField({
                         </Button>
                     </div>
                 </div>
-            ) : (
+            ) : emptyPreview ? (
+                <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-border bg-black" aria-label={emptyPreviewLabel} />
+            ) : null}
+            {!resolvedValue ? (
                 <div className="flex items-center gap-4">
                     <Button
                         type="button"
@@ -119,7 +126,7 @@ export function SingleImageUploadField({
                         JPG, PNG, WebP
                     </span>
                 </div>
-            )}
+            ) : null}
         </div>
     );
 }

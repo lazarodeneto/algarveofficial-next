@@ -54,7 +54,7 @@ interface RouteTarget {
   severity: Severity;
   expectedText?: string;
   expectCanonicalEnglish?: boolean;
-  expectLegacyEnglishRedirect?: boolean;
+  expectLegacyEnglishCanonical?: boolean;
 }
 
 const args = process.argv.slice(2);
@@ -722,7 +722,7 @@ function buildRouteTargets(data: AuditData): RouteTarget[] {
       id: asString(listing.id),
       path: `/en${pathWithoutLocale}`,
       severity: "P1",
-      expectLegacyEnglishRedirect: true,
+      expectLegacyEnglishCanonical: true,
     });
 
     for (const locale of SUPPORTED_LOCALES.filter((locale) => locale !== DEFAULT_LOCALE)) {
@@ -890,18 +890,52 @@ async function auditRoutes(data: AuditData): Promise<void> {
       return;
     }
 
-    if (target.expectLegacyEnglishRedirect) {
+    if (target.expectLegacyEnglishCanonical) {
       const canonicalPath = target.path.replace(/^\/en(?=\/|$)/, "") || "/";
-      if (!isRedirect || !location.includes(canonicalPath)) {
+      if (isRedirect) {
+        if (!location.includes(canonicalPath)) {
+          addIssue({
+            severity: "P1",
+            code: "LEGACY_EN_ROUTE_BAD_REDIRECT",
+            title: "Legacy /en route redirects away from canonical English URL",
+            entity: target.entity,
+            id: target.id,
+            path: target.path,
+            details: `GET ${target.path} returned HTTP ${response.status} location=${location || "none"}, expected ${canonicalPath}.`,
+            recommendation: "Legacy /en routes should either serve with an unprefixed canonical tag or redirect directly to the unprefixed canonical path.",
+          });
+        }
+        return;
+      }
+
+      if (response.status === 200) {
+        const html = await response.text();
+        const canonical = extractCanonicalUrl(html);
+        if (!canonical || canonicalPathname(canonical) !== canonicalPath) {
+          addIssue({
+            severity: "P1",
+            code: "LEGACY_EN_ROUTE_CANONICAL_MISMATCH",
+            title: "Legacy /en route canonical does not point to unprefixed English URL",
+            entity: target.entity,
+            id: target.id,
+            path: target.path,
+            details: `GET ${target.path} served HTTP 200 with canonical=${canonical || "missing"}, expected ${canonicalPath}.`,
+            recommendation: "Keep legacy /en routes crawl-safe by rendering a canonical tag that points to the unprefixed English URL.",
+          });
+        }
+        return;
+      }
+
+      if (!isRedirect) {
         addIssue({
           severity: "P1",
-          code: "LEGACY_EN_ROUTE_NOT_REDIRECTING_TO_CANONICAL",
-          title: "Legacy /en route does not redirect to canonical English URL",
+          code: "LEGACY_EN_ROUTE_NOT_CANONICALIZED",
+          title: "Legacy /en route is not canonicalized",
           entity: target.entity,
           id: target.id,
           path: target.path,
-          details: `GET ${target.path} returned HTTP ${response.status} location=${location || "none"}, expected ${canonicalPath}.`,
-          recommendation: "Add or fix /en legacy redirects after the English canonical policy is finalized.",
+          details: `GET ${target.path} returned HTTP ${response.status} location=${location || "none"}, expected a 200 canonical tag or redirect to ${canonicalPath}.`,
+          recommendation: "Serve legacy /en routes with an unprefixed canonical tag or redirect them directly to the unprefixed canonical path.",
         });
       }
       return;

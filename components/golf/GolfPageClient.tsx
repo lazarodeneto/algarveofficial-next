@@ -12,6 +12,7 @@ import {
 } from "@/lib/golf/experienceTags";
 import type { GolfCmsPageConfig } from "@/lib/golf-cms";
 import { buildLocalizedPath } from "@/lib/i18n/routing";
+import { getSafeCmsImageSrc } from "@/lib/cms/image-source";
 import { resolveHero, resolvePageContent } from "@/lib/cms/resolve-hero";
 import { normalizePageConfig } from "@/lib/cms/normalize-page-config";
 import { CmsPageRenderer } from "@/components/cms/renderers/CmsPageRenderer";
@@ -22,7 +23,6 @@ import { GolfFinder } from "@/components/golf/GolfFinder";
 import { LeaderboardTable } from "@/components/golf/LeaderboardTable";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
-import { PageHeroImage } from "@/components/sections/PageHeroImage";
 import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -65,6 +65,10 @@ function readBoolean(settings: Record<string, unknown>, key: string, fallback: b
 
 function readNonEmptyString(settings: Record<string, unknown>, key: string, fallback: string) {
   return typeof settings[key] === "string" && settings[key].trim() ? settings[key] : fallback;
+}
+
+function hasOwnKey(settings: Record<string, unknown>, key: string) {
+  return Object.prototype.hasOwnProperty.call(settings, key);
 }
 
 export function GolfPageClient({ locale, courses, leaderboard, pageConfig }: GolfPageClientProps) {
@@ -151,12 +155,15 @@ export function GolfPageClient({ locale, courses, leaderboard, pageConfig }: Gol
   const discoveryCards = discoveryOptions
     .map((option) => {
       const override = discoveryCardOverrides.find((card) => card.tag === option.tag) ?? {};
+      const cardImageSource = discoveryBlock
+        ? (hasOwnKey(override, "imageUrl") ? override.imageUrl : "")
+        : option.imageUrl;
       return {
         ...option,
         enabled: readBoolean(override, "enabled", true),
         title: readString(override, "title", option.title),
         description: readString(override, "description", option.description),
-        imageUrl: readNonEmptyString(override, "imageUrl", option.imageUrl),
+        imageUrl: getSafeCmsImageSrc(cardImageSource),
         href: readNonEmptyString(override, "href", option.href),
       };
     })
@@ -203,7 +210,6 @@ export function GolfPageClient({ locale, courses, leaderboard, pageConfig }: Gol
                   youtubeUrl={hero.youtubeUrl ?? undefined}
                   posterUrl={hero.posterUrl ?? undefined}
                   alt={pageContent.alt ?? DEFAULT_ALT}
-                  fallback={<PageHeroImage page="golf" alt={DEFAULT_ALT} />}
                   className="scale-[1.02] object-cover"
                 />
               }
@@ -258,12 +264,17 @@ export function GolfPageClient({ locale, courses, leaderboard, pageConfig }: Gol
                     href={option.href}
                     className="group relative h-[180px] overflow-hidden rounded-2xl shadow-sm transition-transform duration-200 hover:scale-[1.03]"
                   >
-                    <img
-                      src={option.imageUrl}
-                      alt={option.title}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                    />
+                    {option.imageUrl ? (
+                      <img
+                        key={option.imageUrl}
+                        src={option.imageUrl}
+                        alt={option.title}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-black" aria-label={`${option.title} image not set`} />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
                     <div className="absolute inset-x-0 bottom-0 p-4 text-white">
                       {option.title ? <h2 className="font-fira text-lg font-bold leading-tight">{option.title}</h2> : null}

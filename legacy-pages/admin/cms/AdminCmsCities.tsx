@@ -282,7 +282,7 @@ export default function AdminCmsCities() {
       <div className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/20 rounded-lg">
         <Home className="h-5 w-5 text-primary flex-shrink-0" />
         <p className="text-sm text-muted-foreground">
-          Toggle <Star className="h-3.5 w-3.5 inline mx-1 text-primary" /> to display cities on the homepage. Only featured cities appear in the "Discover Cities" section.
+          Toggle <Star className="h-3.5 w-3.5 inline mx-1 text-primary" /> to display cities on the homepage. Only featured cities appear in the &quot;Discover Cities&quot; section.
         </p>
       </div>
 
@@ -483,6 +483,8 @@ export default function AdminCmsCities() {
                   }
                   onChange={(value) => setEditingCity({ ...editingCity, hero_image_url: value || null })}
                   folder="cities"
+                  emptyPreview
+                  emptyPreviewLabel="Empty city hero image preview"
                 />
               </div>
 
@@ -496,6 +498,8 @@ export default function AdminCmsCities() {
                   }
                   onChange={(value) => setEditingCity({ ...editingCity, image_url: value || null })}
                   folder="cities"
+                  emptyPreview
+                  emptyPreviewLabel="Empty city card image preview"
                 />
               </div>
 

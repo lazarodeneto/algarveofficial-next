@@ -1,5 +1,6 @@
 "use client";
 
+import { ImageUrlUploadField } from "@/components/admin/ImageUrlUploadField";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -17,6 +18,7 @@ interface HeroBlockEditorProps {
 }
 
 export function HeroBlockEditor({
+  blockId,
   settings,
   onUpdateSettings,
 }: HeroBlockEditorProps) {
@@ -70,21 +72,29 @@ export function HeroBlockEditor({
         />
       </div>
 
-      {(settings.mediaType === "image" || settings.mediaType === "video") && (
+      {settings.mediaType === "image" ? (
+        <div className="space-y-2">
+          <Label>Media URL</Label>
+          <ImageUrlUploadField
+            value={(settings.imageUrl as string) ?? ""}
+            onChange={(value) => updateField("imageUrl", value)}
+            placeholder="https://... or /images/..."
+            bucket="media"
+            folder={`page-builder/hero/${blockId}`}
+            assetLabel="Hero image"
+            buttonSize="sm"
+          />
+        </div>
+      ) : settings.mediaType === "video" ? (
         <div className="space-y-2">
           <Label>Media URL</Label>
           <Input
-            value={(settings.imageUrl as string) ?? (settings.videoUrl as string) ?? ""}
-            onChange={(e) =>
-              updateField(
-                settings.mediaType === "video" ? "videoUrl" : "imageUrl",
-                e.target.value
-              )
-            }
+            value={(settings.videoUrl as string) ?? ""}
+            onChange={(e) => updateField("videoUrl", e.target.value)}
             placeholder="https://..."
           />
         </div>
-      )}
+      ) : null}
 
       {settings.mediaType === "youtube" && (
         <div className="space-y-2">

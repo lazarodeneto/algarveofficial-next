@@ -518,9 +518,7 @@ export default function AdminCmsRegions() {
                       </button>
                     </div>
                   ) : (
-                    <div className="w-40 h-24 rounded-lg border border-dashed border-border flex items-center justify-center bg-muted/30 text-muted-foreground flex-shrink-0">
-                      <Loader2 className="h-6 w-6 opacity-50" />
-                    </div>
+                    <div className="w-40 h-24 rounded-lg border border-border bg-black flex-shrink-0" aria-label="Empty region card image preview" />
                   )}
                   <div className="flex-1 space-y-2">
                     <div className="flex gap-2">
@@ -608,9 +606,7 @@ export default function AdminCmsRegions() {
                       </button>
                     </div>
                   ) : (
-                    <div className="w-40 h-24 rounded-lg border border-dashed border-border flex items-center justify-center bg-muted/30 text-muted-foreground flex-shrink-0">
-                      <Mountain className="h-6 w-6 opacity-50" />
-                    </div>
+                    <div className="w-40 h-24 rounded-lg border border-border bg-black flex-shrink-0" aria-label="Empty region hero image preview" />
                   )}
                   <div className="flex-1 space-y-2">
                     <div className="flex gap-2">

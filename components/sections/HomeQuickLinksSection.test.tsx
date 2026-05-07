@@ -76,42 +76,20 @@ describe("HomeQuickLinksSection", () => {
     });
   });
 
-  it("renders all six cards with themed fallback artwork when no custom images are set", () => {
-    render(<HomeQuickLinksSection />);
+  it("renders black placeholders instead of fallback artwork when no custom images are set", () => {
+    const { container } = render(<HomeQuickLinksSection />);
 
     expect(screen.getAllByRole("link")).toHaveLength(6);
-    expect(screen.getByAltText("Stay")).toHaveAttribute(
-      "src",
-      "/home-quick-links/places-to-stay.svg",
-    );
-    expect(screen.getByAltText("Eat & Drink")).toHaveAttribute(
-      "src",
-      "/home-quick-links/things-to-do.svg",
-    );
-    expect(screen.getByAltText("Things to Do")).toHaveAttribute(
-      "src",
-      "/home-quick-links/things-to-do.svg",
-    );
-    expect(screen.getByAltText("Golf")).toHaveAttribute(
-      "src",
-      "/home-quick-links/things-to-do.svg",
-    );
-    expect(screen.getByAltText("Real Estate")).toHaveAttribute(
-      "src",
-      "/home-quick-links/places-to-stay.svg",
-    );
-    expect(screen.getByAltText("Events")).toHaveAttribute(
-      "src",
-      "/home-quick-links/whats-on.svg",
-    );
+    expect(container.querySelectorAll("img")).toHaveLength(0);
+    expect(container.querySelectorAll("[aria-hidden='true'].bg-black")).toHaveLength(6);
   });
 
-  it("falls back to the themed image when a custom image fails to load", () => {
+  it("renders black when a custom image fails to load", () => {
     mockUseGlobalSettings.mockReturnValue({
       settings: [
         {
           key: "home_card_events_image",
-          value: "https://images.example.com/broken-whats-on.jpg",
+          value: "https://images.unsplash.com/broken-whats-on.jpg",
           category: "homepage",
         },
       ],
@@ -121,14 +99,11 @@ describe("HomeQuickLinksSection", () => {
     render(<HomeQuickLinksSection />);
 
     const whatsOnImage = screen.getByAltText("Events");
-    expect(whatsOnImage).toHaveAttribute("src", "https://images.example.com/broken-whats-on.jpg");
+    expect(whatsOnImage).toHaveAttribute("src", "https://images.unsplash.com/broken-whats-on.jpg");
 
     fireEvent.error(whatsOnImage);
 
-    expect(screen.getByAltText("Events")).toHaveAttribute(
-      "src",
-      "/home-quick-links/whats-on.svg",
-    );
+    expect(screen.queryByAltText("Events")).not.toBeInTheDocument();
   });
 
   it("falls back to the uploaded image when a saved video fails to load", () => {
@@ -136,7 +111,7 @@ describe("HomeQuickLinksSection", () => {
       settings: [
         {
           key: "home_card_events_image",
-          value: "https://images.example.com/custom-whats-on.jpg",
+          value: "https://images.unsplash.com/custom-whats-on.jpg",
           category: "homepage",
         },
         {
@@ -157,7 +132,7 @@ describe("HomeQuickLinksSection", () => {
 
     expect(screen.getByAltText("Events")).toHaveAttribute(
       "src",
-      "https://images.example.com/custom-whats-on.jpg",
+      "https://images.unsplash.com/custom-whats-on.jpg",
     );
   });
 

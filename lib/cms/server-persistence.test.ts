@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildCmsWritesFromGlobalSettings } from "@/lib/cms/server-persistence";
+import { buildCmsWritesFromGlobalSettings, deepMergeContent } from "@/lib/cms/server-persistence";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 
 describe("cms server persistence mapper", () => {
@@ -58,5 +58,73 @@ describe("cms server persistence mapper", () => {
         expect.objectContaining({ pageId: "__global__", docType: "custom_css", locale: "pt-pt" }),
       ]),
     );
+  });
+
+  it("normalizes CMS image fields before mirroring global settings into documents", () => {
+    const writes = buildCmsWritesFromGlobalSettings([
+      {
+        key: CMS_GLOBAL_SETTING_KEYS.pageConfigs,
+        value: JSON.stringify({
+          golf: {
+            hero: { imageUrl: "images/golf.webp" },
+            blocks: {
+              discovery: {
+                data: {
+                  cards: [{ imageUrl: "https://unsupported.example/card.webp" }],
+                },
+              },
+            },
+          },
+        }),
+      },
+    ]);
+
+    expect(writes).toEqual([
+      expect.objectContaining({
+        pageId: "golf",
+        content: {
+          hero: { imageUrl: "/images/golf.webp" },
+          blocks: {
+            discovery: {
+              data: {
+                cards: [{ imageUrl: "" }],
+              },
+            },
+          },
+        },
+      }),
+    ]);
+  });
+
+  it("keeps explicit empty media values when merging CMS page content", () => {
+    const merged = deepMergeContent(
+      {
+        hero: {
+          mediaType: "image",
+          imageUrl: "https://images.example.com/old-golf-hero.webp",
+          videoUrl: "https://videos.example.com/old-golf-hero.mp4",
+          posterUrl: "https://images.example.com/old-golf-poster.webp",
+        },
+      },
+      {
+        hero: {
+          mediaType: "image",
+          imageUrl: "",
+          videoUrl: "",
+          youtubeUrl: "",
+          posterUrl: "",
+        },
+      },
+    );
+
+    expect(merged).toEqual({
+      hero: {
+        mediaType: "image",
+        imageUrl: "",
+        videoUrl: "",
+        youtubeUrl: "",
+        posterUrl: "",
+      },
+    });
   });
 });

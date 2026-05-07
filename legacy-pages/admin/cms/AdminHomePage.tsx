@@ -49,6 +49,7 @@ import { useHomepageSettings, HomepageSettings } from "@/hooks/useHomepageSettin
 import { GlobalSetting, useGlobalSettings } from "@/hooks/useGlobalSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { convertToWebP } from "@/lib/imageUtils";
+import { getSafeCmsImageSrc } from "@/lib/cms/image-source";
 import { normalizePublicImageUrl, resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
 import {
   HomeSectionCopy,
@@ -225,7 +226,9 @@ const getYouTubeEmbedUrl = (url: string): string => {
 };
 
 const resolveMediaAssetUrl = (value?: string | null) =>
-  resolveSupabaseBucketImageUrl(value, "media") ?? normalizePublicImageUrl(value);
+  getSafeCmsImageSrc(value, { bucket: "media" }) ??
+  resolveSupabaseBucketImageUrl(value, "media") ??
+  normalizePublicImageUrl(value);
 
 interface SortableSectionItemProps {
   section: HomeSection;

@@ -29,6 +29,17 @@ describe("public golf module allowlist wiring", () => {
     expect(allListingsSource).toContain("isApprovedGolfCourse({ slug: listing.slug, name: listing.name })");
   });
 
+  it("uses CMS discovery card image overrides on the public golf page", () => {
+    const source = readFileSync(
+      join(REPO_ROOT, "components", "golf", "GolfPageClient.tsx"),
+      "utf8",
+    );
+
+    expect(source).toContain("const discoveryCardOverrides = Array.isArray(discoverySettings.cards)");
+    expect(source).toContain('hasOwnKey(override, "imageUrl") ? override.imageUrl : option.imageUrl');
+    expect(source).toContain("getSafeCmsImageSrc");
+  });
+
   it("keeps the detail route on the existing notFound path for unapproved courses", () => {
     const pageSource = readFileSync(
       join(REPO_ROOT, "app", "[locale]", "golf", "courses", "[slug]", "page.tsx"),

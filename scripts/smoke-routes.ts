@@ -31,6 +31,7 @@ interface SmokeTarget {
   expectedText?: string;
   expectedFinalPath?: string;
   expectedRedirectPath?: string;
+  expectedCanonicalPath?: string;
   expectAuthRedirect?: boolean;
   expectStatus?: number[];
   expectCanonical?: boolean;
@@ -557,8 +558,7 @@ function buildTargets(seeds: RouteSeeds): SmokeTarget[] {
       label: "legacy /en home",
       path: "/en",
       expectedText: "Algarve",
-      expectedFinalPath: "/",
-      expectedRedirectPath: "/",
+      expectedCanonicalPath: "/",
       expectCanonical: true,
       expectHreflang: true,
     },
@@ -567,8 +567,7 @@ function buildTargets(seeds: RouteSeeds): SmokeTarget[] {
       label: "legacy /en golf",
       path: "/en/golf",
       expectedText: "Golf",
-      expectedFinalPath: "/golf",
-      expectedRedirectPath: "/golf",
+      expectedCanonicalPath: "/golf",
       expectCanonical: true,
       expectHreflang: true,
     },
@@ -577,8 +576,7 @@ function buildTargets(seeds: RouteSeeds): SmokeTarget[] {
       label: "legacy /en golf course",
       path: `/en/golf/courses/${seeds.golfListing.slug}`,
       expectedText: seeds.golfListing.name,
-      expectedFinalPath: `/golf/courses/${seeds.golfListing.slug}`,
-      expectedRedirectPath: `/golf/courses/${seeds.golfListing.slug}`,
+      expectedCanonicalPath: `/golf/courses/${seeds.golfListing.slug}`,
       expectCanonical: true,
       expectHreflang: true,
     },
@@ -737,11 +735,13 @@ async function inspectPage(context: BrowserContext, target: SmokeTarget): Promis
   );
   const finalPath = pathnameOf(finalUrl);
   const redirectPath = pathnameOf(redirectTarget);
+  const canonicalPath = pathnameOf(canonical);
   const statusOk = target.expectStatus
     ? finalStatus !== null && target.expectStatus.includes(finalStatus)
     : finalStatus !== null && finalStatus < 400;
   const finalPathOk = !target.expectedFinalPath || finalPath === target.expectedFinalPath;
   const redirectOk = !target.expectedRedirectPath || redirectPath === target.expectedRedirectPath;
+  const canonicalPathOk = !target.expectedCanonicalPath || canonicalPath === target.expectedCanonicalPath;
   const authRedirectOk = !target.expectAuthRedirect || finalPath?.endsWith("/login") === true;
   const canonicalOk = !target.expectCanonical || Boolean(canonical);
   const hreflangOk = !target.expectHreflang || hreflangLinks.length > 0;
@@ -763,7 +763,7 @@ async function inspectPage(context: BrowserContext, target: SmokeTarget): Promis
         : "fail"
       : "not-checked";
   const entityOk = entityCheck === "pass" || entityCheck === "not-checked" || entityCheck === "auth-redirect";
-  const pass = statusOk && finalPathOk && redirectOk && authRedirectOk && canonicalOk && hreflangOk && rendersWithoutErrors && entityOk;
+  const pass = statusOk && finalPathOk && redirectOk && canonicalPathOk && authRedirectOk && canonicalOk && hreflangOk && rendersWithoutErrors && entityOk;
 
   if (requestFailures.length > 0) {
     notes.push(`request failures: ${requestFailures.slice(0, 3).join("; ")}`);

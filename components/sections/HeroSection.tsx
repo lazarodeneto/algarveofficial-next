@@ -18,8 +18,8 @@ import { HERO_OVERLAY_INTENSITY_SETTING_KEY, normalizeHeroOverlayIntensity } fro
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import { getSafeCmsImageSrc } from "@/lib/cms/image-source";
 import { buildSupabaseImageUrl } from "@/lib/imageUrls";
-import { heroAssets } from "@/lib/assetUrls";
 import { STANDARD_PUBLIC_HERO_SURFACE_CLASS, STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 
 const CreateTripDialog = dynamic(
@@ -57,25 +57,21 @@ function getPrefersReducedData() {
 }
 
 function HeroPosterImage({
-  hasPosterUrl,
   posterUrl,
   className,
   priority = false,
 }: {
-  hasPosterUrl: boolean;
   posterUrl: string;
   className?: string;
   priority?: boolean;
 }) {
-  const fallbackPosterUrl = heroAssets.poster;
-
   const posterSrc =
-    buildSupabaseImageUrl(hasPosterUrl ? posterUrl : fallbackPosterUrl, {
+    buildSupabaseImageUrl(posterUrl, {
       width: 1920,
       quality: 54,
       format: "webp",
       resize: "cover",
-    }) ?? (hasPosterUrl ? posterUrl : fallbackPosterUrl);
+    }) ?? posterUrl;
 
   return (
     <Image
@@ -145,9 +141,8 @@ export function HeroSection() {
   const router = useRouter();
   const l = useLocalePath();
 
-  // CMS SOURCE OF TRUTH:
-  // 1. cms_page_configs_v1 text overrides (primary)
-  // 2. homepage_settings (fallback only)
+  // Home Page Editor owns hero media. CMS page-builder text remains available
+  // for copy, but stale CMS media must not override a reset homepage image.
   const { getText } = useCmsPageBuilder("home");
 
   // Determine if video should be skipped for performance
@@ -188,15 +183,9 @@ export function HeroSection() {
     router.push(`${l("/dashboard/trips")}?trip=${encodeURIComponent(newTrip.id)}`);
   };
 
-  const cmsMediaType = getText("hero.mediaType", "").trim();
-  const cmsImageUrl = getText("hero.imageUrl", "").trim();
-  const cmsVideoUrl = getText("hero.videoUrl", "").trim();
-  const cmsPosterUrl = getText("hero.posterUrl", "").trim();
-
-  // Full Page Builder media wins when provided; homepage_settings remains fallback.
-  const mediaType = cmsMediaType || settings?.hero_media_type || (cmsImageUrl ? "poster" : "video");
-  const videoUrl = cmsVideoUrl || settings?.hero_video_url?.trim() || "";
-  const posterUrl = cmsPosterUrl || cmsImageUrl || settings?.hero_poster_url?.trim() || "";
+  const mediaType = settings?.hero_media_type || "video";
+  const videoUrl = settings?.hero_video_url?.trim() || "";
+  const posterUrl = getSafeCmsImageSrc(settings?.hero_poster_url) ?? "";
   const hasVideoUrl = videoUrl.length > 0;
   const hasPosterUrl = posterUrl.length > 0;
   const heroVideoPosterSrc =
@@ -208,8 +197,6 @@ export function HeroSection() {
     }) ?? posterUrl;
 
   useEffect(() => {
-    setCanEnhanceHeroVideo(false);
-
     if (
       !hydrated ||
       !hasVideoUrl ||
@@ -305,13 +292,14 @@ export function HeroSection() {
     <div className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
       <section className={STANDARD_PUBLIC_HERO_SURFACE_CLASS}>
         {/* Video Background */}
-        <div className="absolute inset-0">
-          <HeroPosterImage
-            hasPosterUrl={hasPosterUrl}
-            posterUrl={posterUrl}
-            className="absolute inset-0 w-full h-full object-cover"
-            priority={true}
-          />
+        <div className="absolute inset-0 bg-black">
+          {hasPosterUrl ? (
+            <HeroPosterImage
+              posterUrl={posterUrl}
+              className="absolute inset-0 w-full h-full object-cover"
+              priority={true}
+            />
+          ) : null}
           {mediaMode === "video" && canEnhanceHeroVideo ? (
             <HeroVideo videoUrl={videoUrl} posterUrl={hasPosterUrl ? heroVideoPosterSrc : undefined} />
           ) : null}

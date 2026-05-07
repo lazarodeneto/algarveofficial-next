@@ -6,6 +6,7 @@ import {
   resolveAdminTaxonomyTable,
 } from "@/lib/admin/taxonomy-contract";
 import { requireAdminWriteClient } from "@/lib/server/admin-auth";
+import { revalidateHomepageRoutes } from "@/lib/server/revalidate-homepage";
 import { validatePayload, jsonErrorResponse } from "@/lib/api/api-validation";
 import { taxonomyItemSchema, taxonomyUpdateSchema } from "@/lib/forms/admin-schemas";
 
@@ -83,6 +84,12 @@ function filterWritableFields(entity: AdminTaxonomyEntity, input: Record<string,
   );
 }
 
+function revalidateHomepageForTaxonomy(entity: AdminTaxonomyEntity) {
+  if (entity === "cities" || entity === "regions" || entity === "categories") {
+    revalidateHomepageRoutes();
+  }
+}
+
 export async function POST(
   request: NextRequest,
   context: { params: Promise<{ entity: string }> },
@@ -157,6 +164,8 @@ export async function POST(
     );
   }
 
+  revalidateHomepageForTaxonomy(resolved.entity);
+
   return NextResponse.json({ ok: true, data });
 }
 
@@ -220,6 +229,8 @@ export async function PATCH(
     );
   }
 
+  revalidateHomepageForTaxonomy(resolved.entity);
+
   return NextResponse.json({ ok: true, data });
 }
 
@@ -267,6 +278,8 @@ export async function DELETE(
       error.message || "Failed to delete taxonomy item.",
     );
   }
+
+  revalidateHomepageForTaxonomy(resolved.entity);
 
   return NextResponse.json({ ok: true });
 }
@@ -321,6 +334,8 @@ export async function PUT(
       );
     }
   }
+
+  revalidateHomepageForTaxonomy(resolved.entity);
 
   return NextResponse.json({ ok: true });
 }

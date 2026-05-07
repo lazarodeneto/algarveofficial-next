@@ -136,6 +136,7 @@ export function CitiesSection() {
                 <PremiumCard
                   title={city.name}
                   imageUrl={city.image_url ?? undefined}
+                  emptyImageMode="black"
                 >
                   <FavoriteButton
                     isFavorite={isDestinationSaved("city", city.id)}

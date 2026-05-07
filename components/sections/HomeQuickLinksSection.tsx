@@ -8,6 +8,7 @@ import {
   HOME_QUICK_LINK_CARDS,
   HOME_QUICK_LINK_SETTING_KEYS,
 } from "@/lib/homeQuickLinks";
+import { getSafeCmsImageSrc } from "@/lib/cms/image-source";
 import { buildSupabaseImageUrl } from "@/lib/imageUrls";
 import { useTranslation } from "react-i18next";
 import { cmsText, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
@@ -110,28 +111,28 @@ export function HomeQuickLinksSection({ copy }: { copy?: HomeSectionCopy } = {})
             const prefersFallbackImage = failedImageMedia[card.id] === true;
             const prefersFallbackVideo = failedVideoMedia[card.id] === true;
             const hasCustomImage = customImageUrl.length > 0;
+            const safeCustomImageUrl = getSafeCmsImageSrc(customImageUrl);
             const resolvedImageSrc =
-              !prefersFallbackImage && hasCustomImage
-                ? buildSupabaseImageUrl(customImageUrl, {
+              !prefersFallbackImage && hasCustomImage && safeCustomImageUrl
+                ? buildSupabaseImageUrl(safeCustomImageUrl, {
                     width: 480,
                     quality: 56,
                     format: "webp",
                     resize: "cover",
-                  }) || customImageUrl
+                  }) || safeCustomImageUrl
                 : null;
             const imageSrc = resolvedImageSrc;
             const videoPosterSrc =
               resolvedImageSrc
-                ? buildSupabaseImageUrl(customImageUrl, {
+                ? buildSupabaseImageUrl(safeCustomImageUrl, {
                     width: 640,
                     quality: 52,
                     format: "webp",
                     resize: "cover",
-                  }) || customImageUrl
+                  }) || safeCustomImageUrl
                 : undefined;
             const showVideo = customVideoUrl.length > 0 && !prefersFallbackVideo;
-            const fallbackImageSrc = card.fallbackImageUrl;
-            const showImage = !showVideo;
+            const showImage = imageSrc !== null && !showVideo;
 
             return (
               <Link
@@ -157,7 +158,7 @@ export function HomeQuickLinksSection({ copy }: { copy?: HomeSectionCopy } = {})
                       />
                     ) : showImage ? (
                       <Image
-                        src={imageSrc ?? fallbackImageSrc}
+                        src={imageSrc}
                         alt={displayTitle}
                         width={480}
                         height={360}

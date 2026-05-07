@@ -9,10 +9,10 @@ import { useSavedDestinations } from "@/hooks/useSavedDestinations";
 import { useRegionListingCounts, useRegions } from "@/hooks/useReferenceData";
 import { useTranslation } from "react-i18next";
 import { useLocalePath } from "@/hooks/useLocalePath";
-import { getRegionImageSet } from "@/lib/regionImages";
 import { Skeleton } from "@/components/ui/skeleton";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
 import { FavoriteButton } from "@/components/ui/favorite-button";
+import { getSafeCmsImageSrc } from "@/lib/cms/image-source";
 import { cn } from "@/lib/utils";
 import { cmsText, isSafeHomeCtaHref, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
 
@@ -112,8 +112,7 @@ export function RegionsSection({ imageTimestamp = 0, copy }: RegionsSectionProps
 
   const displayRegions = (
     regions?.filter((region) =>
-      (regionCounts?.[region.id] ?? 0) > 0 &&
-      (region.image_url || getRegionImageSet(region.slug))
+      (regionCounts?.[region.id] ?? 0) > 0
     ) ?? []
   ).slice(0, 6);
   const ctaHref = isSafeHomeCtaHref(copy?.ctaHref) && copy?.ctaHref?.trim()
@@ -167,14 +166,11 @@ export function RegionsSection({ imageTimestamp = 0, copy }: RegionsSectionProps
         {/* Region grid — equal weight, navigational */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6">
           {displayRegions.map((region) => {
-            const images = getRegionImageSet(region.slug);
-            const hasCustomImage = !!region.image_url;
             const listingCount = regionCounts?.[region.id] ?? 0;
-            const imageSrc = hasCustomImage
-              ? `${region.image_url}?_t=${imageTimestamp}`
-              : typeof images?.image800 === "string"
-                ? images.image800
-                : images?.image800?.src;
+            const safeImageSrc = getSafeCmsImageSrc(region.image_url);
+            const imageSrc = safeImageSrc && imageTimestamp > 0
+              ? `${safeImageSrc}${safeImageSrc.includes("?") ? "&" : "?"}_t=${imageTimestamp}`
+              : safeImageSrc ?? undefined;
             const helperKey = `sections.homepage.regions.helpers.${region.slug}`;
             const helperText = t(helperKey, {
               defaultValue: region.short_description ?? t("sections.homepage.regions.subtitle"),

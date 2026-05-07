@@ -159,7 +159,7 @@ export function CmsPageRenderer({ pageConfig, exclude = [] }: CmsPageRendererPro
   return (
     <div data-cms-renderer>
       {!heroExcluded && hero?.enabled !== false && hero?.mediaType ? (
-        <section data-cms-hero>
+        <section className="relative min-h-[420px] overflow-hidden bg-black" data-cms-hero>
           <HeroBackgroundMedia
             mediaType={hero.mediaType}
             imageUrl={hero.imageUrl ?? undefined}

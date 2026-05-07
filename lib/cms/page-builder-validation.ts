@@ -6,6 +6,7 @@ import {
   type CmsPageConfig,
   type CmsPageDefinition,
 } from "@/lib/cms/pageBuilderRegistry";
+import { normalizeCmsImageSrc } from "@/lib/cms/image-source";
 
 export type CmsPageBuilderValidationSeverity = "error" | "warning";
 
@@ -79,6 +80,19 @@ function isUrlLikePath(path: string) {
   );
 }
 
+function isImageLikePath(path: string) {
+  const normalized = path.replaceAll("_", "").toLowerCase();
+  return (
+    normalized.endsWith(".image") ||
+    normalized.endsWith(".src") ||
+    normalized.includes("imageurl") ||
+    normalized.includes("posterurl") ||
+    normalized.includes("backgroundimage") ||
+    normalized.includes("featuredimageurl") ||
+    normalized.includes("heroimageurl")
+  );
+}
+
 function isHrefLikePath(path: string) {
   const normalized = path.toLowerCase();
   return normalized.endsWith(".href") || normalized.includes("href") || normalized.includes("cta");
@@ -90,6 +104,20 @@ function validateUrlValue(value: string, path: string, locale: string, issues: C
 
   if (containsUnsafeHtml(trimmed)) {
     addIssue(issues, "error", "UNSAFE_URL", "URL fields cannot contain scripts or JavaScript handlers.", path);
+    return;
+  }
+
+  if (isImageLikePath(path)) {
+    const normalized = normalizeCmsImageSrc(trimmed);
+    if (!normalized.src) {
+      addIssue(
+        issues,
+        "error",
+        "INVALID_IMAGE_SRC",
+        normalized.reason ?? "Image fields must be a public /images path, Supabase public URL, or approved HTTPS image URL.",
+        path,
+      );
+    }
     return;
   }
 

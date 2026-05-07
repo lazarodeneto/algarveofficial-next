@@ -1,11 +1,14 @@
 /* eslint-disable no-console */
+import { revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 import type { Database } from "@/integrations/supabase/types";
+import { normalizeCmsImageFieldsInValue } from "@/lib/cms/image-source";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import { resolveLocaleFromAcceptLanguage } from "@/lib/i18n/config";
 import { syncCmsDocumentsFromGlobalSettings } from "@/lib/cms/server-persistence";
 import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
+import { revalidateHomepageRoutes } from "@/lib/server/revalidate-homepage";
 
 type GlobalSettingInsert = Database["public"]["Tables"]["global_settings"]["Insert"];
 
@@ -15,8 +18,6 @@ interface GlobalSettingsWriteItem {
   category: string | null;
   locale?: string | null;
 }
-
-import { revalidateTag } from "next/cache";
 
 const CMS_TAG_MAP: Record<string, string> = {
   golf: "cms:golf",
@@ -55,6 +56,15 @@ async function revalidateCmsPages(settings: GlobalSettingsWriteItem[]) {
   }
 }
 
+function shouldRevalidateHomepage(settings: GlobalSettingsWriteItem[]) {
+  return settings.some(
+    (setting) =>
+      setting.category === "homepage" ||
+      setting.key.startsWith("home_card_") ||
+      setting.key === CMS_GLOBAL_SETTING_KEYS.pageConfigs,
+  );
+}
+
 const CMS_SETTING_KEYS: Set<string> = new Set([
   CMS_GLOBAL_SETTING_KEYS.pageConfigs,
   CMS_GLOBAL_SETTING_KEYS.textOverrides,
@@ -83,7 +93,7 @@ function normalizePayload(rawBody: unknown): { settings: GlobalSettingsWriteItem
     if (!entry || typeof entry !== "object") return null;
 
     const key = "key" in entry ? String((entry as { key: unknown }).key ?? "").trim() : "";
-    const value = "value" in entry ? String((entry as { value: unknown }).value ?? "") : "";
+    let value = "value" in entry ? String((entry as { value: unknown }).value ?? "") : "";
     const categoryRaw = "category" in entry ? (entry as { category: unknown }).category : null;
     const category =
       categoryRaw === null || categoryRaw === undefined
@@ -93,6 +103,13 @@ function normalizePayload(rawBody: unknown): { settings: GlobalSettingsWriteItem
           : String(categoryRaw);
 
     if (!key) return null;
+    if (key === CMS_GLOBAL_SETTING_KEYS.pageConfigs && value.trim()) {
+      try {
+        value = JSON.stringify(normalizeCmsImageFieldsInValue(JSON.parse(value)), null, 2);
+      } catch {
+        // Keep the raw value so the existing JSON handling can report/fallback safely.
+      }
+    }
     normalized.push({ key, value, category: category ?? null, locale: bodyLocale });
   }
 
@@ -164,6 +181,9 @@ export async function POST(request: NextRequest) {
     );
 
     await revalidateCmsPages(settings);
+    if (shouldRevalidateHomepage(settings)) {
+      revalidateHomepageRoutes();
+    }
   } catch (syncError) {
     console.error("[cms-sync] Failed to mirror global settings into cms_documents:", syncError);
     return adminErrorResponse(

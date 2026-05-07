@@ -29,4 +29,30 @@ describe("cms page builder locale contract", () => {
     expect(source).toContain('next.delete("mode");');
     expect(source).toContain("onClick={() => handlePageSelection(page.id)}");
   });
+
+  it("lets golf top cards upload images into the CMS media bucket", () => {
+    const source = readFileSync(ADMIN_PAGE_BUILDER_PATH, "utf8");
+
+    expect(source).toContain('import { ImageUrlUploadField } from "@/components/admin/ImageUrlUploadField";');
+    expect(source).toContain("Edit card titles, descriptions, uploaded images, links");
+    expect(source).toContain('bucket="media"');
+    expect(source).toContain('folder={`page-builder/golf/top-cards/${card.tag}`}');
+    expect(source).toContain('setGolfDiscoveryCardValue(block.id, card.tag, "imageUrl", value)');
+    expect(source).toContain("getSafeCmsImageSrc(card.imageUrl)");
+    expect(source).toContain('placeholder="Leave blank to render black"');
+    expect(source).not.toContain("Using frontend fallback image.");
+    expect(source).not.toContain("Leave blank to use course/fallback image");
+  });
+
+  it("persists golf hero media resets as intentional empty values", () => {
+    const source = readFileSync(ADMIN_PAGE_BUILDER_PATH, "utf8");
+
+    expect(source).toContain("const resetHeroMedia = () => {");
+    expect(source).toContain("setIsCmsDirty(true);");
+    expect(source).toContain('nextText["hero.imageUrl"] = clearedHeroMedia.imageUrl;');
+    expect(source).toContain('Object.prototype.hasOwnProperty.call(textMap, "hero.imageUrl")');
+    expect(source).toContain('heroData.imageUrl = textMap["hero.imageUrl"];');
+    expect(source).not.toContain('fallback={<PageHeroImage page="golf"');
+    expect(source).not.toContain('if (textMap["hero.imageUrl"]) {');
+  });
 });
