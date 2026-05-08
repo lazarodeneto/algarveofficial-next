@@ -90,7 +90,7 @@ export function FeaturedCitySection() {
                   ? t("sections.cities.tierDrivenCity")
                   : t("sections.cities.featuredCity")}
               </p>
-              <h2 className="mt-2 font-serif text-3xl leading-tight md:text-4xl">
+              <h2 className="mt-2 font-fira text-3xl font-bold leading-tight md:text-4xl">
                 {selectedCity.name}
               </h2>
               <p className="mt-3 max-w-2xl text-sm text-white/90">

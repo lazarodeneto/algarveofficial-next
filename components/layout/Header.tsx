@@ -12,16 +12,8 @@ import {
   Heart,
   Search,
   Settings2,
-  BedDouble,
-  Binoculars,
-  Home,
-  MapPin,
-  BookOpen,
   MessageSquare,
   Plane,
-  HouseHeart,
-  Compass,
-  FlagTriangleRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -33,6 +25,9 @@ import { BrandLogo } from "@/components/ui/brand-logo";
 import { HeaderNav } from "./HeaderNav";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { stripLocaleFromPathname } from "@/lib/i18n/routing";
+import { useMobileChromeScrollState } from "@/hooks/useMobileChromeScrollState";
+import { PUBLIC_NAV_ICONS } from "@/components/layout/public-nav-icons";
+import { PUBLIC_SIDEBAR_NAV_ITEMS } from "@/lib/navigation/nav-items";
 
 function Link(props: ComponentProps<typeof NextLink>) {
   return <NextLink prefetch={false} {...props} />;
@@ -60,14 +55,6 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
     barePath.startsWith(prefix),
   );
 
-  const directoryPath = l("/stay?category=places-to-stay");
-  const experiencesPath = l("/experiences");
-  const propertiesPath = l("/properties");
-  const golfPath = l("/golf");
-  const homePath = l("/");
-  const destinationsPath = l("/destinations");
-  const mapPath = l("/map");
-  const blogPath = l("/blog");
   const loginPath = l("/login");
   const favoritesPath = isAuthenticated ? l("/dashboard/favorites") : loginPath;
   const accountPath = isAuthenticated && user ? getDashboardPath(user.role) : loginPath;
@@ -81,8 +68,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   // Search modal state (local to Header)
   const [searchOpen, setSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isUserScrolling, setIsUserScrolling] = useState(false);
-  const scrollTimeoutRef = useRef<number | null>(null);
+  const { isUserScrolling } = useMobileChromeScrollState();
 
   // Mirror mobile menu state to DOM for CSS failsafe (production caching workaround)
   useEffect(() => {
@@ -143,26 +129,16 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Show header border only after user scrolls + mirror mobile bottom-nav hide timing
+  // Show header border only after user scrolls.
   useEffect(() => {
     const onScroll = () => {
       setIsScrolled(window.scrollY > 0);
-      setIsUserScrolling(true);
-      if (scrollTimeoutRef.current !== null) {
-        window.clearTimeout(scrollTimeoutRef.current);
-      }
-      scrollTimeoutRef.current = window.setTimeout(() => {
-        setIsUserScrolling(false);
-      }, 180);
     };
 
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", onScroll);
-      if (scrollTimeoutRef.current !== null) {
-        window.clearTimeout(scrollTimeoutRef.current);
-      }
     };
   }, []);
 
@@ -427,93 +403,28 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                   <div className="flex min-h-full flex-col">
 
                     <div className="w-full rounded-sm border border-black/10 bg-white/66 px-2 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
-                    <div className="mx-3">
-                      <Link
-                        href={homePath}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
-                      >
-                        <Home className="h-6 w-6 text-primary" />
-                        {t("nav.home")}
-                      </Link>
-                    </div>
+                      {PUBLIC_SIDEBAR_NAV_ITEMS.map((item, index) => {
+                        const Icon = PUBLIC_NAV_ICONS[item.labelKey];
+                        const label = t(item.labelKey, item.fallbackLabel);
 
-                    <div className="mx-3 border-t border-primary/15">
-                      <Link
-                        href={directoryPath}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
-                      >
-                        <BedDouble className="h-6 w-6 text-primary" />
-                        {t("nav.stay")}
-                      </Link>
-                    </div>
+                        if (!Icon) return null;
 
-                    <div className="mx-3 border-t border-primary/15">
-                      <Link
-                        href={experiencesPath}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
-                      >
-                        <Binoculars className="h-6 w-6 text-primary" />
-                        {t("nav.experiences")}
-                      </Link>
-                    </div>
-
-                    <div className="mx-3 border-t border-primary/15">
-                      <Link
-                        href={propertiesPath}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
-                      >
-                        <HouseHeart className="h-6 w-6 text-primary" />
-                        {t("nav.properties")}
-                      </Link>
-                    </div>
-
-                    <div className="mx-3 border-t border-primary/15">
-                      <Link
-                        href={golfPath}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
-                      >
-                        <FlagTriangleRight className="h-6 w-6 text-primary" />
-                        {t("nav.golf")}
-                      </Link>
-                    </div>
-
-                    <div className="mx-3 border-t border-primary/15">
-                      <Link
-                        href={destinationsPath}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
-                      >
-                        <Compass className="h-6 w-6 text-primary" />
-                        {t("nav.destinations")}
-                      </Link>
-                    </div>
-
-                    <div className="mx-3 border-t border-primary/15">
-                      <Link
-                        href={mapPath}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
-                      >
-                        <MapPin className="h-6 w-6 text-primary" />
-                        {t("nav.map")}
-                      </Link>
-                    </div>
-
-                    <div className="mx-3 border-t border-primary/15">
-                      <Link
-                        href={blogPath}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
-                      >
-                        <BookOpen className="h-6 w-6 text-primary" />
-                        {t("nav.blog")}
-                      </Link>
-                    </div>
+                        return (
+                          <div
+                            key={item.href}
+                            className={`mx-3 ${index > 0 ? "border-t border-primary/15" : ""}`}
+                          >
+                            <Link
+                              href={l(item.href)}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
+                            >
+                              <Icon className="h-6 w-6 text-primary" />
+                              {label}
+                            </Link>
+                          </div>
+                        );
+                      })}
                   </div>
 
                     <div className="mt-4 rounded-sm border border-black/10 bg-white/66 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">

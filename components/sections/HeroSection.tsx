@@ -19,7 +19,7 @@ import { useLocalePath } from "@/hooks/useLocalePath";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { getSafeCmsImageSrc } from "@/lib/cms/image-source";
-import { buildSupabaseImageUrl } from "@/lib/imageUrls";
+import { addImageVersion, buildSupabaseImageUrl } from "@/lib/imageUrls";
 import { STANDARD_PUBLIC_HERO_SURFACE_CLASS, STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 
 const CreateTripDialog = dynamic(
@@ -184,8 +184,12 @@ export function HeroSection() {
   };
 
   const mediaType = settings?.hero_media_type || "video";
-  const videoUrl = settings?.hero_video_url?.trim() || "";
-  const posterUrl = getSafeCmsImageSrc(settings?.hero_poster_url) ?? "";
+  const heroMediaVersion = settings?.updated_at ?? null;
+  const videoUrl = addImageVersion(settings?.hero_video_url ?? "", heroMediaVersion) ?? "";
+  const posterUrl = addImageVersion(
+    getSafeCmsImageSrc(settings?.hero_poster_url) ?? "",
+    heroMediaVersion,
+  ) ?? "";
   const hasVideoUrl = videoUrl.length > 0;
   const hasPosterUrl = posterUrl.length > 0;
   const heroVideoPosterSrc =

@@ -57,6 +57,7 @@ export type RealEstateListing = Pick<
   | "name"
   | "short_description"
   | "featured_image_url"
+  | "updated_at"
   | "price_from"
   | "tier"
   | "category_data"
@@ -118,6 +119,7 @@ async function fetchRealEstateListings(categoryId: string, locale: string) {
       name,
       short_description,
       featured_image_url,
+      updated_at,
       price_from,
       tier,
       category_data,

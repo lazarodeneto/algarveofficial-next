@@ -41,6 +41,10 @@ import { blogCategoryLabels, type BlogCategory } from "@/hooks/useBlogPosts";
 import { hideServerShell } from "@/lib/dom/server-shell";
 
 const BLOG_AUTHOR_NAME = "AlgarveOfficial";
+const BLOG_HERO_SURFACE_CLASS =
+  "h-auto min-h-[calc(100svh-4.5rem)] max-h-none py-7 pb-[calc(7rem+env(safe-area-inset-bottom))] sm:h-[620px] sm:min-h-[620px] sm:py-0 sm:pb-0 lg:h-[680px] lg:max-h-[760px]";
+const BLOG_HERO_CONTENT_CLASS =
+  "w-full max-w-[42rem] space-y-3 px-4 sm:max-w-4xl sm:space-y-6";
 
 export type BlogAuthor = Pick<Tables<"public_profiles">, "id" | "full_name" | "avatar_url">;
 export type BlogGlobalSetting = Pick<Tables<"global_settings">, "key" | "value" | "category">;
@@ -367,6 +371,9 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
               badge={cms.getText("hero.badge", t("blog.label"))}
               title={cms.getText("hero.title", t("blog.title"))}
               subtitle={cms.getText("hero.subtitle", t("blog.subtitle"))}
+              className={BLOG_HERO_SURFACE_CLASS}
+              contentClassName={BLOG_HERO_CONTENT_CLASS}
+              subtitleClassName="text-base leading-7 sm:text-base md:text-xl"
               media={
                 <HeroBackgroundMedia
                   mediaType={cms.getText("hero.mediaType", serverHero.mediaType ?? "image")}
@@ -381,34 +388,35 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
               ctas={
                 <>
                   <Link href={l("/stay")}>
-                    <Button variant="gold" size="lg">
+                    <Button variant="gold" size="lg" className="min-h-11 text-sm sm:min-h-12 sm:text-base">
                       {cms.getText("hero.cta.primary", t("blog.hero.ctaPrimary"))}
                     </Button>
                   </Link>
                   <Link href={l("/contact")}>
-                    <Button variant="heroOutline" size="lg">
+                    <Button variant="heroOutline" size="lg" className="min-h-11 text-sm sm:min-h-12 sm:text-base">
                       {cms.getText("hero.cta.secondary", t("blog.hero.ctaSecondary"))}
                     </Button>
                   </Link>
                 </>
               }
             >
-              <div className="relative max-w-xl mx-auto mt-4">
+              <div className="relative mx-auto mt-3 max-w-xl sm:mt-4">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   type="text"
                   placeholder={cms.getText("search.placeholder", t("blog.searchPlaceholder"))}
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
-                  className="h-12 border-border bg-card pl-12 text-base text-foreground sm:text-lg"
+                  className="h-11 border-border bg-card pl-12 text-base text-foreground sm:h-12 sm:text-lg"
                 />
               </div>
 
-              <div className="flex flex-wrap justify-center gap-2 mt-4 max-w-3xl mx-auto">
+              <div className="-mx-4 mt-3 flex max-w-none justify-start gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-auto sm:mt-4 sm:max-w-3xl sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
                 <Button
                   variant={selectedCategory === "all" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedCategory("all")}
+                  className="shrink-0"
                 >
                   {cms.getText("search.allPosts", t("blog.allPosts"))}
                 </Button>
@@ -418,6 +426,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
                     variant={selectedCategory === key ? "default" : "outline"}
                     size="sm"
                     onClick={() => setSelectedCategory(key)}
+                    className="shrink-0"
                   >
                     {getCategoryLabel(key)}
                   </Button>

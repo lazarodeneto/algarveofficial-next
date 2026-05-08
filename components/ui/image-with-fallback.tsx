@@ -2,12 +2,13 @@ import { useState } from "react";
 import Image from "next/image";
 import { Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { normalizePublicImageUrl } from "@/lib/imageUrls";
+import { addImageVersion, normalizePublicImageUrl, type ImageVersion } from "@/lib/imageUrls";
 import { getOptimizedImageUrl } from "@/lib/image";
 import { canUseNextImage } from "@/lib/nextImageSafety";
 
 interface ImageWithFallbackProps {
   src?: string | null;
+  imageVersion?: ImageVersion;
   alt: string;
   className?: string;
   containerClassName?: string;
@@ -28,6 +29,7 @@ interface LoadedImageProps extends Omit<ImageWithFallbackProps, "src" | "fallbac
 
 function LoadedImageWithFallback({
   src,
+  imageVersion,
   alt,
   className,
   containerClassName,
@@ -143,10 +145,11 @@ export function ImageWithFallback({
   containerClassName,
   fallbackIconSize = 24,
   fallbackSrc,
+  imageVersion,
   ...props
 }: ImageWithFallbackProps) {
   const resolvedAlt = typeof alt === "string" && alt.trim().length > 0 ? alt : "Image";
-  const resolvedSrc = typeof src === "string" ? normalizePublicImageUrl(src) : undefined;
+  const resolvedSrc = typeof src === "string" ? normalizePublicImageUrl(addImageVersion(src, imageVersion)) : undefined;
   const resolvedFallbackSrc = typeof fallbackSrc === "string" ? normalizePublicImageUrl(fallbackSrc) : undefined;
 
   if (!resolvedSrc) {

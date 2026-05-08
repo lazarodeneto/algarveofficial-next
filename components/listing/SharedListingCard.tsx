@@ -31,6 +31,7 @@ export interface SharedListingCardData {
   short_description?: string | null;
   description?: string | null;
   featured_image_url?: string | null;
+  updated_at?: string | null;
   tier?: string | null;
   google_rating?: number | null;
   google_review_count?: number | null;
@@ -116,6 +117,7 @@ export function SharedListingCard({
               category={categorySlug}
               categoryImageUrl={categoryImageUrl}
               listingId={listing.id}
+              imageVersion={listing.updated_at}
               alt={listing.name}
               isRepresentative={!listing.featured_image_url}
               fill

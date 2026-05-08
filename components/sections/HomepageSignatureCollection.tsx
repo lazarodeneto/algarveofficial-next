@@ -98,6 +98,7 @@ export function HomepageSignatureCollection({ copy }: { copy?: HomeSectionCopy }
                 title={listing.name}
                 subtitle={listing.short_description || listing.description || undefined}
                 image={listing.featured_image_url}
+                imageVersion={listing.updated_at}
                 category={`${listing.city?.name ?? t("sections.homepage.common.algarve")} · ${translateCategoryName(t, listing.category?.slug, listing.category?.name)}`}
                 tier={listing.tier}
                 href={l(`/listing/${listing.slug}`)}

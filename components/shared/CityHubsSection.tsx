@@ -122,7 +122,7 @@ export function CityHubsSection({
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
                 {t(translationKeys.featuredCityHub)}
               </p>
-              <h2 className="font-serif text-3xl md:text-4xl leading-tight">
+              <h2 className="font-fira text-3xl font-bold leading-tight md:text-4xl">
                 {featured.name}
               </h2>
               <p className="mt-3 max-w-2xl text-sm text-white/85">
@@ -153,7 +153,7 @@ export function CityHubsSection({
                 href={getCityHref(city)}
                 className="rounded-sm border border-border px-4 py-3 transition-colors hover:border-primary/40 hover:bg-muted/40"
               >
-                <div className="font-medium text-foreground">
+                <div className="font-fira font-bold text-foreground">
                   {city.name}
                 </div>
                 <div className="text-sm text-muted-foreground">

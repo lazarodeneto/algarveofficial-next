@@ -55,6 +55,7 @@ import type { ListingFilters, ListingWithRelations, ListingTier } from "@/hooks/
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { useMobileChromeScrollState } from "@/hooks/useMobileChromeScrollState";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ListingCard } from "@/components/ListingCard";
@@ -759,6 +760,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     router.push(href, { scroll: false });
   }, [pathname, router]);
   const l = useLocalePath();
+  const { isUserScrolling } = useMobileChromeScrollState();
   const resultsAnchorId = "showing-listings";
   const ensureResultsHash = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -1379,7 +1381,9 @@ function DirectoryClientInner(props: DirectoryClientProps) {
               blockId="filters"
               cms={activeCms}
               as={m.div}
-              className="relative z-30 isolate mb-8 mx-auto w-full max-w-[22rem] sm:max-w-none"
+              className={`relative z-30 isolate mb-8 mx-auto w-full max-w-[22rem] transition-transform duration-200 ease-out sm:max-w-none lg:translate-y-0 ${
+                isUserScrolling ? "-translate-y-[calc(100%+env(safe-area-inset-top))]" : ""
+              }`}
               style={undefined}
             >
               <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>

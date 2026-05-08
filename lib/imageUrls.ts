@@ -97,6 +97,29 @@ export interface SupabaseImageTransformOptions {
   format?: SupabaseImageFormat;
 }
 
+export type ImageVersion = string | number | Date | null | undefined;
+
+export function addImageVersion(value: string | null | undefined, version?: ImageVersion): string | null {
+  if (!value || typeof value !== "string") return null;
+
+  const trimmedValue = value.trim();
+  if (!trimmedValue || trimmedValue.startsWith("data:")) return trimmedValue || null;
+
+  let normalizedVersion: string;
+  if (version instanceof Date) {
+    normalizedVersion = version.toISOString();
+  } else if (typeof version === "number") {
+    normalizedVersion = Number.isFinite(version) && version > 0 ? String(version) : "";
+  } else {
+    normalizedVersion = version?.trim() ?? "";
+  }
+
+  if (!normalizedVersion) return trimmedValue;
+
+  const separator = trimmedValue.includes("?") ? "&" : "?";
+  return `${trimmedValue}${separator}v=${encodeURIComponent(normalizedVersion)}`;
+}
+
 function clampQuality(quality: number): number {
   return Math.max(20, Math.min(quality, 100));
 }

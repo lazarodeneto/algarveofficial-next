@@ -1,25 +1,32 @@
 import Image from "next/image";
 import { getSafeCmsImageSrc } from "@/lib/cms/image-source";
+import { addImageVersion, type ImageVersion } from "@/lib/imageUrls";
 import { cn } from "@/lib/utils";
 
 interface PremiumCardProps {
   title: string;
   description?: string;
   imageUrl?: string;
+  imageVersion?: ImageVersion;
   emptyImageMode?: "hidden" | "black";
   children?: React.ReactNode;
   className?: string;
+  titleClassName?: string;
+  titleIcon?: React.ReactNode;
 }
 
 export function PremiumCard({
   title,
   description,
   imageUrl,
+  imageVersion,
   emptyImageMode = "hidden",
   children,
   className,
+  titleClassName,
+  titleIcon,
 }: PremiumCardProps) {
-  const resolvedImageUrl = getSafeCmsImageSrc(imageUrl) ?? "";
+  const resolvedImageUrl = addImageVersion(getSafeCmsImageSrc(imageUrl) ?? "", imageVersion) ?? "";
   const hasImage = resolvedImageUrl.length > 0;
 
   return (
@@ -42,7 +49,8 @@ export function PremiumCard({
         <div className="relative h-56 w-full overflow-hidden bg-black" aria-label={`${title} image not set`} />
       ) : null}
       <div className="p-5">
-        <h3 className="font-card-title text-lg font-bold leading-tight tracking-[-0.01em] text-brand-ink md:text-xl">
+        <h3 className={cn("flex items-center gap-2 font-card-title text-lg font-bold leading-tight tracking-[-0.01em] text-brand-ink md:text-xl", titleClassName)}>
+          {titleIcon}
           {title}
         </h3>
         {description && (

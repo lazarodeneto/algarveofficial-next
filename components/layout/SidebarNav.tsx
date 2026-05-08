@@ -3,53 +3,13 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import clsx from "clsx";
-import {
-  BedDouble,
-  Binoculars,
-  BookOpen,
-  CalendarDays,
-  FlagTriangleRight,
-  HouseHeart,
-  Mail,
-  Map,
-  MapPinHouse,
-  Sparkles,
-  Waves,
-  type LucideIcon,
-} from "lucide-react";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
-import { PRIMARY_NAV_ITEMS } from "@/lib/navigation/nav-items";
+import { PUBLIC_NAV_ICONS } from "@/components/layout/public-nav-icons";
+import { PUBLIC_SIDEBAR_NAV_ITEMS } from "@/lib/navigation/nav-items";
 import { stripLocaleFromPathname } from "@/lib/i18n/routing";
-
-const NAV_ICONS: Record<string, LucideIcon> = {
-  "nav.visit": Binoculars,
-  "nav.stay": BedDouble,
-  "nav.properties": HouseHeart,
-  "nav.experiences": Binoculars,
-  "nav.beaches": Waves,
-  "nav.map": Map,
-  "nav.blog": BookOpen,
-  "nav.golf": FlagTriangleRight,
-  "nav.events": CalendarDays,
-  "nav.live": MapPinHouse,
-  "nav.relocation": MapPinHouse,
-  "nav.contact": Mail,
-  "categories.wellnessSpas": Sparkles,
-};
 
 interface SidebarNavProps {
   expanded?: boolean;
-}
-
-function insertAfter(items: typeof PRIMARY_NAV_ITEMS, afterLabelKey: string, itemToInsert: (typeof PRIMARY_NAV_ITEMS)[number]) {
-  if (items.some((item) => item.labelKey === itemToInsert.labelKey)) return;
-
-  const afterIndex = items.findIndex((item) => item.labelKey === afterLabelKey);
-  if (afterIndex >= 0) {
-    items.splice(afterIndex + 1, 0, itemToInsert);
-  } else {
-    items.push(itemToInsert);
-  }
 }
 
 export function SidebarNav({ expanded = false }: SidebarNavProps) {
@@ -58,21 +18,7 @@ export function SidebarNav({ expanded = false }: SidebarNavProps) {
   const { t } = useTranslation();
 
   const currentPath = stripLocaleFromPathname(pathname || "/");
-  const sidebarItems = PRIMARY_NAV_ITEMS.filter((item) => item.labelKey !== "nav.invest");
-  if (!sidebarItems.some((item) => item.labelKey === "nav.beaches")) {
-    const golfIndex = sidebarItems.findIndex((item) => item.labelKey === "nav.golf");
-    const beachesItem = { labelKey: "nav.beaches", fallbackLabel: "Beaches", href: "/beaches" };
-    if (golfIndex >= 0) {
-      sidebarItems.splice(golfIndex, 0, beachesItem);
-    } else {
-      sidebarItems.push(beachesItem);
-    }
-  }
-  insertAfter(sidebarItems, "nav.beaches", {
-    labelKey: "categories.wellnessSpas",
-    fallbackLabel: "Wellness & Spa",
-    href: "/stay?category=wellness-spas",
-  });
+  const sidebarItems = PUBLIC_SIDEBAR_NAV_ITEMS;
 
   return (
     <nav className={clsx("flex flex-col gap-2", expanded ? "items-stretch" : "items-center")}>
@@ -84,7 +30,7 @@ export function SidebarNav({ expanded = false }: SidebarNavProps) {
             ? currentPath === itemPath &&
               [...itemParams.entries()].every(([key, value]) => searchParams.get(key) === value)
             : currentPath === itemPath || (itemPath !== "/" && currentPath.startsWith(`${itemPath}/`));
-        const Icon = NAV_ICONS[item.labelKey];
+        const Icon = PUBLIC_NAV_ICONS[item.labelKey];
         const label = t(item.labelKey, item.fallbackLabel);
 
         if (!Icon) {

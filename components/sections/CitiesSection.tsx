@@ -1,7 +1,7 @@
 import { PremiumCard } from "@/components/ui/premium-card";
 import { m } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MapPinned } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/Button";
 import { FavoriteButton } from "@/components/ui/favorite-button";
@@ -137,6 +137,8 @@ export function CitiesSection() {
                   title={city.name}
                   imageUrl={city.image_url ?? undefined}
                   emptyImageMode="black"
+                  titleClassName="font-fira text-[1.4625rem] font-bold md:text-[1.625rem]"
+                  titleIcon={<MapPinned className="h-[1.2em] w-[1.2em] shrink-0 text-primary" aria-hidden="true" />}
                 >
                   <FavoriteButton
                     isFavorite={isDestinationSaved("city", city.id)}

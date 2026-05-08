@@ -332,12 +332,12 @@ export function useHomepageSettings() {
 
       return updatedRow;
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       queryClient.setQueryData(homepageSettingsQueryKey(locale), data);
       // Force cache refresh so the public homepage gets fresh data immediately
       queryClient.invalidateQueries({ queryKey: homepageSettingsQueryKey(locale) });
       queryClient.invalidateQueries({ queryKey: homepageSettingsTranslationQueryKey(data?.id ?? null, locale) });
-      void revalidateHomepageAfterAdminWrite();
+      await revalidateHomepageAfterAdminWrite();
     },
   });
 

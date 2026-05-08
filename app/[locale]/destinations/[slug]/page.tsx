@@ -5,6 +5,14 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import Header from "@/components/layout/Header";
+import {
+  CityDetailClient,
+  type CityDetailCity,
+  type CityDetailCuratedListing,
+  type CityDetailGlobalSetting,
+  type CityDetailListing,
+  type CityDetailRegion,
+} from "@/components/cities/CityDetailClient";
 import type { Locale } from "@/lib/i18n/config";
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/lib/i18n/config";
 import {
@@ -16,6 +24,7 @@ import {
 } from "@/lib/i18n/localized-routing";
 import { getServerTranslations } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
+import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { getRegionImageSet } from "@/lib/regionImages";
 import {
@@ -42,6 +51,19 @@ const DESTINATION_REGION_FIELDS = `
 `;
 const PUBLIC_CITY_FIELDS = "id, name, slug, short_description, image_url";
 const PUBLIC_CATEGORY_FIELDS = "id, name, slug, icon, short_description, image_url";
+const CITY_DETAIL_CITY_FIELDS = `
+  id, name, slug, short_description, description, image_url, hero_image_url, latitude, longitude,
+  is_active, is_featured, display_order, created_at
+`;
+const CITY_DETAIL_REGION_FIELDS =
+  "id, name, slug, short_description, description, image_url, hero_image_url";
+const CITY_DETAIL_CATEGORY_FIELDS = "id, name, slug, icon";
+const CITY_DETAIL_CMS_KEYS = [
+  CMS_GLOBAL_SETTING_KEYS.textOverrides,
+  CMS_GLOBAL_SETTING_KEYS.pageConfigs,
+  CMS_GLOBAL_SETTING_KEYS.designTokens,
+  CMS_GLOBAL_SETTING_KEYS.customCss,
+] as const;
 
 type RegionRow = {
   id: string;
@@ -282,6 +304,184 @@ const getDestinationPageData = cache(async (slug: string, locale: Locale) => {
   };
 });
 
+const getDestinationCityPageData = cache(async (slug: string, locale: Locale) => {
+  const supabase = createPublicServerClient();
+  const contentLocale: PublicContentLocale = normalizePublicContentLocale(locale);
+
+  const { data: cityData, error: cityError } = await supabase
+    .from("cities")
+    .select(CITY_DETAIL_CITY_FIELDS)
+    .eq("slug", slug)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (cityError) throw cityError;
+  let city = (cityData as CityDetailCity | null) ?? null;
+  if (!city) return null;
+
+  if (contentLocale !== "en") {
+    const [translation] = await fetchCityTranslations(contentLocale, [city.id]);
+    if (translation) {
+      city = {
+        ...city,
+        name: translation.name?.trim() ?? city.name,
+        short_description: translation.short_description?.trim() ?? city.short_description,
+        description: translation.description?.trim() ?? city.description,
+      } as CityDetailCity;
+    }
+  }
+
+  const [regionResponse, listingsResponse, curatedResponse, globalSettingsResponse] = await Promise.all([
+    supabase
+      .from("city_region_mapping")
+      .select(`region:regions(${CITY_DETAIL_REGION_FIELDS})`)
+      .eq("city_id", city.id)
+      .eq("is_primary", true)
+      .maybeSingle(),
+    supabase
+      .from("listings")
+      .select(`
+        ${PUBLIC_LISTING_FIELDS},
+        description,
+        price_from,
+        price_to,
+        price_currency,
+        owner_id,
+        address,
+        website_url,
+        facebook_url,
+        instagram_url,
+        twitter_url,
+        linkedin_url,
+        youtube_url,
+        tiktok_url,
+        telegram_url,
+        google_business_url,
+        tags,
+        category_data,
+        view_count,
+        published_at,
+        created_at,
+        updated_at,
+        category:categories(${CITY_DETAIL_CATEGORY_FIELDS})
+      `)
+      .eq("city_id", city.id)
+      .eq("status", "published")
+      .order("is_curated", { ascending: false })
+      .order("tier", { ascending: false })
+      .limit(24),
+    supabase
+      .from("curated_assignments")
+      .select(`
+        id,
+        display_order,
+        listing:listings(
+          ${PUBLIC_LISTING_FIELDS},
+          description,
+          price_from,
+          price_to,
+          price_currency,
+          owner_id,
+          address,
+          website_url,
+          facebook_url,
+          instagram_url,
+          twitter_url,
+          linkedin_url,
+          youtube_url,
+          tiktok_url,
+          telegram_url,
+          google_business_url,
+          tags,
+          category_data,
+          view_count,
+          published_at,
+          created_at,
+          updated_at,
+          city:cities(${PUBLIC_CITY_FIELDS}),
+          region:regions(${CITY_DETAIL_REGION_FIELDS}),
+          category:categories(${CITY_DETAIL_CATEGORY_FIELDS})
+        )
+      `)
+      .eq("context_type", "city")
+      .eq("context_id", city.id)
+      .order("display_order", { ascending: true })
+      .limit(3),
+    supabase
+      .from("global_settings")
+      .select("key, value, category")
+      .in("key", [...CITY_DETAIL_CMS_KEYS])
+      .order("key", { ascending: true }),
+  ]);
+
+  if (regionResponse.error && regionResponse.error.code !== "PGRST116") throw regionResponse.error;
+  if (listingsResponse.error) throw listingsResponse.error;
+  if (curatedResponse.error) throw curatedResponse.error;
+  if (globalSettingsResponse.error) throw globalSettingsResponse.error;
+
+  const rawRegion = regionResponse.data?.region;
+  let region = (Array.isArray(rawRegion) ? rawRegion[0] : rawRegion) as CityDetailRegion | null;
+
+  let listings = (listingsResponse.data ?? []) as unknown as CityDetailListing[];
+  let curatedListings = (curatedResponse.data ?? [])
+    .map((assignment) => {
+      const listing = Array.isArray(assignment.listing)
+        ? assignment.listing[0]
+        : assignment.listing;
+      return listing as unknown as CityDetailCuratedListing | null;
+    })
+    .filter(
+      (listing): listing is CityDetailCuratedListing =>
+        listing != null && listing.status === "published" && listing.tier === "signature",
+    );
+
+  if (contentLocale !== "en") {
+    const [regionTranslations, listingTranslations] = await Promise.all([
+      region ? fetchRegionTranslations(contentLocale, [region.id]) : Promise.resolve([]),
+      fetchListingTranslations(contentLocale, [
+        ...listings.map((listing) => listing.id),
+        ...curatedListings.map((listing) => listing.id),
+      ]),
+    ]);
+
+    const [regionTranslation] = regionTranslations;
+    if (region && regionTranslation) {
+      region = {
+        ...region,
+        name: regionTranslation.name?.trim() ?? region.name,
+        short_description: regionTranslation.short_description?.trim() ?? region.short_description,
+        description: regionTranslation.description?.trim() ?? region.description,
+      } as CityDetailRegion;
+    }
+
+    const listingTranslationMap = new Map(
+      listingTranslations.map((translation) => [translation.listing_id, translation]),
+    );
+    const applyListingTranslation = <TListing extends CityDetailListing | CityDetailCuratedListing>(
+      listing: TListing,
+    ): TListing => {
+      const translation = listingTranslationMap.get(listing.id);
+      return {
+        ...listing,
+        name: translation?.title?.trim() ?? listing.name,
+        short_description: translation?.short_description?.trim() ?? listing.short_description,
+        description: translation?.description?.trim() ?? listing.description,
+      };
+    };
+
+    listings = listings.map(applyListingTranslation);
+    curatedListings = curatedListings.map(applyListingTranslation);
+  }
+
+  return {
+    city,
+    region,
+    listings,
+    curatedListings,
+    globalSettings: (globalSettingsResponse.data ?? []) as CityDetailGlobalSetting[],
+  };
+});
+
 export const revalidate = 60;
 
 export async function generateMetadata({ params }: LocaleDestinationPageProps): Promise<Metadata> {
@@ -291,6 +491,20 @@ export async function generateMetadata({ params }: LocaleDestinationPageProps): 
   const tx = await getServerTranslations(resolvedLocale, ["destinationDetail.metaTitleSuffix"]);
 
   if (!data) {
+    const cityData = await getDestinationCityPageData(slug, resolvedLocale);
+    if (cityData) {
+      const { city } = cityData;
+      const description = truncateMeta(city.short_description) || truncateMeta(city.description);
+      return buildPageMetadata({
+        title: `${city.name} | ${tx["destinationDetail.metaTitleSuffix"] ?? "Algarve Destination Guide"}`,
+        description: description || `Explore premium listings in ${city.name}, Algarve.`,
+        localizedPath: `/destinations/${slug}`,
+        image: normalizePublicImageUrl(city.hero_image_url || city.image_url) ?? undefined,
+        type: "place",
+        locale: resolvedLocale,
+      });
+    }
+
     return buildPageMetadata({
       title: "Destination Not Found",
       description: "The requested destination could not be found.",
@@ -335,7 +549,20 @@ export default async function LocaleDestinationPage({ params }: LocaleDestinatio
     ]),
   ]);
 
-  if (!data) notFound();
+  if (!data) {
+    const cityData = await getDestinationCityPageData(slug, resolvedLocale);
+    if (!cityData) notFound();
+
+    return (
+      <CityDetailClient
+        initialCity={cityData.city}
+        initialRegion={cityData.region}
+        initialListings={cityData.listings}
+        initialCuratedListings={cityData.curatedListings}
+        initialGlobalSettings={cityData.globalSettings}
+      />
+    );
+  }
 
   const { region, cities, listings, otherRegions } = data;
   const routeData = buildDestinationRouteData(region);

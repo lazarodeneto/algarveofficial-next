@@ -151,7 +151,7 @@ export function RegionsSection({ imageTimestamp = 0, copy }: RegionsSectionProps
             <span className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               {cmsText(copy?.eyebrow, t("sections.homepage.regions.label"))}
             </span>
-            <h2 className="mt-3 text-title font-serif font-medium text-foreground">
+            <h2 className="mt-3 font-serif text-[clamp(1.95rem,1.69rem+1.3vw,2.925rem)] font-medium leading-[1.15] text-foreground">
               {cmsText(copy?.title, t("sections.homepage.regions.title"))}
             </h2>
             <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">

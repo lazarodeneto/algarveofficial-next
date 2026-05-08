@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { normalizePublicImageUrl } from "@/lib/imageUrls";
+import { addImageVersion, normalizePublicImageUrl, type ImageVersion } from "@/lib/imageUrls";
 import { getOptimizedImageUrl, SIZES } from "@/lib/image";
 import { canUseNextImage } from "@/lib/nextImageSafety";
 import { getCategoryFallbackImageUrl, normalizeFallbackImageUrl } from "@/lib/fallback-images";
@@ -13,6 +13,7 @@ export interface ListingImageProps {
   category?: string | null;
   categoryImageUrl?: string | null;
   listingId?: string;
+  imageVersion?: ImageVersion;
   fallbackSrc?: string;
   alt?: string;
   className?: string;
@@ -31,9 +32,9 @@ function normalizeUrl(value: string | null | undefined): string | null {
   return normalizePublicImageUrl(value);
 }
 
-function resolveListingImageUrl(src: string | null | undefined): string | null {
+function resolveListingImageUrl(src: string | null | undefined, imageVersion?: ImageVersion): string | null {
   if (!src) return null;
-  const url = normalizeUrl(src);
+  const url = normalizeUrl(addImageVersion(src, imageVersion));
   if (!url) return null;
   return getOptimizedImageUrl(url, {
     width: 800,
@@ -43,9 +44,9 @@ function resolveListingImageUrl(src: string | null | undefined): string | null {
   });
 }
 
-function resolveCategoryImageUrl(src: string | null | undefined): string | null {
+function resolveCategoryImageUrl(src: string | null | undefined, imageVersion?: ImageVersion): string | null {
   if (!src) return null;
-  const url = normalizeUrl(src);
+  const url = normalizeUrl(addImageVersion(src, imageVersion));
   if (!url) return null;
   return getOptimizedImageUrl(url, {
     width: 800,
@@ -60,6 +61,7 @@ export default function ListingImage({
   category,
   categoryImageUrl,
   fallbackSrc = "/placeholder.svg",
+  imageVersion,
   alt,
   className,
   loading = "lazy",
@@ -77,8 +79,8 @@ export default function ListingImage({
   const categorySlug = category;
 
   const sourceCandidates = [
-    hasError ? null : resolveListingImageUrl(src),
-    hasError ? null : resolveCategoryImageUrl(categoryImageUrl),
+    hasError ? null : resolveListingImageUrl(src, imageVersion),
+    hasError ? null : resolveCategoryImageUrl(categoryImageUrl, imageVersion),
     resolveListingImageUrl(fallbackSrc),
     getCategoryFallbackImageUrl(categorySlug),
   ].filter((url): url is string => url !== null);

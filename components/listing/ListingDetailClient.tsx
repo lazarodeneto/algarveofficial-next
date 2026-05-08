@@ -192,6 +192,7 @@ const RELATED_LISTING_FIELDS = `
   slug,
   name,
   featured_image_url,
+  updated_at,
   city:cities(id, name)
 `;
 
@@ -975,6 +976,7 @@ function ListingDetailClientInner({
                   src={galleryImages[currentImageIndex]?.image_url ?? normalizedFeaturedImageUrl}
                   categoryImageUrl={normalizedCategoryImageUrl}
                   fallbackSrc="/placeholder.svg"
+                  imageVersion={listing.updated_at}
                   alt={galleryImages[currentImageIndex]?.alt_text ?? listing.name}
                   width={1600}
                   height={1000}
@@ -1061,6 +1063,7 @@ function ListingDetailClientInner({
                           src={image.image_url}
                           categoryImageUrl={normalizedCategoryImageUrl}
                           fallbackSrc="/placeholder.svg"
+                          imageVersion={listing.updated_at}
                           alt={image.alt_text ?? listing.name}
                           fill
                         />
@@ -1403,6 +1406,7 @@ function ListingDetailClientInner({
                         <ListingImage
                           src={relatedImage ?? null}
                           fallbackSrc="/placeholder.svg"
+                          imageVersion={related.updated_at}
                           alt={related.name}
                           fill
                           className="transition-transform duration-300 group-hover:scale-105"

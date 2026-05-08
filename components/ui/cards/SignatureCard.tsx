@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
+import { addImageVersion, type ImageVersion } from "@/lib/imageUrls";
 import { canUseNextImage } from "@/lib/nextImageSafety";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
@@ -12,6 +13,7 @@ type Props = {
   title: string;
   subtitle?: string;
   image?: string | null;
+  imageVersion?: ImageVersion;
   category?: string | null;
   tier?: "signature" | "verified" | "default" | string | null;
   href?: string;
@@ -50,6 +52,7 @@ export function SignatureCard({
   title,
   subtitle,
   image,
+  imageVersion,
   category,
   tier = "default",
   href,
@@ -64,7 +67,8 @@ export function SignatureCard({
   const isHero = variant === "hero";
   const isFeatured = variant === "featured";
   const isStandard = variant === "standard";
-  const canOptimizeImage = canUseNextImage(image);
+  const resolvedImage = addImageVersion(image, imageVersion);
+  const canOptimizeImage = canUseNextImage(resolvedImage);
 
   const favoriteButton = onToggleFavorite ? (
     <button
@@ -86,9 +90,9 @@ export function SignatureCard({
 
   const content = (
     <>
-      {image ? (
+      {resolvedImage ? (
         <Image
-          src={image}
+          src={resolvedImage}
           alt={title}
           fill
           unoptimized={!canOptimizeImage}

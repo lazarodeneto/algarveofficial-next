@@ -17,6 +17,20 @@ export const PRIMARY_NAV_ITEMS: NavItem[] = [
   { labelKey: "nav.contact", fallbackLabel: "Contact", href: "/contact" },
 ];
 
+export const PUBLIC_SIDEBAR_NAV_ITEMS: NavItem[] = [
+  { labelKey: "nav.stay", fallbackLabel: "Stay", href: "/stay?category=places-to-stay" },
+  { labelKey: "nav.experiences", fallbackLabel: "Experiences", href: "/experiences" },
+  { labelKey: "nav.beaches", fallbackLabel: "Beaches", href: "/beaches" },
+  { labelKey: "categories.wellnessSpas", fallbackLabel: "Wellness & Spas", href: "/stay?category=wellness-spas" },
+  { labelKey: "nav.golf", fallbackLabel: "Golf", href: "/golf" },
+  { labelKey: "nav.properties", fallbackLabel: "Properties", href: "/properties" },
+  { labelKey: "nav.map", fallbackLabel: "Map", href: "/map" },
+  { labelKey: "nav.blog", fallbackLabel: "Blog", href: "/blog" },
+  { labelKey: "nav.events", fallbackLabel: "Events", href: "/events" },
+  { labelKey: "nav.relocation", fallbackLabel: "Relocation", href: "/relocation" },
+  { labelKey: "nav.contact", fallbackLabel: "Contact", href: "/contact" },
+];
+
 export const FOOTER_NAV_ITEMS: NavItem[] = [
   { labelKey: "nav.privacy", fallbackLabel: "Privacy Policy", href: "/privacy-policy" },
   { labelKey: "nav.cookies", fallbackLabel: "Cookie Policy", href: "/cookie-policy" },

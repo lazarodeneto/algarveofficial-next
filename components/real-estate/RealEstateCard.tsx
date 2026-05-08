@@ -24,6 +24,7 @@ type Listing = Pick<
     Database["public"]["Tables"]["listings"]["Row"],
     "id" | "slug" | "name" | "price_from" | "featured_image_url" | "category_data" | "tier" | "short_description"
 > & {
+    updated_at?: string | null;
     cities: { name: string; slug: string } | null;
 };
 
@@ -147,6 +148,7 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                         category={categorySlug}
                         categoryImageUrl={categoryImageUrl}
                         listingId={id}
+                        imageVersion={listing.updated_at}
                         alt={name}
                         fill
                         className={cn(
