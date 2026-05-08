@@ -280,6 +280,7 @@ export default async function GolfCourseDetailPage({ params }: PageProps) {
     editorsSelection: tx(translations, "golfDiscovery.editorsSelection", "Editor's Selection"),
     verified: tx(translations, "golfDiscovery.verified", "Verified"),
     viewCourse: tx(translations, "golfDiscovery.viewCourse", "View Course"),
+    scorecard: tx(translations, "golfCourse.scorecard", "Scorecard"),
     locationFallback: tx(translations, "golfCourse.locationFallback", "Algarve"),
     bestForLabels,
   };

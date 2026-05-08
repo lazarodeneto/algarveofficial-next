@@ -19,7 +19,7 @@ export function Scorecard({ rows, labels }: ScorecardProps) {
   if (rows.length === 0) return null;
 
   return (
-    <section className="mx-auto max-w-6xl py-12">
+    <section id="scorecard" className="mx-auto max-w-6xl scroll-mt-28 py-12">
       <h2 className="font-serif text-3xl font-medium text-foreground">{labels.title}</h2>
       <div className="mt-6 overflow-x-auto rounded-2xl border border-border/70 shadow-sm">
         <table className="w-full min-w-[680px] text-sm">

@@ -37,6 +37,7 @@ export default async function GolfLeaderboardPage({ params }: PageProps) {
       "golf.leaderboardPage.scoreDescription",
       "golfCourse.rank",
       "golfCourse.player",
+      "golfCourse.course",
       "golfCourse.score",
       "golfCourse.rounds",
     ]),
@@ -66,6 +67,7 @@ export default async function GolfLeaderboardPage({ params }: PageProps) {
             labels={{
               rank: translations["golfCourse.rank"],
               player: translations["golfCourse.player"],
+              course: translations["golfCourse.course"] ?? "Golf Course",
               score: translations["golfCourse.score"],
               rounds: translations["golfCourse.rounds"],
             }}

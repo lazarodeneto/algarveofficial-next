@@ -25,6 +25,7 @@ const TRANSLATION_KEYS = [
   "golfCourse.holes",
   "golfCourse.par",
   "golfCourse.slope",
+  "golfCourse.scorecard",
   "golfCourse.locationFallback",
   "golfDiscovery.bestFor",
   "golfDiscovery.experiencedGolfers",
@@ -117,6 +118,7 @@ export default async function GolfDiscoverPage({ params }: PageProps) {
     editorsSelection: tx(translations, "golfDiscovery.editorsSelection", "Editor's Selection"),
     verified: tx(translations, "golfDiscovery.verified", "Verified"),
     viewCourse: tx(translations, "golfDiscovery.viewCourse", "View Course"),
+    scorecard: tx(translations, "golfCourse.scorecard", "Scorecard"),
     locationFallback: tx(translations, "golfCourse.locationFallback", "Algarve"),
     bestForLabels: {
       experiencedGolfers: tx(translations, "golfDiscovery.experiencedGolfers", "Experienced golfers"),

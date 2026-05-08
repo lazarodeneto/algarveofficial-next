@@ -13,6 +13,7 @@ interface LeaderboardTableProps {
   labels?: {
     rank?: string;
     player?: string;
+    course?: string;
     score?: string;
     rounds?: string;
   };
@@ -31,6 +32,7 @@ export function LeaderboardTable({ entries, labels }: LeaderboardTableProps) {
         <TableRow>
           <TableHead className="w-20">{labels?.rank ?? "Rank"}</TableHead>
           <TableHead>{labels?.player ?? "Player"}</TableHead>
+          <TableHead>{labels?.course ?? "Golf Course"}</TableHead>
           <TableHead className="w-28 text-right">{labels?.score ?? "Score"}</TableHead>
           <TableHead className="w-28 text-right">{labels?.rounds ?? "Rounds"}</TableHead>
         </TableRow>
@@ -40,6 +42,7 @@ export function LeaderboardTable({ entries, labels }: LeaderboardTableProps) {
           <TableRow key={`${entry.rank}-${entry.player}`}>
             <TableCell className="font-semibold">#{entry.rank}</TableCell>
             <TableCell>{entry.player}</TableCell>
+            <TableCell>{entry.courseName ?? "-"}</TableCell>
             <TableCell className="text-right font-semibold">{formatScore(entry.score)}</TableCell>
             <TableCell className="text-right">{entry.rounds ?? "-"}</TableCell>
           </TableRow>

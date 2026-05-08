@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
-import { render } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { render, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { HeroSection } from "./HeroSection";
 
 const mockUseHeroSettings = vi.hoisted(() => vi.fn());
+const mockUseConnectionQuality = vi.hoisted(() => vi.fn());
 
 vi.mock("next/dynamic", () => ({
   default: () => () => null,
@@ -88,7 +89,7 @@ vi.mock("react-i18next", () => ({
 }));
 
 vi.mock("@/hooks/useConnectionQuality", () => ({
-  useConnectionQuality: () => ({ isSlow: false, isMobile: false }),
+  useConnectionQuality: () => mockUseConnectionQuality(),
 }));
 
 vi.mock("@/hooks/useTripPlanner", () => ({
@@ -112,6 +113,10 @@ vi.mock("@/hooks/useHydrated", () => ({
 }));
 
 describe("HeroSection image reset behaviour", () => {
+  beforeEach(() => {
+    mockUseConnectionQuality.mockReturnValue({ isSlow: false, isMobile: false });
+  });
+
   it("ignores stale CMS hero media when Home Page Editor media is reset", () => {
     mockUseHeroSettings.mockReturnValue({
       isLoading: false,
@@ -135,5 +140,33 @@ describe("HeroSection image reset behaviour", () => {
     expect(container.querySelector("img")).not.toBeInTheDocument();
     expect(container.querySelector(".bg-black")).toBeInTheDocument();
     expect(container.innerHTML).not.toContain("old-home-hero.jpg");
+  });
+
+  it("renders uploaded homepage video on mobile without requiring interaction", async () => {
+    mockUseConnectionQuality.mockReturnValue({ isSlow: false, isMobile: true });
+    mockUseHeroSettings.mockReturnValue({
+      isLoading: false,
+      hasLocaleTranslation: true,
+      settings: {
+        updated_at: "2026-05-08T10:00:00.000Z",
+        hero_media_type: "video",
+        hero_video_url: "https://media.example.com/home-hero.mp4",
+        hero_poster_url: null,
+        hero_overlay_intensity: 50,
+        hero_title: null,
+        hero_subtitle: null,
+        hero_cta_primary_text: null,
+        hero_cta_primary_link: null,
+        hero_cta_secondary_text: null,
+        hero_cta_secondary_link: null,
+      },
+    });
+
+    const { container } = render(<HeroSection />);
+
+    await waitFor(() => {
+      expect(container.querySelector("video")).toBeInTheDocument();
+    });
+    expect(container.querySelector("source")?.getAttribute("src")).toContain("home-hero.mp4");
   });
 });

@@ -48,6 +48,7 @@ export default async function GolfCoursesPage({ params, searchParams }: PageProp
     "golfCourse.holes",
     "golfCourse.par",
     "golfCourse.slope",
+    "golfCourse.scorecard",
     "golfCourse.locationFallback",
     "golf.courseDirectory.title",
     "golf.courseDirectory.description",
@@ -81,6 +82,7 @@ export default async function GolfCoursesPage({ params, searchParams }: PageProp
     editorsSelection: t("golfDiscovery.editorsSelection"),
     verified: t("golfDiscovery.verified"),
     viewCourse: t("golfDiscovery.viewCourse"),
+    scorecard: translations["golfCourse.scorecard"] ?? "Scorecard",
     locationFallback: t("golfCourse.locationFallback"),
     bestForLabels: {
       experiencedGolfers: t("golfDiscovery.experiencedGolfers"),

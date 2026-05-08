@@ -92,6 +92,7 @@ export interface GolfListingSlugResolution {
 export interface GolfLeaderboardEntry {
   rank: number;
   player: string;
+  courseName: string | null;
   score: number;
   rounds: number | null;
 }
@@ -132,14 +133,6 @@ const GOLF_CATEGORY_ALIASES = new Set([
   "golf courses",
   "golf-tournaments",
 ]);
-
-const MOCK_LEADERBOARD: GolfLeaderboardEntry[] = [
-  { rank: 1, player: "Joao Silva", score: -6, rounds: 4 },
-  { rank: 2, player: "Emma Thompson", score: -4, rounds: 4 },
-  { rank: 3, player: "Miguel Santos", score: -3, rounds: 4 },
-  { rank: 4, player: "Sofia Costa", score: -2, rounds: 4 },
-  { rank: 5, player: "Daniel Reed", score: -1, rounds: 4 },
-];
 
 type PostgrestErrorLike = { code?: string } | null | undefined;
 
@@ -751,6 +744,10 @@ export async function getLeaderboard() {
         return {
           rank: toNullableNumber(raw?.rank) ?? index + 1,
           player,
+          courseName:
+            toNullableString(raw?.course_name) ??
+            toNullableString(raw?.golf_course_name) ??
+            toNullableString(raw?.course),
           score: toNullableNumber(raw?.score) ?? toNullableNumber(raw?.total_score) ?? 0,
           rounds:
             toNullableNumber(raw?.rounds_played) ?? toNullableNumber(raw?.rounds),
@@ -764,5 +761,5 @@ export async function getLeaderboard() {
     }
   }
 
-  return MOCK_LEADERBOARD;
+  return [] as GolfLeaderboardEntry[];
 }

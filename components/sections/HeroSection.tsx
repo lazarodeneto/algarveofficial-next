@@ -106,7 +106,7 @@ const HeroVideoPlayer = ({
       loop
       muted
       playsInline
-      preload="none"
+      preload="metadata"
       poster={posterUrl ?? undefined}
       crossOrigin="anonymous"
       tabIndex={-1}
@@ -135,7 +135,7 @@ export function HeroSection() {
   });
   const locale = useCurrentLocale();
   const { t } = useTranslation();
-  const { isSlow, isMobile } = useConnectionQuality();
+  const { isSlow } = useConnectionQuality();
   const { createTrip } = useTripPlanner();
   const { isAuthenticated } = useAuth();
   const router = useRouter();
@@ -205,33 +205,15 @@ export function HeroSection() {
       !hydrated ||
       !hasVideoUrl ||
       shouldSkipVideo ||
-      isMobile ||
-      getPrefersReducedData() ||
-      (typeof window.matchMedia === "function" &&
-        window.matchMedia("(max-width: 1023px)").matches)
+      getPrefersReducedData()
     ) {
+      setCanEnhanceHeroVideo(false);
       return undefined;
     }
 
-    let cancelled = false;
-    const enableVideo = () => {
-      if (!cancelled) {
-        setCanEnhanceHeroVideo(true);
-      }
-    };
-
-    const interactionEvents = ["pointerdown", "keydown", "touchstart", "wheel", "scroll"] as const;
-    for (const eventName of interactionEvents) {
-      window.addEventListener(eventName, enableVideo, { once: true, passive: true });
-    }
-
-    return () => {
-      cancelled = true;
-      for (const eventName of interactionEvents) {
-        window.removeEventListener(eventName, enableVideo);
-      }
-    };
-  }, [hasVideoUrl, hydrated, isMobile, shouldSkipVideo, videoUrl]);
+    setCanEnhanceHeroVideo(true);
+    return undefined;
+  }, [hasVideoUrl, hydrated, shouldSkipVideo, videoUrl]);
   const overlayBackup = runtimeSettings.find(
     (setting) => setting.key === HERO_OVERLAY_INTENSITY_SETTING_KEY,
   )?.value;

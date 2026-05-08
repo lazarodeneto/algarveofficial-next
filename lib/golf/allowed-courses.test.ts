@@ -55,17 +55,24 @@ describe("approved Algarve golf course allowlist", () => {
   it("approves only explicit safe aliases and punctuation variants", () => {
     expect(isApprovedGolfCourse({ slug: "boavista-golf-spa-resort-quinta-do-lago" })).toBe(true);
     expect(isApprovedGolfCourse({ slug: "boavista-golf-spa-resort", name: "Boavista Golf & Spa Resort" })).toBe(true);
+    expect(isApprovedGolfCourse({ name: "Espiche Golf S.a." })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Álamos Golf Course" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Amendoeira O’Connor Jnr." })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Amendoeira OConnor Jnr" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Quinta do Lago North & South" })).toBe(true);
+    expect(isApprovedGolfCourse({ name: "Quinta do Lago N&s Golf Courses" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Quinta do Lago North Course" })).toBe(true);
+    expect(isApprovedGolfCourse({ name: "Old Course - Golf in Vilamoura, Portugal" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "The Old Course Vilamoura" })).toBe(true);
+    expect(isApprovedGolfCourse({ name: "Laguna Golf Course Vilamoura" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Dom Pedro Laguna" })).toBe(true);
+    expect(isApprovedGolfCourse({ name: "Millennium Golf Course Vilamoura" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Dom Pedro Millennium" })).toBe(true);
+    expect(isApprovedGolfCourse({ name: "Pinhal Golf Course Vilamoura" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Dom Pedro Pinhal" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Vale do Lobo Golf Club" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Benamor Golf Course" })).toBe(true);
+    expect(isApprovedGolfCourse({ name: "Golf Course Quinta da Ria" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Palmares Golf" })).toBe(true);
   });
 

@@ -112,6 +112,7 @@ export function GolfPageClient({ locale, courses, leaderboard, pageConfig }: Gol
     editorsSelection: t("golfDiscovery.editorsSelection"),
     verified: t("golfDiscovery.verified"),
     viewCourse: t("golfDiscovery.viewCourse"),
+    scorecard: t("golfCourse.scorecard", { defaultValue: "Scorecard" }),
     locationFallback: t("golfCourse.locationFallback"),
     bestForLabels: {
       experiencedGolfers: t("golfDiscovery.experiencedGolfers"),
