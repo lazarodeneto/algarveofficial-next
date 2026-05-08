@@ -220,7 +220,9 @@ export const approvedGolfCourses: ApprovedGolfCourse[] = [
     city: "Almancil",
     aliases: [
       "Quinta do Lago North & South",
+      "Quinta do Lago North & South Golf Courses",
       "Quinta do Lago North and South",
+      "Quinta do Lago North and South Golf Courses",
       "Quinta do Lago N&S Golf Courses",
       "Quinta do Lago N&s Golf Courses",
       "Quinta do Lago North Course",

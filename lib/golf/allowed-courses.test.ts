@@ -60,6 +60,7 @@ describe("approved Algarve golf course allowlist", () => {
     expect(isApprovedGolfCourse({ name: "Amendoeira O’Connor Jnr." })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Amendoeira OConnor Jnr" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Quinta do Lago North & South" })).toBe(true);
+    expect(isApprovedGolfCourse({ name: "Quinta do Lago North & South Golf Courses" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Quinta do Lago N&s Golf Courses" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Quinta do Lago North Course" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Old Course - Golf in Vilamoura, Portugal" })).toBe(true);
