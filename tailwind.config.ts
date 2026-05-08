@@ -126,7 +126,6 @@ export default {
       fontFamily: {
         serif: ["var(--font-playfair)", "'Playfair Display'", "Georgia", "serif"],
         sans: ["var(--font-inter)", "'Inter'", "sans-serif"],
-        condensed: ["var(--font-roboto-condensed)", "'Roboto Condensed'", "Arial Narrow", "sans-serif"],
         fira: ["var(--font-fira-sans)", "'Fira Sans'", "sans-serif"],
       },
       borderRadius: {

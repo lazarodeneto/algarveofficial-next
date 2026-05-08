@@ -18,6 +18,11 @@ import {
 } from "@/lib/cms/placement-engine";
 import { trackBlockImpression, trackEvent } from "@/lib/analytics/platformTracking";
 
+const firaSans700Style = {
+  fontFamily: "var(--font-fira-sans), 'Fira Sans', sans-serif",
+  fontWeight: 700,
+} as const;
+
 export function FeaturedCitySection() {
   const { t } = useTranslation();
   const l = useLocalePath();
@@ -72,7 +77,7 @@ export function FeaturedCitySection() {
       data-cms-featured-city-selection={selection}
     >
       <div className="app-container">
-        <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm [transform:translateZ(0)]">
+        <div className="overflow-hidden rounded-[1.25rem] border border-border bg-card shadow-sm [clip-path:inset(0_round_1.25rem)] [transform:translateZ(0)]">
           <div className="relative min-h-[28rem]">
             {selectedCity.hero_image_url || selectedCity.image_url ? (
               <img
@@ -85,12 +90,12 @@ export function FeaturedCitySection() {
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
+              <p className="text-xs not-italic uppercase tracking-[0.24em] text-white/80" style={firaSans700Style}>
                 {selection === "tier-driven"
                   ? t("sections.cities.tierDrivenCity")
                   : t("sections.cities.featuredCity")}
               </p>
-              <h2 className="mt-2 font-fira text-3xl font-bold leading-tight md:text-4xl">
+              <h2 className="mt-2 text-3xl not-italic leading-tight md:text-4xl" style={firaSans700Style}>
                 {selectedCity.name}
               </h2>
               <p className="mt-3 max-w-2xl text-sm text-white/90">

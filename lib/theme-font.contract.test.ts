@@ -9,10 +9,10 @@ function read(relativePath: string) {
 }
 
 describe("theme font contract", () => {
-  it("loads DM Sans in the root layout font variables", () => {
+  it("loads Inter in the root layout font variables", () => {
     const source = read("app/layout.tsx");
-    expect(source).toContain("DM_Sans");
-    expect(source).toContain('variable: "--font-dm-sans"');
+    expect(source).toContain("Inter");
+    expect(source).toContain('variable: "--font-inter"');
   });
 
   it("loads Fira Sans for homepage quick-link titles", () => {
@@ -21,8 +21,8 @@ describe("theme font contract", () => {
     expect(source).toContain('variable: "--font-fira-sans"');
   });
 
-  it("maps body sans token to DM Sans", () => {
+  it("maps body sans token to Inter", () => {
     const source = read("index.css");
-    expect(source).toContain("--font-sans: var(--font-dm-sans), 'DM Sans', sans-serif;");
+    expect(source).toContain("--font-sans: var(--font-inter), 'Inter', sans-serif;");
   });
 });

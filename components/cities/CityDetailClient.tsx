@@ -119,6 +119,11 @@ const CITY_DETAIL_CMS_KEYS = [
   CMS_GLOBAL_SETTING_KEYS.customCss,
 ] as const;
 
+const firaSans700Style = {
+  fontFamily: "var(--font-fira-sans), 'Fira Sans', sans-serif",
+  fontWeight: 700,
+} as const;
+
 const PUBLIC_LISTING_FIELDS = `
   id,
   slug,
@@ -609,7 +614,8 @@ function CityDetailClientInner({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-hero font-serif font-medium text-white mb-6"
+              className="mb-6 text-[clamp(2.25rem,1.86rem+1.68vw,3.6rem)] leading-[1.05] text-white"
+              style={firaSans700Style}
             >
               {city.name}
             </m.h1>
@@ -673,7 +679,7 @@ function CityDetailClientInner({
               className="flex items-center justify-between mb-12"
             >
               <div>
-                <h2 className="text-title font-serif font-medium text-foreground">
+                <h2 className="text-[clamp(1.8rem,1.56rem+1.2vw,2.7rem)] leading-[1.15] text-foreground" style={firaSans700Style}>
                   {cms.getText("listings.title", "Explore {{city}}").replace("{{city}}", city.name)}
                 </h2>
                 <p className="mt-2 text-body text-muted-foreground">

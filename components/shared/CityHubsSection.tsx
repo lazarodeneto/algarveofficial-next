@@ -58,6 +58,11 @@ interface CityHubsSectionProps {
   translationPrefix: CityHubTranslationPrefix;
 }
 
+const firaSans700Style = {
+  fontFamily: "var(--font-fira-sans), 'Fira Sans', sans-serif",
+  fontWeight: 700,
+} as const;
+
 export function CityHubsSection({
   highlightedCity,
   topCities,
@@ -103,7 +108,7 @@ export function CityHubsSection({
       <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <Link
           href={getCityHref(featured)}
-          className="group mx-auto block h-full w-full max-w-[22rem] overflow-hidden rounded-lg border border-border bg-card shadow-sm sm:max-w-none"
+          className="group mx-auto block h-full w-full max-w-[22rem] overflow-hidden rounded-[1.25rem] border border-border bg-card shadow-sm [clip-path:inset(0_round_1.25rem)] sm:max-w-none"
         >
           <div className="relative h-full min-h-[28rem]">
             {featured.hero_image_url || featured.image_url ? (
@@ -119,10 +124,10 @@ export function CityHubsSection({
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
+              <p className="mb-2 text-xs not-italic uppercase tracking-[0.24em] text-white/80" style={firaSans700Style}>
                 {t(translationKeys.featuredCityHub)}
               </p>
-              <h2 className="font-fira text-3xl font-bold leading-tight md:text-4xl">
+              <h2 className="text-3xl not-italic leading-tight md:text-4xl" style={firaSans700Style}>
                 {featured.name}
               </h2>
               <p className="mt-3 max-w-2xl text-sm text-white/85">

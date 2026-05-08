@@ -40,6 +40,11 @@ const DESTINATIONS_CITY_FIELDS = `
   latitude, longitude, is_active, is_featured, display_order, created_at
 `;
 
+const firaSans700Style = {
+  fontFamily: "var(--font-fira-sans), 'Fira Sans', sans-serif",
+  fontWeight: 700,
+} as const;
+
 async function fetchRegions() {
   const { data, error } = await supabase
     .from("regions")
@@ -127,9 +132,9 @@ function DestinationsClientInner({ initialRegions, imageTimestamp: propImageTime
           <div className="app-container content-max">
             <LocaleLink
               href={`/destinations/${highlightedCity.slug}`}
-              className="group relative block rounded-xl min-h-[20rem] lg:min-h-[32rem]"
+              className="group relative block min-h-[20rem] overflow-hidden rounded-[1.25rem] [clip-path:inset(0_round_1.25rem)] lg:min-h-[32rem]"
             >
-              <div className="absolute inset-0 overflow-hidden rounded-xl">
+              <div className="absolute inset-0 overflow-hidden rounded-[1.25rem]">
                 <Image
                   src={`${highlightedCity.hero_image_url ?? highlightedCity.image_url}?_t=${imageTimestamp}`}
                   alt={highlightedCity.name}
@@ -141,10 +146,10 @@ function DestinationsClientInner({ initialRegions, imageTimestamp: propImageTime
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-6 lg:p-10 text-white">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
+                <p className="mb-2 text-xs not-italic uppercase tracking-[0.24em] text-white/80" style={firaSans700Style}>
                   {t("sections.cities.featuredCityHub")}
                 </p>
-                <h2 className="font-serif text-3xl lg:text-5xl leading-tight">
+                <h2 className="text-3xl not-italic leading-tight lg:text-5xl" style={firaSans700Style}>
                   {highlightedCity.name}
                 </h2>
                 <p className="mt-3 max-w-2xl text-sm lg:text-base text-white/85">
@@ -256,10 +261,10 @@ function DestinationsClientInner({ initialRegions, imageTimestamp: propImageTime
                       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent" />
                     </div>
                     <div className="absolute inset-0 p-6 flex flex-col justify-end">
-                      <span className="text-xs font-medium text-primary tracking-wider uppercase mb-2">
+                      <span className="mb-2 text-xs uppercase tracking-wider text-primary" style={firaSans700Style}>
                         {t("sections.cities.cityHub")}
                       </span>
-                      <h3 className="text-2xl lg:text-3xl font-serif font-medium text-white mb-2">{city.name}</h3>
+                      <h3 className="mb-2 text-[1.95rem] leading-tight text-white lg:text-[2.4375rem]" style={firaSans700Style}>{city.name}</h3>
                       <p className="text-sm lg:text-base text-white/80 mb-4">
                         {city.short_description || city.description}
                       </p>

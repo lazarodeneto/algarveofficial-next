@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { DM_Sans, Playfair_Display, Archivo_Narrow, Roboto_Condensed, Fira_Sans } from "next/font/google";
+import { Inter, Playfair_Display, Fira_Sans } from "next/font/google";
 import { unstable_cache } from "next/cache";
 
 import "../index.css";
@@ -23,25 +23,10 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
-const dmSans = DM_Sans({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "700", "900"],
-  variable: "--font-dm-sans",
-  display: "swap",
-});
-
-const archivoNarrow = Archivo_Narrow({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
-  variable: "--font-archivo-narrow",
-  display: "swap",
-});
-
-const robotoCondensed = Roboto_Condensed({
-  subsets: ["latin"],
-  weight: ["700"],
-  variable: "--font-roboto-condensed",
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-inter",
   display: "swap",
 });
 
@@ -52,7 +37,7 @@ const firaSans = Fira_Sans({
   display: "swap",
 });
 
-const fontVariables = `${playfair.variable} ${dmSans.variable} ${archivoNarrow.variable} ${robotoCondensed.variable} ${firaSans.variable}`;
+const fontVariables = `${playfair.variable} ${inter.variable} ${firaSans.variable}`;
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim()?.replace(/\/+$/, "") ?? "https://algarveofficial.com";
 const supabaseOrigin = (() => {
   try {

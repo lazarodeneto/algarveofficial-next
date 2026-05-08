@@ -100,7 +100,7 @@ export function CourseCard({ course, locale, labels, featured = false, className
         </div>
 
         <CardHeader className="min-h-[10.75rem] p-5 sm:min-h-[11.25rem] sm:p-6">
-          <CardTitle className="line-clamp-2 text-lg leading-tight sm:text-xl">{course.name}</CardTitle>
+          <CardTitle className="line-clamp-2 text-[1.35rem] leading-tight sm:text-[1.5rem]">{course.name}</CardTitle>
           <CardDescription className="line-clamp-2 break-words">
             {course.city?.name ?? labels.locationFallback}
             {course.region?.name ? `, ${course.region.name}` : ""}

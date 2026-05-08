@@ -323,7 +323,7 @@ export function HeaderMegaMenu() {
                             <NavigationMenuTrigger
                                 onClick={(e) => handleItemClick(e, section.value, section.navPath, section.openInNewTab)}
                             className={cn(
-                                    "header-nav-pill font-['Archivo_Narrow'] relative flex items-center justify-center gap-2 px-2.5 xl:px-5 2xl:px-7 py-2.5 xl:py-3 rounded-full border-2 shadow-[0_12px_32px_-26px_rgba(15,23,42,0.45)] transition-all duration-200",
+                                    "header-nav-pill font-fira relative flex items-center justify-center gap-2 px-2.5 xl:px-5 2xl:px-7 py-2.5 xl:py-3 rounded-full border-2 shadow-[0_12px_32px_-26px_rgba(15,23,42,0.45)] transition-all duration-200",
                                     "text-[13px] xl:text-[15px] 2xl:text-[17px] font-bold uppercase tracking-[0.08em] xl:tracking-[0.1em] 2xl:tracking-[0.12em]",
                                     "border-black bg-white/88 text-foreground backdrop-blur-xl dark:border-white/40 dark:bg-transparent dark:text-white/90",
                                     "hover:border-primary/55 hover:bg-primary/8 hover:text-foreground dark:hover:bg-white/10 dark:hover:text-white",
@@ -377,7 +377,7 @@ function MegaPanel({ section }: { section: HeaderRuntimeSection }) {
                 {/* Content pinned to bottom */}
                 <div className="relative h-full flex flex-col justify-end p-6 min-h-[340px]">
                     <span className={cn(
-                        "self-start font-['Archivo_Narrow'] text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border mb-4",
+                        "self-start font-fira text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border mb-4",
                         section.pill
                     )}>
                         {pillLabel}
@@ -404,7 +404,7 @@ function MegaPanel({ section }: { section: HeaderRuntimeSection }) {
 
             {/* ── Right: frosted glass items column ── */}
             <div className="flex-1 p-6 bg-background">
-                <p className="font-['Archivo_Narrow'] text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3 px-2">
+                <p className="font-fira text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3 px-2">
                     {t("menu.browseCategories")}
                 </p>
                 <div className="grid grid-cols-2 gap-0.5">
@@ -456,7 +456,7 @@ function PanelItem({
                     />
                 </span>
                 <span className="min-w-0">
-                    <span className="block font-['Archivo_Narrow'] text-[13px] font-bold text-foreground group-hover:text-[#9A6E00] dark:group-hover:text-[#F5D98B] transition-colors leading-tight truncate">
+                    <span className="block font-fira text-[13px] font-bold text-foreground group-hover:text-[#9A6E00] dark:group-hover:text-[#F5D98B] transition-colors leading-tight truncate">
                         {label}
                     </span>
                     {desc ? (

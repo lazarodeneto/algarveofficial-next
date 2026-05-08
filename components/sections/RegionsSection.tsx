@@ -87,7 +87,7 @@ function EditorialRegionCard({
         <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70">
           {subtitle}
         </p>
-        <h3 className="line-clamp-2 font-fira text-xl font-bold not-italic leading-tight tracking-[-0.01em] text-white sm:text-2xl">
+        <h3 className="line-clamp-2 font-fira text-[1.625rem] font-bold not-italic leading-tight tracking-[-0.01em] text-white sm:text-[1.95rem]">
           {title}
         </h3>
         {description ? (

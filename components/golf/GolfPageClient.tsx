@@ -277,7 +277,7 @@ export function GolfPageClient({ locale, courses, leaderboard, pageConfig }: Gol
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
                     <div className="absolute inset-x-0 bottom-0 p-4 text-white">
-                      {option.title ? <h2 className="font-fira text-lg font-bold leading-tight">{option.title}</h2> : null}
+                      {option.title ? <h2 className="font-fira text-[1.35rem] font-bold leading-tight">{option.title}</h2> : null}
                       {option.description ? <p className="mt-1 text-sm text-white/82">{option.description}</p> : null}
                     </div>
                   </Link>
