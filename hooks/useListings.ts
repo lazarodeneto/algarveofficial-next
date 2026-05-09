@@ -557,8 +557,8 @@ export function usePublishedListings(
         categoryTranslations,
       );
     },
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes — listings rarely change
-    gcTime: 1000 * 60 * 15,
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
     enabled: options.enabled ?? true,
   });
 }
@@ -623,7 +623,8 @@ export function useListing(idOrSlug: string | undefined) {
 
       return localizedListing;
     },
-    initialData: null as (ListingWithRelations & { images?: unknown[] }) | null,
+    staleTime: 30 * 1000,
+    placeholderData: null as (ListingWithRelations & { images?: unknown[] }) | null,
   });
 }
 
@@ -648,6 +649,7 @@ export function useResolveSlug(slug: string | undefined) {
       return data;
     },
     enabled: !!slug,
+    staleTime: 0,
   });
 }
 
@@ -697,8 +699,8 @@ export function useCuratedListings() {
         categoryTranslations,
       );
     },
-    staleTime: 1000 * 60 * 10,
-    gcTime: 1000 * 60 * 30,
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 }
 
@@ -747,8 +749,8 @@ export function useSignatureListings() {
         categoryTranslations,
       );
     },
-    staleTime: 1000 * 60 * 10,
-    gcTime: 1000 * 60 * 30,
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 }
 
@@ -783,6 +785,7 @@ export function useAdminListing(id: string | undefined) {
       return data;
     },
     enabled: !!id,
+    staleTime: 0,
   });
 }
 
@@ -840,6 +843,6 @@ export function usePublishedListingsCount(filters: ListingFilters = {}) {
       }
       return count || 0;
     },
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    staleTime: 60 * 1000,
   });
 }

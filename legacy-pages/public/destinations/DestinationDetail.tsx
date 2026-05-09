@@ -60,6 +60,7 @@ export default function DestinationDetail() {
       return data.map(d => d.city).filter(Boolean);
     },
     enabled: !!region?.id,
+    staleTime: 60 * 1000,
   });
 
   // Fetch listings for this region

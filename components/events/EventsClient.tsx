@@ -115,21 +115,22 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
     };
     return t(translationKeyMap[category] || category, eventCategoryLabels[category]);
   };
+  const getEventHref = (event: Pick<CalendarEvent, "slug">) => l(event.slug ? `/events/${event.slug}` : "/events");
 
   const timeFilter = "upcoming";
 
   const { data: events = [] } = useQuery({
     queryKey: ["events", "published", selectedCategory, timeFilter],
     queryFn: () => fetchPublishedEvents(selectedCategory, timeFilter),
-    initialData: selectedCategory === "all" && timeFilter === "upcoming" ? initialEvents : undefined,
-    staleTime: 1000 * 60 * 5,
+    placeholderData: selectedCategory === "all" && timeFilter === "upcoming" ? initialEvents : undefined,
+    staleTime: 60 * 1000,
   });
 
   useQuery({
     queryKey: ["events-page", "global-settings"],
     queryFn: fetchEventGlobalSettings,
-    initialData: initialGlobalSettings,
-    staleTime: 1000 * 60 * 10,
+    placeholderData: initialGlobalSettings,
+    staleTime: 0,
   });
 
   const featuredEvents = events.filter((event) => event.is_featured).slice(0, 3);
@@ -230,8 +231,12 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 * index }}
                 >
-                        <Link href={l(`/events/${event.slug}`)}>
-                    <Card className="group h-full overflow-hidden border-border bg-card transition-all hover:border-primary/30">
+                  <Link
+                    href={getEventHref(event)}
+                    aria-label={`Open ${event.title}`}
+                    className="block h-full rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    <Card className="group h-full cursor-pointer overflow-hidden border-border bg-card transition-all hover:border-primary/30">
                       <div className="relative aspect-video overflow-hidden">
                         <Image
                           src={event.image ?? "/og-image.png"}
@@ -327,8 +332,12 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.05 * index }}
                       >
-                  <Link href={l(`/events/${event.slug}`)}>
-                          <Card className="group overflow-hidden border-border bg-card transition-all hover:border-primary/30">
+                        <Link
+                          href={getEventHref(event)}
+                          aria-label={`Open ${event.title}`}
+                          className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                        >
+                          <Card className="group cursor-pointer overflow-hidden border-border bg-card transition-all hover:border-primary/30">
                             <div className="flex flex-col sm:flex-row">
                               <div className="flex w-full flex-row items-center justify-center gap-1 bg-muted p-3 sm:w-24 sm:flex-shrink-0 sm:flex-col sm:gap-0">
                                 <span className="text-2xl font-bold text-primary">

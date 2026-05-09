@@ -44,7 +44,7 @@ export function HomepageSignatureCollection({ copy }: { copy?: HomeSectionCopy }
   const { data: listings = [], isLoading } = useQuery<ListingWithRelations[]>({
     queryKey: homepageListingSplitQueryKey("editors", targetLang),
     queryFn: async () => [],
-    staleTime: Number.POSITIVE_INFINITY,
+    staleTime: 60 * 1000,
   });
 
   const title = t("sections.homepage.editorsSelection.title");

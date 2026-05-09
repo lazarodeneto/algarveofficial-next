@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
+import { invalidateListingMutationQueries } from "@/lib/query-invalidation";
 import type {
   GolfCourseStructure,
   GolfHoleDataStatus,
@@ -90,6 +91,7 @@ export function useAdminListingGolf(listingId: string | undefined, enabled: bool
         method: "GET",
       });
     },
+    staleTime: 0,
   });
 }
 
@@ -108,7 +110,7 @@ export function useUpsertAdminListingGolf(listingId: string | undefined) {
       });
     },
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["admin-listing-golf", listingId] });
+      void invalidateListingMutationQueries(queryClient, listingId);
     },
   });
 }

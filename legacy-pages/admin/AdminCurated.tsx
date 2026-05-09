@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { TierBadge } from "@/components/admin/TierBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAdmin } from "@/lib/api/fetchAdmin";
+import { invalidateListingMutationQueries } from "@/lib/query-invalidation";
 import { toast } from "sonner";
 
 type PageContext = "homepage" | "region" | "category" | "city";
@@ -134,7 +135,8 @@ export default function AdminCurated() {
         displayOrder: curatedAssignments.length,
       });
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      void invalidateListingMutationQueries(queryClient, variables.listingId);
       queryClient.invalidateQueries({ queryKey: ['admin-curated-assignments'] });
       // Also invalidate the public curated-assignments query used by the homepage
       queryClient.invalidateQueries({ queryKey: ['curated-assignments'] });
@@ -165,7 +167,8 @@ export default function AdminCurated() {
         contextId: contextId || null,
       });
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      void invalidateListingMutationQueries(queryClient, variables.listingId);
       queryClient.invalidateQueries({ queryKey: ['admin-curated-assignments'] });
       // Also invalidate the public curated-assignments query used by the homepage
       queryClient.invalidateQueries({ queryKey: ['curated-assignments'] });

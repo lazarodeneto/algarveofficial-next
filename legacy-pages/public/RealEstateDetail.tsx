@@ -154,7 +154,8 @@ export default function RealEstateDetail() {
             if (error) throw error;
             return data;
         },
-        enabled: !!slug
+        enabled: !!slug,
+        staleTime: 30 * 1000,
     });
 
     const { data: similarListings } = useQuery({
@@ -174,7 +175,8 @@ export default function RealEstateDetail() {
             }
             return data;
         },
-        enabled: !!listing
+        enabled: !!listing,
+        staleTime: 60 * 1000,
     });
 
     const targetLang = normalizeLang(locale);

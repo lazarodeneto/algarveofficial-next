@@ -97,7 +97,7 @@ export default function RealEstateDirectory() {
             }
             return counts;
         },
-        staleTime: 1000 * 60 * 5,
+        staleTime: 60 * 1000,
     });
 
     const { data: listings, isLoading } = useQuery({
@@ -160,7 +160,8 @@ export default function RealEstateDirectory() {
                     short_description: tr.short_description || listing.short_description,
                 };
             });
-        }
+        },
+        staleTime: 60 * 1000,
     });
 
     const filteredListings = listings?.filter(listing => {

@@ -214,8 +214,8 @@ function RealEstateDirectoryClientInner({
       if (!realEstateCategoryId) return [];
       return fetchRealEstateListings(realEstateCategoryId, locale);
     },
-    initialData: locale === "en" && realEstateCategoryId === initialCategory.id ? initialListings : undefined,
-    staleTime: 1000 * 60 * 5,
+    placeholderData: locale === "en" && realEstateCategoryId === initialCategory.id ? initialListings : undefined,
+    staleTime: 60 * 1000,
   });
 
   const filteredListings = useMemo(() => {

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/badge";
 import { fetchAdmin } from "@/lib/api/fetchAdmin";
+import { invalidateListingMutationQueries } from "@/lib/query-invalidation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 
 type UrlHealthIssue = {
@@ -156,11 +157,10 @@ export default function AdminUrlHealth() {
         body: JSON.stringify({ action, listing_id: listingId }),
       });
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       toast.success("URL health repaired.");
       void queryClient.invalidateQueries({ queryKey: ["admin-url-health"] });
-      void queryClient.invalidateQueries({ queryKey: ["admin-listings"], exact: false });
-      void queryClient.invalidateQueries({ queryKey: ["listing", "admin"], exact: false });
+      void invalidateListingMutationQueries(queryClient, variables.listingId);
     },
     onError: (repairError) => {
       toast.error(repairError instanceof Error ? repairError.message : "Repair failed.");

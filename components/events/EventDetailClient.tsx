@@ -194,15 +194,15 @@ function EventDetailClientInner({
   } = useQuery({
     queryKey: ["event", "slug", initialEvent.slug, locale],
     queryFn: () => fetchEventBySlug(initialEvent.slug, locale),
-    initialData: initialEvent,
-    staleTime: 1000 * 60 * 10,
+    placeholderData: initialEvent,
+    staleTime: 30 * 1000,
   });
 
   const { data: globalSettings = initialGlobalSettings } = useQuery({
     queryKey: ["event-detail", "global-settings", locale],
     queryFn: () => fetchEventDetailGlobalSettings(locale),
-    initialData: initialGlobalSettings,
-    staleTime: 1000 * 60 * 10,
+    placeholderData: initialGlobalSettings,
+    staleTime: 0,
   });
 
   const cms = useEventDetailCmsHelpers(globalSettings);
@@ -214,8 +214,8 @@ function EventDetailClientInner({
       return fetchRelatedEvents(locale, event.id, event.category, event.city_id, 3);
     },
     enabled: Boolean(event?.id),
-    initialData: initialRelatedEvents,
-    staleTime: 1000 * 60 * 5,
+    placeholderData: initialRelatedEvents,
+    staleTime: 60 * 1000,
   });
 
   if (isLoading) {

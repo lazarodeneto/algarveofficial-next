@@ -41,7 +41,7 @@ export function FeaturedCitySection() {
       if (error) throw error;
       return (data ?? []) as PlacementListing[];
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 60 * 1000,
   });
 
   const { validCityIds } = validateSelectedCityIds(

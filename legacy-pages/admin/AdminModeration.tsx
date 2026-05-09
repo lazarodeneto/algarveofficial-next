@@ -22,6 +22,7 @@ import { useLocalePath } from "@/hooks/useLocalePath";
 import { toast } from "sonner";
 import { resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
 import { fetchAdmin } from "@/lib/api/fetchAdmin";
+import { invalidateListingMutationQueries } from "@/lib/query-invalidation";
 
 async function patchAdminListing(
   listingId: string,
@@ -45,12 +46,10 @@ export default function AdminModeration() {
   const [previewListing, setPreviewListing] = useState<any | null>(null);
   const { data: pendingEventsCount = 0 } = usePendingEventsCount();
 
-  const invalidateModerationQueries = () => {
+  const invalidateModerationQueries = (listingId?: string) => {
+    void invalidateListingMutationQueries(queryClient, listingId);
     queryClient.invalidateQueries({ queryKey: ['admin-pending-listings'] });
     queryClient.invalidateQueries({ queryKey: ['listings', 'pending-review-count'] });
-    queryClient.invalidateQueries({ queryKey: ['listings'] });
-    queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
-    queryClient.invalidateQueries({ queryKey: ['listing'] });
   };
 
   // Fetch pending listings
@@ -84,8 +83,8 @@ export default function AdminModeration() {
         sync_featured_image: true,
       });
     },
-    onSuccess: () => {
-      invalidateModerationQueries();
+    onSuccess: (_data, listingId) => {
+      invalidateModerationQueries(listingId);
       toast.success("Listing approved and published");
     },
     onError: (error) => {
@@ -101,8 +100,8 @@ export default function AdminModeration() {
         rejection_reason: reason,
       });
     },
-    onSuccess: () => {
-      invalidateModerationQueries();
+    onSuccess: (_data, variables) => {
+      invalidateModerationQueries(variables.listingId);
       toast.success("Listing rejected");
       setRejectDialogOpen(false);
       setRejectReason("");
@@ -145,7 +144,7 @@ export default function AdminModeration() {
           admin_notes: note.trim(),
         });
         toast.success("Note saved successfully");
-        queryClient.invalidateQueries({ queryKey: ['admin-pending-listings'] });
+        invalidateModerationQueries(selectedListingId);
       } catch (err: any) {
         toast.error("Failed to save note: " + err.message);
       }

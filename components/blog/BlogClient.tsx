@@ -316,8 +316,8 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
   const { data: globalSettings = initialGlobalSettings } = useQuery({
     queryKey: ["global-settings", [...BLOG_CMS_KEYS].sort(), locale],
     queryFn: () => fetchGlobalSettings(locale),
-    initialData: initialGlobalSettings,
-    staleTime: 1000 * 60 * 5,
+    placeholderData: initialGlobalSettings,
+    staleTime: 0,
   });
 
   const {
@@ -327,9 +327,9 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
     queryKey: ["blog-posts", "published", selectedCategory !== "all" ? selectedCategory : undefined, locale],
     queryFn: () =>
       fetchBlogPosts(locale, selectedCategory !== "all" ? selectedCategory : undefined),
-    initialData:
+    placeholderData:
       locale === "en" && selectedCategory === "all" ? mergedInitialPosts : undefined,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 60 * 1000,
   });
 
   const cms = useBlogCmsHelpers(globalSettings);

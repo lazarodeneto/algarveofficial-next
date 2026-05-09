@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { normalizeLocale } from "@/lib/i18n/config";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import { invalidateCmsPageMutationQueries } from "@/lib/query-invalidation";
 import { globalSettingsQueryKey } from "@/lib/query-keys";
 
 export interface GlobalSetting {
@@ -83,7 +84,7 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
       if (error) throw error;
       return (data ?? []) as GlobalSetting[];
     },
-    staleTime: isCmsPreviewRuntime ? 0 : 1000 * 60 * 5,
+    staleTime: 0,
     refetchOnMount: isCmsPreviewRuntime ? "always" : undefined,
   });
 
@@ -120,8 +121,7 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
       return (payload.data ?? []) as GlobalSetting[];
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["global-settings"] });
-      queryClient.invalidateQueries({ queryKey: ["cms-runtime"] });
+      void invalidateCmsPageMutationQueries(queryClient);
     },
   });
 

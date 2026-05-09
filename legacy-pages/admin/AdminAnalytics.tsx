@@ -37,7 +37,7 @@ export default function AdminAnalytics() {
       if (error) throw error;
       return data ?? [];
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
   });
 
   const { data: categories = [] } = useQuery({
@@ -51,7 +51,7 @@ export default function AdminAnalytics() {
       if (error) throw error;
       return data ?? [];
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
   });
 
   const filters = useMemo(

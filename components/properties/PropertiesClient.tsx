@@ -171,7 +171,7 @@ export default function PropertiesClient() {
                 return rows;
             }
         },
-        staleTime: 1000 * 60 * 5,
+        staleTime: 60 * 1000,
     });
 
     const isLoading = Boolean(isCategoryLoading || isListingsLoading);

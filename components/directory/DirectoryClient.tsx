@@ -814,8 +814,8 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   const { data: globalSettings = initialCmsSettings } = useQuery({
     queryKey: ["global-settings", [...DIRECTORY_CMS_KEYS].sort(), locale],
     queryFn: () => fetchDirectoryGlobalSettings(locale),
-    initialData: initialCmsSettings,
-    staleTime: 1000 * 60 * 5,
+    placeholderData: initialCmsSettings,
+    staleTime: 0,
   });
   const activeCms = useDirectoryCmsHelpers(globalSettings, activeCmsPageId);
 
@@ -844,7 +844,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     queryKey: ["directory", "category-counts", locale],
     queryFn: () => fetchCategoryCounts(locale),
     initialData: props.initialCategoryCounts,
-    staleTime: 1000 * 60 * 10,
+    staleTime: 60 * 1000,
   });
 
   const { data: cityListingCounts = {} } = useCityListingCounts();
@@ -933,9 +933,9 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   const { data: listings = props.initialListings, isLoading: listingsLoading, isPlaceholderData, error } = useQuery({
     queryKey: ["listings", "published", listingFilters, locale],
     queryFn: () => fetchListings(listingFilters, categories, cities, regions, locale),
-    initialData: initialFilterMatch ? props.initialListings : undefined,
-    staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 15,
+    placeholderData: initialFilterMatch ? props.initialListings : undefined,
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
     enabled: categories.length > 0 && cities.length > 0 && regions.length > 0,
   });
 
@@ -961,7 +961,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
       return counts;
     },
     enabled: isStayPage && accommodationCategoryIds.length > 0,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 60 * 1000,
   });
 
   const { data: experiencesCityListingCounts = {} } = useQuery<Record<string, number>>({
@@ -986,7 +986,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
       return counts;
     },
     enabled: isExperiencesPage && experiencesCategoryIds.length > 0,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 60 * 1000,
   });
 
   const stayCityIndex = useMemo(

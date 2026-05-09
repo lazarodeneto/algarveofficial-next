@@ -29,5 +29,6 @@ export function useOwnerListings() {
     },
     enabled: isBrowser && !!user?.id,
     initialData: [],
+    staleTime: 0,
   });
 }

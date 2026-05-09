@@ -87,7 +87,7 @@ export default async function LocaleEventDetailPage({ params }: LocaleEventDetai
         dangerouslySetInnerHTML={{ __html: JSON.stringify(eventSchema) }}
       />
       <Suspense fallback={<RouteLoadingState />}>
-        <EventDetail localeSwitchPaths={localeSwitchPaths} localizedRoute={routeData} />
+        <EventDetail initialEvent={event} localeSwitchPaths={localeSwitchPaths} localizedRoute={routeData} />
       </Suspense>
     </>
   );

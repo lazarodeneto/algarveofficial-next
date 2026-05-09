@@ -6,6 +6,7 @@ import {
   homepageSettingsQueryKey,
   homepageSettingsTranslationQueryKey,
 } from "@/lib/query-keys";
+import { invalidateCmsPageMutationQueries } from "@/lib/query-invalidation";
 import {
   HomeSectionCopyMap,
 } from "@/lib/cms/home-section-copy";
@@ -161,13 +162,13 @@ export function useHomepageSettings() {
       }
       return (data ?? null) as HomepageSettings | null;
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
   });
 
   const { data: translation, isLoading: isTranslationLoading } = useQuery({
     queryKey: homepageSettingsTranslationQueryKey(settings?.id ?? null, locale),
     enabled: Boolean(settings?.id) && locale !== "en",
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
     queryFn: async () => {
       if (!settings?.id || locale === "en") return null;
 
@@ -337,6 +338,7 @@ export function useHomepageSettings() {
       // Force cache refresh so the public homepage gets fresh data immediately
       queryClient.invalidateQueries({ queryKey: homepageSettingsQueryKey(locale) });
       queryClient.invalidateQueries({ queryKey: homepageSettingsTranslationQueryKey(data?.id ?? null, locale) });
+      void invalidateCmsPageMutationQueries(queryClient);
       await revalidateHomepageAfterAdminWrite();
     },
   });

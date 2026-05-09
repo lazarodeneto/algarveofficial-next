@@ -47,7 +47,7 @@ export function CitiesSection() {
       if (error) throw error;
       return (data ?? []) as PlacementListing[];
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 60 * 1000,
   });
 
   const citiesById = new Map(cities.map((city) => [city.id, city]));

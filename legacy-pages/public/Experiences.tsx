@@ -269,7 +269,7 @@ const Experiences = ({
       return counts;
     },
     enabled: true,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 60 * 1000,
   });
 
   // Municipalities by listing count (aggregated from city-level listings).
@@ -482,7 +482,7 @@ const Experiences = ({
       }
     },
     enabled: true,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 60 * 1000,
   });
 
   // Scroll to results when listings have loaded

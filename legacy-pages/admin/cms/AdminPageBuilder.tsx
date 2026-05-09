@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { DashboardBreadcrumb } from "@/components/ui/dashboard-breadcrumb";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/Button";
@@ -50,6 +50,7 @@ import { toast } from "sonner";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAdmin } from "@/lib/api/fetchAdmin";
+import { invalidateCmsPageMutationQueries } from "@/lib/query-invalidation";
 import {
   CMS_GLOBAL_SETTING_KEYS,
   CMS_PAGE_DEFINITIONS,
@@ -549,6 +550,7 @@ function buildHeroTextMap(hero: CmsPageConfig["hero"] | undefined): Record<strin
 
 function AdminPageBuilderContent() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const locale = useCurrentLocale();
   const pathname = usePathname() || "/admin/cms/page-builder";
   const searchParams = useSearchParams();
@@ -614,7 +616,7 @@ function AdminPageBuilderContent() {
       if (error) throw error;
       return data ?? [];
     },
-    staleTime: 1000 * 60 * 10,
+    staleTime: 0,
   });
 
   const { data: categories = [] } = useQuery({
@@ -628,7 +630,7 @@ function AdminPageBuilderContent() {
       if (error) throw error;
       return data ?? [];
     },
-    staleTime: 1000 * 60 * 10,
+    staleTime: 0,
   });
 
   const { data: listingOptions = [] } = useQuery({
@@ -642,7 +644,7 @@ function AdminPageBuilderContent() {
       if (error) throw error;
       return data ?? [];
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
   });
 
   const setSearchParams = useCallback((nextParams: URLSearchParams, options?: { replace?: boolean }) => {
@@ -1789,6 +1791,7 @@ function AdminPageBuilderContent() {
       setCmsLatestPublishedVersion(data.latest_published_version);
       setVisualConfig(normalizedContent);
       setIsCmsDirty(false);
+      void invalidateCmsPageMutationQueries(queryClient);
       fetchSelectedCmsHistory(selectedPageId).then(setCmsVersionHistory).catch(() => undefined);
       toast.success(`${selectedPageDefinition?.label ?? "Page"} draft saved.`);
     } catch (error) {
@@ -1834,6 +1837,7 @@ function AdminPageBuilderContent() {
       setCmsLatestPublishedVersion(data.latest_published_version);
       setVisualConfig(normalizedContent);
       setIsCmsDirty(false);
+      void invalidateCmsPageMutationQueries(queryClient);
       fetchSelectedCmsHistory(selectedPageId).then(setCmsVersionHistory).catch(() => undefined);
       toast.success(`${selectedPageDefinition?.label ?? "Page"} published.`);
     } catch (error) {
@@ -1869,6 +1873,7 @@ function AdminPageBuilderContent() {
       setCmsLatestPublishedVersion(data.latest_published_version);
       setVisualConfig(normalizedContent);
       setIsCmsDirty(false);
+      void invalidateCmsPageMutationQueries(queryClient);
       fetchSelectedCmsHistory(selectedPageId).then(setCmsVersionHistory).catch(() => undefined);
       await openSelectedPreview(resolvePreviewPath(selectedPageDefinition?.path ?? "/"));
       toast.success(`${selectedPageDefinition?.label ?? "Page"} draft preview opened.`);
@@ -1979,6 +1984,7 @@ function AdminPageBuilderContent() {
       ];
 
       await saveSettingsAsync(payload);
+      void invalidateCmsPageMutationQueries(queryClient);
       toast.success("Page builder settings saved");
     } catch (error) {
       toast.error(`Failed to save page builder settings: ${(error as Error).message}`);

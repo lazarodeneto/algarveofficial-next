@@ -1,8 +1,9 @@
-import { useMutation, useQueryClient, type QueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
+import { invalidateListingMutationQueries } from "@/lib/query-invalidation";
 
 type ListingRow = Tables<"listings">;
 type ListingStatus = ListingRow["status"];
@@ -63,15 +64,6 @@ interface ListingImageApiPayload {
   alt_text?: string | null;
   is_featured: boolean;
   display_order: number;
-}
-
-function invalidateAdminListingQueries(queryClient: QueryClient) {
-  void queryClient.invalidateQueries({
-    queryKey: ["admin-all-listings"],
-    exact: false,
-  });
-  void queryClient.invalidateQueries({ queryKey: ["admin-listings"] });
-  void queryClient.invalidateQueries({ queryKey: ["listing", "admin"] });
 }
 
 function buildStoragePath(file: File): string {
@@ -196,8 +188,8 @@ export function useCreateListing() {
         body: JSON.stringify({ listing, images: normalizedImages }),
       });
     },
-    onSuccess: () => {
-      invalidateAdminListingQueries(queryClient);
+    onSuccess: (listing) => {
+      void invalidateListingMutationQueries(queryClient, listing.id);
       toast.success("Listing created.");
     },
     onError: (error) => {
@@ -218,8 +210,8 @@ export function useUpdateListing() {
         body: JSON.stringify({ listing, images: normalizedImages }),
       });
     },
-    onSuccess: () => {
-      invalidateAdminListingQueries(queryClient);
+    onSuccess: (_listing, variables) => {
+      void invalidateListingMutationQueries(queryClient, variables.id);
       toast.success("Listing updated.");
     },
     onError: (error) => {
@@ -241,8 +233,8 @@ export function useUpdateListingSlug() {
         },
       );
     },
-    onSuccess: () => {
-      invalidateAdminListingQueries(queryClient);
+    onSuccess: (_result, variables) => {
+      void invalidateListingMutationQueries(queryClient, variables.id);
       void queryClient.invalidateQueries({
         queryKey: ["admin-url-health"],
         exact: false,
@@ -265,8 +257,8 @@ export function useUpdateListingStatus() {
         body: JSON.stringify({ status }),
       });
     },
-    onSuccess: () => {
-      invalidateAdminListingQueries(queryClient);
+    onSuccess: (_listing, variables) => {
+      void invalidateListingMutationQueries(queryClient, variables.id);
       toast.success("Status updated");
     },
     onError: (error) => {
@@ -295,8 +287,8 @@ export function useDeleteListings() {
 
       return result?.count ?? normalizedIds.length;
     },
-    onSuccess: (count) => {
-      invalidateAdminListingQueries(queryClient);
+    onSuccess: (count, variables) => {
+      void invalidateListingMutationQueries(queryClient, variables.ids);
       toast.success(`Deleted ${count} listing${count === 1 ? "" : "s"}.`);
     },
     onError: (error) => {

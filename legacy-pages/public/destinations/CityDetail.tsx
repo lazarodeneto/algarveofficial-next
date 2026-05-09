@@ -64,6 +64,7 @@ export default function CityDetail() {
       return data?.region || null;
     },
     enabled: !!city?.id,
+    staleTime: 60 * 1000,
   });
 
   // Fetch listings for this city

@@ -1,27 +1,11 @@
 import { cache } from "react";
 
-import type { Tables } from "@/integrations/supabase/types";
+import type { CalendarEvent } from "@/types/events";
 import type { Locale } from "@/lib/i18n/config";
 import { buildUniformLocalizedSlugMap } from "@/lib/i18n/localized-routing";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 
-export type EventSeoRecord = Pick<
-  Tables<"events">,
-  | "slug"
-  | "id"
-  | "title"
-  | "short_description"
-  | "location"
-  | "venue"
-  | "meta_title"
-  | "meta_description"
-  | "image"
-  | "start_date"
-  | "end_date"
-  | "ticket_url"
-  | "created_at"
-  | "updated_at"
-> & {
+export type EventSeoRecord = CalendarEvent & {
   localizedSlugs: Record<Locale, string>;
 };
 
@@ -34,7 +18,10 @@ export const getPublishedEventBySlug = cache(async (slug: string): Promise<Event
   const supabase = createPublicServerClient();
   const { data, error } = await supabase
     .from("events")
-    .select("id, slug, title, short_description, location, venue, meta_title, meta_description, image, start_date, end_date, ticket_url, created_at, updated_at, status")
+    .select(`
+      *,
+      city:cities(id, name, slug)
+    `)
     .eq("slug", normalizedSlug)
     .eq("status", "published")
     .maybeSingle();
@@ -48,7 +35,7 @@ export const getPublishedEventBySlug = cache(async (slug: string): Promise<Event
   }
 
   return {
-    ...(data as Omit<EventSeoRecord, "localizedSlugs">),
+    ...(data as CalendarEvent),
     localizedSlugs: buildUniformLocalizedSlugMap(data.slug),
-  } as EventSeoRecord;
+  };
 });

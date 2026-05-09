@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { eventCategoryLabels, eventCategoryColors, type EventCategory } from '@/types/events';
+import { eventCategoryLabels, eventCategoryColors, type CalendarEvent, type EventCategory } from '@/types/events';
 import { useEventBySlug, useRelatedEvents } from '@/hooks/useEvents';
 import { useCurrentLocale } from '@/hooks/useCurrentLocale';
 import { eventCategoryTemplates } from '@/lib/eventCategoryTemplates';
@@ -40,17 +40,19 @@ import {
 interface EventDetailProps {
   localeSwitchPaths?: Partial<Record<Locale, string>>;
   localizedRoute?: EventRouteData;
+  initialEvent?: CalendarEvent | null;
 }
 
 export default function EventDetail({
   localeSwitchPaths,
   localizedRoute,
+  initialEvent,
 }: EventDetailProps = {}) {
   const { slug } = useParams<{ slug: string }>();
   const locale = useCurrentLocale();
   const l = useLocalePath();
   const { t } = useTranslation();
-  const { data: event, isLoading, error } = useEventBySlug(slug || '');
+  const { data: event, isLoading, error } = useEventBySlug(slug || initialEvent?.slug || '', initialEvent);
   
   // Fetch related events
   const { data: relatedEvents } = useRelatedEvents(
@@ -434,7 +436,7 @@ export default function EventDetail({
                   Related Events
                 </h2>
                 <Link 
-                  href="/events" 
+                  href={l("/events")}
                   className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
                 >
                   View All
@@ -451,7 +453,7 @@ export default function EventDetail({
                   return (
                     <Link
                       key={relatedEvent.id}
-                      href={`/events/${relatedEvent.slug}`}
+                      href={l(`/events/${relatedEvent.slug}`)}
                       className="group"
                     >
                       <Card className="bg-card border-border overflow-hidden transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-lg group-hover:shadow-primary/5 h-full">

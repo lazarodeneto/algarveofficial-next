@@ -37,6 +37,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { trimWhiteBorders, convertToWebP } from "@/lib/imageUtils";
 import { ImageUrlUploadField } from "@/components/admin/ImageUrlUploadField";
 import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
+import { invalidateListingMutationQueries } from "@/lib/query-invalidation";
 
 interface ImageItem {
   id: string;
@@ -178,8 +179,7 @@ export default function OwnerMedia() {
           .eq("id", selectedListingId);
       }
       
-      queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
-      queryClient.invalidateQueries({ queryKey: ["listings"] });
+      void invalidateListingMutationQueries(queryClient, selectedListingId);
       toast.success(t('owner.media.imagesUploaded', { count: filesToUpload.length }));
     } catch (error) {
       toast.error(t('owner.media.uploadFailed') + ': ' + (error as Error).message);
@@ -223,8 +223,7 @@ export default function OwnerMedia() {
       }
 
       setQuickImageUrl("");
-      queryClient.invalidateQueries({ queryKey: ["owner-listings"] });
-      queryClient.invalidateQueries({ queryKey: ["listings"] });
+      void invalidateListingMutationQueries(queryClient, selectedListingId);
       toast.success(t("owner.media.imageAdded"));
     } catch (error) {
       toast.error(`${t("owner.media.uploadFailed")}: ${(error as Error).message}`);
@@ -264,8 +263,7 @@ export default function OwnerMedia() {
 
       await syncFeaturedImageUrl(images, imageToDelete);
       
-      queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
-      queryClient.invalidateQueries({ queryKey: ["listings"] });
+      void invalidateListingMutationQueries(queryClient, selectedListingId);
       toast.success(t('owner.media.imageDeleted'));
     } catch (error) {
       toast.error(t('owner.media.deleteFailed') + ': ' + (error as Error).message);
@@ -297,8 +295,7 @@ export default function OwnerMedia() {
           .eq("id", selectedListingId);
       }
       
-      queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
-      queryClient.invalidateQueries({ queryKey: ["listings"] });
+      void invalidateListingMutationQueries(queryClient, selectedListingId);
       toast.success(t('owner.media.featuredUpdated'));
     } catch (error) {
       toast.error(t('owner.media.updateFailed') + ': ' + (error as Error).message);

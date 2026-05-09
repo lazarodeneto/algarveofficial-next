@@ -488,7 +488,8 @@ function ListingDetailClientInner({
       return data;
     },
     initialData: initialListing,
-    staleTime: 1000 * 60 * 5,
+    initialDataUpdatedAt: 0,
+    staleTime: 30 * 1000,
   });
 
   useQuery({
@@ -502,14 +503,14 @@ function ListingDetailClientInner({
     queryKey: ["listing-related", listing.id, listing.category_id],
     queryFn: () => fetchRelatedListings(listing),
     initialData: initialRelatedListings,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 60 * 1000,
   });
 
   const { data: waStatus = initialWhatsAppStatus } = useQuery({
     queryKey: ["owner-whatsapp-status", listing.owner_id],
     queryFn: () => fetchOwnerWhatsAppStatus(listing.owner_id),
     initialData: initialWhatsAppStatus,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 60 * 1000,
   });
 
   useEffect(() => {

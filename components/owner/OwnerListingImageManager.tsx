@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { trimWhiteBorders, convertToWebP } from "@/lib/imageUtils";
 import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
+import { invalidateListingMutationQueries } from "@/lib/query-invalidation";
 import { ImageUrlUploadField } from "@/components/admin/ImageUrlUploadField";
 
 interface OwnerListingImageManagerProps {
@@ -60,6 +61,7 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
       return data?.tier ?? "unverified";
     },
     enabled: !!listingId,
+    staleTime: 0,
   });
 
   // Fetch images for this listing
@@ -75,6 +77,7 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
       return (data || []) as ImageRecord[];
     },
     enabled: !!listingId,
+    staleTime: 0,
   });
 
   const maxImages = getListingTierMaxGalleryImages(listingTier);
@@ -164,9 +167,7 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
           .eq("id", listingId);
       }
 
-      queryClient.invalidateQueries({ queryKey: ["owner-listing-images", listingId] });
-      queryClient.invalidateQueries({ queryKey: ["owner-listings"] });
-      queryClient.invalidateQueries({ queryKey: ["listings"] });
+      void invalidateListingMutationQueries(queryClient, listingId);
       toast.success(t("owner.media.imagesUploaded", { count: filesToUpload.length }));
     } catch (error) {
       toast.error(`${t("owner.media.uploadFailed")}: ${(error as Error).message}`);
@@ -209,9 +210,7 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
       }
 
       setQuickImageUrl("");
-      queryClient.invalidateQueries({ queryKey: ["owner-listing-images", listingId] });
-      queryClient.invalidateQueries({ queryKey: ["owner-listings"] });
-      queryClient.invalidateQueries({ queryKey: ["listings"] });
+      void invalidateListingMutationQueries(queryClient, listingId);
       toast.success(t("owner.media.imageAdded"));
     } catch (error) {
       toast.error(`${t("owner.media.uploadFailed")}: ${(error as Error).message}`);
@@ -245,9 +244,7 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
       // Sync featured_image_url on the listings table
       await syncFeaturedImageUrl(images, imageToDelete);
 
-      queryClient.invalidateQueries({ queryKey: ["owner-listing-images", listingId] });
-      queryClient.invalidateQueries({ queryKey: ["owner-listings"] });
-      queryClient.invalidateQueries({ queryKey: ["listings"] });
+      void invalidateListingMutationQueries(queryClient, listingId);
       toast.success(t("owner.media.imageDeleted"));
     } catch (error) {
       toast.error(`${t("owner.media.deleteFailed")}: ${(error as Error).message}`);
@@ -278,9 +275,7 @@ export function OwnerListingImageManager({ listingId }: OwnerListingImageManager
           .eq("id", listingId);
       }
 
-      queryClient.invalidateQueries({ queryKey: ["owner-listing-images", listingId] });
-      queryClient.invalidateQueries({ queryKey: ["owner-listings"] });
-      queryClient.invalidateQueries({ queryKey: ["listings"] });
+      void invalidateListingMutationQueries(queryClient, listingId);
       toast.success(t("owner.media.featuredUpdated"));
     } catch (error) {
       toast.error(`${t("owner.media.updateFailed")}: ${(error as Error).message}`);

@@ -1,5 +1,5 @@
 "use client";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import type { CalendarEvent, EventStatus, EventCategory, EventFormData } from '@/types/events';
@@ -32,6 +32,15 @@ function normalizeEventSlug(value: string | undefined): string {
   if (slugError) throw new Error(slugError);
 
   return slug;
+}
+
+function invalidateEventQueries(queryClient: QueryClient, eventId?: string) {
+  void queryClient.invalidateQueries({ queryKey: ['events'], exact: false });
+  void queryClient.invalidateQueries({ queryKey: ['event'], exact: false });
+  void queryClient.invalidateQueries({ queryKey: ['events-page'], exact: false });
+  if (eventId) {
+    void queryClient.invalidateQueries({ queryKey: ['event', eventId], exact: true });
+  }
 }
 
 async function fetchAdminEvents(filters?: AdminEventsFilters): Promise<CalendarEvent[]> {
@@ -133,6 +142,7 @@ export function usePublishedEvents(category?: EventCategory | 'all', timeFilter:
     },
     enabled: isBrowser,
     placeholderData: [] as CalendarEvent[],
+    staleTime: 60 * 1000,
   });
 }
 
@@ -145,6 +155,7 @@ export function useAdminEvents(filters?: AdminEventsFilters) {
     queryFn: () => fetchAdminEvents(filters),
     enabled: isBrowser,
     initialData: [] as CalendarEvent[],
+    staleTime: 0,
   });
 }
 
@@ -172,6 +183,7 @@ export function useOwnerEvents() {
     },
     enabled: isBrowser && !!user?.id,
     initialData: [] as CalendarEvent[],
+    staleTime: 0,
   });
 }
 
@@ -217,17 +229,19 @@ export function useEvent(id: string | undefined) {
     },
     enabled: isBrowser && !!id,
     initialData: null as CalendarEvent | null,
+    staleTime: 0,
   });
 }
 
 // Fetch single event by slug (for public detail page)
-export function useEventBySlug(slug: string) {
+export function useEventBySlug(slug: string, initialEvent?: CalendarEvent | null) {
   const isBrowser = typeof window !== "undefined";
+  const normalizedSlug = slug || initialEvent?.slug || "";
 
   return useQuery({
-    queryKey: ['event', 'slug', slug],
+    queryKey: ['event', 'slug', normalizedSlug],
     queryFn: async () => {
-      if (!slug) return null;
+      if (!normalizedSlug) return initialEvent ?? null;
       
       const { data, error } = await supabase
         .from('events')
@@ -235,15 +249,16 @@ export function useEventBySlug(slug: string) {
           *,
           city:cities(id, name, slug)
         `)
-        .eq('slug', slug)
+        .eq('slug', normalizedSlug)
         .eq('status', 'published')
         .maybeSingle();
 
       if (error) throw error;
-      return data as CalendarEvent | null;
+      return (data as CalendarEvent | null) ?? initialEvent ?? null;
     },
-    enabled: isBrowser && !!slug,
-    initialData: null as CalendarEvent | null,
+    enabled: isBrowser && !!normalizedSlug,
+    ...(initialEvent ? { initialData: initialEvent, initialDataUpdatedAt: 0 } : {}),
+    staleTime: 30 * 1000,
   });
 }
 
@@ -275,6 +290,7 @@ export function useRelatedEvents(eventId: string | undefined, category: string |
     },
     enabled: isBrowser && !!eventId && (!!category || !!cityId),
     initialData: [] as CalendarEvent[],
+    staleTime: 60 * 1000,
   });
 }
 
@@ -338,8 +354,8 @@ export function useCreateEvent() {
       if (error) throw error;
       return result;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['events'] });
+    onSuccess: (event) => {
+      invalidateEventQueries(queryClient, event?.id);
     },
   });
 }
@@ -378,8 +394,7 @@ export function useUpdateEvent() {
       return result;
     },
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ['events'] });
-      queryClient.invalidateQueries({ queryKey: ['event', id] });
+      invalidateEventQueries(queryClient, id);
     },
   });
 }
@@ -400,8 +415,8 @@ export function useApproveEvent() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['events'] });
+    onSuccess: (_event, id) => {
+      invalidateEventQueries(queryClient, id);
     },
   });
 }
@@ -425,8 +440,8 @@ export function useRejectEvent() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['events'] });
+    onSuccess: (_event, variables) => {
+      invalidateEventQueries(queryClient, variables.id);
     },
   });
 }
@@ -447,8 +462,8 @@ export function useDeleteEvent() {
 
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['events'] });
+    onSuccess: (_event, id) => {
+      invalidateEventQueries(queryClient, id);
     },
   });
 }

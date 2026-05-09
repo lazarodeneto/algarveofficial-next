@@ -52,6 +52,7 @@ export function useRegions(options?: { featuredOnly?: boolean; activeOnly?: bool
     },
     enabled: isBrowser,
     initialData: [] as Region[],
+    staleTime: 10 * 60 * 1000,
   });
 }
 
@@ -77,5 +78,6 @@ export function useCities(options?: { activeOnly?: boolean }) {
     },
     enabled: isBrowser,
     initialData: [],
+    staleTime: 10 * 60 * 1000,
   });
 }

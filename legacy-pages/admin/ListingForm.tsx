@@ -210,7 +210,7 @@ export default function ListingForm() {
     queryKey: ["admin-listing-slug-availability", canonicalSlug, id ?? null],
     queryFn: () => getListingSlugConflict(canonicalSlug, id),
     enabled: !isEditMode && Boolean(canonicalSlug) && !slugValidationError,
-    staleTime: 10_000,
+    staleTime: 0,
   });
   const slugAvailabilityError = slugAvailability.data ?? null;
 
@@ -886,6 +886,7 @@ export default function ListingForm() {
       });
     },
     enabled: isAdmin,
+    staleTime: 0,
   });
 
   if (listingLoading && isEditMode) {

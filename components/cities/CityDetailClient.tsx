@@ -480,9 +480,9 @@ function CityDetailClientInner({
         if (!city?.id) return Promise.resolve([] as CityDetailListing[]);
         return fetchCityListings(city.id, locale);
       },
-      initialData: locale === "en" ? initialListings : undefined,
+      placeholderData: locale === "en" ? initialListings : undefined,
       enabled: Boolean(city?.id),
-      staleTime: 1000 * 60 * 5,
+      staleTime: 60 * 1000,
     });
 
   useQuery({
@@ -499,8 +499,8 @@ function CityDetailClientInner({
   const { data: globalSettings = initialGlobalSettings } = useQuery({
     queryKey: ["global-settings", [...CITY_DETAIL_CMS_KEYS].sort()],
     queryFn: fetchCityGlobalSettings,
-    initialData: initialGlobalSettings,
-    staleTime: 1000 * 60 * 5,
+    placeholderData: initialGlobalSettings,
+    staleTime: 0,
   });
 
   const cms = useCityDetailCmsHelpers(globalSettings);

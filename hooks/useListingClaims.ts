@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { invalidateListingMutationQueries } from '@/lib/query-invalidation';
 
 export interface ListingClaim {
   id: string;
@@ -198,9 +199,9 @@ export function useApproveAndAssignClaim() {
       }
       return result;
     },
-    onSuccess: async (result) => {
+    onSuccess: async (result, variables) => {
       queryClient.invalidateQueries({ queryKey: ['listing-claims'] });
-      queryClient.invalidateQueries({ queryKey: ['admin-listings'] });
+      void invalidateListingMutationQueries(queryClient, variables.listingId);
 
       // Force sign-out the assigned user so their next login picks up the owner role
       if (result.user_id) {

@@ -74,6 +74,7 @@ import { useDeleteListings, useUpdateListingStatus } from "@/hooks/useListingMut
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { filterVisibleListingCategories } from "@/lib/categoryMerges";
+import { invalidateListingMutationQueries } from "@/lib/query-invalidation";
 import { toast } from "sonner";
 
 export default function AdminListings() {
@@ -146,11 +147,8 @@ export default function AdminListings() {
     },
     retry: 2,
     retryDelay: attempt => Math.min(1000 * 2 ** attempt, 5000),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["admin-listings", user?.id],
-        exact: false,
-      });
+    onSuccess: (_data, variables) => {
+      void invalidateListingMutationQueries(queryClient, variables.id);
     },
   });
 
@@ -206,6 +204,7 @@ export default function AdminListings() {
         hasPreviousPage: json.hasPreviousPage ?? false,
       };
     },
+    staleTime: 0,
   });
 
   const listings = listingsResponse?.items ?? [];
@@ -223,6 +222,7 @@ export default function AdminListings() {
       const json = await fetchAdmin("/api/admin/listings?include_ref_data=true");
       return { cities: json.cities ?? [], categories: json.categories ?? [] };
     },
+    staleTime: 0,
   });
 
   const cityOptions = refData?.cities ?? [];
@@ -242,6 +242,7 @@ export default function AdminListings() {
       }
       return data ?? [];
     },
+    staleTime: 0,
   });
 
   // Fallback: fetch categories directly (public table, no auth needed)
@@ -255,6 +256,7 @@ export default function AdminListings() {
       }
       return filterVisibleListingCategories(data ?? []);
     },
+    staleTime: 0,
   });
 
   // Use API data if available, fallback to direct queries
@@ -307,7 +309,11 @@ export default function AdminListings() {
       queryClient.setQueryData(["admin-listings", user?.id], context?.previous);
       toast.error("Reorder failed. Restored previous order.");
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      void invalidateListingMutationQueries(
+        queryClient,
+        variables.map((item) => item.id),
+      );
       toast.success("Featured ranking updated");
     },
   });
@@ -349,9 +355,10 @@ export default function AdminListings() {
     retry: 2,
     retryDelay: attempt => Math.min(1000 * 2 ** attempt, 5000),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-listings", user?.id], exact: false });
-      queryClient.invalidateQueries({ queryKey: ["homepage-data"] });
-      queryClient.invalidateQueries({ queryKey: ["category-listings"] });
+      void invalidateListingMutationQueries(
+        queryClient,
+        featuredListings.map((listing: any) => listing.id),
+      );
       toast.success("Cleared all featured listings");
     },
     onError: () => {
@@ -369,8 +376,6 @@ export default function AdminListings() {
     const newRank = featuredListings.length + 1;
     updateFeaturedRank.mutate({ id: listingId, rank: newRank }, {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["homepage-data"] });
-        queryClient.invalidateQueries({ queryKey: ["category-listings"] });
         toast.success("Pinned to featured");
       },
       onError: (err: any) => {

@@ -181,7 +181,7 @@ export function useRegionListingCounts() {
       }
       return counts;
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 60 * 1000,
   });
 }
 
@@ -212,7 +212,7 @@ export function useCityListingCounts() {
       }
       return counts;
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 60 * 1000,
   });
 }
 
@@ -243,7 +243,7 @@ export function useCategoryListingCounts() {
       }
       return counts;
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 60 * 1000,
   });
 }
 
@@ -275,7 +275,7 @@ export function useCategories() {
       const translations = await fetchCategoryTranslations(locale, categories.map((category) => category.id));
       return mergeCategoryTranslations(categories, translations);
     },
-    staleTime: 1000 * 60 * 10,
+    staleTime: 0,
   });
 }
 
@@ -306,7 +306,7 @@ export function useFeaturedRegions() {
       const translations = await fetchRegionTranslations(locale, regions.map((region) => region.id));
       return mergeRegionTranslations(regions, translations);
     },
-    staleTime: 1000 * 60 * 10,
+    staleTime: 0,
   });
 }
 
@@ -338,7 +338,7 @@ export function useFeaturedCities() {
       const translations = await fetchCityTranslations(locale, cities.map((city) => city.id));
       return mergeCityTranslations(cities, translations);
     },
-    staleTime: 1000 * 60 * 10,
+    staleTime: 0,
   });
 }
 

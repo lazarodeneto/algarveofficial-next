@@ -520,9 +520,9 @@ function DestinationDetailClientInner({
         if (!region?.id) return Promise.resolve([] as DestinationListing[]);
         return fetchRegionListings(region.id, locale);
       },
-      initialData: locale === "en" ? initialListings : undefined,
+      placeholderData: locale === "en" ? initialListings : undefined,
       enabled: Boolean(region?.id),
-      staleTime: 1000 * 60 * 5,
+      staleTime: 60 * 1000,
     });
 
   useQuery({
@@ -540,8 +540,8 @@ function DestinationDetailClientInner({
   const { data: globalSettings = initialGlobalSettings } = useQuery({
     queryKey: ["global-settings", [...DESTINATION_DETAIL_CMS_KEYS].sort()],
     queryFn: fetchDestinationGlobalSettings,
-    initialData: initialGlobalSettings,
-    staleTime: 1000 * 60 * 5,
+    placeholderData: initialGlobalSettings,
+    staleTime: 0,
   });
 
   const { data: allRegions = [] } = useQuery({

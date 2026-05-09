@@ -80,7 +80,7 @@ function HomepagePremiumListingsSection({ copy }: { copy?: HomeSectionCopy }) {
   const { data: homepagePremiumListings = [], isLoading } = useQuery<ListingWithRelations[]>({
     queryKey: homepageListingSplitQueryKey("premium", locale),
     queryFn: async () => [],
-    staleTime: Number.POSITIVE_INFINITY,
+    staleTime: 60 * 1000,
   });
 
   const selectedListings = useMemo(

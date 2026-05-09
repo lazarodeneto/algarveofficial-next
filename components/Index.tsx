@@ -253,12 +253,12 @@ const Index = () => {
   const { data: editorListings = [] } = useQuery<ListingWithRelations[]>({
     queryKey: homepageListingSplitQueryKey("editors", locale),
     queryFn: async () => [],
-    staleTime: Number.POSITIVE_INFINITY,
+    staleTime: 60 * 1000,
   });
   const { data: premiumListings = [] } = useQuery<ListingWithRelations[]>({
     queryKey: homepageListingSplitQueryKey("premium", locale),
     queryFn: async () => [],
-    staleTime: Number.POSITIVE_INFINITY,
+    staleTime: 60 * 1000,
   });
   const homepageListingCount = editorListings.length + premiumListings.length;
 

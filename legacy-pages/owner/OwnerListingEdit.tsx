@@ -26,6 +26,7 @@ import { OwnerListingImageManager } from "@/components/owner/OwnerListingImageMa
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { extractIdParam } from "@/lib/routeParams";
+import { invalidateListingMutationQueries } from "@/lib/query-invalidation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 
 export default function OwnerListingEdit() {
@@ -55,6 +56,7 @@ export default function OwnerListingEdit() {
       return data;
     },
     enabled: !!id,
+    staleTime: 0,
   });
 
   // Form state
@@ -116,8 +118,7 @@ export default function OwnerListingEdit() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['owner-listing', id] });
-      queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
+      void invalidateListingMutationQueries(queryClient, id);
       toast.success("Changes saved as draft");
     },
     onError: (error) => {
@@ -153,8 +154,7 @@ export default function OwnerListingEdit() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['owner-listing', id] });
-      queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
+      void invalidateListingMutationQueries(queryClient, id);
       toast.success("Listing submitted for review");
     },
     onError: (error) => {

@@ -65,6 +65,8 @@ export default function Events() {
     };
     return t(translationKeyMap[category] || category, eventCategoryLabels[category]);
   };
+  const getEventHref = (event: { slug?: string | null }) =>
+    l(event.slug ? `/events/${event.slug}` : "/events");
 
   // Fetch events from database
   const timeFilter = 'upcoming';
@@ -160,8 +162,12 @@ export default function Events() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 * index }}
                 >
-                  <Link href={`/events/${event.slug}`}>
-                    <Card className="h-full overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">
+                  <Link
+                    href={getEventHref(event)}
+                    aria-label={`Open ${event.title}`}
+                    className="block h-full rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    <Card className="h-full cursor-pointer overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">
                       <div className="aspect-video relative overflow-hidden">
                         <img
                           src={event.image ?? eventImageFallback}
@@ -259,8 +265,12 @@ export default function Events() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.05 * index }}
                       >
-                        <Link href={`/events/${event.slug}`}>
-                          <Card className="overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">
+                        <Link
+                          href={getEventHref(event)}
+                          aria-label={`Open ${event.title}`}
+                          className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                        >
+                          <Card className="cursor-pointer overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">
                             <div className="flex flex-col sm:flex-row">
                               <div className="w-full sm:w-24 flex-shrink-0 bg-muted flex flex-row sm:flex-col items-center justify-center gap-1 sm:gap-0 p-3">
                                 <span className="text-2xl font-bold text-primary">
