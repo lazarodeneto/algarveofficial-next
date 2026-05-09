@@ -27,11 +27,17 @@ export function normalizeImportValue(value: unknown): NormalizedJson {
   }
 
   if (typeof value === "object") {
-    return Object.fromEntries(
-      Object.entries(value as Record<string, unknown>)
-        .map(([key, entryValue]) => [key, normalizeImportValue(entryValue)] as const)
-        .filter(([, entryValue]) => entryValue !== null),
-    );
+    const entries: Array<[string, NormalizedJson]> = [];
+    for (const [key, entryValue] of Object.entries(value as Record<string, unknown>)) {
+      if (entryValue === null) {
+        entries.push([key, null]);
+        continue;
+      }
+
+      const normalized = normalizeImportValue(entryValue);
+      if (normalized !== null) entries.push([key, normalized]);
+    }
+    return Object.fromEntries(entries);
   }
 
   return null;

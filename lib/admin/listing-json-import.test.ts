@@ -88,25 +88,45 @@ describe("listing JSON import normalization", () => {
     });
   });
 
-  it("preserves valid URL_slug values and marks known slugs as updates", () => {
+  it("preserves valid URL_slug values for normal listings and marks known slugs as updates", () => {
     const listing = normalizeImportListing(
       {
-        Nome: "Boavista Golf & Spa",
-        URL_slug: "boavista-golf-spa-resort-lagos",
+        Nome: "Boavista Restaurant",
+        URL_slug: "boavista-restaurant-lagos",
         City: "Lagos",
-        category: "golf",
-        golf: { holes: 18, par: 71 },
+        category: "restaurants",
       },
       0,
-      { existingSlugs: new Set(["boavista-golf-spa-resort-lagos"]) },
+      { existingSlugs: new Set(["boavista-restaurant-lagos"]) },
     );
 
-    expect(listing.slug).toBe("boavista-golf-spa-resort-lagos");
+    expect(listing.slug).toBe("boavista-restaurant-lagos");
     expect(listing.estimatedAction).toBe("update");
     expect(listing.errors).toHaveLength(0);
     expect(listing.warnings).not.toEqual(
       expect.arrayContaining([expect.stringContaining("URL_slug normalized")]),
     );
+  });
+
+  it("uses the canonical course-name slug for golf even when source URL_slug has a city suffix", () => {
+    const listing = normalizeImportListing(
+      {
+        Nome: "Ombria Golf Course",
+        URL_slug: "ombria-golf-course-algarve",
+        City: "Almancil",
+        category: "golf",
+        golf: { holes: 18, par: 71 },
+      },
+      0,
+      { existingSlugs: new Set(["ombria-golf-course"]) },
+    );
+
+    expect(listing.slug).toBe("ombria-golf-course");
+    expect(listing.estimatedAction).toBe("update");
+    expect(listing.warnings).toContain(
+      'Golf URL_slug "ombria-golf-course-algarve" will use canonical course-name slug "ombria-golf-course".',
+    );
+    expect(listing.errors).toHaveLength(0);
   });
 
   it("generates a slug from the name when URL_slug is missing", () => {
@@ -129,18 +149,17 @@ describe("listing JSON import normalization", () => {
   it("normalizes non-canonical URL_slug punctuation without inventing random suffixes", () => {
     const listing = normalizeImportListing(
       {
-        Nome: "Boavista Golf & Spa",
-        URL_slug: " Boavista Golf & Spa Resort Lagos ",
+        Nome: "Boavista Restaurant",
+        URL_slug: " Boavista Restaurant Lagos ",
         City: "Lagos",
-        category: "golf",
-        golf: { holes: 18, par: 71 },
+        category: "restaurants",
       },
       0,
     );
 
-    expect(listing.slug).toBe("boavista-golf-spa-resort-lagos");
+    expect(listing.slug).toBe("boavista-restaurant-lagos");
     expect(listing.warnings).toContain(
-      'URL_slug normalized from "Boavista Golf & Spa Resort Lagos" to "boavista-golf-spa-resort-lagos".',
+      'URL_slug normalized from "Boavista Restaurant Lagos" to "boavista-restaurant-lagos".',
     );
     expect(listing.errors).toHaveLength(0);
   });
@@ -328,6 +347,131 @@ describe("listing JSON import normalization", () => {
     );
 
     expect(listing.errors).toContain("scorecard has duplicate hole number 1.");
+  });
+
+  it("keeps rich golf listing metadata and maps distance-array scorecards", () => {
+    const listing = normalizeImportListing(
+      {
+        Nome: "Ombria Golf Course",
+        URL_slug: "ombria-golf-course-algarve",
+        City: "Almancil",
+        category: "golf",
+        contact: {
+          phone: "+351 937 370 945",
+          email: "golfombria@ombria.com",
+          website: "https://www.ombria.com/en/golf/golf-course/",
+        },
+        socials: {
+          instagram: "https://www.instagram.com/ombriaalgarve/",
+          facebook: "https://www.facebook.com/ombriaalgarve/",
+          linkedin: "https://www.linkedin.com/company/ombria-algarve/",
+          youtube: "https://www.youtube.com/@ombriaalgarve",
+          x_twitter: "https://x.com/ombriaresort",
+        },
+        business_details: {
+          google_business_url: "https://maps.example/ombria",
+          services: ["tee time booking"],
+          amenities: ["putting green"],
+        },
+        content: {
+          short_description: "Short Ombria copy.",
+          full_description: "Full Ombria copy.",
+        },
+        category_data: {
+          vertical: "golf",
+          holes_count: 18,
+          par: 71,
+          slope_rating: 132,
+          booking_url: "https://ombria.golfmanager.com/",
+          scorecard_url: "https://example.com/scorecard.pdf",
+          course_map_url: "https://example.com/course-map",
+          official_sources: ["https://www.ombria.com/en/golf/golf-course/"],
+        },
+        golf: {
+          holes: 18,
+          par: 71,
+          length_meters: 5802,
+          designer: "Jorge Santana da Silva",
+          year_opened: 2023,
+        },
+        scorecard: [
+          { hole: 1, par: 5, hcp: 5, distances_meters: [428, 418, 406, 321] },
+          { hole: 2, par: 4, hcp_10_27: 6, distances_meters: [345, 314, 291, 275] },
+        ],
+      },
+      0,
+    );
+
+    expect(listing.slug).toBe("ombria-golf-course");
+    expect(listing.base.phone).toBe("+351 937 370 945");
+    expect(listing.base.websiteUrl).toBe("https://www.ombria.com/en/golf/golf-course/");
+    expect(listing.base.instagramUrl).toBe("https://www.instagram.com/ombriaalgarve/");
+    expect(listing.base.googleBusinessUrl).toBe("https://maps.example/ombria");
+    expect(listing.base.shortDescription).toBe("Short Ombria copy.");
+    expect(listing.base.description).toBe("Full Ombria copy.");
+    expect(listing.categoryDataPatch.business_details).toMatchObject({
+      services: ["tee time booking"],
+      amenities: ["putting green"],
+    });
+    expect(listing.categoryDataPatch.booking_url).toBe("https://ombria.golfmanager.com/");
+    expect(listing.categoryDataPatch.scorecard_pdf_url).toBe("https://example.com/scorecard.pdf");
+    expect(listing.categoryDataPatch.official_sources).toEqual([
+      "https://www.ombria.com/en/golf/golf-course/",
+    ]);
+    expect(listing.golfHoles[0]).toMatchObject({
+      hole_number: 1,
+      par: 5,
+      stroke_index: 5,
+      distance_white: 428,
+      distance_yellow: 418,
+      distance_red: 321,
+    });
+    expect(listing.golfHoles[1]).toMatchObject({
+      hole_number: 2,
+      par: 4,
+      stroke_index: 6,
+      distance_white: 345,
+      distance_yellow: 314,
+      distance_red: 275,
+    });
+  });
+
+  it("preserves explicit null social and Google fields so imports can clear stale values", () => {
+    const listing = normalizeImportListing(
+      {
+        Nome: "Vale da Pinta Golf Course",
+        URL_slug: "vale-da-pinta-golf-course",
+        City: "Carvoeiro",
+        category: "golf",
+        socials: {
+          instagram: null,
+          facebook: "https://www.facebook.com/PestanaGolf",
+          linkedin: null,
+          x_twitter: null,
+        },
+        business_details: {
+          google_business_url: null,
+          google_rating: null,
+          google_review_count: null,
+        },
+        location: {
+          latitude: null,
+          longitude: null,
+        },
+        golf: { holes: 18, par: 71 },
+      },
+      0,
+    );
+
+    expect(listing.base.instagramUrl).toBeNull();
+    expect(listing.base.facebookUrl).toBe("https://www.facebook.com/PestanaGolf");
+    expect(listing.base.linkedinUrl).toBeNull();
+    expect(listing.base.twitterUrl).toBeNull();
+    expect(listing.base.googleBusinessUrl).toBeNull();
+    expect(listing.base.googleRating).toBeNull();
+    expect(listing.base.googleReviewCount).toBeNull();
+    expect(listing.base.latitude).toBeNull();
+    expect(listing.base.longitude).toBeNull();
   });
 
   it("normalizes property aliases, booleans, types, and listing price fields", () => {

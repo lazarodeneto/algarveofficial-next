@@ -35,6 +35,7 @@ const AdminSubscriptions = withAdminLoading(
   () => import("@/legacy-pages/admin/AdminSubscriptions"),
 );
 const AdminUsers = withAdminLoading(() => import("@/legacy-pages/admin/AdminUsers"));
+const AdminUrlHealth = withAdminLoading(() => import("@/legacy-pages/admin/AdminUrlHealth"));
 const ListingForm = withAdminLoading(() => import("@/legacy-pages/admin/ListingForm"));
 const AdminBlog = withAdminLoading(() => import("@/legacy-pages/admin/blog/AdminBlog"));
 const AdminBlogComments = withAdminLoading(
@@ -139,6 +140,7 @@ const staticRouteMap: Record<string, ComponentType> = {
   cities: AdminCities,
   categories: AdminCategories,
   users: AdminUsers,
+  "url-health": AdminUrlHealth,
   messages: AdminMessages,
   crm: AdminOwnerCRM,
   settings: AdminGlobalSettings,

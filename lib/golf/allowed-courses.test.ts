@@ -15,12 +15,12 @@ const EXPECTED_APPROVED_SLUGS = [
   "alamos-golf-course",
   "gramacho-golf-course",
   "vale-da-pinta-golf-course",
-  "amendoeira-oconnor-jnr",
+  "amendoeira-oconnor-jnr-course",
   "amendoeira-faldo-course",
   "silves-golf-course",
   "salgados-golf-course",
   "pine-cliffs-golf-course",
-  "laguna-golf-course",
+  "laguna-golf-course-vilamoura",
   "millennium-golf-course",
   "pinhal-golf-course",
   "old-course-vilamoura",
@@ -28,7 +28,7 @@ const EXPECTED_APPROVED_SLUGS = [
   "vila-sol-golf-course",
   "vale-de-lobo-golf-club",
   "san-lorenzo-golf-course",
-  "quinta-do-lago-ns",
+  "quinta-do-lago-north-course",
   "quinta-do-lago-south-course",
   "quinta-do-lago-laranjal-course",
   "ombria-golf-course",
@@ -56,6 +56,7 @@ describe("approved Algarve golf course allowlist", () => {
     expect(isApprovedGolfCourse({ slug: "boavista-golf-spa-resort-quinta-do-lago" })).toBe(true);
     expect(isApprovedGolfCourse({ slug: "boavista-golf-spa-resort", name: "Boavista Golf & Spa Resort" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Espiche Golf S.a." })).toBe(true);
+    expect(isApprovedGolfCourse({ name: "Pestana Alto Golf" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Álamos Golf Course" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Amendoeira O’Connor Jnr." })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Amendoeira OConnor Jnr" })).toBe(true);
@@ -63,6 +64,7 @@ describe("approved Algarve golf course allowlist", () => {
     expect(isApprovedGolfCourse({ name: "Quinta do Lago North & South Golf Courses" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Quinta do Lago N&s Golf Courses" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Quinta do Lago North Course" })).toBe(true);
+    expect(isApprovedGolfCourse({ slug: "quinta-do-lago-ns" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Old Course - Golf in Vilamoura, Portugal" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "The Old Course Vilamoura" })).toBe(true);
     expect(isApprovedGolfCourse({ name: "Laguna Golf Course Vilamoura" })).toBe(true);

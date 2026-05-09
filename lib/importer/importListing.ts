@@ -44,9 +44,11 @@ type LooseSupabaseQuery = PromiseLike<LooseSupabaseResult> & LooseSupabaseResult
 };
 export type ImporterSupabaseClient = {
   from: (table: string) => LooseSupabaseQuery;
+  rpc?: (fn: string, args?: Record<string, unknown>) => PromiseLike<LooseSupabaseResult>;
 };
 
 const DEFAULT_IMPORT_OWNER_ID = "280be9b4-c0fe-48f3-b371-f490d8cccfd5";
+const MAX_COURSE_HOLES = 54;
 
 type ImportReferenceData = {
   categoryBySlug: Map<string, string>;
@@ -77,6 +79,15 @@ function asBooleanOrFalse(value: unknown): boolean {
 
 function asStringOrNull(value: unknown): string | null {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
+}
+
+function isMissingCourseIdColumn(error: LooseSupabaseError | null | undefined) {
+  return Boolean(
+    error &&
+      (error.code === "42703" ||
+        error.code === "PGRST204" ||
+        /course_id/i.test(error.message)),
+  );
 }
 
 function normalizeStableText(value: unknown): string {
@@ -438,10 +449,10 @@ async function persistGolfData(
 ): Promise<{ children: number; warnings: string[]; error?: string }> {
   if (listing.vertical !== "golf") return { children: 0, warnings: [] };
   const holesCount = Number(listing.categoryDataPatch.holes);
-  if (!Number.isInteger(holesCount) || holesCount < 1 || holesCount > 18) {
+  if (!Number.isInteger(holesCount) || holesCount < 1 || holesCount > MAX_COURSE_HOLES) {
     return {
       children: 0,
-      warnings: ["Golf table scorecard persistence supports 1-18 holes in the current schema; full data was preserved in category_data."],
+      warnings: [`Golf table scorecard persistence supports 1-${MAX_COURSE_HOLES} holes in the current schema; full data was preserved in category_data.`],
     };
   }
   const coursePayload = buildGolfCoursePersistencePayload(listingId, listing);
@@ -478,7 +489,12 @@ async function persistGolfData(
   if (listing.golfHoles.length === 0) return { children: 0, warnings: [] };
 
   const deleted = await writeClient.from("golf_holes").delete().eq("course_id", courseId);
-  if (deleted.error && deleted.error.code !== "42P01" && deleted.error.code !== "42703" && deleted.error.code !== "PGRST205") {
+  if (
+    deleted.error &&
+    deleted.error.code !== "42P01" &&
+    deleted.error.code !== "PGRST205" &&
+    !isMissingCourseIdColumn(deleted.error)
+  ) {
     return { children: 0, warnings: [], error: deleted.error.message };
   }
 
@@ -494,7 +510,21 @@ async function persistGolfData(
   }));
 
   const inserted = await writeClient.from("golf_holes").insert(rows);
-  if (inserted.error) return { children: 0, warnings: [], error: inserted.error.message };
+  if (inserted.error) {
+    if (!isMissingCourseIdColumn(inserted.error)) {
+      return { children: 0, warnings: [], error: inserted.error.message };
+    }
+
+    const legacyRows = rows.map(({ course_id: _courseId, ...row }) => row);
+    const legacyDeleted = await writeClient.from("golf_holes").delete().eq("listing_id", listingId);
+    if (legacyDeleted.error && legacyDeleted.error.code !== "42P01" && legacyDeleted.error.code !== "PGRST205") {
+      return { children: 0, warnings: [], error: legacyDeleted.error.message };
+    }
+    const legacyInserted = await writeClient.from("golf_holes").insert(legacyRows);
+    if (legacyInserted.error) {
+      return { children: 0, warnings: [], error: legacyInserted.error.message };
+    }
+  }
 
   return { children: rows.length, warnings: [] };
 }
@@ -625,9 +655,10 @@ export async function importListing(
   const existing = existingResolution.existing ?? {};
   const regionId = row.base.regionName ? refs.regionByNameOrSlug.get(row.base.regionName.trim().toLowerCase()) : undefined;
   const categoryData = mergeCategoryData(existing.category_data, row.categoryDataPatch, type);
+  const shouldUpdateSlug = Boolean(existing.id && existing.slug && existing.slug !== row.base.slug);
   const basePayload = {
     name: row.base.name,
-    slug: row.base.slug,
+    slug: shouldUpdateSlug ? undefined : row.base.slug,
     category_id: categoryId,
     city_id: cityId,
     region_id: regionId,
@@ -644,6 +675,15 @@ export async function importListing(
     category_data: categoryData as Json,
     meta_title: row.base.metaTitle,
     meta_description: row.base.metaDescription,
+    instagram_url: row.base.instagramUrl,
+    facebook_url: row.base.facebookUrl,
+    linkedin_url: row.base.linkedinUrl,
+    twitter_url: row.base.twitterUrl,
+    youtube_url: row.base.youtubeUrl,
+    tiktok_url: row.base.tiktokUrl,
+    google_business_url: row.base.googleBusinessUrl,
+    google_rating: row.base.googleRating,
+    google_review_count: row.base.googleReviewCount,
     price_from: row.listingPrice?.priceFrom,
     price_currency: row.listingPrice?.currency,
   } satisfies Partial<Database["public"]["Tables"]["listings"]["Insert"]>;
@@ -682,6 +722,49 @@ export async function importListing(
   }
 
   const listingId = asRecord(writeResult.data).id as string;
+
+  if (shouldUpdateSlug) {
+    const slugRpc = options.writeClient.rpc
+      ? await options.writeClient.rpc("update_listing_canonical_slug", {
+          p_listing_id: listingId,
+          p_new_slug: row.base.slug,
+        })
+      : null;
+
+    const rpcMissing = slugRpc?.error?.code === "PGRST202" || slugRpc?.error?.code === "42883";
+    if (slugRpc?.error && !rpcMissing) {
+      return {
+        ok: false,
+        type,
+        listingId,
+        preview: row,
+        normalized: row,
+        warnings: [...row.warnings, ...existingResolution.warnings],
+        errors: [{ path: "URL_slug", message: slugRpc.error.message }],
+        changed: { listing: existing.id ? "updated" : "inserted", vertical: "skipped", children: 0 },
+      };
+    }
+
+    if (!options.writeClient.rpc || rpcMissing) {
+      const directSlugUpdate = await options.writeClient
+        .from("listings")
+        .update({ slug: row.base.slug } as Database["public"]["Tables"]["listings"]["Update"])
+        .eq("id", listingId);
+      if (directSlugUpdate.error) {
+        return {
+          ok: false,
+          type,
+          listingId,
+          preview: row,
+          normalized: row,
+          warnings: [...row.warnings, ...existingResolution.warnings],
+          errors: [{ path: "URL_slug", message: directSlugUpdate.error.message }],
+          changed: { listing: existing.id ? "updated" : "inserted", vertical: "skipped", children: 0 },
+        };
+      }
+    }
+  }
+
   await cleanupStaleVerticalRows(options.writeClient, listingId, type);
 
   let children = 0;

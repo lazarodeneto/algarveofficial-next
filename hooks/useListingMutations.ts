@@ -39,6 +39,16 @@ export interface UpdateListingVariables extends CreateListingVariables {
   id: string;
 }
 
+export interface UpdateListingSlugVariables {
+  id: string;
+  slug: string;
+}
+
+export interface UpdateListingSlugResult {
+  old_slug: string | null;
+  new_slug: string;
+}
+
 interface UpdateListingStatusVariables {
   id: string;
   status: ListingStatus;
@@ -211,6 +221,33 @@ export function useUpdateListing() {
     onSuccess: () => {
       invalidateAdminListingQueries(queryClient);
       toast.success("Listing updated.");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+}
+
+export function useUpdateListingSlug() {
+  const queryClient = useQueryClient();
+
+  return useMutation<UpdateListingSlugResult, Error, UpdateListingSlugVariables>({
+    mutationFn: async ({ id, slug }) => {
+      return adminApiRequest<UpdateListingSlugResult>(
+        `/api/admin/listings/${encodeURIComponent(id)}/slug`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ slug }),
+        },
+      );
+    },
+    onSuccess: () => {
+      invalidateAdminListingQueries(queryClient);
+      void queryClient.invalidateQueries({
+        queryKey: ["admin-url-health"],
+        exact: false,
+      });
+      toast.success("Listing URL updated and redirect created.");
     },
     onError: (error) => {
       toast.error(error.message);

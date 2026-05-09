@@ -58,6 +58,7 @@ function createImporterReferenceClient(options: {
 } = {}) {
   const insertedListings: Array<Record<string, unknown>> = [];
   const updatedListings: Array<{ id: string; payload: Record<string, unknown> }> = [];
+  const rpcCalls: Array<{ fn: string; args?: Record<string, unknown> }> = [];
   const listings = [...(options.listings ?? [])];
   const slugAliases = [...(options.slugAliases ?? [])];
 
@@ -75,6 +76,10 @@ function createImporterReferenceClient(options: {
   };
 
   const client = {
+    rpc: async (fn: string, args?: Record<string, unknown>) => {
+      rpcCalls.push({ fn, args });
+      return { data: [{ old_slug: "old-imported-accommodation", new_slug: args?.p_new_slug }], error: null };
+    },
     from(table: string) {
       if (table === "categories") {
         return {
@@ -192,7 +197,7 @@ function createImporterReferenceClient(options: {
     },
   } as unknown as ImporterSupabaseClient;
 
-  return { client, insertedListings, updatedListings };
+  return { client, insertedListings, updatedListings, rpcCalls };
 }
 
 describe("unified listing importer", () => {
@@ -381,6 +386,51 @@ describe("unified listing importer", () => {
     });
   });
 
+  it("keeps 27-hole golf imports and uses the canonical course-name slug", async () => {
+    const scorecard = Array.from({ length: 27 }, (_, index) => ({
+      hole: index + 1,
+      par: index % 3 === 0 ? 5 : index % 3 === 1 ? 4 : 3,
+      hcp: (index % 18) + 1,
+      distances_meters: [450 - index, 420 - index, 390 - index, 310 - index],
+    }));
+    const result = await importListing({
+      Nome: "Palmares Ocean Living & Golf",
+      URL_slug: "palmares-ocean-living-golf-lagos",
+      City: "Lagos",
+      category: "golf",
+      golf: {
+        holes: 27,
+        par: 72,
+        length_meters: 6516,
+        designer: "Robert Trent Jones Jr.",
+        year_opened: 2011,
+      },
+      scorecard,
+    }, { dryRun: true, existingSlugs: new Set(["palmares-ocean-living-golf"]) });
+
+    expect(result.ok).toBe(true);
+    expect(result.preview.slug).toBe("palmares-ocean-living-golf");
+    expect(result.preview.holes).toBe(27);
+    expect(result.changed.children).toBe(27);
+    expect(result.normalized?.golfHoles).toHaveLength(27);
+    expect(result.normalized?.categoryDataPatch.scorecard).toHaveLength(27);
+    expect(result.warnings).toContain(
+      'Golf URL_slug "palmares-ocean-living-golf-lagos" will use canonical course-name slug "palmares-ocean-living-golf".',
+    );
+
+    const payload = buildGolfCoursePersistencePayload("listing-id", result.normalized!);
+    expect(payload).toMatchObject({
+      listing_id: "listing-id",
+      name: "Palmares Ocean Living & Golf",
+      holes_count: 27,
+      holes: 27,
+      par: 72,
+      length_meters: 6516,
+      designer: "Robert Trent Jones Jr.",
+      year_opened: 2011,
+    });
+  });
+
   it.each([
     [{ last_renovation: undefined }, null],
     [{ last_renovation: null }, null],
@@ -505,7 +555,7 @@ describe("unified listing importer", () => {
   });
 
   it("updates an existing listing when URL_slug matches a stable name and city", async () => {
-    const { client, updatedListings } = createImporterReferenceClient({
+    const { client, updatedListings, rpcCalls } = createImporterReferenceClient({
       listings: [{
         id: "listing-existing",
         slug: "imported-accommodation",
@@ -538,8 +588,50 @@ describe("unified listing importer", () => {
     ]);
   });
 
-  it("updates an existing listing by stable listing id even when the slug changes", async () => {
+  it("keeps explicit null URL fields through import writes so stale links can be cleared", async () => {
     const { client, updatedListings } = createImporterReferenceClient({
+      listings: [{
+        id: "listing-existing",
+        slug: "imported-accommodation",
+        name: "Imported Accommodation",
+        city_id: "city-lagos",
+      }],
+    });
+
+    const result = await importListing({
+      Nome: "Imported Accommodation",
+      URL_slug: "imported-accommodation",
+      City: "Lagos",
+      category: "accommodation",
+      socials: {
+        instagram: null,
+        facebook: "https://www.facebook.com/imported",
+      },
+      business_details: {
+        google_business_url: null,
+        google_rating: null,
+        google_review_count: null,
+      },
+      location: {
+        latitude: null,
+        longitude: null,
+      },
+    }, { writeClient: client });
+
+    expect(result.ok).toBe(true);
+    expect(updatedListings[0]?.payload).toMatchObject({
+      instagram_url: null,
+      facebook_url: "https://www.facebook.com/imported",
+      google_business_url: null,
+      google_rating: null,
+      google_review_count: null,
+      latitude: null,
+      longitude: null,
+    });
+  });
+
+  it("updates an existing listing by stable listing id even when the slug changes", async () => {
+    const { client, updatedListings, rpcCalls } = createImporterReferenceClient({
       listings: [{
         id: "listing-stable",
         slug: "old-imported-accommodation",
@@ -561,9 +653,14 @@ describe("unified listing importer", () => {
     expect(result.warnings).toContain(
       'Existing listing "old-imported-accommodation" will be updated to canonical slug "imported-accommodation".',
     );
-    expect(updatedListings[0]).toMatchObject({
-      id: "listing-stable",
-      payload: expect.objectContaining({ slug: "imported-accommodation" }),
+    expect(updatedListings[0]?.id).toBe("listing-stable");
+    expect(updatedListings[0]?.payload).not.toHaveProperty("slug");
+    expect(rpcCalls).toContainEqual({
+      fn: "update_listing_canonical_slug",
+      args: {
+        p_listing_id: "listing-stable",
+        p_new_slug: "imported-accommodation",
+      },
     });
   });
 

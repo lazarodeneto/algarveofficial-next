@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import type { ImportPreviewRow } from "@/lib/admin/listing-json-import";
+import {
+  normalizeImportCategoryForRow,
+  resolveImportGolfObject,
+  type ImportPreviewRow,
+} from "@/lib/admin/listing-json-import";
 import { importListing, type ImporterSupabaseClient } from "@/lib/importer/importListing";
 import { normalizeImportObject } from "@/lib/importer/normalize";
 import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
@@ -45,14 +49,28 @@ function getImportItems(value: unknown): unknown[] | null {
   return null;
 }
 
-function getCandidateSlug(item: unknown) {
+function getCandidateSlugs(item: unknown, fallbackCategory?: string) {
   const row = normalizeImportObject(item);
   const name = typeof row.Nome === "string" ? row.Nome : typeof row.name === "string" ? row.name : "";
   const rawSlug = typeof row.URL_slug === "string" ? row.URL_slug : typeof row.slug === "string" ? row.slug : "";
+  const nameSlug = name ? slugifyEntityName(name, { entityType: "listing" }) : "";
+  const slugs: string[] = [];
+
   if (rawSlug && !getDisallowedSlugInputError(rawSlug)) {
-    return normalizeSlug(rawSlug, { entityType: "listing" });
+    slugs.push(normalizeSlug(rawSlug, { entityType: "listing" }));
   }
-  return name ? slugifyEntityName(name, { entityType: "listing" }) : "";
+
+  const golfRaw = resolveImportGolfObject(row);
+  const categorySlug = Object.keys(golfRaw).length > 0
+    ? "golf"
+    : normalizeImportCategoryForRow(row, fallbackCategory);
+  if (categorySlug === "golf" && nameSlug) {
+    slugs.push(nameSlug);
+  } else if (slugs.length === 0 && nameSlug) {
+    slugs.push(nameSlug);
+  }
+
+  return Array.from(new Set(slugs.filter(Boolean)));
 }
 
 export async function POST(request: NextRequest) {
@@ -77,7 +95,7 @@ export async function POST(request: NextRequest) {
 
   const fallbackCategory = typeof body.category_slug === "string" ? body.category_slug : undefined;
   const dryRun = body.dry_run === true;
-  const candidateSlugs = items.map(getCandidateSlug).filter((slug): slug is string => Boolean(slug));
+  const candidateSlugs = Array.from(new Set(items.flatMap((item) => getCandidateSlugs(item, fallbackCategory))));
   const [existingListings, existingAliases] = candidateSlugs.length > 0
     ? await Promise.all([
         auth.writeClient.from("listings").select("slug").in("slug", candidateSlugs),

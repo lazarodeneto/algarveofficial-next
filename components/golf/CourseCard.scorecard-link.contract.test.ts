@@ -14,6 +14,14 @@ describe("golf course card scorecard link", () => {
     expect(source).toContain("ClipboardList");
   });
 
+  it("makes the course card clickable while keeping scorecard as a separate target", () => {
+    const source = readFileSync(join(REPO_ROOT, "components", "golf", "CourseCard.tsx"), "utf8");
+
+    expect(source).toContain('className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none"');
+    expect(source).toContain('className="pointer-events-none relative z-10 flex h-full flex-col"');
+    expect(source).toContain('"pointer-events-auto min-h-12 w-full');
+  });
+
   it("uses the shared listing favorite control", () => {
     const source = readFileSync(join(REPO_ROOT, "components", "golf", "CourseCard.tsx"), "utf8");
 

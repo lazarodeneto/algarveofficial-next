@@ -70,6 +70,8 @@ export interface GolfListing {
     facebook: string | null;
     linkedin: string | null;
     twitter: string | null;
+    youtube: string | null;
+    tiktok: string | null;
   };
   googleRating: number | null;
   googleReviewCount: number | null;
@@ -116,6 +118,8 @@ const GOLF_LISTING_FIELDS = `
   facebook_url,
   linkedin_url,
   twitter_url,
+  youtube_url,
+  tiktok_url,
   google_rating,
   google_review_count,
   category_data,
@@ -575,6 +579,8 @@ function mapGolfListing(
       facebook: toNullableString(row.facebook_url),
       linkedin: toNullableString(row.linkedin_url),
       twitter: toNullableString(row.twitter_url),
+      youtube: toNullableString(row.youtube_url),
+      tiktok: toNullableString(row.tiktok_url),
     },
     googleRating: toNullableNumber(row.google_rating),
     googleReviewCount: toInteger(row.google_review_count),

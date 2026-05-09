@@ -86,7 +86,7 @@ export function BasicsStep({
             URL Slug <span className="text-destructive">*</span>
             {!isAdmin && (
               <span className="text-xs text-muted-foreground ml-2">
-                (auto-generated)
+                {isEditMode ? "(managed through URL action)" : "(auto-generated)"}
               </span>
             )}
           </Label>
@@ -95,14 +95,16 @@ export function BasicsStep({
             value={data.slug}
             onChange={(e) => handleSlugChange(e.target.value)}
             placeholder="villa-azure-ocean"
-            disabled={!isAdmin}
+            disabled={!isAdmin || isEditMode}
             className={errors.slug ? "border-destructive" : ""}
           />
           {errors.slug && (
             <p className="text-xs text-destructive">{errors.slug}</p>
           )}
           <p className="text-xs text-muted-foreground">
-            algarveofficial.com/listing/{data.slug ?? "your-slug"}
+            {isEditMode
+              ? "Use the canonical URL panel to change this slug and preserve redirects."
+              : `algarveofficial.com/listing/${data.slug ?? "your-slug"}`}
           </p>
         </div>
 

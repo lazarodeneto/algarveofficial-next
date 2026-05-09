@@ -9,9 +9,11 @@ import {
   Instagram,
   Linkedin,
   Mail,
+  Music,
   MapPin,
   Phone,
   Twitter,
+  Youtube,
 } from "lucide-react";
 
 import { DEFAULT_LOCALE, isValidLocale, type Locale } from "@/lib/i18n/config";
@@ -250,6 +252,20 @@ export default async function GolfCourseDetailPage({ params }: PageProps) {
       label: "X",
       href: externalHref(course.socialLinks.twitter),
       Icon: Twitter,
+      className:
+        "border-slate-950/25 bg-slate-950/5 text-slate-950 hover:border-slate-950/40 hover:bg-slate-950/10",
+    },
+    {
+      label: "YouTube",
+      href: externalHref(course.socialLinks.youtube),
+      Icon: Youtube,
+      className:
+        "border-[#FF0000]/30 bg-[#FF0000]/10 text-[#FF0000] hover:border-[#FF0000]/45 hover:bg-[#FF0000]/15",
+    },
+    {
+      label: "TikTok",
+      href: externalHref(course.socialLinks.tiktok),
+      Icon: Music,
       className:
         "border-slate-950/25 bg-slate-950/5 text-slate-950 hover:border-slate-950/40 hover:bg-slate-950/10",
     },

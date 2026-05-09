@@ -38,17 +38,26 @@ export type NormalizedImportListing = ImportPreviewRow & {
     description?: string;
     shortDescription?: string;
     websiteUrl?: string;
-    featuredImageUrl?: string;
+    featuredImageUrl?: string | null;
     phone?: string;
     email?: string;
     address?: string;
-    latitude?: number;
-    longitude?: number;
+    latitude?: number | null;
+    longitude?: number | null;
     metaTitle?: string;
     metaDescription?: string;
     tier?: "unverified" | "verified" | "signature";
     tags?: string[];
     photos?: string[];
+    instagramUrl?: string | null;
+    facebookUrl?: string | null;
+    linkedinUrl?: string | null;
+    twitterUrl?: string | null;
+    youtubeUrl?: string | null;
+    tiktokUrl?: string | null;
+    googleBusinessUrl?: string | null;
+    googleRating?: number | null;
+    googleReviewCount?: number | null;
   };
   listingPrice?: {
     priceFrom?: number;
@@ -328,6 +337,30 @@ function asString(value: unknown): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
+function hasOwn(record: Record<string, unknown>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(record, key);
+}
+
+function nullableString(record: Record<string, unknown>, key: string): string | null | undefined {
+  if (!hasOwn(record, key)) return undefined;
+  if (record[key] === null) return null;
+  return asString(record[key]);
+}
+
+function firstNullableString(...values: Array<string | null | undefined>): string | null | undefined {
+  return values.find((value) => value !== undefined);
+}
+
+function nullableNumber(record: Record<string, unknown>, key: string): number | null | undefined {
+  if (!hasOwn(record, key)) return undefined;
+  if (record[key] === null) return null;
+  return toNumber(record[key]);
+}
+
+function firstNullableNumber(...values: Array<number | null | undefined>): number | null | undefined {
+  return values.find((value) => value !== undefined);
+}
+
 function toNumber(value: unknown): number | undefined {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   if (typeof value === "string" && value.trim().length > 0) {
@@ -335,6 +368,13 @@ function toNumber(value: unknown): number | undefined {
     if (Number.isFinite(parsed)) return parsed;
   }
   return undefined;
+}
+
+function readNumericArray(value: unknown): number[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => toNumber(item))
+    .filter((item): item is number => item !== undefined);
 }
 
 function normalizeOptionalNumber(value: unknown): { ok: true; value: number | null } | { ok: false } {
@@ -416,6 +456,10 @@ function toJsonRecord(record: Record<string, unknown>): Record<string, Json> {
   return Object.fromEntries(
     Object.entries(record).filter(([, value]) => value !== undefined),
   ) as Record<string, Json>;
+}
+
+function assignJson(target: Record<string, Json>, key: string, value: unknown) {
+  if (value !== undefined) target[key] = value as Json;
 }
 
 function normalizeOptionalNumericRecord(
@@ -608,18 +652,22 @@ function normalizeGolfHoles(
       warnings.push(`Golf hole ${holeNumber} has an invalid par and was ignored.`);
       continue;
     }
-    const strokeIndex = toNumber(hole.hcp ?? hole.stroke_index);
+    const strokeIndex = toNumber(hole.hcp ?? hole.stroke_index ?? hole.hcp_10_27 ?? hole.hcp_19_9);
     if (strokeIndex !== undefined && (strokeIndex < 1 || strokeIndex > Math.max(declaredHoles ?? 18, 18))) {
       warnings.push(`Golf hole ${holeNumber} has an unusual stroke_index.`);
     }
+    const distances = readNumericArray(hole.distances_meters);
+    const firstDistance = distances[0];
+    const secondDistance = distances[1];
+    const finalDistance = distances.length > 0 ? distances[distances.length - 1] : undefined;
     seen.add(holeNumber);
     holes.push({
       hole_number: holeNumber,
       par,
       stroke_index: strokeIndex && Number.isInteger(strokeIndex) ? strokeIndex : null,
-      distance_white: toNumber(hole.white ?? hole.distance_white ?? hole.meters) ?? null,
-      distance_yellow: toNumber(hole.yellow ?? hole.distance_yellow ?? hole.meters) ?? null,
-      distance_red: toNumber(hole.red ?? hole.distance_red) ?? null,
+      distance_white: toNumber(hole.white ?? hole.distance_white ?? hole.meters) ?? firstDistance ?? null,
+      distance_yellow: toNumber(hole.yellow ?? hole.distance_yellow ?? hole.meters) ?? secondDistance ?? firstDistance ?? null,
+      distance_red: toNumber(hole.red ?? hole.distance_red) ?? finalDistance ?? null,
       description: asString(hole.description),
     });
   }
@@ -648,19 +696,25 @@ export function normalizeImportListing(
   const name = asString(row.Nome ?? row.Name ?? row.name) ?? "";
   const explicitSlug = asString(row.URL_slug ?? row.slug ?? row.Slug);
   const explicitSlugInputError = explicitSlug ? getDisallowedSlugInputError(explicitSlug) : null;
-  const slug = explicitSlug
-    ? normalizeSlug(explicitSlug, { entityType: "listing" })
-    : name
-      ? slugifyEntityName(name, { entityType: "listing" })
-      : "";
   const location = asRecord(row.location);
+  const categoryData = asRecord(row.category_data ?? row.categoryData);
   const cityName = asString(row.City ?? row.city) ?? asString(location.city) ?? "";
   const hasTopLevelGolf = Object.keys(asRecord(row.golf)).length > 0;
   const golfRaw = resolveImportGolfObject(row);
   const hasResolvedGolf = Object.keys(golfRaw).length > 0;
   const categorySlug = hasResolvedGolf ? "golf" : normalizeImportCategoryForRow(row, options.fallbackCategory);
+  const nameSlug = name ? slugifyEntityName(name, { entityType: "listing" }) : "";
+  const sourceSlug = explicitSlug
+    ? normalizeSlug(explicitSlug, { entityType: "listing" })
+    : nameSlug;
+  const slug = categorySlug === "golf" && nameSlug ? nameSlug : sourceSlug;
   const media = asRecord(row.media);
   const seo = asRecord(row.seo);
+  const contact = asRecord(row.contact);
+  const socials = asRecord(row.socials);
+  const businessDetails = asRecord(row.business_details);
+  const content = asRecord(row.content);
+  const address = asRecord(row.address);
   const positioningRaw = asRecord(row.positioning);
   const serviceListingRaw = asRecord(row.listing);
   const serviceDetailsRaw = asRecord(row.details);
@@ -670,8 +724,11 @@ export function normalizeImportListing(
   if (!name) errors.push("Name is required.");
   if (!explicitSlug && name) warnings.push("URL_slug missing; slug will be generated from Nome.");
   if (explicitSlug && explicitSlugInputError) errors.push(`URL_slug is invalid: ${explicitSlugInputError}`);
-  if (explicitSlug && !explicitSlugInputError && explicitSlug !== slug) {
-    warnings.push(`URL_slug normalized from "${explicitSlug}" to "${slug}".`);
+  if (explicitSlug && !explicitSlugInputError && explicitSlug !== sourceSlug) {
+    warnings.push(`URL_slug normalized from "${explicitSlug}" to "${sourceSlug}".`);
+  }
+  if (categorySlug === "golf" && explicitSlug && !explicitSlugInputError && sourceSlug && sourceSlug !== slug) {
+    warnings.push(`Golf URL_slug "${sourceSlug}" will use canonical course-name slug "${slug}".`);
   }
   const slugValidationError = getSlugValidationError(slug, { entityType: "listing" });
   if (slugValidationError) errors.push(`URL_slug is invalid: ${slugValidationError}`);
@@ -782,14 +839,16 @@ export function normalizeImportListing(
     scorecardProvided = row.scorecard !== undefined || golfRaw.hole_data !== undefined || golfRaw.scorecard !== undefined;
     golfHoles = normalizeGolfHoles(row.scorecard ?? golfRaw.hole_data ?? golfRaw.scorecard, holes, warnings, errors);
     if (golfHoles.length > 0) {
-      categoryDataPatch.scorecard = golfHoles.map((hole) => ({
-        hole: hole.hole_number,
-        par: hole.par,
-        hcp: hole.stroke_index,
-        white: hole.distance_white,
-        yellow: hole.distance_yellow,
-        red: hole.distance_red,
-      })) as unknown as Json;
+      categoryDataPatch.scorecard = Array.isArray(row.scorecard)
+        ? row.scorecard as Json
+        : golfHoles.map((hole) => ({
+          hole: hole.hole_number,
+          par: hole.par,
+          hcp: hole.stroke_index,
+          white: hole.distance_white,
+          yellow: hole.distance_yellow,
+          red: hole.distance_red,
+        })) as unknown as Json;
       categoryDataPatch.scorecard_holes = golfHoles as unknown as Json;
     }
     categoryDataPatch.golf = golf;
@@ -800,12 +859,38 @@ export function normalizeImportListing(
     categoryDataPatch.seo = seoPatch;
     categoryDataPatch.country = country;
     categoryDataPatch.holes = holes ?? null;
+    categoryDataPatch.holes_count = holes ?? null;
     categoryDataPatch.par = par ?? null;
     categoryDataPatch.designer = golf.designer ?? null;
     categoryDataPatch.architect = golf.designer ?? null;
     categoryDataPatch.length_meters = lengthMeters ?? null;
     categoryDataPatch.course_rating = courseRating ?? null;
     categoryDataPatch.slope = slope ?? null;
+    categoryDataPatch.slope_rating = readOptionalNumber(golfRaw.slope_rating, "category_data.slope_rating", errors) ?? null;
+    categoryDataPatch.booking_url = asString(golfRaw.booking_url ?? categoryData.booking_url) ?? null;
+    categoryDataPatch.scorecard_pdf_url = asString(categoryData.scorecard_url ?? golfRaw.scorecard_url) ?? null;
+    categoryDataPatch.map_image_url = asString(categoryData.course_map_url ?? golfRaw.course_map_url) ?? null;
+    if (Object.keys(businessDetails).length > 0) categoryDataPatch.business_details = businessDetails as Json;
+    if (Object.keys(contact).length > 0) categoryDataPatch.contact = contact as Json;
+    if (Object.keys(socials).length > 0) categoryDataPatch.socials = socials as Json;
+    if (Object.keys(content).length > 0) categoryDataPatch.content = content as Json;
+    if (Object.keys(address).length > 0) categoryDataPatch.address = address as Json;
+    if (Object.keys(categoryData).length > 0) {
+      assignJson(categoryDataPatch, "official_sources", categoryData.official_sources);
+      assignJson(categoryDataPatch, "facilities_list", categoryData.facilities);
+      assignJson(categoryDataPatch, "course_map_url", categoryData.course_map_url);
+      assignJson(categoryDataPatch, "scorecard_url", categoryData.scorecard_url);
+    }
+    if (Array.isArray(row.sources)) categoryDataPatch.sources = row.sources as Json;
+    if (Array.isArray(row.missing_or_unverified_fields)) {
+      categoryDataPatch.missing_or_unverified_fields = row.missing_or_unverified_fields as Json;
+    }
+    categoryDataPatch.algarve_status = asString(row.algarve_status) ?? null;
+    categoryDataPatch.verification_confidence = asString(row.verification_confidence) ?? null;
+    categoryDataPatch.verification_notes = asString(row.verification_notes) ?? null;
+    categoryDataPatch.opening_hours = asString(businessDetails.opening_hours) ?? null;
+    if (Array.isArray(businessDetails.services)) categoryDataPatch.services = businessDetails.services as Json;
+    if (Array.isArray(businessDetails.amenities)) categoryDataPatch.amenities = businessDetails.amenities as Json;
   }
 
   if (vertical === "property") {
@@ -905,6 +990,12 @@ export function normalizeImportListing(
   const photos = readArrayOfStrings(row.Photos ?? row.photos);
   const gallery = readArrayOfStrings(media.gallery);
   const featuredImage = asString(media.featured_image) ?? asString(row.Featured_Image_URL ?? row.featured_image_url ?? photos?.[0]);
+  const googleRating = businessDetails.google_rating === undefined
+    ? undefined
+    : readOptionalNumber(businessDetails.google_rating, "business_details.google_rating", errors);
+  const googleReviewCount = businessDetails.google_review_count === undefined
+    ? undefined
+    : readOptionalNumber(businessDetails.google_review_count, "business_details.google_review_count", errors);
 
   return {
     index,
@@ -929,20 +1020,33 @@ export function normalizeImportListing(
       regionName: asString(row.Region ?? row.region) ?? asString(location.region),
       country,
       categorySlug,
-      description: asString(row.Description ?? row["Full Description"] ?? row.description),
-      shortDescription: asString(row["Short Description"] ?? row.short_description),
-      websiteUrl: asString(row.Website ?? row.website_url),
+      description: asString(row.Description ?? row["Full Description"] ?? content.full_description ?? row.description),
+      shortDescription: asString(row["Short Description"] ?? content.short_description ?? row.short_description),
+      websiteUrl: asString(row.Website ?? contact.website ?? row.website_url),
       featuredImageUrl: featuredImage,
-      phone: asString(row.Phone ?? row.contact_phone),
-      email: asString(row.Email ?? row.contact_email),
-      address: asString(location.address ?? row["Full Address"] ?? row.Address ?? row.address),
-      latitude: toNumber(location.latitude ?? row.Latitude ?? row.latitude),
-      longitude: toNumber(location.longitude ?? row.Longitude ?? row.longitude),
+      phone: asString(row.Phone ?? contact.phone ?? row.contact_phone),
+      email: asString(row.Email ?? contact.email ?? row.contact_email),
+      address: asString(location.address ?? address.full_address ?? row["Full Address"] ?? row.Address ?? row.address),
+      latitude: firstNullableNumber(nullableNumber(location, "latitude"), nullableNumber(row, "Latitude"), nullableNumber(row, "latitude")),
+      longitude: firstNullableNumber(nullableNumber(location, "longitude"), nullableNumber(row, "Longitude"), nullableNumber(row, "longitude")),
       metaTitle: asString(seo.meta_title),
       metaDescription: asString(seo.meta_description),
-      tier: previewTier,
+      tier: previewTier ?? normalizeTier(row.tier),
       tags: readArrayOfStrings(row.Tags ?? row.tags),
       photos: gallery ?? photos,
+      instagramUrl: firstNullableString(nullableString(socials, "instagram"), nullableString(row, "instagram_url")),
+      facebookUrl: firstNullableString(nullableString(socials, "facebook"), nullableString(row, "facebook_url")),
+      linkedinUrl: firstNullableString(nullableString(socials, "linkedin"), nullableString(row, "linkedin_url")),
+      twitterUrl: firstNullableString(nullableString(socials, "x_twitter"), nullableString(socials, "twitter"), nullableString(row, "twitter_url")),
+      youtubeUrl: firstNullableString(nullableString(socials, "youtube"), nullableString(row, "youtube_url")),
+      tiktokUrl: firstNullableString(nullableString(socials, "tiktok"), nullableString(row, "tiktok_url")),
+      googleBusinessUrl: firstNullableString(
+        nullableString(businessDetails, "google_business_url"),
+        nullableString(socials, "google_business"),
+        nullableString(row, "google_business_url"),
+      ),
+      googleRating,
+      googleReviewCount,
     },
     listingPrice,
     categoryDataPatch,

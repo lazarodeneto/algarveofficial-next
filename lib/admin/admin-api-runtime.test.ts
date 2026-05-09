@@ -17,6 +17,7 @@ import {
   POST as postListingsRoute,
 } from "@/app/api/admin/listings/route";
 import { PATCH as patchListingRoute } from "@/app/api/admin/listings/[listingId]/route";
+import { PATCH as patchListingSlugRoute } from "@/app/api/admin/listings/[listingId]/slug/route";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import { requireAdminReadClient, requireAdminSession, requireAdminWriteClient } from "@/lib/server/admin-auth";
 import { syncCmsDocumentsFromGlobalSettings } from "@/lib/cms/server-persistence";
@@ -1208,51 +1209,46 @@ describe("admin listings route runtime", () => {
     expect(update).toHaveBeenCalledWith({ name: "New Name" });
   });
 
-  it("creates old-slug redirect aliases when an admin changes a listing slug", async () => {
-    const aliasUpdateCalls: Array<Record<string, unknown>> = [];
-    const aliasInsert = vi.fn().mockResolvedValue({ error: null });
-    const aliasUpsert = vi.fn().mockResolvedValue({ error: null });
-    const aliasUpdate = vi.fn((payload: Record<string, unknown>) => {
-      aliasUpdateCalls.push(payload);
-      return {
-        eq: vi.fn(() => ({
-          eq: vi.fn().mockResolvedValue({ error: null }),
-        })),
-      };
-    });
-    const aliasSelect = vi.fn(() => ({
-      eq: vi.fn(() => ({
-        maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
-      })),
-    }));
-
+  it("does not change slugs when only the listing city changes", async () => {
     const updateEq = vi.fn().mockResolvedValue({ error: null });
     const update = vi.fn(() => ({ eq: updateEq }));
-    const select = vi.fn((columns: string) => ({
-      eq: vi.fn(() => ({
-        maybeSingle: vi.fn().mockResolvedValue({
-          data:
-            columns === "id, slug"
-              ? { id: "listing-1", slug: "old-listing-slug" }
-              : columns === "id, name"
-                ? null
-                : { id: "listing-1", slug: "new-listing-slug", name: "Listing" },
-          error: null,
-        }),
-      })),
-    }));
-    const userFrom = vi.fn((table: string) => {
-      if (table === "listings") return { update, select };
-      if (table === "listing_slugs") {
-        return {
-          select: aliasSelect,
-          update: aliasUpdate,
-          insert: aliasInsert,
-          upsert: aliasUpsert,
-        };
-      }
-      return {};
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: { id: "listing-1", name: "Listing", slug: "manual-slug" },
+      error: null,
     });
+    const selectEq = vi.fn(() => ({ maybeSingle }));
+    const select = vi.fn(() => ({ eq: selectEq }));
+    const userFrom = vi.fn(() => ({ update, select }));
+
+    mockedRequireAdminWriteClient.mockResolvedValueOnce({
+      userId: "admin-1",
+      userClient: { from: userFrom } as never,
+      writeClient: { from: vi.fn() } as never,
+    });
+
+    const response = await patchListingRoute(
+      jsonRequest(
+        { listing: { city_id: "city-lagos" } },
+        "PATCH",
+      ) as unknown as Parameters<typeof patchListingRoute>[0],
+      { params: Promise.resolve({ listingId: "listing-1" }) },
+    );
+    const payload = (await response.json()) as { ok?: boolean; data?: { slug?: string } };
+
+    expect(response.status).toBe(200);
+    expect(payload.ok).toBe(true);
+    expect(payload.data?.slug).toBe("manual-slug");
+    expect(update).toHaveBeenCalledWith({ city_id: "city-lagos" });
+  });
+
+  it("rejects direct slug changes through the generic listing edit route", async () => {
+    const update = vi.fn();
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: { id: "listing-1", slug: "old-listing-slug" },
+      error: null,
+    });
+    const select = vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle })) }));
+    const userFrom = vi.fn(() => ({ update, select }));
 
     mockedRequireAdminWriteClient.mockResolvedValueOnce({
       userId: "admin-1",
@@ -1267,26 +1263,78 @@ describe("admin listings route runtime", () => {
       ) as unknown as Parameters<typeof patchListingRoute>[0],
       { params: Promise.resolve({ listingId: "listing-1" }) },
     );
-    const payload = (await response.json()) as { ok?: boolean; data?: { slug?: string } };
+    const payload = (await response.json()) as { error?: { code?: string; message?: string } };
+
+    expect(response.status).toBe(409);
+    expect(payload.error?.code).toBe("DEDICATED_SLUG_UPDATE_REQUIRED");
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("updates listing slugs through the dedicated canonical slug route", async () => {
+    const rpc = vi.fn().mockResolvedValue({
+      data: [{ old_slug: "old-listing-slug", new_slug: "new-listing-slug" }],
+      error: null,
+    });
+
+    mockedRequireAdminWriteClient.mockResolvedValueOnce({
+      userId: "admin-1",
+      role: "admin",
+      userClient: { rpc } as never,
+      writeClient: { from: vi.fn() } as never,
+    });
+
+    const response = await patchListingSlugRoute(
+      jsonRequest(
+        { slug: "New Listing Slug" },
+        "PATCH",
+      ) as unknown as Parameters<typeof patchListingSlugRoute>[0],
+      { params: Promise.resolve({ listingId: "listing-1" }) },
+    );
+    const payload = (await response.json()) as {
+      ok?: boolean;
+      data?: { old_slug?: string | null; new_slug?: string };
+    };
 
     expect(response.status).toBe(200);
     expect(payload.ok).toBe(true);
-    expect(payload.data?.slug).toBe("new-listing-slug");
-    expect(update).toHaveBeenCalledWith({ slug: "new-listing-slug" });
-    expect(aliasUpdateCalls).toEqual([{ is_current: false }, { is_current: false }]);
-    expect(aliasInsert).toHaveBeenCalledWith({
-      listing_id: "listing-1",
-      slug: "old-listing-slug",
-      is_current: false,
+    expect(payload.data).toEqual({
+      old_slug: "old-listing-slug",
+      new_slug: "new-listing-slug",
     });
-    expect(aliasUpsert).toHaveBeenCalledWith(
-      {
-        listing_id: "listing-1",
-        slug: "new-listing-slug",
-        is_current: true,
+    expect(rpc).toHaveBeenCalledWith("update_listing_canonical_slug", {
+      p_listing_id: "listing-1",
+      p_new_slug: "new-listing-slug",
+    });
+  });
+
+  it("rejects duplicate slugs from the dedicated canonical slug route", async () => {
+    const rpc = vi.fn().mockResolvedValue({
+      data: null,
+      error: {
+        code: "23505",
+        message: "Slug \"new-listing-slug\" is already reserved as a current or previous listing URL.",
       },
-      { onConflict: "slug" },
+    });
+
+    mockedRequireAdminWriteClient.mockResolvedValueOnce({
+      userId: "admin-1",
+      role: "admin",
+      userClient: { rpc } as never,
+      writeClient: { from: vi.fn() } as never,
+    });
+
+    const response = await patchListingSlugRoute(
+      jsonRequest(
+        { slug: "new-listing-slug" },
+        "PATCH",
+      ) as unknown as Parameters<typeof patchListingSlugRoute>[0],
+      { params: Promise.resolve({ listingId: "listing-1" }) },
     );
+    const payload = (await response.json()) as { error?: { code?: string; message?: string } };
+
+    expect(response.status).toBe(409);
+    expect(payload.error?.code).toBe("DUPLICATE_SLUG");
+    expect(payload.error?.message).toContain("already reserved");
   });
 
   it("uses requester-scoped client for bulk publish updates", async () => {

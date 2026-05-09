@@ -39,6 +39,7 @@ import {
   Star,
   AlertCircle,
   CheckCircle2,
+  Wrench,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
@@ -699,6 +700,14 @@ export default function AdminListings() {
           </p>
         </div>
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          {user.role === "admin" ? (
+            <Button asChild variant="outline" className="w-full sm:w-auto">
+              <Link href={l("/admin/url-health")}>
+                <Wrench className="h-4 w-4 mr-2" />
+                URL Health
+              </Link>
+            </Button>
+          ) : null}
           <Button asChild variant="outline" className="w-full sm:w-auto">
             <Link href={l("/admin/import")}>
               <FileJson className="h-4 w-4 mr-2" />

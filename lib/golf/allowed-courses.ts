@@ -53,8 +53,8 @@ export const approvedGolfCourses: ApprovedGolfCourse[] = [
     canonicalName: "Alto Golf Course",
     canonicalSlug: "alto-golf-course",
     area: LAGOS_PORTIMAO,
-    city: "Portimao",
-    aliases: ["Alto Golf"],
+    city: "Alvor",
+    aliases: ["Alto Golf", "Pestana Alto Golf"],
   },
   {
     canonicalName: "Morgado Golf Course",
@@ -86,10 +86,11 @@ export const approvedGolfCourses: ApprovedGolfCourse[] = [
   },
   {
     canonicalName: "Amendoeira O'Connor Jnr.",
-    canonicalSlug: "amendoeira-oconnor-jnr",
+    canonicalSlug: "amendoeira-oconnor-jnr-course",
     area: CARVOEIRO_SILVES,
     city: "Alcantarilha",
     aliases: [
+      "Amendoeira O'Connor Jnr.",
       "Amendoeira O'Connor Jnr",
       "Amendoeira O'Connor Jnr. Course",
       "Amendoeira OConnor Jnr",
@@ -130,7 +131,7 @@ export const approvedGolfCourses: ApprovedGolfCourse[] = [
   },
   {
     canonicalName: "Laguna Golf Course",
-    canonicalSlug: "laguna-golf-course",
+    canonicalSlug: "laguna-golf-course-vilamoura",
     area: ALBUFEIRA_VILAMOURA,
     city: "Vilamoura",
     aliases: [
@@ -214,11 +215,14 @@ export const approvedGolfCourses: ApprovedGolfCourse[] = [
     aliases: ["San Lorenzo Golf", "Sao Lorenzo Golf Course"],
   },
   {
-    canonicalName: "Quinta do Lago N&S",
-    canonicalSlug: "quinta-do-lago-ns",
+    canonicalName: "Quinta do Lago North Course",
+    canonicalSlug: "quinta-do-lago-north-course",
     area: GOLDEN_TRIANGLE,
     city: "Almancil",
     aliases: [
+      "Quinta do Lago N&S",
+      "Quinta do Lago North South",
+      "Quinta do Lago NS",
       "Quinta do Lago North & South",
       "Quinta do Lago North & South Golf Courses",
       "Quinta do Lago North and South",

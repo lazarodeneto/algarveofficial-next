@@ -2,10 +2,11 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ChevronLeft, ChevronRight, Link2, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { FormStepIndicator } from "@/components/admin/listings/FormStepIndicator";
 import { FormActionBar } from "@/components/admin/listings/FormActionBar";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { BasicsStep } from "@/components/admin/form-steps/BasicsStep";
 import { MediaStep } from "@/components/admin/form-steps/MediaStep";
 import { DetailsStep } from "@/components/admin/form-steps/DetailsStep";
@@ -14,7 +15,7 @@ import { PublishingStep } from "@/components/admin/form-steps/PublishingStep";
 import { GolfStep } from "@/components/admin/form-steps/GolfStep";
 import { useAllCities, useAllRegions, useAllCategories } from "@/hooks/useReferenceData";
 import { useAdminListing } from "@/hooks/useListings";
-import { useCreateListing, useUpdateListing } from "@/hooks/useListingMutations";
+import { useCreateListing, useUpdateListing, useUpdateListingSlug } from "@/hooks/useListingMutations";
 import {
   useAdminListingGolf,
   useUpsertAdminListingGolf,
@@ -37,6 +38,10 @@ import { resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
 import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
 import { normalizeExternalUrlForStorage } from "@/lib/url-input";
 import { getSlugValidationError, normalizeSlug } from "@/lib/slugify";
+import {
+  buildListingCanonicalPath,
+  suggestListingCanonicalSlug,
+} from "@/lib/listings/slug-management";
 
 async function getListingSlugConflict(slug: string, currentListingId?: string) {
   const normalized = normalizeSlug(slug, { entityType: "listing" });
@@ -173,6 +178,7 @@ export default function ListingForm() {
     text: string;
     savedAt?: string;
   } | null>(null);
+  const [slugConfirmOpen, setSlugConfirmOpen] = useState(false);
 
   // Role checks
   const isAdmin = user?.role === 'admin';
@@ -189,8 +195,9 @@ export default function ListingForm() {
   // Mutations
   const createListing = useCreateListing();
   const updateListing = useUpdateListing();
+  const updateListingSlug = useUpdateListingSlug();
 
-  const isSaving = createListing.isPending || updateListing.isPending;
+  const isSaving = createListing.isPending || updateListing.isPending || updateListingSlug.isPending;
   const canonicalSlug = useMemo(
     () => normalizeSlug(formData.slug, { entityType: "listing" }),
     [formData.slug],
@@ -202,7 +209,7 @@ export default function ListingForm() {
   const slugAvailability = useQuery({
     queryKey: ["admin-listing-slug-availability", canonicalSlug, id ?? null],
     queryFn: () => getListingSlugConflict(canonicalSlug, id),
-    enabled: Boolean(canonicalSlug) && !slugValidationError,
+    enabled: !isEditMode && Boolean(canonicalSlug) && !slugValidationError,
     staleTime: 10_000,
   });
   const slugAvailabilityError = slugAvailability.data ?? null;
@@ -313,7 +320,32 @@ export default function ListingForm() {
     return selectedCategory?.slug ?? "";
   }, [categories, formData.category_id]);
 
+  const selectedCity = useMemo(() => {
+    if (!formData.city_id) return null;
+    return cities.find((city) => city.id === formData.city_id) ?? null;
+  }, [cities, formData.city_id]);
+
   const isGolfCategory = selectedCategorySlug.toLowerCase() === "golf";
+  const suggestedSlug = useMemo(
+    () =>
+      suggestListingCanonicalSlug({
+        name: formData.name,
+        cityName: selectedCity?.name ?? null,
+        citySlug: selectedCity?.slug ?? null,
+        categorySlug: selectedCategorySlug,
+      }),
+    [formData.name, selectedCity?.name, selectedCity?.slug, selectedCategorySlug],
+  );
+  const currentCanonicalPath = buildListingCanonicalPath({
+    slug: initialData.slug || formData.slug,
+    categorySlug: selectedCategorySlug,
+  });
+  const suggestedCanonicalPath = buildListingCanonicalPath({
+    slug: suggestedSlug,
+    categorySlug: selectedCategorySlug,
+  });
+  const shouldSuggestSlugUpdate =
+    Boolean(isEditMode && suggestedSlug && initialData.slug && suggestedSlug !== initialData.slug);
   const showGolfSetup = isGolfCategory && isAdmin;
   const golfDetailsFieldsOwnedByGolfSetup = showGolfSetup ? ["holes", "booking_url"] : [];
 
@@ -604,6 +636,23 @@ export default function ListingForm() {
     setCurrentStep((prev) => Math.min(prev, Math.max(visibleSteps.length - 1, 0)));
   }, [visibleSteps.length]);
 
+  const handleCanonicalSlugUpdate = async () => {
+    if (!id || !suggestedSlug) return;
+
+    try {
+      const result = await updateListingSlug.mutateAsync({
+        id,
+        slug: suggestedSlug,
+      });
+      const nextSlug = result.new_slug;
+      setFormData((prev) => ({ ...prev, slug: nextSlug }));
+      setInitialData((prev) => ({ ...prev, slug: nextSlug }));
+      setSlugConfirmOpen(false);
+    } catch {
+      // Mutation toast handles the visible error.
+    }
+  };
+
   const validateStep = (stepId: string | undefined): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -611,10 +660,10 @@ export default function ListingForm() {
       if (!formData.name.trim()) newErrors.name = "Name is required";
       const slugError = slugValidationError;
       if (slugError) newErrors.slug = slugError;
-      if (!slugError && slugAvailability.isFetching) {
+      if (!isEditMode && !slugError && slugAvailability.isFetching) {
         newErrors.slug = "Checking slug availability...";
       }
-      if (!slugError && slugAvailabilityError) {
+      if (!isEditMode && !slugError && slugAvailabilityError) {
         newErrors.slug = slugAvailabilityError;
       }
       if (!formData.short_description.trim()) newErrors.short_description = "Short description is required";
@@ -644,10 +693,10 @@ export default function ListingForm() {
 
   const isFormValid = (): boolean => {
     return Boolean(
-      formData.name.trim() &&
-      !slugValidationError &&
-      !slugAvailabilityError &&
-      !slugAvailability.isFetching &&
+	      formData.name.trim() &&
+	      !slugValidationError &&
+	      (isEditMode || !slugAvailabilityError) &&
+	      (isEditMode || !slugAvailability.isFetching) &&
       formData.short_description.trim() &&
       formData.category_id &&
       formData.city_id &&
@@ -669,8 +718,8 @@ export default function ListingForm() {
       return;
     }
 
-    let duplicateSlugError = slugAvailabilityError;
-    if (!duplicateSlugError) {
+    let duplicateSlugError = isEditMode ? null : slugAvailabilityError;
+    if (!isEditMode && !duplicateSlugError) {
       try {
         const availability = await slugAvailability.refetch();
         duplicateSlugError = availability.data ?? null;
@@ -701,7 +750,6 @@ export default function ListingForm() {
     // Prepare listing data for Supabase
     const listingData: Record<string, unknown> = {
       name: formData.name.trim(),
-      slug: canonicalSlug,
       short_description: formData.short_description.trim(),
       description: formData.full_description?.trim() || null,
       category_id: formData.category_id,
@@ -733,6 +781,10 @@ export default function ListingForm() {
       price_from: (formData.details as any)?.price || null,
     };
 
+    if (!isEditMode) {
+      listingData.slug = canonicalSlug;
+    }
+
     // Prepare images data - include _file for new uploads
     const imagesData = normalizedImages.map((img, index) => ({
       url: img.url,
@@ -750,7 +802,7 @@ export default function ListingForm() {
           listing: listingData,
           images: imagesData,
         });
-        const updatedData = { ...formData, slug: canonicalSlug, images: normalizedImages, published_status: finalStatus };
+        const updatedData = { ...formData, images: normalizedImages, published_status: finalStatus };
         setFormData(updatedData);
         setInitialData(updatedData);
       } else {
@@ -945,6 +997,43 @@ export default function ListingForm() {
         </p>
       </div>
 
+      {isEditMode && isAdmin ? (
+        <div className="mb-6 rounded-lg border border-border bg-card p-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <Link2 className="h-4 w-4 text-primary" />
+                <h2 className="font-serif text-lg font-medium">Canonical URL</h2>
+              </div>
+              <div className="mt-3 space-y-1 text-sm">
+                <p className="break-all text-muted-foreground">Current: {currentCanonicalPath || formData.slug}</p>
+                <p className="break-all text-muted-foreground">Suggested: {suggestedCanonicalPath || suggestedSlug}</p>
+              </div>
+              {shouldSuggestSlugUpdate ? (
+                <div className="mt-3 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>The listing details now suggest a different canonical URL.</span>
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-emerald-700">URL matches the current slug suggestion.</p>
+              )}
+            </div>
+            <Button
+              type="button"
+              onClick={() => setSlugConfirmOpen(true)}
+              disabled={!shouldSuggestSlugUpdate || updateListingSlug.isPending}
+            >
+              {updateListingSlug.isPending ? (
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Link2 className="mr-2 h-4 w-4" />
+              )}
+              Update URL and create redirect
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
       {/* Step indicator */}
       <div className="mb-8">
         <FormStepIndicator
@@ -994,6 +1083,16 @@ export default function ListingForm() {
             toast.info("Save the listing first to preview");
           }
         }}
+      />
+
+      <ConfirmDialog
+        open={slugConfirmOpen}
+        onOpenChange={setSlugConfirmOpen}
+        title="Update listing URL?"
+        description={`This will change ${currentCanonicalPath || formData.slug} to ${suggestedCanonicalPath || suggestedSlug} and preserve the old URL as a redirect.`}
+        confirmLabel="Update URL and create redirect"
+        cancelLabel="Keep current URL"
+        onConfirm={handleCanonicalSlugUpdate}
       />
     </div>
   );
