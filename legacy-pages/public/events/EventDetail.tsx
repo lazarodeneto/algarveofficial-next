@@ -200,7 +200,7 @@ export default function EventDetail({
               </div>
               
               <div className="absolute bottom-4 left-4 flex gap-2">
-                <Badge className={eventCategoryColors[event.category as EventCategory]}>
+                <Badge className="border-white/80 bg-white/90 text-slate-950 shadow-lg backdrop-blur-md hover:bg-white">
                   {eventCategoryLabels[event.category as EventCategory]}
                 </Badge>
                 {event.is_featured && (
