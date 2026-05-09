@@ -28,6 +28,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { eventCategoryLabels, eventCategoryColors, type CalendarEvent, type EventCategory } from "@/types/events";
+import { useFavoriteEvents } from "@/hooks/useFavoriteEvents";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useHydrated } from "@/hooks/useHydrated";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
@@ -38,6 +40,12 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import { hideServerShell } from "@/lib/dom/server-shell";
+import {
+  getPublicEventCutoffDate,
+  isPublicEventVisibleByDate,
+} from "@/lib/events/publicVisibility";
+import { localizeEvents } from "@/lib/events/i18n";
+import { FavoriteButton } from "@/components/ui/favorite-button";
 
 type EventGlobalSetting = Pick<Tables<"global_settings">, "key" | "value" | "category">;
 
@@ -55,24 +63,19 @@ const EVENTS_CMS_KEYS = [
 
 async function fetchPublishedEvents(
   category?: EventCategory | "all",
-  timeFilter: "upcoming" | "past" | "all" = "upcoming",
+  _timeFilter: "upcoming" | "past" | "all" = "upcoming",
 ) {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getPublicEventCutoffDate();
   let query = supabase
     .from("events")
     .select(`
       *,
       city:cities(id, name, slug)
     `)
-    .eq("status", "published");
+    .eq("status", "published")
+    .gte("end_date", today);
 
-  if (timeFilter === "upcoming") {
-    query = query.gte("end_date", today);
-  } else if (timeFilter === "past") {
-    query = query.lt("end_date", today);
-  }
-
-  query = query.order("start_date", { ascending: timeFilter !== "past" });
+  query = query.order("start_date", { ascending: true });
 
   if (category && category !== "all") {
     query = query.eq("category", category);
@@ -97,6 +100,8 @@ async function fetchEventGlobalSettings() {
 function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClientProps) {
   const { t } = useTranslation();
   const l = useLocalePath();
+  const locale = useCurrentLocale();
+  const { isFavorite, toggleFavorite } = useFavoriteEvents();
 
   const [selectedCategory, setSelectedCategory] = useState<EventCategory | "all">("all");
 
@@ -120,9 +125,9 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
   const timeFilter = "upcoming";
 
   const { data: events = [] } = useQuery({
-    queryKey: ["events", "published", selectedCategory, timeFilter],
-    queryFn: () => fetchPublishedEvents(selectedCategory, timeFilter),
-    placeholderData: selectedCategory === "all" && timeFilter === "upcoming" ? initialEvents : undefined,
+    queryKey: ["events", "published", selectedCategory, timeFilter, locale],
+    queryFn: async () => localizeEvents(await fetchPublishedEvents(selectedCategory, timeFilter), locale),
+    placeholderData: selectedCategory === "all" && timeFilter === "upcoming" ? localizeEvents(initialEvents, locale) : undefined,
     staleTime: 60 * 1000,
   });
 
@@ -133,8 +138,9 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
     staleTime: 0,
   });
 
-  const featuredEvents = events.filter((event) => event.is_featured).slice(0, 3);
-  const upcomingEvents = events.filter((event) => !featuredEvents.some((featured) => featured.id === event.id));
+  const visibleEvents = events.filter((event) => isPublicEventVisibleByDate(event));
+  const featuredEvents = visibleEvents.filter((event) => event.is_featured).slice(0, 3);
+  const upcomingEvents = visibleEvents.filter((event) => !featuredEvents.some((featured) => featured.id === event.id));
   const pageConfigText = (() => {
     const pageConfigSetting = initialGlobalSettings.find((setting) => setting.key === CMS_GLOBAL_SETTING_KEYS.pageConfigs)?.value;
     if (!pageConfigSetting) return {} as Record<string, string>;
@@ -231,12 +237,13 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 * index }}
                 >
-                  <Link
-                    href={getEventHref(event)}
-                    aria-label={`Open ${event.title}`}
-                    className="block h-full rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    <Card className="group h-full cursor-pointer overflow-hidden border-border bg-card transition-all hover:border-primary/30">
+                  <div className="relative h-full rounded-lg">
+                    <Link
+                      href={getEventHref(event)}
+                      aria-label={`Open ${event.title}`}
+                      className="block h-full rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    >
+                      <Card className="group h-full cursor-pointer overflow-hidden border-border bg-card transition-all hover:border-primary/30">
                       <div className="relative aspect-video overflow-hidden">
                         <Image
                           src={event.image ?? "/og-image.png"}
@@ -256,12 +263,10 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                             {format(parseISO(event.start_date), "MMM")}
                           </span>
                         </div>
-                        <div className="absolute left-3 top-3">
+                        <div className="absolute left-3 top-3 flex flex-col items-start gap-2">
                           <Badge className={eventCategoryColors[event.category as EventCategory]}>
                             {getEventCategoryLabel(event.category as EventCategory)}
                           </Badge>
-                        </div>
-                        <div className="absolute right-3 top-3">
                           <Badge className="bg-primary text-primary-foreground">
                             {t("sections.events.featuredBadge")}
                           </Badge>
@@ -296,8 +301,18 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                           ) : null}
                         </div>
                       </CardContent>
-                    </Card>
-                  </Link>
+                      </Card>
+                    </Link>
+                    <div className="absolute right-3 top-3 z-20">
+                      <FavoriteButton
+                        isFavorite={isFavorite(event)}
+                        onToggle={() => void toggleFavorite(event)}
+                        size="md"
+                        variant="glassmorphism"
+                        className="bg-white/90 backdrop-blur border-white/20 hover:bg-white hover:border-red-400/30 [&_svg]:text-neutral-700 [&_svg]:hover:text-red-400"
+                      />
+                    </div>
+                  </div>
                 </m.div>
               ))}
             </div>
@@ -332,12 +347,13 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.05 * index }}
                       >
-                        <Link
-                          href={getEventHref(event)}
-                          aria-label={`Open ${event.title}`}
-                          className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                        >
-                          <Card className="group cursor-pointer overflow-hidden border-border bg-card transition-all hover:border-primary/30">
+                        <div className="relative rounded-lg">
+                          <Link
+                            href={getEventHref(event)}
+                            aria-label={`Open ${event.title}`}
+                            className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                          >
+                            <Card className="group cursor-pointer overflow-hidden border-border bg-card transition-all hover:border-primary/30">
                             <div className="flex flex-col sm:flex-row">
                               <div className="flex w-full flex-row items-center justify-center gap-1 bg-muted p-3 sm:w-24 sm:flex-shrink-0 sm:flex-col sm:gap-0">
                                 <span className="text-2xl font-bold text-primary">
@@ -347,7 +363,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                                   {format(parseISO(event.start_date), "MMM")}
                                 </span>
                               </div>
-                              <CardContent className="min-w-0 flex-1 p-4">
+                              <CardContent className="min-w-0 flex-1 p-4 pr-14">
                                 <Badge className={`${eventCategoryColors[event.category as EventCategory]} mb-2 max-w-full text-xs`}>
                                   {getEventCategoryLabel(event.category as EventCategory)}
                                 </Badge>
@@ -360,8 +376,17 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                                 </div>
                               </CardContent>
                             </div>
-                          </Card>
-                        </Link>
+                            </Card>
+                          </Link>
+                          <div className="absolute right-3 top-3 z-20">
+                            <FavoriteButton
+                              isFavorite={isFavorite(event)}
+                              onToggle={() => void toggleFavorite(event)}
+                              size="sm"
+                              variant="solid"
+                            />
+                          </div>
+                        </div>
                       </m.div>
                     ))}
                   </div>

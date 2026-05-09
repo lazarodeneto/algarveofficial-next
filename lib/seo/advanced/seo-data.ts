@@ -1,4 +1,5 @@
 import { createPublicServerClient } from "@/lib/supabase/public-server";
+import { getPublicEventCutoffDate } from "@/lib/events/publicVisibility";
 import { SITE_CONFIG } from "./seo-config";
 
 function unwrapRelation<T extends Record<string, unknown>>(value: unknown): T | null {
@@ -114,6 +115,7 @@ export async function getEventWithSeo(eventSlug: string, locale = "en") {
     `)
     .eq("slug", eventSlug)
     .eq("status", "published")
+    .gte("end_date", getPublicEventCutoffDate())
     .single();
 
   if (error || !event) return null;
@@ -259,6 +261,7 @@ export async function getSitemapData() {
       .from("events")
       .select("slug, title, updated_at, start_date, image_url, seo_description")
       .eq("status", "published")
+      .gte("end_date", getPublicEventCutoffDate())
       .limit(5000),
     supabase
       .from("categories")

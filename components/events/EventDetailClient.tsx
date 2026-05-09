@@ -35,9 +35,16 @@ import {
   type CmsTextOverrideMap,
 } from "@/lib/cms/pageBuilderRegistry";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
+import { useFavoriteEvents } from "@/hooks/useFavoriteEvents";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { hideServerShell } from "@/lib/dom/server-shell";
+import {
+  getPublicEventCutoffDate,
+  isPublicEventVisibleByDate,
+} from "@/lib/events/publicVisibility";
+import { localizeEvent, localizeEvents } from "@/lib/events/i18n";
+import { FavoriteButton } from "@/components/ui/favorite-button";
 
 export type EventCitySummary = Pick<Tables<"cities">, "id" | "name" | "slug">;
 export type EventGlobalSetting = Pick<Tables<"global_settings">, "key" | "value" | "category">;
@@ -131,6 +138,7 @@ async function fetchEventBySlug(slug: string, _locale: string) {
     `)
     .eq("slug", slug)
     .eq("status", "published")
+    .gte("end_date", getPublicEventCutoffDate())
     .maybeSingle();
 
   if (error) throw error;
@@ -159,7 +167,7 @@ async function fetchRelatedEvents(
       city:cities(id, name, slug)
     `)
     .eq("status", "published")
-    .gte("end_date", new Date().toISOString())
+    .gte("end_date", getPublicEventCutoffDate())
     .neq("id", eventId)
     .or(filters.join(","))
     .order("start_date", { ascending: true })
@@ -187,14 +195,23 @@ function EventDetailClientInner({
 }: EventDetailClientProps) {
   const { t } = useTranslation();
   const locale = useCurrentLocale();
+  const localizedInitialEvent = useMemo(
+    () => localizeEvent(initialEvent, locale),
+    [initialEvent, locale],
+  );
+  const localizedInitialRelatedEvents = useMemo(
+    () => localizeEvents(initialRelatedEvents, locale),
+    [initialRelatedEvents, locale],
+  );
+  const { isFavorite, toggleFavorite } = useFavoriteEvents();
   const {
-    data: event = initialEvent,
+    data: event = localizedInitialEvent,
     isLoading,
     error,
   } = useQuery({
     queryKey: ["event", "slug", initialEvent.slug, locale],
-    queryFn: () => fetchEventBySlug(initialEvent.slug, locale),
-    placeholderData: initialEvent,
+    queryFn: async () => localizeEvent(await fetchEventBySlug(initialEvent.slug, locale), locale),
+    placeholderData: localizedInitialEvent,
     staleTime: 30 * 1000,
   });
 
@@ -207,14 +224,14 @@ function EventDetailClientInner({
 
   const cms = useEventDetailCmsHelpers(globalSettings);
 
-  const { data: relatedEvents = initialRelatedEvents } = useQuery({
+  const { data: relatedEvents = localizedInitialRelatedEvents } = useQuery({
     queryKey: ["events", "related", event?.id, event?.category, event?.city_id, locale],
     queryFn: async () => {
       if (!event?.id) return [];
-      return fetchRelatedEvents(locale, event.id, event.category, event.city_id, 3);
+      return localizeEvents(await fetchRelatedEvents(locale, event.id, event.category, event.city_id, 3), locale);
     },
     enabled: Boolean(event?.id),
-    placeholderData: initialRelatedEvents,
+    placeholderData: localizedInitialRelatedEvents,
     staleTime: 60 * 1000,
   });
 
@@ -242,7 +259,7 @@ function EventDetailClientInner({
     );
   }
 
-  if (error || !event) {
+  if (error || !event || !isPublicEventVisibleByDate(event)) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -372,6 +389,12 @@ function EventDetailClientInner({
               ) : null}
             </div>
             <div className="flex flex-shrink-0 gap-2">
+              <FavoriteButton
+                isFavorite={isFavorite(event)}
+                onToggle={() => void toggleFavorite(event)}
+                size="md"
+                variant="solid"
+              />
               <Button variant="outline" size="sm" onClick={handleShare}>
                 <Share2 className="mr-2 h-4 w-4" />
                 {cms.getText("hero.share", "Share")}

@@ -1,6 +1,11 @@
 "use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  buildLegalSettingsCandidateIds,
+  parseLegalSections,
+  pickLegalSettingsRowByLocale,
+} from "@/lib/legal/settings";
 import { updateAdminSettingsRow } from "@/lib/admin/settings-client";
 import { toast } from "sonner";
 
@@ -22,37 +27,29 @@ export interface CookieSettings {
   updated_at: string | null;
 }
 
-export function useCookieSettings() {
+export function useCookieSettings(locale?: string | null) {
   const queryClient = useQueryClient();
   const isBrowser = typeof window !== "undefined";
+  const localeKey = locale ?? "default";
 
   const { data: settings, isLoading, error } = useQuery({
-    queryKey: ['cookie-settings'],
+    queryKey: ['cookie-settings', localeKey],
     queryFn: async () => {
+      const candidateIds = buildLegalSettingsCandidateIds(locale);
       const { data, error } = await supabase
         .from('cookie_settings')
         .select('*')
-        .eq('id', 'default')
-        .single();
+        .in('id', candidateIds);
       
       if (error) throw error;
-      
-      // Parse sections from Json to Section[]
-      let parsedSections: Section[] = [];
-      if (Array.isArray(data.sections)) {
-        parsedSections = (data.sections as unknown[]).map((item) => {
-          const obj = item as Record<string, unknown>;
-          return {
-            id: String(obj.id || ''),
-            title: String(obj.title || ''),
-            icon: String(obj.icon || 'Cookie'),
-            content: String(obj.content || ''),
-          };
-        });
-      }
+      if (!data || data.length === 0) return null;
+
+      const selected = pickLegalSettingsRowByLocale(data, locale);
+      if (!selected) return null;
+      const parsedSections = parseLegalSections(selected.sections, 'Cookie');
       
       const parsed: CookieSettings = {
-        ...data,
+        ...selected,
         sections: parsedSections,
       };
       return parsed;
@@ -72,8 +69,10 @@ export function useCookieSettings() {
         supabaseUpdates.sections = sections as unknown;
       }
       
+      const targetId = settings?.id ?? "default";
       await updateAdminSettingsRow({
         table: "cookie_settings",
+        id: targetId,
         updates: supabaseUpdates,
         mode: "upsert",
       });
@@ -82,8 +81,7 @@ export function useCookieSettings() {
       queryClient.invalidateQueries({ queryKey: ['cookie-settings'] });
       toast.success('Cookie Policy settings saved');
     },
-    onError: (mutationError) => {
-      console.error('Error updating cookie settings:', mutationError);
+    onError: () => {
       toast.error('Failed to save settings');
     },
   });

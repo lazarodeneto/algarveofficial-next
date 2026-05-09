@@ -26,6 +26,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { eventCategoryLabels, eventCategoryColors, type CalendarEvent, type EventCategory } from '@/types/events';
 import { useEventBySlug, useRelatedEvents } from '@/hooks/useEvents';
+import { useFavoriteEvents } from '@/hooks/useFavoriteEvents';
 import { useCurrentLocale } from '@/hooks/useCurrentLocale';
 import { eventCategoryTemplates } from '@/lib/eventCategoryTemplates';
 import type { Locale } from '@/lib/i18n/config';
@@ -36,6 +37,12 @@ import {
   buildStaticRouteData,
   type EventRouteData,
 } from '@/lib/i18n/localized-routing';
+import {
+  getEventDateBadgeParts,
+  getEventDetailDateRangeLabel,
+} from '@/lib/events/dateDisplay';
+import { isPublicEventVisibleByDate } from '@/lib/events/publicVisibility';
+import { FavoriteButton } from '@/components/ui/favorite-button';
 
 interface EventDetailProps {
   localeSwitchPaths?: Partial<Record<Locale, string>>;
@@ -53,6 +60,7 @@ export default function EventDetail({
   const l = useLocalePath();
   const { t } = useTranslation();
   const { data: event, isLoading, error } = useEventBySlug(slug || initialEvent?.slug || '', initialEvent);
+  const { isFavorite, toggleFavorite } = useFavoriteEvents();
   
   // Fetch related events
   const { data: relatedEvents } = useRelatedEvents(
@@ -86,7 +94,7 @@ export default function EventDetail({
     );
   }
 
-  if (error || !event) {
+  if (error || !event || !isPublicEventVisibleByDate(event)) {
     return (
       <div className="min-h-screen bg-background">
         <Header localeSwitchPaths={localeSwitchPaths} />
@@ -112,9 +120,8 @@ export default function EventDetail({
     );
   }
 
-  const startDate = parseISO(event.start_date);
-  const endDate = parseISO(event.end_date);
-  const isSingleDay = event.start_date === event.end_date;
+  const dateBadge = getEventDateBadgeParts(event);
+  const detailDateLabel = getEventDetailDateRangeLabel(event);
   
   // Get category-specific template for displaying event_data fields
   const categoryTemplate = eventCategoryTemplates[event.category as EventCategory];
@@ -189,13 +196,10 @@ export default function EventDetail({
               {/* Large Date Badge */}
               <div className="absolute bottom-4 right-4 bg-background/95 backdrop-blur-sm rounded-lg px-5 py-4 text-center border border-border/50 shadow-xl">
                 <span className="block text-4xl lg:text-5xl font-bold text-primary leading-none">
-                  {isSingleDay 
-                    ? format(startDate, 'd')
-                    : `${format(startDate, 'd')} - ${format(endDate, 'd')}`
-                  }
+                  {dateBadge.primary}
                 </span>
                 <span className="block text-sm lg:text-base font-medium text-foreground uppercase tracking-wide mt-1">
-                  {format(startDate, 'MMM')}
+                  {dateBadge.secondary}
                 </span>
               </div>
               
@@ -228,6 +232,12 @@ export default function EventDetail({
               )}
             </div>
             <div className="flex gap-2 flex-shrink-0">
+              <FavoriteButton
+                isFavorite={isFavorite(event)}
+                onToggle={() => void toggleFavorite(event)}
+                size="md"
+                variant="solid"
+              />
               <Button variant="outline" size="sm" onClick={handleShare}>
                 <Share2 className="h-4 w-4 mr-2" />
                 Share
@@ -291,11 +301,14 @@ export default function EventDetail({
                         } else if (field.type === 'multiselect' || field.type === 'tags') {
                           displayValue = (
                             <div className="flex flex-wrap gap-1">
-                              {(Array.isArray(value) ? value : []).map((v: string, i: number) => (
-                                <Badge key={i} variant="secondary" className="text-xs">
-                                  {v}
-                                </Badge>
-                              ))}
+                              {(Array.isArray(value) ? value : []).map((v: string, i: number) => {
+                                const option = field.options?.find(o => o.value === v);
+                                return (
+                                  <Badge key={i} variant="secondary" className="text-xs">
+                                    {option?.label || v}
+                                  </Badge>
+                                );
+                              })}
                             </div>
                           );
                         } else if (field.type === 'select' && field.options) {
@@ -359,10 +372,7 @@ export default function EventDetail({
                 <CardContent className="space-y-3">
                   <div>
                     <p className="text-foreground font-medium">
-                      {isSingleDay 
-                        ? format(startDate, 'EEEE, MMMM d, yyyy')
-                        : `${format(startDate, 'MMM d')} - ${format(endDate, 'MMM d, yyyy')}`
-                      }
+                      {detailDateLabel}
                     </p>
                   </div>
                   {(event.start_time || event.end_time) && (
@@ -446,9 +456,7 @@ export default function EventDetail({
               
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {relatedEvents.map((relatedEvent) => {
-                  const relStartDate = parseISO(relatedEvent.start_date);
-                  const relEndDate = parseISO(relatedEvent.end_date);
-                  const relIsSingleDay = relatedEvent.start_date === relatedEvent.end_date;
+                  const relatedDateBadge = getEventDateBadgeParts(relatedEvent);
                   
                   return (
                     <Link
@@ -474,13 +482,10 @@ export default function EventDetail({
                           {/* Date Badge */}
                           <div className="absolute top-2 right-2 bg-background/95 backdrop-blur-sm rounded-md px-2 py-1 text-center border border-border/50">
                             <span className="block text-lg font-bold text-primary leading-none">
-                              {relIsSingleDay 
-                                ? format(relStartDate, 'd')
-                                : `${format(relStartDate, 'd')}-${format(relEndDate, 'd')}`
-                              }
+                              {relatedDateBadge.primary}
                             </span>
                             <span className="block text-xs font-medium text-foreground uppercase">
-                              {format(relStartDate, 'MMM')}
+                              {relatedDateBadge.secondary}
                             </span>
                           </div>
                           

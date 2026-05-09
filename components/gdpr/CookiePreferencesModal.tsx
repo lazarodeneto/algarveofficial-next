@@ -8,7 +8,6 @@ interface CookiePreferencesModalProps {
   cookieUrl: string;
   preferences: CookiePreferenceDraft;
   saveDisabled: boolean;
-  showEnglishDescriptions: boolean;
   onClose: () => void;
   onPreferencesChange: (next: CookiePreferenceDraft) => void;
   onAcceptAll: () => void;
@@ -71,7 +70,6 @@ export function CookiePreferencesModal({
   cookieUrl,
   preferences,
   saveDisabled,
-  showEnglishDescriptions,
   onClose,
   onPreferencesChange,
   onAcceptAll,
@@ -187,23 +185,15 @@ export function CookiePreferencesModal({
         <div className="space-y-3">
           <PreferenceSwitch
             id="modal-essential"
-            label="Necessary cookies"
-            description={
-              showEnglishDescriptions
-                ? "Required for security, authentication, and core website functionality."
-                : ""
-            }
+            label={t("cookie.necessaryCookies")}
+            description={t("cookie.necessaryCookiesDescription")}
             checked
             disabled
           />
           <PreferenceSwitch
             id="modal-functional"
-            label="Functional cookies"
-            description={
-              showEnglishDescriptions
-                ? "Enables embedded media and convenience features such as richer interactive experiences."
-                : ""
-            }
+            label={t("cookie.functionalCookies")}
+            description={t("cookie.functionalCookiesDescription")}
             checked={preferences.functional}
             onChange={(checked) =>
               onPreferencesChange({
@@ -214,12 +204,8 @@ export function CookiePreferencesModal({
           />
           <PreferenceSwitch
             id="modal-analytics"
-            label="Analytics cookies"
-            description={
-              showEnglishDescriptions
-                ? "Measures visits, page views, and site performance so we can improve the experience."
-                : ""
-            }
+            label={t("cookie.analyticsCookies")}
+            description={t("cookie.analyticsCookiesDescription")}
             checked={preferences.analytics}
             onChange={(checked) =>
               onPreferencesChange({
@@ -230,12 +216,8 @@ export function CookiePreferencesModal({
           />
           <PreferenceSwitch
             id="modal-marketing"
-            label="Marketing cookies"
-            description={
-              showEnglishDescriptions
-                ? "Controls marketing prompts, campaign measurement, and related promotional technologies."
-                : ""
-            }
+            label={t("cookie.marketingCookies")}
+            description={t("cookie.marketingCookiesDescription")}
             checked={preferences.marketing}
             onChange={(checked) =>
               onPreferencesChange({
@@ -252,7 +234,7 @@ export function CookiePreferencesModal({
             onClick={onDenyAll}
             className="h-12 rounded-xl border border-zinc-300 bg-white px-4 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900"
           >
-            Reject All
+            {t("cookie.denyAll")}
           </button>
           <button
             type="button"

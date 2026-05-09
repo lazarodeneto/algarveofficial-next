@@ -10,6 +10,12 @@ import {
   normalizeSlug,
   slugifyEntityName,
 } from '@/lib/slugify';
+import {
+  getPublicEventCutoffDate,
+  isPublicEventVisibleByDate,
+} from '@/lib/events/publicVisibility';
+import { localizeEvent, localizeEvents } from '@/lib/events/i18n';
+import { useCurrentLocale } from '@/hooks/useCurrentLocale';
 
 type AdminEventsFilters = {
   status?: EventStatus;
@@ -111,26 +117,22 @@ async function fetchAdminEvents(filters?: AdminEventsFilters): Promise<CalendarE
 // Fetch published events for public page
 export function usePublishedEvents(category?: EventCategory | 'all', timeFilter: 'upcoming' | 'past' | 'all' = 'upcoming') {
   const isBrowser = typeof window !== "undefined";
+  const locale = useCurrentLocale();
 
   return useQuery({
-    queryKey: ['events', 'published', category, timeFilter],
+    queryKey: ['events', 'published', category, timeFilter, locale],
     queryFn: async () => {
-      const today = new Date().toISOString().split('T')[0];
+      const today = getPublicEventCutoffDate();
       let query = supabase
         .from('events')
         .select(`
           *,
           city:cities(id, name, slug)
         `)
-        .eq('status', 'published');
+        .eq('status', 'published')
+        .gte('end_date', today);
 
-      if (timeFilter === 'upcoming') {
-        query = query.gte('end_date', today);
-      } else if (timeFilter === 'past') {
-        query = query.lt('end_date', today);
-      }
-
-      query = query.order('start_date', { ascending: timeFilter !== 'past' });
+      query = query.order('start_date', { ascending: true });
 
       if (category && category !== 'all') {
         query = query.eq('category', category);
@@ -138,7 +140,7 @@ export function usePublishedEvents(category?: EventCategory | 'all', timeFilter:
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as CalendarEvent[];
+      return localizeEvents((data ?? []) as CalendarEvent[], locale);
     },
     enabled: isBrowser,
     placeholderData: [] as CalendarEvent[],
@@ -236,12 +238,16 @@ export function useEvent(id: string | undefined) {
 // Fetch single event by slug (for public detail page)
 export function useEventBySlug(slug: string, initialEvent?: CalendarEvent | null) {
   const isBrowser = typeof window !== "undefined";
+  const locale = useCurrentLocale();
   const normalizedSlug = slug || initialEvent?.slug || "";
+  const localizedInitialEvent = localizeEvent(initialEvent ?? null, locale);
 
   return useQuery({
-    queryKey: ['event', 'slug', normalizedSlug],
+    queryKey: ['event', 'slug', normalizedSlug, locale],
     queryFn: async () => {
-      if (!normalizedSlug) return initialEvent ?? null;
+      if (!normalizedSlug) {
+        return localizedInitialEvent && isPublicEventVisibleByDate(localizedInitialEvent) ? localizedInitialEvent : null;
+      }
       
       const { data, error } = await supabase
         .from('events')
@@ -251,13 +257,15 @@ export function useEventBySlug(slug: string, initialEvent?: CalendarEvent | null
         `)
         .eq('slug', normalizedSlug)
         .eq('status', 'published')
+        .gte('end_date', getPublicEventCutoffDate())
         .maybeSingle();
 
       if (error) throw error;
-      return (data as CalendarEvent | null) ?? initialEvent ?? null;
+      return localizeEvent((data as CalendarEvent | null) ??
+        (localizedInitialEvent && isPublicEventVisibleByDate(localizedInitialEvent) ? localizedInitialEvent : null), locale);
     },
     enabled: isBrowser && !!normalizedSlug,
-    ...(initialEvent ? { initialData: initialEvent, initialDataUpdatedAt: 0 } : {}),
+    ...(localizedInitialEvent ? { initialData: localizedInitialEvent, initialDataUpdatedAt: 0 } : {}),
     staleTime: 30 * 1000,
   });
 }
@@ -265,9 +273,10 @@ export function useEventBySlug(slug: string, initialEvent?: CalendarEvent | null
 // Fetch related events (same category or city, excluding current event)
 export function useRelatedEvents(eventId: string | undefined, category: string | undefined, cityId: string | undefined, limit = 4) {
   const isBrowser = typeof window !== "undefined";
+  const locale = useCurrentLocale();
 
   return useQuery({
-    queryKey: ['events', 'related', eventId, category, cityId],
+    queryKey: ['events', 'related', eventId, category, cityId, locale],
     queryFn: async () => {
       if (!eventId) return [];
       
@@ -279,14 +288,14 @@ export function useRelatedEvents(eventId: string | undefined, category: string |
           city:cities(id, name, slug)
         `)
         .eq('status', 'published')
-        .gte('end_date', new Date().toISOString().split('T')[0])
+        .gte('end_date', getPublicEventCutoffDate())
         .neq('id', eventId)
         .or(`category.eq.${category},city_id.eq.${cityId}`)
         .order('start_date', { ascending: true })
         .limit(limit);
 
       if (error) throw error;
-      return data as CalendarEvent[];
+      return localizeEvents((data ?? []) as CalendarEvent[], locale);
     },
     enabled: isBrowser && !!eventId && (!!category || !!cityId),
     initialData: [] as CalendarEvent[],

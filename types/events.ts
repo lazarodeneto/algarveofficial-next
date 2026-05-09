@@ -67,6 +67,7 @@ export interface CalendarEvent {
   price_range: string | null;
   is_featured: boolean;
   is_recurring: boolean;
+  listing_id?: string | null;
   recurrence_pattern: string | null;
   related_listing_ids: string[];
   tags: string[];

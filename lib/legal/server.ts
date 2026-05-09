@@ -4,7 +4,7 @@ import {
   pickLegalSettingsRowByLocale,
 } from "@/lib/legal/settings";
 
-type LegalSettingsTable = "privacy_settings" | "terms_settings";
+type LegalSettingsTable = "privacy_settings" | "terms_settings" | "cookie_settings";
 
 export interface LegalSettingsMetadataRecord {
   id: string;

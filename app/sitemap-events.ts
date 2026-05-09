@@ -3,6 +3,7 @@ import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { DEFAULT_LOCALE } from "@/lib/i18n/config";
 import { buildCanonicalUrl, buildHreflangs } from "@/lib/i18n/seo";
 import { sanitizeSitemapImageUrl } from "@/lib/seo/sitemap-utils";
+import { getPublicEventCutoffDate } from "@/lib/events/publicVisibility";
 
 const SITEMAP_FETCH_LIMIT = 5000;
 export const revalidate = 3600;
@@ -19,8 +20,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const { data: events, error } = await supabase
     .from("events")
-    .select("slug, updated_at, start_date, image")
+    .select("slug, updated_at, start_date, end_date, image")
     .eq("status", "published")
+    .gte("end_date", getPublicEventCutoffDate(now))
     .order("start_date", { ascending: false, nullsFirst: false })
     .limit(SITEMAP_FETCH_LIMIT);
 

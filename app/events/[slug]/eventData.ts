@@ -4,12 +4,14 @@ import type { CalendarEvent } from "@/types/events";
 import type { Locale } from "@/lib/i18n/config";
 import { buildUniformLocalizedSlugMap } from "@/lib/i18n/localized-routing";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
+import { getPublicEventCutoffDate } from "@/lib/events/publicVisibility";
+import { localizeEvent } from "@/lib/events/i18n";
 
 export type EventSeoRecord = CalendarEvent & {
   localizedSlugs: Record<Locale, string>;
 };
 
-export const getPublishedEventBySlug = cache(async (slug: string): Promise<EventSeoRecord | null> => {
+export const getPublishedEventBySlug = cache(async (slug: string, locale?: string): Promise<EventSeoRecord | null> => {
   const normalizedSlug = slug.trim();
   if (!normalizedSlug) {
     return null;
@@ -24,6 +26,7 @@ export const getPublishedEventBySlug = cache(async (slug: string): Promise<Event
     `)
     .eq("slug", normalizedSlug)
     .eq("status", "published")
+    .gte("end_date", getPublicEventCutoffDate())
     .maybeSingle();
 
   if (error) {
@@ -34,8 +37,8 @@ export const getPublishedEventBySlug = cache(async (slug: string): Promise<Event
     return null;
   }
 
-  return {
+  return localizeEvent({
     ...(data as CalendarEvent),
     localizedSlugs: buildUniformLocalizedSlugMap(data.slug),
-  };
+  }, locale);
 });

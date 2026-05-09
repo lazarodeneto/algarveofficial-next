@@ -31,7 +31,7 @@ function buildEventRouteData(event: NonNullable<Awaited<ReturnType<typeof getPub
 export async function generateMetadata({ params }: LocaleEventDetailPageProps): Promise<Metadata> {
   const { locale, slug } = await params;
   const resolvedLocale = (locale ?? DEFAULT_LOCALE) as Locale;
-  const event = await getPublishedEventBySlug(slug);
+  const event = await getPublishedEventBySlug(slug, resolvedLocale);
 
   if (!event) {
     return buildPageMetadata({
@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: LocaleEventDetailPageProps): 
 export default async function LocaleEventDetailPage({ params }: LocaleEventDetailPageProps) {
   const { locale, slug } = await params;
   const resolvedLocale = (locale ?? DEFAULT_LOCALE) as Locale;
-  const event = await getPublishedEventBySlug(slug);
+  const event = await getPublishedEventBySlug(slug, resolvedLocale);
 
   if (!event) notFound();
 

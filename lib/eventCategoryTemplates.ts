@@ -93,6 +93,7 @@ export const eventCategoryTemplates: Record<string, EventCategoryTemplate> = {
           { value: 'christmas', label: 'Christmas Market' },
           { value: 'night', label: 'Night Market' },
           { value: 'antique', label: 'Antique Market' },
+          { value: 'trade_fair', label: 'Trade & Exhibition Fair' },
         ],
       },
       {
@@ -114,6 +115,11 @@ export const eventCategoryTemplates: Record<string, EventCategoryTemplate> = {
           { value: 'art', label: 'Art & Paintings' },
           { value: 'plants', label: 'Plants & Flowers' },
           { value: 'home', label: 'Home Decor' },
+          { value: 'tourism', label: 'Tourism' },
+          { value: 'agriculture', label: 'Agriculture' },
+          { value: 'commerce', label: 'Commerce' },
+          { value: 'industry', label: 'Industry' },
+          { value: 'restaurants', label: 'Restaurants' },
         ],
       },
       {
@@ -232,6 +238,8 @@ export const eventCategoryTemplates: Record<string, EventCategoryTemplate> = {
         type: 'select',
         options: [
           { value: 'food_festival', label: 'Food Festival' },
+          { value: 'seafood_festival', label: 'Seafood Festival' },
+          { value: 'sardine_festival', label: 'Sardine Festival' },
           { value: 'wine_tasting', label: 'Wine Tasting' },
           { value: 'cooking_class', label: 'Cooking Class' },
           { value: 'gourmet_dinner', label: 'Gourmet Dinner' },
@@ -308,6 +316,7 @@ export const eventCategoryTemplates: Record<string, EventCategoryTemplate> = {
           { value: 'pop', label: 'Pop' },
           { value: 'electronic', label: 'Electronic' },
           { value: 'fado', label: 'Fado' },
+          { value: 'portuguese', label: 'Portuguese Music' },
           { value: 'world', label: 'World Music' },
           { value: 'folk', label: 'Folk' },
         ],
@@ -319,6 +328,7 @@ export const eventCategoryTemplates: Record<string, EventCategoryTemplate> = {
         options: [
           { value: 'concert', label: 'Concert' },
           { value: 'festival', label: 'Festival' },
+          { value: 'street_party', label: 'Street Party' },
           { value: 'orchestra', label: 'Orchestra' },
           { value: 'dj_set', label: 'DJ Set' },
           { value: 'intimate', label: 'Intimate Performance' },
@@ -343,6 +353,8 @@ export const eventCategoryTemplates: Record<string, EventCategoryTemplate> = {
           { value: 'winery', label: 'Winery' },
           { value: 'theater', label: 'Theater' },
           { value: 'church', label: 'Church' },
+          { value: 'waterfront', label: 'Waterfront' },
+          { value: 'historic_center', label: 'Historic Centre' },
         ],
       },
       {
@@ -383,6 +395,7 @@ export const eventCategoryTemplates: Record<string, EventCategoryTemplate> = {
           { value: 'exhibition', label: 'Exhibition' },
           { value: 'museum', label: 'Museum Event' },
           { value: 'historical', label: 'Historical Reenactment' },
+          { value: 'medieval_fair', label: 'Medieval Fair' },
           { value: 'theater', label: 'Theater' },
           { value: 'dance', label: 'Dance Performance' },
           { value: 'literary', label: 'Literary Event' },
@@ -450,6 +463,7 @@ export const eventCategoryTemplates: Record<string, EventCategoryTemplate> = {
           { value: 'swimming', label: 'Swimming' },
           { value: 'football', label: 'Football' },
           { value: 'surfing', label: 'Surfing' },
+          { value: 'motorsport', label: 'Motorsport' },
         ],
       },
       {

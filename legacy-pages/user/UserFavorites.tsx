@@ -11,6 +11,7 @@ import {
   Trash2,
   MessageSquare,
   ExternalLink,
+  Calendar,
   Crown,
   ShieldCheck,
   MapPin,
@@ -54,12 +55,18 @@ import ListingImage from "@/components/ListingImage";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getRegionImageSet } from "@/lib/regionImages";
+import { getCategoryFallbackImageUrl } from "@/lib/fallback-images";
+import { getEventCompactDateRangeLabel } from "@/lib/events/dateDisplay";
+import { isPublicEventVisibleByDate } from "@/lib/events/publicVisibility";
+import { localizeEvents } from "@/lib/events/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import type { TablesInsert } from "@/integrations/supabase/types";
 
 export default function UserFavorites() {
   const { t } = useTranslation();
+  const locale = useCurrentLocale();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
@@ -69,12 +76,14 @@ export default function UserFavorites() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
   const [listingToRemove, setListingToRemove] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'listings' | 'regions' | 'cities'>('listings');
+  const [eventToRemove, setEventToRemove] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'listings' | 'events' | 'regions' | 'cities'>('listings');
   
   const [destRemoveDialogOpen, setDestRemoveDialogOpen] = useState(false);
   const [destToRemove, setDestToRemove] = useState<{ type: 'region' | 'city'; id: string; name: string } | null>(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [destSearchQuery, setDestSearchQuery] = useState("");
+  const eventImageFallback = getCategoryFallbackImageUrl("events") ?? "/og-image.png";
 
   // Fetch favorite listings
   const { data: favorites = [], isLoading: favoritesLoading } = useQuery({
@@ -97,6 +106,35 @@ export default function UserFavorites() {
         .not('listing_id', 'is', null);
       if (error) throw error;
       return data.filter(f => f.listing);
+    },
+    enabled: !!user?.id,
+  });
+
+  // Fetch favorite events
+  const { data: favoriteEvents = [], isLoading: favoriteEventsLoading } = useQuery({
+    queryKey: ['user-favorite-events', user?.id, locale],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data: favoriteRows, error: favoritesError } = await supabase
+        .from('favorites')
+        .select('listing_id')
+        .eq('user_id', user.id)
+        .not('listing_id', 'is', null);
+      if (favoritesError) throw favoritesError;
+
+      const listingIds = [...new Set((favoriteRows ?? []).map((row) => row.listing_id).filter(Boolean))];
+      if (listingIds.length === 0) return [];
+
+      const { data, error } = await supabase
+        .from('events')
+        .select(`
+          id, listing_id, title, slug, short_description, description,
+          image, category, start_date, end_date, venue, location,
+          city:cities(id, name)
+        `)
+        .in('listing_id', listingIds);
+      if (error) throw error;
+      return localizeEvents((data ?? []).filter((event) => isPublicEventVisibleByDate(event)), locale);
     },
     enabled: !!user?.id,
   });
@@ -200,6 +238,27 @@ export default function UserFavorites() {
     },
   });
 
+  // Remove event favorite mutation
+  const removeEventFavoriteMutation = useMutation({
+    mutationFn: async (listingId: string) => {
+      if (!user?.id) {
+        throw new Error("User authentication required");
+      }
+
+      const { error } = await supabase
+        .from('favorites')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('listing_id', listingId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-favorite-events'] });
+      queryClient.invalidateQueries({ queryKey: ['favorites', 'all', user?.id] });
+      toast.success("Removed from favorites");
+    },
+  });
+
   // Add destination mutation
   const addDestinationMutation = useMutation({
     mutationFn: async ({ type, id }: { type: 'region' | 'city'; id: string }) => {
@@ -267,10 +326,21 @@ export default function UserFavorites() {
   };
 
   const confirmRemove = () => {
-    if (!listingToRemove) return;
-    removeFavoriteMutation.mutate(listingToRemove);
+    if (listingToRemove) {
+      removeFavoriteMutation.mutate(listingToRemove);
+    }
+    if (eventToRemove) {
+      removeEventFavoriteMutation.mutate(eventToRemove);
+    }
     setRemoveDialogOpen(false);
     setListingToRemove(null);
+    setEventToRemove(null);
+  };
+
+  const handleEventRemoveClick = (listingId: string) => {
+    setEventToRemove(listingId);
+    setListingToRemove(null);
+    setRemoveDialogOpen(true);
   };
 
   const handleDestRemoveClick = (type: 'region' | 'city', id: string, name: string) => {
@@ -301,7 +371,7 @@ export default function UserFavorites() {
     c.name.toLowerCase().includes(destSearchQuery.toLowerCase())
   );
 
-  if (favoritesLoading) {
+  if (favoritesLoading || favoriteEventsLoading) {
     return (
       <div className="flex items-center justify-center py-16">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -329,12 +399,16 @@ export default function UserFavorites() {
       </m.div>
 
       {/* Main Tabs */}
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'listings' | 'regions' | 'cities')}>
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'listings' | 'events' | 'regions' | 'cities')}>
         <div className="flex flex-col sm:flex-row justify-between gap-4">
           <TabsList>
             <TabsTrigger value="listings" className="flex items-center gap-2">
               <Heart className="h-4 w-4" />
               {t("dashboard.favorites.listings")} ({favoriteListings.length})
+            </TabsTrigger>
+            <TabsTrigger value="events" className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              {t("dashboard.favorites.events", "Events")} ({favoriteEvents.length})
             </TabsTrigger>
             <TabsTrigger value="regions" className="flex items-center gap-2">
               <Mountain className="h-4 w-4" />
@@ -563,6 +637,75 @@ export default function UserFavorites() {
                     </CardContent>
                   </Card>
                 </div>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Events Tab */}
+        <TabsContent value="events" className="mt-6">
+          {favoriteEvents.length === 0 ? (
+            <Card className="bg-card border-border">
+              <CardContent className="flex flex-col items-center justify-center py-16">
+                <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-lg font-medium mb-2">{t("dashboard.favorites.noSavedEvents", "No saved events yet")}</p>
+                <p className="text-muted-foreground text-center mb-6">
+                  {t("dashboard.favorites.saveEvents", "Save upcoming events you want to remember.")}
+                </p>
+                <Button asChild>
+                  <LocaleLink href="/events">{t("dashboard.favorites.exploreEvents", "Explore Events")}</LocaleLink>
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {favoriteEvents.map((event: any) => (
+                <Card key={event.id} className="bg-card border-border overflow-hidden h-full">
+                  <div className="aspect-[16/10] overflow-hidden relative">
+                    <img
+                      src={event.image ?? eventImageFallback}
+                      alt={event.title}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="absolute top-2 right-2 h-8 w-8 bg-black/30 backdrop-blur-xl border border-white/20 hover:bg-black/40"
+                      onClick={() => event.listing_id && handleEventRemoveClick(event.listing_id)}
+                    >
+                      <Heart className="h-4 w-4 fill-red-500 text-red-500" />
+                    </Button>
+                  </div>
+                  <CardContent className="p-4 flex flex-col">
+                    <Link href={`/events/${event.slug}`}>
+                      <h3 className="font-medium line-clamp-2">
+                        {event.title}
+                      </h3>
+                    </Link>
+                    <div className="mt-2 space-y-1 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        <span>{getEventCompactDateRangeLabel(event)}</span>
+                      </div>
+                      {(event.venue || event.location || event.city?.name) && (
+                        <div className="flex items-start gap-2">
+                          <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
+                          <span className="line-clamp-2">{event.venue || event.location || event.city?.name}</span>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-3 line-clamp-2">
+                      {event.short_description || event.description}
+                    </p>
+                    <Button size="sm" variant="outline" className="mt-4 w-full" asChild>
+                      <Link href={`/events/${event.slug}`}>
+                        <ExternalLink className="h-4 w-4 mr-1" />
+                        {t("dashboard.favorites.viewEvent", "View Event")}
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           )}

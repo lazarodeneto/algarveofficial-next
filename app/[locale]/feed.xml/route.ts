@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { SUPPORTED_LOCALES } from "@/lib/i18n/config";
+import { getPublicEventCutoffDate } from "@/lib/events/publicVisibility";
+import { localizeEvents } from "@/lib/events/i18n";
 
 const DEFAULT_SITE_URL = "https://algarveofficial.com";
 const SITE_NAME = "AlgarveOfficial";
@@ -51,14 +53,14 @@ async function getBlogPosts() {
   return data ?? [];
 }
 
-async function getEvents() {
+async function getEvents(locale: string) {
   const supabase = createPublicServerClient();
   const { data, error } = await supabase
     .from("events")
     .select("slug, title, description, image, start_date, end_date, location, venue, updated_at")
     .eq("status", "published")
     .not("slug", "is", null)
-    .gte("start_date", new Date().toISOString())
+    .gte("end_date", getPublicEventCutoffDate())
     .order("start_date", { ascending: true })
     .limit(50);
 
@@ -67,7 +69,7 @@ async function getEvents() {
     return [];
   }
 
-  return data ?? [];
+  return localizeEvents(data ?? [], locale);
 }
 
 export const revalidate = 3600;
@@ -81,7 +83,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ loca
   const siteUrl = getSiteUrl();
   const baseUrl = `${siteUrl}/${locale}`;
 
-  const [blogPosts, events] = await Promise.all([getBlogPosts(), getEvents()]);
+  const [blogPosts, events] = await Promise.all([getBlogPosts(), getEvents(locale)]);
 
   const items: string[] = [];
 

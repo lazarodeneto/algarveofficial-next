@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/select';
 import { eventCategoryLabels, eventCategoryColors, type EventCategory } from '@/types/events';
 import { usePublishedEvents } from '@/hooks/useEvents';
+import { useFavoriteEvents } from '@/hooks/useFavoriteEvents';
 import { useLocalePath } from '@/hooks/useLocalePath';
 import { useCmsPageBuilder } from '@/hooks/useCmsPageBuilder';
 import { CmsBlock } from '@/components/cms/CmsBlock';
@@ -38,6 +39,12 @@ import {
   STANDARD_PUBLIC_NO_HERO_SPACER_CLASS,
 } from "@/components/sections/hero-layout";
 import { getCategoryFallbackImageUrl } from "@/lib/fallback-images";
+import {
+  getEventCompactDateRangeLabel,
+  getEventDateBadgeParts,
+} from "@/lib/events/dateDisplay";
+import { isPublicEventVisibleByDate } from "@/lib/events/publicVisibility";
+import { FavoriteButton } from "@/components/ui/favorite-button";
 
 export default function Events() {
   const { t } = useTranslation();
@@ -71,8 +78,10 @@ export default function Events() {
   // Fetch events from database
   const timeFilter = 'upcoming';
   const { data: events = [], isLoading } = usePublishedEvents(selectedCategory, timeFilter);
-  const featuredEvents = events.filter((e) => e.is_featured).slice(0, 3);
-  const upcomingEvents = events.filter((e) => !featuredEvents.includes(e));
+  const { isFavorite, toggleFavorite } = useFavoriteEvents();
+  const visibleEvents = events.filter((event) => isPublicEventVisibleByDate(event));
+  const featuredEvents = visibleEvents.filter((e) => e.is_featured).slice(0, 3);
+  const upcomingEvents = visibleEvents.filter((e) => !featuredEvents.includes(e));
 
   // Group by month
   const eventsByMonth = useMemo(() => {
@@ -162,13 +171,17 @@ export default function Events() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 * index }}
                 >
-                  <Link
-                    href={getEventHref(event)}
-                    aria-label={`Open ${event.title}`}
-                    className="block h-full rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    <Card className="h-full cursor-pointer overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">
-                      <div className="aspect-video relative overflow-hidden">
+                  {(() => {
+                    const dateBadge = getEventDateBadgeParts(event);
+                    return (
+	                  <div className="relative h-full rounded-lg">
+	                    <Link
+	                      href={getEventHref(event)}
+	                      aria-label={`Open ${event.title}`}
+	                      className="block h-full rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+	                    >
+	                      <Card className="h-full cursor-pointer overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">
+	                      <div className="aspect-video relative overflow-hidden">
                         <img
                           src={event.image ?? eventImageFallback}
                           alt={event.title}
@@ -178,24 +191,19 @@ export default function Events() {
                         {/* Large Date Badge */}
                         <div className="absolute bottom-3 right-3 bg-background/95 backdrop-blur-sm rounded-lg px-4 py-3 text-center border border-border/50 shadow-lg">
                           <span className="block text-3xl font-bold text-primary leading-none">
-                            {event.start_date === event.end_date 
-                              ? format(parseISO(event.start_date), 'd')
-                              : `${format(parseISO(event.start_date), 'd')} - ${format(parseISO(event.end_date), 'd')}`
-                            }
+                            {dateBadge.primary}
                           </span>
                           <span className="block text-sm font-medium text-foreground uppercase tracking-wide">
-                            {format(parseISO(event.start_date), 'MMM')}
+                            {dateBadge.secondary}
                           </span>
                         </div>
-                        <div className="absolute top-3 left-3">
-                          <Badge className={eventCategoryColors[event.category as EventCategory]}>
-                            {getEventCategoryLabel(event.category as EventCategory)}
-                          </Badge>
-                        </div>
-                        <div className="absolute top-3 right-3">
-                          <Badge className="bg-primary text-primary-foreground">
-                            {getText("featured.badge", t("sections.events.featuredBadge"))}
-                          </Badge>
+	                        <div className="absolute top-3 left-3 flex flex-col items-start gap-2">
+	                          <Badge className={eventCategoryColors[event.category as EventCategory]}>
+	                            {getEventCategoryLabel(event.category as EventCategory)}
+	                          </Badge>
+	                          <Badge className="bg-primary text-primary-foreground">
+	                            {getText("featured.badge", t("sections.events.featuredBadge"))}
+	                          </Badge>
                         </div>
                       </div>
                       <CardContent className="p-5">
@@ -209,8 +217,7 @@ export default function Events() {
                           <div className="flex items-center gap-2 text-muted-foreground">
                             <Calendar className="h-4 w-4" />
                             <span>
-                              {format(parseISO(event.start_date), 'MMM d')}
-                              {event.start_date !== event.end_date && ` - ${format(parseISO(event.end_date), 'MMM d, yyyy')}`}
+                              {getEventCompactDateRangeLabel(event)}
                             </span>
                           </div>
                           <div className="flex items-center gap-2 text-muted-foreground">
@@ -225,8 +232,20 @@ export default function Events() {
                           )}
                         </div>
                       </CardContent>
-                    </Card>
-                  </Link>
+	                      </Card>
+	                    </Link>
+	                    <div className="absolute right-3 top-3 z-20">
+	                      <FavoriteButton
+	                        isFavorite={isFavorite(event)}
+	                        onToggle={() => void toggleFavorite(event)}
+	                        size="md"
+	                        variant="glassmorphism"
+	                        className="bg-white/90 backdrop-blur border-white/20 hover:bg-white hover:border-red-400/30 [&_svg]:text-neutral-700 [&_svg]:hover:text-red-400"
+	                      />
+	                    </div>
+	                  </div>
+                    );
+                  })()}
                 </m.div>
               ))}
             </div>
@@ -265,22 +284,26 @@ export default function Events() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.05 * index }}
                       >
-                        <Link
-                          href={getEventHref(event)}
-                          aria-label={`Open ${event.title}`}
-                          className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                        >
-                          <Card className="cursor-pointer overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">
-                            <div className="flex flex-col sm:flex-row">
+                        {(() => {
+                          const dateBadge = getEventDateBadgeParts(event);
+                          return (
+	                        <div className="relative rounded-lg">
+	                          <Link
+	                            href={getEventHref(event)}
+	                            aria-label={`Open ${event.title}`}
+	                            className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+	                          >
+	                            <Card className="cursor-pointer overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">
+	                            <div className="flex flex-col sm:flex-row">
                               <div className="w-full sm:w-24 flex-shrink-0 bg-muted flex flex-row sm:flex-col items-center justify-center gap-1 sm:gap-0 p-3">
                                 <span className="text-2xl font-bold text-primary">
-                                  {format(parseISO(event.start_date), 'd')}
+                                  {dateBadge.primary}
                                 </span>
                                 <span className="text-xs text-muted-foreground uppercase">
-                                  {format(parseISO(event.start_date), 'MMM')}
+                                  {dateBadge.secondary}
                                 </span>
                               </div>
-                              <CardContent className="p-4 flex-1 min-w-0">
+	                              <CardContent className="p-4 pr-14 flex-1 min-w-0">
                                 <Badge className={`${eventCategoryColors[event.category as EventCategory]} text-xs mb-2 max-w-full`}>
                                   {getEventCategoryLabel(event.category as EventCategory)}
                                 </Badge>
@@ -293,8 +316,19 @@ export default function Events() {
                                 </div>
                               </CardContent>
                             </div>
-                          </Card>
-                        </Link>
+	                            </Card>
+	                          </Link>
+	                          <div className="absolute right-3 top-3 z-20">
+	                            <FavoriteButton
+	                              isFavorite={isFavorite(event)}
+	                              onToggle={() => void toggleFavorite(event)}
+	                              size="sm"
+	                              variant="solid"
+	                            />
+	                          </div>
+	                        </div>
+                          );
+                        })()}
                       </m.div>
                     ))}
                   </div>

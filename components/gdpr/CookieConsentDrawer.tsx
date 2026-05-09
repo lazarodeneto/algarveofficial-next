@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Crown } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import {
   COOKIE_PREFERENCES_OPEN_EVENT,
   DEFAULT_COOKIE_PREFERENCES,
@@ -48,7 +47,7 @@ function QuickToggle({ id, label, checked, disabled = false, onChange }: QuickTo
   );
 }
 
-function getInitialConsentState(version: string) {
+function getInitialConsentState() {
   if (typeof window === "undefined") {
     return {
       isVisible: false,
@@ -77,25 +76,15 @@ export function CookieConsentDrawer({
   onConsentChange,
 }: CookieConsentDrawerProps) {
   const { t } = useTranslation();
-  const [isVisible, setIsVisible] = useState(false);
+  const [initialConsentState] = useState(() => getInitialConsentState());
+  const [isVisible, setIsVisible] = useState(initialConsentState.isVisible);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [baselinePreferences, setBaselinePreferences] = useState<CookiePreferenceDraft>(
-    DEFAULT_COOKIE_PREFERENCES,
+    initialConsentState.preferences,
   );
   const [draftPreferences, setDraftPreferences] = useState<CookiePreferenceDraft>(
-    DEFAULT_COOKIE_PREFERENCES,
+    initialConsentState.preferences,
   );
-
-  useEffect(() => {
-    const storedConsent = getStoredCookieConsent();
-    const initialPreferences = draftFromCookieConsent(storedConsent);
-    setBaselinePreferences(initialPreferences);
-    setDraftPreferences(initialPreferences);
-
-    if (!storedConsent) {
-      setIsVisible(true);
-    }
-  }, []);
 
   useEffect(() => {
     const openPreferences = () => {
@@ -163,9 +152,6 @@ export function CookieConsentDrawer({
     commitConsent(draftPreferences);
   }, [commitConsent, draftPreferences, hasChanges]);
 
-  const locale = useCurrentLocale().toLowerCase();
-  const isEnglish = locale.startsWith("en");
-
   return (
     <>
       {isVisible ? (
@@ -209,7 +195,7 @@ export function CookieConsentDrawer({
                   onClick={handleRejectAll}
                   className="h-9 w-full rounded-xl border border-zinc-300 bg-white px-2 text-[10px] font-semibold text-zinc-900 transition hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 sm:h-12 sm:px-4 sm:text-sm"
                 >
-                  Reject All
+                  {t("cookie.denyAll")}
                 </button>
                 <button
                   type="button"
@@ -234,10 +220,10 @@ export function CookieConsentDrawer({
               </div>
 
               <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                <QuickToggle id="cookie-essential" label="Necessary cookies" checked disabled />
+                <QuickToggle id="cookie-essential" label={t("cookie.necessaryCookies")} checked disabled />
                 <QuickToggle
                   id="cookie-functional"
-                  label="Functional cookies"
+                  label={t("cookie.functionalCookies")}
                   checked={draftPreferences.functional}
                   onChange={(checked) =>
                     setDraftPreferences((current) => ({
@@ -248,7 +234,7 @@ export function CookieConsentDrawer({
                 />
                 <QuickToggle
                   id="cookie-analytics"
-                  label="Analytics cookies"
+                  label={t("cookie.analyticsCookies")}
                   checked={draftPreferences.analytics}
                   onChange={(checked) =>
                     setDraftPreferences((current) => ({
@@ -259,7 +245,7 @@ export function CookieConsentDrawer({
                 />
                 <QuickToggle
                   id="cookie-marketing"
-                  label="Marketing cookies"
+                  label={t("cookie.marketingCookies")}
                   checked={draftPreferences.marketing}
                   onChange={(checked) =>
                     setDraftPreferences((current) => ({
@@ -287,7 +273,6 @@ export function CookieConsentDrawer({
         cookieUrl={cookieUrl}
         preferences={draftPreferences}
         saveDisabled={!hasChanges}
-        showEnglishDescriptions={isEnglish}
         onClose={() => setIsModalOpen(false)}
         onPreferencesChange={setDraftPreferences}
         onAcceptAll={handleAcceptAll}
