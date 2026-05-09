@@ -132,7 +132,7 @@ export function usePublishedEvents(category?: EventCategory | 'all', timeFilter:
       return data as CalendarEvent[];
     },
     enabled: isBrowser,
-    initialData: [] as CalendarEvent[],
+    placeholderData: [] as CalendarEvent[],
   });
 }
 
