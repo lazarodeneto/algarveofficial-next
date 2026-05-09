@@ -227,10 +227,29 @@ const MERGED_MEMBERS_BY_CANONICAL: Record<string, string[]> = {
   "architecture-design": ["architecture-design", "architecture-decoration"],
 };
 
+const HIDDEN_LISTING_FILTER_CATEGORY_SLUGS = new Set([
+  "events",
+  "premier-events",
+  "events-in-algarve",
+  "algarve-events",
+  "whats-on",
+  "whatson",
+  "what-s-on",
+]);
+
 function normalizeSlug(slug?: string | null): string | null {
   if (!slug) return null;
   const normalized = slug.toLowerCase().trim();
   return normalized.length > 0 ? normalized : null;
+}
+
+export function isHiddenListingFilterCategorySlug(slug?: string | null): boolean {
+  const normalized = normalizeSlug(slug);
+  return Boolean(normalized && HIDDEN_LISTING_FILTER_CATEGORY_SLUGS.has(normalized));
+}
+
+export function filterVisibleListingCategories<T extends { slug?: string | null }>(categories: T[]): T[] {
+  return categories.filter((category) => !isHiddenListingFilterCategorySlug(category.slug));
 }
 
 export function isUuid(value?: string | null): boolean {
@@ -270,6 +289,7 @@ export function inferCategorySlugsFromSearch(search?: string | null): string[] {
 
   const matchedCanonical = new Set<string>();
   for (const [alias, canonical] of Object.entries(SEARCH_ALIAS_TO_CANONICAL)) {
+    if (isHiddenListingFilterCategorySlug(canonical) || isHiddenListingFilterCategorySlug(alias)) continue;
     if (normalized.includes(alias)) {
       matchedCanonical.add(canonical);
     }
@@ -288,6 +308,7 @@ export function buildMergedCategoryOptions(categories: CategoryRow[]): MergedCat
   categories.forEach((category) => {
     const normalized = normalizeSlug(category.slug);
     if (!normalized) return;
+    if (isHiddenListingFilterCategorySlug(normalized)) return;
     categoriesBySlug.set(normalized, category);
   });
 
@@ -374,6 +395,7 @@ export function resolveCategoryFilterSlug(
 
   const canonicalSlug = getCanonicalCategorySlug(value);
   if (!canonicalSlug) return "all";
+  if (isHiddenListingFilterCategorySlug(canonicalSlug)) return "all";
   return mergedCategories.some((item) => item.slug === canonicalSlug) ? canonicalSlug : "all";
 }
 

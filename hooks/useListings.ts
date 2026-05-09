@@ -2,7 +2,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
-import { inferCategorySlugsFromSearch } from '@/lib/categoryMerges';
+import { filterVisibleListingCategories, inferCategorySlugsFromSearch } from '@/lib/categoryMerges';
 import {
   fetchCategoryTranslations,
   fetchCityTranslations,
@@ -216,23 +216,23 @@ async function resolveSearchCategoryIds(search?: string): Promise<string[]> {
 
   const { data, error } = await supabase
     .from("categories")
-    .select("id")
+    .select("id, slug")
     .eq("is_active", true)
     .or(`name.ilike.%${term}%,slug.ilike.%${term}%,short_description.ilike.%${term}%`);
 
   if (error) throw error;
 
-  const ids = new Set((data || []).map((row) => row.id).filter(Boolean));
+  const ids = new Set(filterVisibleListingCategories(data || []).map((row) => row.id).filter(Boolean));
   const inferredSlugs = inferCategorySlugsFromSearch(term);
 
   if (inferredSlugs.length > 0) {
     const { data: inferredRows, error: inferredError } = await supabase
       .from("categories")
-      .select("id")
+      .select("id, slug")
       .in("slug", inferredSlugs);
 
     if (inferredError) throw inferredError;
-    (inferredRows || []).forEach((row) => {
+    filterVisibleListingCategories(inferredRows || []).forEach((row) => {
       if (row.id) ids.add(row.id);
     });
   }

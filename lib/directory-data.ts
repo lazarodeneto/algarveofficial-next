@@ -13,7 +13,12 @@ import type { Tables } from "@/integrations/supabase/types";
 import type { CityRow, RegionRow, CategoryRow } from "@/hooks/useReferenceData";
 import type { ListingWithRelations, ListingFilters } from "@/hooks/useListings";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
-import { buildMergedCategoryOptions, getMergedCategoryBySlug, resolveCategoryFilterSlug } from "@/lib/categoryMerges";
+import {
+  buildMergedCategoryOptions,
+  filterVisibleListingCategories,
+  getMergedCategoryBySlug,
+  resolveCategoryFilterSlug,
+} from "@/lib/categoryMerges";
 import { getProgrammaticCityIndexEntries } from "@/lib/seo/programmatic/category-city-data";
 import { buildMunicipalityCityIndex, type MunicipalityCityIndexItem } from "@/lib/cities/municipalityIndex";
 
@@ -242,7 +247,7 @@ async function fetchDirectoryCategories(
 
   if (error || !data) return [];
 
-  const categories = (data ?? []) as CategoryRow[];
+  const categories = filterVisibleListingCategories((data ?? []) as CategoryRow[]);
   if (locale === "en" || categories.length === 0) return categories;
 
   const translations = await fetchCategoryTranslations(locale, categories.map((c) => c.id));

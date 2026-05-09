@@ -37,6 +37,7 @@ import {
   STANDARD_PUBLIC_HERO_WRAPPER_CLASS,
   STANDARD_PUBLIC_NO_HERO_SPACER_CLASS,
 } from "@/components/sections/hero-layout";
+import { getCategoryFallbackImageUrl } from "@/lib/fallback-images";
 
 export default function Events() {
   const { t } = useTranslation();
@@ -44,6 +45,7 @@ export default function Events() {
   const { getText, isBlockEnabled } = useCmsPageBuilder("events");
   const today = startOfDay(new Date());
   const heroEnabled = isBlockEnabled("hero", true);
+  const eventImageFallback = getCategoryFallbackImageUrl("events") ?? "/og-image.png";
   
   const [selectedCategory, setSelectedCategory] = useState<EventCategory | 'all'>('all');
 
@@ -162,7 +164,7 @@ export default function Events() {
                     <Card className="h-full overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">
                       <div className="aspect-video relative overflow-hidden">
                         <img
-                          src={event.image}
+                          src={event.image ?? eventImageFallback}
                           alt={event.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           loading="lazy"

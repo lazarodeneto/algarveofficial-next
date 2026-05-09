@@ -8,6 +8,7 @@ import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { normalizeExternalUrlForStorage } from "@/lib/url-input";
 import { getDisallowedSlugInputError, getSlugValidationError, normalizeSlug } from "@/lib/slugify";
+import { filterVisibleListingCategories } from "@/lib/categoryMerges";
 
 type ListingImageInput = {
   url: string;
@@ -379,7 +380,7 @@ export async function GET(request: NextRequest) {
   if (includeRefData) {
     const [{ data: cities, error: citiesErr }, { data: categories, error: catsErr }] = await Promise.all([
       adminClient.from("cities").select("id, name").order("name"),
-      adminClient.from("categories").select("id, name").order("name"),
+      adminClient.from("categories").select("id, name, slug").order("name"),
     ]);
 
     if (citiesErr || catsErr) {
@@ -390,7 +391,7 @@ export async function GET(request: NextRequest) {
         { status: 500 },
       );
     }
-    return NextResponse.json({ ok: true, data: [], cities, categories });
+    return NextResponse.json({ ok: true, data: [], cities, categories: filterVisibleListingCategories(categories ?? []) });
   }
 
   const filters: AdminListingsFilters = {

@@ -15,6 +15,7 @@ import {
   regionListingCountsQueryKey,
   regionsQueryKey,
 } from "@/lib/query-keys";
+import { filterVisibleListingCategories } from "@/lib/categoryMerges";
 
 export type CityRow = Tables<'cities'>;
 export type RegionRow = Tables<'regions'>;
@@ -268,7 +269,7 @@ export function useCategories() {
         throw error;
       }
 
-      const categories = data as CategoryRow[];
+      const categories = filterVisibleListingCategories(data as CategoryRow[]);
       if (locale === "en" || categories.length === 0) return categories;
 
       const translations = await fetchCategoryTranslations(locale, categories.map((category) => category.id));
@@ -363,7 +364,7 @@ export function useFeaturedCategories() {
         throw error;
       }
 
-      const categories = data as CategoryRow[];
+      const categories = filterVisibleListingCategories(data as CategoryRow[]);
       if (locale === "en" || categories.length === 0) return categories;
 
       const translations = await fetchCategoryTranslations(locale, categories.map((category) => category.id));
@@ -473,7 +474,7 @@ export function useAllCategories() {
         throw error;
       }
 
-      return data as CategoryRow[];
+      return filterVisibleListingCategories(data as CategoryRow[]);
     },
     staleTime: 1000 * 60 * 10,
   });

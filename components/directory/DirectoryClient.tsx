@@ -29,6 +29,7 @@ import {
 } from "@/lib/cms/pageBuilderRegistry";
 import {
   buildMergedCategoryOptions,
+  filterVisibleListingCategories,
   getMergedCategoryBySlug,
   inferCategorySlugsFromSearch,
   resolveCategoryFilterSlug,
@@ -377,7 +378,7 @@ async function fetchCategories(locale: string) {
   if (error) throw error;
 
   const contentLocale: PublicContentLocale = normalizePublicContentLocale(locale);
-  const categories = (data ?? []) as CategoryRow[];
+  const categories = filterVisibleListingCategories((data ?? []) as CategoryRow[]);
   if (contentLocale === "en" || categories.length === 0) return categories;
 
   const translations = await fetchCategoryTranslations(contentLocale, categories.map((category) => category.id));

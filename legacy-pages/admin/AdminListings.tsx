@@ -73,6 +73,7 @@ import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { useDeleteListings, useUpdateListingStatus } from "@/hooks/useListingMutations";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { filterVisibleListingCategories } from "@/lib/categoryMerges";
 import { toast } from "sonner";
 
 export default function AdminListings() {
@@ -225,7 +226,10 @@ export default function AdminListings() {
   });
 
   const cityOptions = refData?.cities ?? [];
-  const categoryOptions = refData?.categories ?? [];
+  const categoryOptions = useMemo(
+    () => filterVisibleListingCategories(refData?.categories ?? []),
+    [refData?.categories],
+  );
 
   // Fallback: fetch cities directly (public table, no auth needed)
   const { data: cities = [] } = useQuery({
@@ -244,12 +248,12 @@ export default function AdminListings() {
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("categories").select("id, name").order("name");
+      const { data, error } = await supabase.from("categories").select("id, name, slug").order("name");
       if (error) {
         console.error("[categories]", error);
         return [];
       }
-      return data ?? [];
+      return filterVisibleListingCategories(data ?? []);
     },
   });
 

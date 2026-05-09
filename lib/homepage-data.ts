@@ -42,6 +42,7 @@ import {
   fetchCmsRuntimeSettings,
   type RuntimeSettingRow,
 } from "@/lib/cms/runtime-settings";
+import { filterVisibleListingCategories } from "@/lib/categoryMerges";
 
 const PUBLIC_LISTING_FIELDS =
   "id, slug, name, short_description, description, tier, status, latitude, longitude, featured_image_url, google_rating, google_review_count, created_at";
@@ -308,7 +309,7 @@ async function fetchCategories(
     .order("name", { ascending: true });
 
   if (error) return [];
-  return (data ?? []) as CategoryRow[];
+  return filterVisibleListingCategories((data ?? []) as CategoryRow[]);
 }
 
 async function fetchCities(supabase: ReturnType<typeof getServerSupabase>): Promise<CityRow[]> {
