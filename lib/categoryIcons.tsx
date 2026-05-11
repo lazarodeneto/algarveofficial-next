@@ -25,7 +25,7 @@ import {
  * 2  Gastronomy             = UtensilsCrossed
  * 3  Golf & Tournaments      = LandPlot
  * 4  Beaches & Beach Clubs   = Waves
- * 5  Wellness & Spas         = Sparkles
+ * 5  Wellness                = Sparkles
  * 6  Private Dining          = ChefHat
  * 7  Concierge Services      = ConciergeBell
  * 8  Algarve Experience     = Binoculars

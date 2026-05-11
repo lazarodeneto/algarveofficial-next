@@ -1,0 +1,396 @@
+"use client";
+
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { divIcon, latLngBounds } from "leaflet";
+import type { DivIcon } from "leaflet";
+import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
+import { Calendar, ExternalLink, MapPin, Ticket } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
+import { useHydrated } from "@/hooks/useHydrated";
+import type { CalendarEvent, EventCategory } from "@/types/events";
+import { eventCategoryLabels } from "@/types/events";
+import {
+  getEventCompactDateRangeLabel,
+  getEventDateBadgeParts,
+} from "@/lib/events/dateDisplay";
+import {
+  getEventCardCategoryClass,
+  getEventDateBadgeDisplay,
+} from "@/lib/events/cardStyles";
+import {
+  getLocalizedEventPriceRange,
+  getTranslatedEventCategoryLabel,
+} from "@/lib/events/display";
+import "leaflet/dist/leaflet.css";
+
+const ALGARVE_CENTER: [number, number] = [37.08, -8.15];
+const ALGARVE_BOUNDS: [[number, number], [number, number]] = [
+  [36.92, -9.05],
+  [37.35, -7.35],
+];
+
+const TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+const DESKTOP_MAP_QUERY = "(min-width: 1280px)";
+
+const CITY_COORDINATES: Record<string, { latitude: number; longitude: number }> = {
+  albufeira: { latitude: 37.0889, longitude: -8.2500 },
+  almancil: { latitude: 37.0833, longitude: -8.0333 },
+  carvoeiro: { latitude: 37.0962, longitude: -8.4720 },
+  faro: { latitude: 37.0194, longitude: -7.9322 },
+  lagoa: { latitude: 37.1333, longitude: -8.4500 },
+  lagos: { latitude: 37.1028, longitude: -8.6731 },
+  loule: { latitude: 37.1377, longitude: -8.0197 },
+  olhao: { latitude: 37.0256, longitude: -7.8411 },
+  portimao: { latitude: 37.1386, longitude: -8.5372 },
+  quarteira: { latitude: 37.0692, longitude: -8.0997 },
+  sagres: { latitude: 37.0092, longitude: -8.9414 },
+  silves: { latitude: 37.1869, longitude: -8.4389 },
+  tavira: { latitude: 37.1275, longitude: -7.6506 },
+  vilamoura: { latitude: 37.0775, longitude: -8.1161 },
+};
+
+type EventMapPoint = CalendarEvent & {
+  latitude: number;
+  longitude: number;
+  usedFallbackCoordinates: boolean;
+};
+
+interface EventMapDirectoryProps {
+  events: CalendarEvent[];
+  locale: string;
+  activeEventId?: string | null;
+  eventImageFallback: string;
+  className?: string;
+  onEventSelect?: (eventId: string) => void;
+  getEventHref: (event: Pick<CalendarEvent, "slug">) => string;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function getNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value !== "string" || !value.trim()) return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function normalizeKey(value: string | null | undefined): string {
+  return (value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function inferCityCoordinate(event: CalendarEvent) {
+  const eventData = isRecord(event.event_data) ? event.event_data : {};
+  const address = isRecord(eventData.address) ? eventData.address : {};
+  const cityCandidates = [
+    event.city?.slug,
+    event.city?.name,
+    typeof address.city === "string" ? address.city : null,
+    event.location,
+    event.venue,
+  ];
+
+  for (const candidate of cityCandidates) {
+    const normalized = normalizeKey(candidate);
+    if (CITY_COORDINATES[normalized]) return CITY_COORDINATES[normalized];
+
+    const matchedKey = Object.keys(CITY_COORDINATES).find((key) => normalized.includes(key));
+    if (matchedKey) return CITY_COORDINATES[matchedKey];
+  }
+
+  return null;
+}
+
+function getEventCoordinates(event: CalendarEvent): Pick<EventMapPoint, "latitude" | "longitude" | "usedFallbackCoordinates"> | null {
+  const eventData = isRecord(event.event_data) ? event.event_data : {};
+  const address = isRecord(eventData.address) ? eventData.address : {};
+  const categoryData = isRecord(eventData.category_data) ? eventData.category_data : {};
+  const candidates: Array<[unknown, unknown]> = [
+    [eventData.latitude, eventData.longitude],
+    [address.latitude, address.longitude],
+    [categoryData.latitude, categoryData.longitude],
+  ];
+
+  for (const [rawLatitude, rawLongitude] of candidates) {
+    const latitude = getNumber(rawLatitude);
+    const longitude = getNumber(rawLongitude);
+    if (latitude !== null && longitude !== null) {
+      return { latitude, longitude, usedFallbackCoordinates: false };
+    }
+  }
+
+  const fallback = inferCityCoordinate(event);
+  if (!fallback) return null;
+
+  return {
+    ...fallback,
+    usedFallbackCoordinates: true,
+  };
+}
+
+function createEventMarkerIcon(isActive: boolean): DivIcon {
+  return divIcon({
+    className: "event-map-marker",
+    html: `<span class="event-map-marker__pin${isActive ? " event-map-marker__pin--active" : ""}"><span></span></span>`,
+    iconSize: [34, 34],
+    iconAnchor: [17, 17],
+  });
+}
+
+function subscribeToDesktopMapQuery(onStoreChange: () => void) {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return () => {};
+  }
+
+  const mediaQuery = window.matchMedia(DESKTOP_MAP_QUERY);
+  mediaQuery.addEventListener("change", onStoreChange);
+  return () => mediaQuery.removeEventListener("change", onStoreChange);
+}
+
+function getDesktopMapSnapshot() {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return false;
+  }
+
+  return window.matchMedia(DESKTOP_MAP_QUERY).matches;
+}
+
+function EventMapFitBounds({ points }: { points: EventMapPoint[] }) {
+  const map = useMap();
+  const pointsKey = useMemo(() => points.map((point) => point.id).join("|"), [points]);
+
+  useEffect(() => {
+    if (points.length === 0) return;
+
+    if (points.length === 1) {
+      map.setView([points[0].latitude, points[0].longitude], 11, { animate: false });
+      return;
+    }
+
+    const bounds = latLngBounds(points.map((point) => [point.latitude, point.longitude] as [number, number]));
+    if (!bounds.isValid()) return;
+
+    map.fitBounds(bounds, {
+      paddingTopLeft: [32, 160],
+      paddingBottomRight: [32, 48],
+      maxZoom: 11,
+      animate: false,
+    });
+  }, [map, points, pointsKey]);
+
+  return null;
+}
+
+function EventMapFocus({ point }: { point: EventMapPoint | null }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!point) return;
+    map.setView([point.latitude, point.longitude], Math.max(map.getZoom(), 11), { animate: true });
+  }, [map, point]);
+
+  return null;
+}
+
+export function EventMapDirectory({
+  events,
+  locale,
+  activeEventId,
+  eventImageFallback,
+  className,
+  onEventSelect,
+  getEventHref,
+}: EventMapDirectoryProps) {
+  const hydrated = useHydrated();
+  const isDesktopMap = useSyncExternalStore(
+    subscribeToDesktopMapQuery,
+    getDesktopMapSnapshot,
+    () => false,
+  );
+  const { t } = useTranslation();
+  const points = useMemo(
+    () =>
+      events
+        .map((event) => {
+          const coordinates = getEventCoordinates(event);
+          if (!coordinates) return null;
+          return { ...event, ...coordinates };
+        })
+        .filter((event): event is EventMapPoint => Boolean(event)),
+    [events],
+  );
+  const [localActiveEventId, setLocalActiveEventId] = useState<string | null>(null);
+  const requestedSelectedEventId = activeEventId ?? localActiveEventId;
+  const selectedEventId = requestedSelectedEventId ?? points[0]?.id ?? null;
+  const selectedEvent = points.find((event) => event.id === selectedEventId) ?? points[0] ?? null;
+  const focusedEvent = requestedSelectedEventId ? selectedEvent : null;
+
+  const selectEvent = (eventId: string) => {
+    setLocalActiveEventId(eventId);
+    onEventSelect?.(eventId);
+  };
+
+  if (!hydrated || !isDesktopMap) {
+    return null;
+  }
+
+  if (points.length === 0) {
+    return (
+      <div className={cn("rounded-2xl border border-border bg-muted/30 p-6 text-center", className)}>
+        <MapPin className="mx-auto mb-3 h-8 w-8 text-primary" />
+        <p className="text-sm text-muted-foreground">{t("events.map.empty")}</p>
+      </div>
+    );
+  }
+
+  const selectedDateBadge = selectedEvent ? getEventDateBadgeParts(selectedEvent, locale) : null;
+  const selectedPriceRange = selectedEvent ? getLocalizedEventPriceRange(selectedEvent.price_range, t) : null;
+  const selectedCategory = selectedEvent?.category as EventCategory | undefined;
+  const selectedCategoryLabel =
+    selectedCategory
+      ? getTranslatedEventCategoryLabel(selectedCategory, eventCategoryLabels[selectedCategory], t)
+      : null;
+
+  return (
+    <div className={cn("overflow-hidden rounded-2xl border border-border bg-card shadow-[0_30px_80px_-58px_rgba(15,23,42,0.75)]", className)}>
+      <div className="flex items-center justify-between gap-3 border-b border-border/70 px-5 py-4">
+        <div>
+          <h3 className="font-serif text-xl font-semibold text-foreground">{t("events.map.title")}</h3>
+          <p className="mt-1 text-xs text-muted-foreground">{t("events.map.subtitle")}</p>
+        </div>
+        <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+          {points.length}
+        </span>
+      </div>
+
+      <div className="event-map relative h-[calc(100vh-13rem)] min-h-[560px] bg-muted">
+        <MapContainer
+            center={ALGARVE_CENTER}
+            zoom={9}
+            minZoom={8}
+            maxBounds={ALGARVE_BOUNDS}
+            maxBoundsViscosity={0.75}
+            scrollWheelZoom
+            zoomAnimation={false}
+            markerZoomAnimation={false}
+            className="h-full w-full"
+            style={{ background: "hsl(var(--muted))" }}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
+              url={TILE_URL}
+            />
+            <EventMapFitBounds points={points} />
+            <EventMapFocus point={focusedEvent} />
+            {points.map((event) => (
+              <Marker
+                key={event.id}
+                position={[event.latitude, event.longitude]}
+                icon={createEventMarkerIcon(event.id === selectedEvent?.id)}
+                eventHandlers={{
+                  click: () => selectEvent(event.id),
+                  mouseover: () => selectEvent(event.id),
+                }}
+              />
+            ))}
+          </MapContainer>
+
+        {selectedEvent && selectedDateBadge ? (
+          <div className="pointer-events-none absolute inset-x-5 top-5 z-[500]">
+            <article className="pointer-events-auto mx-auto max-w-sm rounded-2xl border border-border/80 bg-background/95 p-3 shadow-[0_22px_55px_-36px_rgba(15,23,42,0.9)] backdrop-blur-xl">
+              <div className="relative aspect-[16/9] overflow-hidden rounded-xl bg-muted">
+                <Image
+                  src={selectedEvent.image || eventImageFallback}
+                  alt={selectedEvent.title}
+                  fill
+                  unoptimized
+                  sizes="320px"
+                  className="object-cover"
+                />
+                <div className="absolute left-3 top-3 rounded-md border border-white/70 bg-white/95 px-3 py-2 text-center shadow-sm">
+                  <span className="block whitespace-pre-line text-xl font-bold leading-none text-slate-950">
+                    {getEventDateBadgeDisplay(selectedDateBadge.primary)}
+                  </span>
+                  <span className="mt-1 block text-[0.64rem] font-bold uppercase text-primary">
+                    {selectedDateBadge.secondary}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-3 p-2">
+                {selectedCategory && selectedCategoryLabel ? (
+                  <span className={getEventCardCategoryClass(selectedCategory)}>
+                    {selectedCategoryLabel}
+                  </span>
+                ) : null}
+                <div>
+                  <h4 className="line-clamp-2 font-serif text-lg font-semibold leading-tight text-foreground">
+                    {selectedEvent.title}
+                  </h4>
+                  <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                    {selectedEvent.short_description}
+                  </p>
+                </div>
+
+                <div className="space-y-2 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-3.5 w-3.5 shrink-0 text-primary" />
+                    <span>{getEventCompactDateRangeLabel(selectedEvent, locale)}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                    <span className="line-clamp-2">{selectedEvent.venue || selectedEvent.location}</span>
+                  </div>
+                  {selectedPriceRange ? (
+                    <div className="flex items-center gap-2 text-primary">
+                      <Ticket className="h-3.5 w-3.5 shrink-0" />
+                      <span>{selectedPriceRange}</span>
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  {selectedEvent.ticket_url ? (
+                    <a
+                      href={selectedEvent.ticket_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-10 items-center justify-center gap-1.5 rounded-md bg-blue-600 px-3 text-center text-xs font-bold text-white transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    >
+                      {t("events.card.buyTickets")}
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                  ) : (
+                    <span
+                      aria-disabled="true"
+                      className="inline-flex h-10 cursor-not-allowed items-center justify-center rounded-md bg-blue-200 px-3 text-center text-xs font-bold text-blue-700/70"
+                    >
+                      {t("events.card.buyTickets")}
+                    </span>
+                  )}
+                  <Link
+                    href={getEventHref(selectedEvent)}
+                    className="inline-flex h-10 items-center justify-center rounded-md bg-slate-100 px-3 text-center text-xs font-bold text-slate-900 transition hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                  >
+                    {t("events.card.viewDetails")}
+                  </Link>
+                </div>
+              </div>
+            </article>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+export default EventMapDirectory;

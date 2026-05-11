@@ -48,7 +48,7 @@ const visitItems = [
     { href: "/stay?category=restaurants", label: "Restaurants", translationKey: "categoryNames.restaurants", desc: "Michelin stars & gourmet", icon: Utensils },
     { href: "/stay?category=golf", label: "Golf & Tournaments", translationKey: "categoryNames.golf", desc: "World-class courses", icon: Trophy },
     { href: "/stay?category=beaches-clubs", label: "Beaches & Clubs", translationKey: "categoryNames.beaches-clubs", desc: "Pristine beaches & exclusives", icon: Palmtree },
-    { href: "/stay?category=wellness-spas", label: "Wellness & Spas", translationKey: "categoryNames.wellness-spas", desc: "Relaxation & rejuvenation", icon: Dumbbell },
+    { href: "/stay?category=wellness-spas", label: "Wellness", translationKey: "categoryNames.wellness-spas", desc: "Relaxation & rejuvenation", icon: Dumbbell },
     { href: "/stay?category=algarve-services", label: "Algarve Services", translationKey: "categoryNames.algarve-services", desc: "Concierge, transport, security & real estate", icon: Users },
     { href: "/stay?category=things-to-do", label: "Things to Do", translationKey: "categoryNames.things-to-do", desc: "Unforgettable activities", icon: Compass },
     { href: "/stay?category=whats-on", label: "What's On", translationKey: "categoryNames.whats-on", desc: "Exclusive galas & conferences", icon: Calendar },
@@ -56,7 +56,7 @@ const visitItems = [
 ];
 
 const liveItems = [
-    { href: "/stay?category=wellness-spas", label: "Wellness & Spas", translationKey: "categoryNames.wellness-spas", desc: "Health & relaxation", icon: Dumbbell },
+    { href: "/stay?category=wellness-spas", label: "Wellness", translationKey: "categoryNames.wellness-spas", desc: "Health & relaxation", icon: Dumbbell },
     { href: "/stay?category=restaurants", label: "Restaurants", translationKey: "categoryNames.restaurants", desc: "Restaurants and private dining", icon: Utensils },
     { href: "/stay?category=algarve-services", label: "Algarve Services", translationKey: "categoryNames.algarve-services", desc: "Lifestyle, mobility, property and security", icon: Users },
     { href: "/stay?category=things-to-do", label: "Things to Do", translationKey: "categoryNames.things-to-do", desc: "Family and premium activities", icon: Compass },

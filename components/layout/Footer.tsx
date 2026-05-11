@@ -75,6 +75,7 @@ const linkTranslationKeys: Record<string, string> = {
   "Restaurants & Michelin": "categories.restaurants",
   "Golf & Tournaments": "categories.golf",
   "Beaches & Beach Clubs": "categories.beachClubs",
+  "Wellness": "categories.wellnessSpas",
   "Wellness & Spas": "categories.wellnessSpas",
   "Private Dining": "categories.restaurants",
   "Concierge Services": "categories.algarveServices",
@@ -113,6 +114,7 @@ const FOOTER_CATEGORY_SLUG_BY_NAME: Record<string, string> = {
   "golf experiences": "golf",
   "beaches & beach clubs": "beaches-clubs",
   "beaches & clubs": "beaches-clubs",
+  wellness: "wellness-spas",
   "wellness & spas": "wellness-spas",
   "things to do": "things-to-do",
   "premium experiences": "things-to-do",
@@ -329,7 +331,7 @@ export default function Footer() {
               <p className="mt-1 text-body-xs text-muted-foreground">
                 {t("newsletter.footerSubtitle")}
               </p>
-              <form onSubmit={handleNewsletterSubmit} className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1.6fr)_minmax(7rem,1fr)]">
+              <form onSubmit={handleNewsletterSubmit} className="mt-3 grid grid-cols-1 gap-2">
                 <Label htmlFor="footer-newsletter-email" className="sr-only">
                   {t("newsletter.placeholder")}
                 </Label>
@@ -347,7 +349,7 @@ export default function Footer() {
                   type="submit"
                   variant="gold"
                   size="sm"
-                  className="h-10 w-full px-4 whitespace-nowrap"
+                  className="h-11 w-full px-4 whitespace-nowrap"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? t("newsletter.subscribing") : t("newsletter.footerCta")}

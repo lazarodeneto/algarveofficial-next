@@ -592,7 +592,7 @@
     "shoppingBoutiques": "Shopping & Boutiquen",
     "vipConcierge": "Algarve-Services",
     "vipTransportation": "Algarve-Services",
-    "wellnessSpas": "Wellness & Spas"
+    "wellnessSpas": "Wellness"
   },
   "categoryDataValues": {
     "16_plus": "16+",
@@ -1088,7 +1088,7 @@
     "shopping-boutiques": "Einkaufsboutiquen",
     "things-to-do": "Dinge zu tun",
     "transportation": "Transport",
-    "wellness-spas": "Wellness & Spas",
+    "wellness-spas": "Wellness",
     "whats-on": "Was läuft"
   },
   "chat": {
@@ -1460,12 +1460,23 @@
       "seasonal": "Saisonale Highlights",
       "sporting": "Sportveranstaltungen"
     },
+    "card": {
+      "buyTickets": "Tickets kaufen",
+      "going": "+1 Tsd. dabei",
+      "viewDetails": "Details ansehen"
+    },
     "checkBackSoon": "Schauen Sie bald wieder vorbei für neue Events und Veranstaltungen an der Algarve.",
     "featured": "Hervorgehobene Events",
     "hero": {
       "alt": "Premium Algarve-Veranstaltungsziel",
       "ctaPrimary": "Entdecken Sie Erlebnisse",
       "ctaSecondary": "Planen Sie meinen Kalender"
+    },
+    "map": {
+      "empty": "Keine kartierten Veranstaltungen verfügbar.",
+      "subtitle": "Wählen Sie eine Veranstaltung aus, um sie auf der Algarve-Karte anzuzeigen.",
+      "title": "Veranstaltungskarte",
+      "viewEvent": "Veranstaltung ansehen"
     },
     "noUpcoming": "Keine bevorstehenden Events",
     "status": {
@@ -2133,7 +2144,7 @@
       },
       "wellness-spas-in-lagos": {
         "description": "Entspannen und erholen Sie sich in den besten Spas und Wellness Zentren in Lagos, Algarve.",
-        "title": "Wellness & Spas in Lagos"
+        "title": "Wellness in Lagos"
       }
     },
     "relatedGuides": "Verwandte Leitfäden",
@@ -2680,6 +2691,9 @@
     "map": "Karte",
     "messages": "Nachrichten",
     "mobilePrimary": "Hauptnavigation",
+    "mobileScrollHint": "Horizontal wischen, um weitere Navigationseinträge zu sehen.",
+    "scrollNext": "Nächste Navigationseinträge",
+    "scrollPrevious": "Vorherige Navigationseinträge",
     "myDashboard": "Mein Dashboard",
     "myTrip": "Meine Reise",
     "openMenu": "Menü öffnen",
@@ -2725,6 +2739,13 @@
     "title": "Exklusiver Zugang zur",
     "titleHighlight": "Luxus-Algarve",
     "welcomeMessage": "Willkommen bei AlgarveOfficial! Prüfen Sie bald Ihren Posteingang."
+  },
+  "weather": {
+    "faroDistrict": "Bezirk Faro",
+    "faroShort": "Faro",
+    "loading": "Wetter für Faro wird geladen",
+    "temperatureLabel": "Wetter im Bezirk Faro: {{celsius}}°C / {{fahrenheit}}°F",
+    "unavailable": "Wetter nicht verfügbar"
   },
   "notFound": {
     "backHome": "Zurück zur Startseite",

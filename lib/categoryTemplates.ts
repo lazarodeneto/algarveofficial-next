@@ -277,7 +277,7 @@ export const beachesTemplate: CategoryTemplate = {
 
 export const wellnessTemplate: CategoryTemplate = {
   slug: 'wellness-spas',
-  name: 'Wellness & Spas',
+  name: 'Wellness',
   description: 'Thalasso, Thermal, In-Villa',
   fields: [
     {

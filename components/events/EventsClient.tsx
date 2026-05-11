@@ -1,15 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useQuery } from "@tanstack/react-query";
 import { m } from "framer-motion";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import {
   Calendar,
-  MapPin,
-  Ticket,
   Filter,
   Star,
 } from "lucide-react";
@@ -17,7 +15,6 @@ import {
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
@@ -26,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { eventCategoryLabels, eventCategoryColors, type CalendarEvent, type EventCategory } from "@/types/events";
+import { eventCategoryLabels, type CalendarEvent, type EventCategory } from "@/types/events";
 import { useFavoriteEvents } from "@/hooks/useFavoriteEvents";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
@@ -44,13 +41,14 @@ import {
   isPublicEventVisibleByDate,
 } from "@/lib/events/publicVisibility";
 import { localizeEvents } from "@/lib/events/i18n";
-import {
-  getEventCompactDateRangeLabel,
-  getEventDateBadgeParts,
-  getEventMonthHeading,
-} from "@/lib/events/dateDisplay";
-import { getLocalizedEventPriceRange } from "@/lib/events/display";
-import { FavoriteButton } from "@/components/ui/favorite-button";
+import { getEventMonthHeading } from "@/lib/events/dateDisplay";
+import { PIXABAY_EVENT_IMAGE_FALLBACK } from "@/lib/events/cardStyles";
+import { EventTicketCard } from "@/components/events/EventTicketCard";
+
+const EventMapDirectory = dynamic(
+  () => import("@/components/events/EventMapDirectory").then((module) => module.EventMapDirectory),
+  { ssr: false },
+);
 
 type EventGlobalSetting = Pick<Tables<"global_settings">, "key" | "value" | "category">;
 
@@ -109,6 +107,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
   const { isFavorite, toggleFavorite } = useFavoriteEvents();
 
   const [selectedCategory, setSelectedCategory] = useState<EventCategory | "all">("all");
+  const [activeMapEventId, setActiveMapEventId] = useState<string | null>(null);
 
   const categories = Object.entries(eventCategoryLabels) as [EventCategory, string][];
 
@@ -235,89 +234,29 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
               {t("sections.events.featured")}
             </h2>
             <div className="grid-adaptive">
-              {featuredEvents.map((event, index) => {
-                const dateBadge = getEventDateBadgeParts(event, locale);
-                const priceRangeLabel = getLocalizedEventPriceRange(event.price_range, t);
-
-                return (
-                  <m.div
-                    key={event.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 * index }}
-                  >
-                    <div className="relative h-full rounded-lg">
-                      <Link
-                        href={getEventHref(event)}
-                        aria-label={t("events.openEvent", { title: event.title })}
-                        className="block h-full rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                      >
-                        <Card className="group h-full cursor-pointer overflow-hidden border-border bg-card transition-all hover:border-primary/30">
-                        <div className="relative aspect-video overflow-hidden">
-                          <Image
-                            src={event.image ?? "/og-image.png"}
-                            alt={event.title}
-                            fill
-                            unoptimized
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                          <div className="absolute bottom-3 right-3 rounded-lg border border-border/50 bg-background/95 px-4 py-3 text-center shadow-lg backdrop-blur-sm">
-                            <span className="block text-3xl font-bold leading-none text-primary">
-                              {dateBadge.primary}
-                            </span>
-                            <span className="block text-sm font-medium uppercase tracking-wide text-foreground">
-                              {dateBadge.secondary}
-                            </span>
-                          </div>
-                          <div className="absolute left-3 top-3 flex flex-col items-start gap-2">
-                            <Badge className={eventCategoryColors[event.category as EventCategory]}>
-                              {getEventCategoryLabel(event.category as EventCategory)}
-                            </Badge>
-                            <Badge className="bg-primary text-primary-foreground">
-                              {t("sections.events.featuredBadge")}
-                            </Badge>
-                          </div>
-                        </div>
-                        <CardContent className="p-5">
-                          <h3 className="mb-2 line-clamp-2 text-lg font-serif font-semibold transition-colors group-hover:text-primary">
-                            {event.title}
-                          </h3>
-                          <p className="mb-4 line-clamp-2 text-sm text-muted-foreground">
-                            {event.short_description}
-                          </p>
-                          <div className="space-y-2 text-sm">
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <Calendar className="h-4 w-4" />
-                              <span>{getEventCompactDateRangeLabel(event, locale)}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <MapPin className="h-4 w-4" />
-                              <span>{event.venue || event.location}</span>
-                            </div>
-                            {priceRangeLabel ? (
-                              <div className="flex items-center gap-2 text-primary">
-                                <Ticket className="h-4 w-4" />
-                                <span>{priceRangeLabel}</span>
-                              </div>
-                            ) : null}
-                          </div>
-                        </CardContent>
-                        </Card>
-                      </Link>
-                      <div className="absolute right-3 top-3 z-20">
-                        <FavoriteButton
-                          isFavorite={isFavorite(event)}
-                          onToggle={() => void toggleFavorite(event)}
-                          size="md"
-                          variant="glassmorphism"
-                          className="bg-white/90 backdrop-blur border-white/20 hover:bg-white hover:border-red-400/30 [&_svg]:text-neutral-700 [&_svg]:hover:text-red-400"
-                        />
-                      </div>
-                    </div>
-                  </m.div>
-                );
-              })}
+              {featuredEvents.map((event, index) => (
+                <m.div
+                  key={event.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 * index }}
+                  onMouseEnter={() => setActiveMapEventId(event.id)}
+                  onFocus={() => setActiveMapEventId(event.id)}
+                >
+                  <EventTicketCard
+                    event={event}
+                    locale={locale}
+                    href={getEventHref(event)}
+                    categoryLabel={getEventCategoryLabel(event.category as EventCategory)}
+                    featuredLabel={t("sections.events.featuredBadge")}
+                    showFeaturedBadge
+                    imageFallback={PIXABAY_EVENT_IMAGE_FALLBACK}
+                    isFavorite={isFavorite(event)}
+                    onToggleFavorite={() => void toggleFavorite(event)}
+                    t={t}
+                  />
+                </m.div>
+              ))}
             </div>
           </section>
         ) : null}
@@ -336,69 +275,51 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-12">
-              {Object.entries(eventsByMonth).map(([monthKey, monthEvents]) => (
-                <div key={monthKey}>
-                  <h3 className="mb-4 border-b border-border pb-2 text-lg font-medium text-muted-foreground">
-                    {getEventMonthHeading(monthKey, locale)}
-                  </h3>
-                  <div className="grid-adaptive">
-                    {monthEvents.map((event, index) => {
-                      const dateBadge = getEventDateBadgeParts(event, locale);
-
-                      return (
+            <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(380px,42%)]">
+              <div className="space-y-12">
+                {Object.entries(eventsByMonth).map(([monthKey, monthEvents]) => (
+                  <div key={monthKey}>
+                    <h3 className="mb-4 border-b border-border pb-2 text-lg font-medium text-muted-foreground">
+                      {getEventMonthHeading(monthKey, locale)}
+                    </h3>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      {monthEvents.map((event, index) => (
                         <m.div
                           key={event.id}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.05 * index }}
+                          onMouseEnter={() => setActiveMapEventId(event.id)}
+                          onFocus={() => setActiveMapEventId(event.id)}
                         >
-                          <div className="relative rounded-lg">
-                            <Link
-                              href={getEventHref(event)}
-                              aria-label={t("events.openEvent", { title: event.title })}
-                              className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                            >
-                              <Card className="group cursor-pointer overflow-hidden border-border bg-card transition-all hover:border-primary/30">
-                              <div className="flex flex-col sm:flex-row">
-                                <div className="flex w-full flex-row items-center justify-center gap-1 bg-muted p-3 sm:w-24 sm:flex-shrink-0 sm:flex-col sm:gap-0">
-                                  <span className="text-2xl font-bold text-primary">
-                                    {dateBadge.primary}
-                                  </span>
-                                  <span className="text-xs uppercase text-muted-foreground">
-                                    {dateBadge.secondary}
-                                  </span>
-                                </div>
-                                <CardContent className="min-w-0 flex-1 p-4 pr-14">
-                                  <Badge className={`${eventCategoryColors[event.category as EventCategory]} mb-2 max-w-full text-xs`}>
-                                    {getEventCategoryLabel(event.category as EventCategory)}
-                                  </Badge>
-                                  <h4 className="line-clamp-2 break-words font-medium transition-colors group-hover:text-primary sm:line-clamp-1">
-                                    {event.title}
-                                  </h4>
-                                  <div className="mt-1 flex min-w-0 items-start gap-1 text-xs text-muted-foreground">
-                                    <MapPin className="mt-0.5 h-3 w-3 shrink-0" />
-                                    <span className="line-clamp-3 break-words">{event.location}</span>
-                                  </div>
-                                </CardContent>
-                              </div>
-                              </Card>
-                            </Link>
-                            <div className="absolute right-3 top-3 z-20">
-                              <FavoriteButton
-                                isFavorite={isFavorite(event)}
-                                onToggle={() => void toggleFavorite(event)}
-                                size="sm"
-                                variant="solid"
-                              />
-                            </div>
-                          </div>
+                          <EventTicketCard
+                            event={event}
+                            locale={locale}
+                            href={getEventHref(event)}
+                            categoryLabel={getEventCategoryLabel(event.category as EventCategory)}
+                            imageFallback={PIXABAY_EVENT_IMAGE_FALLBACK}
+                            isFavorite={isFavorite(event)}
+                            onToggleFavorite={() => void toggleFavorite(event)}
+                            t={t}
+                          />
                         </m.div>
-                      );
-                    })}
+                      ))}
+                    </div>
                   </div>
+                ))}
+              </div>
+              <aside className="hidden xl:block">
+                <div className="sticky top-28">
+                  <EventMapDirectory
+                    events={visibleEvents}
+                    locale={locale}
+                    activeEventId={activeMapEventId}
+                    onEventSelect={setActiveMapEventId}
+                    getEventHref={getEventHref}
+                    eventImageFallback={PIXABAY_EVENT_IMAGE_FALLBACK}
+                  />
                 </div>
-              ))}
+              </aside>
             </div>
           )}
         </section>

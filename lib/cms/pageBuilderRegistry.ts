@@ -155,7 +155,7 @@ export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
   },
   {
     id: "wellness-spas",
-    label: "Wellness & Spas",
+    label: "Wellness",
     path: "/stay?category=wellness-spas",
     description: "Wellness, spa, retreat, and relaxation listings.",
     blocks: [
@@ -628,7 +628,7 @@ export const CMS_PAGE_REGISTRY_META: Record<string, CmsPageRegistryMeta> = {
     status: "enabled",
     group: "Directory Pages",
     publicRenderer: "components/directory/DirectoryClient.tsx with /stay?category=wellness-spas",
-    notes: "Full Page Builder controls the Wellness & Spas navigation route while listings remain data driven.",
+    notes: "Full Page Builder controls the Wellness navigation route while listings remain data driven.",
   },
   directory: {
     scope: "global",

@@ -592,7 +592,7 @@
     "shoppingBoutiques": "Compras e Boutiques",
     "vipConcierge": "Servicos do Algarve",
     "vipTransportation": "Servicos do Algarve",
-    "wellnessSpas": "Bem-estar e Spas"
+    "wellnessSpas": "Bem-estar"
   },
   "categoryDataValues": {
     "16_plus": "16+",
@@ -1088,7 +1088,7 @@
     "shopping-boutiques": "Boutiques de compras",
     "things-to-do": "O que fazer",
     "transportation": "Transportes",
-    "wellness-spas": "Bem-Estar & Spas",
+    "wellness-spas": "Bem-estar",
     "whats-on": "Novidades"
   },
   "chat": {
@@ -1460,12 +1460,23 @@
       "seasonal": "Destaques Sazonais",
       "sporting": "Eventos Desportivos"
     },
+    "card": {
+      "buyTickets": "Comprar bilhetes",
+      "going": "+1 mil vão",
+      "viewDetails": "Ver detalhes"
+    },
     "checkBackSoon": "Volte em breve para novos eventos e acontecimentos no Algarve.",
     "featured": "Eventos em Destaque",
     "hero": {
       "alt": "Destino premium do evento Algarve",
       "ctaPrimary": "Explorar experiências",
       "ctaSecondary": "Planeje meu calendário"
+    },
+    "map": {
+      "empty": "Não há eventos com mapa disponíveis.",
+      "subtitle": "Selecione um evento para o pré-visualizar no mapa do Algarve.",
+      "title": "Mapa de eventos",
+      "viewEvent": "Ver evento"
     },
     "noUpcoming": "Sem eventos próximos",
     "status": {
@@ -2133,7 +2144,7 @@
       },
       "wellness-spas-in-lagos": {
         "description": "Relaxe e rejuvenesça nos melhores spas e centros de bem-estar de Lagos, Algarve.",
-        "title": "Bem-estar e Spas em Lagos"
+        "title": "Bem-estar em Lagos"
       }
     },
     "relatedGuides": "Guias relacionados",
@@ -2680,6 +2691,9 @@
     "map": "Mapa",
     "messages": "Mensagens",
     "mobilePrimary": "Navegação principal",
+    "mobileScrollHint": "Deslize na horizontal para ver mais itens de navegação.",
+    "scrollNext": "Itens de navegação seguintes",
+    "scrollPrevious": "Itens de navegação anteriores",
     "myDashboard": "Meu Painel",
     "myTrip": "Minha Viagem",
     "openMenu": "Abrir menu",
@@ -2725,6 +2739,13 @@
     "title": "Acesso Exclusivo ao",
     "titleHighlight": "Algarve de Luxo",
     "welcomeMessage": "Bem-vindo ao AlgarveOfficial! Verifique a sua caixa de entrada em breve."
+  },
+  "weather": {
+    "faroDistrict": "Distrito de Faro",
+    "faroShort": "Faro",
+    "loading": "A carregar meteorologia de Faro",
+    "temperatureLabel": "Meteorologia no distrito de Faro: {{celsius}}°C / {{fahrenheit}}°F",
+    "unavailable": "Meteorologia indisponível"
   },
   "notFound": {
     "backHome": "Voltar à página inicial",

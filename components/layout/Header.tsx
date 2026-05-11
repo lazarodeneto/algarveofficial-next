@@ -23,6 +23,7 @@ import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { HeaderNav } from "./HeaderNav";
+import { HeaderWeatherPill } from "./HeaderWeatherPill";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 import { useMobileChromeScrollState } from "@/hooks/useMobileChromeScrollState";
@@ -184,66 +185,72 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
             </div>
 
             {/* Laptop Actions (1024-1279): compact utility row */}
-            <div className="hidden lg:flex xl:hidden items-center gap-0.5 rounded-full border border-black/10 bg-white/82 px-1 py-1 shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
-              <Link href={favoritesPath}>
+            <div className="hidden lg:flex xl:hidden items-center gap-1.5">
+              <HeaderWeatherPill compact />
+
+              <div className="flex items-center gap-0.5 rounded-full border border-black/10 bg-white/82 px-1 py-1 shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
+                <Link href={favoritesPath}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
+                    aria-label={t("nav.saved")}
+                  >
+                    <Heart className="h-4 w-4" />
+                    <span className="sr-only">{t("nav.saved")}</span>
+                  </Button>
+                </Link>
+
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
-                  aria-label={t("nav.saved")}
+                  onClick={() => setSearchOpen(true)}
+                  aria-label={t("nav.search")}
                 >
-                  <Heart className="h-4 w-4" />
-                  <span className="sr-only">{t("nav.saved")}</span>
+                  <Search className="h-4 w-4" />
+                  <span className="sr-only">{t("nav.search")}</span>
                 </Button>
-              </Link>
 
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
-                onClick={() => setSearchOpen(true)}
-                aria-label={t("nav.search")}
-              >
-                <Search className="h-4 w-4" />
-                <span className="sr-only">{t("nav.search")}</span>
-              </Button>
+                <LanguageSwitcher
+                  localeSwitchPaths={localeSwitchPaths}
+                  containerClassName="min-w-0"
+                  selectClassName="h-8 w-[7.5rem] rounded-full border-black/10 bg-white/70 px-2.5 py-1 text-sm text-black shadow-none dark:border-white/12 dark:bg-white dark:text-black"
+                />
+                <ThemeToggle variant="header" />
 
-              <LanguageSwitcher
-                localeSwitchPaths={localeSwitchPaths}
-                containerClassName="min-w-0"
-                selectClassName="h-8 w-[7.5rem] rounded-full border-black/10 bg-white/70 px-2.5 py-1 text-sm text-black shadow-none dark:border-white/12 dark:bg-white dark:text-black"
-              />
-              <ThemeToggle variant="header" />
-
-              {isAuthenticated && user ? (
-                <Link href={getDashboardPath(user.role)}>
-                  <Button
-                    variant="gold"
-                    size="icon"
-                    className={`h-8 w-8 ${accountGoldButtonClass}`}
-                    aria-label={t("nav.account")}
-                  >
-                    <span className="text-xs font-semibold leading-none">{userInitial}</span>
-                    <span className="sr-only">{t("nav.account")}</span>
-                  </Button>
-                </Link>
-              ) : (
-                <Link href={loginPath}>
-                  <Button
-                    variant="gold"
-                    size="icon"
-                    className={`h-8 w-8 ${accountGoldButtonClass}`}
-                    aria-label={t("nav.account")}
-                  >
-                    <User className="h-4 w-4" />
-                    <span className="sr-only">{t("nav.account")}</span>
-                  </Button>
-                </Link>
-              )}
+                {isAuthenticated && user ? (
+                  <Link href={getDashboardPath(user.role)}>
+                    <Button
+                      variant="gold"
+                      size="icon"
+                      className={`h-8 w-8 ${accountGoldButtonClass}`}
+                      aria-label={t("nav.account")}
+                    >
+                      <span className="text-xs font-semibold leading-none">{userInitial}</span>
+                      <span className="sr-only">{t("nav.account")}</span>
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link href={loginPath}>
+                    <Button
+                      variant="gold"
+                      size="icon"
+                      className={`h-8 w-8 ${accountGoldButtonClass}`}
+                      aria-label={t("nav.account")}
+                    >
+                      <User className="h-4 w-4" />
+                      <span className="sr-only">{t("nav.account")}</span>
+                    </Button>
+                  </Link>
+                )}
+              </div>
             </div>
 
             {/* Desktop Actions */}
             <div className="hidden xl:flex xl:items-center xl:gap-2 2xl:gap-3 xl:shrink-0">
+              <HeaderWeatherPill />
+
               {/* Saved */}
               <div className="flex items-center gap-1 rounded-full border border-black/10 bg-white/82 px-2 py-1.5 shadow-[0_16px_36px_-30px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
                 <Link href={favoritesPath}>

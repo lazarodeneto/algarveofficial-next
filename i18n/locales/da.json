@@ -592,7 +592,7 @@
     "shoppingBoutiques": "Shopping og butikker",
     "vipConcierge": "Algarve-tjenester",
     "vipTransportation": "Algarve-tjenester",
-    "wellnessSpas": "Wellness & Spas"
+    "wellnessSpas": "Wellness"
   },
   "categoryDataValues": {
     "16_plus": "16+",
@@ -1088,7 +1088,7 @@
     "shopping-boutiques": "Shopping butikker",
     "things-to-do": "Ting at gøre",
     "transportation": "Transport",
-    "wellness-spas": "Wellness & Spa",
+    "wellness-spas": "Wellness",
     "whats-on": "Hvad sker der"
   },
   "chat": {
@@ -1460,12 +1460,23 @@
       "seasonal": "Sæsonbestemte højdepunkter",
       "sporting": "Sportsbegivenheder"
     },
+    "card": {
+      "buyTickets": "Køb billetter",
+      "going": "+1k deltager",
+      "viewDetails": "Se detaljer"
+    },
     "checkBackSoon": "Kom snart tilbage for nye begivenheder og begivenheder i Algarve.",
     "featured": "Udvalgte begivenheder",
     "hero": {
       "alt": "Premium Algarve begivenhedsdestination",
       "ctaPrimary": "Udforsk oplevelser",
       "ctaSecondary": "Planlæg min kalender"
+    },
+    "map": {
+      "empty": "Ingen kortlagte arrangementer tilgængelige.",
+      "subtitle": "Vælg et arrangement for at forhåndsvise det på Algarve-kortet.",
+      "title": "Arrangementskort",
+      "viewEvent": "Se arrangement"
     },
     "noUpcoming": "Ingen kommende begivenheder",
     "status": {
@@ -2133,7 +2144,7 @@
       },
       "wellness-spas-in-lagos": {
         "description": "Slap af og foryng på de bedste spa- og wellnesscentre i Lagos, Algarve.",
-        "title": "Wellness & Spa i Lagos"
+        "title": "Wellness i Lagos"
       }
     },
     "relatedGuides": "Relaterede guider",
@@ -2692,6 +2703,9 @@
     "map": "Kort",
     "messages": "Beskeder",
     "mobilePrimary": "Primær navigation",
+    "mobileScrollHint": "Stryg vandret for at se flere navigationselementer.",
+    "scrollNext": "Næste navigationselementer",
+    "scrollPrevious": "Forrige navigationselementer",
     "myDashboard": "Mit Dashboard",
     "myTrip": "Min tur",
     "openMenu": "Åbn menu",
@@ -2737,6 +2751,13 @@
     "title": "Insideradgang til",
     "titleHighlight": "Luksus Algarve",
     "welcomeMessage": "Velkommen til AlgarveOfficial! Tjek din indbakke snart."
+  },
+  "weather": {
+    "faroDistrict": "Faro-distriktet",
+    "faroShort": "Faro",
+    "loading": "Indlæser vejret for Faro",
+    "temperatureLabel": "Vejret i Faro-distriktet: {{celsius}}°C / {{fahrenheit}}°F",
+    "unavailable": "Vejret er ikke tilgængeligt"
   },
   "notFound": {
     "backHome": "Tilbage til Hjemmet",

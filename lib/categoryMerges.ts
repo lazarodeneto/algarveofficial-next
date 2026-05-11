@@ -43,7 +43,7 @@ const VIRTUAL_CANONICAL_CATEGORY_LABELS: Record<string, string> = {
   golf: "Golf",
   events: "Events",
   "family-attractions": "Family Attractions",
-  "wellness-spas": "Wellness & Spas",
+  "wellness-spas": "Wellness",
   beaches: "Beaches",
   shopping: "Shopping",
   "real-estate": "Real Estate",

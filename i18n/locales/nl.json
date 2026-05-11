@@ -592,7 +592,7 @@
     "shoppingBoutiques": "Winkelen en boetieks",
     "vipConcierge": "Algarve-diensten",
     "vipTransportation": "Algarve-diensten",
-    "wellnessSpas": "Wellness & Spa's"
+    "wellnessSpas": "Wellness"
   },
   "categoryDataValues": {
     "16_plus": "16+",
@@ -1088,7 +1088,7 @@
     "shopping-boutiques": "Winkelen Boetieks",
     "things-to-do": "Dingen om te doen",
     "transportation": "Vervoer",
-    "wellness-spas": "Wellness & Spa's",
+    "wellness-spas": "Wellness",
     "whats-on": "Wat is er aan de hand"
   },
   "chat": {
@@ -1460,12 +1460,23 @@
       "seasonal": "Seizoensgebonden hoogtepunten",
       "sporting": "Sportevenementen"
     },
+    "card": {
+      "buyTickets": "Tickets kopen",
+      "going": "+1K gaan",
+      "viewDetails": "Details bekijken"
+    },
     "checkBackSoon": "Kom snel terug voor nieuwe evenementen en gebeurtenissen in de Algarve.",
     "featured": "Uitgelichte evenementen",
     "hero": {
       "alt": "Premium Algarve-evenementbestemming",
       "ctaPrimary": "Ontdek ervaringen",
       "ctaSecondary": "Plan mijn agenda"
+    },
+    "map": {
+      "empty": "Geen evenementen op de kaart beschikbaar.",
+      "subtitle": "Selecteer een evenement om het op de Algarve-kaart te bekijken.",
+      "title": "Evenementenkaart",
+      "viewEvent": "Bekijk evenement"
     },
     "noUpcoming": "Geen aankomende evenementen",
     "status": {
@@ -2133,7 +2144,7 @@
       },
       "wellness-spas-in-lagos": {
         "description": "Ontspan en verjong in de beste spa's en wellnesscentra in Lagos, Algarve.",
-        "title": "Wellness en spa's in Lagos"
+        "title": "Wellness in Lagos"
       }
     },
     "relatedGuides": "Gerelateerde gidsen",
@@ -2692,6 +2703,9 @@
     "map": "Kaart",
     "messages": "Berichten",
     "mobilePrimary": "Hoofdnavigatie",
+    "mobileScrollHint": "Veeg horizontaal om meer navigatie-items te zien.",
+    "scrollNext": "Volgende navigatie-items",
+    "scrollPrevious": "Vorige navigatie-items",
     "myDashboard": "Mijn dashboard",
     "myTrip": "Mijn reis",
     "openMenu": "Menu openen",
@@ -2737,6 +2751,13 @@
     "title": "Insider-toegang tot",
     "titleHighlight": "Luxe Algarve",
     "welcomeMessage": "Welkom bij AlgarveOfficial! Controleer binnenkort uw inbox."
+  },
+  "weather": {
+    "faroDistrict": "District Faro",
+    "faroShort": "Faro",
+    "loading": "Weer voor Faro laden",
+    "temperatureLabel": "Weer in district Faro: {{celsius}}°C / {{fahrenheit}}°F",
+    "unavailable": "Weer niet beschikbaar"
   },
   "notFound": {
     "backHome": "Terug naar Home",

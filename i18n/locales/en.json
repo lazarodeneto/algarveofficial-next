@@ -592,7 +592,7 @@
     "shoppingBoutiques": "Shopping & Boutiques",
     "vipConcierge": "Algarve Services",
     "vipTransportation": "Algarve Services",
-    "wellnessSpas": "Wellness & Spas"
+    "wellnessSpas": "Wellness"
   },
   "categoryDataValues": {
     "16_plus": "16+",
@@ -1088,7 +1088,7 @@
     "shopping-boutiques": "Shopping Boutiques",
     "things-to-do": "Things to Do",
     "transportation": "Transportation",
-    "wellness-spas": "Wellness & Spas",
+    "wellness-spas": "Wellness",
     "whats-on": "What's On"
   },
   "chat": {
@@ -1460,12 +1460,23 @@
       "seasonal": "Seasonal Highlights",
       "sporting": "Sporting Events"
     },
+    "card": {
+      "buyTickets": "Buy Tickets",
+      "going": "+1K Going",
+      "viewDetails": "View Details"
+    },
     "checkBackSoon": "Check back soon for new events and happenings in the Algarve.",
     "featured": "Featured Events",
     "hero": {
       "alt": "Premium Algarve event destination",
       "ctaPrimary": "Explore Experiences",
       "ctaSecondary": "Plan My Calendar"
+    },
+    "map": {
+      "empty": "No mapped events available.",
+      "subtitle": "Select an event to preview it on the Algarve map.",
+      "title": "Event map",
+      "viewEvent": "View event"
     },
     "noUpcoming": "No upcoming events",
     "status": {
@@ -2133,7 +2144,7 @@
       },
       "wellness-spas-in-lagos": {
         "description": "Relax and rejuvenate at the best spas and wellness centers in Lagos, Algarve.",
-        "title": "Wellness & Spas in Lagos"
+        "title": "Wellness in Lagos"
       }
     },
     "relatedGuides": "Related Guides",
@@ -2663,6 +2674,9 @@
     "map": "Map",
     "messages": "Messages",
     "mobilePrimary": "Primary navigation",
+    "mobileScrollHint": "Swipe horizontally to see more navigation items.",
+    "scrollNext": "Next navigation items",
+    "scrollPrevious": "Previous navigation items",
     "myDashboard": "My Dashboard",
     "myTrip": "My Trip",
     "openMenu": "Open menu",
@@ -2708,6 +2722,13 @@
     "title": "Insider Access to",
     "titleHighlight": "Premium Algarve",
     "welcomeMessage": "Welcome to AlgarveOfficial! Check your inbox soon."
+  },
+  "weather": {
+    "faroDistrict": "Faro District",
+    "faroShort": "Faro",
+    "loading": "Loading Faro weather",
+    "temperatureLabel": "Faro District weather: {{celsius}}°C / {{fahrenheit}}°F",
+    "unavailable": "Weather unavailable"
   },
   "notFound": {
     "backHome": "Back to Home",

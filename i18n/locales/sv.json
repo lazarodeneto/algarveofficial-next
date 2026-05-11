@@ -592,7 +592,7 @@
     "shoppingBoutiques": "Shopping och butiker",
     "vipConcierge": "Algarve-tjanster",
     "vipTransportation": "Algarve-tjanster",
-    "wellnessSpas": "Wellness & Spa"
+    "wellnessSpas": "Wellness"
   },
   "categoryDataValues": {
     "16_plus": "16+",
@@ -1088,7 +1088,7 @@
     "shopping-boutiques": "Shoppingbutiker",
     "things-to-do": "Saker att göra",
     "transportation": "Transport",
-    "wellness-spas": "Wellness & Spa",
+    "wellness-spas": "Wellness",
     "whats-on": "Vad är på"
   },
   "chat": {
@@ -1460,12 +1460,23 @@
       "seasonal": "Säsongens höjdpunkter",
       "sporting": "Sportevenemang"
     },
+    "card": {
+      "buyTickets": "Köp biljetter",
+      "going": "+1 tn går",
+      "viewDetails": "Visa detaljer"
+    },
     "checkBackSoon": "Kom tillbaka snart för nya evenemang och händelser i Algarve.",
     "featured": "Utvalda evenemang",
     "hero": {
       "alt": "Premium Algarve eventdestination",
       "ctaPrimary": "Utforska upplevelser",
       "ctaSecondary": "Planera min kalender"
+    },
+    "map": {
+      "empty": "Inga kartlagda evenemang tillgängliga.",
+      "subtitle": "Välj ett evenemang för att förhandsvisa det på Algarve-kartan.",
+      "title": "Evenemangskarta",
+      "viewEvent": "Visa evenemang"
     },
     "noUpcoming": "Inga kommande evenemang",
     "status": {
@@ -2133,7 +2144,7 @@
       },
       "wellness-spas-in-lagos": {
         "description": "Koppla av och föryngra på de bästa spa- och hälsocentren i Lagos, Algarve.",
-        "title": "Wellness & Spa i Lagos"
+        "title": "Wellness i Lagos"
       }
     },
     "relatedGuides": "Relaterade guider",
@@ -2692,6 +2703,9 @@
     "map": "Karta",
     "messages": "Meddelanden",
     "mobilePrimary": "Primär navigering",
+    "mobileScrollHint": "Svep horisontellt för att se fler navigeringsobjekt.",
+    "scrollNext": "Nästa navigeringsobjekt",
+    "scrollPrevious": "Föregående navigeringsobjekt",
     "myDashboard": "Min Dashboard",
     "myTrip": "Min resa",
     "openMenu": "Öppna meny",
@@ -2737,6 +2751,13 @@
     "title": "Insider tillgång till",
     "titleHighlight": "Lyxig Algarve",
     "welcomeMessage": "Välkommen till AlgarveOfficial! Kolla din inkorg snart."
+  },
+  "weather": {
+    "faroDistrict": "Faro-distriktet",
+    "faroShort": "Faro",
+    "loading": "Laddar väder för Faro",
+    "temperatureLabel": "Väder i Faro-distriktet: {{celsius}}°C / {{fahrenheit}}°F",
+    "unavailable": "Väder ej tillgängligt"
   },
   "notFound": {
     "backHome": "Tillbaka till hemmet",

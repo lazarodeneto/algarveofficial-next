@@ -191,9 +191,9 @@ const PAGE_VISIBLE_FIELD_DEFINITIONS: Record<string, CmsVisibleFieldDefinition[]
   "wellness-spas": [
     ...HERO_VISIBLE_FIELDS.map((field) =>
       field.key === "hero.badge"
-        ? { ...field, fallback: "Wellness & Spas" }
+        ? { ...field, fallback: "Wellness" }
         : field.key === "hero.title"
-          ? { ...field, fallback: "Wellness & Spas in the Algarve" }
+          ? { ...field, fallback: "Wellness in the Algarve" }
           : field.key === "hero.subtitle"
             ? { ...field, fallback: "Discover restorative spas, retreats, and wellness escapes across the Algarve." }
             : field,
