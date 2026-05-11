@@ -162,11 +162,11 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
         <nav className="relative mx-auto max-w-[1680px] px-3 sm:px-5 lg:px-4 xl:pr-8 xl:pl-11 2xl:pr-10 2xl:pl-14">
           <div className="flex h-[4.5rem] sm:h-20 items-center gap-2 sm:gap-3 lg:gap-2.5 xl:gap-5">
             {/* Logo */}
-            <div className="flex-shrink-0 min-w-0 overflow-hidden lg:max-w-[10.25rem] xl:mr-3 xl:max-w-[14.5rem] 2xl:mr-5 2xl:max-w-none">
+            <div className="flex-shrink-0 min-w-0 overflow-hidden lg:max-w-[10.25rem] min-[1440px]:mr-3 min-[1440px]:max-w-[14.5rem] 2xl:mr-5 2xl:max-w-none">
               <div className="lg:hidden">
                 <BrandLogo size="md" showIcon className="whitespace-nowrap" />
               </div>
-              <div className="hidden items-center justify-center lg:flex xl:hidden">
+              <div className="hidden items-center justify-center lg:flex min-[1440px]:hidden">
                 <BrandLogo
                   size="sm"
                   showIcon={!isLeftSidebarActive}
@@ -174,18 +174,18 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                   iconClassName="h-5 w-5"
                 />
               </div>
-              <div className="hidden xl:block">
+              <div className="hidden min-[1440px]:block">
                 <BrandLogo size="md" className="whitespace-nowrap" />
               </div>
             </div>
 
             {/* Primary Navigation */}
-            <div className="hidden lg:flex lg:min-w-0 lg:flex-1 lg:items-center lg:justify-center xl:justify-start">
+            <div className="hidden min-[1440px]:flex min-[1440px]:min-w-0 min-[1440px]:flex-1 min-[1440px]:items-center min-[1440px]:justify-start">
               <HeaderNav />
             </div>
 
-            {/* Laptop Actions (1024-1279): compact utility row */}
-            <div className="hidden lg:flex xl:hidden items-center gap-1.5">
+            {/* Laptop Actions (1024-1359): compact utility row */}
+            <div className="ml-auto hidden shrink-0 items-center gap-1.5 lg:flex min-[1440px]:hidden">
               <HeaderWeatherPill compact />
 
               <div className="flex items-center gap-0.5 rounded-full border border-black/10 bg-white/82 px-1 py-1 shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
@@ -248,7 +248,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
             </div>
 
             {/* Desktop Actions */}
-            <div className="hidden xl:flex xl:items-center xl:gap-2 2xl:gap-3 xl:shrink-0">
+            <div className="hidden min-[1440px]:flex min-[1440px]:shrink-0 min-[1440px]:items-center min-[1440px]:gap-2 2xl:gap-3">
               <HeaderWeatherPill />
 
               {/* Saved */}
@@ -327,7 +327,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
             </div>
 
             {/* Laptop menu button */}
-            <div className="hidden lg:flex xl:hidden items-center">
+            <div className="hidden items-center lg:flex min-[1440px]:hidden">
               <Button
                 variant="ghost"
                 size="icon"
@@ -374,7 +374,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
             <>
               {/* Backdrop overlay */}
               <div
-                className="xl:hidden fixed inset-0 lg:left-20 z-[130] bg-black/50 backdrop-blur-sm animate-in fade-in duration-150"
+                className="fixed inset-0 z-[130] bg-black/50 backdrop-blur-sm animate-in fade-in duration-150 lg:left-20 min-[1440px]:hidden"
                 onClick={() => setMobileMenuOpen(false)}
                 aria-hidden="true"
               />
@@ -382,7 +382,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
               {/* Mobile menu panel */}
               <div
                 data-mobile-menu-expanded="true"
-                className="xl:hidden fixed top-0 right-0 bottom-0 left-0 lg:left-20 z-[140] overflow-y-auto bg-background/95 text-foreground backdrop-blur-2xl dark:bg-background/70 touch-pan-y animate-in fade-in slide-in-from-top-3 duration-200"
+                className="fixed bottom-0 left-0 right-0 top-0 z-[140] overflow-y-auto bg-background/95 text-foreground backdrop-blur-2xl dark:bg-background/70 touch-pan-y animate-in fade-in slide-in-from-top-3 duration-200 lg:left-20 min-[1440px]:hidden"
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
