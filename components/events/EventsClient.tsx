@@ -282,7 +282,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                     <h3 className="mb-4 border-b border-border pb-2 text-lg font-medium text-muted-foreground">
                       {getEventMonthHeading(monthKey, locale)}
                     </h3>
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 3xl:grid-cols-2">
                       {monthEvents.map((event, index) => (
                         <m.div
                           key={event.id}

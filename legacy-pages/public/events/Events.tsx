@@ -213,7 +213,7 @@ export default function Events() {
                     <h3 className="text-lg font-medium text-muted-foreground mb-4 border-b border-border pb-2">
                       {getEventMonthHeading(monthKey, locale)}
                     </h3>
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 3xl:grid-cols-2">
                       {events.map((event, index) => (
                         <m.div
                           key={event.id}
