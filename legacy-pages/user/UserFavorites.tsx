@@ -686,7 +686,7 @@ export default function UserFavorites() {
                     <div className="mt-2 space-y-1 text-sm text-muted-foreground">
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4" />
-                        <span>{getEventCompactDateRangeLabel(event)}</span>
+                        <span>{getEventCompactDateRangeLabel(event, locale)}</span>
                       </div>
                       {(event.venue || event.location || event.city?.name) && (
                         <div className="flex items-start gap-2">

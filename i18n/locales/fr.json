@@ -1475,7 +1475,351 @@
       "published": "Publié",
       "rejected": "Rejeté"
     },
-    "backToEvents": "Retour aux événements"
+    "backToEvents": "Retour aux événements",
+    "openEvent": "Ouvrir {{title}}",
+    "detail": {
+      "notFoundTitle": "Événement introuvable",
+      "notFoundDescription": "L'événement que vous recherchez n'existe pas ou a été supprimé.",
+      "share": "Partager",
+      "getTickets": "Obtenir des billets",
+      "aboutTitle": "À propos de cet événement",
+      "detailsTitle": "Détails de l'événement",
+      "tagsTitle": "Tags",
+      "dateTimeTitle": "Date et heure",
+      "locationTitle": "Lieu",
+      "admissionTitle": "Entrée",
+      "purchaseTickets": "Acheter des billets",
+      "relatedTitle": "Événements liés",
+      "viewAll": "Voir tout",
+      "booleanYes": "Oui",
+      "booleanNo": "Non",
+      "fromPrice": "À partir de {{price}}"
+    },
+    "template": {
+      "fields": {
+        "festival_type": "Type de festival",
+        "expected_attendance": "Expected Attendance",
+        "headline_performers": "Headline Performers / Acts",
+        "stages_count": "Number of Stages / Areas",
+        "camping_available": "Camping Available",
+        "family_friendly": "Family Friendly",
+        "age_restriction": "Age Restriction",
+        "market_type": "Type de marché",
+        "vendor_count": "Number of Vendors",
+        "product_categories": "Catégories de produits",
+        "frequency": "Fréquence",
+        "outdoor_indoor": "Type de lieu",
+        "payment_methods": "Payment Methods Accepted",
+        "tournament_level": "Niveau du tournoi",
+        "course_name": "Parcours de golf",
+        "format": "Format du tournoi",
+        "handicap_limit": "Maximum Handicap",
+        "entry_fee": "Entry Fee (€)",
+        "prize_pool": "Prix / récompenses",
+        "spectator_tickets": "Spectateurs autorisés",
+        "caddie_required": "Caddie Required",
+        "gastro_type": "Type d’événement",
+        "cuisine_focus": "Cuisine principale",
+        "participating_chefs": "Participating Chefs",
+        "michelin_presence": "Michelin Star Chefs",
+        "tasting_included": "Dégustations incluses",
+        "pairing_menu": "Pairing Menu Available",
+        "dietary_options": "Dietary Options",
+        "music_genre": "Genre musical",
+        "performance_type": "Type de spectacle",
+        "artists": "Artistes sur scène",
+        "venue_type": "Type de lieu",
+        "seating_type": "Type de places",
+        "vip_packages": "Forfaits VIP disponibles",
+        "sound_check_access": "Sound Check Experience",
+        "cultural_type": "Type d’événement",
+        "exhibition_theme": "Thème / sujet",
+        "guided_tours": "Guided Tours",
+        "languages_offered": "Languages Available",
+        "interactive_elements": "Éléments interactifs",
+        "accessibility_features": "Accessibility Features",
+        "sport_type": "Type de sport",
+        "competition_level": "Niveau de compétition",
+        "participant_limit": "Participant Limit",
+        "distance_category": "Distance / catégorie",
+        "age_groups": "Age Groups",
+        "timing_chip": "Electronic Timing",
+        "medal_finishers": "Finisher Medals",
+        "season": "Season",
+        "seasonal_theme": "Theme",
+        "activities_included": "Activities Included",
+        "weather_dependent": "Weather Dependent",
+        "sunset_viewing": "Sunset Experience",
+        "seasonal_products": "Featured Seasonal Products"
+      },
+      "values": {
+        "festival_type": {
+          "music": "Festival de musique",
+          "food_wine": "Food & Wine Festival",
+          "cultural": "Cultural Festival",
+          "art": "Art Festival",
+          "religious": "Religious Festival",
+          "film": "Film Festival"
+        },
+        "market_type": {
+          "farmers": "Farmers Market",
+          "artisan": "Artisan Market",
+          "flea": "Flea Market",
+          "christmas": "Christmas Market",
+          "night": "Night Market",
+          "antique": "Antique Market",
+          "trade_fair": "Foire commerciale et exposition"
+        },
+        "product_categories": {
+          "food": "Fresh Food",
+          "crafts": "Artisanat",
+          "antiques": "Antiques",
+          "clothing": "Clothing & Textiles",
+          "jewelry": "Jewelry",
+          "art": "Art & Paintings",
+          "plants": "Plants & Flowers",
+          "home": "Home Decor",
+          "tourism": "Tourisme",
+          "agriculture": "Agriculture",
+          "commerce": "Commerce",
+          "industry": "Industrie",
+          "restaurants": "Restauration"
+        },
+        "frequency": {
+          "weekly": "Weekly",
+          "biweekly": "Bi-weekly",
+          "monthly": "Monthly",
+          "annual": "Annuel",
+          "one_time": "One-time"
+        },
+        "outdoor_indoor": {
+          "outdoor": "Outdoor",
+          "indoor": "Indoor",
+          "mixed": "Mixte"
+        },
+        "payment_methods": {
+          "cash": "Cash",
+          "card": "Credit/Debit Card",
+          "mobile": "Mobile Payment",
+          "mbway": "MB Way"
+        },
+        "tournament_level": {
+          "professional": "Professionnel",
+          "amateur": "Amateur",
+          "charity": "Charity",
+          "corporate": "Corporate",
+          "club": "Club Championship"
+        },
+        "format": {
+          "stroke": "Stroke play",
+          "match": "Match Play",
+          "scramble": "Scramble",
+          "stableford": "Stableford",
+          "foursome": "Foursome",
+          "fourball": "Fourball"
+        },
+        "gastro_type": {
+          "food_festival": "Food Festival",
+          "seafood_festival": "Festival des fruits de mer",
+          "sardine_festival": "Festival de la sardine",
+          "wine_tasting": "Wine Tasting",
+          "cooking_class": "Cooking Class",
+          "gourmet_dinner": "Gourmet Dinner",
+          "chef_table": "Chef's Table Experience",
+          "food_tour": "Food Tour"
+        },
+        "cuisine_focus": {
+          "portuguese": "Portugaise",
+          "seafood": "Fruits de mer",
+          "wine": "Wine",
+          "olive_oil": "Olive Oil",
+          "mediterranean": "Mediterranean",
+          "international": "International",
+          "fusion": "Fusion"
+        },
+        "dietary_options": {
+          "vegetarian": "Vegetarian",
+          "vegan": "Vegan",
+          "gluten_free": "Gluten-Free",
+          "halal": "Halal",
+          "kosher": "Kosher"
+        },
+        "music_genre": {
+          "classical": "Classical",
+          "jazz": "Jazz",
+          "rock": "Rock",
+          "pop": "Pop",
+          "electronic": "Electronic",
+          "fado": "Fado",
+          "portuguese": "Musique portugaise",
+          "world": "Musiques du monde",
+          "folk": "Folk"
+        },
+        "performance_type": {
+          "concert": "Concert",
+          "festival": "Festival",
+          "street_party": "Fête de rue",
+          "orchestra": "Orchestra",
+          "dj_set": "DJ Set",
+          "intimate": "Intimate Performance",
+          "open_air": "Open Air"
+        },
+        "venue_type": {
+          "amphitheater": "Amphitheater",
+          "arena": "Arena",
+          "beach": "Plage",
+          "club": "Club",
+          "winery": "Winery",
+          "theater": "Theater",
+          "church": "Church",
+          "waterfront": "Front de mer",
+          "historic_center": "Centre historique"
+        },
+        "seating_type": {
+          "seated": "Seated",
+          "standing": "Debout",
+          "mixed": "Mixed"
+        },
+        "cultural_type": {
+          "exhibition": "Exhibition",
+          "museum": "Museum Event",
+          "historical": "Historical Reenactment",
+          "medieval_fair": "Foire médiévale",
+          "theater": "Theater",
+          "dance": "Dance Performance",
+          "literary": "Literary Event"
+        },
+        "languages_offered": {
+          "portuguese": "Portuguese",
+          "english": "English",
+          "spanish": "Spanish",
+          "french": "French",
+          "german": "German"
+        },
+        "accessibility_features": {
+          "wheelchair": "Wheelchair Accessible",
+          "audio_guide": "Audio Guide",
+          "sign_language": "Sign Language",
+          "braille": "Braille Materials"
+        },
+        "sport_type": {
+          "running": "Running",
+          "cycling": "Cycling",
+          "triathlon": "Triathlon",
+          "sailing": "Sailing",
+          "tennis": "Tennis",
+          "swimming": "Swimming",
+          "football": "Football",
+          "surfing": "Surfing",
+          "motorsport": "Sport automobile"
+        },
+        "competition_level": {
+          "international": "International",
+          "national": "National",
+          "regional": "Regional",
+          "amateur": "Amateur",
+          "fun_run": "Fun/Charity"
+        },
+        "age_groups": {
+          "under_18": "Under 18",
+          "18_29": "18-29",
+          "30_39": "30-39",
+          "40_49": "40-49",
+          "50_plus": "50+",
+          "open": "Open Category"
+        },
+        "season": {
+          "spring": "Spring",
+          "summer": "Summer",
+          "autumn": "Autumn",
+          "winter": "Winter"
+        },
+        "activities_included": {
+          "beach": "Beach Activities",
+          "hiking": "Hiking",
+          "wine_harvest": "Wine Harvest",
+          "birdwatching": "Birdwatching",
+          "whale_watching": "Whale Watching",
+          "flower_viewing": "Flower Viewing",
+          "sunset_experience": "Sunset Experience"
+        }
+      },
+      "textValues": {
+        "distance_category": {
+          "motogpCircuitCategories": "Circuit de 4,59 km ; MotoGP, Moto2 et Moto3"
+        },
+        "exhibition_theme": {
+          "medievalRecreationSilvesHistoricCentre": "Reconstitution médiévale dans le centre historique de Silves"
+        },
+        "prize_pool": {
+          "threeMillionDollarPurse": "Dotation de 3 millions de dollars"
+        }
+      }
+    },
+    "tags": {
+      "events": "Événements",
+      "albufeira": "Albufeira",
+      "almancil": "Almancil",
+      "carvoeiro": "Carvoeiro",
+      "faro": "Faro",
+      "lagoa": "Lagoa",
+      "loule": "Loulé",
+      "olhao": "Olhão",
+      "portimao": "Portimão",
+      "silves": "Silves",
+      "vilamoura": "Vilamoura",
+      "motorsport": "Sport automobile",
+      "motorcycle-racing": "Courses moto",
+      "wsbk": "WSBK",
+      "superbike-world-championship": "Superbike World Championship",
+      "aia-circuit": "AIA Circuit",
+      "racing-weekeng": "Racing Weekend",
+      "iberian-racing-festival": "Iberian Racing Festival",
+      "autodromo-internacional-do-algarve": "Autódromo Internacional do Algarve",
+      "motogp": "MotoGP",
+      "grand-prix": "Grand Prix",
+      "smooth-jazz": "Smooth jazz",
+      "music": "Musique",
+      "music-festival": "Festival de musique",
+      "world-music": "Musiques du monde",
+      "culture-festival": "Festival culturel",
+      "afro-nation": "Afro Nation",
+      "beach-music-festival": "Festival de musique sur la plage",
+      "festival-med": "Festival MED",
+      "festival-f": "Festival F",
+      "festival-mar-me-quer": "Festival Mar Me Quer",
+      "summer-festival": "Festival d’été",
+      "portuguese-music": "Musique portugaise",
+      "culture": "Culture",
+      "cultural-event": "Événement culturel",
+      "feira-medieval": "Foire médiévale",
+      "medieval-fair": "Foire médiévale",
+      "gastronomy": "Gastronomie",
+      "sardines": "Sardines",
+      "seafood": "Fruits de mer",
+      "concerts": "Concerts",
+      "festival-do-marisco": "Festival do Marisco",
+      "festival-da-sardinha": "Festival da Sardinha",
+      "golf": "Golf",
+      "pga-tour-champions": "PGA TOUR Champions",
+      "portugal-invitational": "Portugal Invitational",
+      "the-els-club": "The Els Club",
+      "carvoeiro-noite-black-white": "Carvoeiro Noite Black & White",
+      "street-party": "Fête de rue",
+      "summer-opening": "Ouverture de l’été",
+      "praia-do-carvoeiro": "Praia do Carvoeiro",
+      "praia-da-rocha": "Praia da Rocha",
+      "zona-ribeirinha": "Front de mer",
+      "vila-adentro": "Vila Adentro",
+      "fatacil": "FATACIL",
+      "fair": "Foire",
+      "crafts": "Artisanat",
+      "tourism": "Tourisme",
+      "agriculture": "Agriculture",
+      "pine-cliffs": "Pine Cliffs",
+      "racing-weekend": "Week-end de courses",
+      "afro-nation-portugal": "Afro Nation Portugal"
+    }
   },
   "experiences": {
     "cta": {

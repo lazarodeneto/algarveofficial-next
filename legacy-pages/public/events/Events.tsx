@@ -3,7 +3,6 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { m } from 'framer-motion';
-import { format, parseISO, isAfter, startOfDay, addMonths } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { 
   Calendar, 
@@ -28,6 +27,7 @@ import {
 import { eventCategoryLabels, eventCategoryColors, type EventCategory } from '@/types/events';
 import { usePublishedEvents } from '@/hooks/useEvents';
 import { useFavoriteEvents } from '@/hooks/useFavoriteEvents';
+import { useCurrentLocale } from '@/hooks/useCurrentLocale';
 import { useLocalePath } from '@/hooks/useLocalePath';
 import { useCmsPageBuilder } from '@/hooks/useCmsPageBuilder';
 import { CmsBlock } from '@/components/cms/CmsBlock';
@@ -42,15 +42,17 @@ import { getCategoryFallbackImageUrl } from "@/lib/fallback-images";
 import {
   getEventCompactDateRangeLabel,
   getEventDateBadgeParts,
+  getEventMonthHeading,
 } from "@/lib/events/dateDisplay";
+import { getLocalizedEventPriceRange } from "@/lib/events/display";
 import { isPublicEventVisibleByDate } from "@/lib/events/publicVisibility";
 import { FavoriteButton } from "@/components/ui/favorite-button";
 
 export default function Events() {
   const { t } = useTranslation();
+  const locale = useCurrentLocale();
   const l = useLocalePath();
   const { getText, isBlockEnabled } = useCmsPageBuilder("events");
-  const today = startOfDay(new Date());
   const heroEnabled = isBlockEnabled("hero", true);
   const eventImageFallback = getCategoryFallbackImageUrl("events") ?? "/og-image.png";
   
@@ -87,7 +89,7 @@ export default function Events() {
   const eventsByMonth = useMemo(() => {
     const grouped: Record<string, typeof upcomingEvents> = {};
     upcomingEvents.forEach((event: any) => {
-      const monthKey = format(parseISO(event.start_date), 'yyyy-MM');
+      const monthKey = event.start_date.slice(0, 7);
       if (!grouped[monthKey]) grouped[monthKey] = [];
       grouped[monthKey].push(event);
     });
@@ -139,7 +141,7 @@ export default function Events() {
                 >
                   <SelectTrigger className="w-[220px] bg-card/90 border-border text-foreground">
                     <Filter className="h-4 w-4 mr-2" />
-                    <SelectValue placeholder="All Categories" />
+                    <SelectValue placeholder={getText("filters.allCategories", t("sections.events.allCategories"))} />
                   </SelectTrigger>
                   <SelectContent className="bg-card border-border">
                     <SelectItem value="all">{getText("filters.allCategories", t("sections.events.allCategories"))}</SelectItem>
@@ -172,12 +174,13 @@ export default function Events() {
                   transition={{ delay: 0.1 * index }}
                 >
                   {(() => {
-                    const dateBadge = getEventDateBadgeParts(event);
+                    const dateBadge = getEventDateBadgeParts(event, locale);
+                    const priceRangeLabel = getLocalizedEventPriceRange(event.price_range, t);
                     return (
 	                  <div className="relative h-full rounded-lg">
 	                    <Link
 	                      href={getEventHref(event)}
-	                      aria-label={`Open ${event.title}`}
+	                      aria-label={t("events.openEvent", { title: event.title })}
 	                      className="block h-full rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 	                    >
 	                      <Card className="h-full cursor-pointer overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">
@@ -217,17 +220,17 @@ export default function Events() {
                           <div className="flex items-center gap-2 text-muted-foreground">
                             <Calendar className="h-4 w-4" />
                             <span>
-                              {getEventCompactDateRangeLabel(event)}
+                              {getEventCompactDateRangeLabel(event, locale)}
                             </span>
                           </div>
                           <div className="flex items-center gap-2 text-muted-foreground">
                             <MapPin className="h-4 w-4" />
                             <span>{event.venue || event.location}</span>
                           </div>
-                          {event.price_range && (
+                          {priceRangeLabel && (
                             <div className="flex items-center gap-2 text-primary">
                               <Ticket className="h-4 w-4" />
-                              <span>{event.price_range}</span>
+                              <span>{priceRangeLabel}</span>
                             </div>
                           )}
                         </div>
@@ -274,7 +277,7 @@ export default function Events() {
               {Object.entries(eventsByMonth).map(([monthKey, events]) => (
                 <div key={monthKey}>
                   <h3 className="text-lg font-medium text-muted-foreground mb-4 border-b border-border pb-2">
-                    {format(parseISO(`${monthKey}-01`), 'MMMM yyyy')}
+                    {getEventMonthHeading(monthKey, locale)}
                   </h3>
                   <div className="grid-adaptive">
                     {events.map((event: any, index: number) => (
@@ -285,12 +288,12 @@ export default function Events() {
                         transition={{ delay: 0.05 * index }}
                       >
                         {(() => {
-                          const dateBadge = getEventDateBadgeParts(event);
+                          const dateBadge = getEventDateBadgeParts(event, locale);
                           return (
 	                        <div className="relative rounded-lg">
 	                          <Link
 	                            href={getEventHref(event)}
-	                            aria-label={`Open ${event.title}`}
+	                            aria-label={t("events.openEvent", { title: event.title })}
 	                            className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 	                          >
 	                            <Card className="cursor-pointer overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">

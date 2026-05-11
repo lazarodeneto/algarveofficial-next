@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { format, parseISO } from 'date-fns';
 import { m } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { 
@@ -13,7 +12,6 @@ import {
   ExternalLink,
   ArrowLeft,
   Share2,
-  Users,
   Tag,
   ChevronRight
 } from 'lucide-react';
@@ -40,7 +38,16 @@ import {
 import {
   getEventDateBadgeParts,
   getEventDetailDateRangeLabel,
+  getEventTimeLabel,
 } from '@/lib/events/dateDisplay';
+import {
+  getLocalizedEventPriceRange,
+  getTranslatedEventCategoryLabel,
+  getTranslatedEventFieldLabel,
+  getTranslatedEventFieldValue,
+  getTranslatedEventTextValue,
+  getTranslatedEventTag,
+} from '@/lib/events/display';
 import { isPublicEventVisibleByDate } from '@/lib/events/publicVisibility';
 import { FavoriteButton } from '@/components/ui/favorite-button';
 
@@ -102,13 +109,13 @@ export default function EventDetail({
           <div className="app-container">
             <RouteMessageState
               eyebrow={t('sections.events.label')}
-              title="Event Not Found"
-              description="The event you're looking for doesn't exist or has been removed."
+              title={t("events.detail.notFoundTitle")}
+              description={t("events.detail.notFoundDescription")}
               actions={(
                 <Button variant="gold" asChild>
                   <Link href={l("/events")}>
                     <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back to Events
+                    {t("events.backToEvents")}
                   </Link>
                 </Button>
               )}
@@ -120,12 +127,20 @@ export default function EventDetail({
     );
   }
 
-  const dateBadge = getEventDateBadgeParts(event);
-  const detailDateLabel = getEventDetailDateRangeLabel(event);
+  const dateBadge = getEventDateBadgeParts(event, locale);
+  const detailDateLabel = getEventDetailDateRangeLabel(event, locale);
   
   // Get category-specific template for displaying event_data fields
   const categoryTemplate = eventCategoryTemplates[event.category as EventCategory];
   const eventData = event.event_data || {};
+  const categoryLabel = getTranslatedEventCategoryLabel(
+    event.category as EventCategory,
+    eventCategoryLabels[event.category as EventCategory],
+    t,
+  );
+  const priceRangeLabel = getLocalizedEventPriceRange(event.price_range, t);
+  const startTimeLabel = getEventTimeLabel(event.start_time, locale);
+  const endTimeLabel = getEventTimeLabel(event.end_time, locale);
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -135,8 +150,8 @@ export default function EventDetail({
           text: event.short_description || event.description?.slice(0, 150),
           url: window.location.href,
         });
-      } catch (err) {
-        console.log('Share cancelled');
+      } catch {
+        // Ignore user-cancelled share actions.
       }
     } else {
       void navigator.clipboard.writeText(window.location.href).catch(() => {
@@ -175,7 +190,7 @@ export default function EventDetail({
               className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Events
+              {t("events.backToEvents")}
             </Link>
           </m.div>
 
@@ -205,10 +220,10 @@ export default function EventDetail({
               
               <div className="absolute bottom-4 left-4 flex gap-2">
                 <Badge className="border-white/80 bg-white/90 text-slate-950 shadow-lg backdrop-blur-md hover:bg-white">
-                  {eventCategoryLabels[event.category as EventCategory]}
+                  {categoryLabel}
                 </Badge>
                 {event.is_featured && (
-                  <Badge className="bg-primary text-primary-foreground">Featured</Badge>
+                  <Badge className="bg-primary text-primary-foreground">{t("sections.events.featuredBadge")}</Badge>
                 )}
               </div>
             </m.div>
@@ -240,13 +255,13 @@ export default function EventDetail({
               />
               <Button variant="outline" size="sm" onClick={handleShare}>
                 <Share2 className="h-4 w-4 mr-2" />
-                Share
+                {t("events.detail.share")}
               </Button>
               {event.ticket_url && (
                 <Button variant="gold" size="sm" asChild>
                   <a href={event.ticket_url} target="_blank" rel="noopener noreferrer">
                     <Ticket className="h-4 w-4 mr-2" />
-                    Get Tickets
+                    {t("events.detail.getTickets")}
                     <ExternalLink className="h-3 w-3 ml-2" />
                   </a>
                 </Button>
@@ -266,7 +281,7 @@ export default function EventDetail({
               {event.description && (
                 <Card className="bg-card border-border">
                   <CardHeader>
-                    <CardTitle className="font-serif">About This Event</CardTitle>
+                    <CardTitle className="font-serif">{t("events.detail.aboutTitle")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="prose prose-invert max-w-none">
@@ -284,7 +299,7 @@ export default function EventDetail({
               {categoryTemplate && Object.keys(eventData).length > 0 && (
                 <Card className="bg-card border-border">
                   <CardHeader>
-                    <CardTitle className="font-serif">Event Details</CardTitle>
+                    <CardTitle className="font-serif">{t("events.detail.detailsTitle")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="grid sm:grid-cols-2 gap-4">
@@ -297,29 +312,29 @@ export default function EventDetail({
                         let displayValue: React.ReactNode = String(value);
                         
                         if (field.type === 'checkbox') {
-                          displayValue = value ? 'Yes' : 'No';
+                          displayValue = value ? t("events.detail.booleanYes") : t("events.detail.booleanNo");
                         } else if (field.type === 'multiselect' || field.type === 'tags') {
                           displayValue = (
                             <div className="flex flex-wrap gap-1">
                               {(Array.isArray(value) ? value : []).map((v: string, i: number) => {
-                                const option = field.options?.find(o => o.value === v);
                                 return (
                                   <Badge key={i} variant="secondary" className="text-xs">
-                                    {option?.label || v}
+                                    {getTranslatedEventFieldValue(field, v, t)}
                                   </Badge>
                                 );
                               })}
                             </div>
                           );
                         } else if (field.type === 'select' && field.options) {
-                          const option = field.options.find(o => o.value === value);
-                          displayValue = option?.label || String(value);
+                          displayValue = getTranslatedEventFieldValue(field, String(value), t);
+                        } else if (field.type === 'text' || field.type === 'textarea') {
+                          displayValue = getTranslatedEventTextValue(field, String(value), t);
                         }
                         
                         return (
                           <div key={field.name} className="flex flex-col gap-1">
                             <span className="text-xs text-muted-foreground uppercase tracking-wide">
-                              {field.label}
+                              {getTranslatedEventFieldLabel(field, t)}
                             </span>
                             <span className="text-foreground">
                               {displayValue}
@@ -338,14 +353,14 @@ export default function EventDetail({
                   <CardHeader>
                     <CardTitle className="font-serif flex items-center gap-2">
                       <Tag className="h-5 w-5" />
-                      Tags
+                      {t("events.detail.tagsTitle")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
                       {event.tags.map((tag, idx) => (
                         <Badge key={idx} variant="outline">
-                          {tag}
+                          {getTranslatedEventTag(tag, t)}
                         </Badge>
                       ))}
                     </div>
@@ -366,7 +381,7 @@ export default function EventDetail({
                 <CardHeader>
                   <CardTitle className="font-serif flex items-center gap-2">
                     <Calendar className="h-5 w-5 text-primary" />
-                    Date & Time
+                    {t("events.detail.dateTimeTitle")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -379,9 +394,9 @@ export default function EventDetail({
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Clock className="h-4 w-4" />
                       <span>
-                        {event.start_time && format(parseISO(`2000-01-01T${event.start_time}`), 'h:mm a')}
-                        {event.start_time && event.end_time && ' - '}
-                        {event.end_time && format(parseISO(`2000-01-01T${event.end_time}`), 'h:mm a')}
+                        {startTimeLabel}
+                        {startTimeLabel && endTimeLabel && ' - '}
+                        {endTimeLabel}
                       </span>
                     </div>
                   )}
@@ -394,7 +409,7 @@ export default function EventDetail({
                   <CardHeader>
                     <CardTitle className="font-serif flex items-center gap-2">
                       <MapPin className="h-5 w-5 text-primary" />
-                      Location
+                      {t("events.detail.locationTitle")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
@@ -409,20 +424,20 @@ export default function EventDetail({
               )}
 
               {/* Pricing Card */}
-              {event.price_range && (
+              {priceRangeLabel && (
                 <Card className="bg-card border-border">
                   <CardHeader>
                     <CardTitle className="font-serif flex items-center gap-2">
                       <Ticket className="h-5 w-5 text-primary" />
-                      Admission
+                      {t("events.detail.admissionTitle")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-lg font-medium text-primary">{event.price_range}</p>
+                    <p className="text-lg font-medium text-primary">{priceRangeLabel}</p>
                     {event.ticket_url && (
                       <Button variant="gold" className="w-full mt-4" asChild>
                         <a href={event.ticket_url} target="_blank" rel="noopener noreferrer">
-                          Purchase Tickets
+                          {t("events.detail.purchaseTickets")}
                           <ExternalLink className="h-4 w-4 ml-2" />
                         </a>
                       </Button>
@@ -443,20 +458,20 @@ export default function EventDetail({
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-serif font-medium text-foreground">
-                  Related Events
+                  {t("events.detail.relatedTitle")}
                 </h2>
                 <Link 
                   href={l("/events")}
                   className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
                 >
-                  View All
+                  {t("events.detail.viewAll")}
                   <ChevronRight className="h-4 w-4" />
                 </Link>
               </div>
               
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {relatedEvents.map((relatedEvent) => {
-                  const relatedDateBadge = getEventDateBadgeParts(relatedEvent);
+                  const relatedDateBadge = getEventDateBadgeParts(relatedEvent, locale);
                   
                   return (
                     <Link
@@ -494,7 +509,11 @@ export default function EventDetail({
                             <Badge 
                               className={`text-xs ${eventCategoryColors[relatedEvent.category as EventCategory]}`}
                             >
-                              {eventCategoryLabels[relatedEvent.category as EventCategory]}
+                              {getTranslatedEventCategoryLabel(
+                                relatedEvent.category as EventCategory,
+                                eventCategoryLabels[relatedEvent.category as EventCategory],
+                                t,
+                              )}
                             </Badge>
                           </div>
                         </div>

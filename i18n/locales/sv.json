@@ -1475,7 +1475,351 @@
       "published": "Publicerad",
       "rejected": "Avvisad"
     },
-    "backToEvents": "Tillbaka till evenemang"
+    "backToEvents": "Tillbaka till evenemang",
+    "openEvent": "Öppna {{title}}",
+    "detail": {
+      "notFoundTitle": "Evenemanget hittades inte",
+      "notFoundDescription": "Evenemanget du letar efter finns inte eller har tagits bort.",
+      "share": "Dela",
+      "getTickets": "Hämta biljetter",
+      "aboutTitle": "Om detta evenemang",
+      "detailsTitle": "Evenemangsdetaljer",
+      "tagsTitle": "Taggar",
+      "dateTimeTitle": "Datum och tid",
+      "locationTitle": "Plats",
+      "admissionTitle": "Entré",
+      "purchaseTickets": "Köp biljetter",
+      "relatedTitle": "Relaterade evenemang",
+      "viewAll": "Visa alla",
+      "booleanYes": "Ja",
+      "booleanNo": "Nej",
+      "fromPrice": "Från {{price}}"
+    },
+    "template": {
+      "fields": {
+        "festival_type": "Festivaltyp",
+        "expected_attendance": "Expected Attendance",
+        "headline_performers": "Headline Performers / Acts",
+        "stages_count": "Number of Stages / Areas",
+        "camping_available": "Camping Available",
+        "family_friendly": "Family Friendly",
+        "age_restriction": "Age Restriction",
+        "market_type": "Marknadstyp",
+        "vendor_count": "Number of Vendors",
+        "product_categories": "Produktkategorier",
+        "frequency": "Frekvens",
+        "outdoor_indoor": "Platstyp",
+        "payment_methods": "Payment Methods Accepted",
+        "tournament_level": "Turneringsnivå",
+        "course_name": "Golfbana",
+        "format": "Turneringsformat",
+        "handicap_limit": "Maximum Handicap",
+        "entry_fee": "Entry Fee (€)",
+        "prize_pool": "Prispott / utmärkelser",
+        "spectator_tickets": "Åskådare tillåtna",
+        "caddie_required": "Caddie Required",
+        "gastro_type": "Evenemangstyp",
+        "cuisine_focus": "Matfokus",
+        "participating_chefs": "Participating Chefs",
+        "michelin_presence": "Michelin Star Chefs",
+        "tasting_included": "Provsmakningar ingår",
+        "pairing_menu": "Pairing Menu Available",
+        "dietary_options": "Dietary Options",
+        "music_genre": "Musikgenre",
+        "performance_type": "Framträdandetyp",
+        "artists": "Artister",
+        "venue_type": "Platstyp",
+        "seating_type": "Platstyp",
+        "vip_packages": "VIP-paket tillgängliga",
+        "sound_check_access": "Sound Check Experience",
+        "cultural_type": "Evenemangstyp",
+        "exhibition_theme": "Tema / ämne",
+        "guided_tours": "Guided Tours",
+        "languages_offered": "Languages Available",
+        "interactive_elements": "Interaktiva inslag",
+        "accessibility_features": "Accessibility Features",
+        "sport_type": "Sporttyp",
+        "competition_level": "Tävlingsnivå",
+        "participant_limit": "Participant Limit",
+        "distance_category": "Distans / kategori",
+        "age_groups": "Age Groups",
+        "timing_chip": "Electronic Timing",
+        "medal_finishers": "Finisher Medals",
+        "season": "Season",
+        "seasonal_theme": "Theme",
+        "activities_included": "Activities Included",
+        "weather_dependent": "Weather Dependent",
+        "sunset_viewing": "Sunset Experience",
+        "seasonal_products": "Featured Seasonal Products"
+      },
+      "values": {
+        "festival_type": {
+          "music": "Musikfestival",
+          "food_wine": "Food & Wine Festival",
+          "cultural": "Cultural Festival",
+          "art": "Art Festival",
+          "religious": "Religious Festival",
+          "film": "Film Festival"
+        },
+        "market_type": {
+          "farmers": "Farmers Market",
+          "artisan": "Artisan Market",
+          "flea": "Flea Market",
+          "christmas": "Christmas Market",
+          "night": "Night Market",
+          "antique": "Antique Market",
+          "trade_fair": "Handels- och utställningsmässa"
+        },
+        "product_categories": {
+          "food": "Fresh Food",
+          "crafts": "Hantverk",
+          "antiques": "Antiques",
+          "clothing": "Clothing & Textiles",
+          "jewelry": "Jewelry",
+          "art": "Art & Paintings",
+          "plants": "Plants & Flowers",
+          "home": "Home Decor",
+          "tourism": "Turism",
+          "agriculture": "Jordbruk",
+          "commerce": "Handel",
+          "industry": "Industri",
+          "restaurants": "Restauranger"
+        },
+        "frequency": {
+          "weekly": "Weekly",
+          "biweekly": "Bi-weekly",
+          "monthly": "Monthly",
+          "annual": "Årlig",
+          "one_time": "One-time"
+        },
+        "outdoor_indoor": {
+          "outdoor": "Outdoor",
+          "indoor": "Indoor",
+          "mixed": "Blandat"
+        },
+        "payment_methods": {
+          "cash": "Cash",
+          "card": "Credit/Debit Card",
+          "mobile": "Mobile Payment",
+          "mbway": "MB Way"
+        },
+        "tournament_level": {
+          "professional": "Professionell",
+          "amateur": "Amateur",
+          "charity": "Charity",
+          "corporate": "Corporate",
+          "club": "Club Championship"
+        },
+        "format": {
+          "stroke": "Slagspel",
+          "match": "Match Play",
+          "scramble": "Scramble",
+          "stableford": "Stableford",
+          "foursome": "Foursome",
+          "fourball": "Fourball"
+        },
+        "gastro_type": {
+          "food_festival": "Food Festival",
+          "seafood_festival": "Skaldjursfestival",
+          "sardine_festival": "Sardinfestival",
+          "wine_tasting": "Wine Tasting",
+          "cooking_class": "Cooking Class",
+          "gourmet_dinner": "Gourmet Dinner",
+          "chef_table": "Chef's Table Experience",
+          "food_tour": "Food Tour"
+        },
+        "cuisine_focus": {
+          "portuguese": "Portugisisk",
+          "seafood": "Skaldjur",
+          "wine": "Wine",
+          "olive_oil": "Olive Oil",
+          "mediterranean": "Mediterranean",
+          "international": "International",
+          "fusion": "Fusion"
+        },
+        "dietary_options": {
+          "vegetarian": "Vegetarian",
+          "vegan": "Vegan",
+          "gluten_free": "Gluten-Free",
+          "halal": "Halal",
+          "kosher": "Kosher"
+        },
+        "music_genre": {
+          "classical": "Classical",
+          "jazz": "Jazz",
+          "rock": "Rock",
+          "pop": "Pop",
+          "electronic": "Electronic",
+          "fado": "Fado",
+          "portuguese": "Portugisisk musik",
+          "world": "Världsmusik",
+          "folk": "Folk"
+        },
+        "performance_type": {
+          "concert": "Concert",
+          "festival": "Festival",
+          "street_party": "Gatufest",
+          "orchestra": "Orchestra",
+          "dj_set": "DJ Set",
+          "intimate": "Intimate Performance",
+          "open_air": "Open Air"
+        },
+        "venue_type": {
+          "amphitheater": "Amphitheater",
+          "arena": "Arena",
+          "beach": "Strand",
+          "club": "Club",
+          "winery": "Winery",
+          "theater": "Theater",
+          "church": "Church",
+          "waterfront": "Strandpromenad",
+          "historic_center": "Historiskt centrum"
+        },
+        "seating_type": {
+          "seated": "Seated",
+          "standing": "Stående",
+          "mixed": "Mixed"
+        },
+        "cultural_type": {
+          "exhibition": "Exhibition",
+          "museum": "Museum Event",
+          "historical": "Historical Reenactment",
+          "medieval_fair": "Medeltidsmarknad",
+          "theater": "Theater",
+          "dance": "Dance Performance",
+          "literary": "Literary Event"
+        },
+        "languages_offered": {
+          "portuguese": "Portuguese",
+          "english": "English",
+          "spanish": "Spanish",
+          "french": "French",
+          "german": "German"
+        },
+        "accessibility_features": {
+          "wheelchair": "Wheelchair Accessible",
+          "audio_guide": "Audio Guide",
+          "sign_language": "Sign Language",
+          "braille": "Braille Materials"
+        },
+        "sport_type": {
+          "running": "Running",
+          "cycling": "Cycling",
+          "triathlon": "Triathlon",
+          "sailing": "Sailing",
+          "tennis": "Tennis",
+          "swimming": "Swimming",
+          "football": "Football",
+          "surfing": "Surfing",
+          "motorsport": "Motorsport"
+        },
+        "competition_level": {
+          "international": "Internationell",
+          "national": "National",
+          "regional": "Regional",
+          "amateur": "Amateur",
+          "fun_run": "Fun/Charity"
+        },
+        "age_groups": {
+          "under_18": "Under 18",
+          "18_29": "18-29",
+          "30_39": "30-39",
+          "40_49": "40-49",
+          "50_plus": "50+",
+          "open": "Open Category"
+        },
+        "season": {
+          "spring": "Spring",
+          "summer": "Summer",
+          "autumn": "Autumn",
+          "winter": "Winter"
+        },
+        "activities_included": {
+          "beach": "Beach Activities",
+          "hiking": "Hiking",
+          "wine_harvest": "Wine Harvest",
+          "birdwatching": "Birdwatching",
+          "whale_watching": "Whale Watching",
+          "flower_viewing": "Flower Viewing",
+          "sunset_experience": "Sunset Experience"
+        }
+      },
+      "textValues": {
+        "distance_category": {
+          "motogpCircuitCategories": "4,59 km bana; MotoGP, Moto2 och Moto3"
+        },
+        "exhibition_theme": {
+          "medievalRecreationSilvesHistoricCentre": "Medeltida återskapande i Silves historiska centrum"
+        },
+        "prize_pool": {
+          "threeMillionDollarPurse": "Prispott på 3 miljoner dollar"
+        }
+      }
+    },
+    "tags": {
+      "events": "Evenemang",
+      "albufeira": "Albufeira",
+      "almancil": "Almancil",
+      "carvoeiro": "Carvoeiro",
+      "faro": "Faro",
+      "lagoa": "Lagoa",
+      "loule": "Loulé",
+      "olhao": "Olhão",
+      "portimao": "Portimão",
+      "silves": "Silves",
+      "vilamoura": "Vilamoura",
+      "motorsport": "Motorsport",
+      "motorcycle-racing": "Motorcykelracing",
+      "wsbk": "WSBK",
+      "superbike-world-championship": "Superbike World Championship",
+      "aia-circuit": "AIA Circuit",
+      "racing-weekeng": "Racing Weekend",
+      "iberian-racing-festival": "Iberian Racing Festival",
+      "autodromo-internacional-do-algarve": "Autódromo Internacional do Algarve",
+      "motogp": "MotoGP",
+      "grand-prix": "Grand Prix",
+      "smooth-jazz": "Smooth jazz",
+      "music": "Musik",
+      "music-festival": "Musikfestival",
+      "world-music": "Världsmusik",
+      "culture-festival": "Kulturfestival",
+      "afro-nation": "Afro Nation",
+      "beach-music-festival": "Strandmusikfestival",
+      "festival-med": "Festival MED",
+      "festival-f": "Festival F",
+      "festival-mar-me-quer": "Festival Mar Me Quer",
+      "summer-festival": "Sommarfestival",
+      "portuguese-music": "Portugisisk musik",
+      "culture": "Kultur",
+      "cultural-event": "Kulturevenemang",
+      "feira-medieval": "Medeltidsmarknad",
+      "medieval-fair": "Medeltidsmarknad",
+      "gastronomy": "Gastronomi",
+      "sardines": "Sardiner",
+      "seafood": "Skaldjur",
+      "concerts": "Konserter",
+      "festival-do-marisco": "Festival do Marisco",
+      "festival-da-sardinha": "Festival da Sardinha",
+      "golf": "Golf",
+      "pga-tour-champions": "PGA TOUR Champions",
+      "portugal-invitational": "Portugal Invitational",
+      "the-els-club": "The Els Club",
+      "carvoeiro-noite-black-white": "Carvoeiro Noite Black & White",
+      "street-party": "Gatufest",
+      "summer-opening": "Sommaröppning",
+      "praia-do-carvoeiro": "Praia do Carvoeiro",
+      "praia-da-rocha": "Praia da Rocha",
+      "zona-ribeirinha": "Strandpromenad",
+      "vila-adentro": "Vila Adentro",
+      "fatacil": "FATACIL",
+      "fair": "Mässa",
+      "crafts": "Hantverk",
+      "tourism": "Turism",
+      "agriculture": "Jordbruk",
+      "pine-cliffs": "Pine Cliffs",
+      "racing-weekend": "Tävlingshelg",
+      "afro-nation-portugal": "Afro Nation Portugal"
+    }
   },
   "experiences": {
     "cta": {

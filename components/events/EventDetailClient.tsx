@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { format, parseISO } from "date-fns";
 import { m } from "framer-motion";
 import Image from "next/image";
 import { useTranslation } from "react-i18next";
@@ -44,6 +43,19 @@ import {
   isPublicEventVisibleByDate,
 } from "@/lib/events/publicVisibility";
 import { localizeEvent, localizeEvents } from "@/lib/events/i18n";
+import {
+  getEventDateBadgeParts,
+  getEventDetailDateRangeLabel,
+  getEventTimeLabel,
+} from "@/lib/events/dateDisplay";
+import {
+  getLocalizedEventPriceRange,
+  getTranslatedEventCategoryLabel,
+  getTranslatedEventFieldLabel,
+  getTranslatedEventFieldValue,
+  getTranslatedEventTextValue,
+  getTranslatedEventTag,
+} from "@/lib/events/display";
 import { FavoriteButton } from "@/components/ui/favorite-button";
 
 export type EventCitySummary = Pick<Tables<"cities">, "id" | "name" | "slug">;
@@ -284,12 +296,19 @@ function EventDetailClientInner({
     );
   }
 
-  const startDate = parseISO(event.start_date);
-  const endDate = parseISO(event.end_date);
-  const isSingleDay = event.start_date === event.end_date;
+  const dateBadge = getEventDateBadgeParts(event, locale);
+  const detailDateLabel = getEventDetailDateRangeLabel(event, locale);
   const categoryTemplate = eventCategoryTemplates[event.category as EventCategory];
   const eventData = event.event_data ?? {};
   const eventHeroImage = normalizePublicImageUrl(event.image);
+  const categoryLabel = getTranslatedEventCategoryLabel(
+    event.category as EventCategory,
+    eventCategoryLabels[event.category as EventCategory],
+    t,
+  );
+  const priceRangeLabel = getLocalizedEventPriceRange(event.price_range, t);
+  const startTimeLabel = getEventTimeLabel(event.start_time, locale);
+  const endTimeLabel = getEventTimeLabel(event.end_time, locale);
 
   const handleShare = async () => {
     const shareUrl = window.location.href;
@@ -352,22 +371,20 @@ function EventDetailClientInner({
 
               <div className="absolute bottom-4 right-4 rounded-lg border border-border/50 bg-background/95 px-5 py-4 text-center shadow-xl backdrop-blur-sm">
                 <span className="block text-4xl font-bold leading-none text-primary lg:text-5xl">
-                  {isSingleDay
-                    ? format(startDate, "d")
-                    : `${format(startDate, "d")} - ${format(endDate, "d")}`}
+                  {dateBadge.primary}
                 </span>
                 <span className="mt-1 block text-sm font-medium uppercase tracking-wide text-foreground lg:text-base">
-                  {format(startDate, "MMM")}
+                  {dateBadge.secondary}
                 </span>
               </div>
 
               <div className="absolute bottom-4 left-4 flex gap-2">
                 <Badge className="border-white/80 bg-white/90 text-slate-950 shadow-lg backdrop-blur-md hover:bg-white">
-                  {eventCategoryLabels[event.category as EventCategory]}
+                  {categoryLabel}
                 </Badge>
                 {event.is_featured ? (
                   <Badge className="bg-primary text-primary-foreground">
-                    {cms.getText("hero.featuredBadge", "Featured")}
+                    {cms.getText("hero.featuredBadge", t("sections.events.featuredBadge"))}
                   </Badge>
                 ) : null}
               </div>
@@ -397,13 +414,13 @@ function EventDetailClientInner({
               />
               <Button variant="outline" size="sm" onClick={handleShare}>
                 <Share2 className="mr-2 h-4 w-4" />
-                {cms.getText("hero.share", "Share")}
+                {cms.getText("hero.share", t("events.detail.share"))}
               </Button>
               {event.ticket_url ? (
                 <Button variant="gold" size="sm" asChild>
                   <a href={event.ticket_url} target="_blank" rel="noopener noreferrer">
                     <Ticket className="mr-2 h-4 w-4" />
-                    {cms.getText("hero.getTickets", "Get Tickets")}
+                    {cms.getText("hero.getTickets", t("events.detail.getTickets"))}
                     <ExternalLink className="ml-2 h-3 w-3" />
                   </a>
                 </Button>
@@ -422,7 +439,7 @@ function EventDetailClientInner({
                 <Card className="border-border bg-card">
                   <CardHeader>
                     <CardTitle className="font-serif">
-                      {cms.getText("content.aboutTitle", "About This Event")}
+                      {cms.getText("content.aboutTitle", t("events.detail.aboutTitle"))}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -441,7 +458,7 @@ function EventDetailClientInner({
                 <Card className="border-border bg-card">
                   <CardHeader>
                     <CardTitle className="font-serif">
-                      {cms.getText("content.detailsTitle", "Event Details")}
+                      {cms.getText("content.detailsTitle", t("events.detail.detailsTitle"))}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -461,27 +478,28 @@ function EventDetailClientInner({
 
                         if (field.type === "checkbox") {
                           displayValue = value
-                            ? cms.getText("content.booleanYes", "Yes")
-                            : cms.getText("content.booleanNo", "No");
+                            ? cms.getText("content.booleanYes", t("events.detail.booleanYes"))
+                            : cms.getText("content.booleanNo", t("events.detail.booleanNo"));
                         } else if (field.type === "multiselect" || field.type === "tags") {
                           displayValue = (
                             <div className="flex flex-wrap gap-1">
                               {(Array.isArray(value) ? value : []).map((itemValue: string, index: number) => (
                                 <Badge key={index} variant="secondary" className="text-xs">
-                                  {itemValue}
+                                  {getTranslatedEventFieldValue(field, itemValue, t)}
                                 </Badge>
                               ))}
                             </div>
                           );
                         } else if (field.type === "select" && field.options) {
-                          const option = field.options.find((opt) => opt.value === value);
-                          displayValue = option?.label ?? String(value);
+                          displayValue = getTranslatedEventFieldValue(field, String(value), t);
+                        } else if (field.type === "text" || field.type === "textarea") {
+                          displayValue = getTranslatedEventTextValue(field, String(value), t);
                         }
 
                         return (
                           <div key={field.name} className="flex flex-col gap-1">
                             <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                              {field.label}
+                              {getTranslatedEventFieldLabel(field, t)}
                             </span>
                             <span className="text-foreground">{displayValue}</span>
                           </div>
@@ -497,14 +515,14 @@ function EventDetailClientInner({
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 font-serif">
                       <Tag className="h-5 w-5" />
-                      {cms.getText("content.tagsTitle", "Tags")}
+                      {cms.getText("content.tagsTitle", t("events.detail.tagsTitle"))}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
                       {event.tags.map((tag, index) => (
                         <Badge key={index} variant="outline">
-                          {tag}
+                          {getTranslatedEventTag(tag, t)}
                         </Badge>
                       ))}
                     </div>
@@ -523,28 +541,22 @@ function EventDetailClientInner({
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 font-serif">
                     <Calendar className="h-5 w-5 text-primary" />
-                    {cms.getText("sidebar.dateTimeTitle", "Date & Time")}
+                    {cms.getText("sidebar.dateTimeTitle", t("events.detail.dateTimeTitle"))}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div>
                     <p className="font-medium text-foreground">
-                      {isSingleDay
-                        ? format(startDate, "EEEE, MMMM d, yyyy")
-                        : `${format(startDate, "MMM d")} - ${format(endDate, "MMM d, yyyy")}`}
+                      {detailDateLabel}
                     </p>
                   </div>
                   {event.start_time || event.end_time ? (
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Clock className="h-4 w-4" />
                       <span>
-                        {event.start_time
-                          ? format(parseISO(`2000-01-01T${event.start_time}`), "h:mm a")
-                          : null}
-                        {event.start_time && event.end_time ? " - " : null}
-                        {event.end_time
-                          ? format(parseISO(`2000-01-01T${event.end_time}`), "h:mm a")
-                          : null}
+                        {startTimeLabel}
+                        {startTimeLabel && endTimeLabel ? " - " : null}
+                        {endTimeLabel}
                       </span>
                     </div>
                   ) : null}
@@ -556,7 +568,7 @@ function EventDetailClientInner({
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 font-serif">
                       <MapPin className="h-5 w-5 text-primary" />
-                      {cms.getText("sidebar.locationTitle", "Location")}
+                      {cms.getText("sidebar.locationTitle", t("events.detail.locationTitle"))}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
@@ -566,20 +578,20 @@ function EventDetailClientInner({
                 </Card>
               ) : null}
 
-              {event.price_range ? (
+              {priceRangeLabel ? (
                 <Card className="border-border bg-card">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 font-serif">
                       <Ticket className="h-5 w-5 text-primary" />
-                      {cms.getText("sidebar.admissionTitle", "Admission")}
+                      {cms.getText("sidebar.admissionTitle", t("events.detail.admissionTitle"))}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-lg font-medium text-primary">{event.price_range}</p>
+                    <p className="text-lg font-medium text-primary">{priceRangeLabel}</p>
                     {event.ticket_url ? (
                       <Button variant="gold" className="mt-4 w-full" asChild>
                         <a href={event.ticket_url} target="_blank" rel="noopener noreferrer">
-                          {cms.getText("sidebar.purchaseTickets", "Purchase Tickets")}
+                          {cms.getText("sidebar.purchaseTickets", t("events.detail.purchaseTickets"))}
                           <ExternalLink className="ml-2 h-4 w-4" />
                         </a>
                       </Button>
@@ -599,22 +611,20 @@ function EventDetailClientInner({
             >
               <div className="mb-6 flex items-center justify-between">
                 <h2 className="text-2xl font-serif font-medium text-foreground">
-                  {cms.getText("related.title", "Related Events")}
+                  {cms.getText("related.title", t("events.detail.relatedTitle"))}
                 </h2>
                 <LocaleLink
                   href="/events"
                   className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
-                  {cms.getText("related.viewAll", "View All")}
+                  {cms.getText("related.viewAll", t("events.detail.viewAll"))}
                   <ChevronRight className="h-4 w-4" />
                 </LocaleLink>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {relatedEvents.map((relatedEvent) => {
-                  const relStartDate = parseISO(relatedEvent.start_date);
-                  const relEndDate = parseISO(relatedEvent.end_date);
-                  const relIsSingleDay = relatedEvent.start_date === relatedEvent.end_date;
+                  const relatedDateBadge = getEventDateBadgeParts(relatedEvent, locale);
                   const relatedEventImage = normalizePublicImageUrl(relatedEvent.image);
 
                   return (
@@ -640,18 +650,20 @@ function EventDetailClientInner({
 
                           <div className="absolute right-2 top-2 rounded-md border border-border/50 bg-background/95 px-2 py-1 text-center backdrop-blur-sm">
                             <span className="block text-lg font-bold leading-none text-primary">
-                              {relIsSingleDay
-                                ? format(relStartDate, "d")
-                                : `${format(relStartDate, "d")}-${format(relEndDate, "d")}`}
+                              {relatedDateBadge.primary}
                             </span>
                             <span className="block text-xs font-medium uppercase text-foreground">
-                              {format(relStartDate, "MMM")}
+                              {relatedDateBadge.secondary}
                             </span>
                           </div>
 
                           <div className="absolute bottom-2 left-2">
                             <Badge className={`text-xs ${eventCategoryColors[relatedEvent.category as EventCategory]}`}>
-                              {eventCategoryLabels[relatedEvent.category as EventCategory]}
+                              {getTranslatedEventCategoryLabel(
+                                relatedEvent.category as EventCategory,
+                                eventCategoryLabels[relatedEvent.category as EventCategory],
+                                t,
+                              )}
                             </Badge>
                           </div>
                         </div>
