@@ -51,6 +51,8 @@ function validPayload() {
 function makeWriteClient({
   claimData = { id: "claim-1", status: "pending", created_at: "2026-04-18T10:00:00.000Z" },
   claimError = null,
+  listingData = { id: "00000000-0000-4000-8000-000000000001" },
+  listingError = null,
   contactSettingsData = { forwarding_email: "alerts@algarveofficial.com" },
   contactSettingsError = null,
   outboxError = null,
@@ -60,6 +62,8 @@ function makeWriteClient({
 }: {
   claimData?: unknown;
   claimError?: { message: string } | null;
+  listingData?: unknown;
+  listingError?: { message: string } | null;
   contactSettingsData?: unknown;
   contactSettingsError?: { message: string } | null;
   outboxError?: { message: string } | null;
@@ -70,6 +74,10 @@ function makeWriteClient({
   const claimSingle = vi.fn().mockResolvedValue({ data: claimData, error: claimError });
   const claimSelect = vi.fn(() => ({ single: claimSingle }));
   const claimInsert = vi.fn(() => ({ select: claimSelect }));
+
+  const listingMaybeSingle = vi.fn().mockResolvedValue({ data: listingData, error: listingError });
+  const listingEq = vi.fn(() => ({ eq: listingEq, maybeSingle: listingMaybeSingle }));
+  const listingSelect = vi.fn(() => ({ eq: listingEq }));
 
   const contactMaybeSingle = vi.fn().mockResolvedValue({
     data: contactSettingsData,
@@ -88,6 +96,9 @@ function makeWriteClient({
   const from = vi.fn((table: string) => {
     if (table === "listing_claims") {
       return { insert: claimInsert };
+    }
+    if (table === "listings") {
+      return { select: listingSelect };
     }
     if (table === "contact_settings") {
       return { select: contactSelect };
@@ -111,6 +122,9 @@ function makeWriteClient({
       claimInsert,
       claimSelect,
       claimSingle,
+      listingSelect,
+      listingEq,
+      listingMaybeSingle,
       contactSelect,
       contactEq,
       contactMaybeSingle,
@@ -216,6 +230,109 @@ describe("partner claim route runtime", () => {
       }),
     );
     expect(writeClient.spies.rpc).toHaveBeenCalledWith("trigger_process_outbox");
+  });
+
+  it("validates and persists a listing-specific business claim", async () => {
+    const writeClient = makeWriteClient();
+    mocks.createServiceRoleClient.mockReturnValue(writeClient.client);
+    mocks.createServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-123" } }, error: null }),
+      },
+    });
+
+    const listingId = "00000000-0000-4000-8000-000000000001";
+    const response = await postPartnerClaimRoute(
+      jsonRequest({
+        ...validPayload(),
+        requestType: "claim-business",
+        listingId,
+      }),
+    );
+
+    expect(response.status).toBe(201);
+    expect(writeClient.spies.from).toHaveBeenCalledWith("listings");
+    expect(writeClient.spies.listingSelect).toHaveBeenCalledWith("id");
+    expect(writeClient.spies.listingEq).toHaveBeenCalledWith("id", listingId);
+    expect(writeClient.spies.listingEq).toHaveBeenCalledWith("status", "published");
+    expect(writeClient.spies.claimInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        request_type: "claim-business",
+        listing_id: listingId,
+      }),
+    );
+  });
+
+  it("rejects business claims that do not reference a listing", async () => {
+    const writeClient = makeWriteClient();
+    mocks.createServiceRoleClient.mockReturnValue(writeClient.client);
+
+    const response = await postPartnerClaimRoute(
+      jsonRequest({
+        ...validPayload(),
+        requestType: "claim-business",
+      }),
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toEqual(
+      expect.objectContaining({
+        ok: false,
+        error: expect.objectContaining({ code: "PARTNER_CLAIM_LISTING_REQUIRED" }),
+      }),
+    );
+    expect(writeClient.spies.from).not.toHaveBeenCalledWith("listings");
+    expect(writeClient.spies.claimInsert).not.toHaveBeenCalled();
+    expect(mocks.createServerClient).not.toHaveBeenCalled();
+  });
+
+  it("rejects listing references on new-listing submissions", async () => {
+    const writeClient = makeWriteClient();
+    mocks.createServiceRoleClient.mockReturnValue(writeClient.client);
+
+    const response = await postPartnerClaimRoute(
+      jsonRequest({
+        ...validPayload(),
+        listingId: "00000000-0000-4000-8000-000000000001",
+      }),
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toEqual(
+      expect.objectContaining({
+        ok: false,
+        error: expect.objectContaining({ code: "PARTNER_CLAIM_LISTING_TYPE_MISMATCH" }),
+      }),
+    );
+    expect(writeClient.spies.from).not.toHaveBeenCalledWith("listings");
+    expect(writeClient.spies.claimInsert).not.toHaveBeenCalled();
+    expect(mocks.createServerClient).not.toHaveBeenCalled();
+  });
+
+  it("rejects a business claim for an unknown or unpublished listing", async () => {
+    const writeClient = makeWriteClient({ listingData: null });
+    mocks.createServiceRoleClient.mockReturnValue(writeClient.client);
+
+    const response = await postPartnerClaimRoute(
+      jsonRequest({
+        ...validPayload(),
+        requestType: "claim-business",
+        listingId: "00000000-0000-4000-8000-000000000001",
+      }),
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toEqual(
+      expect.objectContaining({
+        ok: false,
+        error: expect.objectContaining({ code: "PARTNER_CLAIM_LISTING_NOT_FOUND" }),
+      }),
+    );
+    expect(writeClient.spies.claimInsert).not.toHaveBeenCalled();
+    expect(mocks.createServerClient).not.toHaveBeenCalled();
   });
 
   it("accepts business website without protocol and normalizes it to https", async () => {

@@ -76,6 +76,7 @@ function getCandidateSlugs(item: unknown, fallbackCategory?: string) {
 export async function POST(request: NextRequest) {
   const auth = await requireAdminWriteClient(request, "Only admins can import listings.", {
     requireServiceRole: true,
+    allowedRoles: ["admin"],
     missingServiceRoleMessage:
       "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin listing imports.",
   });

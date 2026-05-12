@@ -34,6 +34,7 @@ export async function POST(
     "Only admins can update admin settings.",
     {
       requireServiceRole: true,
+      allowedRoles: ["admin"],
       missingServiceRoleMessage:
         "Server is missing SUPABASE_SERVICE_ROLE_KEY for admin settings writes.",
     },

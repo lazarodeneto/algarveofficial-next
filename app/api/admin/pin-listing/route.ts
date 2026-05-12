@@ -17,7 +17,11 @@ export async function POST(request: NextRequest) {
     request,
     "Only admins can pin listings.",
     {
+      requireServiceRole: true,
+      allowedRoles: ["admin"],
       auditAction: "admin.pin-listing",
+      missingServiceRoleMessage:
+        "Server is missing SUPABASE_SERVICE_ROLE_KEY for pin listing writes.",
     },
   );
   if ("error" in auth) return auth.error;
@@ -40,7 +44,7 @@ export async function POST(request: NextRequest) {
   const isUnpin = action === "unpin";
   const newRank = isUnpin ? null : position ?? null;
 
-  const { data: updated, error } = await auth.userClient
+  const { data: updated, error } = await auth.writeClient
     .from("listings")
     .update({ featured_rank: newRank } as Database["public"]["Tables"]["listings"]["Update"])
     .eq("id", listingId)

@@ -31,12 +31,16 @@ const ADMIN_MUTATION_ROUTE_CONTRACTS: AdminRouteContract[] = [
     requiredSnippets: ['requireAdminWriteClient', 'Server is missing SUPABASE_SERVICE_ROLE_KEY for CMS page config writes.'],
   },
   {
+    path: "app/api/admin/cms/media-upload/route.ts",
+    requiredSnippets: ['requireAdminWriteClient', 'Server is missing SUPABASE_SERVICE_ROLE_KEY for CMS media uploads.'],
+  },
+  {
     path: "app/api/admin/navigation/[menu]/route.ts",
     requiredSnippets: ['requireAdminWriteClient'],
   },
   {
     path: "app/api/admin/settings/[table]/route.ts",
-    requiredSnippets: ['requireAdminWriteClient'],
+    requiredSnippets: ['requireAdminWriteClient', 'allowedRoles: ["admin"]'],
   },
   {
     path: "app/api/admin/subscriptions/pricing/route.ts",
@@ -72,7 +76,7 @@ const ADMIN_MUTATION_ROUTE_CONTRACTS: AdminRouteContract[] = [
   },
   {
     path: "app/api/admin/listings/import/route.ts",
-    requiredSnippets: ['requireAdminWriteClient', 'Only admins can import listings.'],
+    requiredSnippets: ['requireAdminWriteClient', 'Only admins can import listings.', 'allowedRoles: ["admin"]'],
   },
   {
     path: "app/api/admin/json-upsert/route.ts",
@@ -80,7 +84,7 @@ const ADMIN_MUTATION_ROUTE_CONTRACTS: AdminRouteContract[] = [
   },
   {
     path: "app/api/admin/pin-listing/route.ts",
-    requiredSnippets: ['requireAdminWriteClient', 'Only admins can pin listings.'],
+    requiredSnippets: ['requireAdminWriteClient', 'Only admins can pin listings.', 'allowedRoles: ["admin"]'],
   },
   {
     path: "app/api/admin/upload-category-fallback/route.ts",

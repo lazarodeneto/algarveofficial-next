@@ -238,9 +238,7 @@ export async function PATCH(
   }
 
   if (Object.keys(updates).length > 0) {
-    // Use requester-scoped client so DB triggers relying on auth.uid()
-    // correctly detect the acting admin user.
-    const { error: updateError } = await auth.userClient
+    const { error: updateError } = await auth.writeClient
       .from("listings")
       .update(updates)
       .eq("id", listingId);
@@ -306,7 +304,7 @@ export async function PATCH(
 
       const featuredImage = tierScopedImages.find((img) => img.is_featured) ?? tierScopedImages[0];
       if (featuredImage?.url) {
-        const { error: featuredError } = await auth.userClient
+        const { error: featuredError } = await auth.writeClient
           .from("listings")
           .update({ featured_image_url: featuredImage.url })
           .eq("id", listingId);
@@ -315,7 +313,7 @@ export async function PATCH(
         }
       }
     } else {
-      const { error: clearError } = await auth.userClient
+      const { error: clearError } = await auth.writeClient
         .from("listings")
         .update({ featured_image_url: null })
         .eq("id", listingId);
@@ -339,7 +337,7 @@ export async function PATCH(
     }
 
     if (featuredImg?.image_url) {
-      const { error: syncError } = await auth.userClient
+      const { error: syncError } = await auth.writeClient
         .from("listings")
         .update({ featured_image_url: featuredImg.image_url })
         .eq("id", listingId);

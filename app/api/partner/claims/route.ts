@@ -200,6 +200,50 @@ async function resolveCurrentUserId() {
   }
 }
 
+async function validateClaimListingReference(
+  writeClient: ServiceRoleClient,
+  payload: z.infer<typeof partnerClaimSchema>,
+) {
+  if (payload.requestType === "claim-business" && !payload.listingId) {
+    return errorResponse(
+      400,
+      "PARTNER_CLAIM_LISTING_REQUIRED",
+      "A business claim request must reference an existing published listing.",
+    );
+  }
+
+  if (!payload.listingId) return null;
+
+  if (payload.requestType !== "claim-business") {
+    return errorResponse(
+      400,
+      "PARTNER_CLAIM_LISTING_TYPE_MISMATCH",
+      "A listing can only be attached to a business claim request.",
+    );
+  }
+
+  const { data, error } = await writeClient
+    .from("listings")
+    .select("id")
+    .eq("id", payload.listingId)
+    .eq("status", "published")
+    .maybeSingle();
+
+  if (error) {
+    return errorResponse(500, "PARTNER_CLAIM_LISTING_LOOKUP_FAILED", error.message);
+  }
+
+  if (!data) {
+    return errorResponse(
+      400,
+      "PARTNER_CLAIM_LISTING_NOT_FOUND",
+      "The listing you are trying to claim could not be found.",
+    );
+  }
+
+  return null;
+}
+
 export async function POST(request: NextRequest) {
   let body: unknown = null;
   try {
@@ -227,8 +271,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const userId = await resolveCurrentUserId();
   const payload = parsed.data;
+  const listingReferenceError = await validateClaimListingReference(writeClient, payload);
+  if (listingReferenceError) return listingReferenceError;
+
+  const userId = await resolveCurrentUserId();
 
   const { data, error } = await writeClient
     .from("listing_claims")
