@@ -114,6 +114,7 @@ export function DetailsStep({
                 key={field.name}
                 className={
                   field.type === "multiselect" || field.type === "tags"
+                    || field.type === "textarea"
                     ? "sm:col-span-2"
                     : ""
                 }
@@ -142,6 +143,7 @@ export function DetailsStep({
                 key={field.name}
                 className={
                   field.type === "multiselect" || field.type === "tags"
+                    || field.type === "textarea"
                     ? "sm:col-span-2 lg:col-span-3"
                     : ""
                 }

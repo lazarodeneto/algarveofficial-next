@@ -2,30 +2,35 @@ import { m } from "framer-motion";
 import Link from "next/link";
 import { FavoriteButton } from "@/components/ui/favorite-button";
 import { useFavoriteCategories } from "@/hooks/useFavoriteCategories";
-import { useFeaturedCategories } from "@/hooks/useReferenceData";
-import { usePublishedListings } from "@/hooks/useListings";
+import { useCategoryListingCounts, useFeaturedCategories } from "@/hooks/useReferenceData";
 import { getCategoryIconComponent } from "@/lib/categoryIcons";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { buildMergedCategoryOptions } from "@/lib/categoryMerges";
+import { buildCategoryRouteData } from "@/lib/public-route-builders";
 import { useTranslation } from "react-i18next";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { buildStaticRouteData } from "@/lib/i18n/localized-routing";
 import { Skeleton } from "@/components/ui/skeleton";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
 
 export function CategoriesSection() {
   const { isFavorite, toggleFavorite } = useFavoriteCategories();
   const { data: categories, isLoading: categoriesLoading } = useFeaturedCategories();
-  const { data: listings, isLoading: listingsLoading } = usePublishedListings();
+  const { data: categoryCounts, isLoading: countsLoading } = useCategoryListingCounts();
   const { t } = useTranslation();
   const l = useLocalePath();
 
-  const isLoading = categoriesLoading ?? listingsLoading;
+  const isLoading = categoriesLoading || countsLoading;
 
   // Count listings per category
-  const getCategoryCount = (categoryIds: string[]) => {
-    if (!listings || categoryIds.length === 0) return 0;
-    const idSet = new Set(categoryIds);
-    return listings.filter((listing) => idSet.has(listing.category_id)).length;
+  const getCategoryCount = (category: ReturnType<typeof buildMergedCategoryOptions>[number]) => {
+    if (!categoryCounts) return 0;
+    const canonicalCount = categoryCounts[category.id];
+    if (typeof canonicalCount === "number") return canonicalCount;
+    return Array.from(new Set(category.memberIds)).reduce(
+      (total, categoryId) => total + (categoryCounts[categoryId] ?? 0),
+      0,
+    );
   };
 
   const mergedCategories = buildMergedCategoryOptions(categories || []);
@@ -54,7 +59,7 @@ export function CategoriesSection() {
 
   // Filter out categories with 0 listings
   const categoriesWithListings = mergedCategories
-    .filter((category) => getCategoryCount(category.memberIds) > 0)
+    .filter((category) => getCategoryCount(category) > 0)
     .slice(0, 6);
 
   if (categoriesWithListings.length === 0) {
@@ -106,7 +111,7 @@ export function CategoriesSection() {
                 </div>
 
                 <Link
-                  href={l(`/directory?category=${category.slug}`)}
+                  href={l(buildCategoryRouteData(category.slug) ?? buildStaticRouteData("stay"))}
                   className="block w-full h-full min-w-0 min-h-[11.5rem] sm:min-h-[12rem] lg:min-h-[7rem] p-5 lg:px-5 lg:py-3 glass-box glass-box-silver-liquid text-center flex flex-col items-center"
                 >
                   <div className="relative z-10 w-12 h-12 rounded-lg bg-muted dark:bg-muted flex items-center justify-center mb-3 lg:mb-2">
@@ -116,7 +121,7 @@ export function CategoriesSection() {
                     {displayName}
                   </h3>
                   <span className="relative z-10 text-body-sm font-medium text-primary mt-auto">
-                    {getCategoryCount(category.memberIds)} {t("sections.categories.listings")}
+                    {getCategoryCount(category)} {t("sections.categories.listings")}
                   </span>
                 </Link>
               </m.div>

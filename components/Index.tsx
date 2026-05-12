@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/layout/Header";
 import { HeroSection } from "@/components/sections/HeroSection";
+import { SoftReveal } from "@/components/ui/SoftReveal";
 import { useHomepageSettings } from "@/hooks/useHomepageSettings";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
@@ -211,7 +212,11 @@ function moveSectionAfter(order: string[], sectionId: string, afterSectionId: st
 
 function applyHomepageHierarchy(order: string[]) {
   return moveSectionAfter(
-    moveSectionBefore(order, "vip", "all-cities"),
+    moveSectionBefore(
+      moveSectionBefore(order, "vip", "all-cities"),
+      "curated",
+      "all-cities",
+    ),
     "cta",
     "all-listings",
   );
@@ -306,10 +311,12 @@ const Index = () => {
         as="section"
         defaultEnabled={defaultEnabled}
       >
-        <SectionComponent
-          copy={getHomeSectionCopy(settings?.section_copy, getHomeSectionCopySourceId(id))}
-          listingCount={id === "cta" && homepageListingCount > 0 ? homepageListingCount : undefined}
-        />
+        <SoftReveal className="min-w-0">
+          <SectionComponent
+            copy={getHomeSectionCopy(settings?.section_copy, getHomeSectionCopySourceId(id))}
+            listingCount={id === "cta" && homepageListingCount > 0 ? homepageListingCount : undefined}
+          />
+        </SoftReveal>
       </CmsBlock>
     );
   };
@@ -325,7 +332,9 @@ const Index = () => {
         <div className="mx-auto w-full content-max density">
           {sectionsToRender.map(renderSection)}
         </div>
-        <HomeFinalEndcap />
+        <SoftReveal className="min-w-0">
+          <HomeFinalEndcap />
+        </SoftReveal>
       </main>
       <Footer />
     </div>

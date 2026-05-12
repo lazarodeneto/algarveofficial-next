@@ -8,6 +8,7 @@ import type { DivIcon } from "leaflet";
 import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { Calendar, ExternalLink, MapPin, Ticket } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { EventDateBadge } from "@/components/events/EventDateBadge";
 import { cn } from "@/lib/utils";
 import { useHydrated } from "@/hooks/useHydrated";
 import type { CalendarEvent, EventCategory } from "@/types/events";
@@ -18,7 +19,6 @@ import {
 } from "@/lib/events/dateDisplay";
 import {
   getEventCardCategoryClass,
-  getEventDateBadgeDisplay,
 } from "@/lib/events/cardStyles";
 import {
   getLocalizedEventPriceRange,
@@ -33,7 +33,7 @@ const ALGARVE_BOUNDS: [[number, number], [number, number]] = [
 ];
 
 const TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
-const DESKTOP_MAP_QUERY = "(min-width: 1280px)";
+const TABLET_MAP_QUERY = "(min-width: 768px)";
 
 const CITY_COORDINATES: Record<string, { latitude: number; longitude: number }> = {
   albufeira: { latitude: 37.0889, longitude: -8.2500 },
@@ -151,7 +151,7 @@ function subscribeToDesktopMapQuery(onStoreChange: () => void) {
     return () => {};
   }
 
-  const mediaQuery = window.matchMedia(DESKTOP_MAP_QUERY);
+  const mediaQuery = window.matchMedia(TABLET_MAP_QUERY);
   mediaQuery.addEventListener("change", onStoreChange);
   return () => mediaQuery.removeEventListener("change", onStoreChange);
 }
@@ -161,7 +161,7 @@ function getDesktopMapSnapshot() {
     return false;
   }
 
-  return window.matchMedia(DESKTOP_MAP_QUERY).matches;
+  return window.matchMedia(TABLET_MAP_QUERY).matches;
 }
 
 function EventMapFitBounds({ points }: { points: EventMapPoint[] }) {
@@ -211,7 +211,7 @@ export function EventMapDirectory({
   getEventHref,
 }: EventMapDirectoryProps) {
   const hydrated = useHydrated();
-  const isDesktopMap = useSyncExternalStore(
+  const isMapViewport = useSyncExternalStore(
     subscribeToDesktopMapQuery,
     getDesktopMapSnapshot,
     () => false,
@@ -239,7 +239,7 @@ export function EventMapDirectory({
     onEventSelect?.(eventId);
   };
 
-  if (!hydrated || !isDesktopMap) {
+  if (!hydrated || !isMapViewport) {
     return null;
   }
 
@@ -272,7 +272,7 @@ export function EventMapDirectory({
         </span>
       </div>
 
-      <div className="event-map relative h-[calc(100vh-13rem)] min-h-[560px] bg-muted">
+      <div className="event-map relative h-[calc(100vh-10rem)] min-h-[520px] bg-muted xl:h-[calc(100vh-13rem)] xl:min-h-[560px]">
         <MapContainer
             center={ALGARVE_CENTER}
             zoom={9}
@@ -306,7 +306,16 @@ export function EventMapDirectory({
 
         {selectedEvent && selectedDateBadge ? (
           <div className="pointer-events-none absolute inset-x-5 top-5 z-[500]">
-            <article className="pointer-events-auto mx-auto max-w-sm rounded-2xl border border-border/80 bg-background/95 p-3 shadow-[0_22px_55px_-36px_rgba(15,23,42,0.9)] backdrop-blur-xl">
+            <article className="pointer-events-auto relative mx-auto max-w-sm rounded-2xl border-[1.5px] border-green-500/55 bg-background/95 p-3 shadow-[0_22px_55px_-36px_rgba(22,163,74,0.9)] backdrop-blur-xl transition hover:border-green-600/80 hover:shadow-[0_28px_65px_-38px_rgba(22,163,74,0.95)]">
+              <Link
+                href={getEventHref(selectedEvent)}
+                aria-label={t("events.openEvent", {
+                  title: selectedEvent.title,
+                  defaultValue: `Open ${selectedEvent.title}`,
+                })}
+                className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
+              />
+
               <div className="relative aspect-[16/9] overflow-hidden rounded-xl bg-muted">
                 <Image
                   src={selectedEvent.image || eventImageFallback}
@@ -316,14 +325,11 @@ export function EventMapDirectory({
                   sizes="320px"
                   className="object-cover"
                 />
-                <div className="absolute left-3 top-3 rounded-md border border-white/70 bg-white/95 px-3 py-2 text-center shadow-sm">
-                  <span className="block whitespace-pre-line text-xl font-bold leading-none text-slate-950">
-                    {getEventDateBadgeDisplay(selectedDateBadge.primary)}
-                  </span>
-                  <span className="mt-1 block text-[0.64rem] font-bold uppercase text-primary">
-                    {selectedDateBadge.secondary}
-                  </span>
-                </div>
+                <EventDateBadge
+                  primary={selectedDateBadge.primary}
+                  secondary={selectedDateBadge.secondary}
+                  className="bg-white/95 shadow-sm"
+                />
               </div>
 
               <div className="space-y-3 p-2">
@@ -364,24 +370,24 @@ export function EventMapDirectory({
                       href={selectedEvent.ticket_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex h-10 items-center justify-center gap-1.5 rounded-md bg-blue-600 px-3 text-center text-xs font-bold text-white transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      className="relative z-20 inline-flex h-10 items-center justify-center gap-1.5 rounded-md border border-green-500 bg-green-600 px-3 text-center text-xs font-bold text-white shadow-lg shadow-green-600/20 transition hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
                     >
-                      {t("events.card.buyTickets")}
+                      {t("events.card.buyTickets", "Buy Tickets")}
                       <ExternalLink className="h-3.5 w-3.5" />
                     </a>
                   ) : (
                     <span
                       aria-disabled="true"
-                      className="inline-flex h-10 cursor-not-allowed items-center justify-center rounded-md bg-blue-200 px-3 text-center text-xs font-bold text-blue-700/70"
+                      className="inline-flex h-10 cursor-not-allowed items-center justify-center rounded-md border border-green-300 bg-green-100 px-3 text-center text-xs font-bold text-green-700/70"
                     >
-                      {t("events.card.buyTickets")}
+                      {t("events.card.buyTickets", "Buy Tickets")}
                     </span>
                   )}
                   <Link
                     href={getEventHref(selectedEvent)}
-                    className="inline-flex h-10 items-center justify-center rounded-md bg-slate-100 px-3 text-center text-xs font-bold text-slate-900 transition hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    className="relative z-20 inline-flex h-10 items-center justify-center rounded-md bg-slate-100 px-3 text-center text-xs font-bold text-slate-900 transition hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
                   >
-                    {t("events.card.viewDetails")}
+                    {t("events.card.viewDetails", "View Details")}
                   </Link>
                 </div>
               </div>

@@ -13,6 +13,25 @@ interface TagInputProps {
   maxTags?: number;
 }
 
+function normalizeTags(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.flatMap((tag) => normalizeTags(tag)).filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed ? [trimmed] : [];
+  }
+
+  if (value && typeof value === "object") {
+    return Object.values(value)
+      .flatMap((tag) => (Array.isArray(tag) || typeof tag === "string" ? normalizeTags(tag) : []))
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
 export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(
   (
     {
@@ -26,26 +45,27 @@ export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(
     ref
   ) => {
     const [inputValue, setInputValue] = useState("");
+    const tags = normalizeTags(value);
 
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Enter" || e.key === ",") {
         e.preventDefault();
         addTag();
-      } else if (e.key === "Backspace" && inputValue === "" && value.length > 0) {
-        removeTag(value.length - 1);
+      } else if (e.key === "Backspace" && inputValue === "" && tags.length > 0) {
+        removeTag(tags.length - 1);
       }
     };
 
     const addTag = () => {
       const tag = inputValue.trim();
-      if (tag && !value.includes(tag) && value.length < maxTags) {
-        onChange([...value, tag]);
+      if (tag && !tags.includes(tag) && tags.length < maxTags) {
+        onChange([...tags, tag]);
         setInputValue("");
       }
     };
 
     const removeTag = (index: number) => {
-      onChange(value.filter((_, i) => i !== index));
+      onChange(tags.filter((_, i) => i !== index));
     };
 
     return (
@@ -57,7 +77,7 @@ export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(
           className
         )}
       >
-        {value.map((tag, index) => (
+        {tags.map((tag, index) => (
           <Badge
             key={index}
             variant="secondary"
@@ -81,8 +101,8 @@ export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           onBlur={addTag}
-          placeholder={value.length === 0 ? placeholder : ""}
-          disabled={disabled ?? value.length >= maxTags}
+          placeholder={tags.length === 0 ? placeholder : ""}
+          disabled={disabled || tags.length >= maxTags}
           className="flex-1 min-w-[120px] border-0 p-0 h-auto focus-visible:ring-0 bg-transparent"
         />
       </div>

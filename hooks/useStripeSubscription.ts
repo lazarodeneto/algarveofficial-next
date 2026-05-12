@@ -32,7 +32,11 @@ interface UseStripeSubscriptionReturn {
   isLoading: boolean;
   error: string | null;
   checkSubscription: () => Promise<void>;
-  createCheckout: (tier: SubscriptionTier, billingPeriod: BillingPeriod) => Promise<void>;
+  createCheckout: (
+    tier: SubscriptionTier,
+    billingPeriod: BillingPeriod,
+    options?: { listingId?: string },
+  ) => Promise<void>;
   changePlan: (tier: SubscriptionTier, billingPeriod: BillingPeriod) => Promise<{
     ok: boolean;
     immediate?: boolean;
@@ -157,7 +161,11 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
   }, [isAuthenticated, isBrowser]);
 
   const createCheckout = useCallback(
-    async (tier: SubscriptionTier, billingPeriod: BillingPeriod) => {
+    async (
+      tier: SubscriptionTier,
+      billingPeriod: BillingPeriod,
+      options: { listingId?: string } = {},
+    ) => {
       if (!isBrowser) throw new Error('Checkout is unavailable during server rendering');
       if (!isAuthenticated) throw new Error('You must be logged in to subscribe');
 
@@ -168,7 +176,11 @@ export function useStripeSubscription(): UseStripeSubscriptionReturn {
         const data = await callSubscriptionApi<{ url?: string }>(
           '/api/stripe/checkout',
           'POST',
-          { tier, billing_period: billingPeriod },
+          {
+            tier,
+            billing_period: billingPeriod,
+            ...(options.listingId ? { listing_id: options.listingId } : {}),
+          },
         );
 
         if (!data?.url) throw new Error('No checkout URL returned');

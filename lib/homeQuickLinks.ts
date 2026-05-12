@@ -18,9 +18,8 @@ export const HOME_QUICK_LINK_CARDS: HomeQuickLinkCardDefinition[] = [
     translationKey: "sections.homepage.quickLinks.items.stay.title",
     imageSettingKey: "home_card_stay_image",
     videoSettingKey: "home_card_stay_video",
-    categorySlug: "places-to-stay",
+    categorySlug: "accommodation",
     imagePosition: "center",
-    customHref: "/directory?category=places-to-stay",
   },
   {
     id: "eat-drink",
@@ -30,7 +29,6 @@ export const HOME_QUICK_LINK_CARDS: HomeQuickLinkCardDefinition[] = [
     videoSettingKey: "home_card_eat_drink_video",
     categorySlug: "restaurants",
     imagePosition: "center",
-    customHref: "/directory?category=restaurants",
   },
   {
     id: "see-do",
@@ -38,9 +36,8 @@ export const HOME_QUICK_LINK_CARDS: HomeQuickLinkCardDefinition[] = [
     translationKey: "sections.homepage.quickLinks.items.thingsToDo.title",
     imageSettingKey: "home_card_see_do_image",
     videoSettingKey: "home_card_see_do_video",
-    categorySlug: "things-to-do",
+    categorySlug: "experiences",
     imagePosition: "center",
-    customHref: "/directory?category=things-to-do",
   },
   {
     id: "golf",
@@ -60,7 +57,7 @@ export const HOME_QUICK_LINK_CARDS: HomeQuickLinkCardDefinition[] = [
     videoSettingKey: "home_card_real_estate_video",
     categorySlug: "real-estate",
     imagePosition: "center",
-    customHref: "/directory?category=real-estate",
+    customHref: "/properties",
   },
   {
     id: "events",

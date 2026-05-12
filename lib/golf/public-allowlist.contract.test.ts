@@ -36,7 +36,7 @@ describe("public golf module allowlist wiring", () => {
     );
 
     expect(source).toContain("const discoveryCardOverrides = Array.isArray(discoverySettings.cards)");
-    expect(source).toContain('hasOwnKey(override, "imageUrl") ? override.imageUrl : option.imageUrl');
+    expect(source).toContain('hasOwnKey(override, "imageUrl") ? override.imageUrl : ""');
     expect(source).toContain("getSafeCmsImageSrc");
   });
 

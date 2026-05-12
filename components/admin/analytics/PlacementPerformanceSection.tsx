@@ -38,7 +38,7 @@ export function PlacementPerformanceSection({
 }: Props) {
   return (
     <section className="space-y-4">
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
         <AnalyticsChart
           title="Block Performance"
           description="Impressions vs clicks per CMS block"
@@ -87,17 +87,17 @@ export function PlacementPerformanceSection({
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">Block Performance Table</CardTitle>
+      <div className="grid gap-4 xl:grid-cols-2">
+        <Card className="glass-box border-border/40 bg-card/60 [&>*]:relative [&>*]:z-10">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-xl font-semibold">Block Performance Table</CardTitle>
             <CardDescription>CTR by block for placement decisions.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto rounded-md border border-border">
+            <div className="overflow-x-auto rounded-sm border border-border/60 bg-background/25">
               <Table>
                 <TableHeader>
-                  <TableRow>
+                  <TableRow className="bg-background/35">
                     <TableHead>Block</TableHead>
                     <TableHead className="text-right">Impressions</TableHead>
                     <TableHead className="text-right">Clicks</TableHead>
@@ -106,7 +106,7 @@ export function PlacementPerformanceSection({
                 </TableHeader>
                 <TableBody>
                   {blockPerformance.map((row) => (
-                    <TableRow key={row.blockId}>
+                    <TableRow key={row.blockId} className="transition-colors hover:bg-primary/5">
                       <TableCell className="font-medium">{row.blockId}</TableCell>
                       <TableCell className="text-right">{row.impressions.toLocaleString()}</TableCell>
                       <TableCell className="text-right">{row.clicks.toLocaleString()}</TableCell>
@@ -119,16 +119,16 @@ export function PlacementPerformanceSection({
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">Position Performance Table</CardTitle>
+        <Card className="glass-box border-border/40 bg-card/60 [&>*]:relative [&>*]:z-10">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-xl font-semibold">Position Performance Table</CardTitle>
             <CardDescription>Monetization-critical position response.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto rounded-md border border-border">
+            <div className="overflow-x-auto rounded-sm border border-border/60 bg-background/25">
               <Table>
                 <TableHeader>
-                  <TableRow>
+                  <TableRow className="bg-background/35">
                     <TableHead>Position</TableHead>
                     <TableHead className="text-right">Impressions</TableHead>
                     <TableHead className="text-right">Clicks</TableHead>
@@ -137,7 +137,7 @@ export function PlacementPerformanceSection({
                 </TableHeader>
                 <TableBody>
                   {positionPerformance.map((row) => (
-                    <TableRow key={row.position}>
+                    <TableRow key={row.position} className="transition-colors hover:bg-primary/5">
                       <TableCell className="font-medium">{row.position}</TableCell>
                       <TableCell className="text-right">{row.impressions.toLocaleString()}</TableCell>
                       <TableCell className="text-right">{row.clicks.toLocaleString()}</TableCell>

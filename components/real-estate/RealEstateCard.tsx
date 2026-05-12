@@ -14,7 +14,6 @@ import { cn } from "@/lib/utils";
 import {
   getTierCardClasses,
   getTierImageZoom,
-  getTierImageOverlay,
   getTierTitleClasses,
   getTierSpacing,
   isPremiumTier,
@@ -22,7 +21,7 @@ import {
 
 type Listing = Pick<
     Database["public"]["Tables"]["listings"]["Row"],
-    "id" | "slug" | "name" | "price_from" | "featured_image_url" | "category_data" | "tier" | "short_description"
+    "id" | "slug" | "name" | "price_from" | "price_currency" | "featured_image_url" | "category_data" | "tier" | "short_description"
 > & {
     updated_at?: string | null;
     cities: { name: string; slug: string } | null;
@@ -58,6 +57,7 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
         id,
         name,
         price_from,
+        price_currency,
         featured_image_url,
         category_data,
         slug
@@ -116,13 +116,21 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
             : []),
     ];
 
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('en-EU', {
-            style: 'currency',
-            currency: 'EUR',
-            maximumFractionDigits: 0,
-        }).format(price).replace('€', '€ ');
+    const formatPrice = (price: number, currency: string) => {
+        try {
+            return new Intl.NumberFormat('en-EU', {
+                style: 'currency',
+                currency,
+                maximumFractionDigits: 0,
+            }).format(price).replace('€', '€ ');
+        } catch {
+            return null;
+        }
     };
+    const formattedPrice =
+        typeof price_from === "number" && Number.isFinite(price_from) && price_currency
+            ? formatPrice(price_from, price_currency)
+            : null;
 
     const tierCardClass = getTierCardClasses(listing.tier);
     const tierImageZoom = getTierImageZoom(listing.tier);
@@ -197,7 +205,7 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                                 ? "bg-card/95 border-[#C7A35A]/30 text-card-foreground" 
                                 : "bg-card/90 border-border/20 text-card-foreground"
                         )}>
-                            <p className="font-serif italic text-base sm:text-lg font-light tracking-wide truncate">{price_from ? formatPrice(price_from) : t("listing.priceOnRequest")}</p>
+                            <p className="font-serif italic text-base sm:text-lg font-light tracking-wide truncate">{formattedPrice ?? t("listing.priceOnRequest")}</p>
                         </div>
                     </div>
                 </div>
@@ -220,13 +228,15 @@ export function RealEstateCard({ listing }: RealEstateCardProps) {
                         )}>
                             {name}
                         </h3>
+                        {listing.short_description ? (
                         <p className={cn(
                             "text-muted-foreground font-light leading-relaxed",
                             tierSpacing.gap === "gap-5" ? "mb-5" : "mb-4",
                             isPremium && "text-sm"
                         )}>
-                            {listing.short_description ?? "An exceptional property offering unparalleled premium quality and sophistication in Portugal's finest location."}
+                            {listing.short_description}
                         </p>
+                        ) : null}
                     </div>
 
                     {propertyMetrics.length > 0 && (

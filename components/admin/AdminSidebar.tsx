@@ -26,6 +26,7 @@ import {
   Zap,
   CreditCard,
   MessageSquare,
+  ShieldCheck,
 } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import {
@@ -67,10 +68,13 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
 
   const ownerChildren: SidebarNavItem[] = [
     { label: t("admin.sidebar.ownerCrm"), href: "/admin/crm", icon: Users },
+    { label: "Business Claims", href: "/admin/business-claims", icon: ShieldCheck },
     { label: t("admin.sidebar.subscriptions"), href: "/admin/subscriptions", icon: CreditCard },
   ];
 
   const listingChildren: SidebarNavItem[] = [
+    { label: "All listings", href: "/admin/listings", icon: List, end: true },
+    { label: "Listing Changes", href: "/admin/listing-change-requests", icon: PenSquare },
     { label: t("admin.sidebar.importListings"), href: "/admin/import", icon: Upload },
     { label: t("admin.sidebar.curatedExcellence"), href: "/admin/curated", icon: Gem },
     { label: t("admin.sidebar.categories"), href: "/admin/categories", icon: Tags },

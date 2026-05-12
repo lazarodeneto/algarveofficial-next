@@ -13,10 +13,10 @@ function AlgarveMapIllustration({ alt }: { alt: string }) {
   return (
     <div className="flex min-w-0 min-h-[220px] items-center justify-center overflow-hidden rounded-md bg-[#fffaf1] px-3 py-4 sm:min-h-[260px] sm:px-4 lg:h-full lg:min-h-0 lg:rounded-none lg:px-6 xl:px-8">
       <Image
-        src="/images/home/map-gateway.png"
+        src="/images/home/algarveofficial-algarve-map.png"
         alt={alt}
-        width={1015}
-        height={529}
+        width={1672}
+        height={941}
         sizes="(max-width: 1024px) 100vw, 58vw"
         quality={80}
         className="h-auto w-full max-w-full object-contain"
@@ -60,6 +60,7 @@ export function SignatureMapSection({ copy }: { copy?: HomeSectionCopy } = {}) {
                     "w-full max-w-full whitespace-normal px-5 text-center leading-tight sm:w-auto sm:px-8",
                 })}
               >
+                <MapPinned className="h-4 w-4" />
                 {cmsText(copy?.ctaLabel, t("sections.homepage.mapGateway.cta"))}
                 <ArrowRight className="h-4 w-4" />
               </span>

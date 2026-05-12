@@ -12,6 +12,8 @@ import { getSafeCmsImageSrc } from "@/lib/cms/image-source";
 import { buildSupabaseImageUrl } from "@/lib/imageUrls";
 import { useTranslation } from "react-i18next";
 import { cmsText, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
+import { buildCategoryRouteData } from "@/lib/public-route-builders";
+import { buildStaticRouteData } from "@/lib/i18n/localized-routing";
 
 function Link(props: ComponentProps<typeof NextLink>) {
   return <NextLink prefetch={false} {...props} />;
@@ -137,7 +139,11 @@ export function HomeQuickLinksSection({ copy }: { copy?: HomeSectionCopy } = {})
             return (
               <Link
                 key={card.id}
-                href={card.customHref ? l(card.customHref) : l(`/stay?category=${card.categorySlug}`)}
+                href={
+                  card.customHref
+                    ? l(card.customHref)
+                    : l(buildCategoryRouteData(card.categorySlug) ?? buildStaticRouteData("stay"))
+                }
                 className="group relative isolate aspect-[0.86/1] min-w-0 overflow-hidden rounded-md border-0 bg-black font-sans shadow-none outline-0 ring-0 transition-all duration-300 ease-out [backface-visibility:hidden] [box-shadow:none] motion-reduce:transition-none hover:-translate-y-1 hover:shadow-none hover:[box-shadow:none] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:aspect-[4/3] sm:shadow-none lg:aspect-[5/6]"
               >
                     {showVideo ? (
@@ -175,12 +181,12 @@ export function HomeQuickLinksSection({ copy }: { copy?: HomeSectionCopy } = {})
                       <div className="absolute inset-0 bg-black" aria-hidden="true" />
                     )}
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/78 via-black/25 to-transparent sm:from-black/70" />
-                  <div className="absolute inset-x-0 bottom-0 flex min-w-0 flex-col p-3 text-white text-shadow-card sm:p-5">
-                    <h3 className="max-w-full text-balance font-fira text-[0.99rem] font-black uppercase not-italic leading-[1.02] tracking-normal min-[380px]:text-[1.06rem] sm:text-[1.45rem] lg:text-[1.13rem] xl:text-[1.24rem] [overflow-wrap:normal] [word-break:normal] hyphens-none">
+                  <div className="absolute inset-x-0 bottom-0 flex min-w-0 flex-col p-3 text-white text-shadow-card sm:p-4 lg:p-5">
+                    <h3 className="flex min-h-[2.35em] max-w-full items-end text-balance font-fira text-[clamp(1.12rem,6vw,1.5rem)] font-black uppercase not-italic leading-[0.92] tracking-normal min-[480px]:text-[clamp(1rem,4.6vw,1.35rem)] sm:text-[clamp(1.04rem,3.1vw,1.48rem)] lg:text-[1.28rem] xl:text-[1.42rem] [overflow-wrap:normal] [word-break:normal] hyphens-none">
                       {displayTitle}
                     </h3>
-                    <span className="mt-2 inline-flex min-w-0 items-center gap-1 text-xs font-semibold leading-none text-white/90 sm:mt-2 sm:gap-1.5 sm:text-sm">
-                      <Icon className="h-5 w-5 shrink-0 sm:h-7 sm:w-7" strokeWidth={1.8} />
+                    <span className="mt-2 inline-flex min-w-0 items-center gap-1 text-xs font-semibold leading-none text-white/90 sm:gap-1.5 sm:text-sm">
+                      <Icon className="h-5 w-5 shrink-0 sm:h-6 sm:w-6 lg:h-7 lg:w-7" strokeWidth={1.8} />
                       {t("sections.homepage.common.explore")}
                       <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
                     </span>

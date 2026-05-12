@@ -19,13 +19,16 @@ const withOwnerLoading = <T extends ComponentType<any>>(
 
 const OwnerEventSubmit = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerEventSubmit"));
 const OwnerEvents = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerEvents"));
+const OwnerListingDetail = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerListingDetail"));
 const OwnerListingEdit = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerListingEdit"));
 const OwnerListings = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerListings"));
 const OwnerMedia = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerMedia"));
 const OwnerMembership = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerMembership"));
 const OwnerMessages = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerMessages"));
 const OwnerOverview = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerOverview"));
+const OwnerPerformance = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerPerformance"));
 const OwnerSupport = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerSupport"));
+const OwnerUpgradeStatus = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerUpgradeStatus"));
 
 function OwnerRouteNotFound({ route }: { route: string }) {
   return (
@@ -51,6 +54,7 @@ const staticRouteMap: Record<string, ComponentType> = {
   "": OwnerOverview,
   listings: OwnerListings,
   media: OwnerMedia,
+  performance: OwnerPerformance,
   membership: OwnerMembership,
   messages: OwnerMessages,
   support: OwnerSupport,
@@ -63,8 +67,20 @@ function resolveOwnerPage(route: string): ReactElement {
     return <OwnerListingEdit />;
   }
 
+  if (/^listings\/[^/]+$/.test(route)) {
+    return <OwnerListingDetail />;
+  }
+
   if (/^events\/[^/]+\/edit$/.test(route)) {
     return <OwnerEventSubmit />;
+  }
+
+  if (route === "upgrade/success") {
+    return <OwnerUpgradeStatus status="success" />;
+  }
+
+  if (route === "upgrade/cancel") {
+    return <OwnerUpgradeStatus status="cancel" />;
   }
 
   const PageComponent = staticRouteMap[route];

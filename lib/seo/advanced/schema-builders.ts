@@ -9,6 +9,42 @@ import type { Locale } from "@/lib/i18n/config";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? SITE_CONFIG.url;
 
+type JsonLdValue =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | JsonLdValue[]
+  | { [key: string]: JsonLdValue };
+
+function isNonEmptyObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value).length > 0;
+}
+
+export function cleanJsonLd<T extends JsonLdValue>(value: T): T {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => cleanJsonLd(item))
+      .filter((item) => item !== undefined && item !== null && item !== "") as T;
+  }
+
+  if (value && typeof value === "object") {
+    const entries = Object.entries(value)
+      .map(([key, item]) => [key, cleanJsonLd(item as JsonLdValue)] as const)
+      .filter(([, item]) => {
+        if (item === undefined || item === null || item === "") return false;
+        if (Array.isArray(item) && item.length === 0) return false;
+        if (typeof item === "object" && !Array.isArray(item) && !isNonEmptyObject(item)) return false;
+        return true;
+      });
+
+    return Object.fromEntries(entries) as T;
+  }
+
+  return value;
+}
+
 interface ListingSchemaInput {
   id: string;
   slug: string;
@@ -190,11 +226,11 @@ export function buildLocalBusinessSchema(listing: ListingSchemaInput) {
     ...inferredTypes,
   ])];
 
-  const address = listing.address ? {
+  const address = listing.address || listing.city || listing.region ? {
     "@type": "PostalAddress",
-    streetAddress: listing.address,
-    addressLocality: listing.city ?? "Algarve",
-    addressRegion: listing.region ?? "Algarve",
+    streetAddress: listing.address ?? undefined,
+    addressLocality: listing.city ?? undefined,
+    addressRegion: listing.region ?? undefined,
     addressCountry: "PT",
   } : undefined;
 
@@ -212,7 +248,7 @@ export function buildLocalBusinessSchema(listing: ListingSchemaInput) {
     worstRating: "1",
   } : undefined;
 
-  return {
+  return cleanJsonLd({
     "@context": "https://schema.org",
     "@type": schemaTypes.length === 1 ? schemaTypes[0] : schemaTypes,
     "@id": `${url}/#business`,
@@ -221,15 +257,12 @@ export function buildLocalBusinessSchema(listing: ListingSchemaInput) {
     description: listing.description ?? undefined,
     image: listing.image_url ?? undefined,
     logo: listing.logo_url ?? undefined,
-    priceRange: listing.price_range ?? "€€€€",
+    priceRange: listing.price_range ?? undefined,
     address,
     geo,
     telephone: listing.telephone ?? undefined,
     email: listing.email ?? undefined,
     aggregateRating,
-    openingHoursSpecification: [
-      { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "09:00", closes: "18:00" },
-    ],
     sameAs: listing.website ? [listing.website] : undefined,
     isPartOf: {
       "@id": `${SITE_URL}/#website`,
@@ -237,7 +270,7 @@ export function buildLocalBusinessSchema(listing: ListingSchemaInput) {
     ...(listing.tags && listing.tags.length > 0 ? {
       keywords: listing.tags.join(", "),
     } : {}),
-  };
+  });
 }
 
 export function buildBreadcrumbSchema(items: Array<{ name: string; url: string }>) {
@@ -288,7 +321,7 @@ export function buildArticleSchema(post: BlogPostSchemaInput) {
 export function buildEventSchema(event: EventSchemaInput) {
   const url = event.url ?? `${SITE_URL}/events/${event.slug}`;
   
-  return {
+  return cleanJsonLd({
     "@context": "https://schema.org",
     "@type": "Event",
     "@id": `${url}/#event`,
@@ -300,19 +333,16 @@ export function buildEventSchema(event: EventSchemaInput) {
     endDate: (event.end_date || event.start_date) ?? undefined,
     eventStatus: "https://schema.org/EventScheduled",
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-    location: {
+    location: event.venue_name || event.city ? {
       "@type": "Place",
-      name: (event.venue_name || event.city) ?? "Algarve",
-      address: {
+      name: event.venue_name || event.city,
+      address: event.city ? {
         "@type": "PostalAddress",
-        addressLocality: event.city ?? "Algarve",
+        addressLocality: event.city,
         addressRegion: "Algarve",
         addressCountry: "PT",
-      },
-    },
-    organizer: {
-      "@id": `${SITE_URL}/#organization`,
-    },
+      } : undefined,
+    } : undefined,
     publisher: {
       "@id": `${SITE_URL}/#organization`,
     },
@@ -324,7 +354,7 @@ export function buildEventSchema(event: EventSchemaInput) {
         priceCurrency: "EUR",
       },
     } : {}),
-  };
+  });
 }
 
 export function buildPlaceSchema(region: RegionSchemaInput) {
@@ -360,7 +390,7 @@ export function buildItemListSchema(
   items: Array<{ name: string; url: string; description?: string; image?: string }>,
   url: string
 ) {
-  return {
+  return cleanJsonLd({
     "@context": "https://schema.org",
     "@type": "ItemList",
     name,
@@ -378,7 +408,7 @@ export function buildItemListSchema(
         image: item.image ?? undefined,
       },
     })),
-  };
+  });
 }
 
 export function buildFAQSchema(faqs: Array<{ question: string; answer: string }>) {

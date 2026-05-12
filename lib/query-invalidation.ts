@@ -1,5 +1,7 @@
 import type { InvalidateQueryFilters, QueryClient } from "@tanstack/react-query";
 
+import { ADMIN_INBOX_QUERY_KEY } from "@/lib/admin/inbox/types";
+
 type QueryInvalidator = Pick<QueryClient, "invalidateQueries">;
 type ListingIdInput = string | string[] | null | undefined;
 
@@ -16,12 +18,21 @@ function invalidateAll(
   return Promise.all(filters.map((filter) => queryClient.invalidateQueries(filter)));
 }
 
+export function invalidateAdminInboxQueries(queryClient: QueryInvalidator) {
+  return invalidateAll(queryClient, [
+    { queryKey: ADMIN_INBOX_QUERY_KEY, exact: false },
+    { queryKey: ["admin", "inbox", "urgent-count"], exact: false },
+  ]);
+}
+
 export function invalidateListingMutationQueries(
   queryClient: QueryInvalidator,
   listingIds?: ListingIdInput,
 ) {
   const ids = normalizeListingIds(listingIds);
   const filters: InvalidateQueryFilters[] = [
+    { queryKey: ADMIN_INBOX_QUERY_KEY, exact: false },
+    { queryKey: ["admin", "inbox", "urgent-count"], exact: false },
     { queryKey: ["admin-all-listings"], exact: false },
     { queryKey: ["admin-listings"], exact: false },
     { queryKey: ["admin-listing"], exact: false },

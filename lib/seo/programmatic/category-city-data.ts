@@ -3,6 +3,10 @@ import { unstable_cache } from "next/cache";
 
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import type { CanonicalCategorySlug } from "./category-slugs";
+import {
+  getCanonicalCategorySlug as getCanonicalListingCategorySlug,
+  getMergedMemberSlugs,
+} from "@/lib/categoryMerges";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -90,6 +94,43 @@ const PROGRAMMATIC_INDEX_REVALIDATE_SECONDS = 300;
  */
 export function isValidCitySlug(slug: string): boolean {
   return /^[a-z0-9][a-z0-9-]{0,58}[a-z0-9]$/.test(slug);
+}
+
+type CategoryLookupRow = {
+  id: string;
+  slug: string;
+  name: string;
+  description?: string | null;
+  image_url?: string | null;
+  is_active?: boolean | null;
+};
+
+function resolveCanonicalCategoryRows(
+  categories: CategoryLookupRow[],
+  canonicalCategorySlug: string,
+): CategoryLookupRow[] {
+  const memberSlugs = new Set([
+    canonicalCategorySlug,
+    ...getMergedMemberSlugs(canonicalCategorySlug),
+  ]);
+
+  return categories.filter((category) => memberSlugs.has(category.slug));
+}
+
+function pickCanonicalCategoryRow(
+  categories: CategoryLookupRow[],
+  canonicalCategorySlug: string,
+): CategoryLookupRow | null {
+  return (
+    categories.find((category) => category.slug === canonicalCategorySlug) ??
+    categories[0] ??
+    null
+  );
+}
+
+function canonicalizeRelatedCategorySlug(slug: string | null | undefined): string | null {
+  const canonical = getCanonicalListingCategorySlug(slug);
+  return canonical ?? null;
 }
 
 // ─── Static params ────────────────────────────────────────────────────────────
@@ -198,7 +239,10 @@ async function queryProgrammaticCategoryCityIndexEntries(): Promise<Programmatic
       .eq("status", "published")
       .not("category_id", "is", null)
       .not("city_id", "is", null),
-    supabase.from("categories").select("id, slug"),
+    supabase
+      .from("categories")
+      .select("id, slug, is_active")
+      .eq("is_active", true),
     supabase
       .from("cities")
       .select("id, slug")
@@ -207,7 +251,9 @@ async function queryProgrammaticCategoryCityIndexEntries(): Promise<Programmatic
   ]);
 
   const categorySlugById = new Map<string, string>(
-    (categoriesRes.data ?? []).map((category) => [category.id, category.slug]),
+    (categoriesRes.data ?? [])
+      .map((category) => [category.id, canonicalizeRelatedCategorySlug(category.slug)])
+      .filter((entry): entry is [string, string] => Boolean(entry[1])),
   );
   const citySlugById = new Map<string, string>(
     (citiesRes.data ?? []).map((city) => [city.id, city.slug]),
@@ -422,13 +468,14 @@ export const getCategoryCityPageDataAllowEmpty = cache(async (
 ): Promise<CategoryCityPageData | null> => {
   const supabase = createPublicServerClient();
 
-  // 1. Resolve IDs for the slugs - USE EXACT SLUG from URL
-  const [catRes, cityRes] = await Promise.all([
+  // Resolve the canonical category to all DB member category IDs. This keeps
+  // aliases such as fine-dining/private-chefs under the canonical restaurants
+  // route while still querying listings by category_id.
+  const [categoriesRes, cityRes] = await Promise.all([
     supabase
       .from("categories")
-      .select("id, slug, name, description, image_url")
-      .eq("slug", canonicalCategorySlug)
-      .single(),
+      .select("id, slug, name, description, image_url, is_active")
+      .eq("is_active", true),
     supabase
       .from("cities")
       .select("id, slug, name, description, image_url")
@@ -436,23 +483,32 @@ export const getCategoryCityPageDataAllowEmpty = cache(async (
       .single(),
   ]);
 
-  if (!catRes.data || !cityRes.data) return null;
+  if (!categoriesRes.data || !cityRes.data) return null;
 
-  const categoryId = catRes.data.id;
+  const categoryRows = resolveCanonicalCategoryRows(
+    categoriesRes.data as CategoryLookupRow[],
+    canonicalCategorySlug,
+  );
+  const categorySummary = pickCanonicalCategoryRow(categoryRows, canonicalCategorySlug);
+  const categoryIds = categoryRows.map((category) => category.id).filter(Boolean);
+
+  if (!categorySummary || categoryIds.length === 0) return null;
+
   const cityId = cityRes.data.id;
+  const categoryIdSet = new Set(categoryIds);
 
   const [countRes, listingsRes, relatedCitiesRes, relatedCatsRes] = await Promise.all([
     supabase
       .from("listings")
       .select("id", { count: "exact", head: true })
       .eq("status", "published")
-      .eq("category_id", categoryId)
+      .in("category_id", categoryIds)
       .eq("city_id", cityId),
     supabase
       .from("listings")
       .select(LISTING_RELATION_FIELDS)
       .eq("status", "published")
-      .eq("category_id", categoryId)
+      .in("category_id", categoryIds)
       .eq("city_id", cityId)
       .order("is_curated", { ascending: false })
       .order("google_rating", { ascending: false, nullsFirst: false })
@@ -461,7 +517,7 @@ export const getCategoryCityPageDataAllowEmpty = cache(async (
       .from("listings")
       .select("city_id, cities!inner(id, slug, name)")
       .eq("status", "published")
-      .eq("category_id", categoryId)
+      .in("category_id", categoryIds)
       .neq("city_id", cityId)
       .limit(200),
     supabase
@@ -469,7 +525,6 @@ export const getCategoryCityPageDataAllowEmpty = cache(async (
       .select("category_id, categories!inner(id, slug, name)")
       .eq("status", "published")
       .eq("city_id", cityId)
-      .neq("category_id", categoryId)
       .limit(200),
   ]);
 
@@ -478,7 +533,7 @@ export const getCategoryCityPageDataAllowEmpty = cache(async (
     mapProgrammaticListing(
       listing as Record<string, unknown>,
       { slug: cityRes.data.slug, name: cityRes.data.name },
-      { slug: catRes.data.slug, name: catRes.data.name },
+      { slug: canonicalCategorySlug, name: categorySummary.name },
     ),
   );
 
@@ -500,13 +555,16 @@ export const getCategoryCityPageDataAllowEmpty = cache(async (
 
   const catCounts = new Map<string, { slug: string; name: string; count: number }>();
   for (const row of relatedCatsRes.data ?? []) {
+    if (row.category_id && categoryIdSet.has(row.category_id)) continue;
     const cat = Array.isArray(row.categories) ? row.categories[0] : (row.categories as { id: string; slug: string; name: string } | null);
     if (!cat) continue;
-    const existing = catCounts.get(cat.id);
+    const canonicalSlug = canonicalizeRelatedCategorySlug(cat.slug);
+    if (!canonicalSlug) continue;
+    const existing = catCounts.get(canonicalSlug);
     if (existing) {
       existing.count++;
     } else {
-      catCounts.set(cat.id, { slug: cat.slug, name: cat.name, count: 1 });
+      catCounts.set(canonicalSlug, { slug: canonicalSlug, name: cat.name, count: 1 });
     }
   }
 
@@ -517,7 +575,13 @@ export const getCategoryCityPageDataAllowEmpty = cache(async (
   return {
     listings,
     city: cityRes.data,
-    category: catRes.data,
+    category: {
+      id: categorySummary.id,
+      slug: canonicalCategorySlug,
+      name: categorySummary.name,
+      description: categorySummary.description ?? null,
+      image_url: categorySummary.image_url ?? null,
+    },
     relatedCities,
     relatedCategories,
     totalCount: countRes.count ?? 0,
@@ -558,12 +622,11 @@ export async function getInternalLinksData(
 }> {
   const supabase = createPublicServerClient();
 
-  const [catRes, cityRes] = await Promise.all([
+  const [categoriesRes, cityRes] = await Promise.all([
     supabase
       .from("categories")
-      .select("id, slug, name")
-      .eq("slug", canonicalCategorySlug)
-      .single(),
+      .select("id, slug, name, is_active")
+      .eq("is_active", true),
     supabase
       .from("cities")
       .select("id, slug, name")
@@ -571,29 +634,38 @@ export async function getInternalLinksData(
       .single(),
   ]);
 
-  if (!catRes.data || !cityRes.data) {
+  if (!categoriesRes.data || !cityRes.data) {
     return { categoriesInCity: [], citiesWithCategory: [] };
   }
 
-  const categoryId = catRes.data.id;
+  const categoryRows = resolveCanonicalCategoryRows(
+    categoriesRes.data as CategoryLookupRow[],
+    canonicalCategorySlug,
+  );
+  const categoryIds = categoryRows.map((category) => category.id).filter(Boolean);
+  if (categoryIds.length === 0) return { categoriesInCity: [], citiesWithCategory: [] };
+
+  const categoryIdSet = new Set(categoryIds);
   const cityId = cityRes.data.id;
 
   const { data: categoryCounts } = await supabase
     .from("listings")
     .select("category_id, categories!inner(slug, name)")
     .eq("status", "published")
-    .eq("city_id", cityId)
-    .neq("category_id", categoryId);
+    .eq("city_id", cityId);
 
   const catMap = new Map<string, { slug: string; name: string; count: number }>();
   for (const row of categoryCounts ?? []) {
+    if (row.category_id && categoryIdSet.has(row.category_id)) continue;
     const cat = Array.isArray(row.categories) ? row.categories[0] : (row.categories as { slug: string; name: string } | null);
     if (!cat) continue;
-    const existing = catMap.get(cat.slug);
+    const canonicalSlug = canonicalizeRelatedCategorySlug(cat.slug);
+    if (!canonicalSlug) continue;
+    const existing = catMap.get(canonicalSlug);
     if (existing) {
       existing.count++;
     } else {
-      catMap.set(cat.slug, { slug: cat.slug, name: cat.name, count: 1 });
+      catMap.set(canonicalSlug, { slug: canonicalSlug, name: cat.name, count: 1 });
     }
   }
 
@@ -610,7 +682,7 @@ export async function getInternalLinksData(
     .from("listings")
     .select("city_id, cities!inner(slug, name)")
     .eq("status", "published")
-    .eq("category_id", categoryId)
+    .in("category_id", categoryIds)
     .neq("city_id", cityId);
 
   const cityMap = new Map<string, { slug: string; name: string; count: number }>();

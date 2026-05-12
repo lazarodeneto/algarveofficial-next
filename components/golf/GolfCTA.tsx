@@ -52,7 +52,7 @@ export function GolfCTA({ bookingUrl, contactHref, websiteUrl, labels }: GolfCTA
 
   return (
     <section className="mx-auto max-w-6xl py-12">
-      <div className="rounded-[1.4rem] border border-slate-300/80 bg-[#d2ddd6] px-7 py-7 shadow-sm">
+      <div className="rounded-[1.4rem] border border-slate-300/80 bg-[#d2ddd6] px-7 py-7 text-slate-950 shadow-sm dark:border-white/[0.14] dark:bg-white/[0.08] dark:text-secondary-foreground dark:shadow-[0_20px_60px_-42px_rgba(0,0,0,0.9)]">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="font-serif text-xl font-medium text-foreground">{labels.readyToPlay}</h2>

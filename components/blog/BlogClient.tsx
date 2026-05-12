@@ -2,14 +2,11 @@
 
 import type { CSSProperties, ElementType, ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { m } from "framer-motion";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
-import { Search, Clock, Loader2 } from "lucide-react";
+import { Search, Clock } from "lucide-react";
 
-import type { Tables } from "@/integrations/supabase/types";
-import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Input } from "@/components/ui/input";
@@ -27,11 +24,7 @@ import { PageHeroImage } from "@/components/sections/PageHeroImage";
 import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 import { resolveHero } from "@/lib/cms/resolve-hero";
 import type { BlogPageConfig } from "@/lib/blog-cms";
-import {
-  applyBlogTranslation,
-  getKnownBlogCategoryLabel,
-  type BlogTranslationRow,
-} from "@/lib/blog/localization";
+import { getKnownBlogCategoryLabel } from "@/lib/blog/localization";
 import {
   CMS_GLOBAL_SETTING_KEYS,
   normalizeCmsPageConfigs,
@@ -39,6 +32,11 @@ import {
 } from "@/lib/cms/pageBuilderRegistry";
 import { blogCategoryLabels, type BlogCategory } from "@/hooks/useBlogPosts";
 import { hideServerShell } from "@/lib/dom/server-shell";
+import type {
+  PublicBlogAuthorDTO,
+  PublicBlogGlobalSettingDTO,
+  PublicBlogPostDTO,
+} from "@/lib/public-data/blog";
 
 const BLOG_AUTHOR_NAME = "AlgarveOfficial";
 const BLOG_HERO_SURFACE_CLASS =
@@ -46,25 +44,9 @@ const BLOG_HERO_SURFACE_CLASS =
 const BLOG_HERO_CONTENT_CLASS =
   "w-full max-w-[42rem] space-y-3 px-4 sm:max-w-4xl sm:space-y-6";
 
-export type BlogAuthor = Pick<Tables<"public_profiles">, "id" | "full_name" | "avatar_url">;
-export type BlogGlobalSetting = Pick<Tables<"global_settings">, "key" | "value" | "category">;
-export type BlogPostRow = Pick<
-  Tables<"blog_posts">,
-  | "id"
-  | "slug"
-  | "title"
-  | "excerpt"
-  | "featured_image"
-  | "category"
-  | "reading_time"
-  | "tags"
-  | "author_id"
-  | "published_at"
-  | "seo_title"
-  | "seo_description"
-  | "created_at"
-  | "updated_at"
->;
+export type BlogAuthor = PublicBlogAuthorDTO;
+export type BlogGlobalSetting = PublicBlogGlobalSettingDTO;
+export type BlogPostRow = PublicBlogPostDTO;
 
 export type BlogPostWithAuthor = BlogPostRow & {
   author?: BlogAuthor | null;
@@ -76,13 +58,6 @@ export interface BlogClientProps {
   initialGlobalSettings: BlogGlobalSetting[];
   pageConfig?: BlogPageConfig | null;
 }
-
-const BLOG_CMS_KEYS = [
-  CMS_GLOBAL_SETTING_KEYS.textOverrides,
-  CMS_GLOBAL_SETTING_KEYS.pageConfigs,
-  CMS_GLOBAL_SETTING_KEYS.designTokens,
-  CMS_GLOBAL_SETTING_KEYS.customCss,
-] as const;
 
 const BLOG_TRANSLATION_KEYS: Record<BlogCategory, string> = {
   lifestyle: "blog.blogCategories.lifestyle",
@@ -226,81 +201,6 @@ function mergePostsWithAuthors(posts: BlogPostRow[], authors: BlogAuthor[]): Blo
   }));
 }
 
-async function fetchBlogPosts(locale: string, category?: BlogCategory): Promise<BlogPostWithAuthor[]> {
-  let query = supabase
-    .from("blog_posts")
-    .select(
-      "id, slug, title, excerpt, featured_image, category, reading_time, tags, author_id, published_at, seo_title, seo_description, created_at, updated_at",
-    )
-    .eq("status", "published")
-    .lte("published_at", new Date().toISOString())
-    .order("published_at", { ascending: false })
-    .limit(24);
-
-  if (category) {
-    query = query.eq("category", category);
-  }
-
-  const { data: posts, error } = await query;
-  if (error) throw error;
-
-  let localizedPosts = (posts ?? []) as BlogPostRow[];
-
-  if (locale !== "en" && localizedPosts.length > 0) {
-    const { data: translations, error: translationError } = await supabase
-      .from("blog_post_translations" as never)
-      .select("post_id, locale, title, excerpt, seo_title, seo_description")
-      .eq("locale", locale)
-      .in(
-        "post_id",
-        localizedPosts.map((post) => post.id),
-      );
-
-    if (!translationError) {
-      const translationMap = new Map(
-        ((translations ?? []) as BlogTranslationRow[]).map((translation) => [
-          translation.post_id,
-          translation,
-        ]),
-      );
-
-      localizedPosts = localizedPosts.map((post) => {
-        return applyBlogTranslation(post, translationMap.get(post.id), locale);
-      });
-    } else {
-      localizedPosts = localizedPosts.map((post) => applyBlogTranslation(post, null, locale));
-    }
-  }
-
-  const authorIds = Array.from(
-    new Set(localizedPosts.map((post) => post.author_id).filter(Boolean)),
-  ) as string[];
-
-  if (!authorIds.length) {
-    return localizedPosts;
-  }
-
-  const { data: authors, error: authorError } = await supabase
-    .from("public_profiles")
-    .select("id, full_name, avatar_url")
-    .in("id", authorIds);
-
-  if (authorError) throw authorError;
-
-  return mergePostsWithAuthors(localizedPosts, (authors ?? []) as BlogAuthor[]);
-}
-
-async function fetchGlobalSettings(_locale: string) {
-  const { data, error } = await supabase
-    .from("global_settings")
-    .select("key, value, category")
-    .in("key", [...BLOG_CMS_KEYS])
-    .order("key", { ascending: true });
-
-  if (error) throw error;
-  return (data ?? []) as BlogGlobalSetting[];
-}
-
 function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, pageConfig }: BlogClientProps) {
   const { t } = useTranslation();
   const l = useLocalePath();
@@ -313,24 +213,14 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
     [initialAuthors, initialPosts],
   );
 
-  const { data: globalSettings = initialGlobalSettings } = useQuery({
-    queryKey: ["global-settings", [...BLOG_CMS_KEYS].sort(), locale],
-    queryFn: () => fetchGlobalSettings(locale),
-    placeholderData: initialGlobalSettings,
-    staleTime: 0,
-  });
-
-  const {
-    data: posts = locale === "en" && selectedCategory === "all" ? mergedInitialPosts : [],
-    isLoading,
-  } = useQuery({
-    queryKey: ["blog-posts", "published", selectedCategory !== "all" ? selectedCategory : undefined, locale],
-    queryFn: () =>
-      fetchBlogPosts(locale, selectedCategory !== "all" ? selectedCategory : undefined),
-    placeholderData:
-      locale === "en" && selectedCategory === "all" ? mergedInitialPosts : undefined,
-    staleTime: 60 * 1000,
-  });
+  const globalSettings = initialGlobalSettings;
+  const posts = useMemo(
+    () =>
+      selectedCategory === "all"
+        ? mergedInitialPosts
+        : mergedInitialPosts.filter((post) => post.category === selectedCategory),
+    [mergedInitialPosts, selectedCategory],
+  );
 
   const cms = useBlogCmsHelpers(globalSettings);
   const serverHero = resolveHero(pageConfig as Parameters<typeof resolveHero>[0] ?? null);
@@ -436,13 +326,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
           </BlogCmsBlock>
         ) : null}
 
-        {isLoading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : null}
-
-        {!isLoading && featuredPost && cms.isBlockEnabled("featured-post", true) ? (
+        {featuredPost && cms.isBlockEnabled("featured-post", true) ? (
           <BlogCmsBlock blockId="featured-post" as="section" cms={cms} className="py-8 app-container content-max">
             <m.div
               initial={{ opacity: 0, y: 20 }}
@@ -498,7 +382,7 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
           </BlogCmsBlock>
         ) : null}
 
-        {!isLoading && cms.isBlockEnabled("posts-grid", true) ? (
+        {cms.isBlockEnabled("posts-grid", true) ? (
           <BlogCmsBlock blockId="posts-grid" as="section" cms={cms} className="py-12 app-container content-max">
             {remainingPosts.length === 0 && !featuredPost ? (
               <div className="text-center py-16">

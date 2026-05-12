@@ -1,0 +1,260 @@
+{
+  "category_slug": "real-estate",
+  "listings": [
+    {
+      "Nome": "Casa do Mar | Luxury T3 Villa | Infinity Pool and Sea View | Walk to Vale de Centeanes Beach",
+      "URL_slug": "casa-do-mar-luxury-t3-villa-infinity-pool-sea-view-vale-centeanes-carvoeiro",
+      "City": "Carvoeiro",
+      "Region": "Carvoeiro Cliffs",
+      "Country": "Portugal",
+      "category": "properties",
+      "tier": "unverified",
+      "source_url": "https://www.kwportugal.pt/pt/Imovel/Venda/Moradia/Faro/Lagoa-(Algarve)/Lagoa-e-Carvoeiro/67195",
+      "Description": "Casa do Mar is a luxury T3 villa under construction in Vale Centeanes, Carvoeiro, designed for refined coastal living within walking distance of Vale de Centeanes Beach.\n\nThe south-facing home is planned around panoramic sea views, generous natural light, contemporary architecture, and high-end finishes. Its layout includes three private suites, spacious leisure areas, and a direct connection to the outdoor living spaces.\n\nOutside, an infinity pool frames the Atlantic outlook, with terraces and balconies arranged for relaxed entertaining and everyday comfort. The property is close to the beach, local services, restaurants, and golf courses, making it suitable as a private residence or premium Algarve retreat.",
+      "Short Description": "Luxury T3 villa under construction in Vale Centeanes, Carvoeiro, with an infinity pool, panoramic sea views, and a 700 m2 plot.",
+      "Website": "https://www.kwportugal.pt/pt/Imovel/Venda/Moradia/Faro/Lagoa-(Algarve)/Lagoa-e-Carvoeiro/67195",
+      "Phone": "+351961822873",
+      "Email": "dlopes@kwportugal.pt",
+      "Tags": [
+        "luxury villa",
+        "sea view",
+        "infinity pool",
+        "new build",
+        "Vale Centeanes",
+        "Carvoeiro",
+        "walk to beach"
+      ],
+      "location": {
+        "address": "Vale Centeanes (Carvoeiro), Carvoeiro, Lagoa e Carvoeiro, Lagoa, Faro, Portugal",
+        "city": "Carvoeiro",
+        "region": "Carvoeiro Cliffs",
+        "latitude": 37.09263,
+        "longitude": -8.45355
+      },
+      "contact": {
+        "phone": "+351961822873",
+        "email": "dlopes@kwportugal.pt",
+        "website": "https://www.kwportugal.pt/pt/Imovel/Venda/Moradia/Faro/Lagoa-(Algarve)/Lagoa-e-Carvoeiro/67195"
+      },
+      "media": {
+        "featured_image": "https://imgs.soukwportugal.pt/39142/properties/45964105-69ac-415d-96d6-1233077d98b3.jpg",
+        "gallery": [
+          "https://imgs.soukwportugal.pt/39142/properties/45964105-69ac-415d-96d6-1233077d98b3.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/88c87684-12e4-44ae-9088-c8d8b67bf8e8.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/6a5dc7f4-323b-4600-82ce-6e8f3437572e.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/14efe57a-c4c5-412d-8a8e-9735ace352fc.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/d2251c87-17ef-4394-8a88-3421a89898e4.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/c27058ce-756d-4d58-b475-eb164e976073.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/0a1c1f08-86a2-4043-9d97-9a1fb0791872.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/61ab39d1-7429-4748-8b6a-7e6a099098de.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/31a69d4b-3b85-4546-81fb-018aac616c39.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/b437df0c-7d10-4250-a495-004f79f0e03b.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/867d6c2d-8fe7-464a-9cd4-6af76d44a6a1.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/9c68e6c9-3381-4800-b0b0-068253469c8c.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/406f57b1-7f91-4f9d-b5a4-f65f67df6e52.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/c54b5bab-c911-4984-a875-1b1fb881606c.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/a3175b0b-cf02-461d-a137-6c3d760d59bf.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/49d4e02a-d9f3-4615-8c70-1fe20e4684f9.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/e0921b93-7be6-41d1-9c63-42021c342930.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/d078fe84-f759-4183-877f-ed2120c58e56.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/3f643a6f-d8d7-4e6c-9b04-e072032d9fd7.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/fa9b6241-de42-42ce-aa45-c6f4e039ad6a.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/9f715d24-07c4-47cf-b5f3-33f04eca16fc.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/ecf0a187-7913-4a4f-8c3b-9e7a39250885.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/4fc5ef49-4b92-44b0-8647-ecb0b547d7b3.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/f5e93202-add0-4a68-8728-82f4f1201a20.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/5011a236-435d-4660-9220-0a04df2bf505.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/26ece524-8e3e-47f8-ba50-51155328c4aa.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/685a9b61-6a91-4e63-866d-72b08f16f90f.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/5a02efc3-57b8-415e-a5e4-78718c13957d.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/98e364ad-1ec0-471a-a266-a54e94426a19.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/08dd3f1b-a7fd-41d8-9aaf-48651bf92d63.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/19962c14-9501-424a-8deb-c88e3314deed.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/4238cfb7-faa6-4c87-97ef-b907845db52e.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/93d6cb18-8f18-4258-a67f-0f86ecbe4bd4.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/83c91ded-8b4e-4ec7-89f1-5996fb848053.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/08701ab9-0049-44d1-9938-74d65deaa6aa.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/e2b9ad2a-8535-4a29-964d-f3723ae35bbf.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/4e2d837e-e9a1-4f98-88b9-e0cc10e4c242.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/0e8e8e25-2cd9-4a83-9b60-65131799366a.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/af1f64a7-b0f1-4100-9cea-a8bdc1c7c064.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/21ecc738-542f-4175-afe5-b87d887742d7.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/41eaf150-6895-4df6-8f9c-a9085305c02b.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/d7b425df-4dc6-47be-9e2c-b1e6adbc4cf4.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/153be1c6-fcac-4885-962a-fac7749e3278.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/8f149ffa-389b-44e8-91fb-1ef27680f2ce.jpg",
+          "https://imgs.soukwportugal.pt/39142/properties/78a8559d-63cc-438d-af88-3519ac533b3f.jpg"
+        ]
+      },
+      "seo": {
+        "meta_title": "Casa do Mar | Luxury T3 Villa | Infinity Pool and Sea View | Walk to Vale de Centeanes Beach",
+        "meta_description": "Luxury T3 villa for sale with 430 m2 of built area, under construction in Lagoa and Carvoeiro, Algarve."
+      },
+      "property": {
+        "property_type": "villa",
+        "transaction_type": "sale",
+        "price": 3640000,
+        "currency": "EUR",
+        "bedrooms": 3,
+        "bathrooms": 5,
+        "built_area_m2": 430,
+        "living_area_m2": 325,
+        "plot_area_m2": 700,
+        "year_built": 2026,
+        "energy_certificate": "A+",
+        "pool": true,
+        "private_pool": true,
+        "garden": true,
+        "parking_spaces": 3,
+        "sea_view": true,
+        "heating": true,
+        "air_conditioning": true,
+        "elevator": true,
+        "total_floors": 3,
+        "agent_name": "KW Portugal",
+        "agent_phone": "+351961822873",
+        "agent_email": "dlopes@kwportugal.pt",
+        "agency_name": "KW Flash Algarve Barlavento",
+        "property_url": "https://www.kwportugal.pt/pt/Imovel/Venda/Moradia/Faro/Lagoa-(Algarve)/Lagoa-e-Carvoeiro/67195",
+        "reference_code": "KWPT-032090",
+        "availability_status": "under_construction"
+      },
+      "category_data": {
+        "vertical": "property",
+        "source": {
+          "provider": "Keller Williams Portugal",
+          "source_url": "https://www.kwportugal.pt/pt/Imovel/Venda/Moradia/Faro/Lagoa-(Algarve)/Lagoa-e-Carvoeiro/67195",
+          "external_id": "67195",
+          "reference": "KWPT-032090",
+          "language": "pt",
+          "scraped_at": "2026-05-12T14:58:57+01:00",
+          "source_created_at": "2026-05-05T00:00:00",
+          "source_updated_at": "2026-05-12T12:25:05"
+        },
+        "source_status": "Under construction",
+        "source_business_type": "Sale",
+        "source_category": "Residential",
+        "source_type": "Villa",
+        "source_subtype": "Detached villa",
+        "source_area": "Vale Centeanes (Carvoeiro)",
+        "source_region": {
+          "district": "Faro",
+          "municipality": "Lagoa (Algarve)",
+          "parish": "Lagoa e Carvoeiro",
+          "locality": "Carvoeiro"
+        },
+        "measurements": {
+          "living_area_m2": 325,
+          "built_area_m2": 430,
+          "plot_area_m2": 700,
+          "deployment_area_m2": 198.9
+        },
+        "typology": "T3",
+        "suites": 3,
+        "living_rooms": 1,
+        "parking_spaces": 3,
+        "exclusive": true,
+        "reduced_mobility": true,
+        "agency": {
+          "name": "KW Flash Algarve Barlavento",
+          "legal_name": "REALFLASH BARLAVENTO - MEDIACAO IMOBILIARIA LDA",
+          "network": "KW Portugal",
+          "agent_name": "Pedro Chaves",
+          "agent_url": "https://www.kwportugal.pt/pt/agente/Pedro-Chaves/39142",
+          "agent_phone": "+351282491059",
+          "agent_mobile": "+351924181950",
+          "agent_whatsapp": "+351924181950",
+          "agent_email": "pedro.chaves@kwportugal.pt",
+          "agent_image": "https://imgs.soukwportugal.pt//Agents/Images/b8f3cf36-7855-499f-a118-786b231434fb.png"
+        },
+        "media": {
+          "featured_image": "https://imgs.soukwportugal.pt/39142/properties/45964105-69ac-415d-96d6-1233077d98b3.jpg",
+          "default_image_url": "https://imgs.soukwportugal.pt/39142/properties/6a5dc7f4-323b-4600-82ce-6e8f3437572e_s.jpg",
+          "gallery_count": 45,
+          "video_url": "https://www.youtube.com/watch?v=uIAdGQQRbBc",
+          "uploaded_video_url": "https://imgs.soukwportugal.pt/39142/properties/a71b1c36-c0a3-4ac8-a766-88d79c936477.mp4"
+        },
+        "features": {
+          "highlights": [
+            "infinity pool",
+            "panoramic sea view",
+            "walking distance to Vale de Centeanes Beach",
+            "3 suites",
+            "terrace",
+            "balconies",
+            "gardens",
+            "automatic irrigation",
+            "video intercom",
+            "security door",
+            "fiber optic internet",
+            "reduced-mobility access",
+            "EV charging"
+          ],
+          "main": [
+            "Number of elevators: 1",
+            "Gardens",
+            "Outdoor pool",
+            "Air conditioning",
+            "Terrace",
+            "Balcony"
+          ],
+          "groups": {
+            "Proximity": [
+              "Beaches"
+            ],
+            "Views": [
+              "Beach",
+              "Sea"
+            ],
+            "Climate control": [
+              "Central heating",
+              "Air conditioning"
+            ],
+            "Outdoor spaces": [
+              "Terrace",
+              "Balcony",
+              "Patio"
+            ],
+            "Equipment": [
+              "Video intercom",
+              "Gardens",
+              "Automatic irrigation",
+              "Outdoor pool",
+              "Solarium",
+              "Mechanical ventilation",
+              "Automated building",
+              "Fiber optic internet",
+              "Underfloor heating",
+              "Security door",
+              "Reduced-mobility access",
+              "Fast EV charging point"
+            ],
+            "Solar exposure": [
+              "South",
+              "East",
+              "West"
+            ]
+          },
+          "totals": {
+            "balconies": 3,
+            "terraces": 1,
+            "basements": 1,
+            "pools": 1,
+            "frontages": 4,
+            "floors": 3
+          }
+        },
+        "nearby": [
+          "Vale de Centeanes Beach",
+          "restaurants",
+          "services",
+          "golf courses"
+        ],
+        "verification": {
+          "confidence": "high",
+          "notes": "Scraped from the public KW Portugal listing page and schema.org RealEstateListing data. Ownership and current availability were not independently verified beyond the source status."
+        }
+      }
+    }
+  ]
+}

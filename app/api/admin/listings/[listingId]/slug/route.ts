@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import {
+  isMissingCanonicalSlugRpcError,
+  type ListingCanonicalSlugUpdateResult,
+  updateListingCanonicalSlugDirect,
+} from "@/lib/admin/listings/canonical-slug-update";
 import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
 import { getDisallowedSlugInputError, getSlugValidationError, normalizeSlug } from "@/lib/slugify";
 
@@ -7,11 +12,6 @@ interface SlugUpdateBody {
   slug?: unknown;
   new_slug?: unknown;
 }
-
-type SlugUpdateResult = {
-  old_slug: string | null;
-  new_slug: string;
-};
 
 function normalizeRequestedSlug(value: unknown) {
   if (typeof value !== "string") return null;
@@ -31,6 +31,10 @@ function mapSlugRpcError(error: { code?: string; message?: string }) {
 
   if (error.code === "42501") {
     return adminErrorResponse(403, "AUTH_FORBIDDEN", error.message || "Only admins can update listing URLs.");
+  }
+
+  if (/FAILED$/.test(error.code ?? "") || /read failed|update failed|insert failed|check failed/i.test(error.message ?? "")) {
+    return adminErrorResponse(400, "SLUG_UPDATE_FAILED", error.message || "Unable to update listing URL.");
   }
 
   if (error.code === "22023" || /slug/i.test(error.message ?? "")) {
@@ -83,10 +87,22 @@ export async function PATCH(
   } as never);
 
   if (error) {
+    if (isMissingCanonicalSlugRpcError(error)) {
+      const fallback = await updateListingCanonicalSlugDirect(auth.writeClient, listingId, requestedSlug);
+      if (fallback.error) {
+        return mapSlugRpcError(fallback.error);
+      }
+
+      return NextResponse.json({
+        ok: true,
+        data: fallback.data,
+      });
+    }
+
     return mapSlugRpcError(error);
   }
 
-  const row = (Array.isArray(data) ? data[0] : data) as SlugUpdateResult | null;
+  const row = (Array.isArray(data) ? data[0] : data) as ListingCanonicalSlugUpdateResult | null;
   return NextResponse.json({
     ok: true,
     data: {

@@ -14,6 +14,10 @@ import {
   publishedListingsQueryKey,
   signatureListingsQueryKey,
 } from "@/lib/query-keys";
+import {
+  buildListingSearchOrGroups,
+  sanitizeListingSearchTerm,
+} from "@/lib/listings/search-filters";
 
 export type ListingRow = Tables<'listings'>;
 export type ListingTier = 'unverified' | 'verified' | 'signature';
@@ -201,17 +205,10 @@ async function resolveExcludedCategoryId(filters: ListingFilters): Promise<strin
   return data?.id ?? null;
 }
 
-function sanitizeSearchTerm(raw: string): string {
-  return raw
-    .replace(/[,%(){}'"]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 async function resolveSearchCategoryIds(search?: string): Promise<string[]> {
   if (!search?.trim()) return [];
 
-  const term = sanitizeSearchTerm(search);
+  const term = sanitizeListingSearchTerm(search);
   if (!term) return [];
 
   const { data, error } = await supabase
@@ -286,33 +283,9 @@ function applyListingFilters<T>(
   }
 
   if (filters.search?.trim()) {
-    const term = sanitizeSearchTerm(filters.search);
-    if (term) {
-      const tagTokens = term
-        .toLowerCase()
-        .split(" ")
-        .map((token) => token.replace(/[^a-z0-9_-]/gi, ""))
-        .filter(Boolean)
-        .slice(0, 5);
-
-      const searchClauses = [
-        `name.ilike.%${term}%`,
-        `short_description.ilike.%${term}%`,
-        `description.ilike.%${term}%`,
-      ];
-
-      for (const token of tagTokens) {
-        searchClauses.push(`name.ilike.%${token}%`);
-        searchClauses.push(`short_description.ilike.%${token}%`);
-        searchClauses.push(`description.ilike.%${token}%`);
-        searchClauses.push(`tags.cs.{${token}}`);
-      }
-
-      if (matchingCategoryIds.length > 0) {
-        searchClauses.push(`category_id.in.(${matchingCategoryIds.join(",")})`);
-      }
-
-      builder = builder.or(searchClauses.join(",")) as T & ListingFilterQuery;
+    const searchGroups = buildListingSearchOrGroups(filters.search, matchingCategoryIds);
+    for (const group of searchGroups) {
+      builder = builder.or(group) as T & ListingFilterQuery;
     }
   }
 

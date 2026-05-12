@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Image from "next/image";
 
 import Header from "@/components/layout/Header";
@@ -32,10 +32,12 @@ import {
   buildItemListSchema,
 } from "@/lib/seo/programmatic/schema-builders";
 import { getServerTranslations } from "@/lib/i18n/server";
+import { buildLocalizedPath } from "@/lib/i18n/routing";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { ListingCard } from "@/components/seo/programmatic/ListingCard";
 import InternalLinks from "@/components/seo/InternalLinks";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
+import { getCanonicalCategorySlug as getCanonicalListingCategorySlug } from "@/lib/categoryMerges";
 
 interface PageParams {
   locale: string;
@@ -70,6 +72,29 @@ function buildCityCategoryRouteData(
   };
 }
 
+function resolveRouteCategorySegment(
+  categoryUrlSlug: string,
+  locale: Locale,
+): { canonical: CanonicalCategorySlug; canonicalUrlSlug: string; needsRedirect: boolean } | null {
+  const normalized = categoryUrlSlug.trim().toLowerCase();
+  const localizedCanonical = getCanonicalFromUrlSlug(normalized, locale);
+  const aliasCanonical = getCanonicalListingCategorySlug(normalized);
+  const canonical =
+    localizedCanonical ??
+    (aliasCanonical && ALL_CANONICAL_SLUGS.includes(aliasCanonical as CanonicalCategorySlug)
+      ? (aliasCanonical as CanonicalCategorySlug)
+      : null);
+
+  if (!canonical) return null;
+
+  const canonicalUrlSlug = getCategoryUrlSlug(canonical, locale);
+  return {
+    canonical,
+    canonicalUrlSlug,
+    needsRedirect: normalized !== canonicalUrlSlug,
+  };
+}
+
 export async function generateStaticParams(): Promise<PageParams[]> {
   const combinations = await getAllCategoryCityCombinations();
 
@@ -101,8 +126,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!isValidCitySlug(citySlug)) return {};
 
-  const canonical = getCanonicalFromUrlSlug(categoryUrlSlug, locale);
-  if (!canonical) return {};
+  const routeCategory = resolveRouteCategorySegment(categoryUrlSlug, locale);
+  if (!routeCategory) return {};
+  const canonical = routeCategory.canonical;
 
   const data = await getCategoryCityPageDataAllowEmpty(canonical, citySlug);
   if (!data) return {};
@@ -174,8 +200,15 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
 
   if (!isValidCitySlug(citySlug)) notFound();
 
-  const canonical = getCanonicalFromUrlSlug(categoryUrlSlug, locale);
-  if (!canonical) notFound();
+  const routeCategory = resolveRouteCategorySegment(categoryUrlSlug, locale);
+  if (!routeCategory) notFound();
+  if (routeCategory.needsRedirect) {
+    permanentRedirect(
+      buildLocalizedPath(locale, `/visit/${citySlug}/${routeCategory.canonicalUrlSlug}`),
+    );
+  }
+
+  const canonical = routeCategory.canonical;
   const routeData = buildCityCategoryRouteData(canonical, citySlug);
   const localeSwitchPaths = buildLocaleSwitchPathsForEntity(routeData, SUPPORTED_LOCALES);
 

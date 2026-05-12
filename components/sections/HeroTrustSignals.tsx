@@ -284,14 +284,14 @@ export function HeroTrustSignals({
           ) : null}
         </div>
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        <div className="mt-5 grid items-stretch gap-3 sm:grid-cols-3">
           {trustMetrics.map((metric) => {
             const Icon = metric.icon;
             return (
               <div
                 key={metric.key}
                 className={cn(
-                  "rounded-lg px-4 py-3",
+                  "flex min-h-[6.6rem] flex-col items-center justify-center rounded-lg px-4 py-4 text-center sm:min-h-[6.75rem]",
                   isSurface
                     ? "border border-border/70 bg-background/70"
                     : "border border-white/12 bg-black/18",
@@ -299,14 +299,14 @@ export function HeroTrustSignals({
               >
                 <div
                   className={cn(
-                    "flex items-center gap-2",
+                    "flex min-h-8 items-center justify-center gap-2",
                     isSurface ? "text-primary" : "text-[var(--colour-card-outline-gold)]",
                   )}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-4 w-4 shrink-0" />
                   <span
                     className={cn(
-                      "text-[10px] font-semibold uppercase tracking-[0.22em]",
+                      "block min-w-0 max-w-[8.5rem] text-center text-[10px] font-semibold uppercase leading-[1.45] tracking-[0.22em]",
                       isSurface ? "text-muted-foreground" : "text-white/60",
                     )}
                   >
@@ -315,7 +315,7 @@ export function HeroTrustSignals({
                 </div>
                 <div
                   className={cn(
-                    "mt-2 text-[1.7rem] font-semibold leading-none sm:text-[1.95rem]",
+                    "mt-3 text-center text-[1.7rem] font-semibold leading-none sm:text-[1.95rem]",
                     isSurface ? "text-foreground" : "text-white",
                   )}
                 >

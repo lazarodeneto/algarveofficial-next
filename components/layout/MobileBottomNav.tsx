@@ -149,6 +149,9 @@ export function MobileBottomNav() {
       </span>
 
       <div className="bottom-nav__shell">
+        <span className="bottom-nav__edge bottom-nav__edge--left" aria-hidden="true" />
+        <span className="bottom-nav__edge bottom-nav__edge--right" aria-hidden="true" />
+
         <button
           type="button"
           className="bottom-nav__scroll-button bottom-nav__scroll-button--left"

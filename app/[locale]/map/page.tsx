@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Compass, MapPin } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import MapClient from "@/components/map/MapClient";
-import { getDirectoryPageData } from "@/lib/directory-data";
+import { getDirectoryPageData, type DirectoryPageData } from "@/lib/directory-data";
 import { isValidLocale, type Locale } from "@/lib/i18n/config";
+import { buildLocalizedPath } from "@/lib/i18n/localized-routing";
 import { getServerTranslations } from "@/lib/i18n/server";
 import { buildStaticRouteData } from "@/lib/i18n/localized-routing";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
+import { getPublicMapListings, type PublicMapListingDTO } from "@/lib/public-data";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -14,6 +18,81 @@ interface PageProps {
 }
 
 export const revalidate = 3600;
+
+function MapServerShell({
+  locale,
+  listings,
+  totalPublished,
+  cities,
+}: {
+  locale: Locale;
+  listings: PublicMapListingDTO[];
+  totalPublished: number;
+  cities: DirectoryPageData["cities"];
+}) {
+  return (
+    <div id="map-server-shell" className="min-h-screen bg-background text-foreground">
+      <main className="app-container pt-[calc(4rem+2.5rem)] pb-16 sm:pt-[calc(5rem+3rem)]">
+        <section className="mb-8 max-w-4xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+            Algarve map
+          </p>
+          <h1 className="mt-3 font-serif text-4xl leading-tight text-foreground sm:text-5xl">
+            Explore Algarve listings on the map
+          </h1>
+          <p className="mt-4 text-base leading-7 text-muted-foreground sm:text-lg">
+            Browse published AlgarveOfficial listings with verified map coordinates. The interactive map loads after JavaScript; this list remains available to search engines and visitors without scripting.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-2 text-sm text-muted-foreground">
+            <span className="rounded-full border border-border bg-card px-3 py-1">
+              {listings.length} mapped
+            </span>
+            <span className="rounded-full border border-border bg-card px-3 py-1">
+              {totalPublished} published results
+            </span>
+            <span className="rounded-full border border-border bg-card px-3 py-1">
+              {cities.length} cities
+            </span>
+          </div>
+        </section>
+
+        {listings.length === 0 ? (
+          <section className="rounded-lg border border-border bg-card/80 p-8 text-center shadow-sm">
+            <Compass className="mx-auto mb-3 h-8 w-8 text-primary" />
+            <h2 className="font-serif text-2xl">No mapped listings available</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Published listings without coordinates are still available through the directory.
+            </p>
+            <Link href={buildLocalizedPath(locale, "/stay")} className="mt-4 inline-flex text-primary underline-offset-4 hover:underline">
+              Open the directory
+            </Link>
+          </section>
+        ) : (
+          <section aria-label="Mapped listings" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {listings.slice(0, 24).map((listing) => (
+              <Link
+                key={listing.id}
+                href={buildLocalizedPath(locale, `/listing/${listing.slug || listing.id}`)}
+                className="rounded-lg border border-border bg-card p-5 shadow-sm transition hover:border-primary/40"
+              >
+                <p className="flex items-center gap-1.5 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                  <MapPin className="h-3.5 w-3.5 text-primary" />
+                  {listing.location.city ?? "Algarve"}
+                </p>
+                <h2 className="mt-2 font-serif text-xl leading-snug">{listing.name}</h2>
+                {listing.shortDescription ? (
+                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
+                    {listing.shortDescription}
+                  </p>
+                ) : null}
+              </Link>
+            ))}
+          </section>
+        )}
+      </main>
+    </div>
+  );
+}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale: rawLocale } = await params;
@@ -48,6 +127,8 @@ export default async function MapPage({ params }: PageProps) {
     notFound();
   }
 
+  const locale = rawLocale as Locale;
+
   const data = await getDirectoryPageData(rawLocale, {
     q: "",
     city: "all",
@@ -55,14 +136,23 @@ export default async function MapPage({ params }: PageProps) {
     category: "all",
     tier: "all",
   });
+  const mapListings = await getPublicMapListings(rawLocale, 200);
 
   return (
-    <MapClient
-      locale={data.locale}
-      initialListings={data.listings}
-      initialCities={data.cities}
-      initialRegions={data.regions}
-      initialCategories={data.categories}
-    />
+    <>
+      <MapServerShell
+        locale={locale}
+        listings={mapListings}
+        totalPublished={data.listings.length}
+        cities={data.cities}
+      />
+      <MapClient
+        locale={data.locale}
+        initialListings={data.listings}
+        initialCities={data.cities}
+        initialRegions={data.regions}
+        initialCategories={data.categories}
+      />
+    </>
   );
 }

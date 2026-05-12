@@ -50,7 +50,7 @@ const supabaseOrigin = (() => {
 })();
 const organizationSchema = buildOrganizationSchema(siteUrl);
 const websiteSchema = buildWebsiteSchema(siteUrl);
-const enableVercelTelemetry = process.env.NODE_ENV === "production";
+const enableVercelTelemetry = process.env.NODE_ENV === "production" && process.env.VERCEL === "1";
 
 const loadGoogleTagId = unstable_cache(
   async () => {

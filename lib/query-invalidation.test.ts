@@ -2,6 +2,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  invalidateAdminInboxQueries,
   invalidateCmsPageMutationQueries,
   invalidateListingMutationQueries,
 } from "@/lib/query-invalidation";
@@ -17,6 +18,14 @@ describe("query invalidation helpers", () => {
 
     expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: ["admin-listings"],
+      exact: false,
+    });
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["admin-inbox"],
+      exact: false,
+    });
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["admin", "inbox", "urgent-count"],
       exact: false,
     });
     expect(invalidateQueries).toHaveBeenCalledWith({
@@ -62,6 +71,23 @@ describe("query invalidation helpers", () => {
     });
     expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: ["public-page"],
+      exact: false,
+    });
+  });
+
+  it("invalidates inbox list and badge queries together", async () => {
+    const invalidateQueries = vi.fn().mockResolvedValue(undefined);
+
+    await invalidateAdminInboxQueries(
+      { invalidateQueries } as unknown as Pick<QueryClient, "invalidateQueries">,
+    );
+
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["admin-inbox"],
+      exact: false,
+    });
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["admin", "inbox", "urgent-count"],
       exact: false,
     });
   });

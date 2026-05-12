@@ -7,11 +7,13 @@ import { buttonVariants } from "@/components/ui/Button";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { buildCategoryRouteData } from "@/lib/public-route-builders";
+import { buildStaticRouteData } from "@/lib/i18n/localized-routing";
 
 const INTENTS = [
   { key: "stay", href: "/visit/albufeira/accommodation" },
   { key: "eatDrink", href: "/visit/lagos/restaurants" },
-  { key: "thingsToDo", href: "/directory?category=things-to-do" },
+  { key: "thingsToDo", href: buildCategoryRouteData("experiences") ?? buildStaticRouteData("experiences") },
   { key: "golf", href: "/visit/vilamoura/golf" },
   { key: "realEstate", href: "/real-estate" },
   { key: "relocation", href: "/relocation", labelKey: "nav.relocation" },

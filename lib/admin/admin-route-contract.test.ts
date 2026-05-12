@@ -19,6 +19,12 @@ describe("admin route contract", () => {
     expect(source).toContain('"content/pages": <AdminPagesDeprecated />');
   });
 
+  it("keeps the full page builder route alias registered", () => {
+    const source = readFileSync(ADMIN_ROUTE_FILE, "utf8");
+    expect(source).toContain('"full-page-builder": AdminPageBuilder');
+    expect(source).toContain('"content/page-builder": AdminPageBuilder');
+  });
+
   it("does not keep the removed legacy pages editor implementation", () => {
     expect(existsSync(LEGACY_PAGES_EDITOR_FILE)).toBe(false);
   });

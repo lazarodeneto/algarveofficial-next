@@ -1,22 +1,35 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { createPublicServerClient } from "@/lib/supabase/public-server";
+import { notFound, permanentRedirect } from "next/navigation";
 import { SUPPORTED_LOCALES, isValidLocale, DEFAULT_LOCALE } from "@/lib/i18n/config";
 import {
+  buildLocalizedPath,
   buildLocaleSwitchPathsForEntity,
   buildStaticRouteData,
   buildUniformLocalizedSlugMap,
   type CategoryRouteData,
   type CityCategoryRouteData,
 } from "@/lib/i18n/localized-routing";
-import { getCategoryDisplayName, getCategoryUrlSlug, getCanonicalFromUrlSlug, ALL_CANONICAL_SLUGS, type CanonicalCategorySlug } from "@/lib/seo/programmatic/category-slugs";
+import { getCategoryDisplayName, getCategoryUrlSlug, ALL_CANONICAL_SLUGS, type CanonicalCategorySlug } from "@/lib/seo/programmatic/category-slugs";
 import { getServerTranslations } from "@/lib/i18n/server";
 import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { ListingCard } from "@/components/seo/programmatic/ListingCard";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
+import { buildBreadcrumbSchema, buildItemListSchema } from "@/lib/seo/advanced/schema-builders";
+import {
+  getPublicCategoryCityCounts,
+  getPublicCategoryCounts,
+  getPublicListings,
+  getPublicRoutableCategorySlugs,
+  resolvePublicCategoryRoute,
+} from "@/lib/public-data";
+import {
+  buildCategoryPageMetaCopy,
+  hasNonCanonicalCategorySearchParams,
+  type CategorySearchParams,
+} from "@/lib/seo/category-page-metadata";
+import type { ProgrammaticListing } from "@/lib/seo/programmatic/category-city-data";
 
 interface PageParams {
   locale: string;
@@ -25,6 +38,7 @@ interface PageParams {
 
 interface PageProps {
   params: Promise<PageParams>;
+  searchParams?: Promise<CategorySearchParams>;
 }
 
 export const revalidate = 60;
@@ -43,15 +57,27 @@ function formatTemplate(
   );
 }
 
+function isProgrammaticCategorySlug(slug: string): slug is CanonicalCategorySlug {
+  return (ALL_CANONICAL_SLUGS as readonly string[]).includes(slug);
+}
+
+function getCategoryDisplayNameForSlug(categorySlug: string, locale: typeof SUPPORTED_LOCALES[number], fallbackName: string) {
+  return isProgrammaticCategorySlug(categorySlug)
+    ? getCategoryDisplayName(categorySlug, locale)
+    : fallbackName;
+}
+
 function buildCategoryRouteData(
-  canonical: CanonicalCategorySlug,
+  canonical: string,
 ): CategoryRouteData {
   return {
     routeType: "category",
     slugs: Object.fromEntries(
       SUPPORTED_LOCALES.map((supportedLocale) => [
         supportedLocale,
-        getCategoryUrlSlug(canonical, supportedLocale),
+        isProgrammaticCategorySlug(canonical)
+          ? getCategoryUrlSlug(canonical, supportedLocale)
+          : canonical,
       ]),
     ) as CategoryRouteData["slugs"],
   };
@@ -59,23 +85,26 @@ function buildCategoryRouteData(
 
 export async function generateStaticParams(): Promise<PageParams[]> {
   const params: PageParams[] = [];
-  for (const canonical of ALL_CANONICAL_SLUGS) {
+  const canonicalSlugs = await getPublicRoutableCategorySlugs();
+  for (const canonical of canonicalSlugs) {
     for (const locale of SUPPORTED_LOCALES) {
       params.push({
         locale,
-        category: getCategoryUrlSlug(canonical, locale),
+        category: isProgrammaticCategorySlug(canonical)
+          ? getCategoryUrlSlug(canonical, locale)
+          : canonical,
       });
     }
   }
   return params;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { locale: rawLocale, category: rawCategory } = await params;
   const locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
 
-  const canonical = getCanonicalFromUrlSlug(rawCategory.toLowerCase(), locale);
-  if (!canonical) {
+  const resolution = await resolvePublicCategoryRoute(rawCategory, locale);
+  if (!resolution.ok) {
     return buildPageMetadata({
       title: "Category Not Found",
       description: "The requested category could not be found.",
@@ -86,41 +115,30 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     });
   }
   
-  const categoryName = getCategoryDisplayName(canonical, locale);
-  
-  const metaTitles: Record<string, string> = {
-    en: `${categoryName} in the Algarve | AlgarveOfficial`,
-    "pt-pt": `${categoryName} no Algarve | AlgarveOfficial`,
-    fr: `${categoryName} en Algarve | AlgarveOfficial`,
-    de: `${categoryName} an der Algarve | AlgarveOfficial`,
-    es: `${categoryName} en el Algarve | AlgarveOfficial`,
-    it: `${categoryName} in Algarve | AlgarveOfficial`,
-    nl: `${categoryName} in de Algarve | AlgarveOfficial`,
-    sv: `${categoryName} i Algarve | AlgarveOfficial`,
-    no: `${categoryName} i Algarve | AlgarveOfficial`,
-    da: `${categoryName} i Algarve | AlgarveOfficial`,
-  };
-  
-  const metaDescriptions: Record<string, string> = {
-    en: `Discover the best ${categoryName.toLowerCase()} in the Algarve. Curated local recommendations on AlgarveOfficial.`,
-    "pt-pt": `Descubra os melhores ${categoryName.toLowerCase()} no Algarve. Recomendações locais seleccionadas no AlgarveOfficial.`,
-    fr: `Découvrez les meilleures ${categoryName.toLowerCase()} en Algarve. Recommandations locales sur AlgarveOfficial.`,
-    de: `Entdecken Sie die besten ${categoryName.toLowerCase()} an der Algarve. Lokale Empfehlungen auf AlgarveOfficial.`,
-    es: `Descubre los mejores ${categoryName.toLowerCase()} en el Algarve. Recomendaciones locales en AlgarveOfficial.`,
-    it: `Scopri i migliori ${categoryName.toLowerCase()} in Algarve. Raccomandazioni locali su AlgarveOfficial.`,
-    nl: `Ontdek de beste ${categoryName.toLowerCase()} in de Algarve. Lokale aanbevelingen op AlgarveOfficial.`,
-    sv: `Upptäck de bästa ${categoryName.toLowerCase()} i Algarve. Lokala rekommendationer på AlgarveOfficial.`,
-    no: `Oppdag de beste ${categoryName.toLowerCase()} i Algarve. Lokale anbefalinger på AlgarveOfficial.`,
-    da: `Opdag de bedste ${categoryName.toLowerCase()} i Algarve. Lokale anbefalinger på AlgarveOfficial.`,
-  };
-
+  const canonical = resolution.category.canonicalSlug;
+  const categoryName = getCategoryDisplayNameForSlug(canonical, locale, resolution.category.name);
+  const [resolvedSearchParams, categoryCounts] = await Promise.all([
+    searchParams?.then((value) => value ?? {}) ?? Promise.resolve({}),
+    getPublicCategoryCounts(),
+  ]);
+  const listingCount =
+    categoryCounts.byCanonicalCategorySlug[canonical] ??
+    categoryCounts.byCanonicalCategoryId[resolution.category.id] ??
+    0;
+  const metaCopy = buildCategoryPageMetaCopy({
+    categoryName,
+    locale,
+    listingCount,
+  });
   const routeData = buildCategoryRouteData(canonical);
 
   return buildPageMetadata({
-    title: metaTitles[locale] ?? metaTitles.en,
-    description: metaDescriptions[locale] ?? metaDescriptions.en,
+    title: metaCopy.title,
+    description: metaCopy.description,
+    keywords: metaCopy.keywords,
     localizedRoute: routeData,
     locale,
+    noIndex: hasNonCanonicalCategorySearchParams(resolvedSearchParams) || listingCount === 0,
   });
 }
 
@@ -128,54 +146,69 @@ export default async function CategoryHubPage({ params }: PageProps) {
   const { locale: rawLocale, category: rawCategory } = await params;
   const locale = isValidLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
 
-  const canonicalSlug = getCanonicalFromUrlSlug(rawCategory.toLowerCase(), locale);
-  if (!canonicalSlug) notFound();
-
-  const supabase = createPublicServerClient();
-
-  const { data: catData } = await supabase
-    .from("categories")
-    .select("id, slug, name")
-    .eq("slug", canonicalSlug)
-    .single();
-  
-  if (!catData) notFound();
-  
-  const { data: listingData } = await supabase
-    .from("listings")
-    .select("id, slug, name, short_description, featured_image_url, tier, is_curated, google_rating, google_review_count, price_from, price_currency, website_url, city_id, cities(slug, name)")
-    .eq("status", "published")
-    .eq("category_id", catData.id)
-    .order("is_curated", { ascending: false })
-    .order("google_rating", { ascending: false, nullsFirst: false })
-    .limit(50) as { data: any[] };
-
-  const safeListingsForLocale =
-    locale === "en"
-      ? listingData ?? []
-      : (listingData ?? []).map((listing) => ({
-          ...listing,
-          // These category cards currently read from base listing fields only.
-          // Hide body copy on localized routes rather than leaking English text.
-          short_description: null,
-        }));
-  
-  const cityAggs = new Map<string, { slug: string; name: string; count: number }>();
-  for (const listing of safeListingsForLocale) {
-    const city = Array.isArray(listing.cities) ? listing.cities[0] : (listing.cities as { slug: string; name: string } | null);
-    if (!city) continue;
-    const existing = cityAggs.get(city.slug);
-    if (existing) existing.count++;
-    else cityAggs.set(city.slug, { slug: city.slug, name: city.name, count: 1 });
+  const resolution = await resolvePublicCategoryRoute(rawCategory, locale);
+  if (!resolution.ok) {
+    if (resolution.reason === "redirect_required" && resolution.redirectTo) {
+      permanentRedirect(resolution.redirectTo);
+    }
+    notFound();
   }
+
+  const catData = resolution.category;
+  const canonicalSlug = catData.canonicalSlug;
   
-  const topCities = Array.from(cityAggs.values())
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 12);
+  const listingData = catData.memberIds.length > 0
+    ? await getPublicListings({
+        categoryIds: catData.memberIds,
+        locale,
+        limit: 50,
+        includeReviewsSummary: false,
+      })
+    : [];
+
+  const safeListingsForLocale: ProgrammaticListing[] = listingData.map((listing) => ({
+    id: listing.id,
+    slug: listing.slug,
+    name: listing.name,
+    short_description: listing.shortDescription,
+    featured_image_url: listing.imageUrl,
+    tier: listing.tier,
+    is_curated: listing.isCurated,
+    google_rating: listing.reviews.googleRating,
+    google_review_count: listing.reviews.googleReviewCount,
+    price_from: listing.priceFrom,
+    price_currency: listing.priceCurrency,
+    website_url: listing.websiteUrl,
+    city_slug: listing.city?.slug ?? "",
+    city_name: listing.city?.name ?? "",
+    category_slug: listing.category?.slug ?? canonicalSlug,
+    category_name: listing.category?.name ?? getCategoryDisplayNameForSlug(canonicalSlug, locale, catData.name),
+  }));
   
-  const categoryName = getCategoryDisplayName(canonicalSlug, locale);
+  const topCities = await getPublicCategoryCityCounts({
+    categoryIds: catData.memberIds,
+    locale,
+    limit: 12,
+  });
+  
+  const categoryName = getCategoryDisplayNameForSlug(canonicalSlug, locale, catData.name);
   const categoryRouteData = buildCategoryRouteData(canonicalSlug);
   const localeSwitchPaths = buildLocaleSwitchPathsForEntity(categoryRouteData, SUPPORTED_LOCALES);
+  const categoryPath = buildLocalizedPath(locale, categoryRouteData);
+  const itemListSchema = buildItemListSchema(
+    categoryName,
+    safeListingsForLocale.map((listing) => ({
+      name: listing.name,
+      url: buildLocalizedPath(locale, `/listing/${listing.slug}`),
+      description: listing.short_description ?? undefined,
+      image: listing.featured_image_url ?? undefined,
+    })),
+    categoryPath,
+  );
+  const breadcrumbSchema = buildBreadcrumbSchema([
+    { name: "Home", url: buildLocalizedPath(locale, buildStaticRouteData("home")) },
+    { name: categoryName, url: categoryPath },
+  ]);
 
   const tx = await getServerTranslations(locale, [
     "common.signature",
@@ -212,6 +245,16 @@ export default async function CategoryHubPage({ params }: PageProps) {
 
   return (
     <>
+      <script
+        id="schema-category-item-list"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
+      <script
+        id="schema-category-breadcrumb"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       <Header localeSwitchPaths={localeSwitchPaths} />
       <main id="main-content" className="min-h-screen pt-20">
         <section className="bg-gradient-to-b from-background/60 to-background py-12">

@@ -267,11 +267,29 @@ export const beachesTemplate: CategoryTemplate = {
     { name: 'parking_available', label: 'Parking Available', type: 'checkbox', required: false },
     { name: 'restaurant_nearby', label: 'Restaurant Nearby', type: 'checkbox', required: false },
     { name: 'blue_flag', label: 'Blue Flag Beach', type: 'checkbox', required: false },
+    { name: 'highlights', label: 'Highlights', type: 'tags', required: false, placeholder: 'e.g., Sea caves, Lifeguard, Family beach' },
+    { name: 'full_description', label: 'Structured Full Description', type: 'textarea', required: false, placeholder: 'Optional beach-specific full description. Falls back to the listing description.' },
+    { name: 'includes', label: 'Includes', type: 'tags', required: false, placeholder: 'e.g., Boardwalk access, Showers, Public parking' },
+    { name: 'excludes', label: 'Not Included / Unavailable', type: 'tags', required: false, placeholder: 'e.g., Sunbed rental, Lifeguard outside summer' },
+    { name: 'not_suitable_for', label: 'Not Suitable For', type: 'tags', required: false, placeholder: 'e.g., Wheelchair users, Unsupervised swimming' },
+    { name: 'meeting_point', label: 'Meeting Point', type: 'textarea', required: false, placeholder: 'Describe the main access point, car park, boardwalk, or meeting landmark.' },
+    { name: 'meeting_point_google_maps_url', label: 'Meeting Point Google Maps URL', type: 'text', required: false, placeholder: 'https://maps.google.com/...' },
+    { name: 'what_to_bring', label: 'What to Bring', type: 'tags', required: false, placeholder: 'e.g., Sunscreen, Hat, Water shoes' },
+    { name: 'not_allowed', label: 'Not Allowed', type: 'tags', required: false, placeholder: 'e.g., Glass bottles, Camping, Fires' },
+    { name: 'know_before_you_go', label: 'Know Before You Go', type: 'textarea', required: false, placeholder: 'Seasonal access, tides, conservation rules, parking notes, or safety notices.' },
+    { name: 'testimonials_json', label: 'Testimonials JSON', type: 'textarea', required: false, placeholder: '[{"name":"Angelica","country":"United States","date":"December 23, 2025","rating":5,"text":"Beautiful beach.","verified":true}]' },
+    { name: 'seo_link_groups_json', label: 'SEO Link Groups JSON', type: 'textarea', required: false, placeholder: '[{"title":"Experiences in Lagos","links":[{"label":"Lagos snorkeling"},{"label":"Family beaches in Lagos"}]}]' },
     { name: 'booking_url', label: 'Booking/Affiliate URL', type: 'text', required: false, placeholder: 'https://booking.example.com/...' },
   ],
   defaultDetails: {
     place_type: 'beach',
     atmosphere: 'relaxed',
+    highlights: [],
+    includes: [],
+    excludes: [],
+    not_suitable_for: [],
+    what_to_bring: [],
+    not_allowed: [],
   },
 };
 
@@ -534,8 +552,8 @@ export const vipTransportationTemplate: CategoryTemplate = {
 
 export const realEstateTemplate: CategoryTemplate = {
   slug: 'real-estate',
-  name: 'Algarve Services',
-  description: 'Villas, Golf, Beachfront',
+  name: 'Properties',
+  description: 'Villas, apartments, beachfront, golf-front',
   fields: [
     {
       name: 'property_type',

@@ -25,7 +25,36 @@ export function useOwnerListings() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      const listings = data || [];
+      const listingIds = listings.map((listing) => listing.id).filter(Boolean);
+
+      if (listingIds.length === 0) {
+        return listings;
+      }
+
+      const { data: claims, error: claimsError } = await supabase
+        .from("business_claims")
+        .select("id, listing_id, selected_tier, status, verification_method, created_at")
+        .eq("claimant_user_id", user.id)
+        .in("listing_id", listingIds)
+        .order("created_at", { ascending: false });
+
+      if (claimsError) {
+        console.warn("[owner-listings] claim summary unavailable", claimsError.message);
+        return listings;
+      }
+
+      const latestClaimByListing = new Map<string, (typeof claims)[number]>();
+      for (const claim of claims ?? []) {
+        if (!latestClaimByListing.has(claim.listing_id)) {
+          latestClaimByListing.set(claim.listing_id, claim);
+        }
+      }
+
+      return listings.map((listing) => ({
+        ...listing,
+        latest_claim: latestClaimByListing.get(listing.id) ?? null,
+      }));
     },
     enabled: isBrowser && !!user?.id,
     initialData: [],

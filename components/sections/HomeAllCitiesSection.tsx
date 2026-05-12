@@ -73,7 +73,7 @@ function CompactCityCard({
   return (
     <Link
       href={href}
-      className="group rounded-sm border border-black/5 bg-white p-4 shadow-soft-surface transition-all duration-300 ease-out motion-reduce:transition-none hover:-translate-y-0.5 hover:border-primary/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      className="group rounded-sm border border-border/70 bg-card p-4 text-card-foreground shadow-soft-surface transition-all duration-300 ease-out motion-reduce:transition-none hover:-translate-y-0.5 hover:border-primary/35 hover:bg-card/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-white/12 dark:bg-white/[0.07] dark:hover:bg-white/10"
     >
       <div className="flex items-start gap-3">
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors duration-300 ease-out group-hover:bg-primary/15">
@@ -203,6 +203,7 @@ export function HomeAllCitiesSection({ copy }: { copy?: HomeSectionCopy } = {}) 
         <div className="mt-10 flex justify-center sm:mt-12">
           <Button variant="premium" size="lg" asChild>
             <Link href={l(ctaHref)}>
+              <MapPin className="h-4 w-4" />
               {cmsText(copy?.ctaLabel, t("sections.homepage.cities.viewAll"))}
               <ArrowRight className="h-4 w-4" />
             </Link>

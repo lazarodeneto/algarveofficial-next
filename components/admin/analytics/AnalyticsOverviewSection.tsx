@@ -1,4 +1,4 @@
-import { Activity, Clock3, Eye, Users } from "lucide-react";
+import { Activity, Clock3, Eye, Radio, Users } from "lucide-react";
 
 import { AnalyticsCard } from "@/components/admin/analytics/AnalyticsCard";
 import { AnalyticsChart } from "@/components/admin/analytics/AnalyticsChart";
@@ -37,7 +37,7 @@ export function AnalyticsOverviewSection({ loading = false, data }: Props) {
 
   return (
     <section className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <AnalyticsCard
           title="Total Users"
           value={showBlankState ? "—" : data.totalUsers}
@@ -68,27 +68,39 @@ export function AnalyticsOverviewSection({ loading = false, data }: Props) {
         />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base font-semibold">Traffic Source</CardTitle>
-          <CardDescription>
-            {data.isGaConnected
-              ? "Google Analytics API is connected and active."
-              : data.gaError
-                ? `Google Analytics API connection error: ${data.gaError}`
-                : "Google Analytics API is not connected in-app."}
-          </CardDescription>
+      <Card className="glass-box border-border/40 bg-card/60 [&>*]:relative [&>*]:z-10">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <CardTitle className="text-xl font-semibold">Traffic Source</CardTitle>
+            <CardDescription>
+              {data.isGaConnected
+                ? "Google Analytics API is connected and active."
+                : data.gaError
+                  ? `Google Analytics API connection error: ${data.gaError}`
+                  : "Google Analytics API is not connected in-app."}
+            </CardDescription>
+          </div>
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-primary">
+            <Radio className="h-4 w-4" />
+          </div>
         </CardHeader>
         {data.isGaConnected ? (
           <CardContent>
-            <div className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
-              Source: {gaMeasurementId}
+            <div className="inline-flex max-w-full items-center rounded-full border border-border/70 bg-background/40 px-3 py-1.5 text-xs text-muted-foreground shadow-[inset_0_1px_0_rgb(255_255_255/0.35)]">
+              <span className="mr-2 h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_14px_rgb(16_185_129/0.55)]" />
+              <span className="truncate">Source: {gaMeasurementId}</span>
             </div>
           </CardContent>
-        ) : null}
+        ) : (
+          <CardContent>
+            <div className="rounded-sm border border-dashed border-border/70 bg-background/25 px-4 py-3 text-sm text-muted-foreground">
+              Connect Google Analytics to unlock live audience, session, and route-level visibility.
+            </div>
+          </CardContent>
+        )}
       </Card>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
         <AnalyticsChart
           title="Top Pages"
           description="Page-level visibility"

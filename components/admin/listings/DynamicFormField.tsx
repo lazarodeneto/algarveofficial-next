@@ -25,6 +25,31 @@ interface DynamicFormFieldProps {
   disabled?: boolean;
 }
 
+function normalizeStringArrayValue(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value
+      .flatMap((item) => normalizeStringArrayValue(item))
+      .filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed ? [trimmed] : [];
+  }
+
+  if (value && typeof value === "object") {
+    return Object.values(value)
+      .flatMap((item) =>
+        Array.isArray(item) || typeof item === "string"
+          ? normalizeStringArrayValue(item)
+          : [],
+      )
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
 export function DynamicFormField({
   field,
   value,
@@ -92,7 +117,7 @@ export function DynamicFormField({
         );
 
       case "multiselect": {
-        const selectedValues = (value as string[]) ?? [];
+        const selectedValues = normalizeStringArrayValue(value);
         return (
           <div className="space-y-2">
             <div className="flex flex-wrap gap-2 min-h-[40px] p-2 rounded-md border border-input bg-background">
@@ -161,7 +186,7 @@ export function DynamicFormField({
       case "tags":
         return (
           <TagInput
-            value={(value as string[]) ?? []}
+            value={normalizeStringArrayValue(value)}
             onChange={onChange}
             placeholder={field.placeholder}
             disabled={disabled}

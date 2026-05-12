@@ -98,4 +98,14 @@ describe("BrandLogo", () => {
       "/algarveofficial-icon-black.png",
     );
   });
+
+  it("allows overriding the official wordmark segment for hero overlays", () => {
+    mockState.hydrated = true;
+    mockState.resolvedTheme = "light";
+    mockState.settings = null;
+
+    render(<BrandLogo showIcon={false} asLink={false} officialClassName="text-white" />);
+
+    expect(screen.getByText("Official")).toHaveClass("text-white");
+  });
 });

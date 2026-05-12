@@ -1,8 +1,7 @@
 /* eslint-disable no-console */
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { SUPPORTED_LOCALES } from "@/lib/i18n/config";
-import { getPublicEventCutoffDate } from "@/lib/events/publicVisibility";
-import { localizeEvents } from "@/lib/events/i18n";
+import { getPublicEvents } from "@/lib/public-data/events";
 
 const DEFAULT_SITE_URL = "https://algarveofficial.com";
 const SITE_NAME = "AlgarveOfficial";
@@ -54,22 +53,7 @@ async function getBlogPosts() {
 }
 
 async function getEvents(locale: string) {
-  const supabase = createPublicServerClient();
-  const { data, error } = await supabase
-    .from("events")
-    .select("slug, title, description, image, start_date, end_date, location, venue, updated_at")
-    .eq("status", "published")
-    .not("slug", "is", null)
-    .gte("end_date", getPublicEventCutoffDate())
-    .order("start_date", { ascending: true })
-    .limit(50);
-
-  if (error) {
-    console.error("[feed] Failed to fetch events", error);
-    return [];
-  }
-
-  return localizeEvents(data ?? [], locale);
+  return getPublicEvents({ locale, timeFilter: "upcoming", limit: 50 });
 }
 
 export const revalidate = 3600;
@@ -108,9 +92,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ loca
     const eventUrl = `${baseUrl}/events/${event.slug}`;
     const startDate = formatRssDate(event.start_date);
     const lastMod = formatRssDate(event.updated_at);
-    const locationName = event.location ?? event.venue;
+    const locationName = event.venueLabel;
     const location = locationName ? `<location>${escapeXml(locationName)}</location>` : "";
-    const image = event.image ? `<image>${escapeXml(event.image)}</image>` : "";
+    const image = event.imageUrl ? `<image>${escapeXml(event.imageUrl)}</image>` : "";
 
     items.push(`    <item>
       <title>${escapeXml(event.title)}</title>

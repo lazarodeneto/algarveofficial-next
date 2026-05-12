@@ -2,7 +2,16 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { PremiumAccommodationLayout } from "./PremiumAccommodationLayout";
+import { BeachesLayout } from "./BeachesLayout";
 import { ShoppingLayout } from "./ShoppingLayout";
+
+vi.mock("@/hooks/useLocalePath", () => ({
+  useLocalePath: () => (href: unknown) => (typeof href === "string" ? href : "/listing/test"),
+}));
+
+vi.mock("@/components/ListingImage", () => ({
+  default: ({ alt }: { alt?: string }) => <img alt={alt ?? ""} />,
+}));
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -45,5 +54,40 @@ describe("category-specific listing layouts", () => {
     expect(screen.getByText("categoryLayouts.accommodation.highlights")).toBeInTheDocument();
     expect(screen.getByText("Villa")).toBeInTheDocument();
     expect(screen.getByText("5 stars")).toBeInTheDocument();
+  });
+
+  it("renders the beach detail order with expandable description and nearby listings", () => {
+    render(
+      <BeachesLayout
+        details={{
+          highlights: ["Cliff views"],
+          what_to_bring: ["Water"],
+        }}
+        fallbackDescription={`${"A scenic beach description. ".repeat(30)}`}
+        listingName="Praia Teste"
+        cityName="Lagoa"
+        tags={["cliffs"]}
+        latitude={37.09}
+        longitude={-8.41}
+        nearbyListings={[
+          {
+            id: "nearby-1",
+            slug: "nearby-beach",
+            name: "Nearby Beach",
+            featured_image_url: null,
+            city: { name: "Lagoa" },
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("categoryLayouts.beach.highlights")).toBeInTheDocument();
+    expect(screen.getByText("Cliff views")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "categoryLayouts.beach.seeMore" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+    expect(screen.getByText("Nearby Beach")).toBeInTheDocument();
+    expect(screen.getByText("categoryLayouts.beach.relatedBeachTags")).toBeInTheDocument();
   });
 });

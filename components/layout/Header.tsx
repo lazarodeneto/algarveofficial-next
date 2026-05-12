@@ -22,13 +22,10 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { BrandLogo } from "@/components/ui/brand-logo";
-import { HeaderNav } from "./HeaderNav";
+import { HeaderCompactNav, HeaderMegaMenu, MobileMegaMenuSections } from "./HeaderMegaMenu";
 import { HeaderWeatherPill } from "./HeaderWeatherPill";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { stripLocaleFromPathname } from "@/lib/i18n/routing";
-import { useMobileChromeScrollState } from "@/hooks/useMobileChromeScrollState";
-import { PUBLIC_NAV_ICONS } from "@/components/layout/public-nav-icons";
-import { PUBLIC_SIDEBAR_NAV_ITEMS } from "@/lib/navigation/nav-items";
 
 function Link(props: ComponentProps<typeof NextLink>) {
   return <NextLink prefetch={false} {...props} />;
@@ -55,6 +52,8 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const isLeftSidebarActive = !SIDEBAR_EXCLUDED_PREFIXES.some((prefix) =>
     barePath.startsWith(prefix),
   );
+  const isHomepage = barePath === "/";
+  const headerWeatherLocation = "faro";
 
   const loginPath = l("/login");
   const favoritesPath = isAuthenticated ? l("/dashboard/favorites") : loginPath;
@@ -63,13 +62,13 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const messagesPath = isAuthenticated ? l("/dashboard/messages") : loginPath;
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim();
   const userInitial = (fullName.charAt(0) || user?.email?.trim().charAt(0) || "U").toUpperCase();
-  const accountGoldButtonClass = "rounded-full";
+  const headerIconMotionClass = "hover:translate-y-0 active:translate-y-0";
+  const accountGoldButtonClass = `rounded-full ${headerIconMotionClass}`;
   const adminDashboardAriaLabel = "Admin Dashboard";
 
   // Search modal state (local to Header)
   const [searchOpen, setSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { isUserScrolling } = useMobileChromeScrollState();
 
   // Mirror mobile menu state to DOM for CSS failsafe (production caching workaround)
   useEffect(() => {
@@ -78,6 +77,19 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
       delete document.documentElement.dataset.mobileMenuOpen;
     };
   }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    const desktopQuery = window.matchMedia("(min-width: 1180px)");
+    const closeWideMenu = () => {
+      if (desktopQuery.matches) setMobileMenuOpen(false);
+    };
+
+    closeWideMenu();
+    desktopQuery.addEventListener("change", closeWideMenu);
+    return () => {
+      desktopQuery.removeEventListener("change", closeWideMenu);
+    };
+  }, [setMobileMenuOpen]);
 
   // Body scroll lock when mobile menu is open (fixes Opera Mobile viewport quirks)
   useEffect(() => {
@@ -148,14 +160,12 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
       {searchOpen ? <CommandSearch open={searchOpen} onOpenChange={setSearchOpen} /> : null}
 
       <header
-        className={`site-header fixed top-0 left-0 right-0 z-50 transition-all duration-300 transition-transform ease-out lg:left-20 ${isUserScrolling && !mobileMenuOpen
-          ? "-translate-y-[calc(100%+env(safe-area-inset-top))] duration-200 lg:translate-y-0"
-          : ""}`}
+        className="site-header fixed top-0 left-0 right-0 z-50 transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300 ease-out lg:left-20"
       >
         <div
           className={`absolute inset-0 transition-all duration-300 ${isScrolled
-            ? "border-b border-black/8 bg-[hsl(var(--background)/0.96)] shadow-[0_18px_48px_-38px_rgba(15,23,42,0.35)] backdrop-blur-2xl dark:border-white/10 dark:bg-[hsl(var(--background)/0.78)]"
-            : "border-b border-transparent bg-[hsl(var(--background)/0.88)] backdrop-blur-xl dark:bg-[hsl(var(--background)/0.55)]"
+            ? "border-b border-transparent bg-transparent shadow-none backdrop-blur-none lg:border-black/8 lg:bg-[hsl(var(--background)/0.96)] lg:shadow-[0_18px_48px_-38px_rgba(15,23,42,0.35)] lg:backdrop-blur-2xl dark:lg:border-white/10 dark:lg:bg-[hsl(var(--background)/0.78)]"
+            : "border-b border-transparent bg-transparent backdrop-blur-none lg:bg-[hsl(var(--background)/0.88)] lg:backdrop-blur-xl dark:lg:bg-[hsl(var(--background)/0.55)]"
             }`}
         />
 
@@ -164,7 +174,12 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
             {/* Logo */}
             <div className="flex-shrink-0 min-w-0 overflow-hidden lg:max-w-[10.25rem] min-[1440px]:mr-3 min-[1440px]:max-w-[14.5rem] 2xl:mr-5 2xl:max-w-none">
               <div className="lg:hidden">
-                <BrandLogo size="md" showIcon className="whitespace-nowrap" />
+                <BrandLogo
+                  size="md"
+                  showIcon
+                  className="whitespace-nowrap"
+                  officialClassName={isHomepage && !isScrolled ? "text-white" : undefined}
+                />
               </div>
               <div className="hidden items-center justify-center lg:flex min-[1440px]:hidden">
                 <BrandLogo
@@ -179,21 +194,23 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
               </div>
             </div>
 
+            <HeaderCompactNav />
+
             {/* Primary Navigation */}
-            <div className="hidden min-[1440px]:flex min-[1440px]:min-w-0 min-[1440px]:flex-1 min-[1440px]:items-center min-[1440px]:justify-start">
-              <HeaderNav />
+            <div className="hidden min-w-0 flex-1 items-center justify-start min-[1180px]:flex">
+              <HeaderMegaMenu />
             </div>
 
             {/* Laptop Actions (1024-1359): compact utility row */}
-            <div className="ml-auto hidden shrink-0 items-center gap-1.5 lg:flex min-[1440px]:hidden">
-              <HeaderWeatherPill compact />
-
+            <div className="ml-auto hidden shrink-0 items-center gap-1.5 min-[1180px]:flex min-[1440px]:hidden">
               <div className="flex items-center gap-0.5 rounded-full border border-black/10 bg-white/82 px-1 py-1 shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
+                <HeaderWeatherPill compact embedded location={headerWeatherLocation} />
+
                 <Link href={favoritesPath}>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
+                    className={`h-8 w-8 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary ${headerIconMotionClass}`}
                     aria-label={t("nav.saved")}
                   >
                     <Heart className="h-4 w-4" />
@@ -204,7 +221,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
+                  className={`h-8 w-8 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary ${headerIconMotionClass}`}
                   onClick={() => setSearchOpen(true)}
                   aria-label={t("nav.search")}
                 >
@@ -249,15 +266,15 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
 
             {/* Desktop Actions */}
             <div className="hidden min-[1440px]:flex min-[1440px]:shrink-0 min-[1440px]:items-center min-[1440px]:gap-2 2xl:gap-3">
-              <HeaderWeatherPill />
-
-              {/* Saved */}
               <div className="flex items-center gap-1 rounded-full border border-black/10 bg-white/82 px-2 py-1.5 shadow-[0_16px_36px_-30px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
+                <HeaderWeatherPill embedded location={headerWeatherLocation} />
+
+                {/* Saved */}
                 <Link href={favoritesPath}>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-9 w-9 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
+                    className={`h-9 w-9 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary ${headerIconMotionClass}`}
                     aria-label={t("nav.saved")}
                   >
                     <Heart className="h-4.5 w-4.5" />
@@ -268,7 +285,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary"
+                  className={`h-9 w-9 rounded-full text-foreground transition-colors hover:bg-black/5 hover:text-primary dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-primary ${headerIconMotionClass}`}
                   onClick={() => setSearchOpen(true)}
                   aria-label={t("nav.search")}
                 >
@@ -288,7 +305,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-9 w-9 rounded-full border border-primary/25 bg-primary/12 text-primary hover:bg-primary/18 dark:border-primary/30 dark:bg-primary/18"
+                          className={`h-9 w-9 rounded-full border border-primary/25 bg-primary/12 text-primary hover:bg-primary/18 dark:border-primary/30 dark:bg-primary/18 ${headerIconMotionClass}`}
                           aria-label={adminDashboardAriaLabel}
                         >
                           <Settings2 className="h-4.5 w-4.5" />
@@ -326,31 +343,18 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
               </div>
             </div>
 
-            {/* Laptop menu button */}
-            <div className="hidden items-center lg:flex min-[1440px]:hidden">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-10 w-10 rounded-full border border-black/10 bg-white/80 text-foreground shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10 dark:text-white/85"
-                aria-label={mobileMenuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                {mobileMenuOpen ? <X className="h-6 w-6" /> : <AlignJustify className="h-6 w-6" />}
-              </Button>
-            </div>
-
             {/* Mobile menu button */}
-            <div className="lg:hidden ml-auto flex items-center gap-1 sm:gap-3">
+            <div className="ml-auto flex items-center gap-1 sm:gap-3 min-[1180px]:hidden">
               <LanguageSwitcher
                 localeSwitchPaths={localeSwitchPaths}
-                containerClassName="hidden md:flex lg:hidden min-w-0"
+                containerClassName="hidden md:flex min-[1180px]:hidden min-w-0"
                 selectClassName="h-10 w-[10.5rem] rounded-full border-black/10 bg-white/80 px-3 py-2 text-sm text-black shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white dark:text-black"
               />
               <Link href={favoritesPath}>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-10 w-10 rounded-full border border-black/10 bg-white/80 text-foreground shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10 dark:text-white/85"
+                  className={`h-10 w-10 rounded-full border border-black/10 bg-white/80 text-foreground shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10 dark:text-white/85 ${headerIconMotionClass}`}
                   aria-label={t("nav.saved")}
                 >
                   <Heart className="h-5 w-5 sm:h-5 sm:w-5" />
@@ -359,7 +363,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 rounded-full border border-black/10 bg-white/80 text-foreground shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10 dark:text-white/85"
+                className={`h-10 w-10 rounded-full border border-black/10 bg-white/80 text-foreground shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10 dark:text-white/85 ${headerIconMotionClass}`}
                 aria-label={mobileMenuOpen ? t("nav.closeMenu") : t("nav.openMenu")}
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
@@ -374,7 +378,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
             <>
               {/* Backdrop overlay */}
               <div
-                className="fixed inset-0 z-[130] bg-black/50 backdrop-blur-sm animate-in fade-in duration-150 lg:left-20 min-[1440px]:hidden"
+                className="fixed inset-0 z-[130] bg-black/50 backdrop-blur-sm animate-in fade-in duration-150 min-[1180px]:hidden"
                 onClick={() => setMobileMenuOpen(false)}
                 aria-hidden="true"
               />
@@ -382,7 +386,10 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
               {/* Mobile menu panel */}
               <div
                 data-mobile-menu-expanded="true"
-                className="fixed bottom-0 left-0 right-0 top-0 z-[140] overflow-y-auto bg-background/95 text-foreground backdrop-blur-2xl dark:bg-background/70 touch-pan-y animate-in fade-in slide-in-from-top-3 duration-200 lg:left-20 min-[1440px]:hidden"
+                role="dialog"
+                aria-modal="true"
+                aria-label={t("nav.mobilePrimary")}
+                className="fixed bottom-0 left-0 right-0 top-0 z-[140] overflow-y-auto bg-background/95 text-foreground backdrop-blur-2xl dark:bg-background/70 touch-pan-y animate-in fade-in slide-in-from-top-3 duration-200 min-[1180px]:hidden"
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
@@ -409,30 +416,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                   </div>
                   <div className="flex min-h-full flex-col">
 
-                    <div className="w-full rounded-sm border border-black/10 bg-white/66 px-2 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
-                      {PUBLIC_SIDEBAR_NAV_ITEMS.map((item, index) => {
-                        const Icon = PUBLIC_NAV_ICONS[item.labelKey];
-                        const label = t(item.labelKey, item.fallbackLabel);
-
-                        if (!Icon) return null;
-
-                        return (
-                          <div
-                            key={item.href}
-                            className={`mx-3 ${index > 0 ? "border-t border-primary/15" : ""}`}
-                          >
-                            <Link
-                              href={l(item.href)}
-                              onClick={() => setMobileMenuOpen(false)}
-                              className="flex items-center gap-3 py-4 text-xl font-bold uppercase tracking-widest"
-                            >
-                              <Icon className="h-6 w-6 text-primary" />
-                              {label}
-                            </Link>
-                          </div>
-                        );
-                      })}
-                  </div>
+                    <MobileMegaMenuSections onNavigate={() => setMobileMenuOpen(false)} />
 
                     <div className="mt-4 rounded-sm border border-black/10 bg-white/66 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
                       <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">

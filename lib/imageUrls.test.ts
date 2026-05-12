@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://example.supabase.co");
 
-import { normalizePublicImageUrl, resolveSupabaseBucketImageUrl } from "./imageUrls";
+import { addImageVersion, normalizePublicImageUrl, resolveSupabaseBucketImageUrl } from "./imageUrls";
 
 describe("imageUrls", () => {
   it("normalizes relative Supabase storage paths into absolute URLs", () => {
@@ -21,6 +21,12 @@ describe("imageUrls", () => {
     expect(
       resolveSupabaseBucketImageUrl("https://cdn.example.com/image.webp", "listing-images"),
     ).toBe("https://cdn.example.com/image.webp");
+  });
+
+  it("does not append cache-busting query strings to app-local public assets", () => {
+    expect(addImageVersion("/images/fallbacks/AlgarveOfficial-transportation.png", "2026-05-12")).toBe(
+      "/images/fallbacks/AlgarveOfficial-transportation.png",
+    );
   });
 
   it("blocks known broken public image hosts so listing cards can use fallbacks", () => {

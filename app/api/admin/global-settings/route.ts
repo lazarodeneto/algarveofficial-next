@@ -1,11 +1,21 @@
 /* eslint-disable no-console */
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 import type { Database } from "@/integrations/supabase/types";
 import { normalizeCmsImageFieldsInValue } from "@/lib/cms/image-source";
-import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
-import { resolveLocaleFromAcceptLanguage } from "@/lib/i18n/config";
+import {
+  CMS_GLOBAL_SETTING_KEYS,
+  CMS_PAGE_DEFINITION_MAP,
+} from "@/lib/cms/pageBuilderRegistry";
+import {
+  addLocaleToPathname,
+  DEFAULT_LOCALE,
+  isValidLocale,
+  resolveLocaleFromAcceptLanguage,
+  SUPPORTED_LOCALES,
+  type Locale,
+} from "@/lib/i18n/config";
 import { syncCmsDocumentsFromGlobalSettings } from "@/lib/cms/server-persistence";
 import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
 import { revalidateHomepageRoutes } from "@/lib/server/revalidate-homepage";
@@ -28,11 +38,33 @@ const CMS_TAG_MAP: Record<string, string> = {
   live: "cms:live",
   "real-estate": "cms:real-estate",
   directory: "cms:directory",
+  beaches: "cms:beaches",
   events: "cms:events",
   stay: "cms:stay",
   map: "cms:map",
   invest: "cms:invest",
+  properties: "cms:properties",
+  contact: "cms:contact",
 };
+
+function getRevalidatablePaths(pageId: string, locale: string) {
+  const path = CMS_PAGE_DEFINITION_MAP[pageId]?.path;
+  if (!path || path.includes(":")) return [];
+
+  const normalizedLocale: Locale = isValidLocale(locale) ? locale : DEFAULT_LOCALE;
+  const paths = new Set<string>([addLocaleToPathname(path, normalizedLocale)]);
+
+  if (normalizedLocale === DEFAULT_LOCALE) {
+    const normalizedPath = path === "/" ? "" : path;
+    paths.add(normalizedPath || "/");
+    paths.add(`/${DEFAULT_LOCALE}${normalizedPath}`);
+    for (const supportedLocale of SUPPORTED_LOCALES) {
+      paths.add(addLocaleToPathname(path, supportedLocale as Locale));
+    }
+  }
+
+  return Array.from(paths);
+}
 
 async function revalidateCmsPages(settings: GlobalSettingsWriteItem[]) {
   const pageConfigsSetting = settings.find(
@@ -44,11 +76,13 @@ async function revalidateCmsPages(settings: GlobalSettingsWriteItem[]) {
   try {
     const parsed = JSON.parse(pageConfigsSetting.value);
     const pageIds = Object.keys(parsed);
+    const locale = pageConfigsSetting.locale ?? "default";
 
     for (const pageId of pageIds) {
-      const tag = CMS_TAG_MAP[pageId];
-      if (tag) {
-        revalidateTag(tag, "max");
+      revalidateTag(CMS_TAG_MAP[pageId] ?? `cms:${pageId}`, "max");
+
+      for (const path of getRevalidatablePaths(pageId, locale)) {
+        revalidatePath(path);
       }
     }
   } catch {

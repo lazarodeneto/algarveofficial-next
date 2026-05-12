@@ -15,6 +15,20 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+function getObjectMetadata(
+  event: { data?: { object?: unknown } },
+): { owner_id?: string | null; userId?: string | null; listing_id?: string | null } | null {
+  if (typeof event.data?.object !== "object" || event.data.object === null) return null;
+  const metadata = (event.data.object as {
+    metadata?: {
+      owner_id?: string | null;
+      userId?: string | null;
+      listing_id?: string | null;
+    } | null;
+  }).metadata;
+  return metadata ?? null;
+}
+
 export async function POST(request: NextRequest) {
   const stripe = getStripeServerClient();
   const webhookSecret = getStripeWebhookSecret();
@@ -56,19 +70,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
-    const metadataOwnerId =
-      typeof event.data.object === "object" && event.data.object !== null
-        ? ((event.data.object as { metadata?: { owner_id?: string | null; userId?: string | null } | null })
-            .metadata?.owner_id ??
-          (event.data.object as { metadata?: { owner_id?: string | null; userId?: string | null } | null })
-            .metadata?.userId ??
-          null)
-        : null;
+    const metadata = getObjectMetadata(event);
+    const metadataOwnerId = metadata?.owner_id ?? metadata?.userId ?? null;
+    const metadataListingId = metadata?.listing_id?.trim() || null;
 
     const previousOwnerId = metadataOwnerId;
     const previous = previousOwnerId ? await findByOwner(supabase, previousOwnerId) : null;
     const result = await handler(stripe, supabase, event);
     const ownerId = result.ownerId ?? previousOwnerId;
+    const listingId = result.listingId ?? metadataListingId;
     const next = ownerId ? await findByOwner(supabase, ownerId) : null;
 
     await logSubscriptionMutation(supabase, {
@@ -80,7 +90,11 @@ export async function POST(request: NextRequest) {
     });
 
     if (ownerId && next && !result.skipped) {
-      await applyTierToListings(supabase, ownerId, next);
+      if (listingId) {
+        await applyTierToListings(supabase, ownerId, next, listingId);
+      } else {
+        await applyTierToListings(supabase, ownerId, next);
+      }
     }
 
     await markEvent(supabase, event.id, result.skipped ? "skipped" : "success");

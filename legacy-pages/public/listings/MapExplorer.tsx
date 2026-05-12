@@ -29,6 +29,7 @@ import { useCategories, useCities, useRegions } from "@/hooks/useReferenceData";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { translateCategoryName } from "@/lib/translateCategory";
+import { buildListingHref } from "@/lib/public-route-builders";
 import {
   buildMergedCategoryOptions,
   getMergedCategoryBySlug,
@@ -238,7 +239,7 @@ function MapExplorerContent() {
             featuredImageUrl: listing.featured_image_url,
             priceFrom: listing.price_from,
             priceCurrency: listing.price_currency,
-            href: l(`/listing/${listing.slug}`),
+            href: l(buildListingHref({ slug: listing.slug, id: listing.id })),
           } satisfies MapListingPoint;
         })
         .filter((point): point is MapListingPoint => point !== null),
@@ -504,15 +505,10 @@ function MapExplorerContent() {
                       <Link
                         key={listing.id}
                         id={`listing-${listing.id}`}
-                        href={l(`/listing/${listing.slug}`)}
+                        href={l(buildListingHref({ slug: listing.slug, id: listing.id }))}
                         onMouseEnter={() => setActiveId(listing.id)}
                         onMouseLeave={() => setActiveId(null)}
                         onFocus={() => setActiveId(listing.id)}
-                        onClick={(event) => {
-                          if (window.innerWidth < 1024) return;
-                          event.preventDefault();
-                          setActiveId(listing.id);
-                        }}
                         className={`group flex gap-3 rounded-2xl border bg-card p-3 transition-[border-color,box-shadow,background-color] duration-200 ${
                           isSelected
                             ? "border-primary/80 bg-card shadow-lg shadow-primary/10"
@@ -612,6 +608,7 @@ function MapExplorerContent() {
                       scrollWheelZoom
                       activeListingId={activeId}
                       focusListingId={activeId}
+                      navigateOnMarkerClick
                       onListingSelect={setActiveId}
                       onBoundsChange={handleBoundsChange}
                       mapClassName="h-[calc(100vh-13rem)] min-h-[560px]"

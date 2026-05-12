@@ -35,6 +35,7 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
+import { OwnerWorkspaceSwitcher } from "@/components/admin/OwnerWorkspaceSwitcher";
 import { cn } from "@/lib/utils";
 import { invokeFunctionWithAuthRetry } from "@/lib/supabaseFunctionInvoke";
 import { useAdminChatThreads, useAdminSendMessage } from "@/hooks/useAdminChat";
@@ -91,6 +92,39 @@ interface BillingCreateInvoiceResponse {
 
 type OwnerSort = OwnerCrmSummarySort;
 type OwnerStatusFilter = OwnerCrmSummaryStatusFilter;
+
+interface BusinessClaimsSummaryResponse {
+  ok?: boolean;
+  claims?: {
+    total?: number;
+  };
+  error?: {
+    message?: string;
+  };
+}
+
+async function fetchPendingBusinessClaimsSummary() {
+  const params = new URLSearchParams({
+    status: "pending",
+    selectedTier: "all",
+    verificationMethod: "all",
+    page: "1",
+    pageSize: "1",
+  });
+
+  const response = await fetch(`/api/admin/business-claims?${params}`, {
+    cache: "no-store",
+  });
+  const body = (await response.json().catch(() => null)) as BusinessClaimsSummaryResponse | null;
+
+  if (!response.ok || body?.ok !== true) {
+    throw new Error(body?.error?.message ?? "Failed to load business claim summary.");
+  }
+
+  return {
+    pending: Number(body.claims?.total ?? 0),
+  };
+}
 
 function formatInvoiceAmount(value: number, currency: string | null) {
   return new Intl.NumberFormat("en-US", {
@@ -360,6 +394,16 @@ export default function AdminOwnerCRM() {
       },
     [ownerSummariesPage?.metrics],
   );
+  const {
+    data: businessClaimsSummary,
+    isFetching: businessClaimsSummaryFetching,
+    isError: businessClaimsSummaryError,
+  } = useQuery({
+    queryKey: ["admin-owner-crm-business-claims-summary"],
+    queryFn: fetchPendingBusinessClaimsSummary,
+    staleTime: 0,
+    refetchOnReconnect: true,
+  });
   const ownerTotalCount = ownerSummariesPage?.totalCount || 0;
   const ownerTotalPages = Math.max(ownerSummariesPage?.totalPages || 1, 1);
 
@@ -544,6 +588,12 @@ export default function AdminOwnerCRM() {
   const subscribedOwnersCount = ownerSummaryMetrics.subscribedOwners;
   const attentionOwnersCount = ownerSummaryMetrics.attentionOwners;
   const ownersWithMessagesCount = ownerSummaryMetrics.ownersWithMessages;
+  const pendingBusinessClaims = businessClaimsSummary?.pending ?? 0;
+  const businessClaimsBadge = businessClaimsSummaryError
+    ? "Setup needed"
+    : businessClaimsSummaryFetching && !businessClaimsSummary
+      ? "Checking..."
+      : `${pendingBusinessClaims} pending`;
 
   const overdueInvoices = invoices.filter((invoice) => {
     const overdueOpen = invoice.status === "open" && !!invoice.due_date && invoice.due_date * 1000 < nowMs;
@@ -663,7 +713,21 @@ export default function AdminOwnerCRM() {
           </div>
         </div>
         <CardContent className={cn(compactMode ? "pt-4" : "pt-5")}>
-          <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
+          <OwnerWorkspaceSwitcher
+            active="crm"
+            compact={compactMode}
+            ownerBadge={`${ownerSummaryMetrics.totalOwners} owners`}
+            claimsBadge={businessClaimsBadge}
+            claimsBadgeTone={
+              businessClaimsSummaryError
+                ? "destructive"
+                : pendingBusinessClaims > 0
+                  ? "warning"
+                  : "default"
+            }
+          />
+
+          <div className={cn("grid gap-3 sm:grid-cols-2 2xl:grid-cols-4", compactMode ? "mt-3" : "mt-4")}>
             <MetricTile
               title="Owners"
               value={ownerSummaryMetrics.totalOwners}

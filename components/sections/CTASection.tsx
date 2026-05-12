@@ -25,7 +25,7 @@ export function CTASection({
   return (
     <section className="bg-background py-16 sm:py-20 lg:py-24">
       <div className="app-container content-max">
-        <div className="grid overflow-hidden rounded-lg border border-black/5 bg-white shadow-soft-surface transition-all duration-300 ease-out motion-reduce:transition-none hover:shadow-card-hover lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="grid overflow-hidden rounded-lg border border-border/70 bg-card text-card-foreground shadow-soft-surface transition-all duration-300 ease-out motion-reduce:transition-none hover:shadow-card-hover dark:border-white/12 dark:bg-[hsl(var(--card)/0.92)] lg:grid-cols-[1.1fr_0.9fr]">
           {/* Left: text panel */}
           <div className="flex flex-col justify-center p-6 text-center sm:p-8 lg:p-12 lg:text-left">
             <div className="mx-auto mb-5 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-primary lg:mx-0">
@@ -44,7 +44,7 @@ export function CTASection({
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <Link
                 href={`${l("/")}#signature-collection`}
-                className="group rounded-sm border border-border/70 bg-background/80 p-4 text-left transition-all duration-200 hover:border-primary/45 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
+                className="group rounded-sm border border-border/70 bg-background/80 p-4 text-left transition-all duration-200 hover:border-primary/45 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 dark:border-white/[0.14] dark:bg-white/[0.08] dark:hover:bg-primary/10"
               >
                 <UserRound className="mx-auto h-5 w-5 text-primary lg:mx-0" strokeWidth={1.8} />
                 <h3 className="mt-3 text-sm font-semibold text-foreground">
@@ -56,7 +56,7 @@ export function CTASection({
               </Link>
               <Link
                 href={l("/partner")}
-                className="group rounded-sm border border-border/70 bg-background/80 p-4 text-left transition-all duration-200 hover:border-primary/45 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
+                className="group rounded-sm border border-border/70 bg-background/80 p-4 text-left transition-all duration-200 hover:border-primary/45 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 dark:border-white/[0.14] dark:bg-white/[0.08] dark:hover:bg-primary/10"
               >
                 <Building2 className="mx-auto h-5 w-5 text-primary lg:mx-0" strokeWidth={1.8} />
                 <h3 className="mt-3 text-sm font-semibold text-foreground">
@@ -83,6 +83,7 @@ export function CTASection({
                 asChild
               >
                 <Link href={l(secondaryHref)}>
+                  <Building2 className="mr-1.5 h-4 w-4" strokeWidth={1.8} />
                   {cmsText(copy?.secondaryCtaLabel, t("sections.homepage.cta.secondaryButton"))}
                 </Link>
               </Button>
@@ -106,8 +107,8 @@ export function CTASection({
               quality={56}
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-white/60 via-white/20 to-transparent lg:from-white/40" />
-            <div className="absolute inset-0 bg-gradient-to-t from-white/40 to-transparent lg:hidden" />
+            <div className="absolute inset-0 bg-gradient-to-r from-card/70 via-card/25 to-transparent dark:from-card/72 dark:via-card/20 lg:from-card/45 dark:lg:from-card/62" />
+            <div className="absolute inset-0 bg-gradient-to-t from-card/45 to-transparent dark:from-card/72 lg:hidden" />
           </div>
         </div>
       </div>

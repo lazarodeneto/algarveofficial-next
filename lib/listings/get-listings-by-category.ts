@@ -1,6 +1,27 @@
 import { createClient } from "@/lib/supabase/server";
 import { applyRanking } from "./applyRanking";
 import type { ListingCard } from "./get-featured-listings";
+import { getPublicListingsByCategory } from "@/lib/public-data";
+import type { PublicListingDTO } from "@/lib/public-data";
+
+type RankableListingCard = ListingCard & { created_at: string };
+
+function toListingCard(listing: PublicListingDTO): RankableListingCard {
+  return {
+    id: listing.id,
+    name: listing.name,
+    slug: listing.slug,
+    city_id: listing.cityId,
+    category_id: listing.categoryId,
+    tier: listing.tier,
+    featured_image_url: listing.imageUrl,
+    created_at: listing.createdAt ?? listing.updatedAt ?? "",
+    short_description: listing.shortDescription,
+    city_name: listing.city?.name,
+    city_slug: listing.city?.slug,
+    category_name: listing.category?.name,
+  };
+}
 
 async function enrichListings(listings: ListingCard[]): Promise<ListingCard[]> {
   if (!listings.length) return [];
@@ -26,26 +47,11 @@ async function enrichListings(listings: ListingCard[]): Promise<ListingCard[]> {
 }
 
 export async function getListingsByCategory(categorySlug: string, limit = 6): Promise<ListingCard[]> {
-  const supabase = await createClient();
-
-  const { data: category } = await supabase
-    .from("categories")
-    .select("id")
-    .eq("slug", categorySlug)
-    .single();
-
-  if (!category) return [];
-
-  const { data: listings, error } = await supabase
-    .from("listings")
-    .select("id, name, slug, city_id, category_id, tier, featured_image_url, created_at, short_description")
-    .eq("status", "published")
-    .eq("category_id", category.id)
-    .order("created_at", { ascending: false })
-    .limit(50);
-
-  if (error || !listings) return [];
-  return enrichListings(applyRanking(listings).slice(0, limit));
+  const listings = await getPublicListingsByCategory(categorySlug, {
+    limit: 50,
+    includeReviewsSummary: false,
+  });
+  return applyRanking(listings.map(toListingCard)).slice(0, limit);
 }
 
 export async function getListingsByCity(citySlug: string, limit = 6): Promise<ListingCard[]> {

@@ -128,4 +128,64 @@ describe("cms runtime resolver", () => {
     const pageConfigs = JSON.parse(settings[CMS_GLOBAL_SETTING_KEYS.pageConfigs]);
     expect(pageConfigs.experiences.blocks["featured-city-hub"].data.cityId).toBe("correct-city-id");
   });
+
+  it("resolves UUID document and version IDs from CMS v2 tables", () => {
+    const settings = buildCmsSettingsFromDocuments(
+      [
+        {
+          id: "a4c800a2-1f73-470b-a9a2-b7439a3e475d",
+          page_id: "beaches",
+          locale: "en",
+          block_scope: "__page__",
+          doc_type: "page_config",
+          current_version_id: "6afef504-8087-4801-91c9-cacb2f69d3af",
+        },
+      ],
+      [
+        {
+          id: "6afef504-8087-4801-91c9-cacb2f69d3af",
+          document_id: "a4c800a2-1f73-470b-a9a2-b7439a3e475d",
+          content: {
+            hero: {
+              imageUrl:
+                "https://niylxpvafywjonrphddp.supabase.co/storage/v1/object/public/media/cms/pages/beaches/hero/beaches-hero.webp",
+            },
+          },
+        },
+      ],
+      "en",
+    );
+
+    const pageConfigs = JSON.parse(settings[CMS_GLOBAL_SETTING_KEYS.pageConfigs]);
+    expect(pageConfigs.beaches.hero.imageUrl).toContain("/storage/v1/object/public/media/");
+  });
+
+  it("ignores block-scope page configs when block_id is absent", () => {
+    const settings = buildCmsSettingsFromDocuments(
+      [
+        {
+          page_id: "beaches",
+          locale: "en",
+          block_scope: "hero",
+          doc_type: "page_config",
+          current_version_id: "block-version",
+        },
+        {
+          page_id: "beaches",
+          locale: "en",
+          block_scope: "__page__",
+          doc_type: "page_config",
+          current_version_id: "page-version",
+        },
+      ],
+      [
+        { id: "block-version", content: { hero: { imageUrl: "https://example.com/wrong.webp" } } },
+        { id: "page-version", content: { hero: { imageUrl: "https://example.com/correct.webp" } } },
+      ],
+      "en",
+    );
+
+    const pageConfigs = JSON.parse(settings[CMS_GLOBAL_SETTING_KEYS.pageConfigs]);
+    expect(pageConfigs.beaches.hero.imageUrl).toBe("https://example.com/correct.webp");
+  });
 });

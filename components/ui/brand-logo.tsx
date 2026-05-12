@@ -24,6 +24,8 @@ interface BrandLogoProps {
   className?: string;
   /** Additional className for the icon */
   iconClassName?: string;
+  /** Additional className for the "Official" wordmark segment */
+  officialClassName?: string;
   /** Official icon tone */
   iconTone?: BrandLogoIconTone;
 }
@@ -58,6 +60,7 @@ export function BrandLogo({
   asLink = true,
   className,
   iconClassName,
+  officialClassName,
   iconTone = "auto",
 }: BrandLogoProps) {
   const config = sizeConfig[size];
@@ -115,7 +118,9 @@ export function BrandLogo({
         <span className={cn(config.text, "font-serif font-normal tracking-tight")}>
           <span className="brand-logo-algarve text-gradient-gold">{siteFirstWord}</span>
           {siteRestLabel ? (
-            <span className="brand-logo-official text-foreground">{siteRestLabel}</span>
+            <span className={cn("brand-logo-official text-foreground", officialClassName)}>
+              {siteRestLabel}
+            </span>
           ) : null}
         </span>
       )}

@@ -245,9 +245,9 @@ export function GolfPageClient({ locale, courses, leaderboard, pageConfig }: Gol
                   </p>
                 ) : null}
                 {showDiscoveryTitle && discoveryTitle ? (
-                  <h1 className="mt-4 font-serif text-4xl font-medium leading-tight text-foreground md:text-6xl">
+                  <h2 className="mt-4 font-serif text-4xl font-medium leading-tight text-foreground md:text-6xl">
                     {discoveryTitle}
-                  </h1>
+                  </h2>
                 ) : null}
                 {showDiscoverySubtitle && discoverySubtitle ? (
                   <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground md:text-lg">

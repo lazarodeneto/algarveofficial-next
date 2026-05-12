@@ -33,12 +33,14 @@ import {
 } from "@/components/listing/ListingDetailClient";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
+import { buildCategoryRouteData as buildPublicCategoryRouteData } from "@/lib/public-route-builders";
+import { getAllowedListingGalleryImageInputs } from "@/lib/listings/gallery-images";
 
 export const revalidate = 3600;
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://algarveofficial.com";
 
-const PUBLIC_LISTING_FIELDS = `
+const PUBLIC_LISTING_CORE_FIELDS = `
   id, slug, name, short_description, description, featured_image_url,
   price_from, price_to, price_currency, tier, is_curated, status,
   city_id, region_id, category_id, owner_id, latitude, longitude,
@@ -46,6 +48,13 @@ const PUBLIC_LISTING_FIELDS = `
   instagram_url, twitter_url, linkedin_url, youtube_url, tiktok_url,
   telegram_url, whatsapp_number, google_business_url, google_rating, google_review_count,
   tags, category_data, view_count, published_at, created_at, updated_at
+`;
+const PUBLIC_LISTING_CLAIM_FIELDS = `
+  claim_status, claimed_at, claim_verified_at, claim_verification_method
+`;
+const PUBLIC_LISTING_FIELDS = `
+  ${PUBLIC_LISTING_CORE_FIELDS},
+  ${PUBLIC_LISTING_CLAIM_FIELDS}
 `;
 
 const PUBLIC_CITY_FIELDS = "id, name, slug, short_description, image_url, latitude, longitude";
@@ -66,6 +75,19 @@ type ListingReviewRow = ListingReview & {
     avatar_url: string | null;
   } | null;
 };
+
+function applyPublicGalleryImageLimit(listing: ListingWithRelations): ListingWithRelations {
+  return {
+    ...listing,
+    images: getAllowedListingGalleryImageInputs({
+      featuredImageUrl: listing.featured_image_url,
+      galleryImages: listing.images ?? [],
+      fallbackImageUrl: listing.category?.image_url,
+      listingName: listing.name,
+      tier: listing.tier,
+    }),
+  };
+}
 
 interface ListingPageData {
   listing: ListingWithRelations;
@@ -120,6 +142,21 @@ function getLocalizedOptionalValue(
   const localized = getLocalizedValue(value);
   if (localized) return localized;
   return hasTranslation ? null : (fallback ?? null);
+}
+
+function isMissingClaimColumnError(error: unknown): boolean {
+  const supabaseError = error as { code?: string; message?: string; details?: string; hint?: string } | null;
+  if (supabaseError?.code !== "42703") return false;
+
+  const text = [
+    supabaseError.message,
+    supabaseError.details,
+    supabaseError.hint,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return /claim_status|claimed_at|claim_verified_at|claim_verification_method/i.test(text) || text.length === 0;
 }
 
 function buildListingDescription({
@@ -246,34 +283,42 @@ const getListingPageData = cache(async (locale: Locale, idOrSlug: string): Promi
     resolvedListingId = slugRow?.listing_id ?? null;
   }
 
-  let listingQuery = supabase.from("listings").select(`
-      ${PUBLIC_LISTING_FIELDS},
-      city:cities(${PUBLIC_CITY_FIELDS}),
-      region:regions(${PUBLIC_REGION_FIELDS}),
-      category:categories(${PUBLIC_CATEGORY_FIELDS}),
-      images:listing_images(id, image_url, alt_text, display_order, is_featured)
-    `);
+  const runListingQuery = async (fields: string) => {
+    let listingQuery = supabase.from("listings").select(`
+        ${fields},
+        city:cities(${PUBLIC_CITY_FIELDS}),
+        region:regions(${PUBLIC_REGION_FIELDS}),
+        category:categories(${PUBLIC_CATEGORY_FIELDS}),
+        images:listing_images(id, image_url, alt_text, display_order, is_featured)
+      `);
 
-  listingQuery = resolvedListingId
-    ? listingQuery.eq("id", resolvedListingId)
-    : listingQuery.eq("slug", idOrSlug);
+    listingQuery = resolvedListingId
+      ? listingQuery.eq("id", resolvedListingId)
+      : listingQuery.eq("slug", idOrSlug);
 
-  const listingResult =
-    (await withTimeout(
+    return (await withTimeout(
       listingQuery.maybeSingle() as unknown as Promise<{
         data: ListingWithRelations | null;
-        error: { message: string } | null;
+        error: { code?: string; message: string; details?: string; hint?: string } | null;
       }>,
       15000,
       { data: null, error: null },
     )) ?? { data: null, error: null };
+  };
+
+  let listingResult = await runListingQuery(PUBLIC_LISTING_FIELDS);
+
+  if (listingResult.error && isMissingClaimColumnError(listingResult.error)) {
+    listingResult = await runListingQuery(PUBLIC_LISTING_CORE_FIELDS);
+  }
 
   if (listingResult.error) throw listingResult.error;
 
   const listing = listingResult.data ?? null;
   if (!listing || listing.status !== "published") return null;
 
-  const canonicalSlug = listing.slug ?? listing.id;
+  const publicListing = applyPublicGalleryImageLimit(listing);
+  const canonicalSlug = publicListing.slug ?? publicListing.id;
 
   const settledResults =
     (await withTimeout(
@@ -324,7 +369,7 @@ const getListingPageData = cache(async (locale: Locale, idOrSlug: string): Promi
   if (whatsappResponse.error) throw whatsappResponse.error;
 
   return {
-    listing,
+    listing: publicListing,
     translations,
     reviews: reviews ?? [],
     relatedListings: relatedResponse.data ?? [],
@@ -409,10 +454,10 @@ export default async function LocaleListingPage({ params }: ListingPageProps) {
   const canonicalUrl = buildAbsoluteRouteUrl(resolvedLocale, routeData);
   const listingPathByLocale = buildLocaleSwitchPathsForEntity(routeData, SUPPORTED_LOCALES);
   const homeUrl = buildAbsoluteRouteUrl(resolvedLocale, buildStaticRouteData("home"));
+  const categoryRouteData = buildPublicCategoryRouteData(categorySlug);
   const categoryUrl = buildAbsoluteRouteUrl(
     resolvedLocale,
-    buildStaticRouteData("stay"),
-    categorySlug ? { query: { category: categorySlug } } : undefined,
+    categoryRouteData ?? buildStaticRouteData("stay"),
   );
   const cityRouteData = citySlug
     ? {

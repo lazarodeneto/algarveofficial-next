@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { ListingCard } from "@/components/ListingCard";
@@ -213,6 +213,7 @@ function HomepagePremiumListingsSection({ copy }: { copy?: HomeSectionCopy }) {
         <div className="mt-10 flex justify-center">
           <Button variant="gold" size="lg" asChild>
             <Link href={l("/directory")} className="gap-2">
+              <Search className="h-4 w-4" />
               {t("sections.homepage.smartSearch.cta")}
               <ArrowRight className="h-4 w-4" />
             </Link>

@@ -41,6 +41,21 @@ function invalidate() {
   revalidatePath("/[locale]/admin/inbox", "page");
 }
 
+function formatInboxSideTableError(error: { message?: string; code?: string } | null): string | null {
+  const message = error?.message ?? "";
+  const isSourceConstraintError =
+    error?.code === "23514" ||
+    message.includes("admin_inbox_archives_source_chk") ||
+    message.includes("admin_inbox_assignments_source_chk");
+
+  if (!isSourceConstraintError) return null;
+
+  return [
+    "Admin inbox action storage is out of date.",
+    "Apply supabase/migrations/20260512110500_resync_admin_inbox_side_table_sources.sql and refresh the Supabase schema cache.",
+  ].join(" ");
+}
+
 interface ActionInput {
   source: InboxSource;
   sourceRowId: string;
@@ -107,6 +122,29 @@ async function ensureAdminAssignee(client: Client, assigneeId: string): Promise<
     return { ok: false, error: "Inbox items can only be assigned to admins." };
   }
   return null;
+}
+
+async function upsertInboxArchive(
+  client: Client,
+  input: ArchiveInput,
+  archivedBy: string,
+  fallbackReason: string,
+): Promise<InboxActionResult> {
+  const { error } = await client
+    .from("admin_inbox_archives" as never)
+    .upsert(
+      {
+        source: input.source,
+        source_row_id: input.sourceRowId,
+        archived_by: archivedBy,
+        archived_at: new Date().toISOString(),
+        reason: input.reason ?? fallbackReason,
+      } as never,
+      { onConflict: "source,source_row_id" } as never,
+    );
+  if (error) return { ok: false, error: formatInboxSideTableError(error) ?? error.message };
+  invalidate();
+  return { ok: true };
 }
 
 export async function approveInboxItem(input: ActionInput): Promise<InboxActionResult> {
@@ -265,7 +303,7 @@ export async function assignInboxItem(input: AssignInput): Promise<InboxActionRe
         } as never,
         { onConflict: "source,source_row_id" } as never,
       );
-    if (error) return { ok: false, error: error.message };
+    if (error) return { ok: false, error: formatInboxSideTableError(error) ?? error.message };
     invalidate();
     return { ok: true };
   } catch (e) {
@@ -284,21 +322,7 @@ export async function archiveInboxItem(input: ArchiveInput): Promise<InboxAction
 
   const client = writeClient();
   try {
-    const { error } = await client
-      .from("admin_inbox_archives" as never)
-      .upsert(
-        {
-          source: input.source,
-          source_row_id: input.sourceRowId,
-          archived_by: auth.userId,
-          archived_at: new Date().toISOString(),
-          reason: input.reason ?? null,
-        } as never,
-        { onConflict: "source,source_row_id" } as never,
-      );
-    if (error) return { ok: false, error: error.message };
-    invalidate();
-    return { ok: true };
+    return await upsertInboxArchive(client, input, auth.userId, "archived");
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Archive failed." };
   }
@@ -312,22 +336,82 @@ export async function markInboxItemRead(input: MarkReadInput): Promise<InboxActi
 
   const client = writeClient();
   try {
+    return await upsertInboxArchive(client, input, auth.userId, input.reason ?? "marked_read");
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Mark as read failed." };
+  }
+}
+
+export async function archiveInboxNotification(input: ArchiveInput): Promise<InboxActionResult> {
+  const auth = await requireAdmin();
+  if ("error" in auth) return { ok: false, error: auth.error };
+  const invalid = validateActionInput(input);
+  if (invalid) return invalid;
+
+  const client = writeClient();
+  try {
+    return await upsertInboxArchive(client, input, auth.userId, "archived_from_list");
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Archive failed." };
+  }
+}
+
+export async function deleteInboxNotification(input: ActionInput): Promise<InboxActionResult> {
+  const auth = await requireAdmin();
+  if ("error" in auth) return { ok: false, error: auth.error };
+  const invalid = validateActionInput(input);
+  if (invalid) return invalid;
+
+  const client = writeClient();
+  try {
+    return await upsertInboxArchive(
+      client,
+      { ...input, reason: "deleted_from_inbox" },
+      auth.userId,
+      "deleted_from_inbox",
+    );
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Delete failed." };
+  }
+}
+
+export async function markInboxItemReadState(input: ActionInput): Promise<InboxActionResult> {
+  const auth = await requireAdmin();
+  if ("error" in auth) return { ok: false, error: auth.error };
+  const invalid = validateActionInput(input);
+  if (invalid) return invalid;
+
+  const client = writeClient();
+  try {
+    return await upsertInboxArchive(
+      client,
+      { ...input, reason: "read_from_list" },
+      auth.userId,
+      "read_from_list",
+    );
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Mark as read failed." };
+  }
+}
+
+export async function markInboxItemUnreadState(input: ActionInput): Promise<InboxActionResult> {
+  const auth = await requireAdmin();
+  if ("error" in auth) return { ok: false, error: auth.error };
+  const invalid = validateActionInput(input);
+  if (invalid) return invalid;
+
+  const client = writeClient();
+  try {
     const { error } = await client
       .from("admin_inbox_archives" as never)
-      .upsert(
-        {
-          source: input.source,
-          source_row_id: input.sourceRowId,
-          archived_by: auth.userId,
-          archived_at: new Date().toISOString(),
-          reason: input.reason ?? "marked_read",
-        } as never,
-        { onConflict: "source,source_row_id" } as never,
-      );
+      .delete()
+      .eq("source", input.source)
+      .eq("source_row_id", input.sourceRowId)
+      .eq("reason", "read_from_list");
     if (error) return { ok: false, error: error.message };
     invalidate();
     return { ok: true };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : "Mark as read failed." };
+    return { ok: false, error: e instanceof Error ? e.message : "Mark as unread failed." };
   }
 }

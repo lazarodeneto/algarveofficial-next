@@ -34,7 +34,14 @@ const LISTING_TIER_RULES: Record<ListingTierRuleKey, ListingTierRules> = {
 export function resolveListingTierRuleKey(
   tier: string | null | undefined,
 ): ListingTierRuleKey {
-  if (tier === "verified" || tier === "signature" || tier === "curated") return tier;
+  const normalized = String(tier ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+
+  if (normalized === "curated") return "curated";
+  if (normalized === "signature" || normalized === "signature_partner") return "signature";
+  if (normalized === "verified" || normalized === "verified_business") return "verified";
   return "unverified";
 }
 

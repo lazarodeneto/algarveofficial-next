@@ -69,6 +69,37 @@ describe("useStripeSubscription", () => {
     );
   });
 
+  it("passes listing_id when creating a listing upgrade checkout", async () => {
+    fetchMock.mockImplementation(() =>
+      jsonResponse({ url: "http://localhost/owner/upgrade/success" }),
+    );
+
+    const { result } = renderHook(() => useStripeSubscription());
+
+    await act(async () => {
+      await result.current.createCheckout("verified", "monthly", {
+        listingId: "listing-1",
+      });
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/stripe/checkout",
+      expect.objectContaining({
+        method: "POST",
+        headers: expect.objectContaining({
+          "Content-Type": "application/json",
+        }),
+        credentials: "include",
+        body: JSON.stringify({
+          tier: "verified",
+          billing_period: "monthly",
+          listing_id: "listing-1",
+        }),
+      }),
+    );
+  });
+
+
   it("returns structured API error from change-plan", async () => {
     fetchMock.mockImplementation(() =>
       jsonResponse(

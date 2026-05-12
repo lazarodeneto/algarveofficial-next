@@ -5,7 +5,7 @@ export type NavItem = {
 };
 
 export const PRIMARY_NAV_ITEMS: NavItem[] = [
-  { labelKey: "nav.stay", fallbackLabel: "Stay", href: "/stay?category=places-to-stay" },
+  { labelKey: "nav.stay", fallbackLabel: "Stay", href: "/stay" },
   { labelKey: "nav.experiences", fallbackLabel: "Experiences", href: "/experiences" },
   { labelKey: "nav.golf", fallbackLabel: "Golf", href: "/golf" },
   { labelKey: "nav.properties", fallbackLabel: "Properties", href: "/properties" },
@@ -18,10 +18,10 @@ export const PRIMARY_NAV_ITEMS: NavItem[] = [
 ];
 
 export const PUBLIC_SIDEBAR_NAV_ITEMS: NavItem[] = [
-  { labelKey: "nav.stay", fallbackLabel: "Stay", href: "/stay?category=places-to-stay" },
+  { labelKey: "nav.stay", fallbackLabel: "Stay", href: "/stay" },
   { labelKey: "nav.experiences", fallbackLabel: "Experiences", href: "/experiences" },
   { labelKey: "nav.beaches", fallbackLabel: "Beaches", href: "/beaches" },
-  { labelKey: "categories.wellnessSpas", fallbackLabel: "Wellness", href: "/stay?category=wellness-spas" },
+  { labelKey: "categories.wellnessSpas", fallbackLabel: "Wellness", href: "/category/wellness-spas" },
   { labelKey: "nav.golf", fallbackLabel: "Golf", href: "/golf" },
   { labelKey: "nav.properties", fallbackLabel: "Properties", href: "/properties" },
   { labelKey: "nav.map", fallbackLabel: "Map", href: "/map" },

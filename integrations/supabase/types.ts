@@ -352,6 +352,124 @@ export type Database = {
         }
         Relationships: []
       }
+      business_claims: {
+        Row: {
+          business_email: string | null
+          claimant_email: string
+          claimant_name: string
+          claimant_phone: string | null
+          claimant_role: string | null
+          claimant_user_id: string
+          company_website: string | null
+          confidence_score: number | null
+          created_at: string
+          id: string
+          listing_id: string
+          message: string | null
+          proof_notes: string | null
+          proof_url: string | null
+          rejection_reason: string | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          selected_tier: Database["public"]["Enums"]["business_claim_tier"]
+          status: Database["public"]["Enums"]["business_claim_status"]
+          updated_at: string
+          verification_method: string
+        }
+        Insert: {
+          business_email?: string | null
+          claimant_email: string
+          claimant_name: string
+          claimant_phone?: string | null
+          claimant_role?: string | null
+          claimant_user_id: string
+          company_website?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          listing_id: string
+          message?: string | null
+          proof_notes?: string | null
+          proof_url?: string | null
+          rejection_reason?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          selected_tier?: Database["public"]["Enums"]["business_claim_tier"]
+          status?: Database["public"]["Enums"]["business_claim_status"]
+          updated_at?: string
+          verification_method: string
+        }
+        Update: {
+          business_email?: string | null
+          claimant_email?: string
+          claimant_name?: string
+          claimant_phone?: string | null
+          claimant_role?: string | null
+          claimant_user_id?: string
+          company_website?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          listing_id?: string
+          message?: string | null
+          proof_notes?: string | null
+          proof_url?: string | null
+          rejection_reason?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          selected_tier?: Database["public"]["Enums"]["business_claim_tier"]
+          status?: Database["public"]["Enums"]["business_claim_status"]
+          updated_at?: string
+          verification_method?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_claims_claimant_user_id_fkey"
+            columns: ["claimant_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_claims_claimant_user_id_fkey"
+            columns: ["claimant_user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_claims_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_claims_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_claims_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_claims_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_recipients: {
         Row: {
           bounced_at: string | null
@@ -1920,6 +2038,247 @@ export type Database = {
           },
         ]
       }
+      listing_change_requests: {
+        Row: {
+          admin_note: string | null
+          created_at: string
+          field_name: string
+          id: string
+          listing_id: string
+          old_value: Json | null
+          owner_id: string
+          requested_value: Json | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["listing_change_request_status"]
+          updated_at: string
+        }
+        Insert: {
+          admin_note?: string | null
+          created_at?: string
+          field_name: string
+          id?: string
+          listing_id: string
+          old_value?: Json | null
+          owner_id: string
+          requested_value?: Json | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["listing_change_request_status"]
+          updated_at?: string
+        }
+        Update: {
+          admin_note?: string | null
+          created_at?: string
+          field_name?: string
+          id?: string
+          listing_id?: string
+          old_value?: Json | null
+          owner_id?: string
+          requested_value?: Json | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["listing_change_request_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_change_requests_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_change_requests_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_change_requests_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_change_requests_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_change_requests_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_change_requests_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_update_proposals: {
+        Row: {
+          audit_id: string
+          confidence_label: Database["public"]["Enums"]["listing_verification_confidence_label"]
+          created_at: string
+          field_name: string
+          id: string
+          listing_id: string
+          old_value: Json | null
+          proposed_value: Json
+          reviewed_at: string | null
+          reviewed_by: string | null
+          source_type: string | null
+          source_urls: Json
+          status: Database["public"]["Enums"]["listing_update_proposal_status"]
+          updated_at: string
+        }
+        Insert: {
+          audit_id: string
+          confidence_label?: Database["public"]["Enums"]["listing_verification_confidence_label"]
+          created_at?: string
+          field_name: string
+          id?: string
+          listing_id: string
+          old_value?: Json | null
+          proposed_value: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_type?: string | null
+          source_urls?: Json
+          status?: Database["public"]["Enums"]["listing_update_proposal_status"]
+          updated_at?: string
+        }
+        Update: {
+          audit_id?: string
+          confidence_label?: Database["public"]["Enums"]["listing_verification_confidence_label"]
+          created_at?: string
+          field_name?: string
+          id?: string
+          listing_id?: string
+          old_value?: Json | null
+          proposed_value?: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_type?: string | null
+          source_urls?: Json
+          status?: Database["public"]["Enums"]["listing_update_proposal_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_update_proposals_audit_listing_fkey"
+            columns: ["audit_id", "listing_id"]
+            isOneToOne: false
+            referencedRelation: "listing_verification_audits"
+            referencedColumns: ["id", "listing_id"]
+          },
+          {
+            foreignKeyName: "listing_update_proposals_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_update_proposals_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_update_proposals_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_update_proposals_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_verification_audits: {
+        Row: {
+          applied_data: Json
+          batch_id: string
+          confidence_label: Database["public"]["Enums"]["listing_verification_confidence_label"]
+          confidence_score: number | null
+          created_at: string
+          current_data: Json
+          id: string
+          listing_id: string
+          needs_admin_review: boolean
+          notes: string | null
+          proposed_data: Json
+          sources: Json
+          status: Database["public"]["Enums"]["listing_verification_audit_status"]
+          updated_at: string
+        }
+        Insert: {
+          applied_data?: Json
+          batch_id: string
+          confidence_label?: Database["public"]["Enums"]["listing_verification_confidence_label"]
+          confidence_score?: number | null
+          created_at?: string
+          current_data?: Json
+          id?: string
+          listing_id: string
+          needs_admin_review?: boolean
+          notes?: string | null
+          proposed_data?: Json
+          sources?: Json
+          status?: Database["public"]["Enums"]["listing_verification_audit_status"]
+          updated_at?: string
+        }
+        Update: {
+          applied_data?: Json
+          batch_id?: string
+          confidence_label?: Database["public"]["Enums"]["listing_verification_confidence_label"]
+          confidence_score?: number | null
+          created_at?: string
+          current_data?: Json
+          id?: string
+          listing_id?: string
+          needs_admin_review?: boolean
+          notes?: string | null
+          proposed_data?: Json
+          sources?: Json
+          status?: Database["public"]["Enums"]["listing_verification_audit_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_verification_audits_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_verification_audits_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listing_images: {
         Row: {
           alt_text: string | null
@@ -2074,6 +2433,10 @@ export type Database = {
           category_data: Json | null
           category_id: string
           city_id: string
+          claim_status: Database["public"]["Enums"]["listing_claim_status"]
+          claim_verified_at: string | null
+          claim_verification_method: string | null
+          claimed_at: string | null
           contact_email: string | null
           contact_phone: string | null
           created_at: string
@@ -2120,6 +2483,10 @@ export type Database = {
           category_data?: Json | null
           category_id: string
           city_id: string
+          claim_status?: Database["public"]["Enums"]["listing_claim_status"]
+          claim_verified_at?: string | null
+          claim_verification_method?: string | null
+          claimed_at?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
@@ -2166,6 +2533,10 @@ export type Database = {
           category_data?: Json | null
           category_id?: string
           city_id?: string
+          claim_status?: Database["public"]["Enums"]["listing_claim_status"]
+          claim_verified_at?: string | null
+          claim_verification_method?: string | null
+          claimed_at?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
@@ -3360,6 +3731,23 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_review_business_claim: {
+        Args: {
+          _action: string
+          _admin_note?: string
+          _claim_id: string
+          _force?: boolean
+        }
+        Returns: Json
+      }
+      admin_review_listing_change_request: {
+        Args: {
+          _action: string
+          _admin_note?: string
+          _request_id: string
+        }
+        Returns: Json
+      }
       approve_claim_and_assign_listing: {
         Args: { _claim_id: string; _listing_id: string; _reviewer_id: string }
         Returns: Json
@@ -3477,6 +3865,14 @@ export type Database = {
         | "wellness"
         | "insider-tips"
       blog_status: "draft" | "scheduled" | "published"
+      business_claim_status:
+        | "pending"
+        | "needs_more_info"
+        | "approved"
+        | "rejected"
+        | "cancelled"
+        | "disputed"
+      business_claim_tier: "free" | "verified" | "signature"
       email_campaign_status:
         | "draft"
         | "scheduled"
@@ -3502,6 +3898,12 @@ export type Database = {
         | "published"
         | "rejected"
         | "cancelled"
+      listing_change_request_status: "pending" | "approved" | "rejected"
+      listing_claim_status:
+        | "unclaimed"
+        | "claim_pending"
+        | "claimed"
+        | "disputed"
       listing_status:
         | "draft"
         | "pending_review"
@@ -3509,6 +3911,23 @@ export type Database = {
         | "rejected"
         | "archived"
       listing_tier: "unverified" | "verified" | "signature"
+      listing_update_proposal_status:
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "applied"
+      listing_verification_audit_status:
+        | "pending"
+        | "completed"
+        | "completed_with_proposals"
+        | "failed"
+        | "needs_review"
+      listing_verification_confidence_label:
+        | "unknown"
+        | "low"
+        | "medium"
+        | "high"
+        | "verified"
       message_status: "unread" | "read" | "replied" | "archived"
       translation_status:
         | "missing"
@@ -3664,6 +4083,15 @@ export const Constants = {
         "insider-tips",
       ],
       blog_status: ["draft", "scheduled", "published"],
+      business_claim_status: [
+        "pending",
+        "needs_more_info",
+        "approved",
+        "rejected",
+        "cancelled",
+        "disputed",
+      ],
+      business_claim_tier: ["free", "verified", "signature"],
       email_campaign_status: [
         "draft",
         "scheduled",
@@ -3693,6 +4121,13 @@ export const Constants = {
         "rejected",
         "cancelled",
       ],
+      listing_change_request_status: ["pending", "approved", "rejected"],
+      listing_claim_status: [
+        "unclaimed",
+        "claim_pending",
+        "claimed",
+        "disputed",
+      ],
       listing_status: [
         "draft",
         "pending_review",
@@ -3701,6 +4136,26 @@ export const Constants = {
         "archived",
       ],
       listing_tier: ["unverified", "verified", "signature"],
+      listing_update_proposal_status: [
+        "pending",
+        "approved",
+        "rejected",
+        "applied",
+      ],
+      listing_verification_audit_status: [
+        "pending",
+        "completed",
+        "completed_with_proposals",
+        "failed",
+        "needs_review",
+      ],
+      listing_verification_confidence_label: [
+        "unknown",
+        "low",
+        "medium",
+        "high",
+        "verified",
+      ],
       message_status: ["unread", "read", "replied", "archived"],
       translation_status: [
         "missing",

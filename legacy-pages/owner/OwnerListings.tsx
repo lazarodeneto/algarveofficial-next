@@ -1,10 +1,8 @@
 import { useState } from "react";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
 import { m } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
-  Edit,
   Eye,
   MoreHorizontal,
   Search,
@@ -12,6 +10,7 @@ import {
   Plus,
   ExternalLink,
   Loader2,
+  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
@@ -31,49 +30,41 @@ import {
 } from "@/components/ui/select";
 import { TierBadgeOwner } from "@/components/owner/TierBadgeOwner";
 import { StatusBadgeOwner } from "@/components/owner/StatusBadgeOwner";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { ClaimStatusBadgeOwner } from "@/components/owner/ClaimStatusBadgeOwner";
+import { OwnerTierUpgradeActions } from "@/components/owner/OwnerTierUpgradeActions";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { useOwnerListings } from "@/hooks/useOwnerListings";
+import {
+  getBusinessClaimTierLabel,
+  getOwnerDisplayTier,
+  normalizeBusinessClaimTier,
+  type BusinessClaimTier,
+} from "@/lib/listings/claim-tier";
+
+function readName(value: unknown): string | null {
+  if (value && typeof value === "object" && "name" in value) {
+    const name = (value as { name?: unknown }).name;
+    return typeof name === "string" ? name : null;
+  }
+  return null;
+}
+
+function getClaimSelectedTier(listing: unknown): BusinessClaimTier | null {
+  if (!listing || typeof listing !== "object" || !("latest_claim" in listing)) {
+    return null;
+  }
+
+  const latestClaim = (listing as { latest_claim?: { selected_tier?: unknown } | null }).latest_claim;
+  return normalizeBusinessClaimTier(latestClaim?.selected_tier);
+}
 
 export default function OwnerListings() {
   const { t } = useTranslation();
   const l = useLocalePath();
-  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  
-  // Fetch owner's listings from Supabase
-  const { data: listings = [], isLoading } = useQuery({
-    queryKey: ['owner-listings', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return [];
-      const { data, error } = await supabase
-        .from('listings')
-        .select(`
-          id,
-          name,
-          slug,
-          short_description,
-          description,
-          featured_image_url,
-          city_id,
-          category_id,
-          tier,
-          is_curated,
-          status,
-          created_at,
-          updated_at,
-          cities:city_id(name),
-          categories:category_id(name)
-        `)
-        .eq('owner_id', user.id)
-        .order('updated_at', { ascending: false });
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: !!user?.id,
-  });
+  const { data: listings = [], isLoading } = useOwnerListings();
   
   // Filter listings
   const filteredListings = listings.filter(listing => {
@@ -148,16 +139,20 @@ export default function OwnerListings() {
             </CardContent>
           </Card>
         ) : (
-          filteredListings.map((listing, index) => (
-            <m.div
-              key={listing.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <Card className="bg-card border-border hover:border-primary/30 transition-colors">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex flex-col sm:flex-row gap-4">
+          filteredListings.map((listing, index) => {
+            const selectedTier = getClaimSelectedTier(listing);
+            const displayTier = getOwnerDisplayTier(listing.tier, selectedTier);
+
+            return (
+              <m.div
+                key={listing.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <Card className="bg-card border-border hover:border-primary/30 transition-colors">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row gap-4">
                     {/* Image */}
                     <div className="w-full sm:w-40 h-32 sm:h-28 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
                       {listing.featured_image_url ? (
@@ -179,10 +174,11 @@ export default function OwnerListings() {
                         <div className="space-y-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
                             <h3 className="font-medium text-foreground min-w-0 line-clamp-2 sm:line-clamp-1 break-words">{listing.name}</h3>
-                            <TierBadgeOwner tier={listing.tier} size="sm" />
+                            <TierBadgeOwner tier={displayTier} size="sm" />
                           </div>
                           <div className="flex flex-wrap items-center gap-2">
                             <StatusBadgeOwner status={listing.status} size="sm" />
+                            <ClaimStatusBadgeOwner status={listing.claim_status} size="sm" />
                             {listing.is_curated && (
                               <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/30">
                                 {t('owner.listings.curatedExcellence')}
@@ -194,9 +190,9 @@ export default function OwnerListings() {
                         {/* Actions */}
                         <div className="flex items-center gap-2 self-end sm:self-auto lg:shrink-0">
                           <Button variant="outline" size="sm" asChild>
-                            <Link href={l(`/owner/listings/${listing.id}/edit`)}>
-                              <Edit className="h-4 w-4 sm:mr-2" />
-                              <span className="hidden sm:inline">{t('common.edit')}</span>
+                            <Link href={l(`/owner/listings/${listing.id}`)}>
+                              <Settings className="h-4 w-4 sm:mr-2" />
+                              <span className="hidden sm:inline">{t('owner.listings.manage', { defaultValue: 'Manage' })}</span>
                             </Link>
                           </Button>
                           <DropdownMenu>
@@ -207,15 +203,21 @@ export default function OwnerListings() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem asChild>
-                                <Link href={`/listing/${listing.slug}`} className="flex items-center gap-2">
+                                <Link href={l(`/listing/${listing.slug}`)} className="flex items-center gap-2">
                                   <Eye className="h-4 w-4" />
                                   {t('owner.listings.preview')}
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem asChild>
-                                <Link href={`/listing/${listing.slug}`} target="_blank" className="flex items-center gap-2">
+                                <Link href={l(`/listing/${listing.slug}`)} target="_blank" className="flex items-center gap-2">
                                   <ExternalLink className="h-4 w-4" />
                                   {t('owner.listings.viewPublicPage')}
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <Link href={l(`/owner/listings/${listing.id}/edit`)} className="flex items-center gap-2">
+                                  <Settings className="h-4 w-4" />
+                                  {t('common.edit', { defaultValue: 'Edit' })}
                                 </Link>
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -228,18 +230,36 @@ export default function OwnerListings() {
                       </p>
                       
                       <div className="flex flex-wrap gap-3 mt-3 text-xs text-muted-foreground">
-                        <span>{(listing.cities as any)?.name || t('owner.listings.unknownCity')}</span>
+                        <span>{readName(listing.city) || readName((listing as any).cities) || t('owner.listings.unknownCity')}</span>
                         <span>•</span>
-                        <span>{(listing.categories as any)?.name || t('owner.listings.unknownCategory')}</span>
+                        <span>{readName(listing.category) || readName((listing as any).categories) || t('owner.listings.unknownCategory')}</span>
                         <span>•</span>
                         <span>{t('owner.listings.updated')} {new Date(listing.updated_at).toLocaleDateString()}</span>
+                        {selectedTier && (
+                          <>
+                            <span>•</span>
+                            <span className="inline-flex items-center gap-1">
+                              {t('owner.listings.selectedTier', { defaultValue: 'Selected tier' })}
+                              <span>{getBusinessClaimTierLabel(selectedTier)}</span>
+                            </span>
+                          </>
+                        )}
                       </div>
+
+                      {listing.claim_status === "claimed" ? (
+                        <OwnerTierUpgradeActions
+                          listingId={listing.id}
+                          currentTier={displayTier}
+                          className="mt-4 rounded-lg border border-dashed border-primary/25 bg-primary/5 p-3"
+                        />
+                      ) : null}
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </m.div>
-          ))
+            );
+          })
         )}
       </div>
 

@@ -5,10 +5,16 @@ import { isValidLocale } from "@/lib/i18n/locale-utils";
 import { DEFAULT_LOCALE_USES_PREFIX } from "@/lib/i18n/default-locale-policy";
 import { REQUEST_LOCALE_HEADER_NAME, isSystemBypassPath } from "@/lib/i18n/route-rules";
 import { isMaintenanceIpWhitelisted } from "@/lib/maintenance";
-import { getCanonicalFromUrlSlug, getCategoryUrlSlug } from "@/lib/seo/programmatic/category-slugs";
+import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
+import {
+  ALL_CANONICAL_SLUGS,
+  getCanonicalFromUrlSlug,
+  getCategoryUrlSlug,
+} from "@/lib/seo/programmatic/category-slugs";
 
 const PUBLIC_LOCALES: readonly AppLocale[] = SUPPORTED_LOCALES;
 const PUBLIC_LOCALE_SET = new Set<string>(PUBLIC_LOCALES);
+const CANONICAL_CATEGORY_ROUTE_SLUGS = new Set<string>(ALL_CANONICAL_SLUGS);
 
 const MAINTENANCE_BYPASS_ROUTES = new Set([
   "/login",
@@ -186,6 +192,121 @@ function resolveLegacyCategoryCityRequest(
   return {
     kind: "redirect",
     pathname: withLocalePrefix(`/visit/${legacyCitySegment}/${getCategoryUrlSlug(canonicalCategory, locale)}`, locale),
+  };
+}
+
+interface CategoryRouteSlugRow {
+  slug?: string | null;
+}
+
+async function fetchActiveCategorySlugs(): Promise<string[] | null> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim().replace(/\/+$/, "");
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  if (!supabaseUrl || !supabaseKey) return null;
+
+  const endpoint = new URL(`${supabaseUrl}/rest/v1/categories`);
+  endpoint.searchParams.set("select", "slug");
+  endpoint.searchParams.set("is_active", "eq.true");
+
+  try {
+    const response = await fetch(endpoint, {
+      headers: {
+        apikey: supabaseKey,
+        authorization: `Bearer ${supabaseKey}`,
+      },
+      cache: "no-store",
+    });
+
+    if (!response.ok) return null;
+    const rows = (await response.json()) as CategoryRouteSlugRow[];
+    return rows.map((row) => row.slug?.trim().toLowerCase()).filter(Boolean) as string[];
+  } catch {
+    return null;
+  }
+}
+
+function isCanonicalCategoryBackedByRows(canonicalSlug: string, categorySlugs: readonly string[]): boolean {
+  return categorySlugs.some((slug) => slug === canonicalSlug || getCanonicalCategorySlug(slug) === canonicalSlug);
+}
+
+function normalizeRouteSlugSegment(rawSegment: string): string {
+  try {
+    return decodeURIComponent(rawSegment).trim().toLowerCase();
+  } catch {
+    return rawSegment.trim().toLowerCase();
+  }
+}
+
+async function resolveCanonicalCategorySegment(
+  locale: AppLocale,
+  incomingSlug: string,
+): Promise<
+  | { kind: "none" }
+  | { kind: "not-found" }
+  | { kind: "canonical"; canonicalUrlSlug: string; needsRedirect: boolean }
+> {
+  const normalizedSlug = normalizeRouteSlugSegment(incomingSlug);
+  if (!isSlugLikeSegment(normalizedSlug)) return { kind: "none" };
+
+  const localizedCanonical = getCanonicalFromUrlSlug(normalizedSlug, locale);
+  const aliasCanonical = getCanonicalCategorySlug(normalizedSlug);
+  const canonicalSlug =
+    localizedCanonical ??
+    (aliasCanonical && CANONICAL_CATEGORY_ROUTE_SLUGS.has(aliasCanonical) ? aliasCanonical : null);
+  const categorySlugs = await fetchActiveCategorySlugs();
+  if (categorySlugs === null) return { kind: "none" };
+
+  const directDbCategory = categorySlugs.includes(normalizedSlug);
+  const backedCanonical = canonicalSlug
+    ? isCanonicalCategoryBackedByRows(canonicalSlug, categorySlugs)
+    : false;
+
+  if (!directDbCategory && !backedCanonical) return { kind: "not-found" };
+  if (!canonicalSlug) return { kind: "none" };
+
+  const canonicalUrlSlug = getCategoryUrlSlug(canonicalSlug, locale);
+  return {
+    kind: "canonical",
+    canonicalUrlSlug,
+    needsRedirect: normalizedSlug !== canonicalUrlSlug,
+  };
+}
+
+async function resolveCategoryHubRequest(
+  locale: AppLocale,
+  pathname: string,
+): Promise<{ kind: "none" } | { kind: "not-found" } | { kind: "redirect"; pathname: string }> {
+  const match = pathname.match(/^\/category\/([^/]+)$/);
+  const rawSegment = match?.[1];
+  if (!rawSegment) return { kind: "none" };
+
+  const category = await resolveCanonicalCategorySegment(locale, rawSegment);
+  if (category.kind === "not-found") return { kind: "not-found" };
+  if (category.kind !== "canonical" || !category.needsRedirect) return { kind: "none" };
+
+  return {
+    kind: "redirect",
+    pathname: withLocalePrefix(`/category/${category.canonicalUrlSlug}`, locale),
+  };
+}
+
+async function resolveVisitCityCategoryRequest(
+  locale: AppLocale,
+  pathname: string,
+): Promise<{ kind: "none" } | { kind: "not-found" } | { kind: "redirect"; pathname: string }> {
+  const match = pathname.match(/^\/visit\/([^/]+)\/([^/]+)$/);
+  const citySlug = match?.[1]?.trim().toLowerCase();
+  const rawCategorySegment = match?.[2];
+  if (!citySlug || !rawCategorySegment) return { kind: "none" };
+  if (!isSlugLikeSegment(citySlug)) return { kind: "not-found" };
+
+  const category = await resolveCanonicalCategorySegment(locale, rawCategorySegment);
+  if (category.kind === "not-found") return { kind: "not-found" };
+  if (category.kind !== "canonical" || !category.needsRedirect) return { kind: "none" };
+
+  return {
+    kind: "redirect",
+    pathname: withLocalePrefix(`/visit/${citySlug}/${category.canonicalUrlSlug}`, locale),
   };
 }
 
@@ -441,6 +562,26 @@ export async function proxy(request: NextRequest) {
       );
     }
 
+    const categoryHubRequest = await resolveCategoryHubRequest(localeFromPath, strippedPathname);
+    if (categoryHubRequest.kind === "not-found") {
+      return notFoundResponse();
+    }
+    if (categoryHubRequest.kind === "redirect") {
+      const redirectUrl = new URL(categoryHubRequest.pathname, request.url);
+      redirectUrl.search = request.nextUrl.search;
+      return NextResponse.redirect(redirectUrl, 308);
+    }
+
+    const visitCityCategoryRequest = await resolveVisitCityCategoryRequest(localeFromPath, strippedPathname);
+    if (visitCityCategoryRequest.kind === "not-found") {
+      return notFoundResponse();
+    }
+    if (visitCityCategoryRequest.kind === "redirect") {
+      const redirectUrl = new URL(visitCityCategoryRequest.pathname, request.url);
+      redirectUrl.search = request.nextUrl.search;
+      return NextResponse.redirect(redirectUrl, 308);
+    }
+
     const propertyAliasMatch = strippedPathname.match(/^\/properties\/([^/]+)$/);
     if (propertyAliasMatch?.[1]) {
       return redirectRouteAlias(request, localeFromPath, `/listing/${propertyAliasMatch[1]}`);
@@ -511,6 +652,26 @@ export async function proxy(request: NextRequest) {
       DEFAULT_LOCALE,
       `/category/${getCategoryUrlSlug("restaurants", DEFAULT_LOCALE)}`,
     );
+  }
+
+  const categoryHubRequest = await resolveCategoryHubRequest(DEFAULT_LOCALE, strippedPathname);
+  if (categoryHubRequest.kind === "not-found") {
+    return notFoundResponse();
+  }
+  if (categoryHubRequest.kind === "redirect") {
+    const redirectUrl = new URL(categoryHubRequest.pathname, request.url);
+    redirectUrl.search = request.nextUrl.search;
+    return NextResponse.redirect(redirectUrl, 308);
+  }
+
+  const visitCityCategoryRequest = await resolveVisitCityCategoryRequest(DEFAULT_LOCALE, strippedPathname);
+  if (visitCityCategoryRequest.kind === "not-found") {
+    return notFoundResponse();
+  }
+  if (visitCityCategoryRequest.kind === "redirect") {
+    const redirectUrl = new URL(visitCityCategoryRequest.pathname, request.url);
+    redirectUrl.search = request.nextUrl.search;
+    return NextResponse.redirect(redirectUrl, 308);
   }
 
   const propertyAliasMatch = strippedPathname.match(/^\/properties\/([^/]+)$/);

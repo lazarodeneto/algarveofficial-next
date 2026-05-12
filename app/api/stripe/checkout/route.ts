@@ -9,6 +9,7 @@ import {
   normalizePricingTier,
   type SubscriptionPricingRow,
 } from "@/lib/pricing/pricing-resolver";
+import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/lib/i18n/config";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { getStripeServerClient } from "@/lib/stripe/server";
 import { requireAuthenticatedOwner } from "@/lib/server/owner-auth";
@@ -17,6 +18,21 @@ import { planTypeFromBillingPeriod } from "@/lib/subscriptions/types";
 
 type PaidTier = "verified" | "signature";
 type BillingPeriod = "monthly" | "yearly" | "promo";
+type ListingTier = "unverified" | "verified" | "signature";
+
+const TIER_RANK: Record<ListingTier, number> = {
+  unverified: 0,
+  verified: 1,
+  signature: 2,
+};
+
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
+function normalizeListingTier(value: unknown): ListingTier {
+  return value === "verified" || value === "signature" ? value : "unverified";
+}
 
 function normalizePaidTier(value: unknown): PaidTier | null {
   if (typeof value !== "string") return null;
@@ -37,6 +53,20 @@ function resolveSiteUrl(request: NextRequest) {
   return request.nextUrl.origin;
 }
 
+function resolveCheckoutLocalePrefix(request: NextRequest) {
+  const referer = request.headers.get("referer");
+  if (!referer) return "";
+
+  try {
+    const firstSegment = new URL(referer).pathname.split("/").filter(Boolean)[0];
+    return SUPPORTED_LOCALES.includes(firstSegment as (typeof SUPPORTED_LOCALES)[number])
+      ? `/${firstSegment}`
+      : "";
+  } catch {
+    return "";
+  }
+}
+
 export async function POST(request: NextRequest) {
   const auth = await requireAuthenticatedOwner(request);
   if ("error" in auth) return auth.error;
@@ -51,7 +81,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Stripe not configured." }, { status: 503 });
   }
 
-  let body: { tier?: string; billing_period?: string } | null = null;
+  let body: { tier?: string; billing_period?: string; listing_id?: string } | null = null;
   try {
     body = await request.json();
   } catch {
@@ -63,6 +93,46 @@ export async function POST(request: NextRequest) {
 
   if (!tier || !billingPeriod) {
     return NextResponse.json({ error: "Invalid pricing selection." }, { status: 400 });
+  }
+
+  const listingId = typeof body?.listing_id === "string" ? body.listing_id.trim() : "";
+  let checkoutListingId: string | null = null;
+  if (listingId) {
+    if (!isUuid(listingId)) {
+      return NextResponse.json({ error: "Invalid listing selection." }, { status: 400 });
+    }
+
+    const { data: listing, error: listingError } = await supabase
+      .from("listings")
+      .select("id, owner_id, claim_status, tier")
+      .eq("id", listingId)
+      .eq("owner_id", auth.userId)
+      .maybeSingle();
+
+    if (listingError) {
+      return NextResponse.json({ error: "Listing validation failed." }, { status: 500 });
+    }
+
+    if (!listing) {
+      return NextResponse.json({ error: "Listing not found for this owner." }, { status: 404 });
+    }
+
+    if (listing.claim_status !== "claimed") {
+      return NextResponse.json(
+        { error: "Only claimed listings can be upgraded." },
+        { status: 409 },
+      );
+    }
+
+    const currentTier = normalizeListingTier(listing.tier);
+    if (TIER_RANK[tier] <= TIER_RANK[currentTier]) {
+      return NextResponse.json(
+        { error: "This listing is already on this tier or higher." },
+        { status: 409 },
+      );
+    }
+
+    checkoutListingId = listing.id;
   }
 
   const { data: pricingRows, error: pricingError } = await supabase
@@ -123,11 +193,28 @@ export async function POST(request: NextRequest) {
   const sessionMeta = {
     owner_id: auth.userId,
     userId: auth.userId,
+    user_id: auth.userId,
     tier,
+    target_tier: tier,
     billing_period: resolvedBillingPeriod,
     requested_billing_period: billingPeriod,
     pricing_id: resolvedPricing.id,
+    ...(checkoutListingId ? { listing_id: checkoutListingId } : {}),
   };
+
+  const baseUrl = resolveSiteUrl(request);
+  const localePrefix = checkoutListingId
+    ? resolveCheckoutLocalePrefix(request) || `/${DEFAULT_LOCALE}`
+    : resolveCheckoutLocalePrefix(request);
+  const checkoutQuery = checkoutListingId
+    ? `?listing_id=${encodeURIComponent(checkoutListingId)}&target_tier=${encodeURIComponent(tier)}`
+    : "";
+  const successUrl = checkoutListingId
+    ? `${baseUrl}${localePrefix}/owner/upgrade/success${checkoutQuery}`
+    : `${baseUrl}${localePrefix}/owner/membership?success=1`;
+  const cancelUrl = checkoutListingId
+    ? `${baseUrl}${localePrefix}/owner/upgrade/cancel${checkoutQuery}`
+    : `${baseUrl}${localePrefix}/owner/membership?canceled=1`;
 
   const buildSessionParams = (customerId: string | null) => ({
     mode: planType === "fixed_2026" ? ("payment" as const) : ("subscription" as const),
@@ -142,8 +229,8 @@ export async function POST(request: NextRequest) {
     ...(planType === "fixed_2026"
       ? { payment_intent_data: { metadata: sessionMeta } }
       : { subscription_data: { metadata: sessionMeta } }),
-    success_url: `${resolveSiteUrl(request)}/owner/membership?success=1`,
-    cancel_url: `${resolveSiteUrl(request)}/owner/membership?canceled=1`,
+    success_url: successUrl,
+    cancel_url: cancelUrl,
     metadata: sessionMeta,
   });
 

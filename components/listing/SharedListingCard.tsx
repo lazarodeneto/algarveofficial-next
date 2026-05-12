@@ -165,7 +165,7 @@ export function SharedListingCard({
           </div>
 
           <div className="p-4 flex-1 flex flex-col">
-            <h3 className="mb-1 font-serif text-[1.44rem] font-medium transition-colors line-clamp-1 group-hover:text-primary lg:text-[1.9008rem]">
+            <h3 className="mb-1 font-serif text-[1.08rem] font-medium transition-colors line-clamp-1 group-hover:text-primary lg:text-[1.43rem]">
               {listing.name}
             </h3>
 

@@ -22,9 +22,11 @@ import { useTranslation } from "react-i18next";
 interface LoginModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  title?: string;
+  description?: string;
 }
 
-export function LoginModal({ open, onOpenChange }: LoginModalProps) {
+export function LoginModal({ open, onOpenChange, title, description }: LoginModalProps) {
   const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -68,9 +70,9 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
           <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
             <Heart className="h-6 w-6 text-primary" />
           </div>
-          <DialogTitle className="text-2xl font-serif">{t('auth.saveToFavorites')}</DialogTitle>
+          <DialogTitle className="text-2xl font-serif">{title ?? t('auth.saveToFavorites')}</DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            {t('auth.signInToSave')}
+            {description ?? t('auth.signInToSave')}
           </DialogDescription>
         </DialogHeader>
 

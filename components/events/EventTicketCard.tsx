@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarDays, ExternalLink, MapPin, Sparkles, Ticket } from "lucide-react";
+import { CalendarDays, ExternalLink, MapPin, Sparkles, Ticket, UsersRound } from "lucide-react";
 import type { TFunction } from "i18next";
 
 import { FavoriteButton } from "@/components/ui/favorite-button";
+import { EventDateBadge } from "@/components/events/EventDateBadge";
 import type { CalendarEvent, EventCategory } from "@/types/events";
 import { cn } from "@/lib/utils";
 import {
@@ -14,7 +15,6 @@ import {
 } from "@/lib/events/dateDisplay";
 import {
   getEventCardCategoryClass,
-  getEventDateBadgeDisplay,
   PIXABAY_EVENT_IMAGE_FALLBACK,
 } from "@/lib/events/cardStyles";
 import { getLocalizedEventPriceRange } from "@/lib/events/display";
@@ -32,13 +32,6 @@ interface EventTicketCardProps {
   imageFallback?: string;
   className?: string;
 }
-
-const ATTENDEE_STYLES = [
-  "bg-[linear-gradient(135deg,#fca5a5,#f97316)]",
-  "bg-[linear-gradient(135deg,#93c5fd,#2563eb)]",
-  "bg-[linear-gradient(135deg,#fde68a,#ca8a04)]",
-  "bg-[linear-gradient(135deg,#c4b5fd,#7c3aed)]",
-];
 
 function getEventImage(event: CalendarEvent, imageFallback?: string) {
   return event.image?.trim() || imageFallback || PIXABAY_EVENT_IMAGE_FALLBACK;
@@ -73,18 +66,24 @@ export function EventTicketCard({
   const priceRangeLabel = getLocalizedEventPriceRange(event.price_range, t);
   const locationLabel = event.venue || event.location;
   const imageSrc = getEventImage(event, imageFallback);
-  const buyTicketsLabel = t("events.card.buyTickets");
-  const viewDetailsLabel = t("events.card.viewDetails");
-  const goingLabel = t("events.card.going");
-  const accessibleTitle = t("events.openEvent", { title: event.title });
+  const buyTicketsLabel = t("events.card.buyTickets", "Buy Tickets");
+  const viewDetailsLabel = t("events.card.viewDetails", "View Details");
+  const goingLabel = t("events.card.going", "+1K Going");
+  const accessibleTitle = t("events.openEvent", { title: event.title, defaultValue: `Open ${event.title}` });
 
   return (
     <article
       className={cn(
-        "group h-full overflow-hidden rounded-[18px] border border-slate-200 bg-white p-2 text-slate-950 shadow-[0_24px_55px_-34px_rgba(15,23,42,0.7)] transition duration-300 hover:-translate-y-1 hover:border-blue-300 hover:shadow-[0_30px_70px_-38px_rgba(37,99,235,0.42)] dark:border-white/10 dark:bg-card dark:text-foreground",
+        "group relative flex h-full flex-col overflow-hidden rounded-[18px] border-[1.5px] border-green-500/55 bg-white p-2 text-slate-950 shadow-[0_24px_55px_-34px_rgba(15,23,42,0.7)] transition duration-300 hover:-translate-y-1 hover:border-green-600/80 hover:shadow-[0_30px_70px_-38px_rgba(22,163,74,0.42)] dark:border-green-500/35 dark:bg-card dark:text-foreground",
         className,
       )}
     >
+      <Link
+        href={href}
+        aria-label={accessibleTitle}
+        className="absolute inset-0 z-10 rounded-[18px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
+      />
+
       <div className="relative aspect-[16/9] overflow-hidden rounded-[12px] bg-slate-200">
         <Image
           src={imageSrc}
@@ -96,14 +95,10 @@ export function EventTicketCard({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
 
-        <div className="absolute left-3 top-3 min-w-14 rounded-xl bg-white px-2.5 py-2 text-center shadow-[0_14px_24px_-18px_rgba(15,23,42,0.8)]">
-          <span className="block whitespace-pre-line text-[1.35rem] font-black leading-[0.95] tracking-tight text-slate-950">
-            {getEventDateBadgeDisplay(dateBadge.primary)}
-          </span>
-          <span className="mt-1 block text-[0.63rem] font-extrabold uppercase text-red-600">
-            {dateBadge.secondary}
-          </span>
-        </div>
+        <EventDateBadge
+          primary={dateBadge.primary}
+          secondary={dateBadge.secondary}
+        />
 
         <div className="absolute right-3 top-3 z-20">
           <FavoriteButton
@@ -116,25 +111,19 @@ export function EventTicketCard({
         </div>
 
         <div className="absolute bottom-3 left-3 flex items-center gap-2">
-          <div className="flex -space-x-2" aria-hidden="true">
-            {ATTENDEE_STYLES.map((style, index) => (
-              <span
-                key={style}
-                className={cn(
-                  "h-7 w-7 rounded-full border-2 border-white shadow-sm",
-                  style,
-                  index === 0 && "ring-1 ring-white/50",
-                )}
-              />
-            ))}
-          </div>
-          <span className="rounded-full bg-black/45 px-2 py-1 text-[0.7rem] font-extrabold text-white backdrop-blur">
+          <span
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/55 bg-white/92 text-slate-950 shadow-[0_10px_22px_-16px_rgba(15,23,42,0.85)] backdrop-blur"
+            aria-hidden="true"
+          >
+            <UsersRound className="h-4 w-4" strokeWidth={2.25} />
+          </span>
+          <span className="rounded-full bg-black/45 px-2.5 py-1 text-[0.7rem] font-extrabold text-white backdrop-blur">
             {goingLabel}
           </span>
         </div>
       </div>
 
-      <div className="space-y-3 px-1.5 pb-2 pt-3">
+      <div className="flex flex-1 flex-col space-y-3 px-1.5 pb-2 pt-3">
         <div className="flex flex-wrap items-center gap-2">
           <span className={getEventCardCategoryClass(event.category as EventCategory)}>
             {categoryLabel}
@@ -147,7 +136,7 @@ export function EventTicketCard({
           ) : null}
         </div>
 
-        <h3 className="line-clamp-2 min-h-[2.5rem] text-base font-extrabold leading-tight text-slate-950 dark:text-foreground">
+        <h3 className="line-clamp-2 min-h-[3.3rem] font-fira text-2xl font-bold leading-[1.1] tracking-normal text-slate-950 dark:text-foreground">
           {event.title}
         </h3>
 
@@ -170,13 +159,13 @@ export function EventTicketCard({
           ) : null}
         </div>
 
-        <div className="grid grid-cols-2 gap-2 pt-1">
+        <div className="mt-auto grid grid-cols-2 gap-2 pt-3">
           {event.ticket_url ? (
             <a
               href={event.ticket_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-11 items-center justify-center gap-1.5 rounded-md bg-blue-600 px-3 text-center text-sm font-bold text-white shadow-[0_12px_22px_-18px_rgba(37,99,235,0.95)] transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+              className="relative z-20 inline-flex h-11 items-center justify-center gap-1.5 rounded-md border border-green-500 bg-green-600 px-3 text-center text-sm font-bold text-white shadow-lg shadow-green-600/20 transition hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
             >
               {buyTicketsLabel}
               <ExternalLink className="h-3.5 w-3.5" />
@@ -184,7 +173,7 @@ export function EventTicketCard({
           ) : (
             <span
               aria-disabled="true"
-              className="inline-flex h-11 cursor-not-allowed items-center justify-center rounded-md bg-blue-200 px-3 text-center text-sm font-bold text-blue-700/70 dark:bg-blue-500/20 dark:text-blue-200/70"
+              className="inline-flex h-11 cursor-not-allowed items-center justify-center rounded-md border border-green-300 bg-green-100 px-3 text-center text-sm font-bold text-green-700/70 dark:border-green-500/25 dark:bg-green-500/15 dark:text-green-200/70"
             >
               {buyTicketsLabel}
             </span>
@@ -193,7 +182,7 @@ export function EventTicketCard({
           <Link
             href={href}
             aria-label={accessibleTitle}
-            className="inline-flex h-11 items-center justify-center rounded-md bg-slate-100 px-3 text-center text-sm font-bold text-slate-900 transition hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:bg-muted dark:text-foreground dark:hover:bg-muted/80"
+            className="relative z-20 inline-flex h-11 items-center justify-center rounded-md bg-slate-100 px-3 text-center text-sm font-bold text-slate-900 transition hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 dark:bg-muted dark:text-foreground dark:hover:bg-muted/80"
           >
             {viewDetailsLabel}
           </Link>

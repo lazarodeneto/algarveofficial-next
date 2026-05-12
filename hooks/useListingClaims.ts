@@ -2,7 +2,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { invalidateListingMutationQueries } from '@/lib/query-invalidation';
+import {
+  invalidateAdminInboxQueries,
+  invalidateListingMutationQueries,
+} from '@/lib/query-invalidation';
 
 export interface ListingClaim {
   id: string;
@@ -160,6 +163,7 @@ export function useUpdateClaimStatus() {
       if (error) throw error;
     },
     onSuccess: () => {
+      void invalidateAdminInboxQueries(queryClient);
       queryClient.invalidateQueries({ queryKey: ['listing-claims'] });
     },
   });
@@ -200,6 +204,7 @@ export function useApproveAndAssignClaim() {
       return result;
     },
     onSuccess: async (result, variables) => {
+      void invalidateAdminInboxQueries(queryClient);
       queryClient.invalidateQueries({ queryKey: ['listing-claims'] });
       void invalidateListingMutationQueries(queryClient, variables.listingId);
 
@@ -269,6 +274,7 @@ export function useDeleteClaim() {
       if (error) throw error;
     },
     onSuccess: () => {
+      void invalidateAdminInboxQueries(queryClient);
       queryClient.invalidateQueries({ queryKey: ['listing-claims'] });
     },
   });

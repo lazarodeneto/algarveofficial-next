@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { buildStaticRouteData } from "@/lib/i18n/localized-routing";
+import { buildCategoryRouteData } from "@/lib/public-route-builders";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
@@ -438,7 +440,7 @@ const Invest = () => {
                                         {getText("cta.primary", t("invest.cta.primary"))}
                                     </Button>
                                 </Link>
-                                <Link href={l("/stay?category=algarve-services")}>
+                                <Link href={l(buildCategoryRouteData("concierge-services") ?? buildStaticRouteData("stay"))}>
                                     <Button variant="outline" size="lg">
                                         <CheckCircle2 className="h-4 w-4" />
                                         {getText("cta.secondary", t("invest.cta.secondary"))}

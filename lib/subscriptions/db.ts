@@ -25,6 +25,16 @@ function rowAs(row: unknown): SubscriptionRow | null {
   return row as SubscriptionRow;
 }
 
+const TIER_RANK: Record<EffectiveTier, number> = {
+  unverified: 0,
+  verified: 1,
+  signature: 2,
+};
+
+function normalizeEffectiveTier(value: unknown): EffectiveTier {
+  return value === "verified" || value === "signature" ? value : "unverified";
+}
+
 export async function findByOwner(
   supabase: Supabase,
   ownerId: string,
@@ -198,8 +208,40 @@ export async function applyTierToListings(
   supabase: Supabase,
   ownerId: string,
   sub: SubscriptionRow | null,
+  listingId?: string | null,
 ): Promise<{ updated: number; tier: EffectiveTier }> {
   const desired = resolveEffectiveTier(sub);
+
+  if (listingId) {
+    const { data: listing, error: listError } = await supabase
+      .from("listings")
+      .select("id, tier, claim_status")
+      .eq("id", listingId)
+      .eq("owner_id", ownerId)
+      .maybeSingle();
+    if (listError) throw listError;
+    if (!listing || listing.claim_status !== "claimed") {
+      return { updated: 0, tier: desired };
+    }
+
+    const currentTier = normalizeEffectiveTier(listing.tier);
+    if (currentTier === desired) return { updated: 0, tier: desired };
+
+    const isDowngrade = TIER_RANK[desired] < TIER_RANK[currentTier];
+    if (desired !== "unverified" && isDowngrade) {
+      return { updated: 0, tier: desired };
+    }
+
+    const { error: updateError } = await supabase
+      .from("listings")
+      .update({ tier: desired })
+      .eq("id", listingId)
+      .eq("owner_id", ownerId)
+      .eq("claim_status", "claimed");
+    if (updateError) throw updateError;
+
+    return { updated: 1, tier: desired };
+  }
 
   const { data: listings, error: listError } = await supabase
     .from("listings")

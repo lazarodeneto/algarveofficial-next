@@ -1,9 +1,26 @@
 "use client";
 
+import { type KeyboardEvent, type MouseEvent, useState, useTransition } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Archive, Loader2, Mail, MailOpen, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
+import {
+  archiveInboxNotification,
+  deleteInboxNotification,
+  markInboxItemReadState,
+  markInboxItemUnreadState,
+} from "@/lib/admin/inbox/actions";
 import { formatInboxSlaRelative } from "@/lib/admin/inbox/format";
-import type { InboxDataSourceError, InboxItem, InboxUrgency } from "@/lib/admin/inbox/types";
+import {
+  ADMIN_INBOX_QUERY_KEY,
+  type InboxDataSourceError,
+  type InboxItem,
+  type InboxUrgency,
+} from "@/lib/admin/inbox/types";
+import { cn } from "@/lib/utils";
 
 interface InboxListProps {
   items: InboxItem[];
@@ -12,7 +29,9 @@ interface InboxListProps {
   hasActiveFilters: boolean;
   isAssigneeFiltered: boolean;
   onClearFilters: () => void;
+  onActionComplete: () => void;
   sourceErrors: InboxDataSourceError[];
+  queryError?: string | null;
 }
 
 const URGENCY_TONE: Record<InboxUrgency, string> = {
@@ -43,9 +62,86 @@ export function InboxList({
   hasActiveFilters,
   isAssigneeFiltered,
   onClearFilters,
+  onActionComplete,
   sourceErrors,
+  queryError,
 }: InboxListProps) {
+  const queryClient = useQueryClient();
+  const [pendingAction, startTransition] = useTransition();
+  const [pendingItemId, setPendingItemId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<{ itemId: string; message: string } | null>(null);
+
+  const runRowAction = (
+    event: MouseEvent<HTMLButtonElement>,
+    item: InboxItem,
+    action: "archive" | "delete" | "read" | "unread",
+  ) => {
+    event.stopPropagation();
+    if (action === "delete") {
+      const confirmed = window.confirm(
+        "Delete this inbox notification? This removes it from the inbox, but does not delete the source record.",
+      );
+      if (!confirmed) return;
+    }
+
+    setActionError(null);
+    setPendingItemId(item.id);
+    const input = { source: item.source, sourceRowId: item.sourceRowId };
+
+    startTransition(async () => {
+      const result =
+        action === "archive"
+          ? await archiveInboxNotification(input)
+          : action === "delete"
+            ? await deleteInboxNotification(input)
+            : action === "read"
+              ? await markInboxItemReadState(input)
+              : await markInboxItemUnreadState(input);
+
+      if (!result.ok) {
+        setActionError({
+          itemId: item.id,
+          message: result.error ?? "Inbox action failed.",
+        });
+        setPendingItemId(null);
+        return;
+      }
+
+      const successMessage =
+        action === "archive"
+          ? "Notification archived."
+          : action === "delete"
+            ? "Notification deleted."
+            : action === "read"
+              ? "Marked as read."
+              : "Marked as unread.";
+      toast.success(successMessage);
+      queryClient.invalidateQueries({ queryKey: ADMIN_INBOX_QUERY_KEY, exact: false });
+      queryClient.invalidateQueries({ queryKey: ["admin", "inbox", "urgent-count"] });
+      onActionComplete();
+      setPendingItemId(null);
+    });
+  };
+
+  const handleRowKeyDown = (event: KeyboardEvent<HTMLDivElement>, itemId: string) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onSelect(itemId);
+    }
+  };
+
   if (items.length === 0) {
+    if (queryError) {
+      return (
+        <div className="flex h-full flex-1 flex-col items-center justify-center gap-3 border-r border-border bg-background px-6 text-center">
+          <div className="max-w-md rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-left">
+            <p className="text-sm font-semibold text-foreground">Inbox could not refresh</p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">{queryError}</p>
+          </div>
+        </div>
+      );
+    }
+
     if (sourceErrors.length > 0 && !hasActiveFilters && !isAssigneeFiltered) {
       return (
         <div className="flex h-full flex-1 flex-col items-center justify-center gap-3 border-r border-border bg-background px-6 text-center">
@@ -108,6 +204,8 @@ export function InboxList({
       {items.map((item, index) => {
         const showDivider = index === 0 || item.urgency !== items[index - 1]?.urgency;
         const active = item.id === selectedId;
+        const isRead = item.isRead ?? false;
+        const itemPending = pendingAction && pendingItemId === item.id;
 
         return (
           <li key={item.id}>
@@ -118,39 +216,111 @@ export function InboxList({
                 </span>
               </div>
             ) : null}
-            <button
-              type="button"
-              onClick={() => onSelect(item.id)}
-              className={`w-full border-b border-border px-4 py-3 text-left transition-colors ${
-                active ? "bg-muted" : "hover:bg-muted/50"
-              }`}
+            <div
+              className={cn(
+                "group relative w-full border-b border-border text-left transition-colors",
+                active ? "bg-muted" : "hover:bg-muted/50",
+                isRead && !active ? "bg-muted/20" : null,
+              )}
             >
-              <div className="flex items-center gap-2">
-                <span
-                  className={`inline-flex h-5 items-center rounded px-1.5 text-[10px] font-semibold uppercase tracking-wide ${URGENCY_TONE[item.urgency]}`}
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => onSelect(item.id)}
+                onKeyDown={(event) => handleRowKeyDown(event, item.id)}
+                className="px-4 py-3 pr-[9.5rem] outline-none focus-visible:bg-muted/70 focus-visible:ring-2 focus-visible:ring-primary/30"
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className={cn(
+                      "h-2 w-2 rounded-full",
+                      isRead ? "bg-muted-foreground/25" : "bg-primary",
+                    )}
+                    aria-hidden="true"
+                  />
+                  <span
+                    className={`inline-flex h-5 items-center rounded px-1.5 text-[10px] font-semibold uppercase tracking-wide ${URGENCY_TONE[item.urgency]}`}
+                  >
+                    {item.urgency}
+                  </span>
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {DOMAIN_LABEL[item.domain]}
+                  </span>
+                  <span className="ml-auto text-xs text-muted-foreground">
+                    {formatInboxSlaRelative(item.sla.minutesRemaining)}
+                  </span>
+                </div>
+                <h3
+                  className={cn(
+                    "mt-1 truncate text-sm text-foreground",
+                    isRead ? "font-medium text-muted-foreground" : "font-semibold",
+                  )}
                 >
-                  {item.urgency}
-                </span>
-                <span className="text-xs font-medium text-muted-foreground">
-                  {DOMAIN_LABEL[item.domain]}
-                </span>
-                <span className="ml-auto text-xs text-muted-foreground">
-                  {formatInboxSlaRelative(item.sla.minutesRemaining)}
-                </span>
+                  {item.title}
+                </h3>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                  {item.owner.name ?? item.owner.id.slice(0, 8)}
+                  {item.summary ? ` · ${item.summary}` : ""}
+                </p>
+                {item.assignee ? (
+                  <Badge variant="outline" className="mt-1 text-[10px]">
+                    Assigned
+                  </Badge>
+                ) : null}
               </div>
-              <h3 className="mt-1 truncate text-sm font-semibold text-foreground">
-                {item.title}
-              </h3>
-              <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                {item.owner.name ?? item.owner.id.slice(0, 8)}
-                {item.summary ? ` · ${item.summary}` : ""}
-              </p>
-              {item.assignee ? (
-                <Badge variant="outline" className="mt-1 text-[10px]">
-                  Assigned
-                </Badge>
+              <div
+                className="absolute right-3 top-3 flex items-center gap-1"
+                aria-label="Inbox row actions"
+              >
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  disabled={itemPending}
+                  title={isRead ? "Mark as unread" : "Mark as read"}
+                  aria-label={isRead ? `Mark ${item.title} as unread` : `Mark ${item.title} as read`}
+                  onClick={(event) => runRowAction(event, item, isRead ? "unread" : "read")}
+                  className="h-7 w-7 border border-border/60 bg-background/80 shadow-none backdrop-blur-sm"
+                >
+                  {itemPending ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : isRead ? (
+                    <Mail className="h-3.5 w-3.5" />
+                  ) : (
+                    <MailOpen className="h-3.5 w-3.5" />
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  disabled={itemPending}
+                  title="Archive notification"
+                  aria-label={`Archive ${item.title}`}
+                  onClick={(event) => runRowAction(event, item, "archive")}
+                  className="h-7 w-7 border border-border/60 bg-background/80 shadow-none backdrop-blur-sm"
+                >
+                  <Archive className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  disabled={itemPending}
+                  title="Delete notification"
+                  aria-label={`Delete ${item.title}`}
+                  onClick={(event) => runRowAction(event, item, "delete")}
+                  className="h-7 w-7 border border-destructive/20 bg-background/80 text-destructive shadow-none backdrop-blur-sm hover:bg-destructive/10"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+              {actionError?.itemId === item.id ? (
+                <p className="mx-4 mb-3 rounded-md border border-destructive/30 bg-destructive/5 px-2 py-1 text-xs text-destructive">
+                  {actionError.message}
+                </p>
               ) : null}
-            </button>
+            </div>
           </li>
         );
       })}

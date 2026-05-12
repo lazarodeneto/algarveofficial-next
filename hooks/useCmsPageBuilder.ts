@@ -6,6 +6,10 @@ import {
   isKnownCmsPageId,
   resolveCmsBlockId,
 } from "@/lib/cms/pageBuilderRegistry";
+import {
+  getNullableRuntimePageText,
+  isRuntimeSectionEnabled,
+} from "@/lib/cms/public-page-runtime";
 
 function normalizeEmailInText(text: string): string {
   if (!text.includes("@")) return text;
@@ -50,8 +54,7 @@ export function useCmsPageBuilder(pageId: string) {
     const isBlockEnabled = (blockId: string, fallback = true): boolean => {
       const resolvedBlockId = resolveBlockId(blockId);
       if (!resolvedBlockId) return fallback;
-      const configured = blocks[resolvedBlockId]?.enabled;
-      return typeof configured === "boolean" ? configured : fallback;
+      return isRuntimeSectionEnabled(pageConfig, resolvedBlockId, fallback);
     };
 
     const getBlockOrder = (defaultOrder: string[]): string[] => {
@@ -94,7 +97,7 @@ export function useCmsPageBuilder(pageId: string) {
 
     const getText = (textKey: string, fallback: string): string => {
       const text = (
-        pageText[textKey] ??
+        getNullableRuntimePageText(pageConfig, textKey) ??
         textOverrides[`${pageId}.${textKey}`] ??
         textOverrides[textKey] ??
         fallback
@@ -121,7 +124,16 @@ export function useCmsPageBuilder(pageId: string) {
       getMetaTitle,
       getMetaDescription,
     };
-  }, [knownPageId, pageConfig.blocks, pageConfig.meta?.description, pageConfig.meta?.title, pageConfig.text, pageId, textOverrides]);
+  }, [
+    knownPageId,
+    pageConfig.blocks,
+    pageConfig.hero,
+    pageConfig.meta?.description,
+    pageConfig.meta?.title,
+    pageConfig.text,
+    pageId,
+    textOverrides,
+  ]);
 
   return {
     isLoading,

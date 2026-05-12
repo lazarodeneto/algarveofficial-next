@@ -2,12 +2,14 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { hasAnalyticsConsent } from "@/hooks/useAnalyticsConsent";
+import type { ListingPerformanceEventType } from "@/lib/analytics/listingPerformance";
 import { getSessionId } from "@/lib/sessionId";
 
 export type PlatformTrackingEventName =
   | "listing_click"
   | "block_impression"
-  | "block_click";
+  | "block_click"
+  | ListingPerformanceEventType;
 
 export type PlatformTrackingPayload = {
   listingId?: string;
@@ -106,5 +108,24 @@ export async function trackBlockImpression(payload: {
     blockId: payload.blockId,
     pageId: payload.pageId,
     selection: payload.selection,
+  });
+}
+
+export async function trackListingPerformanceEvent(
+  eventName: ListingPerformanceEventType,
+  payload: {
+    listingId: string;
+    cityId?: string | null;
+    categoryId?: string | null;
+    tier?: string | null;
+    source?: string;
+  },
+) {
+  await trackEvent(eventName, {
+    listingId: payload.listingId,
+    cityId: payload.cityId ?? undefined,
+    categoryId: payload.categoryId ?? undefined,
+    tier: payload.tier ?? undefined,
+    source: payload.source,
   });
 }

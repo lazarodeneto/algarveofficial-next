@@ -28,10 +28,10 @@ describe("MobileBottomNav", () => {
   it("uses the same public links as the desktop sidebar", () => {
     render(<MobileBottomNav />);
 
-    expect(screen.getByRole("link", { name: "Stay" })).toHaveAttribute("href", "/stay?category=places-to-stay");
+    expect(screen.getByRole("link", { name: "Stay" })).toHaveAttribute("href", "/stay");
     expect(screen.getByRole("link", { name: "Experiences" })).toHaveAttribute("href", "/experiences");
     expect(screen.getByRole("link", { name: "Beaches" })).toHaveAttribute("href", "/beaches");
-    expect(screen.getByRole("link", { name: "Wellness" })).toHaveAttribute("href", "/stay?category=wellness-spas");
+    expect(screen.getByRole("link", { name: "Wellness" })).toHaveAttribute("href", "/category/wellness-spas");
     expect(screen.getByRole("link", { name: "Golf" })).toHaveAttribute("href", "/golf");
     expect(screen.getByRole("link", { name: "Properties" })).toHaveAttribute("href", "/properties");
     expect(screen.getByRole("link", { name: "Map" })).toHaveAttribute("href", "/map");

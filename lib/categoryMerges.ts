@@ -89,11 +89,14 @@ const CANONICAL_SLUG_BY_LEGACY_SLUG: Record<string, CanonicalCategorySlug> = {
   "events-in-algarve": "events",
   "algarve-events": "events",
   events: "events",
+  "golf-course": "golf",
+  "golf-courses": "golf",
   "golf-tournaments": "golf",
   "beaches-clubs": "beach-clubs",
   "wellness-spas": "wellness-spas",
   "shopping-boutiques": "shopping",
   "vip-concierge": "concierge-services",
+  "algarve-services": "concierge-services",
   "algarve-concierge-services": "concierge-services",
   "prime-real-estate": "real-estate",
   "algarve-real-estate": "real-estate",
@@ -126,6 +129,8 @@ const ROUTE_ALIAS_SLUGS: Record<string, CanonicalCategorySlug> = {
   "things-do-do": "experiences",
   "experiences": "experiences",
   golf: "golf",
+  "golf-course": "golf",
+  "golf-courses": "golf",
   "golf-tournaments": "golf",
   "whats-on": "events",
   whatson: "events",
@@ -138,11 +143,12 @@ const ROUTE_ALIAS_SLUGS: Record<string, CanonicalCategorySlug> = {
   "wellness-spas": "wellness-spas",
   wellness: "wellness-spas",
   beaches: "beaches",
-  "beaches-clubs": "beaches",
+  "beaches-clubs": "beach-clubs",
   shopping: "shopping",
   "shopping-boutiques": "shopping",
   "real-estate": "real-estate",
   "concierge-services": "concierge-services",
+  "algarve-services": "concierge-services",
   "vip-concierge": "concierge-services",
   transportation: "transportation",
   "vip-transportation": "transportation",
@@ -198,6 +204,7 @@ const SEARCH_ALIAS_TO_CANONICAL: Record<string, CanonicalCategorySlug> = {
   properties: "real-estate",
   "algarve real estate": "real-estate",
   "concierge services": "concierge-services",
+  "algarve services": "concierge-services",
   concierge: "concierge-services",
   transportation: "transportation",
   "private transfer": "transportation",
@@ -214,7 +221,7 @@ const MERGED_MEMBERS_BY_CANONICAL: Record<string, string[]> = {
   restaurants: ["restaurants", "fine-dining", "private-chefs"],
   "beach-clubs": ["beach-clubs", "beaches-clubs"],
   experiences: ["experiences", "things-to-do", "premium-experiences", "family-fun"],
-  golf: ["golf", "golf-tournaments"],
+  golf: ["golf", "golf-course", "golf-courses", "golf-tournaments"],
   events: ["events", "whats-on", "premier-events"],
   "family-attractions": ["family-attractions", "family-fun"],
   "wellness-spas": ["wellness-spas"],
@@ -397,6 +404,38 @@ export function resolveCategoryFilterSlug(
   if (!canonicalSlug) return "all";
   if (isHiddenListingFilterCategorySlug(canonicalSlug)) return "all";
   return mergedCategories.some((item) => item.slug === canonicalSlug) ? canonicalSlug : "all";
+}
+
+export type CategoryFilterResolution =
+  | { kind: "all"; slug: "all"; memberIds: [] }
+  | { kind: "invalid"; slug: "all"; memberIds: [] }
+  | { kind: "matched"; slug: string; memberIds: string[]; memberSlugs: string[] };
+
+export function resolveCategoryFilterSelection(
+  rawValue: string | null | undefined,
+  categories: CategoryRow[],
+  mergedCategories: MergedCategoryOption[],
+): CategoryFilterResolution {
+  if (!rawValue || rawValue.trim() === "" || rawValue.trim() === "all") {
+    return { kind: "all", slug: "all", memberIds: [] };
+  }
+
+  const slug = resolveCategoryFilterSlug(rawValue, categories, mergedCategories);
+  if (slug === "all") {
+    return { kind: "invalid", slug: "all", memberIds: [] };
+  }
+
+  const mergedCategory = getMergedCategoryBySlug(slug, mergedCategories);
+  if (!mergedCategory?.memberIds.length) {
+    return { kind: "invalid", slug: "all", memberIds: [] };
+  }
+
+  return {
+    kind: "matched",
+    slug,
+    memberIds: mergedCategory.memberIds,
+    memberSlugs: mergedCategory.memberSlugs,
+  };
 }
 
 export function getMergedCategoryBySlug(

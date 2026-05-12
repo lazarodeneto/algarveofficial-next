@@ -561,6 +561,10 @@ export async function getDehydratedHomeCriticalState(locale?: string): Promise<{
 
   queryClient.setQueryData(homepageSettingsQueryKey(resolvedLocale), homepageSettings);
   queryClient.setQueryData(
+    publishedListingsQueryKey({}, resolvedLocale),
+    publishedListings,
+  );
+  queryClient.setQueryData(
     homepageListingSplitQueryKey("editors", resolvedLocale),
     homepageListingSplit.editorsSelection,
   );

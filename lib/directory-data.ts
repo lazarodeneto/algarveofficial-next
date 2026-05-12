@@ -16,9 +16,9 @@ import type { GlobalSetting } from "@/hooks/useGlobalSettings";
 import {
   buildMergedCategoryOptions,
   filterVisibleListingCategories,
-  getMergedCategoryBySlug,
-  resolveCategoryFilterSlug,
+  resolveCategoryFilterSelection,
 } from "@/lib/categoryMerges";
+import { buildPublicCategoryCountsFromRows } from "@/lib/public-data/listings";
 import { getProgrammaticCityIndexEntries } from "@/lib/seo/programmatic/category-city-data";
 import { buildMunicipalityCityIndex, type MunicipalityCityIndexItem } from "@/lib/cities/municipalityIndex";
 
@@ -39,6 +39,7 @@ const DIRECTORY_CATEGORY_FIELDS = `
 const PUBLIC_CITY_FIELDS = "id, name, slug, short_description, image_url, hero_image_url, latitude, longitude";
 const PUBLIC_REGION_FIELDS = "id, slug, name, short_description";
 const PUBLIC_CATEGORY_FIELDS = "id, slug, name, icon, short_description, image_url";
+const NO_MATCH_CATEGORY_ID = "00000000-0000-0000-0000-000000000000";
 
 const PUBLIC_LISTING_FIELDS = `
   id, slug, name, short_description, description, featured_image_url,
@@ -118,19 +119,21 @@ function applyListingFiltersServer(
   regions: RegionRow[],
 ): ListingsFilterQuery {
   const mergedCategories = buildMergedCategoryOptions(categories);
-  const normalizedCategory =
-    filters.categoryId && filters.categoryId !== "all"
-      ? resolveCategoryFilterSlug(filters.categoryId, categories, mergedCategories)
-      : null;
-  const selectedCategoryItem = normalizedCategory
-    ? getMergedCategoryBySlug(normalizedCategory, mergedCategories)
-    : null;
-  const selectedCategoryIds = selectedCategoryItem?.memberIds ?? [];
+  const categorySelection = resolveCategoryFilterSelection(
+    filters.categoryId,
+    categories,
+    mergedCategories,
+  );
+  const selectedCategoryIds = categorySelection.kind === "matched"
+    ? categorySelection.memberIds
+    : [];
 
   let result = query;
 
   if (selectedCategoryIds.length > 0) {
     result = result.in("category_id", selectedCategoryIds);
+  } else if (categorySelection.kind === "invalid") {
+    result = result.eq("category_id", NO_MATCH_CATEGORY_ID);
   }
 
   // Handle multiple city filtering (from municipalities) or single city
@@ -264,22 +267,24 @@ async function fetchDirectoryCategories(
 async function fetchDirectoryCategoryCounts(
   supabase: ReturnType<typeof createPublicServerClient>,
 ): Promise<Record<string, number>> {
-  const { data, error } = await supabase
-    .from("listings")
-    .select("category_id")
-    .eq("status", "published")
-    .not("category_id", "is", null);
+  const [{ data: listings, error: listingsError }, { data: categories, error: categoriesError }] = await Promise.all([
+    supabase
+      .from("listings")
+      .select("category_id, status")
+      .eq("status", "published")
+      .not("category_id", "is", null),
+    supabase
+      .from("categories")
+      .select(DIRECTORY_CATEGORY_FIELDS)
+      .eq("is_active", true),
+  ]);
 
-  if (error || !data) return {};
+  if (listingsError || categoriesError || !listings || !categories) return {};
 
-  const counts: Record<string, number> = {};
-  (data as Pick<ListingRow, "category_id">[]).forEach((row) => {
-    if (row.category_id) {
-      counts[row.category_id] = (counts[row.category_id] ?? 0) + 1;
-    }
-  });
-
-  return counts;
+  return buildPublicCategoryCountsFromRows(
+    categories as unknown as Tables<"categories">[],
+    listings as Pick<ListingRow, "category_id" | "status">[],
+  ).byCategoryId;
 }
 
 async function buildVisitCityIndex(

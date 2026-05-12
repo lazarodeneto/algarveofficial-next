@@ -53,6 +53,16 @@ function getDateLocale(locale?: string | null): DateFnsLocale {
   return dateLocales[locale ?? ''] ?? enGB;
 }
 
+function formatBadgeMonth(date: Date, locale?: string | null): string {
+  const rawMonth = format(date, 'MMM', { locale: getDateLocale(locale) });
+  const cleanedMonth = rawMonth.replace(/[.\s]+/g, '').trim();
+  const threeLetterMonth = Array.from(cleanedMonth).slice(0, 3).join('');
+
+  if (!threeLetterMonth) return rawMonth;
+
+  return `${threeLetterMonth.charAt(0).toLocaleUpperCase()}${threeLetterMonth.slice(1)}`;
+}
+
 function getLocalizedPendingDateLabel(label: string, locale?: string | null): string {
   return pendingStatusTranslations[label]?.[locale ?? ''] ?? label;
 }
@@ -105,12 +115,17 @@ export function getEventDateBadgeParts(event: EventDateDisplayInput, locale?: st
   const startDate = parseISO(event.start_date);
   const endDate = parseISO(event.end_date);
   const isSingleDay = event.start_date === event.end_date;
+  const isCrossMonth =
+    startDate.getMonth() !== endDate.getMonth() ||
+    startDate.getFullYear() !== endDate.getFullYear();
 
   return {
     primary: isSingleDay
       ? format(startDate, 'd', { locale: getDateLocale(locale) })
       : `${format(startDate, 'd', { locale: getDateLocale(locale) })} - ${format(endDate, 'd', { locale: getDateLocale(locale) })}`,
-    secondary: format(startDate, 'MMM', { locale: getDateLocale(locale) }),
+    secondary: isCrossMonth
+      ? `${formatBadgeMonth(startDate, locale)} / ${formatBadgeMonth(endDate, locale)}`
+      : formatBadgeMonth(startDate, locale),
   };
 }
 

@@ -4,6 +4,7 @@ import Image, { type StaticImageData } from "next/image";
 
 export type PageHeroImageKey =
   | "about"
+  | "beaches"
   | "blog"
   | "contact"
   | "destinations"
@@ -26,6 +27,10 @@ const PAGE_HERO_IMAGE_CONFIG: Record<
   about: {
     regionSlug: "sagres-atlantic",
     objectPosition: "center 48%",
+  },
+  beaches: {
+    regionSlug: "lagos-signature",
+    objectPosition: "center 50%",
   },
   blog: {
     regionSlug: "tavira-heritage",

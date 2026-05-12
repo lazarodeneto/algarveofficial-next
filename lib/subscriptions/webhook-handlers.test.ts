@@ -100,6 +100,7 @@ describe("subscription webhook handlers", () => {
           payment_intent: null,
           metadata: {
             owner_id: "owner-1",
+            listing_id: "listing-1",
             pricing_id: "pricing-verified-monthly",
             tier: "verified",
             billing_period: "monthly",
@@ -108,7 +109,9 @@ describe("subscription webhook handlers", () => {
       },
     } as unknown as Stripe.Event;
 
-    await handleCheckoutCompleted({} as Stripe, supabase, event);
+    const result = await handleCheckoutCompleted({} as Stripe, supabase, event);
+
+    expect(result).toEqual({ ownerId: "owner-1", listingId: "listing-1" });
 
     expect(mocks.upsertSubscription).toHaveBeenCalledWith(
       supabase,
@@ -209,6 +212,7 @@ describe("subscription webhook handlers", () => {
 
     expect(result).toEqual({
       ownerId: "owner-1",
+      listingId: null,
       skipped: true,
       reason: "missing_metadata",
     });

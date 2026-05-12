@@ -2,17 +2,17 @@ import { PremiumCard } from "@/components/ui/premium-card";
 import { m } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, MapPinned } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/Button";
 import { FavoriteButton } from "@/components/ui/favorite-button";
 import { useSavedDestinations } from "@/hooks/useSavedDestinations";
 import { useCities, useCityListingCounts } from "@/hooks/useReferenceData";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
-import { supabase } from "@/integrations/supabase/client";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import {
   normalizeCityBlockMode,
   normalizeSelectedCityIds,
@@ -24,6 +24,8 @@ import {
   type PlacementListing,
 } from "@/lib/cms/placement-engine";
 import { trackBlockImpression, trackEvent } from "@/lib/analytics/platformTracking";
+import { publishedListingsQueryKey } from "@/lib/query-keys";
+import { normalizePublicContentLocale } from "@/lib/publicContentLocale";
 
 export function CitiesSection() {
   const { isDestinationSaved, toggleCity } = useSavedDestinations();
@@ -31,24 +33,20 @@ export function CitiesSection() {
   const { data: cityCounts = {}, isLoading: countsLoading } = useCityListingCounts();
   const { t } = useTranslation();
   const l = useLocalePath();
+  const queryClient = useQueryClient();
+  const locale = normalizePublicContentLocale(useCurrentLocale());
   const { getBlockData } = useCmsPageBuilder("home");
   const blockData = getBlockData("cities");
   const mode = normalizeCityBlockMode(blockData.mode);
   const selection = normalizePlacementSelection(blockData.selection);
   const selectedCityIds = normalizeSelectedCityIds(blockData.selectedCityIds);
   const { validCityIds } = validateSelectedCityIds("cities", selectedCityIds, cities);
-  const { data: cityListings = [] } = useQuery({
-    queryKey: ["home-city-placement-listings"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("listings")
-        .select("id, city_id, tier, status")
-        .eq("status", "published");
-      if (error) throw error;
-      return (data ?? []) as PlacementListing[];
-    },
-    staleTime: 60 * 1000,
-  });
+  const cityListings = useMemo(
+    () =>
+      (queryClient.getQueryData<PlacementListing[]>(publishedListingsQueryKey({}, locale)) ?? [])
+        .filter((listing) => listing.status === "published"),
+    [locale, queryClient],
+  );
 
   const citiesById = new Map(cities.map((city) => [city.id, city]));
   const curatedCities = validCityIds
@@ -121,34 +119,36 @@ export function CitiesSection() {
         ) : (
           <div className="grid-adaptive">
             {citiesToRender.map((city) => (
-              <Link
-                key={city.id}
-                href={l(`/visit/${city.slug}`)}
-                onClick={() =>
-                  void trackEvent("block_click", {
-                    blockId: "cities",
-                    pageId: "home",
-                    cityId: city.id,
-                    selection,
-                  })
-                }
+              <div key={city.id} className="relative h-full">
+                <Link
+                  href={l(`/visit/${city.slug}`)}
+                  className="block h-full"
+                  onClick={() =>
+                    void trackEvent("block_click", {
+                      blockId: "cities",
+                      pageId: "home",
+                      cityId: city.id,
+                      selection,
+                    })
+                  }
                 >
-                <PremiumCard
-                  title={city.name}
-                  imageUrl={city.image_url ?? undefined}
-                  emptyImageMode="black"
-                  titleClassName="font-fira text-[1.4625rem] font-bold md:text-[1.625rem]"
-                  titleIcon={<MapPinned className="h-[1.2em] w-[1.2em] shrink-0 text-primary" aria-hidden="true" />}
-                >
-                  <FavoriteButton
-                    isFavorite={isDestinationSaved("city", city.id)}
-                    onToggle={() => toggleCity(city.id)}
-                    size="sm"
-                    variant="ghost"
-                    className="absolute top-3 right-3"
+                  <PremiumCard
+                    title={city.name}
+                    imageUrl={city.image_url ?? undefined}
+                    emptyImageMode="black"
+                    className="h-full"
+                    titleClassName="font-fira text-[1.4625rem] font-bold md:text-[1.625rem]"
+                    titleIcon={<MapPinned className="h-[1.2em] w-[1.2em] shrink-0 text-primary" aria-hidden="true" />}
                   />
-                </PremiumCard>
-              </Link>
+                </Link>
+                <FavoriteButton
+                  isFavorite={isDestinationSaved("city", city.id)}
+                  onToggle={() => toggleCity(city.id)}
+                  size="sm"
+                  variant="ghost"
+                  className="absolute right-3 top-3 z-20"
+                />
+              </div>
             ))}
           </div>
         )}

@@ -1,9 +1,12 @@
 import type { Locale } from "@/lib/i18n/config";
 import {
+  ALL_CANONICAL_SLUGS,
   getCanonicalFromUrlSlug,
   getCategoryUrlSlug,
+  type CanonicalCategorySlug,
 } from "@/lib/seo/programmatic/category-slugs";
 import { isValidCitySlug } from "@/lib/seo/programmatic/category-city-data";
+import { getCanonicalCategorySlug as getCanonicalListingCategorySlug } from "@/lib/categoryMerges";
 
 const RESERVED_TOP_LEVEL_SEGMENTS = new Set([
   "about-us",
@@ -65,7 +68,15 @@ export function resolveLegacyCategoryCityRoute(
   const canonicalCategory = getCanonicalFromUrlSlug(
     LEGACY_CATEGORY_ALIASES[categorySegment] ?? categorySegment,
     locale,
-  );
+  ) ??
+    (() => {
+      const alias = getCanonicalListingCategorySlug(
+        LEGACY_CATEGORY_ALIASES[categorySegment] ?? categorySegment,
+      );
+      return alias && ALL_CANONICAL_SLUGS.includes(alias as CanonicalCategorySlug)
+        ? (alias as CanonicalCategorySlug)
+        : null;
+    })();
   if (!canonicalCategory) {
     return null;
   }

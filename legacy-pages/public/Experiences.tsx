@@ -76,6 +76,8 @@ import {
   normalizePublicContentLocale,
 } from "@/lib/publicContentLocale";
 import type { ListingWithRelations } from "@/hooks/useListings";
+import { buildStaticRouteData } from "@/lib/i18n/localized-routing";
+import { buildCategoryRouteData } from "@/lib/public-route-builders";
 
 type ListingRow = ListingWithRelations;
 
@@ -571,7 +573,7 @@ const Experiences = ({
                   alt={getText("hero.alt", heroFallbacks.alt)}
                   fallback={
                     <PageHeroImage
-                      page="directory"
+                      page={defaultCategorySlug === "beaches" ? "beaches" : "directory"}
                       alt={getText("hero.alt", heroFallbacks.alt)}
                     />
                   }
@@ -579,7 +581,7 @@ const Experiences = ({
               }
               ctas={
                 <>
-                  <Link href={l("/stay?category=things-to-do")}>
+                  <Link href={l(buildCategoryRouteData("experiences") ?? buildStaticRouteData("experiences"))}>
                     <Button variant="gold" size="lg">
                       {getText("hero.cta.primary", heroFallbacks.ctaPrimary)}
                       <ArrowRight className="h-4 w-4" />
@@ -1031,7 +1033,7 @@ const Experiences = ({
                     <ArrowRight className="h-4 w-4 ml-1" />
                   </Button>
                 </Link>
-                <Link href={l("/stay?category=things-to-do")}>
+                <Link href={l(buildCategoryRouteData("experiences") ?? buildStaticRouteData("experiences"))}>
                   <Button variant="outline" size="lg">
                     {getText("cta.secondary", t("experiences.cta.secondary"))}
                   </Button>

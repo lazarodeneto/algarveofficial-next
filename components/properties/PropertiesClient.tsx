@@ -1,8 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useMemo, useState } from "react";
 import { RealEstateCard } from "@/components/real-estate/RealEstateCard";
 import { RealEstateFilters } from "@/components/real-estate/RealEstateFilters";
 import { Header } from "@/components/layout/Header";
@@ -13,20 +11,13 @@ import { CuratedExcellence } from "@/components/sections/CuratedExcellence";
 import { STANDARD_PUBLIC_NO_HERO_SPACER_CLASS } from "@/components/sections/hero-layout";
 import { ConciergeContactDialog } from "@/components/real-estate/ConciergeContactDialog";
 import { useTranslation } from "react-i18next";
-import { Database } from "@/integrations/supabase/types";
+import type { Tables } from "@/integrations/supabase/types";
 import { matchesPropertyCategoryFilters } from "@/lib/properties/filters";
-import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
-import {
-    fetchCityTranslations,
-    fetchListingTranslations,
-    normalizePublicContentLocale,
-} from "@/lib/publicContentLocale";
-
-const REAL_ESTATE_CATEGORY_SLUG = "real-estate";
+import { hideServerShell } from "@/lib/dom/server-shell";
 
 type RealEstateListing = Pick<
-    Database["public"]["Tables"]["listings"]["Row"],
+    Tables<"listings">,
     | "id"
     | "slug"
     | "name"
@@ -39,15 +30,16 @@ type RealEstateListing = Pick<
     | "city_id"
     | "price_from"
     | "price_to"
+    | "price_currency"
     | "created_at"
 > & {
     cities: { name: string; slug: string } | null;
 };
 
-const REAL_ESTATE_LISTING_FIELDS = `
-  id, slug, name, short_description, featured_image_url, category_data,
-  tier, category_id, status, city_id, price_from, price_to, created_at
-`;
+interface PropertiesClientProps {
+    initialCategoryId?: string | null;
+    initialListings?: RealEstateListing[];
+}
 
 interface FilterState {
     priceMin: string;
@@ -57,14 +49,37 @@ interface FilterState {
     location: string;
 }
 
-export default function PropertiesClient() {
+function parseFilterNumber(value: string): number | null {
+    if (!value.trim()) return null;
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : null;
+}
+
+function matchesPriceAndLocationFilters(listing: RealEstateListing, filters: FilterState) {
+    const min = parseFilterNumber(filters.priceMin);
+    const max = parseFilterNumber(filters.priceMax);
+    const lowPrice = listing.price_from ?? listing.price_to ?? null;
+    const highPrice = listing.price_to ?? listing.price_from ?? null;
+
+    if (min !== null && (highPrice === null || highPrice < min)) return false;
+    if (max !== null && (lowPrice === null || lowPrice > max)) return false;
+
+    const location = filters.location.trim().toLowerCase();
+    if (location && !(listing.cities?.name ?? "").toLowerCase().includes(location)) return false;
+
+    return true;
+}
+
+export default function PropertiesClient({
+    initialCategoryId = null,
+    initialListings = [],
+}: PropertiesClientProps = {}) {
     const { t } = useTranslation();
     const cms = useCmsPageBuilder("properties");
     const heroEnabled = cms.isBlockEnabled("hero", true);
     const filtersEnabled = cms.isBlockEnabled("filters", true);
     const assistanceEnabled = cms.isBlockEnabled("assistance", true);
     const resultsEnabled = cms.isBlockEnabled("results", true);
-    const targetLang = normalizePublicContentLocale(useCurrentLocale());
     const [filters, setFilters] = useState<FilterState>({
         priceMin: "",
         priceMax: "",
@@ -73,118 +88,24 @@ export default function PropertiesClient() {
         location: ""
     });
 
-    const { data: realEstateCategoryId, isLoading: isCategoryLoading } = useQuery({
-        queryKey: ["properties-category-id", REAL_ESTATE_CATEGORY_SLUG],
-        queryFn: async () => {
-            const { data, error } = await supabase
-                .from("categories")
-                .select("id")
-                .eq("slug", REAL_ESTATE_CATEGORY_SLUG)
-                .eq("is_active", true)
-                .maybeSingle();
-            if (error) throw error;
-            return data?.id ?? null;
-        },
-        staleTime: 1000 * 60 * 30,
-    });
+    useEffect(() => {
+        return hideServerShell("properties-server-shell");
+    }, []);
 
-    const { data: listings, isLoading: isListingsLoading } = useQuery({
-        queryKey: ["properties-listings", realEstateCategoryId, filters, targetLang],
-        enabled: Boolean(realEstateCategoryId),
-        queryFn: async () => {
-            if (!realEstateCategoryId) return [];
-            let query = supabase
-                .from("listings")
-                .select(`${REAL_ESTATE_LISTING_FIELDS}, cities ( name, slug )`)
-                .eq("category_id", realEstateCategoryId)
-                .eq("status", "published");
-
-            if (filters.priceMin) {
-                const min = Number.parseFloat(filters.priceMin);
-                if (Number.isFinite(min)) {
-                    query = query.gte("price_from", min);
-                }
-            }
-
-            if (filters.priceMax) {
-                const max = Number.parseFloat(filters.priceMax);
-                if (Number.isFinite(max)) {
-                    query = query.or(`price_from.lte.${max},price_to.lte.${max}`);
-                }
-            }
-
-            if (filters.location) {
-                const { data: cityData } = await supabase.from("cities").select("id").ilike("name", `%${filters.location}%`);
-                if (cityData && cityData.length > 0) query = query.in("city_id", cityData.map(c => c.id));
-            }
-
-            query = query.order("tier", { ascending: true }).order("created_at", { ascending: false });
-            const { data, error } = await query;
-            if (error) throw error;
-
-            const rows = ((data ?? []) as Array<RealEstateListing & { cities: { name: string; slug: string }[] | { name: string; slug: string } | null }>).map((row) => ({
-                ...row,
-                cities: Array.isArray(row.cities) ? (row.cities[0] ?? null) : (row.cities ?? null),
-            })) as RealEstateListing[];
-
-            if (targetLang === "en" || rows.length === 0) {
-                return rows;
-            }
-
-            try {
-                const [listingTranslations, cityTranslations] = await Promise.all([
-                    fetchListingTranslations(targetLang, rows.map((listing) => listing.id)),
-                    fetchCityTranslations(
-                        targetLang,
-                        rows.map((listing) => listing.city_id).filter(Boolean) as string[],
-                    ),
-                ]);
-
-                const listingTranslationMap = new Map(
-                    listingTranslations.map((translation) => [translation.listing_id, translation]),
-                );
-                const cityTranslationMap = new Map(
-                    cityTranslations.map((translation) => [translation.city_id, translation]),
-                );
-
-                return rows.map((listing) => {
-                    const listingTranslation = listingTranslationMap.get(listing.id);
-                    const cityTranslation = listing.city_id
-                        ? cityTranslationMap.get(listing.city_id)
-                        : undefined;
-
-                    return {
-                        ...listing,
-                        name: listingTranslation?.title?.trim() ?? listing.name,
-                        short_description:
-                            listingTranslation?.short_description?.trim() ?? listing.short_description,
-                        cities: listing.cities
-                            ? {
-                                ...listing.cities,
-                                name: cityTranslation?.name?.trim() ?? listing.cities.name,
-                            }
-                            : listing.cities,
-                    };
-                });
-            } catch (translationError) {
-                console.warn("Failed to localize property listings; falling back to English.", translationError);
-                return rows;
-            }
-        },
-        staleTime: 60 * 1000,
-    });
-
-    const isLoading = Boolean(isCategoryLoading || isListingsLoading);
+    const primaryRealEstateCategoryId = initialCategoryId;
+    const listings = initialListings;
+    const isLoading = false;
 
     const filteredListings = useMemo(() => {
         const rows = listings ?? [];
         return rows.filter((listing) =>
+            matchesPriceAndLocationFilters(listing, filters) &&
             matchesPropertyCategoryFilters(listing, {
                 type: filters.type,
                 beds: filters.beds,
             }),
         );
-    }, [filters.beds, filters.type, listings]);
+    }, [filters, listings]);
 
     const handleFilterChange = (key: string, value: string) => setFilters(prev => ({ ...prev, [key]: value }));
     const handleClear = () => setFilters({ priceMin: "", priceMax: "", type: "all", beds: "all", location: "" });
@@ -232,9 +153,9 @@ export default function PropertiesClient() {
                         ) : null}
                         {resultsEnabled ? (
                         <div className={filtersEnabled || assistanceEnabled ? "xl:col-span-8 2xl:col-span-9 min-w-0" : "xl:col-span-12 min-w-0"}>
-                            {realEstateCategoryId ? (
+                            {primaryRealEstateCategoryId ? (
                                 <CuratedExcellence
-                                    context={{ type: "category", categoryId: realEstateCategoryId }}
+                                    context={{ type: "category", categoryId: primaryRealEstateCategoryId }}
                                     limit={1}
                                     showSectionHeader={false}
                                     fullWidth

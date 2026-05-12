@@ -26,6 +26,8 @@ import { Slider } from "@/components/ui/slider";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCities } from "@/hooks/useReferenceData";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { buildStaticRouteData } from "@/lib/i18n/localized-routing";
+import { buildCategoryRouteData } from "@/lib/public-route-builders";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
@@ -41,6 +43,7 @@ const Live = () => {
   const { getMetaDescription, getMetaTitle, getText, isBlockEnabled, getBlockData } = useCmsPageBuilder("live");
   const { data: cities = [], isLoading } = useCities();
   const l = useLocalePath();
+  const categoryPath = (slug: string) => l(buildCategoryRouteData(slug) ?? buildStaticRouteData("stay"));
   const heroEnabled = isBlockEnabled("hero", true);
   const showCityHubs = cities.length > 0 && isBlockEnabled("city-hubs", true);
   const showSegments = isBlockEnabled("segments", true);
@@ -136,17 +139,17 @@ const Live = () => {
         description: t("live.planner.services.properties.description"),
       },
       {
-        href: l("/directory?category=concierge-services"),
+        href: categoryPath("concierge-services"),
         title: t("live.planner.services.concierge.title"),
         description: t("live.planner.services.concierge.description"),
       },
       {
-        href: l("/directory?category=transportation"),
+        href: categoryPath("transportation"),
         title: t("live.planner.services.transport.title"),
         description: t("live.planner.services.transport.description"),
       },
       {
-        href: l("/directory?category=accommodation"),
+        href: categoryPath("accommodation"),
         title: t("live.planner.services.accommodation.title"),
         description: t("live.planner.services.accommodation.description"),
       },
@@ -262,7 +265,7 @@ const Live = () => {
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   </Link>
-                  <Link href={l("/directory?category=concierge-services")} className="block w-full sm:w-auto">
+                  <Link href={categoryPath("concierge-services")} className="block w-full sm:w-auto">
                     <Button variant="heroOutline" size="lg" className="w-full whitespace-normal text-center sm:w-auto">
                       {getText("hero.cta.secondary", t("live.hero.ctaSecondary"))}
                     </Button>

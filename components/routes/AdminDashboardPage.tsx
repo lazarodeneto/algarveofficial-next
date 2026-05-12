@@ -147,6 +147,7 @@ const staticRouteMap: Record<string, ComponentType> = {
   subscriptions: AdminSubscriptions,
   claims: AdminClaims,
   import: AdminImport,
+  "full-page-builder": AdminPageBuilder,
   "content/home": AdminPageBuilder,
   "content/partner": AdminPartnerPage,
   "content/support": AdminSupportPage,

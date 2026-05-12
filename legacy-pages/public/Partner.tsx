@@ -9,7 +9,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Send, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
@@ -37,13 +38,28 @@ const partnerSchema = z.object({
   email: z.string().email("Please enter a valid email").max(255),
   phone: z.string().max(20).optional(),
   message: z.string().min(10, "Message must be at least 10 characters").max(2000),
+  listingId: z.string().uuid().optional(),
 });
 
 type PartnerFormData = z.infer<typeof partnerSchema>;
 type FAQItem = { question: string; answer: string };
+const partnerRequestTypes = new Set<PartnerFormData["requestType"]>(["new-listing", "claim-business"]);
+
+function getPartnerRequestType(value: string | null): PartnerFormData["requestType"] | undefined {
+  return value && partnerRequestTypes.has(value as PartnerFormData["requestType"])
+    ? (value as PartnerFormData["requestType"])
+    : undefined;
+}
+
+function getUuidParam(value: string | null): string | undefined {
+  const trimmed = value?.trim();
+  if (!trimmed) return undefined;
+  return z.string().uuid().safeParse(trimmed).success ? trimmed : undefined;
+}
 
 const Partner = () => {
   const { t } = useTranslation();
+  const searchParams = useSearchParams();
   const { settings, isLoading: settingsLoading } = usePartnerSettings();
   const { getText } = useCmsPageBuilder("partner");
   const { membershipTiers } = useSubscriptionPricing(t);
@@ -67,6 +83,43 @@ const Partner = () => {
   });
   const [countryCode, setCountryCode] = useState("+351");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const appliedPrefillKeyRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const prefillKey = searchParams.toString();
+    if (!prefillKey || appliedPrefillKeyRef.current === prefillKey) return;
+
+    const requestType = getPartnerRequestType(searchParams.get("type"));
+    const listingId = getUuidParam(searchParams.get("listingId"));
+    const listingName = searchParams.get("listingName")?.trim() ?? "";
+    const listingWebsite = normalizeExternalUrlForStorage(searchParams.get("listingWebsite")) ?? "";
+
+    if (!requestType && !listingId && !listingName && !listingWebsite) return;
+
+    appliedPrefillKeyRef.current = prefillKey;
+    setFormData((prev) => {
+      const effectiveRequestType = requestType ?? prev.requestType;
+
+      return {
+        ...prev,
+        requestType: effectiveRequestType,
+        listingId: effectiveRequestType === "claim-business" ? listingId ?? prev.listingId : undefined,
+        businessName: listingName && !prev.businessName?.trim() ? listingName : prev.businessName,
+        businessWebsite: listingWebsite && !prev.businessWebsite?.trim() ? listingWebsite : prev.businessWebsite,
+      };
+    });
+    setErrors((prev) => ({
+      ...prev,
+      requestType: "",
+      businessName: "",
+      businessWebsite: "",
+      listingId: "",
+    }));
+
+    requestAnimationFrame(() => {
+      document.getElementById("partner-form")?.scrollIntoView({ behavior: "smooth" });
+    });
+  }, [searchParams]);
 
   const pricingFaqs: FAQItem[] = [
     {
@@ -164,6 +217,7 @@ const Partner = () => {
         email: normalizedPayload.email!,
         phone: normalizedPayload.phone ? `${countryCode}${normalizedPayload.phone}` : undefined,
         message: normalizedPayload.message!,
+        listingId: normalizedPayload.requestType === "claim-business" ? normalizedPayload.listingId : undefined,
       }) as { warnings?: string[] } | null;
 
       toast.success(content.successMessage);
@@ -184,6 +238,7 @@ const Partner = () => {
         email: "",
         phone: "",
         message: "",
+        listingId: undefined,
       });
     } catch (error) {
       console.error("Error submitting claim:", error);

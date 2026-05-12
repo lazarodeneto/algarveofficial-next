@@ -31,6 +31,7 @@ import {
   Edit,
   Crown,
   FileJson,
+  FilePenLine,
   Check,
   X,
   Trash2,
@@ -40,6 +41,8 @@ import {
   AlertCircle,
   CheckCircle2,
   Wrench,
+  MapPin,
+  Tags,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
@@ -69,6 +72,7 @@ import { DataTable, Column } from "@/components/admin/DataTable";
 import { TierBadge } from "@/components/admin/TierBadge";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { useDeleteListings, useUpdateListingStatus } from "@/hooks/useListingMutations";
 import { useAuth } from "@/contexts/AuthContext";
@@ -82,16 +86,7 @@ export default function AdminListings() {
   const l = useLocalePath();
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
-
-  if (authLoading) return null;
-  if (!user) {
-    router.replace(l("/login"));
-    return null;
-  }
-  if (user.role !== "admin" && user.role !== "editor") {
-    router.replace(l("/dashboard"));
-    return null;
-  }
+  const canManageListings = user?.role === "admin" || user?.role === "editor";
 
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
@@ -120,6 +115,19 @@ export default function AdminListings() {
   const updateListingStatus = useUpdateListingStatus();
   const deleteListings = useDeleteListings();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (!user) {
+      router.replace(l("/login"));
+      return;
+    }
+
+    if (!canManageListings) {
+      router.replace(l("/dashboard"));
+    }
+  }, [authLoading, canManageListings, l, router, user]);
 
   const applySearch = (value: string) => {
     const nextSearch = value.trim();
@@ -174,6 +182,8 @@ export default function AdminListings() {
   }, [page, pageSize, sortBy, sortOrder, search, cityFilter, categoryFilter, tierFilter, statusFilter]);
 
   useEffect(() => {
+    // Reset pagination and row selection when the listing filters change.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
     setSelectedIds([]);
   }, [cityFilter, categoryFilter, tierFilter, statusFilter, pageSize]);
@@ -212,6 +222,22 @@ export default function AdminListings() {
   const totalPages = listingsResponse?.totalPages ?? 1;
   const hasNextPage = listingsResponse?.hasNextPage ?? false;
   const hasPreviousPage = listingsResponse?.hasPreviousPage ?? false;
+
+  const { data: changeRequestsSummary, isFetching: changeRequestsFetching } = useQuery({
+    queryKey: ["admin-listing-change-requests-summary", user?.id],
+    enabled: user?.role === "admin",
+    queryFn: async () => {
+      const json = await fetchAdmin(
+        "/api/admin/listing-change-requests?status=pending&page=1&pageSize=1",
+      );
+      return {
+        pending: Number(json.requests?.total ?? 0),
+        setupRequired: Boolean(json.requests?.setupRequired),
+      };
+    },
+    staleTime: 0,
+  });
+  const pendingChangeRequests = changeRequestsSummary?.pending ?? 0;
 
   const { data: refData } = useQuery({
     queryKey: ["admin-ref-data", user?.id],
@@ -472,32 +498,7 @@ export default function AdminListings() {
       key: "readiness",
       label: "Readiness",
       className: "hidden xl:table-cell w-[10rem] whitespace-nowrap",
-      render: (listing) => {
-        const readiness = getListingReadiness(listing);
-        const isReady = readiness.status === "ready";
-        const isReview = readiness.status === "review";
-
-        return (
-          <div className="flex flex-col gap-1" title={readiness.missing.length > 0 ? `Missing: ${readiness.missing.join(", ")}` : "Listing is ready for stronger visibility"}>
-            <Badge
-              variant="outline"
-              className={
-                isReady
-                  ? "w-fit border-emerald-300 bg-emerald-50 text-emerald-700"
-                  : isReview
-                    ? "w-fit border-amber-300 bg-amber-50 text-amber-700"
-                    : "w-fit border-slate-300 bg-slate-50 text-slate-600"
-              }
-            >
-              {isReady ? <CheckCircle2 className="mr-1 h-3 w-3" /> : <AlertCircle className="mr-1 h-3 w-3" />}
-              {readiness.label}
-            </Badge>
-            <span className="text-[11px] text-muted-foreground">
-              {readiness.score}/{readiness.total} checks
-            </span>
-          </div>
-        );
-      },
+      render: (listing) => <ReadinessIndicator listing={listing} />,
     },
     {
       key: "curated",
@@ -671,6 +672,23 @@ export default function AdminListings() {
     categoryFilter !== "all" ||
     tierFilter !== "all" ||
     statusFilter !== "all";
+  const visibleIds = filteredListings.map((listing: any) => listing.id);
+  const selectedOnPage = visibleIds.filter((id: string) => selectedIds.includes(id)).length;
+  const allVisibleSelected = visibleIds.length > 0 && selectedOnPage === visibleIds.length;
+  const someVisibleSelected = selectedOnPage > 0 && selectedOnPage < visibleIds.length;
+
+  const toggleSelectVisible = (checked: boolean) => {
+    if (!checked) {
+      setSelectedIds((current) => current.filter((id) => !visibleIds.includes(id)));
+      return;
+    }
+
+    setSelectedIds((current) => Array.from(new Set([...current, ...visibleIds])));
+  };
+
+  if (authLoading || !user || !canManageListings) {
+    return null;
+  }
 
   if (listingsLoading) {
     return (
@@ -732,8 +750,58 @@ export default function AdminListings() {
         </div>
       </div>
 
+      <div className="rounded-2xl border border-border/70 bg-card/85 p-2 shadow-sm backdrop-blur">
+        <div className="grid gap-2 lg:grid-cols-2">
+          <div className="rounded-xl border border-primary/25 bg-primary/10 px-4 py-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground">All listings</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Search, publish, rank and maintain the public directory.
+                </p>
+              </div>
+              <Badge variant="outline" className="shrink-0 bg-background/80">
+                {totalListings.toLocaleString()} records
+              </Badge>
+            </div>
+          </div>
+
+          <Link
+            href={l("/admin/listing-change-requests")}
+            className="group rounded-xl border border-border/70 bg-background/70 px-4 py-3 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 hover:shadow-sm"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-start gap-3">
+                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
+                  <FilePenLine className="h-4 w-4" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-foreground">
+                    Owner change requests
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    Review owner-submitted edits before applying them to listings.
+                  </p>
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <Badge
+                  variant={pendingChangeRequests > 0 ? "secondary" : "outline"}
+                  className="bg-background/80"
+                >
+                  {changeRequestsFetching ? "Checking..." : `${pendingChangeRequests} pending`}
+                </Badge>
+                <span className="text-primary transition-transform group-hover:translate-x-0.5">
+                  →
+                </span>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </div>
+
       {/* Filters */}
-      <div className="space-y-4">
+      <div className="space-y-4 rounded-2xl border border-border/70 bg-card/80 p-3 shadow-sm backdrop-blur md:p-4">
         <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
           <form
             className="relative w-full xl:max-w-lg"
@@ -770,7 +838,7 @@ export default function AdminListings() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                {[...categoryOptions].sort((a: any, b: any) => a.name.localeCompare(b.name)).map((category: any) => (
+                {[...displayCategories].sort((a: any, b: any) => a.name.localeCompare(b.name)).map((category: any) => (
                   <SelectItem key={category.id} value={category.id}>
                     {category.name}
                   </SelectItem>
@@ -811,7 +879,7 @@ export default function AdminListings() {
 
         {/* Bulk Actions */}
         {selectedIds.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-muted/50 p-3">
+          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 p-3">
             <span className="w-full text-sm text-muted-foreground sm:w-auto">
               {selectedIds.length} selected
             </span>
@@ -912,6 +980,68 @@ export default function AdminListings() {
       )}
 
       {/* Data Table */}
+      <div className="2xl:hidden">
+        <div className="mb-3 flex flex-col gap-3 rounded-2xl border border-border/70 bg-card/90 p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+          <label className="flex items-center gap-3 text-sm text-muted-foreground">
+            <Checkbox
+              checked={allVisibleSelected}
+              ref={(el) => {
+                if (el) {
+                  (el as HTMLButtonElement).dataset.indeterminate = someVisibleSelected ? "true" : "false";
+                }
+              }}
+              onCheckedChange={(checked) => toggleSelectVisible(Boolean(checked))}
+              disabled={visibleIds.length === 0}
+            />
+            <span>
+              {selectedOnPage > 0
+                ? `${selectedOnPage} selected on this page`
+                : "Select visible listings"}
+            </span>
+          </label>
+          <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+            Card view
+          </span>
+        </div>
+        {filteredListings.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border/80 bg-muted/20 px-6 py-12 text-center text-muted-foreground">
+            No listings found
+          </div>
+        ) : (
+          <div className="grid gap-3 lg:grid-cols-2">
+            {filteredListings.map((listing: any) => (
+              <AdminListingCard
+                key={listing.id}
+                listing={listing}
+                selected={selectedIds.includes(listing.id)}
+                onSelect={(checked) => {
+                  setSelectedIds((current) =>
+                    checked
+                      ? Array.from(new Set([...current, listing.id]))
+                      : current.filter((id) => id !== listing.id),
+                  );
+                }}
+                listingHref={l(`/listing/${listing.slug || listing.id}`)}
+                editHref={l(`/admin/listings/${listing.id}/edit`)}
+                canPin={!listing.featured_rank && featuredListings.length < MAX_FEATURED}
+                canToggleCurated={listing.tier === "signature"}
+                isStatusUpdating={updateListingStatus.isPending}
+                isDeleting={deleteListings.isPending}
+                onApprove={() => handleApprove(listing.id)}
+                onReject={() => handleReject(listing.id)}
+                onPin={() => pinToTop(listing.id)}
+                onUnpin={() => updateFeaturedRank.mutate({ id: listing.id, rank: null })}
+                onToggleCurated={() => handleToggleCurated(listing)}
+                onDelete={() => {
+                  setSingleDeleteId(listing.id);
+                  setDeleteDialogOpen(true);
+                }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
       <DataTable
         columns={columns}
         data={filteredListings}
@@ -919,7 +1049,9 @@ export default function AdminListings() {
         selectedIds={selectedIds}
         onSelectionChange={setSelectedIds}
         emptyMessage="No listings found"
-        tableClassName="min-w-[820px] lg:min-w-[980px] table-fixed"
+        tableClassName="min-w-[1120px]"
+        wrapperClassName="hidden 2xl:block"
+        density="compact"
       />
 
       {/* Results count */}
@@ -1027,6 +1159,218 @@ function hasText(value: unknown, minLength = 1) {
 
 function hasNumber(value: unknown) {
   return typeof value === "number" && Number.isFinite(value);
+}
+
+function ReadinessIndicator({ listing }: { listing: any }) {
+  const readiness = getListingReadiness(listing);
+  const isReady = readiness.status === "ready";
+  const isReview = readiness.status === "review";
+
+  return (
+    <div
+      className="flex flex-col gap-1"
+      title={
+        readiness.missing.length > 0
+          ? `Missing: ${readiness.missing.join(", ")}`
+          : "Listing is ready for stronger visibility"
+      }
+    >
+      <Badge
+        variant="outline"
+        className={
+          isReady
+            ? "w-fit border-emerald-300 bg-emerald-50 text-emerald-700"
+            : isReview
+              ? "w-fit border-amber-300 bg-amber-50 text-amber-700"
+              : "w-fit border-slate-300 bg-slate-50 text-slate-600"
+        }
+      >
+        {isReady ? <CheckCircle2 className="mr-1 h-3 w-3" /> : <AlertCircle className="mr-1 h-3 w-3" />}
+        {readiness.label}
+      </Badge>
+      <span className="text-[11px] text-muted-foreground">
+        {readiness.score}/{readiness.total} checks
+      </span>
+    </div>
+  );
+}
+
+function AdminListingCard({
+  listing,
+  selected,
+  onSelect,
+  listingHref,
+  editHref,
+  canPin,
+  canToggleCurated,
+  isStatusUpdating,
+  isDeleting,
+  onApprove,
+  onReject,
+  onPin,
+  onUnpin,
+  onToggleCurated,
+  onDelete,
+}: {
+  listing: any;
+  selected: boolean;
+  onSelect: (checked: boolean) => void;
+  listingHref: string;
+  editHref: string;
+  canPin: boolean;
+  canToggleCurated: boolean;
+  isStatusUpdating: boolean;
+  isDeleting: boolean;
+  onApprove: () => void;
+  onReject: () => void;
+  onPin: () => void;
+  onUnpin: () => void;
+  onToggleCurated: () => void;
+  onDelete: () => void;
+}) {
+  const isFeatured = Boolean(listing.featured_rank);
+
+  return (
+    <article
+      className={`rounded-2xl border bg-card/95 p-4 shadow-sm transition ${
+        selected ? "border-primary/50 bg-primary/5 shadow-md" : "border-border/70 hover:border-primary/30"
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        <Checkbox
+          checked={selected}
+          onCheckedChange={(checked) => onSelect(Boolean(checked))}
+          className="mt-1"
+          aria-label={`Select ${listing.name}`}
+        />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="line-clamp-2 font-serif text-xl font-semibold leading-tight text-foreground">
+                {listing.name}
+              </h2>
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5 text-primary" />
+                  {listing.city?.name || "No city"}
+                </span>
+                <span className="inline-flex min-w-0 items-center gap-1">
+                  <Tags className="h-3.5 w-3.5 text-primary" />
+                  <span className="truncate">{listing.category?.name || "No category"}</span>
+                </span>
+              </div>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0 rounded-full">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuItem asChild>
+                  <Link href={listingHref}>
+                    <Eye className="h-4 w-4 mr-2" />
+                    View
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={editHref}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {listing.status === "pending_review" && (
+                  <>
+                    <DropdownMenuItem
+                      className="text-green-600"
+                      onClick={onApprove}
+                      disabled={isStatusUpdating}
+                    >
+                      <Check className="h-4 w-4 mr-2" />
+                      Approve
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-destructive"
+                      onClick={onReject}
+                      disabled={isStatusUpdating}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Reject
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                {canToggleCurated && (
+                  <DropdownMenuItem onClick={onToggleCurated} disabled>
+                    <Crown className="h-4 w-4 mr-2" />
+                    {listing.is_curated ? "Remove from Curated" : "Add to Curated"}
+                  </DropdownMenuItem>
+                )}
+                {canPin && (
+                  <DropdownMenuItem onClick={onPin}>
+                    <Star className="h-4 w-4 mr-2" />
+                    Pin to Featured
+                  </DropdownMenuItem>
+                )}
+                {isFeatured && (
+                  <DropdownMenuItem className="text-yellow-700" onClick={onUnpin}>
+                    <Star className="h-4 w-4 mr-2" />
+                    Unpin from Featured
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-destructive"
+                  onClick={onDelete}
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <TierBadge tier={listing.tier} size="sm" />
+            <StatusBadge status={listing.status} size="sm" />
+            {listing.is_curated ? (
+              <Badge className="border-primary/30 bg-primary/15 text-primary">
+                <Crown className="mr-1 h-3 w-3" />
+                VIP
+              </Badge>
+            ) : null}
+            {isFeatured ? (
+              <Badge variant="outline" className="border-yellow-300 bg-yellow-50 text-yellow-700">
+                <Star className="mr-1 h-3 w-3" />
+                Rank {listing.featured_rank}
+              </Badge>
+            ) : null}
+          </div>
+
+          <div className="mt-4 rounded-xl border border-border/60 bg-background/60 p-3">
+            <ReadinessIndicator listing={listing} />
+          </div>
+
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <Button asChild variant="outline" size="sm" className="w-full">
+              <Link href={listingHref}>
+                <Eye className="mr-2 h-4 w-4" />
+                View
+              </Link>
+            </Button>
+            <Button asChild size="sm" className="w-full">
+              <Link href={editHref}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
 }
 
 function getListingReadiness(listing: any) {

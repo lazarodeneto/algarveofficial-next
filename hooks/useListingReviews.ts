@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { invalidateAdminInboxQueries } from "@/lib/query-invalidation";
 
 export type ListingReviewStatus = "pending" | "approved" | "rejected";
 
@@ -207,6 +208,7 @@ export function useUpsertListingReview() {
       return data as ListingReview;
     },
     onSuccess: (_data, variables) => {
+      void invalidateAdminInboxQueries(queryClient);
       queryClient.invalidateQueries({ queryKey: ["listing-reviews", variables.listingId] });
       queryClient.invalidateQueries({ queryKey: ["listing-review-mine", variables.listingId, variables.userId] });
       queryClient.invalidateQueries({ queryKey: ["admin-listing-reviews"] });
@@ -229,6 +231,7 @@ export function useDeleteListingReview() {
       return { reviewId, listingId };
     },
     onSuccess: (_data, variables) => {
+      void invalidateAdminInboxQueries(queryClient);
       queryClient.invalidateQueries({ queryKey: ["listing-reviews", variables.listingId] });
       queryClient.invalidateQueries({ queryKey: ["listing-review-mine", variables.listingId] });
       queryClient.invalidateQueries({ queryKey: ["admin-listing-reviews"] });
@@ -263,6 +266,7 @@ export function useModerateListingReview() {
       return data as ListingReview;
     },
     onSuccess: (_data, variables) => {
+      void invalidateAdminInboxQueries(queryClient);
       queryClient.invalidateQueries({ queryKey: ["admin-listing-reviews"] });
       queryClient.invalidateQueries({ queryKey: ["listing-reviews", variables.listingId] });
       queryClient.invalidateQueries({ queryKey: ["listing-review-mine", variables.listingId] });

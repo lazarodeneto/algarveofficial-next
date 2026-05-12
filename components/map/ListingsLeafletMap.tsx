@@ -5,6 +5,7 @@ import { divIcon, latLngBounds, point, type DivIcon, type Map as LeafletMap } fr
 import MarkerClusterGroup from "react-leaflet-cluster";
 import { MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { MapPin } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
@@ -66,6 +67,7 @@ interface ListingsLeafletMapProps {
   enforceBoundsOnPoints?: boolean;
   activeListingId?: string | null;
   focusListingId?: string | null;
+  navigateOnMarkerClick?: boolean;
   onListingSelect?: (listingId: string) => void;
   onBoundsChange?: (bounds: MapViewportBounds) => void;
 }
@@ -207,14 +209,17 @@ const ListingPointMarker = memo(function ListingPointMarker({
   isActive,
   showPopups,
   viewDetailsLabel,
+  navigateOnMarkerClick,
   onListingSelect,
 }: {
   point: MapListingPoint;
   isActive: boolean;
   showPopups: boolean;
   viewDetailsLabel: string;
+  navigateOnMarkerClick?: boolean;
   onListingSelect?: (listingId: string) => void;
 }) {
+  const router = useRouter();
   const icon = createMarker({
     category: point.categorySlug,
     tier: point.tier,
@@ -230,6 +235,10 @@ const ListingPointMarker = memo(function ListingPointMarker({
       eventHandlers={{
         click: () => {
           onListingSelect?.(point.id);
+          if (navigateOnMarkerClick && point.href) {
+            router.push(point.href);
+            return;
+          }
           document.getElementById(`listing-${point.id}`)?.scrollIntoView({
             behavior: "smooth",
             block: "center",
@@ -285,12 +294,14 @@ function ClusteredMarkers({
   enableClustering,
   activeListingId,
   showPopups,
+  navigateOnMarkerClick,
   onListingSelect,
 }: {
   points: MapListingPoint[];
   enableClustering: boolean;
   activeListingId?: string | null;
   showPopups: boolean;
+  navigateOnMarkerClick?: boolean;
   onListingSelect?: (listingId: string) => void;
 }) {
   const { t } = useTranslation();
@@ -304,6 +315,7 @@ function ClusteredMarkers({
           isActive={point.id === activeListingId}
           showPopups={showPopups}
           viewDetailsLabel={viewDetailsLabel}
+          navigateOnMarkerClick={navigateOnMarkerClick}
           onListingSelect={onListingSelect}
         />
       ))}
@@ -342,6 +354,7 @@ export function ListingsLeafletMap({
   enforceBoundsOnPoints = false,
   activeListingId,
   focusListingId,
+  navigateOnMarkerClick = false,
   onListingSelect,
   onBoundsChange,
 }: ListingsLeafletMapProps) {
@@ -456,6 +469,7 @@ export function ListingsLeafletMap({
           enableClustering={enableClustering}
           activeListingId={syncedActiveListingId}
           showPopups={showPopups}
+          navigateOnMarkerClick={navigateOnMarkerClick}
           onListingSelect={handleListingSelect}
         />
       </MapContainer>

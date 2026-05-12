@@ -159,7 +159,10 @@ export function NewsletterSection() {
                   {t('newsletter.subscribing')}
                 </>
               ) : (
-                t('newsletter.subscribe')
+                <>
+                  <Mail className="h-4 w-4 mr-2" />
+                  {t('newsletter.subscribe')}
+                </>
               )}
             </Button>
           </form>

@@ -45,10 +45,13 @@ import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { getCategoryIconComponent } from "@/lib/categoryIcons";
 import { callAdminTaxonomyApi } from "@/lib/admin/taxonomy-client";
 import { normalizeSlug } from "@/lib/slugify";
+import { buildCategoryHref } from "@/lib/public-route-builders";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 
 type CategoryRow = Tables<"categories">;
 type CategoryFormState = Partial<CategoryRow> & { id?: string };
+
+const pageSlugForCategory = (slug?: string | null) => buildCategoryHref(slug ?? "").replace(/^\//, "");
 
 export default function AdminCmsCategories() {
   const queryClient = useQueryClient();
@@ -357,7 +360,7 @@ export default function AdminCmsCategories() {
                       <Edit className="h-4 w-4 mr-2" />
                       Edit Details
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => window.open(`/stay?category=${category.slug}`, '_blank', 'noopener,noreferrer')}>
+                    <DropdownMenuItem onClick={() => window.open(buildCategoryHref(category.slug), '_blank', 'noopener,noreferrer')}>
                       <Eye className="h-4 w-4 mr-2" />
                       View Listings
                     </DropdownMenuItem>
@@ -532,7 +535,7 @@ export default function AdminCmsCategories() {
                     meta_description: seoData.meta_description,
                   })}
                   pageName={editingCategory.name}
-                  pageSlug={`directory?category=${editingCategory.slug}`}
+                  pageSlug={pageSlugForCategory(editingCategory.slug)}
                 />
               </div>
             </div>

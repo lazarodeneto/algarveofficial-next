@@ -1,45 +1,70 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-const FARO_WEATHER_URL =
-  "https://api.open-meteo.com/v1/forecast?latitude=37.0194&longitude=-7.9304&current=temperature_2m,weather_code,is_day&timezone=Europe%2FLisbon";
+import {
+  buildWeatherApiForecastUrl,
+  normalizeWeatherApiForecast,
+  toFahrenheit,
+} from "@/lib/weather/weatherapi";
 
-function toFahrenheit(celsius: number) {
-  return (celsius * 9) / 5 + 32;
+const FARO_COORDINATES = {
+  latitude: 37.0194,
+  longitude: -7.9304,
+};
+
+const ALBUFEIRA_COORDINATES = {
+  latitude: 37.0891,
+  longitude: -8.2479,
+};
+
+function resolveHeaderWeatherCoordinates(request: NextRequest) {
+  const location = request.nextUrl.searchParams.get("location")?.trim().toLowerCase();
+
+  if (location === "albufeira") {
+    return ALBUFEIRA_COORDINATES;
+  }
+
+  return FARO_COORDINATES;
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const apiKey = process.env.WEATHERAPI_KEY?.trim();
+  if (!apiKey) {
+    return NextResponse.json({ ok: false, error: "missing_api_key" });
+  }
+
+  const coordinates = resolveHeaderWeatherCoordinates(request);
+
   try {
-    const response = await fetch(FARO_WEATHER_URL, {
+    const response = await fetch(buildWeatherApiForecastUrl({ apiKey, ...coordinates }), {
       headers: { Accept: "application/json" },
-      next: { revalidate: 600 },
+      next: { revalidate: 1800 },
     });
 
     if (!response.ok) {
-      return NextResponse.json({ error: "Weather provider unavailable" }, { status: 502 });
+      return NextResponse.json({ ok: false, error: "weather_unavailable" }, { status: 502 });
     }
 
     const data = await response.json();
-    const celsius = data?.current?.temperature_2m;
+    const summary = normalizeWeatherApiForecast(data);
 
-    if (typeof celsius !== "number" || !Number.isFinite(celsius)) {
-      return NextResponse.json({ error: "Weather temperature unavailable" }, { status: 502 });
+    if (!summary.ok || summary.temperatureC === null) {
+      return NextResponse.json({ ok: false, error: "weather_unavailable" }, { status: 502 });
     }
 
     return NextResponse.json(
       {
-        celsius,
-        fahrenheit: toFahrenheit(celsius),
-        weatherCode: data.current?.weather_code,
-        isDay: data.current?.is_day === 1,
+        celsius: summary.temperatureC,
+        fahrenheit: toFahrenheit(summary.temperatureC),
+        condition: summary.conditionLabel,
         fetchedAt: Date.now(),
       },
       {
         headers: {
-          "Cache-Control": "public, s-maxage=600, stale-while-revalidate=1800",
+          "Cache-Control": "public, s-maxage=1800, stale-while-revalidate=3600",
         },
       },
     );
   } catch {
-    return NextResponse.json({ error: "Weather request failed" }, { status: 502 });
+    return NextResponse.json({ ok: false, error: "weather_unavailable" }, { status: 502 });
   }
 }

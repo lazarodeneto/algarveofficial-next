@@ -41,6 +41,13 @@ function getMetadataOwnerId(
   return metadata?.owner_id ?? metadata?.userId ?? null;
 }
 
+function getMetadataListingId(
+  metadata: { listing_id?: string | null } | null | undefined,
+): string | null {
+  const value = metadata?.listing_id?.trim();
+  return value || null;
+}
+
 function unixToIso(value: number | null | undefined): string | null {
   if (!value) return null;
   return new Date(value * 1000).toISOString();
@@ -134,6 +141,7 @@ async function resolveOwnerId(
 
 interface HandlerResult {
   ownerId: string | null;
+  listingId?: string | null;
   skipped?: boolean;
   reason?: string;
 }
@@ -151,6 +159,7 @@ export async function handleCheckoutCompleted(
   }
   const ownerId = getMetadataOwnerId(session.metadata);
   if (!ownerId) return { ownerId: null };
+  const listingId = getMetadataListingId(session.metadata);
 
   const pricingId = session.metadata?.pricing_id ?? null;
   const pricing = pricingId ? await findPricingById(supabase, pricingId) : null;
@@ -166,7 +175,7 @@ export async function handleCheckoutCompleted(
       billingPeriod: rawBillingPeriod,
       pricingId,
     });
-    return { ownerId, skipped: true, reason: "missing_metadata" };
+    return { ownerId, listingId, skipped: true, reason: "missing_metadata" };
   }
 
   const planType = planTypeFromBillingPeriod(billingPeriod);
@@ -178,7 +187,7 @@ export async function handleCheckoutCompleted(
   // fixed_2026: one-shot payment, immediately active. End date from pricing valid_to.
   if (planType === "fixed_2026") {
     if (session.mode === "payment" && session.payment_status !== "paid") {
-      return { ownerId, skipped: true, reason: "payment_not_paid" };
+      return { ownerId, listingId, skipped: true, reason: "payment_not_paid" };
     }
 
     const endDate = pricing?.valid_to ?? "2026-12-31";
@@ -202,11 +211,11 @@ export async function handleCheckoutCompleted(
       },
       { eventCreatedAt: event.created },
     );
-    return { ownerId };
+    return { ownerId, listingId };
   }
 
   if (session.mode !== "subscription") {
-    return { ownerId, skipped: true, reason: "unsupported_recurring_mode" };
+    return { ownerId, listingId, skipped: true, reason: "unsupported_recurring_mode" };
   }
 
   // Recurring: write a `pending` placeholder + IDs. customer.subscription.created
@@ -232,7 +241,7 @@ export async function handleCheckoutCompleted(
     { eventCreatedAt: event.created },
   );
 
-  return { ownerId };
+  return { ownerId, listingId };
 }
 
 export async function handleSubscriptionCreatedOrUpdated(
@@ -249,17 +258,18 @@ export async function handleSubscriptionCreatedOrUpdated(
     customerId,
   );
   if (!ownerId) return { ownerId: null };
+  const listingId = getMetadataListingId(sub.metadata);
 
   const period = firstItemPeriod(sub);
   const stripePriceId = period.priceId;
-  if (!stripePriceId) return { ownerId };
+  if (!stripePriceId) return { ownerId, listingId };
 
   const pricing = await findPricingByStripePriceId(supabase, stripePriceId);
   const tier = asPaidTier(pricing?.tier ?? null);
   const billingPeriod = pricing?.billing_period ?? null;
   if (!tier || !billingPeriod) {
     console.warn(`[webhook] ${event.type}: no pricing row for stripe_price_id=${stripePriceId}; owner=${ownerId} sub state unchanged`);
-    return { ownerId };
+    return { ownerId, listingId };
   }
 
   const planType = planTypeFromBillingPeriod(billingPeriod);
@@ -289,7 +299,7 @@ export async function handleSubscriptionCreatedOrUpdated(
     { eventCreatedAt: event.created },
   );
 
-  return { ownerId };
+  return { ownerId, listingId };
 }
 
 export async function handleSubscriptionDeleted(
@@ -306,6 +316,7 @@ export async function handleSubscriptionDeleted(
     customerId,
   );
   if (!ownerId) return { ownerId: null };
+  const listingId = getMetadataListingId(sub.metadata);
 
   const canceledAtIso = unixToIso(sub.canceled_at ?? sub.ended_at ?? null) ?? new Date().toISOString();
   await upsertSubscription(
@@ -322,7 +333,7 @@ export async function handleSubscriptionDeleted(
     { eventCreatedAt: event.created },
   );
 
-  return { ownerId };
+  return { ownerId, listingId };
 }
 
 export async function handleInvoicePaid(
@@ -348,17 +359,18 @@ export async function handleInvoicePaid(
     customerId,
   );
   if (!ownerId) return { ownerId: null };
+  const listingId = getMetadataListingId(sub.metadata);
 
   const period = firstItemPeriod(sub);
   const stripePriceId = period.priceId;
-  if (!stripePriceId) return { ownerId };
+  if (!stripePriceId) return { ownerId, listingId };
 
   const pricing = await findPricingByStripePriceId(supabase, stripePriceId);
   const tier = asPaidTier(pricing?.tier ?? null);
   const billingPeriod = pricing?.billing_period ?? null;
   if (!tier || !billingPeriod) {
     console.warn(`[webhook] invoice.paid: no pricing row for stripe_price_id=${stripePriceId}; owner=${ownerId} sub state unchanged`);
-    return { ownerId };
+    return { ownerId, listingId };
   }
 
   const planType = planTypeFromBillingPeriod(billingPeriod);
@@ -386,7 +398,7 @@ export async function handleInvoicePaid(
     { eventCreatedAt: event.created },
   );
 
-  return { ownerId };
+  return { ownerId, listingId };
 }
 
 export async function handleInvoicePaymentFailed(
@@ -411,6 +423,7 @@ export async function handleInvoicePaymentFailed(
     customerId,
   );
   if (!ownerId) return { ownerId: null };
+  const listingId = getMetadataListingId(sub.metadata);
 
   // Trust Stripe's mapped status: past_due during retries, unpaid after final attempt.
   const status = mapStripeSubscriptionStatus(sub.status);
@@ -427,7 +440,7 @@ export async function handleInvoicePaymentFailed(
     { eventCreatedAt: event.created },
   );
 
-  return { ownerId };
+  return { ownerId, listingId };
 }
 
 export async function handleCheckoutExpired(
@@ -467,7 +480,7 @@ export async function handleTrialWillEnd(
     sub.id,
     customerId,
   );
-  return { ownerId };
+  return { ownerId, listingId: getMetadataListingId(sub.metadata) };
 }
 
 export async function handleInvoiceFinalized(

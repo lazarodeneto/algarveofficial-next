@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 
 import { DEFAULT_LOCALE, isValidLocale, type Locale } from "@/lib/i18n/config";
+import { buildLocalizedPath } from "@/lib/i18n/localized-routing";
 import { getGolfListings, getLeaderboard } from "@/lib/golf";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
+import { buildBreadcrumbSchema, buildItemListSchema } from "@/lib/seo/advanced/schema-builders";
 import { getGolfCmsPageConfig } from "@/lib/golf-cms";
 import { GolfPageClient } from "@/components/golf/GolfPageClient";
 
@@ -90,6 +92,36 @@ export default async function GolfPage({ params }: PageProps) {
     getLeaderboard(),
     getGolfCmsPageConfig(locale),
   ]);
+  const meta = GOLF_META[locale];
+  const localizedGolfPath = buildLocalizedPath(locale, "/golf");
+  const itemListSchema = buildItemListSchema(
+    meta.title,
+    courses.map((course) => ({
+      name: course.name,
+      url: buildLocalizedPath(locale, `/golf/courses/${course.slug}`),
+      description: course.shortDescription ?? undefined,
+      image: course.featuredImageUrl ?? undefined,
+    })),
+    localizedGolfPath,
+  );
+  const breadcrumbSchema = buildBreadcrumbSchema([
+    { name: "Home", url: buildLocalizedPath(locale, "/") },
+    { name: meta.title, url: localizedGolfPath },
+  ]);
 
-  return <GolfPageClient locale={locale} courses={courses} leaderboard={leaderboard} pageConfig={pageConfig} />;
+  return (
+    <>
+      <script
+        id="schema-golf-item-list"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
+      <script
+        id="schema-golf-breadcrumb"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <GolfPageClient locale={locale} courses={courses} leaderboard={leaderboard} pageConfig={pageConfig} />
+    </>
+  );
 }

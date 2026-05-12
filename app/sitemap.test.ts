@@ -101,6 +101,8 @@ describe("sitemap slug SEO", () => {
     expect(urls).toContain("https://algarveofficial.com/visit/lagos");
     expect(urls).toContain("https://algarveofficial.com/destinations/golden-triangle");
     expect(urls).toContain("https://algarveofficial.com/category/restaurants");
+    expect(urls).toContain("https://algarveofficial.com/properties");
+    expect(urls).not.toContain("https://algarveofficial.com/real-estate");
     expect(urls.some((url) => new URL(url).pathname.startsWith("/en/"))).toBe(false);
 
     const listingEntry = entries.find((entry) => entry.url.endsWith("/listing/the-els-club-vilamoura"));

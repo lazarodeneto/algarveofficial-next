@@ -1,33 +1,261 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { m } from "framer-motion";
 import {
+  AlertTriangle,
   ArrowLeft,
-  Save,
-  Send,
+  Clock,
   Eye,
-  Phone,
-  Mail,
   Globe,
-  MapPin,
+  Image as ImageIcon,
   Loader2,
+  Mail,
+  MapPin,
+  Phone,
+  Send,
 } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { TierBadgeOwner } from "@/components/owner/TierBadgeOwner";
+
+import { ClaimStatusBadgeOwner } from "@/components/owner/ClaimStatusBadgeOwner";
 import { StatusBadgeOwner } from "@/components/owner/StatusBadgeOwner";
-import { OwnerListingImageManager } from "@/components/owner/OwnerListingImageManager";
-import { supabase } from "@/integrations/supabase/client";
+import { TierBadgeOwner } from "@/components/owner/TierBadgeOwner";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
-import { extractIdParam } from "@/lib/routeParams";
-import { invalidateListingMutationQueries } from "@/lib/query-invalidation";
+import type { Database, Json } from "@/integrations/supabase/types";
+import { supabase } from "@/integrations/supabase/client";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { extractIdParam } from "@/lib/routeParams";
+import { isUuid } from "@/lib/slugify";
+
+type ListingChangeRequestStatus = Database["public"]["Enums"]["listing_change_request_status"];
+
+type EditableFieldName =
+  | "name"
+  | "short_description"
+  | "description"
+  | "contact_phone"
+  | "contact_email"
+  | "website_url"
+  | "address"
+  | "opening_hours"
+  | "instagram_url"
+  | "facebook_url"
+  | "twitter_url"
+  | "youtube_url"
+  | "linkedin_url"
+  | "tiktok_url"
+  | "featured_image_url";
+
+type OwnerEditFormData = Record<EditableFieldName, string>;
+
+interface ChangeRequestRow {
+  id: string;
+  field_name: string;
+  old_value: Json | null;
+  requested_value: Json;
+  status: ListingChangeRequestStatus;
+  reviewed_at: string | null;
+  admin_note: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface RequestFieldDefinition {
+  name: EditableFieldName;
+  label: string;
+  description?: string;
+  placeholder?: string;
+  multiline?: boolean;
+  sensitive?: boolean;
+}
+
+const REQUEST_FIELDS: RequestFieldDefinition[] = [
+  {
+    name: "name",
+    label: "Business name",
+    placeholder: "Official business name",
+    sensitive: true,
+  },
+  {
+    name: "short_description",
+    label: "Short description",
+    placeholder: "Brief tagline for your listing",
+  },
+  {
+    name: "description",
+    label: "Full description",
+    description: "Full descriptions require editorial review before publication.",
+    placeholder: "Describe your business...",
+    multiline: true,
+    sensitive: true,
+  },
+  {
+    name: "contact_phone",
+    label: "Phone",
+    placeholder: "+351 xxx xxx xxx",
+  },
+  {
+    name: "contact_email",
+    label: "Primary contact email",
+    placeholder: "contact@example.com",
+    sensitive: true,
+  },
+  {
+    name: "website_url",
+    label: "Website",
+    placeholder: "https://www.example.com",
+  },
+  {
+    name: "address",
+    label: "Address correction",
+    placeholder: "Street, postal code, city",
+    multiline: true,
+  },
+  {
+    name: "opening_hours",
+    label: "Opening hours",
+    placeholder: "Monday-Friday 09:00-18:00",
+    multiline: true,
+  },
+  {
+    name: "instagram_url",
+    label: "Instagram",
+    placeholder: "https://instagram.com/yourprofile",
+  },
+  {
+    name: "facebook_url",
+    label: "Facebook",
+    placeholder: "https://facebook.com/yourpage",
+  },
+  {
+    name: "twitter_url",
+    label: "X / Twitter",
+    placeholder: "https://x.com/yourhandle",
+  },
+  {
+    name: "youtube_url",
+    label: "YouTube",
+    placeholder: "https://youtube.com/@yourchannel",
+  },
+  {
+    name: "linkedin_url",
+    label: "LinkedIn",
+    placeholder: "https://linkedin.com/company/yourcompany",
+  },
+  {
+    name: "tiktok_url",
+    label: "TikTok",
+    placeholder: "https://tiktok.com/@yourhandle",
+  },
+  {
+    name: "featured_image_url",
+    label: "Featured image URL",
+    description: "Featured image changes are reviewed before replacing the public listing image.",
+    placeholder: "https://...",
+    sensitive: true,
+  },
+];
+
+const emptyFormData = REQUEST_FIELDS.reduce((acc, field) => {
+  acc[field.name] = "";
+  return acc;
+}, {} as OwnerEditFormData);
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function readName(value: unknown): string | null {
+  if (isRecord(value) && typeof value.name === "string") {
+    return value.name;
+  }
+  return null;
+}
+
+function readOpeningHours(categoryData: Json | null) {
+  if (!isRecord(categoryData)) return "";
+
+  if (typeof categoryData.opening_hours === "string") {
+    return categoryData.opening_hours;
+  }
+
+  const businessDetails = categoryData.business_details;
+  if (isRecord(businessDetails) && typeof businessDetails.opening_hours === "string") {
+    return businessDetails.opening_hours;
+  }
+
+  return "";
+}
+
+function valueToDisplay(value: unknown) {
+  if (value === null || value === undefined || value === "") return "Not provided";
+  if (typeof value === "string") return value;
+  return JSON.stringify(value);
+}
+
+function getCurrentFormData(listing: Database["public"]["Tables"]["listings"]["Row"]): OwnerEditFormData {
+  return {
+    name: listing.name || "",
+    short_description: listing.short_description || "",
+    description: listing.description || "",
+    contact_phone: listing.contact_phone || "",
+    contact_email: listing.contact_email || "",
+    website_url: listing.website_url || "",
+    address: listing.address || "",
+    opening_hours: readOpeningHours(listing.category_data),
+    instagram_url: listing.instagram_url || "",
+    facebook_url: listing.facebook_url || "",
+    twitter_url: listing.twitter_url || "",
+    youtube_url: listing.youtube_url || "",
+    linkedin_url: listing.linkedin_url || "",
+    tiktok_url: listing.tiktok_url || "",
+    featured_image_url: listing.featured_image_url || "",
+  };
+}
+
+function normalizeForComparison(value: string) {
+  return value.trim();
+}
+
+function FieldIcon({ name }: { name: EditableFieldName }) {
+  const className = "h-4 w-4";
+  if (name.includes("phone")) return <Phone className={className} />;
+  if (name.includes("email")) return <Mail className={className} />;
+  if (name.includes("url") || name === "website_url") return <Globe className={className} />;
+  if (name === "address") return <MapPin className={className} />;
+  if (name === "featured_image_url") return <ImageIcon className={className} />;
+  return <Clock className={className} />;
+}
+
+function StatusPill({ status }: { status: ListingChangeRequestStatus }) {
+  const config: Record<ListingChangeRequestStatus, string> = {
+    pending: "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+    approved: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+    rejected: "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300",
+  };
+
+  return (
+    <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium ${config[status]}`}>
+      {status.replaceAll("_", " ")}
+    </span>
+  );
+}
+
+function InfoRow({ label, value, icon }: { label: string; value?: string | null; icon?: ReactNode }) {
+  return (
+    <div className="flex items-center gap-2">
+      {icon ? <span className="text-muted-foreground">{icon}</span> : null}
+      <span className="text-muted-foreground">{label}:</span>
+      <span className="font-medium">{value || "Unknown"}</span>
+    </div>
+  );
+}
 
 export default function OwnerListingEdit() {
   const params = useParams<Record<string, string | string[] | undefined>>();
@@ -36,142 +264,117 @@ export default function OwnerListingEdit() {
   const l = useLocalePath();
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  
-  // Fetch listing from Supabase
+  const [formData, setFormData] = useState<OwnerEditFormData>(emptyFormData);
+
   const { data: listing, isLoading } = useQuery({
-    queryKey: ['owner-listing', id],
+    queryKey: ["owner-listing", user?.id, id],
     queryFn: async () => {
-      if (!id) return null;
+      if (!id || !user?.id || !isUuid(id)) return null;
       const { data, error } = await supabase
-        .from('listings')
+        .from("listings")
         .select(`
           *,
           cities:city_id(id, name),
           categories:category_id(id, name),
           regions:region_id(id, name)
         `)
-        .eq('id', id)
-        .single();
+        .eq("id", id)
+        .eq("owner_id", user.id)
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
-    enabled: !!id,
+    enabled: !!id && !!user?.id,
     staleTime: 0,
   });
 
-  // Form state
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    short_description: '',
-    contact_phone: '',
-    contact_email: '',
-    website_url: '',
-    instagram_url: '',
-    facebook_url: '',
-    twitter_url: '',
-    youtube_url: '',
+  const pendingRequests = useQuery({
+    queryKey: ["owner-listing-change-requests", user?.id, id],
+    queryFn: async () => {
+      if (!id) return [];
+      const response = await fetch(`/api/owner/listing-change-requests?listingId=${encodeURIComponent(id)}`, {
+        cache: "no-store",
+      });
+      const json = (await response.json()) as {
+        ok?: boolean;
+        data?: ChangeRequestRow[];
+        error?: { message?: string };
+      };
+
+      if (!response.ok || json.ok === false) {
+        throw new Error(json.error?.message ?? "Failed to load pending requests.");
+      }
+
+      return json.data ?? [];
+    },
+    enabled: !!id && !!user?.id && isUuid(id ?? ""),
+    staleTime: 0,
   });
 
-  // Load listing data into form
   useEffect(() => {
     if (listing) {
-      setFormData({
-        name: listing.name || '',
-        description: listing.description || '',
-        short_description: listing.short_description || '',
-        contact_phone: listing.contact_phone || '',
-        contact_email: listing.contact_email || '',
-        website_url: listing.website_url || '',
-        instagram_url: listing.instagram_url || '',
-        facebook_url: listing.facebook_url || '',
-        twitter_url: listing.twitter_url || '',
-        youtube_url: listing.youtube_url || '',
-      });
+      setFormData(getCurrentFormData(listing));
     }
   }, [listing]);
 
-  // Save draft mutation
-  const saveDraft = useMutation({
+  const currentData = useMemo(() => (listing ? getCurrentFormData(listing) : emptyFormData), [listing]);
+
+  const changedFields = useMemo(
+    () =>
+      REQUEST_FIELDS.filter(
+        (field) => normalizeForComparison(formData[field.name]) !== normalizeForComparison(currentData[field.name]),
+      ),
+    [currentData, formData],
+  );
+
+  const submitChangeRequests = useMutation({
     mutationFn: async () => {
       if (!id || !user?.id) {
         throw new Error("Owner authentication required");
       }
 
-      const { error } = await supabase
-        .from('listings')
-        .update({
-          name: formData.name,
-          description: formData.description,
-          short_description: formData.short_description,
-          contact_phone: formData.contact_phone || null,
-          contact_email: formData.contact_email || null,
-          website_url: formData.website_url || null,
-          instagram_url: formData.instagram_url || null,
-          facebook_url: formData.facebook_url || null,
-          twitter_url: formData.twitter_url || null,
-          youtube_url: formData.youtube_url || null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', id)
-        .eq('owner_id', user.id); // Ensure owner can only update their own
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      void invalidateListingMutationQueries(queryClient, id);
-      toast.success("Changes saved as draft");
-    },
-    onError: (error) => {
-      toast.error("Failed to save: " + (error as Error).message);
-    },
-  });
+      const response = await fetch("/api/owner/listing-change-requests", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          listingId: id,
+          changes: changedFields.map((field) => ({
+            fieldName: field.name,
+            requestedValue: formData[field.name],
+          })),
+        }),
+      });
 
-  // Submit for review mutation
-  const submitForReview = useMutation({
-    mutationFn: async () => {
-      if (!id || !user?.id) {
-        throw new Error("Owner authentication required");
+      const json = (await response.json()) as {
+        ok?: boolean;
+        data?: unknown;
+        error?: { message?: string; details?: unknown };
+      };
+
+      if (!response.ok || json.ok === false) {
+        throw new Error(json.error?.message ?? "Failed to submit change requests.");
       }
 
-      const { error } = await supabase
-        .from('listings')
-        .update({
-          name: formData.name,
-          description: formData.description,
-          short_description: formData.short_description,
-          contact_phone: formData.contact_phone || null,
-          contact_email: formData.contact_email || null,
-          website_url: formData.website_url || null,
-          instagram_url: formData.instagram_url || null,
-          facebook_url: formData.facebook_url || null,
-          twitter_url: formData.twitter_url || null,
-          youtube_url: formData.youtube_url || null,
-          status: 'pending_review',
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', id)
-        .eq('owner_id', user.id);
-      if (error) throw error;
+      return json.data;
     },
     onSuccess: () => {
-      void invalidateListingMutationQueries(queryClient, id);
-      toast.success("Listing submitted for review");
+      void queryClient.invalidateQueries({ queryKey: ["owner-listing-change-requests", user?.id, id] });
+      toast.success("Change request submitted for admin review");
     },
     onError: (error) => {
-      toast.error("Failed to submit: " + (error as Error).message);
+      toast.error((error as Error).message);
     },
   });
 
-  const updateField = (field: keyof typeof formData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const updateField = (field: EditableFieldName, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const isSaving = saveDraft.isPending;
-  const isSubmitting = submitForReview.isPending;
-  
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex min-h-[400px] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -180,57 +383,66 @@ export default function OwnerListingEdit() {
   if (!listing) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
-        <p className="text-muted-foreground mb-4">Listing not found</p>
-        <Button onClick={() => router.push(l('/owner/listings'))}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
+        <p className="mb-4 text-muted-foreground">Listing not found</p>
+        <Button onClick={() => router.push(l("/owner/listings"))}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Listings
         </Button>
       </div>
     );
   }
-  
-  const city = listing.cities as any;
-  const category = listing.categories as any;
-  const region = listing.regions as any;
+
+  const city = readName(listing.cities);
+  const category = readName(listing.categories);
+  const region = readName(listing.regions);
+  const isClaimed = listing.claim_status === "claimed";
+  const isSubmitting = submitChangeRequests.isPending;
+  const hasChanges = changedFields.length > 0;
+  const requestByField = new Map(
+    (pendingRequests.data ?? [])
+      .filter((request) => request.status === "pending")
+      .map((request) => [request.field_name, request]),
+  );
 
   return (
     <div className="space-y-6 pb-24">
-      {/* Header */}
       <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col gap-4"
       >
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => router.push(l('/owner/listings'))}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.push(l("/owner/listings"))}
           className="w-fit"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Listings
         </Button>
-        
-        <div className="flex flex-col sm:flex-row justify-between gap-4">
+
+        <div className="flex flex-col justify-between gap-4 sm:flex-row">
           <div>
-            <h1 className="text-2xl font-serif font-semibold text-foreground">
-              Edit Listing
-            </h1>
-            <div className="flex flex-wrap items-center gap-2 mt-2">
+            <h1 className="text-2xl font-serif font-semibold text-foreground">Request listing changes</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Submit structured updates for admin approval. Public listing data is not changed instantly.
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
               <TierBadgeOwner tier={listing.tier} size="sm" />
               <StatusBadgeOwner status={listing.status} size="sm" />
+              <ClaimStatusBadgeOwner status={listing.claim_status} size="sm" />
               {listing.is_curated && (
-                <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/30">
+                <span className="rounded-full border border-primary/30 bg-primary/20 px-2 py-0.5 text-xs text-primary">
                   Signature Selection
                 </span>
               )}
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" asChild>
-              <a href={`/listing/${listing.slug}`} target="_blank" rel="noopener noreferrer">
-                <Eye className="h-4 w-4 mr-2" />
+              <a href={l(`/listing/${listing.slug}`)} target="_blank" rel="noopener noreferrer">
+                <Eye className="mr-2 h-4 w-4" />
                 Preview
               </a>
             </Button>
@@ -238,257 +450,184 @@ export default function OwnerListingEdit() {
         </div>
       </m.div>
 
-      {/* Read-only Info */}
-      <Card className="bg-muted/30 border-border">
+      <Card className="border-border bg-muted/30">
         <CardContent className="p-4">
           <div className="flex flex-wrap gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Location:</span>
-              <span className="font-medium">{city?.name || 'Unknown'}</span>
-            </div>
+            <InfoRow label="Location" value={city} icon={<MapPin className="h-4 w-4" />} />
             <Separator orientation="vertical" className="h-5" />
-            <div>
-              <span className="text-muted-foreground">Category:</span>{' '}
-              <span className="font-medium">{category?.name || 'Unknown'}</span>
-            </div>
+            <InfoRow label="Category" value={category} />
             {region && (
               <>
                 <Separator orientation="vertical" className="h-5" />
-                <div>
-                  <span className="text-muted-foreground">Region:</span>{' '}
-                  <span className="font-medium">{region.name}</span>
-                </div>
+                <InfoRow label="Region" value={region} />
               </>
             )}
           </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            To change location or category, please contact support.
+          <p className="mt-2 text-xs text-muted-foreground">
+            City, category, slug and ownership changes remain protected and are handled by admin review.
           </p>
         </CardContent>
       </Card>
 
-      {/* Basic Info */}
-      <Card className="bg-card border-border">
-        <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
-          <CardDescription>Update your listing's name and description</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Listing Name *</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => updateField('name', e.target.value)}
-              placeholder="Enter listing name"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="short_description">Short Description</Label>
-            <Input
-              id="short_description"
-              value={formData.short_description}
-              onChange={(e) => updateField('short_description', e.target.value)}
-              placeholder="Brief tagline for your listing"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="description">Full Description *</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => updateField('description', e.target.value)}
-              placeholder="Describe your business..."
-              rows={4}
-            />
-            <p className="text-xs text-muted-foreground">
-              Write a compelling description that highlights what makes your business special.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Contact Information */}
-      <Card className="bg-card border-border">
-        <CardHeader>
-          <CardTitle>Contact Information</CardTitle>
-          <CardDescription>How customers can reach you</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="phone" className="flex items-center gap-2">
-                <Phone className="h-4 w-4" />
-                Phone
-              </Label>
-              <Input
-                id="phone"
-                value={formData.contact_phone}
-                onChange={(e) => updateField('contact_phone', e.target.value)}
-                placeholder="+351 xxx xxx xxx"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="email" className="flex items-center gap-2">
-                <Mail className="h-4 w-4" />
-                Email
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.contact_email}
-                onChange={(e) => updateField('contact_email', e.target.value)}
-                placeholder="contact@example.com"
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="website" className="flex items-center gap-2">
-              <Globe className="h-4 w-4" />
-              Website
-            </Label>
-            <Input
-              id="website"
-              value={formData.website_url}
-              onChange={(e) => updateField('website_url', e.target.value)}
-              placeholder="https://www.example.com"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Social Links */}
-      <Card className="bg-card border-border">
-        <CardHeader>
-          <CardTitle>Social Media</CardTitle>
-          <CardDescription>Connect your social profiles</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="instagram">Instagram</Label>
-              <Input
-                id="instagram"
-                value={formData.instagram_url}
-                onChange={(e) => updateField('instagram_url', e.target.value)}
-                placeholder="https://instagram.com/yourprofile"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="facebook">Facebook</Label>
-              <Input
-                id="facebook"
-                value={formData.facebook_url}
-                onChange={(e) => updateField('facebook_url', e.target.value)}
-                placeholder="https://facebook.com/yourpage"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="twitter">Twitter / X</Label>
-              <Input
-                id="twitter"
-                value={formData.twitter_url}
-                onChange={(e) => updateField('twitter_url', e.target.value)}
-                placeholder="https://twitter.com/yourhandle"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="youtube">YouTube</Label>
-              <Input
-                id="youtube"
-                value={formData.youtube_url}
-                onChange={(e) => updateField('youtube_url', e.target.value)}
-                placeholder="https://youtube.com/@yourchannel"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Photos */}
-      {id && <OwnerListingImageManager listingId={id} />}
-
-      {/* Tier & Curated Info (Read-only) */}
-      <Card className="bg-amber-500/5 border-amber-500/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            Membership Status
-            <TierBadgeOwner tier={listing.tier} size="sm" />
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Your current membership tier determines your visibility and available features.
-            {listing.tier !== 'signature' && (
-              <> Upgrade to increase your reach and unlock premium benefits.</>
-            )}
-          </p>
-          
-          {listing.tier === 'signature' && (
-            <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-              <p className="text-sm">
-                <strong className="text-amber-400">Signature Selection Eligibility:</strong>{' '}
-                {listing.is_curated ? (
-                  <span className="text-primary">Your listing is featured in the VIP section!</span>
-                ) : (
-                  <span className="text-muted-foreground">
-                    As a Signature member, your listing is eligible for editorial selection.
-                  </span>
-                )}
+      {!isClaimed ? (
+        <Card className="border-amber-500/30 bg-amber-500/10">
+          <CardContent className="flex gap-3 p-4 text-sm text-amber-800 dark:text-amber-200">
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+            <div>
+              <p className="font-semibold">Change requests require an approved claim.</p>
+              <p className="mt-1">
+                This listing is assigned to your account but is not marked as claimed yet. Complete admin claim
+                approval before submitting owner edits.
               </p>
             </div>
-          )}
-          
-          <Button variant="outline" asChild>
-            <a href={l("/owner/membership")}>View Membership Options</a>
-          </Button>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : null}
 
-      {/* Sticky Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-t border-border p-4 z-40">
-        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row justify-end gap-3">
-          <Button
-            variant="outline"
-            onClick={() => saveDraft.mutate()}
-            disabled={isSaving || isSubmitting}
-          >
-            {isSaving ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <Save className="h-4 w-4 mr-2" />
-            )}
-            Save Draft
-          </Button>
-          
-          {listing.status !== 'pending_review' && (
-            <Button
-              onClick={() => submitForReview.mutate()}
-              disabled={isSaving || isSubmitting}
-            >
-              {isSubmitting ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="space-y-6">
+          <Card className="border-border bg-card">
+            <CardHeader>
+              <CardTitle>Requested updates</CardTitle>
+              <CardDescription>
+                Every changed field below is saved as a pending request. Admin approval is required before public
+                content changes.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              {REQUEST_FIELDS.map((field) => {
+                const pending = requestByField.get(field.name);
+                const fieldId = `owner-edit-${field.name}`;
+                return (
+                  <div key={field.name} className="space-y-2 rounded-lg border border-border/70 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <Label htmlFor={fieldId} className="flex items-center gap-2">
+                        <FieldIcon name={field.name} />
+                        {field.label}
+                      </Label>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {field.sensitive ? (
+                          <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-300">
+                            Admin review
+                          </span>
+                        ) : null}
+                        {pending ? <StatusPill status={pending.status} /> : null}
+                      </div>
+                    </div>
+                    {field.multiline ? (
+                      <Textarea
+                        id={fieldId}
+                        value={formData[field.name]}
+                        onChange={(event) => updateField(field.name, event.target.value)}
+                        placeholder={field.placeholder}
+                        rows={field.name === "description" ? 5 : 3}
+                        disabled={!isClaimed || Boolean(pending)}
+                      />
+                    ) : (
+                      <Input
+                        id={fieldId}
+                        value={formData[field.name]}
+                        onChange={(event) => updateField(field.name, event.target.value)}
+                        placeholder={field.placeholder}
+                        disabled={!isClaimed || Boolean(pending)}
+                      />
+                    )}
+                    {field.description ? <p className="text-xs text-muted-foreground">{field.description}</p> : null}
+                    {pending ? (
+                      <p className="text-xs text-muted-foreground">
+                        A pending request already exists for this field. Requested value:{" "}
+                        <span className="font-medium text-foreground">{valueToDisplay(pending.requested_value)}</span>
+                      </p>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+        </div>
+
+        <aside className="space-y-6">
+          <Card className="border-border bg-card">
+            <CardHeader>
+              <CardTitle>Pending requests</CardTitle>
+              <CardDescription>Requests already submitted for this listing.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {pendingRequests.isLoading ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Loading requests...
+                </div>
+              ) : (pendingRequests.data ?? []).length === 0 ? (
+                <p className="text-sm text-muted-foreground">No change requests yet.</p>
               ) : (
-                <Send className="h-4 w-4 mr-2" />
+                (pendingRequests.data ?? []).map((request) => (
+                  <div key={request.id} className="rounded-lg border border-border/70 p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">
+                          {REQUEST_FIELDS.find((field) => field.name === request.field_name)?.label ??
+                            request.field_name}
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Submitted {new Date(request.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <StatusPill status={request.status} />
+                    </div>
+                    <div className="mt-3 space-y-2 text-xs">
+                      <p>
+                        <span className="text-muted-foreground">Current:</span>{" "}
+                        <span className="text-foreground">{valueToDisplay(request.old_value)}</span>
+                      </p>
+                      <p>
+                        <span className="text-muted-foreground">Requested:</span>{" "}
+                        <span className="text-foreground">{valueToDisplay(request.requested_value)}</span>
+                      </p>
+                      {request.admin_note ? (
+                        <p>
+                          <span className="text-muted-foreground">Admin note:</span>{" "}
+                          <span className="text-foreground">{request.admin_note}</span>
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                ))
               )}
-              Submit for Review
-            </Button>
-          )}
-          
-          {listing.status === 'pending_review' && (
-            <Button disabled className="bg-yellow-500/20 text-yellow-400">
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Under Review
-            </Button>
-          )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-border bg-card">
+            <CardHeader>
+              <CardTitle>Review policy</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm text-muted-foreground">
+              <p>
+                Low-risk and sensitive fields are both routed through manual review in this phase to keep listing
+                quality consistent.
+              </p>
+              <p>
+                Sensitive changes include business name, full description, featured image, primary email and ownership
+                details.
+              </p>
+            </CardContent>
+          </Card>
+        </aside>
+      </div>
+
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 p-4 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-4xl flex-col justify-end gap-3 sm:flex-row">
+          <Button variant="outline" onClick={() => router.push(l(`/owner/listings/${listing.id}`))}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() => submitChangeRequests.mutate()}
+            disabled={!isClaimed || !hasChanges || isSubmitting}
+          >
+            {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+            Submit {changedFields.length > 0 ? changedFields.length : ""} change request
+            {changedFields.length === 1 ? "" : "s"}
+          </Button>
         </div>
       </div>
     </div>

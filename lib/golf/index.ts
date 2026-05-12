@@ -1,6 +1,7 @@
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import { isApprovedGolfCourse } from "@/lib/golf/allowed-courses";
+import { getMergedMemberSlugs } from "@/lib/categoryMerges";
 
 export {
   approvedGolfCourses,
@@ -338,16 +339,19 @@ function mergeCourseDetails(
 async function getGolfCategoryIds(
   supabase: ReturnType<typeof createPublicServerClient>,
 ): Promise<string[]> {
+  const memberSlugs = getMergedMemberSlugs(CANONICAL_GOLF_CATEGORY_SLUG);
   const { data, error } = await supabase
     .from("categories")
     .select("id, name, slug")
+    .eq("is_active", true)
+    .in("slug", memberSlugs)
     .limit(200);
 
   if (error || !data) return [];
 
   return (data ?? [])
     .map((row) => row as Record<string, unknown>)
-    .filter((row) => isGolfCategoryValue(toNullableString(row.slug)) || isGolfCategoryValue(toNullableString(row.name)))
+    .filter((row) => isGolfCategoryValue(toNullableString(row.slug)))
     .map((row) => toNullableString(row.id))
     .filter((id): id is string => id !== null);
 }

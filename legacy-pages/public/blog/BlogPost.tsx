@@ -96,7 +96,9 @@ function formatArticleContent(content: string | null | undefined, title: string)
   const rawContent = content?.trim() ?? "";
   if (!rawContent) return "";
   if (/<(h[1-6]|p|ul|ol|li|blockquote)\b/i.test(rawContent)) {
-    return rawContent;
+    return rawContent.replace(/<\/?h1(\s[^>]*)?>/gi, (match) =>
+      match.startsWith("</") ? "</h2>" : match.replace(/^<h1/i, "<h2"),
+    );
   }
 
   return rawContent

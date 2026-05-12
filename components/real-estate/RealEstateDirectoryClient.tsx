@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { ArrowRight, Building2, Loader2, Plus } from "lucide-react";
@@ -18,19 +17,11 @@ import { ConciergeContactDialog } from "@/components/real-estate/ConciergeContac
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
-import { supabase } from "@/integrations/supabase/client";
 import { hideServerShell } from "@/lib/dom/server-shell";
-import type { Database, Tables } from "@/integrations/supabase/types";
-import {
-  fetchCategoryTranslations,
-  fetchCityTranslations,
-  fetchListingTranslations,
-  normalizePublicContentLocale,
-} from "@/lib/publicContentLocale";
+import type { Tables } from "@/integrations/supabase/types";
 
 interface FilterState {
   priceMin: string;
@@ -46,12 +37,10 @@ const REAL_ESTATE_TIER_PRIORITY: Record<string, number> = {
   free: 2,
 };
 
-type ListingRow = Database["public"]["Tables"]["listings"]["Row"];
-
 export type RealEstateCategory = Pick<Tables<"categories">, "id" | "name" | "slug">;
 
 export type RealEstateListing = Pick<
-  ListingRow,
+  Tables<"listings">,
   | "id"
   | "slug"
   | "name"
@@ -59,6 +48,8 @@ export type RealEstateListing = Pick<
   | "featured_image_url"
   | "updated_at"
   | "price_from"
+  | "price_to"
+  | "price_currency"
   | "tier"
   | "category_data"
 > & {
@@ -70,109 +61,6 @@ export interface RealEstateDirectoryClientProps {
   initialListings: RealEstateListing[];
 }
 
-function normalizeRealEstateListings(rows: unknown[]): RealEstateListing[] {
-  return (rows ?? []).map((entry) => {
-    const row = entry as RealEstateListing & {
-      cities:
-        | RealEstateListing["cities"]
-        | Array<NonNullable<RealEstateListing["cities"]>>
-        | null
-        | undefined;
-    };
-
-    return {
-      ...row,
-      cities: Array.isArray(row.cities) ? (row.cities[0] ?? null) : (row.cities ?? null),
-    };
-  });
-}
-
-async function fetchRealEstateCategory(locale: string) {
-  const { data, error } = await supabase
-    .from("categories")
-    .select("id, name, slug")
-    .eq("slug", "real-estate")
-    .eq("is_active", true)
-    .single();
-
-  if (error) throw error;
-
-  const category = data as RealEstateCategory;
-  if (locale === "en") {
-    return category;
-  }
-
-  const [translation] = await fetchCategoryTranslations(locale as never, [category.id]);
-
-  return {
-    ...category,
-    name: translation?.name?.trim() ?? category.name,
-  };
-}
-
-async function fetchRealEstateListings(categoryId: string, locale: string) {
-  const { data, error } = await supabase
-    .from("listings")
-    .select(`
-      id,
-      slug,
-      name,
-      short_description,
-      featured_image_url,
-      updated_at,
-      price_from,
-      tier,
-      category_data,
-      cities (
-        id,
-        name,
-        slug
-      )
-    `)
-    .eq("status", "published")
-    .eq("category_id", categoryId)
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
-
-  const listings = normalizeRealEstateListings(data ?? []);
-  if (locale === "en" || listings.length === 0) {
-    return listings;
-  }
-
-  const [listingTranslations, cityTranslations] = await Promise.all([
-    fetchListingTranslations(locale as never, listings.map((listing) => listing.id)),
-    fetchCityTranslations(
-      locale as never,
-      listings.map((listing) => listing.cities?.id).filter(Boolean) as string[],
-    ),
-  ]);
-
-  const listingTranslationMap = new Map(
-    listingTranslations.map((translation) => [translation.listing_id, translation]),
-  );
-  const cityTranslationMap = new Map(
-    cityTranslations.map((translation) => [translation.city_id, translation]),
-  );
-
-  return listings.map((listing) => {
-    const translation = listingTranslationMap.get(listing.id);
-    const cityTranslation = listing.cities ? cityTranslationMap.get(listing.cities.id) : undefined;
-
-    return {
-      ...listing,
-      name: translation?.title?.trim() ?? listing.name,
-      short_description: translation?.short_description?.trim() ?? listing.short_description,
-      cities: listing.cities
-        ? {
-            ...listing.cities,
-            name: cityTranslation?.name?.trim() ?? listing.cities.name,
-          }
-        : listing.cities,
-    };
-  });
-}
-
 function RealEstateDirectoryClientInner({
   initialCategory,
   initialListings,
@@ -181,7 +69,6 @@ function RealEstateDirectoryClientInner({
   const cms = useCmsPageBuilder("real-estate");
   const { user } = useAuth();
   const l = useLocalePath();
-  const locale = normalizePublicContentLocale(useCurrentLocale());
 
   const [filters, setFilters] = useState<FilterState>({
     priceMin: "",
@@ -191,32 +78,10 @@ function RealEstateDirectoryClientInner({
     location: "",
   });
 
-  const {
-    data: realEstateCategory,
-    isLoading: categoryLoading,
-  } = useQuery({
-    queryKey: ["real-estate-category", locale],
-    queryFn: () => fetchRealEstateCategory(locale),
-    initialData: initialCategory,
-    staleTime: 1000 * 60 * 10,
-  });
-
+  const realEstateCategory = initialCategory;
   const realEstateCategoryId = realEstateCategory?.id;
-
-  const {
-    data: listings = locale === "en" ? initialListings : [],
-    isLoading: listingsLoading,
-    error,
-  } = useQuery({
-    queryKey: ["real-estate-directory", realEstateCategoryId, locale],
-    enabled: Boolean(realEstateCategoryId),
-    queryFn: async () => {
-      if (!realEstateCategoryId) return [];
-      return fetchRealEstateListings(realEstateCategoryId, locale);
-    },
-    placeholderData: locale === "en" && realEstateCategoryId === initialCategory.id ? initialListings : undefined,
-    staleTime: 60 * 1000,
-  });
+  const listings = initialListings;
+  const error: Error | null = null;
 
   const filteredListings = useMemo(() => {
     return listings
@@ -226,12 +91,13 @@ function RealEstateDirectoryClientInner({
         const bedrooms = Number(categoryData.bedrooms ?? 0);
         const location = listing.cities?.name?.toLowerCase() ?? "";
 
-        const minPrice = Number(filters.priceMin);
-        const maxPrice = Number(filters.priceMax);
-        const listingPrice = listing.price_from ?? 0;
+        const minPrice = Number.parseFloat(filters.priceMin);
+        const maxPrice = Number.parseFloat(filters.priceMax);
+        const lowPrice = listing.price_from ?? listing.price_to ?? null;
+        const highPrice = listing.price_to ?? listing.price_from ?? null;
 
-        if (filters.priceMin && Number.isFinite(minPrice) && listingPrice < minPrice) return false;
-        if (filters.priceMax && Number.isFinite(maxPrice) && listingPrice > maxPrice) return false;
+        if (filters.priceMin && Number.isFinite(minPrice) && (highPrice === null || highPrice < minPrice)) return false;
+        if (filters.priceMax && Number.isFinite(maxPrice) && (lowPrice === null || lowPrice > maxPrice)) return false;
         if (filters.type !== "all" && propertyType !== filters.type.toLowerCase()) return false;
 
         if (filters.beds !== "all") {
@@ -256,7 +122,7 @@ function RealEstateDirectoryClientInner({
       });
   }, [filters, listings]);
 
-  const isLoading = categoryLoading || (Boolean(realEstateCategoryId) && listingsLoading);
+  const isLoading = false;
 
   const addListingHref = useMemo(() => {
     if (user?.role === "admin" || user?.role === "editor") return l("/admin/listings/new");

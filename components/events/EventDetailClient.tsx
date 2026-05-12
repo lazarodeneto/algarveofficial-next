@@ -154,7 +154,8 @@ async function fetchEventBySlug(slug: string, _locale: string) {
     .maybeSingle();
 
   if (error) throw error;
-  return (data as EventRecord | null) ?? null;
+  const event = (data as EventRecord | null) ?? null;
+  return event && isPublicEventVisibleByDate(event) ? event : null;
 }
 
 async function fetchRelatedEvents(
@@ -186,7 +187,7 @@ async function fetchRelatedEvents(
     .limit(limit);
 
   if (error) throw error;
-  return (data ?? []) as EventRecord[];
+  return ((data ?? []) as EventRecord[]).filter((event) => isPublicEventVisibleByDate(event));
 }
 
 async function fetchEventDetailGlobalSettings(_locale: string) {

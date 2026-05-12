@@ -63,6 +63,7 @@ import {
   HOME_QUICK_LINKS_CATEGORY,
 } from "@/lib/homeQuickLinks";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { buildCategoryHref } from "@/lib/public-route-builders";
 
 interface HeroContent {
   videoUrl: string;
@@ -1350,7 +1351,7 @@ export default function AdminHomePage({ embedded = false }: AdminHomePageProps) 
                     <div key={card.id} className="rounded-lg border border-border bg-background/40 p-3">
                       <p className="text-sm font-medium text-foreground">{card.title}</p>
                       <p className="text-xs text-muted-foreground mb-3">
-                        /stay?category={card.categorySlug}
+                        {card.customHref ?? buildCategoryHref(card.categorySlug)}
                       </p>
 
                       <div className="relative aspect-[4/3] rounded-md border border-border bg-muted/40 overflow-hidden mb-3">
@@ -1542,7 +1543,7 @@ export default function AdminHomePage({ embedded = false }: AdminHomePageProps) 
                     <div key={card.id} className="rounded-lg border border-border bg-background/40 p-3">
                       <p className="text-sm font-medium text-foreground">{card.title}</p>
                       <p className="mb-3 text-xs text-muted-foreground">
-                        /stay?category={card.categorySlug}
+                        {card.customHref ?? buildCategoryHref(card.categorySlug)}
                       </p>
 
                       <div className="relative mb-3 aspect-[4/3] overflow-hidden rounded-md border border-border bg-muted/40">

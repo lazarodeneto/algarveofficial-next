@@ -65,6 +65,9 @@ export function AdminHeader() {
     () => [
       { label: t("admin.sidebar.overview"), value: l("/admin") },
       { label: t("admin.sidebar.listings"), value: l("/admin/listings") },
+      { label: "Owner CRM", value: l("/admin/crm") },
+      { label: "Owners · Business Claims", value: l("/admin/business-claims") },
+      { label: "Listings · Change Requests", value: l("/admin/listing-change-requests") },
       { label: t("admin.overview.createListing"), value: l("/admin/listings/new") },
       { label: t("admin.sidebar.moderationQueue"), value: l("/admin/moderation") },
       { label: t("admin.sidebar.reviewModeration"), value: l("/admin/reviews") },

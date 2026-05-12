@@ -31,12 +31,17 @@ export function AnalyticsCard({
 }: AnalyticsCardProps) {
   if (loading) {
     return (
-      <Card className={cn("bg-card border-border", className)}>
+      <Card
+        className={cn(
+          "glass-box border-border/40 bg-card/60 [&>*]:relative [&>*]:z-10",
+          className,
+        )}
+      >
         <CardHeader className="pb-2">
           <Skeleton className="h-4 w-24" />
         </CardHeader>
         <CardContent>
-          <Skeleton className="h-8 w-16 mb-2" />
+          <Skeleton className="mb-2 h-8 w-16" />
           <Skeleton className="h-3 w-20" />
         </CardContent>
       </Card>
@@ -50,14 +55,19 @@ export function AnalyticsCard({
   };
 
   return (
-    <Card className={cn("bg-card border-border hover:border-primary/30 transition-colors", className)}>
+    <Card
+      className={cn(
+        "glass-box group border-border/40 bg-card/60 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_18px_52px_-28px_hsl(var(--primary)/0.45)] [&>*]:relative [&>*]:z-10",
+        className,
+      )}
+    >
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
+          <CardTitle className="font-sans text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             {title}
           </CardTitle>
           {icon && (
-            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-primary shadow-[inset_0_1px_0_rgb(255_255_255/0.35)] transition-transform duration-300 group-hover:scale-105">
               {icon}
             </div>
           )}
@@ -67,7 +77,7 @@ export function AnalyticsCard({
         <div className={cn("font-serif font-semibold text-foreground", valueSize[size])}>
           {typeof value === "number" ? value.toLocaleString() : value}
         </div>
-        <div className="flex items-center gap-2 mt-1">
+        <div className="mt-1 flex items-center gap-2">
           {trend && (
             <span
               className={cn(
@@ -77,10 +87,11 @@ export function AnalyticsCard({
                 trend.positive === undefined && "text-muted-foreground"
               )}
             >
-              {trend.positive === true && <TrendingUp className="h-3 w-3 mr-0.5" />}
-              {trend.positive === false && <TrendingDown className="h-3 w-3 mr-0.5" />}
-              {trend.positive === undefined && <Minus className="h-3 w-3 mr-0.5" />}
-              {trend.value > 0 ? "+" : ""}{trend.value}%
+              {trend.positive === true && <TrendingUp className="mr-0.5 h-3 w-3" />}
+              {trend.positive === false && <TrendingDown className="mr-0.5 h-3 w-3" />}
+              {trend.positive === undefined && <Minus className="mr-0.5 h-3 w-3" />}
+              {trend.value > 0 ? "+" : ""}
+              {trend.value}%
               {trend.label && <span className="ml-1 text-muted-foreground">{trend.label}</span>}
             </span>
           )}

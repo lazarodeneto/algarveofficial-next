@@ -47,28 +47,6 @@ function QuickToggle({ id, label, checked, disabled = false, onChange }: QuickTo
   );
 }
 
-function getInitialConsentState() {
-  if (typeof window === "undefined") {
-    return {
-      isVisible: false,
-      preferences: DEFAULT_COOKIE_PREFERENCES,
-    };
-  }
-
-  const storedConsent = getStoredCookieConsent();
-  if (!storedConsent) {
-    return {
-      isVisible: true,
-      preferences: DEFAULT_COOKIE_PREFERENCES,
-    };
-  }
-
-  return {
-    isVisible: false,
-    preferences: draftFromCookieConsent(storedConsent),
-  };
-}
-
 export function CookieConsentDrawer({
   privacyUrl,
   cookieUrl,
@@ -76,17 +54,23 @@ export function CookieConsentDrawer({
   onConsentChange,
 }: CookieConsentDrawerProps) {
   const { t } = useTranslation();
-  const [initialConsentState] = useState(() => getInitialConsentState());
-  const [isVisible, setIsVisible] = useState(initialConsentState.isVisible);
+  const [isVisible, setIsVisible] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [baselinePreferences, setBaselinePreferences] = useState<CookiePreferenceDraft>(
-    initialConsentState.preferences,
+    DEFAULT_COOKIE_PREFERENCES,
   );
   const [draftPreferences, setDraftPreferences] = useState<CookiePreferenceDraft>(
-    initialConsentState.preferences,
+    DEFAULT_COOKIE_PREFERENCES,
   );
 
   useEffect(() => {
+    const storedConsent = getStoredCookieConsent();
+    const initialPreferences = draftFromCookieConsent(storedConsent);
+
+    setBaselinePreferences(initialPreferences);
+    setDraftPreferences(initialPreferences);
+    setIsVisible(!storedConsent);
+
     const openPreferences = () => {
       const storedConsent = getStoredCookieConsent();
       const nextPreferences = draftFromCookieConsent(storedConsent);

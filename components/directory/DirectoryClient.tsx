@@ -32,6 +32,7 @@ import {
   filterVisibleListingCategories,
   getMergedCategoryBySlug,
   inferCategorySlugsFromSearch,
+  resolveCategoryFilterSelection,
   resolveCategoryFilterSlug,
 } from "@/lib/categoryMerges";
 import { translateCategoryName } from "@/lib/translateCategory";
@@ -82,6 +83,7 @@ import { buildMunicipalityCityIndex } from "@/lib/cities/municipalityIndex";
 import { hideServerShell } from "@/lib/dom/server-shell";
 
 const EMPTY_CATEGORY_IDS: string[] = [];
+const NO_MATCH_CATEGORY_ID = "00000000-0000-0000-0000-000000000000";
 const DIRECTORY_CMS_KEYS = [
   CMS_GLOBAL_SETTING_KEYS.textOverrides,
   CMS_GLOBAL_SETTING_KEYS.pageConfigs,
@@ -229,16 +231,16 @@ function applyListingFilters(
 ): ListingsFilterQuery {
   const mergedCategories = buildMergedCategoryOptions(categories);
 
-  // Handle multiple category filtering or single category
   let selectedCategoryIds: string[] = [];
   if (Array.isArray(filters.categoryIds) && filters.categoryIds.length > 0) {
     selectedCategoryIds = filters.categoryIds;
   } else if (filters.categoryId && filters.categoryId !== "all") {
-    const normalizedCategory = resolveCategoryFilterSlug(filters.categoryId, categories, mergedCategories);
-    const selectedCategoryItem = normalizedCategory
-      ? getMergedCategoryBySlug(normalizedCategory, mergedCategories)
-      : null;
-    selectedCategoryIds = selectedCategoryItem?.memberIds ?? [];
+    const selection = resolveCategoryFilterSelection(filters.categoryId, categories, mergedCategories);
+    if (selection.kind === "matched") {
+      selectedCategoryIds = selection.memberIds;
+    } else if (selection.kind === "invalid") {
+      selectedCategoryIds = [NO_MATCH_CATEGORY_ID];
+    }
   }
 
   if (selectedCategoryIds.length > 0) {
@@ -406,30 +408,10 @@ async function fetchCategories(locale: string) {
 }
 
 async function fetchCategoryCounts(_locale: PublicContentLocale) {
-  const pageSize = 1000;
-  let from = 0;
-  const counts: Record<string, number> = {};
-
-  while (true) {
-    const { data, error } = await supabase
-      .from("listings")
-      .select("id, category_id")
-      .eq("status", "published")
-      .order("id", { ascending: true })
-      .range(from, from + pageSize - 1);
-
-    if (error) throw error;
-
-    const page = (data ?? []) as Array<Pick<Tables<"listings">, "id" | "category_id">>;
-    page.forEach((listing) => {
-      counts[listing.category_id] = (counts[listing.category_id] ?? 0) + 1;
-    });
-
-    if (page.length < pageSize) break;
-    from += pageSize;
-  }
-
-  return counts;
+  const response = await fetch("/api/public/category-counts");
+  if (!response.ok) throw new Error("Failed to load category counts");
+  const counts = (await response.json()) as { byCategoryId?: Record<string, number> };
+  return counts.byCategoryId ?? {};
 }
 
 async function fetchDirectoryGlobalSettings(_locale: PublicContentLocale) {

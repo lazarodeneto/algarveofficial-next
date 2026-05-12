@@ -224,24 +224,13 @@ export function useCategoryListingCounts() {
   return useQuery({
     queryKey: ['category-listing-counts'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('listings')
-        .select('category_id', { count: 'exact', head: false })
-        .eq('status', 'published')
-        .not('category_id', 'is', null);
-
-      if (error) {
-        console.warn('Error fetching category counts:', error);
+      const response = await fetch('/api/public/category-counts');
+      if (!response.ok) {
+        console.warn('Error fetching category counts:', response.statusText);
         return {};
       }
-
-      const counts: Record<string, number> = {};
-      for (const row of data ?? []) {
-        if (row.category_id) {
-          counts[row.category_id] = (counts[row.category_id] || 0) + 1;
-        }
-      }
-      return counts;
+      const counts = (await response.json()) as { byCategoryId?: Record<string, number> };
+      return counts.byCategoryId ?? {};
     },
     staleTime: 60 * 1000,
   });

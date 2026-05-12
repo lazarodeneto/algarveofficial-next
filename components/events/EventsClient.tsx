@@ -2,15 +2,17 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { useQuery } from "@tanstack/react-query";
 import { m } from "framer-motion";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import {
+  ArrowDown,
   Calendar,
+  CalendarPlus,
   Filter,
   Star,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -32,72 +34,34 @@ import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
 import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
-import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import { hideServerShell } from "@/lib/dom/server-shell";
-import {
-  getPublicEventCutoffDate,
-  isPublicEventVisibleByDate,
-} from "@/lib/events/publicVisibility";
-import { localizeEvents } from "@/lib/events/i18n";
+import { isPublicEventVisibleByDate } from "@/lib/events/publicVisibility";
 import { getEventMonthHeading } from "@/lib/events/dateDisplay";
 import { PIXABAY_EVENT_IMAGE_FALLBACK } from "@/lib/events/cardStyles";
 import { EventTicketCard } from "@/components/events/EventTicketCard";
+import type { PublicEventGlobalSetting } from "@/lib/public-data/events";
+import { useTripPlanner } from "@/hooks/useTripPlanner";
+import { useAuth } from "@/contexts/AuthContext";
 
 const EventMapDirectory = dynamic(
   () => import("@/components/events/EventMapDirectory").then((module) => module.EventMapDirectory),
   { ssr: false },
 );
+const CreateTripDialog = dynamic(
+  () => import("@/components/trip-planner/CreateTripDialog").then((module) => module.CreateTripDialog),
+  { ssr: false },
+);
+const LoginModal = dynamic(
+  () => import("@/components/ui/login-modal").then((module) => module.LoginModal),
+  { ssr: false },
+);
 
-type EventGlobalSetting = Pick<Tables<"global_settings">, "key" | "value" | "category">;
+type EventGlobalSetting = PublicEventGlobalSetting;
 
 export interface EventsClientProps {
   initialEvents: CalendarEvent[];
   initialGlobalSettings: EventGlobalSetting[];
-}
-
-const EVENTS_CMS_KEYS = [
-  CMS_GLOBAL_SETTING_KEYS.textOverrides,
-  CMS_GLOBAL_SETTING_KEYS.pageConfigs,
-  CMS_GLOBAL_SETTING_KEYS.designTokens,
-  CMS_GLOBAL_SETTING_KEYS.customCss,
-] as const;
-
-async function fetchPublishedEvents(
-  category?: EventCategory | "all",
-  _timeFilter: "upcoming" | "past" | "all" = "upcoming",
-) {
-  const today = getPublicEventCutoffDate();
-  let query = supabase
-    .from("events")
-    .select(`
-      *,
-      city:cities(id, name, slug)
-    `)
-    .eq("status", "published")
-    .gte("end_date", today);
-
-  query = query.order("start_date", { ascending: true });
-
-  if (category && category !== "all") {
-    query = query.eq("category", category);
-  }
-
-  const { data, error } = await query;
-  if (error) throw error;
-  return (data ?? []) as CalendarEvent[];
-}
-
-async function fetchEventGlobalSettings() {
-  const { data, error } = await supabase
-    .from("global_settings")
-    .select("key, value, category")
-    .in("key", [...EVENTS_CMS_KEYS])
-    .order("key", { ascending: true });
-
-  if (error) throw error;
-  return (data ?? []) as EventGlobalSetting[];
 }
 
 function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClientProps) {
@@ -105,9 +69,15 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
   const l = useLocalePath();
   const locale = useCurrentLocale();
   const { isFavorite, toggleFavorite } = useFavoriteEvents();
+  const { createTrip } = useTripPlanner();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const router = useRouter();
 
   const [selectedCategory, setSelectedCategory] = useState<EventCategory | "all">("all");
   const [activeMapEventId, setActiveMapEventId] = useState<string | null>(null);
+  const [tripPlannerOpen, setTripPlannerOpen] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [pendingTripPlannerOpen, setPendingTripPlannerOpen] = useState(false);
 
   const categories = Object.entries(eventCategoryLabels) as [EventCategory, string][];
 
@@ -126,21 +96,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
   };
   const getEventHref = (event: Pick<CalendarEvent, "slug">) => l(event.slug ? `/events/${event.slug}` : "/events");
 
-  const timeFilter = "upcoming";
-
-  const { data: events = [] } = useQuery({
-    queryKey: ["events", "published", selectedCategory, timeFilter, locale],
-    queryFn: async () => localizeEvents(await fetchPublishedEvents(selectedCategory, timeFilter), locale),
-    placeholderData: selectedCategory === "all" && timeFilter === "upcoming" ? localizeEvents(initialEvents, locale) : undefined,
-    staleTime: 60 * 1000,
-  });
-
-  useQuery({
-    queryKey: ["events-page", "global-settings"],
-    queryFn: fetchEventGlobalSettings,
-    placeholderData: initialGlobalSettings,
-    staleTime: 0,
-  });
+  const events = initialEvents.filter((event) => selectedCategory === "all" || event.category === selectedCategory);
 
   const visibleEvents = events.filter((event) => isPublicEventVisibleByDate(event));
   const featuredEvents = visibleEvents.filter((event) => event.is_featured).slice(0, 3);
@@ -156,6 +112,44 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
     }
   })();
   const cmsText = (key: string, fallback: string) => pageConfigText[key] ?? fallback;
+
+  const scrollToEventsListings = () => {
+    document.getElementById("events-listings")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
+  const openTripPlanner = () => {
+    if (!isAuthenticated) {
+      setPendingTripPlannerOpen(true);
+      toast.info(t("hero.loginRequired"));
+      setShowLoginModal(true);
+      return;
+    }
+
+    setTripPlannerOpen(true);
+  };
+
+  useEffect(() => {
+    if (!pendingTripPlannerOpen || !isAuthenticated) return;
+
+    setShowLoginModal(false);
+    setTripPlannerOpen(true);
+    setPendingTripPlannerOpen(false);
+  }, [isAuthenticated, pendingTripPlannerOpen]);
+
+  const handleCreateTrip = (data: { title: string; description?: string; start_date: string; end_date: string }) => {
+    if (!isAuthenticated) {
+      toast.info(t("hero.loginRequired"));
+      setShowLoginModal(true);
+      return;
+    }
+
+    const newTrip = createTrip(data);
+    toast.success(t("hero.tripCreated"));
+    router.push(`${l("/dashboard/trips")}?trip=${encodeURIComponent(newTrip.id)}`);
+  };
 
   const eventsByMonth: Record<string, CalendarEvent[]> = {};
   upcomingEvents.forEach((event) => {
@@ -189,16 +183,20 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
             }
             ctas={
               <>
-                <Link href={l("/experiences")}>
-                  <Button variant="gold" size="lg">
-                    {t("events.hero.ctaPrimary")}
-                  </Button>
-                </Link>
-                <Link href={l("/contact")}>
-                  <Button variant="heroOutline" size="lg">
-                    {t("events.hero.ctaSecondary")}
-                  </Button>
-                </Link>
+                <Button type="button" variant="gold" size="lg" onClick={scrollToEventsListings}>
+                  <ArrowDown className="h-4 w-4" />
+                  {t("events.hero.ctaPrimary")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="heroOutline"
+                  size="lg"
+                  onClick={openTripPlanner}
+                  disabled={isAuthLoading}
+                >
+                  <CalendarPlus className="h-4 w-4" />
+                  {t("events.hero.ctaSecondary")}
+                </Button>
               </>
             }
           >
@@ -261,7 +259,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
           </section>
         ) : null}
 
-        <section className="py-12 app-container content-max">
+        <section id="events-listings" className="scroll-mt-28 py-12 app-container content-max">
           <h2 className="mb-8 text-title font-serif font-semibold">
             {t("common.upcomingEvents")}
           </h2>
@@ -275,14 +273,14 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(380px,42%)]">
+            <div className="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(18rem,38%)] lg:grid-cols-[minmax(0,1fr)_minmax(22rem,40%)] xl:grid-cols-[minmax(0,1fr)_minmax(380px,42%)] 3xl:grid-cols-[minmax(0,1.18fr)_minmax(420px,36%)]">
               <div className="space-y-12">
                 {Object.entries(eventsByMonth).map(([monthKey, monthEvents]) => (
                   <div key={monthKey}>
                     <h3 className="mb-4 border-b border-border pb-2 text-lg font-medium text-muted-foreground">
                       {getEventMonthHeading(monthKey, locale)}
                     </h3>
-                    <div className="grid grid-cols-1 gap-4 3xl:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 2xl:grid-cols-2">
                       {monthEvents.map((event, index) => (
                         <m.div
                           key={event.id}
@@ -308,7 +306,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                   </div>
                 ))}
               </div>
-              <aside className="hidden xl:block">
+              <aside className="hidden md:block">
                 <div className="sticky top-28">
                   <EventMapDirectory
                     events={visibleEvents}
@@ -324,6 +322,22 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
           )}
         </section>
       </main>
+
+      {tripPlannerOpen ? (
+        <CreateTripDialog
+          open={tripPlannerOpen}
+          onClose={() => setTripPlannerOpen(false)}
+          onSave={handleCreateTrip}
+        />
+      ) : null}
+      {showLoginModal ? (
+        <LoginModal
+          open={showLoginModal}
+          onOpenChange={setShowLoginModal}
+          title={t("hero.tripLoginTitle")}
+          description={t("hero.tripLoginDescription")}
+        />
+      ) : null}
 
       <Footer />
     </div>

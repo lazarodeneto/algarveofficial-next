@@ -5,7 +5,10 @@ import {
   CMS_GLOBAL_SETTING_KEYS,
   CMS_PAGE_BUILDER_RUNTIME_KEYS,
 } from "@/lib/cms/pageBuilderRegistry";
-import { buildCmsSettingsFromDocuments } from "@/lib/cms/runtime-resolver";
+import {
+  buildCmsSettingsFromDocuments,
+  type CmsRuntimeDocumentId,
+} from "@/lib/cms/runtime-resolver";
 import { safeJsonParse } from "@/lib/cms/safe-json";
 import { resolveLocaleFromAcceptLanguage } from "@/lib/i18n/config";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
@@ -41,23 +44,37 @@ const JSON_RUNTIME_KEYS = new Set<string>([
 const CMS_VERSION_BATCH_SIZE = 100;
 
 interface CmsRuntimeDocumentRow {
-  id?: number | null;
+  id?: CmsRuntimeDocumentId | null;
   page_id: string;
   locale: string;
+  block_id?: string | null;
+  block_scope?: string | null;
   doc_type: "page_config" | "text_overrides" | "design_tokens" | "custom_css";
-  current_version_id: number | null;
+  current_version_id: CmsRuntimeDocumentId | null;
 }
 
 interface CmsRuntimeVersionRow {
-  id: number;
-  document_id?: number | null;
+  id: CmsRuntimeDocumentId;
+  document_id?: CmsRuntimeDocumentId | null;
   content: unknown;
 }
 
 function isMissingCmsDocumentsColumnError(error: unknown, column: string) {
   if (!error || typeof error !== "object") return false;
   const message = "message" in error ? String((error as { message?: unknown }).message ?? "") : "";
-  return message.toLowerCase().includes(`column cms_documents.${column.toLowerCase()} does not exist`);
+  const normalizedMessage = message.toLowerCase();
+  const normalizedColumn = column.toLowerCase();
+  return (
+    normalizedMessage.includes(`column cms_documents.${normalizedColumn} does not exist`) ||
+    normalizedMessage.includes(`could not find the '${normalizedColumn}' column of 'cms_documents'`)
+  );
+}
+
+function isCmsDocumentId(value: unknown): value is CmsRuntimeDocumentId {
+  return (
+    (typeof value === "string" && value.trim().length > 0) ||
+    (typeof value === "number" && Number.isFinite(value))
+  );
 }
 
 export function normalizeCmsRuntimeLocale(localeRaw?: string | null) {
@@ -102,7 +119,7 @@ function sanitizeRuntimeRows(rows: RuntimeSettingRow[]) {
 
 async function fetchCmsDocumentVersionsInBatches(
   readClient: SupabaseClient<Database>,
-  versionIds: number[],
+  versionIds: CmsRuntimeDocumentId[],
 ) {
   const versions: CmsRuntimeVersionRow[] = [];
 
@@ -117,7 +134,7 @@ async function fetchCmsDocumentVersionsInBatches(
       return { data: null, error };
     }
 
-    versions.push(...(((data as Array<{ id: number; content: unknown }> | null) ?? [])));
+    versions.push(...(((data as CmsRuntimeVersionRow[] | null) ?? [])));
   }
 
   return { data: versions, error: null };
@@ -125,7 +142,7 @@ async function fetchCmsDocumentVersionsInBatches(
 
 async function fetchLatestCmsDocumentVersions(
   readClient: SupabaseClient<Database>,
-  documentIds: number[],
+  documentIds: CmsRuntimeDocumentId[],
 ) {
   const versions: CmsRuntimeVersionRow[] = [];
 
@@ -188,10 +205,20 @@ export async function fetchCmsRuntimeSettings({
   const cmsDocTypes = ["page_config", "text_overrides", "design_tokens", "custom_css"];
   const localeCandidates = [...new Set([locale, "default"])];
 
-  const queryCmsDocuments = (includeStatusFilter: boolean) => {
+  const queryCmsDocuments = (
+    includeStatusFilter: boolean,
+    blockScopeColumn: "block_scope" | "block_id" | null,
+  ) => {
+    const selectColumns =
+      blockScopeColumn === "block_scope"
+        ? "id, page_id, locale, doc_type, current_version_id, block_scope"
+        : blockScopeColumn === "block_id"
+          ? "id, page_id, locale, doc_type, current_version_id, block_id"
+          : "id, page_id, locale, doc_type, current_version_id";
+
     let query = readClient
       .from("cms_documents" as never)
-      .select("id, page_id, locale, doc_type, current_version_id")
+      .select(selectColumns)
       .in("doc_type", cmsDocTypes as never)
       .in("locale", localeCandidates as never);
 
@@ -202,9 +229,18 @@ export async function fetchCmsRuntimeSettings({
     return query;
   };
 
-  let docsResult = await queryCmsDocuments(true);
+  let blockScopeColumn: "block_scope" | "block_id" | null = "block_scope";
+  let docsResult = await queryCmsDocuments(true, blockScopeColumn);
+  if (docsResult.error && isMissingCmsDocumentsColumnError(docsResult.error, "block_scope")) {
+    blockScopeColumn = "block_id";
+    docsResult = await queryCmsDocuments(true, blockScopeColumn);
+  }
+  if (docsResult.error && isMissingCmsDocumentsColumnError(docsResult.error, "block_id")) {
+    blockScopeColumn = null;
+    docsResult = await queryCmsDocuments(true, blockScopeColumn);
+  }
   if (docsResult.error && isMissingCmsDocumentsColumnError(docsResult.error, "status")) {
-    docsResult = await queryCmsDocuments(false);
+    docsResult = await queryCmsDocuments(false, blockScopeColumn);
   }
 
   const { data: docs, error: docsError } = docsResult;
@@ -217,7 +253,7 @@ export async function fetchCmsRuntimeSettings({
     ...new Set(
       documentRows
         .map((doc) => doc.current_version_id ?? null)
-        .filter((value): value is number => typeof value === "number"),
+        .filter(isCmsDocumentId),
     ),
   ];
 
@@ -232,7 +268,7 @@ export async function fetchCmsRuntimeSettings({
           ...new Set(
             documentRows
               .map((doc) => doc.id ?? null)
-              .filter((value): value is number => typeof value === "number"),
+              .filter(isCmsDocumentId),
           ),
         ],
       )
@@ -249,14 +285,14 @@ export async function fetchCmsRuntimeSettings({
   const draftVersions = latestDraftVersionResult?.data ?? [];
   const draftVersionByDocumentId = new Map(
     draftVersions
-      .filter((version) => typeof version.document_id === "number")
-      .map((version) => [version.document_id as number, version]),
+      .filter((version) => isCmsDocumentId(version.document_id))
+      .map((version) => [String(version.document_id), version]),
   );
   const docsForResolver = includeDraft
     ? documentRows.map((doc) => ({
         ...doc,
         current_version_id:
-          (typeof doc.id === "number" ? draftVersionByDocumentId.get(doc.id)?.id : null) ??
+          (isCmsDocumentId(doc.id) ? draftVersionByDocumentId.get(String(doc.id))?.id : null) ??
           doc.current_version_id,
       }))
     : documentRows;
@@ -268,10 +304,13 @@ export async function fetchCmsRuntimeSettings({
 
   const cmsOverrides = buildCmsSettingsFromDocuments(
     (docsForResolver as Array<{
+      id?: CmsRuntimeDocumentId | null;
       page_id: string;
       locale: string;
+      block_id?: string | null;
+      block_scope?: string | null;
       doc_type: "page_config" | "text_overrides" | "design_tokens" | "custom_css";
-      current_version_id: number | null;
+      current_version_id: CmsRuntimeDocumentId | null;
     }>) ?? [],
     versions,
     locale,

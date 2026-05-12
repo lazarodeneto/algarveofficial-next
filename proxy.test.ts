@@ -106,6 +106,102 @@ describe("proxy default locale prefix policy", () => {
     expect(response.headers.get("location")).toBe("http://localhost/category/restaurants");
   });
 
+  it("redirects known category aliases to the canonical category URL", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://example.supabase.co");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "anon-key");
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify([{ slug: "restaurants" }, { slug: "fine-dining" }]), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }),
+    );
+
+    const response = await proxy(makeRequest("/category/fine-dining"));
+
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe("http://localhost/category/restaurants");
+  });
+
+  it("redirects wrong-locale category slugs to localized canonical category URLs", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://example.supabase.co");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "anon-key");
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify([{ slug: "restaurants" }]), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }),
+    );
+
+    const response = await proxy(makeRequest("/pt-pt/category/restaurants"));
+
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe("http://localhost/pt-pt/category/restaurantes");
+  });
+
+  it("returns a true 404 for unknown category hub slugs when categories can be checked", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://example.supabase.co");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "anon-key");
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify([{ slug: "restaurants" }]), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }),
+    );
+
+    const response = await proxy(makeRequest("/category/not-a-real-category"));
+
+    expect(response.status).toBe(404);
+    expect(await response.text()).toBe("Not Found");
+  });
+
+  it("redirects visit city/category aliases to the canonical category URL", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://example.supabase.co");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "anon-key");
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify([{ slug: "restaurants" }, { slug: "private-chefs" }]), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }),
+    );
+
+    const response = await proxy(makeRequest("/visit/lagos/private-chefs"));
+
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe("http://localhost/visit/lagos/restaurants");
+  });
+
+  it("redirects wrong-locale visit city/category slugs to localized canonical URLs", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://example.supabase.co");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "anon-key");
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify([{ slug: "restaurants" }]), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }),
+    );
+
+    const response = await proxy(makeRequest("/pt-pt/visit/lagos/restaurants"));
+
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe("http://localhost/pt-pt/visit/lagos/restaurantes");
+  });
+
+  it("returns a true 404 for unknown visit city/category slugs when categories can be checked", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://example.supabase.co");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "anon-key");
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify([{ slug: "restaurants" }]), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }),
+    );
+
+    const response = await proxy(makeRequest("/visit/lagos/not-a-real-category"));
+
+    expect(response.status).toBe(404);
+    expect(await response.text()).toBe("Not Found");
+  });
+
   it("redirects the plural partners alias to the canonical partner page", async () => {
     const response = await proxy(makeRequest("/partners"));
 

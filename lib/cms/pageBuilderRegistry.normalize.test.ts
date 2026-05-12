@@ -151,4 +151,62 @@ describe("normalizeCmsPageConfigs", () => {
       ],
     });
   });
+
+  it("normalizes modern sections into legacy runtime blocks while preserving disabled hero", () => {
+    const normalized = normalizeCmsPageConfigs({
+      beaches: {
+        sections: {
+          hero: {
+            enabled: false,
+            imageUrl: "https://images.unsplash.com/beach.jpg",
+            title: "CMS Beaches",
+          },
+          filters: {
+            enabled: false,
+            mode: "compact",
+          },
+        },
+      },
+    });
+
+    expect(normalized.beaches?.hero).toEqual({
+      enabled: false,
+      imageUrl: "https://images.unsplash.com/beach.jpg",
+      title: "CMS Beaches",
+    });
+    expect(normalized.beaches?.blocks?.hero).toEqual({
+      enabled: false,
+      data: {
+        imageUrl: "https://images.unsplash.com/beach.jpg",
+        title: "CMS Beaches",
+      },
+    });
+    expect(normalized.beaches?.blocks?.filters).toEqual({
+      enabled: false,
+      data: {
+        mode: "compact",
+      },
+    });
+  });
+
+  it("lets canonical blocks override section-derived block values", () => {
+    const normalized = normalizeCmsPageConfigs({
+      beaches: {
+        sections: {
+          hero: {
+            enabled: false,
+            title: "Section title",
+          },
+        },
+        blocks: {
+          hero: {
+            enabled: true,
+          },
+        },
+      },
+    });
+
+    expect(normalized.beaches?.hero?.enabled).toBe(false);
+    expect(normalized.beaches?.blocks?.hero).toEqual({ enabled: true });
+  });
 });

@@ -1,13 +1,19 @@
-/* eslint-disable no-console */
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import Link from "next/link";
+import { BookOpen, Clock } from "lucide-react";
 import { DEFAULT_LOCALE, isValidLocale, type Locale } from "@/lib/i18n/config";
+import { buildLocalizedPath } from "@/lib/i18n/localized-routing";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
+import { buildBreadcrumbSchema, buildItemListSchema } from "@/lib/seo/advanced/schema-builders";
 import { getBlogPageConfig } from "@/lib/blog-cms";
-import { BlogClient } from "@/components/blog/BlogClient";
+import { BlogClient, type BlogPostRow } from "@/components/blog/BlogClient";
 import { RouteLoadingState } from "@/components/layout/RouteLoadingState";
-import { createPublicServerClient } from "@/lib/supabase/public-server";
-import { applyBlogTranslation, type BlogTranslationRow } from "@/lib/blog/localization";
+import {
+  getPublicBlogAuthors,
+  getPublicBlogGlobalSettings,
+  getPublicBlogPosts,
+} from "@/lib/public-data/blog";
 
 export const revalidate = 60;
 
@@ -82,72 +88,135 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
-async function fetchBlogData(locale: string) {
-  const supabase = createPublicServerClient();
-  const { data: posts, error } = await supabase
-    .from("blog_posts")
-    .select("id, slug, title, excerpt, featured_image, category, reading_time, tags, author_id, published_at, seo_title, seo_description, created_at, updated_at")
-    .eq("status", "published")
-    .order("published_at", { ascending: false })
-    .limit(50);
+function BlogServerShell({
+  locale,
+  posts,
+  title,
+  description,
+}: {
+  locale: Locale;
+  posts: BlogPostRow[];
+  title: string;
+  description: string;
+}) {
+  return (
+    <div id="blog-server-shell" className="min-h-screen bg-background text-foreground">
+      <main className="app-container pt-[calc(4rem+2.5rem)] pb-16 sm:pt-[calc(5rem+3rem)]">
+        <section className="mb-8 max-w-4xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+            AlgarveOfficial blog
+          </p>
+          <h1 className="mt-3 font-serif text-4xl leading-tight text-foreground sm:text-5xl">
+            {title}
+          </h1>
+          <p className="mt-4 text-base leading-7 text-muted-foreground sm:text-lg">
+            {description}
+          </p>
+        </section>
 
-  if (error) {
-    console.error("[blog] Failed to fetch posts:", error);
-    return [];
-  }
-
-  let localizedPosts = posts ?? [];
-  if (locale !== "en" && localizedPosts.length > 0) {
-    const { data: translations, error: translationError } = await supabase
-      .from("blog_post_translations")
-      .select("post_id, locale, title, excerpt, seo_title, seo_description")
-      .eq("locale", locale)
-      .in(
-        "post_id",
-        localizedPosts.map((post) => post.id),
-      );
-
-    if (!translationError) {
-      const translationMap = new Map(
-        ((translations ?? []) as BlogTranslationRow[]).map((translation) => [translation.post_id, translation]),
-      );
-
-      localizedPosts = localizedPosts.map((post) => applyBlogTranslation(post, translationMap.get(post.id), locale));
-    } else {
-      localizedPosts = localizedPosts.map((post) => applyBlogTranslation(post, null, locale));
-    }
-  }
-
-  return localizedPosts;
-}
-
-async function fetchBlogAuthors() {
-  const supabase = createPublicServerClient();
-  const { data: authors } = await supabase
-    .from("public_profiles")
-    .select("id, full_name, avatar_url")
-    .limit(100);
-  return authors ?? [];
+        {posts.length === 0 ? (
+          <section className="rounded-lg border border-border bg-card/80 p-8 text-center shadow-sm">
+            <BookOpen className="mx-auto mb-3 h-8 w-8 text-primary" />
+            <h2 className="font-serif text-2xl">No published articles yet</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Published AlgarveOfficial stories will appear here.
+            </p>
+          </section>
+        ) : (
+          <section aria-label="Published blog posts" className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {posts.map((post) => (
+              <Link
+                key={post.id}
+                href={buildLocalizedPath(locale, `/blog/${post.slug}`)}
+                className="group overflow-hidden rounded-lg border border-border bg-card shadow-sm transition hover:border-primary/40"
+              >
+                {post.featured_image ? (
+                  <img
+                    src={post.featured_image}
+                    alt={post.title}
+                    className="h-44 w-full object-cover"
+                    loading="lazy"
+                  />
+                ) : null}
+                <article className="p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+                    {post.category}
+                  </p>
+                  <h2 className="mt-2 font-serif text-xl leading-snug group-hover:text-primary">
+                    {post.title}
+                  </h2>
+                  {post.excerpt ? (
+                    <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted-foreground">
+                      {post.excerpt}
+                    </p>
+                  ) : null}
+                  <p className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Clock className="h-3.5 w-3.5" />
+                    {post.reading_time} min read
+                  </p>
+                </article>
+              </Link>
+            ))}
+          </section>
+        )}
+      </main>
+    </div>
+  );
 }
 
 export default async function BlogPage({ params }: PageProps) {
   const { locale: rawLocale } = await params;
   const locale: Locale = isValidLocale(rawLocale) ? (rawLocale as Locale) : DEFAULT_LOCALE;
 
-  const [posts, authors, pageConfig] = await Promise.all([
-    fetchBlogData(locale),
-    fetchBlogAuthors(),
+  const [posts, authors, pageConfig, globalSettings] = await Promise.all([
+    getPublicBlogPosts({ locale, limit: 50 }),
+    getPublicBlogAuthors(),
     getBlogPageConfig(locale),
+    getPublicBlogGlobalSettings(),
+  ]);
+  const meta = BLOG_META[locale];
+  const localizedBlogPath = buildLocalizedPath(locale, "/blog");
+  const itemListSchema = buildItemListSchema(
+    meta.title,
+    posts.map((post) => ({
+      name: post.title,
+      url: buildLocalizedPath(locale, `/blog/${post.slug}`),
+      description: post.excerpt ?? undefined,
+      image: post.featured_image ?? undefined,
+    })),
+    localizedBlogPath,
+  );
+  const breadcrumbSchema = buildBreadcrumbSchema([
+    { name: "Home", url: buildLocalizedPath(locale, "/") },
+    { name: meta.title, url: localizedBlogPath },
   ]);
 
   return (
-    <Suspense fallback={<RouteLoadingState />}>
-      <BlogClient
-        initialPosts={posts}
-        initialAuthors={authors}
-        initialGlobalSettings={[]}
-        pageConfig={pageConfig ?? undefined}
+    <>
+      <script
+        id="schema-blog-item-list"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
       />
-    </Suspense>
+      <script
+        id="schema-blog-breadcrumb"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <BlogServerShell
+        locale={locale}
+        posts={posts}
+        title={meta.title}
+        description={meta.description}
+      />
+      <Suspense fallback={<RouteLoadingState />}>
+        <BlogClient
+          initialPosts={posts}
+          initialAuthors={authors}
+          initialGlobalSettings={globalSettings}
+          pageConfig={pageConfig ?? undefined}
+        />
+      </Suspense>
+    </>
   );
 }

@@ -24,6 +24,7 @@ export type InboxUrgency = "urgent" | "soon" | "normal";
 export type InboxAction = "approve" | "reject" | "assign" | "archive";
 
 export const INBOX_CACHE_TAG = "admin-inbox";
+export const ADMIN_INBOX_QUERY_KEY = ["admin-inbox"] as const;
 
 export interface InboxOwner {
   id: string;
@@ -59,6 +60,8 @@ export interface InboxItemBase {
   createdAt: string;
   owner: InboxOwner;
   assignee: InboxAssignee | null;
+  isRead?: boolean;
+  readAt?: string | null;
   sla: InboxSla;
   urgency: InboxUrgency;
   resolution: InboxResolution;
@@ -165,6 +168,7 @@ export interface InboxSnapshot {
     urgent: number;
     soon: number;
     normal: number;
+    assignedToMe?: number;
     byDomain: Record<InboxDomain, number>;
   };
   errors: InboxDataSourceError[];

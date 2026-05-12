@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { MapPin } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { useCities } from "@/hooks/useReferenceData";
 import { useLocalePath } from "@/hooks/useLocalePath";
-import { supabase } from "@/integrations/supabase/client";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import {
   validateSelectedCityIds,
 } from "@/lib/cms/city-block-config";
@@ -17,6 +17,8 @@ import {
   type PlacementListing,
 } from "@/lib/cms/placement-engine";
 import { trackBlockImpression, trackEvent } from "@/lib/analytics/platformTracking";
+import { publishedListingsQueryKey } from "@/lib/query-keys";
+import { normalizePublicContentLocale } from "@/lib/publicContentLocale";
 
 const firaSans700Style = {
   fontFamily: "var(--font-fira-sans), 'Fira Sans', sans-serif",
@@ -26,23 +28,19 @@ const firaSans700Style = {
 export function FeaturedCitySection() {
   const { t } = useTranslation();
   const l = useLocalePath();
+  const queryClient = useQueryClient();
+  const locale = normalizePublicContentLocale(useCurrentLocale());
   const { data: cities = [], isLoading } = useCities();
   const { getBlockData } = useCmsPageBuilder("home");
   const blockData = getBlockData("featured-city");
   const featuredCityId = typeof blockData.cityId === "string" ? blockData.cityId.trim() : "";
   const selection = normalizePlacementSelection(blockData.selection);
-  const { data: cityListings = [] } = useQuery({
-    queryKey: ["home-featured-city-placement-listings"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("listings")
-        .select("id, city_id, tier, status")
-        .eq("status", "published");
-      if (error) throw error;
-      return (data ?? []) as PlacementListing[];
-    },
-    staleTime: 60 * 1000,
-  });
+  const cityListings = useMemo(
+    () =>
+      (queryClient.getQueryData<PlacementListing[]>(publishedListingsQueryKey({}, locale)) ?? [])
+        .filter((listing) => listing.status === "published"),
+    [locale, queryClient],
+  );
 
   const { validCityIds } = validateSelectedCityIds(
     "featured-city",

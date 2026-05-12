@@ -12,11 +12,13 @@ import { Button } from "@/components/ui/Button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useNewsletterSignup } from "@/hooks/useNewsletterSignup";
-import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 import { openCookiePreferences } from "@/lib/cookieConsent";
 import { LOCALE_PREFIX_PATTERN } from "@/lib/i18n/config";
 import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 import { normalizePublicContactEmail } from "@/lib/contactEmail";
+import type { LocalizedPathInput } from "@/lib/i18n/localized-routing";
+import { buildCategoryRouteData } from "@/lib/public-route-builders";
+import { buildStaticRouteData } from "@/lib/i18n/localized-routing";
 
 function Link(props: ComponentProps<typeof NextLink>) {
   return <NextLink prefetch={false} {...props} />;
@@ -32,12 +34,12 @@ const fallbackLinks = {
     { name: "Tavira Heritage", href: "/destinations/tavira-heritage" },
   ],
   categories: [
-    { name: "Places to Stay", href: "/stay?category=places-to-stay", translationKey: "categories.premiumAccommodation" },
-    { name: "Restaurants", href: "/stay?category=restaurants", translationKey: "categories.restaurants" },
-    { name: "Golf & Tournaments", href: "/stay?category=golf", translationKey: "categories.golf" },
-    { name: "Things to Do", href: "/stay?category=things-to-do", translationKey: "categories.premiumExperiences" },
-    { name: "What's On", href: "/stay?category=whats-on", translationKey: "categories.premierEvents" },
-    { name: "Algarve Services", href: "/stay?category=algarve-services", translationKey: "categories.algarveServices" },
+    { name: "Places to Stay", href: "/category/accommodation", translationKey: "categories.premiumAccommodation" },
+    { name: "Restaurants", href: "/category/restaurants", translationKey: "categories.restaurants" },
+    { name: "Golf & Tournaments", href: "/category/golf", translationKey: "categories.golf" },
+    { name: "Things to Do", href: "/category/experiences", translationKey: "categories.premiumExperiences" },
+    { name: "What's On", href: "/events", translationKey: "categories.premierEvents" },
+    { name: "Algarve Services", href: "/category/concierge-services", translationKey: "categories.algarveServices" },
   ],
   company: [
     { name: "About Us", href: "/about-us", translationKey: "footer.aboutUs" },
@@ -101,48 +103,16 @@ const linkTranslationKeys: Record<string, string> = {
   "Cookie Policy": "footer.cookiePolicy",
 };
 
-const FOOTER_CATEGORY_SLUG_BY_NAME: Record<string, string> = {
-  "places to stay": "places-to-stay",
-  "place to stay": "places-to-stay",
-  accommodation: "places-to-stay",
-  "premium accommodation": "places-to-stay",
-  restaurants: "restaurants",
-  gastronomy: "restaurants",
-  "fine dining": "restaurants",
-  "restaurants & michelin": "restaurants",
-  "golf & tournaments": "golf",
-  "golf experiences": "golf",
-  "beaches & beach clubs": "beaches-clubs",
-  "beaches & clubs": "beaches-clubs",
-  wellness: "wellness-spas",
-  "wellness & spas": "wellness-spas",
-  "things to do": "things-to-do",
-  "premium experiences": "things-to-do",
-  "algarve experience": "things-to-do",
-  "family attractions": "things-to-do",
-  "what's on": "whats-on",
-  "whats on": "whats-on",
-  "premier events": "whats-on",
-  "algarve services": "algarve-services",
-  "concierge services": "algarve-services",
-  "vip concierge": "algarve-services",
-  "vip transportation": "algarve-services",
-  "prime real estate": "algarve-services",
-  "architecture & decoration": "algarve-services",
-  "protection services": "algarve-services",
-  "shopping & boutiques": "shopping-boutiques",
-};
-
 const LEGACY_FOOTER_CATEGORY_SLUG_BY_PARAM: Record<string, string> = {
-  "1": "places-to-stay",
+  "1": "accommodation",
   "2": "restaurants",
   "3": "golf",
-  "4": "beaches-clubs",
-  "5": "things-to-do",
+  "4": "beach-clubs",
+  "5": "experiences",
   "6": "wellness-spas",
-  "7": "whats-on",
-  "8": "algarve-services",
-  "9": "shopping-boutiques",
+  "7": "events",
+  "8": "concierge-services",
+  "9": "shopping",
 };
 
 /** Use centralized regex that includes ALL locales (including "en") */
@@ -151,9 +121,9 @@ const NUMERIC_PARAM_RE = /^\d+$/;
 
 export function normalizeFooterLinkHref(
   href: string,
-  name: string,
+  _name: string,
   sectionSlug: string,
-  localizedHref: (path: string) => string,
+  localizedHref: (path: LocalizedPathInput) => string,
 ): string {
   if (!href || href.startsWith("http")) {
     return href;
@@ -166,26 +136,36 @@ export function normalizeFooterLinkHref(
     ? stripLocaleFromPathname(rawPath)
     : rawPath;
 
+  if (sectionSlug === "categories" && normalizedPath.startsWith("/category/")) {
+    const rawSlug = normalizedPath.split("/").filter(Boolean)[1];
+    const categoryRouteData = buildCategoryRouteData(rawSlug);
+    if (categoryRouteData) {
+      return localizedHref(categoryRouteData);
+    }
+
+    return localizedHref(buildStaticRouteData("stay"));
+  }
+
   if (sectionSlug === "categories" && (normalizedPath.startsWith("/directory") || normalizedPath.startsWith("/stay"))) {
-    const [, query = ""] = normalizedPath.split("?");
-    const params = new URLSearchParams(query);
+    const params = new URLSearchParams(suffix.startsWith("?") ? suffix.slice(1) : "");
     const rawCategoryParam = params.get("category");
-    const normalizedName = name.trim().toLowerCase();
     const normalizedCategoryParam = rawCategoryParam?.trim().toLowerCase() ?? "";
     const resolvedCategoryFromParam = normalizedCategoryParam
       ? NUMERIC_PARAM_RE.test(normalizedCategoryParam)
         ? LEGACY_FOOTER_CATEGORY_SLUG_BY_PARAM[normalizedCategoryParam]
-        : getCanonicalCategorySlug(normalizedCategoryParam)
+        : normalizedCategoryParam
       : undefined;
 
-    const canonicalCategorySlug =
-      FOOTER_CATEGORY_SLUG_BY_NAME[normalizedName] ?? resolvedCategoryFromParam;
-
-    if (canonicalCategorySlug) {
-      params.set("category", canonicalCategorySlug);
-      const categoryBasePath = normalizedPath.startsWith("/directory") ? "/directory" : "/stay";
-      return localizedHref(`${categoryBasePath}?${params.toString()}`);
+    if (resolvedCategoryFromParam === "events" || resolvedCategoryFromParam === "whats-on") {
+      return localizedHref(buildStaticRouteData("events"));
     }
+
+    const categoryRouteData = buildCategoryRouteData(resolvedCategoryFromParam);
+    if (categoryRouteData) {
+      return localizedHref(categoryRouteData);
+    }
+
+    return localizedHref(buildStaticRouteData("stay"));
   }
 
   // Legacy pricing page now lives on /partner.

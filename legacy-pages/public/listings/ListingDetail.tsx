@@ -57,6 +57,7 @@ import { formatRichTextDescription } from "@/lib/formatRichText";
 import { sanitizeHtmlString } from "@/lib/sanitizeHtml";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 import { getListingCategoryLanding } from "@/lib/listingCategoryLanding";
+import { buildCategoryRouteData } from "@/lib/public-route-builders";
 import { resolveListingDetailLayoutKey } from "@/lib/listingDetailLayout";
 import { hasRealEstateSignals } from "@/lib/realEstateDetection";
 import ListingImage from "@/components/ListingImage";
@@ -490,13 +491,15 @@ export default function ListingDetail() {
   const canonicalCategorySlug = getCanonicalCategorySlug(listing.category?.slug);
   const landingPage = getListingCategoryLanding(canonicalCategorySlug);
   const landingLabel = t(landingPage.labelKey, landingPage.fallbackLabel);
-  const categoryDirectoryPath = canonicalCategorySlug ? `/stay?category=${canonicalCategorySlug}` : "/stay";
+  const categoryRouteData = canonicalCategorySlug
+    ? buildCategoryRouteData(canonicalCategorySlug)
+    : null;
 
   const breadcrumbItems = [
     { name: t("nav.home"), url: `https://algarveofficial.com${l("/")}` },
     { name: landingLabel, url: `https://algarveofficial.com${l(landingPage.path)}` },
     ...(canonicalCategorySlug
-      ? [{ name: categoryLabel, url: `https://algarveofficial.com${l(categoryDirectoryPath)}` }]
+      ? [{ name: categoryLabel, url: `https://algarveofficial.com${l(categoryRouteData ?? landingPage.path)}` }]
       : []),
     { name: listingTitle, url: listingCanonicalUrl },
   ];
@@ -505,7 +508,7 @@ export default function ListingDetail() {
     { name: t("nav.home"), to: l("/"), current: false },
     { name: landingLabel, to: l(landingPage.path), current: false },
     ...(canonicalCategorySlug
-      ? [{ name: categoryLabel, to: l(categoryDirectoryPath), current: false }]
+      ? [{ name: categoryLabel, to: l(categoryRouteData ?? landingPage.path), current: false }]
       : []),
     { name: listingTitle, to: l(`/listing/${listing.slug}`), current: true },
   ];

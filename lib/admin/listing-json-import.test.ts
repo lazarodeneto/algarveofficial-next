@@ -642,9 +642,43 @@ describe("listing JSON import normalization", () => {
     expect(normalizeImportCategory("apartments")).toBe("accommodation");
     expect(normalizeImportCategory("golf-course")).toBe("golf");
     expect(normalizeImportCategory("luxury properties")).toBe("real-estate");
+    expect(normalizeImportCategory("beach")).toBe("beaches");
+    expect(normalizeImportCategory("beaches")).toBe("beaches");
     expect(normalizeImportCategory("beach clubs")).toBe("beach-clubs");
     expect(normalizeImportCategory("concierge services")).toBe("concierge-services");
     expect(normalizeImportCategory("services")).toBe("concierge-services");
+  });
+
+  it("preserves rich beach category data for standard listing imports", () => {
+    const listing = normalizeImportListing(
+      {
+        Nome: "Praia Example",
+        City: "Lagos",
+        category: "beaches",
+        category_data: {
+          highlights: ["Calm swimming", "Boardwalk access"],
+          testimonials: [{ name: "Angelica", rating: 5, text: "Beautiful beach." }],
+          seo_link_groups: [{ title: "Experiences in Lagos", links: [{ label: "Lagos snorkeling" }] }],
+        },
+        beach_details: {
+          meeting_point: "Meet by the main boardwalk.",
+          what_to_bring: ["Sunscreen", "Water"],
+        },
+      },
+      0,
+    );
+
+    expect(listing.normalizedCategory).toBe("beaches");
+    expect(listing.vertical).toBe("none");
+    expect(listing.categoryDataPatch.highlights).toEqual(["Calm swimming", "Boardwalk access"]);
+    expect(listing.categoryDataPatch.meeting_point).toBe("Meet by the main boardwalk.");
+    expect(listing.categoryDataPatch.what_to_bring).toEqual(["Sunscreen", "Water"]);
+    expect(listing.categoryDataPatch.testimonials).toEqual([
+      { name: "Angelica", rating: 5, text: "Beautiful beach." },
+    ]);
+    expect(listing.categoryDataPatch.seo_link_groups).toEqual([
+      { title: "Experiences in Lagos", links: [{ label: "Lagos snorkeling" }] },
+    ]);
   });
 
   it("uses top-level category before category_slug fallback", () => {

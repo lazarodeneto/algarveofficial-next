@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
+import { lazy, useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { DashboardBreadcrumb } from "@/components/ui/dashboard-breadcrumb";
@@ -78,10 +78,6 @@ import {
   validateSelectedListingIds,
 } from "@/lib/cms/listing-block-config";
 import { getSafeCmsImageSrc, normalizeCmsImageFieldsInValue } from "@/lib/cms/image-source";
-import { convertToWebP } from "@/lib/imageUtils";
-import { ImageUrlUploadField } from "@/components/admin/ImageUrlUploadField";
-import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
-import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import {
   addLocaleToPathname,
@@ -96,10 +92,22 @@ import {
 import { validateCmsPageBuilderDraft } from "@/lib/cms/page-builder-validation";
 import { resolveHero, resolvePageContent } from "@/lib/cms/resolve-hero";
 import { getDefaultBlockSettings, isSupportedBlockType, type CmsPageConfig } from "@/lib/cms/block-schemas";
-import { BlockPreview } from "@/components/cms/builder/BlockPreview";
-import AdminHomePage from "./AdminHomePage";
 
 const ENABLE_VISUAL_BLOCK_BUILDER = true;
+
+const AdminHomePage = lazy(() => import("./AdminHomePage"));
+const BlockPreview = lazy(() =>
+  import("@/components/cms/builder/BlockPreview").then((module) => ({ default: module.BlockPreview })),
+);
+const HeroBackgroundMedia = lazy(() =>
+  import("@/components/sections/HeroBackgroundMedia").then((module) => ({ default: module.HeroBackgroundMedia })),
+);
+const LiveStyleHero = lazy(() =>
+  import("@/components/sections/LiveStyleHero").then((module) => ({ default: module.LiveStyleHero })),
+);
+const ImageUrlUploadField = lazy(() =>
+  import("@/components/admin/ImageUrlUploadField").then((module) => ({ default: module.ImageUrlUploadField })),
+);
 
 const HERO_MEDIA_SUPPORTED_PAGE_IDS = new Set([
   "beaches",
@@ -456,6 +464,35 @@ function AdminImageCardPreview({
   );
 }
 
+function DeferredPanelsFallback({
+  label = "Loading detailed editing panels...",
+  description = "Core page controls are ready. Heavier previews and media tools load after the browser is idle.",
+  onLoadNow,
+}: {
+  label?: string;
+  description?: string;
+  onLoadNow?: () => void;
+}) {
+  return (
+    <Card className="border-border bg-card/50">
+      <CardContent className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-primary" />
+          <div>
+            <p className="text-sm font-medium text-foreground">{label}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{description}</p>
+          </div>
+        </div>
+        {onLoadNow ? (
+          <Button type="button" variant="outline" size="sm" onClick={onLoadNow}>
+            Load now
+          </Button>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
 interface KeyValueRow {
   id: string;
   key: string;
@@ -548,6 +585,35 @@ function buildHeroTextMap(hero: CmsPageConfig["hero"] | undefined): Record<strin
   return map;
 }
 
+function getHeroFieldFromTextKey(textKey: string): string | null {
+  switch (textKey) {
+    case "hero.mediaType":
+      return "mediaType";
+    case "hero.imageUrl":
+      return "imageUrl";
+    case "hero.videoUrl":
+      return "videoUrl";
+    case "hero.youtubeUrl":
+      return "youtubeUrl";
+    case "hero.posterUrl":
+      return "posterUrl";
+    case "hero.alt":
+      return "alt";
+    case "hero.badge":
+      return "badge";
+    case "hero.title":
+      return "title";
+    case "hero.subtitle":
+      return "subtitle";
+    case "hero.cta.primary":
+      return "ctaPrimary";
+    case "hero.cta.secondary":
+      return "ctaSecondary";
+    default:
+      return null;
+  }
+}
+
 function AdminPageBuilderContent() {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -592,9 +658,10 @@ function AdminPageBuilderContent() {
   const heroImageInputRef = useRef<HTMLInputElement | null>(null);
   const heroVideoInputRef = useRef<HTMLInputElement | null>(null);
   const heroPosterInputRef = useRef<HTMLInputElement | null>(null);
+  const detailedPanelsTriggerRef = useRef<HTMLDivElement | null>(null);
 
   const [visualConfig, setVisualConfig] = useState<CmsPageConfig | null>(null);
-  const [cmsDocumentId, setCmsDocumentId] = useState<number | null>(null);
+  const [cmsDocumentId, setCmsDocumentId] = useState<string | number | null>(null);
   const [cmsLatestDraftVersion, setCmsLatestDraftVersion] = useState<number | null>(null);
   const [cmsLatestPublishedVersion, setCmsLatestPublishedVersion] = useState<number | null>(null);
   const [cmsVersionHistory, setCmsVersionHistory] = useState<CmsDocumentVersionSummary[]>([]);
@@ -604,6 +671,7 @@ function AdminPageBuilderContent() {
   const [isCmsPreviewing, setIsCmsPreviewing] = useState(false);
   const [isCmsHistoryLoading, setIsCmsHistoryLoading] = useState(false);
   const [isCmsDirty, setIsCmsDirty] = useState(false);
+  const [detailedPanelsReady, setDetailedPanelsReady] = useState(false);
 
   const { data: cities = [] } = useQuery({
     queryKey: ["admin-cities-for-cms"],
@@ -752,7 +820,11 @@ function AdminPageBuilderContent() {
     const rawContent = isRecord(data.content) ? data.content : {};
     const normalizedContent = normalizePageConfig(rawContent);
 
-    setCmsDocumentId(typeof data.document_id === "number" ? data.document_id : null);
+    setCmsDocumentId(
+      typeof data.document_id === "number" || typeof data.document_id === "string"
+        ? data.document_id
+        : null,
+    );
     setCmsLatestDraftVersion(typeof data.latest_draft_version === "number" ? data.latest_draft_version : null);
     setCmsLatestPublishedVersion(typeof data.latest_published_version === "number" ? data.latest_published_version : null);
     setVisualConfig(normalizedContent);
@@ -828,6 +900,40 @@ function AdminPageBuilderContent() {
     setFeaturedCitySearchQuery("");
     setListingSearchQuery("");
   }, [selectedPageId]);
+
+  useEffect(() => {
+    if (isHomeEditorMode || detailedPanelsReady) return;
+
+    const trigger = detailedPanelsTriggerRef.current;
+    if (!trigger || typeof IntersectionObserver === "undefined") return;
+    const win = window as Window & {
+      requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+    let idleId: number | undefined;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        observer.disconnect();
+        idleId = win.requestIdleCallback
+          ? win.requestIdleCallback(() => setDetailedPanelsReady(true), { timeout: 700 })
+          : undefined;
+        if (typeof idleId !== "number") {
+          setDetailedPanelsReady(true);
+        }
+      },
+      { rootMargin: "320px 0px" },
+    );
+
+    observer.observe(trigger);
+
+    return () => {
+      observer.disconnect();
+      if (typeof idleId === "number") {
+        win.cancelIdleCallback?.(idleId);
+      }
+    };
+  }, [detailedPanelsReady, isHomeEditorMode]);
 
   useEffect(() => {
     if (!selectedPageId || !initialized) return;
@@ -1125,6 +1231,9 @@ function AdminPageBuilderContent() {
     Object.prototype.hasOwnProperty.call(selectedPageTextMap, field.key),
   ).length;
   const inheritedVisibleFieldCount = Math.max(selectedVisibleFields.length - customVisibleFieldCount, 0);
+  const cityIds = useMemo(() => cities.map((city) => city.id), [cities]);
+  const categoryIds = useMemo(() => categories.map((category) => category.id), [categories]);
+  const listingIds = useMemo(() => listingOptions.map((listing) => listing.id), [listingOptions]);
 
   const workspaceStatus = isCmsPublishing
     ? { label: "Publishing", className: "border-amber-500/40 bg-amber-50 text-amber-700" }
@@ -1147,11 +1256,11 @@ function AdminPageBuilderContent() {
         locale,
         pageDefinition: selectedPageDefinition,
         pageConfig: selectedPageConfig,
-        cityIds: cities.map((city) => city.id),
-        categoryIds: categories.map((category) => category.id),
-        listingIds: listingOptions.map((listing) => listing.id),
+        cityIds,
+        categoryIds,
+        listingIds,
       }),
-    [categories, cities, listingOptions, locale, selectedPageConfig, selectedPageDefinition, selectedPageId],
+    [categoryIds, cityIds, listingIds, locale, selectedPageConfig, selectedPageDefinition, selectedPageId],
   );
   const validationErrors = validationReport.errors;
   const validationWarnings = validationReport.warnings;
@@ -1219,10 +1328,18 @@ function AdminPageBuilderContent() {
     setPageConfigs((prev) => {
       const currentPage = prev[selectedPageId] ?? {};
       const currentBlocks = currentPage.blocks ?? {};
+      const nextHero =
+        blockId === "hero" && typeof nextBlockConfig.enabled === "boolean"
+          ? {
+              ...((currentPage.hero as Record<string, unknown> | undefined) ?? {}),
+              enabled: nextBlockConfig.enabled,
+            }
+          : currentPage.hero;
       return {
         ...prev,
         [selectedPageId]: {
           ...currentPage,
+          ...(nextHero ? { hero: nextHero } : {}),
           blocks: {
             ...currentBlocks,
             [blockId]: nextBlockConfig,
@@ -1283,6 +1400,14 @@ function AdminPageBuilderContent() {
 
         return normalizePageConfig({
           ...prev,
+          ...(blockId === "hero" && typeof nextBlockConfig.enabled === "boolean"
+            ? {
+                hero: {
+                  ...((prev.hero as Record<string, unknown> | undefined) ?? {}),
+                  enabled: nextBlockConfig.enabled,
+                },
+              }
+            : {}),
           blocks,
         });
       });
@@ -1514,10 +1639,14 @@ function AdminPageBuilderContent() {
         textKey === "hero.posterUrl");
     const isMediaTypeField = textKey === "hero.mediaType";
     const normalizedInput = isMediaTypeField ? value.trim().toLowerCase() : value;
+    const heroField = getHeroFieldFromTextKey(textKey);
 
     setPageConfigs((prev) => {
       const currentPage = prev[selectedPageId] ?? {};
       const nextText = { ...(currentPage.text ?? {}) };
+      const nextHero = {
+        ...((currentPage.hero as Record<string, unknown> | undefined) ?? {}),
+      };
       const trimmed = normalizedInput.trim();
 
       if (trimmed) {
@@ -1529,10 +1658,19 @@ function AdminPageBuilderContent() {
         delete nextText[textKey];
       }
 
+      if (heroField) {
+        if (trimmed || isGolfHeroMediaField) {
+          nextHero[heroField] = normalizedInput;
+        } else {
+          delete nextHero[heroField];
+        }
+      }
+
       return {
         ...prev,
         [selectedPageId]: {
           ...currentPage,
+          ...(heroField ? { hero: nextHero } : {}),
           text: nextText,
         },
       };
@@ -1651,29 +1789,31 @@ function AdminPageBuilderContent() {
       setHeroUploadTarget(target);
 
       let uploadFile = file;
-      let extension = file.name.split(".").pop()?.toLowerCase() || (target === "video" ? "mp4" : "webp");
 
       if (target !== "video" && file.type.startsWith("image/") && file.type !== "image/webp") {
+        const { convertToWebP } = await import("@/lib/imageUtils");
         uploadFile = await convertToWebP(file, 0.88);
-        extension = "webp";
       }
 
-      const filePath = `page-heroes/${selectedPageId}/${target}-${Date.now()}.${extension}`;
+      const formData = new FormData();
+      formData.set("file", uploadFile);
+      formData.set("pageId", selectedPageId);
+      formData.set("target", target);
 
-      const { error: uploadError } = await supabase.storage
-        .from("media")
-        .upload(filePath, uploadFile, {
-          upsert: true,
-          cacheControl: "31536000",
-        });
+      const response = await fetchAdmin("/api/admin/cms/media-upload", {
+        method: "POST",
+        body: formData,
+      });
+      const publicUrl =
+        typeof response.data?.publicUrl === "string"
+          ? response.data.publicUrl
+          : typeof response.data?.url === "string"
+            ? response.data.url
+            : "";
 
-      if (uploadError) {
-        throw uploadError;
+      if (!publicUrl) {
+        throw new Error("Upload did not return a public URL.");
       }
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("media").getPublicUrl(filePath);
 
       if (target === "image") {
         setPageTextValue("hero.imageUrl", publicUrl);
@@ -1931,8 +2071,8 @@ function AdminPageBuilderContent() {
 
         if (heroMediaSupported && hasHeroMediaKey) {
           const heroData: Record<string, unknown> = {
-            enabled: true,
-            mediaType: textMap["hero.mediaType"] || "image",
+            ...(isRecord(pageConfig.hero) ? pageConfig.hero : {}),
+            mediaType: textMap["hero.mediaType"] || (isRecord(pageConfig.hero) && typeof pageConfig.hero.mediaType === "string" ? pageConfig.hero.mediaType : "image"),
           };
 
           if (Object.prototype.hasOwnProperty.call(textMap, "hero.imageUrl")) {
@@ -2285,10 +2425,12 @@ function AdminPageBuilderContent() {
                       Builder Blocks
                     </Button>
                   </div>
-                </div>
-              </CardHeader>
-            </Card>
-            <AdminHomePage embedded />
+              </div>
+            </CardHeader>
+          </Card>
+            <Suspense fallback={<DeferredPanelsFallback label="Loading home page editor..." />}>
+              <AdminHomePage embedded />
+            </Suspense>
           </section>
         ) : (
           <>
@@ -2685,7 +2827,9 @@ function AdminPageBuilderContent() {
       </div>
 
       {!isHomeEditorMode ? (
-        <>
+        detailedPanelsReady ? (
+          <Suspense fallback={<DeferredPanelsFallback />}>
+            <>
           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
             <FileText className="h-4 w-4" />
             Detailed editing panels
@@ -2773,7 +2917,7 @@ function AdminPageBuilderContent() {
                         <input
                           ref={heroImageInputRef}
                           type="file"
-                          accept="image/*"
+                          accept="image/avif,image/jpeg,image/png,image/webp"
                           className="hidden"
                           onChange={async (event) => {
                             const file = event.target.files?.[0];
@@ -2785,7 +2929,7 @@ function AdminPageBuilderContent() {
                         <input
                           ref={heroPosterInputRef}
                           type="file"
-                          accept="image/*"
+                          accept="image/avif,image/jpeg,image/png,image/webp"
                           className="hidden"
                           onChange={async (event) => {
                             const file = event.target.files?.[0];
@@ -3875,7 +4019,13 @@ function AdminPageBuilderContent() {
           </CardContent>
         </Card>
       </div>
-        </>
+            </>
+          </Suspense>
+        ) : (
+          <div ref={detailedPanelsTriggerRef}>
+            <DeferredPanelsFallback onLoadNow={() => setDetailedPanelsReady(true)} />
+          </div>
+        )
       ) : null}
     </div>
   );

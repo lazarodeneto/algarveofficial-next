@@ -156,7 +156,7 @@ export const CMS_PAGE_DEFINITIONS: CmsPageDefinition[] = [
   {
     id: "wellness-spas",
     label: "Wellness",
-    path: "/stay?category=wellness-spas",
+    path: "/category/wellness-spas",
     description: "Wellness, spa, retreat, and relaxation listings.",
     blocks: [
       { id: "hero", label: "Hero" },
@@ -627,7 +627,7 @@ export const CMS_PAGE_REGISTRY_META: Record<string, CmsPageRegistryMeta> = {
     scope: "global",
     status: "enabled",
     group: "Directory Pages",
-    publicRenderer: "components/directory/DirectoryClient.tsx with /stay?category=wellness-spas",
+    publicRenderer: "components/directory/DirectoryClient.tsx with /category/wellness-spas",
     notes: "Full Page Builder controls the Wellness navigation route while listings remain data driven.",
   },
   directory: {
@@ -893,6 +893,7 @@ export const CMS_CONTRACT_ENFORCED_PAGE_IDS: string[] = [
   "destination-detail",
   "city-detail",
   "experiences",
+  "beaches",
   "live",
   "invest",
   "real-estate",
@@ -905,6 +906,7 @@ export const CMS_CONTRACT_PLANNED_BLOCK_IDS: Record<string, string[]> = {
   events: ["filters", "featured", "timeline"],
   "event-detail": ["hero", "details", "venue", "cta"],
   experiences: ["city-index"],
+  beaches: ["city-index"],
   invest: ["framework", "cta"],
   map: ["search", "map", "results"],
   "real-estate": ["filters", "listings", "concierge"],
@@ -994,6 +996,24 @@ function normalizeCmsBlockConfig(input: unknown): CmsBlockConfig {
   return block;
 }
 
+function normalizeCmsSectionBlockConfig(input: Record<string, unknown>): CmsBlockConfig {
+  const block = normalizeCmsBlockConfig(input);
+  const data: Record<string, unknown> = { ...(block.data ?? {}) };
+
+  Object.entries(input).forEach(([key, value]) => {
+    if (["enabled", "order", "className", "style", "data"].includes(key)) return;
+    if (isCmsDataValue(value)) {
+      data[key] = value;
+    }
+  });
+
+  if (Object.keys(data).length > 0) {
+    block.data = data;
+  }
+
+  return block;
+}
+
 function mergeAliasBlockConfig(existing: CmsBlockConfig | undefined, incoming: CmsBlockConfig): CmsBlockConfig {
   if (!existing) return incoming;
   return {
@@ -1021,9 +1041,39 @@ export function normalizeCmsPageConfigs(
     }
 
     const normalizedPage: CmsPageConfig = {};
+    let normalizedBlocks: Record<string, CmsBlockConfig> = {};
+
+    if (isPlainRecord(rawPage.sections)) {
+      Object.entries(rawPage.sections).forEach(([rawSectionId, rawSection]) => {
+        if (!isPlainRecord(rawSection)) return;
+
+        const resolvedBlockId = resolveCmsBlockId(pageId, rawSectionId);
+        if (!resolvedBlockId) {
+          options?.onIssue?.({
+            kind: "unknown-block-id",
+            pageId,
+            blockId: rawSectionId,
+          });
+          return;
+        }
+
+        if (resolvedBlockId === "hero") {
+          normalizedPage.hero = {
+            ...(normalizedPage.hero ?? {}),
+            ...rawSection,
+          };
+        }
+
+        const normalizedBlock = normalizeCmsSectionBlockConfig(rawSection);
+        normalizedBlocks[resolvedBlockId] = mergeAliasBlockConfig(
+          normalizedBlocks[resolvedBlockId],
+          normalizedBlock,
+        );
+      });
+    }
 
     if (isPlainRecord(rawPage.blocks)) {
-      const blocks: Record<string, CmsBlockConfig> = {};
+      const blocks: Record<string, CmsBlockConfig> = { ...normalizedBlocks };
 
       Object.entries(rawPage.blocks).forEach(([rawBlockId, rawBlock]) => {
         const resolvedBlockId = resolveCmsBlockId(pageId, rawBlockId);
@@ -1046,10 +1096,16 @@ export function normalizeCmsPageConfigs(
       });
 
       normalizedPage.blocks = blocks;
+      normalizedBlocks = blocks;
+    } else if (Object.keys(normalizedBlocks).length > 0) {
+      normalizedPage.blocks = normalizedBlocks;
     }
 
     if (isPlainRecord(rawPage.hero)) {
-      normalizedPage.hero = rawPage.hero;
+      normalizedPage.hero = {
+        ...(normalizedPage.hero ?? {}),
+        ...rawPage.hero,
+      };
     }
 
     if (isPlainRecord(rawPage.text)) {

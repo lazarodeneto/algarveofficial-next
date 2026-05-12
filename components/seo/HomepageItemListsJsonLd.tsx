@@ -6,6 +6,8 @@ import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { buildMergedCategoryOptions } from "@/lib/categoryMerges";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { buildCategoryRouteData } from "@/lib/public-route-builders";
+import { buildStaticRouteData } from "@/lib/i18n/localized-routing";
 
 const SITE_URL = "https://algarveofficial.com";
 
@@ -25,9 +27,10 @@ export function HomepageItemListsJsonLd() {
     if (merged.length > 0) {
       return merged.map((category) => {
         const translatedName = translateCategoryName(t, category.slug, category.name);
+        const categoryHref = buildCategoryRouteData(category.slug) ?? buildStaticRouteData("stay");
         return {
           name: translatedName,
-          url: absoluteUrl(l(`/stay?category=${category.slug}`)),
+          url: absoluteUrl(l(categoryHref)),
           description: category.short_description ?? `${translatedName} in the Algarve.`,
         };
       });
@@ -36,22 +39,22 @@ export function HomepageItemListsJsonLd() {
     return [
       {
         name: t("categoryNames.places-to-stay"),
-        url: absoluteUrl(l("/stay?category=places-to-stay")),
+        url: absoluteUrl(l(buildCategoryRouteData("accommodation") ?? buildStaticRouteData("stay"))),
         description: "Hotels, villas, and premium stays in the Algarve.",
       },
       {
         name: t("categoryNames.restaurants"),
-        url: absoluteUrl(l("/stay?category=restaurants")),
+        url: absoluteUrl(l(buildCategoryRouteData("restaurants") ?? buildStaticRouteData("stay"))),
         description: "Fine dining and standout restaurants across the Algarve.",
       },
       {
         name: t("categoryNames.things-to-do"),
-        url: absoluteUrl(l("/stay?category=things-to-do")),
+        url: absoluteUrl(l(buildCategoryRouteData("experiences") ?? buildStaticRouteData("stay"))),
         description: "Curated experiences and activities in the Algarve.",
       },
       {
         name: t("categoryNames.whats-on"),
-        url: absoluteUrl(l("/stay?category=whats-on")),
+        url: absoluteUrl(l(buildStaticRouteData("events"))),
         description: "Events and happenings across the Algarve.",
       },
     ];

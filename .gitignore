@@ -58,4 +58,6 @@ next-env.d.ts
 # Local/generated artifacts
 artifacts/
 output/
+.codex/
+/*.png
 golf-cards-current.png

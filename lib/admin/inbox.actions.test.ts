@@ -2,9 +2,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   approveInboxItem,
+  archiveInboxNotification,
   archiveInboxItem,
   assignInboxItem,
+  deleteInboxNotification,
   markInboxItemRead,
+  markInboxItemReadState,
+  markInboxItemUnreadState,
   rejectInboxItem,
 } from "@/lib/admin/inbox/actions";
 import { createClient as createCookieClient } from "@/lib/supabase/server";
@@ -151,5 +155,120 @@ describe("admin inbox actions", () => {
       }),
       { onConflict: "source,source_row_id" },
     );
+  });
+
+  it("archives any derived notification from the list without changing the source row", async () => {
+    const upsert = vi.fn().mockResolvedValue({ error: null });
+    const from = vi.fn(() => ({ upsert }));
+    mockedCreateServiceRoleClient.mockReturnValue({ from } as never);
+
+    const result = await archiveInboxNotification({
+      source: "translation_job",
+      sourceRowId: "22222222-2222-4222-8222-222222222222",
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(from).toHaveBeenCalledWith("admin_inbox_archives");
+    expect(upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        source: "translation_job",
+        source_row_id: "22222222-2222-4222-8222-222222222222",
+        archived_by: "11111111-1111-4111-8111-111111111111",
+        reason: "archived_from_list",
+      }),
+      { onConflict: "source,source_row_id" },
+    );
+  });
+
+  it("deletes an inbox notification by suppressing it in the archive side table", async () => {
+    const upsert = vi.fn().mockResolvedValue({ error: null });
+    const from = vi.fn(() => ({ upsert }));
+    mockedCreateServiceRoleClient.mockReturnValue({ from } as never);
+
+    const result = await deleteInboxNotification({
+      source: "translation_job",
+      sourceRowId: "22222222-2222-4222-8222-222222222222",
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(from).toHaveBeenCalledWith("admin_inbox_archives");
+    expect(upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        source: "translation_job",
+        source_row_id: "22222222-2222-4222-8222-222222222222",
+        reason: "deleted_from_inbox",
+      }),
+      { onConflict: "source,source_row_id" },
+    );
+  });
+
+  it("marks an inbox row read through a non-hiding side-table reason", async () => {
+    const upsert = vi.fn().mockResolvedValue({ error: null });
+    const from = vi.fn(() => ({ upsert }));
+    mockedCreateServiceRoleClient.mockReturnValue({ from } as never);
+
+    const result = await markInboxItemReadState({
+      source: "translation_job",
+      sourceRowId: "22222222-2222-4222-8222-222222222222",
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(from).toHaveBeenCalledWith("admin_inbox_archives");
+    expect(upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        source: "translation_job",
+        source_row_id: "22222222-2222-4222-8222-222222222222",
+        archived_by: "11111111-1111-4111-8111-111111111111",
+        reason: "read_from_list",
+      }),
+      { onConflict: "source,source_row_id" },
+    );
+  });
+
+  it("returns a migration-focused error when the inbox side-table source constraint is stale", async () => {
+    const upsert = vi.fn().mockResolvedValue({
+      error: {
+        code: "23514",
+        message:
+          'new row for relation "admin_inbox_archives" violates check constraint "admin_inbox_archives_source_chk"',
+      },
+    });
+    const from = vi.fn(() => ({ upsert }));
+    mockedCreateServiceRoleClient.mockReturnValue({ from } as never);
+
+    const result = await markInboxItemReadState({
+      source: "translation_job",
+      sourceRowId: "22222222-2222-4222-8222-222222222222",
+    });
+
+    expect(result).toEqual({
+      ok: false,
+      error:
+        "Admin inbox action storage is out of date. Apply supabase/migrations/20260512110500_resync_admin_inbox_side_table_sources.sql and refresh the Supabase schema cache.",
+    });
+  });
+
+  it("marks an inbox row unread by removing its read state", async () => {
+    const thirdEq = vi.fn().mockResolvedValue({ error: null });
+    const secondEq = vi.fn(() => ({ eq: thirdEq }));
+    const firstEq = vi.fn(() => ({ eq: secondEq }));
+    const deleteQuery = vi.fn(() => ({ eq: firstEq }));
+    const from = vi.fn(() => ({ delete: deleteQuery }));
+    mockedCreateServiceRoleClient.mockReturnValue({ from } as never);
+
+    const result = await markInboxItemUnreadState({
+      source: "translation_job",
+      sourceRowId: "22222222-2222-4222-8222-222222222222",
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(from).toHaveBeenCalledWith("admin_inbox_archives");
+    expect(deleteQuery).toHaveBeenCalled();
+    expect(firstEq).toHaveBeenCalledWith("source", "translation_job");
+    expect(secondEq).toHaveBeenCalledWith(
+      "source_row_id",
+      "22222222-2222-4222-8222-222222222222",
+    );
+    expect(thirdEq).toHaveBeenCalledWith("reason", "read_from_list");
   });
 });

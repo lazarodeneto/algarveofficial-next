@@ -72,17 +72,35 @@ const pricingRow: {
   updated_at: "2026-04-01T00:00:00.000Z",
 };
 
-function makeSupabaseMock(pricingData: typeof pricingRow[] = [pricingRow]) {
+const CLAIMED_LISTING_ID = "11111111-1111-4111-8111-111111111111";
+
+function makeSupabaseMock(
+  pricingData: typeof pricingRow[] = [pricingRow],
+  listingData: Record<string, unknown> | null = null,
+) {
   const limit = vi.fn().mockResolvedValue({ data: pricingData, error: null });
   const eqIsActive = vi.fn(() => ({ limit }));
   const eqTier = vi.fn(() => ({ eq: eqIsActive }));
   const selectStar = vi.fn(() => ({ eq: eqTier }));
+
+  const listingMaybeSingle = vi.fn().mockResolvedValue({ data: listingData, error: null });
+  const listingChain = {
+    eq: vi.fn(() => listingChain),
+    maybeSingle: listingMaybeSingle,
+  };
+  const selectListing = vi.fn(() => listingChain);
+
   return {
-    from: vi.fn(() => ({ select: selectStar })),
+    from: vi.fn((table: string) => {
+      if (table === "listings") return { select: selectListing };
+      return { select: selectStar };
+    }),
     __spies: {
       eqTier,
       eqIsActive,
       limit,
+      selectListing,
+      listingMaybeSingle,
     },
   };
 }
@@ -133,6 +151,89 @@ describe("stripe checkout route runtime", () => {
         }),
       }),
     );
+  });
+
+  it("validates a claimed owner listing and passes listing upgrade metadata to Stripe", async () => {
+    mocks.getStripeServerClient.mockReturnValue({
+      checkout: {
+        sessions: {
+          create: mocks.sessionsCreate.mockResolvedValue({ url: "https://checkout.stripe.test/session" }),
+        },
+      },
+    });
+
+    mocks.requireAuthenticatedOwner.mockResolvedValue({
+      userId: "owner-123",
+      email: "owner@test.com",
+    });
+
+    mocks.createServiceRoleClient.mockReturnValue(
+      makeSupabaseMock([pricingRow], {
+        id: CLAIMED_LISTING_ID,
+        owner_id: "owner-123",
+        claim_status: "claimed",
+        tier: "unverified",
+      }),
+    );
+    mocks.findOverlappingActive.mockResolvedValue(null);
+    mocks.findByOwner.mockResolvedValue(null);
+
+    const response = await postCheckoutRoute(
+      jsonRequest({
+        tier: "verified",
+        billing_period: "monthly",
+        listing_id: CLAIMED_LISTING_ID,
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(mocks.sessionsCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        metadata: expect.objectContaining({
+          listing_id: CLAIMED_LISTING_ID,
+          user_id: "owner-123",
+          target_tier: "verified",
+        }),
+        subscription_data: expect.objectContaining({
+          metadata: expect.objectContaining({
+            listing_id: CLAIMED_LISTING_ID,
+            user_id: "owner-123",
+            target_tier: "verified",
+          }),
+        }),
+        success_url: expect.stringContaining("/owner/upgrade/success"),
+        cancel_url: expect.stringContaining("/owner/upgrade/cancel"),
+      }),
+    );
+  });
+
+  it("rejects listing checkout when the selected listing is not claimed", async () => {
+    mocks.getStripeServerClient.mockReturnValue({
+      checkout: { sessions: { create: mocks.sessionsCreate } },
+    });
+    mocks.requireAuthenticatedOwner.mockResolvedValue({
+      userId: "owner-123",
+      email: "owner@test.com",
+    });
+    mocks.createServiceRoleClient.mockReturnValue(
+      makeSupabaseMock([pricingRow], {
+        id: CLAIMED_LISTING_ID,
+        owner_id: "owner-123",
+        claim_status: "claim_pending",
+        tier: "unverified",
+      }),
+    );
+
+    const response = await postCheckoutRoute(
+      jsonRequest({
+        tier: "verified",
+        billing_period: "monthly",
+        listing_id: CLAIMED_LISTING_ID,
+      }),
+    );
+
+    expect(response.status).toBe(409);
+    expect(mocks.sessionsCreate).not.toHaveBeenCalled();
   });
 
   it("pre-fills customer_email when no existing customer", async () => {

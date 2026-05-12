@@ -61,7 +61,11 @@ vi.mock("react-i18next", () => ({
 }));
 
 vi.mock("@/hooks/useLocalePath", () => ({
-  useLocalePath: () => (path: string) => path,
+  useLocalePath: () => (path: any) => {
+    if (typeof path === "string") return path;
+    if (path?.routeType === "category") return `/category/${path.slugs.en}`;
+    return "/";
+  },
 }));
 
 vi.mock("@/hooks/useGlobalSettings", () => ({
@@ -144,8 +148,11 @@ describe("HomeQuickLinksSection", () => {
     expect(wrappedTitle.className).toContain("text-balance");
     expect(wrappedTitle.className).toContain("font-fira");
     expect(wrappedTitle.className).toContain("font-black");
+    expect(wrappedTitle.className).toContain("min-h-[2.35em]");
+    expect(wrappedTitle.className).toContain("text-[clamp(1.12rem,6vw,1.5rem)]");
+    expect(wrappedTitle.className).toContain("sm:text-[clamp(1.04rem,3.1vw,1.48rem)]");
     expect(wrappedTitle.className).toContain("[overflow-wrap:normal]");
-    expect(wrappedTitle.className).toContain("lg:text-[1.13rem]");
+    expect(wrappedTitle.className).toContain("lg:text-[1.28rem]");
   });
 
   it("stacks the cards vertically on mobile widths", () => {

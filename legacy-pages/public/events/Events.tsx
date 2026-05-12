@@ -206,14 +206,14 @@ export default function Events() {
               minHeightClassName="min-h-[22rem]"
             />
           ) : (
-            <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(380px,42%)]">
+            <div className="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(18rem,38%)] lg:grid-cols-[minmax(0,1fr)_minmax(22rem,40%)] xl:grid-cols-[minmax(0,1fr)_minmax(380px,42%)] 3xl:grid-cols-[minmax(0,1.18fr)_minmax(420px,36%)]">
               <div className="space-y-12">
                 {Object.entries(eventsByMonth).map(([monthKey, events]) => (
                   <div key={monthKey}>
                     <h3 className="text-lg font-medium text-muted-foreground mb-4 border-b border-border pb-2">
                       {getEventMonthHeading(monthKey, locale)}
                     </h3>
-                    <div className="grid grid-cols-1 gap-4 3xl:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 2xl:grid-cols-2">
                       {events.map((event, index) => (
                         <m.div
                           key={event.id}
@@ -239,7 +239,7 @@ export default function Events() {
                   </div>
                 ))}
               </div>
-              <aside className="hidden xl:block">
+              <aside className="hidden md:block">
                 <div className="sticky top-28">
                   <EventMapDirectory
                     events={visibleEvents}

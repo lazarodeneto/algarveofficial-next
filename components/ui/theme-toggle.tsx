@@ -21,7 +21,7 @@ export function ThemeToggle({ variant = "default", className }: ThemeToggleProps
       <button
         onClick={toggleTheme}
         className={cn(
-          "flex h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-white/75 shadow-[0_10px_28px_-18px_rgba(15,23,42,0.45)] backdrop-blur-xl transition-all hover:border-primary/30 hover:scale-105 dark:border-white/25 dark:bg-white/15 dark:hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "flex h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-white/75 shadow-[0_10px_28px_-18px_rgba(15,23,42,0.45)] backdrop-blur-xl transition-all hover:border-primary/30 dark:border-white/70 dark:bg-white/15 dark:hover:border-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           className,
         )}
         aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
@@ -33,7 +33,7 @@ export function ThemeToggle({ variant = "default", className }: ThemeToggleProps
           transition={{ type: "spring", stiffness: 400, damping: 20 }}
         >
           {isDark ? (
-            <Sun className="h-4 w-4 text-primary" />
+            <Sun className="h-4 w-4 text-white" />
           ) : (
             <Moon className="h-4 w-4 text-foreground/80" />
           )}

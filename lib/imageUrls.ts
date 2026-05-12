@@ -104,6 +104,7 @@ export function addImageVersion(value: string | null | undefined, version?: Imag
 
   const trimmedValue = value.trim();
   if (!trimmedValue || trimmedValue.startsWith("data:")) return trimmedValue || null;
+  if (isAppLocalPublicAsset(trimmedValue)) return trimmedValue;
 
   let normalizedVersion: string;
   if (version instanceof Date) {
@@ -118,6 +119,15 @@ export function addImageVersion(value: string | null | undefined, version?: Imag
 
   const separator = trimmedValue.includes("?") ? "&" : "?";
   return `${trimmedValue}${separator}v=${encodeURIComponent(normalizedVersion)}`;
+}
+
+function isAppLocalPublicAsset(value: string): boolean {
+  return (
+    value.startsWith("/")
+    && !value.startsWith("//")
+    && !value.startsWith(SUPABASE_PUBLIC_OBJECT_SEGMENT)
+    && !value.startsWith(SUPABASE_PUBLIC_RENDER_SEGMENT)
+  );
 }
 
 function clampQuality(quality: number): number {

@@ -1,471 +1,357 @@
-import React from "react";
-import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
-import Link from "next/link";
+"use client";
+
+import { useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+
+import { LocaleLink } from "@/components/navigation/LocaleLink";
 import {
-    NavigationMenu,
-    NavigationMenuContent,
-    NavigationMenuItem,
-    NavigationMenuLink,
-    NavigationMenuList,
-    NavigationMenuTrigger,
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-import { cn } from "@/lib/utils";
-import { useHeaderMenu } from "@/hooks/useHeaderMenu";
-import { useLocalePath } from "@/hooks/useLocalePath";
-import { getMenuIcon } from "@/lib/menu-icons";
 import {
-    MapPin,
-    Home,
-    TrendingUp,
-    Binoculars,
-    Building2,
-    Hotel,
-    Utensils,
-    Compass,
-    Palmtree,
-    Trophy,
-    Dumbbell,
-    Users,
-    ShoppingBag,
-    Calendar,
-    PlusCircle,
-    ArrowRight,
-} from "lucide-react";
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import { buildLocalizedPath, type LocalizedPathInput } from "@/lib/i18n/localized-routing";
+import { stripLocaleFromPathname } from "@/lib/i18n/routing";
+import {
+  MEGA_MENU_SECTIONS,
+  type MegaMenuItem,
+  type MegaMenuSection,
+} from "@/lib/navigation/mega-menu";
+import { cn } from "@/lib/utils";
 
-// Region images
-import imgVilamoura from "@/assets/region-vilamoura-800w.webp";
-import imgGoldenTriangle from "@/assets/region-golden-triangle-800w.webp";
-import imgTavira from "@/assets/region-tavira-800w.webp";
-import imgSagres from "@/assets/region-sagres-800w.webp";
-
-// ─── Item definitions ─────────────────────────────────────────────────────────
-
-const visitItems = [
-    { href: "/stay?category=places-to-stay", label: "Places to Stay", translationKey: "categoryNames.places-to-stay", desc: "Hotels, villas & resorts", icon: Hotel },
-    { href: "/stay?category=restaurants", label: "Restaurants", translationKey: "categoryNames.restaurants", desc: "Michelin stars & gourmet", icon: Utensils },
-    { href: "/stay?category=golf", label: "Golf & Tournaments", translationKey: "categoryNames.golf", desc: "World-class courses", icon: Trophy },
-    { href: "/stay?category=beaches-clubs", label: "Beaches & Clubs", translationKey: "categoryNames.beaches-clubs", desc: "Pristine beaches & exclusives", icon: Palmtree },
-    { href: "/stay?category=wellness-spas", label: "Wellness", translationKey: "categoryNames.wellness-spas", desc: "Relaxation & rejuvenation", icon: Dumbbell },
-    { href: "/stay?category=algarve-services", label: "Algarve Services", translationKey: "categoryNames.algarve-services", desc: "Concierge, transport, security & real estate", icon: Users },
-    { href: "/stay?category=things-to-do", label: "Things to Do", translationKey: "categoryNames.things-to-do", desc: "Unforgettable activities", icon: Compass },
-    { href: "/stay?category=whats-on", label: "What's On", translationKey: "categoryNames.whats-on", desc: "Exclusive galas & conferences", icon: Calendar },
-    { href: "/stay?category=shopping-boutiques", label: "Shopping & Boutiques", translationKey: "categoryNames.shopping-boutiques", desc: "Designer brands & premium shops", icon: ShoppingBag },
-];
-
-const liveItems = [
-    { href: "/stay?category=wellness-spas", label: "Wellness", translationKey: "categoryNames.wellness-spas", desc: "Health & relaxation", icon: Dumbbell },
-    { href: "/stay?category=restaurants", label: "Restaurants", translationKey: "categoryNames.restaurants", desc: "Restaurants and private dining", icon: Utensils },
-    { href: "/stay?category=algarve-services", label: "Algarve Services", translationKey: "categoryNames.algarve-services", desc: "Lifestyle, mobility, property and security", icon: Users },
-    { href: "/stay?category=things-to-do", label: "Things to Do", translationKey: "categoryNames.things-to-do", desc: "Family and premium activities", icon: Compass },
-    { href: "/stay?category=whats-on", label: "What's On", translationKey: "categoryNames.whats-on", desc: "Social gatherings & entry", icon: Calendar },
-    { href: "/stay?category=shopping-boutiques", label: "Shopping & Boutiques", translationKey: "categoryNames.shopping-boutiques", desc: "Exclusive stores & brands", icon: ShoppingBag },
-];
-
-const investItems = [
-    { href: "/real-estate", label: "Real Estate Directory", translationKey: "blog.blogCategories.realEstate", desc: "Independent listings focused on property investment", icon: Building2 },
-    { href: "/invest", label: "Invest", translationKey: "nav.invest", desc: "Algarve market insights & data", icon: TrendingUp },
-    { href: "/partner", label: "Add Real Estate Listing", translationKey: "footer.becomePartner", desc: "Submit your property as an agency or owner", icon: PlusCircle },
-    { href: "/map", label: "Map Explorer", translationKey: "nav.map", desc: "Clustered view across all listings", icon: MapPin },
-];
-
-// ─── Section config ───────────────────────────────────────────────────────────
-
-const sections = {
-    stay: {
-        value: "stay",
-        label: "nav.stay",
-        icon: Binoculars,
-        navPath: "/stay?category=places-to-stay",
-        image: imgVilamoura,
-        imageAlt: "Vilamoura marina at sunset",
-        accent: "#B8860B",
-        accentLight: "#FDE68A",
-        accentBright: "#F5C842",
-        pill: "text-amber-700 bg-amber-50 border-amber-200",
-        pillLabel: "menu.stay",
-        pillLabelI18n: true,
-        navBorder: "border-black dark:border-white",
-        heroTitle: "menu.hero.stay.title",
-        heroTitleI18n: true,
-        heroDesc: "menu.hero.stay.desc",
-        heroDescI18n: true,
-        heroLink: "/stay?category=places-to-stay",
-        heroLabel: "menu.hero.stay.label",
-        heroLabelI18n: true,
-        items: visitItems,
-    },
-    experiences: {
-        value: "experiences",
-        label: "nav.experiences",
-        icon: Compass,
-        navPath: "/experiences",
-        image: imgSagres,
-        imageAlt: "Algarve coastal adventures",
-        accent: "#9333EA",
-        accentLight: "#E9D5FF",
-        accentBright: "#C084FC",
-        pill: "text-purple-700 bg-purple-50 border-purple-200",
-        pillLabel: "menu.experiences",
-        pillLabelI18n: true,
-        navBorder: "border-black dark:border-white",
-        heroTitle: "menu.hero.experiences.title",
-        heroTitleI18n: true,
-        heroDesc: "menu.hero.experiences.desc",
-        heroDescI18n: true,
-        heroLink: "/experiences",
-        heroLabel: "menu.hero.experiences.label",
-        heroLabelI18n: true,
-        items: visitItems,
-    },
-    properties: {
-        value: "properties",
-        label: "nav.properties",
-        icon: TrendingUp,
-        navPath: "/properties",
-        image: imgTavira,
-        imageAlt: "Tavira historic architecture",
-        accent: "#065F46",
-        accentLight: "#A7F3D0",
-        accentBright: "#4ADE80",
-        pill: "text-emerald-700 bg-emerald-50 border-emerald-200",
-        pillLabel: "menu.properties",
-        pillLabelI18n: true,
-        navBorder: "border-black dark:border-white",
-        heroTitle: "menu.hero.properties.title",
-        heroTitleI18n: true,
-        heroDesc: "menu.hero.properties.desc",
-        heroDescI18n: true,
-        heroLink: "/properties",
-        heroLabel: "menu.hero.properties.label",
-        heroLabelI18n: true,
-        items: investItems,
-    },
-};
-
-type SectionKey = keyof typeof sections;
-type HeaderRuntimeSection = (typeof sections)[SectionKey] & {
-    displayLabel: string;
-    navPath: string;
-    heroLink: string;
-    items: Array<{
-        href: string;
-        label: string;
-        translationKey?: string;
-        desc: string;
-        icon: React.ElementType;
-    }>;
-    icon: React.ElementType;
-    openInNewTab: boolean;
-};
-
-// ─── Main component ───────────────────────────────────────────────────────────
-function useHeaderRuntimeSections(): HeaderRuntimeSection[] {
-    const { t } = useTranslation();
-    const { data: headerMenuItems = [] } = useHeaderMenu();
-    const l = useLocalePath();
-    const sectionEntries = React.useMemo(() => Object.entries(sections) as Array<[SectionKey, (typeof sections)[SectionKey]]>, []);
-    
-    return React.useMemo(() => {
-        const normalizedItems = [...headerMenuItems].sort((a, b) => a.display_order - b.display_order);
-        const normalize = (value?: string | null) => (value ?? "").trim().toLowerCase();
-
-        const byKey = {
-            stay: normalizedItems.find((item) => {
-                const key = normalize(item.translation_key);
-                const name = normalize(item.name);
-                return key === "nav.stay" || key === "nav.visit" || name === "stay" || name === "visit";
-            }),
-            live: normalizedItems.find((item) => {
-                const key = normalize(item.translation_key);
-                const name = normalize(item.name);
-                return key === "nav.relocation" || key === "nav.live" || name === "relocation" || name === "live";
-            }),
-            experiences: normalizedItems.find((item) => {
-                const key = normalize(item.translation_key);
-                const name = normalize(item.name);
-                return key === "nav.experiences" || name === "experiences";
-            }),
-            properties: normalizedItems.find((item) => {
-                const key = normalize(item.translation_key);
-                const name = normalize(item.name);
-                return key === "nav.properties" || key === "nav.invest" || name === "properties" || name === "invest";
-            }),
-        };
-
-        const allMappedByKey = byKey.stay && byKey.live && byKey.experiences && byKey.properties;
-        const canMapByOrder = normalizedItems.length === 3;
-
-        return sectionEntries.map(([sectionKey, section], index) => {
-            const mappedItem = allMappedByKey
-                ? byKey[sectionKey]
-                : canMapByOrder
-                    ? normalizedItems[index]
-                    : null;
-
-            if (!mappedItem) {
-                return {
-                    ...section,
-                    displayLabel: t(section.label),
-                    navPath: l(section.navPath),
-                    heroLink: l(section.heroLink),
-                    items: section.items.map((item) => ({
-                        ...item,
-                        href: l(item.href),
-                    })),
-                    icon: section.icon,
-                    openInNewTab: false,
-                };
-            }
-
-            return {
-                ...section,
-                displayLabel: mappedItem.translation_key
-                    ? t(mappedItem.translation_key, mappedItem.name)
-                    : mappedItem.name,
-                navPath: l(mappedItem.href || section.navPath),
-                heroLink: l(section.heroLink),
-                items: section.items.map((item) => ({
-                    ...item,
-                    href: l(item.href),
-                })),
-                icon: sectionKey === "stay" ? Binoculars : getMenuIcon(mappedItem.icon),
-                openInNewTab: mappedItem.open_in_new_tab,
-            };
-        });
-    }, [headerMenuItems, l, sectionEntries, t]);
+function translated(
+  t: ReturnType<typeof useTranslation>["t"],
+  key: string,
+  fallback: string,
+) {
+  return t(key, fallback);
 }
 
-export function HeaderCompactNav() {
-    const runtimeSections = useHeaderRuntimeSections();
+function useRouteState() {
+  const locale = useCurrentLocale();
+  const pathname = usePathname() ?? "/";
+  const currentPath = stripLocaleFromPathname(pathname).split(/[?#]/)[0] || "/";
 
-    return (
-        <div className="hidden md:flex lg:hidden min-w-0 flex-1 items-center justify-end">
-            <div className="flex min-w-0 items-center gap-1 lg:gap-1.5">
-                {runtimeSections.map((section) => {
-                    const SectionIcon = section.icon;
+  return useMemo(
+    () => ({
+      currentPath,
+      isActive(target: LocalizedPathInput) {
+        const path = stripLocaleFromPathname(buildLocalizedPath(locale, target)).split(/[?#]/)[0] || "/";
+        return currentPath === path || (path !== "/" && currentPath.startsWith(`${path}/`));
+      },
+    }),
+    [currentPath, locale],
+  );
+}
 
-                    return (
-                        <Link
-                            key={section.value}
-                            href={section.navPath}
-                            target={section.openInNewTab ? "_blank" : undefined}
-                            rel={section.openInNewTab ? "noopener noreferrer" : undefined}
-                            className={cn(
-                                "header-nav-pill inline-flex items-center gap-1.5 rounded-full border-2 px-2.5 lg:px-3 py-1.5 lg:py-2 shadow-[0_10px_30px_-24px_rgba(15,23,42,0.45)]",
-                                "text-[11px] lg:text-[12px] font-bold uppercase tracking-[0.06em] whitespace-nowrap transition-all duration-200",
-                                "border-black bg-white/88 text-foreground backdrop-blur-xl dark:border-white/40 dark:bg-transparent dark:text-white/90",
-                                "hover:border-primary/55 hover:bg-primary/8 hover:text-foreground dark:hover:bg-white/10 dark:hover:text-white",
-                            )}
-                        >
-                            <SectionIcon className="h-[16px] w-[16px] lg:h-[17px] lg:w-[17px] flex-shrink-0 text-[#FFBB33]" />
-                            <span className="truncate max-w-[5.5rem] lg:max-w-[6.5rem]">{section.displayLabel}</span>
-                        </Link>
-                    );
-                })}
-            </div>
+function MenuLink({
+  item,
+  compact = false,
+  onClick,
+}: {
+  item: MegaMenuItem;
+  compact?: boolean;
+  onClick?: () => void;
+}) {
+  const { t } = useTranslation();
+  const { isActive } = useRouteState();
+  const Icon = item.icon;
+  const active = isActive(item.href);
+
+  return (
+    <NavigationMenuLink asChild>
+      <LocaleLink
+        href={item.href}
+        onClick={onClick}
+        className={cn(
+          "group flex rounded-lg border border-transparent transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+          compact ? "items-center gap-3 px-3 py-2.5" : "items-start gap-3 px-3 py-3",
+          active
+            ? "border-primary/35 bg-primary/10 text-primary"
+            : "hover:border-primary/25 hover:bg-primary/8 hover:text-primary",
+        )}
+      >
+        <span
+          className={cn(
+            "flex shrink-0 items-center justify-center rounded-md border border-primary/18 bg-primary/8 text-primary transition group-hover:scale-[1.03]",
+            compact ? "h-9 w-9" : "h-10 w-10",
+          )}
+        >
+          <Icon className={compact ? "h-4 w-4" : "h-4.5 w-4.5"} aria-hidden="true" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="flex items-center gap-2">
+            <span className="font-fira text-sm font-bold leading-tight text-foreground group-hover:text-primary">
+              {translated(t, item.labelKey, item.fallbackLabel)}
+            </span>
+            {item.badge ? (
+              <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
+                {item.badge}
+              </span>
+            ) : null}
+          </span>
+          {!compact ? (
+            <span className="mt-1 hidden text-xs leading-5 text-muted-foreground xl:block">
+              {item.description}
+            </span>
+          ) : null}
+        </span>
+      </LocaleLink>
+    </NavigationMenuLink>
+  );
+}
+
+function FeaturedCard({
+  section,
+  onClick,
+}: {
+  section: MegaMenuSection;
+  onClick?: () => void;
+}) {
+  const { t } = useTranslation();
+  const Icon = section.featuredIcon;
+
+  return (
+    <NavigationMenuLink asChild>
+      <LocaleLink
+        href={section.featuredHref}
+        onClick={onClick}
+        className="group flex h-full flex-col justify-between rounded-lg border border-primary/20 bg-[linear-gradient(135deg,hsl(var(--background))_0%,rgba(199,163,90,0.13)_100%)] p-4 shadow-[0_18px_48px_-36px_rgba(15,23,42,0.5)] transition hover:border-primary/40 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 xl:p-5"
+      >
+        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-primary xl:h-11 xl:w-11">
+          <Icon className="h-4.5 w-4.5 xl:h-5 xl:w-5" aria-hidden="true" />
+        </span>
+        <span className="mt-4 block xl:mt-7">
+          <span className="block text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+            {section.eyebrow}
+          </span>
+          <span className="mt-2 block font-serif text-xl leading-tight text-foreground xl:text-2xl">
+            {section.featuredLabel}
+          </span>
+          <span className="mt-3 hidden text-sm leading-6 text-muted-foreground xl:block">
+            {section.featuredDescription}
+          </span>
+        </span>
+        <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary xl:mt-6">
+          {translated(t, "common.explore", "Explore")}
+          <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden="true" />
+        </span>
+      </LocaleLink>
+    </NavigationMenuLink>
+  );
+}
+
+function MegaPanel({ section, onNavigate }: { section: MegaMenuSection; onNavigate: () => void }) {
+  const { t } = useTranslation();
+  const isVisit = section.id === "visit";
+
+  return (
+    <div
+      className={cn(
+        "header-mega-panel max-h-[min(74vh,calc(100vh-6.5rem))] overflow-y-auto rounded-lg border border-black/10 bg-[hsl(var(--background)/0.98)] text-foreground shadow-[0_30px_80px_-35px_rgba(15,23,42,0.45)] backdrop-blur-2xl dark:border-white/12 dark:bg-[hsl(var(--background)/0.9)]",
+        isVisit
+          ? "w-[min(540px,calc(100vw-8rem))] min-[1360px]:w-[min(640px,calc(100vw-10rem))] min-[1440px]:w-[min(720px,calc(100vw-12rem))] min-[1680px]:w-[min(760px,calc(100vw-14rem))]"
+          : "w-[min(500px,calc(100vw-8rem))] min-[1360px]:w-[min(600px,calc(100vw-10rem))] min-[1440px]:w-[min(640px,calc(100vw-12rem))]",
+      )}
+    >
+      <div
+        className={cn(
+          "grid gap-0",
+          isVisit
+            ? "grid-cols-[170px_minmax(0,1fr)] min-[1360px]:grid-cols-[205px_minmax(0,1fr)] min-[1440px]:grid-cols-[220px_minmax(0,1fr)] min-[1680px]:grid-cols-[235px_minmax(0,1fr)]"
+            : "grid-cols-[175px_minmax(0,1fr)] min-[1360px]:grid-cols-[215px_minmax(0,1fr)] min-[1440px]:grid-cols-[240px_minmax(0,1fr)]",
+        )}
+      >
+        <div className="border-r border-border/80 p-3 xl:p-4">
+          <FeaturedCard section={section} onClick={onNavigate} />
         </div>
-    );
+        <div className="min-w-0 p-4 xl:p-5">
+          <div className="mb-3 flex items-end justify-between gap-4 xl:mb-4">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+                {translated(t, section.labelKey, section.fallbackLabel)}
+              </p>
+              <p className="mt-1 hidden max-w-xl text-sm leading-6 text-muted-foreground xl:block">
+                {section.description}
+              </p>
+            </div>
+          </div>
+          <div className={cn("grid gap-1", isVisit ? "grid-cols-2" : "grid-cols-1")}>
+            {section.items.map((item) => (
+              <MenuLink key={`${section.id}-${item.labelKey}`} item={item} onClick={onNavigate} />
+            ))}
+          </div>
+          {section.quickLinks?.length ? (
+            <div className="mt-5 border-t border-border/80 pt-4">
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                {translated(t, "menu.browseCategories", "Quick links")}
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {section.quickLinks.map((item) => (
+                  <MenuLink
+                    key={`${section.id}-quick-${item.labelKey}`}
+                    item={item}
+                    compact
+                    onClick={onNavigate}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function HeaderMegaMenu() {
-    const router = useRouter();
-    const pathname = usePathname() ?? "";
-    const [activeItem, setActiveItem] = React.useState<string>("");
-    const runtimeSections = useHeaderRuntimeSections();
+  const pathname = usePathname() ?? "";
+  const { t } = useTranslation();
+  const { isActive } = useRouteState();
+  const [menuState, setMenuState] = useState({ pathname, activeItem: "" });
+  const activeItem = menuState.pathname === pathname ? menuState.activeItem : "";
+  const setActiveItem = (nextActiveItem: string) => {
+    setMenuState({ pathname, activeItem: nextActiveItem });
+  };
 
-    React.useEffect(() => { setActiveItem(""); }, [pathname]);
-
-    const handleItemClick = (
-        e: React.MouseEvent<HTMLButtonElement>,
-        value: string,
-        path: string,
-        openInNewTab = false,
-    ) => {
-        if (openInNewTab) {
-            e.preventDefault();
-            e.stopPropagation();
-            window.open(path, "_blank", "noopener,noreferrer");
-            setActiveItem("");
-            return;
-        }
-
-        const isHoverDevice = window.matchMedia("(hover: hover)").matches;
-        const isOpen = activeItem === value;
-        if (isHoverDevice) {
-            // Desktop behavior: one click navigates immediately.
-            e.preventDefault();
-            e.stopPropagation();
-            router.push(path);
-            setActiveItem("");
-        } else {
-            if (isOpen) {
-                e.preventDefault();
-                e.stopPropagation();
-                router.push(path);
-                setActiveItem("");
-            } else {
-                setActiveItem(value);
-            }
-        }
-    };
-
-    return (
-        <NavigationMenu value={activeItem} onValueChange={setActiveItem} className="hidden lg:flex min-w-0">
-            <NavigationMenuList className="gap-1.5 xl:gap-2 2xl:gap-3">
-                {runtimeSections.map((section) => {
-                    const SectionIcon = section.icon;
-                    const isOpen = activeItem === section.value;
-                    return (
-                        <NavigationMenuItem key={section.value} value={section.value}>
-                            <NavigationMenuTrigger
-                                onClick={(e) => handleItemClick(e, section.value, section.navPath, section.openInNewTab)}
-                            className={cn(
-                                    "header-nav-pill font-fira relative flex items-center justify-center gap-2 px-2.5 xl:px-5 2xl:px-7 py-2.5 xl:py-3 rounded-full border-2 shadow-[0_12px_32px_-26px_rgba(15,23,42,0.45)] transition-all duration-200",
-                                    "text-[13px] xl:text-[15px] 2xl:text-[17px] font-bold uppercase tracking-[0.08em] xl:tracking-[0.1em] 2xl:tracking-[0.12em]",
-                                    "border-black bg-white/88 text-foreground backdrop-blur-xl dark:border-white/40 dark:bg-transparent dark:text-white/90",
-                                    "hover:border-primary/55 hover:bg-primary/8 hover:text-foreground dark:hover:bg-white/10 dark:hover:text-white",
-                                    isOpen
-                                        ? "border-[var(--colour-gold)] bg-[rgba(199,163,90,0.12)] text-foreground shadow-[0_18px_40px_-30px_rgba(199,163,90,0.55)] dark:text-white dark:bg-[rgba(199,163,90,0.16)]"
-                                        : "",
-                                    "focus:outline-none active:scale-[0.97]",
-                                    "[&>svg:last-child]:hidden",
-                                )}
-                            >
-                                <SectionIcon className="h-5 w-5 2xl:h-6 2xl:w-6 flex-shrink-0 text-[#FFBB33]" />
-                                <span className="hidden xl:inline">{section.displayLabel}</span>
-                            </NavigationMenuTrigger>
-
-                            <NavigationMenuContent>
-                                <MegaPanel section={section} />
-                            </NavigationMenuContent>
-                        </NavigationMenuItem>
-                    );
-                })}
-            </NavigationMenuList>
-        </NavigationMenu>
-    );
-}
-
-// ─── Mega Panel ───────────────────────────────────────────────────────────────
-
-function MegaPanel({ section }: { section: HeaderRuntimeSection }) {
-    const { t } = useTranslation();
-
-    // Translate hero text if marked as i18n
-    const pillLabel = (section as any).pillLabelI18n ? t(section.pillLabel) : section.pillLabel;
-    const heroTitle = (section as any).heroTitleI18n ? t(section.heroTitle) : section.heroTitle;
-    const heroDesc = (section as any).heroDescI18n ? t(section.heroDesc) : section.heroDesc;
-    const heroLabel = (section as any).heroLabelI18n ? t(section.heroLabel) : section.heroLabel;
-
-    return (
-        <div className="header-mega-panel flex w-[min(820px,calc(100vw-8rem))] overflow-hidden rounded-sm border border-border shadow-[0_24px_64px_-12px_rgba(0,0,0,0.22)] bg-background">
-
-            {/* ── Left: full-bleed photo + hero text ── */}
-            <div className="relative w-[34%] min-w-[240px] max-w-[300px] flex-shrink-0 overflow-hidden">
-                <Image
-                    src={section.image}
-                    alt={section.imageAlt}
-                    fill
-                    sizes="(max-width: 1360px) 32vw, 300px"
-                    className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
-
-                {/* Content pinned to bottom */}
-                <div className="relative h-full flex flex-col justify-end p-6 min-h-[340px]">
-                    <span className={cn(
-                        "self-start font-fira text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border mb-4",
-                        section.pill
-                    )}>
-                        {pillLabel}
-                    </span>
-
-                    <h3 className="text-white font-extrabold text-2xl leading-snug mb-2 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
-                        {heroTitle}
-                    </h3>
-                    <p className="text-white/85 text-[13px] font-medium leading-relaxed mb-6 [text-shadow:0_1px_6px_rgba(0,0,0,0.9)]">
-                        {heroDesc}
-                    </p>
-
-                    <NavigationMenuLink asChild>
-                        <Link
-                            href={section.heroLink}
-                            className="group self-start inline-flex items-center gap-2 text-[13px] font-bold text-white bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/40 px-5 py-2.5 rounded-xl transition-all duration-200"
-                        >
-                            {heroLabel}
-                            <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-                        </Link>
-                    </NavigationMenuLink>
-                </div>
-            </div>
-
-            {/* ── Right: frosted glass items column ── */}
-            <div className="flex-1 p-6 bg-background">
-                <p className="font-fira text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3 px-2">
-                    {t("menu.browseCategories")}
-                </p>
-                <div className="grid grid-cols-2 gap-0.5">
-                    {section.items.map((item) => (
-                        <PanelItem key={item.href} item={item} accent={section.accent} />
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
-}
-
-// ─── Panel Item ───────────────────────────────────────────────────────────────
-
-function PanelItem({
-    item,
-    accent,
-}: {
-    item: { href: string; label: string; translationKey?: string; desc: string; icon: React.ElementType };
-    accent: string;
-}) {
-    const { t } = useTranslation();
-    const Icon = item.icon;
-    const label = item.translationKey ? t(item.translationKey, item.label) : item.label;
-    const locale = useCurrentLocale().toLowerCase();
-    const desc = locale.startsWith("en") ? item.desc : "";
-    return (
-        <NavigationMenuLink asChild>
-            <Link
-                href={item.href}
+  return (
+    <NavigationMenu
+      value={activeItem}
+      onValueChange={setActiveItem}
+      className="hidden min-w-0 min-[1180px]:flex"
+    >
+      <NavigationMenuList className="gap-1 xl:gap-1.5 2xl:gap-2">
+        {MEGA_MENU_SECTIONS.map((section) => {
+          const active = section.items.some((item) => isActive(item.href)) || isActive(section.featuredHref);
+          const TriggerIcon = section.featuredIcon;
+          return (
+            <NavigationMenuItem key={section.id} value={section.id}>
+              <NavigationMenuTrigger
                 className={cn(
-                    "group flex items-start gap-3 rounded-xl px-3 py-2.5 border-2 border-transparent transition-all duration-150",
-                    // Match VISIT hover/open palette
-                    "hover:border-[#C9A84C] hover:bg-[#C9A84C]/10 hover:text-[#9A6E00]",
-                    "dark:hover:border-[#C9A84C] dark:hover:bg-[#C9A84C]/20 dark:hover:text-[#F5D98B]",
-                    "active:bg-[#C9A84C]/15 dark:active:bg-[#C9A84C]/25",
+                  "font-fira h-[2.35rem] min-h-[2.35rem] gap-1.5 rounded-full border border-border/70 bg-transparent px-3 py-2 text-[0.72rem] font-bold uppercase tracking-[0.07em] text-foreground shadow-none transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-transparent hover:bg-gradient-gold hover:text-black hover:brightness-105 hover:shadow-button-hover active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A62A]/55 focus-visible:ring-offset-2 dark:border-white/18 dark:text-white/90 dark:hover:text-black xl:h-10 xl:min-h-10 xl:px-4 xl:text-[0.82rem] min-[1440px]:h-[3.25rem] min-[1440px]:min-h-[3.25rem] min-[1440px]:px-6 min-[1440px]:py-3.5 min-[1440px]:text-base 2xl:px-7",
+                  "data-[state=open]:border-transparent data-[state=open]:bg-gradient-gold data-[state=open]:text-black data-[state=open]:brightness-105 data-[state=open]:shadow-button-hover",
+                  active ? "border-primary/35 text-primary dark:text-primary" : "",
                 )}
+                aria-label={translated(t, section.labelKey, section.fallbackLabel)}
+              >
+                <TriggerIcon className="h-3.5 w-3.5 shrink-0 min-[1440px]:h-4 min-[1440px]:w-4" aria-hidden="true" />
+                <span>{translated(t, section.labelKey, section.fallbackLabel)}</span>
+              </NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <MegaPanel section={section} onNavigate={() => setActiveItem("")} />
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+          );
+        })}
+      </NavigationMenuList>
+    </NavigationMenu>
+  );
+}
+
+export function HeaderCompactNav() {
+  return (
+    <div className="hidden min-w-0 flex-1 items-center justify-center md:flex min-[1180px]:hidden">
+      <div className="flex min-w-0 items-center gap-1">
+        {MEGA_MENU_SECTIONS.map((section) => {
+          const Icon = section.featuredIcon;
+          return (
+            <LocaleLink
+              key={section.id}
+              href={section.featuredHref}
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-white/80 bg-white/92 px-3.5 py-2 text-[10px] font-bold uppercase tracking-[0.07em] text-black shadow-[0_12px_32px_-24px_rgba(15,23,42,0.45)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:border-transparent hover:bg-gradient-gold hover:text-black hover:brightness-105 hover:shadow-button-hover active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A62A]/55 focus-visible:ring-offset-2 dark:border-white/25 dark:bg-white/90 dark:text-black dark:hover:text-black sm:px-4 sm:text-[11px]"
             >
-                <span
-                    className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-lg mt-0.5 border transition-all duration-150 group-hover:scale-105"
-                    style={{
-                        background: `${accent}12`,
-                        borderColor: `${accent}22`,
-                    }}
-                >
-                    <Icon
-                        className="h-4 w-4 transition-colors duration-150"
-                        style={{ color: accent }}
-                    />
+              <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              <span>{section.fallbackLabel}</span>
+            </LocaleLink>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export function MobileMegaMenuSections({ onNavigate }: { onNavigate: () => void }) {
+  const { t } = useTranslation();
+
+  return (
+    <Accordion
+      type="multiple"
+      defaultValue={["visit"]}
+      className="rounded-lg border border-black/10 bg-white/72 px-3 shadow-[0_18px_42px_-30px_rgba(15,23,42,0.45)] backdrop-blur-xl dark:border-white/12 dark:bg-white/5"
+    >
+      {MEGA_MENU_SECTIONS.map((section) => {
+        const Icon = section.featuredIcon;
+        return (
+          <AccordionItem
+            key={section.id}
+            value={section.id}
+            className="border-primary/15 last:border-b-0"
+          >
+            <AccordionTrigger className="min-h-16 gap-3 py-4 text-left no-underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45">
+              <span className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-primary">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
                 </span>
-                <span className="min-w-0">
-                    <span className="block font-fira text-[13px] font-bold text-foreground group-hover:text-[#9A6E00] dark:group-hover:text-[#F5D98B] transition-colors leading-tight truncate">
-                        {label}
-                    </span>
-                    {desc ? (
-                        <span className="block text-[11.5px] text-muted-foreground group-hover:text-[#9A6E00]/80 dark:group-hover:text-[#F5D98B]/85 transition-colors leading-tight mt-0.5 truncate">
-                            {desc}
+                <span>
+                  <span className="block font-fira text-lg font-bold uppercase tracking-[0.12em]">
+                    {translated(t, section.labelKey, section.fallbackLabel)}
+                  </span>
+                  <span className="mt-0.5 block text-xs font-normal leading-5 text-muted-foreground">
+                    {section.description}
+                  </span>
+                </span>
+              </span>
+            </AccordionTrigger>
+            <AccordionContent className="pb-4">
+              <LocaleLink
+                href={section.featuredHref}
+                onClick={onNavigate}
+                className="mb-3 flex items-center justify-between rounded-lg border border-primary/20 bg-primary/8 px-4 py-3 text-sm font-semibold text-foreground transition hover:bg-primary/12 hover:text-primary"
+              >
+                <span>
+                  <span className="block">{section.featuredLabel}</span>
+                  <span className="mt-1 block text-xs font-normal leading-5 text-muted-foreground">
+                    {section.featuredDescription}
+                  </span>
+                </span>
+                <ChevronRight className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              </LocaleLink>
+              <div className="grid gap-2">
+                {[...section.items, ...(section.quickLinks ?? [])].map((item) => {
+                  const ItemIcon = item.icon;
+                  return (
+                    <LocaleLink
+                      key={`${section.id}-mobile-${item.labelKey}`}
+                      href={item.href}
+                      onClick={onNavigate}
+                      className="flex min-h-12 items-center gap-3 rounded-lg border border-black/8 bg-white/80 px-3 py-2.5 text-sm font-semibold transition hover:border-primary/25 hover:text-primary dark:border-white/10 dark:bg-white/10"
+                    >
+                      <ItemIcon className="h-4.5 w-4.5 shrink-0 text-primary" aria-hidden="true" />
+                      <span className="flex-1">{translated(t, item.labelKey, item.fallbackLabel)}</span>
+                      {item.badge ? (
+                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-primary">
+                          {item.badge}
                         </span>
-                    ) : null}
-                </span>
-            </Link>
-        </NavigationMenuLink>
-    );
+                      ) : null}
+                    </LocaleLink>
+                  );
+                })}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        );
+      })}
+    </Accordion>
+  );
 }

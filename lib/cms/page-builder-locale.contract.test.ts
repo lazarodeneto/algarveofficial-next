@@ -33,7 +33,8 @@ describe("cms page builder locale contract", () => {
   it("lets golf top cards upload images into the CMS media bucket", () => {
     const source = readFileSync(ADMIN_PAGE_BUILDER_PATH, "utf8");
 
-    expect(source).toContain('import { ImageUrlUploadField } from "@/components/admin/ImageUrlUploadField";');
+    expect(source).toContain("const ImageUrlUploadField = lazy(() =>");
+    expect(source).toContain('import("@/components/admin/ImageUrlUploadField")');
     expect(source).toContain("Edit card titles, descriptions, uploaded images, links");
     expect(source).toContain('bucket="media"');
     expect(source).toContain('folder={`page-builder/golf/top-cards/${card.tag}`}');

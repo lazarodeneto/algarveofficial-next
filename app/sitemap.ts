@@ -143,7 +143,6 @@ const STATIC_PATHS = [
   { path: "/destinations", priority: 0.9, changefreq: "weekly" as const },
   { path: "/events", priority: 0.85, changefreq: "daily" as const },
   { path: "/blog", priority: 0.85, changefreq: "weekly" as const },
-  { path: "/real-estate", priority: 0.85, changefreq: "weekly" as const },
   { path: "/about-us", priority: 0.7, changefreq: "monthly" as const },
   { path: "/contact", priority: 0.7, changefreq: "monthly" as const },
   { path: "/partner", priority: 0.7, changefreq: "monthly" as const },

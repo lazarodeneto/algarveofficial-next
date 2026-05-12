@@ -114,6 +114,9 @@ const CATEGORY_ALIASES: Record<string, string> = {
   events: "events",
   event: "events",
   nightlife: "nightlife",
+  beach: "beaches",
+  beaches: "beaches",
+  "algarve beaches": "beaches",
   "beach club": "beach-clubs",
   "beach clubs": "beach-clubs",
   "beach-club": "beach-clubs",
@@ -759,6 +762,31 @@ export function normalizeImportListing(
   let previewPar: number | undefined;
   let previewTier = normalizeTier(positioningRaw.tier);
   let previewSubcategory: string | undefined;
+
+  if (Object.keys(categoryData).length > 0) {
+    Object.assign(categoryDataPatch, toJsonRecord(categoryData));
+  }
+
+  if (categorySlug === "beaches") {
+    const beachRaw = asRecord(row.beach ?? row.beaches ?? row.beach_details ?? row.beachDetails);
+    const beachValue = (key: string, ...values: unknown[]) => {
+      const value = values.find((candidate) => candidate !== undefined);
+      if (value !== undefined) assignJson(categoryDataPatch, key, value);
+    };
+    beachValue("highlights", row.highlights, beachRaw.highlights);
+    beachValue("full_description", row.full_description, beachRaw.full_description, content.full_description);
+    beachValue("includes", row.includes, beachRaw.includes);
+    beachValue("excludes", row.excludes ?? row.not_included, beachRaw.excludes ?? beachRaw.not_included);
+    beachValue("not_suitable_for", row.not_suitable_for, beachRaw.not_suitable_for);
+    beachValue("meeting_point", row.meeting_point, beachRaw.meeting_point);
+    beachValue("meeting_point_google_maps_url", row.meeting_point_google_maps_url, beachRaw.meeting_point_google_maps_url);
+    beachValue("what_to_bring", row.what_to_bring, beachRaw.what_to_bring);
+    beachValue("not_allowed", row.not_allowed, beachRaw.not_allowed);
+    beachValue("know_before_you_go", row.know_before_you_go, beachRaw.know_before_you_go);
+    beachValue("testimonials", row.testimonials, beachRaw.testimonials);
+    beachValue("seo_link_groups", row.seo_link_groups, beachRaw.seo_link_groups);
+    beachValue("related_tag_groups", row.related_tag_groups, beachRaw.related_tag_groups);
+  }
 
   if (vertical === "golf") {
     if (hasTopLevelGolf) warnings.push("Golf schema detected from top-level golf object.");

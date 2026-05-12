@@ -17,6 +17,7 @@ import {
   Heart,
   ChevronLeft,
   ChevronRight,
+  Images,
   MessageCircle,
   Loader2,
   AlertCircle,
@@ -52,9 +53,16 @@ import { sanitizeHtmlString } from "@/lib/sanitizeHtml";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 import { getCategoryUrlSlug } from "@/lib/seo/programmatic/category-slugs";
 import { getListingCategoryLanding } from "@/lib/listingCategoryLanding";
+import { buildCategoryRouteData } from "@/lib/public-route-builders";
 import { resolveListingDetailLayoutKey } from "@/lib/listingDetailLayout";
 import { hasRealEstateSignals, isRealEstateCategorySlug } from "@/lib/realEstateDetection";
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
+import {
+  buildTieredListingGalleryImages,
+  getAllowedListingGalleryImageInputs,
+  getListingGalleryThumbnails,
+  type ListingGalleryImage,
+} from "@/lib/listings/gallery-images";
 import { buildUniformLocalizedSlugMap } from "@/lib/i18n/localized-routing";
 import { normalizePublicContentLocale } from "@/lib/publicContentLocale";
 import ListingImage from "@/components/ListingImage";
@@ -67,6 +75,7 @@ import { cn } from "@/lib/utils";
 import { PremiumAccommodationLayout } from "@/components/listing-details/PremiumAccommodationLayout";
 import { FineDiningLayout } from "@/components/listing-details/FineDiningLayout";
 import { GolfLayout } from "@/components/listing-details/GolfLayout";
+import { BeachesLayout } from "@/components/listing-details/BeachesLayout";
 import { BeachClubLayout } from "@/components/listing-details/BeachClubLayout";
 import { ShoppingLayout } from "@/components/listing-details/ShoppingLayout";
 import { WellnessLayout } from "@/components/listing-details/WellnessLayout";
@@ -81,6 +90,10 @@ import { ArchitectureDecorationLayout } from "@/components/listing-details/Archi
 import { ProtectionServicesLayout } from "@/components/listing-details/ProtectionServicesLayout";
 import { RealEstateAgentContactCard } from "@/components/real-estate/RealEstateAgentContactCard";
 import type { MapListingPoint } from "@/components/map/ListingsLeafletMap";
+import { BusinessClaimCTA } from "@/components/listing/BusinessClaimCTA";
+import { ClaimedListingTierBadge } from "@/components/listing/ClaimedListingTierBadge";
+import { BeachWeatherWidget } from "@/components/listing/BeachWeatherWidget";
+import { trackListingPerformanceEvent } from "@/lib/analytics/platformTracking";
 
 export type ListingTranslationRow = {
   listing_id: string;
@@ -138,7 +151,7 @@ export interface ListingDetailClientProps {
   initialOtherRegions?: OtherRegion[];
 }
 
-const PUBLIC_LISTING_FIELDS = `
+const PUBLIC_LISTING_CORE_FIELDS = `
   id,
   slug,
   name,
@@ -179,6 +192,16 @@ const PUBLIC_LISTING_FIELDS = `
   created_at,
   updated_at
 `;
+const PUBLIC_LISTING_CLAIM_FIELDS = `
+  claim_status,
+  claimed_at,
+  claim_verified_at,
+  claim_verification_method
+`;
+const PUBLIC_LISTING_FIELDS = `
+  ${PUBLIC_LISTING_CORE_FIELDS},
+  ${PUBLIC_LISTING_CLAIM_FIELDS}
+`;
 
 const PUBLIC_CITY_FIELDS = "id, name, slug, short_description, image_url, latitude, longitude";
 const PUBLIC_REGION_FIELDS = "id, name, slug, short_description, image_url";
@@ -205,6 +228,17 @@ const getCategoryLayout = (
   details: Record<string, unknown>,
   bookingUrl?: string,
   onInquire?: () => void,
+  context?: {
+    fallbackDescription?: string;
+    listingName?: string;
+    cityName?: string | null;
+    tags?: string[] | null;
+    address?: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
+    googleMapsUrl?: string | null;
+    nearbyListings?: RelatedListing[];
+  },
 ) => {
   const props = { details, bookingUrl, onInquire };
   const hasPropertySignals = hasRealEstateSignals(details);
@@ -226,7 +260,22 @@ const getCategoryLayout = (
     case "golf":
       return <GolfLayout details={details} bookingUrl={bookingUrl} />;
     case "beaches":
-      return <BeachClubLayout {...props} />;
+      return normalizedCategorySlug === "beaches" ? (
+        <BeachesLayout
+          details={details}
+          fallbackDescription={context?.fallbackDescription}
+          listingName={context?.listingName}
+          cityName={context?.cityName}
+          tags={context?.tags}
+          address={context?.address}
+          latitude={context?.latitude}
+          longitude={context?.longitude}
+          googleMapsUrl={context?.googleMapsUrl}
+          nearbyListings={context?.nearbyListings}
+        />
+      ) : (
+        <BeachClubLayout {...props} />
+      );
     case "wellness-spas":
       return <WellnessLayout {...props} />;
     case "shopping":
@@ -260,6 +309,8 @@ const WHATSAPP_CTA_CLASSNAME =
   "w-full border-[#25D366] bg-[#25D366] text-white hover:border-[#1EBE5D] hover:bg-[#1EBE5D] hover:text-white focus-visible:ring-[#25D366]/60";
 const MOBILE_BOTTOM_NAV_FALLBACK_HEIGHT = 78;
 const CONCIERGE_DEFAULT_MESSAGE = "Hello! I'm interested in learning more about your premium services in Algarve.";
+const BEACH_GALLERY_FALLBACK_IMAGE =
+  "https://cdn.pixabay.com/photo/2026/02/02/20/52/algarve-10101583_1280.jpg";
 
 function WhatsAppLogo(props: SVGProps<SVGSVGElement>) {
   return (
@@ -273,6 +324,121 @@ function WhatsAppLogo(props: SVGProps<SVGSVGElement>) {
       <path d="M13.601 2.326A7.854 7.854 0 0 0 8.047 0C3.623 0 .027 3.594.026 8.018a7.94 7.94 0 0 0 1.078 3.96L0 16l4.126-1.081a7.95 7.95 0 0 0 3.921 1h.003c4.423 0 8.02-3.595 8.021-8.019A7.935 7.935 0 0 0 13.6 2.326ZM8.05 14.586h-.002a6.54 6.54 0 0 1-3.329-.91l-.239-.142-2.448.642.653-2.387-.155-.245a6.547 6.547 0 0 1-1-3.506c.001-3.62 2.946-6.565 6.57-6.565 1.75 0 3.398.682 4.634 1.918a6.532 6.532 0 0 1 1.919 4.633c-.001 3.621-2.946 6.566-6.57 6.566Z" />
       <path d="M11.815 10.588c-.198-.099-1.17-.578-1.351-.644-.181-.066-.312-.099-.444.1-.132.198-.511.644-.627.776-.115.132-.23.149-.428.05-.198-.099-.836-.308-1.592-.983-.588-.525-.985-1.173-1.1-1.371-.115-.198-.012-.305.087-.404.089-.089.198-.23.297-.346.099-.115.132-.198.198-.33.066-.132.033-.248-.017-.347-.05-.099-.444-1.07-.608-1.468-.16-.387-.323-.335-.444-.341l-.378-.007a.73.73 0 0 0-.528.248c-.181.198-.692.677-.692 1.65 0 .974.709 1.915.808 2.047.099.132 1.397 2.133 3.387 2.992.474.204.844.326 1.132.417.476.151.909.13 1.251.079.382-.057 1.17-.479 1.335-.941.165-.462.165-.858.116-.941-.05-.083-.182-.132-.38-.231Z" />
     </svg>
+  );
+}
+
+function FeaturedGridListingGallery({
+  images,
+  listing,
+  normalizedCategoryImageUrl,
+  fallbackSrc,
+  currentImageIndex,
+  setCurrentImageIndex,
+  setLightboxOpen,
+  viewGalleryLabel,
+}: {
+  images: ListingGalleryImage[];
+  listing: ListingWithRelations;
+  normalizedCategoryImageUrl: string | null;
+  fallbackSrc: string;
+  currentImageIndex: number;
+  setCurrentImageIndex: (value: number | ((current: number) => number)) => void;
+  setLightboxOpen: (open: boolean) => void;
+  viewGalleryLabel: string;
+}) {
+  const safeCurrentImageIndex = images[currentImageIndex] ? currentImageIndex : 0;
+  const primaryImage = images[safeCurrentImageIndex] ?? null;
+  const thumbnailImages = getListingGalleryThumbnails(images, safeCurrentImageIndex, 4);
+
+  const openImage = (index: number) => {
+    if (!images[index]) return;
+    setCurrentImageIndex(index);
+    setLightboxOpen(true);
+  };
+
+  return (
+    <section className="relative bg-background">
+      <div className="mx-auto w-full max-w-[calc(100vw-1.5rem)] py-5 sm:max-w-[calc(100vw-2rem)] sm:py-8 lg:max-w-5xl lg:py-10">
+        <div
+          className={cn(
+            "grid gap-2 overflow-hidden rounded-[1.4rem] bg-background lg:h-[31rem]",
+            thumbnailImages.length > 0 ? "sm:grid-cols-[1.18fr_1fr]" : "",
+          )}
+        >
+          <button
+            type="button"
+            className="group relative aspect-[4/3] overflow-hidden rounded-[1.4rem] bg-muted text-left sm:rounded-none lg:aspect-auto lg:h-full"
+            onClick={() => openImage(safeCurrentImageIndex)}
+            aria-label={viewGalleryLabel}
+          >
+            <ListingImage
+              src={primaryImage?.image_url}
+              categoryImageUrl={normalizedCategoryImageUrl}
+              fallbackSrc={fallbackSrc}
+              imageVersion={listing.updated_at}
+              alt={primaryImage?.alt_text ?? listing.name}
+              fill
+              sizes="(max-width: 640px) 100vw, 56vw"
+              priority
+              loading="eager"
+              fetchPriority="high"
+              className="transition-transform duration-500 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
+            <div className="absolute left-4 top-4 flex gap-2">
+              {(listing.tier === "signature" || listing.tier === "verified") ? (
+                <ListingTierBadge tier={listing.tier} />
+              ) : null}
+              {listing.tier === "signature" ? <ListingTierBadge tier="verified" /> : null}
+            </div>
+            {listing.google_rating ? (
+              <GoogleRatingBadge
+                rating={listing.google_rating}
+                reviewCount={listing.google_review_count}
+                variant="overlay"
+                className="absolute bottom-4 left-4"
+              />
+            ) : null}
+          </button>
+
+          {thumbnailImages.length > 0 ? (
+            <div className="grid grid-cols-2 gap-2 sm:h-full sm:grid-rows-2">
+              {thumbnailImages.map(({ image, index: imageIndex }, index) => {
+                const isLastThumbnail = index === thumbnailImages.length - 1;
+                return (
+                  <button
+                    key={`${image.id}-${imageIndex}`}
+                    type="button"
+                    className="group relative aspect-[4/3] min-h-0 overflow-hidden rounded-xl bg-muted text-left sm:aspect-auto sm:h-full sm:rounded-none"
+                    onClick={() => openImage(imageIndex)}
+                    aria-label={viewGalleryLabel}
+                  >
+                    <ListingImage
+                      src={image.image_url}
+                      categoryImageUrl={normalizedCategoryImageUrl}
+                      fallbackSrc={fallbackSrc}
+                      imageVersion={listing.updated_at}
+                      alt={image.alt_text ?? listing.name}
+                      fill
+                      sizes="(max-width: 640px) 50vw, 22vw"
+                      className="transition-transform duration-500 group-hover:scale-105"
+                    />
+                    {isLastThumbnail ? (
+                      <div className="absolute inset-x-3 bottom-3 flex justify-end">
+                        <span className="inline-flex items-center rounded-full bg-white/92 px-3 py-2 text-xs font-semibold text-slate-900 shadow-sm backdrop-blur">
+                          <Images className="mr-1.5 h-3.5 w-3.5" />
+                          {viewGalleryLabel}
+                        </span>
+                      </div>
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -316,6 +482,21 @@ function toFiniteNumber(value: unknown): number | null {
   return null;
 }
 
+function isMissingClaimColumnError(error: unknown): boolean {
+  const supabaseError = error as { code?: string; message?: string; details?: string; hint?: string } | null;
+  if (supabaseError?.code !== "42703") return false;
+
+  const text = [
+    supabaseError.message,
+    supabaseError.details,
+    supabaseError.hint,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return /claim_status|claimed_at|claim_verified_at|claim_verification_method/i.test(text) || text.length === 0;
+}
+
 function formatListingPrice({
   locale,
   priceFrom,
@@ -351,20 +532,43 @@ function formatListingPrice({
 async function fetchListingByIdOrSlug(idOrSlug: string) {
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
 
-  let query = supabase.from("listings").select(`
-      ${PUBLIC_LISTING_FIELDS},
-      city:cities(${PUBLIC_CITY_FIELDS}),
-      region:regions(${PUBLIC_REGION_FIELDS}),
-      category:categories(${PUBLIC_CATEGORY_FIELDS}),
-      images:listing_images(id, image_url, alt_text, display_order, is_featured)
-    `);
+  const runQuery = (fields: string) => {
+    let query = supabase.from("listings").select(`
+        ${fields},
+        city:cities(${PUBLIC_CITY_FIELDS}),
+        region:regions(${PUBLIC_REGION_FIELDS}),
+        category:categories(${PUBLIC_CATEGORY_FIELDS}),
+        images:listing_images(id, image_url, alt_text, display_order, is_featured)
+      `);
 
-  query = isUuid ? query.eq("id", idOrSlug) : query.eq("slug", idOrSlug);
+    query = isUuid ? query.eq("id", idOrSlug) : query.eq("slug", idOrSlug);
+    return query.maybeSingle();
+  };
 
-  const { data, error } = await query.maybeSingle();
+  let { data, error } = await runQuery(PUBLIC_LISTING_FIELDS);
+  if (error && isMissingClaimColumnError(error)) {
+    const fallback = await runQuery(PUBLIC_LISTING_CORE_FIELDS);
+    data = fallback.data;
+    error = fallback.error;
+  }
   if (error) throw error;
 
-  return (data as unknown as ListingWithRelations | null) ?? null;
+  return applyPublicGalleryImageLimit((data as unknown as ListingWithRelations | null) ?? null);
+}
+
+function applyPublicGalleryImageLimit(listing: ListingWithRelations | null): ListingWithRelations | null {
+  if (!listing) return null;
+
+  return {
+    ...listing,
+    images: getAllowedListingGalleryImageInputs<ListingImageRow>({
+      featuredImageUrl: listing.featured_image_url,
+      galleryImages: listing.images ?? [],
+      fallbackImageUrl: listing.category?.image_url,
+      listingName: listing.name,
+      tier: listing.tier,
+    }),
+  };
 }
 
 async function fetchApprovedListingReviews(listingId: string) {
@@ -477,6 +681,7 @@ function ListingDetailClientInner({
   const [isUserScrolling, setIsUserScrolling] = useState(false);
   const [mobileBottomNavHeight, setMobileBottomNavHeight] = useState(MOBILE_BOTTOM_NAV_FALLBACK_HEIGHT);
   const scrollTimeoutRef = useRef<number | null>(null);
+  const profileTrackedRef = useRef<string | null>(null);
 
   const { data: listing, isLoading, error } = useQuery({
     queryKey: ["listing", initialLookupValue, routeLocale],
@@ -488,8 +693,11 @@ function ListingDetailClientInner({
       return data;
     },
     initialData: initialListing,
-    initialDataUpdatedAt: 0,
-    staleTime: 30 * 1000,
+    initialDataUpdatedAt: Date.now(),
+    staleTime: Number.POSITIVE_INFINITY,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
   });
 
   useQuery({
@@ -512,6 +720,20 @@ function ListingDetailClientInner({
     initialData: initialWhatsAppStatus,
     staleTime: 60 * 1000,
   });
+
+  useEffect(() => {
+    if (!listing?.id || listing.status !== "published") return;
+    if (profileTrackedRef.current === listing.id) return;
+
+    profileTrackedRef.current = listing.id;
+    void trackListingPerformanceEvent("listing_profile_view", {
+      listingId: listing.id,
+      cityId: listing.city_id,
+      categoryId: listing.category_id,
+      tier: listing.tier,
+      source: "listing_detail",
+    });
+  }, [listing?.category_id, listing?.city_id, listing?.id, listing?.status, listing?.tier]);
 
   useEffect(() => {
     if (!listing?.id) return;
@@ -664,6 +886,7 @@ function ListingDetailClientInner({
   const directContactLabel = directWhatsAppUrl ? t("listing.messageWhatsApp") : t("listing.social.telegram");
   const bookingUrl = normalizeExternalUrl(details.booking_url as string | undefined);
   const websiteUrl = normalizeExternalUrl(listing.website_url);
+  const claimBusinessHref = l(`/claim-business/${encodeURIComponent(listing.slug || listing.id)}`);
   const ctaUrl = tierRules.allowCtaButton ? (bookingUrl ?? websiteUrl) : null;
   const ctaLabel = bookingUrl ? t("listing.bookNow") : t("listing.visitWebsite");
   const ctaAriaLabel = bookingUrl ? t("listing.bookNow") : t("listing.visitWebsite");
@@ -673,6 +896,24 @@ function ListingDetailClientInner({
   const shouldShowMobileWebsiteAction = isSignatureOrVerifiedTier && Boolean(ctaUrl);
   const mobileActionBarBottomOffset = Math.max(mobileBottomNavHeight - 1, 0);
   const conciergeWhatsAppUrl = `https://wa.me/${toWhatsAppDigits(PRIMARY_WHATSAPP_NUMBER)}?text=${encodeURIComponent(CONCIERGE_DEFAULT_MESSAGE)}`;
+
+  const trackListingAction = (
+    eventName:
+      | "listing_website_click"
+      | "listing_phone_click"
+      | "listing_directions_click"
+      | "listing_whatsapp_click"
+      | "listing_booking_click",
+    source: string,
+  ) => {
+    void trackListingPerformanceEvent(eventName, {
+      listingId: listing.id,
+      cityId: listing.city_id,
+      categoryId: listing.category_id,
+      tier: listing.tier,
+      source,
+    });
+  };
 
   const handleMessageClick = () => {
     if (!listing) return;
@@ -776,6 +1017,12 @@ function ListingDetailClientInner({
 
   const baseLatitude = Number(listing?.latitude ?? listing?.city?.latitude ?? NaN);
   const baseLongitude = Number(listing?.longitude ?? listing?.city?.longitude ?? NaN);
+  const directionsDestination = Number.isFinite(baseLatitude) && Number.isFinite(baseLongitude)
+    ? `${baseLatitude},${baseLongitude}`
+    : listing.address?.trim();
+  const directionsUrl = directionsDestination
+    ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(directionsDestination)}`
+    : null;
   const normalizedFeaturedImageUrl = normalizeImageUrl(listing?.featured_image_url);
   const normalizedCategoryImageUrl = normalizeImageUrl(listing?.category?.image_url);
 
@@ -848,41 +1095,29 @@ function ListingDetailClientInner({
     );
   }
 
-  const galleryImages = ((listing.images || []) as ListingImageRow[])
-    .map((image) => ({
-      ...image,
-      image_url: normalizeImageUrl(image?.image_url) ?? "",
-    }))
-    .filter((image) => !!image.image_url)
-    .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
-    .slice(0, tierRules.maxGalleryImages);
-
-  if (galleryImages.length === 0 && normalizedFeaturedImageUrl) {
-    galleryImages.push({
-      id: "featured",
-      image_url: normalizedFeaturedImageUrl,
-      alt_text: listing.name,
-      display_order: 0,
-      is_featured: true,
-    });
-  }
-
-  if (galleryImages.length === 0 && normalizedCategoryImageUrl) {
-    galleryImages.push({
-      id: "category-fallback",
-      image_url: normalizedCategoryImageUrl,
-      alt_text: listing.name,
-      display_order: 0,
-      is_featured: false,
-    });
-  }
+  const galleryResult = buildTieredListingGalleryImages({
+    featuredImageUrl: normalizedFeaturedImageUrl,
+    galleryImages: listing.images,
+    fallbackImageUrl: normalizedCategoryImageUrl,
+    listingName: listing.name,
+    tier: listing.tier,
+  });
+  const galleryImages = galleryResult.images;
+  const galleryPolicy = galleryResult.policy;
+  const safeCurrentImageIndex = galleryImages[currentImageIndex] ? currentImageIndex : 0;
+  const galleryThumbnailImages = getListingGalleryThumbnails(galleryImages, safeCurrentImageIndex, 4);
+  const shouldUseFeaturedGridGallery = galleryPolicy.layout === "featured-grid";
+  const canOpenGalleryModal = galleryPolicy.canOpenGalleryModal && galleryImages.length > 1;
 
   const directoryLabel = t("nav.directory");
   const categoryLabel = translateCategoryName(t, listing.category?.slug, listing.category?.name) ?? directoryLabel;
+  const normalizedListingCategorySlug = listing.category?.slug?.trim().toLowerCase() ?? "";
+  const normalizedListingCategoryName = listing.category?.name?.trim().toLowerCase() ?? "";
+  const isExactBeachesListing =
+    normalizedListingCategorySlug === "beaches" || normalizedListingCategoryName === "beaches";
   const canonicalCategorySlug = getCanonicalCategorySlug(listing.category?.slug);
   const landingPage = getListingCategoryLanding(canonicalCategorySlug);
   const landingLabel = t(landingPage.labelKey, landingPage.fallbackLabel);
-  const categoryDirectoryPath = canonicalCategorySlug ? `/stay?category=${canonicalCategorySlug}` : "/stay";
   const cityRouteData = listing.city?.slug
     ? {
         routeType: "city" as const,
@@ -897,6 +1132,9 @@ function ListingDetailClientInner({
         ]),
       ) as Partial<Record<Locale, string>>)
     : null;
+  const categoryRouteData = canonicalCategorySlug
+    ? buildCategoryRouteData(canonicalCategorySlug)
+    : null;
   const cityCategoryRouteData =
     cityRouteData && categorySlugMap
       ? ({
@@ -910,7 +1148,7 @@ function ListingDetailClientInner({
     { name: t("nav.home"), to: l("/"), current: false },
     { name: landingLabel, to: l(landingPage.path), current: false },
     ...(canonicalCategorySlug
-      ? [{ name: categoryLabel, to: l(categoryDirectoryPath), current: false }]
+      ? [{ name: categoryLabel, to: l(categoryRouteData ?? landingPage.path), current: false }]
       : []),
     {
       name: listingTitle,
@@ -966,19 +1204,36 @@ function ListingDetailClientInner({
           </div>
         ) : null}
 
+        {shouldUseFeaturedGridGallery ? (
+          <FeaturedGridListingGallery
+            images={galleryImages}
+            listing={listing}
+            normalizedCategoryImageUrl={normalizedCategoryImageUrl}
+            fallbackSrc={isExactBeachesListing ? BEACH_GALLERY_FALLBACK_IMAGE : "/placeholder.svg"}
+            currentImageIndex={currentImageIndex}
+            setCurrentImageIndex={setCurrentImageIndex}
+            setLightboxOpen={setLightboxOpen}
+            viewGalleryLabel={t("listing.viewGallery")}
+          />
+        ) : (
         <section className="relative bg-muted">
           <div className="container mx-auto max-w-7xl px-4 py-6 sm:py-10">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               <div
-                className="relative aspect-[4/3] cursor-pointer overflow-hidden rounded-xl group sm:aspect-[16/10] lg:col-span-2"
-                onClick={() => setLightboxOpen(true)}
+                className={cn(
+                  "relative aspect-[4/3] overflow-hidden rounded-xl group sm:aspect-[16/10] lg:col-span-2",
+                  canOpenGalleryModal ? "cursor-pointer" : "cursor-default",
+                )}
+                onClick={() => {
+                  if (canOpenGalleryModal) setLightboxOpen(true);
+                }}
               >
                 <ListingImage
-                  src={galleryImages[currentImageIndex]?.image_url ?? normalizedFeaturedImageUrl}
+                  src={galleryImages[safeCurrentImageIndex]?.image_url ?? normalizedFeaturedImageUrl}
                   categoryImageUrl={normalizedCategoryImageUrl}
                   fallbackSrc="/placeholder.svg"
                   imageVersion={listing.updated_at}
-                  alt={galleryImages[currentImageIndex]?.alt_text ?? listing.name}
+                  alt={galleryImages[safeCurrentImageIndex]?.alt_text ?? listing.name}
                   width={1600}
                   height={1000}
                   fill
@@ -989,11 +1244,13 @@ function ListingDetailClientInner({
                   className="transition-transform duration-300 group-hover:scale-105"
                 />
 
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                  <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-sm font-medium bg-black/50 px-4 py-2 rounded-full">
-                    {t("listing.viewGallery")}
-                  </span>
-                </div>
+                {canOpenGalleryModal ? (
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-sm font-medium bg-black/50 px-4 py-2 rounded-full">
+                      {t("listing.viewGallery")}
+                    </span>
+                  </div>
+                ) : null}
 
                 {galleryImages.length > 1 ? (
                   <>
@@ -1024,7 +1281,7 @@ function ListingDetailClientInner({
                             setCurrentImageIndex(index);
                           }}
                           className={`w-2 h-2 rounded-full transition-colors ${
-                            index === currentImageIndex ? "bg-white" : "bg-white/40"
+                            index === safeCurrentImageIndex ? "bg-white" : "bg-white/40"
                           }`}
                         />
                       ))}
@@ -1052,12 +1309,12 @@ function ListingDetailClientInner({
               <div className="hidden lg:block h-full min-h-0">
                 {listingMapPoints.length === 0 ? (
                   <div className="grid grid-cols-2 gap-4 h-full">
-                    {galleryImages.slice(1, 5).map((image, index) => (
+                    {galleryThumbnailImages.map(({ image, index }) => (
                       <div
-                        key={image.id}
-                        onClick={() => setCurrentImageIndex(index + 1)}
+                        key={`${image.id}-${index}`}
+                        onClick={() => setCurrentImageIndex(index)}
                         className={`relative aspect-square rounded-xl overflow-hidden cursor-pointer transition-opacity hover:opacity-80 ${
-                          currentImageIndex === index + 1 ? "ring-2 ring-primary" : ""
+                          safeCurrentImageIndex === index ? "ring-2 ring-primary" : ""
                         }`}
                       >
                         <ListingImage
@@ -1068,7 +1325,7 @@ function ListingDetailClientInner({
                           alt={image.alt_text ?? listing.name}
                           fill
                         />
-                        {index === 3 && galleryImages.length > 5 ? (
+                        {canOpenGalleryModal && galleryThumbnailImages[galleryThumbnailImages.length - 1]?.index === index && galleryImages.length > 5 ? (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                             <span className="text-lg font-medium">+{galleryImages.length - 5}</span>
                           </div>
@@ -1120,6 +1377,7 @@ function ListingDetailClientInner({
             </div>
           </div>
         </section>
+        )}
 
         <section className="py-8">
           <div className="container mx-auto max-w-7xl px-4">
@@ -1131,7 +1389,8 @@ function ListingDetailClientInner({
                       <LocaleLink
                         href={
                           cityCategoryRouteData ??
-                          `/stay?category=${listing.category.slug}`
+                          categoryRouteData ??
+                          landingPage.path
                         }
                         className="hover:opacity-80"
                       >
@@ -1151,7 +1410,23 @@ function ListingDetailClientInner({
                     ) : null}
                   </div>
 
-                  <h1 className="mb-3 font-serif text-2xl font-medium sm:text-3xl md:text-4xl">{listingTitle}</h1>
+                  <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <h1 className="min-w-0 font-serif text-2xl font-medium sm:text-3xl md:text-4xl">{listingTitle}</h1>
+                    <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
+                      {isExactBeachesListing ? (
+                        <BeachWeatherWidget
+                          latitude={Number.isFinite(baseLatitude) ? baseLatitude : null}
+                          longitude={Number.isFinite(baseLongitude) ? baseLongitude : null}
+                          locationLabel={listing.city?.name ?? listingTitle}
+                        />
+                      ) : null}
+                      <ClaimedListingTierBadge
+                        claimStatus={listing.claim_status}
+                        tier={listing.tier}
+                        className="w-fit shrink-0"
+                      />
+                    </div>
+                  </div>
 
                   <div className="flex flex-wrap items-center gap-2 text-body-sm text-muted-foreground">
                     <MapPin className="h-4 w-4" />
@@ -1200,19 +1475,25 @@ function ListingDetailClientInner({
                   ) : null}
                 </div>
 
-                <Separator />
+                {!isExactBeachesListing ? (
+                  <>
+                    <Separator />
 
-                <div>
-                  <h2 className="text-xl font-serif font-medium mb-4">{t("listing.about")}</h2>
-                <div
-                  className="text-body-sm text-muted-foreground leading-relaxed [&_p]:mb-5 [&_p:last-child]:mb-0 [&_strong]:font-semibold [&_strong]:text-foreground"
-                  dangerouslySetInnerHTML={{
-                    __html: sanitizeHtmlString(formatRichTextDescription(effectiveDescription)),
-                  }}
-                />
-                </div>
+                    <div>
+                      <h2 className="text-xl font-serif font-medium mb-4">{t("listing.about")}</h2>
+                      <div
+                        className="text-body-sm text-muted-foreground leading-relaxed [&_p]:mb-5 [&_p:last-child]:mb-0 [&_strong]:font-semibold [&_strong]:text-foreground"
+                        dangerouslySetInnerHTML={{
+                          __html: sanitizeHtmlString(formatRichTextDescription(effectiveDescription)),
+                        }}
+                      />
+                    </div>
 
-                <Separator />
+                    <Separator />
+                  </>
+                ) : (
+                  <Separator />
+                )}
 
                 {listing.category
                   ? getCategoryLayout(
@@ -1222,6 +1503,17 @@ function ListingDetailClientInner({
                       (tierRules.allowDirectContactButton || tierRules.allowCtaButton)
                         ? (isRealEstateListing ? handleScheduleViewingClick : handleMessageClick)
                         : undefined,
+                      {
+                        fallbackDescription: effectiveDescription ?? undefined,
+                        listingName: listingTitle,
+                        cityName: listing.city?.name ?? null,
+                        tags: listing.tags ?? null,
+                        address: listing.address ?? null,
+                        latitude: Number.isFinite(baseLatitude) ? baseLatitude : null,
+                        longitude: Number.isFinite(baseLongitude) ? baseLongitude : null,
+                        googleMapsUrl: directionsUrl,
+                        nearbyListings: relatedListings,
+                      },
                     )
                   : null}
               </div>
@@ -1264,7 +1556,13 @@ function ListingDetailClientInner({
                     <div className="space-y-2 mb-4">
                       {ctaUrl ? (
                         <Button variant="gold" asChild className="w-full">
-                          <a href={ctaUrl} target="_blank" rel="noopener noreferrer" aria-label={ctaAriaLabel}>
+                          <a
+                            href={ctaUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={ctaAriaLabel}
+                            onClick={() => trackListingAction(bookingUrl ? "listing_booking_click" : "listing_website_click", "desktop_contact_card")}
+                          >
                             <Globe className="h-4 w-4 mr-2" />
                             {ctaLabel}
                           </a>
@@ -1276,7 +1574,16 @@ function ListingDetailClientInner({
                           variant={hasWhatsAppDirectContact ? "outline" : ctaUrl ? "outline" : "default"}
                           className={hasWhatsAppDirectContact ? WHATSAPP_CTA_CLASSNAME : "w-full"}
                         >
-                          <a href={directContactUrl} target="_blank" rel="noopener noreferrer">
+                          <a
+                            href={directContactUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={
+                              hasWhatsAppDirectContact
+                                ? () => trackListingAction("listing_whatsapp_click", "desktop_contact_card")
+                                : undefined
+                            }
+                          >
                             {hasWhatsAppDirectContact ? (
                               <WhatsAppLogo className="mr-2" />
                             ) : (
@@ -1288,8 +1595,24 @@ function ListingDetailClientInner({
                       ) : null}
                       {listing.contact_phone ? (
                         <Button variant="outline" asChild className="w-full">
-                          <a href={`tel:${listing.contact_phone}`}>
+                          <a
+                            href={`tel:${listing.contact_phone}`}
+                            onClick={() => trackListingAction("listing_phone_click", "desktop_contact_card")}
+                          >
                             {t("listing.call")}
+                          </a>
+                        </Button>
+                      ) : null}
+                      {directionsUrl ? (
+                        <Button variant="outline" asChild className="w-full">
+                          <a
+                            href={directionsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => trackListingAction("listing_directions_click", "desktop_contact_card")}
+                          >
+                            <MapPin className="h-4 w-4 mr-2" />
+                            {t("listing.getDirections", { defaultValue: "Get directions" })}
                           </a>
                         </Button>
                       ) : null}
@@ -1332,17 +1655,21 @@ function ListingDetailClientInner({
                     ) : null}
                   </div>
 
-                  {listing.status === "published" && listing.tier !== "verified" && listing.tier !== "signature" ? (
+                  {listing.status === "published" && !isExactBeachesListing ? (
                     <div className="mt-6 pt-6 border-t border-border">
-                      <p className="text-body-xs text-muted-foreground mb-2">
-                        {t("listing.isYourBusiness")}
-                      </p>
-                      <Link
-                        href={l("/partner?type=claim-business")}
-                        className="text-body-xs text-primary hover:underline font-medium"
-                      >
-                        {t("listing.claimThisListing")} →
-                      </Link>
+                      <BusinessClaimCTA
+                        claimHref={claimBusinessHref}
+                        claimStatus={listing.claim_status}
+                        labels={{
+                          title: t("listing.claimBusinessTitle"),
+                          description: t("listing.claimBusinessDescription"),
+                          button: t("listing.claimBusinessButton"),
+                          pendingTitle: t("listing.claimUnderReviewTitle"),
+                          pendingDescription: t("listing.claimUnderReviewDescription"),
+                          claimedTitle: t("listing.claimManagedTitle"),
+                          claimedDescription: t("listing.claimManagedDescription"),
+                        }}
+                      />
                     </div>
                   ) : null}
 
@@ -1384,7 +1711,7 @@ function ListingDetailClientInner({
           </div>
         </section>
 
-        {relatedListings.length > 0 ? (
+        {!isExactBeachesListing && relatedListings.length > 0 ? (
           <section className="border-t border-border py-8">
             <div className="container mx-auto max-w-7xl px-4">
               <h2 className="text-2xl font-serif font-medium mb-6">
@@ -1492,16 +1819,18 @@ function ListingDetailClientInner({
 
       <Footer />
 
-      <ImageLightbox
-        images={galleryImages.map((image) => ({
-          ...image,
-          alt_text: image.alt_text ?? undefined,
-        }))}
-        currentIndex={currentImageIndex}
-        isOpen={lightboxOpen}
-        onClose={() => setLightboxOpen(false)}
-        onNavigate={setCurrentImageIndex}
-      />
+      {canOpenGalleryModal ? (
+        <ImageLightbox
+          images={galleryImages.map((image) => ({
+            ...image,
+            alt_text: image.alt_text ?? undefined,
+          }))}
+          currentIndex={safeCurrentImageIndex}
+          isOpen={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+          onNavigate={setCurrentImageIndex}
+        />
+      ) : null}
 
       {isRealEstateListing ? (
         <Dialog
@@ -1589,7 +1918,13 @@ function ListingDetailClientInner({
 
               {shouldShowMobileWebsiteAction ? (
                 <Button variant="outline" size="icon" asChild className="h-11 w-11 shrink-0 rounded-xl p-0 sm:h-12 sm:w-12">
-                  <a href={ctaUrl ?? undefined} target="_blank" rel="noopener noreferrer" aria-label={ctaAriaLabel}>
+                  <a
+                    href={ctaUrl ?? undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={ctaAriaLabel}
+                    onClick={() => trackListingAction(bookingUrl ? "listing_booking_click" : "listing_website_click", "mobile_action_bar")}
+                  >
                     <Globe className="h-6 w-6" />
                   </a>
                 </Button>
@@ -1603,7 +1938,13 @@ function ListingDetailClientInner({
                 asChild
                 className="h-11 min-w-[8rem] flex-1 shrink-0 gap-1 rounded-xl border-[#25D366] bg-[#25D366] px-2 text-white hover:border-[#1EBE5D] hover:bg-[#1EBE5D] hover:text-white sm:h-12 sm:px-2.5"
               >
-                <a href={directWhatsAppUrl ?? undefined} target="_blank" rel="noopener noreferrer" aria-label={t("listing.messageWhatsApp")}>
+                <a
+                  href={directWhatsAppUrl ?? undefined}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={t("listing.messageWhatsApp")}
+                  onClick={() => trackListingAction("listing_whatsapp_click", "mobile_action_bar")}
+                >
                   <WhatsAppLogo className="h-7 w-7" />
                   <span className="text-[11px] font-semibold tracking-[0.08em] leading-none">
                     {t("listing.social.whatsapp", "WhatsApp").toUpperCase()}

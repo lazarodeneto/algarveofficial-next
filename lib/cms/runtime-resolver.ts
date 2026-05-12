@@ -1,15 +1,20 @@
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 
+export type CmsRuntimeDocumentId = string | number;
+
 export interface CmsRuntimeDocumentRow {
+  id?: CmsRuntimeDocumentId | null;
   page_id: string;
   locale: string;
   block_id?: string | null;
+  block_scope?: string | null;
   doc_type: "page_config" | "text_overrides" | "design_tokens" | "custom_css";
-  current_version_id: number | null;
+  current_version_id: CmsRuntimeDocumentId | null;
 }
 
 export interface CmsRuntimeVersionRow {
-  id: number;
+  id: CmsRuntimeDocumentId;
+  document_id?: CmsRuntimeDocumentId | null;
   content: unknown;
 }
 
@@ -35,13 +40,16 @@ export function buildCmsSettingsFromDocuments(
   versions: CmsRuntimeVersionRow[],
   locale: string,
 ) {
-  const versionMap = new Map<number, unknown>();
-  versions.forEach((row) => versionMap.set(row.id, row.content));
+  const versionMap = new Map<string, unknown>();
+  versions.forEach((row) => versionMap.set(String(row.id), row.content));
 
   // Only page-level page_config docs should feed cms_page_configs_v1.
   // Legacy block-level docs (block_id != null) can coexist in cms_documents and must be ignored here.
   const pageConfigDocs = docs.filter(
-    (doc) => doc.doc_type === "page_config" && (doc.block_id ?? null) === null,
+    (doc) =>
+      doc.doc_type === "page_config" &&
+      (doc.block_id ?? null) === null &&
+      (doc.block_scope === undefined || doc.block_scope === null || doc.block_scope === "__page__"),
   );
   const groupedByPage = new Map<string, CmsRuntimeDocumentRow[]>();
   pageConfigDocs.forEach((doc) => {
@@ -54,7 +62,7 @@ export function buildCmsSettingsFromDocuments(
   groupedByPage.forEach((rows, pageId) => {
     const chosen = pickBestLocale(rows, locale);
     if (!chosen?.current_version_id) return;
-    pageConfigs[pageId] = parseObjectContent(versionMap.get(chosen.current_version_id));
+    pageConfigs[pageId] = parseObjectContent(versionMap.get(String(chosen.current_version_id)));
   });
 
   const pickGlobalDocContent = (docType: CmsRuntimeDocumentRow["doc_type"]) => {
@@ -63,7 +71,7 @@ export function buildCmsSettingsFromDocuments(
     );
     const chosen = pickBestLocale(matching, locale);
     if (!chosen?.current_version_id) return {};
-    return parseObjectContent(versionMap.get(chosen.current_version_id));
+    return parseObjectContent(versionMap.get(String(chosen.current_version_id)));
   };
 
   const textOverrides = pickGlobalDocContent("text_overrides");

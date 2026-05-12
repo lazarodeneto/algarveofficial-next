@@ -5,7 +5,11 @@ vi.mock("@/hooks/useFooterMenu", () => ({
 }));
 
 vi.mock("@/hooks/useLocalePath", () => ({
-  useLocalePath: () => (path: string) => `/da${path}`,
+  useLocalePath: () => (path: any) => {
+    if (typeof path === "string") return `/da${path}`;
+    if (path?.routeType === "category") return `/da/category/${path.slugs.da}`;
+    return "/da";
+  },
 }));
 
 vi.mock("@/hooks/useNewsletterSignup", () => ({
@@ -41,9 +45,10 @@ vi.mock("@/components/layout/FooterNav", () => ({
 }));
 
 import { normalizeFooterLinkHref } from "./Footer";
+import { buildLocalizedPath, type LocalizedPathInput } from "@/lib/i18n/localized-routing";
 
 describe("normalizeFooterLinkHref", () => {
-  const localize = (path: string) => `/da${path}`;
+  const localize = (path: LocalizedPathInput) => buildLocalizedPath("da", path);
 
   it("re-localizes internal links that already contain a stale locale prefix", () => {
     expect(
@@ -59,6 +64,6 @@ describe("normalizeFooterLinkHref", () => {
         "categories",
         localize,
       ),
-    ).toBe("/da/directory?category=places-to-stay");
+    ).toBe("/da/category/overnatning");
   });
 });

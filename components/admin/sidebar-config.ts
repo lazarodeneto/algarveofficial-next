@@ -67,9 +67,9 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
     items: [
       {
         id: "owners",
-        label: "Owners",
+        label: "Owners & Claims",
         href: "/admin/crm",
-        aliases: ["/admin/owners"],
+        aliases: ["/admin/owners", "/admin/business-claims"],
         icon: Building2,
       },
     ],
@@ -88,6 +88,7 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
         id: "listings",
         label: "Listings",
         href: "/admin/listings",
+        aliases: ["/admin/listing-change-requests"],
         icon: Newspaper,
       },
       {

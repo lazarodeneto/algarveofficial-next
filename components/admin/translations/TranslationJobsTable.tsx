@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, RefreshCw, ShieldCheck, X, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
@@ -12,6 +13,7 @@ import {
   requeueOutdatedJobs,
   updateTranslationStatus,
 } from "@/lib/admin/translations/queries";
+import { invalidateAdminInboxQueries } from "@/lib/query-invalidation";
 import { TranslationListingGroup } from "./TranslationListingGroup";
 import { TranslationEditorDrawer } from "./TranslationEditorDrawer";
 import type { ListingJobGroup, ListingRow, TranslationJob } from "@/lib/admin/translations/types";
@@ -23,6 +25,7 @@ interface Props {
 
 export function TranslationJobsTable({ groups, onRefresh }: Props) {
   const supabase = createClient();
+  const queryClient = useQueryClient();
 
   const [loadingJobId,      setLoadingJobId]      = useState<string | null>(null);
   const [bulkLoading,       setBulkLoading]        = useState(false);
@@ -44,17 +47,22 @@ export function TranslationJobsTable({ groups, onRefresh }: Props) {
   const clearSelection = useCallback(() => setSelectedJobIds([]), []);
 
   // ── Single job actions ─────────────────────────────────────────────────────
+  const refreshAfterMutation = useCallback(() => {
+    onRefresh();
+    void invalidateAdminInboxQueries(queryClient);
+  }, [onRefresh, queryClient]);
+
   const withLoading = useCallback(
     async (jobId: string, fn: () => Promise<void>) => {
       setLoadingJobId(jobId);
       try {
         await fn();
-        onRefresh();
+        refreshAfterMutation();
       } finally {
         setLoadingJobId(null);
       }
     },
-    [onRefresh],
+    [refreshAfterMutation],
   );
 
   const handleTranslate = useCallback(
@@ -92,8 +100,10 @@ export function TranslationJobsTable({ groups, onRefresh }: Props) {
   }, []);
 
   const handleEditorSaved = useCallback(
-    (_jobId: string) => { onRefresh(); },
-    [onRefresh],
+    (_jobId: string) => {
+      refreshAfterMutation();
+    },
+    [refreshAfterMutation],
   );
 
   // ── Group-level requeue (outdated jobs) ───────────────────────────────────
@@ -107,14 +117,14 @@ export function TranslationJobsTable({ groups, onRefresh }: Props) {
             ? `${count} outdated job${count !== 1 ? "s" : ""} re-queued.`
             : "No outdated jobs found.",
         );
-        onRefresh();
+        refreshAfterMutation();
       } catch {
         toast.error("Re-queue failed. Please try again.");
       } finally {
         setGroupActionLoading(false);
       }
     },
-    [supabase, onRefresh],
+    [supabase, refreshAfterMutation],
   );
 
   // ── Group-level bulk action ────────────────────────────────────────────────
@@ -129,14 +139,14 @@ export function TranslationJobsTable({ groups, onRefresh }: Props) {
             status === "queued" ? "queued" : "marked reviewed"
           }.`,
         );
-        onRefresh();
+        refreshAfterMutation();
       } catch {
         toast.error("Action failed. Please try again.");
       } finally {
         setGroupActionLoading(false);
       }
     },
-    [supabase, onRefresh],
+    [supabase, refreshAfterMutation],
   );
 
   // ── Toolbar bulk actions ───────────────────────────────────────────────────
@@ -151,14 +161,14 @@ export function TranslationJobsTable({ groups, onRefresh }: Props) {
           `${selectedJobIds.length} job${selectedJobIds.length !== 1 ? "s" : ""} updated.`,
         );
         setSelectedJobIds([]);
-        onRefresh();
+        refreshAfterMutation();
       } catch {
         toast.error("Bulk update failed.");
       } finally {
         setBulkLoading(false);
       }
     },
-    [supabase, selectedJobIds, onRefresh],
+    [supabase, selectedJobIds, refreshAfterMutation],
   );
 
   // ── Render ─────────────────────────────────────────────────────────────────

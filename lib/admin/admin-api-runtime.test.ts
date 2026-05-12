@@ -1337,6 +1337,82 @@ describe("admin listings route runtime", () => {
     expect(payload.error?.message).toContain("already reserved");
   });
 
+  it("falls back to direct alias-safe slug updates when the canonical slug RPC is missing", async () => {
+    const rpc = vi.fn().mockResolvedValue({
+      data: null,
+      error: {
+        code: "PGRST202",
+        message:
+          "Could not find the function public.update_listing_canonical_slug(p_listing_id, p_new_slug) in the schema cache",
+      },
+    });
+
+    const maybeSingle = (data: unknown) => vi.fn().mockResolvedValue({ data, error: null });
+    const readById = (data: unknown) => ({
+      select: vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle: maybeSingle(data) })) })),
+    });
+    const conflictRead = (data: unknown) => ({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          neq: vi.fn(() => ({ limit: vi.fn(() => ({ maybeSingle: maybeSingle(data) })) })),
+        })),
+      })),
+    });
+    const updateOneEq = () => ({
+      update: vi.fn(() => ({ eq: vi.fn().mockResolvedValue({ error: null }) })),
+    });
+    const insertOk = { insert: vi.fn().mockResolvedValue({ error: null }) };
+    const upsertOk = { upsert: vi.fn().mockResolvedValue({ error: null }) };
+    const fromResponses = [
+      readById({ id: "listing-1", slug: "old-listing-slug" }),
+      conflictRead(null),
+      conflictRead(null),
+      updateOneEq(),
+      readById(null),
+      insertOk,
+      updateOneEq(),
+      updateOneEq(),
+      upsertOk,
+    ];
+    const from = vi.fn(() => fromResponses.shift());
+
+    mockedRequireAdminWriteClient.mockResolvedValueOnce({
+      userId: "admin-1",
+      role: "admin",
+      userClient: { rpc } as never,
+      writeClient: { from } as never,
+    });
+
+    const response = await patchListingSlugRoute(
+      jsonRequest(
+        { slug: "new-listing-slug" },
+        "PATCH",
+      ) as unknown as Parameters<typeof patchListingSlugRoute>[0],
+      { params: Promise.resolve({ listingId: "listing-1" }) },
+    );
+    const payload = (await response.json()) as {
+      ok?: boolean;
+      data?: { old_slug?: string | null; new_slug?: string };
+    };
+
+    expect(response.status).toBe(200);
+    expect(payload.ok).toBe(true);
+    expect(payload.data).toEqual({
+      old_slug: "old-listing-slug",
+      new_slug: "new-listing-slug",
+    });
+    expect(from).toHaveBeenCalledWith("listings");
+    expect(from).toHaveBeenCalledWith("listing_slugs");
+    expect(upsertOk.upsert).toHaveBeenCalledWith(
+      {
+        listing_id: "listing-1",
+        slug: "new-listing-slug",
+        is_current: true,
+      },
+      { onConflict: "slug" },
+    );
+  });
+
   it("uses requester-scoped client for bulk publish updates", async () => {
     const bulkIn = vi.fn().mockResolvedValue({ error: null });
     const bulkUpdate = vi.fn(() => ({ in: bulkIn }));

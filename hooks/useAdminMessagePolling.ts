@@ -3,6 +3,7 @@ import { useEffect, useRef, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { invalidateAdminInboxQueries } from "@/lib/query-invalidation";
 
 const POLLING_INTERVAL_MS = 20_000; // 20 seconds
 const REALTIME_DEBOUNCE_MS = 250;
@@ -61,6 +62,7 @@ export function useAdminMessagePolling() {
     queryClient.invalidateQueries({ queryKey: ["listing-claims", "pending-count"] });
     queryClient.invalidateQueries({ queryKey: ["listing-claims"] });
     queryClient.invalidateQueries({ queryKey: ["events", "admin"] });
+    void invalidateAdminInboxQueries(queryClient);
   }, [queryClient]);
 
   const scheduleInvalidate = useCallback(() => {

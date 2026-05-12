@@ -1,5 +1,6 @@
 import {
   CalendarDays,
+  BarChart3,
   Crown,
   HelpCircle,
   Image,
@@ -31,6 +32,7 @@ export function OwnerSidebar({ collapsed, onToggle }: OwnerSidebarProps) {
         { label: t("owner.sidebar.myListings"), href: l("/owner/listings"), icon: List },
         { label: t("owner.sidebar.myEvents"), href: l("/owner/events"), icon: CalendarDays },
         { label: t("owner.sidebar.photosMedia"), href: l("/owner/media"), icon: Image },
+        { label: t("owner.sidebar.performance", { defaultValue: "Performance" }), href: l("/owner/performance"), icon: BarChart3 },
         { label: t("owner.sidebar.membership"), href: l("/owner/membership"), icon: Crown },
         {
           label: t("owner.sidebar.messages"),

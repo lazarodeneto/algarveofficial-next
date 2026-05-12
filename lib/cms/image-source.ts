@@ -14,6 +14,7 @@ const ALLOWED_EXACT_HOSTS = new Set([
   "algarveofficial.com",
   "www.algarveofficial.com",
   "cdn.algarveofficial.com",
+  "cdn.pixabay.com",
   "storage.googleapis.com",
   "images.unsplash.com",
   "setimaondaboattrips.com",

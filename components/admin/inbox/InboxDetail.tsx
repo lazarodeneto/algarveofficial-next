@@ -34,6 +34,7 @@ import type {
   ReviewModerationItem,
   TranslationJobItem,
 } from "@/lib/admin/inbox/types";
+import { ADMIN_INBOX_QUERY_KEY } from "@/lib/admin/inbox/types";
 
 interface InboxDetailProps {
   item: InboxItem | null;
@@ -172,6 +173,7 @@ export function InboxDetail({
       setRejectReason("");
       setAssigneeId("");
       setLastAction(null);
+      queryClient.invalidateQueries({ queryKey: ADMIN_INBOX_QUERY_KEY, exact: false });
       queryClient.invalidateQueries({ queryKey: ["admin", "inbox", "urgent-count"] });
       onResolved();
       onOpenChange(false);

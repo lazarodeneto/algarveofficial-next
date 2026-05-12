@@ -180,18 +180,19 @@ export function PricingFeaturesTable({
 
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full min-w-[680px] lg:min-w-0">
+              <caption className="sr-only">{t("pricingFeatures.title")}</caption>
               <thead>
                 <tr className="border-b border-border/40">
-                  <th className="text-left py-5 px-6 text-sm font-medium text-muted-foreground w-[46%]">
+                  <th scope="col" className="text-left py-5 px-6 text-sm font-medium text-muted-foreground w-[46%]">
                     {t("pricingFeatures.feature")}
                   </th>
 
-                  <th className="py-5 px-4 text-center min-w-[90px]">
+                  <th scope="col" className="py-5 px-4 text-center min-w-[90px]">
                     <div className="text-sm font-semibold text-muted-foreground">{t("common.free")}</div>
                     <div className="text-xs text-muted-foreground/50 mt-0.5">{t("pricingFeatures.basic")}</div>
                   </th>
 
-                  <th className="py-5 px-4 text-center min-w-[110px]">
+                  <th scope="col" className="py-5 px-4 text-center min-w-[110px]">
                     <div className="flex items-center justify-center gap-1.5 mb-0.5">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
                       <span className="text-sm font-semibold text-foreground">{t("common.verified")}</span>
@@ -199,7 +200,7 @@ export function PricingFeaturesTable({
                     <div className="text-xs text-primary font-semibold">{verifiedPrice}{t("pricingCards.perMonth")}</div>
                   </th>
 
-                  <th className="py-5 px-4 text-center min-w-[120px]">
+                  <th scope="col" className="py-5 px-4 text-center min-w-[120px]">
                     <div className="flex items-center justify-center gap-1.5 mb-0.5">
                       <Crown className="w-3.5 h-3.5 text-[#C7A35A]" />
                       <span className="text-sm font-semibold text-foreground">{t("common.signature")}</span>
@@ -218,7 +219,7 @@ export function PricingFeaturesTable({
                       i % 2 !== 0 && "bg-muted/20"
                     )}
                   >
-                    <td className="py-3.5 px-6 text-sm text-foreground/75">
+                    <th scope="row" className="py-3.5 px-6 text-left text-sm font-medium text-foreground/75">
                       {translateFeature(feature.label)}
                       {feature.addOn ? (
                         <span className="ml-2 inline-flex items-center gap-1 text-xs">
@@ -230,7 +231,7 @@ export function PricingFeaturesTable({
                           </Link>
                         </span>
                       ) : null}
-                    </td>
+                    </th>
                     <td className="py-3.5 px-4 text-center"><Cell value={feature.free} className="mx-auto" /></td>
                     <td className="py-3.5 px-4 text-center"><Cell value={feature.verified} className="mx-auto" /></td>
                     <td className="py-3.5 px-4 text-center"><Cell value={feature.signature} className="mx-auto" /></td>

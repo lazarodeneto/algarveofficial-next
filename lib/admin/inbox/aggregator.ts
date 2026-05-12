@@ -447,12 +447,13 @@ function sortItems(items: InboxItem[]): InboxItem[] {
 interface InboxSideTables {
   archivedKeys: Set<string>;
   assignments: Map<string, { assigneeId: string; assignedAt: string }>;
+  readStates: Map<string, { readBy: string | null; readAt: string }>;
   errors: InboxDataSourceError[];
 }
 
 async function fetchSideTables(client: AdminClient): Promise<InboxSideTables> {
   const [archiveRes, assignRes] = await Promise.all([
-    client.from("admin_inbox_archives" as never).select("source, source_row_id"),
+    client.from("admin_inbox_archives" as never).select("source, source_row_id, reason, archived_at"),
     client
       .from("admin_inbox_assignments" as never)
       .select("source, source_row_id, assignee_id, assigned_at"),
@@ -461,8 +462,22 @@ async function fetchSideTables(client: AdminClient): Promise<InboxSideTables> {
     .filter(Boolean)
     .map((error) => queryError("side_tables", error));
   const archivedKeys = new Set<string>();
-  const archiveRows = (archiveRes.data as Array<{ source: string; source_row_id: string }> | null) ?? [];
-  for (const row of archiveRows) archivedKeys.add(`${row.source}:${row.source_row_id}`);
+  const readStates = new Map<string, { readBy: string | null; readAt: string }>();
+  const archiveRows =
+    (archiveRes.data as Array<{
+      source: string;
+      source_row_id: string;
+      reason: string | null;
+      archived_at: string;
+    }> | null) ?? [];
+  for (const row of archiveRows) {
+    const key = `${row.source}:${row.source_row_id}`;
+    if (row.reason === "read_from_list") {
+      readStates.set(key, { readBy: null, readAt: row.archived_at });
+    } else {
+      archivedKeys.add(key);
+    }
+  }
 
   const assignments = new Map<string, { assigneeId: string; assignedAt: string }>();
   const assignRows =
@@ -478,7 +493,7 @@ async function fetchSideTables(client: AdminClient): Promise<InboxSideTables> {
       assignedAt: row.assigned_at,
     });
   }
-  return { archivedKeys, assignments, errors };
+  return { archivedKeys, assignments, readStates, errors };
 }
 
 async function buildSnapshotUncached(): Promise<InboxSnapshot> {
@@ -514,10 +529,17 @@ async function buildSnapshotUncached(): Promise<InboxSnapshot> {
   ]
     .filter((item) => !side.archivedKeys.has(`${item.source}:${item.sourceRowId}`))
     .map((item) => {
-      const assignment = side.assignments.get(`${item.source}:${item.sourceRowId}`);
-      return assignment
-        ? { ...item, assignee: { id: assignment.assigneeId, assignedAt: assignment.assignedAt } }
-        : item;
+      const key = `${item.source}:${item.sourceRowId}`;
+      const assignment = side.assignments.get(key);
+      const readState = side.readStates.get(key);
+      return {
+        ...item,
+        assignee: assignment
+          ? { id: assignment.assigneeId, assignedAt: assignment.assignedAt }
+          : item.assignee,
+        isRead: Boolean(readState),
+        readAt: readState?.readAt ?? null,
+      };
     });
   const items = sortItems(merged);
   const byDomain: Record<InboxDomain, number> = {
@@ -548,6 +570,10 @@ export const getInboxSnapshot = unstable_cache(
   ["admin-inbox-snapshot-v3"],
   { revalidate: CACHE_TTL_SECONDS, tags: [INBOX_CACHE_TAG] },
 );
+
+export async function getFreshInboxSnapshot(): Promise<InboxSnapshot> {
+  return buildSnapshotUncached();
+}
 
 export async function getInboxUrgentCount(): Promise<number> {
   const snapshot = await getInboxSnapshot();

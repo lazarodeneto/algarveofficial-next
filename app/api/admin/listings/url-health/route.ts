@@ -3,6 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminErrorResponse, requireAdminSession, requireAdminWriteClient } from "@/lib/server/admin-auth";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import {
+  isMissingCanonicalSlugRpcError,
+  updateListingCanonicalSlugDirect,
+} from "@/lib/admin/listings/canonical-slug-update";
+import {
   buildListingCanonicalPath,
   suggestListingCanonicalSlug,
 } from "@/lib/listings/slug-management";
@@ -296,6 +300,20 @@ export async function POST(request: NextRequest) {
     } as never);
 
     if (error) {
+      if (isMissingCanonicalSlugRpcError(error)) {
+        const fallback = await updateListingCanonicalSlugDirect(auth.writeClient, listingId, suggestedSlug);
+        if (fallback.error) {
+          const status = fallback.error.code === "23505" ? 409 : 400;
+          return adminErrorResponse(
+            status,
+            status === 409 ? "DUPLICATE_SLUG" : "SLUG_UPDATE_FAILED",
+            fallback.error.message,
+          );
+        }
+
+        return NextResponse.json({ ok: true, data: fallback.data });
+      }
+
       const status = error.code === "23505" ? 409 : 400;
       return adminErrorResponse(status, status === 409 ? "DUPLICATE_SLUG" : "SLUG_UPDATE_FAILED", error.message);
     }

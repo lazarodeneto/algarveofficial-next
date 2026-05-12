@@ -16,6 +16,7 @@ import {
 } from '@/lib/events/publicVisibility';
 import { localizeEvent, localizeEvents } from '@/lib/events/i18n';
 import { useCurrentLocale } from '@/hooks/useCurrentLocale';
+import { invalidateAdminInboxQueries } from '@/lib/query-invalidation';
 
 type AdminEventsFilters = {
   status?: EventStatus;
@@ -41,6 +42,7 @@ function normalizeEventSlug(value: string | undefined): string {
 }
 
 function invalidateEventQueries(queryClient: QueryClient, eventId?: string) {
+  void invalidateAdminInboxQueries(queryClient);
   void queryClient.invalidateQueries({ queryKey: ['events'], exact: false });
   void queryClient.invalidateQueries({ queryKey: ['event'], exact: false });
   void queryClient.invalidateQueries({ queryKey: ['events-page'], exact: false });

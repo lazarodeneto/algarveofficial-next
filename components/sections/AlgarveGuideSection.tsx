@@ -3,6 +3,8 @@ import { useLocalePath } from "@/hooks/useLocalePath";
 import { useTranslation } from "react-i18next";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { HeroTrustSignals } from "@/components/sections/HeroTrustSignals";
+import { buildCategoryRouteData } from "@/lib/public-route-builders";
+import { buildStaticRouteData } from "@/lib/i18n/localized-routing";
 
 export function AlgarveGuideSection() {
   const l = useLocalePath();
@@ -10,6 +12,7 @@ export function AlgarveGuideSection() {
   const { getText } = useCmsPageBuilder("home");
 
   const path = l;
+  const categoryPath = (slug: string) => l(buildCategoryRouteData(slug) ?? buildStaticRouteData("stay"));
   const text = (key: string, fallback: string) => getText(key, t(key, fallback));
   const andWord = text("sections.algarveGuide.and", "and");
 
@@ -67,11 +70,11 @@ export function AlgarveGuideSection() {
                   "sections.algarveGuide.stayLinksPrefix",
                   "Browse premium",
                 )}{" "}
-                <Link href={path("/stay?category=places-to-stay")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={categoryPath("accommodation")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.algarveHotels", "Algarve hotels")}
                 </Link>{" "}
                 {andWord}{" "}
-                <Link href={path("/stay?category=places-to-stay")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={categoryPath("accommodation")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.placesToStay", "places to stay")}
                 </Link>
                 .
@@ -95,7 +98,7 @@ export function AlgarveGuideSection() {
                   {text("sections.algarveGuide.links.destinations", "destinations")}
                 </Link>
                 ,{" "}
-                <Link href={path("/stay?category=beaches-clubs")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={categoryPath("beaches")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.beaches", "beaches")}
                 </Link>
                 , {andWord}{" "}
@@ -119,15 +122,15 @@ export function AlgarveGuideSection() {
                   "sections.algarveGuide.doLinksPrefix",
                   "Jump into",
                 )}{" "}
-                <Link href={path("/stay?category=golf")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={categoryPath("golf")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.golf", "golf")}
                 </Link>
                 ,{" "}
-                <Link href={path("/stay?category=restaurants")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={categoryPath("restaurants")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.restaurants", "restaurants")}
                 </Link>
                 ,{" "}
-                <Link href={path("/stay?category=things-to-do")} className="text-primary underline-offset-4 hover:underline">
+                <Link href={categoryPath("experiences")} className="text-primary underline-offset-4 hover:underline">
                   {text("sections.algarveGuide.links.thingsToDo", "things to do")}
                 </Link>
                 , {andWord}{" "}

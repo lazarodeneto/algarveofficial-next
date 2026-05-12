@@ -1,5 +1,5 @@
 // framer-motion import removed - using CSS animations for LCP elements
-import { ArrowRight, ChevronDown } from "lucide-react";
+import { ArrowRight, CalendarPlus, ChevronDown, MapPinned } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -20,7 +20,7 @@ import { useHydrated } from "@/hooks/useHydrated";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { getSafeCmsImageSrc } from "@/lib/cms/image-source";
 import { addImageVersion, buildSupabaseImageUrl } from "@/lib/imageUrls";
-import { STANDARD_PUBLIC_HERO_SURFACE_CLASS, STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
+import { STANDARD_PUBLIC_HERO_SURFACE_CLASS } from "@/components/sections/hero-layout";
 
 const CreateTripDialog = dynamic(
   () => import("@/components/trip-planner/CreateTripDialog").then((m) => m.CreateTripDialog),
@@ -36,6 +36,13 @@ function getInitialReducedMotionPreference() {
     return false;
   }
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function getInitialMobileViewportPreference() {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return false;
+  }
+  return window.matchMedia("(max-width: 1023px)").matches;
 }
 
 function getPrefersReducedData() {
@@ -106,7 +113,7 @@ const HeroVideoPlayer = ({
       loop
       muted
       playsInline
-      preload="metadata"
+      preload="none"
       poster={posterUrl ?? undefined}
       crossOrigin="anonymous"
       tabIndex={-1}
@@ -128,6 +135,9 @@ export function HeroSection() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(
     getInitialReducedMotionPreference,
   );
+  const [isMobileViewport, setIsMobileViewport] = useState(
+    getInitialMobileViewportPreference,
+  );
   const [canEnhanceHeroVideo, setCanEnhanceHeroVideo] = useState(false);
   const { settings, isLoading: isHeroSettingsLoading } = useHeroSettings();
   const { settings: runtimeSettings } = useGlobalSettings({
@@ -137,7 +147,7 @@ export function HeroSection() {
   const { t } = useTranslation();
   const { isSlow } = useConnectionQuality();
   const { createTrip } = useTripPlanner();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const l = useLocalePath();
 
@@ -147,7 +157,7 @@ export function HeroSection() {
 
   // Determine if video should be skipped for performance
   // Skip video on: reduced motion preference, slow connections, or mobile devices
-  const shouldSkipVideo = prefersReducedMotion || isSlow;
+  const shouldSkipVideo = prefersReducedMotion || isSlow || isMobileViewport;
 
   useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
@@ -156,6 +166,18 @@ export function HeroSection() {
 
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return undefined;
+    }
+
+    const mediaQuery = window.matchMedia("(max-width: 1023px)");
+    const handler = (e: MediaQueryListEvent) => setIsMobileViewport(e.matches);
+    setIsMobileViewport(mediaQuery.matches);
     mediaQuery.addEventListener("change", handler);
     return () => mediaQuery.removeEventListener("change", handler);
   }, []);
@@ -170,6 +192,26 @@ export function HeroSection() {
   // Trip planner dialog/auth state
   const [tripPlannerOpen, setTripPlannerOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [pendingTripPlannerOpen, setPendingTripPlannerOpen] = useState(false);
+
+  const openTripPlanner = () => {
+    if (!isAuthenticated) {
+      setPendingTripPlannerOpen(true);
+      toast.info(t("hero.loginRequired"));
+      setShowLoginModal(true);
+      return;
+    }
+
+    setTripPlannerOpen(true);
+  };
+
+  useEffect(() => {
+    if (!pendingTripPlannerOpen || !isAuthenticated) return;
+
+    setShowLoginModal(false);
+    setTripPlannerOpen(true);
+    setPendingTripPlannerOpen(false);
+  }, [isAuthenticated, pendingTripPlannerOpen]);
 
   const handleCreateTrip = (data: { title: string; description?: string; start_date: string; end_date: string }) => {
     if (!isAuthenticated) {
@@ -234,8 +276,6 @@ export function HeroSection() {
     getText("home.hero.cta.primary", "") ||
     (locale === "en" ? settings?.hero_cta_primary_text?.trim() : "");
   const cmsPrimaryCtaHref = getText("hero.cta.primary.href", "").trim();
-  const cmsSecondaryCta = getText("hero.cta.secondary", "") || getText("home.hero.cta.secondary", "");
-  const cmsSecondaryCtaHref = getText("hero.cta.secondary.href", "").trim();
   const heroTitleLead = cmsHeroTitle
     ? cmsHeroTitle.replace(/\s*,?\s*Curated\s*$/i, "").trim()
     : t("sections.homepage.hero.titleLead");
@@ -244,9 +284,8 @@ export function HeroSection() {
   const heroSubtitle = cmsHeroSubtitle || t("sections.homepage.hero.subtitle");
   const heroBadge = getText("hero.badge", t("sections.homepage.hero.label"));
   const primaryCtaLabel = cmsPrimaryCta || t("sections.homepage.smartSearch.cta");
-  const secondaryCtaLabel = cmsSecondaryCta || t("sections.homepage.hero.secondaryCta");
+  const secondaryCtaLabel = t("sections.homepage.hero.secondaryCta");
   const primaryCtaTarget = cmsPrimaryCtaHref || "/directory";
-  const secondaryCtaTarget = cmsSecondaryCtaHref || "/map";
   const resolveCtaHref = (href: string) => {
     if (/^(#|https?:\/\/|mailto:|tel:)/i.test(href)) {
       return href;
@@ -255,9 +294,7 @@ export function HeroSection() {
   };
 
   const primaryCtaHref = resolveCtaHref(primaryCtaTarget);
-  const secondaryCtaHref = resolveCtaHref(secondaryCtaTarget);
   const primaryCtaIsExternal = /^https?:\/\//i.test(primaryCtaTarget);
-  const secondaryCtaIsExternal = /^https?:\/\//i.test(secondaryCtaTarget);
   const mediaMode = useMemo<"video" | "poster" | "none" | "loading">(() => {
     if (isHeroSettingsLoading) return "loading";
 
@@ -275,7 +312,7 @@ export function HeroSection() {
   }, [hasPosterUrl, hasVideoUrl, isHeroSettingsLoading, mediaType, shouldSkipVideo]);
 
   return (
-    <div className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
+    <div className="px-0 pb-4 pt-0 sm:pb-5 lg:px-6 lg:pt-[calc(5rem+10px)]">
       <section className={STANDARD_PUBLIC_HERO_SURFACE_CLASS}>
         {/* Video Background */}
         <div className="absolute inset-0 bg-black">
@@ -297,7 +334,7 @@ export function HeroSection() {
           />
         </div>
 
-        <div className="relative z-10 mx-auto flex min-h-[inherit] w-full max-w-7xl items-center px-5 py-16 sm:px-8 sm:py-24 lg:px-16 lg:py-24">
+        <div className="relative z-10 mx-auto flex min-h-[inherit] w-full max-w-7xl items-center px-5 pb-16 pt-[8.5rem] sm:px-8 sm:pb-24 sm:pt-[9.5rem] lg:px-16 lg:py-24">
           <div className="max-w-3xl space-y-4 text-left text-white sm:space-y-5">
             <p className="inline-flex rounded-full border border-white/20 bg-white/12 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/82 backdrop-blur-md sm:text-xs">
               {heroBadge}
@@ -324,6 +361,7 @@ export function HeroSection() {
                   target={primaryCtaIsExternal ? "_blank" : undefined}
                   rel={primaryCtaIsExternal ? "noopener noreferrer" : undefined}
                 >
+                  <MapPinned className="h-4 w-4 shrink-0" />
                   <span className="min-w-0 flex-1 break-words sm:flex-none">
                     {primaryCtaLabel}
                   </span>
@@ -334,25 +372,23 @@ export function HeroSection() {
                 variant="heroOutline"
                 size="lg"
                 className="hidden min-h-12 w-full px-7 sm:inline-flex sm:w-auto"
-                asChild
+                type="button"
+                onClick={openTripPlanner}
+                disabled={isAuthLoading}
               >
-                <Link
-                  href={secondaryCtaHref}
-                  target={secondaryCtaIsExternal ? "_blank" : undefined}
-                  rel={secondaryCtaIsExternal ? "noopener noreferrer" : undefined}
-                >
-                  {secondaryCtaLabel}
-                </Link>
+                <CalendarPlus className="h-4 w-4" />
+                {secondaryCtaLabel}
               </Button>
             </div>
-            <Link
-              href={secondaryCtaHref}
+            <button
+              type="button"
+              onClick={openTripPlanner}
+              disabled={isAuthLoading}
               className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-white/75 underline underline-offset-4 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:hidden"
-              target={secondaryCtaIsExternal ? "_blank" : undefined}
-              rel={secondaryCtaIsExternal ? "noopener noreferrer" : undefined}
             >
+              <CalendarPlus className="h-3.5 w-3.5" />
               {secondaryCtaLabel} <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+            </button>
             <div className="flex max-w-2xl flex-wrap items-center gap-x-5 gap-y-2 pt-3 text-xs font-semibold text-white/78 sm:pt-4">
               <span>{t("sections.homepage.hero.proof.curated")}</span>
               <span>{t("sections.homepage.hero.proof.verified")}</span>
@@ -370,7 +406,12 @@ export function HeroSection() {
           />
         ) : null}
         {hydrated && showLoginModal ? (
-          <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
+          <LoginModal
+            open={showLoginModal}
+            onOpenChange={setShowLoginModal}
+            title={t("hero.tripLoginTitle")}
+            description={t("hero.tripLoginDescription")}
+          />
         ) : null}
 
         {/* Mobile scroll hint — fading bottom edge */}

@@ -25,7 +25,7 @@ function formatTierLabel(tier: TierMetric["tier"]): string {
 export function MonetizationInsightsSection({ loading = false, byTier }: Props) {
   return (
     <section className="space-y-4">
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3">
         <AnalyticsChart
           title="Visibility Share"
           description="Impression share by subscription tier"
@@ -60,16 +60,16 @@ export function MonetizationInsightsSection({ loading = false, byTier }: Props) 
         />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base font-semibold">Tier Monetization Table</CardTitle>
+      <Card className="glass-box border-border/40 bg-card/60 [&>*]:relative [&>*]:z-10">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-xl font-semibold">Tier Monetization Table</CardTitle>
           <CardDescription>Visibility, clicks, and conversion efficiency by tier.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto rounded-md border border-border">
+          <div className="overflow-x-auto rounded-sm border border-border/60 bg-background/25">
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="bg-background/35">
                   <TableHead>Tier</TableHead>
                   <TableHead className="text-right">Views</TableHead>
                   <TableHead className="text-right">Clicks</TableHead>
@@ -80,7 +80,7 @@ export function MonetizationInsightsSection({ loading = false, byTier }: Props) 
               </TableHeader>
               <TableBody>
                 {byTier.map((row) => (
-                  <TableRow key={row.tier}>
+                  <TableRow key={row.tier} className="transition-colors hover:bg-primary/5">
                     <TableCell className="font-medium">{formatTierLabel(row.tier)}</TableCell>
                     <TableCell className="text-right">{row.views.toLocaleString()}</TableCell>
                     <TableCell className="text-right">{row.clicks.toLocaleString()}</TableCell>

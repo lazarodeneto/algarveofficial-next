@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,13 @@ export function ApproveAssignDialog({ open, onOpenChange, claim }: ApproveAssign
   const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
   const { data: listings = [], isLoading: loadingListings } = usePublishedListingsForAssignment(searchTerm);
   const approveAndAssign = useApproveAndAssignClaim();
+
+  useEffect(() => {
+    if (!open) return;
+
+    setSelectedListingId(claim?.listing_id ?? null);
+    setSearchTerm(claim?.business_name ?? "");
+  }, [claim?.business_name, claim?.id, claim?.listing_id, open]);
 
   const handleApprove = async () => {
     if (!claim || !selectedListingId) return;
@@ -95,6 +102,11 @@ export function ApproveAssignDialog({ open, onOpenChange, claim }: ApproveAssign
               <p className="text-xs text-muted-foreground">
                 Claimant: {claim?.contact_name} ({claim?.email})
               </p>
+              {claim?.listing_id ? (
+                <p className="text-xs text-muted-foreground">
+                  Submitted from listing: {claim.listing_id}
+                </p>
+              ) : null}
             </div>
 
             {/* Search */}

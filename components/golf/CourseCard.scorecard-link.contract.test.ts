@@ -17,19 +17,19 @@ describe("golf course card scorecard link", () => {
   it("makes the course card clickable while keeping scorecard as a separate target", () => {
     const source = readFileSync(join(REPO_ROOT, "components", "golf", "CourseCard.tsx"), "utf8");
 
-    expect(source).toContain('className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none"');
+    expect(source).toContain('className="absolute inset-0 z-10 rounded-[18px] focus-visible:outline-none"');
     expect(source).toContain('className="pointer-events-none relative z-10 flex h-full flex-col"');
-    expect(source).toContain('"pointer-events-auto min-h-12 w-full');
+    expect(source).toContain('"pointer-events-auto relative z-20 inline-flex h-11 w-full');
   });
 
-  it("uses the shared listing favorite control", () => {
+  it("uses the shared listing favorite control in the event-style overlay", () => {
     const source = readFileSync(join(REPO_ROOT, "components", "golf", "CourseCard.tsx"), "utf8");
 
     expect(source).toContain('"use client"');
     expect(source).toContain("useFavoriteListings");
     expect(source).toContain("FavoriteButton");
-    expect(source).toContain('variant="glassmorphism"');
-    expect(source).toContain('size="sm"');
+    expect(source).toContain('variant="solid"');
+    expect(source).toContain('size="lg"');
   });
 
   it("anchors the detail page scorecard section", () => {

@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Building2, MapPin } from "lucide-react";
 import { isValidLocale, type Locale } from "@/lib/i18n/config";
+import { buildLocalizedPath } from "@/lib/i18n/localized-routing";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
+import { buildBreadcrumbSchema, buildItemListSchema } from "@/lib/seo/advanced/schema-builders";
 import PropertiesClient from "@/components/properties/PropertiesClient";
+import { getRealEstateDirectoryData } from "@/lib/real-estate/directory-data";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
 }
+
+export const revalidate = 300;
 
 const PROPERTIES_META: Record<Locale, { title: string; description: string }> = {
   en: {
@@ -74,6 +81,128 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
-export default function PropertiesPage() {
-  return <PropertiesClient />;
+interface PropertiesServerShellProps {
+  locale: Locale;
+  title: string;
+  description: string;
+  listings: Awaited<ReturnType<typeof getRealEstateDirectoryData>>["listings"];
+}
+
+function PropertiesServerShell({
+  locale,
+  title,
+  description,
+  listings,
+}: PropertiesServerShellProps) {
+  return (
+    <div id="properties-server-shell" className="min-h-screen bg-background text-foreground">
+      <main className="app-container pt-[calc(4rem+2.5rem)] pb-16 sm:pt-[calc(5rem+3rem)]">
+        <section className="mb-8 max-w-4xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+            AlgarveOfficial
+          </p>
+          <p className="mt-3 font-serif text-4xl leading-tight text-foreground sm:text-5xl">
+            {title}
+          </p>
+          <p className="mt-4 text-base leading-7 text-muted-foreground sm:text-lg">
+            {description}
+          </p>
+        </section>
+
+        {listings.length === 0 ? (
+          <section className="rounded-lg border border-border bg-card/80 p-8 text-center shadow-sm">
+            <Building2 className="mx-auto mb-3 h-8 w-8 text-primary" />
+            <h2 className="font-serif text-2xl">No published properties available</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Property listings will appear here once they are published.
+            </p>
+          </section>
+        ) : (
+          <section aria-label="Published property listings" className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {listings.slice(0, 12).map((listing) => (
+              <Link
+                key={listing.id}
+                href={buildLocalizedPath(locale, `/listing/${listing.slug || listing.id}`)}
+                className="group overflow-hidden rounded-lg border border-border bg-card shadow-sm transition hover:border-primary/40"
+              >
+                {listing.featured_image_url ? (
+                  <img
+                    src={listing.featured_image_url}
+                    alt={listing.name}
+                    className="h-44 w-full object-cover"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="flex h-44 items-center justify-center bg-muted">
+                    <Building2 className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                )}
+                <div className="p-5">
+                  <p className="mb-2 flex items-center gap-1.5 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                    <MapPin className="h-3.5 w-3.5 text-primary" />
+                    {listing.cities?.name ?? "Algarve"}
+                  </p>
+                  <h2 className="font-serif text-xl leading-snug group-hover:text-primary">
+                    {listing.name}
+                  </h2>
+                  {listing.short_description ? (
+                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
+                      {listing.short_description}
+                    </p>
+                  ) : null}
+                </div>
+              </Link>
+            ))}
+          </section>
+        )}
+      </main>
+    </div>
+  );
+}
+
+export default async function PropertiesPage({ params }: PageProps) {
+  const { locale: rawLocale } = await params;
+  const locale = (isValidLocale(rawLocale) ? rawLocale : "en") as Locale;
+  const meta = PROPERTIES_META[locale];
+  const data = await getRealEstateDirectoryData(locale, 100);
+  const localizedPropertiesPath = buildLocalizedPath(locale, "/properties");
+  const itemListSchema = buildItemListSchema(
+    meta.title,
+    data.listings.map((listing) => ({
+      name: listing.name,
+      url: buildLocalizedPath(locale, `/listing/${listing.slug || listing.id}`),
+      description: listing.short_description ?? undefined,
+      image: listing.featured_image_url ?? undefined,
+    })),
+    localizedPropertiesPath,
+  );
+  const breadcrumbSchema = buildBreadcrumbSchema([
+    { name: "Home", url: buildLocalizedPath(locale, "/") },
+    { name: meta.title, url: localizedPropertiesPath },
+  ]);
+
+  return (
+    <>
+      <script
+        id="schema-properties-item-list"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
+      <script
+        id="schema-properties-breadcrumb"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <PropertiesServerShell
+        locale={locale}
+        title={meta.title}
+        description={meta.description}
+        listings={data.listings}
+      />
+      <PropertiesClient
+        initialCategoryId={data.category?.id ?? null}
+        initialListings={data.listings}
+      />
+    </>
+  );
 }
