@@ -139,9 +139,10 @@ describe("relocation route rename", () => {
   it("uses canonical relocation service category links", () => {
     const source = readFileSync(join(REPO_ROOT, "legacy-pages", "public", "Live.tsx"), "utf8");
 
-    expect(source).toContain("/directory?category=accommodation");
-    expect(source).toContain("/directory?category=concierge-services");
-    expect(source).toContain("/directory?category=transportation");
+    expect(source).toContain("buildCategoryRouteData");
+    expect(source).toContain('categoryPath("accommodation")');
+    expect(source).toContain('categoryPath("concierge-services")');
+    expect(source).toContain('categoryPath("transportation")');
     expect(source).not.toContain("places-to-stay");
   });
 });

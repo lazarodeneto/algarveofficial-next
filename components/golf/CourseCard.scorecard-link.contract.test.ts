@@ -32,6 +32,17 @@ describe("golf course card scorecard link", () => {
     expect(source).toContain('size="lg"');
   });
 
+  it("keeps golf card action buttons on AlgarveOfficial brand colors", () => {
+    const source = readFileSync(join(REPO_ROOT, "components", "golf", "CourseCard.tsx"), "utf8");
+
+    expect(source).toContain("bg-gradient-gold");
+    expect(source).toContain("shadow-amber-500/20");
+    expect(source).toContain("focus-visible:ring-[#D4A62A]/60");
+    expect(source).toContain('className="h-4 w-4 text-current"');
+    expect(source).not.toContain("bg-green-600");
+    expect(source).not.toContain("hover:bg-green-700");
+  });
+
   it("anchors the detail page scorecard section", () => {
     const source = readFileSync(join(REPO_ROOT, "components", "golf", "Scorecard.tsx"), "utf8");
 

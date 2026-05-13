@@ -3,15 +3,13 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/Button";
 import { SignatureCard } from "@/components/ui/cards/SignatureCard";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
+import { useHomepageListingSegment } from "@/hooks/useHomepageListingSegment";
 import { useLocalePath } from "@/hooks/useLocalePath";
-import type { ListingWithRelations } from "@/hooks/useListings";
 import { usePageLoadListingShuffle } from "@/hooks/usePageLoadListingShuffle";
-import { homepageListingSplitQueryKey } from "@/lib/query-keys";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
@@ -41,11 +39,7 @@ export function HomepageSignatureCollection({ copy }: { copy?: HomeSectionCopy }
   const { t } = useTranslation();
   const targetLang = normalizeLang(useCurrentLocale());
   const { isFavorite, toggleFavorite } = useFavoriteListings();
-  const { data: listings = [], isLoading } = useQuery<ListingWithRelations[]>({
-    queryKey: homepageListingSplitQueryKey("editors", targetLang),
-    queryFn: async () => [],
-    staleTime: 60 * 1000,
-  });
+  const { data: listings = [], isLoading } = useHomepageListingSegment("editors", targetLang);
 
   const title = t("sections.homepage.editorsSelection.title");
   const ctaHref = isSafeHomeCtaHref(copy?.ctaHref) && copy?.ctaHref?.trim()

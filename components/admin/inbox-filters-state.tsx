@@ -11,16 +11,10 @@ import {
   type SetStateAction,
 } from "react";
 
-import type { InboxDomain, InboxFilters } from "@/lib/admin/inbox/types";
+import type { InboxFilters } from "@/lib/admin/inbox/types";
+import type { InboxFilterCounts } from "@/lib/admin/inbox/filtering";
 
-export interface InboxFilterCounts {
-  total: number;
-  urgent: number;
-  soon: number;
-  normal: number;
-  assignedToMe: number;
-  byDomain: Record<InboxDomain, number>;
-}
+export type { InboxFilterCounts };
 
 const EMPTY_COUNTS: InboxFilterCounts = {
   total: 0,
@@ -28,6 +22,12 @@ const EMPTY_COUNTS: InboxFilterCounts = {
   soon: 0,
   normal: 0,
   assignedToMe: 0,
+  byStatus: {
+    open: 0,
+    archived: 0,
+    resolved: 0,
+    dismissed: 0,
+  },
   byDomain: {
     listings: 0,
     reviews: 0,
@@ -39,6 +39,7 @@ const EMPTY_COUNTS: InboxFilterCounts = {
 };
 
 export const DEFAULT_INBOX_FILTERS: InboxFilters = {
+  status: "open",
   domain: "all",
   urgency: "all",
   assignee: "all",
@@ -86,5 +87,10 @@ export function useInboxFiltersState() {
 }
 
 export function isDefaultInboxFilters(filters: InboxFilters): boolean {
-  return filters.domain === "all" && filters.urgency === "all" && filters.assignee === "all";
+  return (
+    filters.status === "open" &&
+    filters.domain === "all" &&
+    filters.urgency === "all" &&
+    filters.assignee === "all"
+  );
 }

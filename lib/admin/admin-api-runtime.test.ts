@@ -1186,12 +1186,13 @@ describe("admin listings route runtime", () => {
     });
     const selectEq = vi.fn(() => ({ maybeSingle }));
     const select = vi.fn(() => ({ eq: selectEq }));
-    const userFrom = vi.fn(() => ({ update, select }));
+    const userFrom = vi.fn(() => ({ select }));
+    const writeFrom = vi.fn(() => ({ update }));
 
     mockedRequireAdminWriteClient.mockResolvedValueOnce({
       userId: "admin-1",
       userClient: { from: userFrom } as never,
-      writeClient: { from: vi.fn() } as never,
+      writeClient: { from: writeFrom } as never,
     });
 
     const response = await patchListingRoute(
@@ -1206,6 +1207,8 @@ describe("admin listings route runtime", () => {
     expect(response.status).toBe(200);
     expect(payload.ok).toBe(true);
     expect(payload.data?.slug).toBe("manual-slug");
+    expect(writeFrom).toHaveBeenCalledWith("listings");
+    expect(userFrom).toHaveBeenCalledWith("listings");
     expect(update).toHaveBeenCalledWith({ name: "New Name" });
   });
 
@@ -1218,12 +1221,13 @@ describe("admin listings route runtime", () => {
     });
     const selectEq = vi.fn(() => ({ maybeSingle }));
     const select = vi.fn(() => ({ eq: selectEq }));
-    const userFrom = vi.fn(() => ({ update, select }));
+    const userFrom = vi.fn(() => ({ select }));
+    const writeFrom = vi.fn(() => ({ update }));
 
     mockedRequireAdminWriteClient.mockResolvedValueOnce({
       userId: "admin-1",
       userClient: { from: userFrom } as never,
-      writeClient: { from: vi.fn() } as never,
+      writeClient: { from: writeFrom } as never,
     });
 
     const response = await patchListingRoute(
@@ -1238,6 +1242,8 @@ describe("admin listings route runtime", () => {
     expect(response.status).toBe(200);
     expect(payload.ok).toBe(true);
     expect(payload.data?.slug).toBe("manual-slug");
+    expect(writeFrom).toHaveBeenCalledWith("listings");
+    expect(userFrom).toHaveBeenCalledWith("listings");
     expect(update).toHaveBeenCalledWith({ city_id: "city-lagos" });
   });
 
@@ -1413,15 +1419,14 @@ describe("admin listings route runtime", () => {
     );
   });
 
-  it("uses requester-scoped client for bulk publish updates", async () => {
+  it("uses authenticated write client for bulk publish updates", async () => {
     const bulkIn = vi.fn().mockResolvedValue({ error: null });
     const bulkUpdate = vi.fn(() => ({ in: bulkIn }));
-    const userFrom = vi.fn(() => ({ update: bulkUpdate }));
-    const writeFrom = vi.fn(() => ({ update: vi.fn() }));
+    const writeFrom = vi.fn(() => ({ update: bulkUpdate }));
 
     mockedRequireAdminWriteClient.mockResolvedValueOnce({
       userId: "admin-1",
-      userClient: { from: userFrom } as never,
+      userClient: { from: vi.fn() } as never,
       writeClient: { from: writeFrom } as never,
     });
 
@@ -1436,8 +1441,7 @@ describe("admin listings route runtime", () => {
     expect(response.status).toBe(200);
     expect(payload.ok).toBe(true);
     expect(payload.count).toBe(1);
-    expect(userFrom).toHaveBeenCalledWith("listings");
-    expect(writeFrom).not.toHaveBeenCalled();
+    expect(writeFrom).toHaveBeenCalledWith("listings");
     expect(bulkUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
         status: "published",
@@ -1446,7 +1450,7 @@ describe("admin listings route runtime", () => {
     expect(bulkIn).toHaveBeenCalledWith("id", ["listing-1"]);
   });
 
-  it("uses requester-scoped client for single listing publish updates", async () => {
+  it("uses authenticated write client for single listing publish updates", async () => {
     const updateEq = vi.fn().mockResolvedValue({ error: null });
     const update = vi.fn(() => ({ eq: updateEq }));
     const maybeSingle = vi.fn().mockResolvedValue({
@@ -1455,8 +1459,8 @@ describe("admin listings route runtime", () => {
     });
     const selectEq = vi.fn(() => ({ maybeSingle }));
     const select = vi.fn(() => ({ eq: selectEq }));
-    const userFrom = vi.fn(() => ({ update, select }));
-    const writeFrom = vi.fn(() => ({ update: vi.fn(), select: vi.fn() }));
+    const userFrom = vi.fn(() => ({ select }));
+    const writeFrom = vi.fn(() => ({ update }));
 
     mockedRequireAdminWriteClient.mockResolvedValueOnce({
       userId: "admin-1",
@@ -1480,6 +1484,7 @@ describe("admin listings route runtime", () => {
     );
     expect(updateEq).toHaveBeenCalledWith("id", "listing-1");
     expect(select).toHaveBeenCalledWith("*");
-    expect(writeFrom).not.toHaveBeenCalled();
+    expect(userFrom).toHaveBeenCalledWith("listings");
+    expect(writeFrom).toHaveBeenCalledWith("listings");
   });
 });

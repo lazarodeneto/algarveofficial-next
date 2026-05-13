@@ -20,7 +20,6 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 
-import type { Tables } from "@/integrations/supabase/types";
 import { supabase } from "@/integrations/supabase/client";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import {
@@ -82,6 +81,7 @@ import { globalSettingsQueryKey } from "@/lib/query-keys";
 
 const EMPTY_CATEGORY_IDS: string[] = [];
 const NO_MATCH_CATEGORY_ID = "00000000-0000-0000-0000-000000000000";
+const STAY_DEFAULT_CATEGORY_SLUG = "accommodation";
 const DIRECTORY_CMS_KEYS = [
   CMS_GLOBAL_SETTING_KEYS.textOverrides,
   CMS_GLOBAL_SETTING_KEYS.pageConfigs,
@@ -155,6 +155,10 @@ function resolveSelectedEntityId<T extends { id: string; slug: string }>(rows: T
   if (!value || value === "all") return undefined;
   const match = rows.find((row) => row.id === value || row.slug === value);
   return match?.id ?? value;
+}
+
+function getDirectoryRouteDefaultCategory(cmsPageId: string, pathname: string) {
+  return cmsPageId === "stay" || pathname.includes("/stay") ? STAY_DEFAULT_CATEGORY_SLUG : "all";
 }
 
 function resolveSearchCategoryIds(search: string | undefined, categories: CategoryRow[]) {
@@ -685,11 +689,15 @@ function DirectoryClientInner(props: DirectoryClientProps) {
       target.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }, [resultsAnchorId]);
+  const defaultCategoryForRoute = getDirectoryRouteDefaultCategory(cmsPageId, pathname);
+  const initialCategory = props.initialFilters.category === "all"
+    ? defaultCategoryForRoute
+    : props.initialFilters.category;
   const [search, setSearch] = useState(props.initialFilters.q);
   const [debouncedSearch, setDebouncedSearch] = useState(props.initialFilters.q);
   const [selectedRegion, setSelectedRegion] = useState<string>(props.initialFilters.region);
   const [selectedCity, setSelectedCity] = useState<string>(props.initialFilters.city);
-  const [selectedCategory, setSelectedCategory] = useState<string>(props.initialFilters.category);
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [selectedTier, setSelectedTier] = useState<string>(props.initialFilters.tier);
   const [filtersOpen, setFiltersOpen] = useState(true);
   const { isFavorite, toggleFavorite } = useFavoriteListings();
@@ -1046,7 +1054,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
         }
       }
     } else {
-      setSelectedCategory("all");
+      setSelectedCategory(defaultCategoryForRoute);
     }
 
     if (regionParam) {
@@ -1117,7 +1125,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     if (shouldReplaceParams) {
       setSearchParams(nextParams, { replace: true });
     }
-  }, [searchParams, categories, mergedCategories, regions, cities, resolveFilterEntityId, setSearchParams]);
+  }, [searchParams, categories, mergedCategories, regions, cities, resolveFilterEntityId, setSearchParams, defaultCategoryForRoute]);
 
   useEffect(() => {
     const nextParams = new URLSearchParams();
@@ -1140,7 +1148,9 @@ function DirectoryClientInner(props: DirectoryClientProps) {
       nextParams.set("city", selectedCity);
     }
 
-    if (selectedCategory !== "all") nextParams.set("category", selectedCategory);
+    if (selectedCategory !== "all" && selectedCategory !== defaultCategoryForRoute) {
+      nextParams.set("category", selectedCategory);
+    }
     if (selectedTier !== "all") nextParams.set("tier", selectedTier);
 
     const nextQuery = nextParams.toString();
@@ -1157,13 +1167,14 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     searchParamsString,
     setSearchParams,
     cities,
+    defaultCategoryForRoute,
   ]);
 
   const clearFilters = () => {
     setSearch("");
     setSelectedRegion("all");
     setSelectedCity("all");
-    setSelectedCategory("all");
+    setSelectedCategory(defaultCategoryForRoute);
     setSelectedTier("all");
     setSearchParams(new URLSearchParams(), { replace: true });
   };
@@ -1178,7 +1189,8 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     Boolean(search) ||
     selectedRegion !== "all" ||
     selectedCity !== "all" ||
-    selectedCategory !== "all" || selectedTier !== "all";
+    (selectedCategory !== "all" && selectedCategory !== defaultCategoryForRoute) ||
+    selectedTier !== "all";
   const isLoading = listingsLoading || citiesLoading || regionsLoading || categoriesLoading;
   const showGridSkeleton = isLoading && !error && listings.length === 0 && !isPlaceholderData;
   const totalListingsCount = listings.length;

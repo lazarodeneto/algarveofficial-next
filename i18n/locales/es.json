@@ -853,6 +853,11 @@
       "verifiedBooking": "Reserva verificada",
       "readMore": "Leer más",
       "seeMoreReviews": "Ver más reseñas",
+      "relatedGuidesEyebrow": "Explorar más",
+      "relatedGuides": "Guías de playa relacionadas",
+      "relatedGuidesDescription": "Búsquedas costeras rápidas, lugares cercanos e ideas de viaje relacionadas con esta playa.",
+      "relatedLinksCount": "{{count}} enlaces",
+      "relatedLinksTotal": "{{count}} enlaces",
       "relatedBeachTags": "Etiquetas relacionadas con playas",
       "topAttractions": "Atracciones principales en {{place}}",
       "experiences": "Experiencias en {{place}}",
@@ -2412,8 +2417,8 @@
     "claimManagedDescription": "Esta ficha está gestionada por un representante empresarial aprobado.",
     "tags": "Tags",
     "relatedListings": "More {{category}} to explore",
-    "relatedDestinations": "Related destinations",
-    "relatedDestinationsDescription": "Explore nearby Algarve destinations with curated places and services.",
+    "relatedDestinations": "Destinos relacionados",
+    "relatedDestinationsDescription": "Explora destinos cercanos del Algarve con lugares y servicios seleccionados.",
     "backToListings": "Back to listings",
     "form": {
       "consent": "Acepto que me contacten sobre esta propiedad",
@@ -2814,8 +2819,10 @@
     "faroDistrict": "Distrito de Faro",
     "faroShort": "Faro",
     "loading": "Cargando el tiempo de Faro",
-    "temperatureLabel": "Tiempo en el distrito de Faro: {{celsius}}°C / {{fahrenheit}}°F",
-    "unavailable": "Tiempo no disponible"
+    "temperatureLabel": "Tiempo en {{place}}: {{celsius}}°C / {{fahrenheit}}°F",
+    "unavailable": "Tiempo no disponible",
+    "algarveRegion": "Algarve",
+    "algarveShort": "Algarve"
   },
   "notFound": {
     "backHome": "Volver al inicio",

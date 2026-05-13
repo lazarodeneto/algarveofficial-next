@@ -40,7 +40,7 @@ describe("performance guardrails", () => {
     expect(heroSource).toContain('preload="none"');
     expect(heroSource).toContain("canEnhanceHeroVideo");
     expect(heroSource).toContain("getPrefersReducedData");
-    expect(heroSource).toContain('window.matchMedia("(max-width: 1023px)")');
+    expect(heroSource).not.toContain('window.matchMedia("(max-width: 1023px)")');
     expect(heroSource).toContain("prefers-reduced-motion: reduce");
     expect(ctaSource).toContain('src="/images/home/algarveofficial-join.webp"');
     expect(ctaSource).toContain('alt=""');

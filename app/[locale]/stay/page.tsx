@@ -21,6 +21,8 @@ interface PageProps {
 
 export const revalidate = 60;
 
+const STAY_DEFAULT_CATEGORY_SLUG = "accommodation";
+
 const STAY_META: Record<Locale, { title: string; description: string }> = {
   en: {
     title: "Stay in the Algarve",
@@ -128,7 +130,7 @@ export default async function StayPage({ params, searchParams }: PageProps) {
     q: getFilterValue("q", ""),
     city: getCityValues().length > 0 ? getCityValues()[0] : "all",
     region: getFilterValue("region", "all"),
-    category: getFilterValue("category", "all"),
+    category: getFilterValue("category", STAY_DEFAULT_CATEGORY_SLUG),
     tier: getFilterValue("tier", "all"),
   };
 

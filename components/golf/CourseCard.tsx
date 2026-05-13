@@ -180,7 +180,7 @@ export function CourseCard({ course, locale, labels, featured = false, className
               className={buttonVariants({
                 variant: "ghost",
                 className:
-                  "pointer-events-auto relative z-20 inline-flex h-11 w-full items-center justify-center rounded-md bg-slate-100 px-3 text-center text-sm font-bold text-slate-900 transition hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 dark:bg-muted dark:text-foreground dark:hover:bg-muted/80",
+                  "pointer-events-auto relative z-20 inline-flex h-11 w-full items-center justify-center rounded-md border border-slate-200 bg-slate-50 px-3 text-center text-sm font-bold text-slate-950 shadow-sm transition hover:border-amber-300 hover:bg-amber-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A62A]/60 focus-visible:ring-offset-2 dark:border-white/10 dark:bg-white/10 dark:text-foreground dark:hover:border-amber-400/40 dark:hover:bg-amber-400/10",
               })}
             >
               {labels.viewCourse}
@@ -193,10 +193,10 @@ export function CourseCard({ course, locale, labels, featured = false, className
                 className={buttonVariants({
                   variant: "ghost",
                   className:
-                    "pointer-events-auto relative z-20 inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-md border border-green-500 bg-green-600 px-3 text-center text-sm font-bold uppercase text-white shadow-lg shadow-green-600/20 transition hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2",
+                    "pointer-events-auto relative z-20 inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-md border border-amber-400/80 bg-gradient-gold px-3 text-center text-sm font-bold uppercase text-black shadow-lg shadow-amber-500/20 transition hover:border-amber-500 hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A62A]/60 focus-visible:ring-offset-2 dark:border-amber-300/60 dark:text-black",
                 })}
               >
-                <ClipboardList aria-hidden="true" className="h-4 w-4 text-white" />
+                <ClipboardList aria-hidden="true" className="h-4 w-4 text-current" />
                 {labels.scorecard}
               </Link>
             ) : null}

@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import type { InboxDomain, InboxFilters, InboxUrgency } from "@/lib/admin/inbox/types";
+import type { InboxDomain, InboxFilters, InboxStatus, InboxUrgency } from "@/lib/admin/inbox/types";
 
 import type { InboxFilterCounts } from "./inbox-filters-state";
 
@@ -22,6 +22,13 @@ const DOMAIN_OPTIONS: Array<{ id: InboxFilters["domain"]; label: string }> = [
   { id: "billing", label: "Billing" },
   { id: "translations", label: "Translations" },
   { id: "system", label: "System" },
+];
+
+const STATUS_OPTIONS: Array<{ id: InboxFilters["status"]; label: string }> = [
+  { id: "open", label: "Open" },
+  { id: "archived", label: "Archived" },
+  { id: "resolved", label: "Resolved" },
+  { id: "dismissed", label: "Dismissed" },
 ];
 
 const URGENCY_OPTIONS: Array<{ id: InboxUrgency | "all"; label: string }> = [
@@ -81,9 +88,38 @@ export function InboxFilters({ value, onChange, counts }: InboxFiltersProps) {
           Inbox Filters
         </h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          {counts.total} open \u00b7 {counts.urgent} urgent
+          {counts.byStatus.open} open \u00b7 {counts.byStatus.archived} archived
         </p>
       </div>
+
+      <section>
+        <SectionTitle>Status</SectionTitle>
+        <ul className="space-y-1">
+          {STATUS_OPTIONS.map((option) => {
+            const active = value.status === option.id;
+            const count = counts.byStatus[option.id as InboxStatus] ?? 0;
+
+            return (
+              <li key={option.id}>
+                <OptionButton
+                  active={active}
+                  onClick={() => onChange({ ...value, status: option.id })}
+                  right={
+                    <Badge
+                      variant={active ? "secondary" : "outline"}
+                      className="ml-2 border-border/60 bg-background/80"
+                    >
+                      {count}
+                    </Badge>
+                  }
+                >
+                  {option.label}
+                </OptionButton>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
 
       <section>
         <SectionTitle>Domain</SectionTitle>

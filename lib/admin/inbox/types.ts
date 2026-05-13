@@ -21,6 +21,8 @@ export type InboxSource =
 
 export type InboxUrgency = "urgent" | "soon" | "normal";
 
+export type InboxStatus = "open" | "archived" | "resolved" | "dismissed";
+
 export type InboxAction = "approve" | "reject" | "assign" | "archive";
 
 export const INBOX_CACHE_TAG = "admin-inbox";
@@ -62,6 +64,9 @@ export interface InboxItemBase {
   assignee: InboxAssignee | null;
   isRead?: boolean;
   readAt?: string | null;
+  status: InboxStatus;
+  statusChangedAt?: string | null;
+  statusReason?: string | null;
   sla: InboxSla;
   urgency: InboxUrgency;
   resolution: InboxResolution;
@@ -156,6 +161,7 @@ export type InboxItem =
   | TranslationJobItem;
 
 export interface InboxFilters {
+  status: InboxStatus;
   domain: InboxDomain | "all";
   urgency: InboxUrgency | "all";
   assignee: "me" | "all";
@@ -168,6 +174,10 @@ export interface InboxSnapshot {
     urgent: number;
     soon: number;
     normal: number;
+    archived: number;
+    dismissed: number;
+    resolved: number;
+    byStatus: Record<InboxStatus, number>;
     assignedToMe?: number;
     byDomain: Record<InboxDomain, number>;
   };

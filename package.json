@@ -21,6 +21,7 @@
     "check:i18n:warn": "tsx scripts/checkTranslations.ts --warn-only",
     "check:i18n:report": "tsx scripts/checkTranslations.ts --report",
     "audit:i18n": "node scripts/auditTranslations.mjs",
+    "db:check:required": "node scripts/check-required-migrations.mjs",
     "audit:slugs": "tsx scripts/audit-slugs.ts",
     "smoke:routes": "tsx scripts/smoke-routes.ts",
     "strip:i18n-defaults": "node scripts/removeTranslationDefaults.mjs",

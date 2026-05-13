@@ -5,24 +5,38 @@ import { CloudSun } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 const FARO_WEATHER_URL = "/api/weather/faro";
-const FARO_CACHE_KEY = "algarveofficial:faro-weather:v1";
+const ALGARVE_WEATHER_URL = "/api/weather/faro?location=albufeira";
+const FARO_CACHE_KEY = "algarveofficial:faro-weather:v2";
+const ALGARVE_CACHE_KEY = "algarveofficial:algarve-weather:v1";
 const CACHE_TTL_MS = 10 * 60 * 1000;
-type HeaderWeatherLocation = "faro";
+export type HeaderWeatherLocation = "faro" | "algarve";
 
 const WEATHER_LOCATION_CONFIG: Record<
   HeaderWeatherLocation,
   {
     url: string;
     cacheKey: string;
-    titleLabel: string;
-    shortLabel: string | null;
+    titleKey: string;
+    titleDefault: string;
+    shortKey: string;
+    shortDefault: string;
   }
 > = {
   faro: {
     url: FARO_WEATHER_URL,
     cacheKey: FARO_CACHE_KEY,
-    titleLabel: "",
-    shortLabel: null,
+    titleKey: "weather.faroDistrict",
+    titleDefault: "Faro",
+    shortKey: "weather.faroShort",
+    shortDefault: "Faro",
+  },
+  algarve: {
+    url: ALGARVE_WEATHER_URL,
+    cacheKey: ALGARVE_CACHE_KEY,
+    titleKey: "weather.algarveRegion",
+    titleDefault: "Algarve",
+    shortKey: "weather.algarveShort",
+    shortDefault: "Algarve",
   },
 };
 
@@ -141,17 +155,21 @@ export function HeaderWeatherPill({ compact = false, embedded = false, location 
     };
   }, [weather]);
 
-  const locationLabel = locationConfig.titleLabel || t("weather.faroDistrict");
-  const shortLabel = locationConfig.shortLabel || t("weather.faroShort");
+  const locationLabel = t(locationConfig.titleKey, { defaultValue: locationConfig.titleDefault });
+  const shortLabel = t(locationConfig.shortKey, { defaultValue: locationConfig.shortDefault });
   const ariaLabel = weather
     ? t("weather.temperatureLabel", {
+        place: locationLabel,
         celsius: display?.celsius ?? "",
         fahrenheit: display?.fahrenheit ?? "",
+        defaultValue: `${locationLabel} weather: ${display?.celsius ?? ""}°C / ${display?.fahrenheit ?? ""}°F`,
       })
     : isLoading
-      ? t("weather.loading")
-      : t("weather.unavailable");
-  const statusText = isLoading ? t("weather.loading") : t("weather.unavailable");
+      ? t("weather.loading", { defaultValue: "Loading weather" })
+      : t("weather.unavailable", { defaultValue: "Weather unavailable" });
+  const statusText = isLoading
+    ? t("weather.loading", { defaultValue: "Loading weather" })
+    : t("weather.unavailable", { defaultValue: "Weather unavailable" });
 
   return (
     <div

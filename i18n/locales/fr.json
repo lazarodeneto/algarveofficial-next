@@ -853,6 +853,11 @@
       "verifiedBooking": "Réservation vérifiée",
       "readMore": "Lire la suite",
       "seeMoreReviews": "Voir plus d'avis",
+      "relatedGuidesEyebrow": "Explorer plus",
+      "relatedGuides": "Guides de plage associés",
+      "relatedGuidesDescription": "Recherches côtières rapides, lieux à proximité et idées de voyage liés à cette plage.",
+      "relatedLinksCount": "{{count}} liens",
+      "relatedLinksTotal": "{{count}} liens",
       "relatedBeachTags": "Tags liés aux plages",
       "topAttractions": "Meilleures attractions à {{place}}",
       "experiences": "Expériences à {{place}}",
@@ -2469,7 +2474,7 @@
     "plotSize": "Surface du terrain",
     "price": "Prix",
     "priceOnRequest": "Prix sur demande",
-    "relatedDestinations": "Related destinations",
+    "relatedDestinations": "Destinations associées",
     "relatedListings": "More {{category}} to explore",
     "reviews": {
       "content": "Avis",
@@ -2498,7 +2503,7 @@
     "viewGallery": "View gallery",
     "viewOnMap": "Voir sur la carte",
     "visitWebsite": "Visit website",
-    "relatedDestinationsDescription": "Explore nearby Algarve destinations with curated places and services.",
+    "relatedDestinationsDescription": "Découvrez des destinations proches en Algarve avec des lieux et services sélectionnés.",
     "social": {
       "instagram": "Instagram",
       "facebook": "Facebook",
@@ -2826,8 +2831,10 @@
     "faroDistrict": "District de Faro",
     "faroShort": "Faro",
     "loading": "Chargement de la météo de Faro",
-    "temperatureLabel": "Météo du district de Faro : {{celsius}}°C / {{fahrenheit}}°F",
-    "unavailable": "Météo indisponible"
+    "temperatureLabel": "Météo à {{place}} : {{celsius}}°C / {{fahrenheit}}°F",
+    "unavailable": "Météo indisponible",
+    "algarveRegion": "Algarve",
+    "algarveShort": "Algarve"
   },
   "notFound": {
     "backHome": "Retour à l'accueil",

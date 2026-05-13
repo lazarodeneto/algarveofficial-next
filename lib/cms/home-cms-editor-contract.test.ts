@@ -33,6 +33,9 @@ describe("home CMS editor public rendering contract", () => {
     expect(source).toContain("getHomeSectionCopy(settings?.section_copy, getHomeSectionCopySourceId(id))");
     expect(source).toContain("pinnedTopSectionIds");
     expect(source).toContain("orderedBodySections");
+    expect(source).toContain('"all-listings",\n  "cities",\n  "all-cities"');
+    expect(source).toContain('moveSectionAfter(editorialOrder, "all-cities", "all-listings")');
+    expect(source).toContain('moveSectionAfter(editorialOrder, "all-cities", "all-listings"),\n    "cities",\n    "all-listings"');
   });
 
   it("hydrates localized Home section copy on the public homepage", () => {

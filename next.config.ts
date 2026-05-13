@@ -119,6 +119,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "storage.googleapis.com", pathname: "/**" },
       { protocol: "https", hostname: "cdn.pixabay.com", pathname: "/**" },
       { protocol: "https", hostname: "images.unsplash.com", pathname: "/**" },
+      { protocol: "https", hostname: "cdn.weatherapi.com", pathname: "/**" },
       { protocol: "https", hostname: "setimaondaboattrips.com", pathname: "/**" },
       { protocol: "https", hostname: "**.setimaondaboattrips.com", pathname: "/**" },
       { protocol: "https", hostname: "images.cdn-files-a.com", pathname: "/**" },

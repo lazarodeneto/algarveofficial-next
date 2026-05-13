@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
   try {
     const snapshot = await getFreshInboxSnapshot();
     const assignedToMe = snapshot.items.filter(
-      (item) => item.assignee?.id === auth.userId,
+      (item) => item.status === "open" && item.assignee?.id === auth.userId,
     ).length;
 
     return NextResponse.json(

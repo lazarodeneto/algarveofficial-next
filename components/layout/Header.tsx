@@ -23,9 +23,10 @@ import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { HeaderCompactNav, HeaderMegaMenu, MobileMegaMenuSections } from "./HeaderMegaMenu";
-import { HeaderWeatherPill } from "./HeaderWeatherPill";
+import { HeaderWeatherPill, type HeaderWeatherLocation } from "./HeaderWeatherPill";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { stripLocaleFromPathname } from "@/lib/i18n/routing";
+import { cn } from "@/lib/utils";
 
 function Link(props: ComponentProps<typeof NextLink>) {
   return <NextLink prefetch={false} {...props} />;
@@ -53,7 +54,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
     barePath.startsWith(prefix),
   );
   const isHomepage = barePath === "/";
-  const headerWeatherLocation = "faro";
+  const headerWeatherLocation: HeaderWeatherLocation = isHomepage ? "algarve" : "faro";
 
   const loginPath = l("/login");
   const favoritesPath = isAuthenticated ? l("/dashboard/favorites") : loginPath;
@@ -69,6 +70,8 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   // Search modal state (local to Header)
   const [searchOpen, setSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const isHeroHeader = isHomepage && !isScrolled;
+  const logoOfficialOverlayClass = isHeroHeader ? "text-white" : undefined;
 
   // Mirror mobile menu state to DOM for CSS failsafe (production caching workaround)
   useEffect(() => {
@@ -79,7 +82,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   }, [mobileMenuOpen]);
 
   useEffect(() => {
-    const desktopQuery = window.matchMedia("(min-width: 1180px)");
+    const desktopQuery = window.matchMedia("(min-width: 1280px)");
     const closeWideMenu = () => {
       if (desktopQuery.matches) setMobileMenuOpen(false);
     };
@@ -163,10 +166,14 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
         className="site-header fixed top-0 left-0 right-0 z-50 transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300 ease-out lg:left-20"
       >
         <div
-          className={`absolute inset-0 transition-all duration-300 ${isScrolled
-            ? "border-b border-transparent bg-transparent shadow-none backdrop-blur-none lg:border-black/8 lg:bg-[hsl(var(--background)/0.96)] lg:shadow-[0_18px_48px_-38px_rgba(15,23,42,0.35)] lg:backdrop-blur-2xl dark:lg:border-white/10 dark:lg:bg-[hsl(var(--background)/0.78)]"
-            : "border-b border-transparent bg-transparent backdrop-blur-none lg:bg-[hsl(var(--background)/0.88)] lg:backdrop-blur-xl dark:lg:bg-[hsl(var(--background)/0.55)]"
-            }`}
+          className={cn(
+            "absolute inset-0 transition-all duration-300",
+            isScrolled
+              ? "border-b border-black/10 bg-white/[0.78] shadow-[0_18px_48px_-38px_rgba(15,23,42,0.42)] backdrop-blur-2xl supports-[backdrop-filter]:bg-white/[0.62] dark:border-white/12 dark:bg-neutral-950/[0.72] dark:supports-[backdrop-filter]:bg-neutral-950/[0.58]"
+              : isHeroHeader
+                ? "border-b border-transparent bg-transparent shadow-none backdrop-blur-none"
+                : "border-b border-transparent bg-transparent backdrop-blur-none lg:bg-[hsl(var(--background)/0.88)] lg:backdrop-blur-xl dark:lg:bg-[hsl(var(--background)/0.55)]",
+          )}
         />
 
         <nav className="relative mx-auto max-w-[1680px] px-3 sm:px-5 lg:px-4 xl:pr-8 xl:pl-11 2xl:pr-10 2xl:pl-14">
@@ -178,7 +185,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                   size="md"
                   showIcon
                   className="whitespace-nowrap"
-                  officialClassName={isHomepage && !isScrolled ? "text-white" : undefined}
+                  officialClassName={logoOfficialOverlayClass}
                 />
               </div>
               <div className="hidden items-center justify-center lg:flex min-[1440px]:hidden">
@@ -187,22 +194,27 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                   showIcon={!isLeftSidebarActive}
                   className="whitespace-nowrap gap-1.5"
                   iconClassName="h-5 w-5"
+                  officialClassName={logoOfficialOverlayClass}
                 />
               </div>
               <div className="hidden min-[1440px]:block">
-                <BrandLogo size="md" className="whitespace-nowrap" />
+                <BrandLogo
+                  size="md"
+                  className="whitespace-nowrap"
+                  officialClassName={logoOfficialOverlayClass}
+                />
               </div>
             </div>
 
             <HeaderCompactNav />
 
             {/* Primary Navigation */}
-            <div className="hidden min-w-0 flex-1 items-center justify-start min-[1180px]:flex">
+            <div className="hidden min-w-0 flex-1 items-center justify-start min-[1280px]:flex">
               <HeaderMegaMenu overHero={isHomepage && !isScrolled} />
             </div>
 
             {/* Laptop Actions (1024-1359): compact utility row */}
-            <div className="ml-auto hidden shrink-0 items-center gap-1.5 min-[1180px]:flex min-[1440px]:hidden">
+            <div className="ml-auto hidden shrink-0 items-center gap-1.5 min-[1280px]:flex min-[1440px]:hidden">
               <div className="flex items-center gap-0.5 rounded-full border border-black/10 bg-white/[0.82] px-1 py-1 shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
                 <HeaderWeatherPill compact embedded location={headerWeatherLocation} />
 
@@ -344,11 +356,11 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
             </div>
 
             {/* Mobile menu button */}
-            <div className="ml-auto flex items-center gap-1 sm:gap-3 min-[1180px]:hidden">
+            <div className="ml-auto flex items-center gap-1 sm:gap-3 min-[1280px]:hidden">
               <LanguageSwitcher
                 localeSwitchPaths={localeSwitchPaths}
-                containerClassName="hidden md:flex min-[1180px]:hidden min-w-0"
-                selectClassName="h-10 w-[10.5rem] rounded-full border-black/10 bg-white/80 px-3 py-2 text-sm text-black shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white dark:text-black"
+                containerClassName="hidden min-[960px]:flex min-[1280px]:hidden min-w-0"
+                selectClassName="h-10 w-[9.25rem] rounded-full border-black/10 bg-white/80 px-3 py-2 text-sm text-black shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white dark:text-black min-[1120px]:w-[10.5rem]"
               />
               <Link href={favoritesPath}>
                 <Button
@@ -378,7 +390,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
             <>
               {/* Backdrop overlay */}
               <div
-                className="fixed inset-0 z-[130] bg-black/50 backdrop-blur-sm animate-in fade-in duration-150 min-[1180px]:hidden"
+                className="fixed inset-0 z-[130] bg-black/50 backdrop-blur-sm animate-in fade-in duration-150 min-[1280px]:hidden"
                 onClick={() => setMobileMenuOpen(false)}
                 aria-hidden="true"
               />
@@ -389,7 +401,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                 role="dialog"
                 aria-modal="true"
                 aria-label={t("nav.mobilePrimary")}
-                className="fixed bottom-0 left-0 right-0 top-0 z-[140] overflow-y-auto bg-background/95 text-foreground backdrop-blur-2xl dark:bg-background/70 touch-pan-y animate-in fade-in slide-in-from-top-3 duration-200 min-[1180px]:hidden"
+                className="fixed bottom-0 left-0 right-0 top-0 z-[140] overflow-y-auto bg-background/95 text-foreground backdrop-blur-2xl dark:bg-background/70 touch-pan-y animate-in fade-in slide-in-from-top-3 duration-200 min-[1280px]:hidden"
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}

@@ -2,11 +2,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyServerSecret } from "@/lib/server/secret-auth";
 import { createServiceRoleClient } from "@/lib/supabase/service";
+import { processListingTranslationJob } from "@/lib/translations/listingProcessor";
+import {
+  TRANSLATION_PROCESSOR_UNAVAILABLE,
+  getTranslationProcessorCapabilities,
+} from "@/lib/translations/processorConfig";
 
 export const runtime = "nodejs";
-
-const TRANSLATION_PROCESSOR_UNAVAILABLE =
-  "Translation processor is not configured. Job was not marked complete and no translated content was written.";
 
 function verifyCronSecret(request: NextRequest) {
   return verifyServerSecret(request, {
@@ -48,45 +50,50 @@ async function handleTranslateCron(request: NextRequest) {
     return NextResponse.json({ message: "No jobs" });
   }
 
-  let failedUpdates = 0;
-  const now = new Date().toISOString();
+  const capabilities = getTranslationProcessorCapabilities();
+  if (!capabilities.configured) {
+    return NextResponse.json({
+      processed: 0,
+      skipped: jobs.length,
+      failed: 0,
+      message: TRANSLATION_PROCESSOR_UNAVAILABLE,
+    });
+  }
+
+  let processed = 0;
+  let failed = 0;
+  const errors: Array<{ jobId: string; message: string }> = [];
 
   for (const job of jobs) {
-    const attempts = typeof job.attempts === "number" ? job.attempts : 0;
-    const { error: updateError } = await supabase
-      .from("translation_jobs")
-      .update({
-        status: "failed",
-        attempts: attempts + 1,
-        last_error: TRANSLATION_PROCESSOR_UNAVAILABLE,
-        locked_at: null,
-        updated_at: now,
-      })
-      .eq("id", job.id);
+    const result = await processListingTranslationJob(supabase, {
+      id: job.id,
+      attempts: typeof job.attempts === "number" ? job.attempts : 0,
+    });
 
-    if (updateError) {
-      failedUpdates += 1;
-      console.error("[translate-cron] Failed to mark translation job as failed.", {
-        jobId: job.id,
-        error: updateError.message,
+    if (result.status === "completed") {
+      processed += 1;
+    } else {
+      failed += 1;
+      errors.push({
+        jobId: result.jobId,
+        message: result.errorMessage ?? "Translation failed.",
+      });
+      console.error("[translate-cron] Translation job failed.", {
+        jobId: result.jobId,
+        error: result.errorMessage,
       });
     }
   }
 
-  if (failedUpdates > 0) {
-    return NextResponse.json(
-      {
-        error: "Failed to update one or more queued translation jobs.",
-        failedUpdates,
-      },
-      { status: 500 },
-    );
-  }
-
   return NextResponse.json({
-    processed: 0,
-    failed: jobs.length,
-    message: TRANSLATION_PROCESSOR_UNAVAILABLE,
+    processed,
+    failed,
+    provider: capabilities.provider,
+    errors: errors.slice(0, 10),
+    message:
+      failed > 0
+        ? `Processed ${processed} translation job(s); ${failed} failed.`
+        : `Processed ${processed} translation job(s).`,
   });
 }
 

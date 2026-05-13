@@ -28,6 +28,19 @@ describe("public header mega menu", () => {
     expect(invest?.featuredHref).toEqual({ routeType: "static", routeKey: "properties" });
   });
 
+  it("includes cross-journey category links requested for Visit and Live", () => {
+    const visit = MEGA_MENU_SECTIONS.find((section) => section.id === "visit");
+    const live = MEGA_MENU_SECTIONS.find((section) => section.id === "live");
+
+    const visitTransportation = visit?.items.find(
+      (item) => item.labelKey === "categoryNames.transportation",
+    );
+    const liveGolf = live?.items.find((item) => item.labelKey === "nav.golf");
+
+    expect(buildLocalizedPath("en", visitTransportation!.href)).toBe("/category/transportation");
+    expect(buildLocalizedPath("en", liveGolf!.href)).toBe("/golf");
+  });
+
   it("does not expose placeholder hrefs", () => {
     for (const href of allMenuHrefs()) {
       const englishHref = buildLocalizedPath("en", href);

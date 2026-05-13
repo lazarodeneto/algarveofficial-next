@@ -1882,6 +1882,33 @@ export type Database = {
         }
         Relationships: []
       }
+      i18n_locale_key_status: {
+        Row: {
+          key_path: string
+          locale: string
+          reviewed_at: string | null
+          source_hash: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          key_path: string
+          locale: string
+          reviewed_at?: string | null
+          source_hash: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          key_path?: string
+          locale?: string
+          reviewed_at?: string | null
+          source_hash?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       listing_reviews: {
         Row: {
           approved_at: string | null

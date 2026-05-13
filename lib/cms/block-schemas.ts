@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const CmsHeroSettingsSchema = z.object({
   enabled: z.boolean().default(true),
-  mediaType: z.enum(["image", "video", "youtube", "poster"]).default("image"),
+  mediaType: z.enum(["none", "image", "video", "youtube", "poster"]).default("image"),
   imageUrl: z.string().nullable().optional(),
   videoUrl: z.string().nullable().optional(),
   youtubeUrl: z.string().nullable().optional(),

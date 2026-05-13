@@ -853,6 +853,11 @@
       "verifiedBooking": "Reserva verificada",
       "readMore": "Ler mais",
       "seeMoreReviews": "Ver mais avaliações",
+      "relatedGuidesEyebrow": "Explore mais",
+      "relatedGuides": "Guias de praias relacionados",
+      "relatedGuidesDescription": "Pesquisas costeiras rápidas, locais próximos e ideias de viagem ligadas a esta praia.",
+      "relatedLinksCount": "{{count}} links",
+      "relatedLinksTotal": "{{count}} links",
       "relatedBeachTags": "Tags relacionadas com praias",
       "topAttractions": "Principais atrações em {{place}}",
       "experiences": "Experiências em {{place}}",
@@ -2814,8 +2819,10 @@
     "faroDistrict": "Distrito de Faro",
     "faroShort": "Faro",
     "loading": "A carregar meteorologia de Faro",
-    "temperatureLabel": "Meteorologia no distrito de Faro: {{celsius}}°C / {{fahrenheit}}°F",
-    "unavailable": "Meteorologia indisponível"
+    "temperatureLabel": "Meteorologia em {{place}}: {{celsius}}°C / {{fahrenheit}}°F",
+    "unavailable": "Meteorologia indisponível",
+    "algarveRegion": "Algarve",
+    "algarveShort": "Algarve"
   },
   "notFound": {
     "backHome": "Voltar à página inicial",

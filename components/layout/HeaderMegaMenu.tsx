@@ -102,7 +102,7 @@ function MenuLink({
             ) : null}
           </span>
           {!compact ? (
-            <span className="mt-1 hidden text-xs leading-5 text-muted-foreground xl:block">
+            <span className="mt-1 hidden text-xs leading-5 text-muted-foreground min-[1440px]:block">
               {item.description}
             </span>
           ) : null}
@@ -127,23 +127,23 @@ function FeaturedCard({
       <LocaleLink
         href={section.featuredHref}
         onClick={onClick}
-        className="group flex h-full flex-col justify-between rounded-lg border border-primary/20 bg-[linear-gradient(135deg,hsl(var(--background))_0%,rgba(199,163,90,0.13)_100%)] p-4 shadow-[0_18px_48px_-36px_rgba(15,23,42,0.5)] transition hover:border-primary/40 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 xl:p-5"
+        className="group flex h-full flex-col justify-between rounded-lg border border-primary/20 bg-[linear-gradient(135deg,hsl(var(--background))_0%,rgba(199,163,90,0.13)_100%)] p-3 shadow-[0_18px_48px_-36px_rgba(15,23,42,0.5)] transition hover:border-primary/40 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 min-[1440px]:p-5"
       >
-        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-primary xl:h-11 xl:w-11">
-          <Icon className="h-4.5 w-4.5 xl:h-5 xl:w-5" aria-hidden="true" />
+        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-primary min-[1440px]:h-11 min-[1440px]:w-11">
+          <Icon className="h-4.5 w-4.5 min-[1440px]:h-5 min-[1440px]:w-5" aria-hidden="true" />
         </span>
-        <span className="mt-4 block xl:mt-7">
+        <span className="mt-4 block min-[1440px]:mt-7">
           <span className="block text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
             {section.eyebrow}
           </span>
-          <span className="mt-2 block font-serif text-xl leading-tight text-foreground xl:text-2xl">
+          <span className="mt-2 block font-serif text-lg leading-tight text-foreground min-[1440px]:text-2xl">
             {section.featuredLabel}
           </span>
-          <span className="mt-3 hidden text-sm leading-6 text-muted-foreground xl:block">
+          <span className="mt-3 hidden text-sm leading-6 text-muted-foreground min-[1440px]:block">
             {section.featuredDescription}
           </span>
         </span>
-        <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary xl:mt-6">
+        <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary min-[1440px]:mt-6">
           {translated(t, "common.explore", "Explore")}
           <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden="true" />
         </span>
@@ -161,28 +161,28 @@ function MegaPanel({ section, onNavigate }: { section: MegaMenuSection; onNaviga
       className={cn(
         "header-mega-panel rounded-lg border border-black/10 bg-[hsl(var(--background)/0.98)] text-foreground shadow-[0_30px_80px_-35px_rgba(15,23,42,0.45)] backdrop-blur-2xl dark:border-white/12 dark:bg-[hsl(var(--background)/0.9)]",
         isVisit
-          ? "w-[min(860px,calc(100vw-2rem))] translate-x-14 overflow-visible min-[1280px]:translate-x-0 min-[1360px]:w-[min(880px,calc(100vw-3rem))] min-[1360px]:translate-x-2 min-[1440px]:w-[min(900px,calc(100vw-4rem))] min-[1440px]:translate-x-0"
-          : "max-h-[min(74vh,calc(100vh-6.5rem))] w-[min(500px,calc(100vw-8rem))] overflow-y-auto min-[1360px]:w-[min(600px,calc(100vw-10rem))] min-[1440px]:w-[min(640px,calc(100vw-12rem))]",
+          ? "w-[min(760px,calc(100vw-9rem))] translate-x-14 overflow-visible min-[1360px]:w-[min(820px,calc(100vw-10rem))] min-[1440px]:w-[min(900px,calc(100vw-12rem))] min-[1440px]:translate-x-8"
+          : "max-h-[min(74vh,calc(100vh-6.5rem))] w-[min(500px,calc(100vw-9rem))] overflow-y-auto min-[1360px]:w-[min(600px,calc(100vw-10rem))] min-[1440px]:w-[min(640px,calc(100vw-12rem))]",
       )}
     >
       <div
         className={cn(
           "grid gap-0",
           isVisit
-            ? "grid-cols-[190px_minmax(0,1fr)] min-[1360px]:grid-cols-[200px_minmax(0,1fr)] min-[1440px]:grid-cols-[210px_minmax(0,1fr)]"
+            ? "grid-cols-[150px_minmax(0,1fr)] min-[1360px]:grid-cols-[170px_minmax(0,1fr)] min-[1440px]:grid-cols-[210px_minmax(0,1fr)]"
             : "grid-cols-[175px_minmax(0,1fr)] min-[1360px]:grid-cols-[215px_minmax(0,1fr)] min-[1440px]:grid-cols-[240px_minmax(0,1fr)]",
         )}
       >
-        <div className="border-r border-border/80 p-3 xl:p-4">
+        <div className="border-r border-border/80 p-3 min-[1440px]:p-4">
           <FeaturedCard section={section} onClick={onNavigate} />
         </div>
-        <div className="min-w-0 p-4 xl:p-5">
-          <div className="mb-3 flex items-end justify-between gap-4 xl:mb-4">
+        <div className="min-w-0 p-4 min-[1440px]:p-5">
+          <div className="mb-3 flex items-end justify-between gap-4 min-[1440px]:mb-4">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
                 {translated(t, section.labelKey, section.fallbackLabel)}
               </p>
-              <p className="mt-1 hidden max-w-xl text-sm leading-6 text-muted-foreground xl:block">
+              <p className="mt-1 hidden max-w-xl text-sm leading-6 text-muted-foreground min-[1440px]:block">
                 {section.description}
               </p>
             </div>
@@ -193,7 +193,7 @@ function MegaPanel({ section, onNavigate }: { section: MegaMenuSection; onNaviga
             ))}
           </div>
           {section.quickLinks?.length ? (
-            <div className="mt-5 border-t border-border/80 pt-4">
+            <div className="mt-4 border-t border-border/80 pt-3 min-[1440px]:mt-5 min-[1440px]:pt-4">
               <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 {translated(t, "menu.browseCategories", "Quick links")}
               </p>
@@ -229,7 +229,7 @@ export function HeaderMegaMenu({ overHero = false }: { overHero?: boolean } = {}
     <NavigationMenu
       value={activeItem}
       onValueChange={setActiveItem}
-      className="hidden min-w-0 min-[1180px]:flex"
+      className="hidden min-w-0 min-[1280px]:flex"
     >
       <NavigationMenuList className="gap-1 xl:gap-1.5 2xl:gap-2">
         {MEGA_MENU_SECTIONS.map((section) => {
@@ -268,7 +268,7 @@ export function HeaderMegaMenu({ overHero = false }: { overHero?: boolean } = {}
 
 export function HeaderCompactNav() {
   return (
-    <div className="hidden min-w-0 flex-1 items-center justify-center md:flex min-[1180px]:hidden">
+    <div className="hidden min-w-0 flex-1 items-center justify-center min-[960px]:flex min-[1280px]:hidden">
       <div className="flex min-w-0 items-center gap-1">
         {MEGA_MENU_SECTIONS.map((section) => {
           const Icon = section.featuredIcon;

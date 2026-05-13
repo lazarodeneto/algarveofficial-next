@@ -9,6 +9,10 @@ import { adminErrorResponse, requireAdminSession, requireAdminWriteClient } from
 import type { TranslationFilters, TranslationStatus } from "@/lib/admin/translations/types";
 import { sanitizeHtmlString } from "@/lib/sanitizeHtml";
 import { createServiceRoleClient } from "@/lib/supabase/service";
+import {
+  TRANSLATION_PROCESSOR_UNAVAILABLE,
+  isTranslationProcessorConfigured,
+} from "@/lib/translations/processorConfig";
 
 export const runtime = "nodejs";
 
@@ -461,6 +465,13 @@ export async function POST(request: NextRequest) {
 
   try {
     if (action === "queue") {
+      if (!isTranslationProcessorConfigured()) {
+        return adminErrorResponse(
+          409,
+          "TRANSLATION_PROCESSOR_UNCONFIGURED",
+          TRANSLATION_PROCESSOR_UNAVAILABLE,
+        );
+      }
       const jobIds = normalizeJobIds(body);
       const listingId = normalizeId(body.listingId);
       const targetLang = normalizeTargetLang(body.targetLang);

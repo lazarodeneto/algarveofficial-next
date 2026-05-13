@@ -2,6 +2,7 @@
 
 import { type ReactNode, useId, useMemo, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Check, Compass, ExternalLink, Hash, Info, MapPin, MapPinned, Sparkles, Star, Waves, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -23,6 +24,13 @@ type SeoLinkGroup = {
 };
 
 const seoGroupIcons = [Hash, MapPinned, Sparkles, Waves, Compass];
+
+const ListingMap = dynamic(() => import("@/components/ui/listing-map").then((mod) => mod.ListingMap), {
+  ssr: false,
+  loading: () => (
+    <div className="h-full min-h-[280px] w-full animate-pulse rounded-xl bg-muted" aria-hidden="true" />
+  ),
+});
 
 type Testimonial = {
   name: string;
@@ -76,6 +84,17 @@ function parseJsonValue(value: unknown): unknown {
 
 function stringFrom(value: unknown): string | undefined {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+}
+
+function numberFrom(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value !== "string") return undefined;
+
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+
+  const parsed = Number(trimmed.replace(/,/g, ""));
+  return Number.isFinite(parsed) ? parsed : undefined;
 }
 
 function listFrom(value: unknown): string[] {
@@ -348,16 +367,25 @@ export function BeachesLayout({
     fallbackDescription;
   const meetingPoint = firstString(details, ["meeting_point", "meeting_point_description"]);
   const explicitMapUrl = firstString(details, ["meeting_point_google_maps_url", "google_maps_url", "map_url"]);
+  const coordinates = asRecord(details.coordinates ?? details.location);
+  const mapLatitude = numberFrom(latitude)
+    ?? numberFrom(details.latitude ?? details.Latitude)
+    ?? numberFrom(coordinates.latitude ?? coordinates.lat);
+  const mapLongitude = numberFrom(longitude)
+    ?? numberFrom(details.longitude ?? details.Longitude)
+    ?? numberFrom(coordinates.longitude ?? coordinates.lng ?? coordinates.lon);
+  const hasMapCoordinates = mapLatitude !== undefined && mapLongitude !== undefined;
   const mapUrl = buildGoogleMapsSearchUrl({
     explicitUrl: explicitMapUrl ?? googleMapsUrl,
-    latitude,
-    longitude,
+    latitude: mapLatitude,
+    longitude: mapLongitude,
     queryParts: [meetingPoint, address, listingName, cityName, "Algarve Portugal"],
   });
   const meetingPointText =
     meetingPoint ??
     address ??
     [listingName, cityName, "Algarve Portugal"].filter(Boolean).join(", ");
+  const mapAddress = firstString(details, ["address", "full_address"]) ?? address ?? meetingPointText;
   const testimonials = readTestimonials(details.testimonials ?? details.testimonials_json);
   const seoGroupsFromData = readSeoGroups(details.seo_link_groups ?? details.seo_link_groups_json ?? details.related_tag_groups);
 
@@ -547,6 +575,37 @@ export function BeachesLayout({
           </DetailRow>
         ) : null}
       </div>
+
+      {hasMapCoordinates ? (
+        <section className="overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm">
+          <div className="grid lg:grid-cols-[minmax(0,1fr)_18rem]">
+            <div className="h-[20rem] min-h-[280px] lg:h-[24rem]">
+              <ListingMap
+                lat={mapLatitude}
+                lng={mapLongitude}
+                name={listingName ?? meetingPointText}
+                address={mapAddress}
+                className="h-full rounded-none border-0"
+              />
+            </div>
+            <div className="flex flex-col justify-between gap-4 border-t border-border/70 p-5 sm:p-7 lg:border-l lg:border-t-0">
+              <div>
+                <h2 className="text-xl font-bold text-foreground">{t("listing.location")}</h2>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{mapAddress}</p>
+              </div>
+              {mapUrl ? (
+                <Button variant="outline" asChild className="w-fit">
+                  <a href={mapUrl} target="_blank" rel="noopener noreferrer">
+                    <MapPin className="mr-2 h-4 w-4" />
+                    {t("categoryLayouts.beach.openInGoogleMaps")}
+                    <ExternalLink className="ml-2 h-3.5 w-3.5" />
+                  </a>
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {nearbyToRender.length > 0 ? (
         <section className="space-y-4 rounded-xl border border-border/70 bg-card p-5 shadow-sm sm:p-7">

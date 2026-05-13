@@ -115,6 +115,13 @@ export const MEGA_MENU_SECTIONS: MegaMenuSection[] = [
         icon: Compass,
       },
       {
+        labelKey: "categoryNames.transportation",
+        fallbackLabel: "Transportation",
+        href: categoryRoute("transportation"),
+        description: "Transfers, drivers, rental cars, and getting around the Algarve.",
+        icon: Plane,
+      },
+      {
         labelKey: "categoryNames.wellness-spas",
         fallbackLabel: "Wellness",
         href: categoryRoute("wellness-spas"),
@@ -187,6 +194,13 @@ export const MEGA_MENU_SECTIONS: MegaMenuSection[] = [
         icon: Compass,
       },
       {
+        labelKey: "nav.golf",
+        fallbackLabel: "Golf",
+        href: buildStaticRouteData("golf"),
+        description: "Golf communities, memberships, and year-round play.",
+        icon: FlagTriangleRight,
+      },
+      {
         labelKey: "categoryNames.security-services",
         fallbackLabel: "Security Services",
         href: categoryRoute("security-services"),
@@ -217,9 +231,8 @@ export const MEGA_MENU_SECTIONS: MegaMenuSection[] = [
         labelKey: "nav.properties",
         fallbackLabel: "Properties",
         href: buildStaticRouteData("properties"),
-        description: "Canonical property and real-estate listings.",
+        description: "Homes, apartments, villas, and Algarve property opportunities.",
         icon: Building2,
-        badge: "Canonical",
       },
       {
         labelKey: "nav.invest",

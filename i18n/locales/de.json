@@ -853,6 +853,11 @@
       "verifiedBooking": "Verifizierte Buchung",
       "readMore": "Mehr lesen",
       "seeMoreReviews": "Mehr Bewertungen ansehen",
+      "relatedGuidesEyebrow": "Mehr entdecken",
+      "relatedGuides": "Verwandte Strandführer",
+      "relatedGuidesDescription": "Schnelle Küstensuchen, nahegelegene Orte und Reiseideen zu diesem Strand.",
+      "relatedLinksCount": "{{count}} Links",
+      "relatedLinksTotal": "{{count}} Links",
       "relatedBeachTags": "Verwandte Strand-Tags",
       "topAttractions": "Top-Attraktionen in {{place}}",
       "experiences": "Erlebnisse in {{place}}",
@@ -2412,8 +2417,8 @@
     "claimManagedDescription": "Dieser Eintrag wird von einem genehmigten Unternehmensvertreter verwaltet.",
     "tags": "Tags",
     "relatedListings": "More {{category}} to explore",
-    "relatedDestinations": "Related destinations",
-    "relatedDestinationsDescription": "Explore nearby Algarve destinations with curated places and services.",
+    "relatedDestinations": "Ähnliche Reiseziele",
+    "relatedDestinationsDescription": "Entdecke nahegelegene Ziele an der Algarve mit kuratierten Orten und Services.",
     "backToListings": "Back to listings",
     "form": {
       "consent": "Ich stimme zu, wegen dieser Immobilie kontaktiert zu werden",
@@ -2814,8 +2819,10 @@
     "faroDistrict": "Bezirk Faro",
     "faroShort": "Faro",
     "loading": "Wetter für Faro wird geladen",
-    "temperatureLabel": "Wetter im Bezirk Faro: {{celsius}}°C / {{fahrenheit}}°F",
-    "unavailable": "Wetter nicht verfügbar"
+    "temperatureLabel": "Wetter in {{place}}: {{celsius}}°C / {{fahrenheit}}°F",
+    "unavailable": "Wetter nicht verfügbar",
+    "algarveRegion": "Algarve",
+    "algarveShort": "Algarve"
   },
   "notFound": {
     "backHome": "Zurück zur Startseite",

@@ -1655,7 +1655,7 @@ function ListingDetailClientInner({
                     ) : null}
                   </div>
 
-                  {listing.status === "published" && !isExactBeachesListing ? (
+                  {listing.status === "published" && !isExactBeachesListing && !isSignatureOrVerifiedTier ? (
                     <div className="mt-6 pt-6 border-t border-border">
                       <BusinessClaimCTA
                         claimHref={claimBusinessHref}
@@ -1770,7 +1770,11 @@ function ListingDetailClientInner({
                   return (
                     <Link
                       key={r.id}
-                      href={l(`/destinations/${r.slug}`)}
+                      href={l({
+                        routeType: "destination",
+                        id: r.id,
+                        slugs: buildUniformLocalizedSlugMap(r.slug),
+                      })}
                       className="group block rounded-xl overflow-hidden bg-background border border-border hover:border-primary/30 transition-all duration-300 hover:shadow-md"
                     >
                       <div className="relative w-full h-36 bg-muted overflow-hidden">

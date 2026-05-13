@@ -25,6 +25,8 @@ import {
   inboxSideTableKey,
   inboxSideTableLookupKeys,
 } from "./side-table-compat";
+import { isInboxReadStateReason, isInboxStatus, normalizeInboxStatusFromReason } from "./status";
+import { isProcessorUnconfiguredTranslationError } from "./translation-failures";
 
 type AdminClient = SupabaseClient<Database>;
 
@@ -124,6 +126,7 @@ async function fetchListingModeration(
         createdAt: row.created_at,
         owner: { id: row.owner_id, name: names.get(row.owner_id) ?? null },
         assignee: null,
+        status: "open",
         sla,
         urgency: computeUrgency(sla.minutesRemaining),
         resolution: { primary: "approve", available: ["approve", "reject", "assign", "archive"] },
@@ -170,6 +173,7 @@ async function fetchListingClaims(client: AdminClient): Promise<SourceResult<Lis
           name: row.user_id ? names.get(row.user_id) ?? row.contact_name : row.contact_name,
         },
         assignee: null,
+        status: "open",
         sla,
         urgency: computeUrgency(sla.minutesRemaining),
         resolution: { primary: "reject", available: ["reject", "assign", "archive"] },
@@ -213,6 +217,7 @@ async function fetchBillingSubscriptionIssues(
         createdAt: row.updated_at,
         owner: { id: row.owner_id, name: names.get(row.owner_id) ?? null },
         assignee: null,
+        status: "open",
         sla,
         urgency: computeUrgency(sla.minutesRemaining),
         resolution: { primary: "assign", available: ["assign"] },
@@ -262,6 +267,7 @@ async function fetchReviewModeration(
         createdAt: row.created_at,
         owner: { id: row.user_id, name: names.get(row.user_id) ?? null },
         assignee: null,
+        status: "open",
         sla,
         urgency: computeUrgency(sla.minutesRemaining),
         resolution: { primary: "approve", available: ["approve", "reject", "assign", "archive"] },
@@ -316,6 +322,7 @@ async function fetchEventModeration(
         createdAt: row.created_at,
         owner: { id: row.submitter_id, name: names.get(row.submitter_id) ?? null },
         assignee: null,
+        status: "open",
         sla: { dueAt, minutesRemaining },
         urgency: computeUrgency(minutesRemaining),
         resolution: { primary: "approve", available: ["approve", "reject", "assign", "archive"] },
@@ -345,9 +352,48 @@ async function fetchTranslationJobIssues(
 
   const listingIds = Array.from(new Set(data.map((r) => r.listing_id).filter(Boolean)));
   const names = await fetchListingNames(client, listingIds);
+  const processorConfigRows = data.filter((row) =>
+    isProcessorUnconfiguredTranslationError(row.last_error),
+  );
+  const regularRows = data.filter((row) => !processorConfigRows.includes(row));
+  const groupedItems: TranslationJobItem[] = [];
+
+  if (processorConfigRows.length > 0) {
+    const createdAt = processorConfigRows
+      .map((row) => row.updated_at ?? row.created_at)
+      .sort()[0];
+    const listingCount = new Set(processorConfigRows.map((row) => row.listing_id)).size;
+    const localeCount = new Set(processorConfigRows.map((row) => row.target_lang)).size;
+    const representative = processorConfigRows[0];
+    const sla = computeSla(createdAt, 24 * 60);
+    groupedItems.push({
+      id: "translation:processor-unconfigured",
+      domain: "translations",
+      source: "translation_job",
+      sourceRowId: "processor-unconfigured",
+      title: "Translation processor is not configured",
+      summary: `${processorConfigRows.length} job${processorConfigRows.length !== 1 ? "s" : ""} across ${listingCount} listing${listingCount !== 1 ? "s" : ""} and ${localeCount} locale${localeCount !== 1 ? "s" : ""} require manual review or provider setup.`,
+      createdAt,
+      owner: { id: "translation-system", name: "Translation Studio" },
+      assignee: null,
+      status: "open",
+      sla,
+      urgency: "normal",
+      resolution: { primary: "assign", available: ["assign"] },
+      meta: {
+        jobId: representative.id,
+        listingId: representative.listing_id,
+        targetLang: "multiple",
+        status: "configuration_missing",
+        attempts: processorConfigRows.reduce((sum, row) => sum + (row.attempts ?? 0), 0),
+      },
+    } satisfies TranslationJobItem);
+  }
 
   return {
-    items: data.map((row) => {
+    items: [
+      ...groupedItems,
+      ...regularRows.map((row) => {
       const createdAt = row.updated_at ?? row.created_at;
       const sla = computeSla(createdAt, SLA_MINUTES.translation_job);
       const listingName = names.get(row.listing_id) ?? row.listing_id.slice(0, 8);
@@ -361,6 +407,7 @@ async function fetchTranslationJobIssues(
         createdAt,
         owner: { id: row.listing_id, name: listingName },
         assignee: null,
+        status: "open",
         sla,
         urgency: computeUrgency(sla.minutesRemaining),
         resolution: { primary: "assign", available: ["assign"] },
@@ -372,7 +419,8 @@ async function fetchTranslationJobIssues(
           attempts: row.attempts ?? 0,
         },
       } satisfies TranslationJobItem;
-    }),
+      }),
+    ],
     error: null,
   };
 }
@@ -425,6 +473,7 @@ async function fetchExternalOutboxAlerts(
           createdAt,
           owner: { id: "system", name: "System" },
           assignee: null,
+          status: "open",
           sla,
           urgency,
           resolution: { primary: "assign", available: ["assign"] },
@@ -450,38 +499,114 @@ function sortItems(items: InboxItem[]): InboxItem[] {
 }
 
 interface InboxSideTables {
-  archivedKeys: Set<string>;
+  itemStates: Map<string, InboxItemState>;
   assignments: Map<string, { assigneeId: string; assignedAt: string }>;
   readStates: Map<string, { readBy: string | null; readAt: string }>;
   errors: InboxDataSourceError[];
 }
 
+interface InboxItemState {
+  status: InboxItem["status"];
+  changedAt: string;
+  reason: string | null;
+  itemSnapshot: InboxItem | null;
+}
+
+interface InboxArchiveRow {
+  source: string;
+  source_row_id: string;
+  reason: string | null;
+  archived_at: string;
+  status?: string | null;
+  resolved_at?: string | null;
+  dismissed_at?: string | null;
+  updated_at?: string | null;
+  item_snapshot?: unknown;
+}
+
+function isMissingInboxHistoryColumnError(error: { message?: string; code?: string } | null): boolean {
+  const message = error?.message ?? "";
+  return (
+    error?.code === "42703" ||
+    error?.code === "PGRST204" ||
+    message.includes("item_snapshot") ||
+    message.includes("resolved_at") ||
+    message.includes("dismissed_at") ||
+    message.includes("admin_inbox_archives.status") ||
+    message.includes("Could not find")
+  );
+}
+
+function parseInboxItemSnapshot(value: unknown): InboxItem | null {
+  if (!value || typeof value !== "object") return null;
+  const snapshot = value as Partial<InboxItem>;
+  if (
+    typeof snapshot.id !== "string" ||
+    typeof snapshot.source !== "string" ||
+    typeof snapshot.sourceRowId !== "string" ||
+    typeof snapshot.title !== "string" ||
+    typeof snapshot.createdAt !== "string" ||
+    !isInboxStatus(snapshot.status)
+  ) {
+    return null;
+  }
+  return snapshot as InboxItem;
+}
+
+async function fetchArchiveRows(
+  client: AdminClient,
+): Promise<{ data: InboxArchiveRow[]; error: InboxDataSourceError | null }> {
+  const full = await client
+    .from("admin_inbox_archives" as never)
+    .select(
+      "source, source_row_id, reason, archived_at, status, resolved_at, dismissed_at, updated_at, item_snapshot",
+    );
+
+  if (!full.error) {
+    return { data: (full.data as InboxArchiveRow[] | null) ?? [], error: null };
+  }
+
+  if (!isMissingInboxHistoryColumnError(full.error)) {
+    return { data: [], error: queryError("side_tables", full.error) };
+  }
+
+  const legacy = await client
+    .from("admin_inbox_archives" as never)
+    .select("source, source_row_id, reason, archived_at");
+
+  return {
+    data: (legacy.data as InboxArchiveRow[] | null) ?? [],
+    error: legacy.error ? queryError("side_tables", legacy.error) : null,
+  };
+}
+
 async function fetchSideTables(client: AdminClient): Promise<InboxSideTables> {
   const [archiveRes, assignRes] = await Promise.all([
-    client.from("admin_inbox_archives" as never).select("source, source_row_id, reason, archived_at"),
+    fetchArchiveRows(client),
     client
       .from("admin_inbox_assignments" as never)
       .select("source, source_row_id, assignee_id, assigned_at"),
   ]);
-  const errors = [archiveRes.error, assignRes.error]
+  const errors = [archiveRes.error, assignRes.error ? queryError("side_tables", assignRes.error) : null]
     .filter(Boolean)
-    .map((error) => queryError("side_tables", error));
-  const archivedKeys = new Set<string>();
+    .filter((error): error is InboxDataSourceError => Boolean(error));
+  const itemStates = new Map<string, InboxItemState>();
   const readStates = new Map<string, { readBy: string | null; readAt: string }>();
-  const archiveRows =
-    (archiveRes.data as Array<{
-      source: string;
-      source_row_id: string;
-      reason: string | null;
-      archived_at: string;
-    }> | null) ?? [];
-  for (const row of archiveRows) {
+  for (const row of archiveRes.data) {
     const decoded = decodeSideTableArchiveRow(row.source, row.reason);
     const key = inboxSideTableKey(decoded.source, row.source_row_id);
-    if (decoded.reason === "read_from_list") {
+    const status = isInboxStatus(row.status)
+      ? row.status
+      : normalizeInboxStatusFromReason(decoded.reason);
+    if (isInboxReadStateReason(decoded.reason)) {
       readStates.set(key, { readBy: null, readAt: row.archived_at });
-    } else {
-      archivedKeys.add(key);
+    } else if (status !== "open") {
+      itemStates.set(key, {
+        status,
+        changedAt: row.resolved_at ?? row.dismissed_at ?? row.updated_at ?? row.archived_at,
+        reason: decoded.reason,
+        itemSnapshot: parseInboxItemSnapshot(row.item_snapshot),
+      });
     }
   }
 
@@ -499,7 +624,7 @@ async function fetchSideTables(client: AdminClient): Promise<InboxSideTables> {
       assignedAt: row.assigned_at,
     });
   }
-  return { archivedKeys, assignments, readStates, errors };
+  return { itemStates, assignments, readStates, errors };
 }
 
 async function buildSnapshotUncached(): Promise<InboxSnapshot> {
@@ -524,7 +649,7 @@ async function buildSnapshotUncached(): Promise<InboxSnapshot> {
     outboxAlerts.error,
     ...side.errors,
   ].filter((error): error is InboxDataSourceError => Boolean(error));
-  const merged = [
+  const merged: InboxItem[] = [
     ...listings.items,
     ...claims.items,
     ...reviews.items,
@@ -533,11 +658,11 @@ async function buildSnapshotUncached(): Promise<InboxSnapshot> {
     ...translations.items,
     ...outboxAlerts.items,
   ]
-    .filter((item) => !side.archivedKeys.has(`${item.source}:${item.sourceRowId}`))
-    .map((item) => {
+    .map((item): InboxItem => {
       const keys = inboxSideTableLookupKeys(item.source, item.sourceRowId);
       const assignment = keys.map((key) => side.assignments.get(key)).find(Boolean);
       const readState = keys.map((key) => side.readStates.get(key)).find(Boolean);
+      const itemState = keys.map((key) => side.itemStates.get(key)).find(Boolean);
       return {
         ...item,
         assignee: assignment
@@ -545,9 +670,34 @@ async function buildSnapshotUncached(): Promise<InboxSnapshot> {
           : item.assignee,
         isRead: Boolean(readState),
         readAt: readState?.readAt ?? null,
+        status: itemState?.status ?? "open",
+        statusChangedAt: itemState?.changedAt ?? null,
+        statusReason: itemState?.reason ?? null,
       };
     });
-  const items = sortItems(merged);
+  const liveKeys = new Set(
+    merged.map((item) => inboxSideTableKey(item.source, item.sourceRowId)),
+  );
+  const snapshotItems: InboxItem[] = Array.from(side.itemStates.entries())
+    .flatMap(([key, itemState]): InboxItem[] => {
+      if (liveKeys.has(key) || !itemState.itemSnapshot) return [];
+      const item = itemState.itemSnapshot;
+      const assignment = side.assignments.get(key);
+      const readState = side.readStates.get(key);
+      return [{
+        ...item,
+        assignee: assignment
+          ? { id: assignment.assigneeId, assignedAt: assignment.assignedAt }
+          : item.assignee,
+        isRead: Boolean(readState),
+        readAt: readState?.readAt ?? item.readAt ?? null,
+        status: itemState.status,
+        statusChangedAt: itemState.changedAt,
+        statusReason: itemState.reason,
+      }];
+    });
+  const items = sortItems([...merged, ...snapshotItems]);
+  const openItems = items.filter((item) => item.status === "open");
   const byDomain: Record<InboxDomain, number> = {
     listings: 0,
     reviews: 0,
@@ -556,14 +706,24 @@ async function buildSnapshotUncached(): Promise<InboxSnapshot> {
     translations: 0,
     system: 0,
   };
-  for (const item of items) byDomain[item.domain] += 1;
+  for (const item of openItems) byDomain[item.domain] += 1;
+  const byStatus = {
+    open: openItems.length,
+    archived: items.filter((item) => item.status === "archived").length,
+    resolved: items.filter((item) => item.status === "resolved").length,
+    dismissed: items.filter((item) => item.status === "dismissed").length,
+  };
   return {
     items,
     counts: {
-      total: items.length,
-      urgent: items.filter((i) => i.urgency === "urgent").length,
-      soon: items.filter((i) => i.urgency === "soon").length,
-      normal: items.filter((i) => i.urgency === "normal").length,
+      total: openItems.length,
+      urgent: openItems.filter((i) => i.urgency === "urgent").length,
+      soon: openItems.filter((i) => i.urgency === "soon").length,
+      normal: openItems.filter((i) => i.urgency === "normal").length,
+      archived: byStatus.archived,
+      dismissed: byStatus.dismissed,
+      resolved: byStatus.resolved,
+      byStatus,
       byDomain,
     },
     errors,
@@ -573,7 +733,7 @@ async function buildSnapshotUncached(): Promise<InboxSnapshot> {
 
 export const getInboxSnapshot = unstable_cache(
   buildSnapshotUncached,
-  ["admin-inbox-snapshot-v3"],
+  ["admin-inbox-snapshot-v5"],
   { revalidate: CACHE_TTL_SECONDS, tags: [INBOX_CACHE_TAG] },
 );
 

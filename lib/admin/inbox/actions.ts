@@ -6,7 +6,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { createClient as createCookieClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
-import { INBOX_CACHE_TAG, type InboxSource } from "./types";
+import { INBOX_CACHE_TAG, type InboxItem, type InboxSource, type InboxStatus } from "./types";
 import {
   encodeLegacySideTableReason,
   getLegacySideTableSource,
@@ -62,6 +62,26 @@ function formatInboxSideTableError(error: { message?: string; code?: string } | 
   ].join(" ");
 }
 
+function isInboxHistorySchemaError(error: { message?: string; code?: string } | null): boolean {
+  const message = error?.message ?? "";
+  return (
+    error?.code === "42703" ||
+    error?.code === "PGRST204" ||
+    message.includes("item_snapshot") ||
+    message.includes("resolved_at") ||
+    message.includes("dismissed_at") ||
+    message.includes("admin_inbox_archives.status") ||
+    message.includes("Could not find")
+  );
+}
+
+function formatInboxHistorySchemaError(): string {
+  return [
+    "Admin inbox history storage is out of date.",
+    "Apply supabase/migrations/20260513133000_add_admin_inbox_status_history.sql and refresh the Supabase schema cache.",
+  ].join(" ");
+}
+
 interface ActionInput {
   source: InboxSource;
   sourceRowId: string;
@@ -81,6 +101,12 @@ interface ArchiveInput extends ActionInput {
 
 interface MarkReadInput extends ActionInput {
   reason?: string;
+}
+
+interface InboxStateOptions {
+  status?: InboxStatus;
+  itemSnapshot?: InboxItem | null;
+  requiresHistoryColumns?: boolean;
 }
 
 const INBOX_SOURCES = new Set<InboxSource>([
@@ -130,26 +156,109 @@ async function ensureAdminAssignee(client: Client, assigneeId: string): Promise<
   return null;
 }
 
+async function captureInboxItemSnapshot(input: ActionInput): Promise<InboxItem | null> {
+  try {
+    const { getFreshInboxSnapshot } = await import("./aggregator");
+    const snapshot = await getFreshInboxSnapshot();
+    return (
+      snapshot.items.find(
+        (item) => item.source === input.source && item.sourceRowId === input.sourceRowId,
+      ) ?? null
+    );
+  } catch {
+    return null;
+  }
+}
+
+function buildInboxStatePayload(
+  input: ArchiveInput,
+  archivedBy: string,
+  fallbackReason: string,
+  options: InboxStateOptions,
+  sourceOverride?: InboxSource,
+) {
+  const nowIso = new Date().toISOString();
+  const status = options.status ?? "archived";
+  const reason = input.reason ?? fallbackReason;
+  const storedReason = sourceOverride ? encodeLegacySideTableReason(reason, input.source) : reason;
+
+  return {
+    source: sourceOverride ?? input.source,
+    source_row_id: input.sourceRowId,
+    archived_by: archivedBy,
+    archived_at: nowIso,
+    reason: storedReason,
+    status,
+    resolved_at: status === "resolved" ? nowIso : null,
+    dismissed_at: status === "dismissed" ? nowIso : null,
+    updated_at: nowIso,
+    item_snapshot: options.itemSnapshot ?? null,
+  };
+}
+
+function buildLegacyInboxStatePayload(
+  input: ArchiveInput,
+  archivedBy: string,
+  fallbackReason: string,
+  sourceOverride?: InboxSource,
+) {
+  const reason = input.reason ?? fallbackReason;
+  return {
+    source: sourceOverride ?? input.source,
+    source_row_id: input.sourceRowId,
+    archived_by: archivedBy,
+    archived_at: new Date().toISOString(),
+    reason: sourceOverride ? encodeLegacySideTableReason(reason, input.source) : reason,
+  };
+}
+
 async function upsertInboxArchive(
   client: Client,
   input: ArchiveInput,
   archivedBy: string,
   fallbackReason: string,
+  options: InboxStateOptions = {},
 ): Promise<InboxActionResult> {
-  const reason = input.reason ?? fallbackReason;
   const { error } = await client
     .from("admin_inbox_archives" as never)
     .upsert(
-      {
-        source: input.source,
-        source_row_id: input.sourceRowId,
-        archived_by: archivedBy,
-        archived_at: new Date().toISOString(),
-        reason,
-      } as never,
+      buildInboxStatePayload(input, archivedBy, fallbackReason, options) as never,
       { onConflict: "source,source_row_id" } as never,
     );
   if (error) {
+    if (isInboxHistorySchemaError(error)) {
+      if (options.requiresHistoryColumns) {
+        return { ok: false, error: formatInboxHistorySchemaError() };
+      }
+
+      const legacy = await client
+        .from("admin_inbox_archives" as never)
+        .upsert(
+          buildLegacyInboxStatePayload(input, archivedBy, fallbackReason) as never,
+          { onConflict: "source,source_row_id" } as never,
+        );
+      if (!legacy.error) {
+        invalidate();
+        return { ok: true };
+      }
+
+      const fallbackSource = isInboxSideTableSourceConstraintError(legacy.error)
+        ? getLegacySideTableSource(input.source)
+        : null;
+      if (fallbackSource) {
+        const legacyRetry = await client
+          .from("admin_inbox_archives" as never)
+          .upsert(
+            buildLegacyInboxStatePayload(input, archivedBy, fallbackReason, fallbackSource) as never,
+            { onConflict: "source,source_row_id" } as never,
+          );
+        if (!legacyRetry.error) {
+          invalidate();
+          return { ok: true };
+        }
+      }
+    }
+
     const legacySource = isInboxSideTableSourceConstraintError(error)
       ? getLegacySideTableSource(input.source)
       : null;
@@ -160,19 +269,27 @@ async function upsertInboxArchive(
     const retry = await client
       .from("admin_inbox_archives" as never)
       .upsert(
-        {
-          source: legacySource,
-          source_row_id: input.sourceRowId,
-          archived_by: archivedBy,
-          archived_at: new Date().toISOString(),
-          reason: encodeLegacySideTableReason(reason, input.source),
-        } as never,
+        buildInboxStatePayload(input, archivedBy, fallbackReason, options, legacySource) as never,
         { onConflict: "source,source_row_id" } as never,
       );
     if (retry.error) {
+      if (isInboxHistorySchemaError(retry.error) && !options.requiresHistoryColumns) {
+        const legacyRetry = await client
+          .from("admin_inbox_archives" as never)
+          .upsert(
+            buildLegacyInboxStatePayload(input, archivedBy, fallbackReason, legacySource) as never,
+            { onConflict: "source,source_row_id" } as never,
+          );
+        if (!legacyRetry.error) {
+          invalidate();
+          return { ok: true };
+        }
+      }
       return {
         ok: false,
-        error: formatInboxSideTableError(retry.error) ?? retry.error.message,
+        error: isInboxHistorySchemaError(retry.error)
+          ? formatInboxHistorySchemaError()
+          : formatInboxSideTableError(retry.error) ?? retry.error.message,
       };
     }
   }
@@ -189,6 +306,7 @@ export async function approveInboxItem(input: ActionInput): Promise<InboxActionR
   const client = writeClient();
   const { source, sourceRowId } = input;
   const nowIso = new Date().toISOString();
+  const itemSnapshot = await captureInboxItemSnapshot(input);
 
   try {
     if (source === "listing_moderation") {
@@ -230,8 +348,13 @@ export async function approveInboxItem(input: ActionInput): Promise<InboxActionR
     } else {
       return { ok: false, error: "This inbox item must be opened from its workflow page." };
     }
-    invalidate();
-    return { ok: true };
+    return await upsertInboxArchive(
+      client,
+      { ...input, reason: "approved_from_inbox" },
+      auth.userId,
+      "approved_from_inbox",
+      { status: "resolved", itemSnapshot, requiresHistoryColumns: true },
+    );
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Approve failed." };
   }
@@ -252,6 +375,7 @@ export async function rejectInboxItem(input: RejectInput): Promise<InboxActionRe
   const client = writeClient();
   const { source, sourceRowId } = input;
   const nowIso = new Date().toISOString();
+  const itemSnapshot = await captureInboxItemSnapshot(input);
 
   try {
     if (source === "listing_moderation") {
@@ -306,8 +430,13 @@ export async function rejectInboxItem(input: RejectInput): Promise<InboxActionRe
       if (error) return { ok: false, error: error.message };
       if (!data) return { ok: false, error: "Partner request is no longer pending." };
     }
-    invalidate();
-    return { ok: true };
+    return await upsertInboxArchive(
+      client,
+      { ...input, reason: "rejected_from_inbox" },
+      auth.userId,
+      "rejected_from_inbox",
+      { status: "resolved", itemSnapshot, requiresHistoryColumns: true },
+    );
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Reject failed." };
   }
@@ -381,7 +510,11 @@ export async function archiveInboxItem(input: ArchiveInput): Promise<InboxAction
 
   const client = writeClient();
   try {
-    return await upsertInboxArchive(client, input, auth.userId, "archived");
+    const itemSnapshot = await captureInboxItemSnapshot(input);
+    return await upsertInboxArchive(client, input, auth.userId, "archived", {
+      status: "archived",
+      itemSnapshot,
+    });
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Archive failed." };
   }
@@ -395,7 +528,12 @@ export async function markInboxItemRead(input: MarkReadInput): Promise<InboxActi
 
   const client = writeClient();
   try {
-    return await upsertInboxArchive(client, input, auth.userId, input.reason ?? "marked_read");
+    const itemSnapshot = await captureInboxItemSnapshot(input);
+    return await upsertInboxArchive(client, input, auth.userId, input.reason ?? "marked_read", {
+      status: "resolved",
+      itemSnapshot,
+      requiresHistoryColumns: true,
+    });
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Mark as read failed." };
   }
@@ -409,9 +547,68 @@ export async function archiveInboxNotification(input: ArchiveInput): Promise<Inb
 
   const client = writeClient();
   try {
-    return await upsertInboxArchive(client, input, auth.userId, "archived_from_list");
+    const itemSnapshot = await captureInboxItemSnapshot(input);
+    return await upsertInboxArchive(client, input, auth.userId, "archived_from_list", {
+      status: "archived",
+      itemSnapshot,
+    });
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Archive failed." };
+  }
+}
+
+export async function restoreInboxNotification(input: ActionInput): Promise<InboxActionResult> {
+  const auth = await requireAdmin();
+  if ("error" in auth) return { ok: false, error: auth.error };
+  const invalid = validateActionInput(input);
+  if (invalid) return invalid;
+
+  const client = writeClient();
+  try {
+    const { error } = await client
+      .from("admin_inbox_archives" as never)
+      .delete()
+      .eq("source", input.source)
+      .eq("source_row_id", input.sourceRowId)
+      .neq("reason", "read_from_list");
+    if (error) return { ok: false, error: error.message };
+
+    const legacySource = getLegacySideTableSource(input.source);
+    if (legacySource) {
+      const legacyDelete = await client
+        .from("admin_inbox_archives" as never)
+        .delete()
+        .eq("source", legacySource)
+        .eq("source_row_id", input.sourceRowId)
+        .neq("reason", encodeLegacySideTableReason("read_from_list", input.source));
+      if (legacyDelete.error) return { ok: false, error: legacyDelete.error.message };
+    }
+
+    invalidate();
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Restore failed." };
+  }
+}
+
+export async function dismissInboxNotification(input: ActionInput): Promise<InboxActionResult> {
+  const auth = await requireAdmin();
+  if ("error" in auth) return { ok: false, error: auth.error };
+  const invalid = validateActionInput(input);
+  if (invalid) return invalid;
+
+  const client = writeClient();
+  try {
+    const itemSnapshot = await captureInboxItemSnapshot(input);
+    return await upsertInboxArchive(
+      client,
+      { ...input, reason: "dismissed_from_inbox" },
+      auth.userId,
+      "dismissed_from_inbox",
+      { status: "dismissed", itemSnapshot },
+    );
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Dismiss failed." };
   }
 }
 
@@ -423,11 +620,13 @@ export async function deleteInboxNotification(input: ActionInput): Promise<Inbox
 
   const client = writeClient();
   try {
+    const itemSnapshot = await captureInboxItemSnapshot(input);
     return await upsertInboxArchive(
       client,
       { ...input, reason: "deleted_from_inbox" },
       auth.userId,
       "deleted_from_inbox",
+      { status: "dismissed", itemSnapshot },
     );
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Delete failed." };
@@ -447,6 +646,7 @@ export async function markInboxItemReadState(input: ActionInput): Promise<InboxA
       { ...input, reason: "read_from_list" },
       auth.userId,
       "read_from_list",
+      { status: "open" },
     );
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Mark as read failed." };

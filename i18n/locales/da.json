@@ -853,6 +853,11 @@
       "verifiedBooking": "Bekræftet booking",
       "readMore": "Læs mere",
       "seeMoreReviews": "Se flere anmeldelser",
+      "relatedGuidesEyebrow": "Udforsk mere",
+      "relatedGuides": "Relaterede strandguider",
+      "relatedGuidesDescription": "Hurtige kystsøgninger, steder i nærheden og rejseidéer knyttet til denne strand.",
+      "relatedLinksCount": "{{count}} links",
+      "relatedLinksTotal": "{{count}} links",
       "relatedBeachTags": "Relaterede strandtags",
       "topAttractions": "Topattraktioner i {{place}}",
       "experiences": "Oplevelser i {{place}}",
@@ -2469,7 +2474,7 @@
     "plotSize": "Grundstørrelse",
     "price": "Pris",
     "priceOnRequest": "Pris på forespørgsel",
-    "relatedDestinations": "Related destinations",
+    "relatedDestinations": "Relaterede destinationer",
     "relatedListings": "More {{category}} to explore",
     "reviews": {
       "content": "Anmeldelse",
@@ -2498,7 +2503,7 @@
     "viewGallery": "View gallery",
     "viewOnMap": "Se på kort",
     "visitWebsite": "Visit website",
-    "relatedDestinationsDescription": "Explore nearby Algarve destinations with curated places and services.",
+    "relatedDestinationsDescription": "Udforsk nærliggende destinationer i Algarve med udvalgte steder og tjenester.",
     "social": {
       "instagram": "Instagram",
       "facebook": "Facebook",
@@ -2826,8 +2831,10 @@
     "faroDistrict": "Faro-distriktet",
     "faroShort": "Faro",
     "loading": "Indlæser vejret for Faro",
-    "temperatureLabel": "Vejret i Faro-distriktet: {{celsius}}°C / {{fahrenheit}}°F",
-    "unavailable": "Vejret er ikke tilgængeligt"
+    "temperatureLabel": "Vejret i {{place}}: {{celsius}}°C / {{fahrenheit}}°F",
+    "unavailable": "Vejret er ikke tilgængeligt",
+    "algarveRegion": "Algarve",
+    "algarveShort": "Algarve"
   },
   "notFound": {
     "backHome": "Tilbage til Hjemmet",

@@ -38,13 +38,6 @@ function getInitialReducedMotionPreference() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function getInitialMobileViewportPreference() {
-  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
-    return false;
-  }
-  return window.matchMedia("(max-width: 1023px)").matches;
-}
-
 function getPrefersReducedData() {
   if (typeof window === "undefined") return false;
 
@@ -135,10 +128,6 @@ export function HeroSection() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(
     getInitialReducedMotionPreference,
   );
-  const [isMobileViewport, setIsMobileViewport] = useState(
-    getInitialMobileViewportPreference,
-  );
-  const [canEnhanceHeroVideo, setCanEnhanceHeroVideo] = useState(false);
   const { settings, isLoading: isHeroSettingsLoading } = useHeroSettings();
   const { settings: runtimeSettings } = useGlobalSettings({
     keys: [HERO_OVERLAY_INTENSITY_SETTING_KEY],
@@ -155,9 +144,10 @@ export function HeroSection() {
   // for copy, but stale CMS media must not override a reset homepage image.
   const { getText } = useCmsPageBuilder("home");
 
-  // Determine if video should be skipped for performance
-  // Skip video on: reduced motion preference, slow connections, or mobile devices
-  const shouldSkipVideo = prefersReducedMotion || isSlow || isMobileViewport;
+  // Determine if video should be skipped for accessibility/performance.
+  // Mobile is not skipped by default; modern mobile browsers can autoplay muted
+  // playsInline video, and the connection hook handles slow/data-saver cases.
+  const shouldSkipVideo = prefersReducedMotion || isSlow;
 
   useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
@@ -166,18 +156,6 @@ export function HeroSection() {
 
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
-    mediaQuery.addEventListener("change", handler);
-    return () => mediaQuery.removeEventListener("change", handler);
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
-      return undefined;
-    }
-
-    const mediaQuery = window.matchMedia("(max-width: 1023px)");
-    const handler = (e: MediaQueryListEvent) => setIsMobileViewport(e.matches);
-    setIsMobileViewport(mediaQuery.matches);
     mediaQuery.addEventListener("change", handler);
     return () => mediaQuery.removeEventListener("change", handler);
   }, []);
@@ -208,9 +186,13 @@ export function HeroSection() {
   useEffect(() => {
     if (!pendingTripPlannerOpen || !isAuthenticated) return;
 
-    setShowLoginModal(false);
-    setTripPlannerOpen(true);
-    setPendingTripPlannerOpen(false);
+    const timeoutId = window.setTimeout(() => {
+      setShowLoginModal(false);
+      setTripPlannerOpen(true);
+      setPendingTripPlannerOpen(false);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [isAuthenticated, pendingTripPlannerOpen]);
 
   const handleCreateTrip = (data: { title: string; description?: string; start_date: string; end_date: string }) => {
@@ -242,20 +224,11 @@ export function HeroSection() {
       resize: "cover",
     }) ?? posterUrl;
 
-  useEffect(() => {
-    if (
-      !hydrated ||
-      !hasVideoUrl ||
-      shouldSkipVideo ||
-      getPrefersReducedData()
-    ) {
-      setCanEnhanceHeroVideo(false);
-      return undefined;
-    }
-
-    setCanEnhanceHeroVideo(true);
-    return undefined;
-  }, [hasVideoUrl, hydrated, shouldSkipVideo, videoUrl]);
+  const canEnhanceHeroVideo =
+    hydrated &&
+    hasVideoUrl &&
+    !shouldSkipVideo &&
+    !getPrefersReducedData();
   const overlayBackup = runtimeSettings.find(
     (setting) => setting.key === HERO_OVERLAY_INTENSITY_SETTING_KEY,
   )?.value;

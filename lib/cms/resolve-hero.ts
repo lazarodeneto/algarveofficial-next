@@ -1,6 +1,6 @@
 export interface CmsHeroData {
   enabled?: boolean;
-  mediaType?: "image" | "video" | "youtube" | "poster";
+  mediaType?: "none" | "image" | "video" | "youtube" | "poster";
   imageUrl?: string | null;
   videoUrl?: string | null;
   youtubeUrl?: string | null;
@@ -38,6 +38,22 @@ export interface CmsPageContent {
   ctaLeaderboard?: string | null;
 }
 
+function inferMediaType(fields: {
+  mediaType?: string | null;
+  imageUrl?: string | null;
+  videoUrl?: string | null;
+  youtubeUrl?: string | null;
+  posterUrl?: string | null;
+}): CmsHeroData["mediaType"] {
+  if (typeof fields.mediaType === "string" && fields.mediaType.trim()) {
+    return fields.mediaType as CmsHeroData["mediaType"];
+  }
+  if (fields.videoUrl) return "video";
+  if (fields.youtubeUrl) return "youtube";
+  if (fields.imageUrl || fields.posterUrl) return "image";
+  return "none";
+}
+
 export function resolveHero(content: CmsPageContent | null | undefined): CmsHeroData {
   if (!content) {
     return getDefaultHero();
@@ -46,7 +62,7 @@ export function resolveHero(content: CmsPageContent | null | undefined): CmsHero
   if (content.hero) {
     return {
       enabled: content.hero.enabled ?? true,
-      mediaType: content.hero.mediaType ?? "image",
+      mediaType: inferMediaType(content.hero),
       imageUrl: content.hero.imageUrl ?? null,
       videoUrl: content.hero.videoUrl ?? null,
       youtubeUrl: content.hero.youtubeUrl ?? null,
@@ -58,7 +74,7 @@ export function resolveHero(content: CmsPageContent | null | undefined): CmsHero
   if (typeof content.mediaType === "string" || typeof content.imageUrl === "string") {
     return {
       enabled: true,
-      mediaType: (content.mediaType as CmsHeroData["mediaType"]) ?? "image",
+      mediaType: inferMediaType(content),
       imageUrl: content.imageUrl ?? null,
       videoUrl: content.videoUrl ?? null,
       youtubeUrl: content.youtubeUrl ?? null,
@@ -71,7 +87,13 @@ export function resolveHero(content: CmsPageContent | null | undefined): CmsHero
     const text = content.text as unknown as LegacyTextHero;
     return {
       enabled: true,
-      mediaType: (text["hero.mediaType"] as CmsHeroData["mediaType"]) ?? "image",
+      mediaType: inferMediaType({
+        mediaType: text["hero.mediaType"],
+        imageUrl: text["hero.imageUrl"],
+        videoUrl: text["hero.videoUrl"],
+        youtubeUrl: text["hero.youtubeUrl"],
+        posterUrl: text["hero.posterUrl"],
+      }),
       imageUrl: text["hero.imageUrl"] ?? null,
       videoUrl: text["hero.videoUrl"] ?? null,
       youtubeUrl: text["hero.youtubeUrl"] ?? null,
@@ -123,7 +145,7 @@ export function resolvePageContent(content: CmsPageContent | null | undefined): 
 function getDefaultHero(): CmsHeroData {
   return {
     enabled: true,
-    mediaType: "image",
+    mediaType: "none",
     imageUrl: null,
     videoUrl: null,
     youtubeUrl: null,
@@ -134,7 +156,13 @@ function getDefaultHero(): CmsHeroData {
 export function buildHeroFromTextMap(textMap: Record<string, string>): CmsHeroData {
   return {
     enabled: true,
-    mediaType: (textMap["hero.mediaType"] as CmsHeroData["mediaType"]) ?? "image",
+    mediaType: inferMediaType({
+      mediaType: textMap["hero.mediaType"],
+      imageUrl: textMap["hero.imageUrl"],
+      videoUrl: textMap["hero.videoUrl"],
+      youtubeUrl: textMap["hero.youtubeUrl"],
+      posterUrl: textMap["hero.posterUrl"],
+    }),
     imageUrl: textMap["hero.imageUrl"] ?? null,
     videoUrl: textMap["hero.videoUrl"] ?? null,
     youtubeUrl: textMap["hero.youtubeUrl"] ?? null,

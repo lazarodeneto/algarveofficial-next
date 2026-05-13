@@ -8,7 +8,6 @@ import type { DivIcon } from "leaflet";
 import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { Calendar, ExternalLink, MapPin, Ticket } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { EventDateBadge } from "@/components/events/EventDateBadge";
 import { cn } from "@/lib/utils";
 import { useHydrated } from "@/hooks/useHydrated";
 import type { CalendarEvent, EventCategory } from "@/types/events";
@@ -180,8 +179,8 @@ function EventMapFitBounds({ points }: { points: EventMapPoint[] }) {
     if (!bounds.isValid()) return;
 
     map.fitBounds(bounds, {
-      paddingTopLeft: [32, 160],
-      paddingBottomRight: [32, 48],
+      paddingTopLeft: [32, 48],
+      paddingBottomRight: [32, 148],
       maxZoom: 11,
       animate: false,
     });
@@ -305,8 +304,8 @@ export function EventMapDirectory({
           </MapContainer>
 
         {selectedEvent && selectedDateBadge ? (
-          <div className="pointer-events-none absolute inset-x-5 top-5 z-[500]">
-            <article className="pointer-events-auto relative mx-auto max-w-sm rounded-2xl border-[1.5px] border-green-500/55 bg-background/95 p-3 shadow-[0_22px_55px_-36px_rgba(22,163,74,0.9)] backdrop-blur-xl transition hover:border-green-600/80 hover:shadow-[0_28px_65px_-38px_rgba(22,163,74,0.95)]">
+          <div className="pointer-events-none absolute inset-x-3 bottom-3 z-[500] flex justify-center sm:inset-x-4 sm:bottom-4">
+            <article className="pointer-events-auto relative w-full max-w-[25rem] rounded-2xl border-[1.5px] border-green-500/55 bg-background/92 p-2 shadow-[0_22px_55px_-36px_rgba(22,163,74,0.9)] backdrop-blur-xl transition hover:border-green-600/80 hover:shadow-[0_28px_65px_-38px_rgba(22,163,74,0.95)]">
               <Link
                 href={getEventHref(selectedEvent)}
                 aria-label={t("events.openEvent", {
@@ -316,79 +315,82 @@ export function EventMapDirectory({
                 className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
               />
 
-              <div className="relative aspect-[16/9] overflow-hidden rounded-xl bg-muted">
-                <Image
-                  src={selectedEvent.image || eventImageFallback}
-                  alt={selectedEvent.title}
-                  fill
-                  unoptimized
-                  sizes="320px"
-                  className="object-cover"
-                />
-                <EventDateBadge
-                  primary={selectedDateBadge.primary}
-                  secondary={selectedDateBadge.secondary}
-                  className="bg-white/95 shadow-sm"
-                />
-              </div>
-
-              <div className="space-y-3 p-2">
-                {selectedCategory && selectedCategoryLabel ? (
-                  <span className={getEventCardCategoryClass(selectedCategory)}>
-                    {selectedCategoryLabel}
-                  </span>
-                ) : null}
-                <div>
-                  <h4 className="line-clamp-2 font-serif text-lg font-semibold leading-tight text-foreground">
-                    {selectedEvent.title}
-                  </h4>
-                  <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-                    {selectedEvent.short_description}
-                  </p>
-                </div>
-
-                <div className="space-y-2 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-3.5 w-3.5 shrink-0 text-primary" />
-                    <span>{getEventCompactDateRangeLabel(selectedEvent, locale)}</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-                    <span className="line-clamp-2">{selectedEvent.venue || selectedEvent.location}</span>
-                  </div>
-                  {selectedPriceRange ? (
-                    <div className="flex items-center gap-2 text-primary">
-                      <Ticket className="h-3.5 w-3.5 shrink-0" />
-                      <span>{selectedPriceRange}</span>
+              <div className="grid grid-cols-[6rem_1fr] gap-3 sm:grid-cols-[7rem_1fr]">
+                <div className="relative h-28 overflow-hidden rounded-xl bg-muted sm:h-32">
+                  <Image
+                    src={selectedEvent.image || eventImageFallback}
+                    alt={selectedEvent.title}
+                    fill
+                    unoptimized
+                    sizes="112px"
+                    className="object-cover"
+                  />
+                  <div className="absolute left-2 top-2 rounded-xl bg-white/95 px-2.5 py-1.5 text-center shadow-sm">
+                    <div className="text-lg font-black leading-none tracking-tight text-slate-950">
+                      {selectedDateBadge.primary}
                     </div>
-                  ) : null}
+                    <div className="mt-0.5 text-[9px] font-black uppercase leading-none text-red-600">
+                      {selectedDateBadge.secondary}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  {selectedEvent.ticket_url ? (
-                    <a
-                      href={selectedEvent.ticket_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="relative z-20 inline-flex h-10 items-center justify-center gap-1.5 rounded-md border border-green-500 bg-green-600 px-3 text-center text-xs font-bold text-white shadow-lg shadow-green-600/20 transition hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
-                    >
-                      {t("events.card.buyTickets", "Buy Tickets")}
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </a>
-                  ) : (
-                    <span
-                      aria-disabled="true"
-                      className="inline-flex h-10 cursor-not-allowed items-center justify-center rounded-md border border-green-300 bg-green-100 px-3 text-center text-xs font-bold text-green-700/70"
-                    >
-                      {t("events.card.buyTickets", "Buy Tickets")}
+                <div className="min-w-0 space-y-2 py-0.5 pr-0.5">
+                  {selectedCategory && selectedCategoryLabel ? (
+                    <span className={cn(getEventCardCategoryClass(selectedCategory), "max-w-full truncate px-2 py-0.5 text-[10px]")}>
+                      {selectedCategoryLabel}
                     </span>
-                  )}
-                  <Link
-                    href={getEventHref(selectedEvent)}
-                    className="relative z-20 inline-flex h-10 items-center justify-center rounded-md bg-slate-100 px-3 text-center text-xs font-bold text-slate-900 transition hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
-                  >
-                    {t("events.card.viewDetails", "View Details")}
-                  </Link>
+                  ) : null}
+
+                  <div>
+                    <h4 className="line-clamp-2 text-base font-bold leading-tight text-foreground">
+                      {selectedEvent.title}
+                    </h4>
+                  </div>
+
+                  <div className="space-y-1.5 text-[11px] leading-tight text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5 shrink-0 text-primary" />
+                      <span className="truncate">{getEventCompactDateRangeLabel(selectedEvent, locale)}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
+                      <span className="truncate">{selectedEvent.venue || selectedEvent.location}</span>
+                    </div>
+                    {selectedPriceRange ? (
+                      <div className="flex items-center gap-1.5 text-primary">
+                        <Ticket className="h-3.5 w-3.5 shrink-0" />
+                        <span className="truncate">{selectedPriceRange}</span>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-1.5 pt-1">
+                    {selectedEvent.ticket_url ? (
+                      <a
+                        href={selectedEvent.ticket_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="relative z-20 inline-flex h-8 items-center justify-center gap-1 rounded-md border border-green-500 bg-green-600 px-2 text-center text-[11px] font-bold text-white shadow-lg shadow-green-600/20 transition hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
+                      >
+                        <span className="truncate">{t("events.card.buyTickets", "Buy Tickets")}</span>
+                        <ExternalLink className="h-3 w-3 shrink-0" />
+                      </a>
+                    ) : (
+                      <span
+                        aria-disabled="true"
+                        className="inline-flex h-8 cursor-not-allowed items-center justify-center rounded-md border border-green-300 bg-green-100 px-2 text-center text-[11px] font-bold text-green-700/70"
+                      >
+                        {t("events.card.buyTickets", "Buy Tickets")}
+                      </span>
+                    )}
+                    <Link
+                      href={getEventHref(selectedEvent)}
+                      className="relative z-20 inline-flex h-8 items-center justify-center rounded-md bg-slate-100 px-2 text-center text-[11px] font-bold text-slate-900 transition hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
+                    >
+                      {t("events.card.viewDetails", "View Details")}
+                    </Link>
+                  </div>
                 </div>
               </div>
             </article>

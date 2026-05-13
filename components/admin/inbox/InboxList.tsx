@@ -2,22 +2,24 @@
 
 import { type KeyboardEvent, type MouseEvent, useState, useTransition } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Archive, Loader2, Mail, MailOpen, Trash2 } from "lucide-react";
+import { Archive, ArchiveRestore, BellOff, Loader2, Mail, MailOpen } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
 import {
   archiveInboxNotification,
-  deleteInboxNotification,
+  dismissInboxNotification,
   markInboxItemReadState,
   markInboxItemUnreadState,
+  restoreInboxNotification,
 } from "@/lib/admin/inbox/actions";
 import { formatInboxSlaRelative } from "@/lib/admin/inbox/format";
 import {
   ADMIN_INBOX_QUERY_KEY,
   type InboxDataSourceError,
   type InboxItem,
+  type InboxStatus,
   type InboxUrgency,
 } from "@/lib/admin/inbox/types";
 import { cn } from "@/lib/utils";
@@ -28,6 +30,7 @@ interface InboxListProps {
   onSelect: (id: string) => void;
   hasActiveFilters: boolean;
   isAssigneeFiltered: boolean;
+  status: InboxStatus;
   onClearFilters: () => void;
   onActionComplete: () => void;
   sourceErrors: InboxDataSourceError[];
@@ -61,6 +64,7 @@ export function InboxList({
   onSelect,
   hasActiveFilters,
   isAssigneeFiltered,
+  status,
   onClearFilters,
   onActionComplete,
   sourceErrors,
@@ -74,15 +78,9 @@ export function InboxList({
   const runRowAction = (
     event: MouseEvent<HTMLButtonElement>,
     item: InboxItem,
-    action: "archive" | "delete" | "read" | "unread",
+    action: "archive" | "dismiss" | "read" | "unread" | "restore",
   ) => {
     event.stopPropagation();
-    if (action === "delete") {
-      const confirmed = window.confirm(
-        "Delete this inbox notification? This removes it from the inbox, but does not delete the source record.",
-      );
-      if (!confirmed) return;
-    }
 
     setActionError(null);
     setPendingItemId(item.id);
@@ -92,11 +90,13 @@ export function InboxList({
       const result =
         action === "archive"
           ? await archiveInboxNotification(input)
-          : action === "delete"
-            ? await deleteInboxNotification(input)
-            : action === "read"
-              ? await markInboxItemReadState(input)
-              : await markInboxItemUnreadState(input);
+          : action === "dismiss"
+            ? await dismissInboxNotification(input)
+            : action === "restore"
+              ? await restoreInboxNotification(input)
+              : action === "read"
+                ? await markInboxItemReadState(input)
+                : await markInboxItemUnreadState(input);
 
       if (!result.ok) {
         setActionError({
@@ -109,12 +109,14 @@ export function InboxList({
 
       const successMessage =
         action === "archive"
-          ? "Notification archived."
-          : action === "delete"
-            ? "Notification deleted."
-            : action === "read"
-              ? "Marked as read."
-              : "Marked as unread.";
+          ? "Message archived."
+          : action === "dismiss"
+            ? "Notification dismissed."
+            : action === "restore"
+              ? "Message restored to inbox."
+              : action === "read"
+                ? "Marked as read."
+                : "Marked as unread.";
       toast.success(successMessage);
       queryClient.invalidateQueries({ queryKey: ADMIN_INBOX_QUERY_KEY, exact: false });
       queryClient.invalidateQueries({ queryKey: ["admin", "inbox", "urgent-count"] });
@@ -142,7 +144,7 @@ export function InboxList({
       );
     }
 
-    if (sourceErrors.length > 0 && !hasActiveFilters && !isAssigneeFiltered) {
+    if (status === "open" && sourceErrors.length > 0 && !hasActiveFilters && !isAssigneeFiltered) {
       return (
         <div className="flex h-full flex-1 flex-col items-center justify-center gap-3 border-r border-border bg-background px-6 text-center">
           <div className="max-w-md rounded-lg border border-amber-400/40 bg-amber-500/10 p-4 text-left">
@@ -190,10 +192,19 @@ export function InboxList({
 
     return (
       <div className="flex h-full flex-1 flex-col items-center justify-center gap-2 border-r border-border bg-background px-6 text-center">
-        <p className="text-sm font-medium text-foreground">Inbox clear — nothing pending.</p>
+        <p className="text-sm font-medium text-foreground">
+          {status === "archived"
+            ? "No archived messages."
+            : status === "resolved"
+              ? "No resolved messages."
+            : status === "dismissed"
+              ? "No dismissed messages."
+              : "No active inbox messages."}
+        </p>
         <p className="max-w-sm text-xs leading-5 text-muted-foreground">
-          Listings, partner requests, reviews, events, billing, translations, system alerts,
-          assignments, and archives were checked successfully.
+          {status === "open"
+            ? "Listings, partner requests, reviews, events, billing, translations, system alerts, assignments, and archives were checked successfully."
+            : "Use the Open status filter to return to the active admin inbox."}
         </p>
       </div>
     );
@@ -206,6 +217,8 @@ export function InboxList({
         const active = item.id === selectedId;
         const isRead = item.isRead ?? false;
         const itemPending = pendingAction && pendingItemId === item.id;
+        const isOpenView = status === "open";
+        const isRestoreView = status === "archived" || status === "dismissed";
 
         return (
           <li key={item.id}>
@@ -272,48 +285,72 @@ export function InboxList({
                 className="absolute right-3 top-3 flex items-center gap-1"
                 aria-label="Inbox row actions"
               >
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  disabled={itemPending}
-                  title={isRead ? "Mark as unread" : "Mark as read"}
-                  aria-label={isRead ? `Mark ${item.title} as unread` : `Mark ${item.title} as read`}
-                  onClick={(event) => runRowAction(event, item, isRead ? "unread" : "read")}
-                  className="h-7 w-7 border border-border/60 bg-background/80 shadow-none backdrop-blur-sm"
-                >
-                  {itemPending ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : isRead ? (
-                    <Mail className="h-3.5 w-3.5" />
-                  ) : (
-                    <MailOpen className="h-3.5 w-3.5" />
-                  )}
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  disabled={itemPending}
-                  title="Archive notification"
-                  aria-label={`Archive ${item.title}`}
-                  onClick={(event) => runRowAction(event, item, "archive")}
-                  className="h-7 w-7 border border-border/60 bg-background/80 shadow-none backdrop-blur-sm"
-                >
-                  <Archive className="h-3.5 w-3.5" />
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  disabled={itemPending}
-                  title="Delete notification"
-                  aria-label={`Delete ${item.title}`}
-                  onClick={(event) => runRowAction(event, item, "delete")}
-                  className="h-7 w-7 border border-destructive/20 bg-background/80 text-destructive shadow-none backdrop-blur-sm hover:bg-destructive/10"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
+                {isOpenView ? (
+                  <>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      disabled={itemPending}
+                      title={isRead ? "Mark as unread" : "Mark as read"}
+                      aria-label={
+                        isRead ? `Mark ${item.title} as unread` : `Mark ${item.title} as read`
+                      }
+                      onClick={(event) => runRowAction(event, item, isRead ? "unread" : "read")}
+                      className="h-7 w-7 border border-border/60 bg-background/80 shadow-none backdrop-blur-sm"
+                    >
+                      {itemPending ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : isRead ? (
+                        <Mail className="h-3.5 w-3.5" />
+                      ) : (
+                        <MailOpen className="h-3.5 w-3.5" />
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      disabled={itemPending}
+                      title="Archive message"
+                      aria-label={`Archive ${item.title}`}
+                      onClick={(event) => runRowAction(event, item, "archive")}
+                      className="h-7 w-7 border border-border/60 bg-background/80 shadow-none backdrop-blur-sm"
+                    >
+                      <Archive className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      disabled={itemPending}
+                      title="Dismiss notification"
+                      aria-label={`Dismiss ${item.title}`}
+                      onClick={(event) => runRowAction(event, item, "dismiss")}
+                      className="h-7 w-7 border border-border/60 bg-background/80 text-muted-foreground shadow-none backdrop-blur-sm hover:bg-muted"
+                    >
+                      <BellOff className="h-3.5 w-3.5" />
+                    </Button>
+                  </>
+                ) : null}
+                {isRestoreView ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    disabled={itemPending}
+                    title="Restore to Inbox"
+                    aria-label={`Restore ${item.title} to inbox`}
+                    onClick={(event) => runRowAction(event, item, "restore")}
+                    className="h-7 w-7 border border-border/60 bg-background/80 shadow-none backdrop-blur-sm"
+                  >
+                    {itemPending ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <ArchiveRestore className="h-3.5 w-3.5" />
+                    )}
+                  </Button>
+                ) : null}
               </div>
               {actionError?.itemId === item.id ? (
                 <p className="mx-4 mb-3 rounded-md border border-destructive/30 bg-destructive/5 px-2 py-1 text-xs text-destructive">

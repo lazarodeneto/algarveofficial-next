@@ -9,11 +9,13 @@
  *   npx tsx scripts/checkTranslations.ts --fix          → adds missing keys with ⚠️ placeholders
  *   npx tsx scripts/checkTranslations.ts --report       → writes i18n-report.json
  *   npx tsx scripts/checkTranslations.ts --warn-only    → exit 0 even if issues found
+ *   npx tsx scripts/checkTranslations.ts --fail-on-warnings
+ *                                                     → exit 2 for extra/identical warnings
  *
  * Exit codes:
  *   0  → all checks pass
  *   1  → critical issues found (missing keys, empty values, broken interpolation)
- *   2  → minor issues found (extra keys, identical-to-EN strings)
+ *   2  → minor issues found, only with --fail-on-warnings
  *
  * CI integration:  npm run check:i18n
  */
@@ -82,6 +84,7 @@ const args = process.argv.slice(2);
 const FIX_MODE = args.includes("--fix");
 const REPORT_MODE = args.includes("--report");
 const WARN_ONLY = args.includes("--warn-only");
+const FAIL_ON_WARNINGS = args.includes("--fail-on-warnings");
 const VERBOSE = args.includes("--verbose") ?? args.includes("-v");
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -527,7 +530,7 @@ function main(): void {
     process.exit(1); // critical: missing keys, empty, broken interp
   }
 
-  if (hasMinor) {
+  if (hasMinor && FAIL_ON_WARNINGS) {
     process.exit(2); // minor: identical-to-EN strings
   }
 

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Loader2, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -18,9 +17,10 @@ import {
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
+import { useHomepageListingSegment } from "@/hooks/useHomepageListingSegment";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { usePageLoadListingShuffle } from "@/hooks/usePageLoadListingShuffle";
-import { usePublishedListings, type ListingWithRelations } from "@/hooks/useListings";
+import { usePublishedListings } from "@/hooks/useListings";
 import { useCategories, useCities, useRegions } from "@/hooks/useReferenceData";
 import { trackBlockImpression, trackListingClick } from "@/lib/analytics/platformTracking";
 import { buildMergedCategoryOptions, getMergedCategoryBySlug } from "@/lib/categoryMerges";
@@ -35,7 +35,6 @@ import { cmsText, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
 import { isApprovedGolfCourse } from "@/lib/golf/allowed-courses";
 import { HOMEPAGE_PREMIUM_LIMIT } from "@/lib/listings/homepage-listing-pool";
 import { normalizePublicContentLocale } from "@/lib/publicContentLocale";
-import { homepageListingSplitQueryKey } from "@/lib/query-keys";
 
 const ITEMS_PER_PAGE = 12;
 const DEFAULT_FORCED_CATEGORY_LISTINGS = 24;
@@ -77,11 +76,7 @@ function HomepagePremiumListingsSection({ copy }: { copy?: HomeSectionCopy }) {
   const locale = normalizePublicContentLocale(useCurrentLocale());
   const { getBlockData } = useCmsPageBuilder("home");
   const placementSelection = normalizePlacementSelection(getBlockData("all-listings").selection);
-  const { data: homepagePremiumListings = [], isLoading } = useQuery<ListingWithRelations[]>({
-    queryKey: homepageListingSplitQueryKey("premium", locale),
-    queryFn: async () => [],
-    staleTime: 60 * 1000,
-  });
+  const { data: homepagePremiumListings = [], isLoading } = useHomepageListingSegment("premium", locale);
 
   const selectedListings = useMemo(
     () => homepagePremiumListings.slice(0, HOMEPAGE_PREMIUM_LIMIT),

@@ -6,11 +6,15 @@ import {
   archiveInboxItem,
   assignInboxItem,
   deleteInboxNotification,
+  dismissInboxNotification,
   markInboxItemRead,
   markInboxItemReadState,
   markInboxItemUnreadState,
   rejectInboxItem,
+  restoreInboxNotification,
 } from "@/lib/admin/inbox/actions";
+import { getFreshInboxSnapshot } from "@/lib/admin/inbox/aggregator";
+import type { InboxItem, InboxSnapshot } from "@/lib/admin/inbox/types";
 import { createClient as createCookieClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 
@@ -28,8 +32,73 @@ vi.mock("@/lib/supabase/service", () => ({
   createServiceRoleClient: vi.fn(),
 }));
 
+vi.mock("@/lib/admin/inbox/aggregator", () => ({
+  getFreshInboxSnapshot: vi.fn(),
+}));
+
 const mockedCreateCookieClient = vi.mocked(createCookieClient);
 const mockedCreateServiceRoleClient = vi.mocked(createServiceRoleClient);
+const mockedGetFreshInboxSnapshot = vi.mocked(getFreshInboxSnapshot);
+
+const SNAPSHOT_ITEM = {
+  id: "claim:22222222-2222-4222-8222-222222222222",
+  domain: "listings",
+  source: "listing_claim",
+  sourceRowId: "22222222-2222-4222-8222-222222222222",
+  title: "Partner request: Test Business",
+  summary: "Owner · owner@example.com",
+  createdAt: "2026-05-13T08:00:00.000Z",
+  owner: { id: "owner@example.com", name: "Owner" },
+  assignee: null,
+  isRead: false,
+  readAt: null,
+  status: "open",
+  statusChangedAt: null,
+  statusReason: null,
+  sla: {
+    dueAt: "2026-05-14T08:00:00.000Z",
+    minutesRemaining: 120,
+  },
+  urgency: "soon",
+  resolution: { primary: "reject", available: ["reject", "assign", "archive"] },
+  meta: {
+    claimId: "22222222-2222-4222-8222-222222222222",
+    listingId: null,
+    requestType: "claim-business",
+    contactEmail: "owner@example.com",
+  },
+} satisfies InboxItem;
+
+function snapshotWith(items: InboxItem[] = [SNAPSHOT_ITEM]): InboxSnapshot {
+  return {
+    items,
+    counts: {
+      total: items.filter((item) => item.status === "open").length,
+      urgent: 0,
+      soon: 1,
+      normal: 0,
+      archived: 0,
+      resolved: 0,
+      dismissed: 0,
+      byStatus: {
+        open: items.filter((item) => item.status === "open").length,
+        archived: 0,
+        resolved: 0,
+        dismissed: 0,
+      },
+      byDomain: {
+        listings: items.length,
+        reviews: 0,
+        events: 0,
+        billing: 0,
+        translations: 0,
+        system: 0,
+      },
+    },
+    errors: [],
+    generatedAt: "2026-05-13T08:00:00.000Z",
+  };
+}
 
 function mockAdminSession() {
   mockedCreateCookieClient.mockResolvedValue({
@@ -46,6 +115,7 @@ function mockAdminSession() {
 beforeEach(() => {
   vi.clearAllMocks();
   mockAdminSession();
+  mockedGetFreshInboxSnapshot.mockResolvedValue(snapshotWith());
 });
 
 describe("admin inbox actions", () => {
@@ -99,7 +169,8 @@ describe("admin inbox actions", () => {
     const secondEq = vi.fn(() => ({ select }));
     const firstEq = vi.fn(() => ({ eq: secondEq }));
     const update = vi.fn(() => ({ eq: firstEq }));
-    const from = vi.fn(() => ({ update }));
+    const upsert = vi.fn().mockResolvedValue({ error: null });
+    const from = vi.fn((table: string) => (table === "listing_claims" ? { update } : { upsert }));
     mockedCreateServiceRoleClient.mockReturnValue({ from } as never);
 
     const result = await rejectInboxItem({
@@ -118,6 +189,17 @@ describe("admin inbox actions", () => {
     );
     expect(firstEq).toHaveBeenCalledWith("id", "22222222-2222-4222-8222-222222222222");
     expect(secondEq).toHaveBeenCalledWith("status", "pending");
+    expect(from).toHaveBeenCalledWith("admin_inbox_archives");
+    expect(upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        source: "listing_claim",
+        source_row_id: "22222222-2222-4222-8222-222222222222",
+        status: "resolved",
+        reason: "rejected_from_inbox",
+        item_snapshot: SNAPSHOT_ITEM,
+      }),
+      { onConflict: "source,source_row_id" },
+    );
   });
 
   it("does not archive derived system alerts that must be resolved at source", async () => {
@@ -200,6 +282,87 @@ describe("admin inbox actions", () => {
       }),
       { onConflict: "source,source_row_id" },
     );
+  });
+
+  it("dismisses an inbox notification without deleting its source row", async () => {
+    const upsert = vi.fn().mockResolvedValue({ error: null });
+    const from = vi.fn(() => ({ upsert }));
+    mockedCreateServiceRoleClient.mockReturnValue({ from } as never);
+
+    const result = await dismissInboxNotification({
+      source: "translation_job",
+      sourceRowId: "22222222-2222-4222-8222-222222222222",
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(from).toHaveBeenCalledWith("admin_inbox_archives");
+    expect(upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        source: "translation_job",
+        source_row_id: "22222222-2222-4222-8222-222222222222",
+        reason: "dismissed_from_inbox",
+      }),
+      { onConflict: "source,source_row_id" },
+    );
+  });
+
+  it("restores an archived inbox notification by clearing the suppression row", async () => {
+    const neq = vi.fn().mockResolvedValue({ error: null });
+    const secondEq = vi.fn(() => ({ neq }));
+    const firstEq = vi.fn(() => ({ eq: secondEq }));
+    const deleteQuery = vi.fn(() => ({ eq: firstEq }));
+    const from = vi.fn(() => ({ delete: deleteQuery }));
+    mockedCreateServiceRoleClient.mockReturnValue({ from } as never);
+
+    const result = await restoreInboxNotification({
+      source: "listing_moderation",
+      sourceRowId: "22222222-2222-4222-8222-222222222222",
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(from).toHaveBeenCalledWith("admin_inbox_archives");
+    expect(deleteQuery).toHaveBeenCalled();
+    expect(firstEq).toHaveBeenCalledWith("source", "listing_moderation");
+    expect(secondEq).toHaveBeenCalledWith(
+      "source_row_id",
+      "22222222-2222-4222-8222-222222222222",
+    );
+    expect(neq).toHaveBeenCalledWith("reason", "read_from_list");
+  });
+
+  it("restores a legacy-encoded archived inbox notification", async () => {
+    const neqCalls: Array<[string, string]> = [];
+    const eqCalls: Array<[string, string]> = [];
+    const makeDeleteChain = () => {
+      const neq = vi.fn((column: string, value: string) => {
+        neqCalls.push([column, value]);
+        return Promise.resolve({ error: null });
+      });
+      const secondEq = vi.fn((column: string, value: string) => {
+        eqCalls.push([column, value]);
+        return { neq };
+      });
+      const firstEq = vi.fn((column: string, value: string) => {
+        eqCalls.push([column, value]);
+        return { eq: secondEq };
+      });
+      return { eq: firstEq };
+    };
+    const deleteQuery = vi.fn(makeDeleteChain);
+    const from = vi.fn(() => ({ delete: deleteQuery }));
+    mockedCreateServiceRoleClient.mockReturnValue({ from } as never);
+
+    const result = await restoreInboxNotification({
+      source: "translation_job",
+      sourceRowId: "22222222-2222-4222-8222-222222222222",
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(deleteQuery).toHaveBeenCalledTimes(2);
+    expect(eqCalls).toContainEqual(["source", "translation_job"]);
+    expect(eqCalls).toContainEqual(["source", "listing_moderation"]);
+    expect(neqCalls).toContainEqual(["reason", "read_from_list"]);
+    expect(neqCalls).toContainEqual(["reason", "read_from_list:translation_job"]);
   });
 
   it("marks an inbox row read through a non-hiding side-table reason", async () => {

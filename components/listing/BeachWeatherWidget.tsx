@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { CloudSun, Wind } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
@@ -32,7 +33,13 @@ async function fetchBeachWeather(latitude: number, longitude: number) {
     throw new Error(`Weather request failed: ${response.status}`);
   }
 
-  return (await response.json()) as WeatherResponse;
+  const payload = (await response.json()) as WeatherResponse;
+
+  if (!payload.ok) {
+    throw new Error(`Weather unavailable: ${payload.error}`);
+  }
+
+  return payload;
 }
 
 function formatNumber(value: number | null | undefined, maximumFractionDigits = 0) {
@@ -42,7 +49,16 @@ function formatNumber(value: number | null | undefined, maximumFractionDigits = 
 
 function WeatherIcon({ weather }: { weather: WeatherSummary | null }) {
   if (weather?.conditionIconUrl) {
-    return <img src={weather.conditionIconUrl} alt="" className="h-7 w-7" loading="lazy" />;
+    return (
+      <Image
+        src={weather.conditionIconUrl}
+        alt=""
+        width={28}
+        height={28}
+        className="h-7 w-7"
+        unoptimized
+      />
+    );
   }
 
   return <CloudSun className="h-5 w-5" aria-hidden="true" />;
@@ -58,19 +74,25 @@ export function BeachWeatherWidget({
   const canLoadWeather = hasCoordinates(latitude, longitude);
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["beach-weather", latitude?.toFixed(4), longitude?.toFixed(4)],
+    queryKey: ["beach-weather", "weatherapi-v2", latitude?.toFixed(4), longitude?.toFixed(4)],
     queryFn: () => fetchBeachWeather(latitude as number, longitude as number),
     enabled: canLoadWeather,
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
-    retry: 1,
+    retry: (failureCount, error) => {
+      const message = error instanceof Error ? error.message : "";
+      if (message.includes("missing_api_key") || message.includes("invalid_coordinates")) {
+        return false;
+      }
+      return failureCount < 1;
+    },
     refetchOnWindowFocus: false,
   });
 
   if (!canLoadWeather) return null;
 
-  const weather = data?.ok ? data : null;
-  const unavailable = !isLoading && (isError || data?.ok === false);
+  const weather = data ?? null;
+  const unavailable = !isLoading && isError;
   const temperature = formatNumber(weather?.temperatureC);
   const wind = formatNumber(weather?.windKph);
   const uv = formatNumber(weather?.uvIndex, 1);

@@ -6,7 +6,6 @@ import {
   isSupportedBlockType,
   type SupportedBlockType,
 } from "./block-schemas";
-import { resolveHero } from "./resolve-hero";
 
 interface LegacyPageConfig {
   hero?: Record<string, unknown>;
@@ -76,7 +75,7 @@ function convertLegacyTextToHero(textMap: Record<string, string> | undefined) {
   }
 
   const heroFields = ["mediaType", "imageUrl", "videoUrl", "youtubeUrl", "posterUrl"];
-  const hasHeroData = heroFields.some((key) => textMap[`hero.${key}`]);
+  const hasHeroData = heroFields.some((key) => Object.prototype.hasOwnProperty.call(textMap, `hero.${key}`));
 
   if (!hasHeroData) {
     return undefined;
@@ -84,7 +83,14 @@ function convertLegacyTextToHero(textMap: Record<string, string> | undefined) {
 
   return {
     enabled: true,
-    mediaType: (textMap["hero.mediaType"] as "image" | "video" | "youtube" | "poster") ?? "image",
+    mediaType: (textMap["hero.mediaType"] as "none" | "image" | "video" | "youtube" | "poster" | undefined) ??
+      (textMap["hero.videoUrl"]
+        ? "video"
+        : textMap["hero.youtubeUrl"]
+          ? "youtube"
+          : textMap["hero.imageUrl"] || textMap["hero.posterUrl"]
+            ? "image"
+            : "none"),
     imageUrl: textMap["hero.imageUrl"],
     videoUrl: textMap["hero.videoUrl"],
     youtubeUrl: textMap["hero.youtubeUrl"],

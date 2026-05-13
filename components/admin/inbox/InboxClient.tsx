@@ -10,9 +10,9 @@ import { InboxList } from "./InboxList";
 import { Button } from "@/components/ui/Button";
 import {
   DEFAULT_INBOX_FILTERS,
-  isDefaultInboxFilters,
   useInboxFiltersState,
 } from "@/components/admin/inbox-filters-state";
+import { filterInboxItems, getInboxFilterCounts } from "@/lib/admin/inbox/filtering";
 import {
   ADMIN_INBOX_QUERY_KEY,
   type InboxItem,
@@ -71,27 +71,11 @@ export function InboxClient({ initialSnapshot, currentUserId }: InboxClientProps
   const snapshot = query.data?.snapshot ?? initialSnapshot;
   const effectiveUserId = query.data?.currentUserId || currentUserId;
   const [selectedId, setSelectedId] = useState<string | null>(
-    snapshot.items[0]?.id ?? null,
+    snapshot.items.find((item) => item.status === "open")?.id ?? null,
   );
   const [drawerOpen, setDrawerOpen] = useState(false);
   const sourceErrors = snapshot.errors ?? [];
   const queryError = query.error instanceof Error ? query.error.message : null;
-
-  useEffect(() => {
-    const assignedToMe =
-      snapshot.counts.assignedToMe ??
-      (effectiveUserId == null
-        ? 0
-        : snapshot.items.filter((item) => item.assignee?.id === effectiveUserId).length);
-    setCounts({
-      total: snapshot.counts.total,
-      urgent: snapshot.counts.urgent,
-      soon: snapshot.counts.soon,
-      normal: snapshot.counts.normal,
-      assignedToMe,
-      byDomain: snapshot.counts.byDomain,
-    });
-  }, [effectiveUserId, snapshot.counts, snapshot.items, setCounts]);
 
   useEffect(() => {
     return () => {
@@ -99,30 +83,27 @@ export function InboxClient({ initialSnapshot, currentUserId }: InboxClientProps
     };
   }, [reset]);
 
-  useEffect(() => {
-    if (!selectedId) {
-      setSelectedId(snapshot.items[0]?.id ?? null);
-      return;
-    }
-    if (!snapshot.items.some((item) => item.id === selectedId)) {
-      setSelectedId(snapshot.items[0]?.id ?? null);
-    }
-  }, [snapshot.items, selectedId]);
-
   const filtered = useMemo<InboxItem[]>(() => {
-    return snapshot.items.filter((item) => {
-      if (filters.domain !== "all" && item.domain !== filters.domain) return false;
-      if (filters.urgency !== "all" && item.urgency !== filters.urgency) return false;
-      if (filters.assignee === "me") {
-        if (!effectiveUserId || item.assignee?.id !== effectiveUserId) return false;
-      }
-      return true;
-    });
+    return filterInboxItems(snapshot.items, filters, effectiveUserId);
   }, [snapshot.items, filters, effectiveUserId]);
 
+  const filterCounts = useMemo(
+    () => getInboxFilterCounts(snapshot.items, filters.status, effectiveUserId),
+    [snapshot.items, filters.status, effectiveUserId],
+  );
+
+  useEffect(() => {
+    setCounts(filterCounts);
+  }, [filterCounts, setCounts]);
+
+  const effectiveSelectedId =
+    selectedId && filtered.some((item) => item.id === selectedId)
+      ? selectedId
+      : filtered[0]?.id ?? null;
+
   const selectedItem = useMemo(
-    () => filtered.find((item) => item.id === selectedId) ?? null,
-    [filtered, selectedId],
+    () => filtered.find((item) => item.id === effectiveSelectedId) ?? null,
+    [filtered, effectiveSelectedId],
   );
 
   const handleSelect = useCallback((id: string) => {
@@ -146,9 +127,26 @@ export function InboxClient({ initialSnapshot, currentUserId }: InboxClientProps
     refetch();
   }, [queryClient, refetch]);
 
-  const hasActiveFilters = !isDefaultInboxFilters(filters);
+  const hasNarrowingFilters =
+    filters.domain !== "all" || filters.urgency !== "all" || filters.assignee !== "all";
   const isAssigneeFiltered = filters.assignee === "me";
   const lastUpdated = new Date(snapshot.generatedAt).toLocaleString();
+  const viewTitle =
+    filters.status === "archived"
+      ? "Archived Inbox"
+      : filters.status === "resolved"
+        ? "Resolved Inbox"
+      : filters.status === "dismissed"
+        ? "Dismissed Inbox"
+        : "Admin Inbox";
+  const viewSummary =
+    filters.status === "archived"
+      ? `${filterCounts.total} archived · ${filterCounts.urgent} archived urgent · Checked ${lastUpdated}`
+      : filters.status === "resolved"
+        ? `${filterCounts.total} resolved · Checked ${lastUpdated}`
+      : filters.status === "dismissed"
+        ? `${filterCounts.total} dismissed · Checked ${lastUpdated}`
+        : `${filterCounts.total} open · ${filterCounts.urgent} urgent · Checked ${lastUpdated}`;
 
   if (!query.data && query.isPending) {
     return (
@@ -166,9 +164,9 @@ export function InboxClient({ initialSnapshot, currentUserId }: InboxClientProps
       <main className="flex min-w-0 flex-1 flex-col">
         <header className="flex shrink-0 flex-col gap-3 border-b border-border bg-background px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <h1 className="font-serif text-xl font-semibold text-foreground">Admin Inbox</h1>
+            <h1 className="font-serif text-xl font-semibold text-foreground">{viewTitle}</h1>
             <p className="text-xs text-muted-foreground">
-              {snapshot.counts.total} open · {snapshot.counts.urgent} urgent · Checked {lastUpdated}
+              {viewSummary}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -200,10 +198,11 @@ export function InboxClient({ initialSnapshot, currentUserId }: InboxClientProps
         </header>
         <InboxList
           items={filtered}
-          selectedId={selectedId}
+          selectedId={effectiveSelectedId}
           onSelect={handleSelect}
-          hasActiveFilters={hasActiveFilters}
+          hasActiveFilters={hasNarrowingFilters}
           isAssigneeFiltered={isAssigneeFiltered}
+          status={filters.status}
           onClearFilters={handleClearFilters}
           onActionComplete={handleResolved}
           sourceErrors={sourceErrors}
@@ -216,6 +215,7 @@ export function InboxClient({ initialSnapshot, currentUserId }: InboxClientProps
         onOpenChange={setDrawerOpen}
         onResolved={handleResolved}
         currentUserId={effectiveUserId}
+        viewStatus={filters.status}
       />
     </div>
   );

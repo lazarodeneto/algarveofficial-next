@@ -853,6 +853,11 @@
       "verifiedBooking": "Geverifieerde boeking",
       "readMore": "Lees meer",
       "seeMoreReviews": "Meer beoordelingen bekijken",
+      "relatedGuidesEyebrow": "Meer ontdekken",
+      "relatedGuides": "Gerelateerde strandgidsen",
+      "relatedGuidesDescription": "Snelle kustzoekopdrachten, plekken in de buurt en reisideeën rond dit strand.",
+      "relatedLinksCount": "{{count}} links",
+      "relatedLinksTotal": "{{count}} links",
       "relatedBeachTags": "Gerelateerde strandtags",
       "topAttractions": "Topattracties in {{place}}",
       "experiences": "Ervaringen in {{place}}",
@@ -2469,7 +2474,7 @@
     "plotSize": "Perceelgrootte",
     "price": "Prijs",
     "priceOnRequest": "Prijs op aanvraag",
-    "relatedDestinations": "Related destinations",
+    "relatedDestinations": "Gerelateerde bestemmingen",
     "relatedListings": "More {{category}} to explore",
     "reviews": {
       "content": "Review",
@@ -2498,7 +2503,7 @@
     "viewGallery": "View gallery",
     "viewOnMap": "Bekijk op kaart",
     "visitWebsite": "Visit website",
-    "relatedDestinationsDescription": "Explore nearby Algarve destinations with curated places and services.",
+    "relatedDestinationsDescription": "Ontdek nabijgelegen bestemmingen in de Algarve met zorgvuldig geselecteerde plekken en services.",
     "social": {
       "instagram": "Instagram",
       "facebook": "Facebook",
@@ -2826,8 +2831,10 @@
     "faroDistrict": "District Faro",
     "faroShort": "Faro",
     "loading": "Weer voor Faro laden",
-    "temperatureLabel": "Weer in district Faro: {{celsius}}°C / {{fahrenheit}}°F",
-    "unavailable": "Weer niet beschikbaar"
+    "temperatureLabel": "Weer in {{place}}: {{celsius}}°C / {{fahrenheit}}°F",
+    "unavailable": "Weer niet beschikbaar",
+    "algarveRegion": "Algarve",
+    "algarveShort": "Algarve"
   },
   "notFound": {
     "backHome": "Terug naar Home",

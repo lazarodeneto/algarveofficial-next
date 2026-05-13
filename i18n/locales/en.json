@@ -2799,10 +2799,12 @@
     "welcomeMessage": "Welcome to AlgarveOfficial! Check your inbox soon."
   },
   "weather": {
-    "faroDistrict": "Faro District",
+    "algarveRegion": "Algarve",
+    "algarveShort": "Algarve",
+    "faroDistrict": "Faro",
     "faroShort": "Faro",
-    "loading": "Loading Faro weather",
-    "temperatureLabel": "Faro District weather: {{celsius}}°C / {{fahrenheit}}°F",
+    "loading": "Loading weather",
+    "temperatureLabel": "{{place}} weather: {{celsius}}°C / {{fahrenheit}}°F",
     "unavailable": "Weather unavailable"
   },
   "notFound": {

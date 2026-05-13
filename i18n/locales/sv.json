@@ -853,6 +853,11 @@
       "verifiedBooking": "Verifierad bokning",
       "readMore": "Läs mer",
       "seeMoreReviews": "Se fler recensioner",
+      "relatedGuidesEyebrow": "Utforska mer",
+      "relatedGuides": "Relaterade strandguider",
+      "relatedGuidesDescription": "Snabba kustsökningar, platser i närheten och reseidéer kopplade till den här stranden.",
+      "relatedLinksCount": "{{count}} länkar",
+      "relatedLinksTotal": "{{count}} länkar",
       "relatedBeachTags": "Relaterade strandtaggar",
       "topAttractions": "Toppattraktioner i {{place}}",
       "experiences": "Upplevelser i {{place}}",
@@ -2469,7 +2474,7 @@
     "plotSize": "Tomtstorlek",
     "price": "Pris",
     "priceOnRequest": "Pris på förfrågan",
-    "relatedDestinations": "Related destinations",
+    "relatedDestinations": "Relaterade destinationer",
     "relatedListings": "More {{category}} to explore",
     "reviews": {
       "content": "Omdöme",
@@ -2498,7 +2503,7 @@
     "viewGallery": "View gallery",
     "viewOnMap": "Visa på kartan",
     "visitWebsite": "Visit website",
-    "relatedDestinationsDescription": "Explore nearby Algarve destinations with curated places and services.",
+    "relatedDestinationsDescription": "Utforska närliggande destinationer i Algarve med utvalda platser och tjänster.",
     "social": {
       "instagram": "Instagram",
       "facebook": "Facebook",
@@ -2826,8 +2831,10 @@
     "faroDistrict": "Faro-distriktet",
     "faroShort": "Faro",
     "loading": "Laddar väder för Faro",
-    "temperatureLabel": "Väder i Faro-distriktet: {{celsius}}°C / {{fahrenheit}}°F",
-    "unavailable": "Väder ej tillgängligt"
+    "temperatureLabel": "Väder i {{place}}: {{celsius}}°C / {{fahrenheit}}°F",
+    "unavailable": "Väder ej tillgängligt",
+    "algarveRegion": "Algarve",
+    "algarveShort": "Algarve"
   },
   "notFound": {
     "backHome": "Tillbaka till hemmet",

@@ -83,11 +83,31 @@ describe("category-specific listing layouts", () => {
 
     expect(screen.getByText("categoryLayouts.beach.highlights")).toBeInTheDocument();
     expect(screen.getByText("Cliff views")).toBeInTheDocument();
+    expect(screen.getByText("listing.location")).toBeInTheDocument();
+    expect(screen.getAllByText("Praia Teste, Lagoa, Algarve Portugal").length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: "categoryLayouts.beach.seeMore" })).toHaveAttribute(
       "aria-expanded",
       "false",
     );
     expect(screen.getByText("Nearby Beach")).toBeInTheDocument();
     expect(screen.getByText("categoryLayouts.beach.relatedBeachTags")).toBeInTheDocument();
+  });
+
+  it("renders the beach location map from category data coordinates", () => {
+    render(
+      <BeachesLayout
+        details={{
+          coordinates: {
+            latitude: "37.09",
+            longitude: "-8.41",
+          },
+        }}
+        listingName="Praia Coordenada"
+        cityName="Lagoa"
+      />,
+    );
+
+    expect(screen.getByText("listing.location")).toBeInTheDocument();
+    expect(screen.getAllByText("Praia Coordenada, Lagoa, Algarve Portugal").length).toBeGreaterThan(0);
   });
 });

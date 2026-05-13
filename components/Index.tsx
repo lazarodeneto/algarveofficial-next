@@ -2,17 +2,15 @@
 
 import { useMemo, type ComponentType } from "react";
 import dynamic from "next/dynamic";
-import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/layout/Header";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { SoftReveal } from "@/components/ui/SoftReveal";
+import { useHomepageListingSegment } from "@/hooks/useHomepageListingSegment";
 import { useHomepageSettings } from "@/hooks/useHomepageSettings";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { getHomeSectionCopy, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
-import type { ListingWithRelations } from "@/hooks/useListings";
-import { homepageListingSplitQueryKey } from "@/lib/query-keys";
 import { normalizePublicContentLocale } from "@/lib/publicContentLocale";
 
 function HomeSectionFallback() {
@@ -177,9 +175,9 @@ const DEFAULT_SECTION_ORDER = [
   "categories",
   "featured-city",
   "vip",
+  "all-listings",
   "cities",
   "all-cities",
-  "all-listings",
   "algarve-guide",
   "newsletter",
   "cta",
@@ -211,13 +209,19 @@ function moveSectionAfter(order: string[], sectionId: string, afterSectionId: st
 }
 
 function applyHomepageHierarchy(order: string[]) {
-  return moveSectionAfter(
+  const editorialOrder = moveSectionAfter(
     moveSectionBefore(
       moveSectionBefore(order, "vip", "all-cities"),
       "curated",
       "all-cities",
     ),
     "cta",
+    "all-listings",
+  );
+
+  return moveSectionAfter(
+    moveSectionAfter(editorialOrder, "all-cities", "all-listings"),
+    "cities",
     "all-listings",
   );
 }
@@ -255,16 +259,8 @@ const Index = () => {
   const { settings, isLoading } = useHomepageSettings();
   const { getBlockOrder, isBlockEnabled } = useCmsPageBuilder("home");
   const locale = normalizePublicContentLocale(useCurrentLocale());
-  const { data: editorListings = [] } = useQuery<ListingWithRelations[]>({
-    queryKey: homepageListingSplitQueryKey("editors", locale),
-    queryFn: async () => [],
-    staleTime: 60 * 1000,
-  });
-  const { data: premiumListings = [] } = useQuery<ListingWithRelations[]>({
-    queryKey: homepageListingSplitQueryKey("premium", locale),
-    queryFn: async () => [],
-    staleTime: 60 * 1000,
-  });
+  const { data: editorListings = [] } = useHomepageListingSegment("editors", locale);
+  const { data: premiumListings = [] } = useHomepageListingSegment("premium", locale);
   const homepageListingCount = editorListings.length + premiumListings.length;
 
   // Compute which sections to render and in what order

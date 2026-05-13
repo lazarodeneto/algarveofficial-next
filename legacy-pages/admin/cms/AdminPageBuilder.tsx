@@ -92,6 +92,12 @@ import {
 import { validateCmsPageBuilderDraft } from "@/lib/cms/page-builder-validation";
 import { resolveHero, resolvePageContent } from "@/lib/cms/resolve-hero";
 import { getDefaultBlockSettings, isSupportedBlockType, type CmsPageConfig } from "@/lib/cms/block-schemas";
+import {
+  isValidYouTubeUrl,
+  normalizeHeroMediaConfig,
+  resetHeroMediaConfig,
+  type HeroMediaType,
+} from "@/lib/cms/hero-media";
 
 const ENABLE_VISUAL_BLOCK_BUILDER = true;
 
@@ -1109,11 +1115,54 @@ function AdminPageBuilderContent() {
   }, [pageConfigs, selectedPageId, visualConfig]);
   const selectedPageTextMap = selectedPageConfig.text ?? {};
   const heroMediaSupported = HERO_MEDIA_SUPPORTED_PAGE_IDS.has(selectedPageId);
-  const heroMediaType = selectedPageTextMap["hero.mediaType"] ?? "image";
   const heroImageUrl = selectedPageTextMap["hero.imageUrl"] ?? "";
   const heroVideoUrl = selectedPageTextMap["hero.videoUrl"] ?? "";
   const heroYoutubeUrl = selectedPageTextMap["hero.youtubeUrl"] ?? "";
   const heroPosterUrl = selectedPageTextMap["hero.posterUrl"] ?? "";
+  const normalizedHeroMedia = useMemo(
+    () =>
+      normalizeHeroMediaConfig({
+        mediaType: selectedPageTextMap["hero.mediaType"],
+        imageUrl: heroImageUrl,
+        videoUrl: heroVideoUrl,
+        youtubeUrl: heroYoutubeUrl,
+        posterUrl: heroPosterUrl,
+      }),
+    [
+      heroImageUrl,
+      heroPosterUrl,
+      heroVideoUrl,
+      heroYoutubeUrl,
+      selectedPageTextMap,
+    ],
+  );
+  const heroMediaType = normalizedHeroMedia.type;
+  const heroMediaIsReset =
+    heroMediaType === "none" &&
+    !heroImageUrl.trim() &&
+    !heroVideoUrl.trim() &&
+    !heroYoutubeUrl.trim() &&
+    !heroPosterUrl.trim();
+  const hasHeroYoutubeUrl = heroYoutubeUrl.trim().length > 0;
+  const heroMediaPreviewStatus =
+    heroMediaType === "image"
+      ? "Public hero will use image background"
+      : heroMediaType === "video"
+        ? "Public hero will use video background"
+        : heroMediaType === "youtube"
+          ? "Public hero will use YouTube background"
+          : "Public hero will use black background";
+  const heroMediaWarnings = [
+    heroMediaType === "image" && !heroImageUrl.trim()
+      ? "Image mode needs a Hero Background Image URL. The public hero will fall back to black until one is added."
+      : null,
+    heroMediaType === "video" && !heroVideoUrl.trim()
+      ? "Video mode needs a Hero Background Video URL. The public hero will use the poster if available, otherwise black."
+      : null,
+    heroMediaType === "youtube" && (!heroYoutubeUrl.trim() || !isValidYouTubeUrl(heroYoutubeUrl))
+      ? "YouTube mode needs a valid HTTPS YouTube URL. The public hero will use the poster if available, otherwise black."
+      : null,
+  ].filter((message): message is string => Boolean(message));
   const resolvedHeroMedia = useMemo(
     () => resolveHero(selectedPageConfig as Parameters<typeof resolveHero>[0]),
     [selectedPageConfig],
@@ -1631,14 +1680,15 @@ function AdminPageBuilderContent() {
 
   const setPageTextValue = (textKey: string, value: string) => {
     setIsCmsDirty(true);
-    const isGolfHeroMediaField =
-      selectedPageId === "golf" &&
-      (textKey === "hero.imageUrl" ||
-        textKey === "hero.videoUrl" ||
-        textKey === "hero.youtubeUrl" ||
-        textKey === "hero.posterUrl");
+    const isHeroMediaField =
+      textKey === "hero.imageUrl" ||
+      textKey === "hero.videoUrl" ||
+      textKey === "hero.youtubeUrl" ||
+      textKey === "hero.posterUrl";
     const isMediaTypeField = textKey === "hero.mediaType";
-    const normalizedInput = isMediaTypeField ? value.trim().toLowerCase() : value;
+    const normalizedInput = isMediaTypeField
+      ? normalizeHeroMediaConfig({ mediaType: value }).type
+      : value;
     const heroField = getHeroFieldFromTextKey(textKey);
 
     setPageConfigs((prev) => {
@@ -1651,15 +1701,15 @@ function AdminPageBuilderContent() {
 
       if (trimmed) {
         nextText[textKey] = normalizedInput;
-      } else if (isGolfHeroMediaField) {
-        // Keep explicit empty strings for golf hero media so draft merges can clear prior values.
+      } else if (isHeroMediaField || isMediaTypeField) {
+        // Keep explicit hero-media values so draft merges can clear prior published media.
         nextText[textKey] = "";
       } else {
         delete nextText[textKey];
       }
 
       if (heroField) {
-        if (trimmed || isGolfHeroMediaField) {
+        if (trimmed || isHeroMediaField || isMediaTypeField) {
           nextHero[heroField] = normalizedInput;
         } else {
           delete nextHero[heroField];
@@ -1690,7 +1740,7 @@ function AdminPageBuilderContent() {
       const nextValue = normalizedInput.trim() ? normalizedInput : undefined;
       switch (textKey) {
         case "hero.mediaType":
-          nextHero.mediaType = nextValue ?? "image";
+          nextHero.mediaType = nextValue ?? "none";
           break;
         case "hero.imageUrl":
           nextHero.imageUrl = nextValue ?? "";
@@ -1735,7 +1785,7 @@ function AdminPageBuilderContent() {
 
   const resetHeroMedia = () => {
     const clearedHeroMedia = {
-      mediaType: "image" as const,
+      mediaType: "none" as const,
       imageUrl: "",
       videoUrl: "",
       youtubeUrl: "",
@@ -1746,8 +1796,10 @@ function AdminPageBuilderContent() {
 
     setPageConfigs((prev) => {
       const currentPage = prev[selectedPageId] ?? {};
-      const nextText = { ...(currentPage.text ?? {}) };
-
+      const resetPage = resetHeroMediaConfig(currentPage as Record<string, unknown>);
+      const nextText: Record<string, string> = {
+        ...((resetPage.text ?? currentPage.text ?? {}) as Record<string, string>),
+      };
       nextText["hero.mediaType"] = clearedHeroMedia.mediaType;
       nextText["hero.imageUrl"] = clearedHeroMedia.imageUrl;
       nextText["hero.videoUrl"] = clearedHeroMedia.videoUrl;
@@ -1757,13 +1809,9 @@ function AdminPageBuilderContent() {
       return {
         ...prev,
         [selectedPageId]: {
-          ...currentPage,
-          hero: {
-            ...((currentPage.hero as Record<string, unknown> | undefined) ?? {}),
-            ...clearedHeroMedia,
-          },
+          ...resetPage,
           text: nextText,
-        },
+        } as typeof currentPage,
       };
     });
 
@@ -1778,7 +1826,32 @@ function AdminPageBuilderContent() {
       });
     });
 
-    toast.success("Hero media reset.");
+    toast.success("Hero media reset to black background.");
+  };
+
+  const setHeroMediaType = (nextType: HeroMediaType) => {
+    setPageTextValue("hero.mediaType", nextType);
+
+    if (nextType === "image") {
+      setPageTextValue("hero.videoUrl", "");
+      setPageTextValue("hero.youtubeUrl", "");
+    } else if (nextType === "video") {
+      setPageTextValue("hero.imageUrl", "");
+      setPageTextValue("hero.youtubeUrl", "");
+    } else if (nextType === "youtube") {
+      setPageTextValue("hero.imageUrl", "");
+      setPageTextValue("hero.videoUrl", "");
+    }
+  };
+
+  const setHeroYoutubeUrl = (nextUrl: string) => {
+    setPageTextValue("hero.youtubeUrl", nextUrl);
+
+    if (isValidYouTubeUrl(nextUrl)) {
+      setPageTextValue("hero.mediaType", "youtube");
+      setPageTextValue("hero.imageUrl", "");
+      setPageTextValue("hero.videoUrl", "");
+    }
   };
 
   const handleHeroMediaUpload = async (
@@ -1818,15 +1891,15 @@ function AdminPageBuilderContent() {
       if (target === "image") {
         setPageTextValue("hero.imageUrl", publicUrl);
         setPageTextValue("hero.mediaType", "image");
+        setPageTextValue("hero.videoUrl", "");
+        setPageTextValue("hero.youtubeUrl", "");
       } else if (target === "video") {
         setPageTextValue("hero.videoUrl", publicUrl);
         setPageTextValue("hero.mediaType", "video");
+        setPageTextValue("hero.imageUrl", "");
+        setPageTextValue("hero.youtubeUrl", "");
       } else {
         setPageTextValue("hero.posterUrl", publicUrl);
-        setPageTextValue("hero.mediaType", "poster");
-        if (!heroImageUrl) {
-          setPageTextValue("hero.imageUrl", publicUrl);
-        }
       }
 
       toast.success(`Hero ${target} uploaded`);
@@ -2072,7 +2145,7 @@ function AdminPageBuilderContent() {
         if (heroMediaSupported && hasHeroMediaKey) {
           const heroData: Record<string, unknown> = {
             ...(isRecord(pageConfig.hero) ? pageConfig.hero : {}),
-            mediaType: textMap["hero.mediaType"] || (isRecord(pageConfig.hero) && typeof pageConfig.hero.mediaType === "string" ? pageConfig.hero.mediaType : "image"),
+            mediaType: textMap["hero.mediaType"] || (isRecord(pageConfig.hero) && typeof pageConfig.hero.mediaType === "string" ? pageConfig.hero.mediaType : "none"),
           };
 
           if (Object.prototype.hasOwnProperty.call(textMap, "hero.imageUrl")) {
@@ -2861,57 +2934,206 @@ function AdminPageBuilderContent() {
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label>Media Type</Label>
-                        <Select value={heroMediaType} onValueChange={(value) => setPageTextValue("hero.mediaType", value)}>
+                        <Select value={heroMediaType} onValueChange={(value) => setHeroMediaType(value as HeroMediaType)}>
                           <SelectTrigger className="bg-background">
                             <SelectValue placeholder="Choose hero media type" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="image">Image</SelectItem>
-                            <SelectItem value="video">Video</SelectItem>
-                            <SelectItem value="youtube">YouTube</SelectItem>
-                            <SelectItem value="poster">Poster Only</SelectItem>
+                            <SelectItem value="none">None / Black background</SelectItem>
+                            <SelectItem value="image">Image background</SelectItem>
+                            <SelectItem value="video">Video background</SelectItem>
+                            <SelectItem value="youtube">YouTube background</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
 
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <div className="space-y-2">
-                          <Label>Hero Image URL</Label>
-                          <Input
-                            value={heroImageUrl}
-                            onChange={(e) => setPageTextValue("hero.imageUrl", e.target.value)}
-                            className="bg-background"
-                            placeholder="https://..."
-                          />
+                      {heroMediaType === "none" ? (
+                        <div className="rounded-lg border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
+                          <p className="font-medium text-foreground">Hero media is disabled.</p>
+                          <p>The public hero will use a solid black background.</p>
                         </div>
-                        <div className="space-y-2">
-                          <Label>Poster URL</Label>
-                          <Input
-                            value={heroPosterUrl}
-                            onChange={(e) => setPageTextValue("hero.posterUrl", e.target.value)}
-                            className="bg-background"
-                            placeholder="https://..."
-                          />
+                      ) : null}
+
+                      {heroMediaType === "image" ? (
+                        <div className="space-y-3 rounded-lg border border-border bg-background p-4">
+                          <div className="space-y-2">
+                            <Label>Hero Background Image URL</Label>
+                            <Input
+                              value={heroImageUrl}
+                              onChange={(e) => setPageTextValue("hero.imageUrl", e.target.value)}
+                              className="bg-background"
+                              placeholder="https://..."
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              Used as the actual Hero background when Media Type is Image.
+                            </p>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => heroImageInputRef.current?.click()}
+                              disabled={heroUploadTarget !== null}
+                            >
+                              {heroUploadTarget === "image" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <ImageIcon className="h-4 w-4 mr-2" />}
+                              Upload Hero Background Image
+                            </Button>
+                            {heroImageUrl ? (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={() => setPageTextValue("hero.imageUrl", "")}
+                                disabled={heroUploadTarget !== null}
+                              >
+                                Remove Image
+                              </Button>
+                            ) : null}
+                          </div>
+
+                          {heroPosterUrl ? (
+                            <div className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-50 p-3 text-xs text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
+                              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                              <p>Poster is currently unused in Image mode.</p>
+                            </div>
+                          ) : null}
                         </div>
-                        <div className="space-y-2">
-                          <Label>Hero Video URL</Label>
-                          <Input
-                            value={heroVideoUrl}
-                            onChange={(e) => setPageTextValue("hero.videoUrl", e.target.value)}
-                            className="bg-background"
-                            placeholder="https://..."
-                          />
+                      ) : null}
+
+                      {heroMediaType === "video" ? (
+                        <div className="space-y-4 rounded-lg border border-border bg-background p-4">
+                          <div className="space-y-2">
+                            <Label>Hero Background Video URL</Label>
+                            <Input
+                              value={heroVideoUrl}
+                              onChange={(e) => setPageTextValue("hero.videoUrl", e.target.value)}
+                              className="bg-background"
+                              placeholder="https://..."
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              Used as the actual Hero background when Media Type is Video.
+                            </p>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => heroVideoInputRef.current?.click()}
+                              disabled={heroUploadTarget !== null}
+                            >
+                              {heroUploadTarget === "video" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Video className="h-4 w-4 mr-2" />}
+                              Upload Hero Background Video
+                            </Button>
+                            {heroVideoUrl ? (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={() => setPageTextValue("hero.videoUrl", "")}
+                                disabled={heroUploadTarget !== null}
+                              >
+                                Remove Video
+                              </Button>
+                            ) : null}
+                          </div>
+                          <Separator />
+                          <div className="space-y-2">
+                            <Label>Poster / Fallback Image URL</Label>
+                            <Input
+                              value={heroPosterUrl}
+                              onChange={(e) => setPageTextValue("hero.posterUrl", e.target.value)}
+                              className="bg-background"
+                              placeholder="https://..."
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              Used only for Video or YouTube while the video loads or cannot play.
+                            </p>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => heroPosterInputRef.current?.click()}
+                              disabled={heroUploadTarget !== null}
+                            >
+                              {heroUploadTarget === "poster" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <ImageIcon className="h-4 w-4 mr-2" />}
+                              Upload Poster / Fallback Image
+                            </Button>
+                            {heroPosterUrl ? (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={() => setPageTextValue("hero.posterUrl", "")}
+                                disabled={heroUploadTarget !== null}
+                              >
+                                Remove Poster
+                              </Button>
+                            ) : null}
+                          </div>
                         </div>
-                        <div className="space-y-2">
-                          <Label>YouTube URL</Label>
-                          <Input
-                            value={heroYoutubeUrl}
-                            onChange={(e) => setPageTextValue("hero.youtubeUrl", e.target.value)}
-                            className="bg-background"
-                            placeholder="https://www.youtube.com/watch?v=..."
-                          />
+                      ) : null}
+
+                      {heroMediaType === "youtube" ? (
+                        <div className="space-y-4 rounded-lg border border-border bg-background p-4">
+                          <div className="space-y-2">
+                            <Label>YouTube URL</Label>
+                            <Input
+                              value={heroYoutubeUrl}
+                              onChange={(e) => setHeroYoutubeUrl(e.target.value)}
+                              className="bg-background"
+                              placeholder="https://www.youtube.com/watch?v=..."
+                            />
+                            {hasHeroYoutubeUrl && !isValidYouTubeUrl(heroYoutubeUrl) ? (
+                              <p className="text-xs text-destructive">Enter a valid HTTPS YouTube URL.</p>
+                            ) : null}
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {heroYoutubeUrl ? (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={() => setPageTextValue("hero.youtubeUrl", "")}
+                                disabled={heroUploadTarget !== null}
+                              >
+                                Remove YouTube URL
+                              </Button>
+                            ) : null}
+                          </div>
+                          <Separator />
+                          <div className="space-y-2">
+                            <Label>Poster / Fallback Image URL</Label>
+                            <Input
+                              value={heroPosterUrl}
+                              onChange={(e) => setPageTextValue("hero.posterUrl", e.target.value)}
+                              className="bg-background"
+                              placeholder="https://..."
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              Used only for Video or YouTube while the video loads or cannot play.
+                            </p>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => heroPosterInputRef.current?.click()}
+                              disabled={heroUploadTarget !== null}
+                            >
+                              {heroUploadTarget === "poster" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <ImageIcon className="h-4 w-4 mr-2" />}
+                              Upload Poster / Fallback Image
+                            </Button>
+                            {heroPosterUrl ? (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={() => setPageTextValue("hero.posterUrl", "")}
+                                disabled={heroUploadTarget !== null}
+                              >
+                                Remove Poster
+                              </Button>
+                            ) : null}
+                          </div>
                         </div>
-                      </div>
+                      ) : null}
 
                       <div className="flex flex-wrap gap-2">
                         <input
@@ -2953,40 +3175,24 @@ function AdminPageBuilderContent() {
 
                         <Button
                           type="button"
-                          variant="outline"
-                          onClick={() => heroImageInputRef.current?.click()}
-                          disabled={heroUploadTarget !== null}
+                          variant={heroMediaType === "none" ? "outline" : "ghost"}
+                          onClick={resetHeroMedia}
+                          disabled={heroUploadTarget !== null || heroMediaIsReset}
                         >
-                          {heroUploadTarget === "image" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <ImageIcon className="h-4 w-4 mr-2" />}
-                          Upload Image
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => heroPosterInputRef.current?.click()}
-                          disabled={heroUploadTarget !== null}
-                        >
-                          {heroUploadTarget === "poster" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <ImageIcon className="h-4 w-4 mr-2" />}
-                          Upload Poster
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => heroVideoInputRef.current?.click()}
-                          disabled={heroUploadTarget !== null}
-                        >
-                          {heroUploadTarget === "video" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Video className="h-4 w-4 mr-2" />}
-                          Upload Video
-                        </Button>
-                        <Button type="button" variant="ghost" onClick={resetHeroMedia}>
                           <RotateCcw className="h-4 w-4 mr-2" />
-                          Reset Hero Media
+                          Reset to Black Background
                         </Button>
+                        <p className="basis-full text-xs text-muted-foreground">
+                          Clears image, video, YouTube and poster fields, then renders a black hero background.
+                        </p>
                       </div>
                     </div>
 
                     <div className="space-y-3">
-                      <Label>Preview</Label>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <Label>Preview</Label>
+                        <Badge variant="outline">{heroMediaPreviewStatus}</Badge>
+                      </div>
                       {selectedPageId === "golf" ? (
                         <div className="overflow-hidden rounded-xl border border-border bg-muted/40">
                           <LiveStyleHero
@@ -3039,6 +3245,19 @@ function AdminPageBuilderContent() {
                       <p className="text-xs text-muted-foreground">
                         Image uploads are auto-converted to WebP. Video uploads keep their original format.
                       </p>
+                      {heroMediaWarnings.length > 0 ? (
+                        <div className="space-y-2">
+                          {heroMediaWarnings.map((warning) => (
+                            <div
+                              key={warning}
+                              className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-50 p-3 text-xs text-amber-800 dark:bg-amber-950/30 dark:text-amber-200"
+                            >
+                              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                              <p>{warning}</p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 </>

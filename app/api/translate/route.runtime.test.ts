@@ -4,6 +4,8 @@ import { NextRequest } from "next/server";
 const mocks = vi.hoisted(() => ({
   createServiceRoleClient: vi.fn(),
   verifyServerSecret: vi.fn(),
+  getTranslationProcessorCapabilities: vi.fn(),
+  processListingTranslationJob: vi.fn(),
 }));
 
 vi.mock("@/lib/server/secret-auth", () => ({
@@ -12,6 +14,16 @@ vi.mock("@/lib/server/secret-auth", () => ({
 
 vi.mock("@/lib/supabase/service", () => ({
   createServiceRoleClient: mocks.createServiceRoleClient,
+}));
+
+vi.mock("@/lib/translations/processorConfig", () => ({
+  TRANSLATION_PROCESSOR_UNAVAILABLE:
+    "Translation processor is not configured. Missing translations require manual review or an enabled provider.",
+  getTranslationProcessorCapabilities: mocks.getTranslationProcessorCapabilities,
+}));
+
+vi.mock("@/lib/translations/listingProcessor", () => ({
+  processListingTranslationJob: mocks.processListingTranslationJob,
 }));
 
 import { GET } from "./route";
@@ -47,6 +59,18 @@ function makeTranslationClient({
 
 afterEach(() => {
   vi.clearAllMocks();
+  mocks.getTranslationProcessorCapabilities.mockReturnValue({
+    configured: false,
+    provider: null,
+    mode: "manual",
+    message:
+      "Translation processor is not configured. Missing translations require manual review or an enabled provider.",
+  });
+  mocks.processListingTranslationJob.mockResolvedValue({
+    jobId: "job-1",
+    status: "completed",
+    provider: "deepl",
+  });
 });
 
 describe("translation cron route runtime", () => {
@@ -74,8 +98,15 @@ describe("translation cron route runtime", () => {
     expect(translationClient.spies.update).not.toHaveBeenCalled();
   });
 
-  it("marks queued jobs failed instead of falsely completing translations", async () => {
+  it("skips queued jobs without failing them when the processor is not configured", async () => {
     mocks.verifyServerSecret.mockReturnValueOnce("authorized");
+    mocks.getTranslationProcessorCapabilities.mockReturnValueOnce({
+      configured: false,
+      provider: null,
+      mode: "manual",
+      message:
+        "Translation processor is not configured. Missing translations require manual review or an enabled provider.",
+    });
     const translationClient = makeTranslationClient({
       jobs: [
         { id: "job-1", attempts: 2 },
@@ -91,32 +122,50 @@ describe("translation cron route runtime", () => {
     expect(payload).toEqual(
       expect.objectContaining({
         processed: 0,
-        failed: 2,
+        skipped: 2,
+        failed: 0,
       }),
     );
-    expect(translationClient.spies.update).toHaveBeenCalledTimes(2);
-    expect(translationClient.spies.update).toHaveBeenNthCalledWith(
-      1,
+    expect(payload.message).toContain("not configured");
+    expect(translationClient.spies.update).not.toHaveBeenCalled();
+    expect(mocks.processListingTranslationJob).not.toHaveBeenCalled();
+  });
+
+  it("processes queued jobs through the configured provider path", async () => {
+    mocks.verifyServerSecret.mockReturnValueOnce("authorized");
+    mocks.getTranslationProcessorCapabilities.mockReturnValueOnce({
+      configured: true,
+      provider: "deepl",
+      mode: "deepl",
+      message: "Translation processor is configured using deepl.",
+    });
+    mocks.processListingTranslationJob
+      .mockResolvedValueOnce({ jobId: "job-1", status: "completed", provider: "deepl" })
+      .mockResolvedValueOnce({ jobId: "job-2", status: "failed", provider: "deepl", errorMessage: "provider error" });
+    const translationClient = makeTranslationClient({
+      jobs: [
+        { id: "job-1", attempts: 2 },
+        { id: "job-2", attempts: null },
+      ],
+    });
+    mocks.createServiceRoleClient.mockReturnValueOnce(translationClient.client);
+
+    const response = await GET(request());
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload).toEqual(
       expect.objectContaining({
-        status: "failed",
-        attempts: 3,
-        locked_at: null,
+        processed: 1,
+        failed: 1,
+        provider: "deepl",
       }),
     );
-    expect(translationClient.spies.update).toHaveBeenNthCalledWith(
-      2,
-      expect.objectContaining({
-        status: "failed",
-        attempts: 1,
-        locked_at: null,
-      }),
-    );
-    const firstPayload = translationClient.spies.update.mock.calls[0]?.[0] as { last_error?: string };
-    expect(firstPayload.last_error).toContain("not configured");
-    expect(firstPayload.last_error).toContain("no translated content was written");
-    expect(translationClient.spies.update).not.toHaveBeenCalledWith(
-      expect.objectContaining({ status: "auto" }),
-    );
+    expect(mocks.processListingTranslationJob).toHaveBeenCalledTimes(2);
+    expect(mocks.processListingTranslationJob).toHaveBeenCalledWith(translationClient.client, {
+      id: "job-1",
+      attempts: 2,
+    });
   });
 
   it("does not hide translation job query failures", async () => {

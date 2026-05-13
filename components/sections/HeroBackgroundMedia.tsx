@@ -1,11 +1,13 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 
-import { getSafeCmsImageSrc } from "@/lib/cms/image-source";
+import {
+  getHeroMediaRenderState,
+  normalizeHeroMediaConfig,
+  type HeroMediaType,
+} from "@/lib/cms/hero-media";
 import { addImageVersion, type ImageVersion } from "@/lib/imageUrls";
 import { cn } from "@/lib/utils";
-
-export type HeroMediaType = "image" | "video" | "youtube" | "poster";
 
 interface HeroBackgroundMediaProps {
   mediaType?: string;
@@ -20,18 +22,16 @@ interface HeroBackgroundMediaProps {
   timestamp?: ImageVersion;
 }
 
-function normalizeMediaType(value: string | undefined): HeroMediaType {
+function hasExplicitMediaType(value: string | undefined) {
   const normalized = value?.trim().toLowerCase();
-  if (normalized === "video") return "video";
-  if (normalized === "youtube") return "poster";
-  if (normalized === "poster") return "poster";
-  return "image";
+  return normalized === "none" || normalized === "image" || normalized === "video" || normalized === "youtube" || normalized === "poster";
 }
 
 export function HeroBackgroundMedia({
   mediaType,
   imageUrl,
   videoUrl,
+  youtubeUrl,
   posterUrl,
   alt,
   fallback,
@@ -39,17 +39,19 @@ export function HeroBackgroundMedia({
   priority = true,
   timestamp,
 }: HeroBackgroundMediaProps) {
-  const resolvedMediaType = normalizeMediaType(mediaType);
-  const trimmedImageUrl = addImageVersion(getSafeCmsImageSrc(imageUrl) ?? "", timestamp) ?? "";
-  const trimmedVideoUrl = addImageVersion(videoUrl?.trim() ?? "", timestamp) ?? "";
-  const trimmedPosterUrl = addImageVersion(getSafeCmsImageSrc(posterUrl) ?? "", timestamp) ?? "";
-  const hasImage = trimmedImageUrl.length > 0;
-  const hasVideo = trimmedVideoUrl.length > 0;
-  const hasPoster = trimmedPosterUrl.length > 0;
+  const normalizedMedia = normalizeHeroMediaConfig({
+    mediaType: mediaType as HeroMediaType | string | undefined,
+    imageUrl,
+    videoUrl,
+    youtubeUrl,
+    posterUrl,
+  });
+  const renderState = getHeroMediaRenderState(normalizedMedia);
+  const explicitMediaType = hasExplicitMediaType(mediaType);
 
-  const resolvedPosterUrl = hasPoster ? trimmedPosterUrl : hasImage ? trimmedImageUrl : undefined;
-
-  if (resolvedMediaType === "video" && hasVideo) {
+  if (renderState.kind === "video") {
+    const versionedVideoUrl = addImageVersion(renderState.videoUrl, timestamp) ?? renderState.videoUrl;
+    const versionedPosterUrl = addImageVersion(renderState.posterUrl, timestamp) ?? renderState.posterUrl ?? undefined;
     return (
       <video
         autoPlay
@@ -61,20 +63,21 @@ export function HeroBackgroundMedia({
         muted
         playsInline
         preload="metadata"
-        poster={resolvedPosterUrl}
+        poster={versionedPosterUrl}
         tabIndex={-1}
         aria-hidden="true"
         className={cn("pointer-events-none h-full w-full object-cover", className)}
       >
-        <source src={trimmedVideoUrl} type="video/mp4" />
+        <source src={versionedVideoUrl} type="video/mp4" />
       </video>
     );
   }
 
-  if ((resolvedMediaType === "poster" && hasPoster) || hasImage) {
+  if (renderState.kind === "image") {
+    const versionedImageUrl = addImageVersion(renderState.imageUrl, timestamp) ?? renderState.imageUrl;
     return (
       <Image
-        src={resolvedMediaType === "poster" && hasPoster ? trimmedPosterUrl : trimmedImageUrl}
+        src={versionedImageUrl}
         alt={alt}
         fill
         priority={priority}
@@ -85,5 +88,9 @@ export function HeroBackgroundMedia({
     );
   }
 
-  return fallback ? <>{fallback}</> : <div className={cn("h-full w-full bg-black", className)} />;
+  if (!explicitMediaType && fallback) {
+    return <>{fallback}</>;
+  }
+
+  return <div className={cn("h-full w-full bg-black", className)} />;
 }

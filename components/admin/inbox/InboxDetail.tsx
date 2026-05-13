@@ -3,7 +3,8 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
-import { BellOff, CheckCheck } from "lucide-react";
+import { Archive, ArchiveRestore, BellOff, CheckCheck } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
@@ -21,6 +22,7 @@ import {
   assignInboxItem,
   markInboxItemRead,
   rejectInboxItem,
+  restoreInboxNotification,
 } from "@/lib/admin/inbox/actions";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { formatInboxDueStatus } from "@/lib/admin/inbox/format";
@@ -29,6 +31,7 @@ import type {
   EventModerationItem,
   ExternalOutboxAlertItem,
   InboxItem,
+  InboxStatus,
   ListingClaimItem,
   ListingModerationItem,
   ReviewModerationItem,
@@ -42,6 +45,7 @@ interface InboxDetailProps {
   onOpenChange: (open: boolean) => void;
   onResolved: () => void;
   currentUserId: string | null;
+  viewStatus: InboxStatus;
 }
 
 function EntityLink({ item }: { item: InboxItem }) {
@@ -151,6 +155,7 @@ export function InboxDetail({
   onOpenChange,
   onResolved,
   currentUserId,
+  viewStatus,
 }: InboxDetailProps) {
   const queryClient = useQueryClient();
   const [rejectReason, setRejectReason] = useState("");
@@ -161,7 +166,10 @@ export function InboxDetail({
 
   if (!item) return null;
 
-  const run = (fn: () => Promise<{ ok: boolean; error?: string }>) => {
+  const run = (
+    fn: () => Promise<{ ok: boolean; error?: string }>,
+    successMessage?: string,
+  ) => {
     setError(null);
     setLastAction(() => fn);
     startTransition(async () => {
@@ -173,6 +181,7 @@ export function InboxDetail({
       setRejectReason("");
       setAssigneeId("");
       setLastAction(null);
+      if (successMessage) toast.success(successMessage);
       queryClient.invalidateQueries({ queryKey: ADMIN_INBOX_QUERY_KEY, exact: false });
       queryClient.invalidateQueries({ queryKey: ["admin", "inbox", "urgent-count"] });
       onResolved();
@@ -186,10 +195,14 @@ export function InboxDetail({
 
   const base = { source: item.source, sourceRowId: item.sourceRowId };
   const canAssignToMe = currentUserId && currentUserId !== item.assignee?.id;
-  const canApprove = item.resolution.available.includes("approve");
-  const canReject = item.resolution.available.includes("reject");
-  const canArchive = item.resolution.available.includes("archive");
-  const canAssign = item.resolution.available.includes("assign");
+  const isOpenView = viewStatus === "open" && item.status === "open";
+  const isRestorableView =
+    (viewStatus === "archived" || viewStatus === "dismissed") &&
+    (item.status === "archived" || item.status === "dismissed");
+  const canApprove = isOpenView && item.resolution.available.includes("approve");
+  const canReject = isOpenView && item.resolution.available.includes("reject");
+  const canArchive = isOpenView && item.resolution.available.includes("archive");
+  const canAssign = isOpenView && item.resolution.available.includes("assign");
   const readActionLabel =
     item.source === "external_outbox_alert"
       ? "Clear alert"
@@ -213,6 +226,9 @@ export function InboxDetail({
             </Badge>
             <Badge variant={item.urgency === "urgent" ? "destructive" : "secondary"}>
               {item.urgency}
+            </Badge>
+            <Badge variant="outline" className="capitalize">
+              {item.status}
             </Badge>
             <span className="text-xs text-muted-foreground">
               {formatInboxDueStatus(item.sla.dueAt, item.sla.minutesRemaining)}
@@ -268,7 +284,7 @@ export function InboxDetail({
               <Button
                 type="button"
                 disabled={pending}
-                onClick={() => run(() => approveInboxItem(base))}
+                onClick={() => run(() => approveInboxItem(base), "Inbox item approved.")}
               >
                 Approve
               </Button>
@@ -287,7 +303,12 @@ export function InboxDetail({
                     type="button"
                     variant="destructive"
                     disabled={pending || !rejectReason.trim()}
-                    onClick={() => run(() => rejectInboxItem({ ...base, reason: rejectReason }))}
+                    onClick={() =>
+                      run(
+                        () => rejectInboxItem({ ...base, reason: rejectReason }),
+                        "Inbox item rejected.",
+                      )
+                    }
                   >
                     Reject
                   </Button>
@@ -298,24 +319,45 @@ export function InboxDetail({
 
           {/* Secondary actions */}
           <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={pending}
-              onClick={() => run(() => markInboxItemRead({ ...base, reason: readActionReason }))}
-              aria-label={`${readActionLabel} and clear this inbox notification`}
-            >
-              <ReadActionIcon className="mr-2 h-4 w-4" />
-              {readActionLabel}
-            </Button>
+            {isOpenView ? (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={pending}
+                onClick={() =>
+                  run(
+                    () => markInboxItemRead({ ...base, reason: readActionReason }),
+                    "Notification cleared.",
+                  )
+                }
+                aria-label={`${readActionLabel} and clear this inbox notification`}
+              >
+                <ReadActionIcon className="mr-2 h-4 w-4" />
+                {readActionLabel}
+              </Button>
+            ) : null}
             {canArchive ? (
               <Button
                 type="button"
                 variant="outline"
                 disabled={pending}
-                onClick={() => run(() => archiveInboxItem({ ...base }))}
+                onClick={() => run(() => archiveInboxItem({ ...base }), "Message archived.")}
               >
+                <Archive className="mr-2 h-4 w-4" />
                 Archive
+              </Button>
+            ) : null}
+            {isRestorableView ? (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={pending}
+                onClick={() =>
+                  run(() => restoreInboxNotification({ ...base }), "Message restored to inbox.")
+                }
+              >
+                <ArchiveRestore className="mr-2 h-4 w-4" />
+                Restore to Inbox
               </Button>
             ) : null}
             {canAssign && canAssignToMe ? (
@@ -324,7 +366,10 @@ export function InboxDetail({
                 variant="outline"
                 disabled={pending}
                 onClick={() =>
-                  run(() => assignInboxItem({ ...base, assigneeId: currentUserId! }))
+                  run(
+                    () => assignInboxItem({ ...base, assigneeId: currentUserId! }),
+                    "Inbox item assigned.",
+                  )
                 }
               >
                 Assign to me
@@ -349,7 +394,10 @@ export function InboxDetail({
                   variant="outline"
                   disabled={pending || !assigneeId.trim()}
                   onClick={() =>
-                    run(() => assignInboxItem({ ...base, assigneeId: assigneeId.trim() }))
+                    run(
+                      () => assignInboxItem({ ...base, assigneeId: assigneeId.trim() }),
+                      "Inbox item assigned.",
+                    )
                   }
                 >
                   Assign

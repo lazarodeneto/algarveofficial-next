@@ -8,13 +8,14 @@ const source = readFileSync(
 );
 
 describe("AdminTranslations locale sync safety", () => {
-  it("does not persist English source strings as translated locale overrides", () => {
+  it("labels English fallback syncs as pending manual when the processor is unavailable", () => {
     expect(source).not.toContain("Object.assign(translated, batchObj)");
-    expect(source).not.toContain("synced with English fallback");
+    expect(source).toContain("pending_manual");
+    expect(source).toContain("Missing keys were synced as pending/manual translation");
   });
 
   it("reports incomplete syncs without marking the locale complete", () => {
     expect(source).toContain("sync incomplete");
-    expect(source).toContain("remainingMissingKeys.length === 0");
+    expect(source).toContain("afterCoverage.isFullySynced");
   });
 });

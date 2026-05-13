@@ -14,7 +14,7 @@ describe("listing slug redirect contracts", () => {
 
     expect(route).toContain('.from("listing_slugs")');
     expect(route).toContain(".eq(\"slug\", idOrSlug)");
-    expect(route).toContain("canonicalSlug = listing.slug ?? listing.id");
+    expect(route).toContain("canonicalSlug = publicListing.slug ?? publicListing.id");
     expect(route).toContain("permanentRedirect(buildLocalizedPath(resolvedLocale, `/listing/${data.canonicalSlug}`))");
   });
 

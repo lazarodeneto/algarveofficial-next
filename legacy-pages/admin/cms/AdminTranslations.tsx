@@ -29,6 +29,16 @@ import {
   unflattenI18nData,
 } from "@/lib/i18n/premiumGuard";
 import {
+  calculateAllLocaleCoverage,
+  calculateLocaleCoverage,
+  flattenTranslationKeys,
+  hashTranslationSource,
+  type LocaleCoverageResult,
+  type TranslationKeyMetadata,
+  type UiTranslationKeyStatus,
+  type UiTranslationStoredStatus,
+} from "@/lib/i18n/translationCoverage";
+import {
   LISTING_TRANSLATION_TARGET_LANGS,
   normalizeListingTranslationLanguageCode,
   queueListingTranslationJobs,
@@ -105,17 +115,34 @@ const JOB_FILTERS: Array<"attention" | "all" | TranslationStatus> = [
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function computeMissingKeys(
-  englishKeys: string[],
+function mergeLocaleFlat(
   bundledLocaleData: Record<string, unknown>,
   dbLocaleData?: Record<string, unknown>,
 ) {
-  const bundledFlat = flattenI18nData(bundledLocaleData);
-  const mergedFlat = dbLocaleData
-    ? { ...bundledFlat, ...flattenI18nData(dbLocaleData) }
-    : bundledFlat;
+  return {
+    ...flattenI18nData(bundledLocaleData),
+    ...(dbLocaleData ? flattenI18nData(dbLocaleData) : {}),
+  };
+}
 
-  return englishKeys.filter((key) => !(key in mergedFlat));
+function calculateMergedLocaleCoverage(
+  sourceFlat: Record<string, string>,
+  bundledLocaleData: Record<string, unknown>,
+  dbLocaleData?: Record<string, unknown>,
+  metadata?: Record<string, TranslationKeyMetadata>,
+) {
+  const bundledInvalid = flattenTranslationKeys(bundledLocaleData).invalidKeys;
+  const patchInvalid = dbLocaleData ? flattenTranslationKeys(dbLocaleData).invalidKeys : [];
+  return calculateLocaleCoverage(
+    sourceFlat,
+    mergeLocaleFlat(bundledLocaleData, dbLocaleData),
+    metadata,
+    [...bundledInvalid, ...patchInvalid],
+  );
+}
+
+function coverageStatus(coverage: LocaleCoverageResult): LocaleStatus {
+  return coverage.isFullySynced ? "synced" : "missing";
 }
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -127,15 +154,56 @@ interface LocaleState {
   name: string;
   flag: string;
   missingCount: number;
+  staleCount: number;
+  obsoleteCount: number;
+  emptyValueCount: number;
+  invalidCount: number;
+  pendingManualCount: number;
+  translatedCount: number;
   totalKeys: number;
+  coverageLabel: string;
   status: LocaleStatus;
   lastSynced?: string;
+  lastRefreshed?: string;
   lastError?: string;
 }
 
 interface LocalePatchState {
   data: Record<string, unknown>;
   updatedAt: string;
+}
+
+interface LocaleKeyStatusRow {
+  locale: string;
+  key_path: string;
+  source_hash: string;
+  status: UiTranslationStoredStatus;
+  reviewed_at?: string | null;
+  updated_at?: string | null;
+}
+
+interface TranslationSchemaHealth {
+  ready: boolean;
+  checks: Array<{
+    key: string;
+    label: string;
+    ready: boolean;
+    message: string;
+  }>;
+}
+
+interface IncompleteListing {
+  id: string;
+  name: string;
+  slug: string;
+  city: string;
+  status: string;
+  missingLangs: string[];
+  pendingLangs: string[];
+  failedLangs: string[];
+  staleLangs: string[];
+  emptyFieldLangs: string[];
+  fieldGaps: Record<string, string[]>;
 }
 
 interface TranslationReviewData {
@@ -248,15 +316,25 @@ export default function AdminTranslations() {
 
   // Compute initial state from bundled locale files
   const initialLocaleStates: LocaleState[] = LOCALES.map((loc) => {
-    const missing = computeMissingKeys(enKeys, localeDataByCode[loc.code] ?? {});
+    const coverage = calculateMergedLocaleCoverage(
+      enFlat,
+      localeDataByCode[loc.code] ?? {},
+    );
     return {
       code: loc.code,
       localeCode: loc.localeCode,
       name: loc.name,
       flag: loc.flag,
-      missingCount: missing.length,
+      missingCount: coverage.missingKeyCount,
+      staleCount: coverage.staleKeyCount,
+      obsoleteCount: coverage.obsoleteKeyCount,
+      emptyValueCount: coverage.emptyValueKeyCount,
+      invalidCount: coverage.invalidKeyCount,
+      pendingManualCount: coverage.pendingManualKeyCount,
+      translatedCount: coverage.translatedKeyCount,
       totalKeys: enKeys.length,
-      status: missing.length === 0 ? "synced" : "missing",
+      coverageLabel: coverage.coverageLabel,
+      status: coverageStatus(coverage),
     };
   });
 
@@ -266,6 +344,18 @@ export default function AdminTranslations() {
   const [currentLocale, setCurrentLocale] = useState<string | null>(null);
   const [selectedLocaleCode, setSelectedLocaleCode] = useState(LOCALES[0]?.code ?? "pt");
   const [localePatchDataByCode, setLocalePatchDataByCode] = useState<Record<string, LocalePatchState>>({});
+  const [localeKeyMetadataByCode, setLocaleKeyMetadataByCode] = useState<
+    Record<string, Record<string, TranslationKeyMetadata>>
+  >({});
+  const [uiKeyStatusFilter, setUiKeyStatusFilter] = useState<"all" | UiTranslationKeyStatus>("missing");
+  const [coverageRefreshing, setCoverageRefreshing] = useState(false);
+  const [lastCoverageRefresh, setLastCoverageRefresh] = useState<string | null>(null);
+  const [processorConfigured, setProcessorConfigured] = useState(false);
+  const [processorMessage, setProcessorMessage] = useState<string>(
+    "Translation processor capability is loading.",
+  );
+  const [schemaHealth, setSchemaHealth] = useState<TranslationSchemaHealth | null>(null);
+  const [schemaHealthError, setSchemaHealthError] = useState<string | null>(null);
   const [uiKeySearchQuery, setUiKeySearchQuery] = useState("");
   const [selectedUiKey, setSelectedUiKey] = useState<string | null>(null);
   const [uiKeyDraft, setUiKeyDraft] = useState("");
@@ -274,9 +364,7 @@ export default function AdminTranslations() {
   const [translateLoading, setTranslateLoading] = useState(false);
   const [translateResult, setTranslateResult] = useState<any>(null);
   const [translateError, setTranslateError] = useState<string | null>(null);
-  const [missingTranslations, setMissingTranslations] = useState<
-    { id: string; name: string; slug: string; city: string; status: string; missingLangs: string[] }[]
-  >([]);
+  const [missingTranslations, setMissingTranslations] = useState<IncompleteListing[]>([]);
   const [listingSearchQuery, setListingSearchQuery] = useState("");
   const [missingLoading, setMissingLoading] = useState(false);
   const [translatingId, setTranslatingId] = useState<string | null>(null);
@@ -304,11 +392,14 @@ export default function AdminTranslations() {
 
   const buildListingCoverageMaps = useCallback(async (listingIds: readonly string[]) => {
     const translatedMap = new Map<string, Set<string>>();
-    const queuedMap = new Map<string, Set<string>>();
+    const pendingMap = new Map<string, Set<string>>();
+    const failedMap = new Map<string, Set<string>>();
+    const staleMap = new Map<string, Set<string>>();
+    const fieldGapMap = new Map<string, Map<string, string[]>>();
     const ids = Array.from(new Set(listingIds.filter(Boolean)));
 
     if (ids.length === 0) {
-      return { translatedMap, queuedMap };
+      return { translatedMap, pendingMap, failedMap, staleMap, fieldGapMap };
     }
 
     // Keep each chunk comfortably below Supabase's default 1000-row response cap.
@@ -319,13 +410,12 @@ export default function AdminTranslations() {
         await Promise.all([
           supabase
             .from("listing_translations")
-            .select("listing_id, language_code, translation_status")
+            .select("listing_id, language_code, translation_status, title, short_description, description, seo_title, seo_description, source_hash")
             .in("listing_id", chunk),
           supabase
             .from("translation_jobs")
-            .select("listing_id, target_lang, status")
+            .select("listing_id, target_lang, status, source_updated_at, listing:listings!inner(content_updated_at)")
             .in("listing_id", chunk)
-            .in("status", ["queued"]),
         ]);
 
       if (translatedError) throw translatedError;
@@ -333,10 +423,25 @@ export default function AdminTranslations() {
 
       for (const translation of (translated || []) as any[]) {
         if (!translation?.listing_id || !translation?.language_code) continue;
-        if (!isCompletedTranslationStatus(translation.translation_status)) continue;
 
         const normalizedLang = normalizeListingTranslationLanguageCode(translation.language_code);
         if (!TARGET_LANGS_SET.has(normalizedLang)) continue;
+        const missingFields = ["title", "short_description", "description"].filter((field) => {
+          const value = translation[field];
+          return typeof value !== "string" || value.trim().length === 0;
+        });
+
+        if (translation.translation_status === "failed") {
+          if (!failedMap.has(translation.listing_id)) failedMap.set(translation.listing_id, new Set());
+          failedMap.get(translation.listing_id)!.add(normalizedLang);
+          continue;
+        }
+
+        if (!isCompletedTranslationStatus(translation.translation_status) || missingFields.length > 0) {
+          if (!fieldGapMap.has(translation.listing_id)) fieldGapMap.set(translation.listing_id, new Map());
+          fieldGapMap.get(translation.listing_id)!.set(normalizedLang, missingFields);
+          continue;
+        }
 
         if (!translatedMap.has(translation.listing_id)) {
           translatedMap.set(translation.listing_id, new Set());
@@ -350,24 +455,46 @@ export default function AdminTranslations() {
         const normalizedLang = normalizeListingTranslationLanguageCode(job.target_lang);
         if (!TARGET_LANGS_SET.has(normalizedLang)) continue;
 
-        if (!queuedMap.has(job.listing_id)) {
-          queuedMap.set(job.listing_id, new Set());
+        if (job.status === "queued") {
+          if (!pendingMap.has(job.listing_id)) {
+            pendingMap.set(job.listing_id, new Set());
+          }
+          pendingMap.get(job.listing_id)!.add(normalizedLang);
+          continue;
         }
-        queuedMap.get(job.listing_id)!.add(normalizedLang);
+        if (job.status === "failed") {
+          if (!failedMap.has(job.listing_id)) {
+            failedMap.set(job.listing_id, new Set());
+          }
+          failedMap.get(job.listing_id)!.add(normalizedLang);
+          continue;
+        }
+        const listing = Array.isArray(job.listing) ? job.listing[0] : job.listing;
+        if (
+          isCompletedTranslationStatus(job.status) &&
+          job.source_updated_at &&
+          listing?.content_updated_at &&
+          new Date(job.source_updated_at).getTime() < new Date(listing.content_updated_at).getTime()
+        ) {
+          if (!staleMap.has(job.listing_id)) {
+            staleMap.set(job.listing_id, new Set());
+          }
+          staleMap.get(job.listing_id)!.add(normalizedLang);
+        }
       }
     }
 
-    return { translatedMap, queuedMap };
+    return { translatedMap, pendingMap, failedMap, staleMap, fieldGapMap };
   }, []);
 
   const collectMissingPublishedListings = useCallback(async (limit: number) => {
-    const missing: { id: string; name: string; slug: string; city: string; status: string; missingLangs: string[] }[] = [];
+    const missing: IncompleteListing[] = [];
     let offset = 0;
 
     while (missing.length < limit) {
       const { data, error } = await supabase
         .from("listings")
-        .select("id, name, slug, status, cities(name)")
+        .select("id, name, slug, status, content_updated_at, cities(name)")
         .eq("status", "published")
         .order("name", { ascending: true })
         .range(offset, offset + LISTINGS_PAGE_SIZE - 1);
@@ -376,16 +503,33 @@ export default function AdminTranslations() {
       if (!data || data.length === 0) break;
 
       const listingIds = data.map((listing: any) => String(listing.id));
-      const { translatedMap, queuedMap } = await buildListingCoverageMaps(listingIds);
+      const { translatedMap, pendingMap, failedMap, staleMap, fieldGapMap } = await buildListingCoverageMaps(listingIds);
 
       for (const listing of data as any[]) {
         const translatedLangs = translatedMap.get(listing.id) ?? new Set<string>();
-        const queuedLangs = queuedMap.get(listing.id) ?? new Set<string>();
+        const pendingLangsSet = pendingMap.get(listing.id) ?? new Set<string>();
+        const failedLangsSet = failedMap.get(listing.id) ?? new Set<string>();
+        const staleLangsSet = staleMap.get(listing.id) ?? new Set<string>();
+        const fieldGapLangs = fieldGapMap.get(listing.id) ?? new Map<string, string[]>();
         const missingLangs = TARGET_LANGS.filter(
-          (lang) => !translatedLangs.has(lang) && !queuedLangs.has(lang),
+          (lang) =>
+            !translatedLangs.has(lang) &&
+            !pendingLangsSet.has(lang) &&
+            !failedLangsSet.has(lang) &&
+            !fieldGapLangs.has(lang),
         );
+        const pendingLangs = TARGET_LANGS.filter((lang) => pendingLangsSet.has(lang));
+        const failedLangs = TARGET_LANGS.filter((lang) => failedLangsSet.has(lang));
+        const staleLangs = TARGET_LANGS.filter((lang) => staleLangsSet.has(lang));
+        const emptyFieldLangs = TARGET_LANGS.filter((lang) => fieldGapLangs.has(lang));
 
-        if (missingLangs.length > 0) {
+        if (
+          missingLangs.length > 0 ||
+          pendingLangs.length > 0 ||
+          failedLangs.length > 0 ||
+          staleLangs.length > 0 ||
+          emptyFieldLangs.length > 0
+        ) {
           missing.push({
             id: listing.id,
             name: listing.name,
@@ -393,6 +537,11 @@ export default function AdminTranslations() {
             city: listing.cities?.name || "—",
             status: listing.status,
             missingLangs,
+            pendingLangs,
+            failedLangs,
+            staleLangs,
+            emptyFieldLangs,
+            fieldGaps: Object.fromEntries(fieldGapLangs.entries()),
           });
         }
 
@@ -412,10 +561,16 @@ export default function AdminTranslations() {
     const hydrateLocaleStates = async () => {
       if (enKeys.length === 0) return;
 
-      const { data, error } = await i18nClient
-        .from("i18n_locale_data" as never)
-        .select("locale,data,updated_at")
-        .in("locale", LOCALES.map((locale) => locale.code));
+      const [{ data, error }, { data: statusRows, error: statusError }] = await Promise.all([
+        i18nClient
+          .from("i18n_locale_data" as never)
+          .select("locale,data,updated_at")
+          .in("locale", LOCALES.map((locale) => locale.code)),
+        i18nClient
+          .from("i18n_locale_key_status" as never)
+          .select("locale,key_path,source_hash,status,reviewed_at,updated_at")
+          .in("locale", LOCALES.map((locale) => locale.code)),
+      ]);
 
       if (error || !active) return;
 
@@ -427,6 +582,17 @@ export default function AdminTranslations() {
 
       const patchRows = ((data ?? []) as unknown) as LocalePatchRow[];
       const patchByLocale = new Map(patchRows.map((row) => [row.locale, row]));
+      const metadataRows = statusError ? [] : (((statusRows ?? []) as unknown) as LocaleKeyStatusRow[]);
+      const metadataByLocale: Record<string, Record<string, TranslationKeyMetadata>> = {};
+      for (const row of metadataRows) {
+        metadataByLocale[row.locale] = metadataByLocale[row.locale] ?? {};
+        metadataByLocale[row.locale][row.key_path] = {
+          sourceHash: row.source_hash,
+          status: row.status,
+          reviewedAt: row.reviewed_at ?? null,
+          updatedAt: row.updated_at ?? null,
+        };
+      }
       setLocalePatchDataByCode(
         Object.fromEntries(
           patchRows.map((row) => [
@@ -438,14 +604,16 @@ export default function AdminTranslations() {
           ]),
         ),
       );
+      setLocaleKeyMetadataByCode(metadataByLocale);
 
       setLocaleStates(
         LOCALES.map((locale) => {
           const patchRow = patchByLocale.get(locale.code);
-          const missingKeys = computeMissingKeys(
-            enKeys,
+          const coverage = calculateMergedLocaleCoverage(
+            enFlat,
             localeDataByCode[locale.code] ?? {},
             patchRow?.data,
+            metadataByLocale[locale.code],
           );
 
           return {
@@ -454,9 +622,17 @@ export default function AdminTranslations() {
             name: locale.name,
             flag: locale.flag,
             totalKeys: enKeys.length,
-            missingCount: missingKeys.length,
-            status: missingKeys.length === 0 ? "synced" : "missing",
+            translatedCount: coverage.translatedKeyCount,
+            missingCount: coverage.missingKeyCount,
+            staleCount: coverage.staleKeyCount,
+            obsoleteCount: coverage.obsoleteKeyCount,
+            emptyValueCount: coverage.emptyValueKeyCount,
+            invalidCount: coverage.invalidKeyCount,
+            pendingManualCount: coverage.pendingManualKeyCount,
+            coverageLabel: coverage.coverageLabel,
+            status: coverageStatus(coverage),
             lastSynced: patchRow?.updated_at,
+            lastRefreshed: lastCoverageRefresh ?? undefined,
           };
         }),
       );
@@ -466,7 +642,55 @@ export default function AdminTranslations() {
     return () => {
       active = false;
     };
-  }, [enKeys, i18nClient, localeDataByCode]);
+  }, [enFlat, enKeys, i18nClient, lastCoverageRefresh, localeDataByCode]);
+
+  useEffect(() => {
+    let active = true;
+
+    const fetchProcessorCapabilities = async () => {
+      try {
+        const json = await fetchAdmin("/api/admin/translations/capabilities");
+        const data = json.data as { configured?: boolean; message?: string };
+        if (!active) return;
+        setProcessorConfigured(Boolean(data.configured));
+        setProcessorMessage(data.message ?? "Translation processor capability is unknown.");
+      } catch (err) {
+        if (!active) return;
+        const message = err instanceof Error ? err.message : String(err);
+        setProcessorConfigured(false);
+        setProcessorMessage(`Translation processor capability unavailable: ${message}`);
+      }
+    };
+
+    void fetchProcessorCapabilities();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    const fetchSchemaHealth = async () => {
+      try {
+        const json = await fetchAdmin("/api/admin/translations/schema");
+        const data = json.data as TranslationSchemaHealth;
+        if (!active) return;
+        setSchemaHealth(data);
+        setSchemaHealthError(null);
+      } catch (err) {
+        if (!active) return;
+        const message = err instanceof Error ? err.message : String(err);
+        setSchemaHealth(null);
+        setSchemaHealthError(message);
+      }
+    };
+
+    void fetchSchemaHealth();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const updateLocale = useCallback((code: string, patch: Partial<LocaleState>) => {
     setLocaleStates((prev) =>
@@ -479,6 +703,12 @@ export default function AdminTranslations() {
       localeCode: string,
       data: Record<string, unknown>,
       keyCount: number,
+      keyStatuses?: Array<{
+        keyPath: string;
+        sourceHash: string;
+        status: UiTranslationStoredStatus;
+        reviewedAt?: string | null;
+      }>,
     ) => {
       try {
         await fetchAdmin("/api/admin/i18n/sync", {
@@ -488,6 +718,7 @@ export default function AdminTranslations() {
             locale: localeCode,
             data,
             keyCount,
+            keyStatuses,
           }),
         });
       } catch (err) {
@@ -529,14 +760,25 @@ export default function AdminTranslations() {
             ? flattenI18nData(existingLocalePatch.data as Record<string, unknown>)
             : {}),
         };
-        const missingKeys = enKeys.filter((key) => !(key in existingFlat));
+        const existingMetadata = localeKeyMetadataByCode[localeCode] ?? {};
+        const beforeCoverage = calculateLocaleCoverage(enFlat, existingFlat, existingMetadata);
+        const missingKeys = beforeCoverage.missingKeys;
+        const staleKeys = beforeCoverage.staleKeys;
+        const obsoleteKeys = beforeCoverage.obsoleteKeys;
         let failedKeyCount = 0;
         let failureReason: string | null = null;
 
-        if (missingKeys.length === 0) {
+        if (beforeCoverage.isFullySynced) {
           updateLocale(localeCode, {
             status: "synced",
             missingCount: 0,
+            staleCount: 0,
+            obsoleteCount: beforeCoverage.obsoleteKeyCount,
+            emptyValueCount: beforeCoverage.emptyValueKeyCount,
+            invalidCount: beforeCoverage.invalidKeyCount,
+            pendingManualCount: beforeCoverage.pendingManualKeyCount,
+            translatedCount: beforeCoverage.translatedKeyCount,
+            coverageLabel: beforeCoverage.coverageLabel,
             lastSynced: new Date().toISOString(),
             lastError: undefined,
           });
@@ -549,71 +791,144 @@ export default function AdminTranslations() {
           keysToTranslate[key] = enFlat[key];
         }
 
-        // Call existing translate-i18n edge function (batches of 80 keys)
-        const BATCH_SIZE = 80;
         const translated: Record<string, string> = {};
-        const batchKeys = Object.keys(keysToTranslate);
+        const statusUpdates: Array<{
+          keyPath: string;
+          sourceHash: string;
+          status: UiTranslationStoredStatus;
+          reviewedAt?: string | null;
+        }> = [];
+        const nowIso = new Date().toISOString();
 
-        for (let i = 0; i < batchKeys.length; i += BATCH_SIZE) {
-          const batch = batchKeys.slice(i, i + BATCH_SIZE);
-          const batchObj: Record<string, string> = {};
-          const batchForTranslation: Record<string, string> = {};
-          for (const k of batch) {
-            batchObj[k] = keysToTranslate[k];
-            batchForTranslation[k] = protectPremiumInSourceText(keysToTranslate[k]);
+        if (!processorConfigured) {
+          for (const key of missingKeys) {
+            translated[key] = enFlat[key];
+            statusUpdates.push({
+              keyPath: key,
+              sourceHash: hashTranslationSource(enFlat[key] ?? ""),
+              status: "pending_manual",
+            });
           }
+          for (const key of staleKeys) {
+            statusUpdates.push({
+              keyPath: key,
+              sourceHash: hashTranslationSource(enFlat[key] ?? ""),
+              status: "stale",
+            });
+          }
+          for (const key of obsoleteKeys) {
+            statusUpdates.push({
+              keyPath: key,
+              sourceHash: hashTranslationSource(existingFlat[key] ?? ""),
+              status: "obsolete",
+            });
+          }
+          if (missingKeys.length > 0) {
+            failureReason = "translation processor is not configured; missing keys were synced as pending manual fallback";
+          }
+        } else {
+          // Call existing translate-i18n edge function (batches of 80 keys)
+          const BATCH_SIZE = 80;
+          const batchKeys = Object.keys(keysToTranslate);
 
-          const { data, error } = await invokeFunctionWithAuthRetry<{
-            translated?: Record<string, string>;
-            error?: string;
-          }>("translate-i18n", {
-            body: { lang: localeCode, langName: localeConfig.name, keys: batchForTranslation },
-          });
-
-          if (error) {
-            const message = await getSupabaseFunctionErrorMessage(error, "Translation request failed");
-            const isAuthError = await isSupabaseFunctionAuthError(error);
-
-            failedKeyCount += batch.length;
-            if (!failureReason) {
-              failureReason = isAuthError
-                ? "translation endpoint auth unavailable"
-                : message;
+          for (let i = 0; i < batchKeys.length; i += BATCH_SIZE) {
+            const batch = batchKeys.slice(i, i + BATCH_SIZE);
+            const batchObj: Record<string, string> = {};
+            const batchForTranslation: Record<string, string> = {};
+            for (const k of batch) {
+              batchObj[k] = keysToTranslate[k];
+              batchForTranslation[k] = protectPremiumInSourceText(keysToTranslate[k]);
             }
-            continue;
+
+            const { data, error } = await invokeFunctionWithAuthRetry<{
+              translated?: Record<string, string>;
+              error?: string;
+            }>("translate-i18n", {
+              body: { lang: localeCode, langName: localeConfig.name, keys: batchForTranslation },
+            });
+
+            if (error) {
+              const message = await getSupabaseFunctionErrorMessage(error, "Translation request failed");
+              const isAuthError = await isSupabaseFunctionAuthError(error);
+
+              failedKeyCount += batch.length;
+              if (!failureReason) {
+                failureReason = isAuthError
+                  ? "translation endpoint auth unavailable"
+                  : message;
+              }
+              continue;
+            }
+
+            if (data?.error) {
+              failedKeyCount += batch.length;
+              failureReason = failureReason ?? data.error;
+              continue;
+            }
+
+            const translatedBatch = data?.translated ?? {};
+            for (const key of batch) {
+              const translatedValue = translatedBatch[key];
+              if (typeof translatedValue !== "string" || translatedValue.trim().length === 0) {
+                failedKeyCount += 1;
+                continue;
+              }
+              translated[key] = enforcePremiumInTranslation(
+                batchObj[key],
+                translatedValue,
+              );
+              statusUpdates.push({
+                keyPath: key,
+                sourceHash: hashTranslationSource(batchObj[key] ?? ""),
+                status: "translated",
+              });
+            }
           }
 
-          if (data?.error) {
-            failedKeyCount += batch.length;
-            failureReason = failureReason ?? data.error;
-            continue;
+          for (const key of staleKeys) {
+            statusUpdates.push({
+              keyPath: key,
+              sourceHash: hashTranslationSource(enFlat[key] ?? ""),
+              status: "stale",
+            });
           }
-
-          const translatedBatch = data?.translated ?? {};
-          for (const key of batch) {
-            const translatedValue = translatedBatch[key] ?? batchObj[key];
-            translated[key] = enforcePremiumInTranslation(
-              batchObj[key],
-              translatedValue,
-            );
+          for (const key of obsoleteKeys) {
+            statusUpdates.push({
+              keyPath: key,
+              sourceHash: hashTranslationSource(existingFlat[key] ?? ""),
+              status: "obsolete",
+            });
           }
         }
 
-        // Merge translated keys into the full locale data
         const mergedFlat = { ...existingFlat, ...translated };
         const mergedNested = enforcePremiumInLocaleData(
           unflattenI18nData(mergedFlat),
           englishData,
         );
         const mergedNestedFlat = flattenI18nData(mergedNested);
-        const remainingMissingKeys = enKeys.filter((key) => !(key in mergedNestedFlat));
-        const nowIso = new Date().toISOString();
+        const nextMetadata = {
+          ...existingMetadata,
+          ...Object.fromEntries(
+            statusUpdates.map((row) => [
+              row.keyPath,
+              {
+                sourceHash: row.sourceHash,
+                status: row.status,
+                reviewedAt: row.reviewedAt ?? null,
+                updatedAt: nowIso,
+              } satisfies TranslationKeyMetadata,
+            ]),
+          ),
+        };
+        const afterCoverage = calculateLocaleCoverage(enFlat, mergedNestedFlat, nextMetadata);
 
-        if (Object.keys(translated).length > 0) {
+        if (Object.keys(translated).length > 0 || statusUpdates.length > 0) {
           await persistLocaleData(
             localeCode,
             mergedNested,
             Object.keys(mergedNestedFlat).length,
+            statusUpdates,
           );
           setLocalePatchDataByCode((prev) => ({
             ...prev,
@@ -622,31 +937,45 @@ export default function AdminTranslations() {
               updatedAt: nowIso,
             },
           }));
+          setLocaleKeyMetadataByCode((prev) => ({
+            ...prev,
+            [localeCode]: nextMetadata,
+          }));
         }
 
         const translatedCount = Object.keys(translated).length;
-        const nextStatus: LocaleStatus =
-          remainingMissingKeys.length === 0 ? "synced" : translatedCount > 0 ? "missing" : "error";
+        const nextStatus: LocaleStatus = coverageStatus(afterCoverage);
         const nextError =
-          remainingMissingKeys.length > 0
-            ? `${remainingMissingKeys.length.toLocaleString()} UI key${remainingMissingKeys.length !== 1 ? "s" : ""} still missing${failureReason ? ` (${failureReason})` : ""}.`
+          afterCoverage.missingKeyCount + afterCoverage.pendingManualKeyCount + afterCoverage.staleKeyCount > 0
+            ? `${afterCoverage.missingKeyCount.toLocaleString()} missing, ${afterCoverage.pendingManualKeyCount.toLocaleString()} pending manual, ${afterCoverage.staleKeyCount.toLocaleString()} stale${failureReason ? ` (${failureReason})` : ""}.`
             : undefined;
 
         updateLocale(localeCode, {
           status: nextStatus,
-          missingCount: remainingMissingKeys.length,
-          ...(translatedCount > 0 ? { lastSynced: nowIso } : {}),
+          missingCount: afterCoverage.missingKeyCount,
+          staleCount: afterCoverage.staleKeyCount,
+          obsoleteCount: afterCoverage.obsoleteKeyCount,
+          emptyValueCount: afterCoverage.emptyValueKeyCount,
+          invalidCount: afterCoverage.invalidKeyCount,
+          pendingManualCount: afterCoverage.pendingManualKeyCount,
+          translatedCount: afterCoverage.translatedKeyCount,
+          coverageLabel: afterCoverage.coverageLabel,
+          ...(translatedCount > 0 || statusUpdates.length > 0 ? { lastSynced: nowIso } : {}),
           lastError: nextError,
         });
 
-        if (failedKeyCount > 0 || remainingMissingKeys.length > 0) {
+        if (!processorConfigured && missingKeys.length > 0) {
           toast.warning(
-            `${localeConfig.flag} ${localeConfig.name} sync incomplete: ${translatedCount.toLocaleString()} translated, ${remainingMissingKeys.length.toLocaleString()} still missing${failureReason ? ` (${failureReason})` : ""}.`,
+            "Translation processor is not configured. Missing keys were synced as pending/manual translation.",
+          );
+        } else if (failedKeyCount > 0 || afterCoverage.missingKeyCount > 0) {
+          toast.warning(
+            `${localeConfig.flag} ${localeConfig.name} sync incomplete: ${translatedCount.toLocaleString()} translated, ${afterCoverage.missingKeyCount.toLocaleString()} still missing${failureReason ? ` (${failureReason})` : ""}.`,
           );
         } else {
-          toast.success(`${localeConfig.flag} ${localeConfig.name} synced — ${translatedCount.toLocaleString()} keys translated`);
+          toast.success(`${localeConfig.flag} ${localeConfig.name} synced — ${translatedCount.toLocaleString()} key${translatedCount !== 1 ? "s" : ""} updated`);
         }
-        return remainingMissingKeys.length === 0;
+        return afterCoverage.isFullySynced;
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
         updateLocale(localeCode, { status: "error", lastError: msg });
@@ -656,16 +985,49 @@ export default function AdminTranslations() {
         setCurrentLocale(null);
       }
     },
-    [enFlat, enKeys, englishData, i18nClient, localeDataByCode, persistLocaleData, updateLocale]
+    [
+      enFlat,
+      englishData,
+      i18nClient,
+      localeDataByCode,
+      localeKeyMetadataByCode,
+      persistLocaleData,
+      processorConfigured,
+      updateLocale,
+    ]
   );
 
   // ── Sync all locales sequentially ──────────────────────────────────────────
   const syncAll = useCallback(async () => {
-    const toSync = localeStates.filter((l) => l.missingCount > 0);
+    const toSync = localeStates.filter(
+      (l) =>
+        l.missingCount +
+          l.staleCount +
+          l.emptyValueCount +
+          l.invalidCount +
+          l.pendingManualCount +
+          l.obsoleteCount >
+        0,
+    );
     if (toSync.length === 0) {
       toast.info("All locales are already fully synced!");
       return;
     }
+    const totalAffectedKeys = toSync.reduce(
+      (sum, locale) =>
+        sum +
+        locale.missingCount +
+        locale.staleCount +
+        locale.emptyValueCount +
+        locale.invalidCount +
+        locale.pendingManualCount +
+        locale.obsoleteCount,
+      0,
+    );
+    const confirmed = window.confirm(
+      `Sync UI keys for ${toSync.length} locale${toSync.length !== 1 ? "s" : ""}? This will inspect ${totalAffectedKeys.toLocaleString()} open key issue${totalAffectedKeys !== 1 ? "s" : ""} and preserve existing translations.`,
+    );
+    if (!confirmed) return;
 
     setIsSyncingAll(true);
     setSyncProgress(0);
@@ -673,7 +1035,7 @@ export default function AdminTranslations() {
 
     for (let i = 0; i < toSync.length; i++) {
       const ok = await syncLocale(toSync[i].code);
-      if (ok) successful += 1;
+      if (ok || !processorConfigured) successful += 1;
       setSyncProgress(Math.round(((i + 1) / toSync.length) * 100));
     }
 
@@ -681,19 +1043,21 @@ export default function AdminTranslations() {
     setSyncProgress(100);
     const failed = toSync.length - successful;
     if (failed === 0) {
-      toast.success("All locales synced successfully!");
+      toast.success(processorConfigured ? "All locales synced successfully!" : "All locales synced for manual translation review.");
     } else {
-      toast.warning(`${successful} locale${successful !== 1 ? "s" : ""} synced, ${failed} failed.`);
+      toast.warning(`${successful} locale${successful !== 1 ? "s" : ""} processed, ${failed} failed.`);
     }
-  }, [localeStates, syncLocale]);
+  }, [localeStates, processorConfigured, syncLocale]);
 
   const fetchMissingTranslations = useCallback(async () => {
     setMissingLoading(true);
     try {
       const computedMissing = await collectMissingPublishedListings(MAX_INCOMPLETE_LISTINGS);
       setMissingTranslations(computedMissing);
+      return computedMissing;
     } catch (e: any) {
       toast.error("Failed to load missing translations: " + e.message);
+      return [];
     } finally {
       setMissingLoading(false);
     }
@@ -726,6 +1090,116 @@ export default function AdminTranslations() {
     }
   }, [jobStatusFilter]);
 
+  const refreshCoverage = useCallback(async () => {
+    setCoverageRefreshing(true);
+    try {
+      const nowIso = new Date().toISOString();
+      const [english, localeEntries] = await Promise.all([
+        loadLocale("en"),
+        Promise.all(
+          LOCALES.map(async (locale) => [
+            locale.code,
+            await loadLocale(locale.localeCode),
+          ] as const),
+        ),
+      ]);
+      const nextLocaleDataByCode = Object.fromEntries(localeEntries);
+      const nextEnFlat = flattenI18nData(english);
+
+      const [{ data: patchRowsRaw, error: patchError }, { data: statusRowsRaw, error: statusError }] =
+        await Promise.all([
+          i18nClient
+            .from("i18n_locale_data" as never)
+            .select("locale,data,updated_at")
+            .in("locale", LOCALES.map((locale) => locale.code)),
+          i18nClient
+            .from("i18n_locale_key_status" as never)
+            .select("locale,key_path,source_hash,status,reviewed_at,updated_at")
+            .in("locale", LOCALES.map((locale) => locale.code)),
+        ]);
+
+      if (patchError) throw new Error(patchError.message);
+
+      type LocalePatchRow = {
+        locale: string;
+        data: Record<string, unknown>;
+        updated_at: string;
+      };
+      const patchRows = ((patchRowsRaw ?? []) as unknown) as LocalePatchRow[];
+      const patchByLocale = new Map(patchRows.map((row) => [row.locale, row]));
+      const metadataRows = statusError ? [] : (((statusRowsRaw ?? []) as unknown) as LocaleKeyStatusRow[]);
+      const metadataByLocale: Record<string, Record<string, TranslationKeyMetadata>> = {};
+      for (const row of metadataRows) {
+        metadataByLocale[row.locale] = metadataByLocale[row.locale] ?? {};
+        metadataByLocale[row.locale][row.key_path] = {
+          sourceHash: row.source_hash,
+          status: row.status,
+          reviewedAt: row.reviewed_at ?? null,
+          updatedAt: row.updated_at ?? null,
+        };
+      }
+
+      const localeTargets = Object.fromEntries(
+        LOCALES.map((locale) => [
+          locale.code,
+          mergeLocaleFlat(nextLocaleDataByCode[locale.code] ?? {}, patchByLocale.get(locale.code)?.data),
+        ]),
+      );
+      const allCoverage = calculateAllLocaleCoverage(nextEnFlat, localeTargets, metadataByLocale);
+      const computedMissingListings = await collectMissingPublishedListings(MAX_INCOMPLETE_LISTINGS);
+
+      setEnglishData(english);
+      setLocaleDataByCode(nextLocaleDataByCode);
+      setLocalePatchDataByCode(
+        Object.fromEntries(
+          patchRows.map((row) => [
+            row.locale,
+            {
+              data: row.data,
+              updatedAt: row.updated_at,
+            },
+          ]),
+        ),
+      );
+      setLocaleKeyMetadataByCode(metadataByLocale);
+      setLastCoverageRefresh(nowIso);
+      setMissingTranslations(computedMissingListings);
+      setLocaleStates(
+        LOCALES.map((locale) => {
+          const coverage = allCoverage.locales[locale.code];
+          const patchRow = patchByLocale.get(locale.code);
+          return {
+            code: locale.code,
+            localeCode: locale.localeCode,
+            name: locale.name,
+            flag: locale.flag,
+            totalKeys: coverage.sourceKeyCount,
+            translatedCount: coverage.translatedKeyCount,
+            missingCount: coverage.missingKeyCount,
+            staleCount: coverage.staleKeyCount,
+            obsoleteCount: coverage.obsoleteKeyCount,
+            emptyValueCount: coverage.emptyValueKeyCount,
+            invalidCount: coverage.invalidKeyCount,
+            pendingManualCount: coverage.pendingManualKeyCount,
+            coverageLabel: coverage.coverageLabel,
+            status: coverageStatus(coverage),
+            lastSynced: patchRow?.updated_at,
+            lastRefreshed: nowIso,
+          };
+        }),
+      );
+      await fetchTranslationJobConsole();
+      toast.success(
+        `Coverage refreshed: ${allCoverage.sourceKeyCount.toLocaleString()} source keys, ${allCoverage.fullySyncedLocaleCount}/${LOCALES.length} locales fully synced, ${allCoverage.totalMissingAcrossLocales.toLocaleString()} missing keys, ${allCoverage.totalStaleAcrossLocales.toLocaleString()} stale keys, ${allCoverage.totalObsoleteAcrossLocales.toLocaleString()} obsolete keys, ${computedMissingListings.length.toLocaleString()} incomplete listings.`,
+      );
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to refresh coverage: ${msg}`);
+    } finally {
+      setCoverageRefreshing(false);
+    }
+  }, [collectMissingPublishedListings, fetchTranslationJobConsole, i18nClient]);
+
   const runTranslationJobAction = useCallback(
     async (
       loadingId: string,
@@ -757,13 +1231,17 @@ export default function AdminTranslations() {
   const handleQueueTranslationJobs = useCallback(
     async (jobIds: string[], label: string) => {
       if (jobIds.length === 0) return;
+      if (!processorConfigured) {
+        toast.warning("Translation processor is not configured. Jobs were not queued for machine translation.");
+        return;
+      }
       await runTranslationJobAction(
         `queue:${jobIds.join(",")}`,
         { action: "queue", jobIds },
         `${label} queued.`,
       );
     },
-    [runTranslationJobAction],
+    [processorConfigured, runTranslationJobAction],
   );
 
   const handleReviewTranslationJobs = useCallback(
@@ -783,13 +1261,17 @@ export default function AdminTranslations() {
   const handleRequeueOutdatedListing = useCallback(
     async (listingId: string, listingName: string) => {
       if (!listingId) return;
+      if (!processorConfigured) {
+        toast.warning("Translation processor is not configured. Outdated jobs were not re-queued.");
+        return;
+      }
       await runTranslationJobAction(
         `requeue_outdated:${listingId}`,
         { action: "requeue_outdated", listingId },
         `${listingName} outdated jobs re-queued.`,
       );
     },
-    [runTranslationJobAction],
+    [processorConfigured, runTranslationJobAction],
   );
 
   const openTranslationReview = useCallback(async (jobId: string) => {
@@ -866,6 +1348,10 @@ export default function AdminTranslations() {
 
   const translateSingle = useCallback(
     async (listingId: string) => {
+      if (!processorConfigured) {
+        toast.warning("Translation processor is not configured. Use manual review/editing instead of queueing machine translation.");
+        return;
+      }
       setTranslatingId(listingId);
       try {
         const { data, error } = await invokeFunctionWithAuthRetry<{ ok?: boolean; error?: string }>(
@@ -907,10 +1393,22 @@ export default function AdminTranslations() {
         setTranslatingId(null);
       }
     },
-    [fetchMissingTranslations, fetchTranslationJobConsole],
+    [fetchMissingTranslations, fetchTranslationJobConsole, processorConfigured],
   );
 
   const runTranslationsNow = useCallback(async () => {
+    if (!processorConfigured) {
+      setTranslateResult({
+        processed: 0,
+        succeeded: 0,
+        queued: 0,
+        failed: 0,
+        skipped: translateBatch,
+        message: "Translation processor is not configured. No machine translation jobs were queued.",
+      });
+      toast.warning("Translation processor is not configured. No machine translation jobs were queued.");
+      return;
+    }
     setTranslateLoading(true);
     setTranslateError(null);
     setTranslateResult(null);
@@ -998,7 +1496,13 @@ export default function AdminTranslations() {
     } finally {
       setTranslateLoading(false);
     }
-  }, [collectMissingPublishedListings, fetchMissingTranslations, fetchTranslationJobConsole, translateBatch]);
+  }, [
+    collectMissingPublishedListings,
+    fetchMissingTranslations,
+    fetchTranslationJobConsole,
+    processorConfigured,
+    translateBatch,
+  ]);
 
   const handleRunTranslationsNow = useCallback(async () => {
     const confirmed = window.confirm(
@@ -1018,22 +1522,65 @@ export default function AdminTranslations() {
 
   // ── Derived stats ───────────────────────────────────────────────────────────
   const totalMissing = localeStates.reduce((s, l) => s + l.missingCount, 0);
-  const syncedCount = localeStates.filter((l) => l.status === "synced").length;
+  const totalStale = localeStates.reduce((s, l) => s + l.staleCount, 0);
+  const totalObsolete = localeStates.reduce((s, l) => s + l.obsoleteCount, 0);
+  const totalEmptyValues = localeStates.reduce((s, l) => s + l.emptyValueCount, 0);
+  const totalPendingManual = localeStates.reduce((s, l) => s + l.pendingManualCount, 0);
+  const totalOpenUiIssues =
+    totalMissing + totalStale + totalObsolete + totalEmptyValues + totalPendingManual;
+  const syncedCount = localeStates.filter(
+    (l) =>
+      l.missingCount +
+        l.staleCount +
+        l.obsoleteCount +
+        l.emptyValueCount +
+        l.invalidCount +
+        l.pendingManualCount ===
+      0,
+  ).length;
   const erroredLocaleCount = localeStates.filter((l) => l.status === "error").length;
   const syncingLocale = currentLocale
     ? LOCALES.find((locale) => locale.code === currentLocale)
     : null;
   const isLocaleBundleLoading = !englishData || enKeys.length === 0;
   const totalLocaleKeySlots = enKeys.length * LOCALES.length;
-  const completedLocaleKeys = Math.max(totalLocaleKeySlots - totalMissing, 0);
-  const localeCompletionPct = totalLocaleKeySlots > 0
-    ? Math.round((completedLocaleKeys / totalLocaleKeySlots) * 100)
-    : 0;
+  const localeCompletionLabel = totalLocaleKeySlots > 0
+    ? calculateAllLocaleCoverage(
+        enFlat,
+        Object.fromEntries(
+          LOCALES.map((locale) => [
+            locale.code,
+            mergeLocaleFlat(
+              localeDataByCode[locale.code] ?? {},
+              localePatchDataByCode[locale.code]?.data,
+            ),
+          ]),
+        ),
+        localeKeyMetadataByCode,
+      ).overallCoverageLabel
+    : "0%";
+  const uniqueMissingSourceKeyCount = useMemo(() => {
+    const keys = new Set<string>();
+    for (const locale of LOCALES) {
+      const coverage = calculateMergedLocaleCoverage(
+        enFlat,
+        localeDataByCode[locale.code] ?? {},
+        localePatchDataByCode[locale.code]?.data,
+        localeKeyMetadataByCode[locale.code],
+      );
+      for (const key of coverage.missingKeys) keys.add(key);
+    }
+    return keys.size;
+  }, [enFlat, localeDataByCode, localeKeyMetadataByCode, localePatchDataByCode]);
   const selectedLocaleState =
     localeStates.find((locale) => locale.code === selectedLocaleCode) ?? localeStates[0];
   const selectedLocaleConfig =
     LOCALES.find((locale) => locale.code === selectedLocaleCode) ?? LOCALES[0];
   const selectedLocalePatch = localePatchDataByCode[selectedLocaleCode];
+  const selectedLocaleMetadata = useMemo(
+    () => localeKeyMetadataByCode[selectedLocaleCode] ?? {},
+    [localeKeyMetadataByCode, selectedLocaleCode],
+  );
   const selectedLocaleBundledFlat = useMemo(
     () => flattenI18nData(localeDataByCode[selectedLocaleCode] ?? {}),
     [localeDataByCode, selectedLocaleCode],
@@ -1046,19 +1593,40 @@ export default function AdminTranslations() {
     () => ({ ...selectedLocaleBundledFlat, ...selectedLocalePatchFlat }),
     [selectedLocaleBundledFlat, selectedLocalePatchFlat],
   );
-  const selectedLocaleMissingKeys = useMemo(() => {
-    if (!selectedLocaleConfig || enKeys.length === 0) return [];
-    return enKeys.filter((key) => !(key in selectedLocaleMergedFlat));
-  }, [enKeys, selectedLocaleConfig, selectedLocaleMergedFlat]);
+  const selectedLocaleCoverageResult = useMemo(
+    () => calculateLocaleCoverage(enFlat, selectedLocaleMergedFlat, selectedLocaleMetadata),
+    [enFlat, selectedLocaleMergedFlat, selectedLocaleMetadata],
+  );
+  const selectedLocaleMissingKeys = selectedLocaleCoverageResult.missingKeys;
   const visibleSelectedLocaleUiKeys = useMemo(() => {
     const query = uiKeySearchQuery.trim().toLowerCase();
-    const candidateKeys = query ? enKeys : selectedLocaleMissingKeys;
-    return candidateKeys.filter((key) =>
-      key.toLowerCase().includes(query) ||
-      (enFlat[key] ?? "").toLowerCase().includes(query) ||
-      (selectedLocaleMergedFlat[key] ?? "").toLowerCase().includes(query),
-    );
-  }, [enFlat, enKeys, selectedLocaleMergedFlat, selectedLocaleMissingKeys, uiKeySearchQuery]);
+    const candidateKeys =
+      uiKeyStatusFilter === "all"
+        ? Array.from(
+            new Set([
+              ...selectedLocaleCoverageResult.sourceKeys,
+              ...selectedLocaleCoverageResult.obsoleteKeys,
+            ]),
+          )
+        : Object.entries(selectedLocaleCoverageResult.statusByKey)
+            .filter(([, status]) => status === uiKeyStatusFilter)
+            .map(([key]) => key);
+    return candidateKeys.filter((key) => {
+      const status = selectedLocaleCoverageResult.statusByKey[key] ?? "complete";
+      return (
+        key.toLowerCase().includes(query) ||
+        (enFlat[key] ?? "").toLowerCase().includes(query) ||
+        (selectedLocaleMergedFlat[key] ?? "").toLowerCase().includes(query) ||
+        status.toLowerCase().includes(query)
+      );
+    });
+  }, [
+    enFlat,
+    selectedLocaleCoverageResult,
+    selectedLocaleMergedFlat,
+    uiKeySearchQuery,
+    uiKeyStatusFilter,
+  ]);
   const selectedUiKeyIsMissing = selectedUiKey ? !(selectedUiKey in selectedLocaleMergedFlat) : false;
   const selectedUiKeySource = selectedUiKey ? enFlat[selectedUiKey] ?? "" : "";
   const selectedUiKeyCurrentValue = selectedUiKey ? selectedLocaleMergedFlat[selectedUiKey] ?? "" : "";
@@ -1100,11 +1668,18 @@ export default function AdminTranslations() {
       );
       const mergedNestedFlat = flattenI18nData(mergedNested);
       const nowIso = new Date().toISOString();
+      const keyStatus = {
+        keyPath: selectedUiKey,
+        sourceHash: hashTranslationSource(selectedUiKeySource),
+        status: "reviewed" as const,
+        reviewedAt: nowIso,
+      };
 
       await persistLocaleData(
         selectedLocaleState.code,
         mergedNested,
         Object.keys(mergedNestedFlat).length,
+        [keyStatus],
       );
 
       setLocalePatchDataByCode((prev) => ({
@@ -1114,11 +1689,31 @@ export default function AdminTranslations() {
           updatedAt: nowIso,
         },
       }));
+      const nextMetadata = {
+        ...(localeKeyMetadataByCode[selectedLocaleState.code] ?? {}),
+        [selectedUiKey]: {
+          sourceHash: keyStatus.sourceHash,
+          status: keyStatus.status,
+          reviewedAt: nowIso,
+          updatedAt: nowIso,
+        } satisfies TranslationKeyMetadata,
+      };
+      setLocaleKeyMetadataByCode((prev) => ({
+        ...prev,
+        [selectedLocaleState.code]: nextMetadata,
+      }));
 
-      const nextMissingCount = enKeys.filter((key) => !(key in mergedNestedFlat)).length;
+      const nextCoverage = calculateLocaleCoverage(enFlat, mergedNestedFlat, nextMetadata);
       updateLocale(selectedLocaleState.code, {
-        status: nextMissingCount === 0 ? "synced" : "missing",
-        missingCount: nextMissingCount,
+        status: coverageStatus(nextCoverage),
+        missingCount: nextCoverage.missingKeyCount,
+        staleCount: nextCoverage.staleKeyCount,
+        obsoleteCount: nextCoverage.obsoleteKeyCount,
+        emptyValueCount: nextCoverage.emptyValueKeyCount,
+        invalidCount: nextCoverage.invalidKeyCount,
+        pendingManualCount: nextCoverage.pendingManualKeyCount,
+        translatedCount: nextCoverage.translatedKeyCount,
+        coverageLabel: nextCoverage.coverageLabel,
         lastSynced: nowIso,
         lastError: undefined,
       });
@@ -1131,8 +1726,9 @@ export default function AdminTranslations() {
       setIsSavingUiKey(false);
     }
   }, [
-    enKeys,
+    enFlat,
     englishData,
+    localeKeyMetadataByCode,
     persistLocaleData,
     selectedLocaleBundledFlat,
     selectedLocalePatchFlat,
@@ -1144,7 +1740,7 @@ export default function AdminTranslations() {
   ]);
 
   const selectedLocaleCoverage = selectedLocaleState && selectedLocaleState.totalKeys > 0
-    ? Math.round(((selectedLocaleState.totalKeys - selectedLocaleState.missingCount) / selectedLocaleState.totalKeys) * 100)
+    ? selectedLocaleCoverageResult.coveragePercent
     : 0;
   const visibleMissingTranslations = useMemo(() => {
     const query = listingSearchQuery.trim().toLowerCase();
@@ -1152,7 +1748,11 @@ export default function AdminTranslations() {
     return missingTranslations.filter((listing) =>
       listing.name.toLowerCase().includes(query) ||
       listing.city.toLowerCase().includes(query) ||
-      listing.missingLangs.some((lang) => lang.toLowerCase().includes(query)),
+      listing.missingLangs.some((lang) => lang.toLowerCase().includes(query)) ||
+      listing.pendingLangs.some((lang) => lang.toLowerCase().includes(query)) ||
+      listing.failedLangs.some((lang) => lang.toLowerCase().includes(query)) ||
+      listing.staleLangs.some((lang) => lang.toLowerCase().includes(query)) ||
+      listing.emptyFieldLangs.some((lang) => lang.toLowerCase().includes(query)),
     );
   }, [listingSearchQuery, missingTranslations]);
   const lastRunRows = Array.isArray(translateResult?.results)
@@ -1214,11 +1814,11 @@ export default function AdminTranslations() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={fetchMissingTranslations}
-                disabled={missingLoading}
+                onClick={refreshCoverage}
+                disabled={coverageRefreshing || missingLoading}
                 className="gap-2"
               >
-                {missingLoading ? (
+                {coverageRefreshing || missingLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <RefreshCw className="h-4 w-4" />
@@ -1227,7 +1827,7 @@ export default function AdminTranslations() {
               </Button>
               <Button
                 onClick={syncAll}
-                disabled={isLocaleBundleLoading || isSyncingAll || totalMissing === 0}
+                disabled={isLocaleBundleLoading || isSyncingAll || totalOpenUiIssues === 0}
                 className="gap-2"
               >
                 {isSyncingAll ? (
@@ -1237,9 +1837,9 @@ export default function AdminTranslations() {
                 )}
                 {isSyncingAll
                   ? `Syncing ${syncProgress}%`
-                  : totalMissing === 0 && !isLocaleBundleLoading
+                  : totalOpenUiIssues === 0 && !isLocaleBundleLoading
                     ? "UI Keys Synced"
-                    : `Sync UI Keys (${totalMissing})`}
+                    : `Sync UI Keys (${totalOpenUiIssues})`}
               </Button>
             </div>
           </div>
@@ -1265,15 +1865,15 @@ export default function AdminTranslations() {
           <MetricCard
             icon={<Globe2 className="h-4 w-4" />}
             label="Locale Coverage"
-            value={`${localeCompletionPct}%`}
-            detail={`${syncedCount}/${LOCALES.length} locales synced`}
-            tone={totalMissing > 0 ? "amber" : "emerald"}
+            value={localeCompletionLabel}
+            detail={`${syncedCount}/${LOCALES.length} locales fully synced`}
+            tone={totalOpenUiIssues > 0 ? "amber" : "emerald"}
           />
           <MetricCard
             icon={<FileWarning className="h-4 w-4" />}
             label="Missing UI Keys"
             value={totalMissing.toLocaleString()}
-            detail={totalMissing > 0 ? "Ready for sync" : "No gaps detected"}
+            detail={`${uniqueMissingSourceKeyCount.toLocaleString()} unique source key${uniqueMissingSourceKeyCount !== 1 ? "s" : ""}`}
             tone={totalMissing > 0 ? "amber" : "emerald"}
           />
           <MetricCard
@@ -1299,7 +1899,7 @@ export default function AdminTranslations() {
                 <WorkstreamItem
                   icon={<Globe2 className="h-4 w-4" />}
                   title="UI Locale Keys"
-                  detail={`${totalMissing.toLocaleString()} missing`}
+                  detail={`${totalOpenUiIssues.toLocaleString()} open issues`}
                   active
                 />
                 <WorkstreamItem
@@ -1345,8 +1945,8 @@ export default function AdminTranslations() {
                         : `${enKeys.length.toLocaleString()} English source keys across ${LOCALES.length} locales.`}
                     </CardDescription>
                   </div>
-                  <Badge variant="outline" className={totalMissing > 0 ? "border-amber-500/40 bg-amber-50 text-amber-700" : "border-emerald-500/40 bg-emerald-50 text-emerald-700"}>
-                    {totalMissing > 0 ? `${totalMissing.toLocaleString()} missing` : "Synced"}
+                  <Badge variant="outline" className={totalOpenUiIssues > 0 ? "border-amber-500/40 bg-amber-50 text-amber-700" : "border-emerald-500/40 bg-emerald-50 text-emerald-700"}>
+                    {totalOpenUiIssues > 0 ? `${totalOpenUiIssues.toLocaleString()} open issues` : "Synced"}
                   </Badge>
                 </div>
               </CardHeader>
@@ -1354,7 +1954,7 @@ export default function AdminTranslations() {
                 <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-3">
                   {localeStates.map((locale) => {
                     const coverage = locale.totalKeys > 0
-                      ? Math.round(((locale.totalKeys - locale.missingCount) / locale.totalKeys) * 100)
+                      ? (locale.translatedCount / locale.totalKeys) * 100
                       : 0;
                     const isSyncing = locale.status === "syncing";
                     const isSelected = selectedLocaleCode === locale.code;
@@ -1382,8 +1982,8 @@ export default function AdminTranslations() {
 
                         <div className="mt-4 space-y-2">
                           <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>{Math.max(locale.totalKeys - locale.missingCount, 0)} / {locale.totalKeys} keys</span>
-                            <span>{coverage}%</span>
+                            <span>{locale.translatedCount} / {locale.totalKeys} complete</span>
+                            <span>{locale.coverageLabel}</span>
                           </div>
                           <Progress value={coverage} className="h-1.5" />
                         </div>
@@ -1406,6 +2006,10 @@ export default function AdminTranslations() {
                           ) : locale.missingCount > 0 ? (
                             <p className="text-xs text-amber-700">
                               {locale.missingCount.toLocaleString()} key{locale.missingCount !== 1 ? "s" : ""} missing
+                            </p>
+                          ) : locale.pendingManualCount > 0 || locale.staleCount > 0 ? (
+                            <p className="text-xs text-amber-700">
+                              {locale.pendingManualCount.toLocaleString()} pending · {locale.staleCount.toLocaleString()} stale
                             </p>
                           ) : (
                             <p className="text-xs text-muted-foreground">Ready</p>
@@ -1435,7 +2039,7 @@ export default function AdminTranslations() {
                             ) : (
                               <Zap className="h-3.5 w-3.5" />
                             )}
-                            {isSyncing ? "Syncing" : locale.missingCount === 0 ? "Re-sync" : "Sync"}
+                            {isSyncing ? "Syncing" : locale.missingCount === 0 ? "Inspect Sync" : "Sync"}
                           </Button>
                         </div>
                       </div>
@@ -1547,6 +2151,7 @@ export default function AdminTranslations() {
                         key={group.listing.id}
                         group={group}
                         loadingActionId={jobActionLoadingId}
+                        processorConfigured={processorConfigured}
                         onQueueJobs={handleQueueTranslationJobs}
                         onReviewJobs={handleReviewTranslationJobs}
                         onRequeueOutdated={handleRequeueOutdatedListing}
@@ -1626,7 +2231,7 @@ export default function AdminTranslations() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                disabled={translatingId === listing.id}
+                                disabled={translatingId === listing.id || !processorConfigured}
                                 onClick={() => translateSingle(listing.id)}
                                 className="w-full shrink-0 gap-1.5 px-2 sm:w-auto"
                               >
@@ -1638,16 +2243,8 @@ export default function AdminTranslations() {
                                 Translate
                               </Button>
                             </div>
-                            <div className="mt-3 flex flex-wrap gap-1.5">
-                              {listing.missingLangs.map((lang) => (
-                                <Badge
-                                  key={lang}
-                                  variant="outline"
-                                  className="max-w-full border-amber-400/60 bg-amber-50 px-1.5 py-0 text-[10px] text-amber-700"
-                                >
-                                  {lang}
-                                </Badge>
-                              ))}
+                            <div className="mt-3">
+                              <ListingLocaleBadges listing={listing} />
                             </div>
                           </div>
                         ))}
@@ -1671,23 +2268,13 @@ export default function AdminTranslations() {
                                 </td>
                                 <td className="truncate px-4 py-3 text-muted-foreground">{listing.city}</td>
                                 <td className="px-4 py-3">
-                                  <div className="flex min-w-0 flex-wrap gap-1">
-                                    {listing.missingLangs.map((lang) => (
-                                      <Badge
-                                        key={lang}
-                                        variant="outline"
-                                        className="border-amber-400/60 bg-amber-50 px-1.5 py-0 text-[10px] text-amber-700"
-                                      >
-                                        {lang}
-                                      </Badge>
-                                    ))}
-                                  </div>
+                                  <ListingLocaleBadges listing={listing} />
                                 </td>
                                 <td className="px-4 py-3 text-right">
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    disabled={translatingId === listing.id}
+                                    disabled={translatingId === listing.id || !processorConfigured}
                                     onClick={() => translateSingle(listing.id)}
                                   >
                                     {translatingId === listing.id ? (
@@ -1732,23 +2319,68 @@ export default function AdminTranslations() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{selectedLocaleState ? `${Math.max(selectedLocaleState.totalKeys - selectedLocaleState.missingCount, 0)} / ${selectedLocaleState.totalKeys} keys` : "No locale selected"}</span>
-                    <span>{selectedLocaleCoverage}%</span>
+                    <span>{selectedLocaleState ? `${selectedLocaleCoverageResult.translatedKeyCount} / ${selectedLocaleCoverageResult.sourceKeyCount} complete` : "No locale selected"}</span>
+                    <span>{selectedLocaleCoverageResult.coverageLabel}</span>
                   </div>
                   <Progress value={selectedLocaleCoverage} className="h-1.5" />
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                  <div className="rounded-lg border border-border bg-background px-2 py-2">
+                    <p className="font-semibold text-foreground">{selectedLocaleCoverageResult.sourceKeyCount.toLocaleString()}</p>
+                    <p className="text-muted-foreground">Source</p>
+                  </div>
+                  <div className="rounded-lg border border-border bg-background px-2 py-2">
+                    <p className="font-semibold text-foreground">{selectedLocaleCoverageResult.translatedKeyCount.toLocaleString()}</p>
+                    <p className="text-muted-foreground">Complete</p>
+                  </div>
                   <div className="rounded-lg border border-border bg-background px-2 py-2">
                     <p className="font-semibold text-foreground">{selectedLocaleMissingKeys.length.toLocaleString()}</p>
                     <p className="text-muted-foreground">Missing</p>
                   </div>
                   <div className="rounded-lg border border-border bg-background px-2 py-2">
+                    <p className="font-semibold text-foreground">{selectedLocaleCoverageResult.staleKeyCount.toLocaleString()}</p>
+                    <p className="text-muted-foreground">Stale</p>
+                  </div>
+                  <div className="rounded-lg border border-border bg-background px-2 py-2">
+                    <p className="font-semibold text-foreground">{selectedLocaleCoverageResult.emptyValueKeyCount.toLocaleString()}</p>
+                    <p className="text-muted-foreground">Empty</p>
+                  </div>
+                  <div className="rounded-lg border border-border bg-background px-2 py-2">
+                    <p className="font-semibold text-foreground">{selectedLocaleCoverageResult.obsoleteKeyCount.toLocaleString()}</p>
+                    <p className="text-muted-foreground">Obsolete</p>
+                  </div>
+                  <div className="rounded-lg border border-border bg-background px-2 py-2">
                     <p className="font-semibold text-foreground">
                       {selectedLocalePatch?.updatedAt ? new Date(selectedLocalePatch.updatedAt).toLocaleDateString() : "Bundled"}
                     </p>
-                    <p className="text-muted-foreground">Source</p>
+                    <p className="text-muted-foreground">Last Sync</p>
                   </div>
+                  <div className="rounded-lg border border-border bg-background px-2 py-2">
+                    <p className="font-semibold text-foreground">
+                      {lastCoverageRefresh ? new Date(lastCoverageRefresh).toLocaleTimeString() : "Not run"}
+                    </p>
+                    <p className="text-muted-foreground">Refresh</p>
+                  </div>
+                  <div className="rounded-lg border border-border bg-background px-2 py-2">
+                    <p className="font-semibold text-foreground">{selectedLocaleCoverageResult.pendingManualKeyCount.toLocaleString()}</p>
+                    <p className="text-muted-foreground">Manual</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {(["all", "missing", "stale", "obsolete", "empty", "pending_manual", "complete"] as const).map((filter) => (
+                    <Button
+                      key={filter}
+                      type="button"
+                      size="sm"
+                      variant={uiKeyStatusFilter === filter ? "default" : "outline"}
+                      className="h-7 px-2 text-xs capitalize"
+                      onClick={() => setUiKeyStatusFilter(filter)}
+                    >
+                      {filter.replace("_", " ")}
+                    </Button>
+                  ))}
                 </div>
 
                 <div className="relative">
@@ -1786,24 +2418,19 @@ export default function AdminTranslations() {
                           <p className="break-all font-mono text-[11px] text-foreground">{key}</p>
                           <Badge
                             variant="outline"
-                            className={
-                              key in selectedLocalePatchFlat
-                                ? "shrink-0 border-emerald-500/30 bg-emerald-50 px-1.5 py-0 text-[10px] text-emerald-700"
-                                : key in selectedLocaleMergedFlat
-                                  ? "shrink-0 bg-muted px-1.5 py-0 text-[10px]"
-                                  : "shrink-0 border-amber-500/40 bg-amber-50 px-1.5 py-0 text-[10px] text-amber-700"
-                            }
+                            className={uiKeyStatusBadgeClass(selectedLocaleCoverageResult.statusByKey[key] ?? "complete")}
                           >
-                            {key in selectedLocalePatchFlat
-                              ? "Saved"
-                              : key in selectedLocaleMergedFlat
-                                ? "Bundled"
-                                : "Missing"}
+                            {uiKeyStatusLabel(selectedLocaleCoverageResult.statusByKey[key] ?? "complete")}
                           </Badge>
                         </div>
                         <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                          {enFlat[key] || "No English source text available."}
+                          {enFlat[key] || selectedLocaleMergedFlat[key] || "No English source text available."}
                         </p>
+                        {key in selectedLocaleMergedFlat ? (
+                          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground/80">
+                            {selectedLocaleMergedFlat[key]}
+                          </p>
+                        ) : null}
                       </button>
                     ))}
                     {visibleSelectedLocaleUiKeys.length > 12 ? (
@@ -1919,7 +2546,7 @@ export default function AdminTranslations() {
                 </div>
 
                 <div className="grid gap-2">
-                  <Button onClick={handleRunTranslationsNow} disabled={translateLoading} className="w-full">
+                  <Button onClick={handleRunTranslationsNow} disabled={translateLoading || !processorConfigured} className="w-full">
                     {translateLoading ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
@@ -2005,7 +2632,40 @@ export default function AdminTranslations() {
               <CardContent className="space-y-3 text-sm">
                 <GuardrailRow label="Locale source" value="URL route" />
                 <GuardrailRow label="UI sync writes" value="Server route" />
-                <GuardrailRow label="Listing batches" value="Queued safely" />
+                <GuardrailRow
+                  label="Schema"
+                  value={
+                    schemaHealth?.ready
+                      ? "Ready"
+                      : schemaHealthError
+                        ? "Health check failed"
+                        : "Needs migration"
+                  }
+                />
+                {schemaHealth && !schemaHealth.ready ? (
+                  <div className="space-y-2 rounded-md border border-amber-500/30 bg-amber-50 p-3 text-xs text-amber-800">
+                    <div className="flex items-center gap-2 font-medium">
+                      <AlertCircle className="h-4 w-4" />
+                      Database migration required
+                    </div>
+                    {schemaHealth.checks.filter((check) => !check.ready).map((check) => (
+                      <p key={check.key}>{check.message}</p>
+                    ))}
+                  </div>
+                ) : null}
+                {schemaHealthError ? (
+                  <p className="rounded-md border border-destructive/30 bg-destructive/10 p-2 text-xs text-destructive">
+                    Schema health check failed: {schemaHealthError}
+                  </p>
+                ) : null}
+                <GuardrailRow
+                  label="Processor"
+                  value={processorConfigured ? "Configured" : "Manual mode"}
+                />
+                <p className="rounded-md border border-border bg-background p-2 text-xs text-muted-foreground">
+                  {processorMessage}
+                </p>
+                <GuardrailRow label="Listing batches" value={processorConfigured ? "Queued safely" : "Disabled"} />
                 <GuardrailRow label="Public routing" value="Unchanged" />
               </CardContent>
             </Card>
@@ -2309,9 +2969,41 @@ function JobMetric({
   );
 }
 
+function ListingLocaleBadges({ listing }: { listing: IncompleteListing }) {
+  const groups = [
+    { label: "Missing", langs: listing.missingLangs, className: "border-amber-400/60 bg-amber-50 text-amber-700" },
+    { label: "Pending", langs: listing.pendingLangs, className: "border-blue-400/60 bg-blue-50 text-blue-700" },
+    { label: "Failed", langs: listing.failedLangs, className: "border-destructive/40 bg-destructive/10 text-destructive" },
+    { label: "Stale", langs: listing.staleLangs, className: "border-violet-400/60 bg-violet-50 text-violet-700" },
+    { label: "Fields", langs: listing.emptyFieldLangs, className: "border-orange-400/60 bg-orange-50 text-orange-700" },
+  ].filter((group) => group.langs.length > 0);
+
+  return (
+    <div className="flex min-w-0 flex-wrap gap-1">
+      {groups.map((group) =>
+        group.langs.map((lang) => (
+          <Badge
+            key={`${group.label}:${lang}`}
+            variant="outline"
+            className={`max-w-full px-1.5 py-0 text-[10px] ${group.className}`}
+            title={
+              group.label === "Fields" && listing.fieldGaps[lang]?.length
+                ? `Missing fields: ${listing.fieldGaps[lang].join(", ")}`
+                : group.label
+            }
+          >
+            {lang} · {group.label}
+          </Badge>
+        )),
+      )}
+    </div>
+  );
+}
+
 function TranslationJobGroupPreview({
   group,
   loadingActionId,
+  processorConfigured,
   onQueueJobs,
   onReviewJobs,
   onRequeueOutdated,
@@ -2319,6 +3011,7 @@ function TranslationJobGroupPreview({
 }: {
   group: ListingJobGroup;
   loadingActionId: string | null;
+  processorConfigured: boolean;
   onQueueJobs: (jobIds: string[], label: string) => Promise<void>;
   onReviewJobs: (jobIds: string[], label: string) => Promise<void>;
   onRequeueOutdated: (listingId: string, listingName: string) => Promise<void>;
@@ -2450,7 +3143,7 @@ function TranslationJobGroupPreview({
               type="button"
               size="sm"
               variant="outline"
-              disabled={Boolean(loadingActionId)}
+              disabled={Boolean(loadingActionId) || !processorConfigured}
               onClick={() => onQueueJobs(
                 failedJobs.map((job) => job.id),
                 `${failedJobs.length} failed job${failedJobs.length !== 1 ? "s" : ""}`,
@@ -2471,7 +3164,7 @@ function TranslationJobGroupPreview({
               type="button"
               size="sm"
               variant="outline"
-              disabled={Boolean(loadingActionId)}
+              disabled={Boolean(loadingActionId) || !processorConfigured}
               onClick={() => onReviewJobs(
                 autoJobs.map((job) => job.id),
                 `${autoJobs.length} AI job${autoJobs.length !== 1 ? "s" : ""}`,
@@ -2492,7 +3185,7 @@ function TranslationJobGroupPreview({
               type="button"
               size="sm"
               variant="outline"
-              disabled={Boolean(loadingActionId)}
+              disabled={Boolean(loadingActionId) || !processorConfigured}
               onClick={() => onRequeueOutdated(group.listing.id, group.listing.name)}
               className="h-8 gap-2 border-violet-500/30 text-violet-700"
             >
@@ -2523,6 +3216,28 @@ function TranslationJobGroupPreview({
 }
 
 // ── Status Badge helper ───────────────────────────────────────────────────────
+function uiKeyStatusLabel(status: UiTranslationKeyStatus) {
+  return status.replace("_", " ");
+}
+
+function uiKeyStatusBadgeClass(status: UiTranslationKeyStatus) {
+  switch (status) {
+    case "complete":
+      return "shrink-0 border-emerald-500/30 bg-emerald-50 px-1.5 py-0 text-[10px] text-emerald-700";
+    case "missing":
+      return "shrink-0 border-amber-500/40 bg-amber-50 px-1.5 py-0 text-[10px] text-amber-700";
+    case "pending_manual":
+      return "shrink-0 border-blue-500/30 bg-blue-50 px-1.5 py-0 text-[10px] text-blue-700";
+    case "stale":
+      return "shrink-0 border-violet-500/30 bg-violet-50 px-1.5 py-0 text-[10px] text-violet-700";
+    case "obsolete":
+      return "shrink-0 border-zinc-400/40 bg-zinc-50 px-1.5 py-0 text-[10px] text-zinc-700";
+    case "empty":
+    case "invalid":
+      return "shrink-0 border-destructive/40 bg-destructive/10 px-1.5 py-0 text-[10px] text-destructive";
+  }
+}
+
 function StatusBadge({ status }: { status: LocaleStatus }) {
   switch (status) {
     case "synced":
