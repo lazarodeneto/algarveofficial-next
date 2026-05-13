@@ -42,4 +42,11 @@ describe("category page route contract", () => {
     expect(page).toContain("id=\"schema-category-item-list\"");
     expect(page).toContain("id=\"schema-category-breadcrumb\"");
   });
+
+  it("removes the top cities section from the beaches category page", () => {
+    const page = source("app/[locale]/category/[category]/page.tsx");
+
+    expect(page).toContain('const shouldShowTopCities = canonicalSlug !== "beaches"');
+    expect(page).toContain("shouldShowTopCities &&");
+  });
 });

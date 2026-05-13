@@ -230,12 +230,14 @@ export default async function CategoryHubPage({ params }: PageProps) {
     category_slug: listing.category?.slug ?? canonicalSlug,
     category_name: listing.category?.name ?? getCategoryDisplayNameForSlug(canonicalSlug, locale, catData.name),
   }));
-  
-  const topCities = await getPublicCategoryCityCounts({
-    categoryIds: catData.memberIds,
-    locale,
-    limit: 12,
-  });
+  const shouldShowTopCities = canonicalSlug !== "beaches";
+  const topCities = shouldShowTopCities
+    ? await getPublicCategoryCityCounts({
+        categoryIds: catData.memberIds,
+        locale,
+        limit: 12,
+      })
+    : [];
   
   const categoryName = getCategoryDisplayNameForSlug(canonicalSlug, locale, catData.name);
   const categoryRouteData = buildCategoryRouteData(canonicalSlug);
@@ -302,11 +304,13 @@ export default async function CategoryHubPage({ params }: PageProps) {
     "hero.cta.secondary",
     tx["guides.getFeatured"] ?? "Get featured",
   );
-  const topCitiesEnabled = isRuntimeSectionEnabled(
-    cmsConfig,
-    "top-cities",
-    isRuntimeSectionEnabled(cmsConfig, "city-index", true),
-  );
+  const topCitiesEnabled =
+    shouldShowTopCities &&
+    isRuntimeSectionEnabled(
+      cmsConfig,
+      "top-cities",
+      isRuntimeSectionEnabled(cmsConfig, "city-index", true),
+    );
   const featuredListingsEnabled = isRuntimeSectionEnabled(
     cmsConfig,
     "featured-listings",

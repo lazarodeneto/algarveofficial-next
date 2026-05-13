@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
+import { useTranslation } from "react-i18next";
 import { usePublishedListings } from "@/hooks/useListings";
 import { useCities, useCategories } from "@/hooks/useReferenceData";
 import { MapPin } from "lucide-react";
@@ -96,6 +97,7 @@ function getDeterministicOffset(listingId: string, axis: "lat" | "lng"): number 
 }
 
 export function DirectoryMapView({ filteredListingIds }: DirectoryMapViewProps) {
+  const { t } = useTranslation();
   const hydrated = useHydrated();
   const { data: listings = [] } = usePublishedListings();
   const { data: cities = [] } = useCities();
@@ -202,8 +204,11 @@ export function DirectoryMapView({ filteredListingIds }: DirectoryMapViewProps) 
                     </p>
                     <p className="text-xs text-muted-foreground">{listing.categoryName}</p>
                     <LocaleLink href={`/listing/${listing.slug}`}>
-                      <Button size="sm" className="w-full mt-2">
-                        View Details
+                      <Button
+                        size="sm"
+                        className="mt-2 w-full border border-green-500 bg-none bg-green-600 text-white shadow-lg shadow-green-600/20 hover:bg-green-700"
+                      >
+                        {t("sections.curated.viewDetails")}
                       </Button>
                     </LocaleLink>
                   </div>

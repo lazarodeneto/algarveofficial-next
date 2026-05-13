@@ -344,7 +344,6 @@
       "listingOps": "Anúncios",
       "listings": "Anúncios",
       "live": "Fila em Tempo Real",
-      "premiumRegions": "Regiões de Luxo",
       "mediaLibrary": "Biblioteca de Média",
       "messages": "Mensagens",
       "moderationQueue": "Fila de Moderação",
@@ -358,6 +357,7 @@
       "partnerPage": "Página de Parceiros",
       "partnerRequests": "Pedidos de Parceiros",
       "platform": "Sistema",
+      "premiumRegions": "Regiões de Luxo",
       "privacyPolicy": "Política de Privacidade",
       "regions": "Regiões",
       "reports": "Relatórios",
@@ -533,6 +533,10 @@
     "welcomeSubtitle": "A sua porta de entrada para experiências de luxo no Algarve. Aceda a anúncios exclusivos, destinos curados e recomendações personalizadas.",
     "welcomeTo": "Bem-vindo ao"
   },
+  "beachesPage": {
+    "heroDescription": "Descubra areais dourados, águas turquesa e clubes de praia premium selecionados para os visitantes do AlgarveOfficial.",
+    "heroTitle": "Praias no Algarve"
+  },
   "blog": {
     "allPosts": "Todas as Publicações",
     "backToBlog": "Voltar ao blog",
@@ -548,6 +552,7 @@
     },
     "by": "Por",
     "categories": "Categorias",
+    "copyFailed": "Permissão da área de transferência negada",
     "copyLink": "Copiar link do artigo",
     "hero": {
       "alt": "Editorial paisagem urbana Algarve",
@@ -559,6 +564,9 @@
     "noPostsFound": "Nenhuma publicação encontrada com os seus critérios.",
     "noPostsSubtext": "Volte em breve para novos artigos e histórias sobre o Algarve.",
     "noPostsTitle": "Nenhum artigo encontrado",
+    "notFoundDescription": "Este artigo pode ter sido removido ou não estar disponível.",
+    "notFoundTitle": "Artigo não encontrado",
+    "readMore": "Ler mais",
     "readTime": "min de leitura",
     "recentPosts": "Publicações Recentes",
     "relatedListings": "Anúncios Relacionados",
@@ -569,11 +577,10 @@
     "shareTwitter": "Compartilhar no X",
     "subtitle": "Descubra o estilo de vida do Algarve, guias de viagem e dicas de especialistas",
     "title": "Blog e Insights",
-    "readMore": "Ler mais",
-    "copyFailed": "Permissão da área de transferência negada",
-    "notFoundTitle": "Artigo não encontrado",
-    "notFoundDescription": "Este artigo pode ter sido removido ou não estar disponível.",
     "views": "visualizações"
+  },
+  "breadcrumbs": {
+    "relocation": "Mudança"
   },
   "categories": {
     "algarveServices": "Servicos do Algarve",
@@ -582,9 +589,9 @@
     "familyFun": "Experiência no Algarve",
     "fineDining": "Gastronomia",
     "golf": "Golfe e Torneios",
+    "premierEvents": "Eventos Premier",
     "premiumAccommodation": "Alojamento",
     "premiumExperiences": "Experiência no Algarve",
-    "premierEvents": "Eventos Premier",
     "privateChefs": "Gastronomia",
     "protectionServices": "Servicos do Algarve",
     "realEstate": "Servicos do Algarve",
@@ -695,8 +702,6 @@
     "lessons": "Aulas Particulares",
     "Lighting Design": "Design de Iluminação",
     "links": "Links",
-    "Premium Apartments": "Apartamentos de Luxo",
-    "premium_villa": "Vila de Luxo",
     "market": "Mercado & Feira",
     "massage": "Massagem",
     "mediterranean": "Mediterrânica",
@@ -727,6 +732,8 @@
     "portuguese": "Portuguesa",
     "Portuguese": "Portuguesa",
     "premium": "Premium",
+    "Premium Apartments": "Apartamentos de Luxo",
+    "premium_villa": "Vila de Luxo",
     "private": "Privado",
     "Private Estates": "Propriedades Privadas",
     "private_dining": "Jantar Privado",
@@ -780,6 +787,16 @@
     "yachting_maritime": "Náutica & Marítimo",
     "yearly": "Anual"
   },
+  "categoryHub": {
+    "bottomDescription": "Descubra {{category}} selecionados em todo o Algarve. Dos favoritos locais às experiências premium.",
+    "bottomTitle": "Encontre os melhores {{category}} no Algarve",
+    "featured": "{{category}} em destaque",
+    "heroDescription": "Descubra os melhores {{category}} em todo o Algarve. Explore por cidade para encontrar recomendações locais selecionadas.",
+    "heroTitle": "{{category}} no Algarve",
+    "topCities": "Principais cidades para {{category}}",
+    "visibilityDescription": "Destaque-se da concorrência. Atualize a sua listagem de {{category}} para alcançar mais clientes.",
+    "visibilityTitle": "Ganhe Mais Visibilidade no Algarve"
+  },
   "categoryLayouts": {
     "accommodation": {
       "amenities": "Comodidades",
@@ -822,78 +839,78 @@
       "balineseBeds": "Camas Balinesas",
       "beachExperience": "Experiência de Praia",
       "bestTimeToVisit": "Melhor Hora para Visitar",
+      "blueFlagHighlight": "Praia com Bandeira Azul e qualidade da água reconhecida",
       "bookSunbeds": "Reservar Espreguiçadeiras",
       "bookSunbedsSubtext": "Garanta as suas espreguiçadeiras e desfrute de um dia perfeito à beira-mar.",
       "daytime": "Dia",
       "daytimeDescription": "Desfrute das águas cristalinas e areias douradas durante o dia. Perfeito para nadar, apanhar sol e atividades aquáticas.",
       "djSchedule": "Programa DJ: {{schedule}}",
+      "experiences": "Experiências em {{place}}",
+      "fullDescription": "Descrição completa",
+      "highlights": "Destaques",
+      "importantInformation": "Informação importante",
+      "includes": "Inclui",
+      "knowBeforeYouGo": "A saber antes de ir",
+      "lifeguardHighlight": "Apoio sazonal de nadadores-salvadores disponível",
       "liveDj": "DJ ao Vivo",
+      "meetingPoint": "Ponto de encontro",
+      "notAllowed": "Não permitido",
+      "notSuitableFor": "Não adequado para",
+      "openInGoogleMaps": "Abrir no Google Maps",
+      "parkingHighlight": "Estacionamento disponível nas proximidades",
       "privateAreas": "Áreas Privadas",
+      "readMore": "Ler mais",
+      "relatedBeachTags": "Tags relacionadas com praias",
+      "relatedGuides": "Guias de praias relacionados",
+      "relatedGuidesDescription": "Pesquisas costeiras rápidas, locais próximos e ideias de viagem ligadas a esta praia.",
+      "relatedGuidesEyebrow": "Explore mais",
+      "relatedLinksCount": "Links {{count}}",
+      "relatedLinksTotal": "Links {{count}}",
       "reserveSpot": "Reserve o seu lugar no paraíso",
+      "restaurantHighlight": "Restaurantes e cafés de praia nas proximidades",
+      "seeLess": "Ver menos",
+      "seeMore": "Ver mais",
+      "seeMoreReviews": "Ver mais avaliações",
+      "seo": {
+        "albufeiraBeaches": "Praias de Albufeira",
+        "aljezurBeaches": "Praias de Aljezur",
+        "beachBars": "Bares de praia",
+        "beachRestaurants": "Restaurantes de praia",
+        "benagilCave": "Gruta de Benagil",
+        "boatTrips": "Passeios de barco",
+        "coastalWalks": "Passeios costeiros",
+        "familyBeaches": "Praias para famílias",
+        "hiddenCoves": "Enseadas escondidas",
+        "kayaking": "Percursos de caiaque",
+        "lagoaBeaches": "Praias de Lagoa",
+        "lagosBeaches": "Praias de Lagos",
+        "paddleboarding": "Stand up paddle",
+        "photographySpots": "Locais para fotografar",
+        "pontaDaPiedade": "Ponta da Piedade",
+        "portimaoBeaches": "Praias de Portimão",
+        "praiaDaFalesia": "Praia da Falésia",
+        "praiaDaMarinha": "Praia da Marinha",
+        "praiaDoCamilo": "Praia do Camilo",
+        "seaCaves": "Grutas marítimas",
+        "snorkeling": "Locais para snorkeling",
+        "sunsetBeaches": "Praias para ver o pôr do sol",
+        "surfLessons": "Aulas de surf",
+        "taviraBeaches": "Praias de Tavira"
+      },
       "servicesAmenities": "Serviços e Comodidades",
       "sunbedsAvailable": "Espreguiçadeiras Disponíveis",
+      "sunbedsHighlight": "Espreguiçadeiras ou alugueres de praia disponíveis",
       "sunset": "Pôr do Sol",
       "sunsetWithout": "Relaxe com bebidas refrescantes enquanto o sol se põe sobre a costa algarvia.",
       "sunsetWithView": "Experimente vistas deslumbrantes do pôr do sol sobre o Atlântico. O cenário perfeito para cocktails e momentos memoráveis.",
-      "vip": "VIP",
-      "vipCabanas": "Cabanas VIP",
-      "highlights": "Destaques",
-      "fullDescription": "Descrição completa",
-      "seeMore": "Ver mais",
-      "seeLess": "Ver menos",
-      "includes": "Inclui",
-      "notSuitableFor": "Não adequado para",
-      "meetingPoint": "Ponto de encontro",
-      "openInGoogleMaps": "Abrir no Google Maps",
-      "importantInformation": "Informação importante",
-      "whatToBring": "O que levar",
-      "notAllowed": "Não permitido",
-      "knowBeforeYouGo": "A saber antes de ir",
+      "thingsToDo": "O que fazer perto de {{place}}",
+      "topAttractions": "Principais atrações em {{place}}",
+      "tours": "Praias em {{place}}",
       "travelersLoved": "O que os viajantes adoraram",
       "verifiedBooking": "Reserva verificada",
-      "readMore": "Ler mais",
-      "seeMoreReviews": "Ver mais avaliações",
-      "relatedGuidesEyebrow": "Explore mais",
-      "relatedGuides": "Guias de praias relacionados",
-      "relatedGuidesDescription": "Pesquisas costeiras rápidas, locais próximos e ideias de viagem ligadas a esta praia.",
-      "relatedLinksCount": "{{count}} links",
-      "relatedLinksTotal": "{{count}} links",
-      "relatedBeachTags": "Tags relacionadas com praias",
-      "topAttractions": "Principais atrações em {{place}}",
-      "experiences": "Experiências em {{place}}",
-      "tours": "Praias em {{place}}",
-      "thingsToDo": "O que fazer perto de {{place}}",
-      "blueFlagHighlight": "Praia com Bandeira Azul e qualidade da água reconhecida",
-      "lifeguardHighlight": "Apoio sazonal de nadadores-salvadores disponível",
-      "parkingHighlight": "Estacionamento disponível nas proximidades",
-      "restaurantHighlight": "Restaurantes e cafés de praia nas proximidades",
-      "sunbedsHighlight": "Espreguiçadeiras ou alugueres de praia disponíveis",
-      "seo": {
-        "praiaDaMarinha": "Praia da Marinha",
-        "benagilCave": "Gruta de Benagil",
-        "pontaDaPiedade": "Ponta da Piedade",
-        "praiaDoCamilo": "Praia do Camilo",
-        "praiaDaFalesia": "Praia da Falésia",
-        "familyBeaches": "Praias para famílias",
-        "hiddenCoves": "Enseadas escondidas",
-        "coastalWalks": "Passeios costeiros",
-        "snorkeling": "Locais para snorkeling",
-        "sunsetBeaches": "Praias para ver o pôr do sol",
-        "beachRestaurants": "Restaurantes de praia",
-        "kayaking": "Percursos de caiaque",
-        "seaCaves": "Grutas marítimas",
-        "lagosBeaches": "Praias de Lagos",
-        "albufeiraBeaches": "Praias de Albufeira",
-        "portimaoBeaches": "Praias de Portimão",
-        "lagoaBeaches": "Praias de Lagoa",
-        "taviraBeaches": "Praias de Tavira",
-        "aljezurBeaches": "Praias de Aljezur",
-        "boatTrips": "Passeios de barco",
-        "surfLessons": "Aulas de surf",
-        "paddleboarding": "Stand up paddle",
-        "beachBars": "Bares de praia",
-        "photographySpots": "Locais para fotografar"
-      }
+      "vip": "VIP",
+      "vipCabanas": "Cabanas VIP",
+      "whatToBring": "O que levar"
     },
     "common": {
       "inquireNow": "Consultar Agora",
@@ -1167,12 +1184,120 @@
     "threadEmptyDescription": "Iniciar uma conversa em qualquer página de listagem para se conectar com os proprietários.",
     "unknownListing": "Listagem desconhecida"
   },
+  "claimBusinessForm": {
+    "claimingListing": "Está a reivindicar esta listagem.",
+    "companyWebsite": "Website da empresa",
+    "confirmationBusiness": "Negócio",
+    "confirmationEyebrow": "Pedido recebido",
+    "confirmationNextStep": "A nossa equipa irá rever os sinais de propriedade e entrar em contacto se forem necessárias mais informações. A aprovação é manual e não é exigido pagamento nesta fase.",
+    "confirmationPrompt": "Confirme que esta é a listagem exata do AlgarveOfficial que pretende reivindicar.",
+    "confirmationReference": "Referência do pedido",
+    "confirmationStatus": "Estado",
+    "confirmationTier": "Plano selecionado",
+    "confirmationTitle": "O seu pedido de reivindicação foi recebido.",
+    "contactTitle": "Dados de contacto",
+    "description": "Confirme a listagem, indique a sua ligação ao negócio e envie um pedido de revisão manual de propriedade.",
+    "documentUploadNote": "O armazenamento de documentos ainda não está ativo neste fluxo público. Descreva o documento ou prova que pode fornecer e a equipa irá solicitá-lo se necessário.",
+    "fullName": "Nome completo",
+    "isThisYourBusiness": "Este é o seu negócio?",
+    "loginRequiredDescription": "Pode preencher o formulário agora, mas será encaminhado para iniciar sessão antes de submeter o pedido.",
+    "loginRequiredTitle": "É necessário iniciar sessão antes da submissão",
+    "message": "Mensagem",
+    "noSearchAgain": "Não, pesquisar novamente",
+    "paymentLaterNote": "Nenhum pagamento é cobrado agora. O checkout pago e a ativação da subscrição só acontecem em etapas posteriores, após aprovação.",
+    "phoneNumber": "Número de telefone",
+    "proofNotes": "Notas de prova",
+    "proofNotesPlaceholder": "Adicione domínio, telefone, website, perfil social, documento ou outros detalhes de propriedade para revisão manual.",
+    "publicListingLink": "Ver listagem pública",
+    "role": {
+      "agencyRepresentative": "Agência / Representante",
+      "employee": "Colaborador",
+      "generalManager": "Diretor-geral",
+      "marketingManager": "Responsável de marketing",
+      "other": "Outro",
+      "owner": "Proprietário"
+    },
+    "roleTitle": "Função do requerente",
+    "searchAgain": "Pesquisar novamente",
+    "selectedListingBadge": "Listagem selecionada",
+    "status": {
+      "pending": "Em revisão"
+    },
+    "submit": "Submeter pedido de reivindicação",
+    "submitError": "Não foi possível submeter este pedido neste momento. Verifique os dados e tente novamente.",
+    "submitErrorTitle": "Pedido não submetido",
+    "submitSuccess": "Pedido de reivindicação submetido.",
+    "submitting": "A submeter...",
+    "tier": {
+      "free": "Reivindicação gratuita",
+      "freeDescription": "Verifique a propriedade e solicite acesso básico à listagem.",
+      "signature": "Parceiro Signature",
+      "signatureDescription": "Interesse em parceria premium para aprovação e checkout futuros.",
+      "verified": "Negócio verificado",
+      "verifiedDescription": "Sinais de confiança reforçados e verificação do negócio após aprovação."
+    },
+    "tierTitle": "Seleção do plano",
+    "title": "Reivindicar esta listagem de negócio",
+    "unavailable": {
+      "claimedDescription": "Esta listagem já é gerida por um representante oficial. Contacte o AlgarveOfficial se considerar que isto está incorreto.",
+      "claimedTitle": "Esta listagem já foi reivindicada",
+      "pendingDescription": "Esta listagem já tem uma reivindicação de propriedade em análise. Aguarde pela conclusão da revisão atual.",
+      "pendingTitle": "Reivindicação de propriedade em análise"
+    },
+    "validation": {
+      "email": "Introduza um email profissional válido.",
+      "message": "Adicione pelo menos 10 caracteres a explicar a sua ligação ao negócio.",
+      "name": "Introduza o seu nome completo."
+    },
+    "verification": {
+      "businessEmailDomain": "Domínio de email do negócio",
+      "documentUpload": "Upload de documento",
+      "manualReview": "Revisão manual",
+      "officialSocialMedia": "Conta oficial de rede social",
+      "phoneVerification": "Verificação por telefone",
+      "websiteContactMatch": "Correspondência de contacto no website"
+    },
+    "verificationTitle": "Método de verificação",
+    "viewListing": "Ver listagem",
+    "workEmail": "Email profissional",
+    "yesContinue": "Sim, continuar"
+  },
+  "claimBusinessSearch": {
+    "cantFindDescription": "Se o AlgarveOfficial ainda não tiver o seu negócio, inicie um novo pedido de listagem através do formulário de parceiros.",
+    "cantFindTitle": "Não encontra o seu negócio?",
+    "claimButton": "Reivindicar este negócio",
+    "description": "Pesquise a sua listagem existente, selecione o seu negócio e envie um pedido de reivindicação ligado a essa listagem.",
+    "emptyDescription": "Tente outro nome de negócio, cidade, categoria ou website. As reivindicações só podem ser enviadas para listagens existentes.",
+    "emptyTitle": "Nenhuma listagem encontrada",
+    "managedButton": "Gerido por representante oficial",
+    "newListingButton": "Pedir uma nova listagem",
+    "next": "Seguinte",
+    "page": "Página {{page}} de {{totalPages}}",
+    "pendingButton": "Reivindicação em análise",
+    "placeholder": "Pesquisar por nome do negócio, cidade, categoria ou website",
+    "previous": "Anterior",
+    "resultsSummary": "Resultados da pesquisa",
+    "resultsSummaryWithCount": "{{count}} listagens correspondentes",
+    "searchButton": "Pesquisar",
+    "searchErrorDescription": "Não foi possível carregar as listagens correspondentes neste momento. Tente novamente dentro de instantes.",
+    "searchErrorTitle": "A pesquisa está temporariamente indisponível",
+    "startDescription": "Pesquise por nome do negócio, cidade, categoria ou website para encontrar a listagem exata no AlgarveOfficial que pretende reivindicar.",
+    "startTitle": "Encontre a sua listagem existente",
+    "status": {
+      "claimed": "Gerido",
+      "pending": "Em análise",
+      "unclaimed": "Por reivindicar"
+    },
+    "title": "Encontre e reivindique o seu negócio no AlgarveOfficial",
+    "viewListing": "Ver listagem"
+  },
   "common": {
     "accountSettings": "Definições da Conta",
     "active": "Ativo",
     "admin": "Admin",
     "adminDashboard": "Admin",
     "adminUser": "Utilizador Admin",
+    "algarvePortugalSuffix": ", Algarve, Portugal",
     "avgRating": "avaliação média",
     "back": "Voltar",
     "cancel": "Cancelar",
@@ -1186,6 +1311,7 @@
     "fillRequiredFields": "Por favor preencha todos os campos obrigatórios.",
     "filter": "Filtrar",
     "free": "Gratuito",
+    "fromPrice": "A partir de {{price}}",
     "go": "Ir",
     "goToHomepage": "Ir para a Página Inicial",
     "inOtherCities": "noutras cidades do Algarve",
@@ -1217,9 +1343,7 @@
     "userDashboard": "Painel Utilizador",
     "verified": "Verificado",
     "viewAll": "Ver Todos",
-    "viewSite": "Ver Site",
-    "fromPrice": "A partir de {{price}}",
-    "algarvePortugalSuffix": ", Algarve, Portugal"
+    "viewSite": "Ver Site"
   },
   "contact": {
     "email": "info@algarveofficial.com",
@@ -1250,6 +1374,8 @@
     "accept": "Aceitar Analítica",
     "acceptAll": "Aceitar Tudo",
     "analytics": "Analítica",
+    "analyticsCookies": "Cookies analíticos",
+    "analyticsCookiesDescription": "Medem visitas, visualizações de páginas e desempenho do site para podermos melhorar a experiência.",
     "closePreferences": "Fechar preferências de cookies",
     "dataRetention": "Dados retidos por 90 dias",
     "decline": "Recusar",
@@ -1258,23 +1384,21 @@
     "details": "Detalhes",
     "essential": "Essenciais",
     "functional": "Funcionais",
-    "gdprBadge": "Conformidade RGPD",
-    "learnMore": "Saber mais",
-    "marketing": "Marketing",
-    "necessaryCookies": "Cookies necessários",
-    "necessaryCookiesDescription": "Necessários para segurança, autenticação e funcionalidade principal do website.",
     "functionalCookies": "Cookies funcionais",
     "functionalCookiesDescription": "Permitem multimédia incorporada e funcionalidades de conveniência, como experiências interativas mais ricas.",
-    "analyticsCookies": "Cookies analíticos",
-    "analyticsCookiesDescription": "Medem visitas, visualizações de páginas e desempenho do site para podermos melhorar a experiência.",
+    "gdprBadge": "Conformidade RGPD",
+    "learnMore": "Saber mais",
+    "managePreferences": "Gerir preferências",
+    "marketing": "Marketing",
     "marketingCookies": "Cookies de marketing",
     "marketingCookiesDescription": "Controlam prompts de marketing, medição de campanhas e tecnologias promocionais relacionadas.",
+    "necessaryCookies": "Cookies necessários",
+    "necessaryCookiesDescription": "Necessários para segurança, autenticação e funcionalidade principal do website.",
     "optionalCategories": "As categorias opcionais permanecem desativadas até as ativar",
     "preferencesTitle": "Preferências de Cookies",
     "savePreferences": "Guardar Preferências",
     "saveSettings": "Guardar Definições",
-    "title": "A Sua Privacidade é Importante",
-    "managePreferences": "Gerir preferências"
+    "title": "A Sua Privacidade é Importante"
   },
   "cookiePolicy": {
     "footer": {
@@ -1376,7 +1500,6 @@
       "emailNotifications": "Notificações por Email",
       "emailNotificationsDesc": "Receba atualizações sobre novos anúncios e recomendações",
       "fullName": "Nome Completo",
-      "premiumRegions": "Regiões de Luxo",
       "manageNotifications": "Gerir as suas preferências de notificação",
       "marketingEmails": "Emails de Marketing",
       "marketingEmailsDesc": "Receba ofertas especiais e promoções",
@@ -1390,6 +1513,7 @@
       "passwordsDontMatch": "As novas palavras-passe não coincidem",
       "preferredCategories": "Categorias Preferidas",
       "preferredDestinations": "Destinos Preferidos",
+      "premiumRegions": "Regiões de Luxo",
       "profileInformation": "Informação do Perfil",
       "profileUpdated": "Perfil atualizado com sucesso",
       "saveChanges": "Guardar Alterações",
@@ -1507,6 +1631,12 @@
   },
   "events": {
     "allCategories": "Todas as Categorias",
+    "backToEvents": "Voltar aos eventos",
+    "card": {
+      "buyTickets": "Comprar bilhetes",
+      "going": "+1 mil vão",
+      "viewDetails": "Ver detalhes"
+    },
     "categories": {
       "cultural": "Eventos Culturais",
       "festival": "Festivais",
@@ -1517,12 +1647,25 @@
       "seasonal": "Destaques Sazonais",
       "sporting": "Eventos Desportivos"
     },
-    "card": {
-      "buyTickets": "Comprar bilhetes",
-      "going": "+1 mil vão",
-      "viewDetails": "Ver detalhes"
-    },
     "checkBackSoon": "Volte em breve para novos eventos e acontecimentos no Algarve.",
+    "detail": {
+      "aboutTitle": "Sobre este evento",
+      "admissionTitle": "Entrada",
+      "booleanNo": "Não",
+      "booleanYes": "Sim",
+      "dateTimeTitle": "Data e hora",
+      "detailsTitle": "Detalhes do evento",
+      "fromPrice": "A partir de {{price}}",
+      "getTickets": "Obter bilhetes",
+      "locationTitle": "Localização",
+      "notFoundDescription": "O evento que procura não existe ou foi removido.",
+      "notFoundTitle": "Evento não encontrado",
+      "purchaseTickets": "Comprar bilhetes",
+      "relatedTitle": "Eventos relacionados",
+      "share": "Partilhar",
+      "tagsTitle": "Etiquetas",
+      "viewAll": "Ver todos"
+    },
     "featured": "Eventos em Destaque",
     "hero": {
       "alt": "Destino premium do evento Algarve",
@@ -1536,6 +1679,7 @@
       "viewEvent": "Ver evento"
     },
     "noUpcoming": "Sem eventos próximos",
+    "openEvent": "Abrir {{title}}",
     "status": {
       "cancelled": "Cancelado",
       "draft": "Rascunho",
@@ -1543,274 +1687,126 @@
       "published": "Publicado",
       "rejected": "Rejeitado"
     },
-    "backToEvents": "Voltar aos eventos",
-    "openEvent": "Abrir {{title}}",
-    "detail": {
-      "notFoundTitle": "Evento não encontrado",
-      "notFoundDescription": "O evento que procura não existe ou foi removido.",
-      "share": "Partilhar",
-      "getTickets": "Obter bilhetes",
-      "aboutTitle": "Sobre este evento",
-      "detailsTitle": "Detalhes do evento",
-      "tagsTitle": "Etiquetas",
-      "dateTimeTitle": "Data e hora",
-      "locationTitle": "Localização",
-      "admissionTitle": "Entrada",
-      "purchaseTickets": "Comprar bilhetes",
-      "relatedTitle": "Eventos relacionados",
-      "viewAll": "Ver todos",
-      "booleanYes": "Sim",
-      "booleanNo": "Não",
-      "fromPrice": "A partir de {{price}}"
+    "tags": {
+      "afro-nation": "Afro Nation",
+      "afro-nation-portugal": "Afro Nation Portugal",
+      "agriculture": "Agricultura",
+      "aia-circuit": "Circuito AIA",
+      "albufeira": "Albufeira",
+      "almancil": "Almancil",
+      "autodromo-internacional-do-algarve": "Autódromo Internacional do Algarve",
+      "beach-music-festival": "Festival de música na praia",
+      "carvoeiro": "Carvoeiro",
+      "carvoeiro-noite-black-white": "Carvoeiro Noite Black & White",
+      "concerts": "Concertos",
+      "crafts": "Artesanato",
+      "cultural-event": "Evento cultural",
+      "culture": "Cultura",
+      "culture-festival": "Festival cultural",
+      "events": "Eventos",
+      "fair": "Feira",
+      "faro": "Faro",
+      "fatacil": "FATACIL",
+      "feira-medieval": "Feira medieval",
+      "festival-da-sardinha": "Festival da Sardinha",
+      "festival-do-marisco": "Festival do Marisco",
+      "festival-f": "Festival F",
+      "festival-mar-me-quer": "Festival Mar Me Quer",
+      "festival-med": "Festival MED",
+      "gastronomy": "Gastronomia",
+      "golf": "Golfe",
+      "grand-prix": "Grande Prémio",
+      "iberian-racing-festival": "Iberian Racing Festival",
+      "lagoa": "Lagoa",
+      "loule": "Loulé",
+      "medieval-fair": "Feira medieval",
+      "motogp": "MotoGP",
+      "motorcycle-racing": "Motociclismo",
+      "motorsport": "Desporto motorizado",
+      "music": "Música",
+      "music-festival": "Festival de música",
+      "olhao": "Olhão",
+      "pga-tour-champions": "PGA TOUR Champions",
+      "pine-cliffs": "Pine Cliffs",
+      "portimao": "Portimão",
+      "portugal-invitational": "Portugal Invitational",
+      "portuguese-music": "Música portuguesa",
+      "praia-da-rocha": "Praia da Rocha",
+      "praia-do-carvoeiro": "Praia do Carvoeiro",
+      "racing-weekend": "Fim de semana de corridas",
+      "racing-weekeng": "Fim de semana de corridas",
+      "sardines": "Sardinhas",
+      "seafood": "Marisco",
+      "silves": "Silves",
+      "smooth-jazz": "Smooth jazz",
+      "street-party": "Festa de rua",
+      "summer-festival": "Festival de verão",
+      "summer-opening": "Abertura do verão",
+      "superbike-world-championship": "Campeonato Mundial de Superbike",
+      "the-els-club": "The Els Club",
+      "tourism": "Turismo",
+      "vila-adentro": "Vila Adentro",
+      "vilamoura": "Vilamoura",
+      "world-music": "Músicas do mundo",
+      "wsbk": "WSBK",
+      "zona-ribeirinha": "Zona ribeirinha"
     },
     "template": {
       "fields": {
-        "festival_type": "Tipo de festival",
-        "expected_attendance": "Público esperado",
-        "headline_performers": "Artistas / atuações principais",
-        "stages_count": "Número de palcos / áreas",
-        "camping_available": "Campismo disponível",
-        "family_friendly": "Adequado para famílias",
-        "age_restriction": "Restrição de idade",
-        "market_type": "Tipo de mercado",
-        "vendor_count": "Número de vendedores",
-        "product_categories": "Categorias de produtos",
-        "frequency": "Frequência",
-        "outdoor_indoor": "Tipo de local",
-        "payment_methods": "Métodos de pagamento aceites",
-        "tournament_level": "Nível do torneio",
-        "course_name": "Campo de golfe",
-        "format": "Formato do torneio",
-        "handicap_limit": "Handicap máximo",
-        "entry_fee": "Taxa de inscrição (€)",
-        "prize_pool": "Prémios",
-        "spectator_tickets": "Espectadores permitidos",
-        "caddie_required": "Caddie obrigatório",
-        "gastro_type": "Tipo de evento",
-        "cuisine_focus": "Foco gastronómico",
-        "participating_chefs": "Chefs participantes",
-        "michelin_presence": "Chefs com estrela Michelin",
-        "tasting_included": "Degustações incluídas",
-        "pairing_menu": "Menu de harmonização disponível",
-        "dietary_options": "Opções alimentares",
-        "music_genre": "Género musical",
-        "performance_type": "Tipo de atuação",
-        "artists": "Artistas em palco",
-        "venue_type": "Tipo de recinto",
-        "seating_type": "Tipo de lugares",
-        "vip_packages": "Pacotes VIP disponíveis",
-        "sound_check_access": "Experiência de soundcheck",
-        "cultural_type": "Tipo de evento",
-        "exhibition_theme": "Tema / assunto",
-        "guided_tours": "Visitas guiadas",
-        "languages_offered": "Idiomas disponíveis",
-        "interactive_elements": "Elementos interativos",
         "accessibility_features": "Recursos de acessibilidade",
-        "sport_type": "Tipo de desporto",
-        "competition_level": "Nível da competição",
-        "participant_limit": "Limite de participantes",
-        "distance_category": "Distância / categoria",
-        "age_groups": "Grupos etários",
-        "timing_chip": "Cronometragem eletrónica",
-        "medal_finishers": "Medalhas de finisher",
-        "season": "Época",
-        "seasonal_theme": "Tema",
         "activities_included": "Atividades incluídas",
-        "weather_dependent": "Dependente do tempo",
+        "age_groups": "Grupos etários",
+        "age_restriction": "Restrição de idade",
+        "artists": "Artistas em palco",
+        "caddie_required": "Caddie obrigatório",
+        "camping_available": "Campismo disponível",
+        "competition_level": "Nível da competição",
+        "course_name": "Campo de golfe",
+        "cuisine_focus": "Foco gastronómico",
+        "cultural_type": "Tipo de evento",
+        "dietary_options": "Opções alimentares",
+        "distance_category": "Distância / categoria",
+        "entry_fee": "Taxa de inscrição (€)",
+        "exhibition_theme": "Tema / assunto",
+        "expected_attendance": "Público esperado",
+        "family_friendly": "Adequado para famílias",
+        "festival_type": "Tipo de festival",
+        "format": "Formato do torneio",
+        "frequency": "Frequência",
+        "gastro_type": "Tipo de evento",
+        "guided_tours": "Visitas guiadas",
+        "handicap_limit": "Handicap máximo",
+        "headline_performers": "Artistas / atuações principais",
+        "interactive_elements": "Elementos interativos",
+        "languages_offered": "Idiomas disponíveis",
+        "market_type": "Tipo de mercado",
+        "medal_finishers": "Medalhas de finisher",
+        "michelin_presence": "Chefs com estrela Michelin",
+        "music_genre": "Género musical",
+        "outdoor_indoor": "Tipo de local",
+        "pairing_menu": "Menu de harmonização disponível",
+        "participant_limit": "Limite de participantes",
+        "participating_chefs": "Chefs participantes",
+        "payment_methods": "Métodos de pagamento aceites",
+        "performance_type": "Tipo de atuação",
+        "prize_pool": "Prémios",
+        "product_categories": "Categorias de produtos",
+        "season": "Época",
+        "seasonal_products": "Produtos sazonais em destaque",
+        "seasonal_theme": "Tema",
+        "seating_type": "Tipo de lugares",
+        "sound_check_access": "Experiência de soundcheck",
+        "spectator_tickets": "Espectadores permitidos",
+        "sport_type": "Tipo de desporto",
+        "stages_count": "Número de palcos / áreas",
         "sunset_viewing": "Experiência ao pôr do sol",
-        "seasonal_products": "Produtos sazonais em destaque"
-      },
-      "values": {
-        "festival_type": {
-          "music": "Festival de música",
-          "food_wine": "Festival de comida e vinho",
-          "cultural": "Festival cultural",
-          "art": "Festival de arte",
-          "religious": "Festival religioso",
-          "film": "Festival de cinema"
-        },
-        "market_type": {
-          "farmers": "Mercado de produtores",
-          "artisan": "Mercado de artesanato",
-          "flea": "Feira de velharias",
-          "christmas": "Mercado de Natal",
-          "night": "Mercado noturno",
-          "antique": "Mercado de antiguidades",
-          "trade_fair": "Feira comercial e de exposições"
-        },
-        "product_categories": {
-          "food": "Produtos frescos",
-          "crafts": "Artesanato",
-          "antiques": "Antiguidades",
-          "clothing": "Roupa e têxteis",
-          "jewelry": "Joalharia",
-          "art": "Arte e pintura",
-          "plants": "Plantas e flores",
-          "home": "Decoração",
-          "tourism": "Turismo",
-          "agriculture": "Agricultura",
-          "commerce": "Comércio",
-          "industry": "Indústria",
-          "restaurants": "Restauração"
-        },
-        "frequency": {
-          "weekly": "Semanal",
-          "biweekly": "Quinzenal",
-          "monthly": "Mensal",
-          "annual": "Anual",
-          "one_time": "Único"
-        },
-        "outdoor_indoor": {
-          "outdoor": "Ao ar livre",
-          "indoor": "Interior",
-          "mixed": "Misto"
-        },
-        "payment_methods": {
-          "cash": "Dinheiro",
-          "card": "Cartão de crédito/débito",
-          "mobile": "Pagamento móvel",
-          "mbway": "MB Way"
-        },
-        "tournament_level": {
-          "professional": "Profissional",
-          "amateur": "Amador",
-          "charity": "Solidário",
-          "corporate": "Empresarial",
-          "club": "Campeonato de clube"
-        },
-        "format": {
-          "stroke": "Stroke play",
-          "match": "Match play",
-          "scramble": "Scramble",
-          "stableford": "Stableford",
-          "foursome": "Foursome",
-          "fourball": "Fourball"
-        },
-        "gastro_type": {
-          "food_festival": "Festival gastronómico",
-          "seafood_festival": "Festival de marisco",
-          "sardine_festival": "Festival da sardinha",
-          "wine_tasting": "Prova de vinhos",
-          "cooking_class": "Aula de culinária",
-          "gourmet_dinner": "Jantar gourmet",
-          "chef_table": "Experiência à mesa do chef",
-          "food_tour": "Roteiro gastronómico"
-        },
-        "cuisine_focus": {
-          "portuguese": "Portuguesa",
-          "seafood": "Marisco",
-          "wine": "Vinho",
-          "olive_oil": "Azeite",
-          "mediterranean": "Mediterrânica",
-          "international": "Internacional",
-          "fusion": "Fusão"
-        },
-        "dietary_options": {
-          "vegetarian": "Vegetariano",
-          "vegan": "Vegan",
-          "gluten_free": "Sem glúten",
-          "halal": "Halal",
-          "kosher": "Kosher"
-        },
-        "music_genre": {
-          "classical": "Clássica",
-          "jazz": "Jazz",
-          "rock": "Rock",
-          "pop": "Pop",
-          "electronic": "Eletrónica",
-          "fado": "Fado",
-          "portuguese": "Música portuguesa",
-          "world": "Músicas do mundo",
-          "folk": "Folk"
-        },
-        "performance_type": {
-          "concert": "Concerto",
-          "festival": "Festival",
-          "street_party": "Festa de rua",
-          "orchestra": "Orquestra",
-          "dj_set": "DJ set",
-          "intimate": "Atuação intimista",
-          "open_air": "Ao ar livre"
-        },
-        "venue_type": {
-          "amphitheater": "Anfiteatro",
-          "arena": "Arena",
-          "beach": "Praia",
-          "club": "Clube",
-          "winery": "Adega",
-          "theater": "Teatro",
-          "church": "Igreja",
-          "waterfront": "Zona ribeirinha",
-          "historic_center": "Centro histórico"
-        },
-        "seating_type": {
-          "seated": "Sentado",
-          "standing": "Em pé",
-          "mixed": "Misto"
-        },
-        "cultural_type": {
-          "exhibition": "Exposição",
-          "museum": "Evento de museu",
-          "historical": "Recriação histórica",
-          "medieval_fair": "Feira medieval",
-          "theater": "Teatro",
-          "dance": "Espetáculo de dança",
-          "literary": "Evento literário"
-        },
-        "languages_offered": {
-          "portuguese": "Português",
-          "english": "Inglês",
-          "spanish": "Espanhol",
-          "french": "Francês",
-          "german": "Alemão"
-        },
-        "accessibility_features": {
-          "wheelchair": "Acesso para cadeira de rodas",
-          "audio_guide": "Audioguia",
-          "sign_language": "Língua gestual",
-          "braille": "Materiais em braille"
-        },
-        "sport_type": {
-          "running": "Corrida",
-          "cycling": "Ciclismo",
-          "triathlon": "Triatlo",
-          "sailing": "Vela",
-          "tennis": "Ténis",
-          "swimming": "Natação",
-          "football": "Futebol",
-          "surfing": "Surf",
-          "motorsport": "Desporto motorizado"
-        },
-        "competition_level": {
-          "international": "Internacional",
-          "national": "Nacional",
-          "regional": "Regional",
-          "amateur": "Amador",
-          "fun_run": "Lazer/solidário"
-        },
-        "age_groups": {
-          "under_18": "Menores de 18",
-          "18_29": "18-29",
-          "30_39": "30-39",
-          "40_49": "40-49",
-          "50_plus": "50+",
-          "open": "Categoria aberta"
-        },
-        "season": {
-          "spring": "Primavera",
-          "summer": "Verão",
-          "autumn": "Outono",
-          "winter": "Inverno"
-        },
-        "activities_included": {
-          "beach": "Atividades de praia",
-          "hiking": "Caminhadas",
-          "wine_harvest": "Vindima",
-          "birdwatching": "Observação de aves",
-          "whale_watching": "Observação de baleias",
-          "flower_viewing": "Observação de flores",
-          "sunset_experience": "Experiência ao pôr do sol"
-        }
+        "tasting_included": "Degustações incluídas",
+        "timing_chip": "Cronometragem eletrónica",
+        "tournament_level": "Nível do torneio",
+        "vendor_count": "Número de vendedores",
+        "venue_type": "Tipo de recinto",
+        "vip_packages": "Pacotes VIP disponíveis",
+        "weather_dependent": "Dependente do tempo"
       },
       "textValues": {
         "distance_category": {
@@ -1822,80 +1818,216 @@
         "prize_pool": {
           "threeMillionDollarPurse": "Bolsa de prémios de 3 milhões de dólares"
         }
+      },
+      "values": {
+        "accessibility_features": {
+          "audio_guide": "Audioguia",
+          "braille": "Materiais em braille",
+          "sign_language": "Língua gestual",
+          "wheelchair": "Acesso para cadeira de rodas"
+        },
+        "activities_included": {
+          "beach": "Atividades de praia",
+          "birdwatching": "Observação de aves",
+          "flower_viewing": "Observação de flores",
+          "hiking": "Caminhadas",
+          "sunset_experience": "Experiência ao pôr do sol",
+          "whale_watching": "Observação de baleias",
+          "wine_harvest": "Vindima"
+        },
+        "age_groups": {
+          "18_29": "18-29",
+          "30_39": "30-39",
+          "40_49": "40-49",
+          "50_plus": "50+",
+          "open": "Categoria aberta",
+          "under_18": "Menores de 18"
+        },
+        "competition_level": {
+          "amateur": "Amador",
+          "fun_run": "Lazer/solidário",
+          "international": "Internacional",
+          "national": "Nacional",
+          "regional": "Regional"
+        },
+        "cuisine_focus": {
+          "fusion": "Fusão",
+          "international": "Internacional",
+          "mediterranean": "Mediterrânica",
+          "olive_oil": "Azeite",
+          "portuguese": "Portuguesa",
+          "seafood": "Marisco",
+          "wine": "Vinho"
+        },
+        "cultural_type": {
+          "dance": "Espetáculo de dança",
+          "exhibition": "Exposição",
+          "historical": "Recriação histórica",
+          "literary": "Evento literário",
+          "medieval_fair": "Feira medieval",
+          "museum": "Evento de museu",
+          "theater": "Teatro"
+        },
+        "dietary_options": {
+          "gluten_free": "Sem glúten",
+          "halal": "Halal",
+          "kosher": "Kosher",
+          "vegan": "Vegan",
+          "vegetarian": "Vegetariano"
+        },
+        "festival_type": {
+          "art": "Festival de arte",
+          "cultural": "Festival cultural",
+          "film": "Festival de cinema",
+          "food_wine": "Festival de comida e vinho",
+          "music": "Festival de música",
+          "religious": "Festival religioso"
+        },
+        "format": {
+          "fourball": "Fourball",
+          "foursome": "Foursome",
+          "match": "Match play",
+          "scramble": "Scramble",
+          "stableford": "Stableford",
+          "stroke": "Stroke play"
+        },
+        "frequency": {
+          "annual": "Anual",
+          "biweekly": "Quinzenal",
+          "monthly": "Mensal",
+          "one_time": "Único",
+          "weekly": "Semanal"
+        },
+        "gastro_type": {
+          "chef_table": "Experiência à mesa do chef",
+          "cooking_class": "Aula de culinária",
+          "food_festival": "Festival gastronómico",
+          "food_tour": "Roteiro gastronómico",
+          "gourmet_dinner": "Jantar gourmet",
+          "sardine_festival": "Festival da sardinha",
+          "seafood_festival": "Festival de marisco",
+          "wine_tasting": "Prova de vinhos"
+        },
+        "languages_offered": {
+          "english": "Inglês",
+          "french": "Francês",
+          "german": "Alemão",
+          "portuguese": "Português",
+          "spanish": "Espanhol"
+        },
+        "market_type": {
+          "antique": "Mercado de antiguidades",
+          "artisan": "Mercado de artesanato",
+          "christmas": "Mercado de Natal",
+          "farmers": "Mercado de produtores",
+          "flea": "Feira de velharias",
+          "night": "Mercado noturno",
+          "trade_fair": "Feira comercial e de exposições"
+        },
+        "music_genre": {
+          "classical": "Clássica",
+          "electronic": "Eletrónica",
+          "fado": "Fado",
+          "folk": "Folk",
+          "jazz": "Jazz",
+          "pop": "Pop",
+          "portuguese": "Música portuguesa",
+          "rock": "Rock",
+          "world": "Músicas do mundo"
+        },
+        "outdoor_indoor": {
+          "indoor": "Interior",
+          "mixed": "Misto",
+          "outdoor": "Ao ar livre"
+        },
+        "payment_methods": {
+          "card": "Cartão de crédito/débito",
+          "cash": "Dinheiro",
+          "mbway": "MB Way",
+          "mobile": "Pagamento móvel"
+        },
+        "performance_type": {
+          "concert": "Concerto",
+          "dj_set": "DJ set",
+          "festival": "Festival",
+          "intimate": "Atuação intimista",
+          "open_air": "Ao ar livre",
+          "orchestra": "Orquestra",
+          "street_party": "Festa de rua"
+        },
+        "product_categories": {
+          "agriculture": "Agricultura",
+          "antiques": "Antiguidades",
+          "art": "Arte e pintura",
+          "clothing": "Roupa e têxteis",
+          "commerce": "Comércio",
+          "crafts": "Artesanato",
+          "food": "Produtos frescos",
+          "home": "Decoração",
+          "industry": "Indústria",
+          "jewelry": "Joalharia",
+          "plants": "Plantas e flores",
+          "restaurants": "Restauração",
+          "tourism": "Turismo"
+        },
+        "season": {
+          "autumn": "Outono",
+          "spring": "Primavera",
+          "summer": "Verão",
+          "winter": "Inverno"
+        },
+        "seating_type": {
+          "mixed": "Misto",
+          "seated": "Sentado",
+          "standing": "Em pé"
+        },
+        "sport_type": {
+          "cycling": "Ciclismo",
+          "football": "Futebol",
+          "motorsport": "Desporto motorizado",
+          "running": "Corrida",
+          "sailing": "Vela",
+          "surfing": "Surf",
+          "swimming": "Natação",
+          "tennis": "Ténis",
+          "triathlon": "Triatlo"
+        },
+        "tournament_level": {
+          "amateur": "Amador",
+          "charity": "Solidário",
+          "club": "Campeonato de clube",
+          "corporate": "Empresarial",
+          "professional": "Profissional"
+        },
+        "venue_type": {
+          "amphitheater": "Anfiteatro",
+          "arena": "Arena",
+          "beach": "Praia",
+          "church": "Igreja",
+          "club": "Clube",
+          "historic_center": "Centro histórico",
+          "theater": "Teatro",
+          "waterfront": "Zona ribeirinha",
+          "winery": "Adega"
+        }
       }
-    },
-    "tags": {
-      "events": "Eventos",
-      "albufeira": "Albufeira",
-      "almancil": "Almancil",
-      "carvoeiro": "Carvoeiro",
-      "faro": "Faro",
-      "lagoa": "Lagoa",
-      "loule": "Loulé",
-      "olhao": "Olhão",
-      "portimao": "Portimão",
-      "silves": "Silves",
-      "vilamoura": "Vilamoura",
-      "motorsport": "Desporto motorizado",
-      "motorcycle-racing": "Motociclismo",
-      "wsbk": "WSBK",
-      "superbike-world-championship": "Campeonato Mundial de Superbike",
-      "aia-circuit": "Circuito AIA",
-      "racing-weekeng": "Fim de semana de corridas",
-      "iberian-racing-festival": "Iberian Racing Festival",
-      "autodromo-internacional-do-algarve": "Autódromo Internacional do Algarve",
-      "motogp": "MotoGP",
-      "grand-prix": "Grande Prémio",
-      "smooth-jazz": "Smooth jazz",
-      "music": "Música",
-      "music-festival": "Festival de música",
-      "world-music": "Músicas do mundo",
-      "culture-festival": "Festival cultural",
-      "afro-nation": "Afro Nation",
-      "beach-music-festival": "Festival de música na praia",
-      "festival-med": "Festival MED",
-      "festival-f": "Festival F",
-      "festival-mar-me-quer": "Festival Mar Me Quer",
-      "summer-festival": "Festival de verão",
-      "portuguese-music": "Música portuguesa",
-      "culture": "Cultura",
-      "cultural-event": "Evento cultural",
-      "feira-medieval": "Feira medieval",
-      "medieval-fair": "Feira medieval",
-      "gastronomy": "Gastronomia",
-      "sardines": "Sardinhas",
-      "seafood": "Marisco",
-      "concerts": "Concertos",
-      "festival-do-marisco": "Festival do Marisco",
-      "festival-da-sardinha": "Festival da Sardinha",
-      "golf": "Golfe",
-      "pga-tour-champions": "PGA TOUR Champions",
-      "portugal-invitational": "Portugal Invitational",
-      "the-els-club": "The Els Club",
-      "carvoeiro-noite-black-white": "Carvoeiro Noite Black & White",
-      "street-party": "Festa de rua",
-      "summer-opening": "Abertura do verão",
-      "praia-do-carvoeiro": "Praia do Carvoeiro",
-      "praia-da-rocha": "Praia da Rocha",
-      "zona-ribeirinha": "Zona ribeirinha",
-      "vila-adentro": "Vila Adentro",
-      "fatacil": "FATACIL",
-      "fair": "Feira",
-      "crafts": "Artesanato",
-      "tourism": "Turismo",
-      "agriculture": "Agricultura",
-      "pine-cliffs": "Pine Cliffs",
-      "racing-weekend": "Fim de semana de corridas",
-      "afro-nation-portugal": "Afro Nation Portugal"
     }
   },
   "experiences": {
+    "allActiveCityHubs": "Todos os polos de experiências ativos",
+    "allActiveCityHubsDescription": "Explore cidades do Algarve com experiências ativas e destaques locais.",
+    "cityFallbackDescription": "Explore experiências, atividades e destaques locais selecionados nesta cidade do Algarve.",
+    "cityIndex": "Índice de experiências por cidade",
+    "cityIndexDescription": "Explore cidades do Algarve com totais atuais de experiências, atividades, praias, gastronomia e destaques locais.",
     "cta": {
       "description": "Diga-nos o que mais o entusiasma e criaremos um itinerário personalizado de experiências selecionadas em todo o Algarve.",
       "primary": "Planeje minha experiência",
       "secondary": "Navegar em todas as listagens",
       "title": "Pronto para sua próxima aventura?"
     },
+    "exploreAlgarveCities": "Explorar experiências do Algarve por cidade",
+    "featuredCityHub": "Polo de experiências em destaque",
+    "featuredCityHubDescription": "{{name}} reúne {{count}} experiências e locais selecionados para explorar.",
     "hero": {
       "alt": "Experiências Algarve",
       "badge": "Aventuras selecionadas",
@@ -1904,6 +2036,7 @@
       "subtitle": "De aventuras costeiras a descobertas culinárias — encontre experiências inesquecíveis escolhidas a dedo para todos os gostos e estações.",
       "title": "Experimente o Algarve"
     },
+    "listingsCount": "{{count}} experiências",
     "pillars": {
       "culture": {
         "description": "Aldeias históricas, mercados locais, oficinas de artesanato e tradições vivas em toda a região.",
@@ -1928,16 +2061,7 @@
       "categories": "Categorias de atividades",
       "curated": "Experiências selecionadas",
       "sunDays": "Dias de sol por ano"
-    },
-    "featuredCityHub": "Polo de experiências em destaque",
-    "featuredCityHubDescription": "{{name}} reúne {{count}} experiências e locais selecionados para explorar.",
-    "cityIndex": "Índice de experiências por cidade",
-    "cityIndexDescription": "Explore cidades do Algarve com totais atuais de experiências, atividades, praias, gastronomia e destaques locais.",
-    "exploreAlgarveCities": "Explorar experiências do Algarve por cidade",
-    "listingsCount": "{{count}} experiências",
-    "allActiveCityHubs": "Todos os polos de experiências ativos",
-    "allActiveCityHubsDescription": "Explore cidades do Algarve com experiências ativas e destaques locais.",
-    "cityFallbackDescription": "Explore experiências, atividades e destaques locais selecionados nesta cidade do Algarve."
+    }
   },
   "footer": {
     "about": "Sobre Nós",
@@ -1965,208 +2089,305 @@
     "sections": {
       "categories": "Categorias",
       "company": "Empresa",
-      "legal": "Legal",
-      "regions": "Regiões",
       "homepage": {
-        "editorsSelection": {
-          "badge": "Escolhas do editor",
-          "subtitle": "Lugares e propriedades escolhido que representam o melhor do Algarve.",
-          "title": "Seleção do Editor",
-          "titleAlt": "Coleção Signature",
-          "cta": "Ver coleção completa",
-          "ctaMobile": "Ver coleção completa",
-          "emptyTitle": "Listas selecionadas estão sendo preparadas.",
-          "emptySubtitle": "Navegue pelo diretório completo do Algarve enquanto a coleção editorial é atualizada."
-        },
-        "trustSection": {
-          "label": "Porquê AlgarveOfficial",
-          "title": "Curado para descoberta segura",
-          "subtitle": "Lugares, propriedades e experiências de qualidade no Algarve.",
-          "items": {
-            "curated": {
-              "title": "Seleção premium.curada",
-              "description": "Lugares, propriedades e experiências de qualidade no Algarve."
-            },
-            "verified": {
-              "title": "Insights locais, anúncios verificados",
-              "description": "Descoberta guiada por lugar e contexto, não por ruído de diretório."
-            },
-            "comprehensive": {
-              "title": "Ficar, gastronizar, explorar, investir",
-              "description": "Uma plataforma para visitantes, residentes, proprietários e investidores."
-            }
-          }
-        },
         "categories": {
           "label": "O Que Oferecemos",
-          "title": "Categorias Premium",
-          "subtitle": "Navegue pelo diretório premium por categoria."
-        },
-        "hero": {
-          "label": "Curado para si",
-          "title": "O Algarve, Curado",
-          "subtitle": "Hotéis, restaurantes, experiências, golf e imobiliário — numa plataforma de confiança.",
-          "primaryCta": "Explorar lugares curados",
-          "secondaryCta": "Criar a minha viagem ao Algarve",
-          "curated": "Curado por locais",
-          "verified": "Verificado e confiável",
-          "intent": "Para visitantes e investidores"
-        },
-        "quickLinks": {
-          "label": "Comece a explorar",
-          "title": "Escolha o seu Algarve",
-          "subtitle": "Comece pelos lugares, experiências e oportunidades que correspondem à sua viagem ou planos.",
-          "cta": "Explorar",
-          "items": {
-            "stay": {
-              "title": "Onde Ficar",
-              "subtitle": "Hotéis, villas e resorts",
-              "cta": "Ver estadias"
-            },
-            "experiences": {
-              "title": "O que Fazer",
-              "subtitle": "Tours, golf e experiências",
-              "cta": "Descobrir"
-            },
-            "dining": {
-              "title": "Gastronomia",
-              "subtitle": "Restaurantes e gastronomia",
-              "cta": "Explorar"
-            },
-            "realEstate": {
-              "title": "Imobiliário",
-              "subtitle": "Propriedades e investimento",
-              "cta": "Ver"
-            }
-          }
+          "subtitle": "Navegue pelo diretório premium por categoria.",
+          "title": "Categorias Premium"
         },
         "cities": {
           "label": "Cidades",
-          "title": "Explorar o Algarve por Cidade",
-          "subtitle": "Explore o Algarve por cidade, de Lagos a Tavira, incluindo praias, restaurantes e experiências premium.",
-          "viewAll": "Ver Todas as Cidades",
           "listingCount": "{{count}} anúncio",
-          "listingCount_plural": "{{count}} anúncios"
+          "listingCount_plural": "{{count}} anúncios",
+          "subtitle": "Explore o Algarve por cidade, de Lagos a Tavira, incluindo praias, restaurantes e experiências premium.",
+          "title": "Explorar o Algarve por Cidade",
+          "viewAll": "Ver Todas as Cidades"
+        },
+        "editorsSelection": {
+          "badge": "Escolhas do editor",
+          "cta": "Ver coleção completa",
+          "ctaMobile": "Ver coleção completa",
+          "emptySubtitle": "Navegue pelo diretório completo do Algarve enquanto a coleção editorial é atualizada.",
+          "emptyTitle": "Listas selecionadas estão sendo preparadas.",
+          "subtitle": "Lugares e propriedades escolhido que representam o melhor do Algarve.",
+          "title": "Seleção do Editor",
+          "titleAlt": "Coleção Signature"
+        },
+        "hero": {
+          "curated": "Curado por locais",
+          "intent": "Para visitantes e investidores",
+          "label": "Curado para si",
+          "primaryCta": "Explorar lugares curados",
+          "secondaryCta": "Criar a minha viagem ao Algarve",
+          "subtitle": "Hotéis, restaurantes, experiências, golf e imobiliário — numa plataforma de confiança.",
+          "title": "O Algarve, Curado",
+          "verified": "Verificado e confiável"
+        },
+        "mapCta": {
+          "cta": "Pesquisar por localização",
+          "label": "Explorar no mapa",
+          "subtitle": "Explore lugares pelo Algarve, depois filtre por área, categoria e intenção.",
+          "title": "Pesquisar o Algarve por localização"
+        },
+        "quickLinks": {
+          "cta": "Explorar",
+          "items": {
+            "dining": {
+              "cta": "Explorar",
+              "subtitle": "Restaurantes e gastronomia",
+              "title": "Gastronomia"
+            },
+            "experiences": {
+              "cta": "Descobrir",
+              "subtitle": "Tours, golf e experiências",
+              "title": "O que Fazer"
+            },
+            "realEstate": {
+              "cta": "Ver",
+              "subtitle": "Propriedades e investimento",
+              "title": "Imobiliário"
+            },
+            "stay": {
+              "cta": "Ver estadias",
+              "subtitle": "Hotéis, villas e resorts",
+              "title": "Onde Ficar"
+            }
+          },
+          "label": "Comece a explorar",
+          "subtitle": "Comece pelos lugares, experiências e oportunidades que correspondem à sua viagem ou planos.",
+          "title": "Escolha o seu Algarve"
         },
         "regions": {
           "label": "Regiões",
-          "title": "Explorar por Região",
-          "subtitle": "Descubra o Algarve por área, de towns costeiras a retiros no campo.",
-          "viewAll": "Ver Todas as Regiões",
           "listingCount": "{{count}} anúncio",
-          "listingCount_plural": "{{count}} anúncios"
+          "listingCount_plural": "{{count}} anúncios",
+          "subtitle": "Descubra o Algarve por área, de towns costeiras a retiros no campo.",
+          "title": "Explorar por Região",
+          "viewAll": "Ver Todas as Regiões"
         },
-        "mapCta": {
-          "label": "Explorar no mapa",
-          "title": "Pesquisar o Algarve por localização",
-          "subtitle": "Explore lugares pelo Algarve, depois filtre por área, categoria e intenção.",
-          "cta": "Pesquisar por localização"
+        "trustSection": {
+          "items": {
+            "comprehensive": {
+              "description": "Uma plataforma para visitantes, residentes, proprietários e investidores.",
+              "title": "Ficar, gastronizar, explorar, investir"
+            },
+            "curated": {
+              "description": "Lugares, propriedades e experiências de qualidade no Algarve.",
+              "title": "Seleção premium.curada"
+            },
+            "verified": {
+              "description": "Descoberta guiada por lugar e contexto, não por ruído de diretório.",
+              "title": "Insights locais, anúncios verificados"
+            }
+          },
+          "label": "Porquê AlgarveOfficial",
+          "subtitle": "Lugares, propriedades e experiências de qualidade no Algarve.",
+          "title": "Curado para descoberta segura"
         }
-      }
+      },
+      "legal": "Legal",
+      "regions": "Regiões"
     },
     "tagline": "A selecionar experiências de luxo no Algarve",
     "terms": "Termos de Serviço",
     "termsOfService": "Termos de Serviço"
   },
   "golf": {
-    "iframeTitle": "AlgarveOfficial Golf",
-    "loadingDescription": "Preparando sua rodada…",
-    "loadingTitle": "Carregando Golf",
-    "hero": {
-      "badge": "Golfe selecionado",
-      "title": "Jogue golfe de campeonato no Algarve",
-      "subtitle": "Descubra listagens de golfe de elite, compare detalhes dos campos e planeie a sua próxima volta na costa mais prestigiada de Portugal.",
-      "alt": "Fairways de golfe no Algarve",
-      "ctaCourses": "Ver campos",
-      "ctaLeaderboard": "Ver classificação"
-    },
-    "featuredCourses": {
-      "title": "Campos em destaque",
-      "cta": "Ver todos",
-      "emptyTitle": "Sem listagens de golfe disponíveis",
-      "emptyDescription": "As listagens de golfe aparecerão aqui assim que forem publicadas."
+    "courseDirectory": {
+      "cityFilter": "Cidade: {{city}}.",
+      "description": "Explore clubes de golfe através das listagens AlgarveOfficial.",
+      "emptyDescription": "Nenhuma listagem de golfe publicada corresponde aos filtros atuais.",
+      "emptyTitle": "Não há listagens de golfe disponíveis",
+      "metadataDescription": "Explore listagens de golfe de campeonato no Algarve com detalhes do campo, localizações e acesso ao cartão de jogo.",
+      "metadataTitle": "Campos de golfe no Algarve",
+      "regionFilter": "Região: {{region}}.",
+      "title": "Diretório de Campos de Golfe"
     },
     "courseTools": {
-      "bookingTitle": "Reservar tee time",
-      "bookingSubtitle": "A reserva integrada estará disponível na próxima fase.",
       "bookingBody": "Estamos a ligar fornecedores de reservas parceiros e disponibilidade de horários.",
-      "scorecardsTitle": "Scorecards e handicap",
+      "bookingSubtitle": "A reserva integrada estará disponível na próxima fase.",
+      "bookingTitle": "Reservar tee time",
+      "scorecardsBody": "Em breve poderá guardar voltas, comparar resultados e acompanhar a evolução do handicap.",
       "scorecardsSubtitle": "O acompanhamento estruturado de voltas chega na fase 2.",
-      "scorecardsBody": "Em breve poderá guardar voltas, comparar resultados e acompanhar a evolução do handicap."
-    },
-    "leaderboard": {
-      "title": "Classificação",
-      "cta": "Abrir página"
+      "scorecardsTitle": "Scorecards e handicap"
     },
     "cta": {
-      "title": "Pronto para planear a próxima volta?",
-      "subtitle": "Compare campos, guarde favoritos e comece a acompanhar as suas voltas.",
       "primary": "Ver campos",
-      "secondary": "Ver classificação"
+      "secondary": "Ver classificação",
+      "subtitle": "Compare campos, guarde favoritos e comece a acompanhar as suas voltas.",
+      "title": "Pronto para planear a próxima volta?"
     },
-    "courseDirectory": {
-      "title": "Diretório de Campos de Golfe",
-      "description": "Explore clubes de golfe através das listagens AlgarveOfficial.",
-      "emptyTitle": "Não há listagens de golfe disponíveis",
-      "emptyDescription": "Nenhuma listagem de golfe publicada corresponde aos filtros atuais.",
-      "metadataTitle": "Campos de golfe no Algarve",
-      "metadataDescription": "Explore listagens de golfe de campeonato no Algarve com detalhes do campo, localizações e acesso ao cartão de jogo.",
-      "regionFilter": "Região: {{region}}.",
-      "cityFilter": "Cidade: {{city}}."
+    "featuredCourses": {
+      "cta": "Ver todos",
+      "emptyDescription": "As listagens de golfe aparecerão aqui assim que forem publicadas.",
+      "emptyTitle": "Sem listagens de golfe disponíveis",
+      "title": "Campos em destaque"
+    },
+    "hero": {
+      "alt": "Fairways de golfe no Algarve",
+      "badge": "Golfe selecionado",
+      "ctaCourses": "Ver campos",
+      "ctaLeaderboard": "Ver classificação",
+      "subtitle": "Descubra listagens de golfe de elite, compare detalhes dos campos e planeie a sua próxima volta na costa mais prestigiada de Portugal.",
+      "title": "Jogue golfe de campeonato no Algarve"
+    },
+    "iframeTitle": "AlgarveOfficial Golf",
+    "leaderboard": {
+      "cta": "Abrir página",
+      "title": "Classificação"
     },
     "leaderboardPage": {
-      "title": "Classificação",
       "description": "Classificações atuais dos jogadores e diferenças face ao par.",
-      "topPlayers": "Melhores jogadores",
-      "scoreDescription": "As pontuações são apresentadas em relação ao par."
+      "scoreDescription": "As pontuações são apresentadas em relação ao par.",
+      "title": "Classificação",
+      "topPlayers": "Melhores jogadores"
+    },
+    "loadingDescription": "Preparando sua rodada…",
+    "loadingTitle": "Carregando Golf",
+    "metadata": {
+      "description": "Descubra os melhores campos de golfe, clubes premium e recursos para planear golfe no Algarve.",
+      "title": "Golfe no Algarve"
     },
     "round": {
-      "unavailableTitle": "Volta indisponível",
-      "unavailableDescription": "Este campo ainda não tem uma configuração completa dos buracos. Por agora, escolha outro campo de golfe.",
-      "startRound": "Iniciar volta",
-      "starting": "A iniciar...",
-      "unableToStart": "Nao foi possivel iniciar uma volta neste momento.",
       "back": "Voltar",
-      "scorecard": "Cartao de jogo",
-      "holesEntered": "{{entered}} de {{total}} buracos registados",
-      "noHoleData": "Nao ha dados de buracos disponiveis para esta volta.",
-      "yards": "Jardas",
-      "strokeIndex": "S.I.",
-      "strokes": "Pancadas",
       "decreaseStrokes": "Diminuir pancadas",
+      "holesEntered": "{{entered}} de {{total}} buracos registados",
       "increaseStrokes": "Aumentar pancadas",
+      "nextHole": "Proximo buraco {{hole}}",
+      "noHoleData": "Nao ha dados de buracos disponiveis para esta volta.",
+      "openScorecard": "Abrir cartao",
+      "previousHole": "Buraco anterior",
+      "saved": "Guardado",
       "saveFailed": "Falha ao guardar",
       "saving": "A guardar...",
-      "saved": "Guardado",
-      "previousHole": "Buraco anterior",
-      "nextHole": "Proximo buraco {{hole}}",
-      "openScorecard": "Abrir cartao",
+      "scorecard": "Cartao de jogo",
+      "starting": "A iniciar...",
+      "startRound": "Iniciar volta",
+      "strokeIndex": "S.I.",
+      "strokes": "Pancadas",
       "unableToSaveScore": "Nao foi possivel guardar a pontuacao.",
-      "unableToUpdateTee": "Nao foi possivel atualizar a cor do tee."
+      "unableToStart": "Nao foi possivel iniciar uma volta neste momento.",
+      "unableToUpdateTee": "Nao foi possivel atualizar a cor do tee.",
+      "unavailableDescription": "Este campo ainda não tem uma configuração completa dos buracos. Por agora, escolha outro campo de golfe.",
+      "unavailableTitle": "Volta indisponível",
+      "yards": "Jardas"
     },
     "scorecard": {
       "back": "Voltar",
-      "title": "Cartão de jogo",
-      "roundFinished": "Volta terminada",
-      "finishRound": "Terminar volta",
-      "frontNine": "Primeiros nove",
       "backNine": "Segundos nove",
       "diff": "Diferença",
-      "total": "Total",
-      "holesRange": "Buracos {{start}}-{{end}}"
-    },
-    "metadata": {
-      "title": "Golfe no Algarve",
-      "description": "Descubra os melhores campos de golfe, clubes premium e recursos para planear golfe no Algarve."
+      "finishRound": "Terminar volta",
+      "frontNine": "Primeiros nove",
+      "holesRange": "Buracos {{start}}-{{end}}",
+      "roundFinished": "Volta terminada",
+      "title": "Cartão de jogo",
+      "total": "Total"
     }
+  },
+  "golfCourse": {
+    "academy": "Academia",
+    "access": "Acesso",
+    "bestFor": "Ideal para",
+    "bookTeeTime": "Reservar tee time",
+    "bookTeeTimeAria": "Reservar tee time com parceiro externo",
+    "buggy": "Buggy",
+    "casual": "Voltas descontraídas",
+    "championship": "Jogo de campeonato",
+    "clubhouse": "Clubhouse",
+    "confident": "Jogadores confiantes",
+    "contactClub": "Contactar clube",
+    "designer": "Designer",
+    "difficulty": "Dificuldade",
+    "drivingRange": "Driving range",
+    "facilities": "Instalações",
+    "golfers": "Golfistas",
+    "hcp": "HCP",
+    "hole": "Buraco",
+    "holes": "Buracos",
+    "leaderboard": "Classificação",
+    "length": "Comprimento",
+    "locationFallback": "Algarve",
+    "metaDescriptionFallback": "Explore detalhes do campo, scorecard e localização.",
+    "metaTitleFallback": "Campo de Golfe",
+    "meters": "m",
+    "overview": "Visão geral do campo",
+    "par": "Par",
+    "player": "Jogador",
+    "priceRange": "Faixa de preço",
+    "private": "Privado",
+    "public": "Público",
+    "rank": "Posição",
+    "rating": "Course Rating",
+    "red": "Vermelho",
+    "regionFallback": "Algarve",
+    "relatedCourses": "Campos próximos",
+    "restaurant": "Restaurante",
+    "rounds": "Voltas",
+    "score": "Pontuação",
+    "scorecard": "Scorecard",
+    "slope": "Slope",
+    "visitWebsite": "Visitar website",
+    "white": "Branco",
+    "yellow": "Amarelo"
+  },
+  "golfDiscovery": {
+    "advanced": "Avançado",
+    "backToGolf": "Todos os campos de golfe",
+    "beginner": "Iniciante",
+    "beginnerDescription": "Voltas mais fáceis e aprendizagem",
+    "beginnerIntro": "Campos acolhedores para jogar com calma e confiança",
+    "beginnerTitle": "Ideal para Iniciantes",
+    "bestFor": "Ideal para",
+    "challenge": "Desafio",
+    "championshipDescription": "Percursos de torneio de 18 buracos",
+    "championshipIntro": "Seleção de campos de nível torneio",
+    "championshipPlay": "Jogo de campeonato",
+    "championshipTitle": "Campos de Campeonato",
+    "coastalDescription": "Vistas e ambiente",
+    "coastalIntro": "Luz do oceano, ambiente costeiro e paisagens memoráveis do Algarve",
+    "coastalTitle": "Golfe Costeiro Cénico",
+    "discoverySubtitle": "Escolha o tipo de volta que procura e descubra campos selecionados sem comparações intermináveis.",
+    "discoveryTitle": "Encontre o campo de golfe perfeito no Algarve",
+    "ease": "Facilidade",
+    "editorsSelection": "Seleção Editorial",
+    "experiencedGolfers": "Golfistas experientes",
+    "finderTitle": "Encontre o seu campo",
+    "heroLabel": "Descubra golfe",
+    "intermediate": "Intermédio",
+    "luxuryDescription": "Experiências de golfe premium",
+    "luxuryIntro": "Clubes premium, serviço cuidado e cenários de golfe distintos",
+    "luxuryTitle": "Clubes Privados e Luxo",
+    "mattersQuestion": "O que importa?",
+    "noMatchesDescription": "Explore todos os campos de golfe enquanto expandimos esta coleção.",
+    "noMatchesTitle": "Ainda não há campos correspondentes",
+    "premiumExperience": "Experiência premium",
+    "quick9Description": "Voltas mais rápidas",
+    "quick9Intro": "Formatos mais curtos para dias de golfe flexíveis no Algarve",
+    "quick9Title": "Voltas Rápidas de 9 Buracos",
+    "quickRounds": "Voltas rápidas",
+    "relaxedPlay": "Jogo descontraído",
+    "scenery": "Paisagem",
+    "scenicRounds": "Voltas cénicas",
+    "skillQuestion": "Nível?",
+    "verified": "Verificado",
+    "viewCourse": "Ver campo",
+    "viewMatches": "Ver opções",
+    "youMightAlsoLike": "Também poderá gostar"
   },
   "guides": {
     "breadcrumbLabel": "Breadcrumb",
     "browseAllInCity": "Navegue por todos os {{category}} em {{city}}.",
+    "browseAllVisit": "Browse all of Visit",
+    "categoryInCity": "{{category}} em {{city}}",
+    "cityCategoryComingSoonDescription": "This page is available so visitors can discover this topic in {{city}} while new listings are published. Explore the main city page or nearby city/category combinations in the meantime.",
+    "cityComingSoonDescription": "This page is available so visitors can discover {{city}} while new listings are published. In the meantime, you can explore the main Visit directory or jump into active category pages below.",
+    "discoverCuratedInCity": "Discover curated listings for {{category}} in {{city}}. From local favorites to premium experiences.",
     "exploreMoreInCity": "Explore mais em {{city}}",
     "findBestInCity": "Encontre o melhor {{category}} em {{city}}",
     "getFeatured": "Ganhe destaque",
     "getFeaturedInCity": "Ganhe destaque em {{city}}",
+    "listingsForCityCategoryComingSoon": "Listings for {{category}} in {{city}} are being added",
+    "listingsForCityComingSoon": "Listings for {{city}} are being added",
     "listYourBusiness": "Liste sua empresa",
     "moreListingsComingSoon": "Mais listagens em breve.",
     "notFoundDescription": "O guia solicitado não foi encontrado.",
@@ -2213,44 +2434,28 @@
         "title": "Bem-estar em Lagos"
       }
     },
+    "relatedAlgarveCities": "Related Algarve cities",
     "relatedGuides": "Guias relacionados",
     "standOutInCity": "Destaque-se para os visitantes que pesquisam {{category}} em {{city}}.",
     "topCategoryInCity": "Top {{category}} em {{city}}",
     "upgradeYourListing": "Atualize sua listagem",
     "viewAllInCity": "Ver todos {{category}} em {{city}}",
-    "categoryInCity": "{{category}} em {{city}}",
-    "listingsForCityCategoryComingSoon": "Listings for {{category}} in {{city}} are being added",
-    "cityCategoryComingSoonDescription": "This page is available so visitors can discover this topic in {{city}} while new listings are published. Explore the main city page or nearby city/category combinations in the meantime.",
-    "viewCity": "View {{city}}",
-    "discoverCuratedInCity": "Discover curated listings for {{category}} in {{city}}. From local favorites to premium experiences.",
-    "browseAllVisit": "Browse all of Visit",
-    "listingsForCityComingSoon": "Listings for {{city}} are being added",
-    "cityComingSoonDescription": "This page is available so visitors can discover {{city}} while new listings are published. In the meantime, you can explore the main Visit directory or jump into active category pages below.",
-    "relatedAlgarveCities": "Related Algarve cities"
-  },
-  "categoryHub": {
-    "heroTitle": "{{category}} no Algarve",
-    "heroDescription": "Descubra os melhores {{category}} em todo o Algarve. Explore por cidade para encontrar recomendações locais selecionadas.",
-    "topCities": "Principais cidades para {{category}}",
-    "featured": "{{category}} em destaque",
-    "visibilityTitle": "Ganhe Mais Visibilidade no Algarve",
-    "visibilityDescription": "Destaque-se da concorrência. Atualize a sua listagem de {{category}} para alcançar mais clientes.",
-    "bottomTitle": "Encontre os melhores {{category}} no Algarve",
-    "bottomDescription": "Descubra {{category}} selecionados em todo o Algarve. Dos favoritos locais às experiências premium."
+    "viewCity": "View {{city}}"
   },
   "hero": {
     "aiPlannerButton": "PLANEADOR IA",
     "aiPlannerPlaceholder": "Planeador IA do Algarve... (ex: 'Planear 3 dias no Algarve')",
+    "curated": "Curado por locais",
     "headline": "O Algarve",
     "headlineHighlight": "Curado",
-    "lead": "Curado por locais",
-    "homepageTitle": "O Algarve, Curado",
     "homepageSubtitle": "Hotéis, restaurantes, experiências, golf e imobiliário — numa plataforma de confiança.",
+    "homepageTitle": "O Algarve, Curado",
+    "intent": "Para visitantes e investidores",
+    "label": "Curado para si",
+    "lead": "Curado por locais",
     "listYourBusiness": "Anuncie o Seu Negócio",
     "location": "Distrito de Faro, Portugal",
     "loginRequired": "Inicie sessão para criar uma viagem.",
-    "tripLoginTitle": "Crie a sua viagem ao Algarve",
-    "tripLoginDescription": "Inicie sessão ou crie uma conta para guardar o seu plano de viagem.",
     "planTripCta": "Planeie sua Viagem",
     "popular": "Popular",
     "primaryCta": "Explorar Regiões",
@@ -2263,10 +2468,8 @@
     "tagMichelinDining": "Restaurantes Michelin",
     "tagPrivateAviation": "Aviação Privada",
     "tripCreated": "Viagem criada.",
-    "label": "Curado para si",
-    "curated": "Curado por locais",
-    "verified": "Verificado e confiável",
-    "intent": "Para visitantes e investidores",
+    "tripLoginDescription": "Inicie sessão ou crie uma conta para guardar o seu plano de viagem.",
+    "tripLoginTitle": "Crie a sua viagem ao Algarve",
     "trust": {
       "anonymousVisitor": "Visitante verificado",
       "approvedReview": "Avaliação aprovada",
@@ -2285,6 +2488,43 @@
       "signatureLabel": "estabelecimentos assinatura",
       "subtitle": "Prova social visível de listagens reais, volume de avaliações real e nomes de estabelecimentos curados no ponto de primeira impressão.",
       "title": "Prova de que a seleção vale seu tempo"
+    },
+    "verified": "Verificado e confiável"
+  },
+  "homepage": {
+    "categories": {
+      "label": "O Que Oferecemos",
+      "subtitle": "Navegue pelo diretório premium por categoria.",
+      "title": "Categorias Premium"
+    },
+    "editorsSelection": {
+      "badge": "Escolhas do editor",
+      "cta": "Ver coleção completa",
+      "ctaMobile": "Ver coleção completa",
+      "emptySubtitle": "Navegue pelo diretório completo do Algarve enquanto a coleção editorial é atualizada.",
+      "emptyTitle": "Listas selecionadas estão sendo preparadas.",
+      "subtitle": "Lugares e propriedades escolhidos que representam o melhor do Algarve.",
+      "title": "Seleção do Editor",
+      "titleAlt": "Coleção Signature"
+    },
+    "trustSection": {
+      "items": {
+        "comprehensive": {
+          "description": "Uma plataforma para visitantes, residentes, proprietários e investidores.",
+          "title": "Ficar, gastronizar, explorar, investir"
+        },
+        "curated": {
+          "description": "Lugares, propriedades e experiências de qualidade no Algarve.",
+          "title": "Seleção premium.curada"
+        },
+        "verified": {
+          "description": "Descoberta guiada por lugar e contexto.",
+          "title": "Insights locais, anúncios verificados"
+        }
+      },
+      "label": "Porquê AlgarveOfficial",
+      "subtitle": "Lugares, propriedades e experiências de qualidade no Algarve.",
+      "title": "Curado para descoberta segura"
     }
   },
   "invest": {
@@ -2388,42 +2628,36 @@
     "relatedPolicies": "Políticas Relacionadas"
   },
   "listing": {
-    "badge": {
-      "verified": "Verificado",
-      "signature": "Signature"
-    },
-    "notFound": "Listagem não encontrada",
-    "notFoundMessage": "Esta listagem está indisponível ou ainda não foi publicada.",
-    "backToHome": "Voltar ao início",
-    "viewGallery": "Ver galeria",
-    "locationUnavailable": "Localização indisponível",
     "about": "Sobre",
-    "saveToFavorites": "Guardar nos favoritos",
-    "share": "Partilhar",
-    "contact": "Contacto",
-    "visitWebsite": "Visitar website",
+    "backToHome": "Voltar ao início",
+    "backToListings": "Voltar às listagens",
+    "badge": {
+      "signature": "Assinatura",
+      "verified": "Verificado"
+    },
+    "bathrooms": "Casas de banho",
+    "bedrooms": "Quartos",
     "bookNow": "Reservar agora",
     "bookVisit": "Marcar uma visita",
+    "builtArea": "Área construída",
     "call": "Ligar",
-    "messageWhatsApp": "Mensagem no WhatsApp",
-    "isYourBusiness": "Este negócio é seu?",
-    "claimThisListing": "Reivindicar esta listagem",
-    "claimBusinessTitle": "É proprietário ou gere este negócio?",
-    "claimBusinessDescription": "Reivindique esta listagem para atualizar informações, fotografias, contactos e visibilidade no AlgarveOfficial.",
     "claimBusinessButton": "Reivindicar este negócio",
-    "claimUnderReviewTitle": "Reivindicação de propriedade em análise",
-    "claimUnderReviewDescription": "Esta listagem já tem uma reivindicação de propriedade em análise pelo AlgarveOfficial.",
-    "claimManagedTitle": "Gerido por representante oficial",
+    "claimBusinessDescription": "Reivindique esta listagem para atualizar informações, fotografias, contactos e visibilidade no AlgarveOfficial.",
+    "claimBusinessTitle": "É proprietário ou gere este negócio?",
     "claimManagedDescription": "Esta listagem é gerida por um representante empresarial aprovado.",
-    "tags": "Etiquetas",
-    "relatedListings": "Mais {{category}} para explorar",
-    "relatedDestinations": "Destinos relacionados",
-    "relatedDestinationsDescription": "Explore destinos próximos no Algarve com lugares e serviços curados.",
-    "backToListings": "Voltar às listagens",
+    "claimManagedTitle": "Gerido por representante oficial",
+    "claimThisListing": "Reivindicar esta listagem",
+    "claimUnderReviewDescription": "Esta listagem já tem uma reivindicação de propriedade em análise pelo AlgarveOfficial.",
+    "claimUnderReviewTitle": "Reivindicação de propriedade em análise",
+    "contact": "Contacto",
+    "contactForLocation": "Contacte para saber a localização",
+    "experience": "Experiência",
+    "exterior": "Exterior",
     "form": {
       "consent": "Aceito ser contactado sobre este imóvel",
       "email": "Endereço de email",
       "emailWarning": "A sua mensagem foi guardada, mas a notificação por email não pôde ser enviada. A equipa ainda pode vê-la na caixa de entrada.",
+      "errorToast": "Não foi possível enviar o pedido. Tente novamente.",
       "fullName": "Nome completo",
       "inboxWarning": "A sua mensagem foi recebida, mas a entrega na caixa de entrada administrativa precisa de ser configurada.",
       "inPerson": "Visita presencial",
@@ -2432,16 +2666,18 @@
       "phone": "Telefone",
       "selectVisitType": "Selecionar tipo de visita",
       "send": "Enviar pedido",
-      "telephone": "Telefone",
-      "videoCall": "Videochamada",
-      "errorToast": "Não foi possível enviar o pedido. Tente novamente.",
       "sending": "A enviar...",
-      "successToast": "O seu pedido foi enviado."
+      "successToast": "O seu pedido foi enviado.",
+      "telephone": "Telefone",
+      "videoCall": "Videochamada"
     },
+    "freehold": "Propriedade plena",
+    "golfFront": "Frente de golfe",
+    "handpickedSelection": "Seleção escolhida a dedo",
     "inquiry": {
       "back": "Voltar",
       "checkIn": "Check-in",
-      "checkOut": "Check-out",
+      "checkOut": "Confira",
       "checkOutAfterCheckIn": "O check-out deve ser depois do check-in.",
       "continue": "Continuar",
       "defaultMessage": "Gostaria de receber mais informações sobre esta listagem.",
@@ -2468,49 +2704,53 @@
       "title": "Pedir informações sobre {{name}}",
       "yourName": "O seu nome"
     },
-    "social": {
-      "instagram": "Instagram",
-      "facebook": "Facebook",
-      "googleBusiness": "Google Business",
-      "telegram": "Telegram",
-      "whatsapp": "WhatsApp"
-    },
-    "trust": {
-      "verifiedTitle": "Verificado pela AlgarveOfficial",
-      "verifiedDescription": "Um sinal de confiança para negócios locais ativos e legítimos.",
-      "signatureTitle": "Signature Selection",
-      "signatureDescription": "Visibilidade premium de estilo editorial para negócios de destaque no Algarve."
-    },
-    "bedrooms": "Quartos",
-    "bathrooms": "Casas de banho",
-    "builtArea": "Área construída",
-    "contactForLocation": "Contacte para saber a localização",
-    "experience": "Experiência",
-    "exterior": "Exterior",
-    "freehold": "Propriedade plena",
-    "golfFront": "Frente de golfe",
-    "handpickedSelection": "Seleção escolhida a dedo",
+    "isYourBusiness": "Este negócio é seu?",
     "location": "Localização",
     "locationHidden": "Localização exata oculta",
+    "locationUnavailable": "Localização indisponível",
+    "messageWhatsApp": "Mensagem no WhatsApp",
+    "notFound": "Listagem não encontrada",
+    "notFoundMessage": "Esta listagem está indisponível ou ainda não foi publicada.",
     "price": "Preço",
     "priceOnRequest": "Preço sob consulta",
-    "similarListings": "Imóveis semelhantes",
-    "verifiedDocuments": "Documentos verificados",
-    "verifiedPartner": "Parceiro verificado",
+    "relatedDestinations": "Destinos relacionados",
+    "relatedDestinationsDescription": "Explore destinos próximos no Algarve com lugares e serviços curados.",
+    "relatedListings": "Mais {{category}} para explorar",
     "reviews": {
-      "errorRating": "Escolha uma classificação.",
-      "errorTitle": "Adicione um título à avaliação.",
-      "errorContent": "Escreva a sua avaliação.",
-      "success": "Obrigado. A sua avaliação foi enviada.",
-      "write": "Escrever avaliação",
-      "rating": "Classificação",
-      "title": "Título",
-      "titlePlaceholder": "Resuma a sua experiência",
       "content": "Avaliação",
       "contentPlaceholder": "Partilhe o que mais se destacou na sua visita...",
+      "errorContent": "Escreva a sua avaliação.",
+      "errorRating": "Escolha uma classificação.",
+      "errorTitle": "Adicione um título à avaliação.",
+      "rating": "Classificação",
+      "submit": "Enviar avaliação",
       "submitting": "A enviar...",
-      "submit": "Enviar avaliação"
-    }
+      "success": "Obrigado. A sua avaliação foi enviada.",
+      "title": "Título",
+      "titlePlaceholder": "Resuma a sua experiência",
+      "write": "Escrever avaliação"
+    },
+    "saveToFavorites": "Guardar nos favoritos",
+    "share": "Partilhar",
+    "similarListings": "Imóveis semelhantes",
+    "social": {
+      "facebook": "Facebook",
+      "googleBusiness": "Negócios Google",
+      "instagram": "Instagram",
+      "telegram": "Telegrama",
+      "whatsapp": "WhatsApp"
+    },
+    "tags": "Etiquetas",
+    "trust": {
+      "signatureDescription": "Visibilidade premium de estilo editorial para negócios de destaque no Algarve.",
+      "signatureTitle": "Seleção de Assinatura",
+      "verifiedDescription": "Um sinal de confiança para negócios locais ativos e legítimos.",
+      "verifiedTitle": "Verificado pela AlgarveOfficial"
+    },
+    "verifiedDocuments": "Documentos verificados",
+    "verifiedPartner": "Parceiro verificado",
+    "viewGallery": "Ver galeria",
+    "visitWebsite": "Visitar website"
   },
   "live": {
     "allActiveCityHubs": "Todos os centros urbanos ativos",
@@ -2578,6 +2818,7 @@
         "school": "Faça uma shortlist de escolas e confirme admissões, propinas e deslocações diretamente com cada escola.",
         "service": "Priorize questões de saúde, mobilidade e serviços diários fiáveis."
       },
+      "disclaimer": "Este planeador oferece orientação geral. Não substitui aconselhamento profissional jurídico, fiscal, de imigração, financeiro, médico, escolar ou imobiliário.",
       "focus": {
         "coastal": "Lagos, Tavira e bolsas costeiras seleccionadas equilibrando acesso, calma e conveniência.",
         "family": "Almancil, Vilamoura e zonas de Lagos com rotinas familiares, questões escolares e serviços anuais para comparar.",
@@ -2615,9 +2856,9 @@
         "priority": "Prioridade de Residência",
         "schooling": "Escolaridade",
         "timeline": "Cronograma",
-        "whyPriority": "Porquê: prazo e estratégia de habitação definem a sequência de preparação.",
+        "whyFirst90": "Porquê: os primeiros passos devem reduzir incertezas antes de compromissos longos.",
         "whyNeighborhood": "Porquê: estilo de vida e perfil familiar orientam a shortlist de zonas.",
-        "whyFirst90": "Porquê: os primeiros passos devem reduzir incertezas antes de compromissos longos."
+        "whyPriority": "Porquê: prazo e estratégia de habitação definem a sequência de preparação."
       },
       "residency": {
         "fast": "Para um prazo curto, prepare documentos e perguntas cedo para que profissionais qualificados confirmem o caminho adequado.",
@@ -2631,6 +2872,27 @@
         "yes": "Sim"
       },
       "schoolingLabel": "Precisa de Apoio Escolar?",
+      "services": {
+        "accommodation": {
+          "description": "Use estadias curtas enquanto testa zonas.",
+          "title": "Alojamento"
+        },
+        "concierge": {
+          "description": "Encontre categorias de apoio local para se instalar.",
+          "title": "Serviços concierge"
+        },
+        "description": "Estes links usam categorias ativas da AlgarveOfficial e não criam um lead até nos contactar.",
+        "label": "Links de serviços",
+        "properties": {
+          "description": "Compare opções imobiliárias e adequação de zonas.",
+          "title": "Imóveis"
+        },
+        "title": "Explore recursos relevantes da AlgarveOfficial",
+        "transport": {
+          "description": "Planeie aeroporto, carro e mobilidade.",
+          "title": "Transporte"
+        }
+      },
       "timeline": {
         "0_3": "0-3 meses",
         "12plus": "12+ meses",
@@ -2638,29 +2900,7 @@
         "6_12": "6-12 meses"
       },
       "timelineLabel": "Cronograma",
-      "title": "Construa o seu plano de mudança em menos de 2 minutos",
-      "disclaimer": "Este planeador oferece orientação geral. Não substitui aconselhamento profissional jurídico, fiscal, de imigração, financeiro, médico, escolar ou imobiliário.",
-      "services": {
-        "label": "Links de serviços",
-        "title": "Explore recursos relevantes da AlgarveOfficial",
-        "description": "Estes links usam categorias ativas da AlgarveOfficial e não criam um lead até nos contactar.",
-        "properties": {
-          "title": "Imóveis",
-          "description": "Compare opções imobiliárias e adequação de zonas."
-        },
-        "concierge": {
-          "title": "Serviços concierge",
-          "description": "Encontre categorias de apoio local para se instalar."
-        },
-        "transport": {
-          "title": "Transporte",
-          "description": "Planeie aeroporto, carro e mobilidade."
-        },
-        "accommodation": {
-          "title": "Alojamento",
-          "description": "Use estadias curtas enquanto testa zonas."
-        }
-      }
+      "title": "Construa o seu plano de mudança em menos de 2 minutos"
     },
     "roadmap": {
       "home": {
@@ -2678,13 +2918,13 @@
       },
       "title": "A sua mudança, dividida em passos práticos"
     },
+    "seoDescription": "Guias práticos, serviços de confiança e recursos locais selecionados para mudar para o Algarve com confiança.",
+    "seoTitle": "Mudança para o Algarve | Mudar, viver e instalar-se em Portugal",
     "stats": {
       "concierge": "Pedido guiado",
       "municipalities": "Municípios para Explorar",
       "sun": "Áreas de planeamento"
-    },
-    "seoTitle": "Mudança para o Algarve | Mudar, viver e instalar-se em Portugal",
-    "seoDescription": "Guias práticos, serviços de confiança e recursos locais selecionados para mudar para o Algarve com confiança."
+    }
   },
   "map": {
     "description": "Explore as listagens do Algarve num mapa interativo com marcadores agrupados e filtragem instantânea.",
@@ -2720,6 +2960,11 @@
         "label": "Explorar propriedades",
         "title": "Propriedades no Algarve"
       },
+      "relocation": {
+        "desc": "Guias práticos, serviços de confiança e recursos locais selecionados para mudar para o Algarve com confiança.",
+        "label": "Saiba mais",
+        "title": "Mudança para o Algarve"
+      },
       "stay": {
         "desc": "Os melhores lugares para ficar na região mais prestigiada de Portugal.",
         "label": "Explorar alojamentos",
@@ -2729,19 +2974,14 @@
         "desc": "Experiências de classe mundial ao longo da costa mais bonita da Europa.",
         "label": "Explorar tudo",
         "title": "Visite o Algarve"
-      },
-      "relocation": {
-        "desc": "Guias práticos, serviços de confiança e recursos locais selecionados para mudar para o Algarve com confiança.",
-        "label": "Saiba mais",
-        "title": "Mudança para o Algarve"
       }
     },
     "invest": "Investir",
     "live": "Mudança",
     "properties": "Propriedades",
+    "relocation": "Mudança",
     "stay": "Alojamento",
-    "visit": "Visitar",
-    "relocation": "Mudança"
+    "visit": "Visitar"
   },
   "nav": {
     "about": "Sobre Nós",
@@ -2767,8 +3007,6 @@
     "messages": "Mensagens",
     "mobilePrimary": "Navegação principal",
     "mobileScrollHint": "Deslize na horizontal para ver mais itens de navegação.",
-    "scrollNext": "Itens de navegação seguintes",
-    "scrollPrevious": "Itens de navegação anteriores",
     "myDashboard": "Meu Painel",
     "myTrip": "Minha Viagem",
     "openMenu": "Abrir menu",
@@ -2776,14 +3014,19 @@
     "privacy": "Política de Privacidade",
     "properties": "Propriedades",
     "regions": "Regiões",
+    "relocation": "Mudança",
     "saved": "Favoritos",
+    "scrollNext": "Itens de navegação seguintes",
+    "scrollPrevious": "Itens de navegação anteriores",
     "search": "Pesquisar",
     "signOut": "Sair",
     "stay": "Alojamento",
     "terms": "Termos de Serviço",
     "visit": "Visitar",
-    "yourSpace": "O Seu Espaço",
-    "relocation": "Mudança"
+    "yourSpace": "O Seu Espaço"
+  },
+  "navigation": {
+    "skipToContent": "Ir para o conteúdo principal"
   },
   "newsletter": {
     "alreadySubscribed": "Já está subscrito à nossa newsletter!",
@@ -2814,15 +3057,6 @@
     "title": "Acesso Exclusivo ao",
     "titleHighlight": "Algarve de Luxo",
     "welcomeMessage": "Bem-vindo ao AlgarveOfficial! Verifique a sua caixa de entrada em breve."
-  },
-  "weather": {
-    "faroDistrict": "Distrito de Faro",
-    "faroShort": "Faro",
-    "loading": "A carregar meteorologia de Faro",
-    "temperatureLabel": "Meteorologia em {{place}}: {{celsius}}°C / {{fahrenheit}}°F",
-    "unavailable": "Meteorologia indisponível",
-    "algarveRegion": "Algarve",
-    "algarveShort": "Algarve"
   },
   "notFound": {
     "backHome": "Voltar à página inicial",
@@ -2869,6 +3103,7 @@
       "viewPublicPage": "Ver Página Pública"
     },
     "media": {
+      "addUrl": "Adicionar URL",
       "chooseListing": "Escolher um anúncio",
       "clickToUpload": "Clique para carregar",
       "deleteFailed": "Falha ao eliminar",
@@ -2880,12 +3115,17 @@
       "gallery": "Galeria ({{count}} imagens)",
       "galleryDescription": "Arraste para reordenar. A primeira imagem é a imagem de destaque.",
       "galleryImage": "Imagem da galeria",
+      "imageAdded": "Imagem adicionada à galeria",
       "imageDeleted": "Imagem eliminada",
       "imagesUploaded": "{{count}} imagem(ns) carregada(s)",
       "noImages": "Ainda sem imagens",
       "orDragDrop": "ou arraste e largue",
+      "provideImageUrl": "Por favor, forneça primeiro um URL de imagem.",
+      "quickAdd": "Adição rápida: cole URL ou carregue uma imagem",
       "selectListing": "Selecionar Anúncio:",
       "subtitle": "Gerir imagens para os seus anúncios",
+      "tierLimit": "Este nível do anúncio suporta até {{max}} imagem(ns).",
+      "tierLimitPartialUpload": "Apenas {{count}} imagem(ns) carregada(s) devido ao limite do nível ({{max}}).",
       "tip1": "Use imagens de alta resolução (mínimo 1200px de largura)",
       "tip2": "Fotografe com boa iluminação, preferencialmente luz natural",
       "tip3": "Mostre diferentes ângulos e áreas do seu espaço",
@@ -2897,13 +3137,7 @@
       "uploadFailed": "Falha no carregamento",
       "uploadImages": "Carregar Imagens",
       "uploading": "A carregar...",
-      "uploadToStart": "Carregue imagens para começar",
-      "quickAdd": "Adição rápida: cole URL ou carregue uma imagem",
-      "addUrl": "Adicionar URL",
-      "provideImageUrl": "Por favor, forneça primeiro um URL de imagem.",
-      "tierLimit": "Este nível do anúncio suporta até {{max}} imagem(ns).",
-      "tierLimitPartialUpload": "Apenas {{count}} imagem(ns) carregada(s) devido ao limite do nível ({{max}}).",
-      "imageAdded": "Imagem adicionada à galeria"
+      "uploadToStart": "Carregue imagens para começar"
     },
     "membership": {
       "annual": "Anual",
@@ -3038,114 +3272,48 @@
       "title": "Suporte"
     }
   },
-  "claimBusinessSearch": {
-    "cantFindDescription": "Se o AlgarveOfficial ainda não tiver o seu negócio, inicie um novo pedido de listagem através do formulário de parceiros.",
-    "cantFindTitle": "Não encontra o seu negócio?",
-    "claimButton": "Reivindicar este negócio",
-    "description": "Pesquise a sua listagem existente, selecione o seu negócio e envie um pedido de reivindicação ligado a essa listagem.",
-    "emptyDescription": "Tente outro nome de negócio, cidade, categoria ou website. As reivindicações só podem ser enviadas para listagens existentes.",
-    "emptyTitle": "Nenhuma listagem encontrada",
-    "managedButton": "Gerido por representante oficial",
-    "newListingButton": "Pedir uma nova listagem",
-    "next": "Seguinte",
-    "page": "Página {{page}} de {{totalPages}}",
-    "pendingButton": "Reivindicação em análise",
-    "placeholder": "Pesquisar por nome do negócio, cidade, categoria ou website",
-    "previous": "Anterior",
-    "resultsSummary": "Resultados da pesquisa",
-    "resultsSummaryWithCount": "{{count}} listagens correspondentes",
-    "searchErrorDescription": "Não foi possível carregar as listagens correspondentes neste momento. Tente novamente dentro de instantes.",
-    "searchErrorTitle": "A pesquisa está temporariamente indisponível",
-    "searchButton": "Pesquisar",
-    "startDescription": "Pesquise por nome do negócio, cidade, categoria ou website para encontrar a listagem exata no AlgarveOfficial que pretende reivindicar.",
-    "startTitle": "Encontre a sua listagem existente",
-    "status": {
-      "claimed": "Gerido",
-      "pending": "Em análise",
-      "unclaimed": "Por reivindicar"
-    },
-    "title": "Encontre e reivindique o seu negócio no AlgarveOfficial",
-    "viewListing": "Ver listagem"
+  "pages": {
+    "relocation": {
+      "seoDescription": "Guias práticos, serviços de confiança e recursos locais selecionados para mudar para o Algarve com confiança.",
+      "seoTitle": "Mudança para o Algarve | Mudar, viver e instalar-se em Portugal",
+      "subtitle": "Guias práticos, serviços de confiança e recursos locais selecionados para mudar para o Algarve com confiança.",
+      "title": "Mudança para o Algarve"
+    }
   },
-  "claimBusinessForm": {
-    "claimingListing": "Está a reivindicar esta listagem.",
-    "companyWebsite": "Website da empresa",
-    "confirmationBusiness": "Negócio",
-    "confirmationEyebrow": "Pedido recebido",
-    "confirmationNextStep": "A nossa equipa irá rever os sinais de propriedade e entrar em contacto se forem necessárias mais informações. A aprovação é manual e não é exigido pagamento nesta fase.",
-    "confirmationPrompt": "Confirme que esta é a listagem exata do AlgarveOfficial que pretende reivindicar.",
-    "confirmationReference": "Referência do pedido",
-    "confirmationStatus": "Estado",
-    "confirmationTier": "Plano selecionado",
-    "confirmationTitle": "O seu pedido de reivindicação foi recebido.",
-    "contactTitle": "Dados de contacto",
-    "description": "Confirme a listagem, indique a sua ligação ao negócio e envie um pedido de revisão manual de propriedade.",
-    "documentUploadNote": "O armazenamento de documentos ainda não está ativo neste fluxo público. Descreva o documento ou prova que pode fornecer e a equipa irá solicitá-lo se necessário.",
-    "fullName": "Nome completo",
-    "isThisYourBusiness": "Este é o seu negócio?",
-    "loginRequiredDescription": "Pode preencher o formulário agora, mas será encaminhado para iniciar sessão antes de submeter o pedido.",
-    "loginRequiredTitle": "É necessário iniciar sessão antes da submissão",
-    "message": "Mensagem",
-    "noSearchAgain": "Não, pesquisar novamente",
-    "paymentLaterNote": "Nenhum pagamento é cobrado agora. O checkout pago e a ativação da subscrição só acontecem em etapas posteriores, após aprovação.",
-    "phoneNumber": "Número de telefone",
-    "proofNotes": "Notas de prova",
-    "proofNotesPlaceholder": "Adicione domínio, telefone, website, perfil social, documento ou outros detalhes de propriedade para revisão manual.",
-    "publicListingLink": "Ver listagem pública",
-    "role": {
-      "agencyRepresentative": "Agência / Representante",
-      "employee": "Colaborador",
-      "generalManager": "Diretor-geral",
-      "marketingManager": "Responsável de marketing",
-      "other": "Outro",
-      "owner": "Proprietário"
-    },
-    "roleTitle": "Função do requerente",
-    "searchAgain": "Pesquisar novamente",
-    "selectedListingBadge": "Listagem selecionada",
-    "status": {
-      "pending": "Em revisão"
-    },
-    "submit": "Submeter pedido de reivindicação",
-    "submitError": "Não foi possível submeter este pedido neste momento. Verifique os dados e tente novamente.",
-    "submitErrorTitle": "Pedido não submetido",
-    "submitSuccess": "Pedido de reivindicação submetido.",
-    "submitting": "A submeter...",
-    "tier": {
-      "free": "Reivindicação gratuita",
-      "freeDescription": "Verifique a propriedade e solicite acesso básico à listagem.",
-      "signature": "Parceiro Signature",
-      "signatureDescription": "Interesse em parceria premium para aprovação e checkout futuros.",
-      "verified": "Negócio verificado",
-      "verifiedDescription": "Sinais de confiança reforçados e verificação do negócio após aprovação."
-    },
-    "tierTitle": "Seleção do plano",
-    "title": "Reivindicar esta listagem de negócio",
-    "unavailable": {
-      "claimedDescription": "Esta listagem já é gerida por um representante oficial. Contacte o AlgarveOfficial se considerar que isto está incorreto.",
-      "claimedTitle": "Esta listagem já foi reivindicada",
-      "pendingDescription": "Esta listagem já tem uma reivindicação de propriedade em análise. Aguarde pela conclusão da revisão atual.",
-      "pendingTitle": "Reivindicação de propriedade em análise"
-    },
-    "validation": {
-      "email": "Introduza um email profissional válido.",
-      "message": "Adicione pelo menos 10 caracteres a explicar a sua ligação ao negócio.",
-      "name": "Introduza o seu nome completo."
-    },
-    "verification": {
-      "businessEmailDomain": "Domínio de email do negócio",
-      "documentUpload": "Upload de documento",
-      "manualReview": "Revisão manual",
-      "officialSocialMedia": "Conta oficial de rede social",
-      "phoneVerification": "Verificação por telefone",
-      "websiteContactMatch": "Correspondência de contacto no website"
-    },
-    "verificationTitle": "Método de verificação",
-    "viewListing": "Ver listagem",
-    "workEmail": "Email profissional",
-    "yesContinue": "Sim, continuar"
+  "pagination": {
+    "goToNext": "Go to next page",
+    "goToPrevious": "Go to previous page",
+    "label": "pagination",
+    "morePages": "More pages"
   },
   "partner": {
+    "audience": {
+      "badge": "Público",
+      "items": {
+        "golf": {
+          "description": "Jogadores à procura de campos, resorts e lazer premium.",
+          "title": "Viajantes de golfe"
+        },
+        "lifestyle": {
+          "description": "Utilizadores exigentes que procuram qualidade, credibilidade e confiança local.",
+          "title": "Consumidores lifestyle premium"
+        },
+        "property": {
+          "description": "Públicos de elevada intenção a explorar zonas, serviços e estilo de vida.",
+          "title": "Compradores e investidores"
+        },
+        "residents": {
+          "description": "Pessoas a criar rotinas locais e a escolher serviços fiáveis.",
+          "title": "Residentes e pessoas em mudança"
+        },
+        "visitors": {
+          "description": "Viajantes que comparam lugares de confiança antes de chegar.",
+          "title": "Visitantes a planear viagens"
+        }
+      },
+      "subtitle": "A visibilidade de parceiro foi pensada para quem já pesquisa onde ficar, comer, jogar, mudar-se, investir e viver o Algarve.",
+      "title": "Alcance os públicos certos do Algarve"
+    },
     "benefits": {
       "contact": {
         "description": "Receba pedidos diretamente de clientes interessados através do nosso sistema de mensagens.",
@@ -3177,6 +3345,33 @@
       "q4": "Há algum custo para ser listado?",
       "title": "Perguntas Frequentes"
     },
+    "features": {
+      "basicProfile": "Perfil básico do negócio",
+      "ctaButton": "Botão de chamada à ação",
+      "directContact": "Contacto direto de viajantes",
+      "directoryListing": "Listagem no diretório",
+      "enhancedProfile": "Perfil de negócio melhorado",
+      "everythingVerified": "Tudo incluído em Verified",
+      "gallery10": "Galeria de fotos (até 10 imagens)",
+      "gallery20": "Galeria de fotos (até 20 imagens)",
+      "homepageAddOn": "Destaque na homepage como add-on",
+      "homepagePlacement": "Destaque na homepage",
+      "mapPriority": "Prioridade no mapa",
+      "mapVisibility": "Visibilidade no mapa",
+      "priorityVisibility": "Visibilidade prioritária",
+      "signatureEligibility": "Elegibilidade Signature Selection",
+      "socialLinks": "Links de redes sociais",
+      "socialMentions": "Menções nas redes sociais",
+      "verifiedTrustBadge": "Selo de confiança Verified",
+      "videoCommercial": "Vídeo comercial (até 1 min)",
+      "videoInterview": "Entrevista em vídeo (até 3 min)",
+      "whatsapp": "Integração WhatsApp"
+    },
+    "finalCta": {
+      "applyFree": "Reivindicar ou melhorar a listagem",
+      "buySubscription": "Ver opções de listagem",
+      "trustLine": "✓ No long-term contract · ✓ Cancel anytime · ✓ 2–3 day review"
+    },
     "form": {
       "businessName": "Nome do Negócio",
       "businessWebsite": "Website do Negócio (opcional)",
@@ -3185,133 +3380,79 @@
       "email": "Email",
       "error": "Algo correu mal. Por favor tente novamente.",
       "message": "Conte-nos sobre o seu negócio",
+      "messagePlaceholder": "Conte-nos sobre o seu negócio, localização, público e tipo de visibilidade pretendida.",
       "newListingOption": "Candidatura a Novo Anúncio",
       "phone": "Telefone (opcional)",
       "requestType": "Tipo de Pedido",
+      "responseTime": "Partilhe os seus dados e a nossa equipa responde em 2-3 dias úteis.",
       "selectType": "Selecionar tipo de pedido",
       "submit": "Submeter Pedido",
       "submitting": "A submeter...",
       "title": "Começar",
-      "validationError": "Por favor preencha todos os campos obrigatórios.",
-      "responseTime": "Partilhe os seus dados e a nossa equipa responde em 2-3 dias úteis.",
-      "messagePlaceholder": "Conte-nos sobre o seu negócio, localização, público e tipo de visibilidade pretendida."
+      "validationError": "Por favor preencha todos os campos obrigatórios."
+    },
+    "forWhom": {
+      "categories": {
+        "experiences": "Experiências e atividades",
+        "golf": "Golfe e lazer",
+        "hotels": "Hotéis e alojamento",
+        "realEstate": "Imobiliário e serviços",
+        "restaurants": "Restaurantes e gastronomia"
+      },
+      "subtitle": "A AlgarveOfficial não é um diretório massificado. Curamos operadores estabelecidos para que visitantes, residentes, golfistas, pessoas em mudança e compradores de imóveis descubram marcas locais de confiança.",
+      "title": "Criado para negócios premium no Algarve"
+    },
+    "hero": {
+      "applyForPartnership": "Pedir informação de parceiro",
+      "badge": "Partner Programme",
+      "trustLine": "Sem contrato longo · Revisão de qualidade · Visibilidade curada",
+      "viewPricing": "Ver opções de listagem"
+    },
+    "hubLinks": {
+      "links": {
+        "golf": "Público de golfe",
+        "map": "Descoberta no mapa",
+        "properties": "Público imobiliário e investidor",
+        "relocation": "Público de mudança"
+      },
+      "subtitle": "A visibilidade liga-se aos hubs públicos usados para explorar o Algarve.",
+      "title": "Onde os parceiros podem ser descobertos"
     },
     "newListing": {
       "cta": "Candidatar Agora",
       "description": "Registe o seu negócio para ser apresentado na nossa coleção curada de experiências de luxo.",
       "title": "Candidatar-se a Novo Anúncio"
     },
+    "placement": {
+      "badge": "Posicionamento",
+      "items": {
+        "curated": {
+          "description": "As áreas em destaque são curadas para manter valor e evitar excesso de anúncios.",
+          "title": "A visibilidade na homepage é limitada"
+        },
+        "relevance": {
+          "description": "A visibilidade depende de relevância, nível, qualidade do conteúdo e disponibilidade.",
+          "title": "Cidade e categoria dependem da relevância"
+        },
+        "standards": {
+          "description": "O destaque premium é sujeito a análise de imagens, descrição, localização, categoria e contactos.",
+          "title": "Os padrões de qualidade mantêm-se"
+        }
+      },
+      "subtitle": "Os níveis pagos reforçam confiança e elegibilidade para maior destaque, mantendo as áreas editoriais curadas e limitadas.",
+      "title": "Visibilidade curada, não publicidade excessiva"
+    },
     "subtitle": "Alcance visitantes, residentes e públicos de elevada intenção através de visibilidade curada e descoberta local de confiança.",
     "success": "Obrigado! O seu pedido foi submetido. Contactaremos dentro de 2-3 dias úteis.",
     "title": "Associe-se à AlgarveOfficial",
-    "hero": {
-      "badge": "Partner Programme",
-      "trustLine": "Sem contrato longo · Revisão de qualidade · Visibilidade curada",
-      "applyForPartnership": "Pedir informação de parceiro",
-      "viewPricing": "Ver opções de listagem"
-    },
-    "finalCta": {
-      "applyFree": "Reivindicar ou melhorar a listagem",
-      "buySubscription": "Ver opções de listagem",
-      "trustLine": "✓ No long-term contract · ✓ Cancel anytime · ✓ 2–3 day review"
-    },
-    "forWhom": {
-      "title": "Criado para negócios premium no Algarve",
-      "subtitle": "A AlgarveOfficial não é um diretório massificado. Curamos operadores estabelecidos para que visitantes, residentes, golfistas, pessoas em mudança e compradores de imóveis descubram marcas locais de confiança.",
-      "categories": {
-        "hotels": "Hotéis e alojamento",
-        "restaurants": "Restaurantes e gastronomia",
-        "experiences": "Experiências e atividades",
-        "golf": "Golfe e lazer",
-        "realEstate": "Imobiliário e serviços"
-      }
-    },
-    "audience": {
-      "badge": "Público",
-      "title": "Alcance os públicos certos do Algarve",
-      "subtitle": "A visibilidade de parceiro foi pensada para quem já pesquisa onde ficar, comer, jogar, mudar-se, investir e viver o Algarve.",
-      "items": {
-        "visitors": {
-          "title": "Visitantes a planear viagens",
-          "description": "Viajantes que comparam lugares de confiança antes de chegar."
-        },
-        "residents": {
-          "title": "Residentes e pessoas em mudança",
-          "description": "Pessoas a criar rotinas locais e a escolher serviços fiáveis."
-        },
-        "golf": {
-          "title": "Viajantes de golfe",
-          "description": "Jogadores à procura de campos, resorts e lazer premium."
-        },
-        "property": {
-          "title": "Compradores e investidores",
-          "description": "Públicos de elevada intenção a explorar zonas, serviços e estilo de vida."
-        },
-        "lifestyle": {
-          "title": "Consumidores lifestyle premium",
-          "description": "Utilizadores exigentes que procuram qualidade, credibilidade e confiança local."
-        }
-      }
-    },
-    "placement": {
-      "badge": "Posicionamento",
-      "title": "Visibilidade curada, não publicidade excessiva",
-      "subtitle": "Os níveis pagos reforçam confiança e elegibilidade para maior destaque, mantendo as áreas editoriais curadas e limitadas.",
-      "items": {
-        "curated": {
-          "title": "A visibilidade na homepage é limitada",
-          "description": "As áreas em destaque são curadas para manter valor e evitar excesso de anúncios."
-        },
-        "relevance": {
-          "title": "Cidade e categoria dependem da relevância",
-          "description": "A visibilidade depende de relevância, nível, qualidade do conteúdo e disponibilidade."
-        },
-        "standards": {
-          "title": "Os padrões de qualidade mantêm-se",
-          "description": "O destaque premium é sujeito a análise de imagens, descrição, localização, categoria e contactos."
-        }
-      }
-    },
     "trust": {
-      "title": "Padrões de confiança protegem a plataforma",
-      "subtitle": "A AlgarveOfficial vende visibilidade, credibilidade e descoberta qualificada. Não vende reservas, tráfego ou receita garantidos.",
       "points": {
-        "review": "As listagens podem ser revistas antes da aprovação para destaque premium.",
+        "noGuarantees": "O destaque pago depende de relevância, qualidade e disponibilidade.",
         "quality": "Negócios incompletos, irrelevantes ou de baixa qualidade podem ser recusados.",
-        "noGuarantees": "O destaque pago depende de relevância, qualidade e disponibilidade."
-      }
-    },
-    "hubLinks": {
-      "title": "Onde os parceiros podem ser descobertos",
-      "subtitle": "A visibilidade liga-se aos hubs públicos usados para explorar o Algarve.",
-      "links": {
-        "golf": "Público de golfe",
-        "properties": "Público imobiliário e investidor",
-        "relocation": "Público de mudança",
-        "map": "Descoberta no mapa"
-      }
-    },
-    "features": {
-      "directoryListing": "Listagem no diretório",
-      "mapVisibility": "Visibilidade no mapa",
-      "basicProfile": "Perfil básico do negócio",
-      "verifiedTrustBadge": "Selo de confiança Verified",
-      "enhancedProfile": "Perfil de negócio melhorado",
-      "gallery10": "Galeria de fotos (até 10 imagens)",
-      "gallery20": "Galeria de fotos (até 20 imagens)",
-      "socialLinks": "Links de redes sociais",
-      "socialMentions": "Menções nas redes sociais",
-      "videoInterview": "Entrevista em vídeo (até 3 min)",
-      "videoCommercial": "Vídeo comercial (até 1 min)",
-      "directContact": "Contacto direto de viajantes",
-      "mapPriority": "Prioridade no mapa",
-      "ctaButton": "Botão de chamada à ação",
-      "signatureEligibility": "Elegibilidade Signature Selection",
-      "whatsapp": "Integração WhatsApp",
-      "priorityVisibility": "Visibilidade prioritária",
-      "homepagePlacement": "Destaque na homepage",
-      "homepageAddOn": "Destaque na homepage como add-on",
-      "everythingVerified": "Tudo incluído em Verified"
+        "review": "As listagens podem ser revistas antes da aprovação para destaque premium."
+      },
+      "subtitle": "A AlgarveOfficial vende visibilidade, credibilidade e descoberta qualificada. Não vende reservas, tráfego ou receita garantidos.",
+      "title": "Padrões de confiança protegem a plataforma"
     }
   },
   "pricing": {
@@ -3390,6 +3531,43 @@
     "unavailable": "Contate-nos",
     "unavailableNote": "Preços disponíveis mediante solicitação"
   },
+  "pricingCards": {
+    "annualDiscount": "Annual billing available at 20% discount.",
+    "applyAsSignature": "Candidatar-se a Signature",
+    "applyAsVerified": "Candidatar-se a Verified",
+    "available": "Limitado / Exclusivo",
+    "byInvitation": "By Invitation",
+    "byInvitationOnly": "By Invitation Only",
+    "contactUs": "Contact us",
+    "eligiblePartnersContacted": "Our team contacts eligible Verified partners directly.",
+    "homepagePlacementNote": "e a nossa equipa analisará o add-on de posicionamento certo para a sua categoria.",
+    "interestedInSignature": "Interested in Signature?",
+    "mentionInApplication": "Mention it in your Verified application",
+    "noLongTermContract": "No long-term contract · Cancel anytime",
+    "notReady": "Not ready to commit?",
+    "perMonth": "/month",
+    "recommended": "Não perca",
+    "reviewEligibilityNote": "— we review all partners for eligibility.",
+    "signatureAvailableNote": "Signature está disponível para listagens premium qualificadas e sujeito a padrões de qualidade.",
+    "signatureDescription": "Visibilidade premium de estilo editorial para negócios de destaque no Algarve, com elegibilidade para áreas curadas quando relevante.",
+    "signaturePartner": "Signature Partner",
+    "startFreeListing": "Start with a free basic listing",
+    "subtitle": "Transparent pricing. No hidden fees. Cancel anytime.",
+    "title": "Choose your partnership level",
+    "upgradeWhenReady": "and upgrade when ready.",
+    "verifiedDescription": "Um sinal de confiança para negócios locais ativos e legítimos que querem credibilidade e maior presença.",
+    "verifiedPartner": "Verified Partner",
+    "wantHomepagePlacement": "Need homepage featured placement as an add-on?"
+  },
+  "pricingFeatures": {
+    "addOn": "Add-on",
+    "apply": "Candidatura",
+    "basic": "Basic",
+    "contact": "Contact",
+    "feature": "Feature",
+    "subtitle": "Compare features across all three partnership levels.",
+    "title": "What's included in each tier"
+  },
   "realEstate": {
     "addListing": "Adicionar listagem de imóveis",
     "addListingNoteAdmin": "Você abrirá o formulário de listagem de administrador diretamente.",
@@ -3406,7 +3584,32 @@
     "clearFilters": "Limpar todos os filtros",
     "conciergeButton": "Contate o concierge",
     "conciergeDescription": "Nossa equipe de concierge pode obter oportunidades privadas não mostradas no diretório público.",
+    "conciergeDialog": {
+      "description": "Let us help you find your dream property or experience in the Algarve.",
+      "emailRequired": "Email *",
+      "inquiryTitle": "Concierge Service Inquiry",
+      "inquiryTypes": {
+        "buy": "Buying a Property",
+        "invest": "Investment Opportunity",
+        "other": "Other Inquiry",
+        "rent": "Premium Rental",
+        "sell": "Selling a Property"
+      },
+      "interestedIn": "I am interested in...",
+      "messagePlaceholder": "Tell us about your requirements (location, budget, style)...",
+      "messageRequired": "Message *",
+      "nameRequired": "Name *",
+      "networkError": "Unable to reach our server right now. Please try again in a moment.",
+      "requestSentDescription": "Our concierge team will contact you shortly. Ref: {{referenceNumber}}",
+      "requestSentTitle": "Request Sent Successfully",
+      "selectInterest": "Select interest",
+      "sendingRequest": "Sending Request...",
+      "sendRequest": "Send Request",
+      "sendRequestError": "Failed to send request. Please try again.",
+      "title": "Concierge Service"
+    },
     "conciergeTitle": "Precisa de propriedades fora do mercado?",
+    "emptyRefinedSearch": "Nenhuma propriedade corresponde à sua pesquisa refinada",
     "emptyState": "Nenhuma propriedade corresponde aos seus filtros.",
     "exploreAlgarveCities": "Explore as cidades Algarve",
     "featuredCityHub": "Centro da cidade em destaque",
@@ -3419,6 +3622,7 @@
     },
     "listingsCount": "Listagens {{count}}",
     "loadError": "Falha ao carregar listagens de imóveis.",
+    "pageTitle": "Propriedades no Algarve",
     "propertiesAvailable": "Propriedades Disponíveis",
     "searchAssistance": {
       "cta": "Contactar Concierge",
@@ -3426,33 +3630,7 @@
       "title": "Ajuda na Pesquisa"
     },
     "sortedByFeatured": "Ordenado por: Destaque",
-    "title": "Diretório Imobiliário",
-    "conciergeDialog": {
-      "title": "Concierge Service",
-      "description": "Let us help you find your dream property or experience in the Algarve.",
-      "interestedIn": "I am interested in...",
-      "selectInterest": "Select interest",
-      "nameRequired": "Name *",
-      "emailRequired": "Email *",
-      "messageRequired": "Message *",
-      "messagePlaceholder": "Tell us about your requirements (location, budget, style)...",
-      "sendRequest": "Send Request",
-      "sendingRequest": "Sending Request...",
-      "inquiryTitle": "Concierge Service Inquiry",
-      "requestSentTitle": "Request Sent Successfully",
-      "requestSentDescription": "Our concierge team will contact you shortly. Ref: {{referenceNumber}}",
-      "sendRequestError": "Failed to send request. Please try again.",
-      "networkError": "Unable to reach our server right now. Please try again in a moment.",
-      "inquiryTypes": {
-        "buy": "Buying a Property",
-        "sell": "Selling a Property",
-        "rent": "Premium Rental",
-        "invest": "Investment Opportunity",
-        "other": "Other Inquiry"
-      }
-    },
-    "pageTitle": "Propriedades no Algarve",
-    "emptyRefinedSearch": "Nenhuma propriedade corresponde à sua pesquisa refinada"
+    "title": "Diretório Imobiliário"
   },
   "reviews": {
     "anonymousUser": "Visitante",
@@ -3465,13 +3643,18 @@
     "editReview": "Edite seu comentário",
     "error": "Falha ao enviar avaliação. Por favor, tente novamente.",
     "helpful": "Útil",
+    "mostHelpful": "Most Helpful",
+    "mostRecent": "Most Recent",
     "noReviews": "Ainda não há comentários. Seja o primeiro a compartilhar sua experiência.",
     "pendingApproval": "Revisão enviada para aprovação.",
     "pendingDescription": "Sua avaliação está aguardando aprovação do administrador antes de aparecer publicamente.",
     "photos": "Fotos",
+    "ratingsTitle": "Reviews & Ratings",
     "rejectedDescription": "Sua avaliação precisa de alterações antes de ser publicada.",
     "selectRating": "Selecione uma classificação",
     "showAll": "Mostrar Tudo",
+    "showLess": "Show Less",
+    "sortBy": "Sort by",
     "statusApproved": "Publicado",
     "statusPending": "Aprovação pendente",
     "statusRejected": "Precisa de mudanças",
@@ -3481,28 +3664,23 @@
     "updated": "Revisão atualizada",
     "verifiedStay": "Estadia Verificada",
     "writeReview": "Escrever Avaliação",
-    "yourReviewStatus": "Sua avaliação",
-    "ratingsTitle": "Reviews & Ratings",
-    "sortBy": "Sort by",
-    "mostRecent": "Most Recent",
-    "mostHelpful": "Most Helpful",
-    "showLess": "Show Less"
+    "yourReviewStatus": "Sua avaliação"
   },
   "search": {
     "browseAll": "Ver Todos os Anúncios",
     "clear": "Limpar",
+    "close": "Close",
     "exploreRegions": "Explorar Regiões",
+    "investmentInsights": "Investment Insights",
+    "navigate": "Navigate",
     "noResults": "Nenhum resultado encontrado.",
     "noResultsHint": "Tente pesquisar outra coisa.",
+    "openMapExplorer": "Open Map Explorer",
     "placeholder": "Pesquisar anúncios, categorias, cidades, regiões...",
     "quickLinks": "Links Rápidos",
     "recent": "Pesquisas Recentes",
     "results": "Search Results",
-    "openMapExplorer": "Open Map Explorer",
-    "investmentInsights": "Investment Insights",
-    "navigate": "Navigate",
-    "select": "Select",
-    "close": "Close"
+    "select": "Select"
   },
   "sections": {
     "algarveGuide": {
@@ -3581,6 +3759,189 @@
       "subtitle": "Festivais, mercados e destaques sazonais na deslumbrante costa sul de Portugal.",
       "title": "Eventos e Época"
     },
+    "homepage": {
+      "categories": {
+        "intro": "Descubra estadias, restaurantes, golfe, imobiliário, eventos e experiências locais selecionadas.",
+        "title": "Explore o Algarve"
+      },
+      "cities": {
+        "allSubtitle": "Compare cidades e vilas do Algarve por localização, ambiente e lugares selecionados nas proximidades.",
+        "allTitle": "Todas as cidades",
+        "browseTitle": "Explorar por cidade",
+        "label": "Cidades",
+        "subtitle": "Explore o Algarve por cidade, de Lagos a Tavira, incluindo praias, restaurantes e experiências premium.",
+        "title": "Explorar o Algarve por cidade",
+        "viewAll": "Ver todas as cidades"
+      },
+      "cityDescriptions": {
+        "loule": "Cidade histórica do interior, com mercados, tradição artesanal e acesso fácil ao centro do Algarve.",
+        "porches": "Freguesia costeira tranquila, conhecida pela cerâmica, estadias sobre as falésias e enseadas próximas."
+      },
+      "common": {
+        "algarve": "Algarve",
+        "explore": "Explorar",
+        "listingCount": "{{count}} listagens",
+        "removeFromSaved": "Remover dos guardados",
+        "saveListing": "Guardar listagem"
+      },
+      "cta": {
+        "businessText": "Liste o seu negócio no AlgarveOfficial.",
+        "businessTitle": "Para negócios",
+        "emptyStats": "Lugares selecionados no Algarve.",
+        "label": "Junte-se à comunidade",
+        "primaryButton": "Explorar lugares",
+        "secondaryButton": "Listar o seu negócio",
+        "stats": "Mais de {{count}} listagens selecionadas no Algarve",
+        "subtitle": "Escolha o próximo lugar a visitar ou traga o seu negócio premium para uma plataforma criada para descoberta.",
+        "title": "Junte-se à plataforma AlgarveOfficial",
+        "visitorText": "Descubra lugares selecionados em todo o Algarve.",
+        "visitorTitle": "Para visitantes"
+      },
+      "curatedExcellence": {
+        "badge": "Seleção Signature",
+        "subtitle": "Propriedades e experiências Signature escolhidas a dedo para quem procura algo extraordinário.",
+        "title": "Seleção Signature",
+        "viewDetails": "Ver detalhes"
+      },
+      "directory": {
+        "cta": "Ver todas as listagens",
+        "label": "Diretório completo",
+        "subtitle": "Procura mais opções? Explore mais de 1.000 lugares em todo o Algarve.",
+        "title": "Ver todas as listagens no Algarve"
+      },
+      "editorsSelection": {
+        "badge": "Escolhas do editor",
+        "cta": "Ver toda a coleção",
+        "ctaMobile": "Ver coleção completa",
+        "emptySubtitle": "Explore o diretório completo do Algarve enquanto a coleção editorial é atualizada.",
+        "emptyTitle": "As listagens selecionadas estão a ser preparadas.",
+        "subtitle": "Lugares e propriedades escolhidos a dedo que representam o melhor do Algarve.",
+        "title": "Seleção do editor",
+        "titleAlt": "Coleção Signature"
+      },
+      "hero": {
+        "enableMediaCookies": "Ativar cookies de multimédia",
+        "label": "Selecionado para si",
+        "primaryCta": "Explorar lugares selecionados",
+        "proof": {
+          "curated": "Selecionado por locais",
+          "intent": "Para visitantes e investidores",
+          "verified": "Verificado e fiável"
+        },
+        "scroll": "Descer para a coleção Signature",
+        "secondaryCta": "Criar a minha viagem ao Algarve",
+        "subtitle": "Hotéis, restaurantes, experiências, golfe e imobiliário numa só plataforma.",
+        "titleHighlight": "Selecionado",
+        "titleLead": "O Algarve",
+        "videoTitle": "Vídeo de fundo do herói AlgarveOfficial"
+      },
+      "mapGateway": {
+        "ariaLabel": "Abrir mapa interativo do Algarve",
+        "cta": "Abrir mapa interativo",
+        "eyebrow": "Explorar no mapa",
+        "illustrationLabel": "Pré-visualização abstrata de localizações no Algarve",
+        "labels": {
+          "albufeira": "Albufeira",
+          "lagos": "Lagos",
+          "tavira": "Tavira",
+          "vilamoura": "Vilamoura"
+        },
+        "subtitle": "Encontre lugares selecionados por cidade, região, categoria e interesse — de estadias costeiras a golfe, restaurantes e imobiliário.",
+        "title": "Pesquisar o Algarve por localização"
+      },
+      "quickLinks": {
+        "items": {
+          "eatDrink": {
+            "title": "Comer e beber"
+          },
+          "events": {
+            "title": "Eventos"
+          },
+          "golf": {
+            "title": "Golfe"
+          },
+          "realEstate": {
+            "title": "Imobiliário"
+          },
+          "stay": {
+            "title": "Estadia"
+          },
+          "thingsToDo": {
+            "title": "Coisas para fazer"
+          }
+        }
+      },
+      "regions": {
+        "helpers": {
+          "carvoeiro-cliffs": "Carvoeiro, Ferragudo, Lagoa",
+          "golden-triangle": "Quinta do Lago, Vale do Lobo, Almancil",
+          "lagos-signature": "Lagos, Ponta da Piedade, praias do oeste",
+          "monchique-retreats": "Monchique, serra e refúgios rurais",
+          "tavira-heritage": "Tavira, Santa Luzia, Algarve oriental",
+          "vilamoura-prestige": "Vilamoura, marina, golfe e zonas de resort"
+        },
+        "label": "Destinos",
+        "subtitle": "Descubra lugares excecionais em todo o Algarve, das praias douradas às aldeias do interior.",
+        "title": "Explorar por região",
+        "viewAll": "Ver todas as regiões"
+      },
+      "signatureMap": {
+        "cta": "Abrir mapa interativo",
+        "label": "Explorar no mapa",
+        "labels": {
+          "albufeira": "Albufeira",
+          "lagos": "Lagos",
+          "tavira": "Tavira",
+          "vilamoura": "Vilamoura"
+        },
+        "subtitle": "Explore lugares no Algarve por cidade, categoria e região.",
+        "title": "Pesquisar o Algarve por localização"
+      },
+      "smartSearch": {
+        "cities": {
+          "albufeira": "Albufeira",
+          "carvoeiro": "Carvoeiro",
+          "lagos": "Lagos",
+          "quintaDoLago": "Quinta do Lago",
+          "tavira": "Tavira",
+          "vilamoura": "Vilamoura"
+        },
+        "cityLabel": "Ligações para cidades populares",
+        "cta": "Pesquisar no diretório",
+        "intentLabel": "Explorar por intenção",
+        "intents": {
+          "eatDrink": "Comer e beber",
+          "events": "Eventos",
+          "golf": "Golfe",
+          "realEstate": "Imobiliário",
+          "stay": "Estadia",
+          "thingsToDo": "Coisas para fazer"
+        },
+        "label": "Planeie mais depressa",
+        "popularCities": "Cidades populares",
+        "subtitle": "Escolha uma intenção, uma cidade ou entre diretamente no diretório completo.",
+        "title": "O que procura no Algarve?"
+      },
+      "trustSection": {
+        "items": {
+          "comprehensive": {
+            "description": "Uma plataforma para visitantes, residentes, proprietários e investidores.",
+            "title": "Ficar, jantar, explorar, investir"
+          },
+          "curated": {
+            "description": "Lugares, propriedades e experiências de qualidade em todo o Algarve.",
+            "title": "Seleção premium curada"
+          },
+          "verified": {
+            "description": "Descoberta guiada pelo lugar e pelo contexto, não por ruído de diretório.",
+            "title": "Conhecimento local, listagens verificadas"
+          }
+        },
+        "label": "Porquê AlgarveOfficial",
+        "subtitle": "Lugares, propriedades e experiências de qualidade em todo o Algarve.",
+        "title": "Seleção para descobrir com confiança"
+      }
+    },
     "listings": {
       "allCategories": "Todas as Categorias",
       "allCities": "Todas as Cidades",
@@ -3632,187 +3993,70 @@
       "subtitle": "Experiências assinatura selecionadas a dedo",
       "subtitleCustom": "Experiências exclusivas escolhidas a dedo no Algarve.",
       "title": "Seleção Signature"
+    }
+  },
+  "serverPages": {
+    "blog": {
+      "badge": "Blog AlgarveOfficial",
+      "emptyDescription": "As histórias publicadas do AlgarveOfficial vão aparecer aqui.",
+      "emptyTitle": "Ainda não há artigos publicados",
+      "minRead": "min de leitura",
+      "postsAria": "Artigos publicados do blog"
     },
-    "homepage": {
-      "hero": {
-        "label": "Selecionado para si",
-        "titleLead": "O Algarve",
-        "titleHighlight": "Selecionado",
-        "subtitle": "Hotéis, restaurantes, experiências, golfe e imobiliário numa só plataforma.",
-        "primaryCta": "Explorar lugares selecionados",
-        "secondaryCta": "Criar a minha viagem ao Algarve",
-        "enableMediaCookies": "Ativar cookies de multimédia",
-        "videoTitle": "Vídeo de fundo do herói AlgarveOfficial",
-        "scroll": "Descer para a coleção Signature",
-        "proof": {
-          "curated": "Selecionado por locais",
-          "verified": "Verificado e fiável",
-          "intent": "Para visitantes e investidores"
-        }
-      },
-      "editorsSelection": {
-        "badge": "Escolhas do editor",
-        "title": "Seleção do editor",
-        "titleAlt": "Coleção Signature",
-        "subtitle": "Lugares e propriedades escolhidos a dedo que representam o melhor do Algarve.",
-        "cta": "Ver toda a coleção",
-        "ctaMobile": "Ver coleção completa",
-        "emptyTitle": "As listagens selecionadas estão a ser preparadas.",
-        "emptySubtitle": "Explore o diretório completo do Algarve enquanto a coleção editorial é atualizada."
-      },
-      "trustSection": {
-        "label": "Porquê AlgarveOfficial",
-        "title": "Seleção para descobrir com confiança",
-        "subtitle": "Lugares, propriedades e experiências de qualidade em todo o Algarve.",
-        "items": {
-          "curated": {
-            "title": "Seleção premium curada",
-            "description": "Lugares, propriedades e experiências de qualidade em todo o Algarve."
-          },
-          "verified": {
-            "title": "Conhecimento local, listagens verificadas",
-            "description": "Descoberta guiada pelo lugar e pelo contexto, não por ruído de diretório."
-          },
-          "comprehensive": {
-            "title": "Ficar, jantar, explorar, investir",
-            "description": "Uma plataforma para visitantes, residentes, proprietários e investidores."
-          }
-        }
-      },
-      "categories": {
-        "title": "Explore o Algarve",
-        "intro": "Descubra estadias, restaurantes, golfe, imobiliário, eventos e experiências locais selecionadas."
-      },
-      "cities": {
-        "label": "Cidades",
-        "title": "Explorar o Algarve por cidade",
-        "subtitle": "Explore o Algarve por cidade, de Lagos a Tavira, incluindo praias, restaurantes e experiências premium.",
-        "allTitle": "Todas as cidades",
-        "allSubtitle": "Compare cidades e vilas do Algarve por localização, ambiente e lugares selecionados nas proximidades.",
-        "viewAll": "Ver todas as cidades",
-        "browseTitle": "Explorar por cidade"
-      },
-      "regions": {
-        "label": "Destinos",
-        "title": "Explorar por região",
-        "subtitle": "Descubra lugares excecionais em todo o Algarve, das praias douradas às aldeias do interior.",
-        "viewAll": "Ver todas as regiões",
-        "helpers": {
-          "golden-triangle": "Quinta do Lago, Vale do Lobo, Almancil",
-          "vilamoura-prestige": "Vilamoura, marina, golfe e zonas de resort",
-          "carvoeiro-cliffs": "Carvoeiro, Ferragudo, Lagoa",
-          "lagos-signature": "Lagos, Ponta da Piedade, praias do oeste",
-          "tavira-heritage": "Tavira, Santa Luzia, Algarve oriental",
-          "monchique-retreats": "Monchique, serra e refúgios rurais"
-        }
-      },
-      "directory": {
-        "label": "Diretório completo",
-        "title": "Ver todas as listagens no Algarve",
-        "subtitle": "Procura mais opções? Explore mais de 1.000 lugares em todo o Algarve.",
-        "cta": "Ver todas as listagens"
-      },
-      "signatureMap": {
-        "label": "Explorar no mapa",
-        "title": "Pesquisar o Algarve por localização",
-        "subtitle": "Explore lugares no Algarve por cidade, categoria e região.",
-        "cta": "Abrir mapa interativo",
-        "labels": {
-          "lagos": "Lagos",
-          "albufeira": "Albufeira",
-          "vilamoura": "Vilamoura",
-          "tavira": "Tavira"
-        }
-      },
-      "curatedExcellence": {
-        "badge": "Seleção Signature",
-        "title": "Seleção Signature",
-        "subtitle": "Propriedades e experiências Signature escolhidas a dedo para quem procura algo extraordinário.",
-        "viewDetails": "Ver detalhes"
-      },
-      "cta": {
-        "label": "Junte-se à comunidade",
-        "title": "Junte-se à plataforma AlgarveOfficial",
-        "subtitle": "Escolha o próximo lugar a visitar ou traga o seu negócio premium para uma plataforma criada para descoberta.",
-        "primaryButton": "Explorar lugares",
-        "secondaryButton": "Listar o seu negócio",
-        "stats": "Mais de {{count}} listagens selecionadas no Algarve",
-        "emptyStats": "Lugares selecionados no Algarve.",
-        "visitorTitle": "Para visitantes",
-        "visitorText": "Descubra lugares selecionados em todo o Algarve.",
-        "businessTitle": "Para negócios",
-        "businessText": "Liste o seu negócio no AlgarveOfficial."
-      },
-      "common": {
-        "algarve": "Algarve",
-        "explore": "Explorar",
-        "listingCount": "{{count}} listagens",
-        "saveListing": "Guardar listagem",
-        "removeFromSaved": "Remover dos guardados"
-      },
-      "cityDescriptions": {
-        "loule": "Cidade histórica do interior, com mercados, tradição artesanal e acesso fácil ao centro do Algarve.",
-        "porches": "Freguesia costeira tranquila, conhecida pela cerâmica, estadias sobre as falésias e enseadas próximas."
-      },
-      "smartSearch": {
-        "label": "Planeie mais depressa",
-        "title": "O que procura no Algarve?",
-        "subtitle": "Escolha uma intenção, uma cidade ou entre diretamente no diretório completo.",
-        "intentLabel": "Explorar por intenção",
-        "cityLabel": "Ligações para cidades populares",
-        "popularCities": "Cidades populares",
-        "cta": "Pesquisar no diretório",
-        "intents": {
-          "stay": "Estadia",
-          "eatDrink": "Comer e beber",
-          "thingsToDo": "Coisas para fazer",
-          "golf": "Golfe",
-          "realEstate": "Imobiliário",
-          "events": "Eventos"
+    "common": {
+      "algarve": "Algarve"
+    },
+    "events": {
+      "badge": "Eventos no Algarve",
+      "emptyDescription": "Os próximos eventos publicados vão aparecer aqui quando estiverem disponíveis.",
+      "emptyTitle": "Ainda não há eventos publicados futuros",
+      "eventsAria": "Próximos eventos publicados"
+    },
+    "map": {
+      "badge": "Mapa do Algarve",
+      "cityCount": "{{count}} cidades",
+      "description": "Veja listagens publicadas do AlgarveOfficial com coordenadas verificadas. O mapa interativo carrega após o JavaScript; esta lista continua disponível para motores de pesquisa e visitantes sem scripts.",
+      "emptyDescription": "As listagens publicadas sem coordenadas continuam disponíveis no diretório.",
+      "emptyTitle": "Não há listagens no mapa disponíveis",
+      "listingsAria": "Listagens no mapa",
+      "mappedCount": "{{count}} no mapa",
+      "openDirectory": "Abrir o diretório",
+      "publishedCount": "{{count}} resultados publicados",
+      "title": "Explore listagens do Algarve no mapa"
+    },
+    "properties": {
+      "badge": "AlgarveOfficial",
+      "emptyDescription": "As listagens de propriedades aparecerão aqui assim que forem publicadas.",
+      "emptyTitle": "Não há propriedades publicadas disponíveis",
+      "listingsAria": "Listagens de propriedades publicadas"
+    },
+    "realEstate": {
+      "badge": "Diretório imobiliário",
+      "browseProperties": "Explorar propriedades",
+      "emptyDescription": "As listagens de propriedades publicadas vão aparecer aqui quando estiverem disponíveis.",
+      "emptyTitle": "Não há listagens imobiliárias publicadas disponíveis",
+      "listingsAria": "Listagens imobiliárias publicadas",
+      "openMap": "Abrir mapa"
+    },
+    "relocation": {
+      "badge": "Mudança",
+      "basesTitle": "Explorar bases no Algarve",
+      "emptyCities": "Os guias de cidades aparecerão aqui quando os dados de destinos estiverem disponíveis.",
+      "primaryCta": "Falar com a AlgarveOfficial",
+      "roadmapAria": "Roteiro de mudança",
+      "secondaryCta": "Explorar propriedades",
+      "steps": {
+        "base": {
+          "description": "Compare cidades algarvias, estilos de vida costeiros, escolas, serviços e ligações de transporte.",
+          "title": "Escolher uma base"
         },
-        "cities": {
-          "lagos": "Lagos",
-          "vilamoura": "Vilamoura",
-          "albufeira": "Albufeira",
-          "tavira": "Tavira",
-          "carvoeiro": "Carvoeiro",
-          "quintaDoLago": "Quinta do Lago"
-        }
-      },
-      "quickLinks": {
-        "items": {
-          "stay": {
-            "title": "Estadia"
-          },
-          "eatDrink": {
-            "title": "Comer e beber"
-          },
-          "thingsToDo": {
-            "title": "Coisas para fazer"
-          },
-          "golf": {
-            "title": "Golfe"
-          },
-          "realEstate": {
-            "title": "Imobiliário"
-          },
-          "events": {
-            "title": "Eventos"
-          }
-        }
-      },
-      "mapGateway": {
-        "eyebrow": "Explorar no mapa",
-        "title": "Pesquisar o Algarve por localização",
-        "subtitle": "Encontre lugares selecionados por cidade, região, categoria e interesse — de estadias costeiras a golfe, restaurantes e imobiliário.",
-        "cta": "Abrir mapa interativo",
-        "ariaLabel": "Abrir mapa interativo do Algarve",
-        "illustrationLabel": "Pré-visualização abstrata de localizações no Algarve",
-        "labels": {
-          "lagos": "Lagos",
-          "albufeira": "Albufeira",
-          "vilamoura": "Vilamoura",
-          "tavira": "Tavira"
+        "home": {
+          "description": "Ligue o plano de mudança à procura de propriedade, serviços de confiança e apoio local.",
+          "title": "Encontrar casa"
+        },
+        "residency": {
+          "description": "Compreenda documentos, prazos, saúde, impostos e passos práticos de chegada antes da mudança.",
+          "title": "Planear residência e documentação"
         }
       }
     }
@@ -3853,305 +4097,61 @@
       "name": "Verificado"
     }
   },
-  "pagination": {
-    "label": "pagination",
-    "goToPrevious": "Go to previous page",
-    "goToNext": "Go to next page",
-    "morePages": "More pages"
-  },
-  "pricingCards": {
-    "title": "Choose your partnership level",
-    "subtitle": "Transparent pricing. No hidden fees. Cancel anytime.",
-    "annualDiscount": "Annual billing available at 20% discount.",
-    "recommended": "Não perca",
-    "verifiedPartner": "Verified Partner",
-    "perMonth": "/month",
-    "verifiedDescription": "Um sinal de confiança para negócios locais ativos e legítimos que querem credibilidade e maior presença.",
-    "applyAsVerified": "Candidatar-se a Verified",
-    "noLongTermContract": "No long-term contract · Cancel anytime",
-    "byInvitation": "By Invitation",
-    "signaturePartner": "Signature Partner",
-    "signatureDescription": "Visibilidade premium de estilo editorial para negócios de destaque no Algarve, com elegibilidade para áreas curadas quando relevante.",
-    "byInvitationOnly": "By Invitation Only",
-    "eligiblePartnersContacted": "Our team contacts eligible Verified partners directly.",
-    "interestedInSignature": "Interested in Signature?",
-    "mentionInApplication": "Mention it in your Verified application",
-    "reviewEligibilityNote": "— we review all partners for eligibility.",
-    "notReady": "Not ready to commit?",
-    "startFreeListing": "Start with a free basic listing",
-    "upgradeWhenReady": "and upgrade when ready.",
-    "available": "Limitado / Exclusivo",
-    "applyAsSignature": "Candidatar-se a Signature",
-    "signatureAvailableNote": "Signature está disponível para listagens premium qualificadas e sujeito a padrões de qualidade.",
-    "wantHomepagePlacement": "Need homepage featured placement as an add-on?",
-    "contactUs": "Contact us",
-    "homepagePlacementNote": "e a nossa equipa analisará o add-on de posicionamento certo para a sua categoria."
-  },
   "user": {
     "tripPlanner": {
       "addToTrip": {
-        "button": "Add to Trip",
-        "title": "Add to Trip",
-        "description": "Add \"{{listingName}}\" to your itinerary",
-        "fillTripDetails": "Please fill in all trip details",
-        "tripCreated": "Trip created!",
-        "selectTripAndDate": "Please select a trip and date",
         "addedToTrip": "Added \"{{listingName}}\" to your trip!",
-        "viewTrip": "View Trip",
-        "selectTrip": "Select Trip",
+        "adding": "Adding...",
+        "button": "Add to Trip",
         "chooseTrip": "Choose a trip",
-        "noTrips": "No trips yet. Create one below.",
-        "newTripDetails": "New Trip Details",
         "date": "Date",
-        "selectDate": "Select a date",
-        "timeOptional": "Time (optional)",
+        "description": "Add \"{{listingName}}\" to your itinerary",
         "estimatedCostEuro": "Estimated Cost (€)",
+        "fillTripDetails": "Please fill in all trip details",
+        "newTripDetails": "New Trip Details",
         "notesOptional": "Notes (optional)",
         "notesPlaceholder": "Any notes for this activity...",
-        "adding": "Adding..."
-      },
-      "eventDialog": {
-        "editActivity": "Edit Activity",
-        "addActivity": "Add Activity",
-        "change": "Change",
-        "selectListing": "Select a Listing",
-        "searchListings": "Search listings...",
-        "myFavorites": "My Favorites",
-        "allListings": "All Listings",
-        "noFavorites": "No favorites yet. Try searching all listings.",
-        "noListingsFound": "No listings found.",
-        "date": "Date",
-        "timeSlot": "Time Slot",
-        "selectTime": "Select time",
-        "estimatedCostEuro": "Estimated Cost (€)",
-        "notes": "Notes",
-        "notesPlaceholder": "Add any notes or reminders..."
+        "noTrips": "No trips yet. Create one below.",
+        "selectDate": "Select a date",
+        "selectTrip": "Select Trip",
+        "selectTripAndDate": "Please select a trip and date",
+        "timeOptional": "Time (optional)",
+        "title": "Add to Trip",
+        "tripCreated": "Trip created!",
+        "viewTrip": "View Trip"
       },
       "createNewTrip": "Criar nova viagem",
-      "tripTitlePlaceholder": "Título da viagem",
-      "startDate": "Data de início",
-      "endDate": "Data de fim",
       "createTrip": "Criar viagem",
-      "saveChanges": "Guardar alterações"
-    }
-  },
-  "beachesPage": {
-    "heroTitle": "Praias no Algarve",
-    "heroDescription": "Descubra areais dourados, águas turquesa e clubes de praia premium selecionados para os visitantes do AlgarveOfficial."
-  },
-  "pricingFeatures": {
-    "title": "What's included in each tier",
-    "subtitle": "Compare features across all three partnership levels.",
-    "feature": "Feature",
-    "basic": "Basic",
-    "addOn": "Add-on",
-    "contact": "Contact",
-    "apply": "Candidatura"
-  },
-  "homepage": {
-    "editorsSelection": {
-      "badge": "Escolhas do editor",
-      "subtitle": "Lugares e propriedades escolhidos que representam o melhor do Algarve.",
-      "title": "Seleção do Editor",
-      "titleAlt": "Coleção Signature",
-      "cta": "Ver coleção completa",
-      "ctaMobile": "Ver coleção completa",
-      "emptyTitle": "Listas selecionadas estão sendo preparadas.",
-      "emptySubtitle": "Navegue pelo diretório completo do Algarve enquanto a coleção editorial é atualizada."
-    },
-    "trustSection": {
-      "label": "Porquê AlgarveOfficial",
-      "title": "Curado para descoberta segura",
-      "subtitle": "Lugares, propriedades e experiências de qualidade no Algarve.",
-      "items": {
-        "curated": {
-          "title": "Seleção premium.curada",
-          "description": "Lugares, propriedades e experiências de qualidade no Algarve."
-        },
-        "verified": {
-          "title": "Insights locais, anúncios verificados",
-          "description": "Descoberta guiada por lugar e contexto."
-        },
-        "comprehensive": {
-          "title": "Ficar, gastronizar, explorar, investir",
-          "description": "Uma plataforma para visitantes, residentes, proprietários e investidores."
-        }
-      }
-    },
-    "categories": {
-      "label": "O Que Oferecemos",
-      "title": "Categorias Premium",
-      "subtitle": "Navegue pelo diretório premium por categoria."
-    }
-  },
-  "navigation": {
-    "skipToContent": "Ir para o conteúdo principal"
-  },
-  "pages": {
-    "relocation": {
-      "title": "Mudança para o Algarve",
-      "subtitle": "Guias práticos, serviços de confiança e recursos locais selecionados para mudar para o Algarve com confiança.",
-      "seoTitle": "Mudança para o Algarve | Mudar, viver e instalar-se em Portugal",
-      "seoDescription": "Guias práticos, serviços de confiança e recursos locais selecionados para mudar para o Algarve com confiança."
-    }
-  },
-  "breadcrumbs": {
-    "relocation": "Mudança"
-  },
-  "golfCourse": {
-    "metaTitleFallback": "Campo de Golfe",
-    "metaDescriptionFallback": "Explore detalhes do campo, scorecard e localização.",
-    "locationFallback": "Algarve",
-    "regionFallback": "Algarve",
-    "holes": "Buracos",
-    "par": "Par",
-    "slope": "Slope",
-    "rating": "Course Rating",
-    "length": "Comprimento",
-    "designer": "Designer",
-    "meters": "m",
-    "overview": "Visão geral do campo",
-    "facilities": "Instalações",
-    "drivingRange": "Driving range",
-    "clubhouse": "Clubhouse",
-    "restaurant": "Restaurante",
-    "buggy": "Buggy",
-    "academy": "Academia",
-    "access": "Acesso",
-    "difficulty": "Dificuldade",
-    "bestFor": "Ideal para",
-    "priceRange": "Faixa de preço",
-    "public": "Público",
-    "private": "Privado",
-    "golfers": "Golfistas",
-    "casual": "Voltas descontraídas",
-    "confident": "Jogadores confiantes",
-    "championship": "Jogo de campeonato",
-    "scorecard": "Scorecard",
-    "hole": "Buraco",
-    "hcp": "HCP",
-    "white": "Branco",
-    "yellow": "Amarelo",
-    "red": "Vermelho",
-    "bookTeeTime": "Reservar tee time",
-    "bookTeeTimeAria": "Reservar tee time com parceiro externo",
-    "contactClub": "Contactar clube",
-    "visitWebsite": "Visitar website",
-    "relatedCourses": "Campos próximos",
-    "leaderboard": "Classificação",
-    "rank": "Posição",
-    "player": "Jogador",
-    "score": "Pontuação",
-    "rounds": "Voltas"
-  },
-  "golfDiscovery": {
-    "discoveryTitle": "Encontre o campo de golfe perfeito no Algarve",
-    "discoverySubtitle": "Escolha o tipo de volta que procura e descubra campos selecionados sem comparações intermináveis.",
-    "championshipTitle": "Campos de Campeonato",
-    "championshipIntro": "Seleção de campos de nível torneio",
-    "championshipDescription": "Percursos de torneio de 18 buracos",
-    "coastalTitle": "Golfe Costeiro Cénico",
-    "coastalIntro": "Luz do oceano, ambiente costeiro e paisagens memoráveis do Algarve",
-    "coastalDescription": "Vistas e ambiente",
-    "luxuryTitle": "Clubes Privados e Luxo",
-    "luxuryIntro": "Clubes premium, serviço cuidado e cenários de golfe distintos",
-    "luxuryDescription": "Experiências de golfe premium",
-    "beginnerTitle": "Ideal para Iniciantes",
-    "beginnerIntro": "Campos acolhedores para jogar com calma e confiança",
-    "beginnerDescription": "Voltas mais fáceis e aprendizagem",
-    "quick9Title": "Voltas Rápidas de 9 Buracos",
-    "quick9Intro": "Formatos mais curtos para dias de golfe flexíveis no Algarve",
-    "quick9Description": "Voltas mais rápidas",
-    "finderTitle": "Encontre o seu campo",
-    "skillQuestion": "Nível?",
-    "beginner": "Iniciante",
-    "intermediate": "Intermédio",
-    "advanced": "Avançado",
-    "mattersQuestion": "O que importa?",
-    "scenery": "Paisagem",
-    "challenge": "Desafio",
-    "ease": "Facilidade",
-    "viewMatches": "Ver opções",
-    "bestFor": "Ideal para",
-    "experiencedGolfers": "Golfistas experientes",
-    "championshipPlay": "Jogo de campeonato",
-    "premiumExperience": "Experiência premium",
-    "quickRounds": "Voltas rápidas",
-    "scenicRounds": "Voltas cénicas",
-    "relaxedPlay": "Jogo descontraído",
-    "editorsSelection": "Seleção Editorial",
-    "verified": "Verificado",
-    "viewCourse": "Ver campo",
-    "youMightAlsoLike": "Também poderá gostar",
-    "noMatchesTitle": "Ainda não há campos correspondentes",
-    "noMatchesDescription": "Explore todos os campos de golfe enquanto expandimos esta coleção.",
-    "backToGolf": "Todos os campos de golfe",
-    "heroLabel": "Descubra golfe"
-  },
-  "serverPages": {
-    "common": {
-      "algarve": "Algarve"
-    },
-    "blog": {
-      "badge": "Blog AlgarveOfficial",
-      "emptyTitle": "Ainda não há artigos publicados",
-      "emptyDescription": "As histórias publicadas do AlgarveOfficial vão aparecer aqui.",
-      "postsAria": "Artigos publicados do blog",
-      "minRead": "min de leitura"
-    },
-    "events": {
-      "badge": "Eventos no Algarve",
-      "emptyTitle": "Ainda não há eventos publicados futuros",
-      "emptyDescription": "Os próximos eventos publicados vão aparecer aqui quando estiverem disponíveis.",
-      "eventsAria": "Próximos eventos publicados"
-    },
-    "map": {
-      "badge": "Mapa do Algarve",
-      "title": "Explore listagens do Algarve no mapa",
-      "description": "Veja listagens publicadas do AlgarveOfficial com coordenadas verificadas. O mapa interativo carrega após o JavaScript; esta lista continua disponível para motores de pesquisa e visitantes sem scripts.",
-      "mappedCount": "{{count}} no mapa",
-      "publishedCount": "{{count}} resultados publicados",
-      "cityCount": "{{count}} cidades",
-      "emptyTitle": "Não há listagens no mapa disponíveis",
-      "emptyDescription": "As listagens publicadas sem coordenadas continuam disponíveis no diretório.",
-      "openDirectory": "Abrir o diretório",
-      "listingsAria": "Listagens no mapa"
-    },
-    "properties": {
-      "badge": "AlgarveOfficial",
-      "emptyTitle": "Não há propriedades publicadas disponíveis",
-      "emptyDescription": "As listagens de propriedades aparecerão aqui assim que forem publicadas.",
-      "listingsAria": "Listagens de propriedades publicadas"
-    },
-    "realEstate": {
-      "badge": "Diretório imobiliário",
-      "browseProperties": "Explorar propriedades",
-      "openMap": "Abrir mapa",
-      "emptyTitle": "Não há listagens imobiliárias publicadas disponíveis",
-      "emptyDescription": "As listagens de propriedades publicadas vão aparecer aqui quando estiverem disponíveis.",
-      "listingsAria": "Listagens imobiliárias publicadas"
-    },
-    "relocation": {
-      "badge": "Mudança",
-      "primaryCta": "Falar com a AlgarveOfficial",
-      "secondaryCta": "Explorar propriedades",
-      "roadmapAria": "Roteiro de mudança",
-      "steps": {
-        "residency": {
-          "title": "Planear residência e documentação",
-          "description": "Compreenda documentos, prazos, saúde, impostos e passos práticos de chegada antes da mudança."
-        },
-        "base": {
-          "title": "Escolher uma base",
-          "description": "Compare cidades algarvias, estilos de vida costeiros, escolas, serviços e ligações de transporte."
-        },
-        "home": {
-          "title": "Encontrar casa",
-          "description": "Ligue o plano de mudança à procura de propriedade, serviços de confiança e apoio local."
-        }
+      "endDate": "Data de fim",
+      "eventDialog": {
+        "addActivity": "Add Activity",
+        "allListings": "All Listings",
+        "change": "Change",
+        "date": "Date",
+        "editActivity": "Edit Activity",
+        "estimatedCostEuro": "Estimated Cost (€)",
+        "myFavorites": "My Favorites",
+        "noFavorites": "No favorites yet. Try searching all listings.",
+        "noListingsFound": "No listings found.",
+        "notes": "Notes",
+        "notesPlaceholder": "Add any notes or reminders...",
+        "searchListings": "Search listings...",
+        "selectListing": "Select a Listing",
+        "selectTime": "Select time",
+        "timeSlot": "Time Slot"
       },
-      "basesTitle": "Explorar bases no Algarve",
-      "emptyCities": "Os guias de cidades aparecerão aqui quando os dados de destinos estiverem disponíveis."
+      "saveChanges": "Guardar alterações",
+      "startDate": "Data de início",
+      "tripTitlePlaceholder": "Título da viagem"
     }
+  },
+  "weather": {
+    "algarveRegion": "Algarve",
+    "algarveShort": "Algarve",
+    "faroDistrict": "Distrito de Faro",
+    "faroShort": "Faro",
+    "loading": "A carregar meteorologia de Faro",
+    "temperatureLabel": "Meteorologia em {{place}}: {{celsius}}°C / {{fahrenheit}}°F",
+    "unavailable": "Meteorologia indisponível"
   }
 }

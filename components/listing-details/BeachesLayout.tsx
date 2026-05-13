@@ -55,6 +55,7 @@ type NearbyListing = {
 
 interface BeachesLayoutProps {
   details: Record<string, unknown>;
+  locale?: string;
   fallbackDescription?: string;
   listingName?: string;
   cityName?: string | null;
@@ -80,6 +81,33 @@ function parseJsonValue(value: unknown): unknown {
   } catch {
     return value;
   }
+}
+
+const LOCALE_KEY_PATTERN = /^[a-z]{2}(?:-[a-z]{2})?$/i;
+
+function buildLocaleCandidates(locale?: string): string[] {
+  const normalized = (locale ?? "en").trim().toLowerCase();
+  const [language] = normalized.split("-");
+  const candidates = [
+    normalized,
+    language,
+    "en",
+  ].filter(Boolean);
+  return Array.from(new Set(candidates));
+}
+
+function resolveLocalizedValue(value: unknown, locale?: string): unknown {
+  const parsed = parseJsonValue(value);
+  const record = asRecord(parsed);
+  const keys = Object.keys(record);
+  if (keys.length === 0) return parsed;
+  if (!keys.every((key) => LOCALE_KEY_PATTERN.test(key))) return parsed;
+
+  const candidates = buildLocaleCandidates(locale);
+  for (const candidate of candidates) {
+    if (record[candidate] !== undefined) return record[candidate];
+  }
+  return parsed;
 }
 
 function stringFrom(value: unknown): string | undefined {
@@ -329,6 +357,7 @@ function StarRow({ rating }: { rating: number }) {
 
 export function BeachesLayout({
   details,
+  locale,
   fallbackDescription,
   listingName,
   cityName,
@@ -342,37 +371,48 @@ export function BeachesLayout({
   const { t } = useTranslation();
   const l = useLocalePath();
 
-  const important = asRecord(parseJsonValue(details.important_information ?? details.important_info));
-  const highlights = firstList(details, ["highlights", "beach_highlights", "experience_highlights"]);
-  const includes = firstList(details, ["includes", "included", "beach_includes"]);
-  const excludes = firstList(details, ["excludes", "excluded", "not_included", "beach_excludes"]);
-  const notSuitableFor = firstList(details, ["not_suitable_for", "unsuitable_for"]);
-  const suitableFor = firstList(details, ["suitable_for", "beach_suitable_for"]);
+  const localizedContent = asRecord(
+    resolveLocalizedValue(
+      details.localized_content ?? details.localizedContent ?? details.i18n_content ?? details.translations,
+      locale,
+    ),
+  );
+  const resolvedDetails = useMemo(
+    () => ({ ...details, ...localizedContent }),
+    [details, localizedContent],
+  );
+
+  const important = asRecord(parseJsonValue(resolvedDetails.important_information ?? resolvedDetails.important_info));
+  const highlights = firstList(resolvedDetails, ["highlights", "beach_highlights", "experience_highlights"]);
+  const includes = firstList(resolvedDetails, ["includes", "included", "beach_includes"]);
+  const excludes = firstList(resolvedDetails, ["excludes", "excluded", "not_included", "beach_excludes"]);
+  const notSuitableFor = firstList(resolvedDetails, ["not_suitable_for", "unsuitable_for"]);
+  const suitableFor = firstList(resolvedDetails, ["suitable_for", "beach_suitable_for"]);
   const bestTimeToVisit =
     stringFrom(important.best_time_to_visit) ??
-    firstString(details, ["best_time_to_visit", "best_visit_time", "seasonality"]);
+    firstString(resolvedDetails, ["best_time_to_visit", "best_visit_time", "seasonality"]);
   const whatToBring = [
     ...listFrom(important.what_to_bring),
-    ...firstList(details, ["what_to_bring"]),
+    ...firstList(resolvedDetails, ["what_to_bring"]),
   ];
   const notAllowed = [
     ...listFrom(important.not_allowed),
-    ...firstList(details, ["not_allowed"]),
+    ...firstList(resolvedDetails, ["not_allowed"]),
   ];
   const knowBeforeYouGo =
     stringFrom(important.know_before_you_go) ??
-    firstString(details, ["know_before_you_go", "important_notes"]);
+    firstString(resolvedDetails, ["know_before_you_go", "important_notes"]);
   const fullDescription =
-    firstString(details, ["full_description", "beach_full_description", "description"]) ??
+    firstString(resolvedDetails, ["full_description", "beach_full_description", "description"]) ??
     fallbackDescription;
-  const meetingPoint = firstString(details, ["meeting_point", "meeting_point_description"]);
-  const explicitMapUrl = firstString(details, ["meeting_point_google_maps_url", "google_maps_url", "map_url"]);
-  const coordinates = asRecord(details.coordinates ?? details.location);
+  const meetingPoint = firstString(resolvedDetails, ["meeting_point", "meeting_point_description"]);
+  const explicitMapUrl = firstString(resolvedDetails, ["meeting_point_google_maps_url", "google_maps_url", "map_url"]);
+  const coordinates = asRecord(resolvedDetails.coordinates ?? resolvedDetails.location);
   const mapLatitude = numberFrom(latitude)
-    ?? numberFrom(details.latitude ?? details.Latitude)
+    ?? numberFrom(resolvedDetails.latitude ?? resolvedDetails.Latitude)
     ?? numberFrom(coordinates.latitude ?? coordinates.lat);
   const mapLongitude = numberFrom(longitude)
-    ?? numberFrom(details.longitude ?? details.Longitude)
+    ?? numberFrom(resolvedDetails.longitude ?? resolvedDetails.Longitude)
     ?? numberFrom(coordinates.longitude ?? coordinates.lng ?? coordinates.lon);
   const hasMapCoordinates = mapLatitude !== undefined && mapLongitude !== undefined;
   const mapUrl = buildGoogleMapsSearchUrl({
@@ -385,18 +425,20 @@ export function BeachesLayout({
     meetingPoint ??
     address ??
     [listingName, cityName, "Algarve Portugal"].filter(Boolean).join(", ");
-  const mapAddress = firstString(details, ["address", "full_address"]) ?? address ?? meetingPointText;
-  const testimonials = readTestimonials(details.testimonials ?? details.testimonials_json);
-  const seoGroupsFromData = readSeoGroups(details.seo_link_groups ?? details.seo_link_groups_json ?? details.related_tag_groups);
+  const mapAddress = firstString(resolvedDetails, ["address", "full_address"]) ?? address ?? meetingPointText;
+  const testimonials = readTestimonials(resolvedDetails.testimonials ?? resolvedDetails.testimonials_json);
+  const seoGroupsFromData = readSeoGroups(
+    resolvedDetails.seo_link_groups ?? resolvedDetails.seo_link_groups_json ?? resolvedDetails.related_tag_groups,
+  );
 
   const derivedHighlights = useMemo(() => {
     if (highlights.length > 0) return highlights;
     return [
-      details.blue_flag ? t("categoryLayouts.beach.blueFlagHighlight") : null,
-      details.lifeguard ? t("categoryLayouts.beach.lifeguardHighlight") : null,
-      details.parking_available ? t("categoryLayouts.beach.parkingHighlight") : null,
-      details.restaurant_nearby ? t("categoryLayouts.beach.restaurantHighlight") : null,
-      details.sunbeds_available ? t("categoryLayouts.beach.sunbedsHighlight") : null,
+      resolvedDetails.blue_flag ? t("categoryLayouts.beach.blueFlagHighlight") : null,
+      resolvedDetails.lifeguard ? t("categoryLayouts.beach.lifeguardHighlight") : null,
+      resolvedDetails.parking_available ? t("categoryLayouts.beach.parkingHighlight") : null,
+      resolvedDetails.restaurant_nearby ? t("categoryLayouts.beach.restaurantHighlight") : null,
+      resolvedDetails.sunbeds_available ? t("categoryLayouts.beach.sunbedsHighlight") : null,
       cityName
         ? t("categoryLayouts.beach.locationHighlight", {
             place: cityName,
@@ -404,7 +446,7 @@ export function BeachesLayout({
           })
         : null,
     ].filter((item): item is string => Boolean(item));
-  }, [cityName, details, highlights, t]);
+  }, [cityName, highlights, resolvedDetails, t]);
 
   const seoGroups = useMemo<SeoLinkGroup[]>(() => {
     if (seoGroupsFromData.length > 0) return seoGroupsFromData;

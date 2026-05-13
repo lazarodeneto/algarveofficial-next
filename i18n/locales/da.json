@@ -344,7 +344,6 @@
       "listingOps": "Lister",
       "listings": "Fortegnelser",
       "live": "Live-kø",
-      "premiumRegions": "Luksus regioner",
       "mediaLibrary": "Mediebibliotek",
       "messages": "Beskeder",
       "moderationQueue": "Modereringskø",
@@ -358,6 +357,7 @@
       "partnerPage": "Partner side",
       "partnerRequests": "Partneranmodninger",
       "platform": "System",
+      "premiumRegions": "Luksus regioner",
       "privacyPolicy": "Privatlivspolitik",
       "regions": "Regioner",
       "reports": "Rapporter",
@@ -533,6 +533,10 @@
     "welcomeSubtitle": "Din indgang til luksusoplevelser i Algarve. Få adgang til eksklusive fortegnelser, udvalgte destinationer og personlige anbefalinger.",
     "welcomeTo": "Velkommen til"
   },
+  "beachesPage": {
+    "heroDescription": "Oplev gyldne sandstrande, turkisblåt vand og førsteklasses strandklubber, kurateret til AlgarveOfficials besøgende.",
+    "heroTitle": "Strande i Algarve"
+  },
   "blog": {
     "allPosts": "Alle indlæg",
     "backToBlog": "Tilbage til bloggen",
@@ -548,6 +552,7 @@
     },
     "by": "Ved",
     "categories": "Kategorier",
+    "copyFailed": "Adgang til udklipsholder blev nægtet",
     "copyLink": "Kopiér artikellinket",
     "hero": {
       "alt": "Redaktionelt Algarve bybillede",
@@ -559,6 +564,9 @@
     "noPostsFound": "Der blev ikke fundet nogen indlæg, der matcher dine kriterier.",
     "noPostsSubtext": "Kom snart tilbage for nye artikler og historier om Algarve.",
     "noPostsTitle": "Ingen indlæg fundet",
+    "notFoundDescription": "Denne artikel kan være blevet fjernet eller er ikke tilgængelig.",
+    "notFoundTitle": "Artikel ikke fundet",
+    "readMore": "Læs mere",
     "readTime": "min læsetid",
     "recentPosts": "Seneste indlæg",
     "relatedListings": "Relaterede fortegnelser",
@@ -569,11 +577,10 @@
     "shareTwitter": "Del på X",
     "subtitle": "Oplev Algarves livsstil, rejseguider og insidertips",
     "title": "Blog & Indsigt",
-    "readMore": "Læs mere",
-    "copyFailed": "Adgang til udklipsholder blev nægtet",
-    "notFoundTitle": "Artikel ikke fundet",
-    "notFoundDescription": "Denne artikel kan være blevet fjernet eller er ikke tilgængelig.",
     "views": "visninger"
+  },
+  "breadcrumbs": {
+    "relocation": "Flytning"
   },
   "categories": {
     "algarveServices": "Algarve-tjenester",
@@ -582,9 +589,9 @@
     "familyFun": "Algarve-oplevelse",
     "fineDining": "Gastronomi",
     "golf": "Golf og turneringer",
+    "premierEvents": "Premier-begivenheder",
     "premiumAccommodation": "Overnatning",
     "premiumExperiences": "Algarve-oplevelse",
-    "premierEvents": "Premier-begivenheder",
     "privateChefs": "Gastronomi",
     "protectionServices": "Algarve-tjenester",
     "realEstate": "Algarve-tjenester",
@@ -695,8 +702,6 @@
     "lessons": "Privatundervisning",
     "Lighting Design": "Lysdesign",
     "links": "Links",
-    "Premium Apartments": "Luksus lejligheder",
-    "premium_villa": "Luksusvilla",
     "market": "Marked & Fair",
     "massage": "Massage",
     "mediterranean": "Middelhavet",
@@ -727,6 +732,8 @@
     "portuguese": "portugisisk",
     "Portuguese": "portugisisk",
     "premium": "Præmie",
+    "Premium Apartments": "Luksus lejligheder",
+    "premium_villa": "Luksusvilla",
     "private": "Privat",
     "Private Estates": "Private Ejendomme",
     "private_dining": "Privat spisning",
@@ -780,6 +787,16 @@
     "yachting_maritime": "Yachting & Maritim",
     "yearly": "Årligt"
   },
+  "categoryHub": {
+    "bottomDescription": "Opdag kuraterede {{category}} i hele Algarve. Fra lokale favoritter til premiumoplevelser.",
+    "bottomTitle": "Find de bedste {{category}} i Algarve",
+    "featured": "Udvalgte {{category}}",
+    "heroDescription": "Opdag de bedste {{category}} i hele Algarve. Udforsk efter by for at finde kuraterede lokale anbefalinger.",
+    "heroTitle": "{{category}} i Algarve",
+    "topCities": "Topbyer for {{category}}",
+    "visibilityDescription": "Skil dig ud fra konkurrenterne. Opgrader din {{category}}-fortegnelse for at nå flere kunder.",
+    "visibilityTitle": "Få Mere Synlighed i Algarve"
+  },
   "categoryLayouts": {
     "accommodation": {
       "amenities": "Faciliteter",
@@ -822,78 +839,78 @@
       "balineseBeds": "Balinesiske senge",
       "beachExperience": "Strandoplevelse",
       "bestTimeToVisit": "Bedste tidspunkt at besøge",
+      "blueFlagHighlight": "Blå Flag-strand med anerkendt vandkvalitet",
       "bookSunbeds": "Book liggestole",
       "bookSunbedsSubtext": "Sikre dine liggestole og nyd en perfekt dag ved havet.",
       "daytime": "Dagtimerne",
       "daytimeDescription": "Nyd det krystalklare vand og det gyldne sand i løbet af dagen. Perfekt til svømning, solbadning og vandaktiviteter.",
       "djSchedule": "DJ-skema: {{schedule}}",
+      "experiences": "Oplevelser i {{place}}",
+      "fullDescription": "Fuld beskrivelse",
+      "highlights": "Højdepunkter",
+      "importantInformation": "Vigtig information",
+      "includes": "Inkluderer",
+      "knowBeforeYouGo": "Godt at vide før du tager afsted",
+      "lifeguardHighlight": "Sæsonlivreddere tilgængelige",
       "liveDj": "Live DJ",
+      "meetingPoint": "Mødested",
+      "notAllowed": "Ikke tilladt",
+      "notSuitableFor": "Ikke egnet til",
+      "openInGoogleMaps": "Åbn i Google Maps",
+      "parkingHighlight": "Parkering i nærheden",
       "privateAreas": "Private områder",
+      "readMore": "Læs mere",
+      "relatedBeachTags": "Relaterede strandtags",
+      "relatedGuides": "Relaterede strandguider",
+      "relatedGuidesDescription": "Hurtige kystsøgninger, steder i nærheden og rejseidéer knyttet til denne strand.",
+      "relatedGuidesEyebrow": "Udforsk mere",
+      "relatedLinksCount": "{{count}} links",
+      "relatedLinksTotal": "{{count}} links",
       "reserveSpot": "Reserver din plads i paradis",
+      "restaurantHighlight": "Restauranter og strandcaféer i nærheden",
+      "seeLess": "Se mindre",
+      "seeMore": "Se mere",
+      "seeMoreReviews": "Se flere anmeldelser",
+      "seo": {
+        "albufeiraBeaches": "Strande i Albufeira",
+        "aljezurBeaches": "Strande i Aljezur",
+        "beachBars": "Strandbarer",
+        "beachRestaurants": "Strandrestauranter",
+        "benagilCave": "Benagilgrotten",
+        "boatTrips": "Bådture",
+        "coastalWalks": "Kystvandringer",
+        "familyBeaches": "Familievenlige strande",
+        "hiddenCoves": "Skjulte bugter",
+        "kayaking": "Kajakruter",
+        "lagoaBeaches": "Strande i Lagoa",
+        "lagosBeaches": "Strande i Lagos",
+        "paddleboarding": "Paddleboarding",
+        "photographySpots": "Fotosteder",
+        "pontaDaPiedade": "Ponta da Piedade",
+        "portimaoBeaches": "Strande i Portimão",
+        "praiaDaFalesia": "Praia da Falésia",
+        "praiaDaMarinha": "Praia da Marinha",
+        "praiaDoCamilo": "Praia do Camilo",
+        "seaCaves": "Havgrotter",
+        "snorkeling": "Snorkelsteder",
+        "sunsetBeaches": "Solnedgangsstrande",
+        "surfLessons": "Surflektioner",
+        "taviraBeaches": "Strande i Tavira"
+      },
       "servicesAmenities": "Tjenester og faciliteter",
       "sunbedsAvailable": "Solsenge til rådighed",
+      "sunbedsHighlight": "Liggestole eller strandudlejning tilgængelig",
       "sunset": "Solnedgang",
       "sunsetWithout": "Slap af på dagen med forfriskende drinks, mens solen går ned over Algarves kystlinje.",
       "sunsetWithView": "Oplev en betagende solnedgangsudsigt over Atlanten. De perfekte rammer for cocktails og mindeværdige øjeblikke.",
-      "vip": "VIP",
-      "vipCabanas": "VIP Cabanas",
-      "highlights": "Højdepunkter",
-      "fullDescription": "Fuld beskrivelse",
-      "seeMore": "Se mere",
-      "seeLess": "Se mindre",
-      "includes": "Inkluderer",
-      "notSuitableFor": "Ikke egnet til",
-      "meetingPoint": "Mødested",
-      "openInGoogleMaps": "Åbn i Google Maps",
-      "importantInformation": "Vigtig information",
-      "whatToBring": "Hvad du skal medbringe",
-      "notAllowed": "Ikke tilladt",
-      "knowBeforeYouGo": "Godt at vide før du tager afsted",
+      "thingsToDo": "Ting at lave nær {{place}}",
+      "topAttractions": "Topattraktioner i {{place}}",
+      "tours": "Strande i {{place}}",
       "travelersLoved": "Det rejsende elskede",
       "verifiedBooking": "Bekræftet booking",
-      "readMore": "Læs mere",
-      "seeMoreReviews": "Se flere anmeldelser",
-      "relatedGuidesEyebrow": "Udforsk mere",
-      "relatedGuides": "Relaterede strandguider",
-      "relatedGuidesDescription": "Hurtige kystsøgninger, steder i nærheden og rejseidéer knyttet til denne strand.",
-      "relatedLinksCount": "{{count}} links",
-      "relatedLinksTotal": "{{count}} links",
-      "relatedBeachTags": "Relaterede strandtags",
-      "topAttractions": "Topattraktioner i {{place}}",
-      "experiences": "Oplevelser i {{place}}",
-      "tours": "Strande i {{place}}",
-      "thingsToDo": "Ting at lave nær {{place}}",
-      "blueFlagHighlight": "Blå Flag-strand med anerkendt vandkvalitet",
-      "lifeguardHighlight": "Sæsonlivreddere tilgængelige",
-      "parkingHighlight": "Parkering i nærheden",
-      "restaurantHighlight": "Restauranter og strandcaféer i nærheden",
-      "sunbedsHighlight": "Liggestole eller strandudlejning tilgængelig",
-      "seo": {
-        "praiaDaMarinha": "Praia da Marinha",
-        "benagilCave": "Benagilgrotten",
-        "pontaDaPiedade": "Ponta da Piedade",
-        "praiaDoCamilo": "Praia do Camilo",
-        "praiaDaFalesia": "Praia da Falésia",
-        "familyBeaches": "Familievenlige strande",
-        "hiddenCoves": "Skjulte bugter",
-        "coastalWalks": "Kystvandringer",
-        "snorkeling": "Snorkelsteder",
-        "sunsetBeaches": "Solnedgangsstrande",
-        "beachRestaurants": "Strandrestauranter",
-        "kayaking": "Kajakruter",
-        "seaCaves": "Havgrotter",
-        "lagosBeaches": "Strande i Lagos",
-        "albufeiraBeaches": "Strande i Albufeira",
-        "portimaoBeaches": "Strande i Portimão",
-        "lagoaBeaches": "Strande i Lagoa",
-        "taviraBeaches": "Strande i Tavira",
-        "aljezurBeaches": "Strande i Aljezur",
-        "boatTrips": "Bådture",
-        "surfLessons": "Surflektioner",
-        "paddleboarding": "Paddleboarding",
-        "beachBars": "Strandbarer",
-        "photographySpots": "Fotosteder"
-      }
+      "vip": "VIP",
+      "vipCabanas": "VIP Cabanas",
+      "whatToBring": "Hvad du skal medbringe"
     },
     "common": {
       "inquireNow": "Spørg nu",
@@ -1167,12 +1184,120 @@
     "threadEmptyDescription": "Start en samtale fra en hvilken som helst fortegnelsesside for at komme i kontakt med ejere.",
     "unknownListing": "Ukendt fortegnelse"
   },
+  "claimBusinessForm": {
+    "claimingListing": "You are claiming this listing.",
+    "companyWebsite": "Company website",
+    "confirmationBusiness": "Business",
+    "confirmationEyebrow": "Claim received",
+    "confirmationNextStep": "Our team will review the ownership signals and contact you if more information is needed. Approval is manual and no payment is required in this phase.",
+    "confirmationPrompt": "Confirm that this is the exact AlgarveOfficial listing you want to claim.",
+    "confirmationReference": "Claim reference",
+    "confirmationStatus": "Status",
+    "confirmationTier": "Selected tier",
+    "confirmationTitle": "Your claim request has been received.",
+    "contactTitle": "Contact details",
+    "description": "Confirm the listing, tell us how you are connected to the business, and submit a manual ownership review.",
+    "documentUploadNote": "Document storage is not enabled for this public flow yet. Describe the document or proof you can provide and the team will request it if needed.",
+    "fullName": "Full name",
+    "isThisYourBusiness": "Is this your business?",
+    "loginRequiredDescription": "You can complete the form now, but you will be sent to sign in before the claim is submitted.",
+    "loginRequiredTitle": "Sign in required before submission",
+    "message": "Message",
+    "noSearchAgain": "No, search again",
+    "paymentLaterNote": "No payment is collected now. Paid checkout and subscription activation happen only after later approval steps.",
+    "phoneNumber": "Phone number",
+    "proofNotes": "Proof notes",
+    "proofNotesPlaceholder": "Add domain, phone, website, social profile, document, or other ownership details for manual review.",
+    "publicListingLink": "View public listing",
+    "role": {
+      "agencyRepresentative": "Agency / Representative",
+      "employee": "Employee",
+      "generalManager": "General Manager",
+      "marketingManager": "Marketing Manager",
+      "other": "Other",
+      "owner": "Owner"
+    },
+    "roleTitle": "Claimant role",
+    "searchAgain": "Search again",
+    "selectedListingBadge": "Selected listing",
+    "status": {
+      "pending": "Pending review"
+    },
+    "submit": "Submit claim request",
+    "submitError": "We could not submit this claim right now. Please check the details and try again.",
+    "submitErrorTitle": "Claim not submitted",
+    "submitSuccess": "Claim request submitted.",
+    "submitting": "Submitting...",
+    "tier": {
+      "free": "Free Claim",
+      "freeDescription": "Verify ownership and request basic listing access.",
+      "signature": "Signature Partner",
+      "signatureDescription": "Premium partner interest for future approval and checkout.",
+      "verified": "Verified Business",
+      "verifiedDescription": "Enhanced trust signals and business verification after approval."
+    },
+    "tierTitle": "Tier selection",
+    "title": "Claim this business listing",
+    "unavailable": {
+      "claimedDescription": "This listing is already managed by an official representative. Contact AlgarveOfficial if you believe this is incorrect.",
+      "claimedTitle": "This listing is already claimed",
+      "pendingDescription": "This listing already has an ownership claim under review. Please wait for the current review to finish.",
+      "pendingTitle": "Ownership claim under review"
+    },
+    "validation": {
+      "email": "Enter a valid work email.",
+      "message": "Add at least 10 characters explaining your connection to the business.",
+      "name": "Enter your full name."
+    },
+    "verification": {
+      "businessEmailDomain": "Business email domain",
+      "documentUpload": "Document upload",
+      "manualReview": "Manual review",
+      "officialSocialMedia": "Official social media account",
+      "phoneVerification": "Phone verification",
+      "websiteContactMatch": "Website contact match"
+    },
+    "verificationTitle": "Verification method",
+    "viewListing": "View listing",
+    "workEmail": "Work email",
+    "yesContinue": "Yes, continue"
+  },
+  "claimBusinessSearch": {
+    "cantFindDescription": "Hvis AlgarveOfficial endnu ikke har din virksomhed, kan du starte en ny anmodning om fortegnelse via partnerformularen.",
+    "cantFindTitle": "Kan du ikke finde din virksomhed?",
+    "claimButton": "Gør krav på denne virksomhed",
+    "description": "Søg efter din eksisterende fortegnelse, vælg din virksomhed, og indsend en kravsanmodning knyttet til den fortegnelse.",
+    "emptyDescription": "Prøv et andet virksomhedsnavn, by, kategori eller website. Krav kan kun indsendes for eksisterende fortegnelser.",
+    "emptyTitle": "Ingen matchende fortegnelser fundet",
+    "managedButton": "Administreret af officiel repræsentant",
+    "newListingButton": "Anmod om ny fortegnelse",
+    "next": "Næste",
+    "page": "Side {{page}} af {{totalPages}}",
+    "pendingButton": "Krav under gennemgang",
+    "placeholder": "Søg efter virksomhedsnavn, by, kategori eller website",
+    "previous": "Forrige",
+    "resultsSummary": "Søgeresultater",
+    "resultsSummaryWithCount": "{{count}} matchende fortegnelser",
+    "searchButton": "Søg",
+    "searchErrorDescription": "Vi kunne ikke indlæse matchende fortegnelser lige nu. Prøv igen om et øjeblik.",
+    "searchErrorTitle": "Søgning er midlertidigt utilgængelig",
+    "startDescription": "Søg efter virksomhedsnavn, by, kategori eller website for at finde den præcise AlgarveOfficial-fortegnelse, du vil gøre krav på.",
+    "startTitle": "Find din eksisterende fortegnelse",
+    "status": {
+      "claimed": "Administreret",
+      "pending": "Under gennemgang",
+      "unclaimed": "Ikke gjort krav på"
+    },
+    "title": "Find og gør krav på din virksomhed på AlgarveOfficial",
+    "viewListing": "Se fortegnelse"
+  },
   "common": {
     "accountSettings": "Kontoindstillinger",
     "active": "Aktiv",
     "admin": "Admin",
     "adminDashboard": "Admin",
     "adminUser": "Admin bruger",
+    "algarvePortugalSuffix": ", Algarve, Portugal",
     "avgRating": "gennemsnitlig bedømmelse",
     "back": "Tilbage",
     "cancel": "Ophæve",
@@ -1186,6 +1311,7 @@
     "fillRequiredFields": "Udfyld venligst alle obligatoriske felter.",
     "filter": "Filter",
     "free": "Gratis",
+    "fromPrice": "Fra {{price}}",
     "go": "Gå",
     "goToHomepage": "Gå til Hjemmeside",
     "inOtherCities": "i andre byer på Algarve",
@@ -1217,9 +1343,7 @@
     "userDashboard": "Bruger Dashboard",
     "verified": "Verificeret",
     "viewAll": "Se alle",
-    "viewSite": "Se websted",
-    "fromPrice": "Fra {{price}}",
-    "algarvePortugalSuffix": ", Algarve, Portugal"
+    "viewSite": "Se websted"
   },
   "contact": {
     "email": "info@algarveofficial.com",
@@ -1250,6 +1374,8 @@
     "accept": "Accepter Analytics",
     "acceptAll": "Accepter alle",
     "analytics": "Analyse",
+    "analyticsCookies": "Analysecookies",
+    "analyticsCookiesDescription": "Måler besøg, sidevisninger og websitets ydeevne, så vi kan forbedre oplevelsen.",
     "closePreferences": "Luk cookieindstillinger",
     "dataRetention": "Data opbevares i 90 dage",
     "decline": "Nedgang",
@@ -1258,23 +1384,21 @@
     "details": "Detaljer",
     "essential": "Nødvendige",
     "functional": "Funktionelle",
-    "gdprBadge": "GDPR-kompatibel",
-    "learnMore": "Få flere oplysninger",
-    "marketing": "Markedsføring",
-    "necessaryCookies": "Nødvendige cookies",
-    "necessaryCookiesDescription": "Påkrævet for sikkerhed, godkendelse og grundlæggende websitefunktionalitet.",
     "functionalCookies": "Funktionelle cookies",
     "functionalCookiesDescription": "Aktiverer indlejrede medier og bekvemmelighedsfunktioner, såsom rigere interaktive oplevelser.",
-    "analyticsCookies": "Analysecookies",
-    "analyticsCookiesDescription": "Måler besøg, sidevisninger og websitets ydeevne, så vi kan forbedre oplevelsen.",
+    "gdprBadge": "GDPR-kompatibel",
+    "learnMore": "Få flere oplysninger",
+    "managePreferences": "Administrer indstillinger",
+    "marketing": "Markedsføring",
     "marketingCookies": "Markedsføringscookies",
     "marketingCookiesDescription": "Styrer markedsføringsmeddelelser, kampagnemåling og relaterede kampagneteknologier.",
+    "necessaryCookies": "Nødvendige cookies",
+    "necessaryCookiesDescription": "Påkrævet for sikkerhed, godkendelse og grundlæggende websitefunktionalitet.",
     "optionalCategories": "Valgfrie kategorier forbliver slået fra, indtil du aktiverer dem",
     "preferencesTitle": "Cookieindstillinger",
     "savePreferences": "Gem præferencer",
     "saveSettings": "Gem indstillinger",
-    "title": "Dit privatliv er vigtigt",
-    "managePreferences": "Administrer indstillinger"
+    "title": "Dit privatliv er vigtigt"
   },
   "cookiePolicy": {
     "footer": {
@@ -1376,7 +1500,6 @@
       "emailNotifications": "E-mail-meddelelser",
       "emailNotificationsDesc": "Modtag opdateringer om nye fortegnelser og anbefalinger",
       "fullName": "Fuldt navn",
-      "premiumRegions": "Luksus regioner",
       "manageNotifications": "Administrer dine meddelelsespræferencer",
       "marketingEmails": "Marketing e-mails",
       "marketingEmailsDesc": "Modtag særlige tilbud og kampagner",
@@ -1390,6 +1513,7 @@
       "passwordsDontMatch": "Nye adgangskoder stemmer ikke overens",
       "preferredCategories": "Foretrukne kategorier",
       "preferredDestinations": "Foretrukne destinationer",
+      "premiumRegions": "Luksus regioner",
       "profileInformation": "Profiloplysninger",
       "profileUpdated": "Profilen blev opdateret",
       "saveChanges": "Gem ændringer",
@@ -1507,6 +1631,12 @@
   },
   "events": {
     "allCategories": "Alle kategorier",
+    "backToEvents": "Tilbage til arrangementer",
+    "card": {
+      "buyTickets": "Køb billetter",
+      "going": "+1k deltager",
+      "viewDetails": "Se detaljer"
+    },
     "categories": {
       "cultural": "Kulturelle begivenheder",
       "festival": "Festivaler",
@@ -1517,12 +1647,25 @@
       "seasonal": "Sæsonbestemte højdepunkter",
       "sporting": "Sportsbegivenheder"
     },
-    "card": {
-      "buyTickets": "Køb billetter",
-      "going": "+1k deltager",
-      "viewDetails": "Se detaljer"
-    },
     "checkBackSoon": "Kom snart tilbage for nye begivenheder og begivenheder i Algarve.",
+    "detail": {
+      "aboutTitle": "Om dette arrangement",
+      "admissionTitle": "Entré",
+      "booleanNo": "Nej",
+      "booleanYes": "Ja",
+      "dateTimeTitle": "Dato og tid",
+      "detailsTitle": "Arrangementsdetaljer",
+      "fromPrice": "Fra {{price}}",
+      "getTickets": "Få billetter",
+      "locationTitle": "Sted",
+      "notFoundDescription": "Arrangementet, du leder efter, findes ikke eller er blevet fjernet.",
+      "notFoundTitle": "Arrangementet blev ikke fundet",
+      "purchaseTickets": "Køb billetter",
+      "relatedTitle": "Relaterede arrangementer",
+      "share": "Del",
+      "tagsTitle": "Tags",
+      "viewAll": "Se alle"
+    },
     "featured": "Udvalgte begivenheder",
     "hero": {
       "alt": "Premium Algarve begivenhedsdestination",
@@ -1536,6 +1679,7 @@
       "viewEvent": "Se arrangement"
     },
     "noUpcoming": "Ingen kommende begivenheder",
+    "openEvent": "Åbn {{title}}",
     "status": {
       "cancelled": "Annulleret",
       "draft": "Udkast",
@@ -1543,274 +1687,126 @@
       "published": "Udgivet",
       "rejected": "Afvist"
     },
-    "backToEvents": "Tilbage til arrangementer",
-    "openEvent": "Åbn {{title}}",
-    "detail": {
-      "notFoundTitle": "Arrangementet blev ikke fundet",
-      "notFoundDescription": "Arrangementet, du leder efter, findes ikke eller er blevet fjernet.",
-      "share": "Del",
-      "getTickets": "Få billetter",
-      "aboutTitle": "Om dette arrangement",
-      "detailsTitle": "Arrangementsdetaljer",
-      "tagsTitle": "Tags",
-      "dateTimeTitle": "Dato og tid",
-      "locationTitle": "Sted",
-      "admissionTitle": "Entré",
-      "purchaseTickets": "Køb billetter",
-      "relatedTitle": "Relaterede arrangementer",
-      "viewAll": "Se alle",
-      "booleanYes": "Ja",
-      "booleanNo": "Nej",
-      "fromPrice": "Fra {{price}}"
+    "tags": {
+      "afro-nation": "Afro Nation",
+      "afro-nation-portugal": "Afro Nation Portugal",
+      "agriculture": "Landbrug",
+      "aia-circuit": "AIA Circuit",
+      "albufeira": "Albufeira",
+      "almancil": "Almancil",
+      "autodromo-internacional-do-algarve": "Autódromo Internacional do Algarve",
+      "beach-music-festival": "Strandmusikfestival",
+      "carvoeiro": "Carvoeiro",
+      "carvoeiro-noite-black-white": "Carvoeiro Noite Black & White",
+      "concerts": "Koncerter",
+      "crafts": "Håndværk",
+      "cultural-event": "Kulturarrangement",
+      "culture": "Kultur",
+      "culture-festival": "Kulturfestival",
+      "events": "Arrangementer",
+      "fair": "Messe",
+      "faro": "Faro",
+      "fatacil": "FATACIL",
+      "feira-medieval": "Middelaldermarked",
+      "festival-da-sardinha": "Festival da Sardinha",
+      "festival-do-marisco": "Festival do Marisco",
+      "festival-f": "Festival F",
+      "festival-mar-me-quer": "Festival Mar Me Quer",
+      "festival-med": "Festival MED",
+      "gastronomy": "Gastronomi",
+      "golf": "Golf",
+      "grand-prix": "Grand Prix",
+      "iberian-racing-festival": "Iberian Racing Festival",
+      "lagoa": "Lagoa",
+      "loule": "Loulé",
+      "medieval-fair": "Middelaldermarked",
+      "motogp": "MotoGP",
+      "motorcycle-racing": "Motorcykelløb",
+      "motorsport": "Motorsport",
+      "music": "Musik",
+      "music-festival": "Musikfestival",
+      "olhao": "Olhão",
+      "pga-tour-champions": "PGA TOUR Champions",
+      "pine-cliffs": "Pine Cliffs",
+      "portimao": "Portimão",
+      "portugal-invitational": "Portugal Invitational",
+      "portuguese-music": "Portugisisk musik",
+      "praia-da-rocha": "Praia da Rocha",
+      "praia-do-carvoeiro": "Praia do Carvoeiro",
+      "racing-weekend": "Racerweekend",
+      "racing-weekeng": "Racing Weekend",
+      "sardines": "Sardiner",
+      "seafood": "Skaldyr",
+      "silves": "Silves",
+      "smooth-jazz": "Smooth jazz",
+      "street-party": "Gadefest",
+      "summer-festival": "Sommerfestival",
+      "summer-opening": "Sommeråbning",
+      "superbike-world-championship": "Superbike World Championship",
+      "the-els-club": "The Els Club",
+      "tourism": "Turisme",
+      "vila-adentro": "Vila Adentro",
+      "vilamoura": "Vilamoura",
+      "world-music": "Verdensmusik",
+      "wsbk": "WSBK",
+      "zona-ribeirinha": "Havnefront"
     },
     "template": {
       "fields": {
-        "festival_type": "Festivaltype",
-        "expected_attendance": "Expected Attendance",
-        "headline_performers": "Headline Performers / Acts",
-        "stages_count": "Number of Stages / Areas",
-        "camping_available": "Camping Available",
-        "family_friendly": "Family Friendly",
-        "age_restriction": "Age Restriction",
-        "market_type": "Markedstype",
-        "vendor_count": "Number of Vendors",
-        "product_categories": "Produktkategorier",
-        "frequency": "Hyppighed",
-        "outdoor_indoor": "Stedtype",
-        "payment_methods": "Payment Methods Accepted",
-        "tournament_level": "Turneringsniveau",
-        "course_name": "Golfbane",
-        "format": "Turneringsformat",
-        "handicap_limit": "Maximum Handicap",
-        "entry_fee": "Entry Fee (€)",
-        "prize_pool": "Præmiepulje / priser",
-        "spectator_tickets": "Tilskuere tilladt",
-        "caddie_required": "Caddie Required",
-        "gastro_type": "Arrangementstype",
-        "cuisine_focus": "Madfokus",
-        "participating_chefs": "Participating Chefs",
-        "michelin_presence": "Michelin Star Chefs",
-        "tasting_included": "Smagsprøver inkluderet",
-        "pairing_menu": "Pairing Menu Available",
-        "dietary_options": "Dietary Options",
-        "music_genre": "Musikgenre",
-        "performance_type": "Optrædentype",
-        "artists": "Optrædende kunstnere",
-        "venue_type": "Stedtype",
-        "seating_type": "Sidde-/ståtype",
-        "vip_packages": "VIP-pakker tilgængelige",
-        "sound_check_access": "Sound Check Experience",
-        "cultural_type": "Arrangementstype",
-        "exhibition_theme": "Tema / emne",
-        "guided_tours": "Guided Tours",
-        "languages_offered": "Languages Available",
-        "interactive_elements": "Interaktive elementer",
         "accessibility_features": "Accessibility Features",
-        "sport_type": "Sportstype",
-        "competition_level": "Konkurrenceniveau",
-        "participant_limit": "Participant Limit",
-        "distance_category": "Distance / kategori",
-        "age_groups": "Age Groups",
-        "timing_chip": "Electronic Timing",
-        "medal_finishers": "Finisher Medals",
-        "season": "Season",
-        "seasonal_theme": "Theme",
         "activities_included": "Activities Included",
-        "weather_dependent": "Weather Dependent",
+        "age_groups": "Age Groups",
+        "age_restriction": "Age Restriction",
+        "artists": "Optrædende kunstnere",
+        "caddie_required": "Caddie Required",
+        "camping_available": "Camping Available",
+        "competition_level": "Konkurrenceniveau",
+        "course_name": "Golfbane",
+        "cuisine_focus": "Madfokus",
+        "cultural_type": "Arrangementstype",
+        "dietary_options": "Dietary Options",
+        "distance_category": "Distance / kategori",
+        "entry_fee": "Entry Fee (€)",
+        "exhibition_theme": "Tema / emne",
+        "expected_attendance": "Expected Attendance",
+        "family_friendly": "Family Friendly",
+        "festival_type": "Festivaltype",
+        "format": "Turneringsformat",
+        "frequency": "Hyppighed",
+        "gastro_type": "Arrangementstype",
+        "guided_tours": "Guided Tours",
+        "handicap_limit": "Maximum Handicap",
+        "headline_performers": "Headline Performers / Acts",
+        "interactive_elements": "Interaktive elementer",
+        "languages_offered": "Languages Available",
+        "market_type": "Markedstype",
+        "medal_finishers": "Finisher Medals",
+        "michelin_presence": "Michelin Star Chefs",
+        "music_genre": "Musikgenre",
+        "outdoor_indoor": "Stedtype",
+        "pairing_menu": "Pairing Menu Available",
+        "participant_limit": "Participant Limit",
+        "participating_chefs": "Participating Chefs",
+        "payment_methods": "Payment Methods Accepted",
+        "performance_type": "Optrædentype",
+        "prize_pool": "Præmiepulje / priser",
+        "product_categories": "Produktkategorier",
+        "season": "Season",
+        "seasonal_products": "Featured Seasonal Products",
+        "seasonal_theme": "Theme",
+        "seating_type": "Sidde-/ståtype",
+        "sound_check_access": "Sound Check Experience",
+        "spectator_tickets": "Tilskuere tilladt",
+        "sport_type": "Sportstype",
+        "stages_count": "Number of Stages / Areas",
         "sunset_viewing": "Sunset Experience",
-        "seasonal_products": "Featured Seasonal Products"
-      },
-      "values": {
-        "festival_type": {
-          "music": "Musikfestival",
-          "food_wine": "Food & Wine Festival",
-          "cultural": "Cultural Festival",
-          "art": "Art Festival",
-          "religious": "Religious Festival",
-          "film": "Film Festival"
-        },
-        "market_type": {
-          "farmers": "Farmers Market",
-          "artisan": "Artisan Market",
-          "flea": "Flea Market",
-          "christmas": "Christmas Market",
-          "night": "Night Market",
-          "antique": "Antique Market",
-          "trade_fair": "Handels- og udstillingsmesse"
-        },
-        "product_categories": {
-          "food": "Fresh Food",
-          "crafts": "Håndværk",
-          "antiques": "Antiques",
-          "clothing": "Clothing & Textiles",
-          "jewelry": "Jewelry",
-          "art": "Art & Paintings",
-          "plants": "Plants & Flowers",
-          "home": "Home Decor",
-          "tourism": "Turisme",
-          "agriculture": "Landbrug",
-          "commerce": "Handel",
-          "industry": "Industri",
-          "restaurants": "Restauranter"
-        },
-        "frequency": {
-          "weekly": "Weekly",
-          "biweekly": "Bi-weekly",
-          "monthly": "Monthly",
-          "annual": "Årlig",
-          "one_time": "One-time"
-        },
-        "outdoor_indoor": {
-          "outdoor": "Outdoor",
-          "indoor": "Indoor",
-          "mixed": "Blandet"
-        },
-        "payment_methods": {
-          "cash": "Cash",
-          "card": "Credit/Debit Card",
-          "mobile": "Mobile Payment",
-          "mbway": "MB Way"
-        },
-        "tournament_level": {
-          "professional": "Professionel",
-          "amateur": "Amateur",
-          "charity": "Charity",
-          "corporate": "Corporate",
-          "club": "Club Championship"
-        },
-        "format": {
-          "stroke": "Slagspil",
-          "match": "Match Play",
-          "scramble": "Scramble",
-          "stableford": "Stableford",
-          "foursome": "Foursome",
-          "fourball": "Fourball"
-        },
-        "gastro_type": {
-          "food_festival": "Food Festival",
-          "seafood_festival": "Skaldyrsfestival",
-          "sardine_festival": "Sardinfestival",
-          "wine_tasting": "Wine Tasting",
-          "cooking_class": "Cooking Class",
-          "gourmet_dinner": "Gourmet Dinner",
-          "chef_table": "Chef's Table Experience",
-          "food_tour": "Food Tour"
-        },
-        "cuisine_focus": {
-          "portuguese": "Portugisisk",
-          "seafood": "Skaldyr",
-          "wine": "Wine",
-          "olive_oil": "Olive Oil",
-          "mediterranean": "Mediterranean",
-          "international": "International",
-          "fusion": "Fusion"
-        },
-        "dietary_options": {
-          "vegetarian": "Vegetarian",
-          "vegan": "Vegan",
-          "gluten_free": "Gluten-Free",
-          "halal": "Halal",
-          "kosher": "Kosher"
-        },
-        "music_genre": {
-          "classical": "Classical",
-          "jazz": "Jazz",
-          "rock": "Rock",
-          "pop": "Pop",
-          "electronic": "Electronic",
-          "fado": "Fado",
-          "portuguese": "Portugisisk musik",
-          "world": "Verdensmusik",
-          "folk": "Folk"
-        },
-        "performance_type": {
-          "concert": "Concert",
-          "festival": "Festival",
-          "street_party": "Gadefest",
-          "orchestra": "Orchestra",
-          "dj_set": "DJ Set",
-          "intimate": "Intimate Performance",
-          "open_air": "Open Air"
-        },
-        "venue_type": {
-          "amphitheater": "Amphitheater",
-          "arena": "Arena",
-          "beach": "Strand",
-          "club": "Club",
-          "winery": "Winery",
-          "theater": "Theater",
-          "church": "Church",
-          "waterfront": "Havnefront",
-          "historic_center": "Historisk centrum"
-        },
-        "seating_type": {
-          "seated": "Seated",
-          "standing": "Stående",
-          "mixed": "Mixed"
-        },
-        "cultural_type": {
-          "exhibition": "Exhibition",
-          "museum": "Museum Event",
-          "historical": "Historical Reenactment",
-          "medieval_fair": "Middelaldermarked",
-          "theater": "Theater",
-          "dance": "Dance Performance",
-          "literary": "Literary Event"
-        },
-        "languages_offered": {
-          "portuguese": "Portuguese",
-          "english": "English",
-          "spanish": "Spanish",
-          "french": "French",
-          "german": "German"
-        },
-        "accessibility_features": {
-          "wheelchair": "Wheelchair Accessible",
-          "audio_guide": "Audio Guide",
-          "sign_language": "Sign Language",
-          "braille": "Braille Materials"
-        },
-        "sport_type": {
-          "running": "Running",
-          "cycling": "Cycling",
-          "triathlon": "Triathlon",
-          "sailing": "Sailing",
-          "tennis": "Tennis",
-          "swimming": "Swimming",
-          "football": "Football",
-          "surfing": "Surfing",
-          "motorsport": "Motorsport"
-        },
-        "competition_level": {
-          "international": "Internationalt",
-          "national": "National",
-          "regional": "Regional",
-          "amateur": "Amateur",
-          "fun_run": "Fun/Charity"
-        },
-        "age_groups": {
-          "under_18": "Under 18",
-          "18_29": "18-29",
-          "30_39": "30-39",
-          "40_49": "40-49",
-          "50_plus": "50+",
-          "open": "Open Category"
-        },
-        "season": {
-          "spring": "Spring",
-          "summer": "Summer",
-          "autumn": "Autumn",
-          "winter": "Winter"
-        },
-        "activities_included": {
-          "beach": "Beach Activities",
-          "hiking": "Hiking",
-          "wine_harvest": "Wine Harvest",
-          "birdwatching": "Birdwatching",
-          "whale_watching": "Whale Watching",
-          "flower_viewing": "Flower Viewing",
-          "sunset_experience": "Sunset Experience"
-        }
+        "tasting_included": "Smagsprøver inkluderet",
+        "timing_chip": "Electronic Timing",
+        "tournament_level": "Turneringsniveau",
+        "vendor_count": "Number of Vendors",
+        "venue_type": "Stedtype",
+        "vip_packages": "VIP-pakker tilgængelige",
+        "weather_dependent": "Weather Dependent"
       },
       "textValues": {
         "distance_category": {
@@ -1822,80 +1818,216 @@
         "prize_pool": {
           "threeMillionDollarPurse": "Præmiepulje på 3 millioner dollars"
         }
+      },
+      "values": {
+        "accessibility_features": {
+          "audio_guide": "Audio Guide",
+          "braille": "Braille Materials",
+          "sign_language": "Sign Language",
+          "wheelchair": "Wheelchair Accessible"
+        },
+        "activities_included": {
+          "beach": "Beach Activities",
+          "birdwatching": "Birdwatching",
+          "flower_viewing": "Flower Viewing",
+          "hiking": "Hiking",
+          "sunset_experience": "Sunset Experience",
+          "whale_watching": "Whale Watching",
+          "wine_harvest": "Wine Harvest"
+        },
+        "age_groups": {
+          "18_29": "18-29",
+          "30_39": "30-39",
+          "40_49": "40-49",
+          "50_plus": "50+",
+          "open": "Open Category",
+          "under_18": "Under 18"
+        },
+        "competition_level": {
+          "amateur": "Amateur",
+          "fun_run": "Fun/Charity",
+          "international": "Internationalt",
+          "national": "National",
+          "regional": "Regional"
+        },
+        "cuisine_focus": {
+          "fusion": "Fusion",
+          "international": "International",
+          "mediterranean": "Mediterranean",
+          "olive_oil": "Olive Oil",
+          "portuguese": "Portugisisk",
+          "seafood": "Skaldyr",
+          "wine": "Wine"
+        },
+        "cultural_type": {
+          "dance": "Dance Performance",
+          "exhibition": "Exhibition",
+          "historical": "Historical Reenactment",
+          "literary": "Literary Event",
+          "medieval_fair": "Middelaldermarked",
+          "museum": "Museum Event",
+          "theater": "Theater"
+        },
+        "dietary_options": {
+          "gluten_free": "Gluten-Free",
+          "halal": "Halal",
+          "kosher": "Kosher",
+          "vegan": "Vegan",
+          "vegetarian": "Vegetarian"
+        },
+        "festival_type": {
+          "art": "Art Festival",
+          "cultural": "Cultural Festival",
+          "film": "Film Festival",
+          "food_wine": "Food & Wine Festival",
+          "music": "Musikfestival",
+          "religious": "Religious Festival"
+        },
+        "format": {
+          "fourball": "Fourball",
+          "foursome": "Foursome",
+          "match": "Match Play",
+          "scramble": "Scramble",
+          "stableford": "Stableford",
+          "stroke": "Slagspil"
+        },
+        "frequency": {
+          "annual": "Årlig",
+          "biweekly": "Bi-weekly",
+          "monthly": "Monthly",
+          "one_time": "One-time",
+          "weekly": "Weekly"
+        },
+        "gastro_type": {
+          "chef_table": "Chef's Table Experience",
+          "cooking_class": "Cooking Class",
+          "food_festival": "Food Festival",
+          "food_tour": "Food Tour",
+          "gourmet_dinner": "Gourmet Dinner",
+          "sardine_festival": "Sardinfestival",
+          "seafood_festival": "Skaldyrsfestival",
+          "wine_tasting": "Wine Tasting"
+        },
+        "languages_offered": {
+          "english": "English",
+          "french": "French",
+          "german": "German",
+          "portuguese": "Portuguese",
+          "spanish": "Spanish"
+        },
+        "market_type": {
+          "antique": "Antique Market",
+          "artisan": "Artisan Market",
+          "christmas": "Christmas Market",
+          "farmers": "Farmers Market",
+          "flea": "Flea Market",
+          "night": "Night Market",
+          "trade_fair": "Handels- og udstillingsmesse"
+        },
+        "music_genre": {
+          "classical": "Classical",
+          "electronic": "Electronic",
+          "fado": "Fado",
+          "folk": "Folk",
+          "jazz": "Jazz",
+          "pop": "Pop",
+          "portuguese": "Portugisisk musik",
+          "rock": "Rock",
+          "world": "Verdensmusik"
+        },
+        "outdoor_indoor": {
+          "indoor": "Indoor",
+          "mixed": "Blandet",
+          "outdoor": "Outdoor"
+        },
+        "payment_methods": {
+          "card": "Credit/Debit Card",
+          "cash": "Cash",
+          "mbway": "MB Way",
+          "mobile": "Mobile Payment"
+        },
+        "performance_type": {
+          "concert": "Concert",
+          "dj_set": "DJ Set",
+          "festival": "Festival",
+          "intimate": "Intimate Performance",
+          "open_air": "Open Air",
+          "orchestra": "Orchestra",
+          "street_party": "Gadefest"
+        },
+        "product_categories": {
+          "agriculture": "Landbrug",
+          "antiques": "Antiques",
+          "art": "Art & Paintings",
+          "clothing": "Clothing & Textiles",
+          "commerce": "Handel",
+          "crafts": "Håndværk",
+          "food": "Fresh Food",
+          "home": "Home Decor",
+          "industry": "Industri",
+          "jewelry": "Jewelry",
+          "plants": "Plants & Flowers",
+          "restaurants": "Restauranter",
+          "tourism": "Turisme"
+        },
+        "season": {
+          "autumn": "Autumn",
+          "spring": "Spring",
+          "summer": "Summer",
+          "winter": "Winter"
+        },
+        "seating_type": {
+          "mixed": "Mixed",
+          "seated": "Seated",
+          "standing": "Stående"
+        },
+        "sport_type": {
+          "cycling": "Cycling",
+          "football": "Football",
+          "motorsport": "Motorsport",
+          "running": "Running",
+          "sailing": "Sailing",
+          "surfing": "Surfing",
+          "swimming": "Swimming",
+          "tennis": "Tennis",
+          "triathlon": "Triathlon"
+        },
+        "tournament_level": {
+          "amateur": "Amateur",
+          "charity": "Charity",
+          "club": "Club Championship",
+          "corporate": "Corporate",
+          "professional": "Professionel"
+        },
+        "venue_type": {
+          "amphitheater": "Amphitheater",
+          "arena": "Arena",
+          "beach": "Strand",
+          "church": "Church",
+          "club": "Club",
+          "historic_center": "Historisk centrum",
+          "theater": "Theater",
+          "waterfront": "Havnefront",
+          "winery": "Winery"
+        }
       }
-    },
-    "tags": {
-      "events": "Arrangementer",
-      "albufeira": "Albufeira",
-      "almancil": "Almancil",
-      "carvoeiro": "Carvoeiro",
-      "faro": "Faro",
-      "lagoa": "Lagoa",
-      "loule": "Loulé",
-      "olhao": "Olhão",
-      "portimao": "Portimão",
-      "silves": "Silves",
-      "vilamoura": "Vilamoura",
-      "motorsport": "Motorsport",
-      "motorcycle-racing": "Motorcykelløb",
-      "wsbk": "WSBK",
-      "superbike-world-championship": "Superbike World Championship",
-      "aia-circuit": "AIA Circuit",
-      "racing-weekeng": "Racing Weekend",
-      "iberian-racing-festival": "Iberian Racing Festival",
-      "autodromo-internacional-do-algarve": "Autódromo Internacional do Algarve",
-      "motogp": "MotoGP",
-      "grand-prix": "Grand Prix",
-      "smooth-jazz": "Smooth jazz",
-      "music": "Musik",
-      "music-festival": "Musikfestival",
-      "world-music": "Verdensmusik",
-      "culture-festival": "Kulturfestival",
-      "afro-nation": "Afro Nation",
-      "beach-music-festival": "Strandmusikfestival",
-      "festival-med": "Festival MED",
-      "festival-f": "Festival F",
-      "festival-mar-me-quer": "Festival Mar Me Quer",
-      "summer-festival": "Sommerfestival",
-      "portuguese-music": "Portugisisk musik",
-      "culture": "Kultur",
-      "cultural-event": "Kulturarrangement",
-      "feira-medieval": "Middelaldermarked",
-      "medieval-fair": "Middelaldermarked",
-      "gastronomy": "Gastronomi",
-      "sardines": "Sardiner",
-      "seafood": "Skaldyr",
-      "concerts": "Koncerter",
-      "festival-do-marisco": "Festival do Marisco",
-      "festival-da-sardinha": "Festival da Sardinha",
-      "golf": "Golf",
-      "pga-tour-champions": "PGA TOUR Champions",
-      "portugal-invitational": "Portugal Invitational",
-      "the-els-club": "The Els Club",
-      "carvoeiro-noite-black-white": "Carvoeiro Noite Black & White",
-      "street-party": "Gadefest",
-      "summer-opening": "Sommeråbning",
-      "praia-do-carvoeiro": "Praia do Carvoeiro",
-      "praia-da-rocha": "Praia da Rocha",
-      "zona-ribeirinha": "Havnefront",
-      "vila-adentro": "Vila Adentro",
-      "fatacil": "FATACIL",
-      "fair": "Messe",
-      "crafts": "Håndværk",
-      "tourism": "Turisme",
-      "agriculture": "Landbrug",
-      "pine-cliffs": "Pine Cliffs",
-      "racing-weekend": "Racerweekend",
-      "afro-nation-portugal": "Afro Nation Portugal"
     }
   },
   "experiences": {
+    "allActiveCityHubs": "Alle aktive oplevelseshubs",
+    "allActiveCityHubsDescription": "Udforsk Algarve-byer med aktive oplevelser og lokale højdepunkter.",
+    "cityFallbackDescription": "Udforsk kuraterede oplevelser, aktiviteter og lokale højdepunkter i denne Algarve-by.",
+    "cityIndex": "Oplevelser efter by",
+    "cityIndexDescription": "Gennemse Algarve-byer med aktuelle oplevelsestal, og udforsk aktiviteter, strande, mad og lokale højdepunkter.",
     "cta": {
       "description": "Fortæl os, hvad der begejstrer dig, og vi laver en skræddersyet rejseplan med udvalgte oplevelser på tværs af Algarve.",
       "primary": "Planlæg min oplevelse",
       "secondary": "Gennemse alle opslag",
       "title": "Klar til dit næste eventyr?"
     },
+    "exploreAlgarveCities": "Udforsk Algarve-oplevelser efter by",
+    "featuredCityHub": "Udvalgt oplevelseshub",
+    "featuredCityHubDescription": "{{name}} samler {{count}} kuraterede oplevelser og steder at udforske.",
     "hero": {
       "alt": "Algarve oplevelser",
       "badge": "Kurerede eventyr",
@@ -1904,6 +2036,7 @@
       "subtitle": "Fra kysteventyr til kulinariske opdagelser - find uforglemmelige oplevelser håndplukket til enhver smag og årstid.",
       "title": "Oplev Algarve"
     },
+    "listingsCount": "{{count}} oplevelser",
     "pillars": {
       "culture": {
         "description": "Historiske landsbyer, lokale markeder, håndværkerværksteder og levende traditioner i hele regionen.",
@@ -1928,16 +2061,7 @@
       "categories": "Aktivitetskategorier",
       "curated": "Kurerede oplevelser",
       "sunDays": "Solskinsdage om året"
-    },
-    "featuredCityHub": "Udvalgt oplevelseshub",
-    "featuredCityHubDescription": "{{name}} samler {{count}} kuraterede oplevelser og steder at udforske.",
-    "cityIndex": "Oplevelser efter by",
-    "cityIndexDescription": "Gennemse Algarve-byer med aktuelle oplevelsestal, og udforsk aktiviteter, strande, mad og lokale højdepunkter.",
-    "exploreAlgarveCities": "Udforsk Algarve-oplevelser efter by",
-    "listingsCount": "{{count}} oplevelser",
-    "allActiveCityHubs": "Alle aktive oplevelseshubs",
-    "allActiveCityHubsDescription": "Udforsk Algarve-byer med aktive oplevelser og lokale højdepunkter.",
-    "cityFallbackDescription": "Udforsk kuraterede oplevelser, aktiviteter og lokale højdepunkter i denne Algarve-by."
+    }
   },
   "footer": {
     "about": "Om os",
@@ -1965,208 +2089,305 @@
     "sections": {
       "categories": "Kategorier",
       "company": "Selskab",
-      "legal": "Legal",
-      "regions": "Regioner",
       "homepage": {
-        "editorsSelection": {
-          "badge": "Editor's picks",
-          "subtitle": "Handpicked places and properties that define the very best of the Algarve.",
-          "title": "Editor's Selection",
-          "titleAlt": "Signature Collection",
-          "cta": "View all collection",
-          "ctaMobile": "View full collection",
-          "emptyTitle": "Curated listings are being prepared.",
-          "emptySubtitle": "Browse the full Algarve directory while the editorial collection is updated."
-        },
-        "trustSection": {
-          "label": "Why AlgarveOfficial",
-          "title": "Curated for confident discovery",
-          "subtitle": "Quality places, properties and experiences across the Algarve.",
-          "items": {
-            "curated": {
-              "title": "Premium curated selection",
-              "description": "Quality places, properties and experiences across the Algarve."
-            },
-            "verified": {
-              "title": "Local insights, verified listings",
-              "description": "Discovery guided by place and context, not directory noise."
-            },
-            "comprehensive": {
-              "title": "Stay, dine, explore, invest",
-              "description": "One platform for visitors, residents, owners and investors."
-            }
-          }
-        },
         "categories": {
           "label": "What We Offer",
-          "title": "Premium Categories",
-          "subtitle": "Browse the premium directory by category, from places to stay to restaurants, experiences and property."
-        },
-        "hero": {
-          "label": "Curated for you",
-          "title": "The Algarve, Curated",
-          "subtitle": "Hotels, restaurants, experiences, golf and real estate — in one platform.",
-          "primaryCta": "Explore curated places",
-          "secondaryCta": "Opret min Algarve-rejse",
-          "curated": "Curated by locals",
-          "verified": "Verified and trusted",
-          "intent": "For visitors and investors"
-        },
-        "quickLinks": {
-          "label": "Start exploring",
-          "title": "Choose your Algarve",
-          "subtitle": "Start with the places, experiences and opportunities that match your trip or plans.",
-          "cta": "Explore",
-          "items": {
-            "stay": {
-              "title": "Where to Stay",
-              "subtitle": "Hotels, villas and resorts",
-              "cta": "Browse stays"
-            },
-            "experiences": {
-              "title": "Things to Do",
-              "subtitle": "Tours, golf and experiences",
-              "cta": "Discover"
-            },
-            "dining": {
-              "title": "Dining",
-              "subtitle": "Restaurants and gastronomy",
-              "cta": "Explore"
-            },
-            "realEstate": {
-              "title": "Real Estate",
-              "subtitle": "Properties and investment",
-              "cta": "Browse"
-            }
-          }
+          "subtitle": "Browse the premium directory by category, from places to stay to restaurants, experiences and property.",
+          "title": "Premium Categories"
         },
         "cities": {
           "label": "Cities",
-          "title": "Explore the Algarve by City",
-          "subtitle": "Explore the Algarve by city, from Lagos to Tavira, including beaches, restaurants and premium experiences.",
-          "viewAll": "View All Cities",
           "listingCount": "{{count}} listing",
-          "listingCount_plural": "{{count}} listings"
+          "listingCount_plural": "{{count}} listings",
+          "subtitle": "Explore the Algarve by city, from Lagos to Tavira, including beaches, restaurants and premium experiences.",
+          "title": "Explore the Algarve by City",
+          "viewAll": "View All Cities"
+        },
+        "editorsSelection": {
+          "badge": "Editor's picks",
+          "cta": "View all collection",
+          "ctaMobile": "View full collection",
+          "emptySubtitle": "Browse the full Algarve directory while the editorial collection is updated.",
+          "emptyTitle": "Curated listings are being prepared.",
+          "subtitle": "Handpicked places and properties that define the very best of the Algarve.",
+          "title": "Editor's Selection",
+          "titleAlt": "Signature Collection"
+        },
+        "hero": {
+          "curated": "Curated by locals",
+          "intent": "For visitors and investors",
+          "label": "Curated for you",
+          "primaryCta": "Explore curated places",
+          "secondaryCta": "Opret min Algarve-rejse",
+          "subtitle": "Hotels, restaurants, experiences, golf and real estate — in one platform.",
+          "title": "The Algarve, Curated",
+          "verified": "Verified and trusted"
+        },
+        "mapCta": {
+          "cta": "Search by location",
+          "label": "Explore on map",
+          "subtitle": "Explore places across the Algarve, then filter by area, category and intent.",
+          "title": "Search the Algarve by location"
+        },
+        "quickLinks": {
+          "cta": "Explore",
+          "items": {
+            "dining": {
+              "cta": "Explore",
+              "subtitle": "Restaurants and gastronomy",
+              "title": "Dining"
+            },
+            "experiences": {
+              "cta": "Discover",
+              "subtitle": "Tours, golf and experiences",
+              "title": "Things to Do"
+            },
+            "realEstate": {
+              "cta": "Browse",
+              "subtitle": "Properties and investment",
+              "title": "Real Estate"
+            },
+            "stay": {
+              "cta": "Browse stays",
+              "subtitle": "Hotels, villas and resorts",
+              "title": "Where to Stay"
+            }
+          },
+          "label": "Start exploring",
+          "subtitle": "Start with the places, experiences and opportunities that match your trip or plans.",
+          "title": "Choose your Algarve"
         },
         "regions": {
           "label": "Regions",
-          "title": "Explore by Region",
-          "subtitle": "Discover the Algarve by area, from coastal towns to countryside retreats.",
-          "viewAll": "View All Regions",
           "listingCount": "{{count}} listing",
-          "listingCount_plural": "{{count}} listings"
+          "listingCount_plural": "{{count}} listings",
+          "subtitle": "Discover the Algarve by area, from coastal towns to countryside retreats.",
+          "title": "Explore by Region",
+          "viewAll": "View All Regions"
         },
-        "mapCta": {
-          "label": "Explore on map",
-          "title": "Search the Algarve by location",
-          "subtitle": "Explore places across the Algarve, then filter by area, category and intent.",
-          "cta": "Search by location"
+        "trustSection": {
+          "items": {
+            "comprehensive": {
+              "description": "One platform for visitors, residents, owners and investors.",
+              "title": "Stay, dine, explore, invest"
+            },
+            "curated": {
+              "description": "Quality places, properties and experiences across the Algarve.",
+              "title": "Premium curated selection"
+            },
+            "verified": {
+              "description": "Discovery guided by place and context, not directory noise.",
+              "title": "Local insights, verified listings"
+            }
+          },
+          "label": "Why AlgarveOfficial",
+          "subtitle": "Quality places, properties and experiences across the Algarve.",
+          "title": "Curated for confident discovery"
         }
-      }
+      },
+      "legal": "Legal",
+      "regions": "Regioner"
     },
     "tagline": "Valg af luksusoplevelser i Algarve",
     "terms": "Servicevilkår",
     "termsOfService": "Servicevilkår"
   },
   "golf": {
-    "iframeTitle": "AlgarveOfficial Golf",
-    "loadingDescription": "Forbereder din runde...",
-    "loadingTitle": "Indlæser Golf",
-    "hero": {
-      "badge": "Udvalgt golf",
-      "title": "Spil mesterskabsgolf i Algarve",
-      "subtitle": "Opdag eksklusive golflistinger, sammenlign banedata og planlæg din næste runde ved Portugals premiumkyst.",
-      "alt": "Golf fairways i Algarve",
-      "ctaCourses": "Se baner",
-      "ctaLeaderboard": "Se rangliste"
-    },
-    "featuredCourses": {
-      "title": "Udvalgte baner",
-      "cta": "Se alle",
-      "emptyTitle": "Ingen golflistinger tilgængelige",
-      "emptyDescription": "Golflistinger vises her, så snart de bliver publiceret."
+    "courseDirectory": {
+      "cityFilter": "By: {{city}}.",
+      "description": "Udforsk golfklubber via AlgarveOfficial-fortegnelser.",
+      "emptyDescription": "Ingen publicerede golffortegnelser matcher dine aktuelle filtre.",
+      "emptyTitle": "Ingen golffortegnelser tilgængelige",
+      "metadataDescription": "Udforsk championship-golflister i Algarve med banedata, placeringer og adgang til scorecards.",
+      "metadataTitle": "Golfbaner i Algarve",
+      "regionFilter": "Region: {{region}}.",
+      "title": "Golfbanekatalog"
     },
     "courseTools": {
-      "bookingTitle": "Book tee time",
-      "bookingSubtitle": "Integreret booking bliver tilgængelig i næste fase.",
       "bookingBody": "Vi forbinder bookingpartnere og ledige tider.",
-      "scorecardsTitle": "Scorecards og handicap",
+      "bookingSubtitle": "Integreret booking bliver tilgængelig i næste fase.",
+      "bookingTitle": "Book tee time",
+      "scorecardsBody": "Snart kan du gemme runder, sammenligne scores og følge handicapudvikling.",
       "scorecardsSubtitle": "Struktureret rundesporing kommer i fase 2.",
-      "scorecardsBody": "Snart kan du gemme runder, sammenligne scores og følge handicapudvikling."
-    },
-    "leaderboard": {
-      "title": "Rangliste",
-      "cta": "Åbn side"
+      "scorecardsTitle": "Scorecards og handicap"
     },
     "cta": {
-      "title": "Klar til at planlægge næste runde?",
-      "subtitle": "Sammenlign baner, gem favoritter og begynd rundesporing.",
       "primary": "Se baner",
-      "secondary": "Se rangliste"
+      "secondary": "Se rangliste",
+      "subtitle": "Sammenlign baner, gem favoritter og begynd rundesporing.",
+      "title": "Klar til at planlægge næste runde?"
     },
-    "courseDirectory": {
-      "title": "Golfbanekatalog",
-      "description": "Udforsk golfklubber via AlgarveOfficial-fortegnelser.",
-      "emptyTitle": "Ingen golffortegnelser tilgængelige",
-      "emptyDescription": "Ingen publicerede golffortegnelser matcher dine aktuelle filtre.",
-      "metadataTitle": "Golfbaner i Algarve",
-      "metadataDescription": "Udforsk championship-golflister i Algarve med banedata, placeringer og adgang til scorecards.",
-      "regionFilter": "Region: {{region}}.",
-      "cityFilter": "By: {{city}}."
+    "featuredCourses": {
+      "cta": "Se alle",
+      "emptyDescription": "Golflistinger vises her, så snart de bliver publiceret.",
+      "emptyTitle": "Ingen golflistinger tilgængelige",
+      "title": "Udvalgte baner"
+    },
+    "hero": {
+      "alt": "Golf fairways i Algarve",
+      "badge": "Udvalgt golf",
+      "ctaCourses": "Se baner",
+      "ctaLeaderboard": "Se rangliste",
+      "subtitle": "Opdag eksklusive golflistinger, sammenlign banedata og planlæg din næste runde ved Portugals premiumkyst.",
+      "title": "Spil mesterskabsgolf i Algarve"
+    },
+    "iframeTitle": "AlgarveOfficial Golf",
+    "leaderboard": {
+      "cta": "Åbn side",
+      "title": "Rangliste"
     },
     "leaderboardPage": {
-      "title": "Rangliste",
       "description": "Aktuel spillerstilling og forskelle i forhold til par.",
-      "topPlayers": "Bedste spillere",
-      "scoreDescription": "Scores vises i forhold til par."
+      "scoreDescription": "Scores vises i forhold til par.",
+      "title": "Rangliste",
+      "topPlayers": "Bedste spillere"
+    },
+    "loadingDescription": "Forbereder din runde...",
+    "loadingTitle": "Indlæser Golf",
+    "metadata": {
+      "description": "Oplev Algarves bedste golfbaner, premiumklubber og ressourcer til golfplanlægning.",
+      "title": "Golf i Algarve"
     },
     "round": {
-      "unavailableTitle": "Runden er ikke tilgængelig",
-      "unavailableDescription": "Denne bane har endnu ikke en komplet hulopsætning. Prøv en anden golfside indtil videre.",
-      "startRound": "Start runde",
-      "starting": "Starter...",
-      "unableToStart": "Kan ikke starte en runde lige nu.",
       "back": "Tilbage",
-      "scorecard": "Scorekort",
-      "holesEntered": "{{entered}} af {{total}} huller registreret",
-      "noHoleData": "Der er ingen huldata til denne runde.",
-      "yards": "Yards",
-      "strokeIndex": "S.I.",
-      "strokes": "Slag",
       "decreaseStrokes": "Reducer slag",
+      "holesEntered": "{{entered}} af {{total}} huller registreret",
       "increaseStrokes": "Og slag",
+      "nextHole": "Naeste hul {{hole}}",
+      "noHoleData": "Der er ingen huldata til denne runde.",
+      "openScorecard": "Abn scorekort",
+      "previousHole": "Forrige hul",
+      "saved": "Gemt",
       "saveFailed": "Kunne ikke gemme",
       "saving": "Gemmer...",
-      "saved": "Gemt",
-      "previousHole": "Forrige hul",
-      "nextHole": "Naeste hul {{hole}}",
-      "openScorecard": "Abn scorekort",
+      "scorecard": "Scorekort",
+      "starting": "Starter...",
+      "startRound": "Start runde",
+      "strokeIndex": "S.I.",
+      "strokes": "Slag",
       "unableToSaveScore": "Kunne ikke gemme score.",
-      "unableToUpdateTee": "Kunne ikke opdatere tee-farve."
+      "unableToStart": "Kan ikke starte en runde lige nu.",
+      "unableToUpdateTee": "Kunne ikke opdatere tee-farve.",
+      "unavailableDescription": "Denne bane har endnu ikke en komplet hulopsætning. Prøv en anden golfside indtil videre.",
+      "unavailableTitle": "Runden er ikke tilgængelig",
+      "yards": "Yards"
     },
     "scorecard": {
       "back": "Tilbage",
-      "title": "Scorekort",
-      "roundFinished": "Runde afsluttet",
-      "finishRound": "Afslut runde",
-      "frontNine": "Første ni",
       "backNine": "Sidste ni",
       "diff": "Forskel",
-      "total": "Total",
-      "holesRange": "Huller {{start}}-{{end}}"
-    },
-    "metadata": {
-      "title": "Golf i Algarve",
-      "description": "Oplev Algarves bedste golfbaner, premiumklubber og ressourcer til golfplanlægning."
+      "finishRound": "Afslut runde",
+      "frontNine": "Første ni",
+      "holesRange": "Huller {{start}}-{{end}}",
+      "roundFinished": "Runde afsluttet",
+      "title": "Scorekort",
+      "total": "Total"
     }
+  },
+  "golfCourse": {
+    "academy": "Akademi",
+    "access": "Adgang",
+    "bestFor": "Bedst til",
+    "bookTeeTime": "Book Tee Time",
+    "bookTeeTimeAria": "Book tee time hos ekstern partner",
+    "buggy": "Buggy",
+    "casual": "Afslappede runder",
+    "championship": "Championship-spil",
+    "clubhouse": "Klubhus",
+    "confident": "Sikre spillere",
+    "contactClub": "Kontakt klub",
+    "designer": "Designer",
+    "difficulty": "Sværhedsgrad",
+    "drivingRange": "Driving range",
+    "facilities": "Faciliteter",
+    "golfers": "Golfspillere",
+    "hcp": "HCP",
+    "hole": "Hul",
+    "holes": "Huller",
+    "leaderboard": "Rangliste",
+    "length": "Længde",
+    "locationFallback": "Algarve",
+    "metaDescriptionFallback": "Udforsk banedetaljer, scorecard og placering.",
+    "metaTitleFallback": "Golfbane",
+    "meters": "m",
+    "overview": "Baneoversigt",
+    "par": "Par",
+    "player": "Spiller",
+    "priceRange": "Prisniveau",
+    "private": "Privat",
+    "public": "Offentlig",
+    "rank": "Placering",
+    "rating": "Course Rating",
+    "red": "Rød",
+    "regionFallback": "Algarve",
+    "relatedCourses": "Nærliggende baner",
+    "restaurant": "Restaurant",
+    "rounds": "Runder",
+    "score": "Score",
+    "scorecard": "Scorecard",
+    "slope": "Slope",
+    "visitWebsite": "Besøg website",
+    "white": "Hvid",
+    "yellow": "Gul"
+  },
+  "golfDiscovery": {
+    "advanced": "Advanced",
+    "backToGolf": "Alle golfbaner",
+    "beginner": "Beginner",
+    "beginnerDescription": "Easier rounds and learning",
+    "beginnerIntro": "Welcoming courses for relaxed and confident play",
+    "beginnerTitle": "Beginner Friendly",
+    "bestFor": "Best for",
+    "challenge": "Challenge",
+    "championshipDescription": "18-hole tournament layouts",
+    "championshipIntro": "Curated selection of tournament-level courses",
+    "championshipPlay": "Championship play",
+    "championshipTitle": "Championship Courses",
+    "coastalDescription": "Views and atmosphere",
+    "coastalIntro": "Ocean light, coastal settings, and memorable Algarve scenery",
+    "coastalTitle": "Scenic Coastal Golf",
+    "discoverySubtitle": "Choose the kind of round you want and discover curated courses without endless comparison.",
+    "discoveryTitle": "Find your perfect golf course in the Algarve",
+    "ease": "Ease",
+    "editorsSelection": "Editor's Selection",
+    "experiencedGolfers": "Experienced golfers",
+    "finderTitle": "Find your course",
+    "heroLabel": "Oplev golf",
+    "intermediate": "Intermediate",
+    "luxuryDescription": "Premium golf experiences",
+    "luxuryIntro": "Premium clubs, polished service, and standout golf settings",
+    "luxuryTitle": "Luxury & Private Clubs",
+    "mattersQuestion": "What matters?",
+    "noMatchesDescription": "Explore all golf courses while we expand this discovery collection.",
+    "noMatchesTitle": "No matching courses yet",
+    "premiumExperience": "Premium experience",
+    "quick9Description": "Faster rounds",
+    "quick9Intro": "Shorter formats for flexible Algarve golf days",
+    "quick9Title": "Quick 9-Hole Rounds",
+    "quickRounds": "Quick rounds",
+    "relaxedPlay": "Relaxed play",
+    "scenery": "Scenery",
+    "scenicRounds": "Scenic rounds",
+    "skillQuestion": "Skill?",
+    "verified": "Verified",
+    "viewCourse": "View Course",
+    "viewMatches": "View matches",
+    "youMightAlsoLike": "You might also like"
   },
   "guides": {
     "breadcrumbLabel": "Brødkrumme",
     "browseAllInCity": "Gennemse alle {{category}} i {{city}}.",
+    "browseAllVisit": "Browse all of Visit",
+    "categoryInCity": "{{category}} i {{city}}",
+    "cityCategoryComingSoonDescription": "This page is available so visitors can discover this topic in {{city}} while new listings are published. Explore the main city page or nearby city/category combinations in the meantime.",
+    "cityComingSoonDescription": "This page is available so visitors can discover {{city}} while new listings are published. In the meantime, you can explore the main Visit directory or jump into active category pages below.",
+    "discoverCuratedInCity": "Discover curated listings for {{category}} in {{city}}. From local favorites to premium experiences.",
     "exploreMoreInCity": "Udforsk mere i {{city}}",
     "findBestInCity": "Find den bedste {{category}} i {{city}}",
     "getFeatured": "Bliv fremhævet",
     "getFeaturedInCity": "Bliv fremhævet i {{city}}",
+    "listingsForCityCategoryComingSoon": "Listings for {{category}} in {{city}} are being added",
+    "listingsForCityComingSoon": "Listings for {{city}} are being added",
     "listYourBusiness": "Liste over din virksomhed",
     "moreListingsComingSoon": "Flere opslag kommer snart.",
     "notFoundDescription": "Den ønskede guide kunne ikke findes.",
@@ -2213,41 +2434,24 @@
         "title": "Wellness i Lagos"
       }
     },
+    "relatedAlgarveCities": "Related Algarve cities",
     "relatedGuides": "Relaterede guider",
     "standOutInCity": "Skil dig ud for besøgende, der forsker i {{category}} i {{city}}.",
     "topCategoryInCity": "Top {{category}} i {{city}}",
     "upgradeYourListing": "Opgrader din fortegnelse",
     "viewAllInCity": "Se alle {{category}} i {{city}}",
-    "categoryInCity": "{{category}} i {{city}}",
-    "listingsForCityCategoryComingSoon": "Listings for {{category}} in {{city}} are being added",
-    "cityCategoryComingSoonDescription": "This page is available so visitors can discover this topic in {{city}} while new listings are published. Explore the main city page or nearby city/category combinations in the meantime.",
-    "viewCity": "View {{city}}",
-    "discoverCuratedInCity": "Discover curated listings for {{category}} in {{city}}. From local favorites to premium experiences.",
-    "browseAllVisit": "Browse all of Visit",
-    "listingsForCityComingSoon": "Listings for {{city}} are being added",
-    "cityComingSoonDescription": "This page is available so visitors can discover {{city}} while new listings are published. In the meantime, you can explore the main Visit directory or jump into active category pages below.",
-    "relatedAlgarveCities": "Related Algarve cities"
-  },
-  "categoryHub": {
-    "heroTitle": "{{category}} i Algarve",
-    "heroDescription": "Opdag de bedste {{category}} i hele Algarve. Udforsk efter by for at finde kuraterede lokale anbefalinger.",
-    "topCities": "Topbyer for {{category}}",
-    "featured": "Udvalgte {{category}}",
-    "visibilityTitle": "Få Mere Synlighed i Algarve",
-    "visibilityDescription": "Skil dig ud fra konkurrenterne. Opgrader din {{category}}-fortegnelse for at nå flere kunder.",
-    "bottomTitle": "Find de bedste {{category}} i Algarve",
-    "bottomDescription": "Opdag kuraterede {{category}} i hele Algarve. Fra lokale favoritter til premiumoplevelser."
+    "viewCity": "View {{city}}"
   },
   "hero": {
     "aiPlannerButton": "AI-PLANLÆGGER",
     "aiPlannerPlaceholder": "AI Algarve-planlægger... (f.eks. 'Planlæg 3 dage i Algarve')",
     "headline": "Opdag",
     "headlineHighlight": "Algarves fineste",
+    "intent": "For visitors and investors",
+    "lead": "Curated by locals",
     "listYourBusiness": "Tilføj Din Virksomhed",
     "location": "Distriktet Faro, Portugal",
     "loginRequired": "Log ind for at oprette en rejse.",
-    "tripLoginTitle": "Opret din Algarve-rejse",
-    "tripLoginDescription": "Log ind eller opret en konto for at gemme din rejseplan.",
     "planTripCta": "Planlæg dit rejseeventyr",
     "popular": "Populær",
     "primaryCta": "Udforsk regioner",
@@ -2260,6 +2464,8 @@
     "tagMichelinDining": "Michelin spisning",
     "tagPrivateAviation": "Privat luftfart",
     "tripCreated": "Rejse oprettet.",
+    "tripLoginDescription": "Log ind eller opret en konto for at gemme din rejseplan.",
+    "tripLoginTitle": "Opret din Algarve-rejse",
     "trust": {
       "anonymousVisitor": "Bekræftet besøgende",
       "approvedReview": "Godkendt anmeldelse",
@@ -2279,9 +2485,43 @@
       "subtitle": "Synlig social bevis fra rigtige annoncer, reelt anmeldelsesvolumen og kuraterede venunavne på tidspunktet for første indtryk.",
       "title": "Bevis på, at udvælgelsen er værd din tid"
     },
-    "lead": "Curated by locals",
-    "verified": "Verified and trusted",
-    "intent": "For visitors and investors"
+    "verified": "Verified and trusted"
+  },
+  "homepage": {
+    "categories": {
+      "label": "What We Offer",
+      "subtitle": "Browse the premium directory by category, from places to stay to restaurants, experiences and property.",
+      "title": "Premium Categories"
+    },
+    "editorsSelection": {
+      "badge": "Editor's picks",
+      "cta": "View all collection",
+      "ctaMobile": "View full collection",
+      "emptySubtitle": "Browse the full Algarve directory while the editorial collection is updated.",
+      "emptyTitle": "Curated listings are being prepared.",
+      "subtitle": "Handpicked places and properties that define the very best of the Algarve.",
+      "title": "Editor's Selection",
+      "titleAlt": "Signature Collection"
+    },
+    "trustSection": {
+      "items": {
+        "comprehensive": {
+          "description": "One platform for visitors, residents, owners and investors.",
+          "title": "Stay, dine, explore, invest"
+        },
+        "curated": {
+          "description": "Quality places, properties and experiences across the Algarve.",
+          "title": "Premium curated selection"
+        },
+        "verified": {
+          "description": "Discovery guided by place and context, not directory noise.",
+          "title": "Local insights, verified listings"
+        }
+      },
+      "label": "Why AlgarveOfficial",
+      "subtitle": "Quality places, properties and experiences across the Algarve.",
+      "title": "Curated for confident discovery"
+    }
   },
   "invest": {
     "allActiveCityHubs": "Alle Active City Hubs",
@@ -2380,27 +2620,40 @@
     "dismiss": "Bliv på engelsk",
     "viewIn": "Se denne side i {{language}}?"
   },
+  "lead": {
+    "headline": "Algarve",
+    "headlineHighlight": "Udvalgt",
+    "intent": "For besøgende og investorer",
+    "lead": "Udvalgt af lokale",
+    "verified": "Verificeret og betroet"
+  },
   "legal": {
     "relatedPolicies": "Relaterede politikker"
   },
   "listing": {
-    "about": "About",
-    "backToHome": "Back to home",
-    "backToListings": "Back to listings",
+    "about": "Om",
+    "backToHome": "Tilbage til hjemmet",
+    "backToListings": "Tilbage til lister",
+    "badge": {
+      "signature": "Signatur",
+      "verified": "Verificeret"
+    },
     "bathrooms": "Badeværelser",
     "bedrooms": "Soveværelser",
+    "bookNow": "Book nu",
     "bookVisit": "Book et besøg",
     "builtArea": "Bebygget areal",
+    "call": "Ring",
     "certifiedListing": "Certificeret notering",
-    "claimThisListing": "Claim this listing",
-    "claimBusinessTitle": "Ejer eller administrerer du denne virksomhed?",
-    "claimBusinessDescription": "Gør krav på denne profil for at opdatere information, billeder, kontaktoplysninger og synlighed på AlgarveOfficial.",
     "claimBusinessButton": "Gør krav på denne virksomhed",
-    "claimUnderReviewTitle": "Ejerskabskrav under gennemgang",
-    "claimUnderReviewDescription": "Denne profil har allerede et ejerskabskrav, som AlgarveOfficial gennemgår.",
-    "claimManagedTitle": "Administreret af officiel repræsentant",
+    "claimBusinessDescription": "Gør krav på denne profil for at opdatere information, billeder, kontaktoplysninger og synlighed på AlgarveOfficial.",
+    "claimBusinessTitle": "Ejer eller administrerer du denne virksomhed?",
     "claimManagedDescription": "Denne profil administreres af en godkendt virksomhedsrepræsentant.",
-    "contact": "Contact",
+    "claimManagedTitle": "Administreret af officiel repræsentant",
+    "claimThisListing": "Gør krav på denne fortegnelse",
+    "claimUnderReviewDescription": "Denne profil har allerede et ejerskabskrav, som AlgarveOfficial gennemgår.",
+    "claimUnderReviewTitle": "Ejerskabskrav under gennemgang",
+    "contact": "Kontakt",
     "contactForLocation": "Kontakt for placering",
     "experience": "Oplevelse",
     "exterior": "Udendørsareal",
@@ -2463,19 +2716,20 @@
       "yourName": "Dit navn"
     },
     "interested": "Interesseret?",
-    "isYourBusiness": "Is this your business?",
+    "isYourBusiness": "Er det din forretning?",
     "livingArea": "Boligareal",
     "location": "Placering",
     "locationHidden": "Præcis placering skjult",
-    "locationUnavailable": "Location unavailable",
-    "messageWhatsApp": "Message on WhatsApp",
-    "notFound": "Listing not found",
-    "notFoundMessage": "This listing is unavailable or has not been published yet.",
+    "locationUnavailable": "Placeringen er ikke tilgængelig",
+    "messageWhatsApp": "Besked på WhatsApp",
+    "notFound": "Fortegnelsen blev ikke fundet",
+    "notFoundMessage": "Denne fortegnelse er ikke tilgængelig eller er ikke blevet offentliggjort endnu.",
     "plotSize": "Grundstørrelse",
     "price": "Pris",
     "priceOnRequest": "Pris på forespørgsel",
     "relatedDestinations": "Relaterede destinationer",
-    "relatedListings": "More {{category}} to explore",
+    "relatedDestinationsDescription": "Udforsk nærliggende destinationer i Algarve med udvalgte steder og tjenester.",
+    "relatedListings": "Mere {{category}} at udforske",
     "reviews": {
       "content": "Anmeldelse",
       "contentPlaceholder": "Del hvad der skilte sig ud ved dit besøg...",
@@ -2491,38 +2745,31 @@
       "write": "Skriv anmeldelse"
     },
     "save": "Spare",
-    "saveToFavorites": "Save to favorites",
+    "saveToFavorites": "Gem til favoritter",
     "scheduleViewing": "Planlæg en fremvisning",
     "sendInquiry": "Send forespørgsel",
     "sendMessage": "Send besked",
-    "share": "Share",
+    "share": "Dele",
     "similarListings": "Lignende ejendomme",
-    "tags": "Tags",
-    "verifiedDocuments": "Verificerede dokumenter",
-    "verifiedPartner": "Verificeret partner",
-    "viewGallery": "View gallery",
-    "viewOnMap": "Se på kort",
-    "visitWebsite": "Visit website",
-    "relatedDestinationsDescription": "Udforsk nærliggende destinationer i Algarve med udvalgte steder og tjenester.",
     "social": {
-      "instagram": "Instagram",
       "facebook": "Facebook",
       "googleBusiness": "Google Business",
+      "instagram": "Instagram",
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
-    "badge": {
-      "verified": "Verified",
-      "signature": "Signature"
-    },
-    "bookNow": "Book nu",
-    "call": "Ring",
+    "tags": "Tags",
     "trust": {
-      "verifiedTitle": "Verificeret af AlgarveOfficial",
-      "verifiedDescription": "A trust signal for active and legitimate local businesses.",
-      "signatureTitle": "Signature Selection",
-      "signatureDescription": "Premium editorial-style visibility for standout Algarve businesses."
-    }
+      "signatureDescription": "Premium synlighed i redaktionel stil for enestående Algarve-virksomheder.",
+      "signatureTitle": "Signaturvalg",
+      "verifiedDescription": "Et tillidssignal for aktive og legitime lokale virksomheder.",
+      "verifiedTitle": "Verificeret af AlgarveOfficial"
+    },
+    "verifiedDocuments": "Verificerede dokumenter",
+    "verifiedPartner": "Verificeret partner",
+    "viewGallery": "Se galleri",
+    "viewOnMap": "Se på kort",
+    "visitWebsite": "Besøg hjemmesiden"
   },
   "live": {
     "allActiveCityHubs": "Alle Active City Hubs",
@@ -2590,6 +2837,7 @@
         "school": "Udvælg skoler og bekræft optagelse, gebyrer og transport direkte med hver skole.",
         "service": "Prioritér sundhedsspørgsmål, mobilitet og pålidelige daglige tjenester."
       },
+      "disclaimer": "Denne planlægger giver kun generel vejledning. Den erstatter ikke professionel juridisk, skattemæssig, immigrations-, finansiel, medicinsk, skole- eller ejendomsrådgivning.",
       "focus": {
         "coastal": "Lagos, Tavira og udvalgte kystlommer med balance mellem adgang, ro og daglig bekvemmelighed.",
         "family": "Almancil, Vilamoura og områder omkring Lagos med familierutiner, skolespørgsmål og helårstjenester at sammenligne.",
@@ -2627,9 +2875,9 @@
         "priority": "Opholdsprioritet",
         "schooling": "Skole",
         "timeline": "Tidsramme",
-        "whyPriority": "Hvorfor: tidslinje og boligstrategi former forberedelsesrækkefølgen.",
+        "whyFirst90": "Hvorfor: første skridt bør reducere usikkerhed før langsigtede forpligtelser.",
         "whyNeighborhood": "Hvorfor: livsstil og husstandsprofil guider område-shortlisten.",
-        "whyFirst90": "Hvorfor: første skridt bør reducere usikkerhed før langsigtede forpligtelser."
+        "whyPriority": "Hvorfor: tidslinje og boligstrategi former forberedelsesrækkefølgen."
       },
       "residency": {
         "fast": "Ved kort tidslinje: forbered dokumenter og spørgsmål tidligt, så kvalificerede fagfolk kan bekræfte den rette vej.",
@@ -2643,6 +2891,27 @@
         "yes": "Ja"
       },
       "schoolingLabel": "Har Brug for Skolestøtte?",
+      "services": {
+        "accommodation": {
+          "description": "Brug korte ophold, mens du tester områder.",
+          "title": "Overnatning"
+        },
+        "concierge": {
+          "description": "Find lokale støttekategorier til at etablere dig.",
+          "title": "Concierge-services"
+        },
+        "description": "Disse links bruger aktive AlgarveOfficial-kategorier og opretter ingen lead, før du kontakter os.",
+        "label": "Servicelinks",
+        "properties": {
+          "description": "Sammenlign ejendomsvalg og områdepasform.",
+          "title": "Ejendomme"
+        },
+        "title": "Udforsk relevante AlgarveOfficial-ressourcer",
+        "transport": {
+          "description": "Planlæg lufthavn, bil og mobilitet.",
+          "title": "Transport"
+        }
+      },
       "timeline": {
         "0_3": "0-3 måneder",
         "12plus": "12+ måneder",
@@ -2650,29 +2919,7 @@
         "6_12": "6-12 måneder"
       },
       "timelineLabel": "Tidsramme",
-      "title": "Byg din flytningsplan på under 2 minutter",
-      "disclaimer": "Denne planlægger giver kun generel vejledning. Den erstatter ikke professionel juridisk, skattemæssig, immigrations-, finansiel, medicinsk, skole- eller ejendomsrådgivning.",
-      "services": {
-        "label": "Servicelinks",
-        "title": "Udforsk relevante AlgarveOfficial-ressourcer",
-        "description": "Disse links bruger aktive AlgarveOfficial-kategorier og opretter ingen lead, før du kontakter os.",
-        "properties": {
-          "title": "Ejendomme",
-          "description": "Sammenlign ejendomsvalg og områdepasform."
-        },
-        "concierge": {
-          "title": "Concierge-services",
-          "description": "Find lokale støttekategorier til at etablere dig."
-        },
-        "transport": {
-          "title": "Transport",
-          "description": "Planlæg lufthavn, bil og mobilitet."
-        },
-        "accommodation": {
-          "title": "Overnatning",
-          "description": "Brug korte ophold, mens du tester områder."
-        }
-      }
+      "title": "Byg din flytningsplan på under 2 minutter"
     },
     "roadmap": {
       "home": {
@@ -2690,13 +2937,13 @@
       },
       "title": "Din flytning, opdelt i praktiske trin"
     },
+    "seoDescription": "Praktiske guider, pålidelige tjenester og udvalgte lokale ressourcer til at flytte til Algarve med tryghed.",
+    "seoTitle": "Flytning til Algarve | Flyt, bo og etablér dig i Portugal",
     "stats": {
       "concierge": "Guidet forespørgsel",
       "municipalities": "Kommuner at Udforske",
       "sun": "Planlægningsspor"
-    },
-    "seoTitle": "Flytning til Algarve | Flyt, bo og etablér dig i Portugal",
-    "seoDescription": "Praktiske guider, pålidelige tjenester og udvalgte lokale ressourcer til at flytte til Algarve med tryghed."
+    }
   },
   "map": {
     "description": "Udforsk Algarve-opslag på et interaktivt kort med klyngede markører og øjeblikkelig filtrering.",
@@ -2732,6 +2979,11 @@
         "label": "Udforsk ejendomme",
         "title": "Ejendomme i Algarve"
       },
+      "relocation": {
+        "desc": "Praktiske guider, pålidelige tjenester og udvalgte lokale ressourcer til at flytte til Algarve med tryghed.",
+        "label": "Lær mere",
+        "title": "Flytning til Algarve"
+      },
       "stay": {
         "desc": "De bedste overnatningssteder langs Portugals mest prestigefyldte kyst.",
         "label": "Udforsk ophold",
@@ -2741,19 +2993,14 @@
         "desc": "Verdensklasse oplevelser langs Europas smukkeste kystlinje.",
         "label": "Udforsk alt",
         "title": "Besøg Algarve"
-      },
-      "relocation": {
-        "desc": "Praktiske guider, pålidelige tjenester og udvalgte lokale ressourcer til at flytte til Algarve med tryghed.",
-        "label": "Lær mere",
-        "title": "Flytning til Algarve"
       }
     },
     "invest": "Investere",
     "live": "Flytning",
     "properties": "Ejendomme",
+    "relocation": "Flytning",
     "stay": "Bo",
-    "visit": "Besøg",
-    "relocation": "Flytning"
+    "visit": "Besøg"
   },
   "nav": {
     "about": "Om os",
@@ -2779,8 +3026,6 @@
     "messages": "Beskeder",
     "mobilePrimary": "Primær navigation",
     "mobileScrollHint": "Stryg vandret for at se flere navigationselementer.",
-    "scrollNext": "Næste navigationselementer",
-    "scrollPrevious": "Forrige navigationselementer",
     "myDashboard": "Mit Dashboard",
     "myTrip": "Min tur",
     "openMenu": "Åbn menu",
@@ -2788,14 +3033,19 @@
     "privacy": "Privatlivspolitik",
     "properties": "Ejendomme",
     "regions": "Regioner",
+    "relocation": "Flytning",
     "saved": "Favoritter",
+    "scrollNext": "Næste navigationselementer",
+    "scrollPrevious": "Forrige navigationselementer",
     "search": "Søg",
     "signOut": "Log ud",
     "stay": "Bo",
     "terms": "Servicevilkår",
     "visit": "Besøg",
-    "yourSpace": "Dit Område",
-    "relocation": "Flytning"
+    "yourSpace": "Dit Område"
+  },
+  "navigation": {
+    "skipToContent": "Skip to main content"
   },
   "newsletter": {
     "alreadySubscribed": "Du er allerede tilmeldt vores nyhedsbrev!",
@@ -2826,15 +3076,6 @@
     "title": "Insideradgang til",
     "titleHighlight": "Luksus Algarve",
     "welcomeMessage": "Velkommen til AlgarveOfficial! Tjek din indbakke snart."
-  },
-  "weather": {
-    "faroDistrict": "Faro-distriktet",
-    "faroShort": "Faro",
-    "loading": "Indlæser vejret for Faro",
-    "temperatureLabel": "Vejret i {{place}}: {{celsius}}°C / {{fahrenheit}}°F",
-    "unavailable": "Vejret er ikke tilgængeligt",
-    "algarveRegion": "Algarve",
-    "algarveShort": "Algarve"
   },
   "notFound": {
     "backHome": "Tilbage til Hjemmet",
@@ -2881,6 +3122,7 @@
       "viewPublicPage": "Se offentlig side"
     },
     "media": {
+      "addUrl": "Tilføj URL",
       "chooseListing": "Vælg en fortegnelse",
       "clickToUpload": "Klik for at uploade",
       "deleteFailed": "Sletning mislykkedes",
@@ -2892,12 +3134,17 @@
       "gallery": "Galleri ({{count}} billeder)",
       "galleryDescription": "Træk for at omarrangere. Det første billede er det fremhævede billede.",
       "galleryImage": "Galleri billede",
+      "imageAdded": "Billede tilføjet til galleriet",
       "imageDeleted": "Billedet er slettet",
       "imagesUploaded": "{{count}} billede(r) uploadet",
       "noImages": "Ingen billeder endnu",
       "orDragDrop": "eller træk og slip",
+      "provideImageUrl": "Angiv venligst en billed-URL først.",
+      "quickAdd": "Hurtig tilføjelse: indsæt URL eller upload ét billede",
       "selectListing": "Vælg fortegnelse:",
       "subtitle": "Administrer billeder til dine fortegnelser",
+      "tierLimit": "Dette listningsniveau understøtter op til {{max}} billede(r).",
+      "tierLimitPartialUpload": "Kun {{count}} billede(r) uploadet på grund af niveaubegrænsningen ({{max}}).",
       "tip1": "Brug billeder i høj opløsning (minimum 1200px bred)",
       "tip2": "Skyd i godt lys, helst naturligt lys",
       "tip3": "Vis forskellige vinkler og områder af dit rum",
@@ -2909,13 +3156,7 @@
       "uploadFailed": "Upload mislykkedes",
       "uploadImages": "Upload billeder",
       "uploading": "Uploader...",
-      "uploadToStart": "Upload billeder for at komme i gang",
-      "quickAdd": "Hurtig tilføjelse: indsæt URL eller upload ét billede",
-      "addUrl": "Tilføj URL",
-      "provideImageUrl": "Angiv venligst en billed-URL først.",
-      "tierLimit": "Dette listningsniveau understøtter op til {{max}} billede(r).",
-      "tierLimitPartialUpload": "Kun {{count}} billede(r) uploadet på grund af niveaubegrænsningen ({{max}}).",
-      "imageAdded": "Billede tilføjet til galleriet"
+      "uploadToStart": "Upload billeder for at komme i gang"
     },
     "membership": {
       "annual": "Årlig",
@@ -3050,114 +3291,48 @@
       "title": "Støtte"
     }
   },
-  "claimBusinessSearch": {
-    "cantFindDescription": "Hvis AlgarveOfficial endnu ikke har din virksomhed, kan du starte en ny anmodning om fortegnelse via partnerformularen.",
-    "cantFindTitle": "Kan du ikke finde din virksomhed?",
-    "claimButton": "Gør krav på denne virksomhed",
-    "description": "Søg efter din eksisterende fortegnelse, vælg din virksomhed, og indsend en kravsanmodning knyttet til den fortegnelse.",
-    "emptyDescription": "Prøv et andet virksomhedsnavn, by, kategori eller website. Krav kan kun indsendes for eksisterende fortegnelser.",
-    "emptyTitle": "Ingen matchende fortegnelser fundet",
-    "managedButton": "Administreret af officiel repræsentant",
-    "newListingButton": "Anmod om ny fortegnelse",
-    "next": "Næste",
-    "page": "Side {{page}} af {{totalPages}}",
-    "pendingButton": "Krav under gennemgang",
-    "placeholder": "Søg efter virksomhedsnavn, by, kategori eller website",
-    "previous": "Forrige",
-    "resultsSummary": "Søgeresultater",
-    "resultsSummaryWithCount": "{{count}} matchende fortegnelser",
-    "searchErrorDescription": "Vi kunne ikke indlæse matchende fortegnelser lige nu. Prøv igen om et øjeblik.",
-    "searchErrorTitle": "Søgning er midlertidigt utilgængelig",
-    "searchButton": "Søg",
-    "startDescription": "Søg efter virksomhedsnavn, by, kategori eller website for at finde den præcise AlgarveOfficial-fortegnelse, du vil gøre krav på.",
-    "startTitle": "Find din eksisterende fortegnelse",
-    "status": {
-      "claimed": "Administreret",
-      "pending": "Under gennemgang",
-      "unclaimed": "Ikke gjort krav på"
-    },
-    "title": "Find og gør krav på din virksomhed på AlgarveOfficial",
-    "viewListing": "Se fortegnelse"
+  "pages": {
+    "relocation": {
+      "seoDescription": "Praktiske guider, pålidelige tjenester og udvalgte lokale ressourcer til at flytte til Algarve med tryghed.",
+      "seoTitle": "Flytning til Algarve | Flyt, bo og etablér dig i Portugal",
+      "subtitle": "Praktiske guider, pålidelige tjenester og udvalgte lokale ressourcer til at flytte til Algarve med tryghed.",
+      "title": "Flytning til Algarve"
+    }
   },
-  "claimBusinessForm": {
-    "claimingListing": "You are claiming this listing.",
-    "companyWebsite": "Company website",
-    "confirmationBusiness": "Business",
-    "confirmationEyebrow": "Claim received",
-    "confirmationNextStep": "Our team will review the ownership signals and contact you if more information is needed. Approval is manual and no payment is required in this phase.",
-    "confirmationPrompt": "Confirm that this is the exact AlgarveOfficial listing you want to claim.",
-    "confirmationReference": "Claim reference",
-    "confirmationStatus": "Status",
-    "confirmationTier": "Selected tier",
-    "confirmationTitle": "Your claim request has been received.",
-    "contactTitle": "Contact details",
-    "description": "Confirm the listing, tell us how you are connected to the business, and submit a manual ownership review.",
-    "documentUploadNote": "Document storage is not enabled for this public flow yet. Describe the document or proof you can provide and the team will request it if needed.",
-    "fullName": "Full name",
-    "isThisYourBusiness": "Is this your business?",
-    "loginRequiredDescription": "You can complete the form now, but you will be sent to sign in before the claim is submitted.",
-    "loginRequiredTitle": "Sign in required before submission",
-    "message": "Message",
-    "noSearchAgain": "No, search again",
-    "paymentLaterNote": "No payment is collected now. Paid checkout and subscription activation happen only after later approval steps.",
-    "phoneNumber": "Phone number",
-    "proofNotes": "Proof notes",
-    "proofNotesPlaceholder": "Add domain, phone, website, social profile, document, or other ownership details for manual review.",
-    "publicListingLink": "View public listing",
-    "role": {
-      "agencyRepresentative": "Agency / Representative",
-      "employee": "Employee",
-      "generalManager": "General Manager",
-      "marketingManager": "Marketing Manager",
-      "other": "Other",
-      "owner": "Owner"
-    },
-    "roleTitle": "Claimant role",
-    "searchAgain": "Search again",
-    "selectedListingBadge": "Selected listing",
-    "status": {
-      "pending": "Pending review"
-    },
-    "submit": "Submit claim request",
-    "submitError": "We could not submit this claim right now. Please check the details and try again.",
-    "submitErrorTitle": "Claim not submitted",
-    "submitSuccess": "Claim request submitted.",
-    "submitting": "Submitting...",
-    "tier": {
-      "free": "Free Claim",
-      "freeDescription": "Verify ownership and request basic listing access.",
-      "signature": "Signature Partner",
-      "signatureDescription": "Premium partner interest for future approval and checkout.",
-      "verified": "Verified Business",
-      "verifiedDescription": "Enhanced trust signals and business verification after approval."
-    },
-    "tierTitle": "Tier selection",
-    "title": "Claim this business listing",
-    "unavailable": {
-      "claimedDescription": "This listing is already managed by an official representative. Contact AlgarveOfficial if you believe this is incorrect.",
-      "claimedTitle": "This listing is already claimed",
-      "pendingDescription": "This listing already has an ownership claim under review. Please wait for the current review to finish.",
-      "pendingTitle": "Ownership claim under review"
-    },
-    "validation": {
-      "email": "Enter a valid work email.",
-      "message": "Add at least 10 characters explaining your connection to the business.",
-      "name": "Enter your full name."
-    },
-    "verification": {
-      "businessEmailDomain": "Business email domain",
-      "documentUpload": "Document upload",
-      "manualReview": "Manual review",
-      "officialSocialMedia": "Official social media account",
-      "phoneVerification": "Phone verification",
-      "websiteContactMatch": "Website contact match"
-    },
-    "verificationTitle": "Verification method",
-    "viewListing": "View listing",
-    "workEmail": "Work email",
-    "yesContinue": "Yes, continue"
+  "pagination": {
+    "goToNext": "Go to next page",
+    "goToPrevious": "Go to previous page",
+    "label": "pagination",
+    "morePages": "More pages"
   },
   "partner": {
+    "audience": {
+      "badge": "Målgruppe",
+      "items": {
+        "golf": {
+          "description": "Players looking for courses, resorts, and premium leisure options.",
+          "title": "Golf travellers"
+        },
+        "lifestyle": {
+          "description": "Discerning users looking for quality, credibility, and local confidence.",
+          "title": "Premium lifestyle consumers"
+        },
+        "property": {
+          "description": "High-intent audiences exploring areas, services, and lifestyle fit.",
+          "title": "Property buyers and investors"
+        },
+        "residents": {
+          "description": "People building local routines and choosing reliable services.",
+          "title": "Residents and relocation users"
+        },
+        "visitors": {
+          "description": "Travelers comparing trusted places before they arrive.",
+          "title": "Visitors planning trips"
+        }
+      },
+      "subtitle": "Partner visibility is designed for people already researching where to stay, dine, play, move, invest, and spend time in the Algarve.",
+      "title": "Nå de rette Algarve-målgrupper"
+    },
     "benefits": {
       "contact": {
         "description": "Modtag henvendelser direkte fra interesserede kunder gennem vores beskedsystem.",
@@ -3189,6 +3364,33 @@
       "q4": "Er der en omkostning at blive opført?",
       "title": "Ofte stillede spørgsmål"
     },
+    "features": {
+      "basicProfile": "Grundlæggende virksomhedsprofil",
+      "ctaButton": "CTA-knap",
+      "directContact": "Direkte kontakt fra rejsende",
+      "directoryListing": "Fortegnelse i katalog",
+      "enhancedProfile": "Forbedret virksomhedsprofil",
+      "everythingVerified": "Alt i Verified",
+      "gallery10": "Fotogalleri (op til 10 billeder)",
+      "gallery20": "Fotogalleri (op til 20 billeder)",
+      "homepageAddOn": "Forsideplacering som add-on",
+      "homepagePlacement": "Fremhævet placering på forsiden",
+      "mapPriority": "Prioritet på kortet",
+      "mapVisibility": "Synlighed på kort",
+      "priorityVisibility": "Prioriteret synlighed",
+      "signatureEligibility": "Berettigelse til Signature Selection",
+      "socialLinks": "Links til sociale medier",
+      "socialMentions": "Omtaler på sociale medier",
+      "verifiedTrustBadge": "Verified-tillidsbadge",
+      "videoCommercial": "Reklamevideo (op til 1 min)",
+      "videoInterview": "Videointerview (op til 3 min)",
+      "whatsapp": "WhatsApp-integration"
+    },
+    "finalCta": {
+      "applyFree": "Claim or upgrade your listing",
+      "buySubscription": "View listing options",
+      "trustLine": "Ingen lang kontrakt · Opsig når som helst · Gennemgang på 2-3 dage"
+    },
     "form": {
       "businessName": "Virksomhedens navn",
       "businessWebsite": "Virksomhedswebsted (valgfrit)",
@@ -3197,133 +3399,79 @@
       "email": "E-mail",
       "error": "Noget gik galt. Prøv venligst igen.",
       "message": "Fortæl os om din virksomhed",
+      "messagePlaceholder": "Tell us about your business, location, audience, and the kind of visibility you are interested in.",
       "newListingOption": "Ny noteringsapplikation",
       "phone": "Telefon (valgfrit)",
       "requestType": "Anmodningstype",
+      "responseTime": "Share your details and our team will reply within 2-3 business days.",
       "selectType": "Vælg anmodningstype",
       "submit": "Indsend anmodning",
       "submitting": "Indsender...",
       "title": "Kom i gang",
-      "validationError": "Udfyld venligst alle obligatoriske felter.",
-      "responseTime": "Share your details and our team will reply within 2-3 business days.",
-      "messagePlaceholder": "Tell us about your business, location, audience, and the kind of visibility you are interested in."
+      "validationError": "Udfyld venligst alle obligatoriske felter."
+    },
+    "forWhom": {
+      "categories": {
+        "experiences": "Experiences & Activities",
+        "golf": "Golf & Leisure",
+        "hotels": "Hotels & Accommodation",
+        "realEstate": "Real Estate & Services",
+        "restaurants": "Restaurants & Gastronomy"
+      },
+      "subtitle": "AlgarveOfficial is not a mass directory. We curate established operators so visitors, residents, golfers, relocation users, and property buyers can discover trusted local names.",
+      "title": "Built for premium Algarve businesses"
+    },
+    "hero": {
+      "applyForPartnership": "Anmod om partnerinformation",
+      "badge": "Partner Programme",
+      "trustLine": "No long-term contract · Quality review · Curated visibility",
+      "viewPricing": "Se listeindstillinger"
+    },
+    "hubLinks": {
+      "links": {
+        "golf": "Golf audience",
+        "map": "Map discovery",
+        "properties": "Property and investor audience",
+        "relocation": "Relocation audience"
+      },
+      "subtitle": "Visibility connects into the public hubs people already use to explore the Algarve.",
+      "title": "Where partners can be discovered"
     },
     "newListing": {
       "cta": "Ansøg nu",
       "description": "Registrer din virksomhed for at blive vist i vores udvalgte samling af luksusoplevelser.",
       "title": "Ansøg om ny notering"
     },
+    "placement": {
+      "badge": "Placement",
+      "items": {
+        "curated": {
+          "description": "Featured areas are curated so premium placements keep their value and do not feel crowded.",
+          "title": "Homepage visibility is limited"
+        },
+        "relevance": {
+          "description": "Visibility is guided by relevance, tier, content quality, and available inventory.",
+          "title": "City and category placement depends on fit"
+        },
+        "standards": {
+          "description": "Premium placement is subject to review of imagery, description, location, category, and contact quality.",
+          "title": "Quality standards remain in place"
+        }
+      },
+      "subtitle": "Paid tiers improve trust and eligibility for stronger placement, while editorial areas remain curated and limited.",
+      "title": "Kurateret synlighed, ikke overfyldt annoncering"
+    },
     "subtitle": "Nå besøgende, beboere og målgrupper med høj intention gennem kurateret synlighed og troværdig lokal opdagelse.",
     "success": "Tak! Din anmodning er blevet indsendt. Vi kontakter dig inden for 2-3 hverdage.",
     "title": "Bliv partner med AlgarveOfficial",
-    "hero": {
-      "badge": "Partner Programme",
-      "trustLine": "No long-term contract · Quality review · Curated visibility",
-      "applyForPartnership": "Anmod om partnerinformation",
-      "viewPricing": "Se listeindstillinger"
-    },
-    "finalCta": {
-      "applyFree": "Claim or upgrade your listing",
-      "buySubscription": "View listing options",
-      "trustLine": "Ingen lang kontrakt · Opsig når som helst · Gennemgang på 2-3 dage"
-    },
-    "forWhom": {
-      "title": "Built for premium Algarve businesses",
-      "subtitle": "AlgarveOfficial is not a mass directory. We curate established operators so visitors, residents, golfers, relocation users, and property buyers can discover trusted local names.",
-      "categories": {
-        "hotels": "Hotels & Accommodation",
-        "restaurants": "Restaurants & Gastronomy",
-        "experiences": "Experiences & Activities",
-        "golf": "Golf & Leisure",
-        "realEstate": "Real Estate & Services"
-      }
-    },
-    "audience": {
-      "badge": "Målgruppe",
-      "title": "Nå de rette Algarve-målgrupper",
-      "subtitle": "Partner visibility is designed for people already researching where to stay, dine, play, move, invest, and spend time in the Algarve.",
-      "items": {
-        "visitors": {
-          "title": "Visitors planning trips",
-          "description": "Travelers comparing trusted places before they arrive."
-        },
-        "residents": {
-          "title": "Residents and relocation users",
-          "description": "People building local routines and choosing reliable services."
-        },
-        "golf": {
-          "title": "Golf travellers",
-          "description": "Players looking for courses, resorts, and premium leisure options."
-        },
-        "property": {
-          "title": "Property buyers and investors",
-          "description": "High-intent audiences exploring areas, services, and lifestyle fit."
-        },
-        "lifestyle": {
-          "title": "Premium lifestyle consumers",
-          "description": "Discerning users looking for quality, credibility, and local confidence."
-        }
-      }
-    },
-    "placement": {
-      "badge": "Placement",
-      "title": "Kurateret synlighed, ikke overfyldt annoncering",
-      "subtitle": "Paid tiers improve trust and eligibility for stronger placement, while editorial areas remain curated and limited.",
-      "items": {
-        "curated": {
-          "title": "Homepage visibility is limited",
-          "description": "Featured areas are curated so premium placements keep their value and do not feel crowded."
-        },
-        "relevance": {
-          "title": "City and category placement depends on fit",
-          "description": "Visibility is guided by relevance, tier, content quality, and available inventory."
-        },
-        "standards": {
-          "title": "Quality standards remain in place",
-          "description": "Premium placement is subject to review of imagery, description, location, category, and contact quality."
-        }
-      }
-    },
     "trust": {
-      "title": "Tillidsstandarder beskytter platformen",
-      "subtitle": "AlgarveOfficial sells visibility, credibility, and qualified discovery. We do not sell guaranteed bookings, traffic, or revenue.",
       "points": {
-        "review": "Listings may be reviewed before premium placement is approved.",
+        "noGuarantees": "Paid placement remains subject to relevance, quality, and availability.",
         "quality": "Poor-quality, irrelevant, or incomplete businesses may be declined for premium visibility.",
-        "noGuarantees": "Paid placement remains subject to relevance, quality, and availability."
-      }
-    },
-    "hubLinks": {
-      "title": "Where partners can be discovered",
-      "subtitle": "Visibility connects into the public hubs people already use to explore the Algarve.",
-      "links": {
-        "golf": "Golf audience",
-        "properties": "Property and investor audience",
-        "relocation": "Relocation audience",
-        "map": "Map discovery"
-      }
-    },
-    "features": {
-      "directoryListing": "Fortegnelse i katalog",
-      "mapVisibility": "Synlighed på kort",
-      "basicProfile": "Grundlæggende virksomhedsprofil",
-      "verifiedTrustBadge": "Verified-tillidsbadge",
-      "enhancedProfile": "Forbedret virksomhedsprofil",
-      "gallery10": "Fotogalleri (op til 10 billeder)",
-      "gallery20": "Fotogalleri (op til 20 billeder)",
-      "socialLinks": "Links til sociale medier",
-      "socialMentions": "Omtaler på sociale medier",
-      "videoInterview": "Videointerview (op til 3 min)",
-      "videoCommercial": "Reklamevideo (op til 1 min)",
-      "directContact": "Direkte kontakt fra rejsende",
-      "mapPriority": "Prioritet på kortet",
-      "ctaButton": "CTA-knap",
-      "signatureEligibility": "Berettigelse til Signature Selection",
-      "whatsapp": "WhatsApp-integration",
-      "priorityVisibility": "Prioriteret synlighed",
-      "homepagePlacement": "Fremhævet placering på forsiden",
-      "homepageAddOn": "Forsideplacering som add-on",
-      "everythingVerified": "Alt i Verified"
+        "review": "Listings may be reviewed before premium placement is approved."
+      },
+      "subtitle": "AlgarveOfficial sells visibility, credibility, and qualified discovery. We do not sell guaranteed bookings, traffic, or revenue.",
+      "title": "Tillidsstandarder beskytter platformen"
     }
   },
   "pricing": {
@@ -3402,6 +3550,43 @@
     "unavailable": "Kontakt os",
     "unavailableNote": "Priser tilgængelig på forespørgsel"
   },
+  "pricingCards": {
+    "annualDiscount": "Annual billing available at 20% discount.",
+    "applyAsSignature": "Ansøg som Signature",
+    "applyAsVerified": "Ansøg som Verified",
+    "available": "Begrænset / Eksklusivt",
+    "byInvitation": "By Invitation",
+    "byInvitationOnly": "By Invitation Only",
+    "contactUs": "Contact us",
+    "eligiblePartnersContacted": "Our team contacts eligible Verified partners directly.",
+    "homepagePlacementNote": "and our team will review the right add-on placement for your category.",
+    "interestedInSignature": "Interested in Signature?",
+    "mentionInApplication": "Mention it in your Verified application",
+    "noLongTermContract": "Ingen lang kontrakt · opsig når som helst",
+    "notReady": "Not ready to commit?",
+    "perMonth": "/måned",
+    "recommended": "Gå ikke glip af",
+    "reviewEligibilityNote": "— we review all partners for eligibility.",
+    "signatureAvailableNote": "Signature is available for qualified premium listings and remains subject to quality standards.",
+    "signatureDescription": "Premium editorial-style visibility for standout Algarve businesses, with eligibility for curated homepage, city, and category placements where relevant.",
+    "signaturePartner": "Signature Partner",
+    "startFreeListing": "Start with a free basic listing",
+    "subtitle": "Transparent pricing. No hidden fees. Cancel anytime.",
+    "title": "Choose your partnership level",
+    "upgradeWhenReady": "and upgrade when ready.",
+    "verifiedDescription": "A trust signal for active, legitimate local businesses that want credibility and a stronger listing presence.",
+    "verifiedPartner": "Verified Partner",
+    "wantHomepagePlacement": "Need homepage featured placement as an add-on?"
+  },
+  "pricingFeatures": {
+    "addOn": "Add-on",
+    "apply": "Ansøg",
+    "basic": "Basic",
+    "contact": "Contact",
+    "feature": "Feature",
+    "subtitle": "Compare features across all three partnership levels.",
+    "title": "What's included in each tier"
+  },
   "realEstate": {
     "addListing": "Tilføj ejendomsfortegnelse",
     "addListingNoteAdmin": "Du åbner administratorlisten direkte.",
@@ -3418,7 +3603,32 @@
     "clearFilters": "Ryd alle filtre",
     "conciergeButton": "Kontakt Concierge",
     "conciergeDescription": "Vores concierge-team kan hente private muligheder, der ikke vises i det offentlige bibliotek.",
+    "conciergeDialog": {
+      "description": "Let us help you find your dream property or experience in the Algarve.",
+      "emailRequired": "Email *",
+      "inquiryTitle": "Concierge Service Inquiry",
+      "inquiryTypes": {
+        "buy": "Buying a Property",
+        "invest": "Investment Opportunity",
+        "other": "Other Inquiry",
+        "rent": "Premium Rental",
+        "sell": "Selling a Property"
+      },
+      "interestedIn": "I am interested in...",
+      "messagePlaceholder": "Tell us about your requirements (location, budget, style)...",
+      "messageRequired": "Message *",
+      "nameRequired": "Name *",
+      "networkError": "Unable to reach our server right now. Please try again in a moment.",
+      "requestSentDescription": "Our concierge team will contact you shortly. Ref: {{referenceNumber}}",
+      "requestSentTitle": "Request Sent Successfully",
+      "selectInterest": "Select interest",
+      "sendingRequest": "Sending Request...",
+      "sendRequest": "Send Request",
+      "sendRequestError": "Failed to send request. Please try again.",
+      "title": "Concierge Service"
+    },
     "conciergeTitle": "Har du brug for ejendomme uden for markedet?",
+    "emptyRefinedSearch": "Ingen ejendomme matcher din præciserede søgning",
     "emptyState": "Ingen ejendomme matcher dine filtre.",
     "exploreAlgarveCities": "Udforsk Algarve byer",
     "featuredCityHub": "Udvalgt City Hub",
@@ -3431,6 +3641,7 @@
     },
     "listingsCount": "{{count}} lister",
     "loadError": "Kunne ikke indlæse ejendomsfortegnelser.",
+    "pageTitle": "Ejendomme i Algarve",
     "propertiesAvailable": "Tilgængelige Ejendomme",
     "searchAssistance": {
       "cta": "Kontakt Portner",
@@ -3438,33 +3649,7 @@
       "title": "Søgeassistance"
     },
     "sortedByFeatured": "Sorteret efter: Udvalgte",
-    "title": "Ejendomsfortegnelse",
-    "conciergeDialog": {
-      "title": "Concierge Service",
-      "description": "Let us help you find your dream property or experience in the Algarve.",
-      "interestedIn": "I am interested in...",
-      "selectInterest": "Select interest",
-      "nameRequired": "Name *",
-      "emailRequired": "Email *",
-      "messageRequired": "Message *",
-      "messagePlaceholder": "Tell us about your requirements (location, budget, style)...",
-      "sendRequest": "Send Request",
-      "sendingRequest": "Sending Request...",
-      "inquiryTitle": "Concierge Service Inquiry",
-      "requestSentTitle": "Request Sent Successfully",
-      "requestSentDescription": "Our concierge team will contact you shortly. Ref: {{referenceNumber}}",
-      "sendRequestError": "Failed to send request. Please try again.",
-      "networkError": "Unable to reach our server right now. Please try again in a moment.",
-      "inquiryTypes": {
-        "buy": "Buying a Property",
-        "sell": "Selling a Property",
-        "rent": "Premium Rental",
-        "invest": "Investment Opportunity",
-        "other": "Other Inquiry"
-      }
-    },
-    "pageTitle": "Ejendomme i Algarve",
-    "emptyRefinedSearch": "Ingen ejendomme matcher din præciserede søgning"
+    "title": "Ejendomsfortegnelse"
   },
   "reviews": {
     "anonymousUser": "Besøgende",
@@ -3477,13 +3662,18 @@
     "editReview": "Rediger din anmeldelse",
     "error": "Anmeldelsen kunne ikke indsendes. Prøv venligst igen.",
     "helpful": "Nyttig",
+    "mostHelpful": "Most Helpful",
+    "mostRecent": "Most Recent",
     "noReviews": "Ingen anmeldelser endnu. Vær den første til at dele din oplevelse.",
     "pendingApproval": "Anmeldelse sendt til godkendelse.",
     "pendingDescription": "Din anmeldelse venter på administratorgodkendelse, før den vises offentligt.",
     "photos": "Fotos",
+    "ratingsTitle": "Reviews & Ratings",
     "rejectedDescription": "Din anmeldelse skal ændres, før den kan offentliggøres.",
     "selectRating": "Vælg venligst en bedømmelse",
     "showAll": "Vis alle",
+    "showLess": "Show Less",
+    "sortBy": "Sort by",
     "statusApproved": "Udgivet",
     "statusPending": "Afventer godkendelse",
     "statusRejected": "Trænger til ændringer",
@@ -3493,28 +3683,23 @@
     "updated": "Anmeldelsen er opdateret",
     "verifiedStay": "Verificeret ophold",
     "writeReview": "Skriv en anmeldelse",
-    "yourReviewStatus": "Din anmeldelse",
-    "ratingsTitle": "Reviews & Ratings",
-    "sortBy": "Sort by",
-    "mostRecent": "Most Recent",
-    "mostHelpful": "Most Helpful",
-    "showLess": "Show Less"
+    "yourReviewStatus": "Din anmeldelse"
   },
   "search": {
     "browseAll": "Gennemse alle opslag",
     "clear": "Klar",
+    "close": "Close",
     "exploreRegions": "Udforsk regioner",
+    "investmentInsights": "Investment Insights",
+    "navigate": "Navigate",
     "noResults": "Ingen resultater fundet.",
     "noResultsHint": "Prøv at søge efter noget andet.",
+    "openMapExplorer": "Open Map Explorer",
     "placeholder": "Søg fortegnelser, kategorier, byer, regioner...",
     "quickLinks": "Hurtige links",
     "recent": "Seneste søgninger",
     "results": "Search Results",
-    "openMapExplorer": "Open Map Explorer",
-    "investmentInsights": "Investment Insights",
-    "navigate": "Navigate",
-    "select": "Select",
-    "close": "Close"
+    "select": "Select"
   },
   "sections": {
     "algarveGuide": {
@@ -3593,6 +3778,189 @@
       "subtitle": "Festivaler, markeder og sæsonbestemte højdepunkter på tværs af Portugals fantastiske sydkyst.",
       "title": "Begivenheder & sæson"
     },
+    "homepage": {
+      "categories": {
+        "intro": "Oplev udvalgte ophold, restauranter, golf, ejendom, events og lokale oplevelser.",
+        "title": "Udforsk Algarve"
+      },
+      "cities": {
+        "allSubtitle": "Sammenlign Algarves byer og steder efter beliggenhed, stemning og kuraterede steder i nærheden.",
+        "allTitle": "Alle byer",
+        "browseTitle": "Gennemse efter by",
+        "label": "Byer",
+        "subtitle": "Udforsk Algarve efter by, fra Lagos til Tavira, med strande, restauranter og premiumoplevelser.",
+        "title": "Udforsk Algarve efter by",
+        "viewAll": "Se alle byer"
+      },
+      "cityDescriptions": {
+        "loule": "Historisk by inde i landet med markeder, håndværkstraditioner og nem adgang til det centrale Algarve.",
+        "porches": "Roligt kystområde kendt for keramik, ophold ved klipperne og nærliggende bugter."
+      },
+      "common": {
+        "algarve": "Algarve",
+        "explore": "Udforsk",
+        "listingCount": "{{count}} opslag",
+        "removeFromSaved": "Fjern fra gemte",
+        "saveListing": "Gem opslag"
+      },
+      "cta": {
+        "businessText": "List din virksomhed på AlgarveOfficial.",
+        "businessTitle": "For virksomheder",
+        "emptyStats": "Udvalgte steder i Algarve.",
+        "label": "Bliv en del af fællesskabet",
+        "primaryButton": "Udforsk steder",
+        "secondaryButton": "List din virksomhed",
+        "stats": "Over {{count}} udvalgte opslag i Algarve",
+        "subtitle": "Vælg dit næste sted at besøge, eller bring din premiumvirksomhed ind på en platform bygget til opdagelse.",
+        "title": "Bliv en del af AlgarveOfficial-platformen",
+        "visitorText": "Opdag kuraterede steder i hele Algarve.",
+        "visitorTitle": "For besøgende"
+      },
+      "curatedExcellence": {
+        "badge": "Signature-udvalg",
+        "subtitle": "Håndplukkede Signature-ejendomme og oplevelser til kræsne gæster, der søger det ekstraordinære.",
+        "title": "Signature-udvalg",
+        "viewDetails": "Se detaljer"
+      },
+      "directory": {
+        "cta": "Gennemse alle opslag",
+        "label": "Fuldt katalog",
+        "subtitle": "Leder du efter flere muligheder? Udforsk over 1.000 steder i hele Algarve.",
+        "title": "Gennemse alle opslag i Algarve"
+      },
+      "editorsSelection": {
+        "badge": "Redaktørens valg",
+        "cta": "Se hele samlingen",
+        "ctaMobile": "Se komplet samling",
+        "emptySubtitle": "Udforsk hele Algarve-kataloget, mens den redaktionelle samling opdateres.",
+        "emptyTitle": "Udvalgte opslag er ved at blive forberedt.",
+        "subtitle": "Håndplukkede steder og ejendomme, der viser det bedste af Algarve.",
+        "title": "Redaktørens udvalg",
+        "titleAlt": "Signature-samling"
+      },
+      "hero": {
+        "enableMediaCookies": "Aktivér mediecookies",
+        "label": "Udvalgt til dig",
+        "primaryCta": "Udforsk udvalgte steder",
+        "proof": {
+          "curated": "Kurateret af lokale",
+          "intent": "For besøgende og investorer",
+          "verified": "Verificeret og betroet"
+        },
+        "scroll": "Rul til Signature-samlingen",
+        "secondaryCta": "Opret min Algarve-rejse",
+        "subtitle": "Hoteller, restauranter, oplevelser, golf og ejendomme på én platform.",
+        "titleHighlight": "Kurateret",
+        "titleLead": "Algarve",
+        "videoTitle": "Baggrundsvideo for AlgarveOfficial"
+      },
+      "mapGateway": {
+        "ariaLabel": "Åbn interaktivt Algarve-kort",
+        "cta": "Åbn interaktivt kort",
+        "eyebrow": "Udforsk på kort",
+        "illustrationLabel": "Abstrakt stedpreview af Algarve",
+        "labels": {
+          "albufeira": "Albufeira",
+          "lagos": "Lagos",
+          "tavira": "Tavira",
+          "vilamoura": "Vilamoura"
+        },
+        "subtitle": "Find kuraterede steder efter by, region, kategori og interesse — fra ophold ved kysten til golf, mad og ejendom.",
+        "title": "Søg i Algarve efter sted"
+      },
+      "quickLinks": {
+        "items": {
+          "eatDrink": {
+            "title": "Mad og drikke"
+          },
+          "events": {
+            "title": "Events"
+          },
+          "golf": {
+            "title": "Golf"
+          },
+          "realEstate": {
+            "title": "Ejendom"
+          },
+          "stay": {
+            "title": "Ophold"
+          },
+          "thingsToDo": {
+            "title": "Oplevelser"
+          }
+        }
+      },
+      "regions": {
+        "helpers": {
+          "carvoeiro-cliffs": "Carvoeiro, Ferragudo, Lagoa",
+          "golden-triangle": "Quinta do Lago, Vale do Lobo, Almancil",
+          "lagos-signature": "Lagos, Ponta da Piedade, western beaches",
+          "monchique-retreats": "Monchique, mountains and rural escapes",
+          "tavira-heritage": "Tavira, Santa Luzia, eastern Algarve",
+          "vilamoura-prestige": "Vilamoura, marina, golf and resort areas"
+        },
+        "label": "Destinationer",
+        "subtitle": "Opdag bemærkelsesværdige steder i hele Algarve, fra gyldne strande til charmerende landsbyer inde i landet.",
+        "title": "Udforsk efter region",
+        "viewAll": "Se alle regioner"
+      },
+      "signatureMap": {
+        "cta": "Åbn interaktivt kort",
+        "label": "Udforsk på kortet",
+        "labels": {
+          "albufeira": "Albufeira",
+          "lagos": "Lagos",
+          "tavira": "Tavira",
+          "vilamoura": "Vilamoura"
+        },
+        "subtitle": "Udforsk steder i Algarve efter by, kategori og region.",
+        "title": "Søg i Algarve efter sted"
+      },
+      "smartSearch": {
+        "cities": {
+          "albufeira": "Albufeira",
+          "carvoeiro": "Carvoeiro",
+          "lagos": "Lagos",
+          "quintaDoLago": "Quinta do Lago",
+          "tavira": "Tavira",
+          "vilamoura": "Vilamoura"
+        },
+        "cityLabel": "Populære bylinks",
+        "cta": "Søg i kataloget",
+        "intentLabel": "Udforsk efter hensigt",
+        "intents": {
+          "eatDrink": "Mad og drikke",
+          "events": "Events",
+          "golf": "Golf",
+          "realEstate": "Ejendom",
+          "stay": "Ophold",
+          "thingsToDo": "Oplevelser"
+        },
+        "label": "Planlæg hurtigere",
+        "popularCities": "Populære byer",
+        "subtitle": "Vælg en hensigt, en by eller gå direkte til hele kataloget.",
+        "title": "Hvad leder du efter i Algarve?"
+      },
+      "trustSection": {
+        "items": {
+          "comprehensive": {
+            "description": "Én platform for besøgende, beboere, ejere og investorer.",
+            "title": "Bo, spise, udforske, investere"
+          },
+          "curated": {
+            "description": "Kvalitetssteder, ejendomme og oplevelser i hele Algarve.",
+            "title": "Premiumudvalg, nøje kurateret"
+          },
+          "verified": {
+            "description": "Opdagelse styret af sted og kontekst, ikke katalogstøj.",
+            "title": "Lokal indsigt, verificerede opslag"
+          }
+        },
+        "label": "Hvorfor AlgarveOfficial",
+        "subtitle": "Kvalitetssteder, ejendomme og oplevelser i hele Algarve.",
+        "title": "Kurateret til sikker opdagelse"
+      }
+    },
     "listings": {
       "allCategories": "Alle kategorier",
       "allCities": "Alle byer",
@@ -3644,187 +4012,70 @@
       "subtitle": "Håndplukkede signaturoplevelser",
       "subtitleCustom": "Håndplukkede signaturoplevelser i Algarve.",
       "title": "Signaturvalg"
+    }
+  },
+  "serverPages": {
+    "blog": {
+      "badge": "AlgarveOfficial-blog",
+      "emptyDescription": "Publicerede historier fra AlgarveOfficial vises her.",
+      "emptyTitle": "Ingen publicerede artikler endnu",
+      "minRead": "min læsning",
+      "postsAria": "Publicerede blogindlæg"
     },
-    "homepage": {
-      "hero": {
-        "label": "Udvalgt til dig",
-        "titleLead": "Algarve",
-        "titleHighlight": "Kurateret",
-        "subtitle": "Hoteller, restauranter, oplevelser, golf og ejendomme på én platform.",
-        "primaryCta": "Udforsk udvalgte steder",
-        "secondaryCta": "Opret min Algarve-rejse",
-        "enableMediaCookies": "Aktivér mediecookies",
-        "videoTitle": "Baggrundsvideo for AlgarveOfficial",
-        "scroll": "Rul til Signature-samlingen",
-        "proof": {
-          "curated": "Kurateret af lokale",
-          "verified": "Verificeret og betroet",
-          "intent": "For besøgende og investorer"
-        }
-      },
-      "editorsSelection": {
-        "badge": "Redaktørens valg",
-        "title": "Redaktørens udvalg",
-        "titleAlt": "Signature-samling",
-        "subtitle": "Håndplukkede steder og ejendomme, der viser det bedste af Algarve.",
-        "cta": "Se hele samlingen",
-        "ctaMobile": "Se komplet samling",
-        "emptyTitle": "Udvalgte opslag er ved at blive forberedt.",
-        "emptySubtitle": "Udforsk hele Algarve-kataloget, mens den redaktionelle samling opdateres."
-      },
-      "trustSection": {
-        "label": "Hvorfor AlgarveOfficial",
-        "title": "Kurateret til sikker opdagelse",
-        "subtitle": "Kvalitetssteder, ejendomme og oplevelser i hele Algarve.",
-        "items": {
-          "curated": {
-            "title": "Premiumudvalg, nøje kurateret",
-            "description": "Kvalitetssteder, ejendomme og oplevelser i hele Algarve."
-          },
-          "verified": {
-            "title": "Lokal indsigt, verificerede opslag",
-            "description": "Opdagelse styret af sted og kontekst, ikke katalogstøj."
-          },
-          "comprehensive": {
-            "title": "Bo, spise, udforske, investere",
-            "description": "Én platform for besøgende, beboere, ejere og investorer."
-          }
-        }
-      },
-      "categories": {
-        "title": "Udforsk Algarve",
-        "intro": "Oplev udvalgte ophold, restauranter, golf, ejendom, events og lokale oplevelser."
-      },
-      "cities": {
-        "label": "Byer",
-        "title": "Udforsk Algarve efter by",
-        "subtitle": "Udforsk Algarve efter by, fra Lagos til Tavira, med strande, restauranter og premiumoplevelser.",
-        "allTitle": "Alle byer",
-        "allSubtitle": "Sammenlign Algarves byer og steder efter beliggenhed, stemning og kuraterede steder i nærheden.",
-        "viewAll": "Se alle byer",
-        "browseTitle": "Gennemse efter by"
-      },
-      "regions": {
-        "label": "Destinationer",
-        "title": "Udforsk efter region",
-        "subtitle": "Opdag bemærkelsesværdige steder i hele Algarve, fra gyldne strande til charmerende landsbyer inde i landet.",
-        "viewAll": "Se alle regioner",
-        "helpers": {
-          "golden-triangle": "Quinta do Lago, Vale do Lobo, Almancil",
-          "vilamoura-prestige": "Vilamoura, marina, golf and resort areas",
-          "carvoeiro-cliffs": "Carvoeiro, Ferragudo, Lagoa",
-          "lagos-signature": "Lagos, Ponta da Piedade, western beaches",
-          "tavira-heritage": "Tavira, Santa Luzia, eastern Algarve",
-          "monchique-retreats": "Monchique, mountains and rural escapes"
-        }
-      },
-      "directory": {
-        "label": "Fuldt katalog",
-        "title": "Gennemse alle opslag i Algarve",
-        "subtitle": "Leder du efter flere muligheder? Udforsk over 1.000 steder i hele Algarve.",
-        "cta": "Gennemse alle opslag"
-      },
-      "signatureMap": {
-        "label": "Udforsk på kortet",
-        "title": "Søg i Algarve efter sted",
-        "subtitle": "Udforsk steder i Algarve efter by, kategori og region.",
-        "cta": "Åbn interaktivt kort",
-        "labels": {
-          "lagos": "Lagos",
-          "albufeira": "Albufeira",
-          "vilamoura": "Vilamoura",
-          "tavira": "Tavira"
-        }
-      },
-      "curatedExcellence": {
-        "badge": "Signature-udvalg",
-        "title": "Signature-udvalg",
-        "subtitle": "Håndplukkede Signature-ejendomme og oplevelser til kræsne gæster, der søger det ekstraordinære.",
-        "viewDetails": "Se detaljer"
-      },
-      "cta": {
-        "label": "Bliv en del af fællesskabet",
-        "title": "Bliv en del af AlgarveOfficial-platformen",
-        "subtitle": "Vælg dit næste sted at besøge, eller bring din premiumvirksomhed ind på en platform bygget til opdagelse.",
-        "primaryButton": "Udforsk steder",
-        "secondaryButton": "List din virksomhed",
-        "stats": "Over {{count}} udvalgte opslag i Algarve",
-        "emptyStats": "Udvalgte steder i Algarve.",
-        "visitorTitle": "For besøgende",
-        "visitorText": "Opdag kuraterede steder i hele Algarve.",
-        "businessTitle": "For virksomheder",
-        "businessText": "List din virksomhed på AlgarveOfficial."
-      },
-      "common": {
-        "algarve": "Algarve",
-        "explore": "Udforsk",
-        "listingCount": "{{count}} opslag",
-        "saveListing": "Gem opslag",
-        "removeFromSaved": "Fjern fra gemte"
-      },
-      "cityDescriptions": {
-        "loule": "Historisk by inde i landet med markeder, håndværkstraditioner og nem adgang til det centrale Algarve.",
-        "porches": "Roligt kystområde kendt for keramik, ophold ved klipperne og nærliggende bugter."
-      },
-      "smartSearch": {
-        "label": "Planlæg hurtigere",
-        "title": "Hvad leder du efter i Algarve?",
-        "subtitle": "Vælg en hensigt, en by eller gå direkte til hele kataloget.",
-        "intentLabel": "Udforsk efter hensigt",
-        "cityLabel": "Populære bylinks",
-        "popularCities": "Populære byer",
-        "cta": "Søg i kataloget",
-        "intents": {
-          "stay": "Ophold",
-          "eatDrink": "Mad og drikke",
-          "thingsToDo": "Oplevelser",
-          "golf": "Golf",
-          "realEstate": "Ejendom",
-          "events": "Events"
+    "common": {
+      "algarve": "Algarve"
+    },
+    "events": {
+      "badge": "Arrangementer i Algarve",
+      "emptyDescription": "Kommende publicerede arrangementer vises her, når de er tilgængelige.",
+      "emptyTitle": "Ingen kommende publicerede arrangementer",
+      "eventsAria": "Kommende publicerede arrangementer"
+    },
+    "map": {
+      "badge": "Algarve-kort",
+      "cityCount": "{{count}} byer",
+      "description": "Gennemse publicerede AlgarveOfficial-opslag med verificerede kortkoordinater. Det interaktive kort indlæses efter JavaScript; denne liste er stadig tilgængelig for søgemaskiner og besøgende uden scripts.",
+      "emptyDescription": "Publicerede opslag uden koordinater er stadig tilgængelige i kataloget.",
+      "emptyTitle": "Ingen kortlagte opslag tilgængelige",
+      "listingsAria": "Kortlagte opslag",
+      "mappedCount": "{{count}} på kortet",
+      "openDirectory": "Åbn kataloget",
+      "publishedCount": "{{count}} publicerede resultater",
+      "title": "Udforsk Algarve-opslag på kortet"
+    },
+    "properties": {
+      "badge": "AlgarveOfficial",
+      "emptyDescription": "Ejendomsopslag vises her, når de bliver publiceret.",
+      "emptyTitle": "Ingen publicerede ejendomme tilgængelige",
+      "listingsAria": "Publicerede ejendomsopslag"
+    },
+    "realEstate": {
+      "badge": "Ejendomskatalog",
+      "browseProperties": "Gennemse ejendomme",
+      "emptyDescription": "Publicerede ejendomsopslag vises her, når de er tilgængelige.",
+      "emptyTitle": "Ingen publicerede ejendomsopslag tilgængelige",
+      "listingsAria": "Publicerede ejendomsopslag",
+      "openMap": "Åbn kort"
+    },
+    "relocation": {
+      "badge": "Flytning",
+      "basesTitle": "Udforsk baser i Algarve",
+      "emptyCities": "Byguider vises her, når destinationsdata er tilgængelige.",
+      "primaryCta": "Tal med AlgarveOfficial",
+      "roadmapAria": "Flytteplan",
+      "secondaryCta": "Gennemse ejendomme",
+      "steps": {
+        "base": {
+          "description": "Sammenlign byer i Algarve, kystlivsstil, skoler, tjenester og transportforbindelser.",
+          "title": "Vælg en base"
         },
-        "cities": {
-          "lagos": "Lagos",
-          "vilamoura": "Vilamoura",
-          "albufeira": "Albufeira",
-          "tavira": "Tavira",
-          "carvoeiro": "Carvoeiro",
-          "quintaDoLago": "Quinta do Lago"
-        }
-      },
-      "quickLinks": {
-        "items": {
-          "stay": {
-            "title": "Ophold"
-          },
-          "eatDrink": {
-            "title": "Mad og drikke"
-          },
-          "thingsToDo": {
-            "title": "Oplevelser"
-          },
-          "golf": {
-            "title": "Golf"
-          },
-          "realEstate": {
-            "title": "Ejendom"
-          },
-          "events": {
-            "title": "Events"
-          }
-        }
-      },
-      "mapGateway": {
-        "eyebrow": "Udforsk på kort",
-        "title": "Søg i Algarve efter sted",
-        "subtitle": "Find kuraterede steder efter by, region, kategori og interesse — fra ophold ved kysten til golf, mad og ejendom.",
-        "cta": "Åbn interaktivt kort",
-        "ariaLabel": "Åbn interaktivt Algarve-kort",
-        "illustrationLabel": "Abstrakt stedpreview af Algarve",
-        "labels": {
-          "lagos": "Lagos",
-          "albufeira": "Albufeira",
-          "vilamoura": "Vilamoura",
-          "tavira": "Tavira"
+        "home": {
+          "description": "Forbind flytteplanlægning med boligsøgning, betroede tjenester og lokal støtte.",
+          "title": "Find et hjem"
+        },
+        "residency": {
+          "description": "Forstå dokumenter, tidslinjer, sundhed, skat og praktiske ankomsttrin før flytningen.",
+          "title": "Planlæg ophold og papirarbejde"
         }
       }
     }
@@ -3865,312 +4116,61 @@
       "name": "Verificeret"
     }
   },
-  "pagination": {
-    "label": "pagination",
-    "goToPrevious": "Go to previous page",
-    "goToNext": "Go to next page",
-    "morePages": "More pages"
-  },
-  "pricingCards": {
-    "title": "Choose your partnership level",
-    "subtitle": "Transparent pricing. No hidden fees. Cancel anytime.",
-    "annualDiscount": "Annual billing available at 20% discount.",
-    "recommended": "Gå ikke glip af",
-    "verifiedPartner": "Verified Partner",
-    "perMonth": "/måned",
-    "verifiedDescription": "A trust signal for active, legitimate local businesses that want credibility and a stronger listing presence.",
-    "applyAsVerified": "Ansøg som Verified",
-    "noLongTermContract": "Ingen lang kontrakt · opsig når som helst",
-    "byInvitation": "By Invitation",
-    "signaturePartner": "Signature Partner",
-    "signatureDescription": "Premium editorial-style visibility for standout Algarve businesses, with eligibility for curated homepage, city, and category placements where relevant.",
-    "byInvitationOnly": "By Invitation Only",
-    "eligiblePartnersContacted": "Our team contacts eligible Verified partners directly.",
-    "interestedInSignature": "Interested in Signature?",
-    "mentionInApplication": "Mention it in your Verified application",
-    "reviewEligibilityNote": "— we review all partners for eligibility.",
-    "notReady": "Not ready to commit?",
-    "startFreeListing": "Start with a free basic listing",
-    "upgradeWhenReady": "and upgrade when ready.",
-    "available": "Begrænset / Eksklusivt",
-    "applyAsSignature": "Ansøg som Signature",
-    "signatureAvailableNote": "Signature is available for qualified premium listings and remains subject to quality standards.",
-    "wantHomepagePlacement": "Need homepage featured placement as an add-on?",
-    "contactUs": "Contact us",
-    "homepagePlacementNote": "and our team will review the right add-on placement for your category."
-  },
   "user": {
     "tripPlanner": {
       "addToTrip": {
-        "button": "Add to Trip",
-        "title": "Add to Trip",
-        "description": "Add \"{{listingName}}\" to your itinerary",
-        "fillTripDetails": "Please fill in all trip details",
-        "tripCreated": "Trip created!",
-        "selectTripAndDate": "Please select a trip and date",
         "addedToTrip": "Added \"{{listingName}}\" to your trip!",
-        "viewTrip": "View Trip",
-        "selectTrip": "Select Trip",
+        "adding": "Adding...",
+        "button": "Add to Trip",
         "chooseTrip": "Choose a trip",
-        "noTrips": "No trips yet. Create one below.",
-        "newTripDetails": "New Trip Details",
         "date": "Date",
-        "selectDate": "Select a date",
-        "timeOptional": "Time (optional)",
+        "description": "Add \"{{listingName}}\" to your itinerary",
         "estimatedCostEuro": "Estimated Cost (€)",
+        "fillTripDetails": "Please fill in all trip details",
+        "newTripDetails": "New Trip Details",
         "notesOptional": "Notes (optional)",
         "notesPlaceholder": "Any notes for this activity...",
-        "adding": "Adding..."
-      },
-      "eventDialog": {
-        "editActivity": "Edit Activity",
-        "addActivity": "Add Activity",
-        "change": "Change",
-        "selectListing": "Select a Listing",
-        "searchListings": "Search listings...",
-        "myFavorites": "My Favorites",
-        "allListings": "All Listings",
-        "noFavorites": "No favorites yet. Try searching all listings.",
-        "noListingsFound": "No listings found.",
-        "date": "Date",
-        "timeSlot": "Time Slot",
-        "selectTime": "Select time",
-        "estimatedCostEuro": "Estimated Cost (€)",
-        "notes": "Notes",
-        "notesPlaceholder": "Add any notes or reminders..."
+        "noTrips": "No trips yet. Create one below.",
+        "selectDate": "Select a date",
+        "selectTrip": "Select Trip",
+        "selectTripAndDate": "Please select a trip and date",
+        "timeOptional": "Time (optional)",
+        "title": "Add to Trip",
+        "tripCreated": "Trip created!",
+        "viewTrip": "View Trip"
       },
       "createNewTrip": "Opret ny rejse",
-      "tripTitlePlaceholder": "Rejsetitel",
-      "startDate": "Startdato",
-      "endDate": "Slutdato",
       "createTrip": "Opret rejse",
-      "saveChanges": "Gem ændringer"
-    }
-  },
-  "beachesPage": {
-    "heroTitle": "Strande i Algarve",
-    "heroDescription": "Oplev gyldne sandstrande, turkisblåt vand og førsteklasses strandklubber, kurateret til AlgarveOfficials besøgende."
-  },
-  "pricingFeatures": {
-    "title": "What's included in each tier",
-    "subtitle": "Compare features across all three partnership levels.",
-    "feature": "Feature",
-    "basic": "Basic",
-    "addOn": "Add-on",
-    "contact": "Contact",
-    "apply": "Ansøg"
-  },
-  "lead": {
-    "headline": "Algarve",
-    "headlineHighlight": "Udvalgt",
-    "lead": "Udvalgt af lokale",
-    "verified": "Verificeret og betroet",
-    "intent": "For besøgende og investorer"
-  },
-  "homepage": {
-    "editorsSelection": {
-      "badge": "Editor's picks",
-      "subtitle": "Handpicked places and properties that define the very best of the Algarve.",
-      "title": "Editor's Selection",
-      "titleAlt": "Signature Collection",
-      "cta": "View all collection",
-      "ctaMobile": "View full collection",
-      "emptyTitle": "Curated listings are being prepared.",
-      "emptySubtitle": "Browse the full Algarve directory while the editorial collection is updated."
-    },
-    "trustSection": {
-      "label": "Why AlgarveOfficial",
-      "title": "Curated for confident discovery",
-      "subtitle": "Quality places, properties and experiences across the Algarve.",
-      "items": {
-        "curated": {
-          "title": "Premium curated selection",
-          "description": "Quality places, properties and experiences across the Algarve."
-        },
-        "verified": {
-          "title": "Local insights, verified listings",
-          "description": "Discovery guided by place and context, not directory noise."
-        },
-        "comprehensive": {
-          "title": "Stay, dine, explore, invest",
-          "description": "One platform for visitors, residents, owners and investors."
-        }
-      }
-    },
-    "categories": {
-      "label": "What We Offer",
-      "title": "Premium Categories",
-      "subtitle": "Browse the premium directory by category, from places to stay to restaurants, experiences and property."
-    }
-  },
-  "navigation": {
-    "skipToContent": "Skip to main content"
-  },
-  "pages": {
-    "relocation": {
-      "title": "Flytning til Algarve",
-      "subtitle": "Praktiske guider, pålidelige tjenester og udvalgte lokale ressourcer til at flytte til Algarve med tryghed.",
-      "seoTitle": "Flytning til Algarve | Flyt, bo og etablér dig i Portugal",
-      "seoDescription": "Praktiske guider, pålidelige tjenester og udvalgte lokale ressourcer til at flytte til Algarve med tryghed."
-    }
-  },
-  "breadcrumbs": {
-    "relocation": "Flytning"
-  },
-  "golfCourse": {
-    "metaTitleFallback": "Golfbane",
-    "metaDescriptionFallback": "Udforsk banedetaljer, scorecard og placering.",
-    "locationFallback": "Algarve",
-    "regionFallback": "Algarve",
-    "holes": "Huller",
-    "par": "Par",
-    "slope": "Slope",
-    "rating": "Course Rating",
-    "length": "Længde",
-    "designer": "Designer",
-    "meters": "m",
-    "overview": "Baneoversigt",
-    "facilities": "Faciliteter",
-    "drivingRange": "Driving range",
-    "clubhouse": "Klubhus",
-    "restaurant": "Restaurant",
-    "buggy": "Buggy",
-    "academy": "Akademi",
-    "access": "Adgang",
-    "difficulty": "Sværhedsgrad",
-    "bestFor": "Bedst til",
-    "priceRange": "Prisniveau",
-    "public": "Offentlig",
-    "private": "Privat",
-    "golfers": "Golfspillere",
-    "casual": "Afslappede runder",
-    "confident": "Sikre spillere",
-    "championship": "Championship-spil",
-    "scorecard": "Scorecard",
-    "hole": "Hul",
-    "hcp": "HCP",
-    "white": "Hvid",
-    "yellow": "Gul",
-    "red": "Rød",
-    "bookTeeTime": "Book Tee Time",
-    "bookTeeTimeAria": "Book tee time hos ekstern partner",
-    "contactClub": "Kontakt klub",
-    "visitWebsite": "Besøg website",
-    "relatedCourses": "Nærliggende baner",
-    "leaderboard": "Rangliste",
-    "rank": "Placering",
-    "player": "Spiller",
-    "score": "Score",
-    "rounds": "Runder"
-  },
-  "golfDiscovery": {
-    "discoveryTitle": "Find your perfect golf course in the Algarve",
-    "discoverySubtitle": "Choose the kind of round you want and discover curated courses without endless comparison.",
-    "championshipTitle": "Championship Courses",
-    "championshipIntro": "Curated selection of tournament-level courses",
-    "championshipDescription": "18-hole tournament layouts",
-    "coastalTitle": "Scenic Coastal Golf",
-    "coastalIntro": "Ocean light, coastal settings, and memorable Algarve scenery",
-    "coastalDescription": "Views and atmosphere",
-    "luxuryTitle": "Luxury & Private Clubs",
-    "luxuryIntro": "Premium clubs, polished service, and standout golf settings",
-    "luxuryDescription": "Premium golf experiences",
-    "beginnerTitle": "Beginner Friendly",
-    "beginnerIntro": "Welcoming courses for relaxed and confident play",
-    "beginnerDescription": "Easier rounds and learning",
-    "quick9Title": "Quick 9-Hole Rounds",
-    "quick9Intro": "Shorter formats for flexible Algarve golf days",
-    "quick9Description": "Faster rounds",
-    "finderTitle": "Find your course",
-    "skillQuestion": "Skill?",
-    "beginner": "Beginner",
-    "intermediate": "Intermediate",
-    "advanced": "Advanced",
-    "mattersQuestion": "What matters?",
-    "scenery": "Scenery",
-    "challenge": "Challenge",
-    "ease": "Ease",
-    "viewMatches": "View matches",
-    "bestFor": "Best for",
-    "experiencedGolfers": "Experienced golfers",
-    "championshipPlay": "Championship play",
-    "premiumExperience": "Premium experience",
-    "quickRounds": "Quick rounds",
-    "scenicRounds": "Scenic rounds",
-    "relaxedPlay": "Relaxed play",
-    "editorsSelection": "Editor's Selection",
-    "verified": "Verified",
-    "viewCourse": "View Course",
-    "youMightAlsoLike": "You might also like",
-    "noMatchesTitle": "No matching courses yet",
-    "noMatchesDescription": "Explore all golf courses while we expand this discovery collection.",
-    "backToGolf": "Alle golfbaner",
-    "heroLabel": "Oplev golf"
-  },
-  "serverPages": {
-    "common": {
-      "algarve": "Algarve"
-    },
-    "blog": {
-      "badge": "AlgarveOfficial-blog",
-      "emptyTitle": "Ingen publicerede artikler endnu",
-      "emptyDescription": "Publicerede historier fra AlgarveOfficial vises her.",
-      "postsAria": "Publicerede blogindlæg",
-      "minRead": "min læsning"
-    },
-    "events": {
-      "badge": "Arrangementer i Algarve",
-      "emptyTitle": "Ingen kommende publicerede arrangementer",
-      "emptyDescription": "Kommende publicerede arrangementer vises her, når de er tilgængelige.",
-      "eventsAria": "Kommende publicerede arrangementer"
-    },
-    "map": {
-      "badge": "Algarve-kort",
-      "title": "Udforsk Algarve-opslag på kortet",
-      "description": "Gennemse publicerede AlgarveOfficial-opslag med verificerede kortkoordinater. Det interaktive kort indlæses efter JavaScript; denne liste er stadig tilgængelig for søgemaskiner og besøgende uden scripts.",
-      "mappedCount": "{{count}} på kortet",
-      "publishedCount": "{{count}} publicerede resultater",
-      "cityCount": "{{count}} byer",
-      "emptyTitle": "Ingen kortlagte opslag tilgængelige",
-      "emptyDescription": "Publicerede opslag uden koordinater er stadig tilgængelige i kataloget.",
-      "openDirectory": "Åbn kataloget",
-      "listingsAria": "Kortlagte opslag"
-    },
-    "properties": {
-      "badge": "AlgarveOfficial",
-      "emptyTitle": "Ingen publicerede ejendomme tilgængelige",
-      "emptyDescription": "Ejendomsopslag vises her, når de bliver publiceret.",
-      "listingsAria": "Publicerede ejendomsopslag"
-    },
-    "realEstate": {
-      "badge": "Ejendomskatalog",
-      "browseProperties": "Gennemse ejendomme",
-      "openMap": "Åbn kort",
-      "emptyTitle": "Ingen publicerede ejendomsopslag tilgængelige",
-      "emptyDescription": "Publicerede ejendomsopslag vises her, når de er tilgængelige.",
-      "listingsAria": "Publicerede ejendomsopslag"
-    },
-    "relocation": {
-      "badge": "Flytning",
-      "primaryCta": "Tal med AlgarveOfficial",
-      "secondaryCta": "Gennemse ejendomme",
-      "roadmapAria": "Flytteplan",
-      "steps": {
-        "residency": {
-          "title": "Planlæg ophold og papirarbejde",
-          "description": "Forstå dokumenter, tidslinjer, sundhed, skat og praktiske ankomsttrin før flytningen."
-        },
-        "base": {
-          "title": "Vælg en base",
-          "description": "Sammenlign byer i Algarve, kystlivsstil, skoler, tjenester og transportforbindelser."
-        },
-        "home": {
-          "title": "Find et hjem",
-          "description": "Forbind flytteplanlægning med boligsøgning, betroede tjenester og lokal støtte."
-        }
+      "endDate": "Slutdato",
+      "eventDialog": {
+        "addActivity": "Add Activity",
+        "allListings": "All Listings",
+        "change": "Change",
+        "date": "Date",
+        "editActivity": "Edit Activity",
+        "estimatedCostEuro": "Estimated Cost (€)",
+        "myFavorites": "My Favorites",
+        "noFavorites": "No favorites yet. Try searching all listings.",
+        "noListingsFound": "No listings found.",
+        "notes": "Notes",
+        "notesPlaceholder": "Add any notes or reminders...",
+        "searchListings": "Search listings...",
+        "selectListing": "Select a Listing",
+        "selectTime": "Select time",
+        "timeSlot": "Time Slot"
       },
-      "basesTitle": "Udforsk baser i Algarve",
-      "emptyCities": "Byguider vises her, når destinationsdata er tilgængelige."
+      "saveChanges": "Gem ændringer",
+      "startDate": "Startdato",
+      "tripTitlePlaceholder": "Rejsetitel"
     }
+  },
+  "weather": {
+    "algarveRegion": "Algarve",
+    "algarveShort": "Algarve",
+    "faroDistrict": "Faro-distriktet",
+    "faroShort": "Faro",
+    "loading": "Indlæser vejret for Faro",
+    "temperatureLabel": "Vejret i {{place}}: {{celsius}}°C / {{fahrenheit}}°F",
+    "unavailable": "Vejret er ikke tilgængeligt"
   }
 }

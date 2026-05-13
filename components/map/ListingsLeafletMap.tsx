@@ -277,7 +277,7 @@ const ListingPointMarker = memo(function ListingPointMarker({
             {point.href && (
               <Link
                 href={point.href}
-                className="inline-flex items-center justify-center w-full rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 transition-opacity"
+                className="inline-flex w-full items-center justify-center rounded-full border border-green-500 bg-green-600 px-3 py-2 text-xs font-semibold text-white shadow-lg shadow-green-600/20 transition-colors hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600"
               >
                 {viewDetailsLabel}
               </Link>
@@ -358,6 +358,7 @@ export function ListingsLeafletMap({
   onListingSelect,
   onBoundsChange,
 }: ListingsLeafletMapProps) {
+  const { t } = useTranslation();
   const mapSync = useOptionalMapSync();
   const hydrated = useHydrated();
   const [isDark, setIsDark] = useState(
@@ -420,7 +421,7 @@ export function ListingsLeafletMap({
     return (
       <div className={cn("rounded-xl overflow-hidden border border-border bg-muted/40", className)}>
         <div className={cn("w-full min-h-[320px] flex items-center justify-center", mapClassName)}>
-          <span className="text-sm text-muted-foreground">Loading map...</span>
+          <span className="text-sm text-muted-foreground">{t("common.loading")}</span>
         </div>
       </div>
     );

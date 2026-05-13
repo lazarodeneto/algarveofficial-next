@@ -232,6 +232,7 @@ const getCategoryLayout = (
     fallbackDescription?: string;
     listingName?: string;
     cityName?: string | null;
+    locale?: string;
     tags?: string[] | null;
     address?: string | null;
     latitude?: number | null;
@@ -263,6 +264,7 @@ const getCategoryLayout = (
       return normalizedCategorySlug === "beaches" ? (
         <BeachesLayout
           details={details}
+          locale={context?.locale}
           fallbackDescription={context?.fallbackDescription}
           listingName={context?.listingName}
           cityName={context?.cityName}
@@ -447,6 +449,56 @@ function normalizeExternalUrl(value?: string | null): string | null {
   if (!trimmed) return null;
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
   return `https://${trimmed}`;
+}
+
+const LOCALE_KEY_PATTERN = /^[a-z]{2}(?:-[a-z]{2})?$/i;
+
+function buildLocaleCandidates(locale: string | null | undefined): string[] {
+  const normalized = (locale ?? "en").trim().toLowerCase();
+  const [language] = normalized.split("-");
+  return Array.from(new Set([normalized, language, "en"].filter(Boolean)));
+}
+
+function parseJsonMaybe(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+  const trimmed = value.trim();
+  if (!trimmed || !["{", "["].includes(trimmed[0])) return value;
+  try {
+    return JSON.parse(trimmed) as unknown;
+  } catch {
+    return value;
+  }
+}
+
+function resolveLocalizedMapEntry(value: unknown, locale: string | null | undefined): unknown {
+  const parsed = parseJsonMaybe(value);
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return parsed;
+  const record = parsed as Record<string, unknown>;
+  const keys = Object.keys(record);
+  if (keys.length === 0 || !keys.every((key) => LOCALE_KEY_PATTERN.test(key))) return parsed;
+
+  for (const candidate of buildLocaleCandidates(locale)) {
+    if (record[candidate] !== undefined) return record[candidate];
+  }
+
+  return parsed;
+}
+
+function resolveLocalizedTags(details: Record<string, unknown>, locale: string | null | undefined): string[] | null {
+  const localizedSource =
+    details.localized_tags ??
+    details.localizedTags ??
+    details.i18n_tags ??
+    details.i18nTags;
+
+  const localizedValue = resolveLocalizedMapEntry(localizedSource, locale);
+  if (!Array.isArray(localizedValue)) return null;
+
+  const normalized = localizedValue
+    .map((item) => (typeof item === "string" ? item.trim() : ""))
+    .filter(Boolean);
+
+  return normalized.length > 0 ? normalized : null;
 }
 
 function buildWhatsAppUrl(rawValue: string | null | undefined, message: string): string | null {
@@ -882,6 +934,10 @@ function ListingDetailClientInner({
   );
   const listingTitle = effectiveTitle ?? listing.name;
   const details = listing.category_data as Record<string, unknown> ?? {};
+  const localizedTags = useMemo(
+    () => resolveLocalizedTags(details, routeLocale) ?? listing.tags ?? null,
+    [details, listing.tags, routeLocale],
+  );
   const tierRules = getListingTierRules(listing.tier);
   const allowPublicContactFields = tierRules.allowPublicContactFields;
 
@@ -1521,7 +1577,8 @@ function ListingDetailClientInner({
                         fallbackDescription: effectiveDescription ?? undefined,
                         listingName: listingTitle,
                         cityName: listing.city?.name ?? null,
-                        tags: listing.tags ?? null,
+                        locale: routeLocale,
+                        tags: localizedTags,
                         address: listing.address ?? null,
                         latitude: Number.isFinite(baseLatitude) ? baseLatitude : null,
                         longitude: Number.isFinite(baseLongitude) ? baseLongitude : null,
@@ -1704,13 +1761,13 @@ function ListingDetailClientInner({
               </div>
 
               <div className="lg:col-span-2 space-y-8">
-                {listing.tags && listing.tags.length > 0 ? (
+                {localizedTags && localizedTags.length > 0 ? (
                   <>
                     <Separator />
                     <div>
                       <h2 className="text-xl font-serif font-medium mb-4">{t("listing.tags")}</h2>
                       <div className="flex flex-wrap gap-2">
-                        {listing.tags.map((tag) => (
+                        {localizedTags.map((tag) => (
                           <Badge key={tag} variant="outline" className="text-sm">
                             {translateCategoryValue(t, tag)}
                           </Badge>
