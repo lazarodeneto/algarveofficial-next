@@ -22,7 +22,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { BrandLogo } from "@/components/ui/brand-logo";
-import { HeaderCompactNav, HeaderMegaMenu, MobileMegaMenuSections } from "./HeaderMegaMenu";
+import { HeaderMegaMenu, MobileMegaMenuSections } from "./HeaderMegaMenu";
 import { HeaderWeatherPill, type HeaderWeatherLocation } from "./HeaderWeatherPill";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { stripLocaleFromPathname } from "@/lib/i18n/routing";
@@ -206,10 +206,8 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
               </div>
             </div>
 
-            <HeaderCompactNav />
-
             {/* Primary Navigation */}
-            <div className="hidden min-w-0 flex-1 items-center justify-start min-[1280px]:flex">
+            <div className="hidden min-w-0 flex-1 items-center justify-center min-[960px]:flex min-[1280px]:justify-start">
               <HeaderMegaMenu overHero={isHomepage && !isScrolled} />
             </div>
 
@@ -390,7 +388,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
             <>
               {/* Backdrop overlay */}
               <div
-                className="fixed inset-0 z-[130] bg-black/50 backdrop-blur-sm animate-in fade-in duration-150 min-[1280px]:hidden"
+                className="fixed inset-0 z-[130] bg-black/50 backdrop-blur-sm animate-in fade-in duration-150 min-[768px]:bg-transparent min-[768px]:backdrop-blur-0 min-[1280px]:hidden"
                 onClick={() => setMobileMenuOpen(false)}
                 aria-hidden="true"
               />
@@ -401,12 +399,12 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                 role="dialog"
                 aria-modal="true"
                 aria-label={t("nav.mobilePrimary")}
-                className="fixed bottom-0 left-0 right-0 top-0 z-[140] overflow-y-auto bg-background/95 text-foreground backdrop-blur-2xl dark:bg-background/70 touch-pan-y animate-in fade-in slide-in-from-top-3 duration-200 min-[1280px]:hidden"
+                className="fixed inset-0 z-[140] overflow-y-auto bg-background/95 text-foreground backdrop-blur-2xl dark:bg-background/70 touch-pan-y animate-in fade-in slide-in-from-top-3 duration-200 min-[768px]:inset-auto min-[768px]:right-4 min-[768px]:top-[5.5rem] min-[768px]:w-[min(30rem,calc(100vw-2rem))] min-[768px]:max-h-[calc(100svh-6rem)] min-[768px]:overflow-hidden min-[768px]:rounded-2xl min-[768px]:border min-[768px]:border-black/10 min-[768px]:bg-background/96 min-[768px]:shadow-[0_28px_80px_-35px_rgba(15,23,42,0.55)] min-[768px]:ring-1 min-[768px]:ring-black/5 min-[768px]:dark:border-white/12 min-[768px]:dark:bg-background/90 min-[1280px]:hidden"
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
               >
-                <div className="px-4 pt-4 pb-6 space-y-4">
+                <div className="px-4 pt-4 pb-6 space-y-4 min-[768px]:max-h-[calc(100svh-6rem)] min-[768px]:overflow-y-auto min-[768px]:p-3 min-[768px]:space-y-3">
                   <div className="flex items-start gap-2">
                     <div className="flex-1 rounded-sm border border-black/10 bg-white/70 p-2.5 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
                       <div className="flex items-center gap-3">
@@ -426,7 +424,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                       <X className="h-5 w-5" />
                     </button>
                   </div>
-                  <div className="flex min-h-full flex-col">
+                  <div className="flex min-h-full flex-col min-[768px]:min-h-0">
 
                     <MobileMegaMenuSections onNavigate={() => setMobileMenuOpen(false)} />
 

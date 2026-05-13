@@ -110,4 +110,23 @@ describe("category-specific listing layouts", () => {
     expect(screen.getByText("listing.location")).toBeInTheDocument();
     expect(screen.getAllByText("Praia Coordenada, Lagoa, Algarve Portugal").length).toBeGreaterThan(0);
   });
+
+  it("does not render a beach map from fallback coordinates when category data explicitly has no coordinates", () => {
+    render(
+      <BeachesLayout
+        details={{
+          coordinates: {
+            latitude: null,
+            longitude: null,
+          },
+        }}
+        listingName="Praia Sem Coordenadas"
+        cityName="Carvoeiro"
+        latitude={37.096196}
+        longitude={-8.472004}
+      />,
+    );
+
+    expect(screen.queryByText("listing.location")).not.toBeInTheDocument();
+  });
 });

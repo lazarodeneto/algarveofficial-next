@@ -408,19 +408,36 @@ export function BeachesLayout({
   const meetingPoint = firstString(resolvedDetails, ["meeting_point", "meeting_point_description"]);
   const explicitMapUrl = firstString(resolvedDetails, ["meeting_point_google_maps_url", "google_maps_url", "map_url"]);
   const coordinates = asRecord(resolvedDetails.coordinates ?? resolvedDetails.location);
-  const mapLatitude = numberFrom(latitude)
-    ?? numberFrom(resolvedDetails.latitude ?? resolvedDetails.Latitude)
-    ?? numberFrom(coordinates.latitude ?? coordinates.lat);
-  const mapLongitude = numberFrom(longitude)
-    ?? numberFrom(resolvedDetails.longitude ?? resolvedDetails.Longitude)
-    ?? numberFrom(coordinates.longitude ?? coordinates.lng ?? coordinates.lon);
+  const detailLatitude = numberFrom(resolvedDetails.latitude ?? resolvedDetails.Latitude);
+  const detailLongitude = numberFrom(resolvedDetails.longitude ?? resolvedDetails.Longitude);
+  const coordinateLatitude = numberFrom(coordinates.latitude ?? coordinates.lat);
+  const coordinateLongitude = numberFrom(coordinates.longitude ?? coordinates.lng ?? coordinates.lon);
+  const hasExplicitCoordinateFields =
+    ["latitude", "Latitude", "longitude", "Longitude"].some((key) =>
+      Object.prototype.hasOwnProperty.call(resolvedDetails, key),
+    ) ||
+    ["latitude", "lat", "longitude", "lng", "lon"].some((key) =>
+      Object.prototype.hasOwnProperty.call(coordinates, key),
+    );
+  const explicitLatitude = detailLatitude ?? coordinateLatitude;
+  const explicitLongitude = detailLongitude ?? coordinateLongitude;
+  const suppressFallbackCoordinates =
+    hasExplicitCoordinateFields && (explicitLatitude === undefined || explicitLongitude === undefined);
+  const mapLatitude = suppressFallbackCoordinates
+    ? undefined
+    : explicitLatitude ?? numberFrom(latitude);
+  const mapLongitude = suppressFallbackCoordinates
+    ? undefined
+    : explicitLongitude ?? numberFrom(longitude);
   const hasMapCoordinates = mapLatitude !== undefined && mapLongitude !== undefined;
-  const mapUrl = buildGoogleMapsSearchUrl({
-    explicitUrl: explicitMapUrl ?? googleMapsUrl,
-    latitude: mapLatitude,
-    longitude: mapLongitude,
-    queryParts: [meetingPoint, address, listingName, cityName, "Algarve Portugal"],
-  });
+  const mapUrl = suppressFallbackCoordinates && !explicitMapUrl && !googleMapsUrl
+    ? undefined
+    : buildGoogleMapsSearchUrl({
+        explicitUrl: explicitMapUrl ?? googleMapsUrl,
+        latitude: mapLatitude,
+        longitude: mapLongitude,
+        queryParts: [meetingPoint, address, listingName, cityName, "Algarve Portugal"],
+      });
   const meetingPointText =
     meetingPoint ??
     address ??

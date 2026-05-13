@@ -534,6 +534,35 @@ function toFiniteNumber(value: unknown): number | null {
   return null;
 }
 
+function asUnknownRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function hasOwnKey(record: Record<string, unknown>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(record, key);
+}
+
+function getExplicitBeachCoordinates(details: Record<string, unknown>) {
+  const coordinates = asUnknownRecord(details.coordinates ?? details.location);
+  const hasExplicitCoordinates =
+    ["latitude", "Latitude", "longitude", "Longitude"].some((key) => hasOwnKey(details, key)) ||
+    ["latitude", "lat", "longitude", "lng", "lon"].some((key) => hasOwnKey(coordinates, key));
+
+  const latitude =
+    toFiniteNumber(details.latitude ?? details.Latitude) ??
+    toFiniteNumber(coordinates.latitude ?? coordinates.lat);
+  const longitude =
+    toFiniteNumber(details.longitude ?? details.Longitude) ??
+    toFiniteNumber(coordinates.longitude ?? coordinates.lng ?? coordinates.lon);
+
+  return {
+    hasExplicitCoordinates,
+    latitude,
+    longitude,
+    hasCompleteCoordinates: latitude !== null && longitude !== null,
+  };
+}
+
 function isMissingClaimColumnError(error: unknown): boolean {
   const supabaseError = error as { code?: string; message?: string; details?: string; hint?: string } | null;
   if (supabaseError?.code !== "42703") return false;
@@ -1085,11 +1114,30 @@ function ListingDetailClientInner({
     openAgentContactModal(true);
   };
 
-  const baseLatitude = Number(listing?.latitude ?? listing?.city?.latitude ?? NaN);
-  const baseLongitude = Number(listing?.longitude ?? listing?.city?.longitude ?? NaN);
-  const directionsDestination = Number.isFinite(baseLatitude) && Number.isFinite(baseLongitude)
-    ? `${baseLatitude},${baseLongitude}`
-    : listing.address?.trim();
+  const normalizedListingCategorySlug = listing.category?.slug?.trim().toLowerCase() ?? "";
+  const normalizedListingCategoryName = listing.category?.name?.trim().toLowerCase() ?? "";
+  const isExactBeachesListing =
+    normalizedListingCategorySlug === "beaches" || normalizedListingCategoryName === "beaches";
+  const explicitBeachCoordinates = getExplicitBeachCoordinates(details);
+  const suppressBeachCoordinateFallback =
+    isExactBeachesListing &&
+    explicitBeachCoordinates.hasExplicitCoordinates &&
+    !explicitBeachCoordinates.hasCompleteCoordinates;
+  const baseLatitude =
+    toFiniteNumber(listing?.latitude) ??
+    (isExactBeachesListing ? explicitBeachCoordinates.latitude : null) ??
+    (suppressBeachCoordinateFallback ? null : toFiniteNumber(listing?.city?.latitude)) ??
+    NaN;
+  const baseLongitude =
+    toFiniteNumber(listing?.longitude) ??
+    (isExactBeachesListing ? explicitBeachCoordinates.longitude : null) ??
+    (suppressBeachCoordinateFallback ? null : toFiniteNumber(listing?.city?.longitude)) ??
+    NaN;
+  const directionsDestination = suppressBeachCoordinateFallback
+    ? null
+    : Number.isFinite(baseLatitude) && Number.isFinite(baseLongitude)
+      ? `${baseLatitude},${baseLongitude}`
+      : listing.address?.trim();
   const directionsUrl = directionsDestination
     ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(directionsDestination)}`
     : null;
@@ -1181,10 +1229,6 @@ function ListingDetailClientInner({
 
   const directoryLabel = t("nav.directory");
   const categoryLabel = translateCategoryName(t, listing.category?.slug, listing.category?.name) ?? directoryLabel;
-  const normalizedListingCategorySlug = listing.category?.slug?.trim().toLowerCase() ?? "";
-  const normalizedListingCategoryName = listing.category?.name?.trim().toLowerCase() ?? "";
-  const isExactBeachesListing =
-    normalizedListingCategorySlug === "beaches" || normalizedListingCategoryName === "beaches";
   const canonicalCategorySlug = getCanonicalCategorySlug(listing.category?.slug);
   const landingPage = getListingCategoryLanding(canonicalCategorySlug);
   const landingLabel = t(landingPage.labelKey, landingPage.fallbackLabel);

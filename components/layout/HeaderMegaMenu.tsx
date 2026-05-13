@@ -161,8 +161,8 @@ function MegaPanel({ section, onNavigate }: { section: MegaMenuSection; onNaviga
       className={cn(
         "header-mega-panel rounded-lg border border-black/10 bg-[hsl(var(--background)/0.98)] text-foreground shadow-[0_30px_80px_-35px_rgba(15,23,42,0.45)] backdrop-blur-2xl dark:border-white/12 dark:bg-[hsl(var(--background)/0.9)]",
         isVisit
-          ? "w-[min(760px,calc(100vw-9rem))] translate-x-14 overflow-visible min-[1360px]:w-[min(820px,calc(100vw-10rem))] min-[1440px]:w-[min(900px,calc(100vw-12rem))] min-[1440px]:translate-x-8"
-          : "max-h-[min(74vh,calc(100vh-6.5rem))] w-[min(500px,calc(100vw-9rem))] overflow-y-auto min-[1360px]:w-[min(600px,calc(100vw-10rem))] min-[1440px]:w-[min(640px,calc(100vw-12rem))]",
+          ? "w-[min(720px,calc(100vw-2rem))] translate-x-0 overflow-visible min-[960px]:w-[min(720px,calc(100vw-7rem))] min-[1280px]:w-[min(760px,calc(100vw-9rem))] min-[1280px]:translate-x-14 min-[1360px]:w-[min(820px,calc(100vw-10rem))] min-[1440px]:w-[min(900px,calc(100vw-12rem))] min-[1440px]:translate-x-8"
+          : "max-h-[min(74vh,calc(100vh-6.5rem))] w-[min(500px,calc(100vw-2rem))] overflow-y-auto min-[960px]:w-[min(520px,calc(100vw-7rem))] min-[1280px]:w-[min(500px,calc(100vw-9rem))] min-[1360px]:w-[min(600px,calc(100vw-10rem))] min-[1440px]:w-[min(640px,calc(100vw-12rem))]",
       )}
     >
       <div
@@ -229,7 +229,7 @@ export function HeaderMegaMenu({ overHero = false }: { overHero?: boolean } = {}
     <NavigationMenu
       value={activeItem}
       onValueChange={setActiveItem}
-      className="hidden min-w-0 min-[1280px]:flex"
+      className="hidden min-w-0 min-[960px]:flex"
     >
       <NavigationMenuList className="gap-1 xl:gap-1.5 2xl:gap-2">
         {MEGA_MENU_SECTIONS.map((section) => {
@@ -295,7 +295,7 @@ export function MobileMegaMenuSections({ onNavigate }: { onNavigate: () => void 
     <Accordion
       type="multiple"
       defaultValue={["visit"]}
-      className="rounded-lg border border-black/10 bg-white/72 px-3 shadow-[0_18px_42px_-30px_rgba(15,23,42,0.45)] backdrop-blur-xl dark:border-white/12 dark:bg-white/5"
+      className="rounded-lg border border-black/10 bg-white/72 px-3 shadow-[0_18px_42px_-30px_rgba(15,23,42,0.45)] backdrop-blur-xl dark:border-white/12 dark:bg-white/5 min-[768px]:px-2"
     >
       {MEGA_MENU_SECTIONS.map((section) => {
         const Icon = section.featuredIcon;
@@ -305,36 +305,36 @@ export function MobileMegaMenuSections({ onNavigate }: { onNavigate: () => void 
             value={section.id}
             className="border-primary/15 last:border-b-0"
           >
-            <AccordionTrigger className="min-h-16 gap-3 py-4 text-left no-underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45">
+            <AccordionTrigger className="min-h-16 gap-3 py-4 text-left no-underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 min-[768px]:min-h-12 min-[768px]:py-2.5">
               <span className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-primary">
-                  <Icon className="h-5 w-5" aria-hidden="true" />
+                <span className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-primary min-[768px]:h-8 min-[768px]:w-8">
+                  <Icon className="h-5 w-5 min-[768px]:h-4 min-[768px]:w-4" aria-hidden="true" />
                 </span>
                 <span>
-                  <span className="block font-fira text-lg font-bold uppercase tracking-[0.12em]">
+                  <span className="block font-fira text-lg font-bold uppercase tracking-[0.12em] min-[768px]:text-sm">
                     {translated(t, section.labelKey, section.fallbackLabel)}
                   </span>
-                  <span className="mt-0.5 block text-xs font-normal leading-5 text-muted-foreground">
+                  <span className="mt-0.5 block text-xs font-normal leading-5 text-muted-foreground min-[768px]:hidden">
                     {section.description}
                   </span>
                 </span>
               </span>
             </AccordionTrigger>
-            <AccordionContent className="pb-4">
+            <AccordionContent className="pb-4 min-[768px]:pb-3">
               <LocaleLink
                 href={section.featuredHref}
                 onClick={onNavigate}
-                className="mb-3 flex items-center justify-between rounded-lg border border-primary/20 bg-primary/8 px-4 py-3 text-sm font-semibold text-foreground transition hover:bg-primary/12 hover:text-primary"
+                className="mb-3 flex items-center justify-between rounded-lg border border-primary/20 bg-primary/8 px-4 py-3 text-sm font-semibold text-foreground transition hover:bg-primary/12 hover:text-primary min-[768px]:mb-2 min-[768px]:px-3 min-[768px]:py-2"
               >
                 <span>
                   <span className="block">{section.featuredLabel}</span>
-                  <span className="mt-1 block text-xs font-normal leading-5 text-muted-foreground">
+                  <span className="mt-1 block text-xs font-normal leading-5 text-muted-foreground min-[768px]:hidden">
                     {section.featuredDescription}
                   </span>
                 </span>
                 <ChevronRight className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
               </LocaleLink>
-              <div className="grid gap-2">
+              <div className="grid gap-2 min-[768px]:grid-cols-2 min-[768px]:gap-1.5">
                 {[...section.items, ...(section.quickLinks ?? [])].map((item) => {
                   const ItemIcon = item.icon;
                   return (
@@ -342,9 +342,9 @@ export function MobileMegaMenuSections({ onNavigate }: { onNavigate: () => void 
                       key={`${section.id}-mobile-${item.labelKey}`}
                       href={item.href}
                       onClick={onNavigate}
-                      className="flex min-h-12 items-center gap-3 rounded-lg border border-black/8 bg-white/80 px-3 py-2.5 text-sm font-semibold transition hover:border-primary/25 hover:text-primary dark:border-white/10 dark:bg-white/10"
+                      className="flex min-h-12 items-center gap-3 rounded-lg border border-black/8 bg-white/80 px-3 py-2.5 text-sm font-semibold transition hover:border-primary/25 hover:text-primary dark:border-white/10 dark:bg-white/10 min-[768px]:min-h-10 min-[768px]:gap-2 min-[768px]:px-2.5 min-[768px]:py-2 min-[768px]:text-xs"
                     >
-                      <ItemIcon className="h-4.5 w-4.5 shrink-0 text-primary" aria-hidden="true" />
+                      <ItemIcon className="h-4.5 w-4.5 shrink-0 text-primary min-[768px]:h-4 min-[768px]:w-4" aria-hidden="true" />
                       <span className="flex-1">{translated(t, item.labelKey, item.fallbackLabel)}</span>
                       {item.badge ? (
                         <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-primary">
