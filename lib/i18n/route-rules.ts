@@ -33,6 +33,7 @@ const CANONICAL_LOCALIZED_ALIAS_ROUTES = [
   { source: "/visit", target: "/stay" },
   { source: "/live", target: "/relocation" },
   { source: "/residence", target: "/relocation" },
+  { source: "/real-estate", target: "/properties" },
 ] as const;
 
 export const PUBLIC_SEO_PAGES = new Set([
@@ -51,7 +52,6 @@ export const PUBLIC_SEO_PAGES = new Set([
   "pricing",
   "privacy-policy",
   "properties",
-  "real-estate",
   "relocation",
   "stay",
   "terms",

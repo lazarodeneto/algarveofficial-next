@@ -25,6 +25,12 @@ describe("admin route contract", () => {
     expect(source).toContain('"content/page-builder": AdminPageBuilder');
   });
 
+  it("keeps the Translation Studio route aliases registered", () => {
+    const source = readFileSync(ADMIN_ROUTE_FILE, "utf8");
+    expect(source).toContain("translations: AdminTranslations");
+    expect(source).toContain('"content/translations": AdminTranslations');
+  });
+
   it("does not keep the removed legacy pages editor implementation", () => {
     expect(existsSync(LEGACY_PAGES_EDITOR_FILE)).toBe(false);
   });

@@ -297,9 +297,9 @@ describe("normalizePublicListing", () => {
       name: "Praia da Marinha",
       status: "published",
       address: "Lagoa, Algarve",
-      contactPhone: "+351 000 000 000",
-      contactEmail: "hello@example.com",
-      websiteUrl: "https://example.com",
+      contactPhone: null,
+      contactEmail: null,
+      websiteUrl: null,
       city: {
         id: "city-1",
         name: "Lagoa",
@@ -322,6 +322,29 @@ describe("normalizePublicListing", () => {
     expect(listing).not.toHaveProperty("view_count");
     expect(listing).not.toHaveProperty("facebook_url");
     expect(listing).not.toHaveProperty("instagram_url");
+  });
+
+  it("exposes public contact fields only for trusted listing tiers", () => {
+    expect(normalizePublicListing(buildListingRow({ tier: "unverified" }))).toMatchObject({
+      contactPhone: null,
+      contactEmail: null,
+      websiteUrl: null,
+      googleBusinessUrl: null,
+    });
+
+    expect(normalizePublicListing(buildListingRow({ tier: "verified" }))).toMatchObject({
+      contactPhone: "+351 000 000 000",
+      contactEmail: "hello@example.com",
+      websiteUrl: "https://example.com",
+      googleBusinessUrl: "https://google.com/business",
+    });
+
+    expect(normalizePublicListing(buildListingRow({ tier: "signature" }))).toMatchObject({
+      contactPhone: "+351 000 000 000",
+      contactEmail: "hello@example.com",
+      websiteUrl: "https://example.com",
+      googleBusinessUrl: "https://google.com/business",
+    });
   });
 
   it("does not use city coordinates for map output unless explicitly allowed", () => {

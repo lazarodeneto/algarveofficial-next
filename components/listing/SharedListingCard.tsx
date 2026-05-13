@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { FavoriteButton } from "@/components/ui/favorite-button";
 import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
+import { useCurrentLocale } from "@/hooks/useCurrentLocale";
+import { getEnglishBeachDisplayName } from "@/lib/beachDisplayName";
 import { renderCategoryIcon } from "@/lib/categoryIcons";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { cn } from "@/lib/utils";
@@ -69,6 +71,7 @@ export function SharedListingCard({
   className,
 }: SharedListingCardProps) {
   const { t } = useTranslation();
+  const locale = useCurrentLocale();
 
   const categorySlug = listing.category?.slug ?? listing.category_slug ?? undefined;
   const categoryName = listing.category?.name ?? listing.category_name ?? undefined;
@@ -77,6 +80,7 @@ export function SharedListingCard({
   const cityName = listing.city?.name || listing.city_name || "Algarve";
   const regionName = listing.region?.name ?? listing.region_name ?? undefined;
   const description = listing.short_description || listing.description;
+  const displayListingName = getEnglishBeachDisplayName(listing.name, locale, categorySlug);
   const shouldShowCuratedBadge = Boolean(showCuratedBadge && listing.is_curated && curatedLabel);
   const isSignature = listing.tier === "signature";
   const isVerified = listing.tier === "verified";
@@ -93,9 +97,9 @@ export function SharedListingCard({
             href={href}
             className="absolute inset-0 z-20 rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             onClick={onCardClick}
-            aria-label={listing.name}
+            aria-label={displayListingName}
           >
-            <span className="sr-only">{listing.name}</span>
+            <span className="sr-only">{displayListingName}</span>
           </Link>
           {isSignature ? (
             <span
@@ -118,7 +122,7 @@ export function SharedListingCard({
               categoryImageUrl={categoryImageUrl}
               listingId={listing.id}
               imageVersion={listing.updated_at}
-              alt={listing.name}
+              alt={displayListingName}
               isRepresentative={!listing.featured_image_url}
               fill
               className="transition-transform duration-500 ease-out group-hover:scale-110"
@@ -166,7 +170,7 @@ export function SharedListingCard({
 
           <div className="p-4 flex-1 flex flex-col">
             <h3 className="mb-1 font-serif text-[1.08rem] font-medium transition-colors line-clamp-1 group-hover:text-primary lg:text-[1.43rem]">
-              {listing.name}
+              {displayListingName}
             </h3>
 
             <p className="text-body-sm text-muted-foreground line-clamp-2 mb-3">

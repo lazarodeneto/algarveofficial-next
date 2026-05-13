@@ -711,7 +711,7 @@ export default function AdminTranslations() {
       }>,
     ) => {
       try {
-        await fetchAdmin("/api/admin/i18n/sync", {
+        const json = await fetchAdmin("/api/admin/i18n/sync", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -721,6 +721,10 @@ export default function AdminTranslations() {
             keyStatuses,
           }),
         });
+        return json.data as {
+          keyStatusesUpdated?: number;
+          keyStatusPersistence?: "updated" | "missing_table" | "not_requested";
+        };
       } catch (err) {
         const message = err instanceof Error ? err.message : `Failed to persist locale ${localeCode}`;
         throw new Error(message);
@@ -924,12 +928,17 @@ export default function AdminTranslations() {
         const afterCoverage = calculateLocaleCoverage(enFlat, mergedNestedFlat, nextMetadata);
 
         if (Object.keys(translated).length > 0 || statusUpdates.length > 0) {
-          await persistLocaleData(
+          const persistResult = await persistLocaleData(
             localeCode,
             mergedNested,
             Object.keys(mergedNestedFlat).length,
             statusUpdates,
           );
+          if (persistResult.keyStatusPersistence === "missing_table") {
+            toast.warning(
+              "Locale values were synced, but key status metadata was not saved because the i18n_locale_key_status migration is missing.",
+            );
+          }
           setLocalePatchDataByCode((prev) => ({
             ...prev,
             [localeCode]: {

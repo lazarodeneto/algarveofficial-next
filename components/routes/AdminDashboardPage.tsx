@@ -165,6 +165,7 @@ const staticRouteMap: Record<string, ComponentType> = {
   "content/footer": AdminFooterMenu,
   "content/media": AdminMediaLibrary,
   "content/page-builder": AdminPageBuilder,
+  translations: AdminTranslations,
   "content/translations": AdminTranslations,
   email: EmailMarketingOverview,
   "email/contacts": EmailContacts,

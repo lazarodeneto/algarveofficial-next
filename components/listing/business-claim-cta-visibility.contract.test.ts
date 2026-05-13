@@ -13,6 +13,7 @@ describe("listing business claim CTA visibility", () => {
 
     expect(source).toContain("const isSignatureOrVerifiedTier = listing.tier === \"signature\" || listing.tier === \"verified\"");
     expect(source).toContain("listing.status === \"published\" && !isExactBeachesListing && !isSignatureOrVerifiedTier");
+    expect(source).toContain("const allowPublicContactFields = tierRules.allowPublicContactFields");
     expect(source).toContain("<BusinessClaimCTA");
   });
 });

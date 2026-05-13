@@ -17,6 +17,7 @@ import {
   type PublicEventDTO,
   type PublicEventGlobalSetting,
 } from "@/lib/public-data/events";
+import { getServerTranslations } from "@/lib/i18n/server";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -84,6 +85,24 @@ const EVENTS_CMS_KEYS = [
   CMS_GLOBAL_SETTING_KEYS.customCss,
 ] as const;
 
+const EVENTS_SERVER_KEYS = [
+  "serverPages.events.badge",
+  "serverPages.events.emptyTitle",
+  "serverPages.events.emptyDescription",
+  "serverPages.events.eventsAria",
+] as const;
+
+const EVENTS_SERVER_FALLBACK: Record<(typeof EVENTS_SERVER_KEYS)[number], string> = {
+  "serverPages.events.badge": "Algarve events",
+  "serverPages.events.emptyTitle": "No upcoming published events",
+  "serverPages.events.emptyDescription": "Upcoming published events will appear here when available.",
+  "serverPages.events.eventsAria": "Upcoming published events",
+};
+
+function eventsCopy(copy: Record<string, string>, key: (typeof EVENTS_SERVER_KEYS)[number]) {
+  return copy[key] ?? EVENTS_SERVER_FALLBACK[key];
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale: rawLocale } = await params;
   if (!isValidLocale(rawLocale)) return {};
@@ -115,11 +134,13 @@ function EventsServerShell({
   events,
   title,
   description,
+  copy,
 }: {
   locale: Locale;
   events: PublicEventDTO[];
   title: string;
   description: string;
+  copy: Record<string, string>;
 }) {
   const eventsByMonth: Record<string, PublicEventDTO[]> = {};
   events.forEach((event) => {
@@ -133,7 +154,7 @@ function EventsServerShell({
       <main className="app-container pt-[calc(4rem+2.5rem)] pb-16 sm:pt-[calc(5rem+3rem)]">
         <section className="mb-8 max-w-4xl">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-            Algarve events
+            {eventsCopy(copy, "serverPages.events.badge")}
           </p>
           <h1 className="mt-3 font-serif text-4xl leading-tight text-foreground sm:text-5xl">
             {title}
@@ -146,13 +167,13 @@ function EventsServerShell({
         {events.length === 0 ? (
           <section className="rounded-lg border border-border bg-card/80 p-8 text-center shadow-sm">
             <Calendar className="mx-auto mb-3 h-8 w-8 text-primary" />
-            <h2 className="font-serif text-2xl">No upcoming published events</h2>
+            <h2 className="font-serif text-2xl">{eventsCopy(copy, "serverPages.events.emptyTitle")}</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Upcoming published events will appear here when available.
+              {eventsCopy(copy, "serverPages.events.emptyDescription")}
             </p>
           </section>
         ) : (
-          <section aria-label="Upcoming published events" className="space-y-10">
+          <section aria-label={eventsCopy(copy, "serverPages.events.eventsAria")} className="space-y-10">
             {Object.entries(eventsByMonth).map(([monthKey, monthEvents]) => (
               <div key={monthKey}>
                 <h2 className="mb-4 border-b border-border pb-2 font-serif text-2xl text-muted-foreground">
@@ -202,7 +223,10 @@ export default async function EventsPage({ params }: PageProps) {
   const { locale: rawLocale } = await params;
   const locale = (isValidLocale(rawLocale) ? rawLocale : "en") as Locale;
   const meta = EVENTS_META[locale];
-  const { events, globalSettings } = await fetchEventsPageData(locale);
+  const [{ events, globalSettings }, copy] = await Promise.all([
+    fetchEventsPageData(locale),
+    getServerTranslations(locale, [...EVENTS_SERVER_KEYS]),
+  ]);
   const localizedEventsPath = buildLocalizedPath(locale, "/events");
   const itemListSchema = buildItemListSchema(
     meta.title,
@@ -236,6 +260,7 @@ export default async function EventsPage({ params }: PageProps) {
         events={events}
         title={meta.title}
         description={meta.description}
+        copy={copy}
       />
       <Suspense fallback={<RouteLoadingState />}>
         <EventsClient initialEvents={events} initialGlobalSettings={globalSettings} />

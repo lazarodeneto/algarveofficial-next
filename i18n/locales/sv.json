@@ -4106,5 +4106,71 @@
     "noMatchesDescription": "Explore all golf courses while we expand this discovery collection.",
     "backToGolf": "Alla golfbanor",
     "heroLabel": "Upptäck golf"
+  },
+  "serverPages": {
+    "common": {
+      "algarve": "Algarve"
+    },
+    "blog": {
+      "badge": "AlgarveOfficial-blogg",
+      "emptyTitle": "Inga publicerade artiklar ännu",
+      "emptyDescription": "Publicerade berättelser från AlgarveOfficial visas här.",
+      "postsAria": "Publicerade blogginlägg",
+      "minRead": "min läsning"
+    },
+    "events": {
+      "badge": "Evenemang i Algarve",
+      "emptyTitle": "Inga kommande publicerade evenemang",
+      "emptyDescription": "Kommande publicerade evenemang visas här när de finns tillgängliga.",
+      "eventsAria": "Kommande publicerade evenemang"
+    },
+    "map": {
+      "badge": "Algarve-karta",
+      "title": "Utforska Algarve-listningar på kartan",
+      "description": "Bläddra bland publicerade AlgarveOfficial-listningar med verifierade kartkoordinater. Den interaktiva kartan laddas efter JavaScript; listan finns kvar för sökmotorer och besökare utan skript.",
+      "mappedCount": "{{count}} på kartan",
+      "publishedCount": "{{count}} publicerade resultat",
+      "cityCount": "{{count}} städer",
+      "emptyTitle": "Inga kartlagda listningar tillgängliga",
+      "emptyDescription": "Publicerade listningar utan koordinater finns fortfarande i katalogen.",
+      "openDirectory": "Öppna katalogen",
+      "listingsAria": "Kartlagda listningar"
+    },
+    "properties": {
+      "badge": "AlgarveOfficial",
+      "emptyTitle": "Inga publicerade fastigheter tillgängliga",
+      "emptyDescription": "Fastighetslistningar visas här när de har publicerats.",
+      "listingsAria": "Publicerade fastighetslistningar"
+    },
+    "realEstate": {
+      "badge": "Fastighetskatalog",
+      "browseProperties": "Bläddra bland fastigheter",
+      "openMap": "Öppna karta",
+      "emptyTitle": "Inga publicerade fastighetslistningar tillgängliga",
+      "emptyDescription": "Publicerade fastighetslistningar visas här när de finns tillgängliga.",
+      "listingsAria": "Publicerade fastighetslistningar"
+    },
+    "relocation": {
+      "badge": "Flytta",
+      "primaryCta": "Prata med AlgarveOfficial",
+      "secondaryCta": "Bläddra bland fastigheter",
+      "roadmapAria": "Flyttplan",
+      "steps": {
+        "residency": {
+          "title": "Planera uppehåll och dokument",
+          "description": "Förstå dokument, tidslinjer, vård, skatt och praktiska ankomststeg innan du flyttar."
+        },
+        "base": {
+          "title": "Välj en bas",
+          "description": "Jämför orter i Algarve, kustlivsstilar, skolor, tjänster och förbindelser."
+        },
+        "home": {
+          "title": "Hitta ett hem",
+          "description": "Koppla flyttplanering till bostadssökning, betrodda tjänster och lokal support."
+        }
+      },
+      "basesTitle": "Utforska baser i Algarve",
+      "emptyCities": "Stadsguider visas här när destinationsdata finns tillgänglig."
+    }
   }
 }

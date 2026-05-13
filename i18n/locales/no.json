@@ -4106,5 +4106,71 @@
     "noMatchesDescription": "Explore all golf courses while we expand this discovery collection.",
     "backToGolf": "Alle golfbaner",
     "heroLabel": "Oppdag golf"
+  },
+  "serverPages": {
+    "common": {
+      "algarve": "Algarve"
+    },
+    "blog": {
+      "badge": "AlgarveOfficial-blogg",
+      "emptyTitle": "Ingen publiserte artikler ennå",
+      "emptyDescription": "Publiserte historier fra AlgarveOfficial vises her.",
+      "postsAria": "Publiserte blogginnlegg",
+      "minRead": "min lesing"
+    },
+    "events": {
+      "badge": "Arrangementer i Algarve",
+      "emptyTitle": "Ingen kommende publiserte arrangementer",
+      "emptyDescription": "Kommende publiserte arrangementer vises her når de er tilgjengelige.",
+      "eventsAria": "Kommende publiserte arrangementer"
+    },
+    "map": {
+      "badge": "Algarve-kart",
+      "title": "Utforsk Algarve-oppføringer på kartet",
+      "description": "Bla gjennom publiserte AlgarveOfficial-oppføringer med verifiserte kartkoordinater. Det interaktive kartet lastes etter JavaScript; denne listen er fortsatt tilgjengelig for søkemotorer og besøkende uten skript.",
+      "mappedCount": "{{count}} på kartet",
+      "publishedCount": "{{count}} publiserte resultater",
+      "cityCount": "{{count}} byer",
+      "emptyTitle": "Ingen kartlagte oppføringer tilgjengelige",
+      "emptyDescription": "Publiserte oppføringer uten koordinater er fortsatt tilgjengelige i katalogen.",
+      "openDirectory": "Åpne katalogen",
+      "listingsAria": "Kartlagte oppføringer"
+    },
+    "properties": {
+      "badge": "AlgarveOfficial",
+      "emptyTitle": "Ingen publiserte eiendommer tilgjengelige",
+      "emptyDescription": "Eiendomsoppføringer vises her når de publiseres.",
+      "listingsAria": "Publiserte eiendomsoppføringer"
+    },
+    "realEstate": {
+      "badge": "Eiendomskatalog",
+      "browseProperties": "Se eiendommer",
+      "openMap": "Åpne kart",
+      "emptyTitle": "Ingen publiserte eiendomsoppføringer tilgjengelige",
+      "emptyDescription": "Publiserte eiendomsoppføringer vises her når de er tilgjengelige.",
+      "listingsAria": "Publiserte eiendomsoppføringer"
+    },
+    "relocation": {
+      "badge": "Flytting",
+      "primaryCta": "Snakk med AlgarveOfficial",
+      "secondaryCta": "Se eiendommer",
+      "roadmapAria": "Flytteplan",
+      "steps": {
+        "residency": {
+          "title": "Planlegg opphold og dokumenter",
+          "description": "Forstå dokumenter, tidslinjer, helse, skatt og praktiske ankomststeg før du flytter."
+        },
+        "base": {
+          "title": "Velg en base",
+          "description": "Sammenlign byer i Algarve, kystlivsstil, skoler, tjenester og forbindelser."
+        },
+        "home": {
+          "title": "Finn et hjem",
+          "description": "Koble flytteplanlegging med boligsøk, pålitelige tjenester og lokal støtte."
+        }
+      },
+      "basesTitle": "Utforsk baser i Algarve",
+      "emptyCities": "Byguider vises her når destinasjonsdata er tilgjengelig."
+    }
   }
 }

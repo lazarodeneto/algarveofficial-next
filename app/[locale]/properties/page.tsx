@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { Building2, MapPin } from "lucide-react";
 import { isValidLocale, type Locale } from "@/lib/i18n/config";
@@ -7,6 +8,7 @@ import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
 import { buildBreadcrumbSchema, buildItemListSchema } from "@/lib/seo/advanced/schema-builders";
 import PropertiesClient from "@/components/properties/PropertiesClient";
 import { getRealEstateDirectoryData } from "@/lib/real-estate/directory-data";
+import { getServerTranslations } from "@/lib/i18n/server";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -67,6 +69,26 @@ const PROPERTIES_META: Record<Locale, { title: string; description: string }> = 
   },
 };
 
+const PROPERTIES_SERVER_KEYS = [
+  "serverPages.properties.badge",
+  "serverPages.properties.emptyTitle",
+  "serverPages.properties.emptyDescription",
+  "serverPages.properties.listingsAria",
+  "serverPages.common.algarve",
+] as const;
+
+const PROPERTIES_SERVER_FALLBACK: Record<(typeof PROPERTIES_SERVER_KEYS)[number], string> = {
+  "serverPages.properties.badge": "AlgarveOfficial",
+  "serverPages.properties.emptyTitle": "No published properties available",
+  "serverPages.properties.emptyDescription": "Property listings will appear here once they are published.",
+  "serverPages.properties.listingsAria": "Published property listings",
+  "serverPages.common.algarve": "Algarve",
+};
+
+function propertiesCopy(copy: Record<string, string>, key: (typeof PROPERTIES_SERVER_KEYS)[number]) {
+  return copy[key] ?? PROPERTIES_SERVER_FALLBACK[key];
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale: rawLocale } = await params;
   if (!isValidLocale(rawLocale)) return {};
@@ -86,6 +108,7 @@ interface PropertiesServerShellProps {
   title: string;
   description: string;
   listings: Awaited<ReturnType<typeof getRealEstateDirectoryData>>["listings"];
+  copy: Record<string, string>;
 }
 
 function PropertiesServerShell({
@@ -93,13 +116,14 @@ function PropertiesServerShell({
   title,
   description,
   listings,
+  copy,
 }: PropertiesServerShellProps) {
   return (
     <div id="properties-server-shell" className="min-h-screen bg-background text-foreground">
       <main className="app-container pt-[calc(4rem+2.5rem)] pb-16 sm:pt-[calc(5rem+3rem)]">
         <section className="mb-8 max-w-4xl">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-            AlgarveOfficial
+            {propertiesCopy(copy, "serverPages.properties.badge")}
           </p>
           <p className="mt-3 font-serif text-4xl leading-tight text-foreground sm:text-5xl">
             {title}
@@ -112,13 +136,13 @@ function PropertiesServerShell({
         {listings.length === 0 ? (
           <section className="rounded-lg border border-border bg-card/80 p-8 text-center shadow-sm">
             <Building2 className="mx-auto mb-3 h-8 w-8 text-primary" />
-            <h2 className="font-serif text-2xl">No published properties available</h2>
+            <h2 className="font-serif text-2xl">{propertiesCopy(copy, "serverPages.properties.emptyTitle")}</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Property listings will appear here once they are published.
+              {propertiesCopy(copy, "serverPages.properties.emptyDescription")}
             </p>
           </section>
         ) : (
-          <section aria-label="Published property listings" className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <section aria-label={propertiesCopy(copy, "serverPages.properties.listingsAria")} className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {listings.slice(0, 12).map((listing) => (
               <Link
                 key={listing.id}
@@ -126,11 +150,14 @@ function PropertiesServerShell({
                 className="group overflow-hidden rounded-lg border border-border bg-card shadow-sm transition hover:border-primary/40"
               >
                 {listing.featured_image_url ? (
-                  <img
+                  <Image
                     src={listing.featured_image_url}
                     alt={listing.name}
                     className="h-44 w-full object-cover"
+                    width={640}
+                    height={352}
                     loading="lazy"
+                    unoptimized
                   />
                 ) : (
                   <div className="flex h-44 items-center justify-center bg-muted">
@@ -140,7 +167,7 @@ function PropertiesServerShell({
                 <div className="p-5">
                   <p className="mb-2 flex items-center gap-1.5 text-xs uppercase tracking-[0.16em] text-muted-foreground">
                     <MapPin className="h-3.5 w-3.5 text-primary" />
-                    {listing.cities?.name ?? "Algarve"}
+                    {listing.cities?.name ?? propertiesCopy(copy, "serverPages.common.algarve")}
                   </p>
                   <h2 className="font-serif text-xl leading-snug group-hover:text-primary">
                     {listing.name}
@@ -164,7 +191,10 @@ export default async function PropertiesPage({ params }: PageProps) {
   const { locale: rawLocale } = await params;
   const locale = (isValidLocale(rawLocale) ? rawLocale : "en") as Locale;
   const meta = PROPERTIES_META[locale];
-  const data = await getRealEstateDirectoryData(locale, 100);
+  const [data, copy] = await Promise.all([
+    getRealEstateDirectoryData(locale, 100),
+    getServerTranslations(locale, [...PROPERTIES_SERVER_KEYS]),
+  ]);
   const localizedPropertiesPath = buildLocalizedPath(locale, "/properties");
   const itemListSchema = buildItemListSchema(
     meta.title,
@@ -198,6 +228,7 @@ export default async function PropertiesPage({ params }: PageProps) {
         title={meta.title}
         description={meta.description}
         listings={data.listings}
+        copy={copy}
       />
       <PropertiesClient
         initialCategoryId={data.category?.id ?? null}

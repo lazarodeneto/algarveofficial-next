@@ -8,6 +8,7 @@ import { RouteLoadingState } from "@/components/layout/RouteLoadingState";
 import { isValidLocale, type Locale } from "@/lib/i18n/config";
 import { buildLocalizedPath } from "@/lib/i18n/localized-routing";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
+import { getServerTranslations } from "@/lib/i18n/server";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 
 interface PageProps {
@@ -59,6 +60,43 @@ const RELOCATION_META: Record<Locale, { title: string; description: string }> = 
   },
 };
 
+const RELOCATION_SERVER_KEYS = [
+  "serverPages.relocation.badge",
+  "serverPages.relocation.primaryCta",
+  "serverPages.relocation.secondaryCta",
+  "serverPages.relocation.roadmapAria",
+  "serverPages.relocation.steps.residency.title",
+  "serverPages.relocation.steps.residency.description",
+  "serverPages.relocation.steps.base.title",
+  "serverPages.relocation.steps.base.description",
+  "serverPages.relocation.steps.home.title",
+  "serverPages.relocation.steps.home.description",
+  "serverPages.relocation.basesTitle",
+  "serverPages.relocation.emptyCities",
+] as const;
+
+const RELOCATION_SERVER_FALLBACK: Record<(typeof RELOCATION_SERVER_KEYS)[number], string> = {
+  "serverPages.relocation.badge": "Relocation",
+  "serverPages.relocation.primaryCta": "Talk to AlgarveOfficial",
+  "serverPages.relocation.secondaryCta": "Browse properties",
+  "serverPages.relocation.roadmapAria": "Relocation roadmap",
+  "serverPages.relocation.steps.residency.title": "Plan residency and paperwork",
+  "serverPages.relocation.steps.residency.description":
+    "Understand documents, timelines, healthcare, tax, and practical arrival steps before you move.",
+  "serverPages.relocation.steps.base.title": "Choose a base",
+  "serverPages.relocation.steps.base.description":
+    "Compare Algarve towns, coastal lifestyles, schools, services, and travel links.",
+  "serverPages.relocation.steps.home.title": "Find a home",
+  "serverPages.relocation.steps.home.description":
+    "Connect relocation planning with property search, trusted services, and local support.",
+  "serverPages.relocation.basesTitle": "Explore Algarve bases",
+  "serverPages.relocation.emptyCities": "City guides will appear here when destination data is available.",
+};
+
+function relocationCopy(copy: Record<string, string>, key: (typeof RELOCATION_SERVER_KEYS)[number]) {
+  return copy[key] ?? RELOCATION_SERVER_FALLBACK[key];
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale: rawLocale } = await params;
 
@@ -97,26 +135,28 @@ function RelocationServerShell({
   title,
   description,
   cities,
+  copy,
 }: {
   locale: Locale;
   title: string;
   description: string;
   cities: Awaited<ReturnType<typeof fetchRelocationCities>>;
+  copy: Record<string, string>;
 }) {
   const steps = [
     {
-      title: "Plan residency and paperwork",
-      description: "Understand documents, timelines, healthcare, tax, and practical arrival steps before you move.",
+      title: relocationCopy(copy, "serverPages.relocation.steps.residency.title"),
+      description: relocationCopy(copy, "serverPages.relocation.steps.residency.description"),
       Icon: ShieldCheck,
     },
     {
-      title: "Choose a base",
-      description: "Compare Algarve towns, coastal lifestyles, schools, services, and travel links.",
+      title: relocationCopy(copy, "serverPages.relocation.steps.base.title"),
+      description: relocationCopy(copy, "serverPages.relocation.steps.base.description"),
       Icon: MapPin,
     },
     {
-      title: "Find a home",
-      description: "Connect relocation planning with property search, trusted services, and local support.",
+      title: relocationCopy(copy, "serverPages.relocation.steps.home.title"),
+      description: relocationCopy(copy, "serverPages.relocation.steps.home.description"),
       Icon: Home,
     },
   ];
@@ -126,7 +166,7 @@ function RelocationServerShell({
       <main className="app-container pt-[calc(4rem+2.5rem)] pb-16 sm:pt-[calc(5rem+3rem)]">
         <section className="mb-10 max-w-4xl">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-            Relocation
+            {relocationCopy(copy, "serverPages.relocation.badge")}
           </p>
           <h1 className="mt-3 font-serif text-4xl leading-tight text-foreground sm:text-5xl">
             {title}
@@ -139,18 +179,18 @@ function RelocationServerShell({
               href={buildLocalizedPath(locale, "/contact")}
               className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
             >
-              Talk to AlgarveOfficial
+              {relocationCopy(copy, "serverPages.relocation.primaryCta")}
             </Link>
             <Link
               href={buildLocalizedPath(locale, "/properties")}
               className="rounded-full border border-border px-5 py-3 text-sm font-semibold text-foreground"
             >
-              Browse properties
+              {relocationCopy(copy, "serverPages.relocation.secondaryCta")}
             </Link>
           </div>
         </section>
 
-        <section aria-label="Relocation roadmap" className="grid gap-4 lg:grid-cols-3">
+        <section aria-label={relocationCopy(copy, "serverPages.relocation.roadmapAria")} className="grid gap-4 lg:grid-cols-3">
           {steps.map(({ title: stepTitle, description: stepDescription, Icon }) => (
             <article key={stepTitle} className="rounded-lg border border-border bg-card p-6 shadow-sm">
               <Icon className="mb-4 h-6 w-6 text-primary" />
@@ -163,11 +203,11 @@ function RelocationServerShell({
         <section className="mt-10 rounded-lg border border-border bg-card/80 p-6 shadow-sm">
           <div className="mb-5 flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-primary" />
-            <h2 className="font-serif text-2xl">Explore Algarve bases</h2>
+            <h2 className="font-serif text-2xl">{relocationCopy(copy, "serverPages.relocation.basesTitle")}</h2>
           </div>
           {cities.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              City guides will appear here when destination data is available.
+              {relocationCopy(copy, "serverPages.relocation.emptyCities")}
             </p>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -196,7 +236,10 @@ function RelocationServerShell({
 export default async function RelocationPage({ params }: PageProps) {
   const { locale: rawLocale } = await params;
   const locale = (isValidLocale(rawLocale) ? rawLocale : "en") as Locale;
-  const cities = await fetchRelocationCities();
+  const [cities, copy] = await Promise.all([
+    fetchRelocationCities(),
+    getServerTranslations(locale, [...RELOCATION_SERVER_KEYS]),
+  ]);
   const meta = RELOCATION_META[locale];
 
   return (
@@ -206,6 +249,7 @@ export default async function RelocationPage({ params }: PageProps) {
         title={meta.title}
         description={meta.description}
         cities={cities}
+        copy={copy}
       />
       <Suspense fallback={<RouteLoadingState />}>
         <LiveClient initialGlobalSettings={[]} />

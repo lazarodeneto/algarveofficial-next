@@ -558,9 +558,22 @@ async function fetchListingByIdOrSlug(idOrSlug: string) {
 
 function applyPublicGalleryImageLimit(listing: ListingWithRelations | null): ListingWithRelations | null {
   if (!listing) return null;
+  const tierRules = getListingTierRules(listing.tier);
 
   return {
     ...listing,
+    contact_phone: tierRules.allowPublicContactFields ? listing.contact_phone : null,
+    contact_email: tierRules.allowPublicContactFields ? listing.contact_email : null,
+    website_url: tierRules.allowPublicContactFields ? listing.website_url : null,
+    google_business_url: tierRules.allowPublicContactFields ? listing.google_business_url : null,
+    facebook_url: tierRules.allowPublicSocialLinks ? listing.facebook_url : null,
+    instagram_url: tierRules.allowPublicSocialLinks ? listing.instagram_url : null,
+    twitter_url: tierRules.allowPublicSocialLinks ? listing.twitter_url : null,
+    linkedin_url: tierRules.allowPublicSocialLinks ? listing.linkedin_url : null,
+    youtube_url: tierRules.allowPublicSocialLinks ? listing.youtube_url : null,
+    tiktok_url: tierRules.allowPublicSocialLinks ? listing.tiktok_url : null,
+    telegram_url: tierRules.allowDirectContactButton ? listing.telegram_url : null,
+    whatsapp_number: tierRules.allowDirectContactButton ? listing.whatsapp_number : null,
     images: getAllowedListingGalleryImageInputs<ListingImageRow>({
       featuredImageUrl: listing.featured_image_url,
       galleryImages: listing.images ?? [],
@@ -870,6 +883,7 @@ function ListingDetailClientInner({
   const listingTitle = effectiveTitle ?? listing.name;
   const details = listing.category_data as Record<string, unknown> ?? {};
   const tierRules = getListingTierRules(listing.tier);
+  const allowPublicContactFields = tierRules.allowPublicContactFields;
 
   const contactPrefillMessage = `Hi! I'm interested in "${listingTitle}" in ${listing.city?.name || "Algarve"}.`;
   const directWhatsAppUrl = tierRules.allowDirectContactButton
@@ -885,7 +899,7 @@ function ListingDetailClientInner({
   const hasWhatsAppDirectContact = Boolean(directWhatsAppUrl);
   const directContactLabel = directWhatsAppUrl ? t("listing.messageWhatsApp") : t("listing.social.telegram");
   const bookingUrl = normalizeExternalUrl(details.booking_url as string | undefined);
-  const websiteUrl = normalizeExternalUrl(listing.website_url);
+  const websiteUrl = allowPublicContactFields ? normalizeExternalUrl(listing.website_url) : null;
   const claimBusinessHref = l(`/claim-business/${encodeURIComponent(listing.slug || listing.id)}`);
   const ctaUrl = tierRules.allowCtaButton ? (bookingUrl ?? websiteUrl) : null;
   const ctaLabel = bookingUrl ? t("listing.bookNow") : t("listing.visitWebsite");
@@ -1164,7 +1178,7 @@ function ListingDetailClientInner({
     <div className="min-h-screen bg-background flex flex-col">
       <Header localeSwitchPaths={localeSwitchPaths} />
 
-      <main id="main-content" className="flex-1 pt-[10px] pb-44 sm:pb-48 lg:pb-0">
+      <main id="main-content" className="flex-1 pt-[4.5rem] pb-44 sm:pt-20 sm:pb-48 lg:pb-0">
         <nav className="bg-card border-b border-border" aria-label={t("guides.breadcrumbLabel")}>
           <div className="container mx-auto max-w-7xl px-4 py-3">
             <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
@@ -1593,7 +1607,7 @@ function ListingDetailClientInner({
                           </a>
                         </Button>
                       ) : null}
-                      {listing.contact_phone ? (
+                      {allowPublicContactFields && listing.contact_phone ? (
                         <Button variant="outline" asChild className="w-full">
                           <a
                             href={`tel:${listing.contact_phone}`}
@@ -1619,41 +1633,43 @@ function ListingDetailClientInner({
                     </div>
                   ) : null}
 
-                  <div className="flex flex-wrap items-center gap-3">
-                    {listing.instagram_url ? (
-                      <a
-                        href={listing.instagram_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2.5 rounded-lg bg-muted hover:bg-pink-500/20 transition-all duration-200 hover:scale-110"
-                        title={t("listing.social.instagram")}
-                      >
-                        <Instagram className="h-5 w-5 text-[#E1306C]" />
-                      </a>
-                    ) : null}
-                    {listing.facebook_url ? (
-                      <a
-                        href={listing.facebook_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2.5 rounded-lg bg-muted hover:bg-blue-500/20 transition-all duration-200 hover:scale-110"
-                        title={t("listing.social.facebook")}
-                      >
-                        <Facebook className="h-5 w-5 text-[#1877F2]" />
-                      </a>
-                    ) : null}
-                    {listing.google_business_url ? (
-                      <a
-                        href={listing.google_business_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2.5 rounded-lg bg-muted transition-all duration-200 hover:scale-110"
-                        title={t("listing.social.googleBusiness")}
-                      >
-                        <GoogleIcon className="h-5 w-5" />
-                      </a>
-                    ) : null}
-                  </div>
+                  {tierRules.allowPublicSocialLinks ? (
+                    <div className="flex flex-wrap items-center gap-3">
+                      {listing.instagram_url ? (
+                        <a
+                          href={listing.instagram_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2.5 rounded-lg bg-muted hover:bg-pink-500/20 transition-all duration-200 hover:scale-110"
+                          title={t("listing.social.instagram")}
+                        >
+                          <Instagram className="h-5 w-5 text-[#E1306C]" />
+                        </a>
+                      ) : null}
+                      {listing.facebook_url ? (
+                        <a
+                          href={listing.facebook_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2.5 rounded-lg bg-muted hover:bg-blue-500/20 transition-all duration-200 hover:scale-110"
+                          title={t("listing.social.facebook")}
+                        >
+                          <Facebook className="h-5 w-5 text-[#1877F2]" />
+                        </a>
+                      ) : null}
+                      {listing.google_business_url ? (
+                        <a
+                          href={listing.google_business_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2.5 rounded-lg bg-muted transition-all duration-200 hover:scale-110"
+                          title={t("listing.social.googleBusiness")}
+                        >
+                          <GoogleIcon className="h-5 w-5" />
+                        </a>
+                      ) : null}
+                    </div>
+                  ) : null}
 
                   {listing.status === "published" && !isExactBeachesListing && !isSignatureOrVerifiedTier ? (
                     <div className="mt-6 pt-6 border-t border-border">
@@ -1673,7 +1689,7 @@ function ListingDetailClientInner({
                     </div>
                   ) : null}
 
-                  {isRealEstateListing && !agentContactModalOpen ? (
+                  {isRealEstateListing && allowPublicContactFields && !agentContactModalOpen ? (
                     <RealEstateAgentContactCard
                       listingId={listing.id}
                       listingName={listingTitle}
@@ -1836,7 +1852,7 @@ function ListingDetailClientInner({
         />
       ) : null}
 
-      {isRealEstateListing ? (
+      {isRealEstateListing && allowPublicContactFields ? (
         <Dialog
           open={agentContactModalOpen}
           onOpenChange={(open) => {

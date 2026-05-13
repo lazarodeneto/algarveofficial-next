@@ -4070,5 +4070,71 @@
     "noMatchesDescription": "Explore all golf courses while we expand this discovery collection.",
     "backToGolf": "All golf courses",
     "heroLabel": "Discover golf"
+  },
+  "serverPages": {
+    "common": {
+      "algarve": "Algarve"
+    },
+    "blog": {
+      "badge": "AlgarveOfficial blog",
+      "emptyTitle": "No published articles yet",
+      "emptyDescription": "Published AlgarveOfficial stories will appear here.",
+      "postsAria": "Published blog posts",
+      "minRead": "min read"
+    },
+    "events": {
+      "badge": "Algarve events",
+      "emptyTitle": "No upcoming published events",
+      "emptyDescription": "Upcoming published events will appear here when available.",
+      "eventsAria": "Upcoming published events"
+    },
+    "map": {
+      "badge": "Algarve map",
+      "title": "Explore Algarve listings on the map",
+      "description": "Browse published AlgarveOfficial listings with verified map coordinates. The interactive map loads after JavaScript; this list remains available to search engines and visitors without scripting.",
+      "mappedCount": "{{count}} mapped",
+      "publishedCount": "{{count}} published results",
+      "cityCount": "{{count}} cities",
+      "emptyTitle": "No mapped listings available",
+      "emptyDescription": "Published listings without coordinates are still available through the directory.",
+      "openDirectory": "Open the directory",
+      "listingsAria": "Mapped listings"
+    },
+    "properties": {
+      "badge": "AlgarveOfficial",
+      "emptyTitle": "No published properties available",
+      "emptyDescription": "Property listings will appear here once they are published.",
+      "listingsAria": "Published property listings"
+    },
+    "realEstate": {
+      "badge": "Real estate directory",
+      "browseProperties": "Browse properties",
+      "openMap": "Open map",
+      "emptyTitle": "No published real estate listings available",
+      "emptyDescription": "Published property listings will appear here when available.",
+      "listingsAria": "Published real estate listings"
+    },
+    "relocation": {
+      "badge": "Relocation",
+      "primaryCta": "Talk to AlgarveOfficial",
+      "secondaryCta": "Browse properties",
+      "roadmapAria": "Relocation roadmap",
+      "steps": {
+        "residency": {
+          "title": "Plan residency and paperwork",
+          "description": "Understand documents, timelines, healthcare, tax, and practical arrival steps before you move."
+        },
+        "base": {
+          "title": "Choose a base",
+          "description": "Compare Algarve towns, coastal lifestyles, schools, services, and travel links."
+        },
+        "home": {
+          "title": "Find a home",
+          "description": "Connect relocation planning with property search, trusted services, and local support."
+        }
+      },
+      "basesTitle": "Explore Algarve bases",
+      "emptyCities": "City guides will appear here when destination data is available."
+    }
   }
 }

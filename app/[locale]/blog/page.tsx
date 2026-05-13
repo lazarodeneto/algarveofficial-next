@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Suspense } from "react";
 import Link from "next/link";
 import { BookOpen, Clock } from "lucide-react";
@@ -14,6 +15,7 @@ import {
   getPublicBlogGlobalSettings,
   getPublicBlogPosts,
 } from "@/lib/public-data/blog";
+import { getServerTranslations } from "@/lib/i18n/server";
 
 export const revalidate = 60;
 
@@ -74,6 +76,26 @@ const BLOG_META: Record<Locale, { title: string; description: string }> = {
   },
 };
 
+const BLOG_SERVER_KEYS = [
+  "serverPages.blog.badge",
+  "serverPages.blog.emptyTitle",
+  "serverPages.blog.emptyDescription",
+  "serverPages.blog.postsAria",
+  "serverPages.blog.minRead",
+] as const;
+
+const BLOG_SERVER_FALLBACK: Record<(typeof BLOG_SERVER_KEYS)[number], string> = {
+  "serverPages.blog.badge": "AlgarveOfficial blog",
+  "serverPages.blog.emptyTitle": "No published articles yet",
+  "serverPages.blog.emptyDescription": "Published AlgarveOfficial stories will appear here.",
+  "serverPages.blog.postsAria": "Published blog posts",
+  "serverPages.blog.minRead": "min read",
+};
+
+function blogCopy(copy: Record<string, string>, key: (typeof BLOG_SERVER_KEYS)[number]) {
+  return copy[key] ?? BLOG_SERVER_FALLBACK[key];
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale: rawLocale } = await params;
   if (!isValidLocale(rawLocale)) return {};
@@ -93,18 +115,20 @@ function BlogServerShell({
   posts,
   title,
   description,
+  copy,
 }: {
   locale: Locale;
   posts: BlogPostRow[];
   title: string;
   description: string;
+  copy: Record<string, string>;
 }) {
   return (
     <div id="blog-server-shell" className="min-h-screen bg-background text-foreground">
       <main className="app-container pt-[calc(4rem+2.5rem)] pb-16 sm:pt-[calc(5rem+3rem)]">
         <section className="mb-8 max-w-4xl">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-            AlgarveOfficial blog
+            {blogCopy(copy, "serverPages.blog.badge")}
           </p>
           <h1 className="mt-3 font-serif text-4xl leading-tight text-foreground sm:text-5xl">
             {title}
@@ -117,13 +141,13 @@ function BlogServerShell({
         {posts.length === 0 ? (
           <section className="rounded-lg border border-border bg-card/80 p-8 text-center shadow-sm">
             <BookOpen className="mx-auto mb-3 h-8 w-8 text-primary" />
-            <h2 className="font-serif text-2xl">No published articles yet</h2>
+            <h2 className="font-serif text-2xl">{blogCopy(copy, "serverPages.blog.emptyTitle")}</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Published AlgarveOfficial stories will appear here.
+              {blogCopy(copy, "serverPages.blog.emptyDescription")}
             </p>
           </section>
         ) : (
-          <section aria-label="Published blog posts" className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <section aria-label={blogCopy(copy, "serverPages.blog.postsAria")} className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {posts.map((post) => (
               <Link
                 key={post.id}
@@ -131,11 +155,14 @@ function BlogServerShell({
                 className="group overflow-hidden rounded-lg border border-border bg-card shadow-sm transition hover:border-primary/40"
               >
                 {post.featured_image ? (
-                  <img
+                  <Image
                     src={post.featured_image}
                     alt={post.title}
                     className="h-44 w-full object-cover"
+                    width={640}
+                    height={352}
                     loading="lazy"
+                    unoptimized
                   />
                 ) : null}
                 <article className="p-5">
@@ -152,7 +179,7 @@ function BlogServerShell({
                   ) : null}
                   <p className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Clock className="h-3.5 w-3.5" />
-                    {post.reading_time} min read
+                    {post.reading_time} {blogCopy(copy, "serverPages.blog.minRead")}
                   </p>
                 </article>
               </Link>
@@ -168,11 +195,12 @@ export default async function BlogPage({ params }: PageProps) {
   const { locale: rawLocale } = await params;
   const locale: Locale = isValidLocale(rawLocale) ? (rawLocale as Locale) : DEFAULT_LOCALE;
 
-  const [posts, authors, pageConfig, globalSettings] = await Promise.all([
+  const [posts, authors, pageConfig, globalSettings, copy] = await Promise.all([
     getPublicBlogPosts({ locale, limit: 50 }),
     getPublicBlogAuthors(),
     getBlogPageConfig(locale),
     getPublicBlogGlobalSettings(),
+    getServerTranslations(locale, [...BLOG_SERVER_KEYS]),
   ]);
   const meta = BLOG_META[locale];
   const localizedBlogPath = buildLocalizedPath(locale, "/blog");
@@ -208,6 +236,7 @@ export default async function BlogPage({ params }: PageProps) {
         posts={posts}
         title={meta.title}
         description={meta.description}
+        copy={copy}
       />
       <Suspense fallback={<RouteLoadingState />}>
         <BlogClient

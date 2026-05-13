@@ -110,6 +110,8 @@ export async function POST(request: NextRequest) {
   }
 
   const keyStatuses = parseKeyStatuses(body.keyStatuses);
+  let keyStatusesUpdated = 0;
+  let keyStatusPersistence: "updated" | "missing_table" | "not_requested" = "not_requested";
   if (keyStatuses.length > 0) {
     const now = new Date().toISOString();
     const statusPayload: Database["public"]["Tables"]["i18n_locale_key_status"]["Insert"][] = keyStatuses.map((row) => ({
@@ -126,7 +128,9 @@ export async function POST(request: NextRequest) {
       .upsert(statusPayload, { onConflict: "locale,key_path" });
 
     if (statusError) {
-      const isMissingTable = /relation .*i18n_locale_key_status.* does not exist|42P01/i.test(statusError.message);
+      const isMissingTable =
+        statusError.code === "PGRST205" ||
+        /relation .*i18n_locale_key_status.* does not exist|i18n_locale_key_status.*schema cache|42P01/i.test(statusError.message);
       if (!isMissingTable) {
         return adminErrorResponse(
           500,
@@ -134,13 +138,18 @@ export async function POST(request: NextRequest) {
           statusError.message,
         );
       }
+      keyStatusPersistence = "missing_table";
+    } else {
+      keyStatusesUpdated = keyStatuses.length;
+      keyStatusPersistence = "updated";
     }
   }
 
   return NextResponse.json({
     ok: true,
     data: {
-      keyStatusesUpdated: keyStatuses.length,
+      keyStatusesUpdated,
+      keyStatusPersistence,
     },
   });
 }

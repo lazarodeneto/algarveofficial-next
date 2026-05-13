@@ -35,6 +35,7 @@ import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { buildCategoryRouteData as buildPublicCategoryRouteData } from "@/lib/public-route-builders";
 import { getAllowedListingGalleryImageInputs } from "@/lib/listings/gallery-images";
+import { getListingTierRules } from "@/lib/listingTierRules";
 
 export const revalidate = 3600;
 
@@ -77,8 +78,22 @@ type ListingReviewRow = ListingReview & {
 };
 
 function applyPublicGalleryImageLimit(listing: ListingWithRelations): ListingWithRelations {
+  const tierRules = getListingTierRules(listing.tier);
+
   return {
     ...listing,
+    contact_phone: tierRules.allowPublicContactFields ? listing.contact_phone : null,
+    contact_email: tierRules.allowPublicContactFields ? listing.contact_email : null,
+    website_url: tierRules.allowPublicContactFields ? listing.website_url : null,
+    google_business_url: tierRules.allowPublicContactFields ? listing.google_business_url : null,
+    facebook_url: tierRules.allowPublicSocialLinks ? listing.facebook_url : null,
+    instagram_url: tierRules.allowPublicSocialLinks ? listing.instagram_url : null,
+    twitter_url: tierRules.allowPublicSocialLinks ? listing.twitter_url : null,
+    linkedin_url: tierRules.allowPublicSocialLinks ? listing.linkedin_url : null,
+    youtube_url: tierRules.allowPublicSocialLinks ? listing.youtube_url : null,
+    tiktok_url: tierRules.allowPublicSocialLinks ? listing.tiktok_url : null,
+    telegram_url: tierRules.allowDirectContactButton ? listing.telegram_url : null,
+    whatsapp_number: tierRules.allowDirectContactButton ? listing.whatsapp_number : null,
     images: getAllowedListingGalleryImageInputs({
       featuredImageUrl: listing.featured_image_url,
       galleryImages: listing.images ?? [],

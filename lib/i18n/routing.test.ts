@@ -66,6 +66,8 @@ describe("routing locale helpers", () => {
     );
     expect(buildLocalizedPath("fr", "/live")).toBe("/fr/relocation");
     expect(buildLocalizedPath("pt-pt", "/residence")).toBe("/pt-pt/relocation");
+    expect(buildLocalizedPath("en", "/real-estate")).toBe("/properties");
+    expect(buildLocalizedPath("fr", "/real-estate")).toBe("/fr/properties");
     expect(buildLocalizedPath("en", "/real-estate/sample-listing")).toBe(
       "/listing/sample-listing",
     );

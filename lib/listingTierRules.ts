@@ -4,6 +4,8 @@ export type ListingTierRuleKey = Database["public"]["Enums"]["listing_tier"] | "
 
 export interface ListingTierRules {
   maxGalleryImages: number;
+  allowPublicContactFields: boolean;
+  allowPublicSocialLinks: boolean;
   allowDirectContactButton: boolean;
   allowCtaButton: boolean;
 }
@@ -11,21 +13,29 @@ export interface ListingTierRules {
 const LISTING_TIER_RULES: Record<ListingTierRuleKey, ListingTierRules> = {
   unverified: {
     maxGalleryImages: 1,
+    allowPublicContactFields: false,
+    allowPublicSocialLinks: false,
     allowDirectContactButton: false,
     allowCtaButton: false,
   },
   verified: {
     maxGalleryImages: 10,
+    allowPublicContactFields: true,
+    allowPublicSocialLinks: true,
     allowDirectContactButton: true,
     allowCtaButton: true,
   },
   signature: {
     maxGalleryImages: 20,
+    allowPublicContactFields: true,
+    allowPublicSocialLinks: true,
     allowDirectContactButton: true,
     allowCtaButton: true,
   },
   curated: {
     maxGalleryImages: 20,
+    allowPublicContactFields: true,
+    allowPublicSocialLinks: true,
     allowDirectContactButton: true,
     allowCtaButton: true,
   },

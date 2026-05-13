@@ -9,6 +9,7 @@ import {
 } from "@/lib/categoryMerges";
 import { DEFAULT_LOCALE, isValidLocale, type Locale } from "@/lib/i18n/config";
 import { addLocaleToPathname } from "@/lib/i18n/locale-utils";
+import { getListingTierRules } from "@/lib/listingTierRules";
 import {
   ALL_CANONICAL_SLUGS as PROGRAMMATIC_CATEGORY_SLUGS,
   getCanonicalFromUrlSlug,
@@ -346,6 +347,7 @@ export function normalizePublicListing(
   const city = unwrapRelation(row.city);
   const region = unwrapRelation(row.region);
   const category = unwrapRelation(row.category);
+  const tierRules = getListingTierRules(row.tier);
 
   return {
     id: row.id,
@@ -373,13 +375,13 @@ export function normalizePublicListing(
       options,
     ),
     address: row.address,
-    websiteUrl: row.website_url,
-    contactPhone: row.contact_phone,
-    contactEmail: row.contact_email,
+    websiteUrl: tierRules.allowPublicContactFields ? row.website_url : null,
+    contactPhone: tierRules.allowPublicContactFields ? row.contact_phone : null,
+    contactEmail: tierRules.allowPublicContactFields ? row.contact_email : null,
     priceFrom: row.price_from,
     priceTo: row.price_to,
     priceCurrency: row.price_currency,
-    googleBusinessUrl: row.google_business_url,
+    googleBusinessUrl: tierRules.allowPublicContactFields ? row.google_business_url : null,
     reviews,
     tags: row.tags ?? [],
     categoryData: row.category_data,

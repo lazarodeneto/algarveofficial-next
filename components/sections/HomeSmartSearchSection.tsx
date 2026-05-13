@@ -15,7 +15,7 @@ const INTENTS = [
   { key: "eatDrink", href: "/visit/lagos/restaurants" },
   { key: "thingsToDo", href: buildCategoryRouteData("experiences") ?? buildStaticRouteData("experiences") },
   { key: "golf", href: "/visit/vilamoura/golf" },
-  { key: "realEstate", href: "/real-estate" },
+  { key: "realEstate", href: "/properties" },
   { key: "relocation", href: "/relocation", labelKey: "nav.relocation" },
   { key: "events", href: "/events" },
 ] as const;

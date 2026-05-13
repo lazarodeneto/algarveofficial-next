@@ -152,7 +152,7 @@ function HomepagePremiumListingsSection({ copy }: { copy?: HomeSectionCopy }) {
             { key: "stay", href: "/visit/albufeira/accommodation" },
             { key: "eatDrink", href: "/visit/lagos/restaurants" },
             { key: "golf", href: "/golf" },
-            { key: "realEstate", href: "/real-estate" },
+            { key: "realEstate", href: "/properties" },
             { key: "relocation", href: "/relocation", label: t("nav.relocation") },
             { key: "events", href: "/events" },
             { key: "directory", href: "/directory", label: t("sections.homepage.smartSearch.cta") },

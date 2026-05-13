@@ -8,14 +8,13 @@ const PAGE_SOURCE = readFileSync(
 );
 
 describe("real estate route SEO contract", () => {
-  it("keeps /properties as the canonical property directory", () => {
-    expect(PAGE_SOURCE).toContain("buildLocalizedAliasMetadata");
-    expect(PAGE_SOURCE).toContain('canonicalPath: "/properties"');
+  it("redirects the legacy /real-estate alias to the canonical /properties route", () => {
+    expect(PAGE_SOURCE).toContain("permanentRedirect");
+    expect(PAGE_SOURCE).toContain('buildLocalizedPath(locale, "/properties")');
   });
 
-  it("emits conservative collection JSON-LD for the canonical property list", () => {
-    expect(PAGE_SOURCE).toContain("buildItemListSchema(");
-    expect(PAGE_SOURCE).toContain("schema-real-estate-item-list");
-    expect(PAGE_SOURCE).toContain("schema-real-estate-breadcrumb");
+  it("does not render a duplicate indexable property directory", () => {
+    expect(PAGE_SOURCE).not.toContain("RealEstateDirectoryClient");
+    expect(PAGE_SOURCE).not.toContain("buildItemListSchema(");
   });
 });

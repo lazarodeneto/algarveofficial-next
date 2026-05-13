@@ -23,6 +23,8 @@ function loadEnv(file) {
 }
 
 loadEnv(".env.local");
+loadEnv(".env.production.local");
+loadEnv(".vercel/.env.production.local");
 loadEnv(".env");
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

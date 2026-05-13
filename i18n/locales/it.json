@@ -4106,5 +4106,71 @@
     "noMatchesDescription": "Explore all golf courses while we expand this discovery collection.",
     "backToGolf": "Tutti i campi da golf",
     "heroLabel": "Scopri il golf"
+  },
+  "serverPages": {
+    "common": {
+      "algarve": "Algarve"
+    },
+    "blog": {
+      "badge": "Blog AlgarveOfficial",
+      "emptyTitle": "Nessun articolo pubblicato al momento",
+      "emptyDescription": "Le storie pubblicate da AlgarveOfficial appariranno qui.",
+      "postsAria": "Articoli del blog pubblicati",
+      "minRead": "min di lettura"
+    },
+    "events": {
+      "badge": "Eventi in Algarve",
+      "emptyTitle": "Nessun prossimo evento pubblicato",
+      "emptyDescription": "I prossimi eventi pubblicati appariranno qui quando disponibili.",
+      "eventsAria": "Prossimi eventi pubblicati"
+    },
+    "map": {
+      "badge": "Mappa dell’Algarve",
+      "title": "Esplora gli annunci dell’Algarve sulla mappa",
+      "description": "Sfoglia gli annunci pubblicati di AlgarveOfficial con coordinate verificate. La mappa interattiva si carica dopo JavaScript; questo elenco resta disponibile per motori di ricerca e visitatori senza script.",
+      "mappedCount": "{{count}} sulla mappa",
+      "publishedCount": "{{count}} risultati pubblicati",
+      "cityCount": "{{count}} città",
+      "emptyTitle": "Nessun annuncio sulla mappa disponibile",
+      "emptyDescription": "Gli annunci pubblicati senza coordinate restano disponibili nella directory.",
+      "openDirectory": "Apri la directory",
+      "listingsAria": "Annunci sulla mappa"
+    },
+    "properties": {
+      "badge": "AlgarveOfficial",
+      "emptyTitle": "Nessuna proprietà pubblicata disponibile",
+      "emptyDescription": "Gli annunci immobiliari appariranno qui appena saranno pubblicati.",
+      "listingsAria": "Annunci immobiliari pubblicati"
+    },
+    "realEstate": {
+      "badge": "Directory immobiliare",
+      "browseProperties": "Sfoglia proprietà",
+      "openMap": "Apri mappa",
+      "emptyTitle": "Nessun annuncio immobiliare pubblicato disponibile",
+      "emptyDescription": "Gli annunci immobiliari pubblicati appariranno qui quando disponibili.",
+      "listingsAria": "Annunci immobiliari pubblicati"
+    },
+    "relocation": {
+      "badge": "Trasferimento",
+      "primaryCta": "Parla con AlgarveOfficial",
+      "secondaryCta": "Sfoglia proprietà",
+      "roadmapAria": "Roadmap di trasferimento",
+      "steps": {
+        "residency": {
+          "title": "Pianificare residenza e documenti",
+          "description": "Comprendi documenti, tempistiche, sanità, tasse e passaggi pratici di arrivo prima del trasferimento."
+        },
+        "base": {
+          "title": "Scegliere una base",
+          "description": "Confronta città dell’Algarve, stili di vita costieri, scuole, servizi e collegamenti."
+        },
+        "home": {
+          "title": "Trovare casa",
+          "description": "Collega la pianificazione del trasferimento alla ricerca immobiliare, ai servizi affidabili e al supporto locale."
+        }
+      },
+      "basesTitle": "Esplora basi in Algarve",
+      "emptyCities": "Le guide delle città appariranno qui quando i dati delle destinazioni saranno disponibili."
+    }
   }
 }

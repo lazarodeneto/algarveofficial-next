@@ -49,6 +49,9 @@ jobs:
       - name: Prepare Next.js environment
         run: cp .vercel/.env.production.local .env.production.local
 
+      - name: Check required database migrations
+        run: npm run db:check:required
+
       - name: Build app
         run: npm run build
 

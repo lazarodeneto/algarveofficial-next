@@ -4106,5 +4106,71 @@
     "noMatchesDescription": "Explore all golf courses while we expand this discovery collection.",
     "backToGolf": "Alle golfbanen",
     "heroLabel": "Ontdek golf"
+  },
+  "serverPages": {
+    "common": {
+      "algarve": "Algarve"
+    },
+    "blog": {
+      "badge": "AlgarveOfficial blog",
+      "emptyTitle": "Nog geen gepubliceerde artikelen",
+      "emptyDescription": "Gepubliceerde verhalen van AlgarveOfficial verschijnen hier.",
+      "postsAria": "Gepubliceerde blogartikelen",
+      "minRead": "min leestijd"
+    },
+    "events": {
+      "badge": "Evenementen in de Algarve",
+      "emptyTitle": "Geen aankomende gepubliceerde evenementen",
+      "emptyDescription": "Aankomende gepubliceerde evenementen verschijnen hier zodra ze beschikbaar zijn.",
+      "eventsAria": "Aankomende gepubliceerde evenementen"
+    },
+    "map": {
+      "badge": "Kaart van de Algarve",
+      "title": "Verken Algarve-vermeldingen op de kaart",
+      "description": "Bekijk gepubliceerde AlgarveOfficial-vermeldingen met geverifieerde kaartcoördinaten. De interactieve kaart laadt na JavaScript; deze lijst blijft beschikbaar voor zoekmachines en bezoekers zonder scripts.",
+      "mappedCount": "{{count}} op de kaart",
+      "publishedCount": "{{count}} gepubliceerde resultaten",
+      "cityCount": "{{count}} steden",
+      "emptyTitle": "Geen vermeldingen op de kaart beschikbaar",
+      "emptyDescription": "Gepubliceerde vermeldingen zonder coördinaten blijven beschikbaar in de directory.",
+      "openDirectory": "Open de directory",
+      "listingsAria": "Vermeldingen op de kaart"
+    },
+    "properties": {
+      "badge": "AlgarveOfficial",
+      "emptyTitle": "Geen gepubliceerde woningen beschikbaar",
+      "emptyDescription": "Woningvermeldingen verschijnen hier zodra ze zijn gepubliceerd.",
+      "listingsAria": "Gepubliceerde woningvermeldingen"
+    },
+    "realEstate": {
+      "badge": "Vastgoeddirectory",
+      "browseProperties": "Bekijk woningen",
+      "openMap": "Open kaart",
+      "emptyTitle": "Geen gepubliceerde vastgoedvermeldingen beschikbaar",
+      "emptyDescription": "Gepubliceerde woningvermeldingen verschijnen hier zodra ze beschikbaar zijn.",
+      "listingsAria": "Gepubliceerde vastgoedvermeldingen"
+    },
+    "relocation": {
+      "badge": "Verhuizen",
+      "primaryCta": "Praat met AlgarveOfficial",
+      "secondaryCta": "Bekijk woningen",
+      "roadmapAria": "Verhuisroutekaart",
+      "steps": {
+        "residency": {
+          "title": "Verblijf en papierwerk plannen",
+          "description": "Begrijp documenten, tijdlijnen, zorg, belasting en praktische aankomststappen voordat je verhuist."
+        },
+        "base": {
+          "title": "Een uitvalsbasis kiezen",
+          "description": "Vergelijk Algarve-plaatsen, kustlevensstijl, scholen, diensten en verbindingen."
+        },
+        "home": {
+          "title": "Een woning vinden",
+          "description": "Verbind verhuisplanning met woningzoektocht, betrouwbare diensten en lokale ondersteuning."
+        }
+      },
+      "basesTitle": "Verken Algarve-bases",
+      "emptyCities": "Stadsgidsen verschijnen hier wanneer bestemmingsgegevens beschikbaar zijn."
+    }
   }
 }
