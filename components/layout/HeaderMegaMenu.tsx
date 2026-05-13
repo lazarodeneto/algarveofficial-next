@@ -58,10 +58,12 @@ function useRouteState() {
 function MenuLink({
   item,
   compact = false,
+  dense = false,
   onClick,
 }: {
   item: MegaMenuItem;
   compact?: boolean;
+  dense?: boolean;
   onClick?: () => void;
 }) {
   const { t } = useTranslation();
@@ -76,7 +78,11 @@ function MenuLink({
         onClick={onClick}
         className={cn(
           "group flex rounded-lg border border-transparent transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
-          compact ? "items-center gap-3 px-3 py-2.5" : "items-start gap-3 px-3 py-3",
+          compact
+            ? "items-center gap-3 px-3 py-2.5"
+            : dense
+              ? "items-start gap-2.5 px-3 py-2"
+              : "items-start gap-3 px-3 py-3",
           active
             ? "border-primary/35 bg-primary/10 text-primary"
             : "hover:border-primary/25 hover:bg-primary/8 hover:text-primary",
@@ -85,14 +91,14 @@ function MenuLink({
         <span
           className={cn(
             "flex shrink-0 items-center justify-center rounded-md border border-primary/18 bg-primary/8 text-primary transition group-hover:scale-[1.03]",
-            compact ? "h-9 w-9" : "h-10 w-10",
+            compact || dense ? "h-9 w-9" : "h-10 w-10",
           )}
         >
-          <Icon className={compact ? "h-4 w-4" : "h-4.5 w-4.5"} aria-hidden="true" />
+          <Icon className={compact || dense ? "h-4 w-4" : "h-4.5 w-4.5"} aria-hidden="true" />
         </span>
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-2">
-            <span className="font-fira text-sm font-bold leading-tight text-foreground group-hover:text-primary">
+            <span className={cn("font-fira font-bold leading-tight text-foreground group-hover:text-primary", dense ? "text-[13px]" : "text-sm")}>
               {translated(t, item.labelKey, item.fallbackLabel)}
             </span>
             {item.badge ? (
@@ -102,7 +108,7 @@ function MenuLink({
             ) : null}
           </span>
           {!compact ? (
-            <span className="mt-1 hidden text-xs leading-5 text-muted-foreground min-[1440px]:block">
+            <span className={cn("hidden text-xs text-muted-foreground min-[1440px]:block", dense ? "mt-0.5 leading-4" : "mt-1 leading-5")}>
               {item.description}
             </span>
           ) : null}
@@ -114,9 +120,11 @@ function MenuLink({
 
 function FeaturedCard({
   section,
+  dense = false,
   onClick,
 }: {
   section: MegaMenuSection;
+  dense?: boolean;
   onClick?: () => void;
 }) {
   const { t } = useTranslation();
@@ -127,23 +135,29 @@ function FeaturedCard({
       <LocaleLink
         href={section.featuredHref}
         onClick={onClick}
-        className="group flex h-full flex-col justify-between rounded-lg border border-primary/20 bg-[linear-gradient(135deg,hsl(var(--background))_0%,rgba(199,163,90,0.13)_100%)] p-3 shadow-[0_18px_48px_-36px_rgba(15,23,42,0.5)] transition hover:border-primary/40 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 min-[1440px]:p-5"
+        className={cn(
+          "group flex h-full flex-col justify-between rounded-lg border border-primary/20 bg-[linear-gradient(135deg,hsl(var(--background))_0%,rgba(199,163,90,0.13)_100%)] p-3 shadow-[0_18px_48px_-36px_rgba(15,23,42,0.5)] transition hover:border-primary/40 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+          dense ? "min-[1440px]:p-4" : "min-[1440px]:p-5",
+        )}
       >
-        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-primary min-[1440px]:h-11 min-[1440px]:w-11">
-          <Icon className="h-4.5 w-4.5 min-[1440px]:h-5 min-[1440px]:w-5" aria-hidden="true" />
+        <span className={cn(
+          "inline-flex h-10 w-10 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-primary",
+          dense ? "min-[1440px]:h-10 min-[1440px]:w-10" : "min-[1440px]:h-11 min-[1440px]:w-11",
+        )}>
+          <Icon className={cn("h-4.5 w-4.5", dense ? "min-[1440px]:h-4.5 min-[1440px]:w-4.5" : "min-[1440px]:h-5 min-[1440px]:w-5")} aria-hidden="true" />
         </span>
-        <span className="mt-4 block min-[1440px]:mt-7">
+        <span className={cn("mt-4 block", dense ? "min-[1440px]:mt-5" : "min-[1440px]:mt-7")}>
           <span className="block text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
             {section.eyebrow}
           </span>
-          <span className="mt-2 block font-serif text-lg leading-tight text-foreground min-[1440px]:text-2xl">
+          <span className={cn("mt-2 block font-serif text-lg leading-tight text-foreground", dense ? "min-[1440px]:text-xl" : "min-[1440px]:text-2xl")}>
             {section.featuredLabel}
           </span>
-          <span className="mt-3 hidden text-sm leading-6 text-muted-foreground min-[1440px]:block">
+          <span className={cn("mt-3 hidden text-sm text-muted-foreground min-[1440px]:block", dense ? "leading-5" : "leading-6")}>
             {section.featuredDescription}
           </span>
         </span>
-        <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary min-[1440px]:mt-6">
+        <span className={cn("mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary", dense ? "min-[1440px]:mt-5" : "min-[1440px]:mt-6")}>
           {translated(t, "common.explore", "Explore")}
           <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden="true" />
         </span>
@@ -155,6 +169,7 @@ function FeaturedCard({
 function MegaPanel({ section, onNavigate }: { section: MegaMenuSection; onNavigate: () => void }) {
   const { t } = useTranslation();
   const isVisit = section.id === "visit";
+  const isDensePanel = !isVisit;
 
   return (
     <div
@@ -162,7 +177,7 @@ function MegaPanel({ section, onNavigate }: { section: MegaMenuSection; onNaviga
         "header-mega-panel rounded-lg border border-black/10 bg-[hsl(var(--background)/0.98)] text-foreground shadow-[0_30px_80px_-35px_rgba(15,23,42,0.45)] backdrop-blur-2xl dark:border-white/12 dark:bg-[hsl(var(--background)/0.9)]",
         isVisit
           ? "w-[min(720px,calc(100vw-2rem))] translate-x-0 overflow-visible min-[960px]:w-[min(720px,calc(100vw-7rem))] min-[1280px]:w-[min(760px,calc(100vw-9rem))] min-[1280px]:translate-x-14 min-[1360px]:w-[min(820px,calc(100vw-10rem))] min-[1440px]:w-[min(900px,calc(100vw-12rem))] min-[1440px]:translate-x-8"
-          : "max-h-[min(74vh,calc(100vh-6.5rem))] w-[min(500px,calc(100vw-2rem))] overflow-y-auto min-[960px]:w-[min(520px,calc(100vw-7rem))] min-[1280px]:w-[min(500px,calc(100vw-9rem))] min-[1360px]:w-[min(600px,calc(100vw-10rem))] min-[1440px]:w-[min(640px,calc(100vw-12rem))]",
+          : "w-[min(500px,calc(100vw-2rem))] overflow-visible min-[960px]:w-[min(520px,calc(100vw-7rem))] min-[1280px]:w-[min(500px,calc(100vw-9rem))] min-[1360px]:w-[min(600px,calc(100vw-10rem))] min-[1440px]:w-[min(640px,calc(100vw-12rem))]",
       )}
     >
       <div
@@ -174,22 +189,22 @@ function MegaPanel({ section, onNavigate }: { section: MegaMenuSection; onNaviga
         )}
       >
         <div className="border-r border-border/80 p-3 min-[1440px]:p-4">
-          <FeaturedCard section={section} onClick={onNavigate} />
+          <FeaturedCard section={section} dense={isDensePanel} onClick={onNavigate} />
         </div>
-        <div className="min-w-0 p-4 min-[1440px]:p-5">
-          <div className="mb-3 flex items-end justify-between gap-4 min-[1440px]:mb-4">
+        <div className={cn("min-w-0 p-4", isDensePanel ? "min-[1440px]:p-4" : "min-[1440px]:p-5")}>
+          <div className={cn("mb-3 flex items-end justify-between gap-4", isDensePanel ? "min-[1440px]:mb-3" : "min-[1440px]:mb-4")}>
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
                 {translated(t, section.labelKey, section.fallbackLabel)}
               </p>
-              <p className="mt-1 hidden max-w-xl text-sm leading-6 text-muted-foreground min-[1440px]:block">
+              <p className={cn("mt-1 hidden max-w-xl text-muted-foreground min-[1440px]:block", isDensePanel ? "text-xs leading-5" : "text-sm leading-6")}>
                 {section.description}
               </p>
             </div>
           </div>
           <div className={cn("grid gap-1", isVisit ? "grid-cols-3 gap-x-2" : "grid-cols-1")}>
             {section.items.map((item) => (
-              <MenuLink key={`${section.id}-${item.labelKey}`} item={item} onClick={onNavigate} />
+              <MenuLink key={`${section.id}-${item.labelKey}`} item={item} dense={isDensePanel} onClick={onNavigate} />
             ))}
           </div>
           {section.quickLinks?.length ? (

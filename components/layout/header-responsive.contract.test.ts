@@ -44,4 +44,9 @@ describe("header responsive navigation contract", () => {
     expect(headerSource).toContain("min-[768px]:w-[min(30rem,calc(100vw-2rem))]");
     expect(headerSource).toContain("min-[768px]:max-h-[calc(100svh-6rem)]");
   });
+
+  it("does not make top-header mega-menu panels internally scrollable", () => {
+    expect(megaMenuSource).not.toContain("overflow-y-auto");
+    expect(megaMenuSource).not.toContain("max-h-[min(74vh,calc(100vh-6.5rem))]");
+  });
 });
