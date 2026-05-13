@@ -1928,7 +1928,16 @@
       "categories": "Activity Categories",
       "curated": "Curated Experiences",
       "sunDays": "Sun Days per Year"
-    }
+    },
+    "featuredCityHub": "Featured experience hub",
+    "featuredCityHubDescription": "{{name}} brings together {{count}} curated experiences and places to explore.",
+    "cityIndex": "Experience city index",
+    "cityIndexDescription": "Browse Algarve cities with current experience totals, then jump into activities, beaches, food, and local highlights.",
+    "exploreAlgarveCities": "Explore Algarve experiences by city",
+    "listingsCount": "{{count}} experiences",
+    "allActiveCityHubs": "All active experience hubs",
+    "allActiveCityHubsDescription": "Explore Algarve cities with live experience listings and local highlights.",
+    "cityFallbackDescription": "Explore curated experiences, activities, and local highlights in this Algarve city."
   },
   "footer": {
     "about": "About Us",

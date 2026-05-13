@@ -1923,7 +1923,16 @@
       "categories": "Aktivitetskategorier",
       "curated": "Kurerede oplevelser",
       "sunDays": "Solskinsdage om året"
-    }
+    },
+    "featuredCityHub": "Udvalgt oplevelseshub",
+    "featuredCityHubDescription": "{{name}} samler {{count}} kuraterede oplevelser og steder at udforske.",
+    "cityIndex": "Oplevelser efter by",
+    "cityIndexDescription": "Gennemse Algarve-byer med aktuelle oplevelsestal, og udforsk aktiviteter, strande, mad og lokale højdepunkter.",
+    "exploreAlgarveCities": "Udforsk Algarve-oplevelser efter by",
+    "listingsCount": "{{count}} oplevelser",
+    "allActiveCityHubs": "Alle aktive oplevelseshubs",
+    "allActiveCityHubsDescription": "Udforsk Algarve-byer med aktive oplevelser og lokale højdepunkter.",
+    "cityFallbackDescription": "Udforsk kuraterede oplevelser, aktiviteter og lokale højdepunkter i denne Algarve-by."
   },
   "footer": {
     "about": "Om os",

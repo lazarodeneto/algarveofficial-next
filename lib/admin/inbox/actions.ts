@@ -7,6 +7,10 @@ import type { Database } from "@/integrations/supabase/types";
 import { createClient as createCookieClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { INBOX_CACHE_TAG, type InboxSource } from "./types";
+import {
+  encodeLegacySideTableReason,
+  getLegacySideTableSource,
+} from "./side-table-compat";
 
 type Client = SupabaseClient<Database>;
 type UserRole = Database["public"]["Enums"]["app_role"];
@@ -41,15 +45,17 @@ function invalidate() {
   revalidatePath("/[locale]/admin/inbox", "page");
 }
 
-function formatInboxSideTableError(error: { message?: string; code?: string } | null): string | null {
+function isInboxSideTableSourceConstraintError(error: { message?: string; code?: string } | null): boolean {
   const message = error?.message ?? "";
-  const isSourceConstraintError =
+  return (
     error?.code === "23514" ||
     message.includes("admin_inbox_archives_source_chk") ||
-    message.includes("admin_inbox_assignments_source_chk");
+    message.includes("admin_inbox_assignments_source_chk")
+  );
+}
 
-  if (!isSourceConstraintError) return null;
-
+function formatInboxSideTableError(error: { message?: string; code?: string } | null): string | null {
+  if (!isInboxSideTableSourceConstraintError(error)) return null;
   return [
     "Admin inbox action storage is out of date.",
     "Apply supabase/migrations/20260512110500_resync_admin_inbox_side_table_sources.sql and refresh the Supabase schema cache.",
@@ -130,6 +136,7 @@ async function upsertInboxArchive(
   archivedBy: string,
   fallbackReason: string,
 ): Promise<InboxActionResult> {
+  const reason = input.reason ?? fallbackReason;
   const { error } = await client
     .from("admin_inbox_archives" as never)
     .upsert(
@@ -138,11 +145,37 @@ async function upsertInboxArchive(
         source_row_id: input.sourceRowId,
         archived_by: archivedBy,
         archived_at: new Date().toISOString(),
-        reason: input.reason ?? fallbackReason,
+        reason,
       } as never,
       { onConflict: "source,source_row_id" } as never,
     );
-  if (error) return { ok: false, error: formatInboxSideTableError(error) ?? error.message };
+  if (error) {
+    const legacySource = isInboxSideTableSourceConstraintError(error)
+      ? getLegacySideTableSource(input.source)
+      : null;
+    if (!legacySource) {
+      return { ok: false, error: formatInboxSideTableError(error) ?? error.message };
+    }
+
+    const retry = await client
+      .from("admin_inbox_archives" as never)
+      .upsert(
+        {
+          source: legacySource,
+          source_row_id: input.sourceRowId,
+          archived_by: archivedBy,
+          archived_at: new Date().toISOString(),
+          reason: encodeLegacySideTableReason(reason, input.source),
+        } as never,
+        { onConflict: "source,source_row_id" } as never,
+      );
+    if (retry.error) {
+      return {
+        ok: false,
+        error: formatInboxSideTableError(retry.error) ?? retry.error.message,
+      };
+    }
+  }
   invalidate();
   return { ok: true };
 }
@@ -303,7 +336,33 @@ export async function assignInboxItem(input: AssignInput): Promise<InboxActionRe
         } as never,
         { onConflict: "source,source_row_id" } as never,
       );
-    if (error) return { ok: false, error: formatInboxSideTableError(error) ?? error.message };
+    if (error) {
+      const legacySource = isInboxSideTableSourceConstraintError(error)
+        ? getLegacySideTableSource(input.source)
+        : null;
+      if (!legacySource) {
+        return { ok: false, error: formatInboxSideTableError(error) ?? error.message };
+      }
+
+      const retry = await client
+        .from("admin_inbox_assignments" as never)
+        .upsert(
+          {
+            source: legacySource,
+            source_row_id: input.sourceRowId,
+            assignee_id: input.assigneeId,
+            assigned_by: auth.userId,
+            assigned_at: new Date().toISOString(),
+          } as never,
+          { onConflict: "source,source_row_id" } as never,
+        );
+      if (retry.error) {
+        return {
+          ok: false,
+          error: formatInboxSideTableError(retry.error) ?? retry.error.message,
+        };
+      }
+    }
     invalidate();
     return { ok: true };
   } catch (e) {
@@ -409,6 +468,18 @@ export async function markInboxItemUnreadState(input: ActionInput): Promise<Inbo
       .eq("source_row_id", input.sourceRowId)
       .eq("reason", "read_from_list");
     if (error) return { ok: false, error: error.message };
+
+    const legacySource = getLegacySideTableSource(input.source);
+    if (legacySource) {
+      const legacyDelete = await client
+        .from("admin_inbox_archives" as never)
+        .delete()
+        .eq("source", legacySource)
+        .eq("source_row_id", input.sourceRowId)
+        .eq("reason", encodeLegacySideTableReason("read_from_list", input.source));
+      if (legacyDelete.error) return { ok: false, error: legacyDelete.error.message };
+    }
+
     invalidate();
     return { ok: true };
   } catch (e) {

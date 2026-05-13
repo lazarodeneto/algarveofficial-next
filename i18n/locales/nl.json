@@ -1923,7 +1923,16 @@
       "categories": "Activiteitscategorieën",
       "curated": "Samengestelde ervaringen",
       "sunDays": "Zonnige dagen per jaar"
-    }
+    },
+    "featuredCityHub": "Uitgelichte ervaringshub",
+    "featuredCityHubDescription": "{{name}} bundelt {{count}} gecureerde ervaringen en plekken om te ontdekken.",
+    "cityIndex": "Ervaringen per stad",
+    "cityIndexDescription": "Blader door Algarve-steden met actuele aantallen ervaringen en ontdek activiteiten, stranden, eten en lokale hoogtepunten.",
+    "exploreAlgarveCities": "Verken Algarve-ervaringen per stad",
+    "listingsCount": "{{count}} ervaringen",
+    "allActiveCityHubs": "Alle actieve ervaringshubs",
+    "allActiveCityHubsDescription": "Verken Algarve-steden met actieve ervaringen en lokale hoogtepunten.",
+    "cityFallbackDescription": "Ontdek gecureerde ervaringen, activiteiten en lokale hoogtepunten in deze Algarve-stad."
   },
   "footer": {
     "about": "Over ons",

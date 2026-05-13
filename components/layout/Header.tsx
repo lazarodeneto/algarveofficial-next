@@ -198,12 +198,12 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
 
             {/* Primary Navigation */}
             <div className="hidden min-w-0 flex-1 items-center justify-start min-[1180px]:flex">
-              <HeaderMegaMenu />
+              <HeaderMegaMenu overHero={isHomepage && !isScrolled} />
             </div>
 
             {/* Laptop Actions (1024-1359): compact utility row */}
             <div className="ml-auto hidden shrink-0 items-center gap-1.5 min-[1180px]:flex min-[1440px]:hidden">
-              <div className="flex items-center gap-0.5 rounded-full border border-black/10 bg-white/82 px-1 py-1 shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
+              <div className="flex items-center gap-0.5 rounded-full border border-black/10 bg-white/[0.82] px-1 py-1 shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
                 <HeaderWeatherPill compact embedded location={headerWeatherLocation} />
 
                 <Link href={favoritesPath}>
@@ -266,7 +266,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
 
             {/* Desktop Actions */}
             <div className="hidden min-[1440px]:flex min-[1440px]:shrink-0 min-[1440px]:items-center min-[1440px]:gap-2 2xl:gap-3">
-              <div className="flex items-center gap-1 rounded-full border border-black/10 bg-white/82 px-2 py-1.5 shadow-[0_16px_36px_-30px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
+              <div className="flex items-center gap-1 rounded-full border border-black/10 bg-white/[0.82] px-2 py-1.5 shadow-[0_16px_36px_-30px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
                 <HeaderWeatherPill embedded location={headerWeatherLocation} />
 
                 {/* Saved */}
@@ -423,19 +423,19 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                         {t("nav.yourSpace")}
                       </p>
                       <div className="grid grid-cols-1 gap-2">
-                        <Link href={accountPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
+                        <Link href={accountPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/[0.85] px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
                           <User className="h-4 w-4 text-primary" />
                           {t("nav.account")}
                         </Link>
-                        <Link href={tripsPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
+                        <Link href={tripsPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/[0.85] px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
                           <Plane className="h-4 w-4 text-primary" />
                           {t("nav.myTrip")}
                         </Link>
-                        <Link href={favoritesPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
+                        <Link href={favoritesPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/[0.85] px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
                           <Heart className="h-4 w-4 text-primary" />
                           {t("dashboard.favorites.title")}
                         </Link>
-                        <Link href={messagesPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/85 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
+                        <Link href={messagesPath} onClick={() => setMobileMenuOpen(false)} className="inline-flex items-center gap-2 rounded-xl border border-black/8 bg-white/[0.85] px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/45 hover:text-primary dark:border-white/10 dark:bg-white/10">
                           <MessageSquare className="h-4 w-4 text-primary" />
                           {t("nav.messages")}
                         </Link>

@@ -1923,7 +1923,16 @@
       "categories": "Aktivitetskategorier",
       "curated": "Kurerade upplevelser",
       "sunDays": "Soldagar per år"
-    }
+    },
+    "featuredCityHub": "Utvald upplevelsehub",
+    "featuredCityHubDescription": "{{name}} samlar {{count}} utvalda upplevelser och platser att utforska.",
+    "cityIndex": "Upplevelser per stad",
+    "cityIndexDescription": "Bläddra bland Algarve-städer med aktuella upplevelsetal och utforska aktiviteter, stränder, mat och lokala höjdpunkter.",
+    "exploreAlgarveCities": "Utforska Algarve-upplevelser efter stad",
+    "listingsCount": "{{count}} upplevelser",
+    "allActiveCityHubs": "Alla aktiva upplevelsehubbar",
+    "allActiveCityHubsDescription": "Utforska Algarve-städer med aktiva upplevelser och lokala höjdpunkter.",
+    "cityFallbackDescription": "Utforska utvalda upplevelser, aktiviteter och lokala höjdpunkter i denna Algarve-stad."
   },
   "footer": {
     "about": "Om oss",

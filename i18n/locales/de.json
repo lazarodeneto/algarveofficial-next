@@ -1923,7 +1923,16 @@
       "categories": "Aktivitätskategorien",
       "curated": "Kuratierte Erlebnisse",
       "sunDays": "Sonnentage pro Jahr"
-    }
+    },
+    "featuredCityHub": "Empfohlener Erlebnis-Hub",
+    "featuredCityHubDescription": "{{name}} bündelt {{count}} kuratierte Erlebnisse und Orte zum Entdecken.",
+    "cityIndex": "Erlebnisindex nach Stadt",
+    "cityIndexDescription": "Durchsuchen Sie Algarve-Städte mit aktuellen Erlebniszahlen und entdecken Sie Aktivitäten, Strände, Kulinarik und lokale Highlights.",
+    "exploreAlgarveCities": "Algarve-Erlebnisse nach Stadt entdecken",
+    "listingsCount": "{{count}} Erlebnisse",
+    "allActiveCityHubs": "Alle aktiven Erlebnis-Hubs",
+    "allActiveCityHubsDescription": "Entdecken Sie Algarve-Städte mit aktiven Erlebnissen und lokalen Highlights.",
+    "cityFallbackDescription": "Entdecken Sie kuratierte Erlebnisse, Aktivitäten und lokale Highlights in dieser Algarve-Stadt."
   },
   "footer": {
     "about": "Über uns",

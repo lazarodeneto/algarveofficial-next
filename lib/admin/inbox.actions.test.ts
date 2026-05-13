@@ -248,6 +248,37 @@ describe("admin inbox actions", () => {
     });
   });
 
+  it("falls back to a legacy-compatible side-table source when a deployed constraint is stale", async () => {
+    const upsert = vi
+      .fn()
+      .mockResolvedValueOnce({
+        error: {
+          code: "23514",
+          message:
+            'new row for relation "admin_inbox_archives" violates check constraint "admin_inbox_archives_source_chk"',
+        },
+      })
+      .mockResolvedValueOnce({ error: null });
+    const from = vi.fn(() => ({ upsert }));
+    mockedCreateServiceRoleClient.mockReturnValue({ from } as never);
+
+    const result = await markInboxItemReadState({
+      source: "translation_job",
+      sourceRowId: "22222222-2222-4222-8222-222222222222",
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(upsert).toHaveBeenCalledTimes(2);
+    expect(upsert).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        source: "listing_moderation",
+        source_row_id: "22222222-2222-4222-8222-222222222222",
+        reason: "read_from_list:translation_job",
+      }),
+      { onConflict: "source,source_row_id" },
+    );
+  });
+
   it("marks an inbox row unread by removing its read state", async () => {
     const thirdEq = vi.fn().mockResolvedValue({ error: null });
     const secondEq = vi.fn(() => ({ eq: thirdEq }));
@@ -270,5 +301,39 @@ describe("admin inbox actions", () => {
       "22222222-2222-4222-8222-222222222222",
     );
     expect(thirdEq).toHaveBeenCalledWith("reason", "read_from_list");
+  });
+
+  it("marks a fallback-read inbox row unread when the side-table constraint is stale", async () => {
+    const eqCalls: Array<[string, string]> = [];
+    const makeDeleteChain = () => {
+      const thirdEq = vi.fn((column: string, value: string) => {
+        eqCalls.push([column, value]);
+        return Promise.resolve({ error: null });
+      });
+      const secondEq = vi.fn((column: string, value: string) => {
+        eqCalls.push([column, value]);
+        return { eq: thirdEq };
+      });
+      const firstEq = vi.fn((column: string, value: string) => {
+        eqCalls.push([column, value]);
+        return { eq: secondEq };
+      });
+      return { eq: firstEq };
+    };
+    const deleteQuery = vi.fn(makeDeleteChain);
+    const from = vi.fn(() => ({ delete: deleteQuery }));
+    mockedCreateServiceRoleClient.mockReturnValue({ from } as never);
+
+    const result = await markInboxItemUnreadState({
+      source: "translation_job",
+      sourceRowId: "22222222-2222-4222-8222-222222222222",
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(deleteQuery).toHaveBeenCalledTimes(2);
+    expect(eqCalls).toContainEqual(["source", "translation_job"]);
+    expect(eqCalls).toContainEqual(["reason", "read_from_list"]);
+    expect(eqCalls).toContainEqual(["source", "listing_moderation"]);
+    expect(eqCalls).toContainEqual(["reason", "read_from_list:translation_job"]);
   });
 });

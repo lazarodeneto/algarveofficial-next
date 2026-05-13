@@ -1,3 +1,4 @@
+import type { ComponentProps } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -10,7 +11,7 @@ vi.mock("react-i18next", () => ({
   }),
 }));
 
-function renderWidget() {
+function renderWidget(props: Partial<ComponentProps<typeof BeachWeatherWidget>> = {}) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -21,7 +22,12 @@ function renderWidget() {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <BeachWeatherWidget latitude={37.089824} longitude={-8.412287} locationLabel="Lagoa" />
+      <BeachWeatherWidget
+        latitude={37.089824}
+        longitude={-8.412287}
+        locationLabel="Lagoa"
+        {...props}
+      />
     </QueryClientProvider>,
   );
 }
@@ -70,7 +76,7 @@ describe("BeachWeatherWidget", () => {
     expect(document.body.textContent).not.toMatch(/--°C|undefined|NaN|null/);
   });
 
-  it("hides cleanly when weather is unavailable", async () => {
+  it("shows a clean unavailable state when weather is unavailable", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -79,9 +85,16 @@ describe("BeachWeatherWidget", () => {
       }),
     );
 
-    const { container } = renderWidget();
+    renderWidget();
+
+    expect(await screen.findByText("Weather unavailable")).toBeInTheDocument();
+    expect(screen.getByText("Local forecast could not be loaded.")).toBeInTheDocument();
+    expect(document.body.textContent).not.toMatch(/--°C|undefined|NaN|null/);
+  });
+
+  it("does not render when listing coordinates are missing", async () => {
+    const { container } = renderWidget({ latitude: null, longitude: null });
 
     await waitFor(() => expect(container.querySelector("aside")).not.toBeInTheDocument());
-    expect(document.body.textContent).not.toMatch(/--°C|undefined|NaN|null/);
   });
 });

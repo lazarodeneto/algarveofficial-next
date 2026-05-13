@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { draftMode } from "next/headers";
 import { notFound, permanentRedirect } from "next/navigation";
 import { SUPPORTED_LOCALES, isValidLocale, DEFAULT_LOCALE } from "@/lib/i18n/config";
 import {
@@ -15,6 +16,11 @@ import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { ListingCard } from "@/components/seo/programmatic/ListingCard";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { Button } from "@/components/ui/Button";
+import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
+import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
+import { PageHeroImage } from "@/components/sections/PageHeroImage";
+import { ArrowRight } from "lucide-react";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 import { buildBreadcrumbSchema, buildItemListSchema } from "@/lib/seo/advanced/schema-builders";
 import {
@@ -30,6 +36,18 @@ import {
   type CategorySearchParams,
 } from "@/lib/seo/category-page-metadata";
 import type { ProgrammaticListing } from "@/lib/seo/programmatic/category-city-data";
+import {
+  CMS_PAGE_BUILDER_RUNTIME_KEYS,
+  isCmsPageEditableInFullBuilder,
+  isKnownCmsPageId,
+} from "@/lib/cms/pageBuilderRegistry";
+import { fetchCmsRuntimeSettings } from "@/lib/cms/runtime-settings";
+import {
+  getNullableRuntimePageText,
+  getRuntimePageConfig,
+  getRuntimePageText,
+  isRuntimeSectionEnabled,
+} from "@/lib/cms/public-page-runtime";
 
 interface PageParams {
   locale: string;
@@ -42,6 +60,27 @@ interface PageProps {
 }
 
 export const revalidate = 60;
+
+async function loadCategoryRuntimeSettings(locale: typeof SUPPORTED_LOCALES[number]) {
+  try {
+    const draft = await draftMode();
+    return await fetchCmsRuntimeSettings({
+      requestedKeys: CMS_PAGE_BUILDER_RUNTIME_KEYS,
+      locale,
+      includeDraft: draft.isEnabled,
+    });
+  } catch {
+    return [];
+  }
+}
+
+function getCmsPageIdForCategory(canonicalSlug: string) {
+  if (isKnownCmsPageId(canonicalSlug) && isCmsPageEditableInFullBuilder(canonicalSlug)) {
+    return canonicalSlug;
+  }
+
+  return "category-hub";
+}
 
 function formatTemplate(
   template: string | undefined,
@@ -117,9 +156,10 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   
   const canonical = resolution.category.canonicalSlug;
   const categoryName = getCategoryDisplayNameForSlug(canonical, locale, resolution.category.name);
-  const [resolvedSearchParams, categoryCounts] = await Promise.all([
+  const [resolvedSearchParams, categoryCounts, runtimeSettings] = await Promise.all([
     searchParams?.then((value) => value ?? {}) ?? Promise.resolve({}),
     getPublicCategoryCounts(),
+    loadCategoryRuntimeSettings(locale),
   ]);
   const listingCount =
     categoryCounts.byCanonicalCategorySlug[canonical] ??
@@ -130,11 +170,17 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
     locale,
     listingCount,
   });
+  const cmsPageId = getCmsPageIdForCategory(canonical);
+  const cmsConfig = getRuntimePageConfig(runtimeSettings, cmsPageId);
+  const cmsMetaTitle =
+    cmsConfig.meta?.title?.trim() || getNullableRuntimePageText(cmsConfig, "meta.title");
+  const cmsMetaDescription =
+    cmsConfig.meta?.description?.trim() || getNullableRuntimePageText(cmsConfig, "meta.description");
   const routeData = buildCategoryRouteData(canonical);
 
   return buildPageMetadata({
-    title: metaCopy.title,
-    description: metaCopy.description,
+    title: cmsMetaTitle ?? metaCopy.title,
+    description: cmsMetaDescription ?? metaCopy.description,
     keywords: metaCopy.keywords,
     localizedRoute: routeData,
     locale,
@@ -210,26 +256,68 @@ export default async function CategoryHubPage({ params }: PageProps) {
     { name: categoryName, url: categoryPath },
   ]);
 
-  const tx = await getServerTranslations(locale, [
-    "common.signature",
-    "common.verified",
-    "common.curated",
-    "common.fromPrice",
-    "guides.getFeatured",
-    "guides.listYourBusiness",
-    "guides.upgradeYourListing",
-    "categoryHub.heroTitle",
-    "categoryHub.heroDescription",
-    "categoryHub.topCities",
-    "categoryHub.featured",
-    "categoryHub.visibilityTitle",
-    "categoryHub.visibilityDescription",
-    "categoryHub.bottomTitle",
-    "categoryHub.bottomDescription",
+  const cmsPageId = getCmsPageIdForCategory(canonicalSlug);
+  const [tx, runtimeSettings] = await Promise.all([
+    getServerTranslations(locale, [
+      "common.signature",
+      "common.verified",
+      "common.curated",
+      "common.fromPrice",
+      "guides.getFeatured",
+      "guides.listYourBusiness",
+      "guides.upgradeYourListing",
+      "categoryHub.heroTitle",
+      "categoryHub.heroDescription",
+      "categoryHub.topCities",
+      "categoryHub.featured",
+      "categoryHub.visibilityTitle",
+      "categoryHub.visibilityDescription",
+      "categoryHub.bottomTitle",
+      "categoryHub.bottomDescription",
+    ]),
+    loadCategoryRuntimeSettings(locale),
   ]);
+  const cmsConfig = getRuntimePageConfig(runtimeSettings, cmsPageId);
   const templateValues = { category: categoryName };
-  const heroTitle = formatTemplate(tx["categoryHub.heroTitle"], templateValues);
-  const heroDescription = formatTemplate(tx["categoryHub.heroDescription"], templateValues);
+  const fallbackHeroTitle = formatTemplate(tx["categoryHub.heroTitle"], templateValues);
+  const fallbackHeroDescription = formatTemplate(tx["categoryHub.heroDescription"], templateValues);
+  const heroTitle = getRuntimePageText(cmsConfig, "hero.title", fallbackHeroTitle);
+  const heroDescription = getRuntimePageText(cmsConfig, "hero.subtitle", fallbackHeroDescription);
+  const heroBadge = getRuntimePageText(cmsConfig, "hero.badge", categoryName);
+  const heroAlt = getRuntimePageText(cmsConfig, "hero.alt", heroTitle);
+  const heroMediaType = getRuntimePageText(cmsConfig, "hero.mediaType", "image");
+  const heroImageUrl = getNullableRuntimePageText(cmsConfig, "hero.imageUrl") ?? "";
+  const heroVideoUrl = getNullableRuntimePageText(cmsConfig, "hero.videoUrl") ?? "";
+  const heroYoutubeUrl = getNullableRuntimePageText(cmsConfig, "hero.youtubeUrl") ?? "";
+  const heroPosterUrl = getNullableRuntimePageText(cmsConfig, "hero.posterUrl") ?? "";
+  const heroEnabled = isRuntimeSectionEnabled(cmsConfig, "hero", true);
+  const hasCmsHeroMedia = Boolean(heroImageUrl || heroVideoUrl || heroYoutubeUrl || heroPosterUrl);
+  const primaryCta = getRuntimePageText(
+    cmsConfig,
+    "hero.cta.primary",
+    tx["guides.listYourBusiness"] ?? "List your business",
+  );
+  const secondaryCta = getRuntimePageText(
+    cmsConfig,
+    "hero.cta.secondary",
+    tx["guides.getFeatured"] ?? "Get featured",
+  );
+  const topCitiesEnabled = isRuntimeSectionEnabled(
+    cmsConfig,
+    "top-cities",
+    isRuntimeSectionEnabled(cmsConfig, "city-index", true),
+  );
+  const featuredListingsEnabled = isRuntimeSectionEnabled(
+    cmsConfig,
+    "featured-listings",
+    isRuntimeSectionEnabled(cmsConfig, "results", true),
+  );
+  const visibilityCtaEnabled = isRuntimeSectionEnabled(
+    cmsConfig,
+    "visibility-cta",
+    isRuntimeSectionEnabled(cmsConfig, "cta", true),
+  );
+  const seoContentEnabled = isRuntimeSectionEnabled(cmsConfig, "seo-content", true);
   const topCitiesTitle = formatTemplate(tx["categoryHub.topCities"], templateValues);
   const featuredTitle = formatTemplate(tx["categoryHub.featured"], templateValues);
   const visibilityTitle = tx["categoryHub.visibilityTitle"] ?? "";
@@ -257,42 +345,88 @@ export default async function CategoryHubPage({ params }: PageProps) {
       />
       <Header localeSwitchPaths={localeSwitchPaths} />
       <main id="main-content" className="min-h-screen pt-20">
-        <section className="bg-gradient-to-b from-background/60 to-background py-12">
-          <div className="app-container">
-            <h1 className="font-serif text-4xl md:text-5xl mb-4">
-              {heroTitle}
-            </h1>
-            <p className="text-muted-foreground text-lg max-w-2xl">
-              {heroDescription}
-            </p>
-          </div>
-        </section>
+        {heroEnabled ? (
+          hasCmsHeroMedia ? (
+            <section className="px-0 pb-8 pt-4 sm:px-4 lg:px-6">
+              <LiveStyleHero
+                className="min-h-[19rem] rounded-none shadow-sm sm:min-h-[20rem] md:min-h-[22rem]"
+                badge={heroBadge}
+                title={heroTitle}
+                subtitle={heroDescription}
+                media={
+                  <HeroBackgroundMedia
+                    mediaType={heroMediaType}
+                    imageUrl={heroImageUrl}
+                    videoUrl={heroVideoUrl}
+                    youtubeUrl={heroYoutubeUrl}
+                    posterUrl={heroPosterUrl}
+                    alt={heroAlt}
+                    fallback={<PageHeroImage page="directory" alt={heroAlt} />}
+                  />
+                }
+                ctas={
+                  <>
+                    <Button asChild variant="gold" size="lg">
+                      <LocaleLink href={buildStaticRouteData("partner")}>
+                        {primaryCta}
+                        <ArrowRight className="h-4 w-4" />
+                      </LocaleLink>
+                    </Button>
+                    <Button asChild variant="heroOutline" size="lg">
+                      <LocaleLink href={`/partner?category=${canonicalSlug}`}>
+                        {secondaryCta}
+                      </LocaleLink>
+                    </Button>
+                  </>
+                }
+              />
+            </section>
+          ) : (
+            <section className="bg-gradient-to-b from-background/60 to-background py-12">
+              <div className="app-container">
+                <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-primary">
+                  {heroBadge}
+                </p>
+                <h1 className="mb-4 font-serif text-4xl md:text-5xl">
+                  {heroTitle}
+                </h1>
+                <p className="max-w-2xl text-lg text-muted-foreground">
+                  {heroDescription}
+                </p>
+              </div>
+            </section>
+          )
+        ) : (
+          <div className="h-8" aria-hidden="true" />
+        )}
         
-        <section className="app-container py-8">
-          <h2 className="text-xl font-semibold mb-4">
-            {topCitiesTitle}
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {topCities.map((city) => (
-              <LocaleLink
-                key={city.slug}
-                href={{
-                  routeType: "city-category",
-                  citySlugs: buildUniformLocalizedSlugMap(city.slug),
-                  categorySlugs: categoryRouteData.slugs,
-                } satisfies CityCategoryRouteData}
-                className="block p-4 rounded-xl border border-border hover:border-primary/50 transition-colors text-center"
-              >
-                <span className="font-medium">{city.name}</span>
-                <span className="block text-sm text-muted-foreground">
-                  {city.count} {categoryName.toLowerCase()}
-                </span>
-              </LocaleLink>
-            ))}
-          </div>
-        </section>
+        {topCitiesEnabled ? (
+          <section className="app-container py-8">
+            <h2 className="mb-4 text-xl font-semibold">
+              {topCitiesTitle}
+            </h2>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+              {topCities.map((city) => (
+                <LocaleLink
+                  key={city.slug}
+                  href={{
+                    routeType: "city-category",
+                    citySlugs: buildUniformLocalizedSlugMap(city.slug),
+                    categorySlugs: categoryRouteData.slugs,
+                  } satisfies CityCategoryRouteData}
+                  className="block rounded-xl border border-border p-4 text-center transition-colors hover:border-primary/50"
+                >
+                  <span className="font-medium">{city.name}</span>
+                  <span className="block text-sm text-muted-foreground">
+                    {city.count} {categoryName.toLowerCase()}
+                  </span>
+                </LocaleLink>
+              ))}
+            </div>
+          </section>
+        ) : null}
         
-        {safeListingsForLocale.length > 0 && (
+        {featuredListingsEnabled && safeListingsForLocale.length > 0 && (
           <section className="app-container py-8">
             <h2 className="text-xl font-semibold mb-4">
               {featuredTitle}
@@ -305,7 +439,7 @@ export default async function CategoryHubPage({ params }: PageProps) {
           </section>
         )}
 
-        {safeListingsForLocale.length > 0 && (
+        {visibilityCtaEnabled && safeListingsForLocale.length > 0 && (
           <section className="app-container py-8 border-t border-border bg-gradient-to-b from-primary/5 to-transparent">
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-2xl font-serif font-semibold mb-3">
@@ -332,24 +466,26 @@ export default async function CategoryHubPage({ params }: PageProps) {
           </section>
         )}
 
-        <section className="app-container py-8 border-t border-border bg-muted/30">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-2xl font-serif font-semibold mb-4">
-              {bottomTitle}
-            </h2>
-            <p className="text-muted-foreground mb-6">
-              {bottomDescription}
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <LocaleLink 
-                href={buildStaticRouteData("partner")}
-                className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-              >
-                {tx["guides.listYourBusiness"]}
-              </LocaleLink>
+        {seoContentEnabled ? (
+          <section className="app-container border-t border-border bg-muted/30 py-8">
+            <div className="mx-auto max-w-4xl text-center">
+              <h2 className="mb-4 font-serif text-2xl font-semibold">
+                {bottomTitle}
+              </h2>
+              <p className="mb-6 text-muted-foreground">
+                {bottomDescription}
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <LocaleLink 
+                  href={buildStaticRouteData("partner")}
+                  className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                >
+                  {tx["guides.listYourBusiness"]}
+                </LocaleLink>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        ) : null}
       </main>
       <Footer />
     </>

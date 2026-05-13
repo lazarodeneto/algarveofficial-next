@@ -20,6 +20,11 @@ import {
   type ReviewModerationItem,
   type TranslationJobItem,
 } from "./types";
+import {
+  decodeSideTableArchiveRow,
+  inboxSideTableKey,
+  inboxSideTableLookupKeys,
+} from "./side-table-compat";
 
 type AdminClient = SupabaseClient<Database>;
 
@@ -471,8 +476,9 @@ async function fetchSideTables(client: AdminClient): Promise<InboxSideTables> {
       archived_at: string;
     }> | null) ?? [];
   for (const row of archiveRows) {
-    const key = `${row.source}:${row.source_row_id}`;
-    if (row.reason === "read_from_list") {
+    const decoded = decodeSideTableArchiveRow(row.source, row.reason);
+    const key = inboxSideTableKey(decoded.source, row.source_row_id);
+    if (decoded.reason === "read_from_list") {
       readStates.set(key, { readBy: null, readAt: row.archived_at });
     } else {
       archivedKeys.add(key);
@@ -488,7 +494,7 @@ async function fetchSideTables(client: AdminClient): Promise<InboxSideTables> {
       assigned_at: string;
     }> | null) ?? [];
   for (const row of assignRows) {
-    assignments.set(`${row.source}:${row.source_row_id}`, {
+    assignments.set(inboxSideTableKey(row.source, row.source_row_id), {
       assigneeId: row.assignee_id,
       assignedAt: row.assigned_at,
     });
@@ -529,9 +535,9 @@ async function buildSnapshotUncached(): Promise<InboxSnapshot> {
   ]
     .filter((item) => !side.archivedKeys.has(`${item.source}:${item.sourceRowId}`))
     .map((item) => {
-      const key = `${item.source}:${item.sourceRowId}`;
-      const assignment = side.assignments.get(key);
-      const readState = side.readStates.get(key);
+      const keys = inboxSideTableLookupKeys(item.source, item.sourceRowId);
+      const assignment = keys.map((key) => side.assignments.get(key)).find(Boolean);
+      const readState = keys.map((key) => side.readStates.get(key)).find(Boolean);
       return {
         ...item,
         assignee: assignment

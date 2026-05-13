@@ -67,9 +67,10 @@ export function BeachWeatherWidget({
     refetchOnWindowFocus: false,
   });
 
-  if (!canLoadWeather || isError || data?.ok === false) return null;
+  if (!canLoadWeather) return null;
 
   const weather = data?.ok ? data : null;
+  const unavailable = !isLoading && (isError || data?.ok === false);
   const temperature = formatNumber(weather?.temperatureC);
   const wind = formatNumber(weather?.windKph);
   const uv = formatNumber(weather?.uvIndex, 1);
@@ -87,7 +88,9 @@ export function BeachWeatherWidget({
         wind: wind ?? "",
         defaultValue: `${locationLabel ?? title} weather: ${temperature}°C${condition ? `, ${condition}` : ""}`,
       })
-    : t("weather.loading", { defaultValue: "Loading weather" });
+    : unavailable
+      ? t("weather.unavailable", { defaultValue: "Weather unavailable" })
+      : t("weather.loading", { defaultValue: "Loading weather" });
 
   return (
     <aside
@@ -118,7 +121,7 @@ export function BeachWeatherWidget({
                   <span className="inline-flex items-center gap-1">
                     <Wind className="h-3.5 w-3.5" aria-hidden="true" />
                     {weather.windDir ? `${weather.windDir} ` : ""}
-                    {wind} km/h
+                    {wind} {t("weather.windSpeedUnit", { defaultValue: "km/h" })}
                   </span>
                 ) : null}
                 {uv ? <span>UV {uv}</span> : null}
@@ -147,6 +150,17 @@ export function BeachWeatherWidget({
                 </span>
               ) : null}
             </>
+          ) : unavailable ? (
+            <div className="mt-1">
+              <p className="text-sm font-semibold text-foreground">
+                {t("weather.unavailable", { defaultValue: "Weather unavailable" })}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t("weather.beachUnavailableDescription", {
+                  defaultValue: "Local forecast could not be loaded.",
+                })}
+              </p>
+            </div>
           ) : (
             <div className="mt-2 space-y-1.5">
               <span className="block h-3 w-24 animate-pulse rounded-full bg-muted-foreground/20" />

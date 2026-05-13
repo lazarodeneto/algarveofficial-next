@@ -794,6 +794,7 @@ export const CMS_PAGE_TRANSLATION_KEY_CATALOG: Record<string, string[]> = {
     "experiences.exploreAlgarveCities",
     "experiences.featuredCityHub",
     "experiences.featuredCityHubDescription",
+    "experiences.listingsCount",
     "experiences.hero.alt",
     "experiences.hero.badge",
     "experiences.hero.ctaPrimary",

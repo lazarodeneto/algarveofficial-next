@@ -267,4 +267,31 @@ describe("CMS page/block runtime contract", () => {
     expect(isCmsPageEditableInFullBuilder("visit")).toBe(false);
     expect(isCmsPageEditableInFullBuilder("auth-login")).toBe(false);
   });
+
+  it("keeps category pages connected to the versioned Full Page Builder runtime", () => {
+    const categoryPageSource = fs.readFileSync(
+      path.join(process.cwd(), "app/[locale]/category/[category]/page.tsx"),
+      "utf8",
+    );
+    const directoryClientSource = fs.readFileSync(
+      path.join(process.cwd(), "components/directory/DirectoryClient.tsx"),
+      "utf8",
+    );
+    const directoryDataSource = fs.readFileSync(
+      path.join(process.cwd(), "lib/directory-data.ts"),
+      "utf8",
+    );
+
+    expect(categoryPageSource).toContain("fetchCmsRuntimeSettings");
+    expect(categoryPageSource).toContain("getCmsPageIdForCategory");
+    expect(categoryPageSource).toContain("getRuntimePageConfig(runtimeSettings, cmsPageId)");
+    expect(categoryPageSource).toContain("isRuntimeSectionEnabled");
+
+    expect(directoryClientSource).toContain("/api/cms/runtime");
+    expect(directoryClientSource).toContain("useCmsPageBuilder(activeCmsPageId)");
+    expect(directoryClientSource).not.toContain(".from(\"global_settings\")");
+
+    expect(directoryDataSource).toContain("fetchCmsRuntimeSettings");
+    expect(directoryDataSource).not.toContain(".from(\"global_settings\")");
+  });
 });

@@ -22,11 +22,7 @@ import { useTranslation } from "react-i18next";
 
 import type { Tables } from "@/integrations/supabase/types";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  CMS_GLOBAL_SETTING_KEYS,
-  normalizeCmsPageConfigs,
-  type CmsTextOverrideMap,
-} from "@/lib/cms/pageBuilderRegistry";
+import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import {
   buildMergedCategoryOptions,
   filterVisibleListingCategories,
@@ -45,6 +41,7 @@ import {
   type PublicContentLocale,
 } from "@/lib/publicContentLocale";
 import type { GlobalSetting } from "@/hooks/useGlobalSettings";
+import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import {
   useCityListingCounts,
   useCityRegionMappings,
@@ -81,6 +78,7 @@ import {
 import type { VisitCityIndexItem } from "@/lib/directory-data";
 import { buildMunicipalityCityIndex } from "@/lib/cities/municipalityIndex";
 import { hideServerShell } from "@/lib/dom/server-shell";
+import { globalSettingsQueryKey } from "@/lib/query-keys";
 
 const EMPTY_CATEGORY_IDS: string[] = [];
 const NO_MATCH_CATEGORY_ID = "00000000-0000-0000-0000-000000000000";
@@ -122,33 +120,6 @@ export interface DirectoryClientProps {
   globalSettings: GlobalSetting[];
   cmsPageId?: string;
   imageTimestamp?: number;
-}
-
-function parseJsonSetting<T>(raw: string | undefined, fallback: T): T {
-  if (!raw) return fallback;
-  try {
-    const parsed = JSON.parse(raw);
-    return parsed ?? fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function isPlainRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function normalizeTextOverrides(input: unknown): CmsTextOverrideMap {
-  if (!isPlainRecord(input)) return {};
-
-  const normalized: CmsTextOverrideMap = {};
-  Object.entries(input).forEach(([key, value]) => {
-    if (typeof value === "string") {
-      normalized[key.trim()] = value;
-    }
-  });
-
-  return normalized;
 }
 
 function sanitizeSearchTerm(raw: string) {
@@ -415,14 +386,20 @@ async function fetchCategoryCounts(_locale: PublicContentLocale) {
 }
 
 async function fetchDirectoryGlobalSettings(_locale: PublicContentLocale) {
-  const { data, error } = await supabase
-    .from("global_settings")
-    .select("key, value, category")
-    .in("key", [...DIRECTORY_CMS_KEYS])
-    .order("key", { ascending: true });
+  const params = new URLSearchParams();
+  params.set("locale", _locale);
+  DIRECTORY_CMS_KEYS.forEach((key) => params.append("key", key));
 
-  if (error) throw error;
-  return (data ?? []) as GlobalSetting[];
+  const response = await fetch(`/api/cms/runtime?${params.toString()}`);
+  const payload = (await response.json().catch(() => null)) as
+    | { ok?: boolean; data?: GlobalSetting[]; error?: { message?: string } }
+    | null;
+
+  if (!response.ok || !payload?.ok) {
+    throw new Error(payload?.error?.message ?? "Failed to load CMS runtime settings");
+  }
+
+  return (payload.data ?? []) as GlobalSetting[];
 }
 
 async function fetchListings(
@@ -624,64 +601,6 @@ async function fetchListings(
   });
 }
 
-function useDirectoryCmsHelpers(globalSettings: GlobalSetting[], cmsPageId: string = "directory") {
-  return useMemo(() => {
-    const settingMap = globalSettings.reduce<Record<string, string>>((acc, setting) => {
-      acc[setting.key] = setting.value ?? "";
-      return acc;
-    }, {});
-
-    const textOverrides = normalizeTextOverrides(
-      parseJsonSetting(settingMap[CMS_GLOBAL_SETTING_KEYS.textOverrides], {}),
-    );
-    const pageConfigs = normalizeCmsPageConfigs(
-      parseJsonSetting(settingMap[CMS_GLOBAL_SETTING_KEYS.pageConfigs], {}),
-    );
-    const pageConfig = pageConfigs[cmsPageId] ?? {};
-    const blocks = pageConfig.blocks ?? {};
-    const pageText = pageConfig.text ?? {};
-
-    const isBlockEnabled = (blockId: string, fallback = true) => {
-      const configured = blocks[blockId]?.enabled;
-      return typeof configured === "boolean" ? configured : fallback;
-    };
-
-    const getBlockClassName = (blockId: string) => {
-      const className = blocks[blockId]?.className;
-      return typeof className === "string" ? className : "";
-    };
-
-    const getBlockStyle = (blockId: string): CSSProperties => {
-      const style = blocks[blockId]?.style;
-      if (!style || typeof style !== "object") return {};
-      return style as CSSProperties;
-    };
-
-    const getText = (textKey: string, fallback: string) =>
-      pageText[textKey] ?? textOverrides[`${cmsPageId}.${textKey}`] ?? textOverrides[textKey] ?? fallback;
-
-    const getMetaTitle = (fallback: string) => pageConfig.meta?.title ?? getText("meta.title", fallback);
-    const getMetaDescription = (fallback: string) =>
-      pageConfig.meta?.description ?? getText("meta.description", fallback);
-
-    const getBlockData = (blockId: string): Record<string, unknown> => {
-      const data = blocks[blockId]?.data;
-      if (!data || typeof data !== "object") return {};
-      return data as Record<string, unknown>;
-    };
-
-    return {
-      getText,
-      getMetaTitle,
-      getMetaDescription,
-      isBlockEnabled,
-      getBlockClassName,
-      getBlockStyle,
-      getBlockData,
-    };
-  }, [cmsPageId, globalSettings]);
-}
-
 function DirectoryCmsBlock({
   pageId,
   blockId,
@@ -699,7 +618,7 @@ function DirectoryCmsBlock({
   style?: CSSProperties;
   as?: ElementType;
   defaultEnabled?: boolean;
-  cms: ReturnType<typeof useDirectoryCmsHelpers>;
+  cms: ReturnType<typeof useCmsPageBuilder>;
 }) {
   if (!cms.isBlockEnabled(blockId, defaultEnabled)) {
     return null;
@@ -794,12 +713,13 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   );
 
   const { data: globalSettings = initialCmsSettings } = useQuery({
-    queryKey: ["global-settings", [...DIRECTORY_CMS_KEYS].sort(), locale],
+    queryKey: globalSettingsQueryKey([...DIRECTORY_CMS_KEYS], locale),
     queryFn: () => fetchDirectoryGlobalSettings(locale),
     placeholderData: initialCmsSettings,
     staleTime: 0,
   });
-  const activeCms = useDirectoryCmsHelpers(globalSettings, activeCmsPageId);
+  void globalSettings;
+  const activeCms = useCmsPageBuilder(activeCmsPageId);
 
   const { data: cities = props.initialCities, isLoading: citiesLoading } = useQuery({
     queryKey: ["cities", locale],

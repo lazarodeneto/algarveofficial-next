@@ -47,6 +47,35 @@ const CITY_HUB_TRANSLATION_KEYS: Record<
   },
 };
 
+const CITY_HUB_FALLBACK_COPY: Record<
+  CityHubTranslationPrefix,
+  {
+    featuredCityHub: string;
+    featuredCityHubDescription: string;
+    cityIndex: string;
+    exploreAlgarveCities: string;
+    cityIndexDescription: string;
+    listingsCount: string;
+  }
+> = {
+  directory: {
+    featuredCityHub: "Featured city hub",
+    featuredCityHubDescription: "{{name}} brings together {{count}} curated AlgarveOfficial listings.",
+    cityIndex: "City index",
+    exploreAlgarveCities: "Explore Algarve cities",
+    cityIndexDescription: "Browse city hubs with current listing totals, then jump into restaurants, accommodation, events, and more.",
+    listingsCount: "{{count}} listings",
+  },
+  experiences: {
+    featuredCityHub: "Featured experience hub",
+    featuredCityHubDescription: "{{name}} brings together {{count}} curated experiences and places to explore.",
+    cityIndex: "Experience city index",
+    exploreAlgarveCities: "Explore Algarve experiences by city",
+    cityIndexDescription: "Browse Algarve cities with current experience totals, then jump into activities, beaches, food, and local highlights.",
+    listingsCount: "{{count}} experiences",
+  },
+};
+
 interface CityHubsSectionProps {
   highlightedCity: CityHubItem | undefined;
   topCities: CityHubItem[];
@@ -81,6 +110,7 @@ export function CityHubsSection({
       ? "visit"
       : normalizedBasePath || "visit";
   const translationKeys = CITY_HUB_TRANSLATION_KEYS[translationPrefix];
+  const fallbackCopy = CITY_HUB_FALLBACK_COPY[translationPrefix];
 
   const getCityCount = (city: CityHubItem) => {
     // For municipalities, always use the aggregated totalCount
@@ -125,7 +155,9 @@ export function CityHubsSection({
             <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-6 text-white">
               <p className="mb-2 text-xs not-italic uppercase tracking-[0.24em] text-white/80" style={firaSans700Style}>
-                {t(translationKeys.featuredCityHub)}
+                {t(translationKeys.featuredCityHub, {
+                  defaultValue: fallbackCopy.featuredCityHub,
+                })}
               </p>
               <h2 className="text-3xl not-italic leading-tight md:text-4xl" style={firaSans700Style}>
                 {featured.name}
@@ -133,6 +165,7 @@ export function CityHubsSection({
               <p className="mt-3 max-w-2xl text-sm text-white/85">
                 {featured.short_description ||
                   t(translationKeys.featuredCityHubDescription, {
+                    defaultValue: fallbackCopy.featuredCityHubDescription,
                     count: getCityCount(featured),
                     name: featured.name,
                   })}
@@ -143,13 +176,19 @@ export function CityHubsSection({
 
         <div className="mx-auto w-full max-w-[22rem] rounded-sm border border-border bg-card p-6 shadow-sm sm:max-w-none">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-            {t(translationKeys.cityIndex)}
+            {t(translationKeys.cityIndex, {
+              defaultValue: fallbackCopy.cityIndex,
+            })}
           </p>
           <h2 className="mt-3 font-serif text-2xl text-foreground">
-            {t(translationKeys.exploreAlgarveCities)}
+            {t(translationKeys.exploreAlgarveCities, {
+              defaultValue: fallbackCopy.exploreAlgarveCities,
+            })}
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            {t(translationKeys.cityIndexDescription)}
+            {t(translationKeys.cityIndexDescription, {
+              defaultValue: fallbackCopy.cityIndexDescription,
+            })}
           </p>
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {visibleTopCities.map((city) => (
@@ -162,7 +201,10 @@ export function CityHubsSection({
                   {city.name}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {t(translationKeys.listingsCount, { count: getCityCount(city) })}
+                  {t(translationKeys.listingsCount, {
+                    defaultValue: fallbackCopy.listingsCount,
+                    count: getCityCount(city),
+                  })}
                 </div>
               </Link>
             ))}

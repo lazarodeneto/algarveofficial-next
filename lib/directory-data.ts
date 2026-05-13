@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
+import { fetchCmsRuntimeSettings } from "@/lib/cms/runtime-settings";
 import {
   fetchCategoryTranslations,
   fetchCityTranslations,
@@ -408,21 +409,18 @@ async function fetchDirectoryListings(
   });
 }
 
-async function fetchDirectoryGlobalSettings(
-  supabase: ReturnType<typeof createPublicServerClient>,
-): Promise<GlobalSetting[]> {
-  const keys = [
-    CMS_GLOBAL_SETTING_KEYS.textOverrides,
-    CMS_GLOBAL_SETTING_KEYS.pageConfigs,
-  ];
-
-  const { data, error } = await supabase
-    .from("global_settings")
-    .select("key, value, category")
-    .in("key", keys);
-
-  if (error || !data) return [];
-  return data as unknown as GlobalSetting[];
+async function fetchDirectoryGlobalSettings(locale: PublicContentLocale): Promise<GlobalSetting[]> {
+  try {
+    return await fetchCmsRuntimeSettings({
+      requestedKeys: [
+        CMS_GLOBAL_SETTING_KEYS.textOverrides,
+        CMS_GLOBAL_SETTING_KEYS.pageConfigs,
+      ],
+      locale,
+    });
+  } catch {
+    return [];
+  }
 }
 
 const getDirectoryReferenceData = unstable_cache(
@@ -433,7 +431,7 @@ const getDirectoryReferenceData = unstable_cache(
       fetchDirectoryRegions(supabase, locale),
       fetchDirectoryCategories(supabase, locale),
       fetchDirectoryCategoryCounts(supabase),
-      fetchDirectoryGlobalSettings(supabase),
+      fetchDirectoryGlobalSettings(locale),
       fetchCityRegionMappings(supabase),
     ]);
 

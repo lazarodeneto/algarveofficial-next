@@ -1923,7 +1923,16 @@
       "categories": "Aktivitetskategorier",
       "curated": "Kuraterte opplevelser",
       "sunDays": "Soldager per år"
-    }
+    },
+    "featuredCityHub": "Utvalgt opplevelseshub",
+    "featuredCityHubDescription": "{{name}} samler {{count}} kuraterte opplevelser og steder å utforske.",
+    "cityIndex": "Opplevelser etter by",
+    "cityIndexDescription": "Bla gjennom Algarve-byer med oppdaterte opplevelsestall, og utforsk aktiviteter, strender, mat og lokale høydepunkter.",
+    "exploreAlgarveCities": "Utforsk Algarve-opplevelser etter by",
+    "listingsCount": "{{count}} opplevelser",
+    "allActiveCityHubs": "Alle aktive opplevelseshuber",
+    "allActiveCityHubsDescription": "Utforsk Algarve-byer med aktive opplevelser og lokale høydepunkter.",
+    "cityFallbackDescription": "Utforsk kuraterte opplevelser, aktiviteter og lokale høydepunkter i denne Algarve-byen."
   },
   "footer": {
     "about": "Om oss",

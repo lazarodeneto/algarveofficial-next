@@ -159,17 +159,17 @@ function MegaPanel({ section, onNavigate }: { section: MegaMenuSection; onNaviga
   return (
     <div
       className={cn(
-        "header-mega-panel max-h-[min(74vh,calc(100vh-6.5rem))] overflow-y-auto rounded-lg border border-black/10 bg-[hsl(var(--background)/0.98)] text-foreground shadow-[0_30px_80px_-35px_rgba(15,23,42,0.45)] backdrop-blur-2xl dark:border-white/12 dark:bg-[hsl(var(--background)/0.9)]",
+        "header-mega-panel rounded-lg border border-black/10 bg-[hsl(var(--background)/0.98)] text-foreground shadow-[0_30px_80px_-35px_rgba(15,23,42,0.45)] backdrop-blur-2xl dark:border-white/12 dark:bg-[hsl(var(--background)/0.9)]",
         isVisit
-          ? "w-[min(540px,calc(100vw-8rem))] min-[1360px]:w-[min(640px,calc(100vw-10rem))] min-[1440px]:w-[min(720px,calc(100vw-12rem))] min-[1680px]:w-[min(760px,calc(100vw-14rem))]"
-          : "w-[min(500px,calc(100vw-8rem))] min-[1360px]:w-[min(600px,calc(100vw-10rem))] min-[1440px]:w-[min(640px,calc(100vw-12rem))]",
+          ? "w-[min(860px,calc(100vw-2rem))] translate-x-14 overflow-visible min-[1280px]:translate-x-0 min-[1360px]:w-[min(880px,calc(100vw-3rem))] min-[1360px]:translate-x-2 min-[1440px]:w-[min(900px,calc(100vw-4rem))] min-[1440px]:translate-x-0"
+          : "max-h-[min(74vh,calc(100vh-6.5rem))] w-[min(500px,calc(100vw-8rem))] overflow-y-auto min-[1360px]:w-[min(600px,calc(100vw-10rem))] min-[1440px]:w-[min(640px,calc(100vw-12rem))]",
       )}
     >
       <div
         className={cn(
           "grid gap-0",
           isVisit
-            ? "grid-cols-[170px_minmax(0,1fr)] min-[1360px]:grid-cols-[205px_minmax(0,1fr)] min-[1440px]:grid-cols-[220px_minmax(0,1fr)] min-[1680px]:grid-cols-[235px_minmax(0,1fr)]"
+            ? "grid-cols-[190px_minmax(0,1fr)] min-[1360px]:grid-cols-[200px_minmax(0,1fr)] min-[1440px]:grid-cols-[210px_minmax(0,1fr)]"
             : "grid-cols-[175px_minmax(0,1fr)] min-[1360px]:grid-cols-[215px_minmax(0,1fr)] min-[1440px]:grid-cols-[240px_minmax(0,1fr)]",
         )}
       >
@@ -187,7 +187,7 @@ function MegaPanel({ section, onNavigate }: { section: MegaMenuSection; onNaviga
               </p>
             </div>
           </div>
-          <div className={cn("grid gap-1", isVisit ? "grid-cols-2" : "grid-cols-1")}>
+          <div className={cn("grid gap-1", isVisit ? "grid-cols-3 gap-x-2" : "grid-cols-1")}>
             {section.items.map((item) => (
               <MenuLink key={`${section.id}-${item.labelKey}`} item={item} onClick={onNavigate} />
             ))}
@@ -215,7 +215,7 @@ function MegaPanel({ section, onNavigate }: { section: MegaMenuSection; onNaviga
   );
 }
 
-export function HeaderMegaMenu() {
+export function HeaderMegaMenu({ overHero = false }: { overHero?: boolean } = {}) {
   const pathname = usePathname() ?? "";
   const { t } = useTranslation();
   const { isActive } = useRouteState();
@@ -239,9 +239,16 @@ export function HeaderMegaMenu() {
             <NavigationMenuItem key={section.id} value={section.id}>
               <NavigationMenuTrigger
                 className={cn(
-                  "font-fira h-[2.35rem] min-h-[2.35rem] gap-1.5 rounded-full border border-border/70 bg-transparent px-3 py-2 text-[0.72rem] font-bold uppercase tracking-[0.07em] text-foreground shadow-none transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-transparent hover:bg-gradient-gold hover:text-black hover:brightness-105 hover:shadow-button-hover active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A62A]/55 focus-visible:ring-offset-2 dark:border-white/18 dark:text-white/90 dark:hover:text-black xl:h-10 xl:min-h-10 xl:px-4 xl:text-[0.82rem] min-[1440px]:h-[3.25rem] min-[1440px]:min-h-[3.25rem] min-[1440px]:px-6 min-[1440px]:py-3.5 min-[1440px]:text-base 2xl:px-7",
+                  "font-fira h-[2.35rem] min-h-[2.35rem] gap-1.5 rounded-full border px-3 py-2 text-[0.72rem] font-bold uppercase tracking-[0.07em] shadow-none transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-transparent hover:bg-gradient-gold hover:text-black hover:brightness-105 hover:shadow-button-hover active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A62A]/55 focus-visible:ring-offset-2 xl:h-10 xl:min-h-10 xl:px-4 xl:text-[0.82rem] min-[1440px]:h-[3.25rem] min-[1440px]:min-h-[3.25rem] min-[1440px]:px-6 min-[1440px]:py-3.5 min-[1440px]:text-base 2xl:px-7",
+                  overHero
+                    ? "border-white/75 bg-white/[0.94] text-black shadow-[0_14px_34px_-24px_rgba(15,23,42,0.55)] backdrop-blur-xl dark:border-white/75 dark:bg-white/[0.94] dark:text-black"
+                    : "border-border/70 bg-transparent text-foreground dark:border-white/18 dark:text-white/90 dark:hover:text-black",
                   "data-[state=open]:border-transparent data-[state=open]:bg-gradient-gold data-[state=open]:text-black data-[state=open]:brightness-105 data-[state=open]:shadow-button-hover",
-                  active ? "border-primary/35 text-primary dark:text-primary" : "",
+                  active
+                    ? overHero
+                      ? "border-primary/45 bg-white text-primary dark:bg-white dark:text-primary"
+                      : "border-primary/35 text-primary dark:text-primary"
+                    : "",
                 )}
                 aria-label={translated(t, section.labelKey, section.fallbackLabel)}
               >
@@ -269,7 +276,7 @@ export function HeaderCompactNav() {
             <LocaleLink
               key={section.id}
               href={section.featuredHref}
-              className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-white/80 bg-white/92 px-3.5 py-2 text-[10px] font-bold uppercase tracking-[0.07em] text-black shadow-[0_12px_32px_-24px_rgba(15,23,42,0.45)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:border-transparent hover:bg-gradient-gold hover:text-black hover:brightness-105 hover:shadow-button-hover active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A62A]/55 focus-visible:ring-offset-2 dark:border-white/25 dark:bg-white/90 dark:text-black dark:hover:text-black sm:px-4 sm:text-[11px]"
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-white/80 bg-white/[0.92] px-3.5 py-2 text-[10px] font-bold uppercase tracking-[0.07em] text-black shadow-[0_12px_32px_-24px_rgba(15,23,42,0.45)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:border-transparent hover:bg-gradient-gold hover:text-black hover:brightness-105 hover:shadow-button-hover active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A62A]/55 focus-visible:ring-offset-2 dark:border-white/25 dark:bg-white/90 dark:text-black dark:hover:text-black sm:px-4 sm:text-[11px]"
             >
               <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
               <span>{section.fallbackLabel}</span>

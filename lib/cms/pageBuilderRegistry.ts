@@ -627,8 +627,8 @@ export const CMS_PAGE_REGISTRY_META: Record<string, CmsPageRegistryMeta> = {
     scope: "global",
     status: "enabled",
     group: "Directory Pages",
-    publicRenderer: "components/directory/DirectoryClient.tsx with /category/wellness-spas",
-    notes: "Full Page Builder controls the Wellness navigation route while listings remain data driven.",
+    publicRenderer: "app/[locale]/category/[category]/page.tsx + components/directory/DirectoryClient.tsx",
+    notes: "Full Page Builder controls the canonical Wellness category route and directory runtime while listings remain data driven.",
   },
   directory: {
     scope: "global",
