@@ -2,14 +2,26 @@
 
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { DivIcon } from "leaflet";
-import { useEffect, useState } from "react";
+import { createElement, useEffect, useState } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { Sun } from "lucide-react";
 import { useHydrated } from "@/hooks/useHydrated";
 import "leaflet/dist/leaflet.css";
 
-// Custom gold marker icon using Lucide
+const sunMarkerSvg = renderToStaticMarkup(
+  createElement(Sun, {
+    "aria-hidden": true,
+    color: "#ffffff",
+    fill: "none",
+    size: 18,
+    strokeWidth: 2.35,
+  }),
+);
+
+// Custom orange beach marker icon using Lucide Sun.
 const goldMarkerHtml = `
-<div style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9999px;background:linear-gradient(135deg,#ffd966 0%,#c49b37 55%,#8f6b1f 100%);box-shadow:0 6px 16px rgba(0,0,0,0.28);border:1px solid #8f6b1f;">
-  <span style="font-size:14px;font-weight:700;color:#111827;line-height:1;">•</span>
+<div style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9999px;background:linear-gradient(135deg,#fb923c 0%,#f97316 55%,#c2410c 100%);box-shadow:0 6px 16px rgba(0,0,0,0.28);border:1px solid #ea580c;">
+  ${sunMarkerSvg}
 </div>
 `;
 
