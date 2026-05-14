@@ -35,25 +35,35 @@ function formatRssDate(date: string | null | undefined): string {
 }
 
 async function getBlogPosts() {
-  const supabase = createPublicServerClient();
-  const { data, error } = await supabase
-    .from("blog_posts")
-    .select("slug, title, excerpt, featured_image, published_at, updated_at")
-    .eq("status", "published")
-    .not("slug", "is", null)
-    .order("published_at", { ascending: false })
-    .limit(50);
+  try {
+    const supabase = createPublicServerClient();
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select("slug, title, excerpt, featured_image, published_at, updated_at")
+      .eq("status", "published")
+      .not("slug", "is", null)
+      .order("published_at", { ascending: false })
+      .limit(50);
 
-  if (error) {
+    if (error) {
+      console.error("[feed] Failed to fetch blog posts", error);
+      return [];
+    }
+
+    return data ?? [];
+  } catch (error) {
     console.error("[feed] Failed to fetch blog posts", error);
     return [];
   }
-
-  return data ?? [];
 }
 
 async function getEvents(locale: string) {
-  return getPublicEvents({ locale, timeFilter: "upcoming", limit: 50 });
+  try {
+    return await getPublicEvents({ locale, timeFilter: "upcoming", limit: 50 });
+  } catch (error) {
+    console.error("[feed] Failed to fetch events", error);
+    return [];
+  }
 }
 
 export const revalidate = 3600;

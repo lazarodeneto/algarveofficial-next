@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { MetadataRoute } from "next";
 import { DEFAULT_LOCALE } from "@/lib/i18n/config";
 import { buildCanonicalUrl, buildHreflangs } from "@/lib/i18n/seo";
@@ -15,7 +16,13 @@ function toValidDate(value: string | null | undefined, fallback: Date) {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  const events = await getPublicEvents({ timeFilter: "upcoming", limit: SITEMAP_FETCH_LIMIT });
+  let events: Awaited<ReturnType<typeof getPublicEvents>> = [];
+
+  try {
+    events = await getPublicEvents({ timeFilter: "upcoming", limit: SITEMAP_FETCH_LIMIT });
+  } catch (error) {
+    console.error("[sitemap-events] Failed to fetch events", error);
+  }
 
   return events.map((event) => {
     const basePath = `/events/${event.slug}`;

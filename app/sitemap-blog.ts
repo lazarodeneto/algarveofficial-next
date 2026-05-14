@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { MetadataRoute } from "next";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { DEFAULT_LOCALE } from "@/lib/i18n/config";
@@ -15,35 +16,40 @@ function toValidDate(value: string | null | undefined, fallback: Date) {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  const supabase = createPublicServerClient();
+  try {
+    const supabase = createPublicServerClient();
 
-  const { data: posts, error } = await supabase
-    .from("blog_posts")
-    .select("slug, updated_at, published_at, featured_image")
-    .eq("status", "published")
-    .order("updated_at", { ascending: false })
-    .limit(SITEMAP_FETCH_LIMIT);
+    const { data: posts, error } = await supabase
+      .from("blog_posts")
+      .select("slug, updated_at, published_at, featured_image")
+      .eq("status", "published")
+      .order("updated_at", { ascending: false })
+      .limit(SITEMAP_FETCH_LIMIT);
 
-  if (error || !posts) return [];
+    if (error || !posts) return [];
 
-  const validPosts = posts.filter((post) => {
-    if (!post.published_at) return true;
-    return Date.parse(post.published_at) <= Date.now();
-  });
+    const validPosts = posts.filter((post) => {
+      if (!post.published_at) return true;
+      return Date.parse(post.published_at) <= Date.now();
+    });
 
-  return validPosts.map((post) => {
-    const basePath = `/blog/${post.slug}`;
-    const imageUrl = sanitizeSitemapImageUrl(post.featured_image);
+    return validPosts.map((post) => {
+      const basePath = `/blog/${post.slug}`;
+      const imageUrl = sanitizeSitemapImageUrl(post.featured_image);
 
-    return {
-      url: buildCanonicalUrl(DEFAULT_LOCALE, basePath),
-      lastModified: toValidDate(post.updated_at, toValidDate(post.published_at, now)),
-      changeFrequency: "monthly" as const,
-      priority: 0.76,
-      alternates: {
-        languages: buildHreflangs(basePath),
-      },
-      images: imageUrl ? [imageUrl] : undefined,
-    };
-  });
+      return {
+        url: buildCanonicalUrl(DEFAULT_LOCALE, basePath),
+        lastModified: toValidDate(post.updated_at, toValidDate(post.published_at, now)),
+        changeFrequency: "monthly" as const,
+        priority: 0.76,
+        alternates: {
+          languages: buildHreflangs(basePath),
+        },
+        images: imageUrl ? [imageUrl] : undefined,
+      };
+    });
+  } catch (error) {
+    console.error("[sitemap-blog] Failed to fetch blog posts", error);
+    return [];
+  }
 }
