@@ -185,6 +185,7 @@ describe("newsletter API routes", () => {
   it("validates newsletter email input", async () => {
     const response = await subscribeNewsletter(jsonRequest({ email: "bad" }));
     expect(response.status).toBe(400);
+    expect(mocks.createServiceRoleClient).not.toHaveBeenCalled();
     expect(mocks.sendEmail).not.toHaveBeenCalled();
   });
 

@@ -188,10 +188,7 @@ async function parseOrVerifyEvent(request: NextRequest, rawBody: string) {
   const headers = webhookHeaders(request);
 
   if (!config.resendWebhookSecret) {
-    if (config.isProduction) {
-      throw new Error("resend_webhook_secret_missing");
-    }
-    return JSON.parse(rawBody) as ResendWebhookPayload;
+    throw new Error("resend_webhook_secret_missing");
   }
 
   return getResendClient().webhooks.verify({

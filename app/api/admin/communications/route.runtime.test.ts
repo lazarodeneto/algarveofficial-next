@@ -132,6 +132,24 @@ describe("admin communications API", () => {
     expect(mocks.createServiceRoleClient).not.toHaveBeenCalled();
   });
 
+  it("rejects authenticated non-admin access without diagnostics", async () => {
+    mocks.requireAdminSession.mockResolvedValue({
+      error: NextResponse.json({
+        ok: false,
+        error: { code: "AUTH_FORBIDDEN", message: "Only admins or editors can access this resource." },
+      }, { status: 403 }),
+    });
+
+    const response = await GET(request());
+    const body = await response.json();
+
+    expect(response.status).toBe(403);
+    expect(body.emailEvents).toBeUndefined();
+    expect(body.webhookReceipts).toBeUndefined();
+    expect(body.newsletter).toBeUndefined();
+    expect(mocks.createServiceRoleClient).not.toHaveBeenCalled();
+  });
+
   it("returns sanitized communication diagnostics for admins", async () => {
     mocks.requireAdminSession.mockResolvedValue({
       userId: "admin-1",

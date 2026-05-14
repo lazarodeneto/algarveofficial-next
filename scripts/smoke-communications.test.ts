@@ -99,6 +99,9 @@ describe("communication smoke script", () => {
         env: smokeEnv(baseUrl, { DRY_RUN: "true", SEND_TEST_EMAIL: "true" }),
       });
 
+      expect(stdout).toContain("PASS newsletter invalid email validation: status 400");
+      expect(stdout).toContain("PASS webhook invalid signature rejected: status 401");
+      expect(stdout).toContain("PASS admin communications requires auth: status 401");
       expect(stdout).toContain("PASS newsletter safe test subscribe: skipped");
       expect(stats.safeSubscribeHits).toBe(0);
     });

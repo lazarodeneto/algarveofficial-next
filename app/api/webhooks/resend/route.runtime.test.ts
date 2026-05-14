@@ -20,7 +20,7 @@ vi.mock("@/lib/email/resend-client", () => ({
 
 import { POST as resendWebhook } from "@/app/api/webhooks/resend/route";
 
-function webhookRequest(body: unknown) {
+function webhookRequest(body: unknown, headers: Record<string, string> = {}) {
   return new NextRequest("http://localhost/api/webhooks/resend", {
     method: "POST",
     headers: {
@@ -28,6 +28,7 @@ function webhookRequest(body: unknown) {
       "svix-id": "evt_123",
       "svix-timestamp": "1",
       "svix-signature": "sig",
+      ...headers,
     },
     body: JSON.stringify(body),
   }) as unknown as Parameters<typeof resendWebhook>[0];
@@ -71,6 +72,32 @@ describe("Resend webhook route", () => {
     const response = await resendWebhook(webhookRequest({ type: "email.delivered" }));
 
     expect(response.status).toBe(401);
+    expect(mocks.createServiceRoleClient).not.toHaveBeenCalled();
+  });
+
+  it("rejects missing signatures before any database work", async () => {
+    vi.stubEnv("RESEND_WEBHOOK_SECRET", "whsec_test");
+    mocks.verify.mockImplementation(() => {
+      throw new Error("missing signature");
+    });
+
+    const response = await resendWebhook(webhookRequest(
+      { type: "email.delivered" },
+      { "svix-signature": "" },
+    ));
+
+    expect(response.status).toBe(401);
+    expect(mocks.verify).toHaveBeenCalled();
+    expect(mocks.createServiceRoleClient).not.toHaveBeenCalled();
+  });
+
+  it("fails closed when the webhook secret is missing", async () => {
+    vi.stubEnv("RESEND_WEBHOOK_SECRET", "");
+
+    const response = await resendWebhook(webhookRequest({ type: "email.delivered" }));
+
+    expect(response.status).toBe(401);
+    expect(mocks.verify).not.toHaveBeenCalled();
     expect(mocks.createServiceRoleClient).not.toHaveBeenCalled();
   });
 
