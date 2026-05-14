@@ -36,7 +36,8 @@ interface LocaleBlogPostPageProps {
   params: Promise<{ locale: string; slug: string }>;
 }
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 function buildBlogPostRouteData(post: NonNullable<Awaited<ReturnType<typeof getPublishedBlogPostBySlug>>>): BlogPostRouteData {
   return {

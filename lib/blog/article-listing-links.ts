@@ -7,6 +7,7 @@ export type ArticleListingLinkAlias = {
 
 export type ArticleListingLinkTarget = {
   slug: string;
+  name?: string | null;
 };
 
 type ArticleListingLinkDefinition = ArticleListingLinkAlias & {
@@ -80,6 +81,27 @@ function linkTextToken(value: string, linkDefinitions: ArticleListingLinkDefinit
   }
 
   return linked;
+}
+
+function uniquePhrases(phrases: Array<string | null | undefined>) {
+  return Array.from(
+    new Set(
+      phrases
+        .map((phrase) => phrase?.replace(/\s+/g, " ").trim())
+        .filter((phrase): phrase is string => Boolean(phrase && phrase.length >= 4)),
+    ),
+  );
+}
+
+export function buildListingNameLinkAliases(
+  listings: ArticleListingLinkTarget[],
+): ArticleListingLinkAlias[] {
+  return listings
+    .map((listing) => ({
+      slug: listing.slug,
+      phrases: uniquePhrases([listing.name]),
+    }))
+    .filter((definition) => definition.phrases.length > 0);
 }
 
 export function linkArticleListingMentions(

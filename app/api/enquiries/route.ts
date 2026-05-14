@@ -1,11 +1,15 @@
 /* eslint-disable no-console */
 import { revalidatePath, revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
 
 import type { Database } from "@/integrations/supabase/types";
 import { INBOX_CACHE_TAG } from "@/lib/admin/inbox/types";
 import { normalizePublicContactEmail, PRIMARY_CONTACT_EMAIL } from "@/lib/contactEmail";
+import {
+  enquirySchema,
+  normalizeEnquiryPayload,
+  type EnquiryPayload,
+} from "@/lib/enquiries/schema";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 
@@ -17,37 +21,12 @@ const MESSAGE_FORWARD_COPY_EMAIL = "lazaro@deneto.ch";
 const RESEND_OUTBOX_PROVIDER = "resend";
 const RESEND_OUTBOX_OPERATION = "resend.send_email";
 const RESEND_OUTBOX_SOURCE = "public-message-forward";
+const RESEND_EMAIL_API_URL = "https://api.resend.com/emails";
 const DEFAULT_TRANSACTIONAL_FROM = "AlgarveOfficial <info@algarveofficial.com>";
 const OUTBOX_WARNING_ENQUEUE_FAILED = "email_delivery_failed";
 const OUTBOX_WARNING_TRIGGER_FAILED = "email_delivery_failed";
 const OUTBOX_WARNING_WORKER_UNHEALTHY = "email_delivery_failed";
 
-const optionalText = (max: number) =>
-  z
-    .union([z.string().trim().max(max), z.literal(""), z.null(), z.undefined()])
-    .transform((value) => (typeof value === "string" && value.trim() ? value.trim() : null));
-
-const optionalEmail = z
-  .union([z.string().trim().email().max(255), z.literal(""), z.null(), z.undefined()])
-  .transform((value) => (typeof value === "string" && value.trim() ? value.trim() : null));
-
-const optionalUuid = z
-  .union([z.string().trim().uuid(), z.literal(""), z.null(), z.undefined()])
-  .transform((value) => (typeof value === "string" && value.trim() ? value.trim() : null));
-
-const enquirySchema = z.object({
-  name: z.string().trim().min(2).max(160),
-  email: z.string().trim().email().max(255),
-  phone: optionalText(80),
-  message: z.string().trim().min(1).max(4000),
-  listing_id: optionalUuid,
-  listing_title: optionalText(180),
-  agent_name: optionalText(160),
-  agent_email: optionalEmail,
-  visit_type: optionalText(160),
-});
-
-type EnquiryPayload = z.infer<typeof enquirySchema>;
 type ServiceRoleClient = NonNullable<ReturnType<typeof createServiceRoleClient>>;
 type ListingRow = Pick<Database["public"]["Tables"]["listings"]["Row"], "id" | "name" | "owner_id">;
 
@@ -91,6 +70,10 @@ function getTransactionalFromAddress() {
   return process.env.RESEND_TRANSACTIONAL_FROM?.trim()
     || process.env.EMAIL_FROM?.trim()
     || DEFAULT_TRANSACTIONAL_FROM;
+}
+
+function getResendApiKey() {
+  return process.env.RESEND_API_KEY?.trim() || null;
 }
 
 async function resolveCurrentUserId() {
@@ -260,6 +243,70 @@ function buildForwardEmail(args: {
   };
 }
 
+async function sendForwardEmailDirectly(
+  outboxPayload: ReturnType<typeof buildForwardEmail>,
+  idempotencyKey: string,
+) {
+  const apiKey = getResendApiKey();
+  if (!apiKey) {
+    return { status: "not_configured" as const };
+  }
+
+  try {
+    const response = await fetch(RESEND_EMAIL_API_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "Idempotency-Key": idempotencyKey,
+      },
+      body: JSON.stringify(outboxPayload),
+    });
+
+    if (response.ok) {
+      return { status: "sent" as const };
+    }
+
+    const responseBody = await response.text().catch(() => "");
+    return {
+      status: "failed" as const,
+      message: responseBody || `Resend responded with HTTP ${response.status}`,
+    };
+  } catch (error) {
+    return {
+      status: "failed" as const,
+      message: error instanceof Error ? error.message : "Resend request failed",
+    };
+  }
+}
+
+async function recordSentForwardEmail(args: {
+  writeClient: ServiceRoleClient;
+  outboxPayload: ReturnType<typeof buildForwardEmail>;
+  idempotencyKey: string;
+  messageId: string;
+}) {
+  const { writeClient, outboxPayload, idempotencyKey, messageId } = args;
+  const { error } = await writeClient
+    .from("external_outbox" as never)
+    .insert({
+      provider: RESEND_OUTBOX_PROVIDER,
+      operation: RESEND_OUTBOX_OPERATION,
+      payload: outboxPayload,
+      source: RESEND_OUTBOX_SOURCE,
+      idempotency_key: idempotencyKey,
+      status: "sent",
+      attempts: 1,
+    } as never);
+
+  if (error) {
+    console.error("Forwarding email was sent, but outbox audit insert failed", {
+      messageId,
+      error: error.message,
+    });
+  }
+}
+
 async function enqueueForwardEmail(args: {
   writeClient: ServiceRoleClient;
   payload: EnquiryPayload;
@@ -279,6 +326,25 @@ async function enqueueForwardEmail(args: {
     createdAt,
     recipients,
   });
+  const idempotencyKey = `public-message-forward:${messageId}`;
+
+  const directDelivery = await sendForwardEmailDirectly(outboxPayload, idempotencyKey);
+  if (directDelivery.status === "sent") {
+    await recordSentForwardEmail({
+      writeClient,
+      outboxPayload,
+      idempotencyKey,
+      messageId,
+    });
+    return warnings;
+  }
+
+  if (directDelivery.status === "failed") {
+    console.error("Direct public message forwarding email failed; falling back to outbox", {
+      messageId,
+      error: directDelivery.message,
+    });
+  }
 
   const { error: outboxError } = await writeClient
     .from("external_outbox" as never)
@@ -287,7 +353,7 @@ async function enqueueForwardEmail(args: {
       operation: RESEND_OUTBOX_OPERATION,
       payload: outboxPayload,
       source: RESEND_OUTBOX_SOURCE,
-      idempotency_key: `public-message-forward:${messageId}`,
+      idempotency_key: idempotencyKey,
     } as never);
 
   if (outboxError) {
@@ -342,7 +408,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const payload = parsed.data;
+    const payload = normalizeEnquiryPayload(parsed.data);
     const [listing, currentUserId, adminUserId] = await Promise.all([
       resolveListing(writeClient, payload.listing_id),
       resolveCurrentUserId(),

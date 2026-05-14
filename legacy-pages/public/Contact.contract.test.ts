@@ -13,6 +13,7 @@ function source(path: string) {
 function localeMessages(locale: string) {
   return JSON.parse(source(`i18n/locales/${locale}.json`)) as {
     contact?: {
+      networkError?: string;
       success?: string;
       successTitle?: string;
     };
@@ -34,6 +35,7 @@ describe("public contact form confirmation", () => {
     for (const locale of SUPPORTED_LOCALES) {
       const messages = localeMessages(locale);
 
+      expect(messages.contact?.networkError?.trim(), locale).toBeTruthy();
       expect(messages.contact?.successTitle?.trim(), locale).toBeTruthy();
       expect(messages.contact?.success?.trim(), locale).toBeTruthy();
     }

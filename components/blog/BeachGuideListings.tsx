@@ -25,7 +25,6 @@ import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { buildCategoryHref, buildListingHref } from "@/lib/public-route-builders";
-import { cn } from "@/lib/utils";
 
 const ListingsLeafletMap = dynamic(
   () => import("@/components/map/ListingsLeafletMap").then((mod) => mod.ListingsLeafletMap),
@@ -384,7 +383,6 @@ export function BeachGuideMap({
 
 export function BeachGuideRelatedCards({
   listings,
-  activeListingId,
   onListingSelect,
   anchorId = "beach-listing-cards",
   badgeLabel,
@@ -422,26 +420,22 @@ export function BeachGuideRelatedCards({
           </Badge>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {listings.map((listing, index) => {
             const href = l(buildListingHref({ slug: listing.slug, id: listing.id }));
-            const isActive = activeListingId === listing.id;
 
             return (
               <div
                 key={listing.id}
                 id={`listing-${listing.id}`}
-                className={cn(
-                  "scroll-mt-28 rounded-lg transition-all duration-200",
-                  isActive ? "ring-2 ring-emerald-500 ring-offset-4 ring-offset-[#f7fbfa]" : "ring-0",
-                )}
+                className="flex h-full scroll-mt-28 flex-col rounded-lg"
                 onMouseEnter={() => onListingSelect?.(listing.id)}
                 onFocus={() => onListingSelect?.(listing.id)}
               >
                 <SharedListingCard
                   index={index}
                   href={href}
-                  className="h-auto"
+                  className="flex-1"
                   listing={{
                     id: listing.id,
                     name: listing.name,
@@ -462,7 +456,7 @@ export function BeachGuideRelatedCards({
                 />
                 <Link
                   href={href}
-                  className="relative z-10 mt-3 inline-flex items-center gap-2 text-sm font-semibold text-emerald-800 underline-offset-4 hover:underline"
+                  className="relative z-10 mt-3 inline-flex w-fit shrink-0 items-center gap-2 text-sm font-semibold text-emerald-800 underline-offset-4 hover:underline"
                 >
                   {detailsLabel}
                   <ExternalLink className="h-4 w-4" aria-hidden="true" />
@@ -475,7 +469,7 @@ export function BeachGuideRelatedCards({
         {mappedListings.length < listings.length ? (
           <p className="mt-6 flex items-center gap-2 text-sm text-slate-600">
             <MapPin className="h-4 w-4 text-emerald-700" aria-hidden="true" />
-            {listings.length - mappedListings.length} published beach listings are included here but do not have map coordinates yet.
+            {listings.length - mappedListings.length} published listings are included here but do not have map coordinates yet.
           </p>
         ) : null}
       </div>

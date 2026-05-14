@@ -1358,6 +1358,7 @@
     "messagePlaceholder": "Berätta hur vi kan hjälpa dig...",
     "nameLabel": "Ditt namn",
     "namePlaceholder": "Ange ditt fullständiga namn",
+    "networkError": "Vi kan inte nå vår server just nu. Försök igen om en stund.",
     "send": "Skicka meddelande",
     "sendEmail": "Skicka e-post",
     "sending": "Sändning...",

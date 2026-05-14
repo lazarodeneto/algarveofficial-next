@@ -33,6 +33,8 @@ describe("localized blog post page route contract", () => {
     expect(constants).toContain("shouldLinkBeachListingsInArticle");
     expect(constants).toContain("shouldLinkGolfListingsInArticle");
     expect(constants).toContain("shouldLinkFamilyAttractionsInArticle");
+    expect(page).toContain('export const dynamic = "force-dynamic"');
+    expect(page).toContain("export const revalidate = 0");
     expect(page).toContain('categorySlug: "beaches"');
     expect(page).toContain('categorySlug: "golf"');
     expect(page).toContain('categorySlug: "family-attractions"');
@@ -59,6 +61,8 @@ describe("localized blog post page route contract", () => {
     expect(page).toContain("shouldLinkFamilyAttractionsInArticle(post.slug)");
     expect(component).toContain("linkArticleListingMentions(articleHtml, beachListings, BEST_BEACHES_LINK_ALIASES, l)");
     expect(component).toContain("linkArticleListingMentions(articleWithListingLinks, familyListings, FAMILY_ATTRACTIONS_LINK_ALIASES, l)");
+    expect(component).toContain("buildListingNameLinkAliases(combinedRelatedListings)");
+    expect(component).toContain("linkArticleListingMentions(articleWithFamilyLinks, combinedRelatedListings, relatedListingNameAliases, l)");
     expect(component).toContain("isBestBeachesArticleSlug(post.slug)");
     expect(component).toContain("shouldLinkBeachListingsInArticle(post.slug)");
     expect(component).toContain("shouldLinkGolfListingsInArticle(post.slug)");

@@ -1358,6 +1358,7 @@
     "messagePlaceholder": "Tell us how we can assist you...",
     "nameLabel": "Your Name",
     "namePlaceholder": "Enter your full name",
+    "networkError": "Unable to reach our server right now. Please try again in a moment.",
     "send": "Send Message",
     "sendEmail": "Send Email",
     "sending": "Sending...",

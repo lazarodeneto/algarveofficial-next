@@ -1358,6 +1358,7 @@
     "messagePlaceholder": "Vertel ons hoe wij u kunnen helpen...",
     "nameLabel": "Jouw naam",
     "namePlaceholder": "Voer uw volledige naam in",
+    "networkError": "We kunnen onze server nu niet bereiken. Probeer het over enkele ogenblikken opnieuw.",
     "send": "Bericht verzenden",
     "sendEmail": "E-mail verzenden",
     "sending": "Verzenden...",

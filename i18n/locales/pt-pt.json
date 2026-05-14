@@ -1358,6 +1358,7 @@
     "messagePlaceholder": "Diga-nos como podemos ajudá-lo...",
     "nameLabel": "O seu nome",
     "namePlaceholder": "Introduza o seu nome completo",
+    "networkError": "Não foi possível contactar o nosso servidor neste momento. Tente novamente dentro de instantes.",
     "send": "Enviar mensagem",
     "sendEmail": "Enviar email",
     "sending": "A enviar...",

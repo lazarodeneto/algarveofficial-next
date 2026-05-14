@@ -13,11 +13,11 @@ export interface EnquiryPayload {
 }
 
 export interface EnquiryResponse {
-  data?: {
+  data: {
     threadId: string;
     messageId: string;
   };
-  warnings?: string[];
+  warnings: string[];
 }
 
 function getErrorMessage(payload: unknown, fallback: string) {
@@ -31,7 +31,7 @@ function getErrorMessage(payload: unknown, fallback: string) {
   return fallback;
 }
 
-export async function sendEnquiry(payload: EnquiryPayload): Promise<EnquiryResponse | null> {
+export async function sendEnquiry(payload: EnquiryPayload): Promise<EnquiryResponse> {
   const response = await fetch("/api/enquiries", {
     method: "POST",
     credentials: "include",
@@ -51,9 +51,21 @@ export async function sendEnquiry(payload: EnquiryPayload): Promise<EnquiryRespo
     throw new Error(getErrorMessage(json, "Failed to send message"));
   }
 
-  const result = json as { data?: EnquiryResponse["data"]; warnings?: string[] } | null;
+  if (!json || typeof json !== "object" || (json as { ok?: unknown }).ok !== true) {
+    throw new Error(getErrorMessage(json, "Failed to send message"));
+  }
+
+  const result = json as { data?: EnquiryResponse["data"]; warnings?: string[] };
+  if (
+    !result.data ||
+    typeof result.data.threadId !== "string" ||
+    typeof result.data.messageId !== "string"
+  ) {
+    throw new Error("Message delivery response was incomplete.");
+  }
+
   return {
-    data: result?.data,
-    warnings: Array.isArray(result?.warnings) ? result.warnings : [],
+    data: result.data,
+    warnings: Array.isArray(result.warnings) ? result.warnings : [],
   };
 }

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { linkArticleListingMentions } from "@/lib/blog/article-listing-links";
+import {
+  buildListingNameLinkAliases,
+  linkArticleListingMentions,
+} from "@/lib/blog/article-listing-links";
 import { BEST_BEACHES_LINK_ALIASES, FAMILY_ATTRACTIONS_LINK_ALIASES } from "@/lib/blog/best-beaches-guide";
 
 describe("linkArticleListingMentions", () => {
@@ -47,8 +50,12 @@ describe("linkArticleListingMentions", () => {
 
   it("links family attraction names to published attraction listings", () => {
     const linked = linkArticleListingMentions(
-      "<p>Zoomarine is one of the Algarve's safest organised family days.</p>",
-      [{ slug: "zoomarine-algarve" }],
+      "<p>Zoomarine, Slide & Splash and Lagos Zoo are organised family days.</p>",
+      [
+        { slug: "zoomarine-algarve" },
+        { slug: "slide-splash-lagoa" },
+        { slug: "lagos-zoo" },
+      ],
       FAMILY_ATTRACTIONS_LINK_ALIASES,
       (path) => path,
     );
@@ -56,5 +63,22 @@ describe("linkArticleListingMentions", () => {
     expect(linked).toContain(
       '<a href="/listing/zoomarine-algarve" class="ao-article-inline-link" data-article-listing-link="true">Zoomarine</a>',
     );
+    expect(linked).toContain(
+      '<a href="/listing/slide-splash-lagoa" class="ao-article-inline-link" data-article-listing-link="true">Slide & Splash</a>',
+    );
+    expect(linked).toContain(
+      '<a href="/listing/lagos-zoo" class="ao-article-inline-link" data-article-listing-link="true">Lagos Zoo</a>',
+    );
+  });
+
+  it("builds exact-name aliases for article related listings", () => {
+    const aliases = buildListingNameLinkAliases([
+      { slug: "slide-splash-lagoa", name: "Slide & Splash" },
+      { slug: "empty", name: "  " },
+    ]);
+
+    expect(aliases).toEqual([
+      { slug: "slide-splash-lagoa", phrases: ["Slide & Splash"] },
+    ]);
   });
 });

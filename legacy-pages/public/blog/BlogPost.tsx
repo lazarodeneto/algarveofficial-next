@@ -53,7 +53,10 @@ import {
   shouldLinkBeachListingsInArticle,
   shouldLinkGolfListingsInArticle,
 } from '@/lib/blog/best-beaches-guide';
-import { linkArticleListingMentions } from '@/lib/blog/article-listing-links';
+import {
+  buildListingNameLinkAliases,
+  linkArticleListingMentions,
+} from '@/lib/blog/article-listing-links';
 import { sanitizeHtmlString } from '@/lib/sanitizeHtml';
 import { cn } from '@/lib/utils';
 import { 
@@ -292,8 +295,12 @@ export default function BlogPost({
   const articleWithFamilyLinks = shouldLinkFamilyMentions
     ? linkArticleListingMentions(articleWithListingLinks, familyListings, FAMILY_ATTRACTIONS_LINK_ALIASES, l)
     : articleWithListingLinks;
+  const relatedListingNameAliases = buildListingNameLinkAliases(combinedRelatedListings);
+  const articleWithRelatedListingLinks = relatedListingNameAliases.length > 0
+    ? linkArticleListingMentions(articleWithFamilyLinks, combinedRelatedListings, relatedListingNameAliases, l)
+    : articleWithFamilyLinks;
   const formattedContent = sanitizeHtmlString(
-    articleWithFamilyLinks,
+    articleWithRelatedListingLinks,
   );
 
   return (

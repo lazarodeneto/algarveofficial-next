@@ -152,6 +152,16 @@ export const GOLF_LINK_ALIASES: Array<{
 
 export const FAMILY_ATTRACTIONS_RELATED_LISTING_SLUGS = [
   "zoomarine-algarve",
+  "slide-splash-lagoa",
+  "aquashow-park-quarteira",
+  "aqualand-algarve-alcantarilha",
+  "lagos-zoo",
+  "krazy-world-algoz",
+  "sandcity-lagoa",
+  "parque-aventura-albufeira",
+  "karting-almancil",
+  "centro-ciencia-viva-algarve-faro",
+  "centro-ciencia-viva-lagos",
 ] as const;
 
 export const FAMILY_ATTRACTIONS_LINK_ALIASES: Array<{
@@ -161,6 +171,57 @@ export const FAMILY_ATTRACTIONS_LINK_ALIASES: Array<{
   {
     slug: "zoomarine-algarve",
     phrases: ["Zoomarine Algarve", "Zoomarine"],
+  },
+  {
+    slug: "slide-splash-lagoa",
+    phrases: ["Slide & Splash", "Slide and Splash"],
+  },
+  {
+    slug: "aquashow-park-quarteira",
+    phrases: ["Aquashow Park", "Aquashow"],
+  },
+  {
+    slug: "aqualand-algarve-alcantarilha",
+    phrases: ["Aqualand Algarve"],
+  },
+  {
+    slug: "lagos-zoo",
+    phrases: ["Lagos Zoo", "Zoo de Lagos"],
+  },
+  {
+    slug: "krazy-world-algoz",
+    phrases: ["Krazy World"],
+  },
+  {
+    slug: "sandcity-lagoa",
+    phrases: ["SandCity", "Sand City"],
+  },
+  {
+    slug: "parque-aventura-albufeira",
+    phrases: ["Parque Aventura Albufeira", "Parque Aventura"],
+  },
+  {
+    slug: "karting-almancil",
+    phrases: ["Karting Almancil Family Park", "Karting Almancil"],
+  },
+  {
+    slug: "centro-ciencia-viva-algarve-faro",
+    phrases: [
+      "Centro Ciência Viva do Algarve",
+      "Centro Ciencia Viva do Algarve",
+      "Centro Ciência Viva Algarve",
+      "Faro Living Science Centre",
+    ],
+  },
+  {
+    slug: "centro-ciencia-viva-lagos",
+    phrases: [
+      "Centro Ciência Viva de Lagos",
+      "Centro Ciencia Viva de Lagos",
+      "Ciência Viva Lagos",
+      "Ciencia Viva Lagos",
+      "Lagos Living Science Centre",
+    ],
   },
 ];
 

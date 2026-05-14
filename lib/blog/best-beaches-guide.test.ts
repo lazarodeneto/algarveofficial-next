@@ -119,8 +119,20 @@ describe("best beaches guide linking", () => {
   it("detects article-related family attraction listings", () => {
     expect(
       getFamilyAttractionsMentionedListingSlugs([
-        "Plan a full family day at Zoomarine, then choose a quieter beach day.",
+        "Plan Zoomarine, Slide & Splash, Aquashow, Aqualand Algarve, Lagos Zoo, Krazy World, SandCity, Parque Aventura, Karting Almancil, Centro Ciência Viva do Algarve and Centro Ciência Viva de Lagos.",
       ]),
-    ).toEqual(["zoomarine-algarve"]);
+    ).toEqual([
+      "zoomarine-algarve",
+      "slide-splash-lagoa",
+      "aquashow-park-quarteira",
+      "aqualand-algarve-alcantarilha",
+      "lagos-zoo",
+      "krazy-world-algoz",
+      "sandcity-lagoa",
+      "parque-aventura-albufeira",
+      "karting-almancil",
+      "centro-ciencia-viva-algarve-faro",
+      "centro-ciencia-viva-lagos",
+    ]);
   });
 });

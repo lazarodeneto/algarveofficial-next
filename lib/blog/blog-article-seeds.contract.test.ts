@@ -38,4 +38,25 @@ describe("blog article seed migrations", () => {
       expect(Date.parse(publishedAt ?? "")).toBeLessThanOrEqual(Date.parse("2026-05-14T08:00:00Z"));
     }
   });
+
+  it("adds family attraction listing records and relates them to the family guide", () => {
+    const source = readFileSync(
+      join(process.cwd(), "supabase", "migrations", "20260514235000_add_family_attraction_related_listings.sql"),
+      "utf8",
+    );
+
+    expect(source).toContain("'family-attractions', 'family-fun'");
+    expect(source).toContain("'slide-splash-lagoa'");
+    expect(source).toContain("'aquashow-park-quarteira'");
+    expect(source).toContain("'aqualand-algarve-alcantarilha'");
+    expect(source).toContain("'lagos-zoo'");
+    expect(source).toContain("'krazy-world-algoz'");
+    expect(source).toContain("'sandcity-lagoa'");
+    expect(source).toContain("'parque-aventura-albufeira'");
+    expect(source).toContain("'karting-almancil'");
+    expect(source).toContain("'centro-ciencia-viva-algarve-faro'");
+    expect(source).toContain("'centro-ciencia-viva-lagos'");
+    expect(source).toContain("update public.blog_posts bp");
+    expect(source).toContain("where bp.slug = 'family-attractions-algarve-kids-guide'");
+  });
 });
