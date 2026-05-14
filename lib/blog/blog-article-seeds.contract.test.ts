@@ -20,10 +20,14 @@ const ARTICLE_SEEDS = [
     file: "20260514220000_add_golf_algarve_blog_post.sql",
     slug: "golf-in-the-algarve-best-courses-areas-where-to-stay",
   },
+  {
+    file: "20260514233000_add_family_attractions_algarve_blog_post.sql",
+    slug: "family-attractions-algarve-kids-guide",
+  },
 ] as const;
 
 describe("blog article seed migrations", () => {
-  it("publishes the four new article seeds immediately for the blog index", () => {
+  it("publishes the new article seeds immediately for the blog index", () => {
     for (const seed of ARTICLE_SEEDS) {
       const source = readFileSync(join(process.cwd(), "supabase", "migrations", seed.file), "utf8");
       const publishedAt = source.match(/'([^']+)'::timestamptz AS published_at/)?.[1];

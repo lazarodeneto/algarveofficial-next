@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { linkArticleListingMentions } from "@/lib/blog/article-listing-links";
-import { BEST_BEACHES_LINK_ALIASES } from "@/lib/blog/best-beaches-guide";
+import { BEST_BEACHES_LINK_ALIASES, FAMILY_ATTRACTIONS_LINK_ALIASES } from "@/lib/blog/best-beaches-guide";
 
 describe("linkArticleListingMentions", () => {
   it("links repeated beach names in article text and nested formatting", () => {
@@ -43,5 +43,18 @@ describe("linkArticleListingMentions", () => {
 
     expect(linked).toContain('<a href="/custom">Praia da Falésia</a>');
     expect(linked.match(/href="\/listing\/praia-da-falesia-albufeira"/g)).toHaveLength(1);
+  });
+
+  it("links family attraction names to published attraction listings", () => {
+    const linked = linkArticleListingMentions(
+      "<p>Zoomarine is one of the Algarve's safest organised family days.</p>",
+      [{ slug: "zoomarine-algarve" }],
+      FAMILY_ATTRACTIONS_LINK_ALIASES,
+      (path) => path,
+    );
+
+    expect(linked).toContain(
+      '<a href="/listing/zoomarine-algarve" class="ao-article-inline-link" data-article-listing-link="true">Zoomarine</a>',
+    );
   });
 });

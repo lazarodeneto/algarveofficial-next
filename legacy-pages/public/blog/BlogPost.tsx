@@ -26,6 +26,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { RouteMessageState } from '@/components/layout/RouteMessageState';
 import {
+  ArticleRelatedListingCards,
   BeachGuideMap,
   BeachGuideRelatedCards,
   type BeachGuideListing,
@@ -46,8 +47,10 @@ import {
 } from '@/lib/i18n/localized-routing';
 import {
   BEST_BEACHES_LINK_ALIASES,
+  FAMILY_ATTRACTIONS_LINK_ALIASES,
   GOLF_LINK_ALIASES,
   isBestBeachesArticleSlug,
+  shouldLinkFamilyAttractionsInArticle,
   shouldLinkBeachListingsInArticle,
   shouldLinkGolfListingsInArticle,
 } from '@/lib/blog/best-beaches-guide';
@@ -163,6 +166,7 @@ interface BlogPostProps {
   initialPost?: BlogPostWithAuthor | null;
   beachListings?: BeachGuideListing[];
   golfListings?: BeachGuideListing[];
+  familyListings?: BeachGuideListing[];
 }
 
 export default function BlogPost({
@@ -171,6 +175,7 @@ export default function BlogPost({
   initialPost,
   beachListings = [],
   golfListings = [],
+  familyListings = [],
 }: BlogPostProps = {}) {
   const { slug: rawSlug } = useParams<{ slug?: string | string[] }>();
   const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
@@ -180,6 +185,7 @@ export default function BlogPost({
   const l = useLocalePath();
   const isBrowser = typeof window !== "undefined";
   const [activeBeachListingId, setActiveBeachListingId] = useState<string | null>(beachListings[0]?.id ?? null);
+  const [activeFamilyListingId, setActiveFamilyListingId] = useState<string | null>(familyListings[0]?.id ?? null);
 
   const { data: post, isLoading, error } = usePublishedBlogPost(slug, initialPost);
   const { mutate: incrementViews } = useIncrementBlogViews();
@@ -252,6 +258,7 @@ export default function BlogPost({
   const isBeachGuideArticle = isBestBeachesArticleSlug(post.slug);
   const shouldLinkBeachMentions = shouldLinkBeachListingsInArticle(post.slug);
   const shouldLinkGolfMentions = shouldLinkGolfListingsInArticle(post.slug);
+  const shouldLinkFamilyMentions = shouldLinkFamilyAttractionsInArticle(post.slug);
   const categoryLabel = t(BLOG_TRANSLATION_KEYS[post.category], blogCategoryLabels[post.category]);
   const primaryTopic = post.tags?.[0] ?? categoryLabel;
   const articleHtml = stripDuplicateArticleTitleHeading(
@@ -264,8 +271,11 @@ export default function BlogPost({
   const articleWithListingLinks = shouldLinkGolfMentions
     ? linkArticleListingMentions(articleWithBeachLinks, golfListings, GOLF_LINK_ALIASES, l)
     : articleWithBeachLinks;
+  const articleWithFamilyLinks = shouldLinkFamilyMentions
+    ? linkArticleListingMentions(articleWithListingLinks, familyListings, FAMILY_ATTRACTIONS_LINK_ALIASES, l)
+    : articleWithListingLinks;
   const formattedContent = sanitizeHtmlString(
-    articleWithListingLinks,
+    articleWithFamilyLinks,
   );
 
   return (
@@ -481,6 +491,19 @@ export default function BlogPost({
                 listings={beachListings}
                 activeListingId={activeBeachListingId}
                 onListingSelect={setActiveBeachListingId}
+              />
+            ) : null}
+
+            {shouldLinkFamilyMentions ? (
+              <ArticleRelatedListingCards
+                listings={familyListings}
+                activeListingId={activeFamilyListingId}
+                onListingSelect={setActiveFamilyListingId}
+                anchorId="family-attraction-listing-cards"
+                badgeLabel={`${familyListings.length} published listing${familyListings.length === 1 ? "" : "s"}`}
+                detailsLabel="View attraction details"
+                eyebrow="Related family listings"
+                title="Family attractions mentioned in this article"
               />
             ) : null}
           </m.div>

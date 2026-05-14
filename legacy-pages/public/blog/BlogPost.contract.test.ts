@@ -17,6 +17,14 @@ describe("public blog article UX", () => {
     expect(component).toContain("ao-blog-article-prose");
   });
 
+  it("renders scoped related family attraction cards for family guides", () => {
+    const component = source("legacy-pages/public/blog/BlogPost.tsx");
+
+    expect(component).toContain("shouldLinkFamilyAttractionsInArticle(post.slug)");
+    expect(component).toContain("<ArticleRelatedListingCards");
+    expect(component).toContain("Family attractions mentioned in this article");
+  });
+
   it("keeps Lucide article summary icons in the shared blog header", () => {
     const component = source("legacy-pages/public/blog/BlogPost.tsx");
 

@@ -18,12 +18,16 @@ import { getPublicListings, resolvePublicCategoryRoute } from "@/lib/public-data
 import type { PublicListingDTO } from "@/lib/public-data/types";
 import {
   BEST_BEACHES_RELATED_LISTING_SLUGS,
+  FAMILY_ATTRACTIONS_RELATED_LISTING_SLUGS,
   GOLF_RELATED_LISTING_SLUGS,
+  getFamilyAttractionsMentionedListingSlugs,
+  getFamilyAttractionsRelatedOrder,
   getBestBeachesMentionedListingSlugs,
   getBestBeachesRelatedOrder,
   getGolfMentionedListingSlugs,
   getGolfRelatedOrder,
   shouldLinkBeachListingsInArticle,
+  shouldLinkFamilyAttractionsInArticle,
   shouldLinkGolfListingsInArticle,
 } from "@/lib/blog/best-beaches-guide";
 
@@ -98,6 +102,25 @@ async function getGolfArticleListings(
     ]),
     relatedListingSlugs: GOLF_RELATED_LISTING_SLUGS,
     getRelatedOrder: getGolfRelatedOrder,
+  });
+}
+
+async function getFamilyArticleListings(
+  locale: Locale,
+  post: NonNullable<Awaited<ReturnType<typeof getPublishedBlogPostBySlug>>>,
+): Promise<BeachGuideListing[]> {
+  return getArticleMentionedListings({
+    locale,
+    categorySlug: "family-attractions",
+    articleMentionedSlugs: getFamilyAttractionsMentionedListingSlugs([
+      post.title,
+      post.excerpt,
+      post.content,
+      post.seo_title,
+      post.seo_description,
+    ]),
+    relatedListingSlugs: FAMILY_ATTRACTIONS_RELATED_LISTING_SLUGS,
+    getRelatedOrder: getFamilyAttractionsRelatedOrder,
   });
 }
 
@@ -190,6 +213,10 @@ export default async function LocaleBlogPostPage({ params }: LocaleBlogPostPageP
     shouldLinkGolfListingsInArticle(post.slug)
       ? await getGolfArticleListings(resolvedLocale, post)
       : [];
+  const familyListings =
+    shouldLinkFamilyAttractionsInArticle(post.slug)
+      ? await getFamilyArticleListings(resolvedLocale, post)
+      : [];
 
   const routeData = buildBlogPostRouteData(post);
   const localeSwitchPaths = buildLocaleSwitchPathsForEntity(routeData, SUPPORTED_LOCALES);
@@ -220,6 +247,7 @@ export default async function LocaleBlogPostPage({ params }: LocaleBlogPostPageP
           initialPost={post}
           beachListings={beachListings}
           golfListings={golfListings}
+          familyListings={familyListings}
         />
       </Suspense>
     </>
