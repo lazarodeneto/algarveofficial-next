@@ -1365,7 +1365,8 @@
     "subjectLabel": "Oggetto",
     "subjectPlaceholder": "Come possiamo aiutarti?",
     "subtitle": "Siamo felici di sentirti. Mettiti in contatto con il nostro team.",
-    "success": "Messaggio inviato! Ti risponderemo entro 24 ore.",
+    "success": "Il tuo messaggio è stato inviato correttamente. Ti risponderemo entro 24 ore.",
+    "successTitle": "Messaggio inviato",
     "title": "Contattaci",
     "touchDesc": "Il nostro team di concierge è disponibile per rispondere a tutte le tue domande sulle esperienze di lusso in Algarve.",
     "waDesc": "Chatta direttamente con noi su WhatsApp per risposte più veloci."

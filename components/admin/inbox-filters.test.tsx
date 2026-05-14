@@ -22,6 +22,7 @@ const counts: InboxFilterCounts = {
     reviews: 0,
     events: 0,
     billing: 0,
+    messages: 0,
     translations: 1,
     system: 0,
   },

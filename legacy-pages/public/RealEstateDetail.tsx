@@ -62,6 +62,7 @@ import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { translateCategoryValue } from "@/lib/translateCategoryValue";
 import ListingImage from "@/components/ListingImage";
+import { sendEnquiry } from "@/lib/enquiries/client";
 
 type Listing = Database['public']['Tables']['listings']['Row'] & {
     cities: { name: string; slug: string } | null;
@@ -555,31 +556,17 @@ export default function RealEstateDetail() {
                                 e.preventDefault();
                                 setIsSubmittingEnquiry(true);
                                 try {
-                                    const { data, error } = await supabase.functions.invoke("send-enquiry", {
-                                        body: {
-                                            name: enquiryName,
-                                            email: enquiryEmail,
-                                            phone: enquiryPhone ? `${enquiryCountryCode}${enquiryPhone}` : "",
-                                            message: enquiryMessage,
-                                            listing_id: listing?.id ?? null,
-                                            listing_title: listing?.name ?? null,
-                                            agent_name: agent.name ?? null,
-                                            agent_email: agent.email ?? null,
-                                            visit_type: isVisitScheduling ? enquiryVisitType : null,
-                                        },
+                                    const responseData = await sendEnquiry({
+                                        name: enquiryName,
+                                        email: enquiryEmail,
+                                        phone: enquiryPhone ? `${enquiryCountryCode}${enquiryPhone}` : "",
+                                        message: enquiryMessage,
+                                        listing_id: listing?.id ?? null,
+                                        listing_title: listing?.name ?? null,
+                                        agent_name: agent.name ?? null,
+                                        agent_email: agent.email ?? null,
+                                        visit_type: isVisitScheduling ? enquiryVisitType : null,
                                     });
-
-                                    if (error) {
-                                        let detailedMessage = "";
-                                        const errorContext = (error as { context?: unknown }).context;
-                                        if (errorContext instanceof Response) {
-                                            const payload = await errorContext.json().catch(() => null) as { error?: string } | null;
-                                            if (payload?.error) detailedMessage = payload.error;
-                                        }
-                                        throw new Error(detailedMessage || error.message || "Failed to send enquiry");
-                                    }
-
-                                    const responseData = data as { warnings?: string[] } | null;
                                     toast.success(t('listing.form.successToast'));
                                     if (responseData?.warnings?.includes("email_delivery_disabled")) {
                                         toast.message("Your message was saved successfully. Email notifications are temporarily unavailable.");

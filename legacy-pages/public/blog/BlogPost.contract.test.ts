@@ -25,6 +25,21 @@ describe("public blog article UX", () => {
     expect(component).toContain("Family attractions mentioned in this article");
   });
 
+  it("renders related guides, article tags, and combined related listing cards near the article end", () => {
+    const component = source("legacy-pages/public/blog/BlogPost.tsx");
+    const relatedComponents = source("components/blog/BeachGuideListings.tsx");
+
+    expect(component).toContain("<ArticleRelatedGuides");
+    expect(component).toContain("guides={relatedGuides}");
+    expect(component).toContain("tags={post.tags ?? []}");
+    expect(component).toContain("combinedRelatedListings");
+    expect(component).toContain('anchorId="article-related-listing-cards"');
+    expect(relatedComponents).toContain("Related guides");
+    expect(relatedComponents).toContain("Related tags");
+    expect(relatedComponents).toContain("Read next");
+    expect(relatedComponents).toContain('href={l(`/blog?tag=${encodeURIComponent(tag)}`)}');
+  });
+
   it("keeps Lucide article summary icons in the shared blog header", () => {
     const component = source("legacy-pages/public/blog/BlogPost.tsx");
 

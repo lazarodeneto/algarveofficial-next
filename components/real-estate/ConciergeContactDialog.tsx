@@ -24,7 +24,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { LoginModal } from "@/components/ui/login-modal";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { supabase } from "@/integrations/supabase/client";
+import { sendEnquiry } from "@/lib/enquiries/client";
 
 interface ConciergeContactDialogProps {
     children: React.ReactNode;
@@ -88,18 +88,13 @@ export function ConciergeContactDialog({ children }: ConciergeContactDialogProps
                 other: t("realEstate.conciergeDialog.inquiryTypes.other"),
             };
 
-            const { data, error } = await supabase.functions.invoke("send-enquiry", {
-                body: {
-                    name,
-                    email,
-                    phone: phone ? `${countryCode}${phone}` : undefined,
-                    message: `Inquiry type: ${inquiryTypeLabel[inquiryType] || inquiryType}\n\n${message}`,
-                    listing_title: t("realEstate.conciergeDialog.inquiryTitle"),
-                },
+            const responseData = await sendEnquiry({
+                name,
+                email,
+                phone: phone ? `${countryCode}${phone}` : undefined,
+                message: `Inquiry type: ${inquiryTypeLabel[inquiryType] || inquiryType}\n\n${message}`,
+                listing_title: t("realEstate.conciergeDialog.inquiryTitle"),
             });
-
-            if (error) throw error;
-            const responseData = data as { warnings?: string[] } | null;
 
             const referenceNumber = `CON-${Date.now().toString(36).toUpperCase()}`;
             setOpen(false);

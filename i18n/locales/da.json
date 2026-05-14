@@ -1365,7 +1365,8 @@
     "subjectLabel": "Emne",
     "subjectPlaceholder": "Hvordan kan vi hjælpe?",
     "subtitle": "Vi vil meget gerne høre fra dig. Kom i kontakt med vores team.",
-    "success": "Besked sendt! Vi vender tilbage til dig inden for 24 timer.",
+    "success": "Din besked er sendt. Vi vender tilbage til dig inden for 24 timer.",
+    "successTitle": "Besked sendt",
     "title": "Kontakt os",
     "touchDesc": "Vores concierge-team står til rådighed for at hjælpe dig med spørgsmål om luksusoplevelser i Algarve.",
     "waDesc": "Chat med os direkte på WhatsApp for et hurtigere svar."

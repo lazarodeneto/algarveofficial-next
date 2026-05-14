@@ -3,7 +3,19 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Compass, ExternalLink, MapPin, MapPinned, Route, Waves } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import {
+  BookOpenText,
+  Compass,
+  ExternalLink,
+  Hash,
+  MapPin,
+  MapPinned,
+  Route,
+  Sparkles,
+  Tag,
+  Waves,
+} from "lucide-react";
 
 import { SharedListingCard } from "@/components/listing/SharedListingCard";
 import type { MapListingPoint } from "@/components/map/ListingsLeafletMap";
@@ -55,6 +67,33 @@ interface ArticleRelatedCardsCopy {
   title?: string;
 }
 
+export interface ArticleRelatedGuide {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  featuredImage: string | null;
+  category: string | null;
+  readingTime: number | null;
+  tags: string[] | null;
+}
+
+interface ArticleRelatedGuidesProps {
+  guides: ArticleRelatedGuide[];
+  tags: string[];
+}
+
+const GUIDE_CATEGORY_LABELS: Record<string, string> = {
+  events: "Events",
+  "food-wine": "Food & wine",
+  golf: "Golf",
+  "insider-tips": "Insider tips",
+  lifestyle: "Lifestyle",
+  "real-estate": "Real estate",
+  "travel-guides": "Travel guides",
+  wellness: "Wellness",
+};
+
 function BeachMapPlaceholder() {
   return (
     <div className="flex min-h-[430px] w-full items-center justify-center bg-slate-100 text-sm text-slate-500">
@@ -74,6 +113,11 @@ function hasCoordinates(listing: BeachGuideListing) {
 
 function uniqueValues(values: Array<string | null>) {
   return Array.from(new Set(values.map((value) => value?.trim()).filter(Boolean) as string[]));
+}
+
+function getGuideCategoryLabel(category: string | null) {
+  if (!category) return "Guide";
+  return GUIDE_CATEGORY_LABELS[category] ?? category.replace(/-/g, " ");
 }
 
 function useBeachGuideListingData(listings: BeachGuideListing[]) {
@@ -102,6 +146,154 @@ function useBeachGuideListingData(listings: BeachGuideListing[]) {
   }, [l, mappedListings]);
 
   return { categoryHref, cityNames, l, mappedListings, mapPoints };
+}
+
+export function ArticleRelatedGuides({ guides, tags }: ArticleRelatedGuidesProps) {
+  const l = useLocalePath();
+  const { t } = useTranslation();
+  const visibleTags = Array.from(new Set(tags.map((tag) => tag.trim()).filter(Boolean))).slice(0, 16);
+  const visibleGuides = guides.slice(0, 3);
+  const totalLinks = visibleTags.length + visibleGuides.length;
+  const totalLinksLabel = t("blog.relatedGuidesLinkCount", {
+    count: totalLinks,
+    defaultValue: `${totalLinks} ${totalLinks === 1 ? "link" : "links"}`,
+  });
+  const tagsCountLabel = t("blog.relatedTagsCount", {
+    count: visibleTags.length,
+    defaultValue: `${visibleTags.length} ${visibleTags.length === 1 ? "link" : "links"}`,
+  });
+  const guidesCountLabel = t("blog.relatedReadNextCount", {
+    count: visibleGuides.length,
+    defaultValue: `${visibleGuides.length} ${visibleGuides.length === 1 ? "guide" : "guides"}`,
+  });
+
+  if (totalLinks === 0) return null;
+
+  return (
+    <section
+      aria-labelledby="article-related-guides-title"
+      className="my-10 overflow-hidden rounded-[1.5rem] border border-border/70 bg-card p-4 shadow-sm sm:p-6 lg:p-7 ao-glass-tag-surface"
+    >
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="max-w-2xl">
+          <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.24em] text-primary">
+            {t("blog.relatedGuidesEyebrow", "Explore more")}
+          </p>
+          <h2 id="article-related-guides-title" className="font-serif text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+            {t("blog.relatedGuidesTitle", "Related guides")}
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            {t(
+              "blog.relatedGuidesDescription",
+              "Continue with Algarve guides, quick tags, and useful context connected to this article.",
+            )}
+          </p>
+        </div>
+        <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
+          <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+          {totalLinksLabel}
+        </div>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        {visibleTags.length > 0 ? (
+          <article className="ao-glass-tag-surface rounded-2xl p-4 sm:p-5 lg:col-span-2">
+            <div className="mb-4 flex min-w-0 items-center gap-3">
+              <span className="ao-tag-section-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl">
+                <Hash className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <div className="min-w-0">
+                <h3 className="font-serif text-lg font-semibold leading-tight text-foreground sm:text-xl">
+                  {t("blog.relatedTagsTitle", "Related tags")}
+                </h3>
+                <p className="mt-1 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                  {tagsCountLabel}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2.5">
+              {visibleTags.map((tag, index) => (
+                <Link
+                  key={`${tag}-${index}`}
+                  href={l(`/blog?tag=${encodeURIComponent(tag)}`)}
+                  aria-label={`${index + 1}. ${tag}`}
+                  className="ao-glass-tag-chip group text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  <span className="ao-glass-tag-index">{String(index + 1).padStart(2, "0")}</span>
+                  <span className="ao-glass-tag-label">{tag}</span>
+                </Link>
+              ))}
+            </div>
+          </article>
+        ) : null}
+
+        {visibleGuides.length > 0 ? (
+          <article className="ao-glass-tag-surface rounded-2xl p-4 sm:p-5 lg:col-span-2">
+            <div className="mb-4 flex min-w-0 items-center gap-3">
+              <span className="ao-tag-section-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl">
+                <BookOpenText className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <div className="min-w-0">
+                <h3 className="font-serif text-lg font-semibold leading-tight text-foreground sm:text-xl">
+                  {t("blog.relatedReadNextTitle", "Read next")}
+                </h3>
+                <p className="mt-1 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                  {guidesCountLabel}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              {visibleGuides.map((guide) => (
+                <Link
+                  key={guide.id}
+                  href={l(`/blog/${guide.slug}`)}
+                  className="group overflow-hidden rounded-xl border border-border/70 bg-background/80 transition-colors hover:border-primary/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+                    {guide.featuredImage ? (
+                      <img
+                        src={guide.featuredImage}
+                        alt=""
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
+                        <Tag className="h-6 w-6" aria-hidden="true" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
+                      {getGuideCategoryLabel(guide.category)}
+                    </p>
+                    <h4 className="mt-2 line-clamp-2 font-serif text-lg font-semibold leading-tight text-foreground">
+                      {guide.title}
+                    </h4>
+                    {guide.excerpt ? (
+                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
+                        {guide.excerpt}
+                      </p>
+                    ) : null}
+                    {guide.readingTime ? (
+                      <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                        {t("blog.relatedGuideReadTime", {
+                          count: guide.readingTime,
+                          defaultValue: `${guide.readingTime} min read`,
+                        })}
+                      </p>
+                    ) : null}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </article>
+        ) : null}
+      </div>
+    </section>
+  );
 }
 
 export function BeachGuideMap({

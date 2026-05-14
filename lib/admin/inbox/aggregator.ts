@@ -9,6 +9,7 @@ import {
   computeUrgency,
   SLA_MINUTES,
   type BillingSubscriptionItem,
+  type ChatMessageItem,
   type EventModerationItem,
   type ExternalOutboxAlertItem,
   type InboxDomain,
@@ -338,6 +339,138 @@ async function fetchEventModeration(
   };
 }
 
+interface ChatMessageAttentionRow {
+  id: string;
+  thread_id: string;
+  body_text: string | null;
+  sender_type: string | null;
+  delivery_status: string | null;
+  created_at: string;
+  recipient_id: string | null;
+}
+
+interface ChatThreadAttentionRow {
+  id: string;
+  listing_id: string | null;
+  owner_id: string;
+  viewer_id: string | null;
+  contact_name: string | null;
+  contact_email: string | null;
+  status: string;
+  last_message_at: string | null;
+  created_at: string;
+}
+
+function truncateSummary(value: string | null | undefined, max = 220) {
+  const normalized = value?.replace(/\s+/g, " ").trim();
+  if (!normalized) return null;
+  return normalized.length > max ? `${normalized.slice(0, max - 1)}…` : normalized;
+}
+
+async function fetchChatMessageIssues(
+  client: AdminClient,
+): Promise<SourceResult<ChatMessageItem>> {
+  const { data, error } = await client
+    .from("chat_messages")
+    .select("id, thread_id, body_text, sender_type, delivery_status, created_at, recipient_id")
+    .neq("sender_type", "admin")
+    .neq("delivery_status", "read")
+    .order("created_at", { ascending: false })
+    .limit(QUERY_LIMIT);
+  if (error) return { items: [], error: queryError("chat_message", error) };
+  if (!data) return { items: [], error: null };
+
+  const latestByThread = new Map<string, ChatMessageAttentionRow>();
+  for (const row of data as ChatMessageAttentionRow[]) {
+    if (!latestByThread.has(row.thread_id)) latestByThread.set(row.thread_id, row);
+  }
+
+  const threadIds = Array.from(latestByThread.keys());
+  if (threadIds.length === 0) return { items: [], error: null };
+
+  const { data: threadData, error: threadError } = await client
+    .from("chat_threads")
+    .select("id, listing_id, owner_id, viewer_id, contact_name, contact_email, status, last_message_at, created_at")
+    .in("id", threadIds)
+    .eq("status", "active");
+  if (threadError) return { items: [], error: queryError("chat_message", threadError) };
+  if (!threadData) return { items: [], error: null };
+
+  const threads = new Map(
+    (threadData as ChatThreadAttentionRow[]).map((thread) => [thread.id, thread]),
+  );
+  const listingIds = Array.from(
+    new Set(
+      (threadData as ChatThreadAttentionRow[])
+        .map((thread) => thread.listing_id)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  );
+  const viewerIds = Array.from(
+    new Set(
+      (threadData as ChatThreadAttentionRow[])
+        .map((thread) => thread.viewer_id)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  );
+
+  const [listingNames, viewerNames] = await Promise.all([
+    fetchListingNames(client, listingIds),
+    fetchProfileNames(client, viewerIds),
+  ]);
+
+  return {
+    items: Array.from(latestByThread.values())
+      .flatMap((message): ChatMessageItem[] => {
+        const thread = threads.get(message.thread_id);
+        if (!thread) return [];
+
+        const listingName = thread.listing_id
+          ? listingNames.get(thread.listing_id) ?? null
+          : null;
+        const submitterName =
+          thread.contact_name?.trim()
+          || (thread.viewer_id ? viewerNames.get(thread.viewer_id) ?? null : null)
+          || thread.contact_email
+          || "Website visitor";
+        const summaryParts = [
+          thread.contact_email ? `From ${thread.contact_email}` : null,
+          truncateSummary(message.body_text),
+        ].filter((part): part is string => Boolean(part));
+        const sla = computeSla(message.created_at, SLA_MINUTES.chat_message);
+
+        return [{
+          id: `message:${message.id}`,
+          domain: "messages",
+          source: "chat_message",
+          sourceRowId: message.id,
+          title: listingName
+            ? `New message about ${listingName}`
+            : `New message from ${submitterName}`,
+          summary: summaryParts.join(" · ") || null,
+          createdAt: message.created_at,
+          owner: {
+            id: thread.viewer_id ?? thread.contact_email ?? message.id,
+            name: submitterName,
+          },
+          assignee: null,
+          status: "open",
+          sla,
+          urgency: computeUrgency(sla.minutesRemaining),
+          resolution: { primary: "assign", available: ["assign"] },
+          meta: {
+            messageId: message.id,
+            threadId: message.thread_id,
+            listingId: thread.listing_id,
+            listingName,
+            contactEmail: thread.contact_email,
+          },
+        } satisfies ChatMessageItem];
+      }),
+    error: null,
+  };
+}
+
 async function fetchTranslationJobIssues(
   client: AdminClient,
 ): Promise<SourceResult<TranslationJobItem>> {
@@ -370,7 +503,7 @@ async function fetchTranslationJobIssues(
       id: "translation:processor-unconfigured",
       domain: "translations",
       source: "translation_job",
-      sourceRowId: "processor-unconfigured",
+      sourceRowId: representative.id,
       title: "Translation processor is not configured",
       summary: `${processorConfigRows.length} job${processorConfigRows.length !== 1 ? "s" : ""} across ${listingCount} listing${listingCount !== 1 ? "s" : ""} and ${localeCount} locale${localeCount !== 1 ? "s" : ""} require manual review or provider setup.`,
       createdAt,
@@ -629,12 +762,13 @@ async function fetchSideTables(client: AdminClient): Promise<InboxSideTables> {
 
 async function buildSnapshotUncached(): Promise<InboxSnapshot> {
   const client = getClient();
-  const [listings, claims, reviews, events, billing, translations, outboxAlerts, side] = await Promise.all([
+  const [listings, claims, reviews, events, billing, messages, translations, outboxAlerts, side] = await Promise.all([
     fetchListingModeration(client),
     fetchListingClaims(client),
     fetchReviewModeration(client),
     fetchEventModeration(client),
     fetchBillingSubscriptionIssues(client),
+    fetchChatMessageIssues(client),
     fetchTranslationJobIssues(client),
     fetchExternalOutboxAlerts(client),
     fetchSideTables(client),
@@ -645,6 +779,7 @@ async function buildSnapshotUncached(): Promise<InboxSnapshot> {
     reviews.error,
     events.error,
     billing.error,
+    messages.error,
     translations.error,
     outboxAlerts.error,
     ...side.errors,
@@ -655,6 +790,7 @@ async function buildSnapshotUncached(): Promise<InboxSnapshot> {
     ...reviews.items,
     ...events.items,
     ...billing.items,
+    ...messages.items,
     ...translations.items,
     ...outboxAlerts.items,
   ]
@@ -703,6 +839,7 @@ async function buildSnapshotUncached(): Promise<InboxSnapshot> {
     reviews: 0,
     events: 0,
     billing: 0,
+    messages: 0,
     translations: 0,
     system: 0,
   };
@@ -733,7 +870,7 @@ async function buildSnapshotUncached(): Promise<InboxSnapshot> {
 
 export const getInboxSnapshot = unstable_cache(
   buildSnapshotUncached,
-  ["admin-inbox-snapshot-v5"],
+  ["admin-inbox-snapshot-v6"],
   { revalidate: CACHE_TTL_SECONDS, tags: [INBOX_CACHE_TAG] },
 );
 

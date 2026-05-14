@@ -2,7 +2,7 @@ import { useState } from "react";
 import { m } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "next/navigation";
-import { Mail, Phone, MessageSquare, Send, Loader2, MapPin, Globe } from "lucide-react";
+import { CheckCircle2, Mail, MessageSquare, Send, Loader2, MapPin } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
@@ -41,6 +41,13 @@ const ENGLISH_CONTACT_FALLBACKS = {
         "Fill out the form below and our team will get back to you shortly.",
         "Fill out the form below...",
     ]),
+    successMessage: new Set([
+        "Message sent! We'll get back to you within 24 hours.",
+        "Support request submitted! We'll respond within 24 hours.",
+        "Thank you! Your request has been submitted. We'll contact you within 2-3 business days.",
+        "Your message has been sent successfully!",
+        "Your message has been sent successfully! We'll get back to you soon.",
+    ]),
 };
 
 function resolveLocalizedContactCopy(
@@ -76,26 +83,36 @@ export default function Contact() {
         subject: searchParams.get("subject") || "",
         message: searchParams.get("message") || "",
     }));
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await contactMutation.mutateAsync({
-            name: formData.name,
-            email: formData.email,
-            subject: formData.subject,
-            message: formData.message
-        });
+        setShowSuccessMessage(false);
 
-        // Reset form on success (except name/email if logged in)
-        setFormData(prev => ({
-            ...prev,
-            subject: "",
-            message: ""
-        }));
+        try {
+            await contactMutation.mutateAsync({
+                name: formData.name,
+                email: formData.email,
+                subject: formData.subject,
+                message: formData.message
+            });
+
+            setShowSuccessMessage(true);
+
+            // Reset form on success (except name/email if logged in)
+            setFormData(prev => ({
+                ...prev,
+                subject: "",
+                message: ""
+            }));
+        } catch {
+            setShowSuccessMessage(false);
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
+        if (showSuccessMessage) setShowSuccessMessage(false);
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
@@ -134,6 +151,12 @@ export default function Contact() {
         settings?.form_description,
         t('contact.formDesc'),
         ENGLISH_CONTACT_FALLBACKS.formDescription,
+    ));
+    const formSuccessMessage = cms.getText("form.successMessage", resolveLocalizedContactCopy(
+        locale,
+        settings?.success_message,
+        t('contact.success'),
+        ENGLISH_CONTACT_FALLBACKS.successMessage,
     ));
     const displayEmail = normalizePublicContactEmail(settings?.display_email) || PRIMARY_CONTACT_EMAIL;
     const whatsappDigits = toWhatsAppDigits(settings?.whatsapp_number || PRIMARY_WHATSAPP_NUMBER);
@@ -264,6 +287,21 @@ export default function Contact() {
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>
+                                        {showSuccessMessage ? (
+                                            <div
+                                                role="status"
+                                                aria-live="polite"
+                                                className="mb-6 flex gap-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4 text-emerald-950 dark:text-emerald-100"
+                                            >
+                                                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-300" aria-hidden="true" />
+                                                <div>
+                                                    <p className="font-semibold">{t('contact.successTitle')}</p>
+                                                    <p className="mt-1 text-sm leading-6 text-emerald-900/80 dark:text-emerald-100/80">
+                                                        {formSuccessMessage}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ) : null}
                                         <form onSubmit={handleSubmit} className="space-y-6 mt-2">
                                             <div className="grid sm:grid-cols-2 gap-6">
                                                 <div className="space-y-2">

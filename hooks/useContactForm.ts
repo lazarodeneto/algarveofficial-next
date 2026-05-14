@@ -1,9 +1,9 @@
 "use client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { sendEnquiry } from "@/lib/enquiries/client";
 
 interface ContactFormData {
     name: string;
@@ -19,26 +19,12 @@ export function useContactForm() {
 
     return useMutation({
         mutationFn: async (payload: ContactFormData) => {
-            const { data, error } = await supabase.functions.invoke("send-enquiry", {
-                body: {
-                    name: payload.name,
-                    email: payload.email,
-                    message: `Subject: ${payload.subject}\n\n${payload.message}`,
-                    listing_title: "Website Contact Form",
-                },
+            return sendEnquiry({
+                name: payload.name,
+                email: payload.email,
+                message: `Subject: ${payload.subject}\n\n${payload.message}`,
+                listing_title: "Website Contact Form",
             });
-
-            if (error) {
-                let detailedMessage = "";
-                const errorContext = (error as { context?: unknown }).context;
-                if (errorContext instanceof Response) {
-                    const errorPayload = await errorContext.json().catch(() => null) as { error?: string } | null;
-                    if (errorPayload?.error) detailedMessage = errorPayload.error;
-                }
-                throw new Error(detailedMessage || error.message || "Failed to send message");
-            }
-
-            return data as { warnings?: string[] } | null;
         },
         onSuccess: (responseData) => {
             queryClient.invalidateQueries({ queryKey: ["admin-chat-threads"] });

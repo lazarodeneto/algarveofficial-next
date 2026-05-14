@@ -91,6 +91,7 @@ function snapshotWith(items: InboxItem[] = [SNAPSHOT_ITEM]): InboxSnapshot {
         reviews: 0,
         events: 0,
         billing: 0,
+        messages: 0,
         translations: 0,
         system: 0,
       },
@@ -430,7 +431,7 @@ describe("admin inbox actions", () => {
     expect(result).toEqual({
       ok: false,
       error:
-        "Admin inbox action storage is out of date. Apply supabase/migrations/20260512110500_resync_admin_inbox_side_table_sources.sql and refresh the Supabase schema cache.",
+        "Admin inbox action storage is out of date. Apply the latest admin inbox side-table source migrations and refresh the Supabase schema cache.",
     });
   });
 

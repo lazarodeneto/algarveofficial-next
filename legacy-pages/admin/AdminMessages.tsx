@@ -23,6 +23,7 @@ export default function AdminMessages() {
   const pathname = usePathname() || "/admin/messages";
   const searchParams = useSearchParams();
   const ownerFromQuery = searchParams.get("ownerId") || "";
+  const threadIdFromQuery = searchParams.get("threadId") || "";
   const [ownerId, setOwnerId] = useState(ownerFromQuery);
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
@@ -63,6 +64,14 @@ export default function AdminMessages() {
   const { data: owners = [] } = useAdminOwners();
   const deleteThread = useDeleteThread();
 
+  useEffect(() => {
+    if (!threadIdFromQuery || threads.length === 0) return;
+    const thread = threads.find((candidate) => candidate.id === threadIdFromQuery);
+    if (!thread) return;
+    setSelectedThread(thread);
+    setDialogOpen(true);
+  }, [threadIdFromQuery, threads]);
+
   const hasFilters = status !== "all" || ownerId !== "" || dateFrom !== undefined || dateTo !== undefined;
 
   const handleOwnerChange = (nextOwnerId: string) => {
@@ -89,6 +98,21 @@ export default function AdminMessages() {
   const handleRowClick = (thread: ChatThread) => {
     setSelectedThread(thread);
     setDialogOpen(true);
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      next.set("threadId", thread.id);
+      return next;
+    }, { replace: true });
+  };
+
+  const handleDialogOpenChange = (open: boolean) => {
+    setDialogOpen(open);
+    if (open) return;
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      next.delete("threadId");
+      return next;
+    }, { replace: true });
   };
 
   const statusConfig: Record<string, { label: string; className: string }> = {
@@ -297,7 +321,7 @@ export default function AdminMessages() {
       <ThreadDetailDialog
         thread={selectedThread}
         open={dialogOpen}
-        onOpenChange={setDialogOpen}
+        onOpenChange={handleDialogOpenChange}
       />
 
       <ConfirmDialog

@@ -54,6 +54,7 @@ const DOMAIN_LABEL: Record<InboxItem["domain"], string> = {
   reviews: "Review",
   events: "Event",
   billing: "Billing",
+  messages: "Message",
   translations: "Translation",
   system: "System",
 };
@@ -203,7 +204,7 @@ export function InboxList({
         </p>
         <p className="max-w-sm text-xs leading-5 text-muted-foreground">
           {status === "open"
-            ? "Listings, partner requests, reviews, events, billing, translations, system alerts, assignments, and archives were checked successfully."
+            ? "Listings, partner requests, reviews, events, messages, billing, translations, system alerts, assignments, and archives were checked successfully."
             : "Use the Open status filter to return to the active admin inbox."}
         </p>
       </div>

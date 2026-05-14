@@ -1365,7 +1365,8 @@
     "subjectLabel": "Subject",
     "subjectPlaceholder": "How can we help?",
     "subtitle": "We'd love to hear from you. Get in touch with our team.",
-    "success": "Message sent! We'll get back to you within 24 hours.",
+    "success": "Your message has been sent successfully. We'll get back to you within 24 hours.",
+    "successTitle": "Message sent",
     "title": "Contact Us",
     "touchDesc": "Our concierge team is available to assist you with any questions about premium experiences in the Algarve.",
     "waDesc": "Chat with us directly on WhatsApp for a faster response."

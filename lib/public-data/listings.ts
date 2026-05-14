@@ -104,6 +104,7 @@ type CategoryTranslationRow = {
 
 export type PublicListingFilters = {
   search?: string;
+  ids?: string[];
   categoryId?: string;
   categoryIds?: string[];
   categorySlug?: string;
@@ -581,6 +582,7 @@ async function fetchPublicListingRows(
     .limit(Math.min(Math.max(filters.limit ?? 48, 1), 1000));
 
   if (categoryIds.length > 0) query = query.in("category_id", categoryIds);
+  if (filters.ids && filters.ids.length > 0) query = query.in("id", filters.ids);
   if (filters.cityId) query = query.eq("city_id", filters.cityId);
   if (filters.regionId) query = query.eq("region_id", filters.regionId);
   if (filters.tier) query = query.eq("tier", filters.tier);

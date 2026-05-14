@@ -10,7 +10,6 @@ import {
   ArrowLeft, 
   Clock, 
   User, 
-  Tag,
   Share2,
   Facebook,
   Twitter,
@@ -27,14 +26,14 @@ import { Footer } from '@/components/layout/Footer';
 import { RouteMessageState } from '@/components/layout/RouteMessageState';
 import {
   ArticleRelatedListingCards,
+  ArticleRelatedGuides,
   BeachGuideMap,
-  BeachGuideRelatedCards,
+  type ArticleRelatedGuide,
   type BeachGuideListing,
 } from '@/components/blog/BeachGuideListings';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 import { type Locale } from '@/lib/i18n/config';
@@ -167,6 +166,8 @@ interface BlogPostProps {
   beachListings?: BeachGuideListing[];
   golfListings?: BeachGuideListing[];
   familyListings?: BeachGuideListing[];
+  relatedListings?: BeachGuideListing[];
+  relatedGuides?: ArticleRelatedGuide[];
 }
 
 export default function BlogPost({
@@ -176,6 +177,8 @@ export default function BlogPost({
   beachListings = [],
   golfListings = [],
   familyListings = [],
+  relatedListings = [],
+  relatedGuides = [],
 }: BlogPostProps = {}) {
   const { slug: rawSlug } = useParams<{ slug?: string | string[] }>();
   const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
@@ -261,13 +264,21 @@ export default function BlogPost({
   const shouldLinkFamilyMentions = shouldLinkFamilyAttractionsInArticle(post.slug);
   const categoryLabel = t(BLOG_TRANSLATION_KEYS[post.category], blogCategoryLabels[post.category]);
   const primaryTopic = post.tags?.[0] ?? categoryLabel;
-  const familyListingsCountLabel = t("blog.familyAttractionListingsCount", {
-    count: familyListings.length,
-    defaultValue: `${familyListings.length} published listing${familyListings.length === 1 ? "" : "s"}`,
-  });
-  const familyDetailsLabel = t("blog.viewAttractionDetails", "View attraction details");
   const familyRelatedEyebrow = t("blog.relatedFamilyListings", "Related family listings");
   const familyRelatedTitle = t("blog.familyAttractionsMentioned", "Family attractions mentioned in this article");
+  const combinedRelatedListings = [
+    ...relatedListings,
+    ...beachListings,
+    ...golfListings,
+    ...familyListings,
+  ].filter((listing, index, listings) => listings.findIndex((candidate) => candidate.id === listing.id) === index);
+  const relatedListingsCountLabel = t("blog.relatedListingsCount", {
+    count: combinedRelatedListings.length,
+    defaultValue: `${combinedRelatedListings.length} listing${combinedRelatedListings.length === 1 ? "" : "s"}`,
+  });
+  const relatedListingsTitle = t("blog.relatedListingsTitle", "Related listings");
+  const relatedListingsEyebrow = t("blog.relatedListingsEyebrow", "Places mentioned");
+  const relatedListingDetailsLabel = t("blog.viewListingDetails", "View listing details");
   const articleHtml = stripDuplicateArticleTitleHeading(
     formatArticleContent(post.content, post.title),
     post.title,
@@ -451,25 +462,7 @@ export default function BlogPost({
               isBeachGuideArticle && "border-white/80 bg-white shadow-[0_24px_70px_-62px_rgba(7,43,39,0.62)]",
             )}>
               <CardContent className="p-6 md:p-10">
-                {/* Tags */}
-                {post.tags && post.tags.length > 0 && (
-                  <>
-                    <Separator className="my-8" />
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Tag className="h-4 w-4 text-muted-foreground" />
-                      {post.tags.map(tag => (
-                        <Badge key={tag} variant="outline" className="text-xs transition hover:border-primary/60 hover:text-primary">
-                          <Link href={l(`/blog?tag=${encodeURIComponent(tag)}`)} className="underline-offset-4 hover:underline">
-                            {tag}
-                          </Link>
-                        </Badge>
-                      ))}
-                    </div>
-                  </>
-                )}
-
                 {/* Share */}
-                <Separator className="my-8" />
                 <div className="flex items-center gap-4">
                   <span className="text-sm text-muted-foreground flex items-center gap-2">
                     <Share2 className="h-4 w-4" />
@@ -493,24 +486,21 @@ export default function BlogPost({
               </CardContent>
             </Card>
 
-            {isBeachGuideArticle ? (
-              <BeachGuideRelatedCards
-                listings={beachListings}
-                activeListingId={activeBeachListingId}
-                onListingSelect={setActiveBeachListingId}
-              />
-            ) : null}
+            <ArticleRelatedGuides guides={relatedGuides} tags={post.tags ?? []} />
 
-            {shouldLinkFamilyMentions ? (
+            {combinedRelatedListings.length > 0 ? (
               <ArticleRelatedListingCards
-                listings={familyListings}
-                activeListingId={activeFamilyListingId}
-                onListingSelect={setActiveFamilyListingId}
-                anchorId="family-attraction-listing-cards"
-                badgeLabel={familyListingsCountLabel}
-                detailsLabel={familyDetailsLabel}
-                eyebrow={familyRelatedEyebrow}
-                title={familyRelatedTitle}
+                listings={combinedRelatedListings}
+                activeListingId={activeBeachListingId ?? activeFamilyListingId}
+                onListingSelect={(listingId) => {
+                  setActiveBeachListingId(listingId);
+                  setActiveFamilyListingId(listingId);
+                }}
+                anchorId="article-related-listing-cards"
+                badgeLabel={relatedListingsCountLabel}
+                detailsLabel={relatedListingDetailsLabel}
+                eyebrow={shouldLinkFamilyMentions && combinedRelatedListings.length === familyListings.length ? familyRelatedEyebrow : relatedListingsEyebrow}
+                title={shouldLinkFamilyMentions && combinedRelatedListings.length === familyListings.length ? familyRelatedTitle : relatedListingsTitle}
               />
             ) : null}
           </m.div>

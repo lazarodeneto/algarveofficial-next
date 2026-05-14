@@ -25,7 +25,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { LoginModal } from "@/components/ui/login-modal";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { supabase } from "@/integrations/supabase/client";
+import { sendEnquiry } from "@/lib/enquiries/client";
 
 interface InquiryDialogProps {
   listingId: string;
@@ -116,22 +116,17 @@ export function InquiryDialog({ listingId, listingName, ownerPhone, agentName, a
         specialRequests.length > 0 ? specialRequests.join(", ") : null,
       ].filter(Boolean).join(" | ");
 
-      const { data, error } = await supabase.functions.invoke("send-enquiry", {
-        body: {
-          name,
-          email,
-          phone: phone ? `${countryCode}${phone}` : undefined,
-          message: message ?? t('listing.inquiry.defaultMessage'),
-          listing_id: listingId,
-          listing_title: listingName,
-          agent_name: agentName ?? undefined,
-          agent_email: agentEmail ?? undefined,
-          visit_type: visitType ?? undefined,
-        },
+      const responseData = await sendEnquiry({
+        name,
+        email,
+        phone: phone ? `${countryCode}${phone}` : undefined,
+        message: message ?? t('listing.inquiry.defaultMessage'),
+        listing_id: listingId,
+        listing_title: listingName,
+        agent_name: agentName ?? undefined,
+        agent_email: agentEmail ?? undefined,
+        visit_type: visitType ?? undefined,
       });
-
-      if (error) throw error;
-      const responseData = data as { warnings?: string[] } | null;
 
       const referenceNumber = `INQ-${Date.now().toString(36).toUpperCase()}`;
       setOpen(false);

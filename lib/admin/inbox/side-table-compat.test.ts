@@ -19,6 +19,7 @@ describe("admin inbox side-table compatibility", () => {
     expect(getLegacySideTableSource("billing_subscription")).toBe("listing_moderation");
     expect(getLegacySideTableSource("external_outbox_alert")).toBe("listing_moderation");
     expect(getLegacySideTableSource("listing_claim")).toBe("listing_moderation");
+    expect(getLegacySideTableSource("chat_message")).toBe("listing_moderation");
   });
 
   it("round-trips archived/read reasons with their original source", () => {

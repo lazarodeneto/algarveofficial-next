@@ -20,6 +20,7 @@ const DOMAIN_OPTIONS: Array<{ id: InboxFilters["domain"]; label: string }> = [
   { id: "reviews", label: "Reviews" },
   { id: "events", label: "Events" },
   { id: "billing", label: "Billing" },
+  { id: "messages", label: "Messages" },
   { id: "translations", label: "Translations" },
   { id: "system", label: "System" },
 ];

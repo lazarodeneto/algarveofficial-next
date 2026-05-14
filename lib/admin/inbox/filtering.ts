@@ -20,6 +20,7 @@ const EMPTY_DOMAIN_COUNTS: Record<InboxDomain, number> = {
   reviews: 0,
   events: 0,
   billing: 0,
+  messages: 0,
   translations: 0,
   system: 0,
 };

@@ -133,6 +133,13 @@ export function useAdminMessagePolling() {
           }
         },
       )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "chat_threads" },
+        () => {
+          scheduleInvalidate();
+        },
+      )
       .subscribe();
 
     const onVisibilityChange = () => {

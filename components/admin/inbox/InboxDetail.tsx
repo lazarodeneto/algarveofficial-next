@@ -29,6 +29,7 @@ import { fetchAdmin } from "@/lib/api/fetchAdmin";
 import { formatInboxDueStatus } from "@/lib/admin/inbox/format";
 import type {
   BillingSubscriptionItem,
+  ChatMessageItem,
   EventModerationItem,
   ExternalOutboxAlertItem,
   InboxItem,
@@ -101,6 +102,20 @@ function EntityLink({ item }: { item: InboxItem }) {
         rel="noopener noreferrer"
       >
         Open subscriptions ↗
+      </Link>
+    );
+  }
+
+  if (item.source === "chat_message") {
+    const { threadId } = (item as ChatMessageItem).meta;
+    return (
+      <Link
+        href={`${l("/admin/messages")}?threadId=${threadId}`}
+        className="text-sm text-primary underline-offset-2 hover:underline"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Open message thread ↗
       </Link>
     );
   }

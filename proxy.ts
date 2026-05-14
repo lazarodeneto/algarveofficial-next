@@ -35,6 +35,7 @@ const RESERVED_ROUTE_SEGMENTS = new Set([
   "auth",
   "blog",
   "category",
+  "claim-business",
   "contact",
   "cookie-policy",
   "dashboard",

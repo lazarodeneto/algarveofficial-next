@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import type { Locale } from "@/lib/i18n/config";
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/lib/i18n/config";
 import BlogPost from "@/legacy-pages/public/blog/BlogPost";
-import type { BeachGuideListing } from "@/components/blog/BeachGuideListings";
+import type { ArticleRelatedGuide, BeachGuideListing } from "@/components/blog/BeachGuideListings";
 import { RouteLoadingState } from "@/components/layout/RouteLoadingState";
 import { getPublishedBlogPostBySlug } from "@/app/blog/[slug]/postData";
 import {
@@ -14,7 +14,8 @@ import {
 } from "@/lib/i18n/localized-routing";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 import { buildArticleSchema } from "@/lib/seo/advanced/schema-builders";
-import { getPublicListings, resolvePublicCategoryRoute } from "@/lib/public-data";
+import { getPublicBlogPosts, getPublicListings, resolvePublicCategoryRoute } from "@/lib/public-data";
+import type { PublicBlogPostDTO } from "@/lib/public-data/blog";
 import type { PublicListingDTO } from "@/lib/public-data/types";
 import {
   BEST_BEACHES_RELATED_LISTING_SLUGS,
@@ -65,6 +66,86 @@ function toBeachGuideListing(listing: PublicListingDTO): BeachGuideListing {
     googleReviewCount: listing.reviews.googleReviewCount,
     updatedAt: listing.updatedAt,
   };
+}
+
+function toArticleRelatedGuide(post: PublicBlogPostDTO): ArticleRelatedGuide {
+  return {
+    id: post.id,
+    slug: post.slug,
+    title: post.title,
+    excerpt: post.excerpt,
+    featuredImage: post.featured_image,
+    category: post.category,
+    readingTime: post.reading_time,
+    tags: post.tags,
+  };
+}
+
+function getSharedTagScore(
+  post: Pick<PublicBlogPostDTO, "tags">,
+  currentTags: readonly string[],
+) {
+  if (!post.tags || currentTags.length === 0) return 0;
+  const current = new Set(currentTags.map((tag) => tag.trim().toLowerCase()).filter(Boolean));
+  return post.tags.reduce((score, tag) => score + (current.has(tag.trim().toLowerCase()) ? 1 : 0), 0);
+}
+
+async function getRelatedGuidePosts(
+  locale: Locale,
+  post: NonNullable<Awaited<ReturnType<typeof getPublishedBlogPostBySlug>>>,
+): Promise<ArticleRelatedGuide[]> {
+  const currentTags = post.tags ?? [];
+  const [categoryCandidates, fallbackCandidates] = await Promise.all([
+    getPublicBlogPosts({
+      locale,
+      category: post.category,
+      limit: 12,
+    }),
+    getPublicBlogPosts({
+      locale,
+      limit: 12,
+    }),
+  ]);
+  const candidateMap = new Map<string, PublicBlogPostDTO>();
+  [...categoryCandidates, ...fallbackCandidates].forEach((candidate) => {
+    if (candidate.id !== post.id) candidateMap.set(candidate.id, candidate);
+  });
+
+  return Array.from(candidateMap.values())
+    .sort((left, right) => {
+      const categoryDifference = Number(right.category === post.category) - Number(left.category === post.category);
+      if (categoryDifference !== 0) return categoryDifference;
+
+      const scoreDifference = getSharedTagScore(right, currentTags) - getSharedTagScore(left, currentTags);
+      if (scoreDifference !== 0) return scoreDifference;
+
+      const rightDate = Date.parse(right.published_at ?? right.updated_at ?? right.created_at);
+      const leftDate = Date.parse(left.published_at ?? left.updated_at ?? left.created_at);
+      return rightDate - leftDate;
+    })
+    .slice(0, 3)
+    .map(toArticleRelatedGuide);
+}
+
+async function getExplicitRelatedListings(
+  locale: Locale,
+  post: NonNullable<Awaited<ReturnType<typeof getPublishedBlogPostBySlug>>>,
+): Promise<BeachGuideListing[]> {
+  const ids = Array.from(new Set((post.related_listing_ids ?? []).filter(Boolean)));
+  if (ids.length === 0) return [];
+
+  const listings = await getPublicListings({
+    ids,
+    locale,
+    limit: ids.length,
+    includeReviewsSummary: false,
+  });
+  const byId = new Map(listings.map((listing) => [listing.id, listing]));
+
+  return ids
+    .map((id) => byId.get(id))
+    .filter((listing): listing is PublicListingDTO => Boolean(listing))
+    .map(toBeachGuideListing);
 }
 
 async function getBeachGuideListings(
@@ -205,18 +286,20 @@ export default async function LocaleBlogPostPage({ params }: LocaleBlogPostPageP
 
   if (!post) notFound();
 
-  const beachListings =
-    shouldLinkBeachListingsInArticle(post.slug)
-      ? await getBeachGuideListings(resolvedLocale, post)
-      : [];
-  const golfListings =
-    shouldLinkGolfListingsInArticle(post.slug)
-      ? await getGolfArticleListings(resolvedLocale, post)
-      : [];
-  const familyListings =
-    shouldLinkFamilyAttractionsInArticle(post.slug)
-      ? await getFamilyArticleListings(resolvedLocale, post)
-      : [];
+  const [beachListings, golfListings, familyListings, relatedListings, relatedGuides] =
+    await Promise.all([
+      shouldLinkBeachListingsInArticle(post.slug)
+        ? getBeachGuideListings(resolvedLocale, post)
+        : Promise.resolve([]),
+      shouldLinkGolfListingsInArticle(post.slug)
+        ? getGolfArticleListings(resolvedLocale, post)
+        : Promise.resolve([]),
+      shouldLinkFamilyAttractionsInArticle(post.slug)
+        ? getFamilyArticleListings(resolvedLocale, post)
+        : Promise.resolve([]),
+      getExplicitRelatedListings(resolvedLocale, post),
+      getRelatedGuidePosts(resolvedLocale, post),
+    ]);
 
   const routeData = buildBlogPostRouteData(post);
   const localeSwitchPaths = buildLocaleSwitchPathsForEntity(routeData, SUPPORTED_LOCALES);
@@ -248,6 +331,8 @@ export default async function LocaleBlogPostPage({ params }: LocaleBlogPostPageP
           beachListings={beachListings}
           golfListings={golfListings}
           familyListings={familyListings}
+          relatedListings={relatedListings}
+          relatedGuides={relatedGuides}
         />
       </Suspense>
     </>

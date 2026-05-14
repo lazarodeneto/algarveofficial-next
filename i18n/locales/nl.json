@@ -1365,7 +1365,8 @@
     "subjectLabel": "Onderwerp",
     "subjectPlaceholder": "Hoe kunnen wij helpen?",
     "subtitle": "Wij horen graag van u. Neem contact op met ons team.",
-    "success": "Bericht verzonden! Wij nemen binnen 24 uur contact met u op.",
+    "success": "Uw bericht is succesvol verzonden. Wij nemen binnen 24 uur contact met u op.",
+    "successTitle": "Bericht verzonden",
     "title": "Neem contact met ons op",
     "touchDesc": "Ons conciërgeteam staat klaar om u te helpen met al uw vragen over luxe ervaringen in de Algarve.",
     "waDesc": "Chat rechtstreeks met ons via WhatsApp voor een snellere reactie."

@@ -34,8 +34,8 @@ import { toast } from "sonner";
 import { useOwnerListings } from "@/hooks/useOwnerListings";
 import { useSupportSettings } from "@/hooks/useSupportSettings";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { PRIMARY_CONTACT_EMAIL, normalizePublicContactEmail } from "@/lib/contactEmail";
+import { sendEnquiry } from "@/lib/enquiries/client";
 
 export default function OwnerSupport() {
   const { t } = useTranslation();
@@ -81,28 +81,14 @@ export default function OwnerSupport() {
         formData.message,
       ].filter(Boolean).join("\n");
 
-      const { data, error } = await supabase.functions.invoke("send-enquiry", {
-        body: {
-          name: senderName,
-          email: user.email,
-          message: supportMessage,
-          listing_id: selectedListing?.id || null,
-          listing_title: selectedListing?.name || "Owner Support Request",
-          visit_type: "Owner Support",
-        },
+      const responseData = await sendEnquiry({
+        name: senderName,
+        email: user.email,
+        message: supportMessage,
+        listing_id: selectedListing?.id || null,
+        listing_title: selectedListing?.name || "Owner Support Request",
+        visit_type: "Owner Support",
       });
-
-      if (error) {
-        let detailedMessage = "";
-        const errorContext = (error as { context?: unknown }).context;
-        if (errorContext instanceof Response) {
-          const payload = await errorContext.json().catch(() => null) as { error?: string } | null;
-          if (payload?.error) detailedMessage = payload.error;
-        }
-        throw new Error(detailedMessage || error.message || "Failed to send support message");
-      }
-
-      const responseData = data as { warnings?: string[] } | null;
       toast.success(settings?.success_message || t('owner.support.successMessage'));
       if (responseData?.warnings?.includes("email_delivery_failed") || responseData?.warnings?.includes("email_delivery_primary_sender_failed")) {
         toast.message("Your message was saved, but email notification failed. The admin can still view it in the inbox.");

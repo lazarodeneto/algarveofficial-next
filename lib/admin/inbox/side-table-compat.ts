@@ -7,6 +7,7 @@ const INBOX_SOURCES = new Set<InboxSource>([
   "listing_moderation",
   "review_moderation",
   "event_moderation",
+  "chat_message",
   "translation_job",
 ]);
 

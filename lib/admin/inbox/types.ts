@@ -7,6 +7,7 @@ export type InboxDomain =
   | "reviews"
   | "events"
   | "billing"
+  | "messages"
   | "translations"
   | "system";
 
@@ -17,6 +18,7 @@ export type InboxSource =
   | "listing_moderation"
   | "review_moderation"
   | "event_moderation"
+  | "chat_message"
   | "translation_job";
 
 export type InboxUrgency = "urgent" | "soon" | "normal";
@@ -116,6 +118,18 @@ export interface EventModerationItem extends InboxItemBase {
   };
 }
 
+export interface ChatMessageItem extends InboxItemBase {
+  domain: "messages";
+  source: "chat_message";
+  meta: {
+    messageId: string;
+    threadId: string;
+    listingId: string | null;
+    listingName: string | null;
+    contactEmail: string | null;
+  };
+}
+
 export interface BillingSubscriptionItem extends InboxItemBase {
   domain: "billing";
   source: "billing_subscription";
@@ -153,6 +167,7 @@ export interface ExternalOutboxAlertItem extends InboxItemBase {
 
 export type InboxItem =
   | BillingSubscriptionItem
+  | ChatMessageItem
   | ExternalOutboxAlertItem
   | ListingClaimItem
   | ListingModerationItem
@@ -199,6 +214,7 @@ export const SLA_MINUTES: Record<InboxSource, number> = {
   review_moderation: 48 * 60,
   event_moderation: 24 * 60,
   translation_job: 4 * 60,
+  chat_message: 4 * 60,
 };
 
 export function computeUrgency(minutesRemaining: number): InboxUrgency {

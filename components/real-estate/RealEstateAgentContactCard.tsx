@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -20,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { sendEnquiry } from "@/lib/enquiries/client";
 import { cn } from "@/lib/utils";
 
 function normalizeAgentRoleKey(value: string): string {
@@ -124,23 +124,17 @@ export function RealEstateAgentContactCard({
           : t("listing.form.inPerson"))
         : undefined;
 
-      const { data, error } = await supabase.functions.invoke("send-enquiry", {
-        body: {
-          name: name.trim(),
-          email: email.trim(),
-          phone: phone.trim() ? `${countryCode}${phone.trim()}` : undefined,
-          message: message.trim(),
-          listing_id: listingId,
-          listing_title: listingName,
-          agent_name: agentName?.trim() ?? undefined,
-          agent_email: agentEmail?.trim() ?? undefined,
-          visit_type: selectedVisitType,
-        },
+      const responseData = await sendEnquiry({
+        name: name.trim(),
+        email: email.trim(),
+        phone: phone.trim() ? `${countryCode}${phone.trim()}` : undefined,
+        message: message.trim(),
+        listing_id: listingId,
+        listing_title: listingName,
+        agent_name: agentName?.trim() ?? undefined,
+        agent_email: agentEmail?.trim() ?? undefined,
+        visit_type: selectedVisitType,
       });
-
-      if (error) throw error;
-
-      const responseData = data as { warnings?: string[] } | null;
 
       toast.success(t("listing.inquiry.success"));
 

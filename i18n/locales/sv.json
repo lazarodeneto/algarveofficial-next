@@ -1365,7 +1365,8 @@
     "subjectLabel": "Ämne",
     "subjectPlaceholder": "Hur kan vi hjälpa till?",
     "subtitle": "Vi vill gärna höra från dig. Ta kontakt med vårt team.",
-    "success": "Meddelande skickat! Vi återkommer till dig inom 24 timmar.",
+    "success": "Ditt meddelande har skickats. Vi återkommer till dig inom 24 timmar.",
+    "successTitle": "Meddelande skickat",
     "title": "Kontakta oss",
     "touchDesc": "Vårt concierge-team finns tillgängligt för att hjälpa dig med alla frågor om lyxupplevelser i Algarve.",
     "waDesc": "Chatta med oss ​​direkt på WhatsApp för snabbare svar."

@@ -58,7 +58,7 @@ function formatInboxSideTableError(error: { message?: string; code?: string } | 
   if (!isInboxSideTableSourceConstraintError(error)) return null;
   return [
     "Admin inbox action storage is out of date.",
-    "Apply supabase/migrations/20260512110500_resync_admin_inbox_side_table_sources.sql and refresh the Supabase schema cache.",
+    "Apply the latest admin inbox side-table source migrations and refresh the Supabase schema cache.",
   ].join(" ");
 }
 
@@ -116,6 +116,7 @@ const INBOX_SOURCES = new Set<InboxSource>([
   "listing_moderation",
   "review_moderation",
   "event_moderation",
+  "chat_message",
   "translation_job",
 ]);
 const ARCHIVABLE_SOURCES = new Set<InboxSource>([

@@ -10,6 +10,10 @@ const TEXT_SOURCE_ROW_ID_MIGRATION_PATH = join(
   process.cwd(),
   "supabase/migrations/20260514112000_allow_text_admin_inbox_source_row_ids.sql",
 );
+const CHAT_MESSAGE_SOURCE_MIGRATION_PATH = join(
+  process.cwd(),
+  "supabase/migrations/20260514234500_add_chat_messages_to_admin_inbox.sql",
+);
 
 const CURRENT_INBOX_SOURCES = [
   "billing_subscription",
@@ -18,11 +22,15 @@ const CURRENT_INBOX_SOURCES = [
   "listing_moderation",
   "review_moderation",
   "event_moderation",
+  "chat_message",
   "translation_job",
 ] as const;
 
 function migrationSource() {
-  return readFileSync(MIGRATION_PATH, "utf8");
+  return [
+    readFileSync(MIGRATION_PATH, "utf8"),
+    readFileSync(CHAT_MESSAGE_SOURCE_MIGRATION_PATH, "utf8"),
+  ].join("\n");
 }
 
 describe("admin inbox side-table source constraints", () => {
