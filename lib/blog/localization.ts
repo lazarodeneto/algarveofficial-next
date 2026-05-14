@@ -7,6 +7,8 @@ export interface BlogTranslationRow {
   title: string | null;
   excerpt: string | null;
   content?: string | null;
+  tags?: string[] | null;
+  focus_keywords?: string | null;
   seo_title: string | null;
   seo_description: string | null;
 }
@@ -17,6 +19,8 @@ export interface BlogLocalizablePost {
   title: string;
   excerpt?: string | null;
   content?: string | null;
+  tags?: string[] | null;
+  focus_keywords?: string | null;
   seo_title?: string | null;
   seo_description?: string | null;
 }
@@ -28,6 +32,16 @@ function normalizeText(value: string | null | undefined) {
 
 function normalizeKey(value: string | null | undefined) {
   return normalizeText(value)?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") ?? "";
+}
+
+function normalizeTags(value: string[] | null | undefined) {
+  if (!Array.isArray(value)) return null;
+
+  const tags = value
+    .map((tag) => normalizeText(tag))
+    .filter((tag): tag is string => Boolean(tag));
+
+  return tags.length > 0 ? tags : null;
 }
 
 function getKnownFallbackTranslation(post: Pick<BlogLocalizablePost, "slug" | "title">, locale: string) {
@@ -78,6 +92,8 @@ export function applyBlogTranslation<T extends BlogLocalizablePost>(
     excerpt: normalizeText(translation?.excerpt) ?? knownFallback?.excerpt ?? post.excerpt ?? null,
     content:
       preferCompleteKnownContent(translatedContent, knownFallback?.content) ?? post.content ?? null,
+    tags: normalizeTags(translation?.tags) ?? normalizeTags(post.tags) ?? null,
+    focus_keywords: normalizeText(translation?.focus_keywords) ?? post.focus_keywords ?? null,
     seo_title: normalizeText(translation?.seo_title) ?? knownFallback?.title ?? post.seo_title ?? null,
     seo_description:
       normalizeText(translation?.seo_description) ?? knownFallback?.excerpt ?? post.seo_description ?? null,

@@ -64,8 +64,8 @@ export const getPublishedBlogPostBySlug = cache(async (slug: string, locale: Loc
 
   const { data: translation } = locale !== "en"
     ? await supabase
-        .from("blog_post_translations")
-        .select("post_id, locale, title, excerpt, content, seo_title, seo_description")
+        .from("blog_post_translations" as never)
+        .select("post_id, locale, title, excerpt, content, tags, seo_title, seo_description")
         .eq("post_id", data.id)
         .eq("locale", localeCode)
         .maybeSingle()

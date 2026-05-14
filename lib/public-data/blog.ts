@@ -51,7 +51,7 @@ async function localizeBlogPosts(posts: PublicBlogPostDTO[], locale: string): Pr
   const supabase = createPublicServerClient();
   const { data: translations, error } = await supabase
     .from("blog_post_translations" as never)
-    .select("post_id, locale, title, excerpt, seo_title, seo_description")
+    .select("post_id, locale, title, excerpt, tags, seo_title, seo_description")
     .eq("locale", locale)
     .in(
       "post_id",

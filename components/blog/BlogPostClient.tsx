@@ -74,7 +74,7 @@ async function fetchBlogPost(slug: string, locale: string): Promise<BlogPostWith
   if (locale !== "en") {
     const { data: translation, error: translationError } = await supabase
       .from("blog_post_translations" as never)
-      .select("post_id, locale, title, excerpt, content, seo_title, seo_description")
+      .select("post_id, locale, title, excerpt, content, tags, seo_title, seo_description")
       .eq("post_id", post.id)
       .eq("locale", locale)
       .maybeSingle();

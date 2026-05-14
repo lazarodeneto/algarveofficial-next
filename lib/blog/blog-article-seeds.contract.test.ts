@@ -59,4 +59,26 @@ describe("blog article seed migrations", () => {
     expect(source).toContain("update public.blog_posts bp");
     expect(source).toContain("where bp.slug = 'family-attractions-algarve-kids-guide'");
   });
+
+  it("seeds complete best beaches translations for every supported non-English locale", () => {
+    const source = readFileSync(
+      join(
+        process.cwd(),
+        "supabase",
+        "migrations",
+        "20260514235800_seed_best_beaches_full_blog_translations.sql",
+      ),
+      "utf8",
+    );
+
+    for (const locale of ["pt-pt", "fr", "de", "es", "it", "nl", "sv", "no", "da"]) {
+      expect(source).toContain(`'${locale}',`);
+    }
+
+    expect(source).toContain("Praia da Marinha");
+    expect(source).toContain("Praia da Falésia");
+    expect(source).toContain("Perguntas frequentes");
+    expect(source).toContain("Questions fréquentes");
+    expect(source).toContain("tags = EXCLUDED.tags");
+  });
 });

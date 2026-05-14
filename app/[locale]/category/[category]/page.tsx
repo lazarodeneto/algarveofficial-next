@@ -27,8 +27,8 @@ import {
   getPublicCategoryCityCounts,
   getPublicCategoryCounts,
   getPublicListings,
-  getPublicRoutableCategorySlugs,
   resolvePublicCategoryRoute,
+  type PublicCategoryCountsDTO,
 } from "@/lib/public-data";
 import {
   buildCategoryPageMetaCopy,
@@ -60,6 +60,16 @@ interface PageProps {
 }
 
 export const revalidate = 60;
+export const dynamic = "force-dynamic";
+
+const EMPTY_PUBLIC_CATEGORY_COUNTS: PublicCategoryCountsDTO = {
+  byCategoryId: {},
+  byCategorySlug: {},
+  byCanonicalCategoryId: {},
+  byCanonicalCategorySlug: {},
+  byMemberCategoryId: {},
+  byMemberCategorySlug: {},
+};
 
 async function loadCategoryRuntimeSettings(locale: typeof SUPPORTED_LOCALES[number]) {
   try {
@@ -123,19 +133,7 @@ function buildCategoryRouteData(
 }
 
 export async function generateStaticParams(): Promise<PageParams[]> {
-  const params: PageParams[] = [];
-  const canonicalSlugs = await getPublicRoutableCategorySlugs();
-  for (const canonical of canonicalSlugs) {
-    for (const locale of SUPPORTED_LOCALES) {
-      params.push({
-        locale,
-        category: isProgrammaticCategorySlug(canonical)
-          ? getCategoryUrlSlug(canonical, locale)
-          : canonical,
-      });
-    }
-  }
-  return params;
+  return [];
 }
 
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
@@ -158,7 +156,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   const categoryName = getCategoryDisplayNameForSlug(canonical, locale, resolution.category.name);
   const [resolvedSearchParams, categoryCounts, runtimeSettings] = await Promise.all([
     searchParams?.then((value) => value ?? {}) ?? Promise.resolve({}),
-    getPublicCategoryCounts(),
+    getPublicCategoryCounts().catch(() => EMPTY_PUBLIC_CATEGORY_COUNTS),
     loadCategoryRuntimeSettings(locale),
   ]);
   const listingCount =
@@ -210,7 +208,7 @@ export default async function CategoryHubPage({ params }: PageProps) {
         locale,
         limit: categoryListingLimit,
         includeReviewsSummary: false,
-      })
+      }).catch(() => [])
     : [];
 
   const safeListingsForLocale: ProgrammaticListing[] = listingData.map((listing) => ({
@@ -237,7 +235,7 @@ export default async function CategoryHubPage({ params }: PageProps) {
         categoryIds: catData.memberIds,
         locale,
         limit: 12,
-      })
+      }).catch(() => [])
     : [];
   
   const categoryName = getCategoryDisplayNameForSlug(canonicalSlug, locale, catData.name);
