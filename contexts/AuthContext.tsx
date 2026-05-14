@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Session, User as SupabaseUser, AuthChangeEvent } from '@supabase/supabase-js';
 import { useCurrentLocale } from '@/hooks/useCurrentLocale';
@@ -11,8 +12,9 @@ import {
   getRequestedPostAuthPath,
   resolvePostAuthRedirectPath,
 } from '@/lib/authRedirect';
+import { type AppRole, normalizeAppRole } from '@/lib/auth/roles';
 
-export type UserRole = 'admin' | 'editor' | 'owner' | 'viewer_logged' | 'viewer';
+export type UserRole = AppRole;
 
 export interface User {
   id: string;
@@ -35,49 +37,10 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-const AUTH_USER_CACHE_KEY = 'algarve_auth_user_cache_v1';
 const userBuildInFlight = new Map<string, Promise<User>>();
-let memoryCachedUser: User | null = null;
-
-function getCachedUser(userId: string): User | null {
-  if (memoryCachedUser?.id === userId) {
-    return memoryCachedUser;
-  }
-
-  if (typeof window === "undefined") return null;
-
-  try {
-    const raw = sessionStorage.getItem(AUTH_USER_CACHE_KEY);
-    if (!raw) return null;
-
-    const parsed = JSON.parse(raw) as User;
-    if (parsed?.id !== userId) return null;
-
-    memoryCachedUser = parsed;
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-function setCachedUser(user: User) {
-  memoryCachedUser = user;
-  if (typeof window === "undefined") return;
-  try {
-    sessionStorage.setItem(AUTH_USER_CACHE_KEY, JSON.stringify(user));
-  } catch {
-    // Ignore storage errors in private mode / restricted environments.
-  }
-}
 
 function clearCachedUser() {
-  memoryCachedUser = null;
-  if (typeof window === "undefined") return;
-  try {
-    sessionStorage.removeItem(AUTH_USER_CACHE_KEY);
-  } catch {
-    // Ignore storage errors in private mode / restricted environments.
-  }
+  userBuildInFlight.clear();
 }
 
 function resolveGoogleOAuthRedirectUrl(locale: string, requestedPath?: string | null): string {
@@ -127,7 +90,7 @@ async function fetchUserRole(userId: string): Promise<UserRole> {
       return 'viewer_logged';
     }
 
-    return data as UserRole;
+    return normalizeAppRole(data);
   } catch (err) {
     console.error('Error in fetchUserRole:', err);
     return 'viewer_logged';
@@ -156,9 +119,6 @@ async function buildUser(supabaseUser: SupabaseUser, options?: { forceRefresh?: 
   const forceRefresh = options?.forceRefresh === true;
 
   if (!forceRefresh) {
-    const cached = getCachedUser(userId);
-    if (cached) return cached;
-
     const inFlight = userBuildInFlight.get(userId);
     if (inFlight) return inFlight;
   }
@@ -192,7 +152,6 @@ async function buildUser(supabaseUser: SupabaseUser, options?: { forceRefresh?: 
       avatar: profile?.avatar_url ?? supabaseUser.user_metadata?.avatar_url,
     };
 
-    setCachedUser(appUser);
     return appUser;
   })();
 
@@ -210,6 +169,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const queryClient = useQueryClient();
   const pathname = usePathname() ?? "/";
   const locale = useCurrentLocale();
 
@@ -227,7 +187,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setTimeout(async () => {
             if (!mounted) return;
             try {
-              const appUser = await buildUser(session.user);
+              const appUser = await buildUser(session.user, { forceRefresh: true });
+              queryClient.clear();
               setUser(appUser);
             } catch (err) {
               console.error('Error building user on SIGNED_IN:', err);
@@ -237,16 +198,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }, 0);
         } else if (event === 'SIGNED_OUT') {
           clearCachedUser();
+          queryClient.clear();
           setUser(null);
           setIsLoading(false);
         } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-          // Re-hydrate user on token refresh (served from session cache in normal flow).
+          // Re-hydrate user on token refresh so role changes do not stay stale.
           // IMPORTANT: defer to avoid Supabase auth lock re-entrancy (can surface as
           // "AbortError: signal is aborted without reason" and abort unrelated queries).
           setTimeout(async () => {
             if (!mounted) return;
             try {
-              const appUser = await buildUser(session.user);
+              const appUser = await buildUser(session.user, { forceRefresh: true });
               setUser(appUser);
             } catch (err) {
               console.error('Error rebuilding user on TOKEN_REFRESHED:', err);
@@ -262,7 +224,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user && mounted) {
-          const appUser = await buildUser(session.user);
+          const appUser = await buildUser(session.user, { forceRefresh: true });
           setUser(appUser);
         } else if (mounted) {
           clearCachedUser();
@@ -283,7 +245,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [queryClient]);
 
   const getDashboardPath = (role: UserRole): string => {
     switch (role) {
@@ -314,7 +276,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (data.user) {
-        const appUser = await buildUser(data.user);
+        const appUser = await buildUser(data.user, { forceRefresh: true });
+        queryClient.clear();
         setUser(appUser);
         setIsLoading(false);
         const dashboardPath = getDashboardPath(appUser.role);
@@ -378,7 +341,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (data.user && data.session) {
-        const appUser = await buildUser(data.user);
+        const appUser = await buildUser(data.user, { forceRefresh: true });
+        queryClient.clear();
         setUser(appUser);
         setIsLoading(false);
         

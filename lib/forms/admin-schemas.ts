@@ -1,4 +1,6 @@
 import { z } from "zod";
+
+import { APP_ROLES } from "@/lib/auth/roles";
 import {
   getDisallowedSlugInputError,
   getSlugValidationError,
@@ -219,7 +221,7 @@ export const userUpdateSchema = z.object({
   fullName: z.string().nullable().optional(),
   email: z.string().email().nullable().optional(),
   phone: z.string().nullable().optional(),
-  role: z.enum(["admin", "editor", "owner", "viewer_logged"]).optional(),
+  role: z.enum(APP_ROLES).optional(),
 });
 
 export type UserUpdate = z.infer<typeof userUpdateSchema>;

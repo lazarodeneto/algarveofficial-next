@@ -137,7 +137,7 @@ begin
       true,
       18,
       70,
-      to_jsonb(5812)
+      5812
     )
     returning id into v_course_id;
   else
@@ -148,7 +148,7 @@ begin
       is_default = true,
       holes = 18,
       par = 70,
-      length_meters = to_jsonb(5812),
+      length_meters = 5812,
       updated_at = now()
     where id = v_course_id;
   end if;

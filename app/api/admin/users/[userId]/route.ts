@@ -2,13 +2,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import type { Database } from "@/integrations/supabase/types";
+import { APP_ROLE_SET, type AppRole } from "@/lib/auth/roles";
 import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
 import { validatePayload } from "@/lib/api/api-validation";
 import { userUpdateSchema } from "@/lib/forms/admin-schemas";
 
-type UserRole = Database["public"]["Enums"]["app_role"];
-
-const ALLOWED_ROLES = new Set<UserRole>(["admin", "editor", "owner", "viewer_logged"]);
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -36,10 +34,10 @@ function normalizeEmail(value: unknown) {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function normalizeRole(value: unknown): UserRole | undefined {
+function normalizeRole(value: unknown): AppRole | undefined {
   if (typeof value !== "string") return undefined;
-  const normalized = value.trim() as UserRole;
-  return ALLOWED_ROLES.has(normalized) ? normalized : undefined;
+  const normalized = value.trim() as AppRole;
+  return APP_ROLE_SET.has(normalized) ? normalized : undefined;
 }
 
 async function getCurrentRole(serviceClient: any, userId: string) {
@@ -52,7 +50,7 @@ async function getCurrentRole(serviceClient: any, userId: string) {
   if (error) throw error;
   return {
     rowId: roleRow?.id ?? null,
-    role: (roleRow?.role ?? "viewer_logged") as UserRole,
+    role: (roleRow?.role ?? "viewer_logged") as AppRole,
   };
 }
 

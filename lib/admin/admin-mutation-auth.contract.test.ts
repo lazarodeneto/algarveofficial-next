@@ -141,4 +141,15 @@ describe("admin mutation auth contract", () => {
       }
     }
   });
+
+  it("keeps listing protected-field trigger compatible with server-side admin writes", () => {
+    const migration = readFileSync(
+      join(REPO_ROOT, "supabase/migrations/20260515000000_allow_service_role_listing_admin_writes.sql"),
+      "utf8",
+    );
+
+    expect(migration).toContain("auth.role() = 'service_role'");
+    expect(migration).toContain("public.is_admin_or_editor(auth.uid())");
+    expect(migration).toContain("Only administrators can modify listing tier");
+  });
 });

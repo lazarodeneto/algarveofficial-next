@@ -1247,6 +1247,79 @@ describe("admin listings route runtime", () => {
     expect(update).toHaveBeenCalledWith({ city_id: "city-lagos" });
   });
 
+  it("blocks editors from changing listing tier through the generic edit route", async () => {
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: { id: "listing-1", status: "published", tier: "unverified", is_curated: false },
+      error: null,
+    });
+    const selectEq = vi.fn(() => ({ maybeSingle }));
+    const select = vi.fn(() => ({ eq: selectEq }));
+    const userFrom = vi.fn(() => ({ select }));
+    const writeFrom = vi.fn();
+
+    mockedRequireAdminWriteClient.mockResolvedValueOnce({
+      userId: "editor-1",
+      role: "editor",
+      userClient: { from: userFrom } as never,
+      writeClient: { from: writeFrom } as never,
+    });
+
+    const response = await patchListingRoute(
+      jsonRequest(
+        { listing: { tier: "signature" } },
+        "PATCH",
+      ) as unknown as Parameters<typeof patchListingRoute>[0],
+      { params: Promise.resolve({ listingId: "listing-1" }) },
+    );
+    const payload = (await response.json()) as { error?: { code?: string; message?: string } };
+
+    expect(response.status).toBe(403);
+    expect(payload.error?.code).toBe("AUTH_FORBIDDEN");
+    expect(payload.error?.message).toContain("Only administrators can modify listing tier");
+    expect(writeFrom).not.toHaveBeenCalled();
+  });
+
+  it("allows editors to save unchanged tier values sent by the listing form", async () => {
+    const updateEq = vi.fn().mockResolvedValue({ error: null });
+    const update = vi.fn(() => ({ eq: updateEq }));
+    const maybeSingle = vi
+      .fn()
+      .mockResolvedValueOnce({
+        data: { id: "listing-1", status: "published", tier: "unverified", is_curated: false },
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        data: { id: "listing-1", name: "New Name", status: "published", tier: "unverified" },
+        error: null,
+      });
+    const selectEq = vi.fn(() => ({ maybeSingle }));
+    const select = vi.fn(() => ({ eq: selectEq }));
+    const userFrom = vi.fn(() => ({ select }));
+    const writeFrom = vi.fn(() => ({ update }));
+
+    mockedRequireAdminWriteClient.mockResolvedValueOnce({
+      userId: "editor-1",
+      role: "editor",
+      userClient: { from: userFrom } as never,
+      writeClient: { from: writeFrom } as never,
+    });
+
+    const response = await patchListingRoute(
+      jsonRequest(
+        { listing: { name: "New Name", tier: "unverified" } },
+        "PATCH",
+      ) as unknown as Parameters<typeof patchListingRoute>[0],
+      { params: Promise.resolve({ listingId: "listing-1" }) },
+    );
+    const payload = (await response.json()) as { ok?: boolean; data?: { name?: string } };
+
+    expect(response.status).toBe(200);
+    expect(payload.ok).toBe(true);
+    expect(payload.data?.name).toBe("New Name");
+    expect(writeFrom).toHaveBeenCalledWith("listings");
+    expect(update).toHaveBeenCalledWith({ name: "New Name", tier: "unverified" });
+  });
+
   it("rejects direct slug changes through the generic listing edit route", async () => {
     const update = vi.fn();
     const maybeSingle = vi.fn().mockResolvedValue({

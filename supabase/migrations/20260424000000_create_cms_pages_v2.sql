@@ -35,6 +35,8 @@ CREATE TRIGGER cms_pages_v2_set_updated_at
 ALTER TABLE public.cms_pages_v2 ENABLE ROW LEVEL SECURITY;
 
 -- Public: anyone can read published pages
+DROP POLICY IF EXISTS cms_pages_v2_public_read ON public.cms_pages_v2;
+
 CREATE POLICY cms_pages_v2_public_read
   ON public.cms_pages_v2
   FOR SELECT
@@ -42,6 +44,8 @@ CREATE POLICY cms_pages_v2_public_read
   USING (status = 'published');
 
 -- Admin/service_role: full access
+DROP POLICY IF EXISTS cms_pages_v2_admin_all ON public.cms_pages_v2;
+
 CREATE POLICY cms_pages_v2_admin_all
   ON public.cms_pages_v2
   FOR ALL

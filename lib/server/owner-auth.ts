@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
+import { type OwnerAccessRole, isOwnerAccessRole } from "@/lib/auth/roles";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
 import { createClient as createCookieClient } from "@/lib/supabase/server";
 
@@ -19,8 +20,6 @@ export interface OwnerAuth {
 export interface OwnerAuthError {
   error: NextResponse;
 }
-
-type OwnerRole = "owner" | "admin";
 
 function getBearerToken(request: NextRequest): string | null {
   const authHeader = request.headers.get("authorization");
@@ -34,14 +33,10 @@ function ownerAuthError(status: number, error: string): OwnerAuthError {
   return { error: NextResponse.json({ error }, { status }) };
 }
 
-function isOwnerRole(role: unknown): role is OwnerRole {
-  return role === "owner" || role === "admin";
-}
-
 async function roleForUser(
   userClient: SupabaseClient,
   userId: string,
-): Promise<OwnerRole | OwnerAuthError> {
+): Promise<OwnerAccessRole | OwnerAuthError> {
   const { data: userRole, error: roleError } = await userClient.rpc("get_user_role", {
     _user_id: userId,
   });
@@ -50,7 +45,7 @@ async function roleForUser(
     return ownerAuthError(403, roleError.message ?? "Failed to verify user role.");
   }
 
-  if (!isOwnerRole(userRole)) {
+  if (!isOwnerAccessRole(userRole)) {
     return ownerAuthError(403, "Owner access required.");
   }
 

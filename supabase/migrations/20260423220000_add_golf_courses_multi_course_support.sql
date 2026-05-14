@@ -3,6 +3,19 @@
 
 create extension if not exists pgcrypto;
 
+-- Production may already have legacy golf tables while the migration history is
+-- missing. The preceding round-tracking migration attaches update triggers that
+-- expect updated_at to exist, so make the additive column repair here before
+-- this migration updates those rows.
+alter table golf_holes
+  add column if not exists updated_at timestamp with time zone not null default now();
+
+alter table golf_rounds
+  add column if not exists updated_at timestamp with time zone not null default now();
+
+alter table golf_round_holes
+  add column if not exists updated_at timestamp with time zone not null default now();
+
 create table if not exists golf_courses (
   id uuid primary key default gen_random_uuid(),
   listing_id uuid not null references listings(id) on delete cascade,

@@ -2,20 +2,23 @@ import { redirect } from "next/navigation";
 
 export const runtime = "nodejs";
 
-import type { Database } from "@/integrations/supabase/types";
+import {
+  DEFAULT_AUTHENTICATED_ROLE,
+  type AppRole,
+  isRoleAllowed,
+  normalizeAppRole,
+} from "@/lib/auth/roles";
 import { buildLocalizedPath } from "@/lib/i18n/routing";
 import { createClient } from "@/lib/supabase/server";
-
-type UserRole = Database["public"]["Enums"]["app_role"];
 
 interface GuardDashboardRouteParams {
   locale: string;
   basePath: "/admin" | "/owner" | "/dashboard";
   slug?: string[];
-  allowedRoles: UserRole[];
+  allowedRoles: AppRole[];
 }
 
-function getDashboardPathForRole(locale: string, role: UserRole): string {
+function getDashboardPathForRole(locale: string, role: AppRole): string {
   switch (role) {
     case "admin":
     case "editor":
@@ -33,7 +36,7 @@ function getRequestedPath(locale: string, basePath: GuardDashboardRouteParams["b
   return buildLocalizedPath(locale, `${basePath}${nestedPath}`);
 }
 
-async function resolveServerUserRole(userId: string): Promise<UserRole> {
+async function resolveServerUserRole(userId: string): Promise<AppRole> {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("get_user_role", { _user_id: userId });
 
@@ -42,10 +45,10 @@ async function resolveServerUserRole(userId: string): Promise<UserRole> {
       userId,
       message: error.message,
     });
-    return "viewer_logged";
+    return DEFAULT_AUTHENTICATED_ROLE;
   }
 
-  return (data as UserRole | null) ?? "viewer_logged";
+  return normalizeAppRole(data);
 }
 
 export async function guardDashboardRoute({
@@ -68,7 +71,7 @@ export async function guardDashboardRoute({
 
   const role = await resolveServerUserRole(user.id);
 
-  if (!allowedRoles.includes(role)) {
+  if (!isRoleAllowed(role, allowedRoles)) {
     redirect(getDashboardPathForRole(locale, role));
   }
 

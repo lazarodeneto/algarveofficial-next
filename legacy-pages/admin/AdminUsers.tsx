@@ -32,8 +32,9 @@ import { DataTable, Column } from "@/components/admin/DataTable";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { toast } from "sonner";
 import { fetchAdmin } from "@/lib/api/fetchAdmin";
+import type { AppRole } from "@/lib/auth/roles";
 
-type UserRole = "admin" | "editor" | "owner" | "viewer_logged";
+type UserRole = AppRole;
 type AdminUser = {
   id: string;
   email: string;

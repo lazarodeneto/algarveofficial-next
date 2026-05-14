@@ -38,6 +38,7 @@ import { resolveSupabaseBucketImageUrl } from "@/lib/imageUrls";
 import { getListingTierMaxGalleryImages } from "@/lib/listingTierRules";
 import { normalizeExternalUrlForStorage } from "@/lib/url-input";
 import { getSlugValidationError, normalizeSlug } from "@/lib/slugify";
+import { getPrimaryAppRole } from "@/lib/auth/roles";
 import {
   buildListingCanonicalPath,
   suggestListingCanonicalSlug,
@@ -871,10 +872,7 @@ export default function ListingForm() {
       // Map profiles with their highest role
       return profiles.map(p => {
         const userRoles = roles?.filter(r => r.user_id === p.id) || [];
-        const highestRole = userRoles.find(r => r.role === 'admin')?.role
-          || userRoles.find(r => r.role === 'editor')?.role
-          || userRoles.find(r => r.role === 'owner')?.role
-          || 'viewer_logged';
+        const highestRole = getPrimaryAppRole(userRoles.map((r) => r.role));
 
         return {
           id: p.id,

@@ -1,5 +1,5 @@
 CREATE OR REPLACE FUNCTION public.debug_current_user_access()
-RETURNS JSON
+RETURNS JSONB
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
@@ -12,7 +12,7 @@ BEGIN
   v_uid := auth.uid();
 
   IF v_uid IS NULL THEN
-    RETURN json_build_object(
+    RETURN jsonb_build_object(
       'uid', NULL,
       'role', NULL,
       'is_admin', FALSE,
@@ -26,7 +26,7 @@ BEGIN
 
   v_is_admin := (v_role = 'admin');
 
-  RETURN json_build_object(
+  RETURN jsonb_build_object(
     'uid', v_uid,
     'role', COALESCE(v_role, 'null'),
     'is_admin', v_is_admin

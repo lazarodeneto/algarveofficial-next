@@ -4,22 +4,26 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 export const runtime = "nodejs";
 
 import type { Database } from "@/integrations/supabase/types";
+import {
+  APP_ADMIN_ROLES,
+  type AppRole,
+  isRoleAllowed,
+  parseAppRole,
+} from "@/lib/auth/roles";
 import { logAdminMutation } from "@/lib/server/admin-audit-log";
 import { getSupabasePublicEnv } from "@/lib/supabase/env";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 
-type UserRole = Database["public"]["Enums"]["app_role"];
-
 export interface AdminWriteAuth {
   userId: string;
-  role?: UserRole;
+  role?: AppRole;
   userClient: SupabaseClient<Database>;
   writeClient: SupabaseClient<Database>;
 }
 
 export interface AdminReadAuth {
   userId: string;
-  role?: UserRole;
+  role?: AppRole;
   readClient: SupabaseClient<Database>;
 }
 
@@ -29,7 +33,7 @@ interface AdminAuthError {
 
 interface AdminBaseAuth {
   userId: string;
-  role?: UserRole;
+  role?: AppRole;
   userClient: SupabaseClient<Database>;
 }
 
@@ -37,7 +41,7 @@ interface AdminWriteClientOptions {
   requireServiceRole?: boolean;
   missingServiceRoleMessage?: string;
   auditAction?: string;
-  allowedRoles?: UserRole[];
+  allowedRoles?: AppRole[];
 }
 
 export function adminErrorResponse(status: number, code: string, message: string) {
@@ -63,7 +67,7 @@ async function requireAdminBase(
 async function requireRoleBase(
   request: NextRequest,
   forbiddenMessage: string,
-  allowedRoles: UserRole[],
+  allowedRoles: AppRole[],
 ): Promise<AdminBaseAuth | AdminAuthError> {
   const token = getBearerToken(request);
   if (!token) {
@@ -106,7 +110,8 @@ async function requireRoleBase(
     };
   }
 
-  if (!allowedRoles.includes(requesterRole as UserRole)) {
+  const parsedRole = parseAppRole(requesterRole);
+  if (!parsedRole || !isRoleAllowed(parsedRole, allowedRoles)) {
     return {
       error: adminErrorResponse(403, "AUTH_FORBIDDEN", forbiddenMessage),
     };
@@ -114,7 +119,7 @@ async function requireRoleBase(
 
   return {
     userId: userData.user.id,
-    role: requesterRole as UserRole,
+    role: parsedRole,
     userClient,
   } satisfies AdminBaseAuth;
 }
@@ -168,7 +173,7 @@ export async function requireAdminWriteClient(
 
 export async function requireAdminReadClient(
   request: NextRequest,
-  allowedRoles: UserRole[] = ["admin", "editor"],
+  allowedRoles: AppRole[] = [...APP_ADMIN_ROLES],
 ): Promise<AdminReadAuth | AdminAuthError> {
   const cookieAuth = await requireAdminSession(request, allowedRoles);
   if ("error" in cookieAuth) return cookieAuth;
@@ -182,7 +187,7 @@ export async function requireAdminReadClient(
 
 export async function requireAdminSession(
   request: NextRequest,
-  allowedRoles: UserRole[] = ["admin", "editor"],
+  allowedRoles: AppRole[] = [...APP_ADMIN_ROLES],
 ): Promise<AdminBaseAuth | AdminAuthError> {
   const { url, anonKey } = getSupabasePublicEnv();
   const { createServerClient } = await import("@supabase/ssr");
@@ -224,7 +229,8 @@ export async function requireAdminSession(
     };
   }
 
-  if (!allowedRoles.includes(role as UserRole)) {
+  const parsedRole = parseAppRole(role);
+  if (!parsedRole || !isRoleAllowed(parsedRole, allowedRoles)) {
     return {
       error: adminErrorResponse(403, "AUTH_FORBIDDEN", "Only admins or editors can access this resource."),
     };
@@ -232,7 +238,7 @@ export async function requireAdminSession(
 
   return {
     userId: user.id,
-    role: role as UserRole,
+    role: parsedRole,
     userClient: supabase,
   };
 }

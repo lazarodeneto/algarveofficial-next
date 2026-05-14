@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  const auth = await requireAdminSession(request);
+  const auth = await requireAdminSession(request, ["admin"]);
   if ("error" in auth) return auth.error;
 
   const snapshot = await getInboxSnapshot();

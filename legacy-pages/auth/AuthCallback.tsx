@@ -7,7 +7,22 @@ import { Loader2 } from 'lucide-react';
 import { buildLocalizedPath } from '@/lib/i18n/routing';
 import { useCurrentLocale } from '@/hooks/useCurrentLocale';
 import { resolvePostAuthRedirectPath } from '@/lib/authRedirect';
+import { type AppRole, normalizeAppRole } from '@/lib/auth/roles';
 import { getLocaleFromPathname, hasLocalePrefix, isValidLocale } from '@/lib/i18n/locale-utils';
+
+async function fetchRedirectRole(userId: string): Promise<AppRole> {
+  const { data, error } = await supabase.rpc('get_user_role', { _user_id: userId });
+  if (error) {
+    console.warn('Could not fetch user role during auth callback:', error);
+  }
+  return normalizeAppRole(data);
+}
+
+function dashboardPathForRole(role: AppRole) {
+  if (role === 'admin' || role === 'editor') return '/admin';
+  if (role === 'owner') return '/owner';
+  return '/dashboard';
+}
 
 export default function AuthCallback() {
   const router = useRouter();
@@ -59,43 +74,16 @@ export default function AuthCallback() {
             return;
           }
           if (exchangeData.session?.user) {
-            const { data: roleData } = await supabase
-              .from('user_roles')
-              .select('role')
-              .eq('user_id', exchangeData.session.user.id)
-              .order('role')
-              .limit(1)
-              .maybeSingle();
-
-            const role = roleData?.role || 'viewer_logged';
-            const defaultRedirect =
-              role === 'admin' || role === 'editor'
-                ? '/admin'
-                : role === 'owner'
-                  ? '/owner'
-                  : '/dashboard';
+            const defaultRedirect = dashboardPathForRole(
+              await fetchRedirectRole(exchangeData.session.user.id),
+            );
             router.replace(resolvePostAuthRedirectPath(requestedPath, resolvedLocale, defaultRedirect));
             return;
           }
         }
 
         if (session?.user) {
-          // Fetch user role to determine redirect
-          const { data: roleData } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', session.user.id)
-            .order('role')
-            .limit(1)
-            .maybeSingle();
-
-          const role = roleData?.role || 'viewer_logged';
-          const defaultRedirect =
-            role === 'admin' || role === 'editor'
-              ? '/admin'
-              : role === 'owner'
-                ? '/owner'
-                : '/dashboard';
+          const defaultRedirect = dashboardPathForRole(await fetchRedirectRole(session.user.id));
           const redirectTarget = resolvePostAuthRedirectPath(
             requestedPath,
             resolvedLocale,
