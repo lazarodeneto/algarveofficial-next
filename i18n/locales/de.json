@@ -1370,6 +1370,17 @@
     "successTitle": "Nachricht gesendet",
     "title": "Kontakt",
     "touchDesc": "Unser Concierge-Team steht Ihnen für alle Fragen zu Luxuserlebnissen in der Algarve zur Verfügung.",
+    "validation": {
+      "email": "Geben Sie eine gültige E-Mail-Adresse ein.",
+      "emailMax": "Die E-Mail-Adresse darf höchstens 255 Zeichen lang sein.",
+      "fixFields": "Bitte korrigieren Sie die markierten Felder vor dem Senden.",
+      "messageMax": "Die Nachricht darf höchstens 4000 Zeichen lang sein.",
+      "messageRequired": "Die Nachricht ist erforderlich.",
+      "nameMax": "Der Name darf höchstens 160 Zeichen lang sein.",
+      "nameMin": "Der Name muss mindestens 2 Zeichen lang sein.",
+      "subjectMax": "Der Betreff darf höchstens 180 Zeichen lang sein.",
+      "subjectRequired": "Der Betreff ist erforderlich."
+    },
     "waDesc": "Chatten Sie direkt mit uns auf WhatsApp für schnellere Antworten."
   },
   "cookie": {

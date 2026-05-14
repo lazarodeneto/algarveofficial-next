@@ -17,6 +17,13 @@ import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { PRIMARY_CONTACT_EMAIL, normalizePublicContactEmail } from "@/lib/contactEmail";
 import { PRIMARY_WHATSAPP_NUMBER, toWhatsAppDigits } from "@/lib/contactPhone";
+import {
+    CONTACT_FORM_LIMITS,
+    CONTACT_FORM_VALIDATION_MESSAGES,
+    validateContactFormData,
+    type ContactFormField,
+    type ContactFormFieldErrors,
+} from "@/lib/enquiries/contact-form";
 
 const ENGLISH_CONTACT_FALLBACKS = {
     heroTitle: new Set(["Contact Us", "Get in Touch"]),
@@ -65,6 +72,19 @@ function resolveLocalizedContactCopy(
     return englishFallbacks.has(trimmed) ? translatedValue : trimmed;
 }
 
+const CONTACT_VALIDATION_TRANSLATION_KEYS: Record<string, string> = {
+    [CONTACT_FORM_VALIDATION_MESSAGES.nameMin]: "contact.validation.nameMin",
+    [CONTACT_FORM_VALIDATION_MESSAGES.nameMax]: "contact.validation.nameMax",
+    [CONTACT_FORM_VALIDATION_MESSAGES.email]: "contact.validation.email",
+    [CONTACT_FORM_VALIDATION_MESSAGES.emailMax]: "contact.validation.emailMax",
+    [CONTACT_FORM_VALIDATION_MESSAGES.subjectRequired]: "contact.validation.subjectRequired",
+    [CONTACT_FORM_VALIDATION_MESSAGES.subjectMax]: "contact.validation.subjectMax",
+    [CONTACT_FORM_VALIDATION_MESSAGES.messageRequired]: "contact.validation.messageRequired",
+    [CONTACT_FORM_VALIDATION_MESSAGES.messageMax]: "contact.validation.messageMax",
+};
+
+const CONTACT_FIELDS = new Set<string>(["name", "email", "subject", "message"]);
+
 export default function Contact() {
     const { t } = useTranslation();
     const locale = useCurrentLocale();
@@ -84,18 +104,21 @@ export default function Contact() {
         message: searchParams.get("message") || "",
     }));
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState<ContactFormFieldErrors>({});
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setShowSuccessMessage(false);
+        setFieldErrors({});
+
+        const validation = validateContactFormData(formData);
+        if (!validation.success) {
+            setFieldErrors(validation.fieldErrors);
+            return;
+        }
 
         try {
-            await contactMutation.mutateAsync({
-                name: formData.name,
-                email: formData.email,
-                subject: formData.subject,
-                message: formData.message
-            });
+            await contactMutation.mutateAsync(validation.data);
 
             setShowSuccessMessage(true);
 
@@ -113,8 +136,35 @@ export default function Contact() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         if (showSuccessMessage) setShowSuccessMessage(false);
+        if (CONTACT_FIELDS.has(name)) {
+            setFieldErrors(prev => {
+                if (!prev[name as ContactFormField]) return prev;
+                const next = { ...prev };
+                delete next[name as ContactFormField];
+                return next;
+            });
+        }
         setFormData(prev => ({ ...prev, [name]: value }));
     };
+
+    const getLocalizedFieldError = (field: ContactFormField) => {
+        const message = fieldErrors[field];
+        if (!message) return null;
+        const key = CONTACT_VALIDATION_TRANSLATION_KEYS[message];
+        return key ? t(key) : message;
+    };
+
+    const renderFieldError = (field: ContactFormField, id: string) => {
+        const message = getLocalizedFieldError(field);
+        if (!message) return null;
+        return (
+            <p id={id} role="alert" className="text-sm text-destructive">
+                {message}
+            </p>
+        );
+    };
+
+    const hasFieldErrors = Object.keys(fieldErrors).length > 0;
 
     const heroTitle = cms.getText("hero.title", resolveLocalizedContactCopy(
         locale,
@@ -302,7 +352,15 @@ export default function Contact() {
                                                 </div>
                                             </div>
                                         ) : null}
-                                        <form onSubmit={handleSubmit} className="space-y-6 mt-2">
+                                        <form onSubmit={handleSubmit} className="space-y-6 mt-2" noValidate>
+                                            {hasFieldErrors ? (
+                                                <div
+                                                    role="alert"
+                                                    className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+                                                >
+                                                    {t("contact.validation.fixFields")}
+                                                </div>
+                                            ) : null}
                                             <div className="grid sm:grid-cols-2 gap-6">
                                                 <div className="space-y-2">
                                                     <Label htmlFor="name">{t('contact.nameLabel')}</Label>
@@ -312,8 +370,13 @@ export default function Contact() {
                                                         value={formData.name}
                                                         onChange={handleChange}
                                                         placeholder={t('contact.namePlaceholder')}
+                                                        minLength={2}
+                                                        maxLength={160}
+                                                        aria-invalid={Boolean(fieldErrors.name)}
+                                                        aria-describedby={fieldErrors.name ? "contact-name-error" : undefined}
                                                         required
                                                     />
+                                                    {renderFieldError("name", "contact-name-error")}
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label htmlFor="email">{t('contact.emailLabel')}</Label>
@@ -324,8 +387,12 @@ export default function Contact() {
                                                         value={formData.email}
                                                         onChange={handleChange}
                                                         placeholder={t('contact.emailPlaceholder')}
+                                                        maxLength={255}
+                                                        aria-invalid={Boolean(fieldErrors.email)}
+                                                        aria-describedby={fieldErrors.email ? "contact-email-error" : undefined}
                                                         required
                                                     />
+                                                    {renderFieldError("email", "contact-email-error")}
                                                 </div>
                                             </div>
 
@@ -337,8 +404,12 @@ export default function Contact() {
                                                     value={formData.subject}
                                                     onChange={handleChange}
                                                     placeholder={t('contact.subjectPlaceholder')}
+                                                    maxLength={CONTACT_FORM_LIMITS.subjectMax}
+                                                    aria-invalid={Boolean(fieldErrors.subject)}
+                                                    aria-describedby={fieldErrors.subject ? "contact-subject-error" : undefined}
                                                     required
                                                 />
+                                                {renderFieldError("subject", "contact-subject-error")}
                                             </div>
 
                                             <div className="space-y-2">
@@ -350,8 +421,12 @@ export default function Contact() {
                                                     onChange={handleChange}
                                                     placeholder={t('contact.messagePlaceholder')}
                                                     rows={6}
+                                                    maxLength={CONTACT_FORM_LIMITS.messageMax}
+                                                    aria-invalid={Boolean(fieldErrors.message)}
+                                                    aria-describedby={fieldErrors.message ? "contact-message-error" : undefined}
                                                     required
                                                 />
+                                                {renderFieldError("message", "contact-message-error")}
                                             </div>
 
                                             <Button

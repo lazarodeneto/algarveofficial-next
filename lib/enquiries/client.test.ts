@@ -73,6 +73,30 @@ describe("sendEnquiry", () => {
     })).rejects.toThrow("Message details are invalid.");
   });
 
+  it("prefers structured field errors over generic API error messages", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockImplementation(() =>
+      jsonResponse({
+        ok: false,
+        error: {
+          code: "INVALID_ENQUIRY",
+          message: "Message details are invalid.",
+          details: {
+            formErrors: [],
+            fieldErrors: {
+              name: ["Name must be at least 2 characters."],
+            },
+          },
+        },
+      }, 400),
+    ));
+
+    await expect(sendEnquiry({
+      name: "T",
+      email: "sender@example.com",
+      message: "Hello",
+    })).rejects.toThrow("Name must be at least 2 characters.");
+  });
+
   it("throws when the success response is missing message identifiers", async () => {
     vi.stubGlobal("fetch", vi.fn().mockImplementation(() =>
       jsonResponse({

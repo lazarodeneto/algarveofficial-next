@@ -1370,6 +1370,17 @@
     "successTitle": "Besked sendt",
     "title": "Kontakt os",
     "touchDesc": "Vores concierge-team står til rådighed for at hjælpe dig med spørgsmål om luksusoplevelser i Algarve.",
+    "validation": {
+      "email": "Indtast en gyldig e-mailadresse.",
+      "emailMax": "E-mailadressen må højst være 255 tegn.",
+      "fixFields": "Ret de markerede felter, før du sender.",
+      "messageMax": "Beskeden må højst være 4000 tegn.",
+      "messageRequired": "Besked er påkrævet.",
+      "nameMax": "Navnet må højst være 160 tegn.",
+      "nameMin": "Navnet skal være mindst 2 tegn.",
+      "subjectMax": "Emnet må højst være 180 tegn.",
+      "subjectRequired": "Emne er påkrævet."
+    },
     "waDesc": "Chat med os direkte på WhatsApp for et hurtigere svar."
   },
   "cookie": {

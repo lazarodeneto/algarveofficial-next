@@ -1370,6 +1370,17 @@
     "successTitle": "Mensagem enviada",
     "title": "Contacte-nos",
     "touchDesc": "A nossa equipa de concierge está disponível para responder a todas as suas perguntas sobre experiências de luxo no Algarve.",
+    "validation": {
+      "email": "Introduza um endereço de email válido.",
+      "emailMax": "O email deve ter 255 caracteres ou menos.",
+      "fixFields": "Corrija os campos assinalados antes de enviar.",
+      "messageMax": "A mensagem deve ter 4000 caracteres ou menos.",
+      "messageRequired": "A mensagem é obrigatória.",
+      "nameMax": "O nome deve ter 160 caracteres ou menos.",
+      "nameMin": "O nome deve ter pelo menos 2 caracteres.",
+      "subjectMax": "O assunto deve ter 180 caracteres ou menos.",
+      "subjectRequired": "O assunto é obrigatório."
+    },
     "waDesc": "Fale connosco diretamente no WhatsApp para respostas mais rápidas."
   },
   "cookie": {

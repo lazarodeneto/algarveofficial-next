@@ -7,20 +7,59 @@ const optionalInput = (schema: z.ZodType<string>) =>
     return trimmed.length > 0 ? trimmed : null;
   }, schema.nullable()).optional();
 
-const optionalText = (max: number) => optionalInput(z.string().max(max));
-const optionalEmail = optionalInput(z.string().email().max(255));
-const optionalUuid = optionalInput(z.string().uuid());
+export const ENQUIRY_LIMITS = {
+  nameMin: 2,
+  nameMax: 160,
+  emailMax: 255,
+  phoneMax: 80,
+  messageMin: 1,
+  messageMax: 4000,
+  listingTitleMax: 180,
+  agentNameMax: 160,
+  visitTypeMax: 160,
+} as const;
+
+export const ENQUIRY_VALIDATION_MESSAGES = {
+  nameMin: "Name must be at least 2 characters.",
+  nameMax: "Name must be 160 characters or less.",
+  email: "Enter a valid email address.",
+  emailMax: "Email must be 255 characters or less.",
+  phoneMax: "Phone must be 80 characters or less.",
+  messageRequired: "Message is required.",
+  messageMax: "Message must be 4000 characters or less.",
+  listingId: "Listing ID must be a valid UUID.",
+  listingTitleMax: "Listing title must be 180 characters or less.",
+  agentNameMax: "Agent name must be 160 characters or less.",
+  visitTypeMax: "Visit context must be 160 characters or less.",
+} as const;
+
+const optionalText = (max: number, message: string) =>
+  optionalInput(z.string().max(max, message));
+const optionalEmail = optionalInput(
+  z.string()
+    .email(ENQUIRY_VALIDATION_MESSAGES.email)
+    .max(ENQUIRY_LIMITS.emailMax, ENQUIRY_VALIDATION_MESSAGES.emailMax),
+);
 
 export const enquirySchema = z.object({
-  name: z.string().trim().min(2).max(160),
-  email: z.string().trim().email().max(255),
-  phone: optionalText(80),
-  message: z.string().trim().min(1).max(4000),
-  listing_id: optionalUuid,
-  listing_title: optionalText(180),
-  agent_name: optionalText(160),
+  name: z.string()
+    .trim()
+    .min(ENQUIRY_LIMITS.nameMin, ENQUIRY_VALIDATION_MESSAGES.nameMin)
+    .max(ENQUIRY_LIMITS.nameMax, ENQUIRY_VALIDATION_MESSAGES.nameMax),
+  email: z.string()
+    .trim()
+    .email(ENQUIRY_VALIDATION_MESSAGES.email)
+    .max(ENQUIRY_LIMITS.emailMax, ENQUIRY_VALIDATION_MESSAGES.emailMax),
+  phone: optionalText(ENQUIRY_LIMITS.phoneMax, ENQUIRY_VALIDATION_MESSAGES.phoneMax),
+  message: z.string()
+    .trim()
+    .min(ENQUIRY_LIMITS.messageMin, ENQUIRY_VALIDATION_MESSAGES.messageRequired)
+    .max(ENQUIRY_LIMITS.messageMax, ENQUIRY_VALIDATION_MESSAGES.messageMax),
+  listing_id: optionalInput(z.string().uuid(ENQUIRY_VALIDATION_MESSAGES.listingId)),
+  listing_title: optionalText(ENQUIRY_LIMITS.listingTitleMax, ENQUIRY_VALIDATION_MESSAGES.listingTitleMax),
+  agent_name: optionalText(ENQUIRY_LIMITS.agentNameMax, ENQUIRY_VALIDATION_MESSAGES.agentNameMax),
   agent_email: optionalEmail,
-  visit_type: optionalText(160),
+  visit_type: optionalText(ENQUIRY_LIMITS.visitTypeMax, ENQUIRY_VALIDATION_MESSAGES.visitTypeMax),
 });
 
 export interface EnquiryPayload {

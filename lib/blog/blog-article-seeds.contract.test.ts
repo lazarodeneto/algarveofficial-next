@@ -81,4 +81,28 @@ describe("blog article seed migrations", () => {
     expect(source).toContain("Questions fréquentes");
     expect(source).toContain("tags = EXCLUDED.tags");
   });
+
+  it("seeds complete where-to-stay translations for every supported non-English locale", () => {
+    const source = readFileSync(
+      join(
+        process.cwd(),
+        "supabase",
+        "migrations",
+        "20260514235900_seed_where_to_stay_blog_translations.sql",
+      ),
+      "utf8",
+    );
+
+    for (const locale of ["pt-pt", "fr", "de", "es", "it", "nl", "sv", "no", "da"]) {
+      expect(source).toContain(`'${locale}',`);
+    }
+
+    expect(source).toContain("where-to-stay-in-the-algarve-portugal");
+    expect(source).toContain("Lagos");
+    expect(source).toContain("Albufeira");
+    expect(source).toContain("Vilamoura");
+    expect(source).toContain("Tavira");
+    expect(source).toContain("Faro");
+    expect(source).toContain("tags = EXCLUDED.tags");
+  });
 });

@@ -87,8 +87,13 @@ describe("useContactForm", () => {
     expect(mocks.sendEnquiry).toHaveBeenCalledWith({
       name: "Test Sender",
       email: "sender@example.com",
+      phone: null,
       message: "Subject: Availability\n\nHello",
+      listing_id: null,
       listing_title: "Website Contact Form",
+      agent_name: null,
+      agent_email: null,
+      visit_type: null,
     });
     expect(mocks.toastSuccess).toHaveBeenCalledTimes(1);
     expect(mocks.toastSuccess).toHaveBeenCalledWith(
@@ -106,10 +111,10 @@ describe("useContactForm", () => {
 
     await act(async () => {
       await expect(result.current.mutateAsync({
-        name: "T",
-        email: "bad",
+        name: "Test Sender",
+        email: "sender@example.com",
         subject: "Question",
-        message: "",
+        message: "Hello",
       })).rejects.toThrow("Message details are invalid.");
     });
 

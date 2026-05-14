@@ -1370,6 +1370,17 @@
     "successTitle": "Message sent",
     "title": "Contact Us",
     "touchDesc": "Our concierge team is available to assist you with any questions about premium experiences in the Algarve.",
+    "validation": {
+      "email": "Enter a valid email address.",
+      "emailMax": "Email must be 255 characters or less.",
+      "fixFields": "Please correct the highlighted fields before sending.",
+      "messageMax": "Message must be 4000 characters or less.",
+      "messageRequired": "Message is required.",
+      "nameMax": "Name must be 160 characters or less.",
+      "nameMin": "Name must be at least 2 characters.",
+      "subjectMax": "Subject must be 180 characters or less.",
+      "subjectRequired": "Subject is required."
+    },
     "waDesc": "Chat with us directly on WhatsApp for a faster response."
   },
   "cookie": {

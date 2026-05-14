@@ -1370,6 +1370,17 @@
     "successTitle": "Meddelande skickat",
     "title": "Kontakta oss",
     "touchDesc": "Vårt concierge-team finns tillgängligt för att hjälpa dig med alla frågor om lyxupplevelser i Algarve.",
+    "validation": {
+      "email": "Ange en giltig e-postadress.",
+      "emailMax": "E-postadressen får vara högst 255 tecken.",
+      "fixFields": "Rätta de markerade fälten innan du skickar.",
+      "messageMax": "Meddelandet får vara högst 4000 tecken.",
+      "messageRequired": "Meddelande krävs.",
+      "nameMax": "Namnet får vara högst 160 tecken.",
+      "nameMin": "Namnet måste vara minst 2 tecken.",
+      "subjectMax": "Ämnet får vara högst 180 tecken.",
+      "subjectRequired": "Ämne krävs."
+    },
     "waDesc": "Chatta med oss ​​direkt på WhatsApp för snabbare svar."
   },
   "cookie": {

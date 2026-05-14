@@ -4,13 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { sendEnquiry } from "@/lib/enquiries/client";
-
-interface ContactFormData {
-    name: string;
-    email: string;
-    subject: string;
-    message: string;
-}
+import { toContactEnquiryPayload, type ContactFormData } from "@/lib/enquiries/contact-form";
 
 export function useContactForm() {
     const { user } = useAuth();
@@ -19,12 +13,7 @@ export function useContactForm() {
 
     return useMutation({
         mutationFn: async (payload: ContactFormData) => {
-            return sendEnquiry({
-                name: payload.name,
-                email: payload.email,
-                message: `Subject: ${payload.subject}\n\n${payload.message}`,
-                listing_title: "Website Contact Form",
-            });
+            return sendEnquiry(toContactEnquiryPayload(payload));
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["admin-chat-threads"] });

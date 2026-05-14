@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { enquirySchema, normalizeEnquiryPayload } from "./schema";
+import { ENQUIRY_VALIDATION_MESSAGES, enquirySchema, normalizeEnquiryPayload } from "./schema";
 
 describe("enquirySchema", () => {
   it("accepts contact form messages that omit optional listing and agent fields", () => {
@@ -46,5 +46,19 @@ describe("enquirySchema", () => {
     expect(payload.phone).toBeNull();
     expect(payload.listing_id).toBeNull();
     expect(payload.agent_email).toBeNull();
+  });
+
+  it("returns a clear field error when the sender name is too short", () => {
+    const result = enquirySchema.safeParse({
+      name: "L",
+      email: "test@example.com",
+      message: "Hello from the contact form.",
+      listing_title: "Website Contact Form",
+    });
+
+    expect(result.success).toBe(false);
+    if (result.success) return;
+
+    expect(result.error.flatten().fieldErrors.name).toContain(ENQUIRY_VALIDATION_MESSAGES.nameMin);
   });
 });

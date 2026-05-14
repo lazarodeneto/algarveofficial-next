@@ -25,10 +25,27 @@ function getErrorMessage(payload: unknown, fallback: string) {
   const error = (payload as { error?: unknown }).error;
   if (typeof error === "string") return error;
   if (error && typeof error === "object") {
+    const fieldMessage = getFirstFieldError((error as { details?: unknown }).details);
+    if (fieldMessage) return fieldMessage;
+
     const message = (error as { message?: unknown }).message;
     if (typeof message === "string" && message.trim()) return message;
   }
   return fallback;
+}
+
+function getFirstFieldError(details: unknown) {
+  if (!details || typeof details !== "object") return null;
+  const fieldErrors = (details as { fieldErrors?: unknown }).fieldErrors;
+  if (!fieldErrors || typeof fieldErrors !== "object") return null;
+
+  for (const messages of Object.values(fieldErrors)) {
+    if (!Array.isArray(messages)) continue;
+    const message = messages.find((candidate) => typeof candidate === "string" && candidate.trim());
+    if (typeof message === "string") return message;
+  }
+
+  return null;
 }
 
 export async function sendEnquiry(payload: EnquiryPayload): Promise<EnquiryResponse> {

@@ -1370,6 +1370,17 @@
     "successTitle": "Bericht verzonden",
     "title": "Neem contact met ons op",
     "touchDesc": "Ons conciërgeteam staat klaar om u te helpen met al uw vragen over luxe ervaringen in de Algarve.",
+    "validation": {
+      "email": "Voer een geldig e-mailadres in.",
+      "emailMax": "E-mail mag maximaal 255 tekens bevatten.",
+      "fixFields": "Corrigeer de gemarkeerde velden voordat u verzendt.",
+      "messageMax": "Bericht mag maximaal 4000 tekens bevatten.",
+      "messageRequired": "Bericht is verplicht.",
+      "nameMax": "Naam mag maximaal 160 tekens bevatten.",
+      "nameMin": "Naam moet minimaal 2 tekens bevatten.",
+      "subjectMax": "Onderwerp mag maximaal 180 tekens bevatten.",
+      "subjectRequired": "Onderwerp is verplicht."
+    },
     "waDesc": "Chat rechtstreeks met ons via WhatsApp voor een snellere reactie."
   },
   "cookie": {

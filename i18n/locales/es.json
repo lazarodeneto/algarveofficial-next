@@ -1370,6 +1370,17 @@
     "successTitle": "Mensaje enviado",
     "title": "Contáctenos",
     "touchDesc": "Nuestro equipo de conserjería está disponible para responder todas sus preguntas sobre experiencias de lujo en el Algarve.",
+    "validation": {
+      "email": "Introduce una dirección de correo electrónico válida.",
+      "emailMax": "El correo electrónico debe tener 255 caracteres o menos.",
+      "fixFields": "Corrige los campos marcados antes de enviar.",
+      "messageMax": "El mensaje debe tener 4000 caracteres o menos.",
+      "messageRequired": "El mensaje es obligatorio.",
+      "nameMax": "El nombre debe tener 160 caracteres o menos.",
+      "nameMin": "El nombre debe tener al menos 2 caracteres.",
+      "subjectMax": "El asunto debe tener 180 caracteres o menos.",
+      "subjectRequired": "El asunto es obligatorio."
+    },
     "waDesc": "Chatee con nosotros directamente en WhatsApp para respuestas más rápidas."
   },
   "cookie": {

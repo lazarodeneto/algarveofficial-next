@@ -16,6 +16,7 @@ function localeMessages(locale: string) {
       networkError?: string;
       success?: string;
       successTitle?: string;
+      validation?: Record<string, string>;
     };
   };
 }
@@ -38,6 +39,11 @@ describe("public contact form confirmation", () => {
       expect(messages.contact?.networkError?.trim(), locale).toBeTruthy();
       expect(messages.contact?.successTitle?.trim(), locale).toBeTruthy();
       expect(messages.contact?.success?.trim(), locale).toBeTruthy();
+      expect(messages.contact?.validation?.fixFields?.trim(), locale).toBeTruthy();
+      expect(messages.contact?.validation?.nameMin?.trim(), locale).toBeTruthy();
+      expect(messages.contact?.validation?.email?.trim(), locale).toBeTruthy();
+      expect(messages.contact?.validation?.subjectRequired?.trim(), locale).toBeTruthy();
+      expect(messages.contact?.validation?.messageRequired?.trim(), locale).toBeTruthy();
     }
   });
 });
